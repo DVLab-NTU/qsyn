@@ -7,65 +7,54 @@
 
 #include "./qcir_gate.hpp"
 
+#include <algorithm>
 #include <cassert>
 #include <iomanip>
 #include <string>
+#include <type_traits>
+
+#include "cli/cli.hpp"
+#include "qcir/gate_type.hpp"
+#include "util/util.hpp"
 
 namespace qsyn::qcir {
 
-size_t SINGLE_DELAY = 1;
-size_t DOUBLE_DELAY = 2;
-size_t SWAP_DELAY = 6;
+size_t SINGLE_DELAY   = 1;
+size_t DOUBLE_DELAY   = 2;
+size_t SWAP_DELAY     = 6;
 size_t MULTIPLE_DELAY = 5;
 
-std::ostream& operator<<(std::ostream& stream, GateType const& type) {
-    return stream << static_cast<typename std::underlying_type<GateType>::type>(type);
+std::ostream& operator<<(std::ostream& stream, GateRotationCategory const& type) {
+    return stream << static_cast<typename std::underlying_type<GateRotationCategory>::type>(type);
 }
 
-std::unordered_map<std::string, GateType> STR_TO_GATE_TYPE = {
-    {"x", GateType::x},
-    {"rz", GateType::rz},
-    {"h", GateType::h},
-    {"sx", GateType::sx},
-    {"cnot", GateType::cx},
-    {"cx", GateType::cx},
-    {"id", GateType::id},
-};
+std::string QCirGate::get_type_str() const {
+    return gate_type_to_str(_rotation_category, get_num_qubits(), _phase);
+}
 
-std::unordered_map<GateType, std::string> GATE_TYPE_TO_STR = {
-    {GateType::id, "ID"},
-    // NOTE - Multi-control rotate
-    {GateType::mcp, "MCP"},
-    {GateType::mcrz, "MCRZ"},
-    {GateType::mcpx, "MCPX"},
-    {GateType::mcrx, "MCRX"},
-    {GateType::mcpy, "MCPY"},
-    {GateType::mcry, "MCRY"},
-    {GateType::h, "H"},
-    // NOTE - MCP(Z)
-    {GateType::ccz, "CCZ"},
-    {GateType::cz, "CZ"},
-    {GateType::p, "P"},
-    {GateType::z, "Z"},
-    {GateType::s, "S"},
-    {GateType::sdg, "SDG"},
-    {GateType::t, "T"},
-    {GateType::tdg, "TDG"},
-    {GateType::rz, "RZ"},
-    // NOTE - MCPX
-    {GateType::ccx, "CCX"},
-    {GateType::cx, "CX"},
-    {GateType::swap, "SWAP"},
-    {GateType::px, "PX"},
-    {GateType::x, "X"},
-    {GateType::sx, "SX"},
-    {GateType::rx, "RX"},
-    // NOTE - MCPY
-    {GateType::y, "Y"},
-    {GateType::py, "PY"},
-    {GateType::sy, "SY"},
-    {GateType::ry, "RY"},
-};
+void QCirGate::print_gate_info(bool show_time) const {
+    auto type_str = get_type_str();
+    if (type_str.starts_with("mc") || type_str.starts_with("cc")) type_str = type_str.substr(2);
+    if (type_str.starts_with("c")) type_str = type_str.substr(1);
+    auto pos = type_str.find("dg");
+    std::for_each(type_str.begin(), pos == std::string::npos ? type_str.end() : dvlab::iterator::next(type_str.begin(), pos), [](char& c) { c = dvlab::str::toupper(c); });
+    auto show_phase = type_str[0] == 'P' || type_str[0] == 'R';
+    _print_single_qubit_or_controlled_gate(type_str, show_phase, show_time);
+}
+
+void QCirGate::set_rotation_category(GateRotationCategory type) {
+    _rotation_category = type;
+    if (is_fixed_phase_gate(type)) {
+        _phase = get_fixed_phase(type);
+    }
+}
+void QCirGate::set_phase(dvlab::Phase p) {
+    if (is_fixed_phase_gate(_rotation_category) && p != get_fixed_phase(_rotation_category)) {
+        LOGGER.fatal("Gate type {} cannot be set with phase {}!", get_type_str(), p);
+        abort();
+    }
+    _phase = p;
+}
 
 /**
  * @brief Get delay of gate
@@ -73,7 +62,7 @@ std::unordered_map<GateType, std::string> GATE_TYPE_TO_STR = {
  * @return size_t
  */
 size_t QCirGate::get_delay() const {
-    if (get_type() == GateType::swap)
+    if (is_swap())
         return SWAP_DELAY;
     if (_qubits.size() == 1)
         return SINGLE_DELAY;
@@ -105,7 +94,7 @@ QubitInfo QCirGate::get_qubit(size_t qubit) const {
  * @param isTarget
  */
 void QCirGate::add_qubit(QubitIdType qubit, bool is_target) {
-    QubitInfo temp = {._qubit = qubit, ._parent = nullptr, ._child = nullptr, ._isTarget = is_target};
+    QubitInfo temp = {._qubit = qubit, ._prev = nullptr, ._next = nullptr, ._isTarget = is_target};
     // _qubits.emplace_back(temp);
     if (is_target)
         _qubits.emplace_back(temp);
@@ -131,7 +120,7 @@ void QCirGate::set_target_qubit(QubitIdType qubit) {
 void QCirGate::set_parent(QubitIdType qubit, QCirGate* p) {
     for (size_t i = 0; i < _qubits.size(); i++) {
         if (_qubits[i]._qubit == qubit) {
-            _qubits[i]._parent = p;
+            _qubits[i]._prev = p;
             break;
         }
     }
@@ -143,7 +132,7 @@ void QCirGate::set_parent(QubitIdType qubit, QCirGate* p) {
  * @param c
  */
 void QCirGate::add_dummy_child(QCirGate* c) {
-    QubitInfo temp = {._qubit = 0, ._parent = nullptr, ._child = c, ._isTarget = false};
+    QubitInfo temp = {._qubit = 0, ._prev = nullptr, ._next = c, ._isTarget = false};
     _qubits.emplace_back(temp);
 }
 
@@ -156,7 +145,7 @@ void QCirGate::add_dummy_child(QCirGate* c) {
 void QCirGate::set_child(QubitIdType qubit, QCirGate* c) {
     for (size_t i = 0; i < _qubits.size(); i++) {
         if (_qubits[i]._qubit == qubit) {
-            _qubits[i]._child = c;
+            _qubits[i]._next = c;
             break;
         }
     }
@@ -172,45 +161,11 @@ void QCirGate::print_gate() const {
     for (size_t i = 0; i < _qubits.size(); i++) {
         std::cout << std::right << std::setw(3) << _qubits[i]._qubit << " ";
     }
-    if (get_type() == GateType::p || get_type() == GateType::rx || get_type() == GateType::ry || get_type() == GateType::rz)
+    if ((get_rotation_category() == GateRotationCategory::pz || get_rotation_category() == GateRotationCategory::rx || get_rotation_category() == GateRotationCategory::ry || get_rotation_category() == GateRotationCategory::rz) &&
+        get_phase().denominator() != 1 && get_phase().denominator() != 2 && get_phase().denominator() != 4) {
         std::cout << "      Phase: " << std::right << std::setw(4) << get_phase() << " ";
+    }
     std::cout << std::endl;
-}
-
-/**
- * @brief Print single-qubit gate.
- *
- * @param gtype
- * @param showTime
- */
-void QCirGate::_print_single_qubit_gate(std::string const& gtype, bool show_time) const {
-    QubitInfo info = get_qubits()[0];
-    std::string qubit_info = "Q" + std::to_string(info._qubit);
-    std::string parent_info = "";
-    if (info._parent == nullptr)
-        parent_info = "Start";
-    else
-        parent_info = ("G" + std::to_string(info._parent->get_id()));
-    std::string child_info = "";
-    if (info._child == nullptr)
-        child_info = "End";
-    else
-        child_info = ("G" + std::to_string(info._child->get_id()));
-    for (size_t i = 0; i < parent_info.size() + qubit_info.size() + 2; i++)
-        std::cout << " ";
-    std::cout << " ┌─";
-    for (size_t i = 0; i < gtype.size(); i++) std::cout << "─";
-    std::cout << "─┐ " << std::endl;
-    std::cout << qubit_info << " " << parent_info << " ─┤ " << gtype << " ├─ " << child_info << std::endl;
-    for (size_t i = 0; i < parent_info.size() + qubit_info.size() + 2; i++)
-        std::cout << " ";
-    std::cout << " └─";
-    for (size_t i = 0; i < gtype.size(); i++) std::cout << "─";
-    std::cout << "─┘ " << std::endl;
-    if (gtype == "RX" || gtype == "RY" || gtype == "RZ" || gtype == "P")
-        std::cout << "Rotate Phase: " << _phase << std::endl;
-    if (show_time)
-        std::cout << "Execute at t= " << get_time() << std::endl;
 }
 
 /**
@@ -220,65 +175,39 @@ void QCirGate::_print_single_qubit_gate(std::string const& gtype, bool show_time
  * @param showRotate
  * @param showTime
  */
-void QCirGate::_print_multiple_qubits_gate(std::string const& gtype, bool show_rotation, bool show_time) const {
-    size_t padding_size = (gtype.size() - 1) / 2;
+void QCirGate::_print_single_qubit_or_controlled_gate(std::string gtype, bool show_rotation, bool show_time) const {
+    if (_qubits.size() > 1 && gtype.size() % 2 == 0) {
+        gtype = " " + gtype;
+    }
     std::string max_qubit = std::to_string(max_element(_qubits.begin(), _qubits.end(), [](QubitInfo const a, QubitInfo const b) {
                                                return a._qubit < b._qubit;
                                            })->_qubit);
 
-    std::vector<std::string> parents;
+    std::vector<std::string> prevs;
     for (size_t i = 0; i < _qubits.size(); i++) {
-        if (get_qubits()[i]._parent == nullptr)
-            parents.emplace_back("Start");
+        if (get_qubits()[i]._prev == nullptr)
+            prevs.emplace_back("Start");
         else
-            parents.emplace_back("G" + std::to_string(get_qubits()[i]._parent->get_id()));
+            prevs.emplace_back("G" + std::to_string(get_qubits()[i]._prev->get_id()));
     }
-    std::string max_parent = *max_element(parents.begin(), parents.end(), [](std::string const& a, std::string const& b) {
+    std::string max_prev = *max_element(prevs.begin(), prevs.end(), [](std::string const& a, std::string const& b) {
         return a.size() < b.size();
     });
 
     for (size_t i = 0; i < _qubits.size(); i++) {
-        QubitInfo info = get_qubits()[i];
+        QubitInfo info         = get_qubits()[i];
         std::string qubit_info = "Q";
         for (size_t j = 0; j < max_qubit.size() - std::to_string(info._qubit).size(); j++)
             qubit_info += " ";
         qubit_info += std::to_string(info._qubit);
-        std::string parent_info = "";
-        if (info._parent == nullptr)
-            parent_info = "Start";
-        else
-            parent_info = ("G" + std::to_string(info._parent->get_id()));
-        for (size_t k = 0; k < max_parent.size() - (parents[i].size()); k++)
-            parent_info += " ";
-        std::string child_info = "";
-        if (info._child == nullptr)
-            child_info = "End";
-        else
-            child_info = ("G" + std::to_string(info._child->get_id()));
+        std::string prev_info = (info._prev == nullptr) ? "Start" : ("G" + std::to_string(info._prev->get_id()));
+        std::string next_info = (info._next == nullptr) ? "End" : ("G" + std::to_string(info._next->get_id()));
         if (info._isTarget) {
-            for (size_t j = 0; j < max_qubit.size() + max_parent.size() + 3; j++)
-                std::cout << " ";
-            std::cout << " ┌─";
-            for (size_t j = 0; j < padding_size; j++) std::cout << "─";
-            if (_qubits.size() > 1)
-                std::cout << "┴";
-            else
-                for (size_t j = 0; j < gtype.size(); j++) std::cout << "─";
-
-            for (size_t j = 0; j < padding_size; j++) std::cout << "─";
-            std::cout << "─┐ " << std::endl;
-            std::cout << qubit_info << " " << parent_info << " ─┤ " << gtype << " ├─ " << child_info << std::endl;
-            for (size_t j = 0; j < max_qubit.size() + max_parent.size() + 3; j++)
-                std::cout << " ";
-            std::cout << " └─";
-            for (size_t j = 0; j < gtype.size(); j++) std::cout << "─";
-            std::cout << "─┘ " << std::endl;
+            fmt::println("{0: ^{1}} ┌─{2:─^{3}}─┐ ", "", max_qubit.size() + max_prev.size() + 3, _qubits.size() > 1 ? "┴" : "", gtype.size());
+            fmt::println("{0} {1:<{4}} ─┤ {3} ├─ {2}", qubit_info, prev_info, next_info, gtype, max_prev.size());
+            fmt::println("{0: ^{1}} └─{0:─^{2}}─┘ ", "", max_qubit.size() + max_prev.size() + 3, gtype.size());
         } else {
-            std::cout << qubit_info << " " << parent_info << " ──";
-            for (size_t j = 0; j < padding_size; j++) std::cout << "─";
-            std::cout << "─●─";
-            for (size_t j = 0; j < padding_size; j++) std::cout << "─";
-            std::cout << "── " << child_info << std::endl;
+            fmt::println("{0} {1:<{5}} ───{3:─^{4}}─── {2}", qubit_info, prev_info, next_info, "●", gtype.size(), max_prev.size());
         }
     }
     if (show_rotation)

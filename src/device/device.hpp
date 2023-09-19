@@ -47,9 +47,9 @@ class Topology {
     };
 
 public:
-    using AdjacencyPair = std::pair<size_t, size_t>;
+    using AdjacencyPair     = std::pair<size_t, size_t>;
     using PhysicalQubitInfo = std::unordered_map<size_t, DeviceInfo>;
-    using AdjacencyMap = std::unordered_map<AdjacencyPair, DeviceInfo, AdjacencyPairHash>;
+    using AdjacencyMap      = std::unordered_map<AdjacencyPair, DeviceInfo, AdjacencyPairHash>;
     Topology() {}
 
     std::string get_name() const { return _name; }
@@ -110,19 +110,19 @@ private:
 
     // NOTE - Duostra parameter
     std::optional<QubitIdType> _logical_qubit = std::nullopt;
-    size_t _occupied_time = 0;
+    size_t _occupied_time                     = 0;
 
-    bool _marked = false;
-    size_t _pred = 0;
-    size_t _cost = 0;
+    bool _marked      = false;
+    size_t _pred      = 0;
+    size_t _cost      = 0;
     size_t _swap_time = 0;
-    bool _source = false;  // false:0, true:1
-    bool _taken = false;
+    bool _source      = false;  // false:0, true:1
+    bool _taken       = false;
 };
 
 class Device {
 public:
-    using PhysicalQubitList = dvlab::utils::ordered_hashmap<size_t, PhysicalQubit>;
+    using PhysicalQubitList                  = dvlab::utils::ordered_hashmap<size_t, PhysicalQubit>;
     constexpr static size_t default_max_dist = 100000;
     Device() : _topology{std::make_shared<Topology>()} {}
 
@@ -184,12 +184,11 @@ private:
 
 class Operation {
 public:
-    friend std::ostream& operator<<(std::ostream&, Operation&);
     friend std::ostream& operator<<(std::ostream&, Operation const&);
 
-    Operation(qcir::GateType, dvlab::Phase, std::tuple<size_t, size_t>, std::tuple<size_t, size_t>);
+    Operation(qcir::GateRotationCategory, dvlab::Phase, std::tuple<size_t, size_t>, std::tuple<size_t, size_t>);
 
-    qcir::GateType get_type() const { return _operation; }
+    qcir::GateRotationCategory get_type() const { return _operation; }
     dvlab::Phase get_phase() const { return _phase; }
     size_t get_time_end() const { return std::get<1>(_duration); }
     size_t get_time_begin() const { return std::get<0>(_duration); }
@@ -200,9 +199,15 @@ public:
     size_t get_id() const { return _id; }
     void set_id(size_t id) { _id = id; }
 
+    std::string get_type_str() const { return qcir::gate_type_to_str(_operation, std::get<1>(get_qubits()) == SIZE_MAX ? 1 : 2, _phase); }
+
+    bool is_swap() const { return _operation == qcir::GateRotationCategory::swap; }
+    bool is_cx() const { return _operation == qcir::GateRotationCategory::px && _phase == dvlab::Phase(1) && std::get<1>(_qubits) != SIZE_MAX; }
+    bool is_cz() const { return _operation == qcir::GateRotationCategory::pz && _phase == dvlab::Phase(1) && std::get<1>(_qubits) != SIZE_MAX; }
+
 private:
     size_t _id = SIZE_MAX;
-    qcir::GateType _operation;
+    qcir::GateRotationCategory _operation;
     dvlab::Phase _phase;
     std::tuple<QubitIdType, QubitIdType> _qubits;
     std::tuple<size_t, size_t> _duration;  // <from, to>

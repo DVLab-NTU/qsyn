@@ -34,7 +34,7 @@ protected:
         assert(op.verticesToAdd.empty());
 
         for (auto& edge : op.edgesToAdd) {
-            auto [v0, v1] = std::get<0>(edge);
+            auto [v0, v1]      = std::get<0>(edge);
             EdgeType edge_type = std::get<1>(edge);
             graph.add_edge(v0, v1, edge_type);
         }
@@ -53,9 +53,9 @@ public:
     ZXRuleTemplate(std::string const& name) : ZXRuleBase(name) {}
     virtual ~ZXRuleTemplate() = default;
 
-    virtual std::vector<MatchType> find_matches(ZXGraph const& graph) const = 0;
+    virtual std::vector<MatchType> find_matches(ZXGraph const& graph) const         = 0;
     virtual void apply(ZXGraph& graph, std::vector<MatchType> const& matches) const = 0;
-    virtual std::vector<ZXVertex*> flatten_vertices(MatchType match) const = 0;
+    virtual std::vector<ZXVertex*> flatten_vertices(MatchType match) const          = 0;
 };
 
 // H Box related rules have simliar interface but is used differentlu in simplifier
@@ -67,9 +67,9 @@ public:
     HZXRuleTemplate(std::string const& name) : ZXRuleBase(name) {}
     virtual ~HZXRuleTemplate() = default;
 
-    virtual std::vector<MatchType> find_matches(ZXGraph const& graph) const = 0;
+    virtual std::vector<MatchType> find_matches(ZXGraph const& graph) const         = 0;
     virtual void apply(ZXGraph& graph, std::vector<MatchType> const& matches) const = 0;
-    virtual std::vector<ZXVertex*> flatten_vertices(MatchType match) const = 0;
+    virtual std::vector<ZXVertex*> flatten_vertices(MatchType match) const          = 0;
 };
 
 class BialgebraRule : public ZXRuleTemplate<EdgePair> {

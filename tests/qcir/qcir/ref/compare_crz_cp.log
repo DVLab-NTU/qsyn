@@ -10,9 +10,8 @@ qsyn> qcgadd tdg 0
 qsyn> qcgp 0 -t
 Q0 Start ───●─── G1
           ┌─┴─┐ 
-Q1 Start ─┤ P ├─ G1
+Q1 Start ─┤ S ├─ G1
           └───┘ 
-Rotate Phase: π/2
 Execute at t= 2
 
 qsyn> qcgp 1 -t

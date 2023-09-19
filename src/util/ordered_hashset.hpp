@@ -78,16 +78,16 @@ class ordered_hashset final : public ordered_hashtable<Key, const Key, Key, Hash
     using _Table_t = ordered_hashtable<Key, const Key, Key, Hash, KeyEqual>;
 
 public:
-    using key_type = typename _Table_t::key_type;
-    using value_type = typename _Table_t::value_type;
-    using stored_type = typename _Table_t::stored_type;
-    using size_type = typename _Table_t::size_type;
+    using key_type        = typename _Table_t::key_type;
+    using value_type      = typename _Table_t::value_type;
+    using stored_type     = typename _Table_t::stored_type;
+    using size_type       = typename _Table_t::size_type;
     using difference_type = typename _Table_t::difference_type;
-    using hasher = typename _Table_t::hasher;
-    using key_equal = typename _Table_t::key_equal;
-    using container = typename _Table_t::container;
-    using iterator = typename _Table_t::iterator;
-    using const_iterator = typename _Table_t::const_iterator;
+    using hasher          = typename _Table_t::hasher;
+    using key_equal       = typename _Table_t::key_equal;
+    using container       = typename _Table_t::container;
+    using iterator        = typename _Table_t::iterator;
+    using const_iterator  = typename _Table_t::const_iterator;
 
     ordered_hashset() : _Table_t() {}
     ordered_hashset(std::initializer_list<value_type> const& il) : _Table_t() {

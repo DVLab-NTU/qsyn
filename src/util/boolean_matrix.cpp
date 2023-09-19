@@ -176,13 +176,13 @@ bool BooleanMatrix::row_operation(size_t ctrl, size_t targ, bool track) {
 size_t BooleanMatrix::gaussian_elimination_skip(size_t block_size, bool do_fully_reduced, bool track) {
     auto get_section_range = [block_size, this](size_t section_idx) {
         auto section_begin = section_idx * block_size;
-        auto section_end = std::min(num_cols(), (section_idx + 1) * block_size);
+        auto section_end   = std::min(num_cols(), (section_idx + 1) * block_size);
         return std::make_pair(section_begin, section_end);
     };
 
     auto get_sub_vec = [this](size_t row_idx, size_t section_begin, size_t section_end) {
         auto row_begin = dvlab::iterator::next(_matrix[row_idx].get_row().begin(), section_begin);
-        auto row_end = dvlab::iterator::next(_matrix[row_idx].get_row().begin(), section_end);
+        auto row_end   = dvlab::iterator::next(_matrix[row_idx].get_row().begin(), section_end);
         // NOTE - not all vector, only consider [row_begin, row_end)
         return std::vector<unsigned char>(row_begin, row_end);
     };
@@ -273,7 +273,7 @@ size_t BooleanMatrix::gaussian_elimination_skip(size_t block_size, bool do_fully
 size_t BooleanMatrix::filter_duplicate_row_operations() {
     // for self-documentation
     using RowIdxType = size_t;
-    using OpIdxType = size_t;
+    using OpIdxType  = size_t;
     std::vector<OpIdxType> dups;
     struct RowAndOp {
         RowIdxType row_idx;
@@ -282,7 +282,7 @@ size_t BooleanMatrix::filter_duplicate_row_operations() {
     std::unordered_map<RowIdxType, RowAndOp> last_used;  // NOTE - bit, (another bit, gateId)
     for (size_t ith_row_op = 0; ith_row_op < _row_operations.size(); ith_row_op++) {
         auto& [row_src, row_dest] = _row_operations[ith_row_op];
-        bool first_match = last_used.contains(row_src) &&
+        bool first_match          = last_used.contains(row_src) &&
                            last_used[row_src].row_idx == row_dest;
 
         bool second_match = last_used.contains(row_dest) &&
@@ -294,7 +294,7 @@ size_t BooleanMatrix::filter_duplicate_row_operations() {
             last_used.erase(row_src);
             last_used.erase(row_dest);
         } else {
-            last_used[row_src] = {row_dest, ith_row_op};
+            last_used[row_src]  = {row_dest, ith_row_op};
             last_used[row_dest] = {row_src, ith_row_op};
         }
     }
@@ -493,8 +493,8 @@ size_t BooleanMatrix::row_operation_depth() {
     }
     for (auto const& [a, b] : _row_operations) {
         size_t max_depth = std::max(row_depth[a], row_depth[b]);
-        row_depth[a] = max_depth + 1;
-        row_depth[b] = max_depth + 1;
+        row_depth[a]     = max_depth + 1;
+        row_depth[b]     = max_depth + 1;
     }
     return *max_element(row_depth.begin(), row_depth.end());
 }

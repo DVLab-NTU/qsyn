@@ -8,9 +8,9 @@
 
 #pragma once
 
-#include <string>
-#include <optional>
 #include <cstdint>
+#include <optional>
+#include <string>
 
 namespace qsyn::duostra {
 
@@ -52,18 +52,18 @@ struct DuostraConfig {
     static SchedulerType SCHEDULER_TYPE;
     static RouterType ROUTER_TYPE;
     static PlacerType PLACER_TYPE;
-    static MinMaxOptionType TIE_BREAKING_STRATEGY;       // t/f smaller logical qubit index with little priority
+    static MinMaxOptionType TIE_BREAKING_STRATEGY;  // t/f smaller logical qubit index with little priority
 
     // SECTION - Initialize in Greedy Scheduler
-    static size_t NUM_CANDIDATES;  // top k candidates, SIZE_MAX: all candidates
-    static size_t APSP_COEFF;  // coefficient of apsp cost
-    static MinMaxOptionType AVAILABLE_TIME_STRATEGY;     // 0:min 1:max, available time of double-qubit gate is set to min or max of occupied time
-    static MinMaxOptionType COST_SELECTION_STRATEGY;          // 0:min 1:max, select min or max cost from the waitlist
+    static size_t NUM_CANDIDATES;                     // top k candidates, SIZE_MAX: all candidates
+    static size_t APSP_COEFF;                         // coefficient of apsp cost
+    static MinMaxOptionType AVAILABLE_TIME_STRATEGY;  // 0:min 1:max, available time of double-qubit gate is set to min or max of occupied time
+    static MinMaxOptionType COST_SELECTION_STRATEGY;  // 0:min 1:max, select min or max cost from the waitlist
 
     // SECTION - Initialize in Search Scheduler
-    static size_t SEARCH_DEPTH;         // depth of searching region
-    static bool NEVER_CACHE;     // never cache any children unless children() is called
+    static size_t SEARCH_DEPTH;                   // depth of searching region
+    static bool NEVER_CACHE;                      // never cache any children unless children() is called
     static bool EXECUTE_SINGLE_QUBIT_GATES_ASAP;  // execute the single gates when they are available
 };
 
-}
+}  // namespace qsyn::duostra

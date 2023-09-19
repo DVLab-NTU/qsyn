@@ -44,7 +44,7 @@ auto reset_keypress(termios const& stored_settings) {
     new_settings.c_lflag &= (~ICANON);  // make sure we can read one char at a time
     new_settings.c_lflag &= (~ECHO);    // don't print input characters. We would like to handle them ourselves
     new_settings.c_cc[VTIME] = 0;       // start reading immediately
-    new_settings.c_cc[VMIN] = 1;        // ...and wait until we get one char to return
+    new_settings.c_cc[VMIN]  = 1;       // ...and wait until we get one char to return
     tcsetattr(0, TCSANOW, &new_settings);
 
     return stored_settings;
@@ -135,7 +135,7 @@ CmdExecResult dvlab::CommandLineInterface::listen_to_input(std::istream& istr, s
 
     auto stored_prompt = _command_prompt;  // save the original _prompt. We do this because signal handlers cannot take extra arguments
 
-    _command_prompt = prompt;
+    _command_prompt       = prompt;
     _listening_for_inputs = true;
 
     _reset_buffer();
@@ -158,7 +158,7 @@ CmdExecResult dvlab::CommandLineInterface::listen_to_input(std::istream& istr, s
         switch (keycode) {
             case newline_key:
                 reset_keypress(stored_settings);
-                _command_prompt = stored_prompt;
+                _command_prompt       = stored_prompt;
                 _listening_for_inputs = false;
                 return CmdExecResult::done;
             case line_begin_key:
@@ -245,7 +245,7 @@ CmdExecResult dvlab::CommandLineInterface::_read_one_line(std::istream& istr) {
 
     auto stripped = dvlab::str::strip_quotes(_history.back()).value_or("");
 
-    stripped = _replace_variable_keys_with_values(stripped);
+    stripped                        = _replace_variable_keys_with_values(stripped);
     std::vector<std::string> tokens = dvlab::str::split(stripped, ";");
 
     if (tokens.size()) {
@@ -312,7 +312,7 @@ bool dvlab::CommandLineInterface::_delete_char() {
 
     _read_buffer.erase(_cursor_position, 1);
 
-    size_t idx = _cursor_position;
+    size_t idx       = _cursor_position;
     _cursor_position = _read_buffer.size();  // before moving cursor, reflect the change in actual cursor location
     _move_cursor_to(idx);                    // move the cursor back to where it should be
     return true;
@@ -325,7 +325,7 @@ void dvlab::CommandLineInterface::_insert_char(char ch) {
     }
     _read_buffer.insert(_cursor_position, 1, ch);
     fmt::print("{}", _read_buffer.substr(_cursor_position));
-    size_t idx = _cursor_position + 1;
+    size_t idx       = _cursor_position + 1;
     _cursor_position = _read_buffer.size();
     _move_cursor_to(idx);
 }
@@ -356,7 +356,7 @@ void dvlab::CommandLineInterface::_delete_line() {
 // cursor should be restored to the original location
 void dvlab::CommandLineInterface::_reprint_command() {
     // NOTE - DON'T CHANGE - The logic here is as concise as it can be although seemingly redundant.
-    size_t idx = _cursor_position;
+    size_t idx       = _cursor_position;
     _cursor_position = _read_buffer.size();  // before moving cursor, reflect the change in actual cursor location
     fmt::println("");
     _print_prompt();

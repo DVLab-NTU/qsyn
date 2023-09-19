@@ -11,6 +11,7 @@
 #include <string>
 #include <unordered_map>
 
+#include "cli/cli.hpp"
 #include "qcir/gate_type.hpp"
 #include "qsyn/qsyn_type.hpp"
 #include "util/phase.hpp"
@@ -47,23 +48,20 @@ class QCirGate;
 //------------------------------------------------------------------------
 struct QubitInfo {
     qsyn::QubitIdType _qubit;
-    QCirGate* _parent;
-    QCirGate* _child;
+    QCirGate* _prev;
+    QCirGate* _next;
     bool _isTarget;
 };
-
-extern std::unordered_map<std::string, GateType> STR_TO_GATE_TYPE;
-extern std::unordered_map<GateType, std::string> GATE_TYPE_TO_STR;
 
 class QCirGate {
 public:
     using QubitIdType = qsyn::QubitIdType;
-    QCirGate(size_t id, dvlab::Phase ph = dvlab::Phase(0)) : _id(id), _phase(ph) {}
-    virtual ~QCirGate() = default;
+    QCirGate(size_t id, GateRotationCategory type, dvlab::Phase ph) : _id(id), _rotation_category{type}, _phase{ph} {}
 
     // Basic access method
-    virtual std::string get_type_str() const = 0;
-    virtual GateType get_type() const = 0;
+    std::string get_type_str() const;
+    GateType get_type() const { return std::make_tuple(_rotation_category, _qubits.size(), _phase); }
+    GateRotationCategory get_rotation_category() const { return _rotation_category; }
     size_t get_id() const { return _id; }
     size_t get_time() const { return _time; }
     size_t get_delay() const;
@@ -71,7 +69,7 @@ public:
     std::vector<QubitInfo> const& get_qubits() const { return _qubits; }
     void set_qubits(std::vector<QubitInfo> const& qubits) { _qubits = qubits; }
     QubitInfo get_qubit(size_t qubit) const;
-    size_t get_num_qubits() { return _qubits.size(); }
+    size_t get_num_qubits() const { return _qubits.size(); }
     QubitInfo get_targets() const { return _qubits[_qubits.size() - 1]; }
     QubitInfo get_control() const { return _qubits[0]; }
 
@@ -82,7 +80,7 @@ public:
 
     void add_qubit(QubitIdType qubit, bool is_target);
     void set_target_qubit(QubitIdType qubit);
-    void set_control_qubit(QubitIdType qubit) {}
+    void set_control_qubit(QubitIdType qubit) { _qubits[0]._qubit = qubit; }
     // DFS
     bool is_visited(unsigned global) { return global == _dfs_counter; }
     void set_visited(unsigned global) { _dfs_counter = global; }
@@ -90,350 +88,30 @@ public:
 
     // Printing functions
     void print_gate() const;
+    void set_rotation_category(GateRotationCategory type);
+    void set_phase(dvlab::Phase p);
+    void print_gate_info(bool) const;
 
-    virtual void set_phase(dvlab::Phase p) {}
-    virtual void print_gate_info(bool) const = 0;
+    bool is_h() const { return _rotation_category == GateRotationCategory::h; }
+    bool is_x() const { return _rotation_category == GateRotationCategory::px && _phase == dvlab::Phase(1) && _qubits.size() == 1; }
+    bool is_y() const { return _rotation_category == GateRotationCategory::py && _phase == dvlab::Phase(1) && _qubits.size() == 1; }
+    bool is_z() const { return _rotation_category == GateRotationCategory::pz && _phase == dvlab::Phase(1) && _qubits.size() == 1; }
+    bool is_cx() const { return _rotation_category == GateRotationCategory::px && _phase == dvlab::Phase(1) && _qubits.size() == 2; }
+    bool is_cy() const { return _rotation_category == GateRotationCategory::py && _phase == dvlab::Phase(1) && _qubits.size() == 2; }
+    bool is_cz() const { return _rotation_category == GateRotationCategory::pz && _phase == dvlab::Phase(1) && _qubits.size() == 2; }
+    bool is_swap() const { return _rotation_category == GateRotationCategory::swap; }
 
 private:
 protected:
     size_t _id;
-    size_t _time = 0;
-    size_t _nqubit = 0;
+    GateRotationCategory _rotation_category;
+    size_t _time          = 0;
     unsigned _dfs_counter = 0;
     std::vector<QubitInfo> _qubits;
     dvlab::Phase _phase;
 
-    void _print_single_qubit_gate(std::string const& gtype, bool show_time = false) const;
-    void _print_multiple_qubits_gate(std::string const& gtype, bool show_rotation = false, bool show_time = false) const;
-};
-
-class HGate : public QCirGate {
-public:
-    HGate(size_t id) : QCirGate(id, dvlab::Phase(1)) {}
-    virtual ~HGate() = default;
-    virtual std::string get_type_str() const { return "h"; }
-    virtual GateType get_type() const { return GateType::h; }
-    virtual void print_gate_info(bool st) const { _print_single_qubit_gate("H", st); }
-};
-
-/**
- * @brief Virtual Class: Gates rotating on Z-axis
- *
- */
-class ZAxisGate : public QCirGate {
-public:
-    ZAxisGate(size_t id, dvlab::Phase ph = dvlab::Phase(0)) : QCirGate(id, ph) {}
-    virtual ~ZAxisGate() = default;
-    virtual std::string get_type_str() const = 0;
-    virtual GateType get_type() const = 0;
-    virtual void print_gate_info(bool st) const = 0;
-};
-
-/**
- * @brief Virtual Class: Gates rotating on X-axis
- *
- */
-class XAxisGate : public QCirGate {
-public:
-    XAxisGate(size_t id, dvlab::Phase ph = dvlab::Phase(0)) : QCirGate(id, ph) {}
-    virtual ~XAxisGate() = default;
-    virtual std::string get_type_str() const = 0;
-    virtual GateType get_type() const = 0;
-    virtual void print_gate_info(bool st) const = 0;
-};
-
-/**
- * @brief Virtual Class: Gates rotating on Y-axis
- *
- */
-class YAxisGate : public QCirGate {
-public:
-    YAxisGate(size_t id, dvlab::Phase ph = dvlab::Phase(0)) : QCirGate(id, ph) {}
-    virtual ~YAxisGate() = default;
-    virtual std::string get_type_str() const = 0;
-    virtual GateType get_type() const = 0;
-    virtual void print_gate_info(bool st) const = 0;
-};
-
-//----------------------------------------------------------------------
-//    MCPZXY, MCRZXY
-//----------------------------------------------------------------------
-
-class MCPGate : public ZAxisGate {
-public:
-    MCPGate(size_t id, dvlab::Phase ph = dvlab::Phase(0)) : ZAxisGate(id, ph) {}
-    virtual ~MCPGate() = default;
-    virtual std::string get_type_str() const { return _qubits.size() > 2 ? "mcp" : _qubits.size() == 2 ? "cp"
-                                                                                                       : "p"; }
-    virtual GateType get_type() const { return GateType::mcp; }
-    virtual void print_gate_info(bool st) const { _print_multiple_qubits_gate("P", true, st); }
-    virtual void set_phase(dvlab::Phase p) { _phase = p; }
-};
-
-class MCRZGate : public ZAxisGate {
-public:
-    MCRZGate(size_t id, dvlab::Phase ph = dvlab::Phase(0)) : ZAxisGate(id, ph) {}
-    virtual ~MCRZGate() = default;
-    virtual std::string get_type_str() const { return _qubits.size() > 2 ? "mcrz" : _qubits.size() == 2 ? "crz"
-                                                                                                        : "rz"; }
-    virtual GateType get_type() const { return GateType::mcrz; }
-    virtual void print_gate_info(bool st) const { _print_multiple_qubits_gate(_qubits.size() > 1 ? " RZ" : "RZ", true, st); }
-    virtual void set_phase(dvlab::Phase p) { _phase = p; }
-};
-
-class MCPXGate : public XAxisGate {
-public:
-    MCPXGate(size_t id, dvlab::Phase ph = dvlab::Phase(0)) : XAxisGate(id, ph) {}
-    virtual ~MCPXGate() = default;
-    virtual std::string get_type_str() const { return _qubits.size() > 2 ? "mcpx" : _qubits.size() == 2 ? "cpx"
-                                                                                                        : "px"; }
-    virtual GateType get_type() const { return GateType::mcpx; }
-    virtual void print_gate_info(bool st) const { _print_multiple_qubits_gate(_qubits.size() > 1 ? " PX" : "PX", true, st); }
-    virtual void set_phase(dvlab::Phase p) { _phase = p; }
-};
-
-class MCRXGate : public XAxisGate {
-public:
-    MCRXGate(size_t id, dvlab::Phase ph = dvlab::Phase(0)) : XAxisGate(id, ph) {}
-    virtual ~MCRXGate() = default;
-    virtual std::string get_type_str() const { return _qubits.size() > 2 ? "mcrx" : _qubits.size() == 2 ? "crx"
-                                                                                                        : "rx"; }
-    virtual GateType get_type() const { return GateType::mcrx; }
-    virtual void print_gate_info(bool st) const { _print_multiple_qubits_gate(_qubits.size() > 1 ? " RX" : "RX", true, st); }
-    virtual void set_phase(dvlab::Phase p) { _phase = p; }
-};
-
-class MCPYGate : public YAxisGate {
-public:
-    MCPYGate(size_t id, dvlab::Phase ph = dvlab::Phase(0)) : YAxisGate(id, ph) {}
-    virtual ~MCPYGate() = default;
-
-    virtual std::string get_type_str() const { return _qubits.size() > 2 ? "mcpy" : _qubits.size() == 2 ? "cpy"
-                                                                                                        : "py"; }
-    virtual GateType get_type() const { return GateType::mcpy; }
-    virtual void print_gate_info(bool st) const { _print_multiple_qubits_gate(_qubits.size() > 1 ? " PY" : "PY", true, st); }
-    virtual void set_phase(dvlab::Phase p) { _phase = p; }
-};
-
-class MCRYGate : public YAxisGate {
-public:
-    MCRYGate(size_t id, dvlab::Phase ph = dvlab::Phase(0)) : YAxisGate(id, ph) {}
-    virtual ~MCRYGate() = default;
-    virtual std::string get_type_str() const { return _qubits.size() > 2 ? "mcry" : _qubits.size() == 2 ? "cry"
-                                                                                                        : "ry"; }
-    virtual GateType get_type() const { return GateType::mcry; }
-    virtual void print_gate_info(bool st) const { _print_multiple_qubits_gate(_qubits.size() > 1 ? " RY" : "RY", true, st); }
-    virtual void set_phase(dvlab::Phase p) { _phase = p; }
-};
-
-//----------------------------------------------------------------------
-//    Children class of MCP
-//----------------------------------------------------------------------
-
-class CCZGate : public MCPGate {
-public:
-    CCZGate(size_t id) : MCPGate(id, dvlab::Phase(1)) {}
-    virtual ~CCZGate() = default;
-    virtual std::string get_type_str() const { return "ccz"; }
-    virtual GateType get_type() const { return GateType::ccz; }
-    virtual void print_gate_info(bool st) const { _print_multiple_qubits_gate("Z", false, st); }
-};
-
-class CZGate : public MCPGate {
-public:
-    CZGate(size_t id) : MCPGate(id, dvlab::Phase(1)) {}
-    virtual ~CZGate() = default;
-    virtual std::string get_type_str() const { return "cz"; }
-    virtual GateType get_type() const { return GateType::cz; }
-    virtual void print_gate_info(bool st) const { _print_multiple_qubits_gate("Z", false, st); }
-
-    QubitInfo get_control() const { return _qubits[0]; }
-    void set_control_qubit(QubitIdType q) { _qubits[0]._qubit = q; }
-};
-
-class PGate : public MCPGate {
-public:
-    PGate(size_t id) : MCPGate(id) {}
-    virtual ~PGate() = default;
-    virtual std::string get_type_str() const { return "p"; }
-    virtual GateType get_type() const { return GateType::p; }
-    virtual void print_gate_info(bool st) const { _print_single_qubit_gate("P", st); }
-};
-
-class ZGate : public MCPGate {
-public:
-    ZGate(size_t id) : MCPGate(id, dvlab::Phase(1)) {}
-    virtual ~ZGate() = default;
-    virtual std::string get_type_str() const { return "z"; }
-    virtual GateType get_type() const { return GateType::z; }
-    virtual void print_gate_info(bool st) const { _print_single_qubit_gate("Z", st); }
-};
-
-class SGate : public MCPGate {
-public:
-    SGate(size_t id) : MCPGate(id, dvlab::Phase(1, 2)) {}
-    virtual ~SGate() = default;
-    virtual std::string get_type_str() const { return "s"; }
-    virtual GateType get_type() const { return GateType::s; }
-    virtual void print_gate_info(bool st) const { _print_single_qubit_gate("S", st); }
-};
-
-class SDGGate : public MCPGate {
-public:
-    SDGGate(size_t id) : MCPGate(id, dvlab::Phase(-1, 2)) {}
-    virtual ~SDGGate() = default;
-    virtual std::string get_type_str() const { return "sdg"; }
-    virtual GateType get_type() const { return GateType::sdg; }
-    virtual void print_gate_info(bool st) const { _print_single_qubit_gate("Sdg", st); }
-};
-
-class TGate : public MCPGate {
-public:
-    TGate(size_t id) : MCPGate(id, dvlab::Phase(1, 4)) {}
-    virtual ~TGate() = default;
-    virtual std::string get_type_str() const { return "t"; }
-    virtual GateType get_type() const { return GateType::t; }
-    virtual void print_gate_info(bool st) const { _print_single_qubit_gate("T", st); }
-};
-
-class TDGGate : public MCPGate {
-public:
-    TDGGate(size_t id) : MCPGate(id, dvlab::Phase(-1, 4)) {}
-    virtual ~TDGGate() = default;
-    virtual std::string get_type_str() const { return "tdg"; }
-    virtual GateType get_type() const { return GateType::tdg; }
-    virtual void print_gate_info(bool st) const { _print_single_qubit_gate("Tdg", st); }
-};
-
-//----------------------------------------------------------------------
-//    Children class of MCRZ
-//----------------------------------------------------------------------
-
-class RZGate : public MCRZGate {
-public:
-    RZGate(size_t id) : MCRZGate(id) {}
-    virtual ~RZGate() = default;
-    virtual std::string get_type_str() const { return "rz"; }
-    virtual GateType get_type() const { return GateType::rz; }
-    virtual void print_gate_info(bool st) const { _print_single_qubit_gate("RZ", st); }
-};
-
-//----------------------------------------------------------------------
-//    Children class of MCPX
-//----------------------------------------------------------------------
-
-class CCXGate : public MCPXGate {
-public:
-    CCXGate(size_t id) : MCPXGate(id, dvlab::Phase(1)) {}
-    virtual ~CCXGate() = default;
-    virtual std::string get_type_str() const { return "ccx"; }
-    virtual GateType get_type() const { return GateType::ccx; }
-    virtual void print_gate_info(bool st) const { _print_multiple_qubits_gate("X", false, st); }
-};
-
-class CXGate : public MCPXGate {
-public:
-    CXGate(size_t id) : MCPXGate(id, dvlab::Phase(1)) {}
-    virtual ~CXGate() = default;
-    virtual std::string get_type_str() const { return "cx"; }
-    virtual GateType get_type() const { return GateType::cx; }
-    virtual void print_gate_info(bool st) const { _print_multiple_qubits_gate("X", false, st); }
-
-    QubitInfo get_control() const { return _qubits[0]; }
-    void set_control_qubit(QubitIdType q) { _qubits[0]._qubit = q; }
-};
-
-class SWAPGate : public MCPXGate {
-public:
-    SWAPGate(size_t id) : MCPXGate(id) {}
-    virtual ~SWAPGate() = default;
-    virtual std::string get_type_str() const { return "sw"; }
-    virtual GateType get_type() const { return GateType::swap; }
-    virtual void print_gate_info(bool st) const { _print_multiple_qubits_gate("SWP", false, st); }
-};
-
-class PXGate : public MCPXGate {
-public:
-    PXGate(size_t id) : MCPXGate(id) {}
-    virtual ~PXGate() = default;
-    virtual std::string get_type_str() const { return "px"; }
-    virtual GateType get_type() const { return GateType::px; }
-    virtual void print_gate_info(bool st) const { _print_single_qubit_gate("PX", st); }
-};
-
-class XGate : public MCPXGate {
-public:
-    XGate(size_t id) : MCPXGate(id, dvlab::Phase(1)) {}
-    virtual ~XGate() = default;
-    virtual std::string get_type_str() const { return "x"; }
-    virtual GateType get_type() const { return GateType::x; }
-    virtual void print_gate_info(bool st) const { _print_single_qubit_gate("X", st); }
-};
-
-class SXGate : public MCPXGate {
-public:
-    SXGate(size_t id) : MCPXGate(id, dvlab::Phase(1, 2)) {}
-    virtual ~SXGate() = default;
-    virtual std::string get_type_str() const { return "sx"; }
-    virtual GateType get_type() const { return GateType::sx; }
-    virtual void print_gate_info(bool st) const { _print_single_qubit_gate("SX", st); }
-};
-
-//----------------------------------------------------------------------
-//    Children class of MCRX
-//----------------------------------------------------------------------
-
-class RXGate : public MCRXGate {
-public:
-    RXGate(size_t id) : MCRXGate(id) {}
-    virtual ~RXGate() = default;
-    virtual std::string get_type_str() const { return "rx"; }
-    virtual GateType get_type() const { return GateType::rx; }
-    virtual void print_gate_info(bool st) const { _print_single_qubit_gate("RX", st); }
-};
-
-//----------------------------------------------------------------------
-//    Children class of MCPY
-//----------------------------------------------------------------------
-
-class YGate : public MCPYGate {
-public:
-    YGate(size_t id) : MCPYGate(id, dvlab::Phase(1)) {}
-    virtual ~YGate() = default;
-    virtual std::string get_type_str() const { return "y"; }
-    virtual GateType get_type() const { return GateType::y; }
-    virtual void print_gate_info(bool st) const { _print_single_qubit_gate("Y", st); }
-};
-
-class PYGate : public MCPYGate {
-public:
-    PYGate(size_t id) : MCPYGate(id) {}
-    virtual ~PYGate() = default;
-    virtual std::string get_type_str() const { return "py"; }
-    virtual GateType get_type() const { return GateType::py; }
-    virtual void print_gate_info(bool st) const { _print_single_qubit_gate("PY", st); }
-};
-
-class SYGate : public MCPYGate {
-public:
-    SYGate(size_t id) : MCPYGate(id, dvlab::Phase(1, 2)) {}
-    virtual ~SYGate() = default;
-    virtual std::string get_type_str() const { return "sy"; }
-    virtual GateType get_type() const { return GateType::sy; }
-    virtual void print_gate_info(bool st) const { _print_single_qubit_gate("SY", st); }
-};
-
-//----------------------------------------------------------------------
-//    Children class of MCRY
-//----------------------------------------------------------------------
-
-class RYGate : public MCRYGate {
-public:
-    RYGate(size_t id) : MCRYGate(id) {}
-    virtual ~RYGate() = default;
-    virtual std::string get_type_str() const { return "ry"; }
-    virtual GateType get_type() const { return GateType::ry; }
-    virtual void print_gate_info(bool st) const { _print_single_qubit_gate("RY", st); }
+    // void _print_single_qubit_gate(std::string const& gtype, bool show_rotation = false, bool show_time = false) const;
+    void _print_single_qubit_or_controlled_gate(std::string gtype, bool show_rotation = false, bool show_time = false) const;
 };
 
 }  // namespace qsyn::qcir

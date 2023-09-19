@@ -31,9 +31,9 @@ namespace dvlab {
 void dvlab::CommandLineInterface::_on_tab_pressed() {
     assert(_tab_press_count != 0);
     std::string str = _read_buffer.substr(0, _cursor_position);
-    str = dvlab::str::strip_comments(str);
-    str = str.substr(str.find_last_of(';') + 1);
-    str = dvlab::str::strip_leading_spaces(str);
+    str             = dvlab::str::strip_comments(str);
+    str             = str.substr(str.find_last_of(';') + 1);
+    str             = dvlab::str::strip_leading_spaces(str);
 
     assert(str.empty() || str[0] != ' ');
 
@@ -105,8 +105,8 @@ dvlab::CommandLineInterface::TabActionResult dvlab::CommandLineInterface::_match
     std::smatch matches;
 
     if (std::regex_search(str, matches, var_matcher) && matches.prefix().str().back() != '\\') {
-        std::string var = matches[0];
-        bool is_brace = (var[1] == '{');
+        std::string var     = matches[0];
+        bool is_brace       = (var[1] == '{');
         std::string var_key = is_brace ? var.substr(2, var.size() - 3) : var.substr(1);
         if (_variables.contains(var_key)) {
             std::string val = _variables.at(var_key);
@@ -135,8 +135,8 @@ dvlab::CommandLineInterface::TabActionResult dvlab::CommandLineInterface::_match
     }
 
     std::string var_prefix = matches[0];
-    bool is_brace = (var_prefix[1] == '{');
-    std::string var_key = var_prefix.substr(is_brace ? 2 : 1);
+    bool is_brace          = (var_prefix[1] == '{');
+    std::string var_key    = var_prefix.substr(is_brace ? 2 : 1);
 
     std::vector<std::string> matching_variables;
 
@@ -192,8 +192,8 @@ dvlab::CommandLineInterface::TabActionResult dvlab::CommandLineInterface::_match
     assert(last_space_pos != std::string::npos);  // there must be a ' ' or '=' in cmd
 
     auto filepath = fs::path(search_string->substr(last_space_pos + 1));
-    auto dirname = filepath.parent_path();
-    auto prefix = filepath.filename().string();
+    auto dirname  = filepath.parent_path();
+    auto prefix   = filepath.filename().string();
 
     for (size_t i = 1; i < prefix.size(); ++i) {
         if (_is_special_char(prefix[i])) {
@@ -259,7 +259,7 @@ std::vector<std::string> dvlab::CommandLineInterface::_get_file_matches(fs::path
     std::vector<std::string> files;
 
     auto dirname = path.parent_path().empty() ? "." : path.parent_path();
-    auto prefix = path.filename().string();
+    auto prefix  = path.filename().string();
 
     if (!fs::exists(dirname)) {
         LOGGER.error("failed to open {}!!", path.parent_path());
@@ -357,7 +357,7 @@ void dvlab::CommandLineInterface::_print_as_table(std::vector<std::string> words
         words | std::views::transform([](std::string const& str) { return unicode::display_width(str); }));
 
     size_t num_columns = dvlab::utils::get_terminal_size().width / (longest_word_len + 2);
-    size_t num_rows = 1 + (words.size() - 1) / num_columns;
+    size_t num_rows    = 1 + (words.size() - 1) / num_columns;
 
     for (size_t i = 0; i < num_rows; ++i) {
         for (size_t j = i; j < words.size(); j += num_rows) {

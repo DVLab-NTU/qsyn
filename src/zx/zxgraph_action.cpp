@@ -66,7 +66,7 @@ void ZXGraph::lift_qubit(int n) {
                       new_output_list[itr.first + n] = itr.second;
                   });
 
-    _input_list = new_input_list;
+    _input_list  = new_input_list;
     _output_list = new_output_list;
 }
 
@@ -107,7 +107,7 @@ ZXGraph& ZXGraph::compose(ZXGraph const& target) {
         this->add_edge((*itr_ori), (*itr_cop), EdgeType::simple);
     }
 
-    _outputs = copied_graph._outputs;
+    _outputs     = copied_graph._outputs;
     _output_list = copied_graph._output_list;
 
     this->_move_vertices_from(copied_graph);

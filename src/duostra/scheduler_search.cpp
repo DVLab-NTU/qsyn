@@ -16,8 +16,8 @@
 #include <unordered_set>
 #include <vector>
 
-#include "./scheduler.hpp"
 #include "./duostra.hpp"
+#include "./scheduler.hpp"
 
 extern bool stop_requested();
 
@@ -99,7 +99,7 @@ void TreeNode::_grow() {
  * @return size_t
  */
 std::optional<size_t> TreeNode::_immediate_next() const {
-    auto gate_id = scheduler().get_executable_gate(*_router);
+    auto gate_id            = scheduler().get_executable_gate(*_router);
     auto const& avail_gates = scheduler().get_available_gates();
     if (gate_id.has_value())
         return gate_id;
@@ -151,7 +151,7 @@ TreeNode TreeNode::best_child(size_t depth) {
         assert(depth >= 1);
         auto cost = node.best_cost(depth);
         if (cost < best_cost) {
-            best_idx = idx;
+            best_idx  = idx;
             best_cost = cost;
         }
     }
@@ -301,7 +301,7 @@ SearchScheduler::Device SearchScheduler::_assign_gates(std::unique_ptr<Router> r
             return router->get_device();
         }
         auto selected_node = std::make_unique<TreeNode>(root->best_child(static_cast<int>(_lookAhead)));
-        root = std::move(selected_node);
+        root               = std::move(selected_node);
 
         for (size_t gate_id : root->get_executed_gates()) {
             route_one_gate(*router, gate_id);

@@ -11,8 +11,8 @@
 #include <cassert>
 #include <random>
 
-#include "device/device.hpp"
 #include "./duostra.hpp"
+#include "device/device.hpp"
 
 namespace qsyn::duostra {
 

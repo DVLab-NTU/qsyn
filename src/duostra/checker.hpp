@@ -17,12 +17,12 @@ class Gate;
 
 class Checker {
 public:
-    using Device = qsyn::device::Device;
-    using Operation = qsyn::device::Operation;
+    using Device        = qsyn::device::Device;
+    using Operation     = qsyn::device::Operation;
     using PhysicalQubit = qsyn::device::PhysicalQubit;
     Checker(CircuitTopology&, Device&, std::vector<Operation> const& ops, std::vector<size_t> const&, bool = true);
 
-    size_t get_cycle(qcir::GateType);
+    size_t get_cycle(Operation const& op);
 
     void apply_gate(Operation const&, PhysicalQubit&);
     void apply_gate(Operation const&, PhysicalQubit&, PhysicalQubit&);

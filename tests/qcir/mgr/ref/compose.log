@@ -71,8 +71,8 @@ qsyn> zx2ts
 
 qsyn> tseq 0 1
 Equivalent
-- Global Norm : 1.02536
-- Global Phase: 161π/282
+- Global Norm : 0.140055
+- Global Phase: -178π/183
 
 qsyn> qcr
 

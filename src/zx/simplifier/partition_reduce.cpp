@@ -22,7 +22,7 @@ size_t scoped_clifford_simp(ZXGraph* graph, ZXVertexList const& scope);
  */
 void Simplifier::partition_reduce(size_t n_partitions) {
     std::vector<ZXVertexList> partitions = kl_partition(*_simp_graph, n_partitions);
-    auto [subgraphs, cuts] = _simp_graph->create_subgraphs(partitions);
+    auto [subgraphs, cuts]               = _simp_graph->create_subgraphs(partitions);
 
     for (auto& graph : subgraphs) {
         Simplifier simplifier = Simplifier(graph);

@@ -15,6 +15,7 @@
 #include "./qcir_gate.hpp"
 #include "./qcir_qubit.hpp"
 #include "qsyn/qsyn_type.hpp"
+#include "util/phase.hpp"
 #include "util/text_format.hpp"
 
 namespace qsyn::qcir {
@@ -102,7 +103,7 @@ QCirQubit *QCir::push_qubit() {
 QCirQubit *QCir::insert_qubit(QubitIdType id) {
     assert(get_qubit(id) == nullptr);
     QCirQubit *temp = new QCirQubit(id);
-    auto cnt = std::ranges::count_if(_qubits, [id](QCirQubit *q) { return q->get_id() < id; });
+    auto cnt        = std::ranges::count_if(_qubits, [id](QCirQubit *q) { return q->get_id() < id; });
 
     _qubits.insert(_qubits.begin() + cnt, temp);
     return temp;
@@ -179,72 +180,22 @@ QCirGate *QCir::add_single_rz(QubitIdType bit, dvlab::Phase phase, bool append) 
  * @return QCirGate*
  */
 QCirGate *QCir::add_gate(std::string type, QubitIdList bits, dvlab::Phase phase, bool append) {
-    QCirGate *temp = nullptr;
-    type = dvlab::str::tolower_string(type);
-    if (type == "h")
-        temp = new HGate(_gate_id);
-    else if (type == "z")
-        temp = new ZGate(_gate_id);
-    else if (type == "s")
-        temp = new SGate(_gate_id);
-    else if (type == "s*" || type == "sdg" || type == "sd")
-        temp = new SDGGate(_gate_id);
-    else if (type == "t")
-        temp = new TGate(_gate_id);
-    else if (type == "tdg" || type == "td" || type == "t*")
-        temp = new TDGGate(_gate_id);
-    else if (type == "x" || type == "not")
-        temp = new XGate(_gate_id);
-    else if (type == "y")
-        temp = new YGate(_gate_id);
-    else if (type == "sx" || type == "x_1_2")
-        temp = new SXGate(_gate_id);
-    else if (type == "sy" || type == "y_1_2")
-        temp = new SYGate(_gate_id);
-    else if (type == "cx" || type == "cnot")
-        temp = new CXGate(_gate_id);
-    else if (type == "ccx" || type == "ccnot")
-        temp = new CCXGate(_gate_id);
-    else if (type == "cz")
-        temp = new CZGate(_gate_id);
-    else if (type == "ccz")
-        temp = new CCZGate(_gate_id);
-    // Note: rz and p has a little difference
-    else if (type == "rz") {
-        temp = new RZGate(_gate_id);
-        temp->set_phase(phase);
-    } else if (type == "rx") {
-        temp = new RXGate(_gate_id);
-        temp->set_phase(phase);
-    } else if (type == "p" || type == "pz") {
-        temp = new PGate(_gate_id);
-        temp->set_phase(phase);
-    } else if (type == "px") {
-        temp = new PXGate(_gate_id);
-        temp->set_phase(phase);
-    } else if (type == "mcp" || type == "mcpz" || type == "cp") {
-        temp = new MCPGate(_gate_id);
-        temp->set_phase(phase);
-    } else if (type == "mcpx" || type == "cpx") {
-        temp = new MCPXGate(_gate_id);
-        temp->set_phase(phase);
-    } else if (type == "mcpy" || type == "cpy" || type == "py") {
-        temp = new MCPYGate(_gate_id);
-        temp->set_phase(phase);
-    } else if (type == "mcrz" || type == "crz") {
-        temp = new MCRZGate(_gate_id);
-        temp->set_phase(phase);
-    } else if (type == "mcrx" || type == "crx") {
-        temp = new MCRXGate(_gate_id);
-        temp->set_phase(phase);
-    } else if (type == "mcry" || type == "cry" || type == "ry") {
-        temp = new MCRYGate(_gate_id);
-        temp->set_phase(phase);
-    } else {
-        std::cerr << "Error: the gate " << type << " is not implemented!!" << std::endl;
+    type           = dvlab::str::tolower_string(type);
+    auto gate_type = str_to_gate_type(type);
+    if (!gate_type.has_value()) {
+        LOGGER.fatal("Gate type {} is not supported!!", type);
         abort();
-        return nullptr;
     }
+    auto const &[category, num_qubits, gate_phase] = gate_type.value();
+    if (num_qubits.has_value() && num_qubits.value() != bits.size()) {
+        LOGGER.fatal("Gate {} requires {} qubits, but {} qubits are given.", type, num_qubits.value(), bits.size());
+        abort();
+    }
+    if (gate_phase.has_value()) {
+        phase = gate_phase.value();
+    }
+    QCirGate *temp = new QCirGate(_gate_id, category, phase);
+
     if (append) {
         size_t max_time = 0;
         for (size_t k = 0; k < bits.size(); k++) {
@@ -297,16 +248,16 @@ bool QCir::remove_gate(size_t id) {
     } else {
         std::vector<QubitInfo> info = target->get_qubits();
         for (size_t i = 0; i < info.size(); i++) {
-            if (info[i]._parent != nullptr)
-                info[i]._parent->set_child(info[i]._qubit, info[i]._child);
+            if (info[i]._prev != nullptr)
+                info[i]._prev->set_child(info[i]._qubit, info[i]._next);
             else
-                get_qubit(info[i]._qubit)->set_first(info[i]._child);
-            if (info[i]._child != nullptr)
-                info[i]._child->set_parent(info[i]._qubit, info[i]._parent);
+                get_qubit(info[i]._qubit)->set_first(info[i]._next);
+            if (info[i]._next != nullptr)
+                info[i]._next->set_parent(info[i]._qubit, info[i]._prev);
             else
-                get_qubit(info[i]._qubit)->set_last(info[i]._parent);
-            info[i]._parent = nullptr;
-            info[i]._child = nullptr;
+                get_qubit(info[i]._qubit)->set_last(info[i]._prev);
+            info[i]._prev = nullptr;
+            info[i]._next = nullptr;
         }
         std::erase(_qgates, target);
         _dirty = true;
@@ -322,37 +273,37 @@ bool QCir::remove_gate(size_t id) {
 // TODO - Analysis qasm is correct since no MC in it. Would fix MC in future.
 std::vector<int> QCir::count_gates(bool detail, bool print) {
     size_t clifford = 0;
-    size_t tfamily = 0;
-    size_t cxcnt = 0;
-    size_t nct = 0;
-    size_t h = 0;
-    size_t rz = 0;
-    size_t z = 0;
-    size_t s = 0;
-    size_t sdg = 0;
-    size_t t = 0;
-    size_t tdg = 0;
-    size_t rx = 0;
-    size_t x = 0;
-    size_t sx = 0;
-    size_t ry = 0;
-    size_t y = 0;
-    size_t sy = 0;
+    size_t tfamily  = 0;
+    size_t cxcnt    = 0;
+    size_t nct      = 0;
+    size_t h        = 0;
+    size_t rz       = 0;
+    size_t z        = 0;
+    size_t s        = 0;
+    size_t sdg      = 0;
+    size_t t        = 0;
+    size_t tdg      = 0;
+    size_t rx       = 0;
+    size_t x        = 0;
+    size_t sx       = 0;
+    size_t ry       = 0;
+    size_t y        = 0;
+    size_t sy       = 0;
 
-    size_t mcp = 0;
-    size_t cz = 0;
-    size_t ccz = 0;
-    size_t crz = 0;
+    size_t mcpz = 0;
+    size_t cz   = 0;
+    size_t ccz  = 0;
+    size_t crz  = 0;
     size_t mcrx = 0;
-    size_t cx = 0;
-    size_t ccx = 0;
+    size_t cx   = 0;
+    size_t ccx  = 0;
     size_t mcry = 0;
 
     auto analysis_mcr = [&clifford, &tfamily, &nct, &cxcnt](QCirGate *g) -> void {
         if (g->get_qubits().size() == 2) {
             if (g->get_phase().denominator() == 1) {
                 clifford++;
-                if (g->get_type() != GateType::mcpx || g->get_type() != GateType::mcrx) clifford += 2;
+                if (g->get_rotation_category() != GateRotationCategory::px || g->get_rotation_category() != GateRotationCategory::rx) clifford += 2;
                 cxcnt++;
             } else if (g->get_phase().denominator() == 2) {
                 clifford += 2;
@@ -372,119 +323,120 @@ std::vector<int> QCir::count_gates(bool detail, bool print) {
     };
 
     for (auto &g : _qgates) {
-        GateType type = g->get_type();
+        GateRotationCategory type = g->get_rotation_category();
         switch (type) {
-            case GateType::h:
+            case GateRotationCategory::h:
                 h++;
                 clifford++;
                 break;
-            case GateType::p:
-                rz++;
-                if (g->get_phase().denominator() <= 2)
+            case GateRotationCategory::pz:
+            case GateRotationCategory::rz:
+                if (get_num_qubits() == 1) {
+                    rz++;
+                    if (g->get_phase() == dvlab::Phase(1)) {
+                        z++;
+                    }
+                    if (g->get_phase() == dvlab::Phase(1, 2)) {
+                        s++;
+                    }
+                    if (g->get_phase() == dvlab::Phase(-1, 2)) {
+                        sdg++;
+                    }
+                    if (g->get_phase() == dvlab::Phase(1, 4)) {
+                        t++;
+                    }
+                    if (g->get_phase() == dvlab::Phase(-1, 4)) {
+                        tdg++;
+                    }
+                    if (g->get_phase().denominator() <= 2)
+                        clifford++;
+                    else if (g->get_phase().denominator() == 4)
+                        tfamily++;
+                    else
+                        nct++;
+                } else if (g->get_num_qubits() == 2) {
+                    cz++;           // --C--
+                    clifford += 3;  // H-X-H
+                    cxcnt++;
+                } else if (g->get_num_qubits() == 3) {
+                    ccz++;
+                    tfamily += 7;
+                    clifford += 10;
+                    cxcnt += 6;
+                } else {
+                    mcpz++;
+                    analysis_mcr(g);
+                }
+                break;
+            case GateRotationCategory::px:
+            case GateRotationCategory::rx:
+                if (g->get_num_qubits() == 1) {
+                    rx++;
+                    if (g->get_phase() == dvlab::Phase(1)) {
+                        x++;
+                    }
+                    if (g->get_phase() == dvlab::Phase(1, 2)) {
+                        sx++;
+                    }
+                    if (g->get_phase().denominator() <= 2)
+                        clifford++;
+                    else if (g->get_phase().denominator() == 4)
+                        tfamily++;
+                    else
+                        nct++;
+                } else if (g->get_num_qubits() == 2) {
+                    cx++;
                     clifford++;
-                else if (g->get_phase().denominator() == 4)
-                    tfamily++;
-                else
-                    nct++;
+                    cxcnt++;
+                } else if (g->get_num_qubits() == 3) {
+                    ccx++;
+                    tfamily += 7;
+                    clifford += 8;
+                    cxcnt += 6;
+                } else {
+                    mcrx++;
+                    analysis_mcr(g);
+                }
                 break;
-            case GateType::rz:
-                rz++;
-                if (g->get_phase().denominator() <= 2)
-                    clifford++;
-                else if (g->get_phase().denominator() == 4)
-                    tfamily++;
-                else
-                    nct++;
+            case GateRotationCategory::py:
+            case GateRotationCategory::ry:
+                if (g->get_num_qubits() == 1) {
+                    ry++;
+                    if (g->get_phase() == dvlab::Phase(1)) {
+                        y++;
+                    }
+                    if (g->get_phase() == dvlab::Phase(1, 2)) {
+                        sy++;
+                    }
+                    if (g->get_phase().denominator() <= 2)
+                        clifford++;
+                    else if (g->get_phase().denominator() == 4)
+                        tfamily++;
+                    else
+                        nct++;
+                } else {
+                    mcry++;
+                    analysis_mcr(g);
+                }
                 break;
-            case GateType::z:
-                z++;
-                clifford++;
-                break;
-            case GateType::s:
-                s++;
-                clifford++;
-                break;
-            case GateType::sdg:
-                sdg++;
-                clifford++;
-                break;
-            case GateType::t:
-                t++;
-                tfamily++;
-                break;
-            case GateType::tdg:
-                tdg++;
-                tfamily++;
-                break;
-            case GateType::rx:
-                rx++;
-                if (g->get_phase().denominator() <= 2)
-                    clifford++;
-                else if (g->get_phase().denominator() == 4)
-                    tfamily++;
-                else
-                    nct++;
-                break;
-            case GateType::x:
-                x++;
-                clifford++;
-                break;
-            case GateType::sx:
-                sx++;
-                clifford++;
-                break;
-            case GateType::ry:
-                ry++;
-                if (g->get_phase().denominator() <= 2)
-                    clifford++;
-                else if (g->get_phase().denominator() == 4)
-                    tfamily++;
-                else
-                    nct++;
-                break;
-            case GateType::y:
-                y++;
-                clifford++;
-                break;
-            case GateType::sy:
-                sy++;
-                clifford++;
-                break;
-            case GateType::mcp:
-                mcp++;
-                analysis_mcr(g);
-                break;
-            case GateType::cz:
-                cz++;           // --C--
-                clifford += 3;  // H-X-H
-                cxcnt++;
-                break;
-            case GateType::ccz:
-                cz++;
-                tfamily += 7;
-                clifford += 10;
-                cxcnt += 6;
-                break;
-            case GateType::mcrx:
-                mcrx++;
-                analysis_mcr(g);
-                break;
-            case GateType::cx:
-                cx++;
-                clifford++;
-                cxcnt++;
-                break;
-            case GateType::ccx:
-                ccx++;
-                tfamily += 7;
-                clifford += 8;
-                cxcnt += 6;
-                break;
-            case GateType::mcry:
+            // case GateCategory::mcpz:
+            //     if (g->get_num_qubits() == 2) {
+            //         cz++;           // --C--
+            //         clifford += 3;  // H-X-H
+            //         cxcnt++;
+            //     } else if (g->get_num_qubits() == 3) {
+            //         ccz++;
+            //         tfamily += 7;
+            //         clifford += 10;
+            //         cxcnt += 6;
+            //     } else {
+            //         mcpz++;
+            //         analysis_mcr(g);
+            //     }
+            //     break;
             default:
-                mcry++;
-                analysis_mcr(g);
-                break;
+                LOGGER.fatal("Gate {} is not supported!!", g->get_type_str());
+                abort();
         }
     }
     size_t single_z = rz + z + s + sdg + t + tdg;
@@ -510,12 +462,12 @@ std::vector<int> QCir::count_gates(bool detail, bool print) {
         std::cout << "│       ├── Y   : " << y << std::endl;
         std::cout << "│       ├── SY  : " << sy << std::endl;
         std::cout << "│       └── RY  : " << ry << std::endl;
-        std::cout << "└── Multiple-qubit gate: " << crz + mcp + cz + ccz + mcrx + cx + ccx + mcry << std::endl;
-        std::cout << "    ├── Z-family: " << cz + ccz + crz + mcp << std::endl;
+        std::cout << "└── Multiple-qubit gate: " << crz + mcpz + cz + ccz + mcrx + cx + ccx + mcry << std::endl;
+        std::cout << "    ├── Z-family: " << cz + ccz + crz + mcpz << std::endl;
         std::cout << "    │   ├── CZ  : " << cz << std::endl;
         std::cout << "    │   ├── CCZ : " << ccz << std::endl;
         std::cout << "    │   ├── CRZ : " << crz << std::endl;
-        std::cout << "    │   └── MCP : " << mcp << std::endl;
+        std::cout << "    │   └── MCP : " << mcpz << std::endl;
         std::cout << "    ├── X-family: " << cx + ccx + mcrx << std::endl;
         std::cout << "    │   ├── CX  : " << cx << std::endl;
         std::cout << "    │   ├── CCX : " << ccx << std::endl;

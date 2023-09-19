@@ -96,7 +96,7 @@ bool QCir::read_qasm(std::string const& filename) {
     getline(qasm_file, str);
     while (getline(qasm_file, str)) {
         std::string type;
-        size_t type_end = str_get_token(str, type);
+        size_t type_end       = str_get_token(str, type);
         std::string phase_str = "0";
         if (str_get_token(str, phase_str, 0, '(') != std::string::npos) {
             size_t stop = str_get_token(str, type, 0, '(');
@@ -180,7 +180,7 @@ bool QCir::read_qc(std::string const& filename) {
             std::string type, qubit_label;
             QubitIdList qubit_ids;
             size_t pos = 0;
-            pos = str_get_token(line, type, pos);
+            pos        = str_get_token(line, type, pos);
             while (pos != std::string::npos) {
                 pos = str_get_token(line, qubit_label, pos);
                 if (count(qubit_labels.begin(), qubit_labels.end(), qubit_label)) {
@@ -193,17 +193,17 @@ bool QCir::read_qc(std::string const& filename) {
             }
             if (type == "Tof" || type == "tof") {
                 if (qubit_ids.size() == 1)
-                    add_gate("x", qubit_ids, dvlab::Phase(0), true);
+                    add_gate("x", qubit_ids, dvlab::Phase(1), true);
                 else if (qubit_ids.size() == 2)
-                    add_gate("cx", qubit_ids, dvlab::Phase(0), true);
+                    add_gate("cx", qubit_ids, dvlab::Phase(1), true);
                 else if (qubit_ids.size() == 3)
-                    add_gate("ccx", qubit_ids, dvlab::Phase(0), true);
+                    add_gate("ccx", qubit_ids, dvlab::Phase(1), true);
                 else {
                     LOGGER.error("Toffoli gates with more than 2 controls are not supported!!");
                     return false;
                 }
             } else
-                add_gate(type, qubit_ids, dvlab::Phase(0), true);
+                add_gate(type, qubit_ids, dvlab::Phase(1), true);
         }
     }
     return true;
@@ -241,15 +241,15 @@ bool QCir::read_qsim(std::string const& filename) {
         std::string time, type, phase_str, qubit_id;
         QubitIdList qubit_ids;
         size_t pos = 0;
-        pos = str_get_token(line, time, pos);
-        pos = str_get_token(line, type, pos);
+        pos        = str_get_token(line, time, pos);
+        pos        = str_get_token(line, type, pos);
         if (type == "cx" || type == "cz") {
             // add 2 qubit gate
             pos = str_get_token(line, qubit_id, pos);
             qubit_ids.emplace_back(stoul(qubit_id));
             str_get_token(line, qubit_id, pos);
             qubit_ids.emplace_back(stoul(qubit_id));
-            add_gate(type, qubit_ids, dvlab::Phase(0), true);
+            add_gate(type, qubit_ids, dvlab::Phase(1), true);
         } else if (type == "rx" || type == "rz") {
             // add phase gate
             dvlab::Phase phase;
@@ -262,6 +262,7 @@ bool QCir::read_qsim(std::string const& filename) {
             // add single qubit gate
             str_get_token(line, qubit_id, pos);
             qubit_ids.emplace_back(stoul(qubit_id));
+            // FIXME - pass in the correct phase
             add_gate(type, qubit_ids, dvlab::Phase(0), true);
         } else {
             LOGGER.error("Gate type {} is not supported!!", type);
@@ -324,7 +325,7 @@ bool QCir::read_quipper(std::string const& filename) {
                         qubit_ids.emplace_back(qubit_control);
                         qubit_ids.emplace_back(qubit_target);
                         type.insert(0, "C");
-                        add_gate(type, qubit_ids, dvlab::Phase(0), true);
+                        add_gate(type, qubit_ids, dvlab::Phase(1), true);
                     } else if (count(line.begin(), line.end(), '+') == 2) {
                         // 2 controls
                         if (type != "not" && type != "X" && type != "Z") {
@@ -338,7 +339,7 @@ bool QCir::read_quipper(std::string const& filename) {
                         qubit_ids.emplace_back(qubit_control2);
                         qubit_ids.emplace_back(qubit_target);
                         type.insert(0, "CC");
-                        add_gate(type, qubit_ids, dvlab::Phase(0), true);
+                        add_gate(type, qubit_ids, dvlab::Phase(1), true);
                     } else {
                         LOGGER.error("Controlled gates with more than 2 controls are not supported!!");
                         return false;
@@ -346,6 +347,7 @@ bool QCir::read_quipper(std::string const& filename) {
                 } else {
                     // without control
                     qubit_ids.emplace_back(qubit_target);
+                    // FIXME - pass in the correct phase
                     add_gate(type, qubit_ids, dvlab::Phase(0), true);
                 }
 

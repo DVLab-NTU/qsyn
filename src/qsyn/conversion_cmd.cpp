@@ -109,7 +109,7 @@ Command zxgraph_to_tensor_cmd(qsyn::zx::ZXGraphMgr& zxgraph_mgr, qsyn::tensor::T
             [&](ArgumentParser const& parser) {
                 if (!qsyn::zx::zxgraph_mgr_not_empty(zxgraph_mgr)) return CmdExecResult::error;
                 auto zx_id = parser.parsed("-zx") ? parser.get<size_t>("-zx") : zxgraph_mgr.focused_id();
-                auto zx = zxgraph_mgr.find_by_id(zx_id);
+                auto zx    = zxgraph_mgr.find_by_id(zx_id);
 
                 auto ts_id = parser.parsed("-ts") ? parser.get<size_t>("-ts") : tensor_mgr.get_next_id();
 

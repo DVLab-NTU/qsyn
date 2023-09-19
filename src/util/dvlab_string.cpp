@@ -41,7 +41,7 @@ std::optional<std::string> strip_quotes(std::string const& input) {
 
     auto find_quote = [&output](char quote) -> size_t {
         size_t pos = 0;
-        pos = output.find_first_of(quote);
+        pos        = output.find_first_of(quote);
         if (pos == std::string::npos) return pos;
         // if the quote is after a backslash, it should be read verbatim, so we need to skip it.
         while (pos != 0 && output[pos - 1] == '\\') {
@@ -130,7 +130,7 @@ std::string strip_leading_spaces(std::string const& str) {
  */
 std::string strip_spaces(std::string const& str) {
     size_t start = str.find_first_not_of(" \t\n\v\f\r");
-    size_t end = str.find_last_not_of(" \t\n\v\f\r");
+    size_t end   = str.find_last_not_of(" \t\n\v\f\r");
     if (start == std::string::npos && end == std::string::npos) return "";
     return str.substr(start, end + 1 - start);
 }
@@ -156,7 +156,7 @@ bool is_escaped_char(std::string const& str, size_t pos) {
  * @return string
  */
 std::string remove_brackets(std::string const& str, char const left, char const right) {
-    size_t last_found = str.find_last_of(right);
+    size_t last_found  = str.find_last_of(right);
     size_t first_found = str.find_first_of(left);
     return strip_spaces(str.substr(first_found + 1, last_found - first_found - 1));
 }
@@ -174,7 +174,7 @@ str_get_token(std::string const& str, std::string& tok, size_t pos, std::string 
         return begin;
     }
     size_t end = str.find_first_of(delim, begin);
-    tok = str.substr(begin, end - begin);
+    tok        = str.substr(begin, end - begin);
     return end;
 }
 

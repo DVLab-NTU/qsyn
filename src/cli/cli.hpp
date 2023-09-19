@@ -67,8 +67,8 @@ inline void clear_terminal() {
  */
 class Command {
     using ParserDefinition = std::function<void(dvlab::argparse::ArgumentParser&)>;
-    using Precondition = std::function<bool()>;
-    using OnParseSuccess = std::function<CmdExecResult(dvlab::argparse::ArgumentParser const&)>;
+    using Precondition     = std::function<bool()>;
+    using OnParseSuccess   = std::function<CmdExecResult(dvlab::argparse::ArgumentParser const&)>;
 
 public:
     Command(std::string const& name, ParserDefinition defn, OnParseSuccess on)
@@ -102,9 +102,9 @@ private:
 
 class CommandLineInterface {
     static constexpr size_t read_buf_size = 65536;
-    static constexpr size_t page_offset = 10;
+    static constexpr size_t page_offset   = 10;
 
-    using CmdMap = std::unordered_map<std::string, std::unique_ptr<dvlab::Command>>;
+    using CmdMap     = std::unordered_map<std::string, std::unique_ptr<dvlab::Command>>;
     using CmdRegPair = std::pair<std::string, std::unique_ptr<dvlab::Command>>;
 
 public:
@@ -191,13 +191,13 @@ private:
     size_t _cursor_position = 0;
 
     std::vector<std::string> _history;
-    size_t _history_idx = 0;
-    size_t _tab_press_count = 0;
+    size_t _history_idx        = 0;
+    size_t _tab_press_count    = 0;
     bool _listening_for_inputs = false;
-    bool _temp_command_stored = false;  // When up/pgUp is pressed, current line
-                                        // will be stored in _history and
-                                        // _tempCmdStored will be true.
-                                        // Reset to false when new command added
+    bool _temp_command_stored  = false;  // When up/pgUp is pressed, current line
+                                         // will be stored in _history and
+                                         // _tempCmdStored will be true.
+                                         // Reset to false when new command added
     dvlab::utils::Trie _identifiers;
     CmdMap _commands;
     std::unordered_map<std::string, std::string> _aliases;

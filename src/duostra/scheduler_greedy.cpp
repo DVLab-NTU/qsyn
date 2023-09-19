@@ -11,8 +11,8 @@
 #include <algorithm>
 #include <cassert>
 
-#include "./scheduler.hpp"
 #include "./duostra.hpp"
+#include "./scheduler.hpp"
 
 extern size_t VERBOSE;
 
@@ -70,7 +70,7 @@ std::unique_ptr<BaseScheduler> GreedyScheduler::clone() const {
  */
 GreedyScheduler::Device GreedyScheduler::_assign_gates(std::unique_ptr<Router> router) {
     [[maybe_unused]] size_t count = 0;
-    auto topo_wrap = TopologyCandidate(_circuit_topology, _conf.num_candidates);
+    auto topo_wrap                = TopologyCandidate(_circuit_topology, _conf.num_candidates);
     for (dvlab::TqdmWrapper bar{_circuit_topology.get_num_gates(), _tqdm};
          !topo_wrap.get_available_gates().empty(); ++bar) {
         if (stop_requested()) {
@@ -109,7 +109,7 @@ size_t GreedyScheduler::greedy_fallback(Router& router,
 
     for (size_t i = 0; i < waitlist.size(); ++i) {
         auto const& gate = _circuit_topology.get_gate(waitlist[i]);
-        cost_list[i] = router.get_gate_cost(gate, _conf.available_time_strategy, _conf.apsp_coeff);
+        cost_list[i]     = router.get_gate_cost(gate, _conf.available_time_strategy, _conf.apsp_coeff);
     }
 
     auto list_idx = _conf.cost_type == MinMaxOptionType::max

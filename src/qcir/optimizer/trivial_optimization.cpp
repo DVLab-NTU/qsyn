@@ -38,7 +38,7 @@ std::optional<QCir> Optimizer::trivial_optimization(QCir const& qcir) {
             return std::nullopt;
         }
         std::vector<QCirGate*> last_layer = _get_first_layer_gates(result, true);
-        size_t qubit = gate->get_targets()._qubit;
+        size_t qubit                      = gate->get_targets()._qubit;
         if (last_layer[qubit] == nullptr) {
             Optimizer::_add_gate_to_circuit(result, gate, false);
             continue;
@@ -54,7 +54,7 @@ std::optional<QCir> Optimizer::trivial_optimization(QCir const& qcir) {
             _cancel_double_gate(result, previous_gate, gate);
         } else if (is_single_z_rotation(gate) && is_single_z_rotation(previous_gate)) {
             _fuse_z_phase(result, previous_gate, gate);
-        } else if (gate->get_type() == previous_gate->get_type()) {
+        } else if (gate->get_rotation_category() == previous_gate->get_rotation_category()) {
             result.remove_gate(previous_gate->get_id());
         } else {
             Optimizer::_add_gate_to_circuit(result, gate, false);
@@ -83,7 +83,7 @@ std::vector<QCirGate*> Optimizer::_get_first_layer_gates(QCir& qcir, bool from_l
 
     for (auto gate : gate_list) {
         std::vector<QubitInfo> qubits = gate->get_qubits();
-        bool gate_is_not_blocked = all_of(qubits.begin(), qubits.end(), [&](QubitInfo qubit) { return blocked[qubit._qubit] == false; });
+        bool gate_is_not_blocked      = all_of(qubits.begin(), qubits.end(), [&](QubitInfo qubit) { return blocked[qubit._qubit] == false; });
         for (auto q : qubits) {
             size_t qubit = q._qubit;
             if (gate_is_not_blocked) result[qubit] = gate;
@@ -109,7 +109,7 @@ void Optimizer::_fuse_z_phase(QCir& qcir, QCirGate* prev_gate, QCirGate* gate) {
         qcir.remove_gate(prev_gate->get_id());
         return;
     }
-    if (prev_gate->get_type() == GateType::p)
+    if (prev_gate->get_rotation_category() == GateRotationCategory::pz)
         prev_gate->set_phase(p);
     else {
         QubitIdList qubit_list;
@@ -128,11 +128,11 @@ void Optimizer::_fuse_z_phase(QCir& qcir, QCirGate* prev_gate, QCirGate* gate) {
  * @return modified circuit
  */
 void Optimizer::_cancel_double_gate(QCir& qcir, QCirGate* prev_gate, QCirGate* gate) {
-    if (prev_gate->get_type() != gate->get_type()) {
+    if (prev_gate->get_rotation_category() != gate->get_rotation_category()) {
         Optimizer::_add_gate_to_circuit(qcir, gate, false);
         return;
     }
-    if (prev_gate->get_type() == GateType::cz || prev_gate->get_control()._qubit == gate->get_control()._qubit)
+    if (prev_gate->is_cz() || prev_gate->get_control()._qubit == gate->get_control()._qubit)
         qcir.remove_gate(prev_gate->get_id());
     else
         Optimizer::_add_gate_to_circuit(qcir, gate, false);

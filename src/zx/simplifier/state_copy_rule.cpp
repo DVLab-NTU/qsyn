@@ -67,14 +67,14 @@ void StateCopyRule::apply(ZXGraph& graph, std::vector<MatchType> const& matches)
 
     // Need to update global scalar and phase
     for (auto& match : matches) {
-        ZXVertex* npi = get<0>(match);
-        ZXVertex* a = get<1>(match);
+        ZXVertex* npi                    = get<0>(match);
+        ZXVertex* a                      = get<1>(match);
         std::vector<ZXVertex*> neighbors = get<2>(match);
         op.vertices_to_remove.emplace_back(npi);
         op.vertices_to_remove.emplace_back(a);
         for (auto neighbor : neighbors) {
             if (neighbor->get_type() == VertexType::boundary) {
-                ZXVertex* new_v = graph.add_vertex(neighbor->get_qubit(), VertexType::z, npi->get_phase());
+                ZXVertex* new_v  = graph.add_vertex(neighbor->get_qubit(), VertexType::z, npi->get_phase());
                 bool simple_edge = neighbor->get_first_neighbor().second == EdgeType::simple;
 
                 op.edgesToRemove.emplace_back(std::make_pair(a, neighbor), neighbor->get_first_neighbor().second);

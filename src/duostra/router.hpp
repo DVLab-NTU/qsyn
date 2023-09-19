@@ -11,8 +11,8 @@
 #include <queue>
 #include <string>
 
-#include "device/device.hpp"
 #include "./duostra_def.hpp"
+#include "device/device.hpp"
 
 namespace qsyn::duostra {
 
@@ -42,8 +42,8 @@ public:
 
 class Router {
 public:
-    using Device = qsyn::device::Device;
-    using Operation = qsyn::device::Operation;
+    using Device        = qsyn::device::Device;
+    using Operation     = qsyn::device::Operation;
     using PhysicalQubit = qsyn::device::PhysicalQubit;
 
     using PriorityQueue = std::priority_queue<AStarNode, std::vector<AStarNode>, AStarComp>;
@@ -58,9 +58,9 @@ public:
     bool is_executable(Gate const&);
 
     // Main Router function
-    Operation execute_single(qcir::GateType, dvlab::Phase, size_t);
-    std::vector<Operation> duostra_routing(qcir::GateType, size_t, dvlab::Phase, std::tuple<size_t, size_t>, MinMaxOptionType tie_breaking_strategy, bool swapped);
-    std::vector<Operation> apsp_routing(qcir::GateType, size_t, dvlab::Phase, std::tuple<size_t, size_t>, MinMaxOptionType tie_breaking_strategy, bool swapped);
+    Operation execute_single(qcir::GateRotationCategory, dvlab::Phase, size_t);
+    std::vector<Operation> duostra_routing(Gate const& gate, std::tuple<size_t, size_t>, MinMaxOptionType tie_breaking_strategy, bool swapped);
+    std::vector<Operation> apsp_routing(Gate const& gate, std::tuple<size_t, size_t>, MinMaxOptionType tie_breaking_strategy, bool swapped);
     std::vector<Operation> assign_gate(Gate const&);
 
 private:
@@ -75,7 +75,7 @@ private:
     std::tuple<size_t, size_t> _get_physical_qubits(Gate const& gate) const;
 
     std::tuple<bool, size_t> _touch_adjacency(PhysicalQubit& qubit, PriorityQueue& pq, bool source);  // return <if touch target, target id>, swtch: false q0 propagate, true q1 propagate
-    std::vector<Operation> _traceback([[maybe_unused]] qcir::GateType gt, size_t, dvlab::Phase ph, PhysicalQubit& q0, PhysicalQubit& q1, PhysicalQubit& t0, PhysicalQubit& t1, bool swap_ids, bool swapped);
+    std::vector<Operation> _traceback(Gate const& gate, PhysicalQubit& q0, PhysicalQubit& q1, PhysicalQubit& t0, PhysicalQubit& t1, bool swap_ids, bool swapped);
 };
 
 }  // namespace qsyn::duostra

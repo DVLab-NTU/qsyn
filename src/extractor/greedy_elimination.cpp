@@ -36,7 +36,7 @@ std::vector<size_t> Extractor::find_minimal_sums(dvlab::BooleanMatrix& matrix) {
             size_t max_index = *max_element(indices.begin(), indices.end());
             for (size_t k = max_index + 1; k < matrix.num_rows(); k++) {
                 dvlab::BooleanMatrix::Row new_row = row + matrix[k];
-                std::vector<size_t> result = indices;
+                std::vector<size_t> result        = indices;
                 result.emplace_back(k);
                 if (new_row.is_one_hot())
                     return result;
@@ -76,15 +76,15 @@ std::vector<dvlab::BooleanMatrix::RowOperation> Extractor::greedy_reduction(dvla
                 long new_row_sum = static_cast<long>((matrix[i] + matrix[j]).sum());
                 if (int(matrix[i].sum()) - new_row_sum > reduction) {
                     // NOTE - Add j to i
-                    best_operation.first = j;
+                    best_operation.first  = j;
                     best_operation.second = i;
-                    reduction = static_cast<long>(matrix[i].sum()) - new_row_sum;
+                    reduction             = static_cast<long>(matrix[i].sum()) - new_row_sum;
                 }
                 if (int(matrix[j].sum()) - new_row_sum > reduction) {
                     // NOTE - Add i to j
-                    best_operation.first = i;
+                    best_operation.first  = i;
                     best_operation.second = j;
-                    reduction = static_cast<long>(matrix[j].sum()) - new_row_sum;
+                    reduction             = static_cast<long>(matrix[j].sum()) - new_row_sum;
                 }
             }
         }

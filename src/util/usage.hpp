@@ -25,9 +25,9 @@ private:
     double _current_memory = 0.0;
 
     // for CPU time usage
-    double _current_tick = 0.0;
+    double _current_tick     = 0.0;
     double _period_used_time = 0.0;
-    double _total_used_time = 0.0;
+    double _total_used_time  = 0.0;
 
     // private functions
     double _check_memory() const;

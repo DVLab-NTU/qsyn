@@ -44,7 +44,7 @@ class ZXVertex {
     friend class ZXGraph;
 
 public:
-    using QubitIdType = qsyn::QubitIdType;
+    using QubitIdType  = qsyn::QubitIdType;
     using ColumnIdType = double;
 
     ZXVertex(size_t id, QubitIdType qubit, VertexType vt, Phase phase = Phase(), ColumnIdType col = 0)
@@ -111,14 +111,14 @@ private:
     ColumnIdType _col;
     Neighbors _neighbors;
     unsigned _dfs_counter = 0;
-    size_t _pin = SIZE_MAX;
+    size_t _pin           = SIZE_MAX;
 
     void set_neighbors(Neighbors const& n) { _neighbors = n; }
 };
 
 class ZXGraph {  // NOLINT(cppcoreguidelines-special-member-functions) : copy-swap idiom
 public:
-    using QubitIdType = ZXVertex::QubitIdType;
+    using QubitIdType  = ZXVertex::QubitIdType;
     using ColumnIdType = ZXVertex::ColumnIdType;
 
     ZXGraph() {}
@@ -144,7 +144,7 @@ public:
 
     void release() {
         _next_v_id = 0;
-        _filename = "";
+        _filename  = "";
         _procedures.clear();
         _inputs.clear();
         _outputs.clear();

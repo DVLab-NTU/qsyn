@@ -159,9 +159,9 @@ private:
     void _set_next_gate_id(size_t id) { _gate_id = id; }
     void _set_next_qubit_id(QubitIdType qid) { _qubit_id = qid; }
 
-    size_t _gate_id = 0;
-    QubitIdType _qubit_id = 0;
-    bool mutable _dirty = true;
+    size_t _gate_id                      = 0;
+    QubitIdType _qubit_id                = 0;
+    bool mutable _dirty                  = true;
     unsigned mutable _global_dfs_counter = 0;
     std::string _filename;
     std::vector<std::string> _procedures;
