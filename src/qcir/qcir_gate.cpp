@@ -7,6 +7,8 @@
 
 #include "./qcir_gate.hpp"
 
+#include <spdlog/spdlog.h>
+
 #include <algorithm>
 #include <cassert>
 #include <iomanip>
@@ -50,8 +52,8 @@ void QCirGate::set_rotation_category(GateRotationCategory type) {
 }
 void QCirGate::set_phase(dvlab::Phase p) {
     if (is_fixed_phase_gate(_rotation_category) && p != get_fixed_phase(_rotation_category)) {
-        LOGGER.fatal("Gate type {} cannot be set with phase {}!", get_type_str(), p);
-        abort();
+        spdlog::error("Gate type {} cannot be set with phase {}!", get_type_str(), p);
+        return;
     }
     _phase = p;
 }

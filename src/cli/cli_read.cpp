@@ -5,6 +5,7 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 #include <fmt/core.h>
+#include <spdlog/spdlog.h>
 #include <termios.h>
 
 #include <cassert>
@@ -438,12 +439,12 @@ bool dvlab::CommandLineInterface::add_variables_from_dofiles(std::string const& 
     std::ifstream dofile(filepath);
 
     if (!dofile.is_open()) {
-        LOGGER.error("cannot open file \"{}\"!!", filepath);
+        spdlog::error("cannot open file \"{}\"!!", filepath);
         return false;
     }
 
     if (dofile.peek() == std::ifstream::traits_type::eof()) {
-        LOGGER.error("file \"{}\" is empty!!", filepath);
+        spdlog::error("file \"{}\" is empty!!", filepath);
         return false;
     }
     std::string line{""};
@@ -466,15 +467,15 @@ bool dvlab::CommandLineInterface::add_variables_from_dofiles(std::string const& 
         std::vector<std::string> keys;
         for (auto const& token : tokens) {
             if (!regex_match(token, valid_variable_name)) {
-                LOGGER.error("invalid argument name \"{}\" in \"//!ARGS\" directive", token);
+                spdlog::error("invalid argument name \"{}\" in \"//!ARGS\" directive", token);
                 return false;
             }
             keys.emplace_back(token);
         }
 
         if (arguments.size() != keys.size()) {
-            LOGGER.error("wrong number of arguments provided, expected {} but got {}!!", keys.size(), arguments.size());
-            LOGGER.error("Usage: ... {} <{}>", filepath, fmt::join(keys, "> <"));
+            spdlog::error("wrong number of arguments provided, expected {} but got {}!!", keys.size(), arguments.size());
+            spdlog::error("Usage: ... {} <{}>", filepath, fmt::join(keys, "> <"));
             return false;
         }
 

@@ -5,6 +5,8 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
+#include <spdlog/spdlog.h>
+
 #include <cstddef>
 #include <memory>
 #include <string>
@@ -38,7 +40,7 @@ bool add_device_cmds(dvlab::CommandLineInterface& cli, qsyn::device::DeviceMgr& 
           cli.add_command(device_graph_read_cmd(device_mgr)) &&
           cli.add_command(device_graph_print_cmd(device_mgr)) &&
           cli.add_command(device_mgr_print_cmd(device_mgr)))) {
-        LOGGER.fatal("Registering \"device topology\" commands fails... exiting");
+        spdlog::critical("Registering \"device topology\" commands fails... exiting");
         return false;
     }
     return true;
@@ -47,7 +49,7 @@ bool add_device_cmds(dvlab::CommandLineInterface& cli, qsyn::device::DeviceMgr& 
 std::function<bool(size_t const&)> valid_device_id(qsyn::device::DeviceMgr const& device_mgr) {
     return [&device_mgr](size_t const& id) {
         if (device_mgr.is_id(id)) return true;
-        LOGGER.error("Device {} does not exist!!", id);
+        spdlog::error("Device {} does not exist!!", id);
         return false;
     };
 };
@@ -112,7 +114,7 @@ dvlab::Command device_graph_read_cmd(qsyn::device::DeviceMgr& device_mgr) {
                 auto replace  = parser.get<bool>("-replace");
 
                 if (!buffer_device.read_device(filepath)) {
-                    LOGGER.error("the format in \"{}\" has something wrong!!", filepath);
+                    spdlog::error("the format in \"{}\" has something wrong!!", filepath);
                     return CmdExecResult::error;
                 }
 

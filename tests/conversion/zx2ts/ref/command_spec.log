@@ -20,7 +20,7 @@ qsyn> //  Command Behavior Test
 qsyn> //-------------------------
 qsyn> 
 qsyn> zx2ts // don't do anything if there's no ZXGraph
-[Error] ZXGraph list is empty. Please create a ZXGraph first!!
+[error] ZXGraph list is empty. Please create a ZXGraph first!!
 
 qsyn> 
 qsyn> // creates some ZXGraph from a small circuit
@@ -53,10 +53,10 @@ qsyn> tsprint -l
 ★ 3    3_17_13             #Dim: 2   QC2ZX ➔ ZX2TS
 
 qsyn> zx2ts -zx 2                // should log error: ZXGraph does not exist
-[Error] ZXGraph 2 does not exist!!
+[error] ZXGraph 2 does not exist!!
 
 qsyn> zx2ts -zx 0 -ts 2          // should log error: Tensor ID already occupied. In this case, the error should occur before trying to convert the tensor
-[Error] Tensor 2 already exists!! Specify `-Replace` if you intend to replace the current one.
+[error] Tensor 2 already exists!! Specify `-Replace` if you intend to replace the current one.
 
 qsyn> zx2ts -zx 0 -ts 2 -replace // should replace Tensor 2 and convert ZXGraph 0 to Tensor 2
 
@@ -73,48 +73,48 @@ qsyn>
 qsyn> zxgr benchmark/zx/cnot.zx
 
 qsyn> logger level trace
-[Debug] Setting logger level to trace
+[info] Setting logger level to trace
 
 qsyn> zx2ts
-[Info] Converting ZXGraph 2 to Tensor 4...
-[Trace] Topological order from first input: 0 2 3 1 5 4
-[Trace] Size of topological order: 6
-[Debug] Mapping vertex    0 (●): New Subgraph
-[Debug] Done. Current tensor dimension: 2
-[Trace] Current frontiers:
-[Trace]   0--2 (-) axis id: 1
-[Debug] Mapping vertex    2 (Z): Tensordot
-[Debug] Done. Current tensor dimension: 3
-[Trace] Current frontiers:
-[Trace]   2--3 (-) axis id: 1
-[Trace]   2--4 (-) axis id: 2
-[Debug] Mapping vertex    3 (X): Tensordot
-[Debug] Done. Current tensor dimension: 4
-[Trace] Current frontiers:
-[Trace]   2--4 (-) axis id: 1
-[Trace]   1--3 (-) axis id: 2
-[Trace]   3--5 (-) axis id: 3
-[Debug] Mapping vertex    1 (●): Boundary
-[Debug] Done. Current tensor dimension: 4
-[Trace] Current frontiers:
-[Trace]   2--4 (-) axis id: 1
-[Trace]   1--3 (-) axis id: 2
-[Trace]   3--5 (-) axis id: 3
-[Debug] Mapping vertex    5 (●): Boundary
-[Debug] Done. Current tensor dimension: 4
-[Trace] Current frontiers:
-[Trace]   2--4 (-) axis id: 1
-[Trace]   1--3 (-) axis id: 2
-[Trace]   3--5 (-) axis id: 3
-[Debug] Mapping vertex    4 (●): Boundary
-[Debug] Done. Current tensor dimension: 4
-[Trace] Current frontiers:
-[Trace]   2--4 (-) axis id: 1
-[Trace]   1--3 (-) axis id: 2
-[Trace]   3--5 (-) axis id: 3
-[Trace] Input  Axis IDs: 0 2
-[Trace] Output Axis IDs: 1 3
-[Info] Successfully created and checked out to Tensor 4
+[info] Converting ZXGraph 2 to Tensor 4...
+[trace] Topological order from first input: 0 2 3 1 5 4
+[trace] Size of topological order: 6
+[debug] Mapping vertex    0 (●): New Subgraph
+[debug] Done. Current tensor dimension: 2
+[trace] Current frontiers:
+[trace]   0--2 (-) axis id: 1
+[debug] Mapping vertex    2 (Z): Tensordot
+[debug] Done. Current tensor dimension: 3
+[trace] Current frontiers:
+[trace]   2--3 (-) axis id: 1
+[trace]   2--4 (-) axis id: 2
+[debug] Mapping vertex    3 (X): Tensordot
+[debug] Done. Current tensor dimension: 4
+[trace] Current frontiers:
+[trace]   2--4 (-) axis id: 1
+[trace]   1--3 (-) axis id: 2
+[trace]   3--5 (-) axis id: 3
+[debug] Mapping vertex    1 (●): Boundary
+[debug] Done. Current tensor dimension: 4
+[trace] Current frontiers:
+[trace]   2--4 (-) axis id: 1
+[trace]   1--3 (-) axis id: 2
+[trace]   3--5 (-) axis id: 3
+[debug] Mapping vertex    5 (●): Boundary
+[debug] Done. Current tensor dimension: 4
+[trace] Current frontiers:
+[trace]   2--4 (-) axis id: 1
+[trace]   1--3 (-) axis id: 2
+[trace]   3--5 (-) axis id: 3
+[debug] Mapping vertex    4 (●): Boundary
+[debug] Done. Current tensor dimension: 4
+[trace] Current frontiers:
+[trace]   2--4 (-) axis id: 1
+[trace]   1--3 (-) axis id: 2
+[trace]   3--5 (-) axis id: 3
+[trace] Input  Axis IDs: 0 2
+[trace] Output Axis IDs: 1 3
+[info] Successfully created and checked out to Tensor 4
 
 qsyn> 
 qsyn> qq -f

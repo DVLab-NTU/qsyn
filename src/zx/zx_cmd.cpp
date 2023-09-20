@@ -7,6 +7,8 @@
 
 #include "./zx_cmd.hpp"
 
+#include <spdlog/spdlog.h>
+
 #include <cassert>
 #include <cstddef>
 #include <filesystem>
@@ -27,7 +29,7 @@ namespace qsyn::zx {
 std::function<bool(size_t const&)> valid_zxgraph_id(ZXGraphMgr const& zxgraph_mgr) {
     return [&](size_t const& id) {
         if (zxgraph_mgr.is_id(id)) return true;
-        LOGGER.error("ZXGraph {} does not exist!!", id);
+        spdlog::error("ZXGraph {} does not exist!!", id);
         return false;
     };
 }
@@ -35,7 +37,7 @@ std::function<bool(size_t const&)> valid_zxgraph_id(ZXGraphMgr const& zxgraph_mg
 std::function<bool(size_t const&)> valid_zxvertex_id(ZXGraphMgr const& zxgraph_mgr) {
     return [&](size_t const& id) {
         if (zxgraph_mgr.get()->is_v_id(id)) return true;
-        LOGGER.error("Cannot find vertex with ID {} in the ZXGraph!!", id);
+        spdlog::error("Cannot find vertex with ID {} in the ZXGraph!!", id);
         return false;
     };
 }
@@ -43,8 +45,8 @@ std::function<bool(size_t const&)> valid_zxvertex_id(ZXGraphMgr const& zxgraph_m
 std::function<bool(size_t const&)> zxgraph_id_not_exist(ZXGraphMgr const& zxgraph_mgr) {
     return [&](size_t const& id) {
         if (!zxgraph_mgr.is_id(id)) return true;
-        LOGGER.error("ZXGraph {} already exists!!", id);
-        LOGGER.info("Use `-Replace` if you want to overwrite it.");
+        spdlog::error("ZXGraph {} already exists!!", id);
+        spdlog::info("Use `-Replace` if you want to overwrite it.");
         return false;
     };
 }
@@ -52,7 +54,7 @@ std::function<bool(size_t const&)> zxgraph_id_not_exist(ZXGraphMgr const& zxgrap
 std::function<bool(int const&)> zxgraph_input_qubit_not_exist(ZXGraphMgr const& zxgraph_mgr) {
     return [&](int const& qid) {
         if (!zxgraph_mgr.get()->is_input_qubit(qid)) return true;
-        LOGGER.error("This qubit's input already exists!!");
+        spdlog::error("This qubit's input already exists!!");
         return false;
     };
 }
@@ -60,15 +62,15 @@ std::function<bool(int const&)> zxgraph_input_qubit_not_exist(ZXGraphMgr const& 
 std::function<bool(int const&)> zxgraph_output_qubit_not_exist(ZXGraphMgr const& zxgraph_mgr) {
     return [&](int const& qid) {
         if (!zxgraph_mgr.get()->is_output_qubit(qid)) return true;
-        LOGGER.error("This qubit's output already exists!!");
+        spdlog::error("This qubit's output already exists!!");
         return false;
     };
 }
 
 bool zxgraph_mgr_not_empty(ZXGraphMgr const& zxgraph_mgr) {
     if (zxgraph_mgr.empty()) {
-        LOGGER.error("ZXGraph list is empty. Please create a ZXGraph first!!");
-        LOGGER.info("Use ZXNew to add a new ZXGraph, or ZXGRead to read a ZXGraph from a file.");
+        spdlog::error("ZXGraph list is empty. Please create a ZXGraph first!!");
+        spdlog::info("Use ZXNew to add a new ZXGraph, or ZXGRead to read a ZXGraph from a file.");
         return false;
     }
     return true;
@@ -113,7 +115,7 @@ Command zxgraph_new_cmd(ZXGraphMgr& zxgraph_mgr) {
 
                 if (zxgraph_mgr.is_id(id)) {
                     if (!parser.parsed("-Replace")) {
-                        LOGGER.error("ZXGraph {} already exists!! Specify `-Replace` if needed.", id);
+                        spdlog::error("ZXGraph {} already exists!! Specify `-Replace` if needed.", id);
                         return CmdExecResult::error;
                     }
                     zxgraph_mgr.set(std::make_unique<ZXGraph>());
@@ -207,7 +209,7 @@ Command zxgraph_copy_cmd(ZXGraphMgr& zxgraph_mgr) {
                 size_t id = (parser.parsed("id")) ? parser.get<size_t>("id") : zxgraph_mgr.get_next_id();
                 if (zxgraph_mgr.is_id(id)) {
                     if (!parser.parsed("-replace")) {
-                        LOGGER.error("ZXGraph {} already exists!! Specify `-Replace` if needed.", id);
+                        spdlog::error("ZXGraph {} already exists!! Specify `-Replace` if needed.", id);
                         return CmdExecResult::error;
                     }
                     zxgraph_mgr.copy(id);
@@ -469,12 +471,12 @@ Command zxgraph_edit_cmd(ZXGraphMgr& zxgraph_mgr) {
                                               std::views::transform([&](size_t id) { return zxgraph_mgr.get()->find_vertex_by_id(id); }) |
                                               std::views::filter([](ZXVertex* v) { return v != nullptr; });
                         for (auto&& v : vertices_range) {
-                            LOGGER.info("Removing vertex {}...", v->get_id());
+                            spdlog::info("Removing vertex {}...", v->get_id());
                         }
 
                         zxgraph_mgr.get()->remove_vertices({vertices_range.begin(), vertices_range.end()});
                     } else if (parser.parsed("-isolated")) {
-                        LOGGER.info("Removing isolated vertices...");
+                        spdlog::info("Removing isolated vertices...");
                         zxgraph_mgr.get()->remove_isolated_vertices();
                     }
                     return CmdExecResult::done;
@@ -488,10 +490,10 @@ Command zxgraph_edit_cmd(ZXGraphMgr& zxgraph_mgr) {
                     auto etype = str_to_edge_type(parser.get<std::string>("etype"));
 
                     if (etype.has_value()) {
-                        LOGGER.info("Removing edge ({}, {}), edge type: {}...", v0->get_id(), v1->get_id(), etype.value());
+                        spdlog::info("Removing edge ({}, {}), edge type: {}...", v0->get_id(), v1->get_id(), etype.value());
                         zxgraph_mgr.get()->remove_edge(v0, v1, etype.value());
                     } else {
-                        LOGGER.info("Removing all edges between ({}, {})...", v0->get_id(), v1->get_id());
+                        spdlog::info("Removing all edges between ({}, {})...", v0->get_id(), v1->get_id());
                         zxgraph_mgr.get()->remove_all_edges_between(v0, v1);
                     }
 
@@ -502,17 +504,17 @@ Command zxgraph_edit_cmd(ZXGraphMgr& zxgraph_mgr) {
                     assert(vtype.has_value());
 
                     auto v = zxgraph_mgr.get()->add_vertex(parser.get<int>("qubit"), vtype.value(), parser.get<Phase>("phase"));
-                    LOGGER.info("Adding vertex {}...", v->get_id());
+                    spdlog::info("Adding vertex {}...", v->get_id());
                     return CmdExecResult::done;
                 }
                 if (parser.used_subparser("-addinput")) {
                     auto i = zxgraph_mgr.get()->add_input(parser.get<int>("qubit"));
-                    LOGGER.info("Adding input {}...", i->get_id());
+                    spdlog::info("Adding input {}...", i->get_id());
                     return CmdExecResult::done;
                 }
                 if (parser.used_subparser("-addoutput")) {
                     auto o = zxgraph_mgr.get()->add_output(parser.get<int>("qubit"));
-                    LOGGER.info("Adding output {}...", o->get_id());
+                    spdlog::info("Adding output {}...", o->get_id());
                     return CmdExecResult::done;
                 }
                 if (parser.used_subparser("-addedge")) {
@@ -525,7 +527,7 @@ Command zxgraph_edit_cmd(ZXGraphMgr& zxgraph_mgr) {
                     assert(etype.has_value());
 
                     if (vs->is_neighbor(vt, etype.value()) && (vs->is_boundary() || vt->is_boundary())) {
-                        LOGGER.fatal("Cannot add edge between boundary vertices {} and {}", vs->get_id(), vt->get_id());
+                        spdlog::critical("Cannot add edge between boundary vertices {} and {}", vs->get_id(), vt->get_id());
                         return CmdExecResult::error;
                     }
 
@@ -534,16 +536,16 @@ Command zxgraph_edit_cmd(ZXGraphMgr& zxgraph_mgr) {
                     zxgraph_mgr.get()->add_edge(vs, vt, etype.value());
 
                     if (vs == vt) {
-                        LOGGER.info("Note: converting this self-loop to phase {} on vertex {}...", etype.value() == EdgeType::hadamard ? Phase(1) : Phase(0), vs->get_id());
+                        spdlog::info("Note: converting this self-loop to phase {} on vertex {}...", etype.value() == EdgeType::hadamard ? Phase(1) : Phase(0), vs->get_id());
                     } else if (had_edge) {
                         bool has_edge = vs->is_neighbor(vt, etype.value());
                         if (has_edge) {
-                            LOGGER.info("Note: redundant edge; merging into existing edge ({}, {})...", vs->get_id(), vt->get_id());
+                            spdlog::info("Note: redundant edge; merging into existing edge ({}, {})...", vs->get_id(), vt->get_id());
                         } else {
-                            LOGGER.info("Note: Hopf edge; cancelling out with existing edge ({}, {})...", vs->get_id(), vt->get_id());
+                            spdlog::info("Note: Hopf edge; cancelling out with existing edge ({}, {})...", vs->get_id(), vt->get_id());
                         }
                     } else {
-                        LOGGER.info("Adding edge ({}, {}), edge type: {}...", vs->get_id(), vt->get_id(), etype.value());
+                        spdlog::info("Adding edge ({}, {}), edge type: {}...", vs->get_id(), vt->get_id(), etype.value());
                     }
 
                     return CmdExecResult::done;

@@ -20,9 +20,6 @@
 #include "./cli_char_def.hpp"
 #include "argparse/argparse.hpp"
 #include "jthread/jthread.hpp"
-#include "util/logger.hpp"
-
-extern dvlab::Logger LOGGER;
 
 namespace dvlab {
 

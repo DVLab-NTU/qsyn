@@ -5,14 +5,13 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
+#include <spdlog/spdlog.h>
+
 #include <cstddef>
 #include <list>
 #include <stack>
 
 #include "./zxgraph.hpp"
-#include "util/logger.hpp"
-
-extern dvlab::Logger LOGGER;
 
 namespace qsyn::zx {
 
@@ -32,8 +31,8 @@ void ZXGraph::update_topological_order() const {
             _dfs(v);
     }
     reverse(_topological_order.begin(), _topological_order.end());
-    LOGGER.trace("Topological order from first input: {}", fmt::join(_topological_order | std::views::transform([](auto const& v) { return v->get_id(); }), " "));
-    LOGGER.trace("Size of topological order: {}", _topological_order.size());
+    spdlog::trace("Topological order from first input: {}", fmt::join(_topological_order | std::views::transform([](auto const& v) { return v->get_id(); }), " "));
+    spdlog::trace("Size of topological order: {}", _topological_order.size());
 }
 
 /**

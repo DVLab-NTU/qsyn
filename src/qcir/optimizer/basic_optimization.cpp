@@ -5,6 +5,8 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
+#include <spdlog/spdlog.h>
+
 #include <cassert>
 #include <functional>
 #include <ranges>
@@ -14,12 +16,10 @@
 #include "../qcir_gate.hpp"
 #include "./optimizer.hpp"
 #include "fmt/core.h"
-#include "util/logger.hpp"
 #include "util/phase.hpp"
 #include "util/util.hpp"
 
 extern bool stop_requested();
-extern dvlab::Logger LOGGER;
 
 namespace qsyn::qcir {
 
@@ -35,7 +35,7 @@ std::optional<QCir> Optimizer::basic_optimization(QCir const& qcir, BasicOptimiz
     reset(qcir);
     std::vector<size_t> orig_stats, prev_stats, stats;
     orig_stats = Optimizer::_compute_stats(qcir);
-    LOGGER.info("Start basic optimization");
+    spdlog::info("Start basic optimization");
 
     _iter = 0;
     // REVIEW - this is rather a weird logic
@@ -60,16 +60,14 @@ std::optional<QCir> Optimizer::basic_optimization(QCir const& qcir, BasicOptimiz
     }
 
     if (stop_requested()) {
-        LOGGER.warning("optimization interrupted");
+        spdlog::warn("optimization interrupted");
         return std::nullopt;
     }
 
-    LOGGER.info("Basic optimization finished after {} iterations.", _iter * 2 + 1)
-        .indent()
-        .info("Two-qubit gates: {} → {}", orig_stats[0], stats[0])
-        .info("Hadamard gates : {} → {}", orig_stats[1], stats[1])
-        .info("Non-Pauli gates: {} → {}", orig_stats[2], stats[2])
-        .unindent();
+    spdlog::info("Basic optimization finished after {} iterations.", _iter * 2 + 1);
+    spdlog::info("  Two-qubit gates: {} → {}", orig_stats[0], stats[0]);
+    spdlog::info("  Hadamard gates : {} → {}", orig_stats[1], stats[1]);
+    spdlog::info("  Non-Pauli gates: {} → {}", orig_stats[2], stats[2]);
 
     return result;
 }
@@ -81,8 +79,8 @@ std::optional<QCir> Optimizer::basic_optimization(QCir const& qcir, BasicOptimiz
  */
 QCir Optimizer::_parse_once(QCir const& qcir, bool reversed, bool do_minimize_czs, BasicOptimizationConfig const& config) {
     (reversed)
-        ? LOGGER.debug("Start parsing backward")
-        : LOGGER.debug("Start parsing forward");
+        ? spdlog::debug("Start parsing backward")
+        : spdlog::debug("Start parsing forward");
 
     reset(qcir);
     qcir.update_topological_order();
@@ -151,9 +149,9 @@ QCir Optimizer::_parse_once(QCir const& qcir, bool reversed, bool do_minimize_cz
         fmt::println("{}", statistics_str);
     }
     for (auto& line : dvlab::str::split(statistics_str, "\n")) {
-        LOGGER.debug("{}", line);
+        spdlog::debug("{}", line);
     }
-    LOGGER.debug("");
+    spdlog::debug("");
 
     _iter++;
 
@@ -298,7 +296,7 @@ void Optimizer::_add_cx(QubitIdType t1, QubitIdType t2, bool do_swap) {
                 // NOTE -  -  do the CNOT(t,c)CNOT(c,t) = CNOT(c,t)SWAP(c,t) commutation
                 if (count_if(_available[t2].begin(), _available[t2].end(), [&](QCirGate* g) { return Optimizer::two_qubit_gate_exists(g, GateRotationCategory::px, t2, t1); })) {
                     _statistics.DO_SWAP++;
-                    LOGGER.trace("Apply a do_swap commutation");
+                    spdlog::trace("Apply a do_swap commutation");
                     auto cnot = new QCirGate(_gate_count, GateRotationCategory::px, dvlab::Phase(1));
                     cnot->add_qubit(t1, false);
                     cnot->add_qubit(t2, true);
@@ -340,7 +338,7 @@ void Optimizer::_add_cx(QubitIdType t1, QubitIdType t2, bool do_swap) {
     if (found_match) {
         if (count_if(_available[t2].begin(), _available[t2].end(), [&](QCirGate* g) { return Optimizer::two_qubit_gate_exists(g, GateRotationCategory::px, t1, t2); })) {
             _statistics.CNOT_CANCEL++;
-            LOGGER.trace("Cancel with previous CX");
+            spdlog::trace("Cancel with previous CX");
             _available[t1].erase(--(find_if(_available[t1].rbegin(), _available[t1].rend(), [&](QCirGate* g) { return Optimizer::two_qubit_gate_exists(g, GateRotationCategory::px, t1, t2); })).base());
             _available[t2].erase(--(find_if(_available[t2].rbegin(), _available[t2].rend(), [&](QCirGate* g) { return Optimizer::two_qubit_gate_exists(g, GateRotationCategory::px, t1, t2); })).base());
             _gates[t1].erase(--(find_if(_gates[t1].rbegin(), _gates[t1].rend(), [&](QCirGate* g) { return Optimizer::two_qubit_gate_exists(g, GateRotationCategory::px, t1, t2); })).base());
@@ -405,7 +403,7 @@ bool Optimizer::_replace_cx_and_cz_with_s_and_cx(QubitIdType t1, QubitIdType t2)
     if (!found_match) return false;
     // NOTE - CNOT-CZ = (S* x id)CNOT (S x S)
     _statistics.CRZ_TRACSFORM++;
-    LOGGER.trace("Transform CNOT-CZ into (S* x id)CNOT(S x S)");
+    spdlog::trace("Transform CNOT-CZ into (S* x id)CNOT(S x S)");
     if (_availty[targ] == true) {
         _available[targ].clear();
     }
@@ -475,7 +473,7 @@ void Optimizer::_add_cz(QubitIdType t1, QubitIdType t2, bool do_minimize_czs) {
     if (found_match) {
         if (count_if(_available[t2].begin(), _available[t2].end(), [&](QCirGate* g) { return g == targ_cz; })) {
             _statistics.CZ_CANCEL++;
-            LOGGER.trace("Cancel with previous CZ");
+            spdlog::trace("Cancel with previous CZ");
             _available[t1].erase(--(find_if(_available[t1].rbegin(), _available[t1].rend(), [&](QCirGate* g) { return g == targ_cz; })).base());
             _available[t2].erase(--(find_if(_available[t2].rbegin(), _available[t2].rend(), [&](QCirGate* g) { return g == targ_cz; })).base());
             _gates[t1].erase(--(find_if(_gates[t1].rbegin(), _gates[t1].rend(), [&](QCirGate* g) { return g == targ_cz; })).base());
@@ -518,22 +516,20 @@ bool Optimizer::two_qubit_gate_exists(QCirGate* g, GateRotationCategory gt, Qubi
  * @param ph Phase of the gate
  * @param type 0: Z-axis, 1: X-axis, 2: Y-axis
  */
-void Optimizer::_add_rotation_gate(QubitIdType target, dvlab::Phase ph, GateRotationCategory const& type) {
+void Optimizer::_add_rotation_gate(QubitIdType target, dvlab::Phase ph, GateRotationCategory const& rotation_category) {
     auto rotate = std::invoke([&]() {
-        switch (type) {
+        switch (rotation_category) {
             case GateRotationCategory::pz:
-                return new QCirGate(_gate_count, type, ph);
+                return new QCirGate(_gate_count, rotation_category, ph);
             case GateRotationCategory::px:
-                return new QCirGate(_gate_count, type, ph);
+                return new QCirGate(_gate_count, rotation_category, ph);
             case GateRotationCategory::py:
-                return new QCirGate(_gate_count, type, ph);
+                return new QCirGate(_gate_count, rotation_category, ph);
             default:
-                LOGGER.fatal("wrong type!! Type shoud be P, PX or PY");
-                abort();
+                DVLAB_UNREACHABLE("wrong type!! Type shoud be PZ, PX or PY");
         }
     });
 
-    rotate->set_phase(ph);
     rotate->add_qubit(target, true);
     _gates[target].emplace_back(rotate);
     _available[target].emplace_back(rotate);
