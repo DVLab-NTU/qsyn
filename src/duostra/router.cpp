@@ -42,7 +42,7 @@ AStarNode::AStarNode(size_t cost, size_t id, bool source)
  * @param cost
  * @param orient
  */
-Router::Router(Device&& device, std::string const& cost_strategy, MinMaxOptionType tie_breaking_strategy)
+Router::Router(Device&& device, Router::CostStrategyType cost_strategy, MinMaxOptionType tie_breaking_strategy)
     : _greedy_type(false),
       _duostra(false),
       _tie_breaking_strategy(tie_breaking_strategy),
@@ -67,24 +67,21 @@ std::unique_ptr<Router> Router::clone() const {
  * @param type
  * @param cost
  */
-void Router::_initialize(std::string const& cost) {
+void Router::_initialize(Router::CostStrategyType cost_stretegy) {
     if (DuostraConfig::ROUTER_TYPE == RouterType::shortest_path) {
         _apsp    = true;
         _duostra = false;
     } else if (DuostraConfig::ROUTER_TYPE == RouterType::duostra) {
         _duostra = true;
-    } else {
-        std::cerr << "Error: router type not found" << std::endl;
-        abort();
     }
 
-    if (cost == "end") {
+    if (cost_stretegy == CostStrategyType::end) {
         _greedy_type = true;
         _apsp        = true;
-    } else if (cost == "start") {
+    } else if (cost_stretegy == CostStrategyType::start) {
         _greedy_type = false;
     } else {
-        std::cerr << cost << " is not a cost type" << std::endl;
+        std::cerr << cost_stretegy << " is not a cost type" << std::endl;
         abort();
     }
 

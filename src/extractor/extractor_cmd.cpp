@@ -5,6 +5,8 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
+#include <spdlog/spdlog.h>
+
 #include <cstddef>
 #include <memory>
 #include <string>
@@ -40,7 +42,7 @@ Command extraction_cmd(ZXGraphMgr& zxgraph_mgr, QCirMgr& qcir_mgr) {
             [&](ArgumentParser const& /*parser*/) {
                 if (!zx::zxgraph_mgr_not_empty(zxgraph_mgr)) return CmdExecResult::error;
                 if (!zxgraph_mgr.get()->is_graph_like()) {
-                    LOGGER.error("ZXGraph {0} is not graph-like. Not extractable!!", zxgraph_mgr.focused_id());
+                    spdlog::error("ZXGraph {0} is not graph-like. Not extractable!!", zxgraph_mgr.focused_id());
                     return CmdExecResult::error;
                 }
                 size_t next_id = zxgraph_mgr.get_next_id();
@@ -122,7 +124,7 @@ dvlab::Command extraction_step_cmd(zx::ZXGraphMgr& zxgraph_mgr, QCirMgr& qcir_mg
                 if (!zx::zxgraph_mgr_not_empty(zxgraph_mgr)) return CmdExecResult::error;
                 zxgraph_mgr.checkout(parser.get<size_t>("-zxgraph"));
                 if (!zxgraph_mgr.get()->is_graph_like()) {
-                    LOGGER.error("ZXGraph {0} is not graph-like. Not extractable!!", zxgraph_mgr.focused_id());
+                    spdlog::error("ZXGraph {0} is not graph-like. Not extractable!!", zxgraph_mgr.focused_id());
                     return CmdExecResult::error;
                 }
 
@@ -221,7 +223,7 @@ dvlab::Command extraction_print_cmd(ZXGraphMgr& zxgraph_mgr) {
                     std::cout << "Block Size:        " << BLOCK_SIZE << std::endl;
                 } else {
                     if (!zxgraph_mgr.get()->is_graph_like()) {
-                        LOGGER.error("ZXGraph {0} is not graph-like. Not extractable!!", zxgraph_mgr.focused_id());
+                        spdlog::error("ZXGraph {0} is not graph-like. Not extractable!!", zxgraph_mgr.focused_id());
                         return CmdExecResult::error;
                     }
                     Extractor ext(zxgraph_mgr.get());

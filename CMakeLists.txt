@@ -60,6 +60,15 @@ FetchContent_Declare(
   GIT_TAG 10.0.0)
 FetchContent_MakeAvailable(fmt)
 
+set(SPDLOG_FMT_EXTERNAL ON CACHE BOOL "" FORCE)
+
+FetchContent_Declare(
+  spdlog
+  SYSTEM
+  GIT_REPOSITORY https://github.com/gabime/spdlog.git
+  GIT_TAG v1.12.0)
+FetchContent_MakeAvailable(spdlog)
+
 FetchContent_Declare(
   GSL
   SYSTEM
@@ -67,6 +76,8 @@ FetchContent_Declare(
   GIT_TAG v4.0.0
   GIT_SHALLOW ON)
 FetchContent_MakeAvailable(GSL)
+
+
 
 file(
   GLOB_RECURSE SOURCES
@@ -91,6 +102,7 @@ target_link_libraries(
   OpenMP::OpenMP_CXX
   libfort::fort
   fmt::fmt
+  spdlog::spdlog
   Microsoft.GSL::GSL
   ${BLAS_LIBRARIES}
   ${LAPACK_LIBRARIES})

@@ -6,6 +6,7 @@
 ****************************************************************************/
 
 #include <fmt/ostream.h>
+#include <spdlog/spdlog.h>
 
 #include <cassert>
 #include <cmath>
@@ -19,10 +20,7 @@
 
 #include "./zx_file_parser.hpp"
 #include "./zxgraph.hpp"
-#include "util/logger.hpp"
 #include "util/tmp_files.hpp"
-
-extern dvlab::Logger LOGGER;
 
 namespace qsyn::zx {
 
@@ -60,7 +58,7 @@ bool ZXGraph::write_zx(std::filesystem::path const& filename, bool complete) con
     std::ofstream zx_file;
     zx_file.open(filename);
     if (!zx_file.is_open()) {
-        LOGGER.error("Cannot open the file \"{}\"!!", filename.string());
+        spdlog::error("Cannot open the file \"{}\"!!", filename.string());
         return false;
     }
 
@@ -88,7 +86,7 @@ bool ZXGraph::write_zx(std::filesystem::path const& filename, bool complete) con
     for (ZXVertex* v : get_inputs()) {
         fmt::print(zx_file, "I{} ({}, {})", v->get_id(), v->get_qubit(), floor(v->get_col()));
         if (!write_neighbors(v)) {
-            LOGGER.error("failed to write neighbors for vertex {}", v->get_id());
+            spdlog::error("failed to write neighbors for vertex {}", v->get_id());
             return false;
         }
         fmt::println(zx_file, "");
@@ -99,7 +97,7 @@ bool ZXGraph::write_zx(std::filesystem::path const& filename, bool complete) con
     for (ZXVertex* v : get_outputs()) {
         fmt::print(zx_file, "O{} ({}, {})", v->get_id(), v->get_qubit(), floor(v->get_col()));
         if (!write_neighbors(v)) {
-            LOGGER.error("failed to write neighbors for vertex {}", v->get_id());
+            spdlog::error("failed to write neighbors for vertex {}", v->get_id());
             return false;
         }
         fmt::println(zx_file, "");
@@ -118,7 +116,7 @@ bool ZXGraph::write_zx(std::filesystem::path const& filename, bool complete) con
                    floor(v->get_col()));
 
         if (!write_neighbors(v)) {
-            LOGGER.error("failed to write neighbors for vertex {}", v->get_id());
+            spdlog::error("failed to write neighbors for vertex {}", v->get_id());
             return false;
         }
 
@@ -166,7 +164,7 @@ bool ZXGraph::_build_graph_from_parser_storage(detail::StorageType const& storag
     for (auto& [vid, info] : storage) {
         for (auto& [type, nbid] : info.neighbors) {
             if (!id2_vertex.contains(nbid)) {
-                LOGGER.error("failed to build the graph: cannot find vertex with ID {}!!", nbid);
+                spdlog::error("failed to build the graph: cannot find vertex with ID {}!!", nbid);
                 return false;
             }
             EdgeType etype = (type == 'S') ? EdgeType::simple : EdgeType::hadamard;
@@ -187,7 +185,7 @@ bool ZXGraph::_build_graph_from_parser_storage(detail::StorageType const& storag
 bool ZXGraph::write_tikz(std::string const& filename) const {
     std::ofstream tikz_file{filename};
     if (!tikz_file.is_open()) {
-        LOGGER.error("Cannot open the file \"{}\"!!", filename);
+        spdlog::error("Cannot open the file \"{}\"!!", filename);
         return false;
     }
 
@@ -287,7 +285,7 @@ for (auto& v : _vertices) {
 for (auto& [n, e] : v->get_neighbors()) {
 if (n->get_id() > v->get_id()) {
 if (n->get_col() == v->get_col() && n->get_qubit() == v->get_qubit()) {
-    LOGGER.warning("{} and {} are connected but they have same coordinates.", v->get_id(), n->get_id());
+    spdlog::warn("{} and {} are connected but they have same coordinates.", v->get_id(), n->get_id());
     fmt::println(os, "        % \\draw[{0}] ({1}) -- ({2});", et2s.at(e), v->get_id(), n->get_id());
 } else {
     fmt::println(os, "        \\draw[{0}] ({1}) -- ({2});", et2s.at(e), v->get_id(), n->get_id());
@@ -311,7 +309,7 @@ if (n->get_col() == v->get_col() && n->get_qubit() == v->get_qubit()) {
  */
 bool ZXGraph::write_pdf(std::string const& filename) const {
     if (system("which pdflatex >/dev/null 2>&1") != 0) {
-        LOGGER.error("Unable to locate 'pdflatex' on your system. Please ensure that it is installed and in your system's PATH.");
+        spdlog::error("Unable to locate 'pdflatex' on your system. Please ensure that it is installed and in your system's PATH.");
         return false;
     }
 
@@ -320,12 +318,12 @@ bool ZXGraph::write_pdf(std::string const& filename) const {
     fs::path filepath{filename};
 
     if (filepath.extension() == "") {
-        LOGGER.error("no file extension!!");
+        spdlog::error("no file extension!!");
         return false;
     }
 
     if (filepath.extension() != ".pdf") {
-        LOGGER.error("unsupported file extension \"{}\"!!", filepath.extension().string());
+        spdlog::error("unsupported file extension \"{}\"!!", filepath.extension().string());
         return false;
     }
 
@@ -337,8 +335,8 @@ bool ZXGraph::write_pdf(std::string const& filename) const {
     std::error_code ec;
     fs::create_directory(filepath.parent_path(), ec);
     if (ec) {
-        LOGGER.error("failed to create the directory");
-        LOGGER.error("{}", ec.message());
+        spdlog::error("failed to create the directory");
+        spdlog::error("{}", ec.message());
         return false;
     }
 
@@ -348,7 +346,7 @@ bool ZXGraph::write_pdf(std::string const& filename) const {
 
     std::ofstream tex_file{temp_tex_path};
     if (!tex_file.is_open()) {
-        LOGGER.error("Cannot open the file \"{}\"!!", filepath.string());
+        spdlog::error("Cannot open the file \"{}\"!!", filepath.string());
         return false;
     }
 
@@ -359,7 +357,7 @@ bool ZXGraph::write_pdf(std::string const& filename) const {
     // Unix cmd: pdflatex -halt-on-error -output-directory <path/to/dir> <path/to/tex>
     std::string cmd = fmt::format("pdflatex -halt-on-error -output-directory {0} {1} >/dev/null 2>&1", temp_tex_path.parent_path().string(), temp_tex_path.string());
     if (system(cmd.c_str()) != 0) {
-        LOGGER.error("failed to generate PDF");
+        spdlog::error("failed to generate PDF");
         return false;
     }
 
@@ -387,12 +385,12 @@ bool ZXGraph::write_tex(std::string const& filename) const {
     fs::path filepath{filename};
 
     if (filepath.extension() == "") {
-        LOGGER.error("no file extension!!");
+        spdlog::error("no file extension!!");
         return false;
     }
 
     if (filepath.extension() != ".tex") {
-        LOGGER.error("unsupported file extension \"{}\"!!", filepath.extension().string());
+        spdlog::error("unsupported file extension \"{}\"!!", filepath.extension().string());
         return false;
     }
 
@@ -400,15 +398,15 @@ bool ZXGraph::write_tex(std::string const& filename) const {
         std::error_code ec;
         fs::create_directory(filepath.parent_path(), ec);
         if (ec) {
-            LOGGER.error("failed to create the directory");
-            LOGGER.error("{}", ec.message());
+            spdlog::error("failed to create the directory");
+            spdlog::error("{}", ec.message());
             return false;
         }
     }
 
     std::ofstream tex_file{filepath};
     if (!tex_file.is_open()) {
-        LOGGER.error("Cannot open the file \"{}\"!!", filepath.string());
+        spdlog::error("Cannot open the file \"{}\"!!", filepath.string());
         return false;
     }
 
@@ -438,7 +436,7 @@ bool ZXGraph::write_tex(std::ostream& os) const {
     fmt::println(os, "{}", includes);
     fmt::println(os, "\\begin{{document}}\n");
     if (!write_tikz(os)) {
-        LOGGER.error("Failed to write tikz");
+        spdlog::error("Failed to write tikz");
         return false;
     }
     fmt::println(os, "\\end{{document}}\n");

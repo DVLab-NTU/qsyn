@@ -140,8 +140,9 @@ bool Duostra::map(bool use_device_as_placement) {
 
     // router
     if (VERBOSE > 3) std::cout << "Creating Router..." << std::endl;
-    std::string cost = (DuostraConfig::SCHEDULER_TYPE == SchedulerType::greedy) ? "end" : "start";
-    auto router      = make_unique<Router>(std::move(_device), cost, DuostraConfig::TIE_BREAKING_STRATEGY);
+    auto cost_strategy = (DuostraConfig::SCHEDULER_TYPE == SchedulerType::greedy) ? Router::CostStrategyType::end
+                                                                                  : Router::CostStrategyType::start;
+    auto router        = std::make_unique<Router>(std::move(_device), cost_strategy, DuostraConfig::TIE_BREAKING_STRATEGY);
 
     // routing
     if (!_silent) std::cout << "Routing..." << std::endl;

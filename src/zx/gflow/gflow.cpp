@@ -7,17 +7,16 @@
 
 #include "./gflow.hpp"
 
+#include <spdlog/spdlog.h>
+
 #include <cassert>
 #include <cstddef>
 #include <ranges>
 
 #include "util/boolean_matrix.hpp"
-#include "util/logger.hpp"
 #include "util/text_format.hpp"
 #include "zx/simplifier/simplify.hpp"
 #include "zx/zxgraph.hpp"
-
-extern dvlab::Logger LOGGER;
 
 using namespace qsyn::zx;
 
@@ -107,27 +106,27 @@ bool GFlow::calculate() {
         auto coefficient_matrix = get_biadjacency_matrix(_neighbors, _frontier);
 
         size_t i = 0;
-        LOGGER.trace("Frontier: {}", fmt::join(_frontier | std::views::transform(vertex_to_id), " "));
-        LOGGER.trace("Neighbors: {}", fmt::join(_neighbors | std::views::transform(vertex_to_id), " "));
+        spdlog::trace("Frontier: {}", fmt::join(_frontier | std::views::transform(vertex_to_id), " "));
+        spdlog::trace("Neighbors: {}", fmt::join(_neighbors | std::views::transform(vertex_to_id), " "));
 
         for (auto& v : _neighbors) {
             if (_do_independent_layers &&
                 any_of(v->get_neighbors().begin(), v->get_neighbors().end(), [this](NeighborPair const& nbpair) {
                     return this->_levels.back().contains(nbpair.first);
                 })) {
-                LOGGER.trace("Skipping vertex {} : connected to current level", v->get_id());
+                spdlog::trace("Skipping vertex {} : connected to current level", v->get_id());
                 continue;
             }
 
             auto augmented_matrix = _prepare_matrix(v, i, coefficient_matrix);
 
             if (augmented_matrix.gaussian_elimination_augmented(false)) {
-                LOGGER.trace("Solved {}, adding to this level", v->get_id());
+                spdlog::trace("Solved {}, adding to this level", v->get_id());
                 _taken.insert(v);
                 _levels.back().insert(v);
                 _set_correction_set_by_matrix(v, augmented_matrix);
             } else {
-                LOGGER.trace("No solution for {}.", v->get_id());
+                spdlog::trace("No solution for {}.", v->get_id());
             }
             ++i;
         }

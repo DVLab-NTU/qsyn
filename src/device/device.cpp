@@ -9,6 +9,7 @@
 
 #include <fmt/ranges.h>
 #include <fmt/std.h>
+#include <spdlog/spdlog.h>
 
 #include <cassert>
 #include <cmath>
@@ -21,11 +22,9 @@
 
 #include "qcir/gate_type.hpp"
 #include "qcir/qcir_gate.hpp"
-#include "util/logger.hpp"
 #include "util/util.hpp"
 
 extern size_t VERBOSE;
-extern dvlab::Logger LOGGER;
 
 using namespace qsyn::qcir;
 
@@ -338,15 +337,13 @@ void Device::_initialize_floyd_warshall() {
         }
     }
 
-    LOGGER.debug("Predecessor Matrix:");
+    spdlog::debug("Predecessor Matrix:");
     for (auto& row : _predecessor) {
-        LOGGER.debug("{:5}", fmt::join(
-                                 row | std::views::transform([](size_t j) { return (j == SIZE_MAX) ? std::string{"/"} : std::to_string(j); }), ""));
+        spdlog::debug("{:5}", fmt::join(row | std::views::transform([](size_t j) { return (j == SIZE_MAX) ? std::string{"/"} : std::to_string(j); }), ""));
     }
-    LOGGER.debug("Distance Matrix:");
+    spdlog::debug("Distance Matrix:");
     for (auto& row : _distance) {
-        LOGGER.debug("{:5}", fmt::join(
-                                 row | std::views::transform([this](int j) { return (j == _max_dist) ? std::string{"X"} : std::to_string(j); }), ""));
+        spdlog::debug("{:5}", fmt::join(row | std::views::transform([this](int j) { return (j == _max_dist) ? std::string{"X"} : std::to_string(j); }), ""));
     }
 }
 
@@ -372,7 +369,7 @@ void Device::floyd_warshall() {
     _set_weight();
     _initialize_floyd_warshall();
     for (size_t k = 0; k < _num_qubit; k++) {
-        LOGGER.debug("Including vertex({}):", k);
+        spdlog::debug("Including vertex({}):", k);
         for (size_t i = 0; i < _num_qubit; i++) {
             for (size_t j = 0; j < _num_qubit; j++) {
                 if ((_distance[i][j] > _distance[i][k] + _distance[k][j]) && (_distance[i][k] != _max_dist)) {
@@ -382,15 +379,15 @@ void Device::floyd_warshall() {
             }
         }
 
-        LOGGER.debug("Predecessor Matrix:");
+        spdlog::debug("Predecessor Matrix:");
         for (auto& row : _predecessor) {
-            LOGGER.debug("{:5}", fmt::join(
-                                     row | std::views::transform([](size_t j) { return (j == SIZE_MAX) ? std::string{"/"} : std::to_string(j); }), ""));
+            spdlog::debug("{:5}", fmt::join(
+                                      row | std::views::transform([](size_t j) { return (j == SIZE_MAX) ? std::string{"/"} : std::to_string(j); }), ""));
         }
-        LOGGER.debug("Distance Matrix:");
+        spdlog::debug("Distance Matrix:");
         for (auto& row : _distance) {
-            LOGGER.debug("{:5}", fmt::join(
-                                     row | std::views::transform([this](int j) { return (j == _max_dist) ? std::string{"X"} : std::to_string(j); }), ""));
+            spdlog::debug("{:5}", fmt::join(
+                                      row | std::views::transform([this](int j) { return (j == _max_dist) ? std::string{"X"} : std::to_string(j); }), ""));
         }
     }
 }
@@ -426,7 +423,7 @@ std::vector<PhysicalQubit> Device::get_path(size_t s, size_t t) const {
 bool Device::read_device(std::string const& filename) {
     std::ifstream topo_file(filename);
     if (!topo_file.is_open()) {
-        LOGGER.error("Cannot open the file \"{}\"!!", filename);
+        spdlog::error("Cannot open the file \"{}\"!!", filename);
         return false;
     }
     std::string str = "", token = "", data = "";
@@ -452,7 +449,7 @@ bool Device::read_device(std::string const& filename) {
     data      = str.substr(token_end + 1);
     data      = dvlab::str::strip_spaces(data);
     if (!dvlab::str::str_to_u(data, qbn)) {
-        LOGGER.error("The number of qubit is not a positive integer!!");
+        spdlog::error("The number of qubit is not a positive integer!!");
         return false;
     }
     _num_qubit = size_t(qbn);
@@ -524,7 +521,7 @@ bool Device::_parse_gate_set(std::string const& gate_set_str) {
         gt             = dvlab::str::tolower_string(gt);
         auto gate_type = str_to_gate_type(gt);
         if (!gate_type.has_value()) {
-            LOGGER.error("unsupported gate type \"{}\"!!", gt);
+            spdlog::error("unsupported gate type \"{}\"!!", gt);
             return false;
         }
         _topology->add_gate_type(gate_type.value());
@@ -594,7 +591,7 @@ bool Device::_parse_singles(std::string const& data, std::vector<float>& contain
         m   = dvlab::str::str_get_token(str, num, m, ',');
         num = dvlab::str::strip_spaces(num);
         if (!dvlab::str::str_to_f(num, fl)) {
-            LOGGER.error("The number `{}` is not a float!!", num);
+            spdlog::error("The number `{}` is not a float!!", num);
             return false;
         }
         container.emplace_back(fl);
@@ -623,7 +620,7 @@ bool Device::_parse_float_pairs(std::string const& data, std::vector<std::vector
             m   = dvlab::str::str_get_token(str, num, m, ',');
             num = dvlab::str::strip_spaces(num);
             if (!dvlab::str::str_to_f(num, fl)) {
-                LOGGER.error("The number `{}` is not a float!!", num);
+                spdlog::error("The number `{}` is not a float!!", num);
                 return false;
             }
             single_fl.emplace_back(fl);
@@ -654,7 +651,7 @@ bool Device::_parse_size_t_pairs(std::string const& data, std::vector<std::vecto
             m   = dvlab::str::str_get_token(str, num, m, ',');
             num = dvlab::str::strip_spaces(num);
             if (!dvlab::str::str_to_u(num, qbn) || qbn >= _num_qubit) {
-                LOGGER.error("The number of qubit `{}` is not a positive integer or not in the legal range!!", num);
+                spdlog::error("The number of qubit `{}` is not a positive integer or not in the legal range!!", num);
                 return false;
             }
             single.emplace_back(size_t(qbn));
@@ -672,7 +669,7 @@ bool Device::_parse_size_t_pairs(std::string const& data, std::vector<std::vecto
 void Device::print_qubits(std::vector<size_t> candidates) const {
     for (auto& c : candidates) {
         if (c >= _num_qubit) {
-            LOGGER.error("Error: the maximum qubit id is {}!!", _num_qubit - 1);
+            spdlog::error("Error: the maximum qubit id is {}!!", _num_qubit - 1);
             return;
         }
     }
@@ -703,7 +700,7 @@ void Device::print_qubits(std::vector<size_t> candidates) const {
 void Device::print_edges(std::vector<size_t> candidates) const {
     for (auto& c : candidates) {
         if (c >= _num_qubit) {
-            LOGGER.error("the maximum qubit id is {}!!", _num_qubit - 1);
+            spdlog::error("the maximum qubit id is {}!!", _num_qubit - 1);
             return;
         }
     }
@@ -776,7 +773,7 @@ void Device::print_path(size_t source, size_t destination) const {
     fmt::println("");
     for (auto& c : {source, destination}) {
         if (c >= _num_qubit) {
-            LOGGER.error("the maximum qubit id is {}!!", _num_qubit - 1);
+            spdlog::error("the maximum qubit id is {}!!", _num_qubit - 1);
             return;
         }
     }

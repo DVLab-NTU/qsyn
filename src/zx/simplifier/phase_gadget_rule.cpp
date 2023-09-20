@@ -5,17 +5,16 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
+#include <spdlog/spdlog.h>
+
 #include <ranges>
 
 #include "./zx_rules_template.hpp"
-#include "util/logger.hpp"
 #include "zx/zxgraph.hpp"
 
 using namespace qsyn::zx;
 
 using MatchType = PhaseGadgetRule::MatchType;
-
-extern dvlab::Logger LOGGER;
 
 struct ZXVerticesHash {
     size_t operator()(std::vector<ZXVertex*> const& k) const {
@@ -64,7 +63,7 @@ std::vector<MatchType> PhaseGadgetRule::find_matches(ZXGraph const& graph) const
             group2axel.emplace(group, nb);
         }
 
-        LOGGER.trace("{} axel added: {}", fmt::join(group | std::views::transform([](ZXVertex* v) { return v->get_id(); }), " "), nb->get_id());
+        spdlog::trace("{} axel added: {}", fmt::join(group | std::views::transform([](ZXVertex* v) { return v->get_id(); }), " "), nb->get_id());
     }
     auto itr = group2axel.begin();
     while (itr != group2axel.end()) {

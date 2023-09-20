@@ -43,7 +43,7 @@ Command qcir_to_zx_cmd(QCirMgr& qcir_mgr, qsyn::zx::ZXGraphMgr& zxgraph_mgr) {
             },
             [&](ArgumentParser const& parser) {
                 if (!qcir_mgr_not_empty(qcir_mgr)) return CmdExecResult::error;
-                LOGGER.info("Converting to QCir {} to ZXGraph {}...", qcir_mgr.focused_id(), zxgraph_mgr.get_next_id());
+                spdlog::info("Converting to QCir {} to ZXGraph {}...", qcir_mgr.focused_id(), zxgraph_mgr.get_next_id());
                 auto g = to_zxgraph(*qcir_mgr.get(), parser.get<size_t>("decomp_mode"));
 
                 if (g.has_value()) {
@@ -69,7 +69,7 @@ Command qcir_to_tensor_cmd(QCirMgr& qcir_mgr, qsyn::tensor::TensorMgr& tensor_mg
             },
             [&](ArgumentParser const&) {
                 if (!qcir_mgr_not_empty(qcir_mgr)) return CmdExecResult::error;
-                LOGGER.info("Converting to QCir {} to tensor {}...", qcir_mgr.focused_id(), tensor_mgr.get_next_id());
+                spdlog::info("Converting to QCir {} to tensor {}...", qcir_mgr.focused_id(), tensor_mgr.get_next_id());
                 auto tensor = to_tensor(*qcir_mgr.get());
 
                 if (tensor.has_value()) {
@@ -114,10 +114,10 @@ Command zxgraph_to_tensor_cmd(qsyn::zx::ZXGraphMgr& zxgraph_mgr, qsyn::tensor::T
                 auto ts_id = parser.parsed("-ts") ? parser.get<size_t>("-ts") : tensor_mgr.get_next_id();
 
                 if (tensor_mgr.is_id(ts_id) && !parser.parsed("-replace")) {
-                    LOGGER.error("Tensor {} already exists!! Specify `-Replace` if you intend to replace the current one.", ts_id);
+                    spdlog::error("Tensor {} already exists!! Specify `-Replace` if you intend to replace the current one.", ts_id);
                     return CmdExecResult::error;
                 }
-                LOGGER.info("Converting ZXGraph {} to Tensor {}...", zx_id, ts_id);
+                spdlog::info("Converting ZXGraph {} to Tensor {}...", zx_id, ts_id);
                 auto tensor = qsyn::to_tensor(*zx);
 
                 if (tensor.has_value()) {

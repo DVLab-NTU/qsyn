@@ -6,6 +6,7 @@
 ****************************************************************************/
 
 #include <fmt/std.h>
+#include <spdlog/spdlog.h>
 
 #include <filesystem>
 #include <fort.hpp>
@@ -176,7 +177,7 @@ dvlab::CommandLineInterface::TabActionResult dvlab::CommandLineInterface::_match
     } else if (search_string = dvlab::str::strip_quotes(str + "\'"); search_string.has_value()) {
         incomplete_quotes = "\'";
     } else {
-        LOGGER.fatal("unexpected quote stripping result!!");
+        spdlog::critical("unexpected quote stripping result!!");
         return TabActionResult::no_op;
     }
     assert(search_string.has_value());
@@ -262,7 +263,7 @@ std::vector<std::string> dvlab::CommandLineInterface::_get_file_matches(fs::path
     auto prefix  = path.filename().string();
 
     if (!fs::exists(dirname)) {
-        LOGGER.error("failed to open {}!!", path.parent_path());
+        spdlog::error("failed to open {}!!", path.parent_path());
         return files;
     }
 

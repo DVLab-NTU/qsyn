@@ -5,14 +5,14 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
+#include <spdlog/spdlog.h>
+
 #include <cassert>
 
 #include "../qcir.hpp"
 #include "../qcir_gate.hpp"
 #include "./optimizer.hpp"
-#include "util/logger.hpp"
 
-extern dvlab::Logger LOGGER;
 extern bool stop_requested();
 
 namespace qsyn::qcir {
@@ -23,7 +23,7 @@ namespace qsyn::qcir {
  * @return QCir*
  */
 std::optional<QCir> Optimizer::trivial_optimization(QCir const& qcir) {
-    LOGGER.info("Start trivial optimization");
+    spdlog::info("Start trivial optimization");
 
     reset(qcir);
     QCir result;
@@ -34,7 +34,7 @@ std::optional<QCir> Optimizer::trivial_optimization(QCir const& qcir) {
     std::vector<QCirGate*> gate_list = qcir.get_topologically_ordered_gates();
     for (auto gate : gate_list) {
         if (stop_requested()) {
-            LOGGER.warning("optimization interrupted");
+            spdlog::warn("optimization interrupted");
             return std::nullopt;
         }
         std::vector<QCirGate*> last_layer = _get_first_layer_gates(result, true);
@@ -60,7 +60,7 @@ std::optional<QCir> Optimizer::trivial_optimization(QCir const& qcir) {
             Optimizer::_add_gate_to_circuit(result, gate, false);
         }
     }
-    LOGGER.info("Finished trivial optimization");
+    spdlog::info("Finished trivial optimization");
     return result;
 }
 

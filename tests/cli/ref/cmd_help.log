@@ -1,5 +1,5 @@
 qsyn> help logger
-Usage: logger [-h] [test | level | history | mask] ...
+Usage: logger [-h] [test | level] ...
 
 Description:
   display and set the logger's status
@@ -8,11 +8,9 @@ Options:
   flag  -h, --help    show this help message and exit 
 
 Subcommands:
-  [test | level | history | mask]  subcommands for logger  
-    test                           Test out logger setting 
-    level                          set logger level        
-    history                        print logger history    
-    mask                           set logger mask         
+  [test | level]  subcommands for logger  
+    test          Test out logger setting 
+    level         set logger level        
 
 qsyn> help dofile
 Usage: dofile [-h] <string file> [<string arguments>]...

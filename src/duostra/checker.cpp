@@ -9,11 +9,10 @@
 #include "./checker.hpp"
 
 #include "./circuit_topology.hpp"
-#include "util/logger.hpp"
+#include "spdlog/spdlog.h"
 #include "util/util.hpp"
 
 extern size_t VERBOSE;
-extern dvlab::Logger LOGGER;
 
 using namespace qsyn::qcir;
 
@@ -62,16 +61,14 @@ void Checker::apply_gate(Checker::Operation const& op, Checker::PhysicalQubit& q
     size_t start = get<0>(op.get_time_range());
     size_t end   = get<1>(op.get_time_range());
 
-    if (!(start >= q0.get_occupied_time())) {
-        std::cerr << op << "\n"
-                  << "Q" << q0.get_id() << " occu: " << q0.get_occupied_time()
-                  << std::endl;
-        abort();
-    }
-    if (!(end == start + get_cycle(op))) {
-        std::cerr << op << std::endl;
-        abort();
-    }
+    DVLAB_ASSERT(
+        start >= q0.get_occupied_time(),
+        fmt::format("The starting time of Operation {} is less than Qubit {}'s occupied time of ({}) !!", op.get_id(), q0.get_id(), q0.get_occupied_time()));
+
+    DVLAB_ASSERT(
+        end == start + get_cycle(op),
+        fmt::format("The ending time of Operation {} is not equal to start time + cycle!!", op.get_id()));
+
     q0.set_occupied_time(end);
 }
 

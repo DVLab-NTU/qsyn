@@ -8,14 +8,12 @@
 
 #include <fmt/core.h>
 #include <fmt/format.h>
+#include <spdlog/spdlog.h>
 
 #include <memory>
 #include <string>
 
-#include "./logger.hpp"
 #include "./ordered_hashmap.hpp"
-
-extern dvlab::Logger LOGGER;
 
 namespace dvlab {
 
@@ -73,7 +71,7 @@ public:
 
     void set(std::unique_ptr<T> t) {
         if (_list.contains(_focused_id)) {
-            LOGGER.info("Note: Replacing {} {}...", _type_name, _focused_id);
+            spdlog::info("Note: Replacing {} {}...", _type_name, _focused_id);
         }
         _list.at(_focused_id).swap(t);
     }
@@ -87,7 +85,7 @@ public:
         _focused_id = id;
         if (id == _next_id || _next_id < id) _next_id = id + 1;
 
-        LOGGER.info("Successfully created and checked out to {0} {1}", _type_name, id);
+        spdlog::info("Successfully created and checked out to {0} {1}", _type_name, id);
 
         return this->get();
     }
@@ -97,7 +95,7 @@ public:
         _focused_id = id;
         if (id == _next_id || _next_id < id) _next_id = id + 1;
 
-        LOGGER.info("Successfully created and checked out to {0} {1}", _type_name, id);
+        spdlog::info("Successfully created and checked out to {0} {1}", _type_name, id);
 
         return this->get();
     }
@@ -109,7 +107,7 @@ public:
         }
 
         _list.erase(id);
-        LOGGER.info("Successfully removed {0} {1}", _type_name, id);
+        spdlog::info("Successfully removed {0} {1}", _type_name, id);
 
         if (this->size() && _focused_id == id) {
             checkout(0);
@@ -127,12 +125,12 @@ public:
         }
 
         _focused_id = id;
-        LOGGER.info("Checked out to {} {}", _type_name, _focused_id);
+        spdlog::info("Checked out to {} {}", _type_name, _focused_id);
     }
 
     void copy(size_t new_id) {
         if (this->empty()) {
-            LOGGER.error("Cannot copy {0}: The {0} list is empty!!", _type_name);
+            spdlog::error("Cannot copy {0}: The {0} list is empty!!", _type_name);
             return;
         }
         auto copy = std::make_unique<T>(*get());
@@ -140,7 +138,7 @@ public:
         if (_next_id <= new_id) _next_id = new_id + 1;
         _list.insert_or_assign(new_id, std::move(copy));
 
-        LOGGER.info("Successfully copied {0} {1} to {0} {2}", _type_name, _focused_id, new_id);
+        spdlog::info("Successfully copied {0} {1} to {0} {2}", _type_name, _focused_id, new_id);
         checkout(new_id);
     }
 

@@ -7,6 +7,8 @@
 
 #include "qcir/gate_type.hpp"
 
+#include "util/util.hpp"
+
 namespace qsyn::qcir {
 
 std::optional<GateType> str_to_gate_type(std::string_view str) {
@@ -165,10 +167,8 @@ std::string gate_type_to_str(GateRotationCategory category, std::optional<size_t
             case GateRotationCategory::id:
             case GateRotationCategory::h:
             case GateRotationCategory::swap:
-                DVLAB_ASSERT(false, "Should be unreachable!!");
-                abort();  // to suppress warning
+                DVLAB_UNREACHABLE("Should be unreachable!!");
         }
-        abort();
     });
 
     return type_str;
