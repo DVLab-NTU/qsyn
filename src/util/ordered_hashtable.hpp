@@ -35,26 +35,26 @@ template <typename Key, typename Value, typename StoredType, typename Hash = std
 class ordered_hashtable {  // NOLINT(readability-identifier-naming) : ordered_hashtable intentionally mimics std containers
 public:
     // class OTableIterator;
-    using key_type = Key;
-    using value_type = Value;
-    using stored_type = StoredType;
-    using size_type = size_t;
+    using key_type        = Key;
+    using value_type      = Value;
+    using stored_type     = StoredType;
+    using size_type       = size_t;
     using difference_type = std::ptrdiff_t;
-    using hasher = Hash;
-    using key_equal = KeyEqual;
-    using container = std::vector<std::optional<stored_type>>;
+    using hasher          = Hash;
+    using key_equal       = KeyEqual;
+    using container       = std::vector<std::optional<stored_type>>;
 
     template <typename VecIterType>
     class OTableIterator;
 
-    using iterator = OTableIterator<typename container::iterator>;
+    using iterator       = OTableIterator<typename container::iterator>;
     using const_iterator = OTableIterator<typename container::const_iterator>;
 
     template <typename VecIterType>
     class OTableIterator {
     public:
-        using value_type = Value;
-        using difference_type = std::ptrdiff_t;
+        using value_type        = Value;
+        using difference_type   = std::ptrdiff_t;
         using iterator_category = std::bidirectional_iterator_tag;
         OTableIterator() {}
         OTableIterator(VecIterType const& itr, VecIterType const& begin, VecIterType const& end) : _itr(itr), _begin(begin), _end(end) {}
@@ -263,7 +263,7 @@ std::pair<typename ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::it
 ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::emplace(Args&&... args) {
     this->_data.emplace_back(value_type(std::forward<Args>(args)...));
     const key_type key = this->key(this->_data.back().value());
-    bool has_item = this->_key2id.contains(key);
+    bool has_item      = this->_key2id.contains(key);
     if (has_item) {
         this->_data.pop_back();
     } else {

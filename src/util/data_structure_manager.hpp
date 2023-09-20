@@ -60,7 +60,7 @@ public:
     }
 
     void reset() {
-        _next_id = 0;
+        _next_id    = 0;
         _focused_id = 0;
         _list.clear();
     }

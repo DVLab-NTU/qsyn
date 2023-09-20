@@ -51,7 +51,7 @@ Command alias_cmd(CommandLineInterface& cli) {
                 return CmdExecResult::done;
             }
 
-            auto alias = parser.get<std::string>("alias");
+            auto alias       = parser.get<std::string>("alias");
             auto replace_str = parser.get<std::string>("replace-str");
 
             if (std::ranges::any_of(alias, [](char ch) { return isspace(ch); })) {
@@ -188,9 +188,9 @@ Command usage_cmd() {
                     .help("print memory usage");
             },
             [](ArgumentParser const& parser) {
-                auto rep_all = parser.get<bool>("-all");
+                auto rep_all  = parser.get<bool>("-all");
                 auto rep_time = parser.get<bool>("-time");
-                auto rep_mem = parser.get<bool>("-memory");
+                auto rep_mem  = parser.get<bool>("-memory");
 
                 if (!rep_all && !rep_time && !rep_mem) rep_all = true;
 
@@ -209,7 +209,7 @@ Command verbose_cmd() {
 
                 parser.add_argument<size_t>("level")
                     .constraint([](size_t const& val) {
-                        if (val == 353 || 0 <= val && val <= 9) return true;  // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+                        if (val == 353 || (0 <= val && val <= 9)) return true;  // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
                         fmt::println(stderr, "Error: verbose level should be 0-9!!");
                         return false;
                     })

@@ -12,6 +12,7 @@
 #include <unordered_set>
 
 #include "device/device.hpp"
+#include "qsyn/qsyn_type.hpp"
 
 namespace qsyn {
 
@@ -45,7 +46,7 @@ private:
     Device _device;
     bool _reverse;
     // <qubit, gate to execute (from back)> for logical circuit
-    std::unordered_map<size_t, qcir::QCirGate*> _dependency;
+    std::unordered_map<QubitIdType, qcir::QCirGate*> _dependency;
 };
 
 }  // namespace duostra

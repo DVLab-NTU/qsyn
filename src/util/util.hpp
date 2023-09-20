@@ -25,7 +25,7 @@ class tqdm;
 namespace dvlab {
 #ifndef NDEBUG
 namespace detail {
-void dvlab_assert_impl(char const* expr_str, bool expr, char const* file, int line, char const* msg);
+void dvlab_assert_impl(std::string_view expr_str, bool expr, std::string_view file, int line, std::string_view msg);
 }
 #endif
 
@@ -49,9 +49,9 @@ public:
         _tqdm->finish();
     }
 
-    TqdmWrapper(TqdmWrapper const&) = delete;
-    TqdmWrapper& operator=(TqdmWrapper const&) = delete;
-    TqdmWrapper(TqdmWrapper&&) noexcept = default;
+    TqdmWrapper(TqdmWrapper const&)                = delete;
+    TqdmWrapper& operator=(TqdmWrapper const&)     = delete;
+    TqdmWrapper(TqdmWrapper&&) noexcept            = default;
     TqdmWrapper& operator=(TqdmWrapper&&) noexcept = default;
 
     inline int idx() const { return _counter; }

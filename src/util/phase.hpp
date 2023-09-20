@@ -39,39 +39,39 @@ public:
     Phase(T f, T eps = 1e-4) : _rational(f / std::numbers::pi_v<T>, eps / std::numbers::pi_v<T>) { normalize(); }
 
     friend std::ostream& operator<<(std::ostream& os, Phase const& p);
-    Phase operator+() const;
-    Phase operator-() const;
+    constexpr Phase operator+() const;
+    constexpr Phase operator-() const;
 
     // Addition and subtraction are mod 2pi
-    Phase& operator+=(Phase const& rhs);
-    Phase& operator-=(Phase const& rhs);
-    friend Phase operator+(Phase lhs, Phase const& rhs);
-    friend Phase operator-(Phase lhs, Phase const& rhs);
+    constexpr Phase& operator+=(Phase const& rhs);
+    constexpr Phase& operator-=(Phase const& rhs);
+    friend constexpr Phase operator+(Phase lhs, Phase const& rhs);
+    friend constexpr Phase operator-(Phase lhs, Phase const& rhs);
 
     // Multiplication / Devision w/ unitless constants
-    Phase& operator*=(const unitless auto& rhs);
-    Phase& operator/=(const unitless auto& rhs);
-    friend Phase operator*(Phase lhs, const unitless auto& rhs);
-    friend Phase operator*(const unitless auto& lhs, Phase rhs);
-    friend Phase operator/(Phase lhs, const unitless auto& rhs);
-    friend Rational operator/(Phase const& lhs, Phase const& rhs);
+    constexpr Phase& operator*=(const unitless auto& rhs);
+    constexpr Phase& operator/=(const unitless auto& rhs);
+    friend constexpr Phase operator*(Phase lhs, const unitless auto& rhs);
+    friend constexpr Phase operator*(const unitless auto& lhs, Phase rhs);
+    friend constexpr Phase operator/(Phase lhs, const unitless auto& rhs);
+    friend constexpr Rational operator/(Phase const& lhs, Phase const& rhs);
     // Operator *, / between phases are not supported deliberately as they don't make physical sense (Changes unit)
 
-    bool operator==(Phase const& rhs) const;
-    bool operator!=(Phase const& rhs) const;
+    constexpr bool operator==(Phase const& rhs) const;
+    constexpr bool operator!=(Phase const& rhs) const;
     // Operator <, <=, >, >= are are not supported deliberately as they don't make physical sense (Phases are mod 2pi)
 
     template <class T>
     requires std::floating_point<T>
-    static T phase_to_floating_point(Phase const& p) { return std::numbers::pi_v<T> * Rational::rational_to_floating_point<T>(p._rational); }
+    constexpr static T phase_to_floating_point(Phase const& p) { return std::numbers::pi_v<T> * Rational::rational_to_floating_point<T>(p._rational); }
 
-    static float phase_to_f(Phase const& p) { return phase_to_floating_point<float>(p); }
-    static double phase_to_d(Phase const& p) { return phase_to_floating_point<double>(p); }
-    static long double phase_to_ld(Phase const& p) { return phase_to_floating_point<long double>(p); }
+    constexpr static float phase_to_f(Phase const& p) { return phase_to_floating_point<float>(p); }
+    constexpr static double phase_to_d(Phase const& p) { return phase_to_floating_point<double>(p); }
+    constexpr static long double phase_to_ld(Phase const& p) { return phase_to_floating_point<long double>(p); }
 
     Rational get_rational() const { return _rational; }
-    IntegralType numerator() const { return _rational.numerator(); }
-    IntegralType denominator() const { return _rational.denominator(); }
+    constexpr IntegralType numerator() const { return _rational.numerator(); }
+    constexpr IntegralType denominator() const { return _rational.denominator(); }
 
     template <class T>
     requires std::floating_point<T>
@@ -83,7 +83,7 @@ public:
     std::string get_ascii_string() const;
     std::string get_print_string() const;
 
-    void normalize();
+    constexpr void normalize();
 
     template <class T = double>
     requires std::floating_point<T>
@@ -104,26 +104,63 @@ private:
     dvlab::Rational _rational;
 };
 
-Phase& Phase::operator*=(unitless auto const& rhs) {
+constexpr Phase& Phase::operator*=(unitless auto const& rhs) {
     this->_rational *= rhs;
     normalize();
     return *this;
 }
-Phase& Phase::operator/=(unitless auto const& rhs) {
+constexpr Phase& Phase::operator/=(unitless auto const& rhs) {
     this->_rational /= rhs;
     normalize();
     return *this;
 }
-Phase operator*(Phase lhs, unitless auto const& rhs) {
+constexpr Phase operator*(Phase lhs, unitless auto const& rhs) {
     lhs *= rhs;
     return lhs;
 }
-Phase operator*(unitless auto const& lhs, Phase rhs) {
+constexpr Phase operator*(unitless auto const& lhs, Phase rhs) {
     return rhs * lhs;
 }
-Phase operator/(Phase lhs, unitless auto const& rhs) {
+constexpr Phase operator/(Phase lhs, unitless auto const& rhs) {
     lhs /= rhs;
     return lhs;
+}
+
+constexpr Phase Phase::operator+() const {
+    return *this;
+}
+
+constexpr Phase Phase::operator-() const {
+    return Phase(-_rational.numerator(), _rational.denominator());
+}
+
+constexpr Phase& Phase::operator+=(Phase const& rhs) {
+    this->_rational += rhs._rational;
+    normalize();
+    return *this;
+}
+constexpr Phase& Phase::operator-=(Phase const& rhs) {
+    this->_rational -= rhs._rational;
+    normalize();
+    return *this;
+}
+constexpr Phase operator+(Phase lhs, Phase const& rhs) {
+    lhs += rhs;
+    return lhs;
+}
+constexpr Phase operator-(Phase lhs, Phase const& rhs) {
+    lhs -= rhs;
+    return lhs;
+}
+constexpr Rational operator/(Phase const& lhs, Phase const& rhs) {
+    Rational q = lhs._rational / rhs._rational;
+    return q;
+}
+constexpr bool Phase::operator==(Phase const& rhs) const {
+    return _rational == rhs._rational;
+}
+constexpr bool Phase::operator!=(Phase const& rhs) const {
+    return !(*this == rhs);
 }
 
 template <class T>
@@ -134,7 +171,7 @@ bool Phase::str_to_phase(std::string const& str, Phase& p) {
 
     // string parsing
     size_t curr_pos = 0;
-    size_t op_pos = 0;
+    size_t op_pos   = 0;
     while (op_pos != std::string::npos) {
         op_pos = str.find_first_of("*/", curr_pos);
         if (op_pos != std::string::npos) {
@@ -149,7 +186,7 @@ bool Phase::str_to_phase(std::string const& str, Phase& p) {
     // Error detection
     if (operators.size() >= number_strings.size()) return false;
 
-    IntegralType n_pis = 0;
+    IntegralType n_pis     = 0;
     IntegralType numerator = 1, denominator = 1;
     T temp_float = 1.0;
 
@@ -192,6 +229,16 @@ bool Phase::str_to_phase(std::string const& str, Phase& p) {
     p = Phase(numerator, denominator) * tmp_rational;
 
     return true;
+}
+
+/**
+ * @brief Normalize the phase to 0-2pi
+ *
+ */
+constexpr void Phase::normalize() {
+    constexpr auto floor = [](Rational const& q) -> IntegralType { return (q.numerator() - (q.numerator() >= 0 ? 0 : q.denominator())) / q.denominator(); };
+    _rational -= (floor(_rational / 2) * 2);
+    if (_rational > 1) _rational -= 2;
 }
 
 }  // namespace dvlab

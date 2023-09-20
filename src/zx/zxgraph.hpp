@@ -44,7 +44,7 @@ class ZXVertex {
     friend class ZXGraph;
 
 public:
-    using QubitIdType = qsyn::QubitIdType;
+    using QubitIdType  = qsyn::QubitIdType;
     using ColumnIdType = double;
 
     ZXVertex(size_t id, QubitIdType qubit, VertexType vt, Phase phase = Phase(), ColumnIdType col = 0)
@@ -111,14 +111,14 @@ private:
     ColumnIdType _col;
     Neighbors _neighbors;
     unsigned _dfs_counter = 0;
-    size_t _pin = SIZE_MAX;
+    size_t _pin           = SIZE_MAX;
 
     void set_neighbors(Neighbors const& n) { _neighbors = n; }
 };
 
 class ZXGraph {  // NOLINT(cppcoreguidelines-special-member-functions) : copy-swap idiom
 public:
-    using QubitIdType = ZXVertex::QubitIdType;
+    using QubitIdType  = ZXVertex::QubitIdType;
     using ColumnIdType = ZXVertex::ColumnIdType;
 
     ZXGraph() {}
@@ -144,7 +144,7 @@ public:
 
     void release() {
         _next_v_id = 0;
-        _filename = "";
+        _filename  = "";
         _procedures.clear();
         _inputs.clear();
         _outputs.clear();
@@ -277,12 +277,12 @@ public:
 
     // I/O (in zxIO.cpp)
     bool read_zx(std::filesystem::path const& filepath, bool keep_id = false);
-    bool write_zx(std::string const& filename, bool complete = false) const;
+    bool write_zx(std::filesystem::path const& filename, bool complete = false) const;
     bool write_tikz(std::string const& filename) const;
-    bool write_tikz(std::ostream& filename) const;
+    bool write_tikz(std::ostream& os) const;
     bool write_pdf(std::string const& filename) const;
     bool write_tex(std::string const& filename) const;
-    bool write_tex(std::ostream& filename) const;
+    bool write_tex(std::ostream& os) const;
 
     // Traverse (in zxTraverse.cpp)
     void update_topological_order() const;

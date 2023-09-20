@@ -10,6 +10,7 @@
 
 #include <memory>
 
+#include "./duostra_def.hpp"
 #include "./scheduler.hpp"
 #include "qcir/qcir.hpp"
 
@@ -25,15 +26,15 @@ namespace duostra {
 
 class Duostra {
 public:
-    using Device = qsyn::device::Device;
+    using Device    = qsyn::device::Device;
     using Operation = qsyn::device::Operation;
-    struct DuostraConfig {
-        bool verifyResult = false;
-        bool silent = false;
-        bool useTqdm = true;
+    struct DuostraExecutionOptions {
+        bool verify_result = false;
+        bool silent        = false;
+        bool use_tqdm      = true;
     };
-    Duostra(qcir::QCir* qcir, Device dev, DuostraConfig const& config = {.verifyResult = false, .silent = false, .useTqdm = true});
-    Duostra(std::vector<Operation> const& cir, size_t n_qubit, Device dev, DuostraConfig const& config = {.verifyResult = false, .silent = false, .useTqdm = true});
+    Duostra(qcir::QCir* qcir, Device dev, DuostraExecutionOptions const& config = {.verify_result = false, .silent = false, .use_tqdm = true});
+    Duostra(std::vector<Operation> const& cir, size_t n_qubit, Device dev, DuostraExecutionOptions const& config = {.verify_result = false, .silent = false, .use_tqdm = true});
 
     std::unique_ptr<qcir::QCir> const& get_physical_circuit() const { return _physical_circuit; }
     std::unique_ptr<qcir::QCir>&& get_physical_circuit() { return std::move(_physical_circuit); }
@@ -43,7 +44,7 @@ public:
 
     void make_dependency();
     void make_dependency(std::vector<Operation> const& ops, size_t n_qubits);
-    size_t flow(bool = false);
+    bool map(bool use_device_as_placement = false);
     void store_order_info(std::vector<size_t> const&);
     void print_assembly() const;
     void build_circuit_by_result();
@@ -60,14 +61,6 @@ private:
     std::vector<Operation> _result;
     std::vector<Operation> _order;
 };
-
-std::string get_scheduler_type_str();
-std::string get_router_type_str();
-std::string get_placer_type_str();
-
-size_t get_scheduler_type(std::string const&);
-size_t get_router_type(std::string const&);
-size_t get_placer_type(std::string const&);
 
 }  // namespace duostra
 

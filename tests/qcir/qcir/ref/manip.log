@@ -1,4 +1,3 @@
-DV Lab, NTUEE, Qsyn 0.5.1
 qsyn> qccp -q
 [Error] QCir list is empty. Please create a QCir first!!
 
@@ -89,7 +88,7 @@ Q 3  ---------cx( 2)-- x( 5)-- t( 6)------------------------------------------cx
 
 qsyn> qcr
 
-qsyn> qccr benchmark/benchmark_SABRE/small/3_17_13.qasm
+qsyn> qccr benchmark/SABRE/small/3_17_13.qasm
 
 qsyn> qccp -q
 Q 0  -----------------cx( 1)-- h( 3)-- t( 6)----------------------------------cx( 8)----------cx( 9)-- t(14)--------------------------cx(15)----------cx(16)-- h(18)-- t(20)------------------cx(23)--------------------------cx(25)----------cx(27)--td(28)--------------------------cx(32)----------cx(33)-
@@ -189,7 +188,7 @@ Q 6  -td(38)-
 
 qsyn> qcr
 
-qsyn> qccr benchmark/benchmark_SABRE/small/3_17_13.qasm
+qsyn> qccr benchmark/SABRE/small/3_17_13.qasm
 
 qsyn> qccp -q
 Q 0  -----------------cx( 1)-- h( 3)-- t( 6)----------------------------------cx( 8)----------cx( 9)-- t(14)--------------------------cx(15)----------cx(16)-- h(18)-- t(20)------------------cx(23)--------------------------cx(25)----------cx(27)--td(28)--------------------------cx(32)----------cx(33)-
@@ -226,7 +225,7 @@ Execute at t= 25
 
 qsyn> qcr
 
-qsyn> qccr benchmark/benchmark_SABRE/large/root_255.qasm
+qsyn> qccr benchmark/SABRE/large/root_255.qasm
 
 qsyn> qccp -l
 Listed by gate ID
@@ -17408,7 +17407,7 @@ Q13
 Q14  
 Q15  
 
-qsyn> qccr benchmark/benchmark_SABRE/small/4gt13_92.qasm -r
+qsyn> qccr benchmark/SABRE/small/4gt13_92.qasm -r
 
 qsyn> qccprint -l
 Listed by gate ID

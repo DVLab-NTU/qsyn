@@ -52,22 +52,17 @@ QCir Optimizer::parse_backward(QCir const& qcir, bool do_minimize_czs, BasicOpti
  * @param type 0: _hadamards, 1: _xs, and 2: _zs
  * @param element
  */
-void Optimizer::_toggle_element(GateType const& type, QubitIdType element) {
-    if (type == GateType::h) {
-        if (_hadamards.contains(element))
-            _hadamards.erase(element);
-        else
-            _hadamards.emplace(element);
-    } else if (type == GateType::x) {
-        if (_xs.contains(element))
-            _xs.erase(element);
-        else
-            _xs.emplace(element);
-    } else if (type == GateType::z) {
-        if (_zs.contains(element))
-            _zs.erase(element);
-        else
-            _zs.emplace(element);
+void Optimizer::_toggle_element(Optimizer::_ElementType type, QubitIdType element) {
+    switch (type) {
+        case _ElementType::h:
+            (_hadamards.contains(element)) ? (void)_hadamards.erase(element) : (void)_hadamards.emplace(element);
+            break;
+        case _ElementType::x:
+            (_xs.contains(element)) ? (void)_xs.erase(element) : (void)_xs.emplace(element);
+            break;
+        case _ElementType::z:
+            (_zs.contains(element)) ? (void)_zs.erase(element) : (void)_zs.emplace(element);
+            break;
     }
 }
 
@@ -77,31 +72,35 @@ void Optimizer::_toggle_element(GateType const& type, QubitIdType element) {
  * @param type 0: _hadamards, 1: _xs, and 2: _zs
  * @param element
  */
-void Optimizer::_swap_element(size_t type, QubitIdType e1, QubitIdType e2) {
-    if (type == 0) {
-        if (_hadamards.contains(e1) && !_hadamards.contains(e2)) {
-            _hadamards.erase(e1);
-            _hadamards.emplace(e2);
-        } else if (_hadamards.contains(e2) && !_hadamards.contains(e1)) {
-            _hadamards.erase(e2);
-            _hadamards.emplace(e1);
-        }
-    } else if (type == 1) {
-        if (_xs.contains(e1) && !_xs.contains(e2)) {
-            _xs.erase(e1);
-            _xs.emplace(e2);
-        } else if (_xs.contains(e2) && !_xs.contains(e1)) {
-            _xs.erase(e2);
-            _xs.emplace(e1);
-        }
-    } else if (type == 2) {
-        if (_zs.contains(e1) && !_zs.contains(e2)) {
-            _zs.erase(e1);
-            _zs.emplace(e2);
-        } else if (_zs.contains(e2) && !_zs.contains(e1)) {
-            _zs.erase(e2);
-            _zs.emplace(e1);
-        }
+void Optimizer::_swap_element(Optimizer::_ElementType type, QubitIdType e1, QubitIdType e2) {
+    switch (type) {
+        case _ElementType::h:
+            if (_hadamards.contains(e1) && !_hadamards.contains(e2)) {
+                _hadamards.erase(e1);
+                _hadamards.emplace(e2);
+            } else if (_hadamards.contains(e2) && !_hadamards.contains(e1)) {
+                _hadamards.erase(e2);
+                _hadamards.emplace(e1);
+            }
+            break;
+        case _ElementType::x:
+            if (_xs.contains(e1) && !_xs.contains(e2)) {
+                _xs.erase(e1);
+                _xs.emplace(e2);
+            } else if (_xs.contains(e2) && !_xs.contains(e1)) {
+                _xs.erase(e2);
+                _xs.emplace(e1);
+            }
+            break;
+        case _ElementType::z:
+            if (_zs.contains(e1) && !_zs.contains(e2)) {
+                _zs.erase(e1);
+                _zs.emplace(e2);
+            } else if (_zs.contains(e2) && !_zs.contains(e1)) {
+                _zs.erase(e2);
+                _zs.emplace(e1);
+            }
+            break;
     }
 }
 
@@ -113,16 +112,7 @@ void Optimizer::_swap_element(size_t type, QubitIdType e1, QubitIdType e2) {
  * @return false
  */
 bool Optimizer::is_single_z_rotation(QCirGate* g) {
-    if (g->get_type() == GateType::p ||
-        g->get_type() == GateType::z ||
-        g->get_type() == GateType::s ||
-        g->get_type() == GateType::sdg ||
-        g->get_type() == GateType::t ||
-        g->get_type() == GateType::tdg ||
-        g->get_type() == GateType::rz)
-        return true;
-    else
-        return false;
+    return g->get_num_qubits() == 1 && (g->get_rotation_category() == GateRotationCategory::pz || g->get_rotation_category() == GateRotationCategory::rz);
 }
 
 /**
@@ -133,12 +123,7 @@ bool Optimizer::is_single_z_rotation(QCirGate* g) {
  * @return false
  */
 bool Optimizer::is_single_x_rotation(QCirGate* g) {
-    if (g->get_type() == GateType::x ||
-        g->get_type() == GateType::sx ||
-        g->get_type() == GateType::rx)
-        return true;
-    else
-        return false;
+    return g->get_num_qubits() == 1 && (g->get_rotation_category() == GateRotationCategory::px || g->get_rotation_category() == GateRotationCategory::rx);
 }
 
 /**
@@ -149,11 +134,7 @@ bool Optimizer::is_single_x_rotation(QCirGate* g) {
  * @return false
  */
 bool Optimizer::is_double_qubit_gate(QCirGate* g) {
-    if (g->get_type() == GateType::cx ||
-        g->get_type() == GateType::cz)
-        return true;
-    else
-        return false;
+    return g->get_num_qubits() == 2 && (g->is_cx() || g->is_cz());
 }
 
 /**

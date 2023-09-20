@@ -7,6 +7,9 @@
 
 #include "device/device.hpp"
 
+#include <fmt/ranges.h>
+#include <fmt/std.h>
+
 #include <cassert>
 #include <cmath>
 #include <cstdint>
@@ -16,7 +19,7 @@
 #include <ranges>
 #include <string>
 
-#include "fmt/ranges.h"
+#include "qcir/gate_type.hpp"
 #include "qcir/qcir_gate.hpp"
 #include "util/logger.hpp"
 #include "util/util.hpp"
@@ -134,7 +137,7 @@ std::ostream& operator<<(std::ostream& os, PhysicalQubit const& q) {
 void PhysicalQubit::mark(bool source, size_t pred) {
     _marked = true;
     _source = source;
-    _pred = pred;
+    _pred   = pred;
 }
 
 /**
@@ -144,9 +147,9 @@ void PhysicalQubit::mark(bool source, size_t pred) {
  * @param swapTime
  */
 void PhysicalQubit::take_route(size_t cost, size_t swap_time) {
-    _cost = cost;
+    _cost      = cost;
     _swap_time = swap_time;
-    _taken = true;
+    _taken     = true;
 }
 
 /**
@@ -155,8 +158,8 @@ void PhysicalQubit::take_route(size_t cost, size_t swap_time) {
  */
 void PhysicalQubit::reset() {
     _marked = false;
-    _taken = false;
-    _cost = _occupied_time;
+    _taken  = false;
+    _cost   = _occupied_time;
 }
 
 // SECTION - Class Device Member Functions
@@ -169,10 +172,10 @@ void PhysicalQubit::reset() {
  * @return tuple<size_t, size_t> (index of next qubit, cost)
  */
 std::tuple<size_t, size_t> Device::get_next_swap_cost(size_t source, size_t target) {
-    size_t next_idx = _predecessor[source][target];
+    size_t next_idx         = _predecessor[source][target];
     PhysicalQubit& q_source = get_physical_qubit(source);
-    PhysicalQubit& q_next = get_physical_qubit(next_idx);
-    size_t cost = std::max(q_source.get_occupied_time(), q_next.get_occupied_time());
+    PhysicalQubit& q_next   = get_physical_qubit(next_idx);
+    size_t cost             = std::max(q_source.get_occupied_time(), q_next.get_occupied_time());
 
     assert(q_source.is_adjacency(q_next));
     return {next_idx, cost};
@@ -222,31 +225,24 @@ void Device::add_adjacency(size_t a, size_t b) {
  */
 void Device::apply_gate(Operation const& op) {
     auto qubits = op.get_qubits();
-    auto& q0 = get_physical_qubit(std::get<0>(qubits));
-    auto& q1 = get_physical_qubit(std::get<1>(qubits));
-    auto t = op.get_time_begin();
+    auto& q0    = get_physical_qubit(std::get<0>(qubits));
+    auto& q1    = get_physical_qubit(std::get<1>(qubits));
+    auto t      = op.get_time_begin();
 
-    switch (op.get_type()) {
-        case GateType::swap: {
-            size_t temp = q0.get_logical_qubit();
-            q0.set_logical_qubit(q1.get_logical_qubit());
-            q1.set_logical_qubit(temp);
-            q0.set_occupied_time(t + SWAP_DELAY);
-            q1.set_occupied_time(t + SWAP_DELAY);
-            break;
-        }
-        case GateType::cx: {
-            q0.set_occupied_time(t + DOUBLE_DELAY);
-            q1.set_occupied_time(t + DOUBLE_DELAY);
-            break;
-        }
-        case GateType::cz: {
-            q0.set_occupied_time(t + DOUBLE_DELAY);
-            q1.set_occupied_time(t + DOUBLE_DELAY);
-            break;
-        }
-        default:
-            assert(false);
+    if (op.is_swap()) {
+        auto temp = q0.get_logical_qubit();
+        q0.set_logical_qubit(q1.get_logical_qubit());
+        q1.set_logical_qubit(temp);
+        q0.set_occupied_time(t + SWAP_DELAY);
+        q1.set_occupied_time(t + SWAP_DELAY);
+    } else if (op.is_cx()) {
+        q0.set_occupied_time(t + DOUBLE_DELAY);
+        q1.set_occupied_time(t + DOUBLE_DELAY);
+    } else if (op.is_cz()) {
+        q0.set_occupied_time(t + DOUBLE_DELAY);
+        q1.set_occupied_time(t + DOUBLE_DELAY);
+    } else {
+        DVLAB_ASSERT(false, "Unknown gate type at apply_gate()!!");
     }
 }
 
@@ -256,9 +252,9 @@ void Device::apply_gate(Operation const& op) {
  * @param op
  */
 void Device::apply_swap_check(size_t qid0, size_t qid1) {
-    auto& q0 = get_physical_qubit(qid0);
-    auto& q1 = get_physical_qubit(qid1);
-    size_t temp = q0.get_logical_qubit();
+    auto& q0  = get_physical_qubit(qid0);
+    auto& q1  = get_physical_qubit(qid1);
+    auto temp = q0.get_logical_qubit();
     q0.set_logical_qubit(q1.get_logical_qubit());
     q1.set_logical_qubit(temp);
     size_t t = std::max(q0.get_occupied_time(), q1.get_occupied_time());
@@ -282,8 +278,8 @@ void Device::apply_single_qubit_gate(size_t physical_id) {
  *
  * @return vector<size_t> (index of physical qubit)
  */
-std::vector<size_t> Device::mapping() const {
-    std::vector<size_t> ret;
+std::vector<std::optional<size_t>> Device::mapping() const {
+    std::vector<std::optional<size_t>> ret;
     ret.resize(_qubit_list.size());
     for (auto const& [id, qubit] : _qubit_list) {
         ret[id] = qubit.get_logical_qubit();
@@ -298,7 +294,7 @@ std::vector<size_t> Device::mapping() const {
  */
 void Device::place(std::vector<size_t> const& assignment) {
     for (size_t i = 0; i < assignment.size(); ++i) {
-        assert(_qubit_list[assignment[i]].get_logical_qubit() == SIZE_MAX);
+        assert(_qubit_list[assignment[i]].get_logical_qubit() == std::nullopt);
         _qubit_list[assignment[i]].set_logical_qubit(i);
     }
 }
@@ -333,7 +329,7 @@ void Device::_initialize_floyd_warshall() {
 
     for (size_t i = 0; i < _num_qubit; i++) {
         _distance[i].resize(_num_qubit);
-        _predecessor[i].resize(_num_qubit, size_t(-1));
+        _predecessor[i].resize(_num_qubit, SIZE_MAX);
         for (size_t j = 0; j < _num_qubit; j++) {
             _distance[i][j] = _adjacency_matrix[i][j];
             if (_distance[i][j] != 0 && _distance[i][j] != _max_dist) {
@@ -380,7 +376,7 @@ void Device::floyd_warshall() {
         for (size_t i = 0; i < _num_qubit; i++) {
             for (size_t j = 0; j < _num_qubit; j++) {
                 if ((_distance[i][j] > _distance[i][k] + _distance[k][j]) && (_distance[i][k] != _max_dist)) {
-                    _distance[i][j] = _distance[i][k] + _distance[k][j];
+                    _distance[i][j]    = _distance[i][k] + _distance[k][j];
                     _predecessor[i][j] = _predecessor[k][j];
                 }
             }
@@ -414,7 +410,7 @@ std::vector<PhysicalQubit> Device::get_path(size_t s, size_t t) const {
     path.emplace_back(new_pred);
     while (true) {
         new_pred = _predecessor[t][new_pred];
-        if (new_pred == size_t(-1)) break;
+        if (new_pred == SIZE_MAX) break;
         path.emplace_back(_qubit_list.at(new_pred));
     }
     return path;
@@ -441,7 +437,7 @@ bool Device::read_device(std::string const& filename) {
         str = dvlab::str::strip_spaces(dvlab::str::strip_comments(str));
     }
     size_t token_end = dvlab::str::str_get_token(str, token, 0, ": ");
-    data = str.substr(token_end + 1);
+    data             = str.substr(token_end + 1);
 
     _topology->set_name(dvlab::str::strip_spaces(data));
 
@@ -453,8 +449,8 @@ bool Device::read_device(std::string const& filename) {
         str = dvlab::str::strip_spaces(dvlab::str::strip_comments(str));
     }
     token_end = dvlab::str::str_get_token(str, token, 0, ": ");
-    data = str.substr(token_end + 1);
-    data = dvlab::str::strip_spaces(data);
+    data      = str.substr(token_end + 1);
+    data      = dvlab::str::strip_spaces(data);
     if (!dvlab::str::str_to_u(data, qbn)) {
         LOGGER.error("The number of qubit is not a positive integer!!");
         return false;
@@ -477,9 +473,9 @@ bool Device::read_device(std::string const& filename) {
     }
 
     token_end = dvlab::str::str_get_token(str, token, 0, ": ");
-    data = str.substr(token_end + 1);
-    data = dvlab::str::strip_spaces(data);
-    data = dvlab::str::remove_brackets(data, '[', ']');
+    data      = str.substr(token_end + 1);
+    data      = dvlab::str::strip_spaces(data);
+    data      = dvlab::str::remove_brackets(data, '[', ']');
     std::vector<std::vector<float>> cx_err, cx_delay;
     std::vector<std::vector<size_t>> adj_list;
     std::vector<float> sg_err, sg_delay;
@@ -518,20 +514,20 @@ bool Device::read_device(std::string const& filename) {
 bool Device::_parse_gate_set(std::string const& gate_set_str) {
     std::string token = "", data = "", gt;
     size_t token_end = dvlab::str::str_get_token(gate_set_str, token, 0, ": ");
-    data = gate_set_str.substr(token_end + 1);
-    data = dvlab::str::strip_spaces(data);
-    data = dvlab::str::remove_brackets(data, '{', '}');
-    size_t m = 0;
+    data             = gate_set_str.substr(token_end + 1);
+    data             = dvlab::str::strip_spaces(data);
+    data             = dvlab::str::remove_brackets(data, '{', '}');
+    size_t m         = 0;
     while (m < data.size()) {
-        m = dvlab::str::str_get_token(data, gt, m, ',');
-        gt = dvlab::str::strip_spaces(gt);
-        gt = dvlab::str::tolower_string(gt);
-
-        if (!STR_TO_GATE_TYPE.contains(gt)) {
+        m              = dvlab::str::str_get_token(data, gt, m, ',');
+        gt             = dvlab::str::strip_spaces(gt);
+        gt             = dvlab::str::tolower_string(gt);
+        auto gate_type = str_to_gate_type(gt);
+        if (!gate_type.has_value()) {
             LOGGER.error("unsupported gate type \"{}\"!!", gt);
             return false;
         }
-        _topology->add_gate_type(STR_TO_GATE_TYPE[gt]);
+        _topology->add_gate_type(gate_type.value());
     }
     return true;
 }
@@ -556,7 +552,7 @@ bool Device::_parse_info(std::ifstream& f, std::vector<std::vector<float>>& cx_e
             str = dvlab::str::strip_spaces(dvlab::str::strip_comments(str));
         }
         size_t token_end = dvlab::str::str_get_token(str, token, 0, ": ");
-        data = str.substr(token_end + 1);
+        data             = str.substr(token_end + 1);
 
         data = dvlab::str::strip_spaces(data);
         if (token == "SGERROR") {
@@ -595,7 +591,7 @@ bool Device::_parse_singles(std::string const& data, std::vector<float>& contain
 
     std::vector<float> single_fl;
     while (m < str.size()) {
-        m = dvlab::str::str_get_token(str, num, m, ',');
+        m   = dvlab::str::str_get_token(str, num, m, ',');
         num = dvlab::str::strip_spaces(num);
         if (!dvlab::str::str_to_f(num, fl)) {
             LOGGER.error("The number `{}` is not a float!!", num);
@@ -619,12 +615,12 @@ bool Device::_parse_float_pairs(std::string const& data, std::vector<std::vector
     float fl = 0.;
     size_t n = 0, m = 0;
     while (n < data.size()) {
-        n = dvlab::str::str_get_token(data, str, n, '[');
+        n   = dvlab::str::str_get_token(data, str, n, '[');
         str = str.substr(0, str.find_first_of(']'));
-        m = 0;
+        m   = 0;
         std::vector<float> single_fl;
         while (m < str.size()) {
-            m = dvlab::str::str_get_token(str, num, m, ',');
+            m   = dvlab::str::str_get_token(str, num, m, ',');
             num = dvlab::str::strip_spaces(num);
             if (!dvlab::str::str_to_f(num, fl)) {
                 LOGGER.error("The number `{}` is not a float!!", num);
@@ -650,12 +646,12 @@ bool Device::_parse_size_t_pairs(std::string const& data, std::vector<std::vecto
     unsigned qbn = 0;
     size_t n = 0, m = 0;
     while (n < data.size()) {
-        n = dvlab::str::str_get_token(data, str, n, '[');
+        n   = dvlab::str::str_get_token(data, str, n, '[');
         str = str.substr(0, str.find_first_of(']'));
-        m = 0;
+        m   = 0;
         std::vector<size_t> single;
         while (m < str.size()) {
-            m = dvlab::str::str_get_token(str, num, m, ',');
+            m   = dvlab::str::str_get_token(str, num, m, ',');
             num = dvlab::str::strip_spaces(num);
             if (!dvlab::str::str_to_u(num, qbn) || qbn >= _num_qubit) {
                 LOGGER.error("The number of qubit `{}` is not a positive integer or not in the legal range!!", num);
@@ -745,7 +741,7 @@ void Device::print_edges(std::vector<size_t> candidates) const {
  */
 void Device::print_topology() const {
     fmt::println("Topology: {} ({} qubits, {} edges)", get_name(), _qubit_list.size(), _topology->get_num_adjacencies());
-    fmt::println("Gate Set: {}", fmt::join(_topology->get_gate_set() | std::views::transform([this](GateType gtype) { return GATE_TYPE_TO_STR.at(gtype); }), ", "));
+    fmt::println("Gate Set: {}", fmt::join(_topology->get_gate_set() | std::views::transform([](GateType gtype) { return dvlab::str::toupper_string(gate_type_to_str(gtype)); }), ", "));
 }
 
 /**
@@ -755,7 +751,7 @@ void Device::print_topology() const {
 void Device::print_predecessor() const {
     fmt::println("Predecessor Matrix:");
     for (auto& row : _predecessor) {
-        fmt::println("{:5}", fmt::join(row | std::views::transform([this](size_t pred) { return (pred == SIZE_MAX) ? "/" : std::to_string(pred); }), ""));
+        fmt::println("{:5}", fmt::join(row | std::views::transform([](size_t pred) { return (pred == SIZE_MAX) ? "/" : std::to_string(pred); }), ""));
     }
 }
 
@@ -835,32 +831,12 @@ void Device::print_status() const {
  * @param op
  * @return ostream&
  */
-std::ostream& operator<<(std::ostream& os, Operation& op) {
-    os << std::left;
-    size_t from = std::get<0>(op._duration);
-    size_t to = std::get<1>(op._duration);
-    // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers)
-    os << std::setw(20) << "Operation: " + GATE_TYPE_TO_STR[op._oper];
-    os << "Q" << std::get<0>(op._qubits);
-    if (std::get<1>(op._qubits) != SIZE_MAX) os << " Q" << std::get<1>(op._qubits);
-    os << "    from: " << std::left << std::setw(10) << from << "to: " << to;
-    // NOLINTEND(cppcoreguidelines-avoid-magic-numbers)
-    return os;
-}
-
-/**
- * @brief Print overloading
- *
- * @param os
- * @param op
- * @return ostream&
- */
 std::ostream& operator<<(std::ostream& os, Operation const& op) {
     os << std::left;
     size_t from = std::get<0>(op._duration);
-    size_t to = std::get<1>(op._duration);
+    size_t to   = std::get<1>(op._duration);
     // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers)
-    os << std::setw(20) << "Operation: " + GATE_TYPE_TO_STR[op._oper];
+    os << std::setw(20) << "Operation: " + gate_type_to_str(op._operation, std::get<1>(op._qubits) == SIZE_MAX ? 1 : 2, op.get_phase());
     os << "Q" << std::get<0>(op._qubits) << " Q" << std::get<1>(op._qubits)
        << "    from: " << std::left << std::setw(10) << from << "to: " << to;
     // NOLINTEND(cppcoreguidelines-avoid-magic-numbers)
@@ -875,11 +851,11 @@ std::ostream& operator<<(std::ostream& os, Operation const& op) {
  * @param qs
  * @param du
  */
-Operation::Operation(GateType oper, dvlab::Phase ph, std::tuple<size_t, size_t> qs, std::tuple<size_t, size_t> du)
-    : _oper(oper), _phase(ph), _qubits(qs), _duration(du), _id(SIZE_MAX) {
+Operation::Operation(GateRotationCategory op, dvlab::Phase ph, std::tuple<size_t, size_t> qubits, std::tuple<size_t, size_t> duration)
+    : _operation(op), _phase(ph), _qubits(qubits), _duration(duration) {
     // sort qs
-    size_t a = std::get<0>(qs);
-    size_t b = std::get<1>(qs);
+    size_t a = std::get<0>(qubits);
+    size_t b = std::get<1>(qubits);
     assert(a != b);
 }
 

@@ -10,9 +10,9 @@
 namespace dvlab {
 
 void dvlab::Command::add_subcommand(dvlab::Command const& cmd) {
-    auto old_definition = this->_parser_definition;
+    auto old_definition       = this->_parser_definition;
     auto old_on_parse_success = this->_on_parse_success;
-    this->_parser_definition = [cmd, old_definition](dvlab::argparse::ArgumentParser& parser) {
+    this->_parser_definition  = [cmd, old_definition](dvlab::argparse::ArgumentParser& parser) {
         old_definition(parser);
         auto subparsers = std::invoke(
             [&parser]() {

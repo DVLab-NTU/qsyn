@@ -5,6 +5,8 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
+#include <fmt/ostream.h>
+
 #include <filesystem>
 #include <fstream>
 #include <string>
@@ -28,26 +30,19 @@ bool QCir::write_qasm(std::string const& filename) {
     file.open(filename, std::fstream::out);
     if (!file)
         return false;
-    file << "OPENQASM 2.0;\n";
-    file << "include \"qelib1.inc\";\n";
-    file << "qreg q[" << _qubits.size() << "];\n";
+    fmt::println(file, "OPENQASM 2.0;");
+    fmt::println(file, "include \"qelib1.inc\";");
+    fmt::println(file, "qreg q[{}];", _qubits.size());
+
     for (size_t i = 0; i < _topological_order.size(); i++) {
-        QCirGate* cur_gate = _topological_order[i];
-        file << cur_gate->get_type_str();
-        if (cur_gate->get_type() == GateType::mcp || cur_gate->get_type() == GateType::mcpx || cur_gate->get_type() == GateType::mcpy || cur_gate->get_type() == GateType::mcrz || cur_gate->get_type() == GateType::mcrx || cur_gate->get_type() == GateType::mcry || cur_gate->get_type() == GateType::p || cur_gate->get_type() == GateType::px || cur_gate->get_type() == GateType::py || cur_gate->get_type() == GateType::rz || cur_gate->get_type() == GateType::rx || cur_gate->get_type() == GateType::ry) {
-            file << "(" << cur_gate->get_phase().get_ascii_string() << ")"
-                 << " ";
-        } else {
-            file << " ";
-        }
+        QCirGate* cur_gate          = _topological_order[i];
+        auto type_str               = cur_gate->get_type_str();
         std::vector<QubitInfo> pins = cur_gate->get_qubits();
-        for (size_t qb = 0; qb < pins.size(); qb++) {
-            file << "q[" << pins[qb]._qubit << "]";
-            if (qb == pins.size() - 1)
-                file << ";\n";
-            else
-                file << ",";
-        }
+        auto is_clifford_t          = cur_gate->get_phase().denominator() == 1 || cur_gate->get_phase().denominator() == 2 || cur_gate->get_phase() == Phase(1, 4) || cur_gate->get_phase() == Phase(-1, 4);
+        fmt::println(file, "{}{} {};",
+                     cur_gate->get_type_str(),
+                     is_clifford_t ? "" : fmt::format("({})", cur_gate->get_phase().get_ascii_string()),
+                     fmt::join(pins | std::views::transform([](QubitInfo const& pin) { return fmt::format("q[{}]", pin._qubit); }), ", "));
     }
     return true;
 }

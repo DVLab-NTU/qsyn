@@ -14,6 +14,7 @@
 #include <gsl/util>
 #include <iosfwd>
 #include <limits>
+#include <numeric>
 
 //--- Rational Numbers ----------------------------------
 // This class maintains the canonicity of stored rational numbers by simplifying the numerator/denominator whenever possible.
@@ -26,7 +27,7 @@ namespace dvlab {
 class Rational {
 public:
     // Default constructor for two integral type
-    using IntegralType = int;
+    using IntegralType      = int;
     using FloatingPointType = double;
 
     constexpr Rational() {}
@@ -45,31 +46,31 @@ public:
     // Operator Overloading
     friend std::ostream& operator<<(std::ostream& os, Rational const& q);
 
-    Rational operator+() const;
-    Rational operator-() const;
+    constexpr Rational operator+() const;
+    constexpr Rational operator-() const;
 
     // Arithmetic operators always preserve the normalities of Rational
-    Rational& operator+=(Rational const& rhs);
-    Rational& operator-=(Rational const& rhs);
-    Rational& operator*=(Rational const& rhs);
-    Rational& operator/=(Rational const& rhs);
-    friend Rational operator+(Rational lhs, Rational const& rhs);
-    friend Rational operator-(Rational lhs, Rational const& rhs);
-    friend Rational operator*(Rational lhs, Rational const& rhs);
-    friend Rational operator/(Rational lhs, Rational const& rhs);
+    constexpr Rational& operator+=(Rational const& rhs);
+    constexpr Rational& operator-=(Rational const& rhs);
+    constexpr Rational& operator*=(Rational const& rhs);
+    constexpr Rational& operator/=(Rational const& rhs);
+    friend constexpr Rational operator+(Rational lhs, Rational const& rhs);
+    friend constexpr Rational operator-(Rational lhs, Rational const& rhs);
+    friend constexpr Rational operator*(Rational lhs, Rational const& rhs);
+    friend constexpr Rational operator/(Rational lhs, Rational const& rhs);
 
-    bool operator==(Rational const& rhs) const;
-    bool operator!=(Rational const& rhs) const;
-    bool operator<(Rational const& rhs) const;
-    bool operator<=(Rational const& rhs) const;
-    bool operator>(Rational const& rhs) const;
-    bool operator>=(Rational const& rhs) const;
+    constexpr bool operator==(Rational const& rhs) const;
+    constexpr bool operator!=(Rational const& rhs) const;
+    constexpr bool operator<(Rational const& rhs) const;
+    constexpr bool operator<=(Rational const& rhs) const;
+    constexpr bool operator>(Rational const& rhs) const;
+    constexpr bool operator>=(Rational const& rhs) const;
 
     // Operations for Rational Numbers
-    void reduce();
+    constexpr void reduce();
     //                                      vvv won't lose precision if the following static_assert is satisfied
-    IntegralType numerator() const { return static_cast<IntegralType>(_numer); }
-    IntegralType denominator() const { return static_cast<IntegralType>(_denom); }
+    constexpr IntegralType numerator() const { return static_cast<IntegralType>(_numer); }
+    constexpr IntegralType denominator() const { return static_cast<IntegralType>(_denom); }
 
     static_assert(
         std::numeric_limits<IntegralType>::digits <= std::numeric_limits<FloatingPointType>::digits,
@@ -77,11 +78,11 @@ public:
 
     template <class T>
     requires std::floating_point<T>
-    static T rational_to_floating_point(Rational const& q) { return ((T)q._numer) / q._denom; }
+    constexpr static T rational_to_floating_point(Rational const& q) { return ((T)q._numer) / q._denom; }
 
-    static float rational_to_f(Rational const& q) { return rational_to_floating_point<float>(q); }
-    static double rational_to_d(Rational const& q) { return rational_to_floating_point<double>(q); }
-    static long double rational_to_ld(Rational const& q) { return rational_to_floating_point<long double>(q); }
+    constexpr static float rational_to_f(Rational const& q) { return rational_to_floating_point<float>(q); }
+    constexpr static double rational_to_d(Rational const& q) { return rational_to_floating_point<double>(q); }
+    constexpr static long double rational_to_ld(Rational const& q) { return rational_to_floating_point<long double>(q); }
 
     template <class T>
     requires std::floating_point<T>
@@ -124,6 +125,96 @@ Rational Rational::to_rational(T f, T eps) {
             return med + integral_part;
         med = _mediant(lower, upper);
     }
+}
+
+constexpr void Rational::reduce() {
+    if (_denom < 0) {
+        _numer = -_numer;
+        _denom = -_denom;
+    }
+    IntegralType gcd = std::gcd(static_cast<IntegralType>(_numer), static_cast<IntegralType>(_denom));
+    _numer /= gcd;
+    _denom /= gcd;
+}
+
+//----------------------------------------
+// Operator Overloading
+//----------------------------------------
+
+constexpr Rational Rational::operator+() const {
+    return Rational(static_cast<Rational::IntegralType>(_numer), static_cast<Rational::IntegralType>(_denom));
+}
+constexpr Rational Rational::operator-() const {
+    return Rational(-static_cast<Rational::IntegralType>(_numer), static_cast<Rational::IntegralType>(_denom));
+}
+
+// a/b + c/d  = (ad + bc) / bd
+// We adopt for this more complex expression (instead of (ad + bc / bd)) so as to minimize the risk of overflow when multiplying numbers
+constexpr Rational& Rational::operator+=(Rational const& rhs) {
+    _numer = _numer * rhs._denom + _denom * rhs._numer;
+    _denom = _denom * rhs._denom;
+    assert(_denom != 0);
+    reduce();
+    return *this;
+}
+constexpr Rational& Rational::operator-=(Rational const& rhs) {
+    _numer = _numer * rhs._denom - _denom * rhs._numer;
+    _denom = _denom * rhs._denom;
+    assert(_denom != 0);
+    reduce();
+    return *this;
+}
+constexpr Rational& Rational::operator*=(Rational const& rhs) {
+    _numer *= rhs._numer;
+    _denom *= rhs._denom;
+    assert(_denom != 0);
+    reduce();
+    return *this;
+}
+constexpr Rational& Rational::operator/=(Rational const& rhs) {
+    if (rhs._numer == 0) {
+        throw std::overflow_error("Attempting to divide by 0");
+    }
+    _numer *= rhs._denom;
+    _denom *= rhs._numer;
+    assert(_denom != 0);
+    reduce();
+    return *this;
+}
+constexpr Rational operator+(Rational lhs, Rational const& rhs) {
+    lhs += rhs;
+    return lhs;
+}
+constexpr Rational operator-(Rational lhs, Rational const& rhs) {
+    lhs -= rhs;
+    return lhs;
+}
+constexpr Rational operator*(Rational lhs, Rational const& rhs) {
+    lhs *= rhs;
+    return lhs;
+}
+constexpr Rational operator/(Rational lhs, Rational const& rhs) {
+    lhs /= rhs;
+    return lhs;
+}
+
+constexpr bool Rational::operator==(Rational const& rhs) const {
+    return (_numer == rhs._numer) && (_denom == rhs._denom);
+}
+constexpr bool Rational::operator!=(Rational const& rhs) const {
+    return !(*this == rhs);
+}
+constexpr bool Rational::operator<(Rational const& rhs) const {
+    return (_numer * rhs._denom) < (_denom * rhs._numer);
+}
+constexpr bool Rational::operator<=(Rational const& rhs) const {
+    return (*this == rhs) || (*this < rhs);
+}
+constexpr bool Rational::operator>(Rational const& rhs) const {
+    return !(*this == rhs) && !(*this < rhs);
+}
+constexpr bool Rational::operator>=(Rational const& rhs) const {
+    return !(*this < rhs);
 }
 
 }  // namespace dvlab

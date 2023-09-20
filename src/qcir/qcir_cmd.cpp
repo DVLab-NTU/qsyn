@@ -331,7 +331,7 @@ dvlab::Command qcir_read_cmd(QCirMgr& qcir_mgr) {
             [&](ArgumentParser const& parser) {
                 QCir buffer_q_cir;
                 auto filepath = parser.get<std::string>("filepath");
-                auto replace = parser.get<bool>("-replace");
+                auto replace  = parser.get<bool>("-replace");
                 if (!buffer_q_cir.read_qcir_file(filepath)) {
                     std::cerr << "Error: the format in \"" << filepath << "\" has something wrong!!" << std::endl;
                     return CmdExecResult::error;
@@ -451,8 +451,7 @@ dvlab::Command qcir_gate_add_cmd(QCirMgr& qcir_mgr) {
     static dvlab::utils::ordered_hashmap<std::string, std::string> double_qubit_gates_no_phase = {
         {"cx", "CX (CNOT) gate"},
         {"cz", "CZ gate"},
-        // {"swap", "SWAP gate"}
-    };
+        {"swap", "SWAP gate"}};
 
     static dvlab::utils::ordered_hashmap<std::string, std::string> three_qubit_gates_no_phase = {
         {"ccx", "CCX (CCNOT, Toffoli) gate"},
@@ -517,7 +516,7 @@ dvlab::Command qcir_gate_add_cmd(QCirMgr& qcir_mgr) {
             bool const do_prepend = parser.parsed("-prepend");
 
             auto type = parser.get<std::string>("type");
-            type = dvlab::str::tolower_string(type);
+            type      = dvlab::str::tolower_string(type);
 
             auto is_gate_category = [&](auto& category) {
                 return any_of(category.begin(), category.end(),
@@ -692,9 +691,9 @@ Command qcir_draw_cmd(QCirMgr const& qcir_mgr) {
             },
             [&](ArgumentParser const& parser) {
                 if (!qcir_mgr_not_empty(qcir_mgr)) return CmdExecResult::error;
-                auto drawer = str_to_qcir_drawer_type(parser.get<std::string>("-drawer"));
+                auto drawer      = str_to_qcir_drawer_type(parser.get<std::string>("-drawer"));
                 auto output_path = parser.get<std::string>("output_path");
-                auto scale = parser.get<float>("-scale");
+                auto scale       = parser.get<float>("-scale");
 
                 if (!drawer.has_value()) {
                     LOGGER.fatal("Invalid drawer type: {}", parser.get<std::string>("-drawer"));

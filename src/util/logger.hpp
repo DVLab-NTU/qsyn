@@ -24,13 +24,13 @@ namespace dvlab {
 class Logger {
 public:
     enum class LogLevel : unsigned short {
-        none = 0,
-        fatal = 1,
-        error = 2,
+        none    = 0,
+        fatal   = 1,
+        error   = 2,
         warning = 4,
-        info = 8,
-        debug = 16,
-        trace = 32,
+        info    = 8,
+        debug   = 16,
+        trace   = 32,
     };
 
     using LogFilter = std::underlying_type<LogLevel>::type;
@@ -218,10 +218,10 @@ public:
 
 private:
     std::vector<std::string> mutable _log;
-    LogLevel _log_level = LogLevel::warning;
+    LogLevel _log_level   = LogLevel::warning;
     LogFilter _log_filter = 0;
-    size_t _indent_level = 0;
-    size_t _indent_width = 2;
+    size_t _indent_level  = 0;
+    size_t _indent_width  = 2;
 };
 
 }  // namespace dvlab

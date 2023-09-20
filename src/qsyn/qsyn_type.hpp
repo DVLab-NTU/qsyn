@@ -16,5 +16,5 @@ class Phase;
 namespace qsyn {
 using QubitIdType = int;
 using QubitIdList = std::vector<QubitIdType>;
-using Phase = dvlab::Phase;
+using Phase       = dvlab::Phase;
 }  // namespace qsyn

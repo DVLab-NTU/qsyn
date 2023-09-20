@@ -11,7 +11,7 @@
 #include <cassert>
 #include <random>
 
-#include "./variables.hpp"
+#include "./duostra.hpp"
 #include "device/device.hpp"
 
 namespace qsyn::duostra {
@@ -22,12 +22,11 @@ namespace qsyn::duostra {
  * @return unique_ptr<BasePlacer>
  */
 std::unique_ptr<BasePlacer> get_placer() {
-    // 0:static 1:random 2:dfs
-    if (DUOSTRA_PLACER == 0) {
+    if (DuostraConfig::PLACER_TYPE == PlacerType::naive) {
         return std::make_unique<StaticPlacer>();
-    } else if (DUOSTRA_PLACER == 1) {
+    } else if (DuostraConfig::PLACER_TYPE == PlacerType::random) {
         return std::make_unique<RandomPlacer>();
-    } else if (DUOSTRA_PLACER == 2) {
+    } else if (DuostraConfig::PLACER_TYPE == PlacerType::dfs) {
         return std::make_unique<DFSPlacer>();
     }
     std::cerr << "Error: placer type not found." << std::endl;

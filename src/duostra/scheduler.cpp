@@ -11,7 +11,7 @@
 #include <algorithm>
 #include <cassert>
 
-#include "./variables.hpp"
+#include "./duostra.hpp"
 
 extern bool stop_requested();
 
@@ -27,15 +27,15 @@ namespace qsyn::duostra {
  */
 std::unique_ptr<BaseScheduler> get_scheduler(std::unique_ptr<CircuitTopology> topo, bool tqdm) {
     // 0:base 1:static 2:random 3:greedy 4:search
-    if (DUOSTRA_SCHEDULER == 2) {
+    if (DuostraConfig::SCHEDULER_TYPE == SchedulerType::random) {
         return std::make_unique<RandomScheduler>(*topo.get(), tqdm);
-    } else if (DUOSTRA_SCHEDULER == 1) {
-        return std::make_unique<StaticScheduler>(*topo.get(), tqdm);
-    } else if (DUOSTRA_SCHEDULER == 3) {
+    } else if (DuostraConfig::SCHEDULER_TYPE == SchedulerType::naive) {
+        return std::make_unique<NaiveScheduler>(*topo.get(), tqdm);
+    } else if (DuostraConfig::SCHEDULER_TYPE == SchedulerType::greedy) {
         return std::make_unique<GreedyScheduler>(*topo.get(), tqdm);
-    } else if (DUOSTRA_SCHEDULER == 4) {
+    } else if (DuostraConfig::SCHEDULER_TYPE == SchedulerType::search) {
         return std::make_unique<SearchScheduler>(*topo.get(), tqdm);
-    } else if (DUOSTRA_SCHEDULER == 0) {
+    } else if (DuostraConfig::SCHEDULER_TYPE == SchedulerType::base) {
         return std::make_unique<BaseScheduler>(*topo.get(), tqdm);
     } else {
         std::cerr << "Error: scheduler type not found" << std::endl;
@@ -94,12 +94,9 @@ size_t BaseScheduler::get_total_time() const {
  * @return size_t
  */
 size_t BaseScheduler::get_num_swaps() const {
-    size_t ret = 0;
-    for (size_t i = 0; i < _operations.size(); ++i) {
-        if (_operations.at(i).get_type() == qsyn::qcir::GateType::swap)
-            ++ret;
-    }
-    return ret;
+    return std::ranges::count_if(_operations, [](Operation const& op) {
+        return op.get_type() == qcir::GateRotationCategory::swap;
+    });
 }
 
 /**
@@ -108,13 +105,13 @@ size_t BaseScheduler::get_num_swaps() const {
  * @param router
  * @return size_t
  */
-size_t BaseScheduler::get_executable(Router& router) const {
+std::optional<size_t> BaseScheduler::get_executable_gate(Router& router) const {
     for (size_t gate_idx : _circuit_topology.get_available_gates()) {
         if (router.is_executable(_circuit_topology.get_gate(gate_idx))) {
             return gate_idx;
         }
     }
-    return SIZE_MAX;
+    return std::nullopt;
 }
 
 /**
@@ -228,8 +225,8 @@ RandomScheduler::Device RandomScheduler::_assign_gates(std::unique_ptr<Router> r
  *
  * @return unique_ptr<BaseScheduler>
  */
-std::unique_ptr<BaseScheduler> StaticScheduler::clone() const {
-    return std::make_unique<StaticScheduler>(*this);
+std::unique_ptr<BaseScheduler> NaiveScheduler::clone() const {
+    return std::make_unique<NaiveScheduler>(*this);
 }
 
 /**
@@ -238,7 +235,7 @@ std::unique_ptr<BaseScheduler> StaticScheduler::clone() const {
  * @param router
  * @return Device
  */
-StaticScheduler::Device StaticScheduler::_assign_gates(std::unique_ptr<Router> router) {
+NaiveScheduler::Device NaiveScheduler::_assign_gates(std::unique_ptr<Router> router) {
     [[maybe_unused]] size_t count = 0;
     for (dvlab::TqdmWrapper bar{_circuit_topology.get_num_gates()}; !bar.done(); ++bar) {
         if (stop_requested()) {
@@ -247,9 +244,7 @@ StaticScheduler::Device StaticScheduler::_assign_gates(std::unique_ptr<Router> r
         auto& waitlist = _circuit_topology.get_available_gates();
         assert(waitlist.size() > 0);
 
-        size_t gate_idx = get_executable(*router);
-        if (gate_idx == SIZE_MAX)
-            gate_idx = waitlist[0];
+        auto gate_idx = get_executable_gate(*router).value_or(waitlist[0]);
 
         route_one_gate(*router, gate_idx);
         ++count;

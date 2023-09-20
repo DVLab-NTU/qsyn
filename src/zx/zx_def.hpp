@@ -44,7 +44,7 @@ enum class EdgeType {
 //------------------------------------------------------------------------
 
 using ZXVertexList = dvlab::utils::ordered_hashset<ZXVertex*>;
-using EdgePair = std::pair<std::pair<ZXVertex*, ZXVertex*>, EdgeType>;
+using EdgePair     = std::pair<std::pair<ZXVertex*, ZXVertex*>, EdgeType>;
 using NeighborPair = std::pair<ZXVertex*, EdgeType>;
 
 // two boundary vertices from different ZXGraph and the edge type between them
@@ -82,7 +82,7 @@ struct ZXCutHash {
 
 struct ZXCutEqual {
     bool operator()(ZXCut const& lhs, ZXCut const& rhs) const {
-        auto [v1, v2, edgeType] = lhs;
+        auto [v1, v2, edgeType]  = lhs;
         auto [v3, v4, edgeType2] = rhs;
         // the order of v1 and v2 does not matter
         if (v1 > v2) std::swap(v1, v2);

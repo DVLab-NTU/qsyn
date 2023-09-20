@@ -23,11 +23,11 @@
 namespace dvlab::argparse {
 
 static constexpr auto section_header_styled = [](std::string const& str) -> std::string { return fmt::format("{}", dvlab::fmt_ext::styled_if_ansi_supported(str, fmt::fg(fmt::terminal_color::bright_blue))); };
-static constexpr auto required_styled = [](std::string const& str) -> std::string { return fmt::format("{}", dvlab::fmt_ext::styled_if_ansi_supported(str, fmt::fg(fmt::terminal_color::cyan))); };
-static constexpr auto metavar_styled = [](std::string const& str) -> std::string { return fmt::format("{}", dvlab::fmt_ext::styled_if_ansi_supported(str, fmt::emphasis::bold)); };
-static constexpr auto option_styled = [](std::string const& str) -> std::string { return fmt::format("{}", dvlab::fmt_ext::styled_if_ansi_supported(str, fmt::fg(fmt::terminal_color::yellow))); };
-static constexpr auto type_styled = [](std::string const& str) -> std::string { return fmt::format("{}", dvlab::fmt_ext::styled_if_ansi_supported(str, fmt::fg(fmt::terminal_color::cyan) | fmt::emphasis::italic)); };
-static constexpr auto accent_styled = [](std::string const& str) -> std::string { return fmt::format("{}", dvlab::fmt_ext::styled_if_ansi_supported(str, fmt::emphasis::bold | fmt::emphasis::underline)); };
+static constexpr auto required_styled       = [](std::string const& str) -> std::string { return fmt::format("{}", dvlab::fmt_ext::styled_if_ansi_supported(str, fmt::fg(fmt::terminal_color::cyan))); };
+static constexpr auto metavar_styled        = [](std::string const& str) -> std::string { return fmt::format("{}", dvlab::fmt_ext::styled_if_ansi_supported(str, fmt::emphasis::bold)); };
+static constexpr auto option_styled         = [](std::string const& str) -> std::string { return fmt::format("{}", dvlab::fmt_ext::styled_if_ansi_supported(str, fmt::fg(fmt::terminal_color::yellow))); };
+static constexpr auto type_styled           = [](std::string const& str) -> std::string { return fmt::format("{}", dvlab::fmt_ext::styled_if_ansi_supported(str, fmt::fg(fmt::terminal_color::cyan) | fmt::emphasis::italic)); };
+static constexpr auto accent_styled         = [](std::string const& str) -> std::string { return fmt::format("{}", dvlab::fmt_ext::styled_if_ansi_supported(str, fmt::emphasis::bold | fmt::emphasis::underline)); };
 
 namespace detail {
 
@@ -99,8 +99,8 @@ std::string styled_parser_name(ArgumentParser const& parser) {
  * @return string
  */
 std::string get_syntax(ArgumentParser const& parser, Argument const& arg) {
-    std::string ret = "";
-    NArgsRange nargs = arg.get_nargs();
+    std::string ret   = "";
+    NArgsRange nargs  = arg.get_nargs();
     auto usage_string = arg.get_usage().has_value()
                             ? arg.get_usage().value()
                             : fmt::format("{}{} {}{}", required_styled("<"), type_styled(arg.get_type_string()), metavar_styled(arg.get_metavar()), required_styled(">"));
@@ -110,11 +110,11 @@ std::string get_syntax(ArgumentParser const& parser, Argument const& arg) {
             ret = option_styled("[") + usage_string + option_styled("]") + "...";
         else {
             auto repeat_view = std::views::iota(0u, nargs.lower) | std::views::transform([&usage_string](size_t /*i*/) { return usage_string; });
-            ret = fmt::format("{}...", fmt::join(repeat_view, " "));
+            ret              = fmt::format("{}...", fmt::join(repeat_view, " "));
         }
     } else {
         auto repeat_view = std::views::iota(0u, nargs.upper) | std::views::transform([&usage_string, &nargs](size_t i) { return (i < nargs.lower) ? usage_string : (option_styled("[") + usage_string + option_styled("]")); });
-        ret = fmt::format("{}", fmt::join(repeat_view, " "));
+        ret              = fmt::format("{}", fmt::join(repeat_view, " "));
     }
 
     if (arg.is_option()) {
@@ -239,7 +239,7 @@ void ArgumentParser::print_usage() const {
 void ArgumentParser::print_summary() const {
     analyze_options();
 
-    auto cmd_name = detail::styled_parser_name(*this);
+    auto cmd_name                 = detail::styled_parser_name(*this);
     constexpr auto cmd_name_width = 15;
     fmt::println("{0:<{2}}: {1}", cmd_name, get_description(), cmd_name_width + dvlab::str::ansi_token_size(accent_styled));
 }
@@ -269,9 +269,9 @@ void ArgumentParser::print_help() const {
         return _pimpl->arguments.empty() ? 0 : std::ranges::max(_pimpl->arguments | std::views::values | std::views::transform(fn));
     };
 
-    constexpr auto left_margin = 1;
+    constexpr auto left_margin             = 1;
     constexpr auto left_right_cell_padding = 2;
-    constexpr auto total_padding = left_margin + 3 * left_right_cell_padding;
+    constexpr auto total_padding           = left_margin + 3 * left_right_cell_padding;
     auto max_help_string_width =
         dvlab::utils::get_terminal_size().width -
         get_max_length([](Argument const& arg) -> size_t { return arg.get_type_string().size(); }) -

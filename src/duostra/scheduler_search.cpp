@@ -16,8 +16,8 @@
 #include <unordered_set>
 #include <vector>
 
+#include "./duostra.hpp"
 #include "./scheduler.hpp"
-#include "./variables.hpp"
 
 extern bool stop_requested();
 
@@ -98,14 +98,14 @@ void TreeNode::_grow() {
  *
  * @return size_t
  */
-size_t TreeNode::_immediate_next() const {
-    size_t gate_id = scheduler().get_executable(*_router);
+std::optional<size_t> TreeNode::_immediate_next() const {
+    auto gate_id            = scheduler().get_executable_gate(*_router);
     auto const& avail_gates = scheduler().get_available_gates();
-    if (gate_id != SIZE_MAX)
+    if (gate_id.has_value())
         return gate_id;
     if (avail_gates.size() == 1)
         return avail_gates[0];
-    return SIZE_MAX;
+    return std::nullopt;
 }
 
 /**
@@ -127,10 +127,10 @@ void TreeNode::_route_internal_gates() {
     if (_gate_ids.empty() || !_conf._executeSingle)
         return;
 
-    size_t gate_id;
-    while ((gate_id = _immediate_next()) != SIZE_MAX) {
-        _max_cost = std::max(_max_cost, _scheduler->route_one_gate(*_router, gate_id, true));
-        _gate_ids.emplace_back(gate_id);
+    std::optional<size_t> gate_id;
+    while ((gate_id = _immediate_next()) != std::nullopt) {
+        _max_cost = std::max(_max_cost, _scheduler->route_one_gate(*_router, gate_id.value(), true));
+        _gate_ids.emplace_back(gate_id.value());
     }
 
     std::unordered_set<size_t> executed{_gate_ids.begin(), _gate_ids.end()};
@@ -151,7 +151,7 @@ TreeNode TreeNode::best_child(size_t depth) {
         assert(depth >= 1);
         auto cost = node.best_cost(depth);
         if (cost < best_cost) {
-            best_idx = idx;
+            best_idx  = idx;
             best_cost = cost;
         }
     }
@@ -191,7 +191,7 @@ size_t TreeNode::best_cost(size_t depth) {
                          });
     }
 
-    // Calcualtes the best cost for each children.
+    // Calculates the best cost for each children.
     size_t best_cost = SIZE_MAX;
     for (auto& child : _children) {
         best_cost = std::min(best_cost, child.best_cost(depth - 1));
@@ -232,9 +232,9 @@ size_t TreeNode::best_cost() const {
  */
 SearchScheduler::SearchScheduler(CircuitTopology const& topo, bool tqdm)
     : GreedyScheduler(topo, tqdm),
-      _lookAhead(DUOSTRA_DEPTH),
-      _never_cache(DUOSTRA_NEVER_CACHE),
-      _execute_single(DUOSTRA_EXECUTE_SINGLE) {
+      _lookAhead(DuostraConfig::SEARCH_DEPTH),
+      _never_cache(DuostraConfig::NEVER_CACHE),
+      _execute_single(DuostraConfig::EXECUTE_SINGLE_QUBIT_GATES_ASAP) {
     _cache_when_necessary();
 }
 
@@ -290,7 +290,7 @@ SearchScheduler::Device SearchScheduler::_assign_gates(std::unique_ptr<Router> r
     auto total_gates = _circuit_topology.get_num_gates();
 
     auto root = make_unique<TreeNode>(
-        TreeNodeConf{_never_cache, _execute_single, _conf._candidates},
+        TreeNodeConf{_never_cache, _execute_single, _conf.num_candidates},
         std::vector<size_t>{}, router->clone(), clone(), 0);
 
     // For each step. (all nodes + 1 dummy)
@@ -301,7 +301,7 @@ SearchScheduler::Device SearchScheduler::_assign_gates(std::unique_ptr<Router> r
             return router->get_device();
         }
         auto selected_node = std::make_unique<TreeNode>(root->best_child(static_cast<int>(_lookAhead)));
-        root = std::move(selected_node);
+        root               = std::move(selected_node);
 
         for (size_t gate_id : root->get_executed_gates()) {
             route_one_gate(*router, gate_id);

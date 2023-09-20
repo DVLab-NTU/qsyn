@@ -1,4 +1,3 @@
-DV Lab, NTUEE, Qsyn 0.5.1
 qsyn> help logger
 Usage: logger [-h] [test | level | history | mask] ...
 
@@ -86,7 +85,7 @@ Description:
   read a file and construct the corresponding ZXGraph
 
 Positional Arguments:
-  string  filepath    path to the ZX file. Supported extensions: .zx, .bzx 
+  string  filepath    path to the ZX file. Supported extensions: .zx 
 
 Options:
   flag  -h, --help    show this help message and exit                                                         

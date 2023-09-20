@@ -33,7 +33,7 @@ template <typename T>
 concept is_container_type = requires(T t) {
     { t.begin() } -> std::same_as<typename T::iterator>;
     { t.end() } -> std::same_as<typename T::iterator>;
-    std::constructible_from<typename T::iterator, typename T::iterator>;
+    requires std::constructible_from<typename T::iterator, typename T::iterator>;
     { t.size() } -> std::same_as<typename T::size_type>;
     requires !std::same_as<T, std::string>;
     requires !std::same_as<T, std::string_view>;
@@ -57,7 +57,7 @@ template <typename T>
 requires valid_argument_type<T>
 class ArgType {
 public:
-    using ActionType = std::function<ActionCallbackType(ArgType<T>&)>;
+    using ActionType     = std::function<ActionCallbackType(ArgType<T>&)>;
     using ConstraintType = std::function<bool(T const&)>;
 
     ArgType(std::string name, T val)
@@ -116,17 +116,17 @@ private:
     std::optional<T> _default_value = std::nullopt;
 
     std::string _name;
-    std::string _help = "";
-    std::string _metavar = "";
-    std::optional<std::string> _usage = std::nullopt;
-    ActionCallbackType _action_callback = nullptr;
+    std::string _help                        = "";
+    std::string _metavar                     = "";
+    std::optional<std::string> _usage        = std::nullopt;
+    ActionCallbackType _action_callback      = nullptr;
     std::vector<ConstraintType> _constraints = {};
-    NArgsRange _nargs = {1, 1};
+    NArgsRange _nargs                        = {1, 1};
 
-    bool _required : 1 = false;
-    bool _append : 1 = false;
-    bool _parsed : 1 = false;
-    bool _is_help_action : 1 = false;
+    bool _required : 1          = false;
+    bool _append : 1            = false;
+    bool _parsed : 1            = false;
+    bool _is_help_action : 1    = false;
     bool _is_version_action : 1 = false;
 };
 
@@ -232,7 +232,7 @@ template <typename T>
 requires valid_argument_type<T>
 ArgType<T>& ArgType<T>::default_value(T const& val) {
     _default_value = val;
-    _required = false;
+    _required      = false;
     return *this;
 }
 

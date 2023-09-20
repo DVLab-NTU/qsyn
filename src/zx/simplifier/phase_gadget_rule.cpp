@@ -69,13 +69,13 @@ std::vector<MatchType> PhaseGadgetRule::find_matches(ZXGraph const& graph) const
     auto itr = group2axel.begin();
     while (itr != group2axel.end()) {
         auto [groupBegin, groupEnd] = group2axel.equal_range(itr->first);
-        itr = groupEnd;
+        itr                         = groupEnd;
 
         axels.clear();
         leaves.clear();
 
         Phase total_phase = Phase(0);
-        bool flip_axel = false;
+        bool flip_axel    = false;
         for (auto& [_, axel] : std::ranges::subrange(groupBegin, groupEnd)) {
             ZXVertex* const& leaf = axel2leaf[axel];
             if (axel->get_phase() == Phase(1)) {
@@ -100,10 +100,10 @@ void PhaseGadgetRule::apply(ZXGraph& graph, std::vector<MatchType> const& matche
     ZXOperation op;
 
     for (auto& match : matches) {
-        Phase const& new_phase = get<0>(match);
-        std::vector<ZXVertex*> const& rm_axels = get<1>(match);
+        Phase const& new_phase                  = get<0>(match);
+        std::vector<ZXVertex*> const& rm_axels  = get<1>(match);
         std::vector<ZXVertex*> const& rm_leaves = get<2>(match);
-        ZXVertex* leaf = rm_leaves[0];
+        ZXVertex* leaf                          = rm_leaves[0];
         leaf->set_phase(new_phase);
         op.vertices_to_remove.insert(op.vertices_to_remove.end(), rm_axels.begin() + 1, rm_axels.end());
         op.vertices_to_remove.insert(op.vertices_to_remove.end(), rm_leaves.begin() + 1, rm_leaves.end());

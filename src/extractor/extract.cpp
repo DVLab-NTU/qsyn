@@ -26,12 +26,12 @@ extern size_t VERBOSE;
 
 namespace qsyn::extractor {
 
-bool SORT_FRONTIER = 0;
-bool SORT_NEIGHBORS = 1;
-bool PERMUTE_QUBITS = 1;
+bool SORT_FRONTIER         = 0;
+bool SORT_NEIGHBORS        = 1;
+bool PERMUTE_QUBITS        = 1;
 bool FILTER_DUPLICATED_CXS = 1;
-size_t BLOCK_SIZE = 5;
-size_t OPTIMIZE_LEVEL = 2;
+size_t BLOCK_SIZE          = 5;
+size_t OPTIMIZE_LEVEL      = 2;
 
 /**
  * @brief Construct a new Extractor:: Extractor object
@@ -41,7 +41,7 @@ size_t OPTIMIZE_LEVEL = 2;
  * @param d
  */
 Extractor::Extractor(ZXGraph* g, QCir* c, std::optional<Device> const& d) : _graph(g), _device(d), _device_backup(d) {
-    _logical_circuit = (c == nullptr) ? new QCir : c;
+    _logical_circuit  = (c == nullptr) ? new QCir : c;
     _physical_circuit = to_physical() ? new QCir() : nullptr;
     initialize(c == nullptr);
 }
@@ -122,8 +122,8 @@ QCir* Extractor::extract() {
  * @return true if successfully extracted
  * @return false if not
  */
-bool Extractor::extraction_loop(size_t max_iter) {
-    while (max_iter > 0 && !stop_requested()) {
+bool Extractor::extraction_loop(std::optional<size_t> max_iter) {
+    while ((!max_iter.has_value() || *max_iter > 0) && !stop_requested()) {
         clean_frontier();
         update_neighbors();
 
@@ -143,11 +143,11 @@ bool Extractor::extraction_loop(size_t max_iter) {
             if (VERBOSE >= 4) std::cout << "Construct an easy matrix." << std::endl;
             update_matrix();
         } else {
-            if (VERBOSE >= 4) std::cout << "Perform Gaussian Elimination." << std::endl;
+            if (VERBOSE >= 4) std::cout << "Perform Gaussian elimination." << std::endl;
             extract_cxs();
         }
         if (extract_hadamards_from_matrix() == 0) {
-            std::cerr << "Error: no candidate found in extractHsFromM2!!" << std::endl;
+            std::cerr << "Error: no hadamard gates to extract from the matrix!!" << std::endl;
             _biadjacency.print_matrix();
             return false;
         }
@@ -161,7 +161,7 @@ bool Extractor::extraction_loop(size_t max_iter) {
             _logical_circuit->print_qubits();
         }
 
-        if (max_iter != size_t(-1)) max_iter--;
+        if (max_iter.has_value()) (*max_iter)--;
     }
     return true;
 }
@@ -243,7 +243,7 @@ bool Extractor::extract_czs(bool check) {
     std::vector<Operation> ops;
     for (auto const& [s, t] : remove_list) {
         _graph->remove_edge(s, t, EdgeType::hadamard);
-        Operation op(GateType::cz, dvlab::Phase(0), {_qubit_map[s->get_qubit()], _qubit_map[t->get_qubit()]}, {});
+        Operation op(GateRotationCategory::pz, dvlab::Phase(1), {_qubit_map[s->get_qubit()], _qubit_map[t->get_qubit()]}, {});
         ops.emplace_back(op);
     }
     if (ops.size() > 0) {
@@ -276,8 +276,8 @@ void Extractor::extract_cxs() {
 
     for (auto& [t, c] : _cnots) {
         // NOTE - targ and ctrl are opposite here
-        QubitIdType ctrl = _qubit_map[front_id2_vertex[c]->get_qubit()];
-        QubitIdType targ = _qubit_map[front_id2_vertex[t]->get_qubit()];
+        auto ctrl = _qubit_map[front_id2_vertex[c]->get_qubit()];
+        auto targ = _qubit_map[front_id2_vertex[t]->get_qubit()];
         if (VERBOSE >= 4) std::cout << "Add CX: " << ctrl << " " << targ << std::endl;
         prepend_double_qubit_gate("cx", {ctrl, targ}, dvlab::Phase(0));
     }
@@ -536,7 +536,7 @@ Extractor::Target Extractor::_find_column_swap(Target target) {
             }
             if (found_col) break;
             if (free_cols.size() < min_options.size()) {
-                min_index = i;
+                min_index   = i;
                 min_options = free_cols;
             }
         }
@@ -563,7 +563,7 @@ Extractor::Target Extractor::_find_column_swap(Target target) {
             for (auto& idx : min_options) {
                 if (VERBOSE >= 8) std::cout << "> trying option" << idx << std::endl;
                 copied_target[idx] = min_index.value();
-                Target new_target = _find_column_swap(copied_target);
+                Target new_target  = _find_column_swap(copied_target);
                 if (!new_target.empty())
                     return new_target;
             }
@@ -608,7 +608,7 @@ bool Extractor::biadjacency_eliminations(bool check) {
 
     update_matrix();
     dvlab::BooleanMatrix greedy_mat = _biadjacency;
-    ZXVertexList backup_neighbors = _neighbors;
+    ZXVertexList backup_neighbors   = _neighbors;
     if (OPTIMIZE_LEVEL > 1) {
         // NOTE - opt = 2 or 3
         greedy_opers = greedy_reduction(greedy_mat);
@@ -642,21 +642,21 @@ bool Extractor::biadjacency_eliminations(bool check) {
             }
             if (OPTIMIZE_LEVEL == 1) {
                 _biadjacency = best_matrix;
-                _cnots = _biadjacency.get_row_operations();
+                _cnots       = _biadjacency.get_row_operations();
             } else {
-                size_t n_gauss_opers = best_matrix.get_row_operations().size();
+                size_t n_gauss_opers     = best_matrix.get_row_operations().size();
                 size_t n_single_one_rows = accumulate(best_matrix.get_matrix().begin(), best_matrix.get_matrix().end(), 0,
                                                       [](size_t acc, dvlab::BooleanMatrix::Row const& r) { return acc + size_t(r.is_one_hot()); });
                 // NOTE - opers per extractable rows for Gaussian is bigger than greedy
                 bool select_greedy = float(n_gauss_opers) / float(n_single_one_rows) > float(greedy_opers.size()) - 0.1;
                 if (!greedy_opers.empty() && select_greedy) {
                     _biadjacency = greedy_mat;
-                    _cnots = greedy_mat.get_row_operations();
-                    _neighbors = backup_neighbors;
+                    _cnots       = greedy_mat.get_row_operations();
+                    _neighbors   = backup_neighbors;
                     if (VERBOSE > 3) std::cout << "Found greedy reduction with " << _cnots.size() << " CX(s)" << std::endl;
                 } else {
                     _biadjacency = best_matrix;
-                    _cnots = _biadjacency.get_row_operations();
+                    _cnots       = _biadjacency.get_row_operations();
                     if (VERBOSE > 3) std::cout << "Gaussian elimination with " << _cnots.size() << " CX(s)" << std::endl;
                 }
             }
@@ -668,7 +668,7 @@ bool Extractor::biadjacency_eliminations(bool check) {
     } else {
         // NOTE - OPT level 2
         _biadjacency = greedy_mat;
-        _cnots = greedy_mat.get_row_operations();
+        _cnots       = greedy_mat.get_row_operations();
     }
 
     return true;
@@ -692,7 +692,7 @@ void Extractor::_block_elimination(dvlab::BooleanMatrix& best_matrix, size_t& mi
         }
     }
     if (copied_matrix.get_row_operations().size() < min_n_cxs) {
-        min_n_cxs = copied_matrix.get_row_operations().size();
+        min_n_cxs   = copied_matrix.get_row_operations().size();
         best_matrix = copied_matrix;
     }
 }
@@ -721,18 +721,18 @@ void Extractor::_block_elimination(size_t& best_block, dvlab::BooleanMatrix& bes
         size_t ctrl = _qubit_map[front_id2_vertex[c]->get_qubit()];
         size_t targ = _qubit_map[front_id2_vertex[t]->get_qubit()];
         if (VERBOSE > 4) std::cout << "Add CX: " << ctrl << " " << targ << std::endl;
-        Operation op(GateType::cx, dvlab::Phase(0), {ctrl, targ}, {});
+        Operation op(GateRotationCategory::px, dvlab::Phase(0), {ctrl, targ}, {});
         ops.emplace_back(op);
     }
 
     // NOTE - Get Mapping result, Device is passed by copy
-    qsyn::duostra::Duostra duo(ops, _graph->get_num_outputs(), _device.value(), {.verifyResult = false, .silent = true, .useTqdm = false});
-    size_t depth = duo.flow(true);
+    qsyn::duostra::Duostra duo(ops, _graph->get_num_outputs(), _device.value(), {.verify_result = false, .silent = true, .use_tqdm = false});
+    size_t depth = duo.map(true);
     if (VERBOSE > 4) std::cout << block_size << ", depth:" << depth << ", #cx: " << ops.size() << std::endl;
     if (depth < min_cost) {
-        min_cost = depth;
+        min_cost    = depth;
         best_matrix = copied_matrix;
-        best_block = block_size;
+        best_block  = block_size;
     }
 }
 
@@ -770,7 +770,7 @@ void Extractor::permute_qubits() {
         if (o == i) continue;
         auto t2 = swap_inv_map.at(o);
         prepend_swap_gate(_qubit_map[o], _qubit_map[t2], _logical_circuit);
-        swap_map[t2] = i;
+        swap_map[t2]    = i;
         swap_inv_map[i] = t2;
     }
     for (auto& o : _graph->get_outputs()) {
@@ -904,16 +904,19 @@ void Extractor::prepend_double_qubit_gate(std::string const& type, QubitIdList c
 void Extractor::prepend_series_gates(std::vector<Operation> const& logical, std::vector<Operation> const& physical) {
     for (auto const& gates : logical) {
         auto qubits = gates.get_qubits();
-        _logical_circuit->add_gate(GATE_TYPE_TO_STR[gates.get_type()], {get<0>(qubits), get<1>(qubits)}, gates.get_phase(), false);
+        if (gates.get_phase() != dvlab::Phase(0)) {
+            _logical_circuit->add_gate(gates.get_type_str(), {get<0>(qubits), get<1>(qubits)}, gates.get_phase(), false);
+        }
     }
 
     for (auto const& gates : physical) {
         auto qubits = gates.get_qubits();
-        if (gates.get_type() == GateType::swap) {
+        if (gates.is_swap()) {
             prepend_swap_gate(get<0>(qubits), get<1>(qubits), _physical_circuit);
             _num_swaps++;
-        } else
-            _physical_circuit->add_gate(GATE_TYPE_TO_STR[gates.get_type()], {get<0>(qubits), get<1>(qubits)}, gates.get_phase(), false);
+        } else if (gates.get_phase() != dvlab::Phase(0)) {
+            _physical_circuit->add_gate(gates.get_type_str(), {get<0>(qubits), get<1>(qubits)}, gates.get_phase(), false);
+        }
     }
 }
 
@@ -926,9 +929,9 @@ void Extractor::prepend_series_gates(std::vector<Operation> const& logical, std:
  */
 void Extractor::prepend_swap_gate(QubitIdType q0, QubitIdType q1, QCir* circuit) {
     // NOTE - No qubit permutation in Physical Circuit
-    circuit->add_gate("cx", {q0, q1}, dvlab::Phase(0), false);
-    circuit->add_gate("cx", {q1, q0}, dvlab::Phase(0), false);
-    circuit->add_gate("cx", {q0, q1}, dvlab::Phase(0), false);
+    circuit->add_gate("cx", {q0, q1}, dvlab::Phase(1), false);
+    circuit->add_gate("cx", {q1, q0}, dvlab::Phase(1), false);
+    circuit->add_gate("cx", {q0, q1}, dvlab::Phase(1), false);
 }
 
 /**

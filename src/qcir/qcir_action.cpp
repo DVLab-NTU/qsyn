@@ -86,9 +86,9 @@ void QCir::_dfs(QCirGate* curr_gate) const {
         dfs.emplace(true, node.second);
 
         for (auto const& info : node.second->get_qubits()) {
-            if (info._child != nullptr) {
-                if (!(info._child->is_visited(_global_dfs_counter))) {
-                    dfs.emplace(false, info._child);
+            if (info._next != nullptr) {
+                if (!(info._next->is_visited(_global_dfs_counter))) {
+                    dfs.emplace(false, info._next);
                 }
             }
         }
@@ -103,7 +103,7 @@ void QCir::_dfs(QCirGate* curr_gate) const {
 std::vector<QCirGate*> const& QCir::update_topological_order() const {
     _topological_order.clear();
     _global_dfs_counter++;
-    QCirGate* dummy = new HGate(-1);
+    QCirGate* dummy = new QCirGate(0, GateRotationCategory::id, dvlab::Phase(0));
     for (size_t i = 0; i < _qubits.size(); i++) {
         dummy->add_dummy_child(_qubits[i]->get_first());
     }
@@ -132,12 +132,12 @@ void QCir::update_gate_time() const {
     update_topological_order();
     auto lambda = [](QCirGate* curr_gate) {
         std::vector<QubitInfo> info = curr_gate->get_qubits();
-        size_t max_time = 0;
+        size_t max_time             = 0;
         for (size_t i = 0; i < info.size(); i++) {
-            if (info[i]._parent == nullptr)
+            if (info[i]._prev == nullptr)
                 continue;
-            if (info[i]._parent->get_time() > max_time)
-                max_time = info[i]._parent->get_time();
+            if (info[i]._prev->get_time() > max_time)
+                max_time = info[i]._prev->get_time();
         }
         curr_gate->set_time(max_time + curr_gate->get_delay());
     };
@@ -152,9 +152,9 @@ void QCir::reset() {
     _qubits.clear();
     _topological_order.clear();
 
-    _gate_id = 0;
-    _qubit_id = 0;
-    _dirty = true;
+    _gate_id            = 0;
+    _qubit_id           = 0;
+    _dirty              = true;
     _global_dfs_counter = 1;
 }
 

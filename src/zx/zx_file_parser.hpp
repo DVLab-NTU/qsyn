@@ -20,12 +20,12 @@ namespace zx {
 
 class ZXFileParser {
 public:
-    using VertexInfo = detail::VertexInfo;
+    using VertexInfo  = detail::VertexInfo;
     using StorageType = detail::StorageType;
 
     ZXFileParser() : _line_no(1) {}
 
-    bool parse(std::string const& filename);
+    bool parse(std::filesystem::path const& filename);
     StorageType get_storage() const { return _storage; }
 
 private:

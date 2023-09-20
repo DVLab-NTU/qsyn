@@ -19,7 +19,7 @@ namespace qsyn::qcir {
  */
 void QCirQubit::print_qubit_line() const {
     QCirGate *current = _bit_first;
-    size_t last_time = 1;
+    size_t last_time  = 1;
     std::cout << "Q" << std::right << std::setfill(' ') << std::setw(2) << _id << "  ";
     while (current != nullptr) {
         std::cout << "-";
@@ -31,7 +31,7 @@ void QCirQubit::print_qubit_line() const {
         std::cout << std::setfill(' ') << std::setw(2) << current->get_type_str().substr(0, 2);
         std::cout << "(" << std::setfill(' ') << std::setw(2) << current->get_id() << ")";
         last_time = current->get_time() + 1;
-        current = current->get_qubit(_id)._child;
+        current   = current->get_qubit(_id)._next;
         std::cout << "-";
     }
     std::cout << std::endl;

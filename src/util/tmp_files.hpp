@@ -29,10 +29,10 @@ public:
     TmpDir(std::string_view prefix) : _dir{detail::create_tmp_dir(prefix)} {}
     ~TmpDir() { std::filesystem::remove_all(_dir); }
     // deletes copy ctors and assignment operators because we don't want to copy the directory
-    TmpDir(TmpDir const&) = delete;
+    TmpDir(TmpDir const&)            = delete;
     TmpDir& operator=(TmpDir const&) = delete;
 
-    TmpDir(TmpDir&&) = default;
+    TmpDir(TmpDir&&)            = default;
     TmpDir& operator=(TmpDir&&) = default;
 
     std::filesystem::path path() const { return _dir; }

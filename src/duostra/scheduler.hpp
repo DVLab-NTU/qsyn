@@ -15,6 +15,7 @@
 #include <vector>
 
 #include "./circuit_topology.hpp"
+#include "./duostra_def.hpp"
 #include "./router.hpp"
 #include "device/device.hpp"
 
@@ -22,7 +23,7 @@ namespace qsyn::duostra {
 
 class BaseScheduler {
 public:
-    using Device = qsyn::device::Device;
+    using Device    = qsyn::device::Device;
     using Operation = qsyn::device::Operation;
     BaseScheduler(CircuitTopology topo, bool tqdm)
         : _circuit_topology(std::move(topo)), _tqdm(tqdm) {}
@@ -47,7 +48,7 @@ public:
     size_t get_final_cost() const;
     size_t get_total_time() const;
     size_t get_num_swaps() const;
-    size_t get_executable(Router&) const;
+    std::optional<size_t> get_executable_gate(Router&) const;
     size_t get_operations_cost() const;
     bool is_sorted() const { return _sorted; }
     std::vector<size_t> const& get_available_gates() const { return _circuit_topology.get_available_gates(); }
@@ -62,14 +63,14 @@ protected:
     std::vector<Operation> _operations;
     std::vector<size_t> _assign_order;
     bool _sorted = false;
-    bool _tqdm = true;
+    bool _tqdm   = true;
     virtual Device _assign_gates(std::unique_ptr<Router>);
     void _sort();
 };
 
 class RandomScheduler : public BaseScheduler {
 public:
-    using Device = BaseScheduler::Device;
+    using Device    = BaseScheduler::Device;
     using Operation = BaseScheduler::Operation;
     RandomScheduler(CircuitTopology const& topo, bool tqdm) : BaseScheduler(topo, tqdm) {}
 
@@ -79,11 +80,11 @@ protected:
     Device _assign_gates(std::unique_ptr<Router> /*unused*/) override;
 };
 
-class StaticScheduler : public BaseScheduler {
+class NaiveScheduler : public BaseScheduler {
 public:
-    using Device = BaseScheduler::Device;
+    using Device    = BaseScheduler::Device;
     using Operation = BaseScheduler::Operation;
-    StaticScheduler(CircuitTopology const& topo, bool tqdm) : BaseScheduler(topo, tqdm) {}
+    NaiveScheduler(CircuitTopology const& topo, bool tqdm) : BaseScheduler(topo, tqdm) {}
 
     std::unique_ptr<BaseScheduler> clone() const override;
 
@@ -94,15 +95,15 @@ protected:
 struct GreedyConf {
     GreedyConf();
 
-    bool _availableType;  // true is max, false is min
-    bool _costType;       // true is max, false is min
-    size_t _candidates;
-    size_t _APSPCoeff;
+    MinMaxOptionType available_time_strategy;
+    MinMaxOptionType cost_type;
+    size_t num_candidates;
+    size_t apsp_coeff;
 };
 
 class GreedyScheduler : public BaseScheduler {  // NOLINT(hicpp-special-member-functions, cppcoreguidelines-special-member-functions) : copy-swap idiom
 public:
-    using Device = BaseScheduler::Device;
+    using Device    = BaseScheduler::Device;
     using Operation = BaseScheduler::Operation;
     GreedyScheduler(CircuitTopology const& topo, bool tqdm) : BaseScheduler(topo, tqdm) {}
     ~GreedyScheduler() = default;
@@ -122,7 +123,7 @@ public:
     }
 
     std::unique_ptr<BaseScheduler> clone() const override;
-    size_t greedy_fallback(Router&, std::vector<size_t> const&, size_t) const;
+    size_t greedy_fallback(Router& router, std::vector<size_t> const& waitlist) const;
 
 protected:
     GreedyConf _conf;
@@ -200,13 +201,13 @@ private:
     std::unique_ptr<BaseScheduler> _scheduler;
 
     void _grow();
-    size_t _immediate_next() const;
+    std::optional<size_t> _immediate_next() const;
     void _route_internal_gates();
 };
 
 class SearchScheduler : public GreedyScheduler {  // NOLINT(hicpp-special-member-functions, cppcoreguidelines-special-member-functions) : copy-swap idiom
 public:
-    using Device = GreedyScheduler::Device;
+    using Device    = GreedyScheduler::Device;
     using Operation = GreedyScheduler::Operation;
     SearchScheduler(CircuitTopology const&, bool = true);
     ~SearchScheduler() = default;

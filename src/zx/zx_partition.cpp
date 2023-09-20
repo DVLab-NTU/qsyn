@@ -51,7 +51,7 @@ std::pair<std::vector<ZXGraph*>, std::vector<ZXCut>> ZXGraph::create_subgraphs(s
     std::vector<ZXCut> outer_cuts;
     std::unordered_map<ZXCut, ZXVertex*, DirectionalZXCutHash> cut_to_boundary;
 
-    ZXVertexList primary_inputs = get_inputs();
+    ZXVertexList primary_inputs  = get_inputs();
     ZXVertexList primary_outputs = get_outputs();
 
     // by pass the output qubit id collision check in the copy constructor
@@ -149,8 +149,8 @@ ZXGraph* ZXGraph::from_subgraphs(std::vector<ZXGraph*> const& subgraphs, std::ve
         ZXVertex* v1 = b1->get_first_neighbor().first;
         ZXVertex* v2 = b2->get_first_neighbor().first;
 
-        EdgeType e1 = v1->is_neighbor(b1, EdgeType::simple) ? EdgeType::simple : EdgeType::hadamard;
-        EdgeType e2 = v2->is_neighbor(b2, EdgeType::simple) ? EdgeType::simple : EdgeType::hadamard;
+        EdgeType e1            = v1->is_neighbor(b1, EdgeType::simple) ? EdgeType::simple : EdgeType::hadamard;
+        EdgeType e2            = v2->is_neighbor(b2, EdgeType::simple) ? EdgeType::simple : EdgeType::hadamard;
         EdgeType new_edge_type = (e1 == EdgeType::hadamard) ^ (e2 == EdgeType::hadamard) ^ (edgeType == EdgeType::hadamard)
                                      ? EdgeType::hadamard
                                      : EdgeType::simple;
@@ -197,12 +197,12 @@ std::pair<ZXVertexList, ZXVertexList> kl_bipartition(ZXVertexList vertices);
  */
 std::vector<ZXVertexList> kl_partition(ZXGraph const& graph, size_t n_partitions) {
     std::vector<ZXVertexList> partitions = {graph.get_vertices()};
-    size_t count = 1;
+    size_t count                         = 1;
     while (count < n_partitions) {
         std::vector<ZXVertexList> new_partitions;
         for (auto& partition : partitions) {
             auto [p1, p2] = detail::kl_bipartition(partition);
-            partition = p1;
+            partition     = p1;
             new_partitions.push_back(p2);
             if (++count == n_partitions) break;
         }
@@ -239,7 +239,7 @@ std::pair<ZXVertexList, ZXVertexList> detail::kl_bipartition(ZXVertexList vertic
             int internal_cost = 0;
             int external_cost = 0;
 
-            ZXVertexList& my_partition = partition1.contains(v) ? partition1 : partition2;
+            ZXVertexList& my_partition    = partition1.contains(v) ? partition1 : partition2;
             ZXVertexList& other_partition = partition1.contains(v) ? partition2 : partition1;
 
             for (auto& [neighbor, edge] : v->get_neighbors()) {
@@ -265,7 +265,7 @@ std::pair<ZXVertexList, ZXVertexList> detail::kl_bipartition(ZXVertexList vertic
                 int swap_gain = d_values[v1] + d_values[v2] - 2 * (v1->is_neighbor(v2) ? 1 : 0);
                 if (swap_gain > best_swap_gain) {
                     best_swap_gain = swap_gain;
-                    best_swap = {v1, v2};
+                    best_swap      = {v1, v2};
                 }
             }
         }
@@ -291,16 +291,16 @@ std::pair<ZXVertexList, ZXVertexList> detail::kl_bipartition(ZXVertexList vertic
         swap_history.push(best_swap);
         if (cumulative_gain >= best_cumulative_gain) {
             best_cumulative_gain = cumulative_gain;
-            best_iteration = swap_history.size();
+            best_iteration       = swap_history.size();
         }
     };
 
     size_t iteration = 0;
     while (!stop_requested()) {
-        cumulative_gain = 0;
-        swap_history = std::stack<SwapPair>();
+        cumulative_gain      = 0;
+        swap_history         = std::stack<SwapPair>();
         best_cumulative_gain = INT_MIN;
-        best_iteration = 0;
+        best_iteration       = 0;
         locked_vertices.clear();
         compute_d();
 

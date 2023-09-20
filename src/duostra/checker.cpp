@@ -42,16 +42,13 @@ Checker::Checker(CircuitTopology& topo,
  * @param type
  * @return size_t
  */
-size_t Checker::get_cycle(GateType type) {
-    switch (type) {
-        case GateType::swap:
-            return SWAP_DELAY;
-        case GateType::cx:
-            return DOUBLE_DELAY;
-        case GateType::cz:
-            return DOUBLE_DELAY;
-        default:
-            return SINGLE_DELAY;
+size_t Checker::get_cycle(Operation const& op) {
+    if (op.is_swap()) {
+        return SWAP_DELAY;
+    } else if (op.is_cx() || op.is_cz()) {
+        return DOUBLE_DELAY;
+    } else {
+        return SINGLE_DELAY;
     }
 }
 
@@ -63,7 +60,7 @@ size_t Checker::get_cycle(GateType type) {
  */
 void Checker::apply_gate(Checker::Operation const& op, Checker::PhysicalQubit& q0) {
     size_t start = get<0>(op.get_time_range());
-    size_t end = get<1>(op.get_time_range());
+    size_t end   = get<1>(op.get_time_range());
 
     if (!(start >= q0.get_occupied_time())) {
         std::cerr << op << "\n"
@@ -71,7 +68,7 @@ void Checker::apply_gate(Checker::Operation const& op, Checker::PhysicalQubit& q
                   << std::endl;
         abort();
     }
-    if (!(end == start + get_cycle(op.get_type()))) {
+    if (!(end == start + get_cycle(op))) {
         std::cerr << op << std::endl;
         abort();
     }
@@ -89,7 +86,7 @@ void Checker::apply_gate(Checker::Operation const& op,
                          Checker::PhysicalQubit& q0,
                          Checker::PhysicalQubit& q1) {
     size_t start = get<0>(op.get_time_range());
-    size_t end = get<1>(op.get_time_range());
+    size_t end   = get<1>(op.get_time_range());
 
     if (!(start >= q0.get_occupied_time() && start >= q1.get_occupied_time())) {
         std::cerr << op << "\n"
@@ -99,7 +96,7 @@ void Checker::apply_gate(Checker::Operation const& op,
                   << std::endl;
         abort();
     }
-    if (!(end == start + get_cycle(op.get_type()))) {
+    if (!(end == start + get_cycle(op))) {
         std::cerr << op << std::endl;
         abort();
     }
@@ -113,19 +110,19 @@ void Checker::apply_gate(Checker::Operation const& op,
  * @param op
  */
 void Checker::apply_swap(Checker::Operation const& op) {
-    if (op.get_type() != GateType::swap) {
-        std::cerr << GATE_TYPE_TO_STR[op.get_type()] << " in applySwap"
+    if (op.get_type() != GateRotationCategory::swap) {
+        std::cerr << op.get_type_str() << " in applySwap"
                   << std::endl;
         abort();
     }
     size_t q0_idx = get<0>(op.get_qubits());
     size_t q1_idx = get<1>(op.get_qubits());
-    auto& q0 = _device->get_physical_qubit(q0_idx);
-    auto& q1 = _device->get_physical_qubit(q1_idx);
+    auto& q0      = _device->get_physical_qubit(q0_idx);
+    auto& q1      = _device->get_physical_qubit(q1_idx);
     apply_gate(op, q0, q1);
 
     // swap
-    size_t temp = q0.get_logical_qubit();
+    auto temp = q0.get_logical_qubit();
     q0.set_logical_qubit(q1.get_logical_qubit());
     q1.set_logical_qubit(temp);
 }
@@ -139,22 +136,22 @@ void Checker::apply_swap(Checker::Operation const& op) {
  * @return false
  */
 bool Checker::apply_cx(Operation const& op, Gate const& gate) {
-    if (!(op.get_type() == GateType::cx || op.get_type() == GateType::cz)) {
-        std::cerr << GATE_TYPE_TO_STR[op.get_type()] << " in applyCX" << std::endl;
+    if (!(op.is_cx() || op.is_cz())) {
+        std::cerr << op.get_type_str() << " in applyCX" << std::endl;
         abort();
     }
     size_t q0_idx = get<0>(op.get_qubits());
     size_t q1_idx = get<1>(op.get_qubits());
-    auto& q0 = _device->get_physical_qubit(q0_idx);
-    auto& q1 = _device->get_physical_qubit(q1_idx);
+    auto& q0      = _device->get_physical_qubit(q0_idx);
+    auto& q1      = _device->get_physical_qubit(q1_idx);
 
-    size_t topo_0 = q0.get_logical_qubit();
-    if (topo_0 == SIZE_MAX) {
+    auto topo_0 = q0.get_logical_qubit();
+    if (topo_0 == std::nullopt) {
         std::cerr << "topo_0 is ERROR CODE" << std::endl;
         abort();
     }
-    size_t topo_1 = q1.get_logical_qubit();
-    if (topo_1 == SIZE_MAX) {
+    auto topo_1 = q1.get_logical_qubit();
+    if (topo_1 == std::nullopt) {
         std::cerr << "topo_1 is ERRORCODE" << std::endl;
         abort();
     }
@@ -162,7 +159,7 @@ bool Checker::apply_cx(Operation const& op, Gate const& gate) {
     if (topo_0 > topo_1) {
         std::swap(topo_0, topo_1);
     } else if (topo_0 == topo_1) {
-        std::cerr << "topo_0 == topo_1: " << topo_0 << std::endl;
+        std::cerr << "topo_0 == topo_1: " << *topo_0 << std::endl;
         abort();
     }
     if (topo_0 != std::get<0>(gate.get_qubits()) ||
@@ -183,8 +180,8 @@ bool Checker::apply_cx(Operation const& op, Gate const& gate) {
  * @return false
  */
 bool Checker::apply_single(Operation const& op, Gate const& gate) {
-    if ((op.get_type() == GateType::swap) || (op.get_type() == GateType::cx) || (op.get_type() == GateType::cz)) {
-        std::cerr << GATE_TYPE_TO_STR[op.get_type()] << " in applySingle"
+    if ((op.is_swap()) || (op.is_cx()) || (op.is_cz())) {
+        std::cerr << op.get_type_str() << " in applySingle"
                   << std::endl;
         abort();
     }
@@ -196,8 +193,8 @@ bool Checker::apply_single(Operation const& op, Gate const& gate) {
     }
     auto& q0 = _device->get_physical_qubit(q0_idx);
 
-    size_t topo_0 = q0.get_logical_qubit();
-    if (topo_0 == SIZE_MAX) {
+    auto topo_0 = q0.get_logical_qubit();
+    if (topo_0 == std::nullopt) {
         std::cerr << "topo_0 is ERROR CODE" << std::endl;
         abort();
     }
@@ -218,12 +215,12 @@ bool Checker::test_operations() {
     std::vector<size_t> finished_gates;
     for (dvlab::TqdmWrapper bar{_ops.size(), _tqdm}; !bar.done(); ++bar) {
         auto& op = _ops[bar.idx()];
-        if (op.get_type() == GateType::swap) {
+        if (op.is_swap()) {
             apply_swap(op);
         } else {
             auto& available_gates = _topo->get_available_gates();
-            bool pass_condition = false;
-            if (op.get_type() == GateType::cx || op.get_type() == GateType::cz) {
+            bool pass_condition   = false;
+            if (op.is_cx() || op.is_cz()) {
                 for (auto gate : available_gates) {
                     if (apply_cx(op, _topo->get_gate(gate))) {
                         pass_condition = true;

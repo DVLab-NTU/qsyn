@@ -26,7 +26,7 @@
 
 namespace dvlab {
 
-void detail::dvlab_assert_impl(char const* expr_str, bool expr, char const* file, int line, char const* msg) {
+void detail::dvlab_assert_impl(std::string_view expr_str, bool expr, std::string_view file, int line, std::string_view msg) {
     if (!expr) {
         fmt::println(stderr, "Assertion failed:\t{}", msg);
         fmt::println(stderr, "Expected:\t{}", expr_str);

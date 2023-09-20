@@ -1,9 +1,0 @@
-// Input 
-I0 (0,0) S2
-I1 (1,0) S3
-// Output 
-O4 (0,2)
-O5 (1,2)
-// Non-boundary 
-Z2 (0,1) S3 S4
-X3 (1,1) S5
