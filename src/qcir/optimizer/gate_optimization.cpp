@@ -6,15 +6,13 @@
 ****************************************************************************/
 
 #include <fmt/core.h>
+#include <spdlog/spdlog.h>
 
 #include <cassert>
 
 #include "../gate_type.hpp"
 #include "../qcir_gate.hpp"
 #include "./optimizer.hpp"
-#include "util/logger.hpp"
-
-extern dvlab::Logger LOGGER;
 
 namespace qsyn::qcir {
 
@@ -38,12 +36,12 @@ void Optimizer::_match_hadamards(QCirGate* gate) {
     auto qubit = gate->get_targets()._qubit;
 
     if (_xs.contains(qubit) && !_zs.contains(qubit)) {
-        LOGGER.trace("Transform X gate into Z gate");
+        spdlog::trace("Transform X gate into Z gate");
 
         _xs.erase(qubit);
         _zs.emplace(qubit);
     } else if (!_xs.contains(qubit) && _zs.contains(qubit)) {
-        LOGGER.trace("Transform Z gate into X gate");
+        spdlog::trace("Transform Z gate into X gate");
         _zs.erase(qubit);
         _xs.emplace(qubit);
     }
@@ -52,7 +50,7 @@ void Optimizer::_match_hadamards(QCirGate* gate) {
         auto g2 = _gates[qubit][_gates[qubit].size() - 1];
         if (g2->get_phase().denominator() == 2) {
             _statistics.HS_EXCHANGE++;
-            LOGGER.trace("Transform H-S-H into Sdg-H-Sdg");
+            spdlog::trace("Transform H-S-H into Sdg-H-Sdg");
             auto zp = new QCirGate(_gate_count, GateRotationCategory::pz, -1 * g2->get_phase());
             zp->add_qubit(qubit, true);
             _gate_count++;
@@ -68,7 +66,7 @@ void Optimizer::_match_xs(QCirGate* gate) {
     assert(gate->is_x());
     auto qubit = gate->get_targets()._qubit;
     if (_xs.contains(qubit)) {
-        LOGGER.trace("Cancel X-X into Id");
+        spdlog::trace("Cancel X-X into Id");
         _statistics.X_CANCEL++;
     }
     _toggle_element(_ElementType::x, qubit);
@@ -83,7 +81,7 @@ void Optimizer::_match_z_rotations(QCirGate* gate) {
         gate->set_phase(gate->get_phase() + dvlab::Phase(1));
     }
     if (gate->get_phase() == dvlab::Phase(0)) {
-        LOGGER.trace("Cancel with previous RZ");
+        spdlog::trace("Cancel with previous RZ");
         return;
     }
 

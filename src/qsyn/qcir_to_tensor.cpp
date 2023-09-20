@@ -7,6 +7,8 @@
 
 #include "./qcir_to_tensor.hpp"
 
+#include <spdlog/spdlog.h>
+
 #include <cstddef>
 #include <thread>
 
@@ -15,9 +17,7 @@
 #include "qcir/qcir.hpp"
 #include "qcir/qcir_qubit.hpp"
 #include "tensor/qtensor.hpp"
-#include "util/logger.hpp"
 
-extern dvlab::Logger LOGGER;
 extern bool stop_requested();
 
 namespace qsyn {
@@ -33,7 +33,7 @@ using qsyn::tensor::QTensor;
  * @param tmp
  */
 void update_tensor_pin(Qubit2TensorPinMap &qubit2pin, std::vector<QubitInfo> const &pins, QTensor<double> &main, QTensor<double> const &gate) {
-    LOGGER.trace("Pin Permutation");
+    spdlog::trace("Pin Permutation");
     for (auto &[qubit, pin] : qubit2pin) {
         std::string trace = fmt::format("  - Qubit: {} input : {} -> ", qubit, pin.first);
         pin.first         = main.get_new_axis_id(pin.first);
@@ -62,7 +62,7 @@ void update_tensor_pin(Qubit2TensorPinMap &qubit2pin, std::vector<QubitInfo> con
             pin.second = main.get_new_axis_id(pin.second);
 
         trace += fmt::format("{}", pin.second);
-        LOGGER.trace("{}", trace);
+        spdlog::trace("{}", trace);
     }
 }
 
@@ -104,7 +104,7 @@ std::optional<QTensor<double>> to_tensor(QCirGate *gate) {
  */
 std::optional<QTensor<double>> to_tensor(QCir const &qcir) {
     qcir.update_topological_order();
-    LOGGER.debug("Add boundary");
+    spdlog::debug("Add boundary");
 
     QTensor<double> tensor;
 
@@ -121,12 +121,12 @@ std::optional<QTensor<double>> to_tensor(QCir const &qcir) {
     Qubit2TensorPinMap qubit2pin;
     for (size_t i = 0; i < qcir.get_qubits().size(); i++) {
         qubit2pin[qcir.get_qubits()[i]->get_id()] = std::make_pair(2 * i, 2 * i + 1);
-        LOGGER.trace("  - Add Qubit {} input port: {}", qcir.get_qubits()[i]->get_id(), 2 * i);
+        spdlog::trace("  - Add Qubit {} input port: {}", qcir.get_qubits()[i]->get_id(), 2 * i);
     }
 
     qcir.topological_traverse([&tensor, &qubit2pin](QCirGate *gate) {
         if (stop_requested()) return;
-        LOGGER.debug("Gate {} ({})", gate->get_id(), gate->get_type_str());
+        spdlog::debug("Gate {} ({})", gate->get_id(), gate->get_type_str());
         auto tmp = to_tensor(gate);
         assert(tmp.has_value());
         std::vector<size_t> ori_pin;

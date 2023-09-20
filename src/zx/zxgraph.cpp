@@ -7,6 +7,8 @@
 
 #include "./zxgraph.hpp"
 
+#include <spdlog/spdlog.h>
+
 #include <algorithm>
 #include <numeric>
 #include <ranges>
@@ -14,9 +16,6 @@
 #include "./zx_def.hpp"
 #include "tl/enumerate.hpp"
 #include "util/boolean_matrix.hpp"
-#include "util/logger.hpp"
-
-extern dvlab::Logger LOGGER;
 
 namespace qsyn::zx {
 
@@ -107,13 +106,13 @@ bool ZXGraph::is_empty() const {
 bool ZXGraph::is_valid() const {
     for (auto& v : _inputs) {
         if (v->get_num_neighbors() != 1) {
-            LOGGER.debug("Error: input {} has {} neighbors, expected 1", v->get_id(), v->get_num_neighbors());
+            spdlog::debug("Error: input {} has {} neighbors, expected 1", v->get_id(), v->get_num_neighbors());
             return false;
         }
     }
     for (auto& v : _outputs) {
         if (v->get_num_neighbors() != 1) {
-            LOGGER.debug("Error: output {} has {} neighbors, expected 1", v->get_id(), v->get_num_neighbors());
+            spdlog::debug("Error: output {} has {} neighbors, expected 1", v->get_id(), v->get_num_neighbors());
             return false;
         }
     }
@@ -146,13 +145,13 @@ bool ZXGraph::is_graph_like() const {
     // all internal edges are hadamard edges
     for (auto const& v : _vertices) {
         if (!v->is_z() && !v->is_boundary()) {
-            LOGGER.debug("Note: vertex {} is of type {}", v->get_id(), v->get_type());
+            spdlog::debug("Note: vertex {} is of type {}", v->get_id(), v->get_type());
             return false;
         }
         for (auto const& [nb, etype] : v->get_neighbors()) {
             if (v->is_boundary() || nb->is_boundary()) continue;
             if (etype != EdgeType::hadamard) {
-                LOGGER.debug("Note: internal edge ({}, {}) is of type {}", v->get_id(), nb->get_id(), etype);
+                spdlog::debug("Note: internal edge ({}, {}) is of type {}", v->get_id(), nb->get_id(), etype);
                 return false;
             }
         }
@@ -161,13 +160,13 @@ bool ZXGraph::is_graph_like() const {
     // 4. Boundary vertices only has an edge
     for (auto const& v : _inputs) {
         if (v->get_num_neighbors() != 1) {
-            LOGGER.debug("Note: boundary {} has {} neighbors; expected 1", v->get_id(), v->get_num_neighbors());
+            spdlog::debug("Note: boundary {} has {} neighbors; expected 1", v->get_id(), v->get_num_neighbors());
             return false;
         }
     }
     for (auto const& v : _outputs) {
         if (v->get_num_neighbors() != 1) {
-            LOGGER.debug("Note: boundary {} has {} neighbors; expected 1", v->get_id(), v->get_num_neighbors());
+            spdlog::debug("Note: boundary {} has {} neighbors; expected 1", v->get_id(), v->get_num_neighbors());
             return false;
         }
     }

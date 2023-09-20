@@ -35,6 +35,18 @@ void detail::dvlab_assert_impl(std::string_view expr_str, bool expr, std::string
     }
 }
 
+void detail::dvlab_abort_impl(std::string_view file, int line, std::string_view msg) {
+    fmt::println(stderr, "Abort:\t{}", msg);
+    fmt::println(stderr, "Source:\t\t{}, line {}\n", file, line);
+    abort();
+}
+
+void detail::dvlab_unreachable_impl(std::string_view file, int line, std::string_view msg) {
+    fmt::println(stderr, "Unreachable:\t{}", msg);
+    fmt::println(stderr, "Source:\t\t{}, line {}\n", file, line);
+    abort();
+}
+
 namespace utils {
 
 bool expect(bool condition, std::string const& msg) {

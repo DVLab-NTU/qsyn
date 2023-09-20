@@ -1,7 +1,7 @@
 qsyn> // testing empty dofiles
 qsyn> 
 qsyn> dofile tests/cli/helper/empty_dof
-[Error] file "tests/cli/helper/empty_dof" is empty!!
+[error] file "tests/cli/helper/empty_dof" is empty!!
 
 qsyn> 
 qsyn> // Testing dofile arguments
@@ -100,12 +100,12 @@ Options:
 
 qsyn> 
 qsyn> dofile tests/cli/helper/param_dof_kw // should error and print usage
-[Error] wrong number of arguments provided, expected 2 but got 0!!
-[Error] Usage: ... tests/cli/helper/param_dof_kw <input1> <input2>
+[error] wrong number of arguments provided, expected 2 but got 0!!
+[error] Usage: ... tests/cli/helper/param_dof_kw <input1> <input2>
 
 qsyn> dofile tests/cli/helper/param_dof_kw haha1 haha2 haha3 // should error and print usage
-[Error] wrong number of arguments provided, expected 2 but got 3!!
-[Error] Usage: ... tests/cli/helper/param_dof_kw <input1> <input2>
+[error] wrong number of arguments provided, expected 2 but got 3!!
+[error] Usage: ... tests/cli/helper/param_dof_kw <input1> <input2>
 
 qsyn> 
 qsyn> dofile tests/cli/helper/param_dof_kw qquit dofile

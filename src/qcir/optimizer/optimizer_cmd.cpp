@@ -5,6 +5,8 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
+#include <spdlog/spdlog.h>
+
 #include <cstddef>
 #include <string>
 
@@ -64,7 +66,7 @@ Command qcir_optimize_cmd(QCirMgr& qcir_mgr) {
                     procedure_str = "Optimize";
                 }
                 if (result == std::nullopt) {
-                    LOGGER.error("Fail to optimize circuit.");
+                    spdlog::error("Fail to optimize circuit.");
                     return CmdExecResult::error;
                 }
 
@@ -86,7 +88,7 @@ Command qcir_optimize_cmd(QCirMgr& qcir_mgr) {
 
 bool add_qcir_optimize_cmds(dvlab::CommandLineInterface& cli, QCirMgr& qcir_mgr) {
     if (!(cli.add_command(qcir_optimize_cmd(qcir_mgr)))) {
-        LOGGER.fatal("Registering \"optimize\" commands fails... exiting");
+        spdlog::critical("Registering \"optimize\" commands fails... exiting");
         return false;
     }
     return true;

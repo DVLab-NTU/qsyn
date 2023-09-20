@@ -1,8 +1,8 @@
 qsyn> qccp -q
-[Error] QCir list is empty. Please create a QCir first!!
+[error] QCir list is empty. Please create a QCir first!!
 
 qsyn> qcga cx 0 1
-[Error] QCir list is empty. Please create a QCir first!!
+[error] QCir list is empty. Please create a QCir first!!
 
 qsyn> qcba
 Note: QCir list is empty now. Create a new one.

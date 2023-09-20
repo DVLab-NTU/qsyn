@@ -9,7 +9,7 @@ zxgedit -adde 2 1 HADAMARD
 
 logger level trace
 zx2ts
-logger level warning
+logger level warn
 
 // both edges are S-edge
 zxgedit -rme 2 1 ALL
@@ -17,7 +17,7 @@ zxgedit -adde 2 1 SIMPLE
 
 logger level trace
 zx2ts
-logger level warning
+logger level warn
 
 // in-edge are H-edge
 zxgedit -rme 0 2 ALL
@@ -25,7 +25,7 @@ zxgedit -adde 2 0 HADAMARD
 
 logger level trace
 zx2ts
-logger level warning
+logger level warn
 
 // Both edges are H-edge
 zxgedit -rme 1 2 ALL
@@ -33,7 +33,7 @@ zxgedit -adde 2 1 HADAMARD
 
 logger level trace
 zx2ts
-logger level warning
+logger level warn
 
 zxn
 zxge -addi 0
@@ -53,7 +53,7 @@ zxge -adde 6 4 HADAMARD
 zxge -adde 6 7 HADAMARD
 logger level trace
 zx2ts
-logger level warning
+logger level warn
 qcnew
 qcba 1
 qcga h 0

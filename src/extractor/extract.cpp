@@ -14,6 +14,7 @@
 #include "duostra/mapping_eqv_checker.hpp"
 #include "qcir/qcir.hpp"
 #include "util/boolean_matrix.hpp"
+#include "util/util.hpp"
 #include "zx/simplifier/simplify.hpp"
 #include "zx/simplifier/zx_rules_template.hpp"
 #include "zx/zxgraph.hpp"
@@ -609,6 +610,9 @@ bool Extractor::biadjacency_eliminations(bool check) {
     update_matrix();
     dvlab::BooleanMatrix greedy_mat = _biadjacency;
     ZXVertexList backup_neighbors   = _neighbors;
+
+    DVLAB_ASSERT(0 <= OPTIMIZE_LEVEL && OPTIMIZE_LEVEL <= 3, "Error: wrong optimize level");
+
     if (OPTIMIZE_LEVEL > 1) {
         // NOTE - opt = 2 or 3
         greedy_opers = greedy_reduction(greedy_mat);
@@ -660,11 +664,7 @@ bool Extractor::biadjacency_eliminations(bool check) {
                     if (VERBOSE > 3) std::cout << "Gaussian elimination with " << _cnots.size() << " CX(s)" << std::endl;
                 }
             }
-        } else {
-            std::cerr << "Error: wrong optimize level" << std::endl;
-            abort();
         }
-
     } else {
         // NOTE - OPT level 2
         _biadjacency = greedy_mat;

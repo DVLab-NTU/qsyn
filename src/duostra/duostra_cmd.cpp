@@ -6,6 +6,8 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
+#include <spdlog/spdlog.h>
+
 #include <cstddef>
 #include <gsl/util>
 #include <string>
@@ -17,7 +19,7 @@
 #include "duostra/duostra_def.hpp"
 #include "qcir/qcir.hpp"
 #include "qcir/qcir_cmd.hpp"
-#include "qcir/qcir_mgr.hpp"
+#include "util/text_format.hpp"
 
 using namespace dvlab::argparse;
 using dvlab::CmdExecResult;
@@ -55,10 +57,10 @@ Command duostra_cmd(QCirMgr& qcir_mgr, DeviceMgr& device_mgr) {
                 char const* const omp_wait_policy = getenv("OMP_WAIT_POLICY");
 
                 if (omp_wait_policy == nullptr || (strcasecmp(omp_wait_policy, "passive") != 0)) {
-                    LOGGER.error("Cannot run command `DUOSTRA`: OMP_WAIT_POLICY is not set to PASSIVE.");
-                    LOGGER.error("Note: Not setting the above environmental variable may cause the program to freeze.");
-                    LOGGER.error("      You can set it to PASSIVE by running `export OMP_WAIT_POLICY=PASSIVE`");
-                    LOGGER.error("      prior to running `qsyn`.");
+                    spdlog::error("Cannot run command `DUOSTRA`: OMP_WAIT_POLICY is not set to PASSIVE.");
+                    spdlog::error("Note: Not setting the above environmental variable may cause the program to freeze.");
+                    spdlog::error("      You can set it to PASSIVE by running `export OMP_WAIT_POLICY=PASSIVE`");
+                    spdlog::error("      prior to running `qsyn`.");
                     return CmdExecResult::error;
                 }
 #endif

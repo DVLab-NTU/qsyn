@@ -6,15 +6,14 @@
 ****************************************************************************/
 #include "./zxgraph_to_tensor.hpp"
 
+#include <spdlog/spdlog.h>
+
 #include <cassert>
 #include <limits>
 
-#include "util/logger.hpp"
 #include "zx/zxgraph.hpp"
 
 extern bool stop_requested();
-
-extern dvlab::Logger LOGGER;
 
 namespace qsyn {
 
@@ -96,7 +95,7 @@ std::optional<tensor::QTensor<double>> to_tensor(zx::ZXGraph const& zxgraph) {
  */
 std::optional<tensor::QTensor<double>> ZX2TSMapper::map(zx::ZXGraph const& zxgraph) {
     if (!zxgraph.is_valid()) {
-        LOGGER.error("The ZXGraph is not valid!!");
+        spdlog::error("The ZXGraph is not valid!!");
         return std::nullopt;
     }
 
@@ -107,7 +106,7 @@ std::optional<tensor::QTensor<double>> ZX2TSMapper::map(zx::ZXGraph const& zxgra
     zxgraph.topological_traverse([this](zx::ZXVertex* v) { _map_one_vertex(v); });
 
     if (stop_requested()) {
-        LOGGER.error("Conversion is interrupted!!");
+        spdlog::error("Conversion is interrupted!!");
         return std::nullopt;
     }
     tensor::QTensor<double> result;
@@ -123,8 +122,8 @@ std::optional<tensor::QTensor<double>> ZX2TSMapper::map(zx::ZXGraph const& zxgra
 
     auto [inputIds, outputIds] = _get_axis_orders(zxgraph);
 
-    LOGGER.trace("Input  Axis IDs: {}", fmt::join(inputIds, " "));
-    LOGGER.trace("Output Axis IDs: {}", fmt::join(outputIds, " "));
+    spdlog::trace("Input  Axis IDs: {}", fmt::join(inputIds, " "));
+    spdlog::trace("Output Axis IDs: {}", fmt::join(outputIds, " "));
 
     result = result.to_matrix(inputIds, outputIds);
 
@@ -148,8 +147,8 @@ void ZX2TSMapper::_map_one_vertex(zx::ZXVertex* v) {
     bool is_new_graph = _is_of_new_graph(v);
     bool is_boundary  = v->is_boundary();
 
-    LOGGER.debug("Mapping vertex {:>4} ({}): {}", v->get_id(), v->get_type(), is_new_graph ? "New Subgraph" : is_boundary ? "Boundary"
-                                                                                                                          : "Tensordot");
+    spdlog::debug("Mapping vertex {:>4} ({}): {}", v->get_id(), v->get_type(), is_new_graph ? "New Subgraph" : is_boundary ? "Boundary"
+                                                                                                                           : "Tensordot");
 
     if (is_new_graph) {
         _initialize_subgraph(v);
@@ -162,11 +161,11 @@ void ZX2TSMapper::_map_one_vertex(zx::ZXVertex* v) {
     }
     v->set_pin(_tensor_id);
 
-    LOGGER.debug("Done. Current tensor dimension: {}", _curr_tensor().dimension());
-    LOGGER.trace("Current frontiers:");
+    spdlog::debug("Done. Current tensor dimension: {}", _curr_tensor().dimension());
+    spdlog::trace("Current frontiers:");
     for (auto& [epair, axid] : _zx2ts_list.frontiers(_tensor_id)) {
         auto& [vpair, etype] = epair;
-        LOGGER.trace("  {}--{} ({}) axis id: {}", vpair.first->get_id(), vpair.second->get_id(), etype, axid);
+        spdlog::trace("  {}--{} ({}) axis id: {}", vpair.first->get_id(), vpair.second->get_id(), etype, axid);
     }
 }
 

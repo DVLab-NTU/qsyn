@@ -7,6 +7,8 @@
 
 #include "./qcir.hpp"
 
+#include <spdlog/spdlog.h>
+
 #include <cassert>
 #include <cstdlib>
 #include <string>
@@ -183,13 +185,13 @@ QCirGate *QCir::add_gate(std::string type, QubitIdList bits, dvlab::Phase phase,
     type           = dvlab::str::tolower_string(type);
     auto gate_type = str_to_gate_type(type);
     if (!gate_type.has_value()) {
-        LOGGER.fatal("Gate type {} is not supported!!", type);
-        abort();
+        spdlog::error("Gate type {} is not supported!!", type);
+        return nullptr;
     }
     auto const &[category, num_qubits, gate_phase] = gate_type.value();
     if (num_qubits.has_value() && num_qubits.value() != bits.size()) {
-        LOGGER.fatal("Gate {} requires {} qubits, but {} qubits are given.", type, num_qubits.value(), bits.size());
-        abort();
+        spdlog::error("Gate {} requires {} qubits, but {} qubits are given.", type, num_qubits.value(), bits.size());
+        return nullptr;
     }
     if (gate_phase.has_value()) {
         phase = gate_phase.value();
@@ -419,24 +421,8 @@ std::vector<int> QCir::count_gates(bool detail, bool print) {
                     analysis_mcr(g);
                 }
                 break;
-            // case GateCategory::mcpz:
-            //     if (g->get_num_qubits() == 2) {
-            //         cz++;           // --C--
-            //         clifford += 3;  // H-X-H
-            //         cxcnt++;
-            //     } else if (g->get_num_qubits() == 3) {
-            //         ccz++;
-            //         tfamily += 7;
-            //         clifford += 10;
-            //         cxcnt += 6;
-            //     } else {
-            //         mcpz++;
-            //         analysis_mcr(g);
-            //     }
-            //     break;
             default:
-                LOGGER.fatal("Gate {} is not supported!!", g->get_type_str());
-                abort();
+                DVLAB_ASSERT(false, fmt::format("Gate {} is not supported!!", g->get_type_str()));
         }
     }
     size_t single_z = rz + z + s + sdg + t + tdg;

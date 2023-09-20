@@ -4,6 +4,8 @@
   Author       [ Design Verification Lab, Chia-Hsu Chuang ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
+#include <spdlog/spdlog.h>
+
 #include <atomic>
 #include <cassert>
 #include <csignal>
@@ -40,7 +42,7 @@ bool dvlab::CommandLineInterface::open_dofile(std::string const& filepath) {
         return false;
     }
     if (_dofile_stack.size() >= dofile_stack_limit) {
-        LOGGER.error("dofile stack overflow ({})!!", dofile_stack_limit);
+        spdlog::error("dofile stack overflow ({})!!", dofile_stack_limit);
         return false;
     }
 
@@ -76,12 +78,12 @@ bool dvlab::CommandLineInterface::add_command(dvlab::Command cmd) {
     auto name        = cmd.get_name();
     auto n_req_chars = _identifiers.shortest_unique_prefix(cmd.get_name()).size();
     if (!cmd.initialize(n_req_chars)) {
-        LOGGER.error("Failed to initialize command `{}`!!", name);
+        spdlog::error("Failed to initialize command `{}`!!", name);
         return false;
     }
 
     if (_identifiers.contains(name)) {
-        LOGGER.error("dvlab::Command name `{}` conflicts with existing commands or aliases!!", name);
+        spdlog::error("dvlab::Command name `{}` conflicts with existing commands or aliases!!", name);
         return false;
     }
     _identifiers.insert(name);
@@ -97,7 +99,7 @@ bool dvlab::CommandLineInterface::add_command(dvlab::Command cmd) {
 
 bool dvlab::CommandLineInterface::add_alias(std::string const& alias, std::string const& replace_str) {
     if (_identifiers.contains(alias)) {
-        LOGGER.error("Alias `{}` conflicts with existing commands or aliases!!", alias);
+        spdlog::error("Alias `{}` conflicts with existing commands or aliases!!", alias);
         return false;
     }
 
@@ -105,9 +107,9 @@ bool dvlab::CommandLineInterface::add_alias(std::string const& alias, std::strin
     dvlab::str::str_get_token(replace_str, first_token);
     if (auto freq = _identifiers.frequency(first_token); freq != 1) {
         if (freq > 1) {
-            LOGGER.error("Ambiguous command or alias `{}`!!", first_token);
+            spdlog::error("Ambiguous command or alias `{}`!!", first_token);
         } else {
-            LOGGER.error("Unknown command or alias `{}`!!", first_token);
+            spdlog::error("Unknown command or alias `{}`!!", first_token);
         }
         return false;
     }
@@ -153,7 +155,7 @@ void dvlab::CommandLineInterface::sigint_handler(int signum) {
         // there is an executing command
         _command_thread->request_stop();
     } else {
-        LOGGER.fatal("Failed to handle the SIGINT signal. Exiting...");
+        spdlog::critical("Failed to handle the SIGINT signal. Exiting...");
         exit(signum);
     }
 }
@@ -190,7 +192,7 @@ dvlab::CommandLineInterface::execute_one_line() {
         _command_thread->join();
 
         if (this->stop_requested()) {
-            LOGGER.warning("dvlab::Command interrupted");
+            spdlog::warn("Command interrupted");
             while (_command_queue.size()) _command_queue.pop();
             return CmdExecResult::interrupted;
         }
@@ -226,7 +228,7 @@ dvlab::CommandLineInterface::_parse_one_command_from_queue() {
         string var_key = first_token.substr(0, pos);
         string var_val = first_token.substr(pos + 1);
         if (var_val.empty()) {
-            LOGGER.error("variable `{}` is not assigned a value!!", var_key);
+            spdlog::error("variable `{}` is not assigned a value!!", var_key);
             return {nullptr, ""};
         }
         _variables.insert_or_assign(var_key, var_val);
@@ -235,9 +237,9 @@ dvlab::CommandLineInterface::_parse_one_command_from_queue() {
 
     if (auto freq = _identifiers.frequency(first_token); freq != 1) {
         if (freq > 1) {
-            LOGGER.error("Ambiguous command or alias `{}`!!", first_token);
+            spdlog::error("Ambiguous command or alias `{}`!!", first_token);
         } else {
-            LOGGER.error("Unknown command or alias `{}`!!", first_token);
+            spdlog::error("Unknown command or alias `{}`!!", first_token);
         }
         return {nullptr, ""};
     }
@@ -245,9 +247,9 @@ dvlab::CommandLineInterface::_parse_one_command_from_queue() {
     auto identifier = _identifiers.find_with_prefix(first_token);
     if (!identifier.has_value()) {
         if (_identifiers.frequency(first_token) > 0) {
-            LOGGER.error("Ambiguous command or alias `{}`!!", first_token);
+            spdlog::error("Ambiguous command or alias `{}`!!", first_token);
         } else {
-            LOGGER.error("Unknown command or alias `{}`!!", first_token);
+            spdlog::error("Unknown command or alias `{}`!!", first_token);
         }
         return {nullptr, ""};
     }
@@ -267,7 +269,7 @@ dvlab::CommandLineInterface::_parse_one_command_from_queue() {
     dvlab::Command* command = get_command(first_token);
 
     if (!command) {
-        LOGGER.error("Illegal command!! ({})", first_token);
+        spdlog::error("Illegal command!! ({})", first_token);
         return {nullptr, ""};
     }
 
@@ -312,7 +314,7 @@ string dvlab::CommandLineInterface::_replace_variable_keys_with_values(string co
                     if (isalnum(ch) || ch == '_') {
                         continue;
                     }
-                    LOGGER.warning("Warning: variable name `{}` is illegal!!", var_key);
+                    spdlog::warn("Warning: variable name `{}` is illegal!!", var_key);
                     break;
                 }
             }

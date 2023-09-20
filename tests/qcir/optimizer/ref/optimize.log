@@ -10,219 +10,219 @@ T-family    : 1498
 Others      : 0
 
 qsyn> logger level trace
-[Debug] Setting logger level to trace
+[info] Setting logger level to trace
 
 qsyn> qccoptimize
-[Info] Start basic optimization
-[Debug] Start parsing forward
-[Trace] Transform X gate into Z gate
-[Trace] Transform X gate into Z gate
-[Trace] Transform X gate into Z gate
-[Trace] Transform X gate into Z gate
-[Trace] Transform X gate into Z gate
-[Trace] Transform X gate into Z gate
-[Trace] Transform X gate into Z gate
-[Trace] Transform X gate into Z gate
-[Trace] Transform X gate into Z gate
-[Trace] Cancel X-X into Id
-[Trace] Transform X gate into Z gate
-[Debug]   ParseForward No.0 iteration done.
-[Debug]   Operated rule numbers in this forward are: 
-[Debug]     Fuse the Zphase: 10
-[Debug]     Fuse the Zphase: 10
-[Debug]     X gate canceled: 1
-[Debug]     H-S exchange   : 0
-[Debug]     Cnot canceled  : 0
-[Debug]     CZ canceled    : 0
-[Debug]     Crz transform  : 0
-[Debug]     Do swap        : 0
-[Debug]   Note: 0 CZs had been transformed into CXs.
-[Debug]         0 CXs had been transformed into CZs.
-[Debug]   Note: 0 swap gates had been added in the swap path.
-[Debug] 
-[Debug] Start parsing backward
-[Trace] Transform X gate into Z gate
-[Trace] Apply a do_swap commutation
-[Trace] Transform X gate into Z gate
-[Trace] Apply a do_swap commutation
-[Trace] Apply a do_swap commutation
-[Trace] Apply a do_swap commutation
-[Debug]   ParseForward No.1 iteration done.
-[Debug]   Operated rule numbers in this forward are: 
-[Debug]     Fuse the Zphase: 4
-[Debug]     Fuse the Zphase: 4
-[Debug]     X gate canceled: 0
-[Debug]     H-S exchange   : 0
-[Debug]     Cnot canceled  : 0
-[Debug]     CZ canceled    : 0
-[Debug]     Crz transform  : 0
-[Debug]     Do swap        : 4
-[Debug]   Note: 0 CZs had been transformed into CXs.
-[Debug]         105 CXs had been transformed into CZs.
-[Debug]   Note: 4 swap gates had been added in the swap path.
-[Debug] 
-[Debug] Start parsing forward
-[Trace] Apply a do_swap commutation
-[Trace] Cancel with previous CX
-[Trace] Apply a do_swap commutation
-[Trace] Cancel with previous CX
-[Trace] Apply a do_swap commutation
-[Trace] Cancel with previous CX
-[Trace] Apply a do_swap commutation
-[Trace] Cancel with previous CX
-[Trace] Transform X gate into Z gate
-[Trace] Apply a do_swap commutation
-[Trace] Transform X gate into Z gate
-[Trace] Transform X gate into Z gate
-[Debug]   ParseForward No.2 iteration done.
-[Debug]   Operated rule numbers in this forward are: 
-[Debug]     Fuse the Zphase: 4
-[Debug]     Fuse the Zphase: 4
-[Debug]     X gate canceled: 0
-[Debug]     H-S exchange   : 0
-[Debug]     Cnot canceled  : 4
-[Debug]     CZ canceled    : 0
-[Debug]     Crz transform  : 0
-[Debug]     Do swap        : 5
-[Debug]   Note: 52 CZs had been transformed into CXs.
-[Debug]         0 CXs had been transformed into CZs.
-[Debug]   Note: 3 swap gates had been added in the swap path.
-[Debug] 
-[Debug] Start parsing backward
-[Trace] Apply a do_swap commutation
-[Trace] Cancel with previous CX
-[Trace] Apply a do_swap commutation
-[Trace] Cancel with previous CX
-[Trace] Apply a do_swap commutation
-[Trace] Cancel with previous CX
-[Debug]   ParseForward No.3 iteration done.
-[Debug]   Operated rule numbers in this forward are: 
-[Debug]     Fuse the Zphase: 1
-[Debug]     Fuse the Zphase: 1
-[Debug]     X gate canceled: 0
-[Debug]     H-S exchange   : 0
-[Debug]     Cnot canceled  : 3
-[Debug]     CZ canceled    : 0
-[Debug]     Crz transform  : 0
-[Debug]     Do swap        : 3
-[Debug]   Note: 0 CZs had been transformed into CXs.
-[Debug]         52 CXs had been transformed into CZs.
-[Debug]   Note: 3 swap gates had been added in the swap path.
-[Debug] 
-[Debug] Start parsing forward
-[Trace] Apply a do_swap commutation
-[Trace] Cancel with previous CX
-[Trace] Apply a do_swap commutation
-[Trace] Cancel with previous CX
-[Trace] Apply a do_swap commutation
-[Trace] Cancel with previous CX
-[Trace] Apply a do_swap commutation
-[Trace] Transform X gate into Z gate
-[Trace] Transform X gate into Z gate
-[Trace] Transform X gate into Z gate
-[Debug]   ParseForward No.4 iteration done.
-[Debug]   Operated rule numbers in this forward are: 
-[Debug]     Fuse the Zphase: 0
-[Debug]     Fuse the Zphase: 0
-[Debug]     X gate canceled: 0
-[Debug]     H-S exchange   : 0
-[Debug]     Cnot canceled  : 3
-[Debug]     CZ canceled    : 0
-[Debug]     Crz transform  : 0
-[Debug]     Do swap        : 4
-[Debug]   Note: 53 CZs had been transformed into CXs.
-[Debug]         0 CXs had been transformed into CZs.
-[Debug]   Note: 2 swap gates had been added in the swap path.
-[Debug] 
-[Debug] Start parsing backward
-[Trace] Apply a do_swap commutation
-[Trace] Cancel with previous CX
-[Trace] Apply a do_swap commutation
-[Trace] Cancel with previous CX
-[Debug]   ParseForward No.5 iteration done.
-[Debug]   Operated rule numbers in this forward are: 
-[Debug]     Fuse the Zphase: 1
-[Debug]     Fuse the Zphase: 1
-[Debug]     X gate canceled: 0
-[Debug]     H-S exchange   : 0
-[Debug]     Cnot canceled  : 2
-[Debug]     CZ canceled    : 0
-[Debug]     Crz transform  : 0
-[Debug]     Do swap        : 2
-[Debug]   Note: 0 CZs had been transformed into CXs.
-[Debug]         53 CXs had been transformed into CZs.
-[Debug]   Note: 2 swap gates had been added in the swap path.
-[Debug] 
-[Debug] Start parsing forward
-[Trace] Apply a do_swap commutation
-[Trace] Cancel with previous CX
-[Trace] Apply a do_swap commutation
-[Trace] Cancel with previous CX
-[Trace] Transform X gate into Z gate
-[Trace] Transform X gate into Z gate
-[Trace] Transform X gate into Z gate
-[Debug]   ParseForward No.6 iteration done.
-[Debug]   Operated rule numbers in this forward are: 
-[Debug]     Fuse the Zphase: 0
-[Debug]     Fuse the Zphase: 0
-[Debug]     X gate canceled: 0
-[Debug]     H-S exchange   : 0
-[Debug]     Cnot canceled  : 2
-[Debug]     CZ canceled    : 0
-[Debug]     Crz transform  : 0
-[Debug]     Do swap        : 2
-[Debug]   Note: 35 CZs had been transformed into CXs.
-[Debug]         0 CXs had been transformed into CZs.
-[Debug]   Note: 2 swap gates had been added in the swap path.
-[Debug] 
-[Debug] Start parsing backward
-[Trace] Apply a do_swap commutation
-[Trace] Cancel with previous CX
-[Trace] Apply a do_swap commutation
-[Trace] Cancel with previous CX
-[Debug]   ParseForward No.7 iteration done.
-[Debug]   Operated rule numbers in this forward are: 
-[Debug]     Fuse the Zphase: 0
-[Debug]     Fuse the Zphase: 0
-[Debug]     X gate canceled: 0
-[Debug]     H-S exchange   : 0
-[Debug]     Cnot canceled  : 2
-[Debug]     CZ canceled    : 0
-[Debug]     Crz transform  : 0
-[Debug]     Do swap        : 2
-[Debug]   Note: 0 CZs had been transformed into CXs.
-[Debug]         35 CXs had been transformed into CZs.
-[Debug]   Note: 2 swap gates had been added in the swap path.
-[Debug] 
-[Debug] Start parsing forward
-[Trace] Apply a do_swap commutation
-[Trace] Cancel with previous CX
-[Trace] Apply a do_swap commutation
-[Trace] Cancel with previous CX
-[Trace] Transform X gate into Z gate
-[Trace] Transform X gate into Z gate
-[Trace] Transform X gate into Z gate
-[Debug]   ParseForward No.8 iteration done.
-[Debug]   Operated rule numbers in this forward are: 
-[Debug]     Fuse the Zphase: 0
-[Debug]     Fuse the Zphase: 0
-[Debug]     X gate canceled: 0
-[Debug]     H-S exchange   : 0
-[Debug]     Cnot canceled  : 2
-[Debug]     CZ canceled    : 0
-[Debug]     Crz transform  : 0
-[Debug]     Do swap        : 2
-[Debug]   Note: 35 CZs had been transformed into CXs.
-[Debug]         0 CXs had been transformed into CZs.
-[Debug]   Note: 2 swap gates had been added in the swap path.
-[Debug] 
-[Info] Basic optimization finished after 19 iterations.
-[Info]   Two-qubit gates: 1498 → 1498
-[Info]   Hadamard gates : 428 → 210
-[Info]   Non-Pauli gates: 1498 → 1491
-[Info] Note: Replacing QCir 0...
+[info] Start basic optimization
+[debug] Start parsing forward
+[trace] Transform X gate into Z gate
+[trace] Transform X gate into Z gate
+[trace] Transform X gate into Z gate
+[trace] Transform X gate into Z gate
+[trace] Transform X gate into Z gate
+[trace] Transform X gate into Z gate
+[trace] Transform X gate into Z gate
+[trace] Transform X gate into Z gate
+[trace] Transform X gate into Z gate
+[trace] Cancel X-X into Id
+[trace] Transform X gate into Z gate
+[debug]   ParseForward No.0 iteration done.
+[debug]   Operated rule numbers in this forward are: 
+[debug]     Fuse the Zphase: 10
+[debug]     Fuse the Zphase: 10
+[debug]     X gate canceled: 1
+[debug]     H-S exchange   : 0
+[debug]     Cnot canceled  : 0
+[debug]     CZ canceled    : 0
+[debug]     Crz transform  : 0
+[debug]     Do swap        : 0
+[debug]   Note: 0 CZs had been transformed into CXs.
+[debug]         0 CXs had been transformed into CZs.
+[debug]   Note: 0 swap gates had been added in the swap path.
+[debug] 
+[debug] Start parsing backward
+[trace] Transform X gate into Z gate
+[trace] Apply a do_swap commutation
+[trace] Transform X gate into Z gate
+[trace] Apply a do_swap commutation
+[trace] Apply a do_swap commutation
+[trace] Apply a do_swap commutation
+[debug]   ParseForward No.1 iteration done.
+[debug]   Operated rule numbers in this forward are: 
+[debug]     Fuse the Zphase: 4
+[debug]     Fuse the Zphase: 4
+[debug]     X gate canceled: 0
+[debug]     H-S exchange   : 0
+[debug]     Cnot canceled  : 0
+[debug]     CZ canceled    : 0
+[debug]     Crz transform  : 0
+[debug]     Do swap        : 4
+[debug]   Note: 0 CZs had been transformed into CXs.
+[debug]         105 CXs had been transformed into CZs.
+[debug]   Note: 4 swap gates had been added in the swap path.
+[debug] 
+[debug] Start parsing forward
+[trace] Apply a do_swap commutation
+[trace] Cancel with previous CX
+[trace] Apply a do_swap commutation
+[trace] Cancel with previous CX
+[trace] Apply a do_swap commutation
+[trace] Cancel with previous CX
+[trace] Apply a do_swap commutation
+[trace] Cancel with previous CX
+[trace] Transform X gate into Z gate
+[trace] Apply a do_swap commutation
+[trace] Transform X gate into Z gate
+[trace] Transform X gate into Z gate
+[debug]   ParseForward No.2 iteration done.
+[debug]   Operated rule numbers in this forward are: 
+[debug]     Fuse the Zphase: 4
+[debug]     Fuse the Zphase: 4
+[debug]     X gate canceled: 0
+[debug]     H-S exchange   : 0
+[debug]     Cnot canceled  : 4
+[debug]     CZ canceled    : 0
+[debug]     Crz transform  : 0
+[debug]     Do swap        : 5
+[debug]   Note: 52 CZs had been transformed into CXs.
+[debug]         0 CXs had been transformed into CZs.
+[debug]   Note: 3 swap gates had been added in the swap path.
+[debug] 
+[debug] Start parsing backward
+[trace] Apply a do_swap commutation
+[trace] Cancel with previous CX
+[trace] Apply a do_swap commutation
+[trace] Cancel with previous CX
+[trace] Apply a do_swap commutation
+[trace] Cancel with previous CX
+[debug]   ParseForward No.3 iteration done.
+[debug]   Operated rule numbers in this forward are: 
+[debug]     Fuse the Zphase: 1
+[debug]     Fuse the Zphase: 1
+[debug]     X gate canceled: 0
+[debug]     H-S exchange   : 0
+[debug]     Cnot canceled  : 3
+[debug]     CZ canceled    : 0
+[debug]     Crz transform  : 0
+[debug]     Do swap        : 3
+[debug]   Note: 0 CZs had been transformed into CXs.
+[debug]         52 CXs had been transformed into CZs.
+[debug]   Note: 3 swap gates had been added in the swap path.
+[debug] 
+[debug] Start parsing forward
+[trace] Apply a do_swap commutation
+[trace] Cancel with previous CX
+[trace] Apply a do_swap commutation
+[trace] Cancel with previous CX
+[trace] Apply a do_swap commutation
+[trace] Cancel with previous CX
+[trace] Apply a do_swap commutation
+[trace] Transform X gate into Z gate
+[trace] Transform X gate into Z gate
+[trace] Transform X gate into Z gate
+[debug]   ParseForward No.4 iteration done.
+[debug]   Operated rule numbers in this forward are: 
+[debug]     Fuse the Zphase: 0
+[debug]     Fuse the Zphase: 0
+[debug]     X gate canceled: 0
+[debug]     H-S exchange   : 0
+[debug]     Cnot canceled  : 3
+[debug]     CZ canceled    : 0
+[debug]     Crz transform  : 0
+[debug]     Do swap        : 4
+[debug]   Note: 53 CZs had been transformed into CXs.
+[debug]         0 CXs had been transformed into CZs.
+[debug]   Note: 2 swap gates had been added in the swap path.
+[debug] 
+[debug] Start parsing backward
+[trace] Apply a do_swap commutation
+[trace] Cancel with previous CX
+[trace] Apply a do_swap commutation
+[trace] Cancel with previous CX
+[debug]   ParseForward No.5 iteration done.
+[debug]   Operated rule numbers in this forward are: 
+[debug]     Fuse the Zphase: 1
+[debug]     Fuse the Zphase: 1
+[debug]     X gate canceled: 0
+[debug]     H-S exchange   : 0
+[debug]     Cnot canceled  : 2
+[debug]     CZ canceled    : 0
+[debug]     Crz transform  : 0
+[debug]     Do swap        : 2
+[debug]   Note: 0 CZs had been transformed into CXs.
+[debug]         53 CXs had been transformed into CZs.
+[debug]   Note: 2 swap gates had been added in the swap path.
+[debug] 
+[debug] Start parsing forward
+[trace] Apply a do_swap commutation
+[trace] Cancel with previous CX
+[trace] Apply a do_swap commutation
+[trace] Cancel with previous CX
+[trace] Transform X gate into Z gate
+[trace] Transform X gate into Z gate
+[trace] Transform X gate into Z gate
+[debug]   ParseForward No.6 iteration done.
+[debug]   Operated rule numbers in this forward are: 
+[debug]     Fuse the Zphase: 0
+[debug]     Fuse the Zphase: 0
+[debug]     X gate canceled: 0
+[debug]     H-S exchange   : 0
+[debug]     Cnot canceled  : 2
+[debug]     CZ canceled    : 0
+[debug]     Crz transform  : 0
+[debug]     Do swap        : 2
+[debug]   Note: 35 CZs had been transformed into CXs.
+[debug]         0 CXs had been transformed into CZs.
+[debug]   Note: 2 swap gates had been added in the swap path.
+[debug] 
+[debug] Start parsing backward
+[trace] Apply a do_swap commutation
+[trace] Cancel with previous CX
+[trace] Apply a do_swap commutation
+[trace] Cancel with previous CX
+[debug]   ParseForward No.7 iteration done.
+[debug]   Operated rule numbers in this forward are: 
+[debug]     Fuse the Zphase: 0
+[debug]     Fuse the Zphase: 0
+[debug]     X gate canceled: 0
+[debug]     H-S exchange   : 0
+[debug]     Cnot canceled  : 2
+[debug]     CZ canceled    : 0
+[debug]     Crz transform  : 0
+[debug]     Do swap        : 2
+[debug]   Note: 0 CZs had been transformed into CXs.
+[debug]         35 CXs had been transformed into CZs.
+[debug]   Note: 2 swap gates had been added in the swap path.
+[debug] 
+[debug] Start parsing forward
+[trace] Apply a do_swap commutation
+[trace] Cancel with previous CX
+[trace] Apply a do_swap commutation
+[trace] Cancel with previous CX
+[trace] Transform X gate into Z gate
+[trace] Transform X gate into Z gate
+[trace] Transform X gate into Z gate
+[debug]   ParseForward No.8 iteration done.
+[debug]   Operated rule numbers in this forward are: 
+[debug]     Fuse the Zphase: 0
+[debug]     Fuse the Zphase: 0
+[debug]     X gate canceled: 0
+[debug]     H-S exchange   : 0
+[debug]     Cnot canceled  : 2
+[debug]     CZ canceled    : 0
+[debug]     Crz transform  : 0
+[debug]     Do swap        : 2
+[debug]   Note: 35 CZs had been transformed into CXs.
+[debug]         0 CXs had been transformed into CZs.
+[debug]   Note: 2 swap gates had been added in the swap path.
+[debug] 
+[info] Basic optimization finished after 19 iterations.
+[info]   Two-qubit gates: 1498 → 1498
+[info]   Hadamard gates : 428 → 210
+[info]   Non-Pauli gates: 1498 → 1491
+[info] Note: Replacing QCir 0...
 
-qsyn> logger level warning
+qsyn> logger level warn
 
 qsyn> qccp -a
 Clifford    : 1854
@@ -243,9 +243,10 @@ T-family    : 692
 Others      : 0
 
 qsyn> logger level info
+[info] Setting logger level to info
 
 qsyn> qccoptimize -stat
-[Info] Start basic optimization
+[info] Start basic optimization
   ParseForward No.0 iteration done.
   Operated rule numbers in this forward are: 
     Fuse the Zphase: 0
@@ -372,13 +373,13 @@ qsyn> qccoptimize -stat
         7 CXs had been transformed into CZs.
   Note: 7 swap gates had been added in the swap path.
 
-[Info] Basic optimization finished after 19 iterations.
-[Info]   Two-qubit gates: 1433 → 1327
-[Info]   Hadamard gates : 1210 → 210
-[Info]   Non-Pauli gates: 694 → 742
-[Info] Note: Replacing QCir 1...
+[info] Basic optimization finished after 19 iterations.
+[info]   Two-qubit gates: 1433 → 1327
+[info]   Hadamard gates : 1210 → 210
+[info]   Non-Pauli gates: 694 → 742
+[info] Note: Replacing QCir 1...
 
-qsyn> logger level warning
+qsyn> logger level warn
 
 qsyn> qccp -a
 Clifford    : 1666
