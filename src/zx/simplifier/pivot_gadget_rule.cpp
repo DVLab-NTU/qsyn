@@ -11,12 +11,8 @@ using namespace qsyn::zx;
 
 using MatchType = PivotGadgetRule::MatchType;
 
-extern size_t VERBOSE;
-
 std::vector<MatchType> PivotGadgetRule::find_matches(ZXGraph const& graph) const {
     std::vector<MatchType> matches;
-
-    if (VERBOSE >= 8) std::cout << "> match...\n";
 
     size_t count = 0;
 
@@ -30,9 +26,6 @@ std::vector<MatchType> PivotGadgetRule::find_matches(ZXGraph const& graph) const
 
         if (taken.contains(vs) || taken.contains(vt)) return;
 
-        if (VERBOSE == 9) std::cout << "\n-----------\n\n"
-                                    << "Edge " << count << ": " << vs->get_id() << " " << vt->get_id() << "\n";
-
         if (!vs->is_z()) {
             taken.insert(vs);
             return;
@@ -42,8 +35,6 @@ std::vector<MatchType> PivotGadgetRule::find_matches(ZXGraph const& graph) const
             return;
         }
 
-        if (VERBOSE == 9) std::cout << "(1) type pass\n";
-
         bool vs_is_n_pi = (vs->get_phase().denominator() == 1);
         bool vt_is_n_pi = (vt->get_phase().denominator() == 1);
 
@@ -52,8 +43,6 @@ std::vector<MatchType> PivotGadgetRule::find_matches(ZXGraph const& graph) const
         if (vs_is_n_pi == vt_is_n_pi) return;
 
         if (!vs_is_n_pi && vt_is_n_pi) std::swap(vs, vt);  // if vs is not n*pi but vt is, should extract vs as gadget instead
-
-        if (VERBOSE == 9) std::cout << "(2) phase pass\n";
 
         // REVIEW - check ground conditions
 
@@ -75,11 +64,7 @@ std::vector<MatchType> PivotGadgetRule::find_matches(ZXGraph const& graph) const
             if (!v->is_z()) return;  // vt is not internal or not graph-like
         }
 
-        if (VERBOSE == 9) std::cout << "(3) good match\n";
-
-        // Both vs and vt are interior
-        if (VERBOSE >= 8) std::cout << "Both vertices are both interior: " << vs->get_id() << " " << vt->get_id() << std::endl;
-
+        // Both vs and vt are interior vertices
         taken.insert(vs);
         taken.insert(vt);
         for (auto& [v, _] : vs->get_neighbors()) taken.insert(v);

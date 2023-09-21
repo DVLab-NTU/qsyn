@@ -7,8 +7,6 @@
 
 #include "./zx_rules_template.hpp"
 
-extern size_t VERBOSE;
-
 using namespace qsyn::zx;
 
 void PivotRuleInterface::apply(ZXGraph& graph, std::vector<MatchType> const& matches) const {
@@ -16,11 +14,6 @@ void PivotRuleInterface::apply(ZXGraph& graph, std::vector<MatchType> const& mat
 
     for (auto& m : matches) {
         auto [m0, m1] = m;
-
-        if (VERBOSE >= 8) {
-            std::cout << "> rewrite...\n";
-            std::cout << "vs: " << m0->get_id() << "\tvt: " << m1->get_id() << std::endl;
-        }
 
         std::vector<ZXVertex*> n0, n1, n2;
         std::vector<ZXVertex*> m0_neighbors = m0->get_copied_neighbors();
