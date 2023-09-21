@@ -8,14 +8,14 @@
 
 #include "./router.hpp"
 
+#include <spdlog/spdlog.h>
+
 #include <gsl/util>
 
 #include "./circuit_topology.hpp"
 #include "./duostra.hpp"
 #include "duostra/duostra_def.hpp"
 #include "util/util.hpp"
-
-extern size_t VERBOSE;
 
 using namespace qsyn::qcir;
 
@@ -43,13 +43,13 @@ AStarNode::AStarNode(size_t cost, size_t id, bool source)
  * @param orient
  */
 Router::Router(Device&& device, Router::CostStrategyType cost_strategy, MinMaxOptionType tie_breaking_strategy)
-    : _greedy_type(false),
-      _duostra(false),
+    : _greedy_type(_greedy_type = cost_strategy == CostStrategyType::start),
+      _duostra(DuostraConfig::ROUTER_TYPE == RouterType::duostra),
       _tie_breaking_strategy(tie_breaking_strategy),
-      _apsp(false),
+      _apsp(DuostraConfig::ROUTER_TYPE == RouterType::shortest_path || cost_strategy == CostStrategyType::end),
       _device(device),
       _logical_to_physical({}) {
-    _initialize(cost_strategy);
+    _initialize();
 }
 
 /**
@@ -67,24 +67,7 @@ std::unique_ptr<Router> Router::clone() const {
  * @param type
  * @param cost
  */
-void Router::_initialize(Router::CostStrategyType cost_stretegy) {
-    if (DuostraConfig::ROUTER_TYPE == RouterType::shortest_path) {
-        _apsp    = true;
-        _duostra = false;
-    } else if (DuostraConfig::ROUTER_TYPE == RouterType::duostra) {
-        _duostra = true;
-    }
-
-    if (cost_stretegy == CostStrategyType::end) {
-        _greedy_type = true;
-        _apsp        = true;
-    } else if (cost_stretegy == CostStrategyType::start) {
-        _greedy_type = false;
-    } else {
-        std::cerr << cost_stretegy << " is not a cost type" << std::endl;
-        abort();
-    }
-
+void Router::_initialize() {
     if (_apsp) {
         _device.calculate_path();
     }
@@ -179,7 +162,7 @@ Router::Operation Router::execute_single(GateRotationCategory gate, dvlab::Phase
     qubit.set_occupied_time(end_time);
     qubit.reset();
     Operation op(gate, phase, std::make_tuple(q, SIZE_MAX), std::make_tuple(start_time, end_time));
-    if (VERBOSE > 3) std::cout << op << std::endl;
+    spdlog::debug("execute_single: {}", op);
     return op;
 }
 
@@ -263,10 +246,9 @@ std::vector<Router::Operation> Router::duostra_routing(Gate const& gate, std::tu
     std::vector<Operation> operation_list =
         _traceback(gate, _device.get_physical_qubit(q0_id), _device.get_physical_qubit(q1_id), t0, t1, swap_ids, swapped);
 
-    if (VERBOSE > 3) {
-        for (size_t i = 0; i < operation_list.size(); ++i) {
-            std::cout << operation_list[i] << std::endl;
-        }
+    spdlog::debug("Operation List:");
+    for (auto const& op : operation_list) {
+        spdlog::debug("  {}", op);
     }
 
 #ifdef DEBUG

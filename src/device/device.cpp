@@ -24,8 +24,6 @@
 #include "qcir/qcir_gate.hpp"
 #include "util/util.hpp"
 
-extern size_t VERBOSE;
-
 using namespace qsyn::qcir;
 
 template <>
@@ -829,15 +827,7 @@ void Device::print_status() const {
  * @return ostream&
  */
 std::ostream& operator<<(std::ostream& os, Operation const& op) {
-    os << std::left;
-    size_t from = std::get<0>(op._duration);
-    size_t to   = std::get<1>(op._duration);
-    // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers)
-    os << std::setw(20) << "Operation: " + gate_type_to_str(op._operation, std::get<1>(op._qubits) == SIZE_MAX ? 1 : 2, op.get_phase());
-    os << "Q" << std::get<0>(op._qubits) << " Q" << std::get<1>(op._qubits)
-       << "    from: " << std::left << std::setw(10) << from << "to: " << to;
-    // NOLINTEND(cppcoreguidelines-avoid-magic-numbers)
-    return os;
+    return os << fmt::format("{}", op);
 }
 
 /**

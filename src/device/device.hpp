@@ -200,6 +200,7 @@ public:
     void set_id(size_t id) { _id = id; }
 
     std::string get_type_str() const { return qcir::gate_type_to_str(_operation, std::get<1>(get_qubits()) == SIZE_MAX ? 1 : 2, _phase); }
+    bool is_double_qubit_gate() const { return std::get<1>(_qubits) != SIZE_MAX; }
 
     bool is_swap() const { return _operation == qcir::GateRotationCategory::swap; }
     bool is_cx() const { return _operation == qcir::GateRotationCategory::px && _phase == dvlab::Phase(1) && std::get<1>(_qubits) != SIZE_MAX; }
@@ -222,5 +223,19 @@ struct fmt::formatter<qsyn::device::DeviceInfo> {
     template <typename FormatContext>
     auto format(qsyn::device::DeviceInfo const& info, FormatContext& ctx) {
         return fmt::format_to(ctx.out(), "Delay: {:>7.3}    Error: {:7.3}    ", info._time, info._error);
+    }
+};
+
+template <>
+struct fmt::formatter<qsyn::device::Operation> {
+    constexpr auto parse(format_parse_context& ctx) { return ctx.begin(); }
+
+    template <typename FormatContext>
+    auto format(qsyn::device::Operation const& op, FormatContext& ctx) {
+        if (op.is_double_qubit_gate()) {
+            return fmt::format_to(ctx.out(), "Operation: {}  Q{} Q{}  duration: {} -- {}", op.get_type_str(), std::get<0>(op.get_qubits()), std::get<1>(op.get_qubits()), op.get_time_begin(), op.get_time_end());
+        } else {
+            return fmt::format_to(ctx.out(), "Operation: {}  Q{}  duration: {} -- {}", op.get_type_str(), std::get<0>(op.get_qubits()), op.get_time_begin(), op.get_time_end());
+        }
     }
 };

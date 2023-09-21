@@ -59,14 +59,10 @@ Pivot Rule
 
 Iteration 1:
 >>>
-> rewrite...
-vs: 4	vt: 6
 <<<
 
 Iteration 2:
 >>>
-> rewrite...
-vs: 7	vt: 8
 <<<
 => 2 iterations.
   1) 1 matches
@@ -154,14 +150,10 @@ Pivot Rule
 
 Iteration 1:
 >>>
-> rewrite...
-vs: 4	vt: 6
 <<<
 
 Iteration 2:
 >>>
-> rewrite...
-vs: 7	vt: 8
 <<<
 => 2 iterations.
   1) 1 matches
@@ -317,8 +309,6 @@ Pivot Rule
 
 Iteration 1:
 >>>
-> rewrite...
-vs: 4	vt: 5
 <<<
 => 1 iterations.
   1) 1 matches
@@ -671,10 +661,6 @@ Pivot Rule
 
 Iteration 1:
 >>>
-> rewrite...
-vs: 4	vt: 5
-> rewrite...
-vs: 16	vt: 17
 <<<
 => 1 iterations.
   1) 2 matches
