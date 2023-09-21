@@ -7,6 +7,8 @@
 
 #include "qcir/qcir_cmd.hpp"
 
+#include <spdlog/spdlog.h>
+
 #include <cstddef>
 #include <filesystem>
 #include <string>
@@ -26,8 +28,8 @@ namespace qsyn::qcir {
 
 bool qcir_mgr_not_empty(QCirMgr const& qcir_mgr) {
     if (qcir_mgr.empty()) {
-        LOGGER.error("QCir list is empty. Please create a QCir first!!");
-        LOGGER.info("Use QCNew/QCBAdd to add a new QCir, or QCCRead to read a QCir from a file.");
+        spdlog::error("QCir list is empty. Please create a QCir first!!");
+        spdlog::info("Use QCNew/QCBAdd to add a new QCir, or QCCRead to read a QCir from a file.");
         return false;
     }
     return true;
@@ -696,8 +698,8 @@ Command qcir_draw_cmd(QCirMgr const& qcir_mgr) {
                 auto scale       = parser.get<float>("-scale");
 
                 if (!drawer.has_value()) {
-                    LOGGER.fatal("Invalid drawer type: {}", parser.get<std::string>("-drawer"));
-                    LOGGER.fatal("This error should have been unreachable. Please report this bug to the developer.");
+                    spdlog::critical("Invalid drawer type: {}", parser.get<std::string>("-drawer"));
+                    spdlog::critical("This error should have been unreachable. Please report this bug to the developer.");
                     return CmdExecResult::error;
                 }
 
@@ -741,7 +743,7 @@ bool add_qcir_cmds(dvlab::CommandLineInterface& cli, QCirMgr& qcir_mgr) {
           cli.add_command(qcir_gate_print_cmd(qcir_mgr)) &&
           cli.add_command(qcir_draw_cmd(qcir_mgr)) &&
           cli.add_command(qcir_write_cmd(qcir_mgr)))) {
-        std::cerr << "Registering \"qcir\" commands fails... exiting" << std::endl;
+        spdlog::error("Registering \"qcir\" commands fails... exiting");
         return false;
     }
     return true;

@@ -3,7 +3,7 @@ qccr benchmark/SABRE/large/adr4_197.qasm
 qccp -a
 logger level trace
 qccoptimize
-logger level warning
+logger level warn
 qccp -a
 qc2zx
 zxgs
@@ -11,6 +11,6 @@ zx2qc
 qccp -a
 logger level info
 qccoptimize -stat
-logger level warning
+logger level warn
 qccp -a
 qq -f

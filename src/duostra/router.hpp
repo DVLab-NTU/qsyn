@@ -46,8 +46,11 @@ public:
     using Operation     = qsyn::device::Operation;
     using PhysicalQubit = qsyn::device::PhysicalQubit;
 
+    enum CostStrategyType { start,
+                            end };
+
     using PriorityQueue = std::priority_queue<AStarNode, std::vector<AStarNode>, AStarComp>;
-    Router(Device&& device, std::string const& cost_strategy, MinMaxOptionType tie_breaking_strategy);
+    Router(Device&& device, CostStrategyType cost_strategy, MinMaxOptionType tie_breaking_strategy);
 
     std::unique_ptr<Router> clone() const;
 
@@ -64,14 +67,14 @@ public:
     std::vector<Operation> assign_gate(Gate const&);
 
 private:
-    bool _greedy_type;
-    bool _duostra;
     MinMaxOptionType _tie_breaking_strategy;
-    bool _apsp;
     Device _device;
     std::vector<size_t> _logical_to_physical;
+    bool _apsp : 1;
+    bool _duostra : 1;
+    bool _greedy_type : 1;
 
-    void _initialize(std::string const&);
+    void _initialize();
     std::tuple<size_t, size_t> _get_physical_qubits(Gate const& gate) const;
 
     std::tuple<bool, size_t> _touch_adjacency(PhysicalQubit& qubit, PriorityQueue& pq, bool source);  // return <if touch target, target id>, swtch: false q0 propagate, true q1 propagate

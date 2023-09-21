@@ -4,12 +4,15 @@
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
+#include <spdlog/spdlog.h>
+
 #include <cstddef>
 #include <cstdlib>
 #include <string>
 
 #include "cli/cli.hpp"
 #include "fmt/color.h"
+#include "spdlog/common.h"
 #include "util/usage.hpp"
 #include "util/util.hpp"
 
@@ -162,7 +165,7 @@ Command dofile_cmd(CommandLineInterface& cli) {
                 }
 
                 if (!cli.open_dofile(parser.get<std::string>("file"))) {
-                    LOGGER.error("cannot open file \"{}\"!!", parser.get<std::string>("file"));
+                    spdlog::error("cannot open file \"{}\"!!", parser.get<std::string>("file"));
                     return CmdExecResult::error;
                 }
 
@@ -228,27 +231,25 @@ Command logger_cmd() {
     Command cmd{
         "logger",
         [](ArgumentParser& parser) {
-            std::vector<std::string> log_levels = {"none", "fatal", "error", "warning", "info", "debug", "trace"};
+            std::vector<std::string> log_levels = {"off", "critical", "error", "warn", "info", "debug", "trace"};
             parser.description("display and set the logger's status");
 
             auto parsers = parser.add_subparsers()
                                .help("subcommands for logger");
         },
         [](ArgumentParser const& /*parser*/) {
-            using dvlab::Logger;
-
-            fmt::println("Logger Level: {}", Logger::log_level_to_str(LOGGER.get_log_level()));
+            fmt::println("Logger Level: {}", spdlog::level::to_string_view(spdlog::get_level()));
             std::vector<std::string> masked;
-            std::vector<std::string> log_levels = {"fatal", "error", "warning", "info", "debug", "trace"};
-            for (auto& level : log_levels) {
-                if (LOGGER.is_masked(*Logger::str_to_log_level(level))) {
-                    masked.push_back(level);
-                }
-            }
+            std::vector<std::string> log_levels = {"critical", "error", "warn", "info", "debug", "trace"};
+            // for (auto& level : log_levels) {
+            //     if (LOGGER.is_masked(*Logger::str_to_log_level(level))) {
+            //         masked.push_back(level);
+            //     }
+            // }
 
-            if (masked.size()) {
-                fmt::println("Masked logging levels: {}", fmt::join(masked, ", "));
-            }
+            // if (masked.size()) {
+            //     fmt::println("Masked logging levels: {}", fmt::join(masked, ", "));
+            // }
 
             return CmdExecResult::done;
         }};
@@ -259,12 +260,12 @@ Command logger_cmd() {
              parser.description("Test out logger setting");
          },
          [](ArgumentParser const& /*parser*/) {
-             LOGGER.fatal("Test fatal log");
-             LOGGER.error("Test error log");
-             LOGGER.warning("Test warning log");
-             LOGGER.info("Test info log");
-             LOGGER.debug("Test debug log");
-             LOGGER.trace("Test trace log");
+             spdlog::critical("Test critical log");
+             spdlog::error("Test error log");
+             spdlog::warn("Test warn log");
+             spdlog::info("Test info log");
+             spdlog::debug("Test debug log");
+             spdlog::trace("Test trace log");
              return CmdExecResult::done;
          }});
 
@@ -273,76 +274,74 @@ Command logger_cmd() {
          [](ArgumentParser& parser) {
              parser.description("set logger level");
              parser.add_argument<std::string>("level")
-                 .constraint(choices_allow_prefix(std::vector<std::string>{"none", "fatal", "error", "warning", "info", "debug", "trace"}))
-                 .help("set log levels. Levels (ascending): None, Fatal, Error, Warning, Info, Debug, Trace");
+                 .constraint(choices_allow_prefix(std::vector<std::string>{"off", "critical", "error", "warn", "info", "debug", "trace"}))
+                 .help("set log levels. Levels (ascending): off, critical, error, warn, info, debug, trace");
          },
          [](ArgumentParser const& parser) {
-             auto level = dvlab::Logger::str_to_log_level(parser.get<std::string>("level"));
-             assert(level.has_value());
-             LOGGER.set_log_level(*level);
-             LOGGER.debug("Setting logger level to {}", dvlab::Logger::log_level_to_str(*level));
+             auto level = spdlog::level::from_str(parser.get<std::string>("level"));
+             spdlog::set_level(level);
+             spdlog::info("Setting logger level to {}", spdlog::level::to_string_view(level));
              return CmdExecResult::done;
          }});
 
-    cmd.add_subcommand(
-        {"history",
-         [](ArgumentParser& parser) {
-             parser.description("print logger history");
-             parser.add_argument<size_t>("num_history")
-                 .nargs(NArgsOption::optional)
-                 .metavar("N")
-                 .help("print log history. If specified, print the lastest N logs");
-         },
-         [](ArgumentParser const& parser) {
-             using dvlab::Logger;
-             if (parser.parsed("num_history")) {
-                 LOGGER.print_logs(parser.get<size_t>("num_history"));
-             } else {
-                 LOGGER.print_logs();
-             }
-             return CmdExecResult::done;
-         }});
+    // cmd.add_subcommand(
+    //     {"history",
+    //      [](ArgumentParser& parser) {
+    //          parser.description("print logger history");
+    //          parser.add_argument<size_t>("num_history")
+    //              .nargs(NArgsOption::optional)
+    //              .metavar("N")
+    //              .help("print log history. If specified, print the lastest N logs");
+    //      },
+    //      [](ArgumentParser const& parser) {
+    //          if (parser.parsed("num_history")) {
+    //              LOGGER.print_logs(parser.get<size_t>("num_history"));
+    //          } else {
+    //              LOGGER.print_logs();
+    //          }
+    //          return CmdExecResult::done;
+    //      }});
 
-    cmd.add_subcommand(
-        {"mask",
-         [](ArgumentParser& parser) {
-             parser.description("set logger mask")
-                 .option_prefix("+-");
-             auto add_filter_group = [&parser](std::string const& group_name) {
-                 auto group = parser.add_mutually_exclusive_group();
-                 group.add_argument<bool>("+" + group_name)
-                     .action(store_true)
-                     .help("unmask " + group_name + " logs");
-                 group.add_argument<bool>("-" + group_name)
-                     .action(store_true)
-                     .help("mask " + group_name + " logs");
-             };
+    // cmd.add_subcommand(
+    //     {"mask",
+    //      [](ArgumentParser& parser) {
+    //          parser.description("set logger mask")
+    //              .option_prefix("+-");
+    //          auto add_filter_group = [&parser](std::string const& group_name) {
+    //              auto group = parser.add_mutually_exclusive_group();
+    //              group.add_argument<bool>("+" + group_name)
+    //                  .action(store_true)
+    //                  .help("unmask " + group_name + " logs");
+    //              group.add_argument<bool>("-" + group_name)
+    //                  .action(store_true)
+    //                  .help("mask " + group_name + " logs");
+    //          };
 
-             std::vector<std::string> log_levels = {"fatal", "error", "warning", "info", "debug", "trace"};
+    //          std::vector<std::string> log_levels = {"fatal", "error", "warn", "info", "debug", "trace"};
 
-             for (auto& group : log_levels) {
-                 if (group == "none") continue;
-                 add_filter_group(group);
-             }
-         },
-         [](ArgumentParser const& parser) {
-             using dvlab::Logger;
+    //          for (auto& group : log_levels) {
+    //              if (group == "none") continue;
+    //              add_filter_group(group);
+    //          }
+    //      },
+    //      [](ArgumentParser const& parser) {
+    //          using dvlab::Logger;
 
-             std::vector<std::string> log_levels = {"fatal", "error", "warning", "info", "debug", "trace"};
+    //          std::vector<std::string> log_levels = {"fatal", "error", "warn", "info", "debug", "trace"};
 
-             for (auto& group : log_levels) {
-                 auto level = Logger::str_to_log_level(group);
-                 assert(level.has_value());
-                 if (parser.parsed("+" + group)) {
-                     LOGGER.unmask(*level);
-                     LOGGER.debug("Unmasked logger level: {}", Logger::log_level_to_str(*level));
-                 } else if (parser.parsed("-" + group)) {
-                     LOGGER.mask(*level);
-                     LOGGER.debug("Masked logger level: {}", Logger::log_level_to_str(*level));
-                 }
-             }
-             return CmdExecResult::done;
-         }});
+    //          for (auto& group : log_levels) {
+    //              auto level = Logger::str_to_log_level(group);
+    //              assert(level.has_value());
+    //              if (parser.parsed("+" + group)) {
+    //                  LOGGER.unmask(*level);
+    //                  LOGGER.debug("Unmasked logger level: {}", Logger::log_level_to_str(*level));
+    //              } else if (parser.parsed("-" + group)) {
+    //                  LOGGER.mask(*level);
+    //                  LOGGER.debug("Masked logger level: {}", Logger::log_level_to_str(*level));
+    //              }
+    //          }
+    //          return CmdExecResult::done;
+    //      }});
 
     return cmd;
 }
@@ -389,7 +388,7 @@ bool add_cli_common_cmds(dvlab::CommandLineInterface& cli) {
           cli.add_command(seed_cmd()) &&
           cli.add_command(clear_cmd()) &&
           cli.add_command(logger_cmd()))) {
-        LOGGER.fatal("Registering \"cli\" commands fails... exiting");
+        spdlog::critical("Registering \"cli\" commands fails... exiting");
         return false;
     }
     return true;

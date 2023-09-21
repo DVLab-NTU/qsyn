@@ -7,17 +7,17 @@
 
 #include "./qcir_to_zxgraph.hpp"
 
+#include <spdlog/spdlog.h>
+
 #include <cstddef>
 
 #include "qcir/qcir.hpp"
 #include "qcir/qcir_gate.hpp"
-#include "util/logger.hpp"
 #include "util/phase.hpp"
 #include "util/rational.hpp"
 #include "zx/zx_def.hpp"
 #include "zx/zxgraph.hpp"
 
-extern dvlab::Logger LOGGER;
 extern bool stop_requested();
 
 namespace qsyn {
@@ -470,7 +470,7 @@ std::optional<ZXGraph> to_zxgraph(QCirGate* gate, size_t decomposition_mode) {
 std::optional<ZXGraph> to_zxgraph(QCir const& qcir, size_t decomposition_mode) {
     qcir.update_gate_time();
     ZXGraph g;
-    LOGGER.debug("Add boundaries");
+    spdlog::debug("Add boundaries");
     for (size_t i = 0; i < qcir.get_qubits().size(); i++) {
         ZXVertex* input  = g.add_input(qcir.get_qubits()[i]->get_id());
         ZXVertex* output = g.add_output(qcir.get_qubits()[i]->get_id());
@@ -480,7 +480,7 @@ std::optional<ZXGraph> to_zxgraph(QCir const& qcir, size_t decomposition_mode) {
 
     qcir.topological_traverse([&g, &decomposition_mode](QCirGate* gate) {
         if (stop_requested()) return;
-        LOGGER.debug("Gate {} ({})", gate->get_id(), gate->get_type_str());
+        spdlog::debug("Gate {} ({})", gate->get_id(), gate->get_type_str());
 
         auto tmp = to_zxgraph(gate, decomposition_mode);
         assert(tmp.has_value());
@@ -498,7 +498,7 @@ std::optional<ZXGraph> to_zxgraph(QCir const& qcir, size_t decomposition_mode) {
     }
 
     if (stop_requested()) {
-        LOGGER.warning("Conversion interrupted.");
+        spdlog::warn("Conversion interrupted.");
         return std::nullopt;
     }
 

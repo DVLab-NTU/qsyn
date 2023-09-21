@@ -7,14 +7,13 @@
 ****************************************************************************/
 
 #include <fmt/format.h>
+#include <spdlog/spdlog.h>
 
 #include <algorithm>
 #include <cassert>
 
 #include "./duostra.hpp"
 #include "./scheduler.hpp"
-
-extern size_t VERBOSE;
 
 extern bool stop_requested();
 
@@ -86,8 +85,7 @@ GreedyScheduler::Device GreedyScheduler::_assign_gates(std::unique_ptr<Router> r
         assert(gate_idx.has_value());
         route_one_gate(*router, gate_idx.value());
 
-        if (VERBOSE > 3)
-            fmt::println("waitlist: [{}] {}\n", fmt::join(waitlist, ", "), gate_idx.value());
+        spdlog::debug("waitlist: [{}] {}\n", fmt::join(waitlist, ", "), gate_idx.value());
 
         ++count;
     }

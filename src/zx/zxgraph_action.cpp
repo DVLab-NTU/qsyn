@@ -10,10 +10,7 @@
 
 #include "./zx_def.hpp"
 #include "./zxgraph.hpp"
-#include "util/logger.hpp"
 #include "util/phase.hpp"
-
-extern dvlab::Logger LOGGER;
 
 namespace qsyn::zx {
 

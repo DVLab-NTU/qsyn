@@ -2,14 +2,6 @@ logger
 logger level debug
 logger
 logger test
-logger mask -error -warning
-logger
-logger test
-logger mask +warning
-logger
-logger test
 logger level error
 logger test
-logger history
-logger history 10
 qq -f

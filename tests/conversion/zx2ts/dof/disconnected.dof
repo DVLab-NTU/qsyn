@@ -19,7 +19,7 @@ zxgedit -adde 8 9 SIMPLE
 
 logger level trace
 zx2ts
-logger level warning
+logger level warn
 
 zxgr benchmark/zx/cnot.zx
 zxgr benchmark/zx/cnot.zx
@@ -28,7 +28,7 @@ zxtensor 1
 
 logger level trace
 zx2ts
-logger level warning
+logger level warn
 
 zxnew
 zxgedit -addi 0
@@ -66,6 +66,6 @@ zxgedit -adde 15 17 SIMPLE
 
 logger level trace
 zx2ts
-logger level warning
+logger level warn
 
 qq -f

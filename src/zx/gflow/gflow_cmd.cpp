@@ -12,6 +12,7 @@
 
 #include "./gflow.hpp"
 #include "cli/cli.hpp"
+#include "spdlog/spdlog.h"
 #include "zx/zx_cmd.hpp"
 #include "zx/zxgraph.hpp"
 
@@ -77,7 +78,7 @@ Command zxgraph_gflow_cmd(ZXGraphMgr const& zxgraph_mgr) {
 
 bool add_zx_gflow_cmds(dvlab::CommandLineInterface& cli, ZXGraphMgr& zxgraph_mgr) {
     if (!cli.add_command(zxgraph_gflow_cmd(zxgraph_mgr))) {
-        std::cerr << "Registering \"gflow\" commands fails... exiting" << std::endl;
+        spdlog::critical("Registering \"gflow\" commands fails... exiting");
         return false;
     }
     return true;

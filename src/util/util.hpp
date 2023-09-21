@@ -26,7 +26,9 @@ namespace dvlab {
 #ifndef NDEBUG
 namespace detail {
 void dvlab_assert_impl(std::string_view expr_str, bool expr, std::string_view file, int line, std::string_view msg);
-}
+void dvlab_abort_impl(std::string_view file, int line, std::string_view msg);
+void dvlab_unreachable_impl(std::string_view file, int line, std::string_view msg);
+}  // namespace detail
 #endif
 
 namespace utils {
@@ -239,6 +241,12 @@ bool str_to_num(std::string const& str, T& f) {
 #ifndef NDEBUG
 #define DVLAB_ASSERT(Expr, Msg) \
     dvlab::detail::dvlab_assert_impl(#Expr, Expr, __FILE__, __LINE__, Msg)
+#define DVLAB_ABORT(Msg)                                      \
+    dvlab::detail::dvlab_abort_impl(__FILE__, __LINE__, Msg); \
+    abort()
+#define DVLAB_UNREACHABLE(Msg)                                      \
+    dvlab::detail::dvlab_unreachable_impl(__FILE__, __LINE__, Msg); \
+    abort()
 #else
 #define M_Assert(Expr, Msg) ;
 #endif

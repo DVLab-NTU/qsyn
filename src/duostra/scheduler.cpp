@@ -12,6 +12,7 @@
 #include <cassert>
 
 #include "./duostra.hpp"
+#include "util/util.hpp"
 
 extern bool stop_requested();
 
@@ -37,10 +38,8 @@ std::unique_ptr<BaseScheduler> get_scheduler(std::unique_ptr<CircuitTopology> to
         return std::make_unique<SearchScheduler>(*topo.get(), tqdm);
     } else if (DuostraConfig::SCHEDULER_TYPE == SchedulerType::base) {
         return std::make_unique<BaseScheduler>(*topo.get(), tqdm);
-    } else {
-        std::cerr << "Error: scheduler type not found" << std::endl;
-        abort();
     }
+    DVLAB_UNREACHABLE("Scheduler type not found");
 }
 
 // SECTION - Class BaseScheduler Member Functions
