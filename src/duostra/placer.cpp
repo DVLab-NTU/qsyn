@@ -13,6 +13,7 @@
 
 #include "./duostra.hpp"
 #include "device/device.hpp"
+#include "util/util.hpp"
 
 namespace qsyn::duostra {
 
@@ -29,8 +30,7 @@ std::unique_ptr<BasePlacer> get_placer() {
     } else if (DuostraConfig::PLACER_TYPE == PlacerType::dfs) {
         return std::make_unique<DFSPlacer>();
     }
-    std::cerr << "Error: placer type not found." << std::endl;
-    abort();
+    DVLAB_UNREACHABLE("Unknown placer type");
 }
 
 // SECTION - Class BasePlacer Member Functions

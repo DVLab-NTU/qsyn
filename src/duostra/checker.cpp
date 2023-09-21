@@ -9,10 +9,9 @@
 #include "./checker.hpp"
 
 #include "./circuit_topology.hpp"
+#include "qcir/gate_type.hpp"
 #include "spdlog/spdlog.h"
 #include "util/util.hpp"
-
-extern size_t VERBOSE;
 
 using namespace qsyn::qcir;
 
@@ -85,18 +84,14 @@ void Checker::apply_gate(Checker::Operation const& op,
     size_t start = get<0>(op.get_time_range());
     size_t end   = get<1>(op.get_time_range());
 
-    if (!(start >= q0.get_occupied_time() && start >= q1.get_occupied_time())) {
-        std::cerr << op << "\n"
-                  << "Q" << q0.get_id() << " occu: " << q0.get_occupied_time()
-                  << "\n"
-                  << "Q" << q1.get_id() << " occu: " << q1.get_occupied_time()
-                  << std::endl;
-        abort();
-    }
-    if (!(end == start + get_cycle(op))) {
-        std::cerr << op << std::endl;
-        abort();
-    }
+    DVLAB_ASSERT(
+        start >= q0.get_occupied_time(),
+        fmt::format("The starting time of Operation {} is less than Qubit {}'s occupied time of ({}) !!", op.get_id(), q0.get_id(), q0.get_occupied_time()));
+    DVLAB_ASSERT(
+        start >= q1.get_occupied_time(),
+        fmt::format("The starting time of Operation {} is less than Qubit {}'s occupied time of ({}) !!", op.get_id(), q1.get_id(), q1.get_occupied_time()));
+    DVLAB_ASSERT(end == start + get_cycle(op), fmt::format("The ending time of Operation {} is not equal to start time + cycle!!", op.get_id()));
+
     q0.set_occupied_time(end);
     q1.set_occupied_time(end);
 }
@@ -107,11 +102,8 @@ void Checker::apply_gate(Checker::Operation const& op,
  * @param op
  */
 void Checker::apply_swap(Checker::Operation const& op) {
-    if (op.get_type() != GateRotationCategory::swap) {
-        std::cerr << op.get_type_str() << " in applySwap"
-                  << std::endl;
-        abort();
-    }
+    DVLAB_ASSERT(op.is_swap(), fmt::format("Gate type {} in apply_swap is not allowed!!", op.get_type_str()));
+
     size_t q0_idx = get<0>(op.get_qubits());
     size_t q1_idx = get<1>(op.get_qubits());
     auto& q0      = _device->get_physical_qubit(q0_idx);
@@ -133,31 +125,21 @@ void Checker::apply_swap(Checker::Operation const& op) {
  * @return false
  */
 bool Checker::apply_cx(Operation const& op, Gate const& gate) {
-    if (!(op.is_cx() || op.is_cz())) {
-        std::cerr << op.get_type_str() << " in applyCX" << std::endl;
-        abort();
-    }
+    DVLAB_ASSERT(op.is_cx() || op.is_cz(), fmt::format("Gate type {} in apply_cx is not allowed!!", op.get_type_str()));
     size_t q0_idx = get<0>(op.get_qubits());
     size_t q1_idx = get<1>(op.get_qubits());
     auto& q0      = _device->get_physical_qubit(q0_idx);
     auto& q1      = _device->get_physical_qubit(q1_idx);
 
     auto topo_0 = q0.get_logical_qubit();
-    if (topo_0 == std::nullopt) {
-        std::cerr << "topo_0 is ERROR CODE" << std::endl;
-        abort();
-    }
     auto topo_1 = q1.get_logical_qubit();
-    if (topo_1 == std::nullopt) {
-        std::cerr << "topo_1 is ERRORCODE" << std::endl;
-        abort();
-    }
+
+    DVLAB_ASSERT(topo_0.has_value(), "topo_0 does not have value");
+    DVLAB_ASSERT(topo_1.has_value(), "topo_1 does not have value");
+    DVLAB_ASSERT(topo_0 != topo_1, "topo_0 should not be equal to topo_1");
 
     if (topo_0 > topo_1) {
         std::swap(topo_0, topo_1);
-    } else if (topo_0 == topo_1) {
-        std::cerr << "topo_0 == topo_1: " << *topo_0 << std::endl;
-        abort();
     }
     if (topo_0 != std::get<0>(gate.get_qubits()) ||
         topo_1 != std::get<1>(gate.get_qubits())) {
@@ -177,24 +159,21 @@ bool Checker::apply_cx(Operation const& op, Gate const& gate) {
  * @return false
  */
 bool Checker::apply_single(Operation const& op, Gate const& gate) {
-    if ((op.is_swap()) || (op.is_cx()) || (op.is_cz())) {
-        std::cerr << op.get_type_str() << " in applySingle"
-                  << std::endl;
-        abort();
-    }
+    DVLAB_ASSERT(
+        !op.is_swap() && !op.is_cx() && !op.is_cz(),
+        fmt::format("Gate type {} in apply_single is not allowed!!", op.get_type_str()));
+
     size_t q0_idx = get<0>(op.get_qubits());
-    if (get<1>(op.get_qubits()) != SIZE_MAX) {
-        std::cerr << "Single gate " << gate.get_id()
-                  << " has no null second qubit" << std::endl;
-        abort();
-    }
+
+    DVLAB_ASSERT(
+        get<1>(op.get_qubits()) == SIZE_MAX,
+        fmt::format("Single gate {} has no null second qubit", gate.get_id()));
+
     auto& q0 = _device->get_physical_qubit(q0_idx);
 
     auto topo_0 = q0.get_logical_qubit();
-    if (topo_0 == std::nullopt) {
-        std::cerr << "topo_0 is ERROR CODE" << std::endl;
-        abort();
-    }
+
+    DVLAB_ASSERT(topo_0.has_value(), "topo_0 does not have value");
 
     if (topo_0 != get<0>(gate.get_qubits())) {
         return false;
@@ -237,28 +216,20 @@ bool Checker::test_operations() {
                 }
             }
             if (!pass_condition) {
-                std::cerr << "Executed gates:\n";
-                for (auto gate : finished_gates) {
-                    std::cerr << gate << "\n";
-                }
-                std::cerr << "Available gates:\n";
-                for (auto gate : available_gates) {
-                    std::cerr << gate << "\n";
-                }
-                std::cerr << "Failed Operation: " << op;
+                spdlog::error("Could not match operation {} to any logical gates!!");
+                spdlog::error("  Executed gates:   {}", fmt::join(finished_gates, " "));
+                spdlog::error("  Available gates:  {}", fmt::join(available_gates, " "));
+                spdlog::error("  Failed Operation: {}, type: ", op.get_id(), op.get_type_str());
                 return false;
             }
         }
     }
-    if (VERBOSE > 3) {
-        std::cout << "\nNum gates: " << finished_gates.size() << "\n"
-                  << "Num operations:" << _ops.size() << "\n";
-    }
+    spdlog::info("");
+    spdlog::info("#gates: {}", finished_gates.size());
+    spdlog::info("#operations: {}", _ops.size());
 
     if (finished_gates.size() != _topo->get_num_gates()) {
-        std::cerr << "Number of finished gates " << finished_gates.size()
-                  << " different from number of gates "
-                  << _topo->get_num_gates() << std::endl;
+        spdlog::error("Number of finished gates ({}) is different from number of gates ({})!!", finished_gates.size(), _topo->get_num_gates());
         return false;
     }
     return true;
