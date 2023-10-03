@@ -510,8 +510,8 @@ qsyn> do tests/cli/helper/recursive_internal
 qsyn> do tests/cli/helper/recursive_internal
 
 qsyn> do tests/cli/helper/recursive_internal
-[error] dofile stack overflow (256)!!
-[error] cannot open file "tests/cli/helper/recursive_internal"!!
+[error]    dofile stack overflow (256)!!
+[error]    cannot open file "tests/cli/helper/recursive_internal"!!
 
 qsyn> qq -f
 

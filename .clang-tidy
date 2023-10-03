@@ -5,6 +5,7 @@ Checks: >
   cppcoreguidelines-narrowing-conversions,
   cppcoreguidelines-virtual-class-destructor,
   cppcoreguidelines-special-member-functions,
+  cppcoreguidelines-narrowing-conversions,
   performance-noexcept-*,
   misc-non-copyable-objects,
   misc-redundant-expression,
@@ -19,7 +20,6 @@ Checks: >
   readability-*
 #  cppcoreguidelines-macro-usage,
 #  cppcoreguidelines-missing-std-forward,
-#  cppcoreguidelines-narrowing-conversions,
 WarningsAsErrors: ''
 HeaderFilterRegex: ''
 AnalyzeTemporaryDtors: false

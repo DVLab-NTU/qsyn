@@ -8,9 +8,10 @@
 
 #include "./checker.hpp"
 
+#include <spdlog/spdlog.h>
+
 #include "./circuit_topology.hpp"
 #include "qcir/gate_type.hpp"
-#include "spdlog/spdlog.h"
 #include "util/util.hpp"
 
 using namespace qsyn::qcir;
@@ -216,7 +217,7 @@ bool Checker::test_operations() {
                 }
             }
             if (!pass_condition) {
-                spdlog::error("Could not match operation {} to any logical gates!!");
+                spdlog::error("Could not match operation {} to any logical gates!!", op.get_id());
                 spdlog::error("  Executed gates:   {}", fmt::join(finished_gates, " "));
                 spdlog::error("  Available gates:  {}", fmt::join(available_gates, " "));
                 spdlog::error("  Failed Operation: {}, type: ", op.get_id(), op.get_type_str());

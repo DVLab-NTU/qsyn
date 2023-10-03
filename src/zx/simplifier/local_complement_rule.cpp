@@ -67,7 +67,7 @@ void LocalComplementRule::apply(ZXGraph& graph, std::vector<MatchType> const& ma
         for (size_t n = 0; n < neighbors.size(); n++) {
             neighbors[n]->set_phase(neighbors[n]->get_phase() - p);
             for (size_t j = n + 1; j < neighbors.size(); j++) {
-                op.edgesToAdd.emplace_back(std::make_pair(neighbors[n], neighbors[j]), EdgeType::hadamard);
+                op.edges_to_add.emplace_back(std::make_pair(neighbors[n], neighbors[j]), EdgeType::hadamard);
             }
         }
     }

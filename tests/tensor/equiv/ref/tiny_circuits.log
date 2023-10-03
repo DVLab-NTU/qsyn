@@ -1,6 +1,3 @@
-qsyn> ver 2
-Note: verbose level is set to 2
-
 qsyn> qcba 2
 Note: QCir list is empty now. Create a new one.
 
@@ -16,9 +13,6 @@ qsyn> zxgr benchmark/zx/swap.zx
 
 qsyn> zx2ts
 
-qsyn> ver 3
-Note: verbose level is set to 3
-
 qsyn> tsp -l
   0                        #Dim: 2   QC2TS
 ★ 1    swap                #Dim: 2   ZX2TS
@@ -32,9 +26,6 @@ qsyn> tsr
 
 qsyn> zxr
 
-qsyn> ver 2
-Note: verbose level is set to 2
-
 qsyn> zxgr benchmark/zx/tof3.zx
 
 qsyn> zx2ts
@@ -42,9 +33,6 @@ qsyn> zx2ts
 qsyn> zxgr benchmark/zx/tof3_zh.zx
 
 qsyn> zx2ts
-
-qsyn> ver 3
-Note: verbose level is set to 3
 
 qsyn> tsp -l
   0    tof3                #Dim: 2   ZX2TS

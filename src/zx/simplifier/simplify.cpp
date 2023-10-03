@@ -15,8 +15,6 @@
 #include "zx/zxgraph.hpp"
 #include "zx/zxgraph_mgr.hpp"
 
-extern size_t VERBOSE;
-
 using namespace qsyn::zx;
 
 // Basic rules simplification
@@ -133,12 +131,11 @@ void Simplifier::full_reduce() {
     this->pivot_gadget_simp();
     while (!stop_requested()) {
         this->clifford_simp();
-        size_t i1 = this->phase_gadget_simp();
+        auto i1 = this->phase_gadget_simp();
         this->interior_clifford_simp();
-        size_t i2 = this->pivot_gadget_simp();
+        auto i2 = this->pivot_gadget_simp();
         if (i1 + i2 == 0) break;
     }
-    this->print_recipe();
 }
 
 /**
@@ -149,29 +146,24 @@ void Simplifier::full_reduce() {
 void Simplifier::dynamic_reduce() {
     // copy the graph's structure
     ZXGraph copied_graph = *_simp_graph;
-    std::cout << "\nFull Reduce:";
+    spdlog::info("Full Reduce:");
     // to obtain the T-optimal
-    Simplifier simp = Simplifier(&copied_graph);
-    simp.full_reduce();
-    size_t t_optimal = copied_graph.t_count();
+    Simplifier(&copied_graph).full_reduce();
+    auto t_optimal = copied_graph.t_count();
 
-    std::cout << "\nDynamic Reduce:";
-    _recipe.clear();
+    spdlog::info("Dynamic Reduce: (T-optimal: {})", t_optimal);
     dynamic_reduce(t_optimal);
 }
 
 /**
  * @brief Do full reduce until the T-count is equal to the T-optimal while maintaining the lowest possible density
  *
- * @param tOptimal the target optimal T-count
+ * @param optimal_t_count the target optimal T-count
  */
 void Simplifier::dynamic_reduce(size_t optimal_t_count) {
-    std::cout << " (T-optimal: " << optimal_t_count << ")";
-
     this->interior_clifford_simp();
     this->pivot_gadget_simp();
     if (_simp_graph->t_count() == optimal_t_count) {
-        this->print_recipe();
         return;
     }
 
@@ -180,7 +172,7 @@ void Simplifier::dynamic_reduce(size_t optimal_t_count) {
         if (_simp_graph->t_count() == optimal_t_count) {
             break;
         }
-        size_t i1 = this->phase_gadget_simp();
+        auto i1 = this->phase_gadget_simp();
         if (_simp_graph->t_count() == optimal_t_count) {
             break;
         }
@@ -188,13 +180,12 @@ void Simplifier::dynamic_reduce(size_t optimal_t_count) {
         if (_simp_graph->t_count() == optimal_t_count) {
             break;
         }
-        size_t i2 = this->pivot_gadget_simp();
+        auto i2 = this->pivot_gadget_simp();
         if (_simp_graph->t_count() == optimal_t_count) {
             break;
         }
         if (i1 + i2 == 0) break;
     }
-    this->print_recipe();
 }
 
 /**
@@ -207,43 +198,27 @@ void Simplifier::symbolic_reduce() {
     this->state_copy_simp();
     while (!stop_requested()) {
         this->clifford_simp();
-        size_t i1 = this->phase_gadget_simp();
+        auto i1 = this->phase_gadget_simp();
         this->interior_clifford_simp();
-        size_t i2 = this->pivot_gadget_simp();
+        auto i2 = this->pivot_gadget_simp();
         this->state_copy_simp();
         if (i1 + i2 == 0) break;
     }
     this->to_x_graph();
 }
 
-/**
- * @brief Print recipe of Simplifier
- *
- */
-void Simplifier::print_recipe() {
-    if (VERBOSE == 0) return;
-    if (VERBOSE == 1) {
-        std::cout << "\nAll rules applied:\n";
-        std::unordered_set<std::string> rules;
-        for (size_t i = 0; i < _recipe.size(); i++) {
-            if (get<1>(_recipe[i]).size() != 0) {
-                if (rules.find(get<0>(_recipe[i])) == rules.end()) {
-                    std::cout << "(" << rules.size() + 1 << ") " << get<0>(_recipe[i]) << std::endl;
-                    rules.insert(get<0>(_recipe[i]));
-                }
-            }
-        }
-    } else if (VERBOSE <= 3) {
-        std::cout << "\nAll rules applied in order:\n";
-        for (size_t i = 0; i < _recipe.size(); i++) {
-            if (get<1>(_recipe[i]).size() != 0) {
-                std::cout << std::setw(30) << std::left << get<0>(_recipe[i]) << get<1>(_recipe[i]).size() << " iterations." << std::endl;
-                if (VERBOSE == 3) {
-                    for (size_t j = 0; j < get<1>(_recipe[i]).size(); j++) {
-                        std::cout << "  " << j + 1 << ") " << get<1>(_recipe[i])[j] << " matches" << std::endl;
-                    }
-                }
-            }
-        }
+void Simplifier::_report_simp_result(std::string_view rule_name, std::span<size_t> match_counts) const {
+    spdlog::log(
+        match_counts.size() > 0 ? spdlog::level::info : spdlog::level::trace,
+        "{:<28} {:>2} iterations, total {:>4} matches",
+        rule_name,
+        match_counts.size(),
+        std::accumulate(match_counts.begin(), match_counts.end(), 0));
+
+    for (auto i : std::views::iota(0ul, match_counts.size())) {
+        spdlog::log(
+            spdlog::level::debug,
+            "{:>4}) {} matches",
+            i + 1, match_counts[i]);
     }
 }

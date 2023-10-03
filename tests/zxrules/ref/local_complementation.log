@@ -4,15 +4,15 @@ qsyn> zxgr benchmark/zx/lcomp_1.zx
 
 qsyn> zxgp -v
 
-ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (4, -) 
-ID:   1 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (5, -) 
-ID:   2 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (7, -) 
-ID:   3 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (8, -) 
-ID:   4 (Z, π/2)         (Qubit, Col): (0, 0)	  #Neighbors:   2     (0, -) (6, H) 
-ID:   5 (Z, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (1, -) (6, H) 
-ID:   6 (Z, π/2)         (Qubit, Col): (0, 0)	  #Neighbors:   4     (4, H) (5, H) (7, H) (8, H) 
-ID:   7 (Z, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (2, -) (6, H) 
-ID:   8 (Z, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (3, -) (6, H) 
+ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (4, -)
+ID:   1 (●, 0)           (Qubit, Col): (1, 0)         #Neighbors:   1     (5, -)
+ID:   2 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (7, -)
+ID:   3 (●, 0)           (Qubit, Col): (1, 0)         #Neighbors:   1     (8, -)
+ID:   4 (Z, π/2)         (Qubit, Col): (0, 0)         #Neighbors:   2     (0, -) (6, H)
+ID:   5 (Z, 0)           (Qubit, Col): (0, 0)         #Neighbors:   2     (1, -) (6, H)
+ID:   6 (Z, π/2)         (Qubit, Col): (0, 0)         #Neighbors:   4     (4, H) (5, H) (7, H) (8, H)
+ID:   7 (Z, 0)           (Qubit, Col): (0, 0)         #Neighbors:   2     (2, -) (6, H)
+ID:   8 (Z, 0)           (Qubit, Col): (0, 0)         #Neighbors:   2     (3, -) (6, H)
 Total #Vertices: 9
 
 
@@ -31,14 +31,14 @@ qsyn> zxgsimp -lcomp
 
 qsyn> zxgp -v
 
-ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (4, -) 
-ID:   1 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (5, -) 
-ID:   2 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (7, -) 
-ID:   3 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (8, -) 
-ID:   4 (Z, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   4     (0, -) (5, H) (7, H) (8, H) 
-ID:   5 (Z, -π/2)        (Qubit, Col): (0, 0)	  #Neighbors:   4     (1, -) (4, H) (7, H) (8, H) 
-ID:   7 (Z, -π/2)        (Qubit, Col): (0, 0)	  #Neighbors:   4     (2, -) (4, H) (5, H) (8, H) 
-ID:   8 (Z, -π/2)        (Qubit, Col): (0, 0)	  #Neighbors:   4     (3, -) (4, H) (5, H) (7, H) 
+ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (4, -)
+ID:   1 (●, 0)           (Qubit, Col): (1, 0)         #Neighbors:   1     (5, -)
+ID:   2 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (7, -)
+ID:   3 (●, 0)           (Qubit, Col): (1, 0)         #Neighbors:   1     (8, -)
+ID:   4 (Z, 0)           (Qubit, Col): (0, 0)         #Neighbors:   4     (0, -) (5, H) (7, H) (8, H)
+ID:   5 (Z, -π/2)        (Qubit, Col): (0, 0)         #Neighbors:   4     (1, -) (4, H) (7, H) (8, H)
+ID:   7 (Z, -π/2)        (Qubit, Col): (0, 0)         #Neighbors:   4     (2, -) (4, H) (5, H) (8, H)
+ID:   8 (Z, -π/2)        (Qubit, Col): (0, 0)         #Neighbors:   4     (3, -) (4, H) (5, H) (7, H)
 Total #Vertices: 8
 
 

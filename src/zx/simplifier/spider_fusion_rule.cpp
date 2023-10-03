@@ -63,7 +63,7 @@ void SpiderFusionRule::apply(ZXGraph& graph, std::vector<MatchType> const& match
                 }
                 // NOTE: No need to remove edges since v1 will be removed
             } else {
-                op.edgesToAdd.emplace_back(std::make_pair(v0, neighbor), edgeType);
+                op.edges_to_add.emplace_back(std::make_pair(v0, neighbor), edgeType);
             }
         }
         op.vertices_to_remove.emplace_back(v1);

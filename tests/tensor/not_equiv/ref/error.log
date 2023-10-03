@@ -1,6 +1,3 @@
-qsyn> ver 2
-Note: verbose level is set to 2
-
 qsyn> qcba
 Note: QCir list is empty now. Create a new one.
 
@@ -9,9 +6,6 @@ qsyn> qc2ts
 qsyn> qcga rz -ph 0.001 0
 
 qsyn> qc2ts
-
-qsyn> ver 3
-Note: verbose level is set to 3
 
 qsyn> tseq 0 1 -eps 1e-2
 Equivalent

@@ -64,7 +64,7 @@ void IdentityRemovalRule::apply(ZXGraph& graph, std::vector<MatchType> const& ma
             n0->set_phase(n0->get_phase() + Phase(1));
             continue;
         }
-        op.edgesToAdd.emplace_back(std::make_pair(n0, n1), edge_type);
+        op.edges_to_add.emplace_back(std::make_pair(n0, n1), edge_type);
     }
 
     _update(graph, op);

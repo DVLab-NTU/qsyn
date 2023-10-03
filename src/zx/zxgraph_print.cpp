@@ -5,12 +5,15 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
+#include <spdlog/spdlog.h>
+
 #include <cstddef>
 #include <map>
 #include <ranges>
 #include <string>
 
 #include "fmt/core.h"
+#include "spdlog/common.h"
 #include "util/text_format.hpp"
 #include "zx/zxgraph.hpp"
 
@@ -22,8 +25,8 @@ namespace zx {
  * @brief Print information of ZXGraph
  *
  */
-void ZXGraph::print_graph() const {
-    fmt::println("Graph ({} inputs, {} outputs, {} vertices, {} edges)", get_num_inputs(), get_num_outputs(), get_num_vertices(), get_num_edges());
+void ZXGraph::print_graph(spdlog::level::level_enum lvl) const {
+    spdlog::log(lvl, "Graph ({} inputs, {} outputs, {} vertices, {} edges)", get_num_inputs(), get_num_outputs(), get_num_vertices(), get_num_edges());
 }
 
 /**
@@ -58,10 +61,11 @@ void ZXGraph::print_io() const {
  * @brief Print Vertices of ZXGraph
  *
  */
-void ZXGraph::print_vertices() const {
-    std::cout << "\n";
-    std::ranges::for_each(_vertices, [](ZXVertex* v) { v->print_vertex(); });
-    std::cout << "Total #Vertices: " << get_num_vertices() << "\n\n";
+void ZXGraph::print_vertices(spdlog::level::level_enum lvl) const {
+    spdlog::log(lvl, "");
+    std::ranges::for_each(_vertices, [&lvl](ZXVertex* v) { v->print_vertex(lvl); });
+    spdlog::log(lvl, "Total #Vertices: {}", get_num_vertices());
+    spdlog::log(lvl, "");
 }
 
 /**
@@ -84,7 +88,7 @@ void ZXGraph::print_vertices(std::vector<size_t> cand) const {
  *
  * @param cand
  */
-void ZXGraph::print_qubits(QubitIdList cand) const {
+void ZXGraph::print_vertices_by_qubits(spdlog::level::level_enum lvl, QubitIdList cand) const {
     std::map<QubitIdType, std::vector<ZXVertex*>> q2_vmap;
     for (auto const& v : _vertices) {
         if (!q2_vmap.contains(v->get_qubit())) {
@@ -95,17 +99,17 @@ void ZXGraph::print_qubits(QubitIdList cand) const {
     }
     if (cand.empty()) {
         for (auto const& [key, vec] : q2_vmap) {
-            std::cout << "\n";
-            for (auto const& v : vec) v->print_vertex();
-            std::cout << "\n";
+            spdlog::log(lvl, "");
+            for (auto const& v : vec) v->print_vertex(lvl);
+            spdlog::log(lvl, "");
         }
     } else {
-        for (size_t i = 0; i < cand.size(); i++) {
-            if (q2_vmap.contains(cand[i])) {
-                std::cout << "\n";
-                for (auto const& v : q2_vmap[cand[i]]) v->print_vertex();
+        for (auto const& v : cand) {
+            if (q2_vmap.contains(v)) {
+                spdlog::log(lvl, "");
+                for (auto const& v : q2_vmap[v]) v->print_vertex(lvl);
             }
-            std::cout << "\n";
+            spdlog::log(lvl, "");
         }
     }
 }
