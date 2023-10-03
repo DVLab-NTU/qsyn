@@ -9,21 +9,24 @@
 
 #include <cassert>
 #include <memory>
+#include <ranges>
 
 #include "duostra/duostra.hpp"
 #include "duostra/mapping_eqv_checker.hpp"
 #include "qcir/qcir.hpp"
+#include "spdlog/common.h"
+#include "spdlog/spdlog.h"
 #include "util/boolean_matrix.hpp"
 #include "util/util.hpp"
 #include "zx/simplifier/simplify.hpp"
 #include "zx/simplifier/zx_rules_template.hpp"
+#include "zx/zx_def.hpp"
 #include "zx/zxgraph.hpp"
 
 using namespace qsyn::zx;
 using namespace qsyn::qcir;
 
 extern bool stop_requested();
-extern size_t VERBOSE;
 
 namespace qsyn::extractor {
 
@@ -52,7 +55,8 @@ Extractor::Extractor(ZXGraph* g, QCir* c, std::optional<Device> const& d) : _gra
  *
  */
 void Extractor::initialize(bool from_empty_qcir) {
-    if (VERBOSE >= 4) std::cout << "Initialize" << std::endl;
+    spdlog::debug("Initializing extractor");
+
     QubitIdType cnt = 0;
     for (auto& o : _graph->get_outputs()) {
         if (!o->get_first_neighbor().first->is_boundary()) {
@@ -76,12 +80,10 @@ void Extractor::initialize(bool from_empty_qcir) {
             _axels.emplace(v->get_first_neighbor().first);
         }
     }
-    if (VERBOSE >= 8) {
-        print_frontier();
-        print_neighbors();
-        _graph->print_qubits();
-        _logical_circuit->print_qubits();
-    }
+    print_frontier(spdlog::level::level_enum::trace);
+    print_neighbors(spdlog::level::level_enum::trace);
+    _graph->print_vertices_by_qubits(spdlog::level::level_enum::trace);
+    _logical_circuit->print_qubits(spdlog::level::level_enum::trace);
 }
 
 /**
@@ -98,19 +100,14 @@ QCir* Extractor::extract() {
         return nullptr;
     }
 
-    if (VERBOSE >= 3)
-        std::cout << "Finish extracting!" << std::endl;
-    if (VERBOSE >= 8) {
-        _logical_circuit->print_qubits();
-        _graph->print_qubits();
-    }
+    spdlog::info("Finished Extracting!");
+    _logical_circuit->print_qubits(spdlog::level::level_enum::trace);
+    _graph->print_vertices_by_qubits(spdlog::level::level_enum::trace);
 
     if (PERMUTE_QUBITS) {
         permute_qubits();
-        if (VERBOSE >= 8) {
-            _logical_circuit->print_qubits();
-            _graph->print_qubits();
-        }
+        _logical_circuit->print_qubits(spdlog::level::level_enum::trace);
+        _graph->print_vertices_by_qubits(spdlog::level::level_enum::trace);
     }
 
     return _logical_circuit;
@@ -131,36 +128,33 @@ bool Extractor::extraction_loop(std::optional<size_t> max_iter) {
         if (_frontier.empty()) break;
 
         if (remove_gadget()) {
-            if (VERBOSE >= 4) std::cout << "Gadget(s) are removed." << std::endl;
-            if (VERBOSE >= 8) {
-                print_frontier();
-                _graph->print_qubits();
-                _logical_circuit->print_qubits();
-            }
+            spdlog::debug("Gadget(s) are removed.");
+            print_frontier(spdlog::level::level_enum::trace);
+            _graph->print_vertices_by_qubits(spdlog::level::level_enum::trace);
+            _logical_circuit->print_qubits(spdlog::level::level_enum::trace);
             continue;
         }
 
         if (contains_single_neighbor()) {
-            if (VERBOSE >= 4) std::cout << "Construct an easy matrix." << std::endl;
+            spdlog::debug("Single neighbor found. Construct an easy matrix.");
             update_matrix();
         } else {
-            if (VERBOSE >= 4) std::cout << "Perform Gaussian elimination." << std::endl;
+            spdlog::debug("Perform Gaussian elimination.");
             extract_cxs();
         }
         if (extract_hadamards_from_matrix() == 0) {
-            std::cerr << "Error: no hadamard gates to extract from the matrix!!" << std::endl;
-            _biadjacency.print_matrix();
+            spdlog::error("No hadamard gates to extract from the matrix!!");
+
+            _biadjacency.print_matrix(spdlog::level::level_enum::err);
             return false;
         }
         _biadjacency.reset();
         _cnots.clear();
 
-        if (VERBOSE >= 8) {
-            print_frontier();
-            print_neighbors();
-            _graph->print_qubits();
-            _logical_circuit->print_qubits();
-        }
+        print_frontier(spdlog::level::level_enum::trace);
+        print_neighbors(spdlog::level::level_enum::trace);
+        _graph->print_vertices_by_qubits(spdlog::level::level_enum::trace);
+        _logical_circuit->print_qubits(spdlog::level::level_enum::trace);
 
         if (max_iter.has_value()) (*max_iter)--;
     }
@@ -172,7 +166,7 @@ bool Extractor::extraction_loop(std::optional<size_t> max_iter) {
  *
  */
 void Extractor::clean_frontier() {
-    if (VERBOSE >= 4) std::cout << "Clean Frontier" << std::endl;
+    spdlog::debug("Cleaning frontier");
     // NOTE - Edge and dvlab::Phase
     extract_singles();
     // NOTE - CZs
@@ -184,7 +178,7 @@ void Extractor::clean_frontier() {
  *
  */
 void Extractor::extract_singles() {
-    if (VERBOSE >= 4) std::cout << "Extract Singles" << std::endl;
+    spdlog::debug("Extracting single qubit gates");
     std::vector<std::pair<ZXVertex*, ZXVertex*>> toggle_list;
     for (ZXVertex* o : _graph->get_outputs()) {
         if (o->get_first_neighbor().second == EdgeType::hadamard) {
@@ -201,10 +195,8 @@ void Extractor::extract_singles() {
         _graph->add_edge(s, t, EdgeType::simple);
         _graph->remove_edge(s, t, EdgeType::hadamard);
     }
-    if (VERBOSE >= 8) {
-        _logical_circuit->print_qubits();
-        _graph->print_qubits();
-    }
+    _logical_circuit->print_qubits(spdlog::level::level_enum::trace);
+    _graph->print_vertices_by_qubits(spdlog::level::level_enum::trace);
 }
 
 /**
@@ -215,17 +207,17 @@ void Extractor::extract_singles() {
  * @return false
  */
 bool Extractor::extract_czs(bool check) {
-    if (VERBOSE >= 4) std::cout << "Extract CZs" << std::endl;
+    spdlog::debug("Extracting CZs");
 
     if (check) {
         for (auto& f : _frontier) {
             if (f->get_phase() != dvlab::Phase(0)) {
-                std::cout << "Note: frontier contains phases, extract them first." << std::endl;
+                spdlog::error("Phase found in frontier!! Please extract them first");
                 return false;
             }
             for (auto& [n, e] : f->get_neighbors()) {
                 if (_graph->get_outputs().contains(n) && e == EdgeType::hadamard) {
-                    std::cout << "Note: frontier contains hadamard edge to boundary, extract them first." << std::endl;
+                    spdlog::error("Hadamard edge found in frontier!! Please extract them first");
                     return false;
                 }
             }
@@ -250,10 +242,8 @@ bool Extractor::extract_czs(bool check) {
     if (ops.size() > 0) {
         prepend_series_gates(ops);
     }
-    if (VERBOSE >= 8) {
-        _logical_circuit->print_qubits();
-        _graph->print_qubits();
-    }
+    _logical_circuit->print_qubits(spdlog::level::level_enum::trace);
+    _graph->print_vertices_by_qubits(spdlog::level::level_enum::trace);
 
     return true;
 }
@@ -266,8 +256,7 @@ void Extractor::extract_cxs() {
     _num_cx_iterations++;
     biadjacency_eliminations();
     update_graph_by_matrix();
-
-    if (VERBOSE >= 4) std::cout << "Extract CXs" << std::endl;
+    spdlog::debug("Extracting CXs");
     std::unordered_map<size_t, ZXVertex*> front_id2_vertex;
     size_t cnt = 0;
     for (auto& f : _frontier) {
@@ -279,7 +268,7 @@ void Extractor::extract_cxs() {
         // NOTE - targ and ctrl are opposite here
         auto ctrl = _qubit_map[front_id2_vertex[c]->get_qubit()];
         auto targ = _qubit_map[front_id2_vertex[t]->get_qubit()];
-        if (VERBOSE >= 4) std::cout << "Add CX: " << ctrl << " " << targ << std::endl;
+        spdlog::debug("Adding CX: {} {}", ctrl, targ);
         prepend_double_qubit_gate("cx", {ctrl, targ}, dvlab::Phase(0));
     }
 }
@@ -291,7 +280,7 @@ void Extractor::extract_cxs() {
  * @return size_t
  */
 size_t Extractor::extract_hadamards_from_matrix(bool check) {
-    if (VERBOSE >= 4) std::cout << "Extract Hs" << std::endl;
+    spdlog::debug("Extracting Hadamards from matrix");
 
     if (check) {
         if (!frontier_is_cleaned()) {
@@ -367,24 +356,23 @@ size_t Extractor::extract_hadamards_from_matrix(bool check) {
  * @return false if not
  */
 bool Extractor::remove_gadget(bool check) {
-    if (VERBOSE >= 4) std::cout << "Remove Gadget" << std::endl;
+    spdlog::debug("Removing gadget(s)");
 
     if (check) {
         if (_frontier.empty()) {
-            std::cout << "Note: no vertex left." << std::endl;
+            spdlog::error("no vertex left in the frontier!!");
             return false;
         }
         if (!frontier_is_cleaned()) {
-            std::cout << "Note: frontier is dirty, please clean it first." << std::endl;
+            spdlog::error("frontier is dirty!! Please clean it first.");
             return false;
         }
     }
 
-    if (VERBOSE >= 8) _graph->print_vertices();
-    if (VERBOSE >= 5) {
-        print_frontier();
-        print_axels();
-    }
+    _graph->print_graph(spdlog::level::level_enum::trace);
+    print_frontier(spdlog::level::level_enum::debug);
+    print_axels(spdlog::level::level_enum::debug);
+
     bool removed_some_gadgets = false;
     for (auto& n : _neighbors) {
         if (!_axels.contains(n)) {
@@ -416,11 +404,10 @@ bool Extractor::remove_gadget(bool check) {
             }
         }
     }
-    if (VERBOSE >= 8) _graph->print_vertices();
-    if (VERBOSE >= 5) {
-        print_frontier();
-        print_axels();
-    }
+    _graph->print_vertices(spdlog::level::level_enum::trace);
+    print_frontier(spdlog::level::level_enum::debug);
+    print_axels(spdlog::level::level_enum::debug);
+
     return removed_some_gadgets;
 }
 
@@ -519,9 +506,8 @@ Extractor::Target Extractor::_find_column_swap(Target target) {
             }
 
             if (free_cols.size() == 0) {
-                if (VERBOSE >= 5) std::cout << "Note: no free column for column optimal swap!!" << std::endl;
-                Target t;
-                return t;  // NOTE - Contradiction
+                spdlog::debug("No free column for column optimal swap!!");
+                return {};  // NOTE - Contradiction
             }
 
             for (auto& j : free_cols) {
@@ -559,16 +545,16 @@ Extractor::Target Extractor::_find_column_swap(Target target) {
             }
             // NOTE -  depth-first search
             Target copied_target = target;
-            if (VERBOSE >= 8) std::cout << "Backtracking on " << min_index.value() << std::endl;
+            spdlog::trace("Backtracking on {}", min_index.value());
 
             for (auto& idx : min_options) {
-                if (VERBOSE >= 8) std::cout << "> trying option" << idx << std::endl;
+                spdlog::trace("Trying option {}", idx);
                 copied_target[idx] = min_index.value();
                 Target new_target  = _find_column_swap(copied_target);
                 if (!new_target.empty())
                     return new_target;
             }
-            if (VERBOSE >= 8) std::cout << "Unsuccessful" << std::endl;
+            spdlog::trace("Backtracking failed");
             return target;
         }
     }
@@ -608,16 +594,16 @@ bool Extractor::biadjacency_eliminations(bool check) {
     std::vector<dvlab::BooleanMatrix::RowOperation> greedy_opers;
 
     update_matrix();
-    dvlab::BooleanMatrix greedy_mat = _biadjacency;
-    ZXVertexList backup_neighbors   = _neighbors;
+    dvlab::BooleanMatrix greedy_matrix = _biadjacency;
+    ZXVertexList backup_neighbors      = _neighbors;
 
     DVLAB_ASSERT(0 <= OPTIMIZE_LEVEL && OPTIMIZE_LEVEL <= 3, "Error: wrong optimize level");
 
     if (OPTIMIZE_LEVEL > 1) {
         // NOTE - opt = 2 or 3
-        greedy_opers = greedy_reduction(greedy_mat);
+        greedy_opers = greedy_reduction(greedy_matrix);
         for (auto oper : greedy_opers) {
-            greedy_mat.row_operation(oper.first, oper.second, true);
+            greedy_matrix.row_operation(oper.first, oper.second, true);
         }
     }
 
@@ -635,7 +621,7 @@ bool Extractor::biadjacency_eliminations(bool check) {
                     _num_cx_filtered += reduce;
                     if (reduce == 0) break;
                 }
-                if (VERBOSE >= 4) std::cout << "Filter " << _num_cx_filtered - old << " CXs. Total: " << _num_cx_filtered << std::endl;
+                spdlog::debug("Filter {} CXs. Total: {}", _num_cx_filtered - old, _num_cx_filtered);
             }
             _cnots = _biadjacency.get_row_operations();
         } else if (OPTIMIZE_LEVEL == 1 || OPTIMIZE_LEVEL == 3) {
@@ -652,23 +638,23 @@ bool Extractor::biadjacency_eliminations(bool check) {
                 size_t n_single_one_rows = accumulate(best_matrix.get_matrix().begin(), best_matrix.get_matrix().end(), 0,
                                                       [](size_t acc, dvlab::BooleanMatrix::Row const& r) { return acc + size_t(r.is_one_hot()); });
                 // NOTE - opers per extractable rows for Gaussian is bigger than greedy
-                bool select_greedy = float(n_gauss_opers) / float(n_single_one_rows) > float(greedy_opers.size()) - 0.1;
-                if (!greedy_opers.empty() && select_greedy) {
-                    _biadjacency = greedy_mat;
-                    _cnots       = greedy_mat.get_row_operations();
+                bool found_greedy = float(n_gauss_opers) / float(n_single_one_rows) > float(greedy_opers.size()) - 0.1;
+                if (!greedy_opers.empty() && found_greedy) {
+                    _biadjacency = greedy_matrix;
+                    _cnots       = greedy_matrix.get_row_operations();
                     _neighbors   = backup_neighbors;
-                    if (VERBOSE > 3) std::cout << "Found greedy reduction with " << _cnots.size() << " CX(s)" << std::endl;
+                    spdlog::debug("Found greedy reduction with {} CXs", _cnots.size());
                 } else {
                     _biadjacency = best_matrix;
                     _cnots       = _biadjacency.get_row_operations();
-                    if (VERBOSE > 3) std::cout << "Gaussian elimination with " << _cnots.size() << " CX(s)" << std::endl;
+                    spdlog::debug("Found Gaussian elimination with {} CXs", _cnots.size());
                 }
             }
         }
     } else {
         // NOTE - OPT level 2
-        _biadjacency = greedy_mat;
-        _cnots       = greedy_mat.get_row_operations();
+        _biadjacency = greedy_matrix;
+        _cnots       = greedy_matrix.get_row_operations();
     }
 
     return true;
@@ -720,7 +706,7 @@ void Extractor::_block_elimination(size_t& best_block, dvlab::BooleanMatrix& bes
         // NOTE - targ and ctrl are opposite here
         size_t ctrl = _qubit_map[front_id2_vertex[c]->get_qubit()];
         size_t targ = _qubit_map[front_id2_vertex[t]->get_qubit()];
-        if (VERBOSE > 4) std::cout << "Add CX: " << ctrl << " " << targ << std::endl;
+        spdlog::debug("Adding CX: {} {}", ctrl, targ);
         Operation op(GateRotationCategory::px, dvlab::Phase(0), {ctrl, targ}, {});
         ops.emplace_back(op);
     }
@@ -728,7 +714,7 @@ void Extractor::_block_elimination(size_t& best_block, dvlab::BooleanMatrix& bes
     // NOTE - Get Mapping result, Device is passed by copy
     qsyn::duostra::Duostra duo(ops, _graph->get_num_outputs(), _device.value(), {.verify_result = false, .silent = true, .use_tqdm = false});
     size_t depth = duo.map(true);
-    if (VERBOSE > 4) std::cout << block_size << ", depth:" << depth << ", #cx: " << ops.size() << std::endl;
+    spdlog::debug("Block size: {}, depth: {}, #cx: {}", block_size, depth, ops.size());
     if (depth < min_cost) {
         min_cost    = depth;
         best_matrix = copied_matrix;
@@ -741,7 +727,7 @@ void Extractor::_block_elimination(size_t& best_block, dvlab::BooleanMatrix& bes
  *
  */
 void Extractor::permute_qubits() {
-    if (VERBOSE >= 4) std::cout << "Permute Qubit" << std::endl;
+    spdlog::debug("Permuting qubits");
     std::unordered_map<QubitIdType, QubitIdType> swap_map;      // o to i
     std::unordered_map<QubitIdType, QubitIdType> swap_inv_map;  // i to o
     bool matched = true;
@@ -824,7 +810,7 @@ void Extractor::update_neighbors() {
     }
 
     for (auto& v : rm_vs) {
-        if (VERBOSE >= 8) std::cout << "Remove " << v->get_id() << " (q" << v->get_qubit() << ") from frontiers." << std::endl;
+        spdlog::trace("Remove {} from frontier", v->get_id());
         _frontier.erase(v);
         _graph->add_edge(v->get_first_neighbor().first, v->get_second_neighbor().first, EdgeType::simple);
         _graph->remove_vertex(v);
@@ -845,7 +831,7 @@ void Extractor::update_neighbors() {
  */
 void Extractor::update_graph_by_matrix(EdgeType et) {
     size_t r = 0;
-    if (VERBOSE >= 4) std::cout << "Update Graph by Matrix" << std::endl;
+    spdlog::debug("Updating graph by matrix");
     for (auto& f : _frontier) {
         size_t c = 0;
         for (auto& nb : _neighbors) {
@@ -984,38 +970,41 @@ bool Extractor::contains_single_neighbor() {
  * @brief Print frontier
  *
  */
-void Extractor::print_frontier() {
-    std::cout << "Frontier:" << std::endl;
+void Extractor::print_frontier(spdlog::level::level_enum lvl) {
+    spdlog::log(lvl, "Frontier:");
     for (auto& f : _frontier)
-        std::cout << "Qubit:" << f->get_qubit() << ": " << f->get_id() << std::endl;
-    std::cout << std::endl;
+        spdlog::log(lvl, "Qubit {}: {}", f->get_qubit(), f->get_id());
+    spdlog::log(lvl, "");
 }
 
 /**
  * @brief Print neighbors
  *
  */
-void Extractor::print_neighbors() {
-    std::cout << "Neighbors:" << std::endl;
+void Extractor::print_neighbors(spdlog::level::level_enum lvl) {
+    spdlog::log(lvl, "Neighbors:");
     for (auto& n : _neighbors)
-        std::cout << n->get_id() << std::endl;
-    std::cout << std::endl;
+        spdlog::log(lvl, "{}", n->get_id());
+    spdlog::log(lvl, "");
 }
 
 /**
  * @brief Print axels
  *
  */
-void Extractor::print_axels() {
-    std::cout << "Axels:" << std::endl;
+void Extractor::print_axels(spdlog::level::level_enum lvl) {
+    spdlog::log(lvl, "Axels:");
     for (auto& n : _axels) {
-        std::cout << n->get_id() << " (phase gadget: ";
-        for (auto& [pg, _] : n->get_neighbors()) {
-            if (_graph->is_gadget_leaf(pg))
-                std::cout << pg->get_id() << ")" << std::endl;
-        }
+        spdlog::log(lvl,
+                    "{} (phase gadget: {})",
+                    n->get_id(),
+                    fmt::join(n->get_neighbors() |
+                                  std::views::keys |
+                                  std::views::filter([this](ZXVertex* v) { return _graph->is_gadget_leaf(v); }) |
+                                  std::views::transform([](ZXVertex* v) { return v->get_id(); }),
+                              ", "));
     }
-    std::cout << std::endl;
+    spdlog::log(lvl, "");
 }
 
 void Extractor::print_cxs() {

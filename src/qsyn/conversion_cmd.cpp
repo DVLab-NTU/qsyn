@@ -7,6 +7,8 @@
 
 #include "./conversion_cmd.hpp"
 
+#include <spdlog/spdlog.h>
+
 #include "./qcir_to_tensor.hpp"
 #include "./qcir_to_zxgraph.hpp"
 #include "./zxgraph_to_tensor.hpp"

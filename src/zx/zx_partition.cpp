@@ -7,17 +7,18 @@
 
 #include "./zx_partition.hpp"
 
+#include <spdlog/spdlog.h>
+
 #include <algorithm>
 #include <climits>
 #include <cstdint>
 #include <stack>
+#include <tl/enumerate.hpp>
 #include <unordered_map>
 #include <utility>
 
 #include "./zx_def.hpp"
 #include "./zxgraph.hpp"
-
-extern size_t VERBOSE;
 
 bool stop_requested();
 
@@ -104,12 +105,9 @@ std::pair<std::vector<ZXGraph*>, std::vector<ZXCut>> ZXGraph::create_subgraphs(s
         subgraphs.push_back(new ZXGraph(partition, subgraph_inputs, subgraph_outputs));
     }
 
-    if (VERBOSE >= 5) {
-        size_t i = 0;
-        for (auto g : subgraphs) {
-            std::cerr << "subgraph " << i++ << std::endl;
-            g->print_vertices();
-        }
+    for (auto&& [i, g] : tl::views::enumerate(subgraphs)) {
+        spdlog::debug("subgraph {}", i);
+        g->print_vertices(spdlog::level::debug);
     }
 
     for (auto [v1, v2, edge_type] : inner_cuts) {

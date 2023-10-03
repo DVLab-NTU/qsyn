@@ -32,19 +32,19 @@ qsyn> qc2zx
 
 qsyn> zxgp -v
 
-ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (4, -) 
-ID:   1 (●, 0)           (Qubit, Col): (0, 7)	  #Neighbors:   1     (12, -) 
-ID:   2 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (5, -) 
-ID:   3 (●, 0)           (Qubit, Col): (1, 7)	  #Neighbors:   1     (9, -) 
-ID:   4 (Z, π/4)         (Qubit, Col): (0, 4)	  #Neighbors:   3     (0, -) (6, H) (8, -) 
-ID:   5 (Z, π/4)         (Qubit, Col): (1, 4)	  #Neighbors:   3     (2, -) (6, H) (9, -) 
-ID:   6 (Z, 0)           (Qubit, Col): (-1, 4)	  #Neighbors:   3     (4, H) (5, H) (7, H) 
-ID:   7 (Z, -π/4)        (Qubit, Col): (-2, 4)	  #Neighbors:   1     (6, H) 
-ID:   8 (Z, 0)           (Qubit, Col): (0, 6)	  #Neighbors:   3     (4, -) (10, H) (12, -) 
-ID:   9 (Z, -π/4)        (Qubit, Col): (1, 6)	  #Neighbors:   3     (3, -) (5, -) (10, H) 
-ID:  10 (Z, 0)           (Qubit, Col): (-1, 6)	  #Neighbors:   3     (8, H) (9, H) (11, H) 
-ID:  11 (Z, π/4)         (Qubit, Col): (-2, 6)	  #Neighbors:   1     (10, H) 
-ID:  12 (Z, -π/4)        (Qubit, Col): (0, 6)	  #Neighbors:   2     (1, -) (8, -) 
+ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (4, -)
+ID:   1 (●, 0)           (Qubit, Col): (0, 7)         #Neighbors:   1     (12, -)
+ID:   2 (●, 0)           (Qubit, Col): (1, 0)         #Neighbors:   1     (5, -)
+ID:   3 (●, 0)           (Qubit, Col): (1, 7)         #Neighbors:   1     (9, -)
+ID:   4 (Z, π/4)         (Qubit, Col): (0, 4)         #Neighbors:   3     (0, -) (6, H) (8, -)
+ID:   5 (Z, π/4)         (Qubit, Col): (1, 4)         #Neighbors:   3     (2, -) (6, H) (9, -)
+ID:   6 (Z, 0)           (Qubit, Col): (-1, 4)        #Neighbors:   3     (4, H) (5, H) (7, H)
+ID:   7 (Z, -π/4)        (Qubit, Col): (-2, 4)        #Neighbors:   1     (6, H)
+ID:   8 (Z, 0)           (Qubit, Col): (0, 6)         #Neighbors:   3     (4, -) (10, H) (12, -)
+ID:   9 (Z, -π/4)        (Qubit, Col): (1, 6)         #Neighbors:   3     (3, -) (5, -) (10, H)
+ID:  10 (Z, 0)           (Qubit, Col): (-1, 6)        #Neighbors:   3     (8, H) (9, H) (11, H)
+ID:  11 (Z, π/4)         (Qubit, Col): (-2, 6)        #Neighbors:   1     (10, H)
+ID:  12 (Z, -π/4)        (Qubit, Col): (0, 6)         #Neighbors:   2     (1, -) (8, -)
 Total #Vertices: 13
 
 

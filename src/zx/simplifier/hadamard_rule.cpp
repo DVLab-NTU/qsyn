@@ -58,7 +58,7 @@ void HadamardRule::apply(ZXGraph& graph, std::vector<MatchType> const& matches) 
             neighbor_edge_types.emplace_back(edgeType);
         }
 
-        op.edgesToAdd.emplace_back(
+        op.edges_to_add.emplace_back(
             std::make_pair(neighbor_vertices[0], neighbor_vertices[1]),
             neighbor_edge_types[0] == neighbor_edge_types[1] ? EdgeType::hadamard : EdgeType::simple);
         // TODO: Correct for the sqrt(2) difference in H-boxes and H-edges

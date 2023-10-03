@@ -9,8 +9,9 @@ zxgp -v
 zxgs -idr
 zxgp -v
 zxgs -tog
-verb 9
+logger level debug
 zxgs -pivotg
+logger level warn
 zxgp -v
 zxgs -idr
 zxgp -v

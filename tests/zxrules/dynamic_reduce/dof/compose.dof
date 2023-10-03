@@ -1,4 +1,4 @@
-verb 3
+logger level debug
 zxgread benchmark/zx/tof3.zx
 zxcopy 1
 zxgs -dreduce

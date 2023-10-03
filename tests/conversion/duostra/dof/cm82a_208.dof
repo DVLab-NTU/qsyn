@@ -1,4 +1,3 @@
-ver 0
 qcp -se
 qcset -double 2 -sw 6
 qcp -se

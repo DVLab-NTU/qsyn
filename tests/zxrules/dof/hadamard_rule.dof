@@ -1,9 +1,10 @@
-ver 2
 qccr benchmark/qasm/to_graph2.qasm
 qccp -q
 qc2zx
 zxgp -v
+logger level info
 zxgs -hrule
+logger level warn
 zxgp -v
 zxgp -e
 qq -f

@@ -1,7 +1,7 @@
 qsyn> // testing empty dofiles
 qsyn> 
 qsyn> dofile tests/cli/helper/empty_dof
-[error] file "tests/cli/helper/empty_dof" is empty!!
+[error]    file "tests/cli/helper/empty_dof" is empty!!
 
 qsyn> 
 qsyn> // Testing dofile arguments
@@ -58,7 +58,6 @@ tsprint        : print info about Tensors
 tsreset        : reset the tensor manager
 tstprint       : print info of Tensor
 usage          : report the runtime and/or memory usage
-verbose        : set verbose level to 0-9 (default: 3)
 zx2qc          : extract QCir from ZXGraph
 zx2ts          : convert ZXGraph to tensor
 zxcheckout     : checkout to Graph <id> in ZXGraphMgr
@@ -100,12 +99,12 @@ Options:
 
 qsyn> 
 qsyn> dofile tests/cli/helper/param_dof_kw // should error and print usage
-[error] wrong number of arguments provided, expected 2 but got 0!!
-[error] Usage: ... tests/cli/helper/param_dof_kw <input1> <input2>
+[error]    wrong number of arguments provided, expected 2 but got 0!!
+[error]    Usage: ... tests/cli/helper/param_dof_kw <input1> <input2>
 
 qsyn> dofile tests/cli/helper/param_dof_kw haha1 haha2 haha3 // should error and print usage
-[error] wrong number of arguments provided, expected 2 but got 3!!
-[error] Usage: ... tests/cli/helper/param_dof_kw <input1> <input2>
+[error]    wrong number of arguments provided, expected 2 but got 3!!
+[error]    Usage: ... tests/cli/helper/param_dof_kw <input1> <input2>
 
 qsyn> 
 qsyn> dofile tests/cli/helper/param_dof_kw qquit dofile

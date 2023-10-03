@@ -32,8 +32,6 @@
 //----------------------------------------------------------------------
 //    Global cmd Manager
 //----------------------------------------------------------------------
-dvlab::utils::Usage USAGE;
-size_t VERBOSE = 3;
 
 namespace {
 
@@ -52,7 +50,7 @@ bool stop_requested() {
 int main(int argc, char** argv) {
     using namespace dvlab::argparse;
 
-    spdlog::set_pattern("[%l] %v");
+    spdlog::set_pattern("%L%v");
     spdlog::set_level(spdlog::level::warn);
 
     std::string version_str = fmt::format(
@@ -80,6 +78,7 @@ int main(int argc, char** argv) {
 
     if (parser.parsed("--file")) {
         auto args = parser.get<std::vector<std::string>>("--file");
+
         if (!cli.open_dofile(args[0])) {
             spdlog::critical("cannot open dofile!!");
             return 1;
@@ -108,9 +107,9 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    USAGE.reset();
-
     signal(SIGINT, [](int signum) -> void { cli.sigint_handler(signum); return; });
+
+    dvlab::utils::Usage::reset();
 
     auto status = dvlab::CmdExecResult::done;
 

@@ -1,4 +1,3 @@
-ver 2
 qccr benchmark/SABRE/large/9symml_195.qasm
 qccp -q
 qc2zx

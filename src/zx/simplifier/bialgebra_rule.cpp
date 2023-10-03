@@ -128,7 +128,7 @@ void BialgebraRule::apply(ZXGraph& graph, std::vector<MatchType> const& matches)
             if (neighbor_left == right) continue;
             for (auto const& neighbor_right : neighbor_of_right) {
                 if (neighbor_right == left) continue;
-                op.edgesToAdd.emplace_back(std::make_pair(neighbor_left, neighbor_right), EdgeType::simple);
+                op.edges_to_add.emplace_back(std::make_pair(neighbor_left, neighbor_right), EdgeType::simple);
             }
         }
     }

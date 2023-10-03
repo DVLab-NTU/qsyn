@@ -14,6 +14,7 @@
 #include "device/device.hpp"
 #include "duostra/duostra.hpp"
 #include "qsyn/qsyn_type.hpp"
+#include "spdlog/common.h"
 #include "util/boolean_matrix.hpp"
 #include "zx/zx_def.hpp"
 
@@ -72,9 +73,9 @@ public:
     bool axel_in_neighbors();
     bool contains_single_neighbor();
     void print_cxs();
-    void print_frontier();
-    void print_neighbors();
-    void print_axels();
+    void print_frontier(spdlog::level::level_enum lvl = spdlog::level::off);
+    void print_neighbors(spdlog::level::level_enum lvl = spdlog::level::off);
+    void print_axels(spdlog::level::level_enum lvl = spdlog::level::off);
     void print_matrix() { _biadjacency.print_matrix(); }
 
     std::vector<size_t> find_minimal_sums(dvlab::BooleanMatrix& matrix);

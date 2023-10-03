@@ -38,17 +38,17 @@ void PivotRuleInterface::apply(ZXGraph& graph, std::vector<MatchType> const& mat
         for (auto const& s : n0) {
             for (auto const& t : n1) {
                 assert(s->get_id() != t->get_id());
-                op.edgesToAdd.emplace_back(std::make_pair(s, t), EdgeType::hadamard);
+                op.edges_to_add.emplace_back(std::make_pair(s, t), EdgeType::hadamard);
             }
             for (auto const& t : n2) {
                 assert(s->get_id() != t->get_id());
-                op.edgesToAdd.emplace_back(std::make_pair(s, t), EdgeType::hadamard);
+                op.edges_to_add.emplace_back(std::make_pair(s, t), EdgeType::hadamard);
             }
         }
         for (auto const& s : n1) {
             for (auto const& t : n2) {
                 assert(s->get_id() != t->get_id());
-                op.edgesToAdd.emplace_back(std::make_pair(s, t), EdgeType::hadamard);
+                op.edges_to_add.emplace_back(std::make_pair(s, t), EdgeType::hadamard);
             }
         }
 
