@@ -16,9 +16,9 @@ namespace qsyn {
 namespace zx {
 
 struct ZXOperation {
-    std::vector<ZXVertex*> verticesToAdd;
-    std::vector<EdgePair> edgesToAdd;
-    std::vector<EdgePair> edgesToRemove;
+    std::vector<ZXVertex*> vertices_to_add;
+    std::vector<EdgePair> edges_to_add;
+    std::vector<EdgePair> edges_to_remove;
     std::vector<ZXVertex*> vertices_to_remove;
 };
 
@@ -31,14 +31,14 @@ public:
 protected:
     void _update(ZXGraph& graph, ZXOperation const& op) const {
         // TODO: add vertices is not implemented yet
-        assert(op.verticesToAdd.empty());
+        assert(op.vertices_to_add.empty());
 
-        for (auto& edge : op.edgesToAdd) {
+        for (auto& edge : op.edges_to_add) {
             auto [v0, v1]      = std::get<0>(edge);
             EdgeType edge_type = std::get<1>(edge);
             graph.add_edge(v0, v1, edge_type);
         }
-        graph.remove_edges(op.edgesToRemove);
+        graph.remove_edges(op.edges_to_remove);
         graph.remove_vertices(op.vertices_to_remove);
 
         graph.remove_isolated_vertices();

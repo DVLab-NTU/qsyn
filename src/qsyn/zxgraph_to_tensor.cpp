@@ -235,8 +235,6 @@ ZX2TSMapper::InOutAxisList ZX2TSMapper::_get_axis_orders(zx::ZXGraph const& zxgr
     }
     size_t acc_frontier_size = 0;
     for (size_t i = 0; i < _zx2ts_list.size(); ++i) {
-        // cout << "> Tensor " << i << endl;
-        // printFrontiers(i);
         bool has_boundary2_boundary_edge = false;
         for (auto& [epair, axid] : _zx2ts_list.frontiers(i)) {
             auto const& [v1, v2] = epair.first;

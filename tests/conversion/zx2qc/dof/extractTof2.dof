@@ -1,12 +1,11 @@
 exts -op 1
 zxgread benchmark/zx/tof3.zx
 zx2ts
-ver 0
 zxgs -fr
 zxgp -q
-ver 5
+logger level debug
 zx2qc
-ver 0
+logger level warn
 qc2zx 
 zxgadj 
 zxcomp 0

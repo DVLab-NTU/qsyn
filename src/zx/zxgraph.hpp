@@ -7,6 +7,8 @@
 
 #pragma once
 
+#include <spdlog/spdlog.h>
+
 #include <cstddef>
 #include <filesystem>
 #include <limits>
@@ -17,6 +19,7 @@
 
 #include "./zx_def.hpp"
 #include "qsyn/qsyn_type.hpp"
+#include "spdlog/common.h"
 #include "util/boolean_matrix.hpp"
 #include "util/phase.hpp"
 
@@ -77,8 +80,7 @@ public:
     size_t remove_neighbor(ZXVertex* v) { return remove_neighbor(v, EdgeType::simple) + remove_neighbor(v, EdgeType::hadamard); }
 
     // Print functions
-    void print_vertex() const;
-    void print_neighbors() const;
+    void print_vertex(spdlog::level::level_enum lvl = spdlog::level::level_enum::off) const;
 
     // Test
     bool is_z() const { return get_type() == VertexType::z; }
@@ -255,13 +257,13 @@ public:
     void normalize();
 
     // Print functions (zxGraphPrint.cpp)
-    void print_graph() const;
+    void print_graph(spdlog::level::level_enum lvl = spdlog::level::level_enum::off) const;
     void print_inputs() const;
     void print_outputs() const;
     void print_io() const;
-    void print_vertices() const;
+    void print_vertices(spdlog::level::level_enum lvl = spdlog::level::level_enum::off) const;
     void print_vertices(std::vector<size_t> cand) const;
-    void print_qubits(QubitIdList cand = {}) const;
+    void print_vertices_by_qubits(spdlog::level::level_enum lvl = spdlog::level::level_enum::off, QubitIdList cand = {}) const;
     void print_edges() const;
 
     void print_difference(ZXGraph* other) const;

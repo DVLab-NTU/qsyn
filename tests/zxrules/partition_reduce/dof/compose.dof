@@ -1,11 +1,14 @@
-verb 3
 qccread ./benchmark/qft/qft_7.qasm
 qc2zx 
 zxcopy 1
+logger level debug
 zxgs -preduce 4
+logger level warn
 zxgp -s
 zxgadjoint 
 zxcompose 0
+logger level debug
 zxgs -freduce
+logger level warn
 zxgtest -id
 qq -f

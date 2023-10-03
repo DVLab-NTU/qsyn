@@ -393,16 +393,20 @@ bool ArgumentParser::_parse_options(TokensView tokens) {
             return false;  // break the parsing
         }
 
-        auto parse_range = arg.get_parse_range(tokens);
-        if (!arg.tokens_enough_to_parse(parse_range)) return false;
+        token.parsed     = true;
+        auto parse_range = arg.get_parse_range(tokens.subspan(i + 1));
+        if (!arg.tokens_enough_to_parse(parse_range)) {
+            fmt::println(stderr, "Error: missing argument(s) for \"{}\": expected {}{} arguments!!",
+                         arg.get_name(), (arg.get_nargs().lower < arg.get_nargs().upper ? "at least " : ""), arg.get_nargs().lower);
+            return false;
+        }
 
-        if (!arg.take_action(tokens.subspan(i + 1, std::min(arg.get_nargs().upper, tokens.size() - (i + 1))))) {
+        if (!arg.take_action(parse_range)) {
             return false;
         }
 
         if (!_no_conflict_with_parsed_arguments(arg)) return false;
 
-        token.parsed = true;
         arg.mark_as_parsed();  // if the options is present, no matter if there's any argument the follows, mark it as parsed
     }
 

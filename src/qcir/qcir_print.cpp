@@ -14,8 +14,6 @@
 #include "./qcir_qubit.hpp"
 #include "fmt/core.h"
 
-extern size_t VERBOSE;
-
 namespace qsyn::qcir {
 
 /**
@@ -57,12 +55,12 @@ void QCir::print_summary() {
 /**
  * @brief Print Qubits
  */
-void QCir::print_qubits() {
+void QCir::print_qubits(spdlog::level::level_enum lvl) {
     if (_dirty)
         update_gate_time();
 
     for (size_t i = 0; i < _qubits.size(); i++)
-        _qubits[i]->print_qubit_line();
+        _qubits[i]->print_qubit_line(lvl);
 }
 
 /**

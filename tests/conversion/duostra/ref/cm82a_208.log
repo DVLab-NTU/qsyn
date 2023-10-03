@@ -1,6 +1,3 @@
-qsyn> ver 0
-Note: verbose level is set to 0
-
 qsyn> qcp -se
 
 Delay of Single-qubit gate :     1

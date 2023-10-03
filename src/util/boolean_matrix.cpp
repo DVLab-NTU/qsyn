@@ -59,11 +59,8 @@ BooleanMatrix::Row& BooleanMatrix::Row::operator+=(Row const& rhs) {
  * @brief Print row
  *
  */
-void BooleanMatrix::Row::print_row() const {
-    for (auto e : _row) {
-        std::cout << unsigned(e) << " ";
-    }
-    std::cout << std::endl;
+void BooleanMatrix::Row::print_row(spdlog::level::level_enum lvl) const {
+    spdlog::log(lvl, "{}", fmt::join(_row, " "));
 }
 
 /**
@@ -122,12 +119,10 @@ void BooleanMatrix::reset() {
  * @brief Print matrix
  *
  */
-void BooleanMatrix::print_matrix() const {
-    std::cout << "M2 matrix:" << std::endl;
+void BooleanMatrix::print_matrix(spdlog::level::level_enum lvl) const {
     for (auto const& row : _matrix) {
-        row.print_row();
+        row.print_row(lvl);
     }
-    std::cout << std::endl;
 }
 
 /**

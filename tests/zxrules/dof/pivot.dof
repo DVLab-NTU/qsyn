@@ -1,4 +1,3 @@
-ver 9
 zxnew
 zxge -addi 0
 zxge -addo 0
@@ -24,11 +23,12 @@ zxge -adde 0 4 SIMPLE
 zxge -adde 2 5 SIMPLE
 zxge -adde 1 8 SIMPLE
 zxge -adde 3 9 SIMPLE
+logger level debug
 zxgs -pivotr
+logger level warn
 zxgp -v
 zxgp -e
 zxr
-ver 9
 zxnew
 zxge -addi 0
 zxge -addo 0
@@ -49,12 +49,13 @@ zxge -adde 0 4 SIMPLE
 zxge -adde 2 5 SIMPLE
 zxge -adde 1 8 SIMPLE
 zxge -adde 3 9 SIMPLE
+logger level debug
 zxgs -pivotr
+logger level warn
 zxgp -v
 zxgp -e
 zxr
 // might match (4, 5)
-ver 9
 zxnew
 zxge -addi 0
 zxge -addo 0
@@ -111,12 +112,13 @@ zxge -addv 0 Z 0
 zxge -adde 14 24 SIMPLE
 zxge -addv 0 X 0
 zxge -adde 15 25 SIMPLE
+logger level debug
 zxgs -pivotr
+logger level warn
 zxgp -v
 zxgp -e
 zxr
 // Might match  (4, 5) (16, 17)
-ver 9
 zxnew
 zxge -addi 0
 zxge -addo 0
@@ -246,11 +248,13 @@ zxge -adde 0 10 SIMPLE
 zxge -adde 2 22 SIMPLE
 zxge -adde 1 43 SIMPLE
 zxge -adde 3 45 SIMPLE
+logger level debug
 zxgs -pivotr
+logger level warn
 zxgp -v
 zxgp -e
 zxr
-ver 3
+logger level warn
 zxnew
 zxge -addi 0
 zxge -addo 0
@@ -362,7 +366,9 @@ zxge -addv 0 Z 0
 zxge -adde 26 46 HADAMARD
 zxge -addv 0 Z 0
 zxge -adde 27 47 HADAMARD
+logger level debug
 zxgs -pivotr
+logger level warn
 zxgp -v
 zx2ts
 zxnew

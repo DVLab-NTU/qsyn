@@ -16,6 +16,7 @@
 #include <string>
 
 #include "./zxgraph_mgr.hpp"
+#include "spdlog/common.h"
 #include "tensor/tensor_mgr.hpp"
 #include "zx/zx_def.hpp"
 #include "zx/zxgraph.hpp"
@@ -376,7 +377,7 @@ Command zxgraph_print_cmd(ZXGraphMgr const& zxgraph_mgr) {
                     zxgraph_mgr.get()->print_edges();
                 else if (parser.parsed("-qubits")) {
                     auto qids = parser.get<std::vector<int>>("-qubits");
-                    zxgraph_mgr.get()->print_qubits(qids);
+                    zxgraph_mgr.get()->print_vertices_by_qubits(spdlog::level::level_enum::off, qids);
                 } else if (parser.parsed("-neighbors")) {
                     auto v = zxgraph_mgr.get()->find_vertex_by_id(parser.get<size_t>("-neighbors"));
                     v->print_vertex();

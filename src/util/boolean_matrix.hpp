@@ -7,6 +7,8 @@
 
 #pragma once
 
+#include <spdlog/spdlog.h>
+
 #include <cstddef>
 #include <utility>
 #include <vector>
@@ -36,7 +38,7 @@ public:
 
         bool is_one_hot() const;
         bool is_zeros() const;
-        void print_row() const;
+        void print_row(spdlog::level::level_enum lvl = spdlog::level::level_enum::off) const;
 
         void emplace_back(unsigned char i) { _row.emplace_back(i); }
 
@@ -81,7 +83,7 @@ public:
     bool gaussian_elimination_augmented(bool track = false);
     bool is_solved_form() const;
     bool is_augmented_solved_form() const;
-    void print_matrix() const;
+    void print_matrix(spdlog::level::level_enum lvl = spdlog::level::level_enum::off) const;
     void print_trace() const;
     size_t filter_duplicate_row_operations();
     size_t row_operation_depth();

@@ -11,6 +11,7 @@
 #include <string>
 
 #include "./zxgraph.hpp"
+#include "spdlog/common.h"
 
 namespace qsyn::zx {
 
@@ -31,29 +32,20 @@ std::vector<ZXVertex*> ZXVertex::get_copied_neighbors() {
  * @brief Print summary of ZXVertex
  *
  */
-void ZXVertex::print_vertex() const {
-    std::cout << "ID:" << std::right << std::setw(4) << _id;
-    std::cout << " (" << _type << ", " << std::left << std::setw(12 - ((_phase == Phase(0)) ? 1 : 0)) << (_phase.get_print_string() + ")");
-    std::cout << "  (Qubit, Col): (" << _qubit << ", " << gsl::narrow_cast<int>(_col) << ")\t"
-              << "  #Neighbors: " << std::right << std::setw(3) << _neighbors.size() << "     ";
-    print_neighbors();
-}
-
-/**
- * @brief Print each element in _neighborMap
- *
- */
-void ZXVertex::print_neighbors() const {
+void ZXVertex::print_vertex(spdlog::level::level_enum lvl) const {
     std::vector<NeighborPair> storage(_neighbors.begin(), _neighbors.end());
-
     std::ranges::sort(storage, [](NeighborPair const& a, NeighborPair const& b) {
         return (a.first->get_id() != b.first->get_id()) ? (a.first->get_id() < b.first->get_id()) : (a.second < b.second);
     });
 
-    for (auto const& [nb, etype] : storage) {
-        std::cout << "(" << nb->get_id() << ", " << etype << ") ";
-    }
-    std::cout << std::endl;
+    spdlog::log(
+        lvl,
+        "ID: {:>3} {:<16} (Qubit, Col): {:<14} #Neighbors: {:>3}     {}",
+        _id,
+        fmt::format("({}, {})", _type, _phase.get_print_string()),
+        fmt::format("({}, {})", _qubit, _col),
+        _neighbors.size(),
+        fmt::join(storage | std::views::transform([](NeighborPair const& nbp) { return fmt::format("({}, {})", nbp.first->get_id(), nbp.second); }), " "));
 }
 
 /*****************************************************/

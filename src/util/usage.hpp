@@ -15,25 +15,25 @@ class Usage {
 public:
     Usage() { reset(); }
 
-    void reset();
+    static void reset();
 
-    void report(bool report_time, bool report_mem);
+    static void report(bool report_time, bool report_mem);
 
 private:
     // for Memory usage (in MB)
-    double _initial_memory = 0.0;
-    double _current_memory = 0.0;
+    static double _initial_memory;
+    static double _current_memory;
 
     // for CPU time usage
-    double _current_tick     = 0.0;
-    double _period_used_time = 0.0;
-    double _total_used_time  = 0.0;
+    static double _current_tick;
+    static double _period_used_time;
+    static double _total_used_time;
 
     // private functions
-    double _check_memory() const;
-    double _check_tick() const;
-    void _set_memory_usage();
-    void _set_time_usage();
+    static double _check_memory();
+    static double _check_tick();
+    static void _set_memory_usage();
+    static void _set_time_usage();
 };
 
 }  // namespace utils
