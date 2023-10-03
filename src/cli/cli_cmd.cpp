@@ -16,9 +16,6 @@
 #include "util/usage.hpp"
 #include "util/util.hpp"
 
-extern size_t VERBOSE;
-extern dvlab::utils::Usage USAGE;
-
 namespace dvlab {
 
 using namespace dvlab::argparse;
@@ -199,33 +196,33 @@ Command usage_cmd() {
 
                 if (rep_all) rep_time = true, rep_mem = true;
 
-                USAGE.report(rep_time, rep_mem);
+                dvlab::utils::Usage::report(rep_time, rep_mem);
 
                 return CmdExecResult::done;
             }};
 }
 
-Command verbose_cmd() {
-    return {"verbose",
-            [](ArgumentParser& parser) {
-                parser.description("set verbose level to 0-9 (default: 3)");
+// Command verbose_cmd() {
+//     return {"verbose",
+//             [](ArgumentParser& parser) {
+//                 parser.description("set verbose level to 0-9 (default: 3)");
 
-                parser.add_argument<size_t>("level")
-                    .constraint([](size_t const& val) {
-                        if (val == 353 || (0 <= val && val <= 9)) return true;  // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
-                        fmt::println(stderr, "Error: verbose level should be 0-9!!");
-                        return false;
-                    })
-                    .help("0: silent, 1-3: normal usage, 4-6: detailed info, 7-9: prolix debug info");
-            },
+//                 parser.add_argument<size_t>("level")
+//                     .constraint([](size_t const& val) {
+//                         if (val == 353 || (0 <= val && val <= 9)) return true;  // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+//                         fmt::println(stderr, "Error: verbose level should be 0-9!!");
+//                         return false;
+//                     })
+//                     .help("0: silent, 1-3: normal usage, 4-6: detailed info, 7-9: prolix debug info");
+//             },
 
-            [](ArgumentParser const& parser) {
-                VERBOSE = parser.get<size_t>("level");
-                fmt::println("Note: verbose level is set to {}", VERBOSE);
+//             [](ArgumentParser const& parser) {
+//                 VERBOSE = parser.get<size_t>("level");
+//                 fmt::println("Note: verbose level is set to {}", VERBOSE);
 
-                return CmdExecResult::done;
-            }};
-}
+//                 return CmdExecResult::done;
+//             }};
+// }
 
 Command logger_cmd() {
     Command cmd{
@@ -260,12 +257,13 @@ Command logger_cmd() {
              parser.description("Test out logger setting");
          },
          [](ArgumentParser const& /*parser*/) {
-             spdlog::critical("Test critical log");
-             spdlog::error("Test error log");
-             spdlog::warn("Test warn log");
-             spdlog::info("Test info log");
-             spdlog::debug("Test debug log");
-             spdlog::trace("Test trace log");
+             spdlog::log(spdlog::level::level_enum::off, "Regular printing (level `off`)");
+             spdlog::critical("A log message with level `critical`");
+             spdlog::error("A log message with level `error`");
+             spdlog::warn("A log message with level `warn`");
+             spdlog::info("A log message with level `info`");
+             spdlog::debug("A log message with level `debug`");
+             spdlog::trace("A log message with level `trace`");
              return CmdExecResult::done;
          }});
 
@@ -280,7 +278,7 @@ Command logger_cmd() {
          [](ArgumentParser const& parser) {
              auto level = spdlog::level::from_str(parser.get<std::string>("level"));
              spdlog::set_level(level);
-             spdlog::info("Setting logger level to {}", spdlog::level::to_string_view(level));
+             spdlog::info("Setting logger level to \"{}\"", spdlog::level::to_string_view(level));
              return CmdExecResult::done;
          }});
 
@@ -384,7 +382,7 @@ bool add_cli_common_cmds(dvlab::CommandLineInterface& cli) {
           cli.add_command(help_cmd(cli)) &&
           cli.add_command(dofile_cmd(cli)) &&
           cli.add_command(usage_cmd()) &&
-          cli.add_command(verbose_cmd()) &&
+          //   cli.add_command(verbose_cmd()) &&
           cli.add_command(seed_cmd()) &&
           cli.add_command(clear_cmd()) &&
           cli.add_command(logger_cmd()))) {

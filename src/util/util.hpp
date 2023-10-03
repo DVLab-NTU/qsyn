@@ -6,6 +6,8 @@
 ****************************************************************************/
 #pragma once
 
+#include <fmt/core.h>
+
 #include <concepts>
 #include <gsl/narrow>
 #include <iosfwd>

@@ -100,7 +100,7 @@ void HadamardFusionRule::apply(ZXGraph& graph, std::vector<MatchType> const& mat
             ets.emplace_back(itr.second);
         }
 
-        op.edgesToAdd.emplace_back(std::make_pair(ns[0], ns[1]), ets[0] == ets[1] ? EdgeType::hadamard : EdgeType::simple);
+        op.edges_to_add.emplace_back(std::make_pair(ns[0], ns[1]), ets[0] == ets[1] ? EdgeType::hadamard : EdgeType::simple);
         // TODO: Correct for the sqrt(2) difference in H-boxes and H-edges
     }
 

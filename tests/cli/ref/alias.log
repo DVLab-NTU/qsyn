@@ -11,7 +11,7 @@ Options:
 qsyn> alias qqqq qccr
 
 qsyn> qq -h
-[error] Ambiguous command or alias `qq`!!
+[error]    Ambiguous command or alias `qq`!!
 
 qsyn> qqq -h
 Usage: qccread [-h] [-replace] <string filepath>
@@ -49,7 +49,7 @@ Options:
   flag  -force        quit without reaffirming        
 
 qsyn> qqq -h
-[error] Unknown command or alias `qqq`!!
+[error]    Unknown command or alias `qqq`!!
 
 qsyn> qq -h
 Usage: qquit [-h] [-force]

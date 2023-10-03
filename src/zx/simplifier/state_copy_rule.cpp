@@ -77,15 +77,14 @@ void StateCopyRule::apply(ZXGraph& graph, std::vector<MatchType> const& matches)
                 ZXVertex* new_v  = graph.add_vertex(neighbor->get_qubit(), VertexType::z, npi->get_phase());
                 bool simple_edge = neighbor->get_first_neighbor().second == EdgeType::simple;
 
-                op.edgesToRemove.emplace_back(std::make_pair(a, neighbor), neighbor->get_first_neighbor().second);
+                op.edges_to_remove.emplace_back(std::make_pair(a, neighbor), neighbor->get_first_neighbor().second);
 
                 // new to Boundary
-                op.edgesToAdd.emplace_back(std::make_pair(new_v, neighbor), simple_edge ? EdgeType::hadamard : EdgeType::simple);
+                op.edges_to_add.emplace_back(std::make_pair(new_v, neighbor), simple_edge ? EdgeType::hadamard : EdgeType::simple);
 
                 // a to new
-                op.edgesToAdd.emplace_back(std::make_pair(a, new_v), EdgeType::hadamard);
+                op.edges_to_add.emplace_back(std::make_pair(a, new_v), EdgeType::hadamard);
 
-                // REVIEW - Floating
                 new_v->set_col((neighbor->get_col() + a->get_col()) / 2);
 
             } else {

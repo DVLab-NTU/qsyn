@@ -7,12 +7,13 @@
 
 #include "./gflow_cmd.hpp"
 
+#include <spdlog/spdlog.h>
+
 #include <cstddef>
 #include <string>
 
 #include "./gflow.hpp"
 #include "cli/cli.hpp"
-#include "spdlog/spdlog.h"
 #include "zx/zx_cmd.hpp"
 #include "zx/zxgraph.hpp"
 

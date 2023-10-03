@@ -5,8 +5,6 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <spdlog/spdlog.h>
-
 #include <ranges>
 
 #include "./zx_rules_template.hpp"
@@ -62,8 +60,6 @@ std::vector<MatchType> PhaseGadgetRule::find_matches(ZXGraph const& graph) const
             sort(group.begin(), group.end());
             group2axel.emplace(group, nb);
         }
-
-        spdlog::trace("{} axel added: {}", fmt::join(group | std::views::transform([](ZXVertex* v) { return v->get_id(); }), " "), nb->get_id());
     }
     auto itr = group2axel.begin();
     while (itr != group2axel.end()) {

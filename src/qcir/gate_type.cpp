@@ -167,6 +167,7 @@ std::string gate_type_to_str(GateRotationCategory category, std::optional<size_t
             case GateRotationCategory::id:
             case GateRotationCategory::h:
             case GateRotationCategory::swap:
+            default:
                 DVLAB_UNREACHABLE("Should be unreachable!!");
         }
     });

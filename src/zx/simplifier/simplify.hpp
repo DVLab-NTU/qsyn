@@ -13,12 +13,9 @@
 
 #include "./zx_rules_template.hpp"
 
-extern size_t VERBOSE;
 extern bool stop_requested();
 
-namespace qsyn {
-
-namespace zx {
+namespace qsyn::zx {
 
 class ZXGraph;
 
@@ -37,37 +34,21 @@ public:
     size_t simplify(Rule const& rule) {
         static_assert(std::is_base_of<ZXRuleTemplate<typename Rule::MatchType>, Rule>::value, "Rule must be a subclass of ZXRule");
 
-        if (VERBOSE >= 5) std::cout << std::setw(30) << std::left << rule.name;
-        if (VERBOSE >= 8) std::cout << std::endl;
+        std::vector<size_t> match_counts;
 
-        std::vector<int> match_counts;
-
-        size_t iterations = 0;
         while (!stop_requested()) {
             std::vector<typename Rule::MatchType> matches = rule.find_matches(*_simp_graph);
             if (matches.empty()) {
                 break;
             }
             match_counts.emplace_back(matches.size());
-            iterations++;
 
-            if (VERBOSE >= 8) std::cout << "\nIteration " << iterations << ":" << std::endl
-                                        << ">>>" << std::endl;
             rule.apply(*_simp_graph, matches);
-            if (VERBOSE >= 8) std::cout << "<<<" << std::endl;
         }
 
-        _recipe.emplace_back(rule.name, match_counts);
-        if (VERBOSE >= 8) std::cout << "=> ";
-        if (VERBOSE >= 5) {
-            std::cout << iterations << " iterations." << std::endl;
-            for (size_t i = 0; i < match_counts.size(); i++) {
-                std::cout << "  " << i + 1 << ") " << match_counts[i] << " matches" << std::endl;
-            }
-        }
-        if (VERBOSE >= 5) std::cout << "\n";
+        _report_simp_result(rule.name, match_counts);
 
-        return iterations;
+        return match_counts.size();
     }
 
     /**
@@ -79,12 +60,8 @@ public:
     size_t hadamard_simplify(Rule rule) {
         static_assert(std::is_base_of<HZXRuleTemplate<typename Rule::MatchType>, Rule>::value, "Rule must be a subclass of HZXRule");
 
-        if (VERBOSE >= 5) std::cout << std::setw(30) << std::left << rule.name;
-        if (VERBOSE >= 8) std::cout << std::endl;
+        std::vector<size_t> match_counts;
 
-        std::vector<int> match_counts;
-
-        size_t iterations = 0;
         while (!stop_requested()) {
             size_t vcount = _simp_graph->get_num_vertices();
 
@@ -93,26 +70,14 @@ public:
                 break;
             }
             match_counts.emplace_back(matches.size());
-            iterations++;
 
-            if (VERBOSE >= 8) std::cout << "\nIteration " << iterations << ":" << std::endl
-                                        << ">>>" << std::endl;
             rule.apply(*_simp_graph, matches);
-            if (VERBOSE >= 8) std::cout << "<<<" << std::endl;
             if (_simp_graph->get_num_vertices() >= vcount) break;
         }
 
-        _recipe.emplace_back(rule.name, match_counts);
-        if (VERBOSE >= 8) std::cout << "=> ";
-        if (VERBOSE >= 5) {
-            std::cout << iterations << " iterations." << std::endl;
-            for (size_t i = 0; i < match_counts.size(); i++) {
-                std::cout << "  " << i + 1 << ") " << match_counts[i] << " matches" << std::endl;
-            }
-        }
-        if (VERBOSE >= 5) std::cout << "\n";
+        _report_simp_result(rule.name, match_counts);
 
-        return iterations;
+        return match_counts.size();
     }
 
     /**
@@ -124,7 +89,8 @@ public:
     size_t scoped_simplify(Rule const& rule, ZXVertexList const& scope) {
         static_assert(std::is_base_of<ZXRuleTemplate<typename Rule::MatchType>, Rule>::value, "Rule must be a subclass of ZXRule");
 
-        size_t iterations = 0;
+        std::vector<size_t> match_counts;
+
         while (!stop_requested()) {
             std::vector<typename Rule::MatchType> matches = rule.find_matches(*_simp_graph);
             std::vector<typename Rule::MatchType> scoped_matches;
@@ -138,11 +104,14 @@ public:
             if (scoped_matches.empty()) {
                 break;
             }
-            iterations++;
+            match_counts.emplace_back(scoped_matches.size());
+
             rule.apply(*_simp_graph, scoped_matches);
         }
 
-        return iterations;
+        _report_simp_result(rule.name, match_counts);
+
+        return match_counts.size();
     }
 
     // Basic rules simplification
@@ -171,13 +140,9 @@ public:
     void to_z_graph();
     void to_x_graph();
 
-    void print_recipe();
-
 private:
+    void _report_simp_result(std::string_view rule_name, std::span<size_t> match_counts) const;
     ZXGraph* _simp_graph;
-    std::vector<std::tuple<std::string, std::vector<int> > > _recipe;
 };
 
-}  // namespace zx
-
-}  // namespace qsyn
+}  // namespace qsyn::zx

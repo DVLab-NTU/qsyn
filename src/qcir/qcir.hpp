@@ -19,6 +19,7 @@
 #include "qcir/qcir_gate.hpp"
 #include "qcir/qcir_qubit.hpp"
 #include "qsyn/qsyn_type.hpp"
+#include "spdlog/common.h"
 
 namespace dvlab {
 
@@ -149,7 +150,7 @@ public:
     void print_qcir();
     bool print_gate_info(size_t, bool);
     void print_summary();
-    void print_qubits();
+    void print_qubits(spdlog::level::level_enum lvl = spdlog::level::off);
     void print_qcir_info();
 
 private:
