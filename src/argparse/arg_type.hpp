@@ -31,8 +31,8 @@ struct is_fixed_array<std::array<T, I>> : std::true_type {};
 
 template <typename T>
 concept is_container_type = requires(T t) {
-    { t.begin() } -> std::same_as<typename T::iterator>;
-    { t.end() } -> std::same_as<typename T::iterator>;
+    { std::begin(t) } -> std::same_as<typename T::iterator>;
+    { std::end(t) } -> std::same_as<typename T::iterator>;
     requires std::constructible_from<typename T::iterator, typename T::iterator>;
     { t.size() } -> std::same_as<typename T::size_type>;
     requires !std::same_as<T, std::string>;
@@ -81,7 +81,7 @@ public:
     template <typename Ret>
     Ret get() const {
         if constexpr (is_container_type<Ret>) {
-            return Ret{_values.begin(), _values.end()};
+            return Ret{std::begin(_values), std::end(_values)};
         } else {
             return _values.front();
         }
@@ -158,7 +158,7 @@ namespace fmt {
 template <typename T>
 requires dvlab::argparse::valid_argument_type<T>
 struct formatter<dvlab::argparse::ArgType<T>> {
-    constexpr auto parse(format_parse_context& ctx) -> format_parse_context::iterator { return ctx.begin(); }
+    constexpr auto parse(format_parse_context& ctx) -> format_parse_context::iterator { return std::begin(ctx); }
 
     template <typename FormatContext>
     auto format(dvlab::argparse::ArgType<T> const& arg, FormatContext& ctx) -> format_context::iterator {
@@ -290,7 +290,7 @@ template <typename T>
 requires valid_argument_type<T>
 ArgType<T>& ArgType<T>::choices(std::vector<T> const& choices) {
     auto constraint = [choices, this](T const& val) -> bool {
-        if (any_of(choices.begin(), choices.end(), [&val](T const& choice) -> bool {
+        if (std::ranges::any_of(choices, [&val](T const& choice) -> bool {
                 return val == choice;
             })) return true;
         fmt::println(stderr, "Error: invalid choice for argument \"{}\": please choose from {{{}}}!!",

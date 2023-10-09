@@ -97,7 +97,7 @@ public:
             auto is_in_scope = [&scope](ZXVertex* v) { return scope.contains(v); };
             for (auto& match : matches) {
                 std::vector<ZXVertex*> match_vertices = rule.flatten_vertices(match);
-                if (std::any_of(match_vertices.begin(), match_vertices.end(), is_in_scope)) {
+                if (std::ranges::any_of(match_vertices, is_in_scope)) {
                     scoped_matches.push_back(match);
                 }
             }

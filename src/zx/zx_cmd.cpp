@@ -382,7 +382,7 @@ Command zxgraph_print_cmd(ZXGraphMgr const& zxgraph_mgr) {
                     auto v = zxgraph_mgr.get()->find_vertex_by_id(parser.get<size_t>("-neighbors"));
                     v->print_vertex();
                     std::cout << "----- Neighbors -----" << std::endl;
-                    for (auto [nb, _] : v->get_neighbors()) {
+                    for (auto [nb, _] : zxgraph_mgr.get()->get_neighbors(v)) {
                         nb->print_vertex();
                     }
                 } else if (parser.parsed("-density")) {
@@ -527,19 +527,19 @@ Command zxgraph_edit_cmd(ZXGraphMgr& zxgraph_mgr) {
                     auto etype = str_to_edge_type(parser.get<std::string>("etype"));
                     assert(etype.has_value());
 
-                    if (vs->is_neighbor(vt, etype.value()) && (vs->is_boundary() || vt->is_boundary())) {
+                    if (zxgraph_mgr.get()->is_neighbor(vs, vt, etype.value()) && (vs->is_boundary() || vt->is_boundary())) {
                         spdlog::critical("Cannot add edge between boundary vertices {} and {}", vs->get_id(), vt->get_id());
                         return CmdExecResult::error;
                     }
 
-                    bool had_edge = vs->is_neighbor(vt, etype.value());
+                    bool had_edge = zxgraph_mgr.get()->is_neighbor(vs, vt, etype.value());
 
                     zxgraph_mgr.get()->add_edge(vs, vt, etype.value());
 
                     if (vs == vt) {
                         spdlog::info("Note: converting this self-loop to phase {} on vertex {}...", etype.value() == EdgeType::hadamard ? Phase(1) : Phase(0), vs->get_id());
                     } else if (had_edge) {
-                        bool has_edge = vs->is_neighbor(vt, etype.value());
+                        bool has_edge = zxgraph_mgr.get()->is_neighbor(vs, vt, etype.value());
                         if (has_edge) {
                             spdlog::info("Note: redundant edge; merging into existing edge ({}, {})...", vs->get_id(), vt->get_id());
                         } else {
@@ -552,21 +552,6 @@ Command zxgraph_edit_cmd(ZXGraphMgr& zxgraph_mgr) {
                     return CmdExecResult::done;
                 }
                 return CmdExecResult::error;
-            }};
-}
-
-//----------------------------------------------------------------------
-//    ZXGTRaverse
-//----------------------------------------------------------------------
-Command zxgraph_traverse_cmd(ZXGraphMgr& zxgraph_mgr) {
-    return {"zxgtraverse",
-            [](ArgumentParser& parser) {
-                parser.description("traverse ZXGraph and update topological order of vertices");
-            },
-            [&](ArgumentParser const& /*parser*/) {
-                if (!zxgraph_mgr_not_empty(zxgraph_mgr)) return CmdExecResult::error;
-                zxgraph_mgr.get()->update_topological_order();
-                return CmdExecResult::done;
             }};
 }
 
@@ -766,7 +751,6 @@ bool add_zx_cmds(dvlab::CommandLineInterface& cli, ZXGraphMgr& zxgraph_mgr) {
           cli.add_command(zxgraph_edit_cmd(zxgraph_mgr)) &&
           cli.add_command(zxgraph_adjoint_cmd(zxgraph_mgr)) &&
           cli.add_command(zxgraph_assign_boundary_cmd(zxgraph_mgr)) &&
-          cli.add_command(zxgraph_traverse_cmd(zxgraph_mgr)) &&
           cli.add_command(zxgraph_draw_cmd(zxgraph_mgr)) &&
           cli.add_command(zxgraph_read_cmd(zxgraph_mgr)) &&
           cli.add_command(zxgraph_write_cmd(zxgraph_mgr)))) {

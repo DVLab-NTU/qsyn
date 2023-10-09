@@ -213,7 +213,7 @@ void Simplifier::_report_simp_result(std::string_view rule_name, std::span<size_
         "{:<28} {:>2} iterations, total {:>4} matches",
         rule_name,
         match_counts.size(),
-        std::accumulate(match_counts.begin(), match_counts.end(), 0));
+        std::reduce(std::begin(match_counts), std::end(match_counts), 0));
 
     for (auto i : std::views::iota(0ul, match_counts.size())) {
         spdlog::log(

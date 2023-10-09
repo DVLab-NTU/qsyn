@@ -20,9 +20,9 @@ namespace qsyn::zx {
  *
  * @return vector<ZXVertex*>
  */
-std::vector<ZXVertex*> ZXVertex::get_copied_neighbors() {
+std::vector<ZXVertex*> ZXGraph::get_copied_neighbors(ZXVertex* v) const {
     std::vector<ZXVertex*> storage;
-    for (auto const& neighbor : _neighbors) {
+    for (auto const& neighbor : v->_neighbors) {
         storage.emplace_back(neighbor.first);
     }
     return storage;
@@ -33,7 +33,7 @@ std::vector<ZXVertex*> ZXVertex::get_copied_neighbors() {
  *
  */
 void ZXVertex::print_vertex(spdlog::level::level_enum lvl) const {
-    std::vector<NeighborPair> storage(_neighbors.begin(), _neighbors.end());
+    std::vector<NeighborPair> storage(std::begin(_neighbors), std::end(_neighbors));
     std::ranges::sort(storage, [](NeighborPair const& a, NeighborPair const& b) {
         return (a.first->get_id() != b.first->get_id()) ? (a.first->get_id() < b.first->get_id()) : (a.second < b.second);
     });

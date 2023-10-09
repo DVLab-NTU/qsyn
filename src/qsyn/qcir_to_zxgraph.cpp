@@ -492,7 +492,7 @@ std::optional<ZXGraph> to_zxgraph(QCir const& qcir, size_t decomposition_mode) {
         g.concatenate(*tmp);
     });
 
-    auto max_col = std::ranges::max(g.get_outputs() | std::views::transform([](ZXVertex* v) { return v->get_first_neighbor().first->get_col(); }));
+    auto max_col = std::ranges::max(g.get_outputs() | std::views::transform([&g](ZXVertex* v) { return g.get_first_neighbor(v).first->get_col(); }));
     for (auto& v : g.get_outputs()) {
         v->set_col(max_col + 1);
     }

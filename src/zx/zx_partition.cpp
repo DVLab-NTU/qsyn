@@ -75,16 +75,16 @@ std::pair<std::vector<ZXGraph*>, std::vector<ZXCut>> ZXGraph::create_subgraphs(s
 
             std::vector<NeighborPair> neighbors_to_remove;
             std::vector<NeighborPair> neighbors_to_add;
-            for (auto const& [neighbor, edgeType] : vertex->get_neighbors()) {
+            for (auto const& [neighbor, edgeType] : this->get_neighbors(vertex)) {
                 if (!partition.contains(neighbor)) {
                     ZXVertex* boundary = new ZXVertex(next_vertex_id++, next_boundary_qubit_id++, VertexType::boundary);
-                    inner_cuts.insert({vertex, neighbor, edgeType});
+                    inner_cuts.emplace(vertex, neighbor, edgeType);
                     cut_to_boundary[{vertex, neighbor, edgeType}] = boundary;
 
                     neighbors_to_remove.push_back({neighbor, edgeType});
                     neighbors_to_add.push_back({boundary, edgeType});
 
-                    boundary->add_neighbor(vertex, edgeType);
+                    boundary->_neighbors.emplace(vertex, edgeType);
 
                     boundary_vertices.push_back(boundary);
                     subgraph_outputs.insert(boundary);
@@ -92,10 +92,10 @@ std::pair<std::vector<ZXGraph*>, std::vector<ZXCut>> ZXGraph::create_subgraphs(s
             }
 
             for (auto const& neighbor_pair : neighbors_to_add) {
-                vertex->add_neighbor(neighbor_pair);
+                vertex->_neighbors.emplace(neighbor_pair);
             }
             for (auto const& neighbor_pair : neighbors_to_remove) {
-                vertex->remove_neighbor(neighbor_pair);
+                vertex->_neighbors.erase(neighbor_pair);
             }
         }
 
@@ -144,25 +144,21 @@ ZXGraph* ZXGraph::from_subgraphs(std::vector<ZXGraph*> const& subgraphs, std::ve
     }
 
     for (auto [b1, b2, edgeType] : cuts) {
-        ZXVertex* v1 = b1->get_first_neighbor().first;
-        ZXVertex* v2 = b2->get_first_neighbor().first;
+        auto [v1, e1] = *b1->_neighbors.begin();
+        auto [v2, e2] = *b2->_neighbors.begin();
 
-        EdgeType e1            = v1->is_neighbor(b1, EdgeType::simple) ? EdgeType::simple : EdgeType::hadamard;
-        EdgeType e2            = v2->is_neighbor(b2, EdgeType::simple) ? EdgeType::simple : EdgeType::hadamard;
-        EdgeType new_edge_type = (e1 == EdgeType::hadamard) ^ (e2 == EdgeType::hadamard) ^ (edgeType == EdgeType::hadamard)
-                                     ? EdgeType::hadamard
-                                     : EdgeType::simple;
+        EdgeType new_edge_type = zx::concat_edge(e1, e2, edgeType);
 
-        v1->remove_neighbor(b1, e1);
-        v2->remove_neighbor(b2, e2);
+        v1->_neighbors.erase({b1, e1});
+        v2->_neighbors.erase({b2, e2});
         vertices.erase(b1);
         vertices.erase(b2);
         inputs.erase(b1);
         inputs.erase(b2);
         outputs.erase(b1);
         outputs.erase(b2);
-        v1->add_neighbor(v2, new_edge_type);
-        v2->add_neighbor(v1, new_edge_type);
+        v1->_neighbors.emplace(v2, new_edge_type);
+        v2->_neighbors.emplace(v1, new_edge_type);
         delete b1;
         delete b2;
     }
@@ -182,7 +178,7 @@ ZXGraph* ZXGraph::from_subgraphs(std::vector<ZXGraph*> const& subgraphs, std::ve
 
 namespace detail {
 
-std::pair<ZXVertexList, ZXVertexList> kl_bipartition(ZXVertexList vertices);
+std::pair<ZXVertexList, ZXVertexList> kl_bipartition(ZXGraph const& graph, ZXVertexList vertices);
 
 }
 /**
@@ -199,7 +195,7 @@ std::vector<ZXVertexList> kl_partition(ZXGraph const& graph, size_t n_partitions
     while (count < n_partitions) {
         std::vector<ZXVertexList> new_partitions;
         for (auto& partition : partitions) {
-            auto [p1, p2] = detail::kl_bipartition(partition);
+            auto [p1, p2] = detail::kl_bipartition(graph, partition);
             partition     = p1;
             new_partitions.push_back(p2);
             if (++count == n_partitions) break;
@@ -209,7 +205,7 @@ std::vector<ZXVertexList> kl_partition(ZXGraph const& graph, size_t n_partitions
     return partitions;
 }
 
-std::pair<ZXVertexList, ZXVertexList> detail::kl_bipartition(ZXVertexList vertices) {
+std::pair<ZXVertexList, ZXVertexList> detail::kl_bipartition(ZXGraph const& graph, ZXVertexList vertices) {
     using SwapPair = std::pair<ZXVertex*, ZXVertex*>;
 
     ZXVertexList partition1 = ZXVertexList();
@@ -240,7 +236,7 @@ std::pair<ZXVertexList, ZXVertexList> detail::kl_bipartition(ZXVertexList vertic
             ZXVertexList& my_partition    = partition1.contains(v) ? partition1 : partition2;
             ZXVertexList& other_partition = partition1.contains(v) ? partition2 : partition1;
 
-            for (auto& [neighbor, edge] : v->get_neighbors()) {
+            for (auto& [neighbor, edge] : graph.get_neighbors(v)) {
                 if (my_partition.contains(neighbor)) {
                     internal_cost++;
                 } else if (other_partition.contains(neighbor)) {
@@ -260,7 +256,7 @@ std::pair<ZXVertexList, ZXVertexList> detail::kl_bipartition(ZXVertexList vertic
             if (locked_vertices.contains(v1)) continue;
             for (auto& v2 : partition2) {
                 if (locked_vertices.contains(v2)) continue;
-                int swap_gain = d_values[v1] + d_values[v2] - 2 * (v1->is_neighbor(v2) ? 1 : 0);
+                int swap_gain = d_values[v1] + d_values[v2] - 2 * (graph.is_neighbor(v1, v2) ? 1 : 0);
                 if (swap_gain > best_swap_gain) {
                     best_swap_gain = swap_gain;
                     best_swap      = {v1, v2};
@@ -278,11 +274,11 @@ std::pair<ZXVertexList, ZXVertexList> detail::kl_bipartition(ZXVertexList vertic
 
         for (auto& v1 : partition1) {
             if (locked_vertices.contains(v1)) continue;
-            d_values[v1] += 2 * (v1->is_neighbor(swap1) ? 1 : 0) - 2 * (v1->is_neighbor(swap2) ? 1 : 0);
+            d_values[v1] += 2 * (graph.is_neighbor(v1, swap1) ? 1 : 0) - 2 * (graph.is_neighbor(v1, swap2) ? 1 : 0);
         }
         for (auto& v2 : partition2) {
             if (locked_vertices.contains(v2)) continue;
-            d_values[v2] += 2 * (v2->is_neighbor(swap2) ? 1 : 0) - 2 * (v2->is_neighbor(swap1) ? 1 : 0);
+            d_values[v2] += 2 * (graph.is_neighbor(v2, swap2) ? 1 : 0) - 2 * (graph.is_neighbor(v2, swap1) ? 1 : 0);
         }
 
         cumulative_gain += best_swap_gain;

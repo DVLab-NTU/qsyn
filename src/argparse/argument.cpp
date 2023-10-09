@@ -38,14 +38,13 @@ bool Argument::take_action(TokensView tokens) {
  * @return TokensView
  */
 TokensView Argument::get_parse_range(TokensView tokens) const {
-    auto parse_start = std::find_if(
-        tokens.begin(), tokens.end(),
-        [](Token& token) { return token.parsed == false; });
+    auto parse_start = std::ranges::find_if(
+        tokens, [](Token& token) { return token.parsed == false; });
 
-    auto parse_end = std::find_if(
+    auto parse_end = std::ranges::find_if(
         parse_start, tokens.end(),
         [](Token& token) { return token.parsed == true; });
-    return tokens.subspan(parse_start - tokens.begin(), std::min(get_nargs().upper, static_cast<size_t>(parse_end - parse_start)));
+    return tokens.subspan(parse_start - std::begin(tokens), std::min(get_nargs().upper, static_cast<size_t>(parse_end - parse_start)));
 }
 
 bool Argument::tokens_enough_to_parse(TokensView tokens) const {
