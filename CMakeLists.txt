@@ -61,7 +61,6 @@ FetchContent_Declare(
     GIT_TAG 10.0.0)
 FetchContent_MakeAvailable(fmt)
 
-# set(SPDLOG_FMT_EXTERNAL ON CACHE BOOL "" FORCE)
 FetchContent_Declare(
     spdlog
     SYSTEM
@@ -83,8 +82,11 @@ file(
     "src/**/*.cpp" "src/**/*.hpp")
 add_executable(${CMAKE_PROJECT_NAME} ${SOURCES})
 
-target_compile_definitions(spdlog PRIVATE SPDLOG_FMT_EXTERNAL=1)
-target_compile_definitions(spdlog PRIVATE SPDLOG_SHORT_LEVEL_NAMES={\"[trace]\ \ \ \ \",\"[debug]\ \ \ \ \",\"[info]\ \ \ \ \ \",\"[warn]\ \ \ \ \ \",\"[error]\ \ \ \ \",\"[critical]\ \",\"\"})
+target_compile_definitions(spdlog PUBLIC SPDLOG_FMT_EXTERNAL=1)
+target_compile_definitions(spdlog PUBLIC SPDLOG_SHORT_LEVEL_NAMES={\"[trace]\ \ \ \ \",\"[debug]\ \ \ \ \",\"[info]\ \ \ \ \ \",\"[warn]\ \ \ \ \ \",\"[error]\ \ \ \ \",\"[critical]\ \",\"\"})
+
+target_link_libraries(spdlog PUBLIC fmt::fmt)
+
 target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE QSYN_VERSION="${CMAKE_PROJECT_VERSION}")
 
 target_include_directories(${CMAKE_PROJECT_NAME}
