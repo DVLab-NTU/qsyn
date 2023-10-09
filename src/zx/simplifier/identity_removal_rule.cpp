@@ -25,17 +25,14 @@ std::vector<MatchType> IdentityRemovalRule::find_matches(ZXGraph const& graph) c
     for (auto const& v : graph.get_vertices()) {
         if (taken.contains(v)) continue;
 
-        Neighbors const& neighbors = v->get_neighbors();
         if (v->get_phase() != Phase(0)) continue;
         if (v->get_type() != VertexType::z && v->get_type() != VertexType::x) continue;
-        if (neighbors.size() != 2) continue;
+        if (graph.get_num_neighbors(v) != 2) continue;
 
-        auto [n0, edgeType0] = *(neighbors.begin());
-        auto [n1, edgeType1] = *next(neighbors.begin());
+        auto [n0, etype0] = graph.get_first_neighbor(v);
+        auto [n1, etype1] = graph.get_second_neighbor(v);
 
-        EdgeType edge_type = (edgeType0 == edgeType1) ? EdgeType::simple : EdgeType::hadamard;
-
-        matches.emplace_back(v, n0, n1, edge_type);
+        matches.emplace_back(v, n0, n1, zx::concat_edge(etype0, etype1));
         taken.insert(v);
         taken.insert(n0);
         taken.insert(n1);

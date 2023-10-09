@@ -22,62 +22,55 @@ std::vector<MatchType> HadamardFusionRule::find_matches(ZXGraph const& graph) co
     }
 
     // Matches Hadamard-edges that are connected to H-boxes
-    std::vector<bool> taken(graph.get_num_vertices(), false);
+    std::unordered_set<ZXVertex*> taken;
 
-    graph.for_each_edge([&id2idx, &taken, &matches, this](EdgePair const& epair) {
+    graph.for_each_edge([&graph, &id2idx, &matches, &taken, this](EdgePair const& epair) {
         // NOTE - Only Hadamard Edges
         if (epair.second != EdgeType::hadamard) return;
         auto [neighbor_left, neighbor_right] = epair.first;
-        size_t n0 = id2idx[neighbor_left->get_id()], n1 = id2idx[neighbor_right->get_id()];
 
-        if ((taken[n0] && neighbor_left->get_type() == VertexType::h_box) || (taken[n1] && neighbor_right->get_type() == VertexType::h_box)) return;
+        if ((taken.contains(neighbor_left) && neighbor_left->is_hbox()) || (taken.contains(neighbor_right) && neighbor_right->is_hbox())) return;
 
-        if (neighbor_left->get_type() == VertexType::h_box) {
+        if (neighbor_left->is_hbox()) {
             matches.emplace_back(neighbor_left);
-            taken[n0] = true;
-            taken[n1] = true;
+            taken.insert(neighbor_left);
+            taken.insert(neighbor_right);
 
-            Neighbors nebs    = neighbor_left->get_neighbors();
-            NeighborPair nbp0 = *(nebs.begin());
-            NeighborPair nbp1 = *next(nebs.begin());
-            size_t n2 = id2idx[nbp0.first->get_id()], n3 = id2idx[nbp1.first->get_id()];
+            auto nb0 = graph.get_first_neighbor(neighbor_left).first;
+            auto nb1 = graph.get_second_neighbor(neighbor_left).first;
 
-            if (n2 != n0)
-                taken[n2] = true;
-            else
-                taken[n3] = true;
-        } else if (neighbor_right->get_type() == VertexType::h_box) {
+            if (neighbor_left != nb0) {
+                taken.insert(nb0);
+            } else {
+                taken.insert(nb1);
+            }
+        } else if (neighbor_right->is_hbox()) {
             matches.emplace_back(neighbor_right);
-            taken[n0] = true;
-            taken[n1] = true;
+            taken.insert(neighbor_left);
+            taken.insert(neighbor_right);
 
-            Neighbors nebs    = neighbor_left->get_neighbors();
-            NeighborPair nbp0 = *(nebs.begin());
-            NeighborPair nbp1 = *next(nebs.begin());
-            size_t n2 = id2idx[nbp0.first->get_id()], n3 = id2idx[nbp1.first->get_id()];
+            auto nb0 = graph.get_first_neighbor(neighbor_right).first;
+            auto nb1 = graph.get_second_neighbor(neighbor_right).first;
 
-            if (n2 != n0)
-                taken[n2] = true;
-            else
-                taken[n3] = true;
-        } else if (neighbor_left->get_type() != VertexType::h_box || neighbor_right->get_type() != VertexType::h_box) {
-            return;
+            if (nb0 != neighbor_right) {
+                taken.insert(nb0);
+            } else {
+                taken.insert(nb1);
+            }
         }
     });
 
     graph.for_each_edge([&id2idx, &taken, &matches, this](EdgePair const& epair) {
         if (epair.second == EdgeType::hadamard) return;
 
-        ZXVertex* neighbor_left  = epair.first.first;
-        ZXVertex* neighbor_right = epair.first.second;
-        size_t n0 = id2idx[neighbor_left->get_id()], n1 = id2idx[neighbor_right->get_id()];
+        auto [neighbor_left, neighbor_right] = epair.first;
 
-        if (!taken[n0] && !taken[n1]) {
-            if (neighbor_left->get_type() == VertexType::h_box && neighbor_right->get_type() == VertexType::h_box) {
+        if (!taken.contains(neighbor_left) && !taken.contains(neighbor_right)) {
+            if (neighbor_left->is_hbox() && neighbor_right->is_hbox()) {
                 matches.emplace_back(neighbor_left);
                 matches.emplace_back(neighbor_right);
-                taken[n0] = true;
-                taken[n1] = true;
+                taken.insert(neighbor_left);
+                taken.insert(neighbor_right);
             }
         }
     });
@@ -95,7 +88,7 @@ void HadamardFusionRule::apply(ZXGraph& graph, std::vector<MatchType> const& mat
         std::vector<ZXVertex*> ns;
         std::vector<EdgeType> ets;
 
-        for (auto& itr : matches[i]->get_neighbors()) {
+        for (auto& itr : graph.get_neighbors(matches[i])) {
             ns.emplace_back(itr.first);
             ets.emplace_back(itr.second);
         }

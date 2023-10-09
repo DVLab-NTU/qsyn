@@ -143,7 +143,7 @@ public:
     void apply(ZXGraph& graph, std::vector<MatchType> const& matches) const override;
     std::vector<ZXVertex*> flatten_vertices(MatchType match) const override {
         auto [_, vertices0, vertices1] = match;
-        vertices0.insert(vertices0.end(), vertices1.begin(), vertices1.end());
+        vertices0.insert(std::end(vertices0), std::begin(vertices1), std::end(vertices1));
         return vertices0;
     }
 };

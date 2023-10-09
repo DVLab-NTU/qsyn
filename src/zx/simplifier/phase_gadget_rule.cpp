@@ -40,9 +40,9 @@ std::vector<MatchType> PhaseGadgetRule::find_matches(ZXGraph const& graph) const
     std::vector<ZXVertex*> axels;
     std::vector<ZXVertex*> leaves;
     for (auto const& v : graph.get_vertices()) {
-        if (v->get_phase().denominator() <= 2 || v->get_num_neighbors() != 1) continue;
+        if (v->get_phase().denominator() <= 2 || graph.get_num_neighbors(v) != 1) continue;
 
-        ZXVertex* nb = v->get_first_neighbor().first;
+        ZXVertex* nb = graph.get_first_neighbor(v).first;
 
         if (nb->get_phase().denominator() != 1) continue;
         if (nb->is_boundary()) continue;
@@ -52,16 +52,16 @@ std::vector<MatchType> PhaseGadgetRule::find_matches(ZXGraph const& graph) const
 
         std::vector<ZXVertex*> group;
 
-        for (auto& [nb2, _] : nb->get_neighbors()) {
+        for (auto& [nb2, _] : graph.get_neighbors(nb)) {
             if (nb2 != v) group.emplace_back(nb2);
         }
 
         if (group.size() > 0) {
-            sort(group.begin(), group.end());
+            std::ranges::sort(group);
             group2axel.emplace(group, nb);
         }
     }
-    auto itr = group2axel.begin();
+    auto itr = std::begin(group2axel);
     while (itr != group2axel.end()) {
         auto [groupBegin, groupEnd] = group2axel.equal_range(itr->first);
         itr                         = groupEnd;
@@ -100,8 +100,8 @@ void PhaseGadgetRule::apply(ZXGraph& graph, std::vector<MatchType> const& matche
         std::vector<ZXVertex*> const& rm_leaves = get<2>(match);
         ZXVertex* leaf                          = rm_leaves[0];
         leaf->set_phase(new_phase);
-        op.vertices_to_remove.insert(op.vertices_to_remove.end(), rm_axels.begin() + 1, rm_axels.end());
-        op.vertices_to_remove.insert(op.vertices_to_remove.end(), rm_leaves.begin() + 1, rm_leaves.end());
+        op.vertices_to_remove.insert(std::end(op.vertices_to_remove), std::begin(rm_axels) + 1, std::end(rm_axels));
+        op.vertices_to_remove.insert(std::end(op.vertices_to_remove), std::begin(rm_leaves) + 1, std::end(rm_leaves));
     }
 
     _update(graph, op);

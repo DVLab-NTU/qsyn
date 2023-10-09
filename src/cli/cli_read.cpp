@@ -460,7 +460,7 @@ bool dvlab::CommandLineInterface::add_variables_from_dofiles(std::string const& 
     if (tokens.empty()) return true;
 
     if (tokens[0] == "//!ARGS") {
-        tokens.erase(tokens.begin());
+        tokens.erase(std::begin(tokens));
         static std::regex const valid_variable_name(R"([a-zA-Z_][\w]*)");
 
         std::vector<std::string> keys;

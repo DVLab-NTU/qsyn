@@ -59,9 +59,10 @@ void Extractor::initialize(bool from_empty_qcir) {
 
     QubitIdType cnt = 0;
     for (auto& o : _graph->get_outputs()) {
-        if (!o->get_first_neighbor().first->is_boundary()) {
-            o->get_first_neighbor().first->set_qubit(o->get_qubit());
-            _frontier.emplace(o->get_first_neighbor().first);
+        ZXVertex* neighbor_to_output = _graph->get_first_neighbor(o).first;
+        if (!neighbor_to_output->is_boundary()) {
+            neighbor_to_output->set_qubit(o->get_qubit());
+            _frontier.emplace(neighbor_to_output);
         }
         _qubit_map[o->get_qubit()] = cnt;
         if (from_empty_qcir)
@@ -77,7 +78,7 @@ void Extractor::initialize(bool from_empty_qcir) {
     update_neighbors();
     for (auto& v : _graph->get_vertices()) {
         if (_graph->is_gadget_leaf(v)) {
-            _axels.emplace(v->get_first_neighbor().first);
+            _axels.emplace(_graph->get_first_neighbor(v).first);
         }
     }
     print_frontier(spdlog::level::level_enum::trace);
@@ -181,14 +182,14 @@ void Extractor::extract_singles() {
     spdlog::debug("Extracting single qubit gates");
     std::vector<std::pair<ZXVertex*, ZXVertex*>> toggle_list;
     for (ZXVertex* o : _graph->get_outputs()) {
-        if (o->get_first_neighbor().second == EdgeType::hadamard) {
+        if (_graph->get_first_neighbor(o).second == EdgeType::hadamard) {
             prepend_single_qubit_gate("h", _qubit_map[o->get_qubit()], dvlab::Phase(0));
-            toggle_list.emplace_back(o, o->get_first_neighbor().first);
+            toggle_list.emplace_back(o, _graph->get_first_neighbor(o).first);
         }
-        dvlab::Phase ph = o->get_first_neighbor().first->get_phase();
+        dvlab::Phase ph = _graph->get_first_neighbor(o).first->get_phase();
         if (ph != dvlab::Phase(0)) {
             prepend_single_qubit_gate("rotate", _qubit_map[o->get_qubit()], ph);
-            o->get_first_neighbor().first->set_phase(dvlab::Phase(0));
+            _graph->get_first_neighbor(o).first->set_phase(dvlab::Phase(0));
         }
     }
     for (auto& [s, t] : toggle_list) {
@@ -215,7 +216,7 @@ bool Extractor::extract_czs(bool check) {
                 spdlog::error("Phase found in frontier!! Please extract them first");
                 return false;
             }
-            for (auto& [n, e] : f->get_neighbors()) {
+            for (auto& [n, e] : _graph->get_neighbors(f)) {
                 if (_graph->get_outputs().contains(n) && e == EdgeType::hadamard) {
                     spdlog::error("Hadamard edge found in frontier!! Please extract them first");
                     return false;
@@ -228,7 +229,7 @@ bool Extractor::extract_czs(bool check) {
 
     for (auto itr = _frontier.begin(); itr != _frontier.end(); itr++) {
         for (auto jtr = next(itr); jtr != _frontier.end(); jtr++) {
-            if ((*itr)->is_neighbor((*jtr))) {
+            if (_graph->is_neighbor(*itr, *jtr, EdgeType::hadamard)) {
                 remove_list.emplace_back((*itr), (*jtr));
             }
         }
@@ -329,7 +330,7 @@ size_t Extractor::extract_hadamards_from_matrix(bool check) {
         n->set_col(f->get_col());
 
         // NOTE - Connect edge between boundary and neighbor
-        for (auto& [bound, ep] : f->get_neighbors()) {
+        for (auto& [bound, ep] : _graph->get_neighbors(f)) {
             if (bound->is_boundary()) {
                 _graph->add_edge(bound, n, ep);
                 break;
@@ -378,7 +379,7 @@ bool Extractor::remove_gadget(bool check) {
         if (!_axels.contains(n)) {
             continue;
         }
-        for (auto& [candidate, _] : n->get_neighbors()) {
+        for (auto& [candidate, _] : _graph->get_neighbors(n)) {
             if (_frontier.contains(candidate)) {
                 std::vector<PivotBoundaryRule::MatchType> matches = {
                     {candidate, n},
@@ -387,7 +388,7 @@ bool Extractor::remove_gadget(bool check) {
                 _frontier.erase(candidate);
 
                 ZXVertex* target_boundary = nullptr;
-                for (auto& [boundary, _] : candidate->get_neighbors()) {
+                for (auto& [boundary, _] : _graph->get_neighbors(candidate)) {
                     if (boundary->is_boundary()) {
                         target_boundary = boundary;
                         break;
@@ -397,7 +398,7 @@ bool Extractor::remove_gadget(bool check) {
                 PivotBoundaryRule().apply(*_graph, matches);
 
                 assert(target_boundary != nullptr);
-                _frontier.emplace(target_boundary->get_first_neighbor().first);
+                _frontier.emplace(_graph->get_first_neighbor(target_boundary).first);
                 // REVIEW - qubit_map
                 removed_some_gadgets = true;
                 break;
@@ -732,11 +733,11 @@ void Extractor::permute_qubits() {
     std::unordered_map<QubitIdType, QubitIdType> swap_inv_map;  // i to o
     bool matched = true;
     for (auto& o : _graph->get_outputs()) {
-        if (o->get_num_neighbors() != 1) {
+        if (_graph->get_num_neighbors(o) != 1) {
             std::cout << "Note: output is not connected to only one vertex" << std::endl;
             return;
         }
-        ZXVertex* i = o->get_first_neighbor().first;
+        ZXVertex* i = _graph->get_first_neighbor(o).first;
         if (!_graph->get_inputs().contains(i)) {
             std::cout << "Note: output is not connected to input" << std::endl;
             return;
@@ -760,7 +761,7 @@ void Extractor::permute_qubits() {
         swap_inv_map[i] = t2;
     }
     for (auto& o : _graph->get_outputs()) {
-        _graph->remove_all_edges_between(o->get_first_neighbor().first, o);
+        _graph->remove_all_edges_between(_graph->get_first_neighbor(o).first, o);
     }
     for (auto& o : _graph->get_outputs()) {
         for (auto& i : _graph->get_inputs()) {
@@ -781,16 +782,15 @@ void Extractor::update_neighbors() {
     std::vector<ZXVertex*> rm_vs;
 
     for (auto& f : _frontier) {
-        size_t num_boundaries = count_if(
-            f->get_neighbors().begin(),
-            f->get_neighbors().end(),
+        size_t num_boundaries = std::ranges::count_if(
+            _graph->get_neighbors(f),
             [](NeighborPair const& nbp) { return nbp.first->is_boundary(); });
 
         if (num_boundaries != 2) continue;
 
-        if (f->get_num_neighbors() == 2) {
+        if (_graph->get_num_neighbors(f) == 2) {
             // NOTE - Remove
-            for (auto& [b, ep] : f->get_neighbors()) {
+            for (auto& [b, ep] : _graph->get_neighbors(f)) {
                 if (_graph->get_inputs().contains(b)) {
                     if (ep == EdgeType::hadamard) {
                         prepend_single_qubit_gate("h", _qubit_map[f->get_qubit()], dvlab::Phase(0));
@@ -800,7 +800,7 @@ void Extractor::update_neighbors() {
             }
             rm_vs.emplace_back(f);
         } else {
-            for (auto [b, ep] : f->get_neighbors()) {  // The pass-by-copy is deliberate. Pass by ref will cause segfault
+            for (auto [b, ep] : _graph->get_neighbors(f)) {  // The pass-by-copy is deliberate. Pass by ref will cause segfault
                 if (_graph->get_inputs().contains(b)) {
                     _graph->add_buffer(b, f, ep);
                     break;
@@ -812,12 +812,12 @@ void Extractor::update_neighbors() {
     for (auto& v : rm_vs) {
         spdlog::trace("Remove {} from frontier", v->get_id());
         _frontier.erase(v);
-        _graph->add_edge(v->get_first_neighbor().first, v->get_second_neighbor().first, EdgeType::simple);
+        _graph->add_edge(_graph->get_first_neighbor(v).first, _graph->get_second_neighbor(v).first, EdgeType::simple);
         _graph->remove_vertex(v);
     }
 
     for (auto& f : _frontier) {
-        for (auto& [n, _] : f->get_neighbors()) {
+        for (auto& [n, _] : _graph->get_neighbors(f)) {
             if (!n->is_boundary() && !_frontier.contains(n))
                 _neighbors.emplace(n);
         }
@@ -835,9 +835,9 @@ void Extractor::update_graph_by_matrix(EdgeType et) {
     for (auto& f : _frontier) {
         size_t c = 0;
         for (auto& nb : _neighbors) {
-            if (_biadjacency[r][c] == 1 && !f->is_neighbor(nb)) {  // NOTE - Should connect but not connected
+            if (_biadjacency[r][c] == 1 && !_graph->is_neighbor(nb, f, et)) {  // NOTE - Should connect but not connected
                 _graph->add_edge(f, nb, et);
-            } else if (_biadjacency[r][c] == 0 && f->is_neighbor(nb)) {  // NOTE - Should not connect but connected
+            } else if (_biadjacency[r][c] == 0 && _graph->is_neighbor(nb, f, et)) {  // NOTE - Should not connect but connected
                 _graph->remove_edge(f, nb, et);
             }
             c++;
@@ -851,7 +851,7 @@ void Extractor::update_graph_by_matrix(EdgeType et) {
  *
  */
 void Extractor::update_matrix() {
-    _biadjacency = get_biadjacency_matrix(_frontier, _neighbors);
+    _biadjacency = get_biadjacency_matrix(*_graph, _frontier, _neighbors);
 }
 
 /**
@@ -929,7 +929,7 @@ void Extractor::prepend_swap_gate(QubitIdType q0, QubitIdType q1, QCir* circuit)
 bool Extractor::frontier_is_cleaned() {
     for (auto& f : _frontier) {
         if (f->get_phase() != dvlab::Phase(0)) return false;
-        for (auto& [n, e] : f->get_neighbors()) {
+        for (auto& [n, e] : _graph->get_neighbors(f)) {
             if (_frontier.contains(n)) return false;
             if (_graph->get_outputs().contains(n) && e == EdgeType::hadamard) return false;
         }
@@ -960,7 +960,7 @@ bool Extractor::axel_in_neighbors() {
  */
 bool Extractor::contains_single_neighbor() {
     for (auto& f : _frontier) {
-        if (f->get_num_neighbors() == 2)
+        if (_graph->get_num_neighbors(f) == 2)
             return true;
     }
     return false;
@@ -998,7 +998,7 @@ void Extractor::print_axels(spdlog::level::level_enum lvl) {
         spdlog::log(lvl,
                     "{} (phase gadget: {})",
                     n->get_id(),
-                    fmt::join(n->get_neighbors() |
+                    fmt::join(_graph->get_neighbors(n) |
                                   std::views::keys |
                                   std::views::filter([this](ZXVertex* v) { return _graph->is_gadget_leaf(v); }) |
                                   std::views::transform([](ZXVertex* v) { return v->get_id(); }),

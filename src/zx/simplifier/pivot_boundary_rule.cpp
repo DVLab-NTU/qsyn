@@ -16,7 +16,7 @@ std::vector<MatchType> PivotBoundaryRule::find_matches(ZXGraph const& graph) con
 
     std::unordered_set<ZXVertex*> taken;
     auto match_boundary = [&taken, &graph, &matches, this](ZXVertex* v) {
-        ZXVertex* vs = v->get_first_neighbor().first;
+        ZXVertex* vs = graph.get_first_neighbor(v).first;
         if (taken.contains(vs)) return;
 
         if (!vs->is_z()) {
@@ -25,7 +25,7 @@ std::vector<MatchType> PivotBoundaryRule::find_matches(ZXGraph const& graph) con
         }
 
         ZXVertex* vt = nullptr;
-        for (auto& [nb, etype] : vs->get_neighbors()) {
+        for (auto& [nb, etype] : graph.get_neighbors(vs)) {
             if (taken.contains(nb)) continue;  // do not choose the one in taken
             if (nb->is_boundary()) continue;
             if (!nb->has_n_pi_phase()) continue;
@@ -38,7 +38,7 @@ std::vector<MatchType> PivotBoundaryRule::find_matches(ZXGraph const& graph) con
 
         bool found_one = false;
         // check vs is only connected to boundary, or connected to Z-spider by H-edge
-        for (auto& [nb, etype] : vs->get_neighbors()) {
+        for (auto& [nb, etype] : graph.get_neighbors(vs)) {
             if (nb->is_boundary()) {
                 if (found_one) return;
                 found_one = true;
@@ -48,15 +48,15 @@ std::vector<MatchType> PivotBoundaryRule::find_matches(ZXGraph const& graph) con
         }
 
         // check vt is only connected to Z-spider by H-edge
-        for (auto& [nb, etype] : vt->get_neighbors()) {
+        for (auto& [nb, etype] : graph.get_neighbors(vt)) {
             if (!nb->is_z() || etype != EdgeType::hadamard) return;
         }
 
         taken.insert(vs);
         taken.insert(vt);
 
-        for (auto& [nb, _] : vs->get_neighbors()) taken.insert(nb);
-        for (auto& [nb, _] : vt->get_neighbors()) taken.insert(nb);
+        for (auto& [nb, _] : graph.get_neighbors(vs)) taken.insert(nb);
+        for (auto& [nb, _] : graph.get_neighbors(vt)) taken.insert(nb);
         matches.emplace_back(vs, vt);
     };
 
@@ -68,7 +68,7 @@ std::vector<MatchType> PivotBoundaryRule::find_matches(ZXGraph const& graph) con
 
 void PivotBoundaryRule::apply(ZXGraph& graph, std::vector<MatchType> const& matches) const {
     for (auto& [vs, _] : matches) {
-        for (auto& [nb, etype] : vs->get_neighbors()) {
+        for (auto& [nb, etype] : graph.get_neighbors(vs)) {
             if (nb->is_boundary()) {
                 graph.add_buffer(nb, vs, etype);
                 break;

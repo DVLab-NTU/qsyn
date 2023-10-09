@@ -155,10 +155,10 @@ std::string wrap_text(std::string const& str, size_t max_help_width) {
         size_t const pos = line.find_last_of(' ', max_help_width);
 
         if (pos == std::string::npos) {
-            lines.insert(dvlab::iterator::next(lines.begin(), i + 1), line.substr(max_help_width));
+            lines.insert(dvlab::iterator::next(std::begin(lines), i + 1), line.substr(max_help_width));
             line = line.substr(0, max_help_width);
         } else {
-            lines.insert(dvlab::iterator::next(lines.begin(), i + 1), line.substr(pos + 1));
+            lines.insert(dvlab::iterator::next(std::begin(lines), i + 1), line.substr(pos + 1));
             line = line.substr(0, pos);
         }
     }

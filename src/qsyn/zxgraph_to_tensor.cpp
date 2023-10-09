@@ -10,7 +10,9 @@
 
 #include <cassert>
 #include <limits>
+#include <unordered_map>
 
+#include "zx/zx_def.hpp"
 #include "zx/zxgraph.hpp"
 
 extern bool stop_requested();
@@ -48,12 +50,14 @@ public:
         std::vector<std::pair<Frontiers, tensor::QTensor<double>>> _zx2ts_list;
     };
 
-    std::optional<tensor::QTensor<double>> map(zx::ZXGraph const& zxgraph);
+    std::optional<tensor::QTensor<double>> map(zx::ZXGraph const& graph);
 
 private:
     std::vector<zx::EdgePair> _boundary_edges;  // EdgePairs of the boundaries
     ZX2TSList _zx2ts_list;                      // The tensor list for each set of frontiers
     size_t _tensor_id = 0;                      // Current tensor id for the _tensorId
+
+    std::unordered_map<zx::ZXVertex*, size_t> _pins;
 
     qsyn::tensor::TensorAxisList _simple_pins;    // Axes that can be tensordotted directly
     qsyn::tensor::TensorAxisList _hadamard_pins;  // Axes that should be applied hadamards first
@@ -65,15 +69,15 @@ private:
     Frontiers const& _curr_frontiers() const { return _zx2ts_list.frontiers(_tensor_id); }
     tensor::QTensor<double> const& _curr_tensor() const { return _zx2ts_list.tensor(_tensor_id); }
 
-    void _map_one_vertex(zx::ZXVertex* v);
+    void _map_one_vertex(zx::ZXGraph const& graph, zx::ZXVertex* v);
 
     // mapOneVertex Subroutines
-    void _initialize_subgraph(zx::ZXVertex* v);
-    void _tensordot_vertex(zx::ZXVertex* v);
-    void _update_pins_and_frontiers(zx::ZXVertex* v);
+    void _initialize_subgraph(zx::ZXGraph const& graph, zx::ZXVertex* v);
+    void _tensordot_vertex(zx::ZXGraph const& graph, zx::ZXVertex* v);
+    void _update_pins_and_frontiers(zx::ZXGraph const& graph, zx::ZXVertex* v);
     tensor::QTensor<double> _dehadamardize(tensor::QTensor<double> const& ts);
 
-    bool _is_of_new_graph(zx::ZXVertex const* v);
+    bool _is_of_new_graph(zx::ZXGraph const& graph, zx::ZXVertex* v);
     bool _is_frontier(zx::NeighborPair const& nbr) const;
 
     struct InOutAxisList {
@@ -93,17 +97,13 @@ std::optional<tensor::QTensor<double>> to_tensor(zx::ZXGraph const& zxgraph) {
  *
  * @return std::optional<QTensor<double>> containing a QTensor<double> if the conversion succeeds
  */
-std::optional<tensor::QTensor<double>> ZX2TSMapper::map(zx::ZXGraph const& zxgraph) {
-    if (!zxgraph.is_valid()) {
+std::optional<tensor::QTensor<double>> ZX2TSMapper::map(zx::ZXGraph const& graph) {
+    if (!graph.is_valid()) {
         spdlog::error("The ZXGraph is not valid!!");
         return std::nullopt;
     }
 
-    for (auto& v : zxgraph.get_vertices()) {
-        v->set_pin(unsigned(-1));
-    }
-
-    zxgraph.topological_traverse([this](zx::ZXVertex* v) { _map_one_vertex(v); });
+    graph.topological_traverse([&graph, this](zx::ZXVertex* v) { _map_one_vertex(graph, v); });
 
     if (stop_requested()) {
         spdlog::error("Conversion is interrupted!!");
@@ -120,7 +120,7 @@ std::optional<tensor::QTensor<double>> ZX2TSMapper::map(zx::ZXGraph const& zxgra
         _zx2ts_list.frontiers(i).emplace(_boundary_edges[i], 0);
     }
 
-    auto [inputIds, outputIds] = _get_axis_orders(zxgraph);
+    auto [inputIds, outputIds] = _get_axis_orders(graph);
 
     spdlog::trace("Input  Axis IDs: {}", fmt::join(inputIds, " "));
     spdlog::trace("Output Axis IDs: {}", fmt::join(outputIds, " "));
@@ -135,7 +135,7 @@ std::optional<tensor::QTensor<double>> ZX2TSMapper::map(zx::ZXGraph const& zxgra
  *
  * @param v the tensor of whom
  */
-void ZX2TSMapper::_map_one_vertex(zx::ZXVertex* v) {
+void ZX2TSMapper::_map_one_vertex(zx::ZXGraph const& graph, zx::ZXVertex* v) {
     if (stop_requested()) return;
 
     _simple_pins.clear();
@@ -144,22 +144,22 @@ void ZX2TSMapper::_map_one_vertex(zx::ZXVertex* v) {
     _add_edges.clear();
     _tensor_id = 0;
 
-    bool is_new_graph = _is_of_new_graph(v);
+    bool is_new_graph = _is_of_new_graph(graph, v);
     bool is_boundary  = v->is_boundary();
 
     spdlog::debug("Mapping vertex {:>4} ({}): {}", v->get_id(), v->get_type(), is_new_graph ? "New Subgraph" : is_boundary ? "Boundary"
                                                                                                                            : "Tensordot");
 
     if (is_new_graph) {
-        _initialize_subgraph(v);
+        _initialize_subgraph(graph, v);
     } else if (is_boundary) {
-        _update_pins_and_frontiers(v);
+        _update_pins_and_frontiers(graph, v);
         _curr_tensor() = _dehadamardize(_curr_tensor());
     } else {
-        _update_pins_and_frontiers(v);
-        _tensordot_vertex(v);
+        _update_pins_and_frontiers(graph, v);
+        _tensordot_vertex(graph, v);
     }
-    v->set_pin(_tensor_id);
+    _pins.emplace(v, _tensor_id);
 
     spdlog::debug("Done. Current tensor dimension: {}", _curr_tensor().dimension());
     spdlog::trace("Current frontiers:");
@@ -174,16 +174,16 @@ void ZX2TSMapper::_map_one_vertex(zx::ZXVertex* v) {
  *
  * @param v the boundary vertex to start the mapping
  */
-void ZX2TSMapper::_initialize_subgraph(zx::ZXVertex* v) {
+void ZX2TSMapper::_initialize_subgraph(zx::ZXGraph const& graph, zx::ZXVertex* v) {
     using namespace std::complex_literals;
-    auto [nb, etype] = *(v->get_neighbors().begin());
+    auto [nb, etype] = graph.get_first_neighbor(v);
 
     _zx2ts_list.append(Frontiers(), tensor::QTensor<double>(1. + 0.i));
     _tensor_id = _zx2ts_list.size() - 1;
     assert(v->is_boundary());
 
     zx::EdgePair edge_key = make_edge_pair(v, nb, etype);
-    _curr_tensor()        = tensordot(_curr_tensor(), tensor::QTensor<double>::identity(v->get_num_neighbors()));
+    _curr_tensor()        = tensordot(_curr_tensor(), tensor::QTensor<double>::identity(graph.get_num_neighbors(v)));
     _boundary_edges.emplace_back(edge_key);
     _curr_frontiers().emplace(edge_key, 1);
 }
@@ -195,10 +195,10 @@ void ZX2TSMapper::_initialize_subgraph(zx::ZXVertex* v) {
  * @return true or
  * @return false and set the _tensorId to the current tensor
  */
-bool ZX2TSMapper::_is_of_new_graph(zx::ZXVertex const* v) {
-    for (auto nbr : v->get_neighbors()) {
+bool ZX2TSMapper::_is_of_new_graph(zx::ZXGraph const& graph, zx::ZXVertex* v) {
+    for (auto nbr : graph.get_neighbors(v)) {
         if (_is_frontier(nbr)) {
-            _tensor_id = nbr.first->get_pin();
+            _tensor_id = _pins.at(nbr.first);
             return false;
         }
     }
@@ -273,8 +273,8 @@ ZX2TSMapper::InOutAxisList ZX2TSMapper::_get_axis_orders(zx::ZXGraph const& zxgr
  *
  * @param v the current vertex
  */
-void ZX2TSMapper::_update_pins_and_frontiers(zx::ZXVertex* v) {
-    zx::Neighbors nbrs = v->get_neighbors();
+void ZX2TSMapper::_update_pins_and_frontiers(zx::ZXGraph const& graph, zx::ZXVertex* v) {
+    zx::Neighbors nbrs = graph.get_neighbors(v);
 
     // unordered_set<NeighborPair> seenFrontiers; // only for look-up
     for (auto& nbr : nbrs) {
@@ -337,14 +337,14 @@ tensor::QTensor<double> ZX2TSMapper::_dehadamardize(tensor::QTensor<double> cons
  *
  * @param v current vertex
  */
-void ZX2TSMapper::_tensordot_vertex(zx::ZXVertex* v) {
+void ZX2TSMapper::_tensordot_vertex(zx::ZXGraph const& graph, zx::ZXVertex* v) {
     tensor::QTensor<double> dehadamarded = _dehadamardize(_curr_tensor());
 
     tensor::TensorAxisList connect_pin;
     for (size_t t = 0; t < _simple_pins.size(); t++)
         connect_pin.emplace_back(t);
 
-    _curr_tensor() = tensordot(dehadamarded, get_tensor_form(v), _simple_pins, connect_pin);
+    _curr_tensor() = tensordot(dehadamarded, get_tensor_form(graph, v), _simple_pins, connect_pin);
 
     // remove dotted frontiers
     for (size_t i = 0; i < _remove_edges.size(); i++)
@@ -374,7 +374,7 @@ void ZX2TSMapper::_tensordot_vertex(zx::ZXVertex* v) {
  * @return false
  */
 bool ZX2TSMapper::_is_frontier(zx::NeighborPair const& nbr) const {
-    return (nbr.first->get_pin() != std::numeric_limits<unsigned>::max());
+    return _pins.contains(nbr.first);
 }
 
 /**
@@ -383,15 +383,21 @@ bool ZX2TSMapper::_is_frontier(zx::NeighborPair const& nbr) const {
  * @param v the ZXVertex
  * @return QTensor<double>
  */
-tensor::QTensor<double> get_tensor_form(zx::ZXVertex* v) {
+tensor::QTensor<double> get_tensor_form(zx::ZXGraph const& graph, zx::ZXVertex* v) {
     using namespace std::complex_literals;
-    if (v->is_boundary()) return tensor::QTensor<double>::identity(v->get_num_neighbors());
-    if (v->is_hbox()) return tensor::QTensor<double>::hbox(v->get_num_neighbors());
-    if (v->is_z()) return tensor::QTensor<double>::zspider(v->get_num_neighbors(), v->get_phase());
-    if (v->is_x()) return tensor::QTensor<double>::xspider(v->get_num_neighbors(), v->get_phase());
-
-    std::cerr << "Error: Invalid vertex type!! (" << v->get_id() << ")" << std::endl;
-    return {1. + 0.i};
+    switch (v->get_type()) {
+        case zx::VertexType::z:
+            return tensor::QTensor<double>::zspider(graph.get_num_neighbors(v), v->get_phase());
+        case zx::VertexType::x:
+            return tensor::QTensor<double>::xspider(graph.get_num_neighbors(v), v->get_phase());
+        case zx::VertexType::h_box:
+            return tensor::QTensor<double>::hbox(graph.get_num_neighbors(v));
+        case zx::VertexType::boundary:
+            return tensor::QTensor<double>::identity(graph.get_num_neighbors(v));
+        default:
+            spdlog::critical("Invalid vertex type!! ({})", v->get_id());
+            exit(1);
+    }
 }
 
 }  // namespace qsyn

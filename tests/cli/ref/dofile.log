@@ -73,7 +73,6 @@ zxgprint       : print info of ZXGraph
 zxgread        : read a file and construct the corresponding ZXGraph
 zxgsimp        : perform simplification strategies for ZXGraph
 zxgtest        : test ZXGraph structures and functions
-zxgtraverse    : traverse ZXGraph and update topological order of vertices
 zxgwrite       : write the ZXGraph to a file
 zxnew          : create a new ZXGraph to ZXGraphMgr
 zxprint        : print info about ZXGraphs
