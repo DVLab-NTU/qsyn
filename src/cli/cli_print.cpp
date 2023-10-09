@@ -18,7 +18,7 @@ namespace dvlab {
  */
 void dvlab::CommandLineInterface::list_all_commands() const {
     auto cmd_range = _commands | std::views::keys;
-    std::vector<std::string> cmd_vec(cmd_range.begin(), cmd_range.end());
+    std::vector<std::string> cmd_vec(std::begin(cmd_range), std::end(cmd_range));
     std::ranges::sort(cmd_vec);
     for (auto const& cmd : cmd_vec)
         _commands.at(cmd)->print_summary();

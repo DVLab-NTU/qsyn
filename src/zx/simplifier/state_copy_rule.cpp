@@ -40,18 +40,18 @@ std::vector<MatchType> StateCopyRule::find_matches(ZXGraph const& graph) const {
             valid_vertex[vertex2idx[v]] = false;
             continue;
         }
-        if (v->get_num_neighbors() != 1) {
+        if (graph.get_num_neighbors(v) != 1) {
             valid_vertex[vertex2idx[v]] = false;
             continue;
         }
 
-        ZXVertex* pi_neighbor = v->get_first_neighbor().first;
+        ZXVertex* pi_neighbor = graph.get_first_neighbor(v).first;
         if (pi_neighbor->get_type() != VertexType::z) {
             valid_vertex[vertex2idx[v]] = false;
             continue;
         }
         std::vector<ZXVertex*> apply_neighbors;
-        for (auto const& [nebOfPiNeighbor, _] : pi_neighbor->get_neighbors()) {
+        for (auto const& [nebOfPiNeighbor, _] : graph.get_neighbors(pi_neighbor)) {
             if (nebOfPiNeighbor != v)
                 apply_neighbors.emplace_back(nebOfPiNeighbor);
             valid_vertex[vertex2idx[nebOfPiNeighbor]] = false;
@@ -75,9 +75,9 @@ void StateCopyRule::apply(ZXGraph& graph, std::vector<MatchType> const& matches)
         for (auto neighbor : neighbors) {
             if (neighbor->get_type() == VertexType::boundary) {
                 ZXVertex* new_v  = graph.add_vertex(neighbor->get_qubit(), VertexType::z, npi->get_phase());
-                bool simple_edge = neighbor->get_first_neighbor().second == EdgeType::simple;
+                bool simple_edge = graph.get_first_neighbor(neighbor).second == EdgeType::simple;
 
-                op.edges_to_remove.emplace_back(std::make_pair(a, neighbor), neighbor->get_first_neighbor().second);
+                op.edges_to_remove.emplace_back(std::make_pair(a, neighbor), graph.get_first_neighbor(neighbor).second);
 
                 // new to Boundary
                 op.edges_to_add.emplace_back(std::make_pair(new_v, neighbor), simple_edge ? EdgeType::hadamard : EdgeType::simple);

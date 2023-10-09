@@ -18,7 +18,7 @@ std::vector<MatchType> PivotGadgetRule::find_matches(ZXGraph const& graph) const
 
     std::unordered_set<ZXVertex*> taken;
 
-    graph.for_each_edge([&count, &taken, &matches, this](EdgePair const& epair) {
+    graph.for_each_edge([&graph, &count, &taken, &matches, this](EdgePair const& epair) {
         if (epair.second != EdgeType::hadamard) return;
 
         ZXVertex* vs = epair.first.first;
@@ -46,29 +46,29 @@ std::vector<MatchType> PivotGadgetRule::find_matches(ZXGraph const& graph) const
 
         // REVIEW - check ground conditions
 
-        if (vt->get_num_neighbors() == 1) {  // early return: (vs, vt) is a phase gadget
+        if (graph.get_num_neighbors(vt) == 1) {  // early return: (vs, vt) is a phase gadget
             taken.insert(vs);
             taken.insert(vt);
             return;
         }
 
-        for (const auto& [v, _] : vs->get_neighbors()) {
-            if (!v->is_z()) return;             // vs is not internal or not graph-like
-            if (v->get_num_neighbors() == 1) {  // (vs, v) is a phase gadget
+        for (const auto& [v, _] : graph.get_neighbors(vs)) {
+            if (!v->is_z()) return;                 // vs is not internal or not graph-like
+            if (graph.get_num_neighbors(v) == 1) {  // (vs, v) is a phase gadget
                 taken.insert(vs);
                 taken.insert(v);
                 return;
             }
         }
-        for (const auto& [v, _] : vt->get_neighbors()) {
+        for (const auto& [v, _] : graph.get_neighbors(vt)) {
             if (!v->is_z()) return;  // vt is not internal or not graph-like
         }
 
         // Both vs and vt are interior vertices
         taken.insert(vs);
         taken.insert(vt);
-        for (auto& [v, _] : vs->get_neighbors()) taken.insert(v);
-        for (auto& [v, _] : vt->get_neighbors()) taken.insert(v);
+        for (auto& [v, _] : graph.get_neighbors(vs)) taken.insert(v);
+        for (auto& [v, _] : graph.get_neighbors(vt)) taken.insert(v);
 
         matches.emplace_back(vs, vt);
     });

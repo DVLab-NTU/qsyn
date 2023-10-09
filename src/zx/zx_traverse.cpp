@@ -10,6 +10,7 @@
 #include <cstddef>
 #include <list>
 #include <stack>
+#include <unordered_map>
 
 #include "./zxgraph.hpp"
 
@@ -19,20 +20,23 @@ namespace qsyn::zx {
  * @brief Update Topological Order
  *
  */
-void ZXGraph::update_topological_order() const {
-    _topological_order.clear();
-    _global_traversal_counter++;
+std::vector<ZXVertex*> ZXGraph::create_topological_order() const {
+    std::vector<ZXVertex*> topological_order;
+    size_t global_traversal_counter = 0;
+    std::unordered_set<ZXVertex*> dfs_counters;
     for (auto const& v : _inputs) {
-        if (!(v->is_visited(_global_traversal_counter)))
-            _dfs(v);
+        if (!dfs_counters.contains(v))
+            _dfs(dfs_counters, topological_order, v);
     }
     for (auto const& v : _outputs) {
-        if (!(v->is_visited(_global_traversal_counter)))
-            _dfs(v);
+        if (!dfs_counters.contains(v))
+            _dfs(dfs_counters, topological_order, v);
     }
-    reverse(_topological_order.begin(), _topological_order.end());
-    spdlog::trace("Topological order from first input: {}", fmt::join(_topological_order | std::views::transform([](auto const& v) { return v->get_id(); }), " "));
-    spdlog::trace("Size of topological order: {}", _topological_order.size());
+    reverse(topological_order.begin(), topological_order.end());
+    spdlog::trace("Topological order from first input: {}", fmt::join(topological_order | std::views::transform([](auto const& v) { return v->get_id(); }), " "));
+    spdlog::trace("Size of topological order: {}", topological_order.size());
+
+    return topological_order;
 }
 
 /**
@@ -40,28 +44,28 @@ void ZXGraph::update_topological_order() const {
  *
  * @param currentVertex
  */
-void ZXGraph::_dfs(ZXVertex* curr_vertex) const {
+void ZXGraph::_dfs(std::unordered_set<ZXVertex*>& visited_vertices, std::vector<ZXVertex*>& topological_order, ZXVertex* curr_vertex) const {
     std::stack<std::pair<bool, ZXVertex*>> dfs;
 
-    if (!curr_vertex->is_visited(_global_traversal_counter)) {
+    if (!visited_vertices.contains(curr_vertex)) {
         dfs.emplace(false, curr_vertex);
     }
     while (!dfs.empty()) {
-        std::pair<bool, ZXVertex*> node = dfs.top();
+        auto [is_visited, vertex] = dfs.top();
         dfs.pop();
-        if (node.first) {
-            _topological_order.emplace_back(node.second);
+        if (is_visited) {
+            topological_order.emplace_back(vertex);
             continue;
         }
-        if (node.second->is_visited(_global_traversal_counter)) {
+        if (visited_vertices.contains(vertex)) {
             continue;
         }
-        node.second->mark_as_visited(_global_traversal_counter);
-        dfs.emplace(true, node.second);
+        visited_vertices.emplace(vertex);
+        dfs.emplace(true, vertex);
 
-        for (auto const& v : node.second->get_neighbors()) {
-            if (!(v.first->is_visited(_global_traversal_counter))) {
-                dfs.emplace(false, v.first);
+        for (auto const& [nb, _] : this->get_neighbors(vertex)) {
+            if (!visited_vertices.contains(nb)) {
+                dfs.emplace(false, nb);
             }
         }
     }
@@ -71,37 +75,41 @@ void ZXGraph::_dfs(ZXVertex* curr_vertex) const {
  * @brief Update BFS information
  *
  */
-void ZXGraph::update_breadth_level() const {
+std::vector<ZXVertex*> ZXGraph::create_breadth_level() const {
+    std::unordered_set<ZXVertex*> bfs_counters;
+    std::vector<ZXVertex*> breadth_order;
     for (auto const& v : _inputs) {
-        if (!(v->is_visited(_global_traversal_counter)))
-            _bfs(v);
+        if (!bfs_counters.contains(v))
+            _bfs(bfs_counters, breadth_order, v);
     }
     for (auto const& v : _outputs) {
-        if (!(v->is_visited(_global_traversal_counter)))
-            _bfs(v);
+        if (!bfs_counters.contains(v))
+            _bfs(bfs_counters, breadth_order, v);
     }
+
+    return breadth_order;
 }
 
 /**
  * @brief Performing BFS from currentVertex
  *
- * @param currentVertex
+ * @param current_vertex
  */
-void ZXGraph::_bfs(ZXVertex* curr_vertex) const {
+void ZXGraph::_bfs(std::unordered_set<ZXVertex*>& visited_vertices, std::vector<ZXVertex*>& topological_order, ZXVertex* curr_vertex) const {
     std::list<ZXVertex*> queue;
 
-    curr_vertex->mark_as_visited(_global_traversal_counter);
+    visited_vertices.emplace(curr_vertex);
     queue.emplace_back(curr_vertex);
 
     while (!queue.empty()) {
         ZXVertex* s = queue.front();
 
-        _topological_order.emplace_back(s);
+        topological_order.emplace_back(s);
         queue.pop_front();
 
-        for (auto [adjecent, _] : s->get_neighbors()) {
-            if (!(adjecent->is_visited(_global_traversal_counter))) {
-                adjecent->mark_as_visited(_global_traversal_counter);
+        for (auto [adjecent, _] : this->get_neighbors(s)) {
+            if (!visited_vertices.contains(adjecent)) {
+                visited_vertices.emplace(adjecent);
                 queue.emplace_back(adjecent);
             }
         }
