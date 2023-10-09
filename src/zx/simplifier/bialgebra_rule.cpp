@@ -23,7 +23,7 @@ using MatchType = BialgebraRule::MatchType;
 bool BialgebraRule::_has_dupicate(std::vector<ZXVertex*> vec) const {
     std::vector<int> appeared = {};
     for (size_t i = 0; i < vec.size(); i++) {
-        if (find(appeared.begin(), appeared.end(), vec[i]->get_id()) == appeared.end()) {
+        if (std::ranges::find(appeared, vec[i]->get_id()) == appeared.end()) {
             appeared.emplace_back(vec[i]->get_id());
         } else {
             return true;
@@ -51,7 +51,7 @@ std::vector<MatchType> BialgebraRule::find_matches(ZXGraph const& graph) const {
     // FIXME - performance: replace unordered_map<size_t, size_t> id2idx; and vector<bool> taken(graph.getNumVertices(), false); with a single
     //  unordered_set<ZXVertex*> taken; Not fixing at the moment as bialg is not used in full reduce
     std::vector<bool> taken(graph.get_num_vertices(), false);
-    graph.for_each_edge([&id2idx, &taken, &matches, this](EdgePair const& epair) {
+    graph.for_each_edge([&graph, &id2idx, &taken, &matches, this](EdgePair const& epair) {
         if (epair.second != EdgeType::simple) return;
         auto [left, right] = std::get<0>(epair);
 
@@ -68,27 +68,27 @@ std::vector<MatchType> BialgebraRule::find_matches(ZXGraph const& graph) const {
         if (!((left->get_type() == VertexType::x && right->get_type() == VertexType::z) || (left->get_type() == VertexType::z && right->get_type() == VertexType::x))) return;
 
         // Check if the vertices is_ground (with only one edge).
-        if ((left->get_num_neighbors() == 1) || (right->get_num_neighbors() == 1)) return;
+        if ((graph.get_num_neighbors(left) == 1) || (graph.get_num_neighbors(right) == 1)) return;
 
-        std::vector<ZXVertex*> neighbor_of_left = left->get_copied_neighbors(), neighbor_of_right = right->get_copied_neighbors();
+        std::vector<ZXVertex*> neighbor_of_left = graph.get_copied_neighbors(left), neighbor_of_right = graph.get_copied_neighbors(right);
 
         // Check if a vertex has a same neighbor, in other words, two or more edges to another vertex.
         if (_has_dupicate(neighbor_of_left) || _has_dupicate(neighbor_of_right)) return;
 
         // Check if all neighbors of z are x without phase and all neighbors of x are z without phase.
-        if (!all_of(neighbor_of_left.begin(), neighbor_of_left.end(), [right = right](ZXVertex* v) { return (v->get_phase() == Phase(0) && v->get_type() == right->get_type()); })) {
+        if (!std::ranges::all_of(neighbor_of_left, [right = right](ZXVertex* v) { return (v->get_phase() == Phase(0) && v->get_type() == right->get_type()); })) {
             return;
         }
-        if (!all_of(neighbor_of_right.begin(), neighbor_of_right.end(), [left = left](ZXVertex* v) { return (v->get_phase() == Phase(0) && v->get_type() == left->get_type()); })) {
+        if (!std::ranges::all_of(neighbor_of_right, [left = left](ZXVertex* v) { return (v->get_phase() == Phase(0) && v->get_type() == left->get_type()); })) {
             return;
         }
 
         // Check if all the edges are SIMPLE
         // TODO: Make H edge aware too.
-        if (!all_of(left->get_neighbors().begin(), left->get_neighbors().end(), [](std::pair<ZXVertex*, EdgeType> edge_pair) { return edge_pair.second == EdgeType::simple; })) {
+        if (!std::ranges::all_of(graph.get_neighbors(left), [](std::pair<ZXVertex*, EdgeType> edge_pair) { return edge_pair.second == EdgeType::simple; })) {
             return;
         }
-        if (!all_of(right->get_neighbors().begin(), right->get_neighbors().end(), [](std::pair<ZXVertex*, EdgeType> edge_pair) { return edge_pair.second == EdgeType::simple; })) {
+        if (!std::ranges::all_of(graph.get_neighbors(right), [](std::pair<ZXVertex*, EdgeType> edge_pair) { return edge_pair.second == EdgeType::simple; })) {
             return;
         }
 
@@ -118,15 +118,12 @@ void BialgebraRule::apply(ZXGraph& graph, std::vector<MatchType> const& matches)
     for (auto const& match : matches) {
         auto [left, right] = std::get<0>(match);
 
-        std::vector<ZXVertex*> neighbor_of_left  = left->get_copied_neighbors();
-        std::vector<ZXVertex*> neighbor_of_right = right->get_copied_neighbors();
-
         op.vertices_to_remove.emplace_back(left);
         op.vertices_to_remove.emplace_back(right);
 
-        for (auto const& neighbor_left : neighbor_of_left) {
+        for (auto const& [neighbor_left, _] : graph.get_neighbors(left)) {
             if (neighbor_left == right) continue;
-            for (auto const& neighbor_right : neighbor_of_right) {
+            for (auto const& [neighbor_right, _] : graph.get_neighbors(right)) {
                 if (neighbor_right == left) continue;
                 op.edges_to_add.emplace_back(std::make_pair(neighbor_left, neighbor_right), EdgeType::simple);
             }

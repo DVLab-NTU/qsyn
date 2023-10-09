@@ -32,12 +32,12 @@ void ZXGraph::sort_io_by_qubit() {
 void ZXGraph::toggle_vertex(ZXVertex* v) {
     if (!v->is_z() && !v->is_x()) return;
     Neighbors toggled_neighbors;
-    for (auto& [nb, etype] : v->get_neighbors()) {
-        toggled_neighbors.insert(std::make_pair(nb, toggle_edge(etype)));
-        nb->remove_neighbor(v, etype);
-        nb->add_neighbor(v, toggle_edge(etype));
+    for (auto& [nb, etype] : this->get_neighbors(v)) {
+        toggled_neighbors.emplace(nb, toggle_edge(etype));
+        nb->_neighbors.erase({v, etype});
+        nb->_neighbors.emplace(v, toggle_edge(etype));
     }
-    v->set_neighbors(toggled_neighbors);
+    v->_neighbors = toggled_neighbors;
     v->set_type(v->get_type() == VertexType::z ? VertexType::x : VertexType::z);
 }
 
@@ -162,10 +162,10 @@ ZXGraph& ZXGraph::tensor_product(ZXGraph const& target) {
  */
 bool ZXGraph::is_gadget_leaf(ZXVertex* v) const {
     return v->get_type() == VertexType::z &&
-           v->get_num_neighbors() == 1 &&
-           v->get_first_neighbor().first->get_type() == VertexType::z &&
-           v->get_first_neighbor().second == EdgeType::hadamard &&
-           v->get_first_neighbor().first->has_n_pi_phase();
+           this->get_num_neighbors(v) == 1 &&
+           this->get_first_neighbor(v).first->get_type() == VertexType::z &&
+           this->get_first_neighbor(v).second == EdgeType::hadamard &&
+           this->get_first_neighbor(v).first->has_n_pi_phase();
 }
 
 /**
@@ -178,17 +178,17 @@ bool ZXGraph::is_gadget_leaf(ZXVertex* v) const {
 bool ZXGraph::is_gadget_axel(ZXVertex* v) const {
     return v->is_z() &&
            v->has_n_pi_phase() &&
-           any_of(v->get_neighbors().begin(), v->get_neighbors().end(),
-                  [](NeighborPair const& nbp) {
-                      return nbp.first->get_num_neighbors() == 1 && nbp.first->is_z() && nbp.second == EdgeType::hadamard;
-                  });
+           std::ranges::any_of(this->get_neighbors(v),
+                               [this](NeighborPair const& nbp) {
+                                   return this->get_num_neighbors(nbp.first) == 1 && nbp.first->is_z() && nbp.second == EdgeType::hadamard;
+                               });
 }
 
 bool ZXGraph::has_dangling_neighbors(ZXVertex* v) const {
-    return any_of(v->get_neighbors().begin(), v->get_neighbors().end(),
-                  [](NeighborPair const& nbp) {
-                      return nbp.first->get_num_neighbors() == 1;
-                  });
+    return std::ranges::any_of(this->get_neighbors(v),
+                               [this](NeighborPair const& nbp) {
+                                   return this->get_num_neighbors(nbp.first) == 1;
+                               });
 }
 
 /**
@@ -216,7 +216,7 @@ void ZXGraph::add_gadget(Phase p, std::vector<ZXVertex*> const& vertices) {
  */
 void ZXGraph::remove_gadget(ZXVertex* v) {
     if (!is_gadget_leaf(v)) return;
-    ZXVertex* axel = v->get_first_neighbor().first;
+    ZXVertex* axel = this->get_first_neighbor(v).first;
     remove_vertex(axel);
     remove_vertex(v);
 }
@@ -248,7 +248,7 @@ void ZXGraph::normalize() {
         ZXVertex* v = vertex_queue.front();
         vertex_queue.pop();
         qubit_id_to_vertices_map[v->get_qubit()].emplace_back(v);
-        for (auto const& nb : v->get_neighbors() | std::views::keys) {
+        for (auto const& nb : this->get_neighbors(v) | std::views::keys) {
             if (visited_qubit_ids.find(gsl::narrow<QubitIdType>(nb->get_id())) == visited_qubit_ids.end()) {
                 vertex_queue.push(nb);
                 visited_qubit_ids.insert(gsl::narrow<QubitIdType>(nb->get_id()));

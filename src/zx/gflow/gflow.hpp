@@ -104,7 +104,7 @@ template <>
 struct fmt::formatter<qsyn::zx::GFlow::MeasurementPlane> {
     using MeasurementPlane = qsyn::zx::GFlow::MeasurementPlane;
     constexpr auto parse(format_parse_context& ctx) -> format_parse_context::iterator {
-        return ctx.begin();
+        return std::begin(ctx);
     }
 
     auto format(qsyn::zx::GFlow::MeasurementPlane const& plane, format_context& ctx) const -> format_context::iterator {

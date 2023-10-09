@@ -210,7 +210,7 @@ bool ArgumentParser::_tokenize(std::string const& line) {
         size_t pos = _pimpl->tokens[i].token.find_first_of("=:");
 
         if (pos != std::string::npos && pos != 0) {
-            _pimpl->tokens.emplace(dvlab::iterator::next(_pimpl->tokens.begin(), i + 1), _pimpl->tokens[i].token.substr(pos + 1));
+            _pimpl->tokens.emplace(dvlab::iterator::next(std::begin(_pimpl->tokens), i + 1), _pimpl->tokens[i].token.substr(pos + 1));
             _pimpl->tokens[i].token = _pimpl->tokens[i].token.substr(0, pos);
         }
     }
@@ -235,7 +235,7 @@ bool ArgumentParser::parse_args(std::string const& line) { return _tokenize(line
  * @return false
  */
 bool ArgumentParser::parse_args(std::vector<std::string> const& tokens) {
-    auto tmp = std::vector<Token>{tokens.begin(), tokens.end()};
+    auto tmp = std::vector<Token>{std::begin(tokens), std::end(tokens)};
     return parse_args(tmp);
 }
 
@@ -277,7 +277,7 @@ std::pair<bool, std::vector<Token>> ArgumentParser::parse_known_args(std::string
  *         the second one specifies the unrecognized tokens
  */
 std::pair<bool, std::vector<Token>> ArgumentParser::parse_known_args(std::vector<std::string> const& tokens) {
-    auto tmp = std::vector<Token>{tokens.begin(), tokens.end()};
+    auto tmp = std::vector<Token>{std::begin(tokens), std::end(tokens)};
     return parse_known_args(tmp);
 }
 
@@ -344,7 +344,7 @@ std::pair<bool, std::vector<Token>> ArgumentParser::_parse_known_args_impl(Token
         if (_pimpl->activated_subparser) {
             auto [success, subparser_unrecognized] = _get_activated_subparser()->parse_known_args(subparser_tokens);
             if (!success) return {false, {}};
-            unrecognized.insert(unrecognized.end(), subparser_unrecognized.begin(), subparser_unrecognized.end());
+            unrecognized.insert(std::end(unrecognized), std::begin(subparser_unrecognized), std::end(subparser_unrecognized));
         } else if (_pimpl->subparsers->is_required()) {
             fmt::println(stderr, "Error: missing mandatory subparser argument: ({})", fmt::join(_pimpl->subparsers->get_subparsers() | std::views::keys, ", "));
             return {false, {}};

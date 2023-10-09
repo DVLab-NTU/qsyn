@@ -185,7 +185,7 @@ namespace fmt {
 template <>
 struct formatter<dvlab::argparse::Argument> {
     constexpr auto parse(format_parse_context& ctx) -> format_parse_context::iterator {
-        return ctx.begin();
+        return std::begin(ctx);
     }
 
     template <typename FormatContext>

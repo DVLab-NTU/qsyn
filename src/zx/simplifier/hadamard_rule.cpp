@@ -26,9 +26,9 @@ std::vector<MatchType> HadamardRule::find_matches(ZXGraph const& graph) const {
     std::vector<bool> in_matches(graph.get_num_vertices(), false);
 
     for (auto const& v : graph.get_vertices()) {
-        if (v->get_type() == VertexType::h_box && v->get_num_neighbors() == 2) {
-            NeighborPair nbp0 = v->get_first_neighbor();
-            NeighborPair nbp1 = v->get_second_neighbor();
+        if (v->get_type() == VertexType::h_box && graph.get_num_neighbors(v) == 2) {
+            auto nbp0 = graph.get_first_neighbor(v);
+            auto nbp1 = graph.get_second_neighbor(v);
             size_t n0 = id2idx[nbp0.first->get_id()], n1 = id2idx[nbp1.first->get_id()];
             if (taken[n0] || taken[n1]) continue;
             if (!in_matches[n0] && !in_matches[n1]) {
@@ -53,7 +53,7 @@ void HadamardRule::apply(ZXGraph& graph, std::vector<MatchType> const& matches) 
         std::vector<ZXVertex*> neighbor_vertices;
         std::vector<EdgeType> neighbor_edge_types;
 
-        for (auto& [neighbor, edgeType] : v->get_neighbors()) {
+        for (auto& [neighbor, edgeType] : graph.get_neighbors(v)) {
             neighbor_vertices.emplace_back(neighbor);
             neighbor_edge_types.emplace_back(edgeType);
         }

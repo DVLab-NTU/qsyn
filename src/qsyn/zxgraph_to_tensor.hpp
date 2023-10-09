@@ -23,6 +23,6 @@ class ZXVertex;
 
 std::optional<tensor::QTensor<double>> to_tensor(zx::ZXGraph const& zxgraph);
 
-tensor::QTensor<double> get_tensor_form(zx::ZXVertex* v);
+tensor::QTensor<double> get_tensor_form(zx::ZXGraph const& graph, zx::ZXVertex* v);
 
 }  // namespace qsyn

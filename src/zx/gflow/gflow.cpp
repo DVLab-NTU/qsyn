@@ -16,6 +16,7 @@
 #include "util/boolean_matrix.hpp"
 #include "util/text_format.hpp"
 #include "zx/simplifier/simplify.hpp"
+#include "zx/zx_def.hpp"
 #include "zx/zxgraph.hpp"
 
 using namespace qsyn::zx;
@@ -36,7 +37,7 @@ ZXVertexList GFlow::get_z_correction_set(ZXVertex* v) const {
 
     for (auto const& gv : get_x_correction_set(v)) {
         // FIXME - should count neighbor!
-        for (auto const& [nb, et] : gv->get_neighbors()) {
+        for (auto const& [nb, et] : _zxgraph->get_neighbors(gv)) {
             if (num_occurences.contains(nb)) {
                 num_occurences[nb]++;
             } else {
@@ -103,7 +104,7 @@ bool GFlow::calculate() {
 
         _levels.emplace_back();
 
-        auto coefficient_matrix = get_biadjacency_matrix(_neighbors, _frontier);
+        auto coefficient_matrix = get_biadjacency_matrix(*_zxgraph, _neighbors, _frontier);
 
         size_t i = 0;
         spdlog::trace("Frontier: {}", fmt::join(_frontier | std::views::transform(vertex_to_id), " "));
@@ -111,7 +112,7 @@ bool GFlow::calculate() {
 
         for (auto& v : _neighbors) {
             if (_do_independent_layers &&
-                any_of(v->get_neighbors().begin(), v->get_neighbors().end(), [this](NeighborPair const& nbpair) {
+                std::ranges::any_of(_zxgraph->get_neighbors(v), [this](NeighborPair const& nbpair) {
                     return this->_levels.back().contains(nbpair.first);
                 })) {
                 spdlog::trace("Skipping vertex {} : connected to current level", v->get_id());
@@ -182,7 +183,7 @@ void GFlow::_update_neighbors_by_frontier() {
     _neighbors.clear();
 
     for (auto& v : _frontier) {
-        for (auto& [nb, _] : v->get_neighbors()) {
+        for (auto& [nb, _] : _zxgraph->get_neighbors(v)) {
             if (_taken.contains(nb))
                 continue;
             if (_measurement_planes[nb] == MeasurementPlane::not_a_qubit) {
@@ -229,13 +230,13 @@ dvlab::BooleanMatrix GFlow::_prepare_matrix(ZXVertex* v, size_t i, dvlab::Boolea
     dvlab::BooleanMatrix augmented_matrix = matrix;
     augmented_matrix.push_zeros_column();
 
-    auto itr = _neighbors.begin();
+    auto itr = std::begin(_neighbors);
     for (size_t j = 0; j < augmented_matrix.num_rows(); ++j) {
         if (is_z_error(v)) {
             augmented_matrix[j][augmented_matrix.num_cols() - 1] += (i == j) ? 1 : 0;
         }
         if (is_x_error(v)) {
-            if ((*itr)->is_neighbor(v)) {
+            if (_zxgraph->is_neighbor(v, *itr, EdgeType::hadamard)) {
                 augmented_matrix[j][augmented_matrix.num_cols() - 1] += 1;
             }
         }
@@ -257,10 +258,10 @@ void GFlow::_update_frontier() {
     // remove vertex that are not frontiers anymore
     std::vector<ZXVertex*> to_remove;
     for (auto& v : _frontier) {
-        if (all_of(v->get_neighbors().begin(), v->get_neighbors().end(),
-                   [this](NeighborPair const& nbp) {
-                       return _taken.contains(nbp.first);
-                   })) {
+        if (std::ranges::all_of(_zxgraph->get_neighbors(v),
+                                [this](NeighborPair const& nbp) {
+                                    return _taken.contains(nbp.first);
+                                })) {
             to_remove.emplace_back(v);
         }
     }

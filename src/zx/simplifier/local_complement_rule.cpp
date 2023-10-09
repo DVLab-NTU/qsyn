@@ -29,7 +29,7 @@ std::vector<MatchType> LocalComplementRule::find_matches(ZXGraph const& graph) c
             bool match_condition = true;
             if (taken.contains(v)) continue;
 
-            for (auto const& [nb, etype] : v->get_neighbors()) {
+            for (auto const& [nb, etype] : graph.get_neighbors(v)) {
                 if (etype != EdgeType::hadamard || nb->get_type() != VertexType::z || taken.contains(nb)) {
                     match_condition = false;
                     break;
@@ -37,7 +37,7 @@ std::vector<MatchType> LocalComplementRule::find_matches(ZXGraph const& graph) c
             }
             if (match_condition) {
                 std::vector<ZXVertex*> neighbors;
-                for (auto const& [nb, _] : v->get_neighbors()) {
+                for (auto const& [nb, _] : graph.get_neighbors(v)) {
                     if (v == nb) continue;
                     neighbors.emplace_back(nb);
                     taken.insert(nb);
@@ -57,7 +57,7 @@ void LocalComplementRule::apply(ZXGraph& graph, std::vector<MatchType> const& ma
     for (auto const& [v, neighbors] : matches) {
         op.vertices_to_remove.emplace_back(v);
         size_t h_edge_count = 0;
-        for (auto& [nb, etype] : v->get_neighbors()) {
+        for (auto& [nb, etype] : graph.get_neighbors(v)) {
             if (nb == v && etype == EdgeType::hadamard) {
                 h_edge_count++;
             }

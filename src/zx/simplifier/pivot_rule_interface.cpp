@@ -16,8 +16,8 @@ void PivotRuleInterface::apply(ZXGraph& graph, std::vector<MatchType> const& mat
         auto [m0, m1] = m;
 
         std::vector<ZXVertex*> n0, n1, n2;
-        std::vector<ZXVertex*> m0_neighbors = m0->get_copied_neighbors();
-        std::vector<ZXVertex*> m1_neighbors = m1->get_copied_neighbors();
+        std::vector<ZXVertex*> m0_neighbors = graph.get_copied_neighbors(m0);
+        std::vector<ZXVertex*> m1_neighbors = graph.get_copied_neighbors(m1);
 
         std::erase(m0_neighbors, m1);
         std::erase(m1_neighbors, m0);
@@ -26,13 +26,13 @@ void PivotRuleInterface::apply(ZXGraph& graph, std::vector<MatchType> const& mat
             return a->get_id() < b->get_id();
         };
 
-        std::sort(m0_neighbors.begin(), m0_neighbors.end(), vid_less_than);
-        std::sort(m1_neighbors.begin(), m1_neighbors.end(), vid_less_than);
-        set_intersection(m0_neighbors.begin(), m0_neighbors.end(), m1_neighbors.begin(), m1_neighbors.end(), back_inserter(n2), vid_less_than);
+        std::ranges::sort(m0_neighbors, vid_less_than);
+        std::ranges::sort(m1_neighbors, vid_less_than);
+        set_intersection(std::begin(m0_neighbors), std::end(m0_neighbors), std::begin(m1_neighbors), std::end(m1_neighbors), back_inserter(n2), vid_less_than);
 
-        std::sort(n2.begin(), n2.end(), vid_less_than);
-        set_difference(m0_neighbors.begin(), m0_neighbors.end(), n2.begin(), n2.end(), back_inserter(n0), vid_less_than);
-        set_difference(m1_neighbors.begin(), m1_neighbors.end(), n2.begin(), n2.end(), back_inserter(n1), vid_less_than);
+        std::ranges::sort(n2, vid_less_than);
+        set_difference(std::begin(m0_neighbors), std::end(m0_neighbors), std::begin(n2), std::end(n2), back_inserter(n0), vid_less_than);
+        set_difference(std::begin(m1_neighbors), std::end(m1_neighbors), std::begin(n2), std::end(n2), back_inserter(n1), vid_less_than);
 
         // Add edge table
         for (auto const& s : n0) {

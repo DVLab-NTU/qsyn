@@ -20,7 +20,7 @@ std::vector<MatchType> PivotRule::find_matches(ZXGraph const& graph) const {
     std::vector<MatchType> matches;
 
     std::unordered_set<ZXVertex*> taken;
-    graph.for_each_edge([&taken, &matches, this](EdgePair const& epair) {
+    graph.for_each_edge([&graph, &taken, &matches, this](EdgePair const& epair) {
         if (epair.second != EdgeType::hadamard) return;
 
         // 2: Get Neighbors
@@ -39,7 +39,7 @@ std::vector<MatchType> PivotRule::find_matches(ZXGraph const& graph) const {
 
         bool found_one = false;
         for (auto& v : {vs, vt}) {
-            for (auto& [nb, et] : v->get_neighbors()) {
+            for (auto& [nb, et] : graph.get_neighbors(v)) {
                 if (nb->is_z() && et == EdgeType::hadamard) continue;
                 if (nb->is_boundary()) {
                     if (found_one) return;
@@ -54,8 +54,8 @@ std::vector<MatchType> PivotRule::find_matches(ZXGraph const& graph) const {
         // 5: taken
         taken.insert(vs);
         taken.insert(vt);
-        for (auto& [v, _] : vs->get_neighbors()) taken.insert(v);
-        for (auto& [v, _] : vt->get_neighbors()) taken.insert(v);
+        for (auto& [v, _] : graph.get_neighbors(vs)) taken.insert(v);
+        for (auto& [v, _] : graph.get_neighbors(vt)) taken.insert(v);
 
         // 6: add Epair into _matchTypeVec
         matches.emplace_back(vs, vt);
@@ -67,7 +67,7 @@ std::vector<MatchType> PivotRule::find_matches(ZXGraph const& graph) const {
 void PivotRule::apply(ZXGraph& graph, std::vector<MatchType> const& matches) const {
     for (auto const& [vs, vt] : matches) {
         for (auto& v : {vs, vt}) {
-            for (auto& [nb, et] : v->get_neighbors()) {
+            for (auto& [nb, et] : graph.get_neighbors(v)) {
                 if (nb->is_z() && et == EdgeType::hadamard) continue;
                 if (nb->is_boundary()) {
                     graph.add_buffer(nb, v, et);
