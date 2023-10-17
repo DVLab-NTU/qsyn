@@ -10,6 +10,7 @@
 
 #include <chrono>
 #include <csignal>
+#include <type_traits>
 
 #include "./conversion_cmd.hpp"
 #include "cli/cli.hpp"
@@ -111,12 +112,7 @@ int main(int argc, char** argv) {
 
     dvlab::utils::Usage::reset();
 
-    auto status = dvlab::CmdExecResult::done;
+    auto result = cli.start_interactive();
 
-    while (status != dvlab::CmdExecResult::quit) {  // until "quit" or command error
-        status = cli.execute_one_line();
-        fmt::print("\n");
-    }
-
-    return 0;
+    return static_cast<std::underlying_type_t<dvlab::CmdExecResult>>(result);
 }

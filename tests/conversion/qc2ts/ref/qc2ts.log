@@ -48,11 +48,8 @@ qsyn> qc2ts
 [info]     Note: Replacing Tensor 0...
 
 qsyn> logger level warning
-Error: invalid choice "warning": please choose from {off, critical, error, warn, info, debug, trace}!!
-
 
 qsyn> qccr benchmark/qasm/qc2ts/control_h.qasm -r
-[info]     Note: Replacing QCir 0...
 
 qsyn> logger level trace
 [info]     Setting logger level to "trace"
@@ -118,11 +115,8 @@ qsyn> qc2ts
 [info]     Note: Replacing Tensor 1...
 
 qsyn> logger level warning
-Error: invalid choice "warning": please choose from {off, critical, error, warn, info, debug, trace}!!
-
 
 qsyn> qccr benchmark/qasm/qc2ts/toffoli_dec.qasm -r
-[info]     Note: Replacing QCir 0...
 
 qsyn> logger level trace
 [info]     Setting logger level to "trace"
@@ -212,11 +206,8 @@ qsyn> qc2ts
 [info]     Note: Replacing Tensor 2...
 
 qsyn> logger level warning
-Error: invalid choice "warning": please choose from {off, critical, error, warn, info, debug, trace}!!
-
 
 qsyn> qccr benchmark/qasm/qc2ts/toffoli_qiskit.qasm -r
-[info]     Note: Replacing QCir 0...
 
 qsyn> logger level trace
 [info]     Setting logger level to "trace"
@@ -406,11 +397,8 @@ qsyn> qc2ts
 [info]     Note: Replacing Tensor 3...
 
 qsyn> logger level warning
-Error: invalid choice "warning": please choose from {off, critical, error, warn, info, debug, trace}!!
-
 
 qsyn> qccr benchmark/SABRE/small/3_17_13.qasm
-[info]     Successfully created and checked out to QCir 1
 
 qsyn> qccp -q
 Q 0  -----------------cx( 1)-- h( 3)-- t( 6)----------------------------------cx( 8)----------cx( 9)-- t(14)--------------------------cx(15)----------cx(16)-- h(18)-- t(20)------------------cx(23)--------------------------cx(25)----------cx(27)--td(28)--------------------------cx(32)----------cx(33)-
@@ -610,8 +598,6 @@ qsyn> qc2ts
 [info]     Note: Replacing Tensor 4...
 
 qsyn> logger level warning
-Error: invalid choice "warning": please choose from {off, critical, error, warn, info, debug, trace}!!
-
 
 qsyn> qq -f
 

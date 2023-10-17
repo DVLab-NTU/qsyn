@@ -2,7 +2,7 @@ qcp -se
 qcset -double 2 -sw 6
 qcp -se
 qccr benchmark/SABRE/large/cm82a_208.qasm
-dtgr benchmark/topology/guadalupe.layout 
+device read benchmark/topology/guadalupe.layout 
 qccp -a
 duoprint -d
 duoset -depth 2 -si true

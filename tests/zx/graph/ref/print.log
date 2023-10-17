@@ -6,8 +6,8 @@ ID:   1 (●, 0)           (Qubit, Col): (1, 0)         #Neighbors:   1     (3, 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (2, -)
 
 
-qsyn> zxgp -v 1 0 d 9
-Error: invalid size_t value "d" for argument "-vertices"!!
+qsyn> Error: invalid size_t value "d" for argument "-vertices"!!
+zxgp -v 1 0 d 9
 
 qsyn> zxgp -q 1 2
 

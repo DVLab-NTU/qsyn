@@ -9,6 +9,8 @@
 
 #include <cassert>
 
+#include "fmt/core.h"
+
 namespace dvlab {
 
 namespace utils {

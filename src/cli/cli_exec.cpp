@@ -7,157 +7,29 @@
 #include <spdlog/spdlog.h>
 
 #include <atomic>
-#include <cassert>
-#include <csignal>
-#include <cstddef>
-#include <cstdlib>
-#include <fort.hpp>
-#include <memory>
 #include <regex>
-#include <thread>
+#include <string>
+#include <tl/enumerate.hpp>
 
 #include "cli/cli.hpp"
+#include "fmt/core.h"
 #include "util/util.hpp"
 
-using std::string, std::vector;
-
 namespace dvlab {
-
-std::string const dvlab::CommandLineInterface::special_chars = "\"\' ;$";
 
 //----------------------------------------------------------------------
 //    Member Function for class cmdParser
 //----------------------------------------------------------------------
 
-/**
- * @brief open a dofile and push it to the dofile stack.
- *
- * @param filepath the file to be opened
- * @return true
- * @return false
- */
-bool dvlab::CommandLineInterface::open_dofile(std::string const& filepath) {
-    constexpr size_t dofile_stack_limit = 256;
-    if (this->stop_requested()) {
-        return false;
-    }
-    if (_dofile_stack.size() >= dofile_stack_limit) {
-        spdlog::error("dofile stack overflow ({})!!", dofile_stack_limit);
-        return false;
+CmdExecResult CommandLineInterface::start_interactive() {
+    auto status = dvlab::CmdExecResult::done;
+
+    while (status != dvlab::CmdExecResult::quit) {  // until "quit" or command error
+        status = this->execute_one_line();
+        fmt::println("");
     }
 
-    _dofile_stack.push(std::ifstream(filepath));
-
-    if (!_dofile_stack.top().is_open()) {
-        close_dofile();
-        return false;
-    }
-    return true;
-}
-
-/**
- * @brief close the top dofile in the dofile stack.
- *
- */
-void dvlab::CommandLineInterface::close_dofile() {
-    assert(_dofile_stack.size());
-    _dofile_stack.pop();
-}
-
-/**
- * @brief register a command to the CLI.
- *
- * @param name the command name
- * @param nMandChars the number of characters to be matched.
- * @param cmd the command to be registered
- * @return true
- * @return false
- */
-bool dvlab::CommandLineInterface::add_command(dvlab::Command cmd) {
-    // Make sure cmd hasn't been registered and won't cause ambiguity
-    auto name        = cmd.get_name();
-    auto n_req_chars = _identifiers.shortest_unique_prefix(cmd.get_name()).size();
-    if (!cmd.initialize(n_req_chars)) {
-        spdlog::error("Failed to initialize command `{}`!!", name);
-        return false;
-    }
-
-    if (_identifiers.contains(name)) {
-        spdlog::error("dvlab::Command name `{}` conflicts with existing commands or aliases!!", name);
-        return false;
-    }
-    _identifiers.insert(name);
-    _commands.emplace(name, std::make_unique<dvlab::Command>(std::move(cmd)));
-
-    for (auto& [name, c] : _commands) {
-        if (auto n_req = _identifiers.shortest_unique_prefix(name).size(); n_req != c->get_num_required_chars()) {
-            c->set_num_required_chars(n_req);
-        }
-    }
-    return true;
-}
-
-bool dvlab::CommandLineInterface::add_alias(std::string const& alias, std::string const& replace_str) {
-    if (_identifiers.contains(alias)) {
-        spdlog::error("Alias `{}` conflicts with existing commands or aliases!!", alias);
-        return false;
-    }
-
-    string first_token;
-    dvlab::str::str_get_token(replace_str, first_token);
-    if (auto freq = _identifiers.frequency(first_token); freq != 1) {
-        if (freq > 1) {
-            spdlog::error("Ambiguous command or alias `{}`!!", first_token);
-        } else {
-            spdlog::error("Unknown command or alias `{}`!!", first_token);
-        }
-        return false;
-    }
-
-    _identifiers.insert(alias);
-    _aliases.emplace(alias, replace_str);
-
-    for (auto& [name, c] : _commands) {
-        if (auto n_req = _identifiers.shortest_unique_prefix(name).size(); n_req != c->get_num_required_chars()) {
-            c->set_num_required_chars(n_req);
-        }
-    }
-
-    return true;
-}
-
-bool dvlab::CommandLineInterface::remove_alias(std::string const& alias) {
-    if (!_identifiers.erase(alias)) {
-        return false;
-    }
-    _aliases.erase(alias);
-
-    for (auto& [name, c] : _commands) {
-        if (auto n_req = _identifiers.shortest_unique_prefix(name).size(); n_req != c->get_num_required_chars()) {
-            c->set_num_required_chars(n_req);
-        }
-    }
-
-    return true;
-}
-
-/**
- * @brief handle the SIGINT signal. Wrap the handler in a static function so that it can be passed to the signal function.
- *
- * @param signum
- */
-void dvlab::CommandLineInterface::sigint_handler(int signum) {
-    if (_listening_for_inputs) {
-        _reset_buffer();
-        fmt::print("\n");
-        _print_prompt();
-    } else if (_command_thread.has_value()) {
-        // there is an executing command
-        _command_thread->request_stop();
-    } else {
-        spdlog::critical("Failed to handle the SIGINT signal. Exiting...");
-        exit(signum);
-    }
+    return status;
 }
 
 /**
@@ -168,39 +40,61 @@ void dvlab::CommandLineInterface::sigint_handler(int signum) {
 CmdExecResult
 dvlab::CommandLineInterface::execute_one_line() {
     while (_dofile_stack.size() && _dofile_stack.top().eof()) close_dofile();
-    if (auto result = (_dofile_stack.size() ? _read_one_line(_dofile_stack.top()) : _read_one_line(std::cin)); result != CmdExecResult::done) {
-        if (_dofile_stack.empty() && std::cin.eof()) return CmdExecResult::quit;
-        return result;
+
+    return _dofile_stack.size()
+               ? _execute_one_line_internal(_dofile_stack.top())
+               : _execute_one_line_internal(std::cin);
+}
+
+/**
+ * @brief
+ *
+ * @param istr
+ * @return CmdExecResult
+ */
+CmdExecResult dvlab::CommandLineInterface::_execute_one_line_internal(std::istream& istr) {
+    auto [listen_result, input] = this->listen_to_input(istr, _command_prompt);
+    if (listen_result == CmdExecResult::quit) {
+        return CmdExecResult::quit;
     }
 
-    // execute the command
+    if (!_add_to_history(input)) {
+        return CmdExecResult::no_op;
+    }
 
-    std::atomic<CmdExecResult> result;
+    fmt::println("");
 
-    while (_command_queue.size()) {
-        auto [cmd, option] = _parse_one_command_from_queue();
+    auto stripped = _dequote(input);
 
-        if (cmd == nullptr) continue;
+    if (!stripped.has_value()) {
+        spdlog::critical("Unexpected error: dequote failed");
+        return CmdExecResult::no_op;
+    }
 
-        _command_thread = jthread::jthread(
-            [&cmd = cmd, &option = option, &result]() {
-                result = cmd->execute(option);
-            });
+    CmdExecResult exec_result = CmdExecResult::done;
 
-        assert(_command_thread.has_value());
-
-        _command_thread->join();
-
-        if (this->stop_requested()) {
-            spdlog::warn("Command interrupted");
-            while (_command_queue.size()) _command_queue.pop();
-            return CmdExecResult::interrupted;
+    while (true) {
+        size_t semicolon_pos = stripped->find_first_of(';');
+        while (semicolon_pos != std::string::npos && _is_escaped(stripped.value(), semicolon_pos)) {
+            semicolon_pos = stripped->find_first_of(';', semicolon_pos + 1);
         }
-
-        _command_thread = std::nullopt;
+        if (semicolon_pos == std::string::npos) {
+            semicolon_pos = stripped->size();
+        }
+        if (semicolon_pos > 0) {
+            auto this_cmd      = stripped->substr(0, semicolon_pos);
+            auto [cmd, option] = _parse_one_command(this_cmd);
+            if (cmd != nullptr) {
+                exec_result = _dispatch_command(cmd, option);
+            }
+        }
+        if (semicolon_pos == stripped->size()) {
+            break;
+        }
+        stripped = stripped->substr(semicolon_pos + 1);
     }
 
-    return result;
+    return exec_result;
 }
 
 /**
@@ -208,72 +102,107 @@ dvlab::CommandLineInterface::execute_one_line() {
  *
  * @return std::pair<dvlab::Command*, std::string> command object and the arguments for the command.
  */
-std::pair<dvlab::Command*, std::string>
-dvlab::CommandLineInterface::_parse_one_command_from_queue() {
+std::pair<dvlab::Command*, std::vector<argparse::Token>>
+dvlab::CommandLineInterface::_parse_one_command(std::string_view cmd) {
     assert(_temp_command_stored == false);
-    string buffer = _command_queue.front();
-    _command_queue.pop();
+
+    std::string buffer{cmd};
 
     assert(buffer[0] != '\0' && buffer[0] != ' ');
 
-    string first_token;
-    string option;
+    // get the first token. The first token should be a command or an alias
+    std::string first_token;
 
     size_t n = dvlab::str::str_get_token(buffer, first_token);
-    if (n != string::npos) {
-        option = buffer.substr(n);
-    }
-
-    if (auto pos = first_token.find_first_of('='); pos != string::npos && pos != 0) {
-        string var_key = first_token.substr(0, pos);
-        string var_val = first_token.substr(pos + 1);
-        if (var_val.empty()) {
-            spdlog::error("variable `{}` is not assigned a value!!", var_key);
-            return {nullptr, ""};
-        }
-        _variables.insert_or_assign(var_key, var_val);
-        return {nullptr, ""};
-    }
-
-    if (auto freq = _identifiers.frequency(first_token); freq != 1) {
-        if (freq > 1) {
-            spdlog::error("Ambiguous command or alias `{}`!!", first_token);
-        } else {
-            spdlog::error("Unknown command or alias `{}`!!", first_token);
-        }
-        return {nullptr, ""};
+    if (n == std::string::npos) {
+        n = buffer.size();
     }
 
     auto identifier = _identifiers.find_with_prefix(first_token);
     if (!identifier.has_value()) {
         if (_identifiers.frequency(first_token) > 0) {
             spdlog::error("Ambiguous command or alias `{}`!!", first_token);
-        } else {
-            spdlog::error("Unknown command or alias `{}`!!", first_token);
+            // There's no need to guard the case where identifier is empty
+            // because if first_token does not match any command or alias,
+            // it may still be a variable
+            return {nullptr, {}};
         }
-        return {nullptr, ""};
+    } else {
+        // if the first token is an alias, replace it with the replacement string and update the first token
+        if (_aliases.contains(*identifier)) {
+            buffer = _aliases.at(*identifier) + buffer.substr(n);
+        }
     }
-    assert(_commands.contains(*identifier) || _aliases.contains(*identifier));
 
-    if (_aliases.contains(*identifier)) {
-        auto alias = _aliases.at(*identifier);
-        size_t pos = dvlab::str::str_get_token(alias, first_token);
-        if (pos != string::npos) {
-            option      = alias.substr(pos) + " " + option;
-            first_token = alias.substr(0, pos);
-        } else {
-            first_token = alias;
-        }
-    }
+    // replace all variables with their values
+    buffer = _replace_variable_keys_with_values(buffer);
+
+    // get the first token again (since the first token may be a variable)
+    n = dvlab::str::str_get_token(buffer, first_token);
 
     dvlab::Command* command = get_command(first_token);
 
     if (!command) {
-        spdlog::error("Illegal command!! ({})", first_token);
-        return {nullptr, ""};
+        spdlog::error("Unknown command!! ({})", first_token);
+        return {nullptr, {}};
     }
 
-    return {command, option};
+    // tokenize the rest of the buffer
+    if (n == std::string::npos) {
+        n = buffer.size();
+    }
+    buffer = buffer.substr(n);
+
+    for (auto& ch : buffer) {
+        using namespace std::string_view_literals;
+        if ("\t\v\r\n\f"sv.find(ch) != std::string::npos) {
+            ch = ' ';
+        }
+    }
+
+    std::vector<argparse::Token> arguments;
+
+    while (true) {
+        size_t space_pos = buffer.find_first_of(' ');
+        while (space_pos != std::string::npos && _is_escaped(buffer, space_pos)) {
+            space_pos = buffer.find_first_of(';', space_pos + 1);
+        }
+        if (space_pos == std::string::npos) {
+            space_pos = buffer.size();
+        }
+        if (space_pos > 0) {
+            auto token = buffer.substr(0, space_pos);
+            arguments.emplace_back(_decode(token));
+        }
+        if (space_pos == buffer.size()) {
+            break;
+        }
+        buffer = buffer.substr(space_pos + 1);
+    }
+
+    return {command, arguments};
+}
+
+CmdExecResult CommandLineInterface::_dispatch_command(dvlab::Command* cmd, std::vector<argparse::Token> options) {
+    std::atomic<CmdExecResult> exec_result = CmdExecResult::done;
+
+    _command_thread = jthread::jthread(
+        [&cmd, &options, &exec_result]() {
+            exec_result = cmd->execute(options);
+        });
+
+    assert(_command_thread.has_value());
+
+    _command_thread->join();
+
+    if (this->stop_requested()) {
+        spdlog::warn("Command interrupted");
+        return CmdExecResult::interrupted;
+    }
+
+    _command_thread = std::nullopt;
+
+    return exec_result;
 }
 
 /**
@@ -282,7 +211,7 @@ dvlab::CommandLineInterface::_parse_one_command_from_queue() {
  * @param str the string to be converted
  * @return string a string with all variables substituted with their value.
  */
-string dvlab::CommandLineInterface::_replace_variable_keys_with_values(string const& str) const {
+std::string dvlab::CommandLineInterface::_replace_variable_keys_with_values(std::string const& str) const {
     static std::regex const var_without_braces(R"(\$[\w]+)");  // if no curly braces, the variable name is until some illegal characters for a name appears
 
     static std::regex const var_with_braces(R"(\$\{\S+\})");  // if curly braces are used, the text inside the curly braces is the variable name
@@ -295,40 +224,39 @@ string dvlab::CommandLineInterface::_replace_variable_keys_with_values(string co
     //       "foo_$bar"     --> "foo_"
     //       "${foo}${bar}" --> "banana"
 
-    std::vector<std::tuple<size_t, size_t, string>> to_replace;
+    std::vector<std::tuple<size_t, size_t, std::string>> to_replace;
     // FIXME - doesn't work for nested variables and multiple variables in one line
     for (auto const& re : {var_without_braces, var_with_braces}) {
         std::smatch matches;
         std::regex_search(str, matches, re);
         for (size_t i = 0; i < matches.size(); ++i) {
-            string var = matches[i];
+            std::string var = matches[i];
             // tell if it is a curly brace variable or not
-            bool is_brace  = var[1] == '{';
-            string var_key = is_brace ? var.substr(2, var.length() - 3) : var.substr(1);
-
-            bool is_defined = _variables.contains(var_key);
-            string val      = is_defined ? _variables.at(var_key) : "";
+            bool is_brace       = var[1] == '{';
+            std::string var_key = is_brace ? var.substr(2, var.length() - 3) : var.substr(1);
+            bool is_defined     = _variables.contains(var_key);
+            std::string val     = is_defined ? _variables.at(var_key) : "";
 
             if (is_brace && !is_defined) {
                 for (auto ch : var_key) {
                     if (isalnum(ch) || ch == '_') {
                         continue;
                     }
-                    spdlog::warn("Warning: variable name `{}` is illegal!!", var_key);
+                    spdlog::warn("variable name `{}` is illegal!!", var_key);
                     break;
                 }
             }
 
             size_t pos = matches.position(i);
-            if (dvlab::str::is_escaped_char(str, pos)) {
+            if (_is_escaped(str, pos)) {
                 continue;
             }
             to_replace.emplace_back(pos, var.length(), val);
         }
     }
 
-    size_t cursor = 0;
-    string result = "";
+    size_t cursor      = 0;
+    std::string result = "";
     for (auto [pos, len, val] : to_replace) {
         result += str.substr(cursor, pos - cursor);
         result += val;
@@ -345,13 +273,61 @@ string dvlab::CommandLineInterface::_replace_variable_keys_with_values(string co
  * @param cmd
  * @return dvlab::Command*
  */
-dvlab::Command* dvlab::CommandLineInterface::get_command(string const& cmd) const {
-    auto match = _identifiers.find_with_prefix(cmd);
-    if (match.has_value()) {
-        return _commands.at(*match).get();
+dvlab::Command* dvlab::CommandLineInterface::get_command(std::string const& cmd) const {
+    auto match = _identifiers.find_all_with_prefix(cmd);
+    for (auto const& identifier : match) {
+        if (_commands.contains(identifier)) {
+            return _commands.at(identifier).get();
+        }
     }
 
     return nullptr;
+}
+
+std::string dvlab::CommandLineInterface::_decode(std::string str) const {
+    for (size_t i = 0; i < str.size() - 1; ++i) {
+        if (str[i] == '\\') {
+            switch (str[i + 1]) {
+                case 'a':
+                    str[i] = '\a';
+                    break;
+                case 'b':
+                    str[i] = '\b';
+                    break;
+                case 'c':
+                    return str.substr(0, i);
+                case 'e':
+                    str[i] = '\e';
+                    break;
+                case 'f':
+                    str[i] = '\f';
+                    break;
+                case 'n':
+                    str[i] = '\n';
+                    break;
+                case 'r':
+                    str[i] = '\r';
+                    break;
+                case 't':
+                    str[i] = '\t';
+                    break;
+                case 'v':
+                    str[i] = '\v';
+                    break;
+                case '\\':
+                case '\'':
+                case '\"':
+                case ' ':
+                case ';':
+                case '$':
+                default:
+                    str[i] = str[i + 1];
+                    break;
+            }
+            str.erase(i + 1, 1);
+        }
+    }
+    return str;
 }
 
 }  // namespace dvlab

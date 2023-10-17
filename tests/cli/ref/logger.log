@@ -11,7 +11,7 @@ qsyn> logger test
 Regular printing (level `off`)
 [critical] A log message with level `critical`
 [error]    A log message with level `error`
-[warn]     A log message with level `warn`
+[warn]     A log message with level `warning`
 [info]     A log message with level `info`
 [debug]    A log message with level `debug`
 
