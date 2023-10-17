@@ -149,17 +149,20 @@ std::string wrap_text(std::string const& str, size_t max_help_width) {
     if (!dvlab::utils::is_terminal()) return str;
 
     std::vector<std::string> lines = dvlab::str::split(str, "\n");
-    for (auto&& [i, line] : tl::views::enumerate(lines)) {
-        if (line.size() < max_help_width) continue;
 
-        size_t const pos = line.find_last_of(' ', max_help_width);
+    // NOTE - the following code modifies the vector while iterating over it.
+    //        don't use range-based for loop here.
+    for (size_t i = 0; i < lines.size(); ++i) {
+        if (lines[i].size() < max_help_width) continue;
+
+        size_t const pos = lines[i].find_last_of(' ', max_help_width);
 
         if (pos == std::string::npos) {
-            lines.insert(dvlab::iterator::next(std::begin(lines), i + 1), line.substr(max_help_width));
-            line = line.substr(0, max_help_width);
+            lines.insert(dvlab::iterator::next(std::begin(lines), i + 1), lines[i].substr(max_help_width));
+            lines[i] = lines[i].substr(0, max_help_width);
         } else {
-            lines.insert(dvlab::iterator::next(std::begin(lines), i + 1), line.substr(pos + 1));
-            line = line.substr(0, pos);
+            lines.insert(dvlab::iterator::next(std::begin(lines), i + 1), lines[i].substr(pos + 1));
+            lines[i] = lines[i].substr(0, pos);
         }
     }
 

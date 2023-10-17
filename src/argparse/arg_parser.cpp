@@ -175,59 +175,6 @@ bool ArgumentParser::analyze_options() const {
 }
 
 /**
- * @brief tokenize the string for the argument parsing
- *
- * @param line
- * @return true if succeeded
- * @return false if failed
- */
-bool ArgumentParser::_tokenize(std::string const& line) {
-    _pimpl->tokens.clear();
-    auto stripped = dvlab::str::strip_quotes(line);
-    if (!stripped.has_value()) {
-        fmt::println(stderr, "Error: missing ending quote!!");
-        return false;
-    }
-
-    for (auto&& tmp : dvlab::str::split(line, " ")) {
-        _pimpl->tokens.emplace_back(tmp);
-    }
-
-    if (_pimpl->tokens.empty()) return true;
-    // concat tokens with '\ ' to a single token with space in it
-    for (auto&& [curr_token, next_token] : _pimpl->tokens | std::views::reverse | tl::views::pairwise) {
-        if (curr_token.token.ends_with('\\') && !curr_token.token.ends_with("\\\\")) {
-            curr_token.token.back() = ' ';
-            curr_token.token += next_token.token;
-            next_token.token = "";
-        }
-    }
-    erase_if(_pimpl->tokens, [](Token const& token) { return token.token == ""; });
-
-    // convert "abc=def", "abc:def" to "abc def"
-    // this for loop must be index based, because we are inserting elements
-    for (auto i = 0ul; i < _pimpl->tokens.size(); ++i) {
-        size_t pos = _pimpl->tokens[i].token.find_first_of("=:");
-
-        if (pos != std::string::npos && pos != 0) {
-            _pimpl->tokens.emplace(dvlab::iterator::next(std::begin(_pimpl->tokens), i + 1), _pimpl->tokens[i].token.substr(pos + 1));
-            _pimpl->tokens[i].token = _pimpl->tokens[i].token.substr(0, pos);
-        }
-    }
-
-    return true;
-}
-
-/**
- * @brief tokenize the line and parse the arguments
- *
- * @param line
- * @return true
- * @return false
- */
-bool ArgumentParser::parse_args(std::string const& line) { return _tokenize(line) && parse_args(_pimpl->tokens); }
-
-/**
  * @brief parse the arguments from tokens
  *
  * @param tokens
@@ -254,19 +201,6 @@ bool ArgumentParser::parse_args(TokensView tokens) {
     return dvlab::utils::expect(unrecognized.empty(),
                                 fmt::format("Error: unrecognized arguments: \"{}\"!!",
                                             fmt::join(unrecognized | std::views::transform([](Token const& tok) { return tok.token; }), "\" \"")));
-}
-
-/**
- * @brief tokenize the line and parse the arguments known by the parser
- *
- * @param line
- * @return std::pair<bool, std::vector<Token>>, where
- *         the first return value specifies whether the parse has succeeded, and
- *         the second one specifies the unrecognized tokens
- */
-std::pair<bool, std::vector<Token>> ArgumentParser::parse_known_args(std::string const& line) {
-    if (!_tokenize(line)) return {false, {}};
-    return parse_known_args(_pimpl->tokens);
 }
 
 /**
@@ -429,7 +363,7 @@ bool ArgumentParser::_parse_positional_arguments(TokensView tokens, std::vector<
         if (parse_range.size() < arg.get_nargs().lower) {
             if (arg.is_required()) {
                 fmt::println(stderr, "Error: missing argument \"{}\": expected {}{} arguments!!",
-                             get_name(), (lower < upper ? "at least " : ""), lower);
+                             arg.get_name(), (lower < upper ? "at least " : ""), lower);
                 return false;
             } else
                 continue;

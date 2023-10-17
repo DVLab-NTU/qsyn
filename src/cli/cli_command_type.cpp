@@ -61,8 +61,8 @@ bool dvlab::Command::initialize(size_t n_req_chars) {
  * @return true if succeeded
  * @return false if failed
  */
-CmdExecResult dvlab::Command::execute(std::string const& option) {
-    if (!_parser.parse_args(option)) {
+CmdExecResult dvlab::Command::execute(std::vector<argparse::Token> options) {
+    if (!_parser.parse_args(options)) {
         return CmdExecResult::error;
     }
 

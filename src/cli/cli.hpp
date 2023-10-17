@@ -10,7 +10,6 @@
 #include <fstream>
 #include <map>
 #include <memory>
-#include <queue>
 #include <stack>
 #include <string>
 #include <unordered_map>
@@ -18,6 +17,7 @@
 #include <vector>
 
 #include "./cli_char_def.hpp"
+#include "argparse/arg_def.hpp"
 #include "argparse/argparse.hpp"
 #include "jthread/jthread.hpp"
 
@@ -74,7 +74,7 @@ public:
         : dvlab::Command(name, nullptr, nullptr) {}
 
     bool initialize(size_t n_req_chars);
-    CmdExecResult execute(std::string const& option);
+    CmdExecResult execute(std::vector<argparse::Token> options);
     std::string const& get_name() const { return _parser.get_name(); }
     size_t get_num_required_chars() const { return _parser.get_num_required_chars(); }
     void set_num_required_chars(size_t n_req_chars) { _parser.num_required_chars(n_req_chars); }
@@ -120,8 +120,11 @@ public:
     bool add_command(dvlab::Command cmd);
     bool add_alias(std::string const& alias, std::string const& replace_str);
     bool remove_alias(std::string const& alias);
+    bool add_variable(std::string const& key, std::string const& value);
+    bool remove_variable(std::string const& key);
     dvlab::Command* get_command(std::string const& cmd) const;
 
+    CmdExecResult start_interactive();
     CmdExecResult execute_one_line();
 
     bool add_variables_from_dofiles(std::string const& filepath, std::span<std::string> arguments);
@@ -139,17 +142,29 @@ public:
         bool allow_tab_completion = true;
     };
 
-    CmdExecResult listen_to_input(std::istream& istr, std::string const& prompt, ListenConfig const& config = {true, true});
-    std::string const& get_read_buffer() const { return _read_buffer; }
+    std::pair<CmdExecResult, std::string> listen_to_input(std::istream& istr, std::string const& prompt, ListenConfig const& config = {true, true});
 
-    static std::string const special_chars;  // The characters that are identified as special characters when parsing
+    constexpr static std::string_view double_quote_special_chars = "\\$";        // The characters that are identified as special characters when parsing inside double quotes
+    constexpr static std::string_view special_chars              = "\\$\"\' ;";  // The characters that are identified as special characters when parsing
+
+    enum class parse_state {
+        normal,
+        single_quote,
+        double_quote,
+    };
+
 private:
     // Private member functions
-    void _reset_buffer();
+    void _reset_read_buffer();
     void _print_prompt() const;
 
-    CmdExecResult _read_one_line(std::istream&);
-    std::pair<dvlab::Command*, std::string> _parse_one_command_from_queue();
+    CmdExecResult _execute_one_line_internal(std::istream&);
+    std::pair<dvlab::Command*, std::vector<argparse::Token>> _parse_one_command(std::string_view cmd);
+    std::optional<std::string> _dequote(std::string_view str) const;
+    std::string _decode(std::string str) const;
+    CmdExecResult _dispatch_command(dvlab::Command* cmd, std::vector<argparse::Token> options);
+    bool _is_escaped(std::string_view str, size_t pos) const;
+    bool _should_be_escaped(char ch, dvlab::CommandLineInterface::parse_state state) const;
 
     enum class TabActionResult {
         autocomplete,
@@ -165,17 +180,19 @@ private:
 
     // helper functions
     std::vector<std::string> _get_file_matches(std::filesystem::path const& filepath) const;
-    bool _autocomplete(std::string prefix_copy, std::vector<std::string> const& strs, bool in_quotes);
+    bool _autocomplete(std::string prefix_copy, std::vector<std::string> const& strs, parse_state state);
     void _print_as_table(std::vector<std::string> words) const;
+    size_t _get_last_token_pos(std::string_view str, char token = ' ') const;
 
     // Helper functions
     bool _move_cursor_to(size_t pos);
     bool _delete_char();
     void _insert_char(char);
     void _delete_line();
+    void _replace_at_cursor(std::string_view old_str, std::string_view new_str);
     void _reprint_command();
     void _retrieve_history(size_t index);
-    bool _add_input_to_history();
+    bool _add_to_history(std::string_view input);
     void _replace_read_buffer_with_history();
 
     std::string _replace_variable_keys_with_values(std::string const& str) const;
@@ -201,7 +218,6 @@ private:
     std::unordered_map<std::string, std::string> _variables;  // stores the variables key-value pairs, e.g., $1, $INPUT_FILE, etc...
 
     std::stack<std::ifstream> _dofile_stack;
-    std::queue<std::string> _command_queue;
 
     std::optional<jthread::jthread> _command_thread = std::nullopt;  // the current (ongoing) command
 };

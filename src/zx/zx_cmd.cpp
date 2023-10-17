@@ -138,7 +138,7 @@ Command zxgraph_mgr_reset_cmd(ZXGraphMgr& zxgraph_mgr) {
                 parser.description("reset ZXGraphMgr");
             },
             [&](ArgumentParser const& /*parser*/) {
-                zxgraph_mgr.reset();
+                zxgraph_mgr.clear();
                 return CmdExecResult::done;
             }};
 }
