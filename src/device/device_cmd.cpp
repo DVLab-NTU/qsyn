@@ -5,13 +5,14 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
+#include "./device_cmd.hpp"
+
 #include <spdlog/spdlog.h>
 
 #include <cstddef>
 #include <memory>
 #include <string>
 
-#include "cli/cli.hpp"
 #include "device/device.hpp"
 #include "device/device_mgr.hpp"
 #include "fmt/core.h"
