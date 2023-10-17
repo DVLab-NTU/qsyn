@@ -11,7 +11,6 @@
 #include <string>
 #include <unordered_map>
 
-#include "cli/cli.hpp"
 #include "qcir/gate_type.hpp"
 #include "qsyn/qsyn_type.hpp"
 #include "util/phase.hpp"
