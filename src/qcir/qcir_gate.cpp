@@ -15,7 +15,6 @@
 #include <string>
 #include <type_traits>
 
-#include "cli/cli.hpp"
 #include "qcir/gate_type.hpp"
 #include "util/util.hpp"
 
