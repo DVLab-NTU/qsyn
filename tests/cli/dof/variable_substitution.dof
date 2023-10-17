@@ -1,0 +1,13 @@
+set var1 bench
+set var2 mark
+qccr $var1$var2/SABRE/small/3_17_13.qasm
+qcp -l
+qccr ${var1}$var2/SABRE/small/3_17_13.qasm
+qcp -l
+qccr $var1${var2}/SABRE/small/3_17_13.qasm
+qcp -l
+qccr ${var1}${var2}/SABRE/small/3_17_13.qasm
+qcp -l
+
+qcp -l
+q -f
