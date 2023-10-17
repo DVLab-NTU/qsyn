@@ -12,16 +12,12 @@ qsyn> // placeholder
 qsyn> help $1 // should print all help messages
 alias          : alias a command to another name
 clear          : clear the terminal
+device         : device commands
 dofile         : execute the commands in the dofile
-dtcheckout     : checkout to Device <id> in DeviceMgr
-dtdelete       : remove a Device from DeviceMgr
-dtgprint       : print info of device topology
-dtgread        : read a device topology
-dtprint        : print info about Devices
-dtreset        : reset DeviceMgr
 duoprint       : print Duostra parameters
 duoset         : set Duostra parameter(s)
 duostra        : map logical circuit to physical circuit
+exit           : quit Qsyn
 extprint       : print info of extracting ZXGraph
 extract        : perform step(s) in extraction
 extset         : set extractor parameters
@@ -50,8 +46,8 @@ qcprint        : print info about QCirs or settings
 qcreset        : reset QCirMgr
 qcset          : set QCir parameters
 qctensor       : tensor a QCir
-qquit          : quit Qsyn
 seed           : set the random seed
+set            : set a variable
 tsadjoint      : adjoint the specified tensor
 tsequiv        : check the equivalency of two stored tensors
 tsprint        : print info about Tensors
@@ -106,11 +102,11 @@ qsyn> dofile tests/cli/helper/param_dof_kw haha1 haha2 haha3 // should error and
 [error]    Usage: ... tests/cli/helper/param_dof_kw <input1> <input2>
 
 qsyn> 
-qsyn> dofile tests/cli/helper/param_dof_kw qquit dofile
+qsyn> dofile tests/cli/helper/param_dof_kw exit dofile
 
 qsyn> //!ARGS input1 input2
-qsyn> help ${input1} // print help message of qquit
-Usage: qquit [-h] [-force]
+qsyn> help ${input1} // print help message of exit
+Usage: exit [-h] [-force]
 
 Description:
   quit Qsyn
@@ -132,8 +128,8 @@ Positional Arguments:
 Options:
   flag  -h, --help    show this help message and exit 
 
-qsyn> help $1        // print help message of qquit
-Usage: qquit [-h] [-force]
+qsyn> help $1        // print help message of exit
+Usage: exit [-h] [-force]
 
 Description:
   quit Qsyn

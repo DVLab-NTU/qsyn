@@ -16,7 +16,7 @@ Delay of Multiple-qubit gate :   5
 
 qsyn> qccr benchmark/SABRE/large/cm82a_208.qasm
 
-qsyn> dtgr benchmark/topology/guadalupe.layout 
+qsyn> device read benchmark/topology/guadalupe.layout 
 
 qsyn> qccp -a
 Clifford    : 370

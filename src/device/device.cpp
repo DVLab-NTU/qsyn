@@ -429,23 +429,23 @@ bool Device::read_device(std::string const& filename) {
     // NOTE - Device name
     while (str == "") {
         std::getline(topo_file, str);
-        str = dvlab::str::strip_spaces(dvlab::str::strip_comments(str));
+        str = dvlab::str::trim_spaces(dvlab::str::trim_comments(str));
     }
     size_t token_end = dvlab::str::str_get_token(str, token, 0, ": ");
     data             = str.substr(token_end + 1);
 
-    _topology->set_name(dvlab::str::strip_spaces(data));
+    _topology->set_name(dvlab::str::trim_spaces(data));
 
     // NOTE - Qubit num
     str = "", token = "", data = "";
     unsigned qbn = 0;
     while (str == "") {
         std::getline(topo_file, str);
-        str = dvlab::str::strip_spaces(dvlab::str::strip_comments(str));
+        str = dvlab::str::trim_spaces(dvlab::str::trim_comments(str));
     }
     token_end = dvlab::str::str_get_token(str, token, 0, ": ");
     data      = str.substr(token_end + 1);
-    data      = dvlab::str::strip_spaces(data);
+    data      = dvlab::str::trim_spaces(data);
     if (!dvlab::str::str_to_u(data, qbn)) {
         spdlog::error("The number of qubit is not a positive integer!!");
         return false;
@@ -456,7 +456,7 @@ bool Device::read_device(std::string const& filename) {
     str = "", token = "", data = "";
     while (str == "") {
         std::getline(topo_file, str);
-        str = dvlab::str::strip_spaces(dvlab::str::strip_comments(str));
+        str = dvlab::str::trim_spaces(dvlab::str::trim_comments(str));
     }
     if (!_parse_gate_set(str)) return false;
 
@@ -464,12 +464,12 @@ bool Device::read_device(std::string const& filename) {
     str = "", token = "", data = "";
     while (str == "") {
         std::getline(topo_file, str);
-        str = dvlab::str::strip_spaces(dvlab::str::strip_comments(str));
+        str = dvlab::str::trim_spaces(dvlab::str::trim_comments(str));
     }
 
     token_end = dvlab::str::str_get_token(str, token, 0, ": ");
     data      = str.substr(token_end + 1);
-    data      = dvlab::str::strip_spaces(data);
+    data      = dvlab::str::trim_spaces(data);
     data      = dvlab::str::remove_brackets(data, '[', ']');
     std::vector<std::vector<float>> cx_err, cx_delay;
     std::vector<std::vector<size_t>> adj_list;
@@ -510,12 +510,12 @@ bool Device::_parse_gate_set(std::string const& gate_set_str) {
     std::string token = "", data = "", gt;
     size_t token_end = dvlab::str::str_get_token(gate_set_str, token, 0, ": ");
     data             = gate_set_str.substr(token_end + 1);
-    data             = dvlab::str::strip_spaces(data);
+    data             = dvlab::str::trim_spaces(data);
     data             = dvlab::str::remove_brackets(data, '{', '}');
     size_t m         = 0;
     while (m < data.size()) {
         m              = dvlab::str::str_get_token(data, gt, m, ',');
-        gt             = dvlab::str::strip_spaces(gt);
+        gt             = dvlab::str::trim_spaces(gt);
         gt             = dvlab::str::tolower_string(gt);
         auto gate_type = str_to_gate_type(gt);
         if (!gate_type.has_value()) {
@@ -544,12 +544,12 @@ bool Device::_parse_info(std::ifstream& f, std::vector<std::vector<float>>& cx_e
         while (str == "") {
             if (f.eof()) break;
             std::getline(f, str);
-            str = dvlab::str::strip_spaces(dvlab::str::strip_comments(str));
+            str = dvlab::str::trim_spaces(dvlab::str::trim_comments(str));
         }
         size_t token_end = dvlab::str::str_get_token(str, token, 0, ": ");
         data             = str.substr(token_end + 1);
 
-        data = dvlab::str::strip_spaces(data);
+        data = dvlab::str::trim_spaces(data);
         if (token == "SGERROR") {
             if (!_parse_singles(data, single_error)) return false;
         } else if (token == "SGTIME") {
@@ -563,7 +563,7 @@ bool Device::_parse_info(std::ifstream& f, std::vector<std::vector<float>>& cx_e
             break;
         }
         std::getline(f, str);
-        str = dvlab::str::strip_spaces(dvlab::str::strip_comments(str));
+        str = dvlab::str::trim_spaces(dvlab::str::trim_comments(str));
     }
 
     return true;
@@ -587,7 +587,7 @@ bool Device::_parse_singles(std::string const& data, std::vector<float>& contain
     std::vector<float> single_fl;
     while (m < str.size()) {
         m   = dvlab::str::str_get_token(str, num, m, ',');
-        num = dvlab::str::strip_spaces(num);
+        num = dvlab::str::trim_spaces(num);
         if (!dvlab::str::str_to_f(num, fl)) {
             spdlog::error("The number `{}` is not a float!!", num);
             return false;
@@ -616,7 +616,7 @@ bool Device::_parse_float_pairs(std::string const& data, std::vector<std::vector
         std::vector<float> single_fl;
         while (m < str.size()) {
             m   = dvlab::str::str_get_token(str, num, m, ',');
-            num = dvlab::str::strip_spaces(num);
+            num = dvlab::str::trim_spaces(num);
             if (!dvlab::str::str_to_f(num, fl)) {
                 spdlog::error("The number `{}` is not a float!!", num);
                 return false;
@@ -647,7 +647,7 @@ bool Device::_parse_size_t_pairs(std::string const& data, std::vector<std::vecto
         std::vector<size_t> single;
         while (m < str.size()) {
             m   = dvlab::str::str_get_token(str, num, m, ',');
-            num = dvlab::str::strip_spaces(num);
+            num = dvlab::str::trim_spaces(num);
             if (!dvlab::str::str_to_u(num, qbn) || qbn >= _num_qubit) {
                 spdlog::error("The number of qubit `{}` is not a positive integer or not in the legal range!!", num);
                 return false;

@@ -49,7 +49,7 @@ bool ZXFileParser::_parse_internal(std::ifstream& f) {
     // <VertexString> [(<Qubit, Column>)] [NeighborString...] [Phase phase]
     _line_no = 1;
     for (std::string line; getline(f, line); _line_no++) {
-        line = dvlab::str::strip_spaces(dvlab::str::strip_comments(line));
+        line = dvlab::str::trim_spaces(dvlab::str::trim_comments(line));
         if (line.empty()) continue;
 
         std::vector<std::string> tokens;
@@ -123,7 +123,7 @@ bool ZXFileParser::_tokenize(std::string const& line, std::vector<std::string>& 
                 return false;
             }
 
-            token = dvlab::str::strip_spaces(token);
+            token = dvlab::str::trim_spaces(token);
             if (token == "") {
                 _print_failed_at_line_no();
                 std::cerr << "missing argument before comma!!" << std::endl;
@@ -133,7 +133,7 @@ bool ZXFileParser::_tokenize(std::string const& line, std::vector<std::string>& 
 
             dvlab::str::str_get_token(line, token, pos + 1, ')');
 
-            token = dvlab::str::strip_spaces(token);
+            token = dvlab::str::trim_spaces(token);
             if (token == "") {
                 _print_failed_at_line_no();
                 std::cerr << "missing argument before right parenthesis!!" << std::endl;

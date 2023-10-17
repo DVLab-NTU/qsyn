@@ -94,8 +94,8 @@ bool QCir::read_qasm(std::string const& filename) {
     add_qubits(nqubit);
     getline(qasm_file, str);
     while (getline(qasm_file, str)) {
-        str = dvlab::str::strip_comments(str);
-        str = dvlab::str::strip_spaces(str);
+        str = dvlab::str::trim_comments(str);
+        str = dvlab::str::trim_spaces(str);
         if (str == "") continue;
         std::string type;
         size_t type_end       = str_get_token(str, type);

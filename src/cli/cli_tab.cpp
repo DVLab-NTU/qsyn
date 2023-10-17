@@ -14,6 +14,7 @@
 #include <regex>
 
 #include "./cli.hpp"
+#include "fmt/color.h"
 #include "unicode/display_width.hpp"
 #include "util/terminal_attributes.hpp"
 #include "util/text_format.hpp"
@@ -22,44 +23,52 @@
 namespace fs = std::filesystem;
 
 namespace {
-bool string_case_insensitive_equal(std::string const& a, std::string const& b) {
-    return dvlab::str::tolower_string(a) == dvlab::str::tolower_string(b);
+bool string_case_insensitive_less_than(std::string const& a, std::string const& b) {
+    return dvlab::str::tolower_string(a) < dvlab::str::tolower_string(b);
 }
+
 }  // namespace
 
 namespace dvlab {
 
+/**
+ * @brief define tab press action, which tries to complete the input for the user.
+ *
+ */
 void dvlab::CommandLineInterface::_on_tab_pressed() {
     assert(_tab_press_count != 0);
-    std::string str = _read_buffer.substr(0, _cursor_position);
-    str             = dvlab::str::strip_comments(str);
-    str             = str.substr(str.find_last_of(';') + 1);
-    str             = dvlab::str::strip_leading_spaces(str);
 
-    assert(str.empty() || str[0] != ' ');
+    auto str = _read_buffer.substr(0, _cursor_position);
 
-    // if we are at the first token, we should list all commands and aliases
-    bool listing_cmds = str.empty() || str.find_first_of(" =") == std::string::npos;
-    if (listing_cmds) {
-        _match_identifiers(str);
-        return;
+    size_t last_token_pos  = _get_last_token_pos(str);
+    std::string last_token = last_token_pos != std::string::npos ? _read_buffer.substr(last_token_pos, _cursor_position - last_token_pos) : "";
+    assert(last_token.empty() || last_token[0] != ' ');
+
+    // if this is the first token in the command, try to match identifiers first
+    auto last_cmd_pos = _read_buffer.find_first_not_of(' ', _get_last_token_pos(str, ';'));
+    if (last_cmd_pos == std::string::npos) last_cmd_pos = 0;
+    if (last_cmd_pos == last_token_pos) {
+        if (auto result = _match_identifiers(last_token); result != TabActionResult::no_op) {
+            return;
+        }
     }
 
-    dvlab::Command* cmd = get_command(str.substr(0, str.find_first_of(' ')) /* first word*/);
+    auto first_space_pos_in_last_cmd = _read_buffer.find_first_of(' ', last_cmd_pos);
+    while (first_space_pos_in_last_cmd != std::string::npos && _is_escaped(_read_buffer, first_space_pos_in_last_cmd)) {
+        first_space_pos_in_last_cmd = _read_buffer.find_first_of(' ', first_space_pos_in_last_cmd + 1);
+    }
+    dvlab::Command* cmd = get_command(str.substr(last_cmd_pos, first_space_pos_in_last_cmd - last_cmd_pos) /* first word*/);
 
     // [case 5] Singly matched on first tab
     if (cmd != nullptr && _tab_press_count == 1) {
-        fmt::print("\n");
+        fmt::println("");
         cmd->print_usage();
         _reprint_command();
 
         return;
     }
 
-    bool defining_vars = str.back() == '=';
-    if (defining_vars) _tab_press_count = 0;
-
-    assert(str[0] != ' ');
+    assert(last_token[0] != ' ');
     if (auto result = _match_variables(str); result != TabActionResult::no_op) {
         return;
     }
@@ -88,8 +97,20 @@ dvlab::CommandLineInterface::TabActionResult dvlab::CommandLineInterface::_match
     // cases 1, 2, 3 go here
     // [case 3] single command; insert ' '
     if (matches.size() == 1) {
-        std::for_each(dvlab::iterator::next(matches[0].begin(), str.size()), matches[0].end(), [this](char ch) { _insert_char(ch); });
-        _insert_char(' ');
+        // if completely matched an alias, replace it with its replacement string and insert a space
+        if (matches[0].size() == str.size() && _aliases.contains(str)) {
+            _replace_at_cursor(str, _aliases.at(str));
+        } else {
+            std::for_each(dvlab::iterator::next(matches[0].begin(), str.size()), matches[0].end(), [this](char ch) { _insert_char(ch); });
+            // if the matched command is not an alias, insert a space
+            // if it is, we want to allow for further completion
+            // unless the alias is identical to its replacement string (gosh, why would you do that?),
+            // where we want to insert a space to avoid endless alias expansion
+            if (!_aliases.contains(matches[0]) || _aliases.at(matches[0]) == matches[0]) {
+                _insert_char(' ');
+            }
+        }
+
         return TabActionResult::autocomplete;
     }
 
@@ -110,19 +131,10 @@ dvlab::CommandLineInterface::TabActionResult dvlab::CommandLineInterface::_match
         bool is_brace       = (var[1] == '{');
         std::string var_key = is_brace ? var.substr(2, var.size() - 3) : var.substr(1);
         if (_variables.contains(var_key)) {
-            std::string val = _variables.at(var_key);
-
-            size_t pos = _read_buffer.find(var);
-            _move_cursor_to(_read_buffer.size());
-            _move_cursor_to(pos);
-
-            for (size_t i = 0; i < var.size(); ++i) {
-                _delete_char();
+            if (_is_escaped(str, matches.position(0))) {
+                return TabActionResult::no_op;
             }
-
-            for (auto ch : val) {
-                _insert_char(ch);
-            }
+            _replace_at_cursor(var, _variables.at(var_key));
 
             return TabActionResult::autocomplete;
         }
@@ -136,8 +148,11 @@ dvlab::CommandLineInterface::TabActionResult dvlab::CommandLineInterface::_match
     }
 
     std::string var_prefix = matches[0];
-    bool is_brace          = (var_prefix[1] == '{');
-    std::string var_key    = var_prefix.substr(is_brace ? 2 : 1);
+    if (_is_escaped(str, str.find(var_prefix))) {
+        return TabActionResult::no_op;
+    }
+    bool is_brace       = (var_prefix[1] == '{');
+    std::string var_key = var_prefix.substr(is_brace ? 2 : 1);
 
     std::vector<std::string> matching_variables;
 
@@ -151,14 +166,14 @@ dvlab::CommandLineInterface::TabActionResult dvlab::CommandLineInterface::_match
         return TabActionResult::no_op;
     }
 
-    if (_autocomplete(var_key, matching_variables, false /* does not matter */)) {
+    if (_autocomplete(var_key, matching_variables, parse_state::normal /* does not matter */)) {
         if (matching_variables.size() == 1 && is_brace) {
             _insert_char('}');
         }
         return TabActionResult::autocomplete;
     }
 
-    std::ranges::sort(matching_variables, string_case_insensitive_equal);
+    std::ranges::sort(matching_variables, string_case_insensitive_less_than);
 
     _print_as_table(matching_variables);
 
@@ -169,30 +184,22 @@ dvlab::CommandLineInterface::TabActionResult dvlab::CommandLineInterface::_match
 
 dvlab::CommandLineInterface::TabActionResult dvlab::CommandLineInterface::_match_files(std::string const& str) {
     std::optional<std::string> search_string;
-    std::string incomplete_quotes;
-    if (search_string = dvlab::str::strip_quotes(str); search_string.has_value()) {
-        incomplete_quotes = "";
-    } else if (search_string = dvlab::str::strip_quotes(str + "\""); search_string.has_value()) {
-        incomplete_quotes = "\"";
-    } else if (search_string = dvlab::str::strip_quotes(str + "\'"); search_string.has_value()) {
-        incomplete_quotes = "\'";
+    parse_state state = parse_state::normal;
+    if (search_string = _dequote(str); search_string.has_value()) {
+        state = parse_state::normal;
+    } else if (search_string = _dequote(str + "\""); search_string.has_value()) {
+        state = parse_state::double_quote;
+    } else if (search_string = _dequote(str + "\'"); search_string.has_value()) {
+        state = parse_state::single_quote;
     } else {
-        spdlog::critical("unexpected quote stripping result!!");
+        spdlog::critical("unexpected dequote result!!");
         return TabActionResult::no_op;
     }
     assert(search_string.has_value());
+    auto last_space_pos = _get_last_token_pos(*search_string);
+    assert(last_space_pos != std::string::npos);  // there must be a ' ' in cmd
 
-    size_t last_space_pos = std::invoke(
-        [&search_string]() -> size_t {
-            size_t pos = search_string->find_last_of(" =");
-            while (pos != std::string::npos && (*search_string)[pos - 1] == '\\') {
-                pos = search_string->find_last_of(" =", pos - 2);
-            }
-            return pos;
-        });
-    assert(last_space_pos != std::string::npos);  // there must be a ' ' or '=' in cmd
-
-    auto filepath = fs::path(search_string->substr(last_space_pos + 1));
+    auto filepath = fs::path(search_string->substr(last_space_pos));
     auto dirname  = filepath.parent_path();
     auto prefix   = filepath.filename().string();
 
@@ -214,12 +221,13 @@ dvlab::CommandLineInterface::TabActionResult dvlab::CommandLineInterface::_match
         return TabActionResult::no_op;
     }
 
-    if (_autocomplete(prefix, files, incomplete_quotes.size())) {
+    if (_autocomplete(prefix, files, state)) {
         if (files.size() == 1) {
             if (fs::is_directory(dirname / files[0])) {
                 _insert_char('/');
             } else {
-                if (!incomplete_quotes.empty()) _insert_char(incomplete_quotes[0]);
+                if (state == parse_state::single_quote) _insert_char('\'');
+                if (state == parse_state::double_quote) _insert_char('\"');
                 _insert_char(' ');
             }
         }
@@ -282,7 +290,7 @@ std::vector<std::string> dvlab::CommandLineInterface::_get_file_matches(fs::path
     // don't show hidden files
     std::erase_if(files, [](std::string const& file) { return file.starts_with("."); });
 
-    std::ranges::sort(files, string_case_insensitive_equal);
+    std::ranges::sort(files, string_case_insensitive_less_than);
 
     return files;
 }
@@ -296,7 +304,7 @@ std::vector<std::string> dvlab::CommandLineInterface::_get_file_matches(fs::path
  * @return true if able to autocomplete
  * @return false if not
  */
-bool dvlab::CommandLineInterface::_autocomplete(std::string prefix_copy, std::vector<std::string> const& strs, bool in_quotes) {
+bool dvlab::CommandLineInterface::_autocomplete(std::string prefix_copy, std::vector<std::string> const& strs, parse_state state) {
     if (strs.size() == 1 && prefix_copy == strs[0]) return true;  // edge case: completing a file/dir name that is already complete
     bool trailing_backslash = false;
     if (prefix_copy.back() == '\\') {
@@ -314,7 +322,7 @@ bool dvlab::CommandLineInterface::_autocomplete(std::string prefix_copy, std::ve
                 return a[i] != b[i];
             }) != strs.end()) break;
         // if outside of a pair of quote, prepend special characters in the file/dir name with backslash
-        if (_is_special_char(strs[0][i]) && !in_quotes) {
+        if (_is_special_char(strs[0][i]) && !_should_be_escaped(strs[0][i], state)) {
             autocomplete_str += '\\';
         }
         autocomplete_str += strs[0][i];
@@ -367,6 +375,30 @@ void dvlab::CommandLineInterface::_print_as_table(std::vector<std::string> words
         table << fort::endr;
     }
     fmt::print("\n{}", table.to_string());
+}
+
+size_t dvlab::CommandLineInterface::_get_last_token_pos(std::string_view str, char token) const {
+    if (std::ranges::all_of(str, [token](char ch) { return ch == token; })) return std::string::npos;
+    size_t pos = str.find_last_of(token);
+    while (pos != std::string::npos && _is_escaped(str, pos)) {
+        pos = str.find_last_of(token, pos - 1);
+    }
+    if (pos == std::string::npos) return 0;
+    return pos + 1;
+}
+
+void dvlab::CommandLineInterface::_replace_at_cursor(std::string_view old_str, std::string_view new_str) {
+    if (_read_buffer.substr(_cursor_position - old_str.size(), old_str.size()) != std::string(old_str)) {
+        spdlog::critical("word replacement failed: old string not matched");
+        return;
+    }
+    _move_cursor_to(_cursor_position - old_str.size());
+    for (size_t i = 0; i < old_str.size(); ++i) {
+        _delete_char();
+    }
+    for (auto ch : new_str) {
+        _insert_char(ch);
+    }
 }
 
 }  // namespace dvlab
