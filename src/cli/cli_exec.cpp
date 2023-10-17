@@ -214,8 +214,8 @@ CmdExecResult CommandLineInterface::_dispatch_command(dvlab::Command* cmd, std::
 std::string dvlab::CommandLineInterface::_replace_variable_keys_with_values(std::string const& str) const {
     static std::regex const var_without_braces(R"(\$[\w]+)");  // if no curly braces, the variable name is until some illegal characters for a name appears
 
-    static std::regex const var_with_braces(R"(\$\{\S+\})");  // if curly braces are used, the text inside the curly braces is the variable name
-                                                              // \S means non-whitespace character
+    static std::regex const var_with_braces(R"(\$\{\S+?\})");  // if curly braces are used, the text inside the curly braces is the variable name
+                                                               // \S means non-whitespace character
 
     // e.g., suppose foo_bar=apple, foo=banana
     //       "$foo_bar"     --> "apple"
@@ -228,9 +228,10 @@ std::string dvlab::CommandLineInterface::_replace_variable_keys_with_values(std:
     // FIXME - doesn't work for nested variables and multiple variables in one line
     for (auto const& re : {var_without_braces, var_with_braces}) {
         std::smatch matches;
-        std::regex_search(str, matches, re);
-        for (size_t i = 0; i < matches.size(); ++i) {
-            std::string var = matches[i];
+        std::sregex_token_iterator regex_end;
+        std::sregex_token_iterator regex_begin(str.begin(), str.end(), re);
+        for (auto regex_itr = regex_begin; regex_itr != regex_end; ++regex_itr) {
+            auto var = (*regex_itr).str();
             // tell if it is a curly brace variable or not
             bool is_brace       = var[1] == '{';
             std::string var_key = is_brace ? var.substr(2, var.length() - 3) : var.substr(1);
@@ -247,13 +248,15 @@ std::string dvlab::CommandLineInterface::_replace_variable_keys_with_values(std:
                 }
             }
 
-            size_t pos = matches.position(i);
+            size_t pos = std::distance(str.begin(), regex_itr->first);
             if (_is_escaped(str, pos)) {
                 continue;
             }
             to_replace.emplace_back(pos, var.length(), val);
         }
     }
+
+    std::ranges::sort(to_replace, [](auto const& lhs, auto const& rhs) { return std::get<0>(lhs) < std::get<0>(rhs); });
 
     size_t cursor      = 0;
     std::string result = "";
