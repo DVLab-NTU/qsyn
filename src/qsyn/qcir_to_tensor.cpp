@@ -16,13 +16,14 @@
 #include "qcir/gate_type.hpp"
 #include "qcir/qcir.hpp"
 #include "qcir/qcir_qubit.hpp"
+#include "qsyn/qsyn_type.hpp"
 #include "tensor/qtensor.hpp"
 
 extern bool stop_requested();
 
 namespace qsyn {
 
-using Qubit2TensorPinMap = std::unordered_map<size_t, std::pair<size_t, size_t>>;
+using Qubit2TensorPinMap = std::unordered_map<QubitIdType, std::pair<size_t, size_t>>;
 
 using qsyn::tensor::QTensor;
 

@@ -9,6 +9,7 @@
 #pragma once
 
 #include "device/device.hpp"
+#include "qsyn/qsyn_type.hpp"
 
 namespace qsyn::duostra {
 
@@ -20,7 +21,10 @@ public:
     using Device        = qsyn::device::Device;
     using Operation     = qsyn::device::Operation;
     using PhysicalQubit = qsyn::device::PhysicalQubit;
-    Checker(CircuitTopology&, Device&, std::vector<Operation> const& ops, std::vector<size_t> const&, bool = true);
+    Checker(CircuitTopology& topo,
+            Checker::Device& device,
+            std::vector<Checker::Operation> const& ops,
+            std::vector<QubitIdType> const& assign, bool tqdm = true);
 
     size_t get_cycle(Operation const& op);
 

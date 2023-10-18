@@ -17,6 +17,7 @@
 #include <vector>
 
 #include "qcir/qcir_gate.hpp"
+#include "qsyn/qsyn_type.hpp"
 #include "util/phase.hpp"
 
 namespace qsyn::duostra {
@@ -48,15 +49,15 @@ public:
     bool is_last_gate() const { return _nexts.empty(); }
 
     bool is_swap() const { return _type == qcir::GateRotationCategory::swap; }
-    bool is_cx() const { return _type == qcir::GateRotationCategory::px && _phase == dvlab::Phase(1) && std::get<1>(_qubits) != SIZE_MAX; }
-    bool is_cz() const { return _type == qcir::GateRotationCategory::pz && _phase == dvlab::Phase(1) && std::get<1>(_qubits) != SIZE_MAX; }
+    bool is_cx() const { return _type == qcir::GateRotationCategory::px && _phase == dvlab::Phase(1) && std::get<1>(_qubits) != max_qubit_id; }
+    bool is_cz() const { return _type == qcir::GateRotationCategory::pz && _phase == dvlab::Phase(1) && std::get<1>(_qubits) != max_qubit_id; }
 
 private:
     size_t _id;
     qcir::GateRotationCategory _type;
     dvlab::Phase _phase;  // For saving phase information
     bool _swap;           // qubits is swapped for duostra
-    std::tuple<size_t, size_t> _qubits;
+    std::tuple<QubitIdType, QubitIdType> _qubits;
     std::vector<size_t> _prevs;
     std::vector<size_t> _nexts;
 };
