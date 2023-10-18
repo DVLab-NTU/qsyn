@@ -149,8 +149,6 @@ std::pair<CmdExecResult, std::string> dvlab::CommandLineInterface::listen_to_inp
 
     settings_restorer restorer{this, prompt};
 
-    parse_state state = parse_state::normal;
-
     _reset_read_buffer();
     _print_prompt();
 

@@ -361,29 +361,6 @@ ZXGraph create_cz_zx_form(QCirGate* gate) {
     return g;
 }
 
-// Y Gate
-// NOTE - Cannot use mapSingleQubitGate
-
-/**
- * @brief Get ZXGraph of Y = iXZ
- *
- * @return ZXGraph
- */
-ZXGraph create_y_zx_form(QCirGate* gate) {
-    ZXGraph g;
-    auto qubit = gate->get_qubits()[0]._qubit;
-
-    ZXVertex* in  = g.add_input(qubit);
-    ZXVertex* x   = g.add_vertex(qubit, VertexType::x, dvlab::Phase(1));
-    ZXVertex* z   = g.add_vertex(qubit, VertexType::z, dvlab::Phase(1));
-    ZXVertex* out = g.add_output(qubit);
-    g.add_edge(in, x, EdgeType::simple);
-    g.add_edge(x, z, EdgeType::simple);
-    g.add_edge(z, out, EdgeType::simple);
-
-    return g;
-}
-
 /**
  * @brief Get ZXGraph of SY = S。SX。Sdg
  *

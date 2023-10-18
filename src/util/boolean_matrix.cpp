@@ -197,7 +197,7 @@ size_t BooleanMatrix::gaussian_elimination_skip(size_t block_size, bool do_fully
         }
     };
 
-    auto clear_all_1s_in_column = [this, get_sub_vec, track](size_t pivot_row_idx, size_t col_idx, auto row_range) {
+    auto clear_all_1s_in_column = [this, track](size_t pivot_row_idx, size_t col_idx, auto row_range) {
         auto rows_to_clear = row_range | std::views::filter([this, col_idx](size_t row_idx) -> bool {
                                  return _matrix[row_idx][col_idx] == 1;
                              });

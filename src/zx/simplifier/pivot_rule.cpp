@@ -20,7 +20,7 @@ std::vector<MatchType> PivotRule::find_matches(ZXGraph const& graph) const {
     std::vector<MatchType> matches;
 
     std::unordered_set<ZXVertex*> taken;
-    graph.for_each_edge([&graph, &taken, &matches, this](EdgePair const& epair) {
+    graph.for_each_edge([&graph, &taken, &matches](EdgePair const& epair) {
         if (epair.second != EdgeType::hadamard) return;
 
         // 2: Get Neighbors
