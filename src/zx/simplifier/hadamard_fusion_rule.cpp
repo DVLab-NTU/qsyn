@@ -14,17 +14,10 @@ using MatchType = HadamardFusionRule::MatchType;
 std::vector<MatchType> HadamardFusionRule::find_matches(ZXGraph const& graph) const {
     std::vector<MatchType> matches;
 
-    std::unordered_map<size_t, size_t> id2idx;
-    size_t count = 0;
-    for (auto const& v : graph.get_vertices()) {
-        id2idx[v->get_id()] = count;
-        count++;
-    }
-
     // Matches Hadamard-edges that are connected to H-boxes
     std::unordered_set<ZXVertex*> taken;
 
-    graph.for_each_edge([&graph, &id2idx, &matches, &taken, this](EdgePair const& epair) {
+    graph.for_each_edge([&graph, &matches, &taken](EdgePair const& epair) {
         // NOTE - Only Hadamard Edges
         if (epair.second != EdgeType::hadamard) return;
         auto [neighbor_left, neighbor_right] = epair.first;
@@ -60,7 +53,7 @@ std::vector<MatchType> HadamardFusionRule::find_matches(ZXGraph const& graph) co
         }
     });
 
-    graph.for_each_edge([&id2idx, &taken, &matches, this](EdgePair const& epair) {
+    graph.for_each_edge([&taken, &matches](EdgePair const& epair) {
         if (epair.second == EdgeType::hadamard) return;
 
         auto [neighbor_left, neighbor_right] = epair.first;

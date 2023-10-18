@@ -289,7 +289,6 @@ std::pair<ZXVertexList, ZXVertexList> detail::kl_bipartition(ZXGraph const& grap
         }
     };
 
-    size_t iteration = 0;
     while (!stop_requested()) {
         cumulative_gain      = 0;
         swap_history         = std::stack<SwapPair>();

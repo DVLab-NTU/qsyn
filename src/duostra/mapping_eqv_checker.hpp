@@ -20,7 +20,7 @@ namespace qcir {
 
 class QCir;
 class QCirGate;
-class QubitInfo;
+struct QubitInfo;
 
 }  // namespace qcir
 

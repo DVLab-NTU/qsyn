@@ -43,12 +43,12 @@ AStarNode::AStarNode(size_t cost, size_t id, bool source)
  * @param orient
  */
 Router::Router(Device&& device, Router::CostStrategyType cost_strategy, MinMaxOptionType tie_breaking_strategy)
-    : _greedy_type(_greedy_type = cost_strategy == CostStrategyType::start),
-      _duostra(DuostraConfig::ROUTER_TYPE == RouterType::duostra),
-      _tie_breaking_strategy(tie_breaking_strategy),
-      _apsp(DuostraConfig::ROUTER_TYPE == RouterType::shortest_path || cost_strategy == CostStrategyType::end),
+    : _tie_breaking_strategy(tie_breaking_strategy),
       _device(device),
-      _logical_to_physical({}) {
+      _logical_to_physical({}),
+      _apsp(DuostraConfig::ROUTER_TYPE == RouterType::shortest_path || cost_strategy == CostStrategyType::end),
+      _duostra(DuostraConfig::ROUTER_TYPE == RouterType::duostra),
+      _greedy_type(_greedy_type = cost_strategy == CostStrategyType::start) {
     _initialize();
 }
 
