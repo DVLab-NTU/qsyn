@@ -1,5 +1,5 @@
-qsyn> qq -h
-Usage: qquit [-h] [-force]
+qsyn> exi -h
+Usage: exit [-h] [-force]
 
 Description:
   quit Qsyn
@@ -8,12 +8,12 @@ Options:
   flag  -h, --help    show this help message and exit 
   flag  -force        quit without reaffirming        
 
-qsyn> alias qqqq qccr
+qsyn> alias exir qccr
 
-qsyn> qq -h
-[error]    Ambiguous command or alias `qq`!!
+qsyn> exi -h
+[error]    Ambiguous command or alias `exi`!!
 
-qsyn> qqq -h
+qsyn> exir -h
 Usage: qccread [-h] [-replace] <string filepath>
 
 Description:
@@ -26,8 +26,8 @@ Options:
   flag  -h, --help    show this help message and exit                                         
   flag  -replace      if specified, replace the current circuit; otherwise store to a new one 
 
-qsyn> qqu -h
-Usage: qquit [-h] [-force]
+qsyn> exit -h
+Usage: exit [-h] [-force]
 
 Description:
   quit Qsyn
@@ -36,23 +36,10 @@ Options:
   flag  -h, --help    show this help message and exit 
   flag  -force        quit without reaffirming        
 
-qsyn> alias -d qqqq
+qsyn> alias -d exir
 
-qsyn> qquit -h
-Usage: qquit [-h] [-force]
-
-Description:
-  quit Qsyn
-
-Options:
-  flag  -h, --help    show this help message and exit 
-  flag  -force        quit without reaffirming        
-
-qsyn> qqq -h
-[error]    Unknown command or alias `qqq`!!
-
-qsyn> qq -h
-Usage: qquit [-h] [-force]
+qsyn> exit -h
+Usage: exit [-h] [-force]
 
 Description:
   quit Qsyn
@@ -61,5 +48,18 @@ Options:
   flag  -h, --help    show this help message and exit 
   flag  -force        quit without reaffirming        
 
-qsyn> qq -f
+qsyn> exir -h
+[error]    Unknown command!! (exir)
+
+qsyn> exi -h
+Usage: exit [-h] [-force]
+
+Description:
+  quit Qsyn
+
+Options:
+  flag  -h, --help    show this help message and exit 
+  flag  -force        quit without reaffirming        
+
+qsyn> exit -f
 

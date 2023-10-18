@@ -133,11 +133,9 @@ public:
     [[nodiscard]] MutuallyExclusiveGroup add_mutually_exclusive_group();
     [[nodiscard]] SubParsers add_subparsers();
 
-    bool parse_args(std::string const& line);
     bool parse_args(std::vector<std::string> const& tokens);
     bool parse_args(TokensView);
 
-    std::pair<bool, std::vector<Token>> parse_known_args(std::string const& line);
     std::pair<bool, std::vector<Token>> parse_known_args(std::vector<std::string> const& tokens);
     std::pair<bool, std::vector<Token>> parse_known_args(TokensView);
 
@@ -200,7 +198,6 @@ private:
 
     // parse subroutine
     std::string _get_activated_subparser_name() const { return _pimpl->activated_subparser.value_or(""); }
-    bool _tokenize(std::string const& line);
     bool _parse_options(TokensView tokens);
     bool _parse_positional_arguments(TokensView tokens, std::vector<Token>& unrecognized);
     void _fill_unparsed_args_with_defaults();

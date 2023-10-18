@@ -116,17 +116,15 @@ size_t ansi_token_size(F const& fn) {
     return fn("").size();
 }
 
-std::optional<std::string> strip_quotes(std::string const& input);
-std::string strip_leading_spaces(std::string const& str);
-std::string strip_spaces(std::string const& str);
-bool is_escaped_char(std::string const& str, size_t pos);
+std::string trim_leading_spaces(std::string const& str);
+std::string trim_spaces(std::string const& str);
 /**
  * @brief strip comment, which starts with "//", from a string
  *
  * @param line
  * @return std::string
  */
-inline std::string strip_comments(std::string const& line) { return line.substr(0, line.find("//")); }
+inline std::string trim_comments(std::string const& line) { return line.substr(0, line.find("//")); }
 std::string remove_brackets(std::string const& str, char const left, char const right);
 size_t str_get_token(std::string const& str, std::string& tok, size_t pos = 0, std::string const& delim = " \t\n\v\f\r");
 size_t str_get_token(std::string const& str, std::string& tok, size_t pos, char const delim);
@@ -188,7 +186,7 @@ T detail::stonum(std::string const& str, size_t* pos) {
 
         // unsigned integer types
         if constexpr (std::is_same<T, unsigned>::value) {
-            if (dvlab::str::strip_spaces(str)[0] == '-') throw std::out_of_range("unsigned number underflow");
+            if (dvlab::str::trim_spaces(str)[0] == '-') throw std::out_of_range("unsigned number underflow");
             unsigned long result = std::stoul(str, pos);  // NOTE - for some reason there isn't stou (lol)
             if (result > std::numeric_limits<unsigned>::max()) {
                 throw std::out_of_range("stou");
@@ -196,11 +194,11 @@ T detail::stonum(std::string const& str, size_t* pos) {
             return (unsigned)result;
         }
         if constexpr (std::is_same<T, unsigned long>::value) {
-            if (dvlab::str::strip_spaces(str)[0] == '-') throw std::out_of_range("unsigned number underflow");
+            if (dvlab::str::trim_spaces(str)[0] == '-') throw std::out_of_range("unsigned number underflow");
             return std::stoul(str, pos);
         }
         if constexpr (std::is_same<T, unsigned long long>::value) {
-            if (dvlab::str::strip_spaces(str)[0] == '-') throw std::out_of_range("unsigned number underflow");
+            if (dvlab::str::trim_spaces(str)[0] == '-') throw std::out_of_range("unsigned number underflow");
             return std::stoull(str, pos);
         }
 

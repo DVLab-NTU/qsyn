@@ -11,7 +11,6 @@
 #include <string>
 #include <unordered_map>
 
-#include "cli/cli.hpp"
 #include "qcir/gate_type.hpp"
 #include "qsyn/qsyn_type.hpp"
 #include "util/phase.hpp"
@@ -68,7 +67,7 @@ public:
     dvlab::Phase get_phase() const { return _phase; }
     std::vector<QubitInfo> const& get_qubits() const { return _qubits; }
     void set_qubits(std::vector<QubitInfo> const& qubits) { _qubits = qubits; }
-    QubitInfo get_qubit(size_t qubit) const;
+    QubitInfo get_qubit(QubitIdType qubit) const;
     size_t get_num_qubits() const { return _qubits.size(); }
     QubitInfo get_targets() const { return _qubits[_qubits.size() - 1]; }
     QubitInfo get_control() const { return _qubits[0]; }

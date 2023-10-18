@@ -1,18 +1,18 @@
-dtgr benchmark/topology/ithaca.layout
-dtgp
-dtgr benchmark/topology/example.layout
-dtgp
-dtch 0
-dtp
-dtgp -q
-dtgp -q 15
-dtgp -e 15
-dtp
-dtp -l
-dtgp -p 0 64
-dtgp -p 12 56
-dtgp -p 35 21
-dtgp -p 33 33
+device read benchmark/topology/ithaca.layout
+device print
+device read benchmark/topology/example.layout
+device print
+device checkout 0
+device
+device print -q
+device print -q 15
+device print -e 15
+device
+device list
+device print -p 0 64
+device print -p 12 56
+device print -p 35 21
+device print -p 33 33
 qq -f
 
 

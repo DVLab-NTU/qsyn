@@ -91,7 +91,7 @@ dvlab::Command qcir_mgr_reset_cmd(QCirMgr& qcir_mgr) {
                 parser.description("reset QCirMgr");
             },
             [&](ArgumentParser const&) {
-                qcir_mgr.reset();
+                qcir_mgr.clear();
                 return CmdExecResult::done;
             }};
 }

@@ -22,7 +22,6 @@ namespace qsyn::zx {
  */
 std::vector<ZXVertex*> ZXGraph::create_topological_order() const {
     std::vector<ZXVertex*> topological_order;
-    size_t global_traversal_counter = 0;
     std::unordered_set<ZXVertex*> dfs_counters;
     for (auto const& v : _inputs) {
         if (!dfs_counters.contains(v))

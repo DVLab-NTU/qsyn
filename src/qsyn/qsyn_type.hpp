@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <limits>
 #include <vector>
 
 namespace dvlab {
@@ -14,7 +15,9 @@ class Phase;
 }
 
 namespace qsyn {
-using QubitIdType = int;
-using QubitIdList = std::vector<QubitIdType>;
-using Phase       = dvlab::Phase;
+using QubitIdType           = int;
+constexpr auto max_qubit_id = std::numeric_limits<QubitIdType>::max();
+constexpr auto min_qubit_id = std::numeric_limits<QubitIdType>::min();
+using QubitIdList           = std::vector<QubitIdType>;
+using Phase                 = dvlab::Phase;
 }  // namespace qsyn

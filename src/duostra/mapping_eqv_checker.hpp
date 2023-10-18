@@ -20,7 +20,7 @@ namespace qcir {
 
 class QCir;
 class QCirGate;
-class QubitInfo;
+struct QubitInfo;
 
 }  // namespace qcir
 
@@ -29,7 +29,7 @@ namespace duostra {
 class MappingEquivalenceChecker {
 public:
     using Device = qsyn::device::Device;
-    MappingEquivalenceChecker(qcir::QCir*, qcir::QCir*, Device, std::vector<size_t> = {}, bool = false);
+    MappingEquivalenceChecker(qcir::QCir*, qcir::QCir*, Device, std::vector<QubitIdType> = {}, bool = false);
 
     bool check();
     bool is_swap(qcir::QCirGate*);

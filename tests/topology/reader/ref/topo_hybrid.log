@@ -1,22 +1,22 @@
-qsyn> dtgr benchmark/topology/ithaca.layout
+qsyn> device read benchmark/topology/ithaca.layout
 
-qsyn> dtgp
+qsyn> device print
 Topology: ibm_ithaca (65 qubits, 72 edges)
 Gate Set: CX, ID, RZ, SX, X
 
-qsyn> dtgr benchmark/topology/example.layout
+qsyn> device read benchmark/topology/example.layout
 
-qsyn> dtgp
+qsyn> device print
 Topology: example_topology (3 qubits, 2 edges)
 Gate Set: X, RZ, H, ID, SX, CX
 
-qsyn> dtch 0
+qsyn> device checkout 0
 
-qsyn> dtp
+qsyn> device
 -> #Device: 2
 -> Now focused on: Device 0 (ibm_ithaca)
 
-qsyn> dtgp -q
+qsyn> device print -q
 
 ID:   0    Delay:    4.37    Error:  0.0003    Adjs:   1  10
 ID:   1    Delay:    5.94    Error: 0.00016    Adjs:   0   2
@@ -85,40 +85,40 @@ ID:  63    Delay:    4.83    Error: 0.00027    Adjs:  62  64
 ID:  64    Delay:    4.83    Error: 0.00018    Adjs:  54  63
 Total #Qubits: 65
 
-qsyn> dtgp -q 15
+qsyn> device print -q 15
 
 ID:  15    Delay:    5.27    Error: 0.00023    Adjs:  14  16  24
 
-qsyn> dtgp -e 15
+qsyn> device print -e 15
 
 ( 15,  14)    Delay:  561.778    Error:  0.01016
 ( 15,  16)    Delay:  512.000    Error:  0.00690
 ( 15,  24)    Delay:  561.778    Error:  1.00000
 Total #Edges: 3
 
-qsyn> dtp
+qsyn> device
 -> #Device: 2
 -> Now focused on: Device 0 (ibm_ithaca)
 
-qsyn> dtp -l
+qsyn> device list
 ★ 0    ibm_ithaca          #Q:   65
   1    example_topology    #Q:    3
 
-qsyn> dtgp -p 0 64
+qsyn> device print -p 0 64
 
 Path from 0 to 64:
    0    1    2    3    4   11   17   18   19   25 
   33   34   35   40   49   50   51   54   64 
-qsyn> dtgp -p 12 56
+qsyn> device print -p 12 56
 
 Path from 12 to 56:
   12   21   20   19   25   33   32   31   39   45 
   44   43   52   56 
-qsyn> dtgp -p 35 21
+qsyn> device print -p 35 21
 
 Path from 35 to 21:
   35   34   33   25   19   20   21 
-qsyn> dtgp -p 33 33
+qsyn> device print -p 33 33
 
 Path from 33 to 33:
   33 

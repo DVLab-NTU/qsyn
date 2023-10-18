@@ -56,7 +56,7 @@ public:
         a.swap(b);
     }
 
-    void reset() {
+    void clear() {
         _next_id    = 0;
         _focused_id = 0;
         _list.clear();

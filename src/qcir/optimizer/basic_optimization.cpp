@@ -443,7 +443,6 @@ bool Optimizer::_replace_cx_and_cz_with_s_and_cx(QubitIdType t1, QubitIdType t2)
  *
  */
 void Optimizer::_add_cz(QubitIdType t1, QubitIdType t2, bool do_minimize_czs) {
-    size_t ctrl = -1, targ = -1;
     bool found_match  = false;
     QCirGate* targ_cz = nullptr;
 

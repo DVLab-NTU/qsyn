@@ -15,8 +15,8 @@
 #include <string>
 #include <type_traits>
 
-#include "cli/cli.hpp"
 #include "qcir/gate_type.hpp"
+#include "qsyn/qsyn_type.hpp"
 #include "util/util.hpp"
 
 namespace qsyn::qcir {
@@ -80,7 +80,7 @@ size_t QCirGate::get_delay() const {
  * @param qubit
  * @return BitInfo
  */
-QubitInfo QCirGate::get_qubit(size_t qubit) const {
+QubitInfo QCirGate::get_qubit(QubitIdType qubit) const {
     for (size_t i = 0; i < _qubits.size(); i++) {
         if (_qubits[i]._qubit == qubit)
             return _qubits[i];

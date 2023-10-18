@@ -88,7 +88,7 @@ target_compile_definitions(spdlog PUBLIC SPDLOG_SHORT_LEVEL_NAMES={\"[trace]\ \ 
 target_link_libraries(spdlog PUBLIC fmt::fmt)
 
 target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE QSYN_VERSION="${CMAKE_PROJECT_VERSION}")
-
+target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wall -Werror)
 target_include_directories(${CMAKE_PROJECT_NAME}
     PRIVATE ${CMAKE_SOURCE_DIR}/src)
 
@@ -96,17 +96,56 @@ target_include_directories(${CMAKE_PROJECT_NAME}
 target_include_directories(${CMAKE_PROJECT_NAME} SYSTEM
     PRIVATE ${CMAKE_SOURCE_DIR}/vendor)
 
-target_link_libraries(
+# black magic to link libraries as if they were system libraries
+function(target_link_libraries_system target)
+    set(options PRIVATE PUBLIC INTERFACE)
+    cmake_parse_arguments(TLLS "${options}" "" "" ${ARGN})
+
+    foreach(op ${options})
+        if(TLLS_${op})
+            set(scope ${op})
+        endif()
+    endforeach(op)
+
+    set(libs ${TLLS_UNPARSED_ARGUMENTS})
+
+    foreach(lib ${libs})
+        get_target_property(lib_include_dirs ${lib} INTERFACE_INCLUDE_DIRECTORIES)
+
+        if(lib_include_dirs)
+            if(scope)
+                target_include_directories(${target} SYSTEM ${scope} ${lib_include_dirs})
+            else()
+                target_include_directories(${target} SYSTEM PRIVATE ${lib_include_dirs})
+            endif()
+        else()
+            message("Warning: ${lib} doesn't set INTERFACE_INCLUDE_DIRECTORIES. No include_directories set.")
+        endif()
+
+        if(scope)
+            target_link_libraries(${target} ${scope} ${lib})
+        else()
+            target_link_libraries(${target} ${lib})
+        endif()
+    endforeach()
+endfunction(target_link_libraries_system)
+
+target_link_libraries_system(
     ${CMAKE_PROJECT_NAME}
+    PRIVATE
     xtl
     xtensor
     xtensor-blas
-    lapack
-    OpenMP::OpenMP_CXX
     libfort::fort
     fmt::fmt
     spdlog::spdlog
     Microsoft.GSL::GSL
+)
+target_link_libraries(
+    ${CMAKE_PROJECT_NAME}
+    PRIVATE
+    lapack
+    OpenMP::OpenMP_CXX
     ${BLAS_LIBRARIES}
     ${LAPACK_LIBRARIES})
 

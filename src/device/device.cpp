@@ -16,12 +16,15 @@
 #include <cstdint>
 #include <cstdlib>
 #include <fstream>
+#include <gsl/narrow>
 #include <limits>
 #include <ranges>
 #include <string>
+#include <utility>
 
 #include "qcir/gate_type.hpp"
 #include "qcir/qcir_gate.hpp"
+#include "qsyn/qsyn_type.hpp"
 #include "util/util.hpp"
 
 using namespace qsyn::qcir;
@@ -131,7 +134,7 @@ std::ostream& operator<<(std::ostream& os, PhysicalQubit const& q) {
  * @param source false: from 0, true: from 1
  * @param pred predecessor
  */
-void PhysicalQubit::mark(bool source, size_t pred) {
+void PhysicalQubit::mark(bool source, QubitIdType pred) {
     _marked = true;
     _source = source;
     _pred   = pred;
@@ -168,8 +171,8 @@ void PhysicalQubit::reset() {
  * @param target
  * @return tuple<size_t, size_t> (index of next qubit, cost)
  */
-std::tuple<size_t, size_t> Device::get_next_swap_cost(size_t source, size_t target) {
-    size_t next_idx         = _predecessor[source][target];
+std::tuple<QubitIdType, QubitIdType> Device::get_next_swap_cost(QubitIdType source, QubitIdType target) {
+    auto next_idx           = _predecessor[source][target];
     PhysicalQubit& q_source = get_physical_qubit(source);
     PhysicalQubit& q_next   = get_physical_qubit(next_idx);
     size_t cost             = std::max(q_source.get_occupied_time(), q_next.get_occupied_time());
@@ -184,13 +187,13 @@ std::tuple<size_t, size_t> Device::get_next_swap_cost(size_t source, size_t targ
  * @param id logical
  * @return size_t
  */
-size_t Device::get_physical_by_logical(size_t id) {
+QubitIdType Device::get_physical_by_logical(QubitIdType id) {
     for (auto& [_, phy] : _qubit_list) {
         if (phy.get_logical_qubit() == id) {
             return phy.get_id();
         }
     }
-    return SIZE_MAX;
+    return max_qubit_id;
 }
 
 /**
@@ -199,7 +202,7 @@ size_t Device::get_physical_by_logical(size_t id) {
  * @param a Id of first qubit
  * @param b Id of second qubit
  */
-void Device::add_adjacency(size_t a, size_t b) {
+void Device::add_adjacency(QubitIdType a, QubitIdType b) {
     if (a > b) std::swap(a, b);
     if (!qubit_id_exists(a)) {
         PhysicalQubit temp = PhysicalQubit(a);
@@ -248,7 +251,7 @@ void Device::apply_gate(Operation const& op) {
  *
  * @param op
  */
-void Device::apply_swap_check(size_t qid0, size_t qid1) {
+void Device::apply_swap_check(QubitIdType qid0, QubitIdType qid1) {
     auto& q0  = get_physical_qubit(qid0);
     auto& q1  = get_physical_qubit(qid1);
     auto temp = q0.get_logical_qubit();
@@ -264,7 +267,7 @@ void Device::apply_swap_check(size_t qid0, size_t qid1) {
  *
  * @param physicalId
  */
-void Device::apply_single_qubit_gate(size_t physical_id) {
+void Device::apply_single_qubit_gate(QubitIdType physical_id) {
     size_t start_time = _qubit_list[physical_id].get_occupied_time();
     _qubit_list[physical_id].set_occupied_time(start_time + SINGLE_DELAY);
     _qubit_list[physical_id].reset();
@@ -289,7 +292,7 @@ std::vector<std::optional<size_t>> Device::mapping() const {
  *
  * @param assign
  */
-void Device::place(std::vector<size_t> const& assignment) {
+void Device::place(std::vector<QubitIdType> const& assignment) {
     for (size_t i = 0; i < assignment.size(); ++i) {
         assert(_qubit_list[assignment[i]].get_logical_qubit() == std::nullopt);
         _qubit_list[assignment[i]].set_logical_qubit(i);
@@ -304,10 +307,10 @@ void Device::calculate_path() {
     _predecessor.clear();
     _distance.clear();
     _adjacency_matrix.clear();
-    _adjacency_matrix.resize(_num_qubit);
-    for (size_t i = 0; i < _num_qubit; i++) {
-        _adjacency_matrix[i].resize(_num_qubit, _max_dist);
-        for (size_t j = 0; j < _num_qubit; j++) {
+    _adjacency_matrix.resize(get_num_qubits());
+    for (size_t i = 0; i < get_num_qubits(); i++) {
+        _adjacency_matrix[i].resize(get_num_qubits(), _max_dist);
+        for (size_t j = 0; j < get_num_qubits(); j++) {
             if (i == j)
                 _adjacency_matrix[i][j] = 0;
         }
@@ -321,23 +324,23 @@ void Device::calculate_path() {
  *
  */
 void Device::_initialize_floyd_warshall() {
-    _distance.resize(_num_qubit);
-    _predecessor.resize(_num_qubit);
+    _distance.resize(get_num_qubits());
+    _predecessor.resize(get_num_qubits());
 
-    for (size_t i = 0; i < _num_qubit; i++) {
-        _distance[i].resize(_num_qubit);
-        _predecessor[i].resize(_num_qubit, SIZE_MAX);
-        for (size_t j = 0; j < _num_qubit; j++) {
+    for (size_t i = 0; i < get_num_qubits(); i++) {
+        _distance[i].resize(get_num_qubits());
+        _predecessor[i].resize(get_num_qubits(), max_qubit_id);
+        for (size_t j = 0; j < get_num_qubits(); j++) {
             _distance[i][j] = _adjacency_matrix[i][j];
             if (_distance[i][j] != 0 && _distance[i][j] != _max_dist) {
-                _predecessor[i][j] = _qubit_list[i].get_id();
+                _predecessor[i][j] = _qubit_list[gsl::narrow<QubitIdType>(i)].get_id();
             }
         }
     }
 
     spdlog::debug("Predecessor Matrix:");
     for (auto& row : _predecessor) {
-        spdlog::debug("{:5}", fmt::join(row | std::views::transform([](size_t j) { return (j == SIZE_MAX) ? std::string{"/"} : std::to_string(j); }), ""));
+        spdlog::debug("{:5}", fmt::join(row | std::views::transform([](QubitIdType j) { return (j == max_qubit_id) ? std::string{"/"} : std::to_string(j); }), ""));
     }
     spdlog::debug("Distance Matrix:");
     for (auto& row : _distance) {
@@ -353,7 +356,7 @@ void Device::_initialize_floyd_warshall() {
 void Device::_set_weight() {
     assert(_adjacency_matrix.size() == _num_qubit);
     for (size_t i = 0; i < _num_qubit; i++) {
-        for (auto const& adj : _qubit_list[i].get_adjacencies()) {
+        for (auto const& adj : _qubit_list[gsl::narrow<QubitIdType>(i)].get_adjacencies()) {
             _adjacency_matrix[i][adj] = 1;
         }
     }
@@ -380,7 +383,7 @@ void Device::floyd_warshall() {
         spdlog::debug("Predecessor Matrix:");
         for (auto& row : _predecessor) {
             spdlog::debug("{:5}", fmt::join(
-                                      row | std::views::transform([](size_t j) { return (j == SIZE_MAX) ? std::string{"/"} : std::to_string(j); }), ""));
+                                      row | std::views::transform([](auto j) { return (j == max_qubit_id) ? std::string{"/"} : std::to_string(j); }), ""));
         }
         spdlog::debug("Distance Matrix:");
         for (auto& row : _distance) {
@@ -397,15 +400,15 @@ void Device::floyd_warshall() {
  * @param t terminate
  * @return vector<PhyQubit>&
  */
-std::vector<PhysicalQubit> Device::get_path(size_t s, size_t t) const {
+std::vector<PhysicalQubit> Device::get_path(QubitIdType src, QubitIdType dest) const {
     std::vector<PhysicalQubit> path;
-    path.emplace_back(_qubit_list.at(s));
-    if (s == t) return path;
-    size_t new_pred = _predecessor[t][s];
+    path.emplace_back(_qubit_list.at(src));
+    if (src == dest) return path;
+    auto new_pred = _predecessor[dest][src];
     path.emplace_back(new_pred);
     while (true) {
-        new_pred = _predecessor[t][new_pred];
-        if (new_pred == SIZE_MAX) break;
+        new_pred = _predecessor[dest][new_pred];
+        if (new_pred == max_qubit_id) break;
         path.emplace_back(_qubit_list.at(new_pred));
     }
     return path;
@@ -429,23 +432,23 @@ bool Device::read_device(std::string const& filename) {
     // NOTE - Device name
     while (str == "") {
         std::getline(topo_file, str);
-        str = dvlab::str::strip_spaces(dvlab::str::strip_comments(str));
+        str = dvlab::str::trim_spaces(dvlab::str::trim_comments(str));
     }
     size_t token_end = dvlab::str::str_get_token(str, token, 0, ": ");
     data             = str.substr(token_end + 1);
 
-    _topology->set_name(dvlab::str::strip_spaces(data));
+    _topology->set_name(dvlab::str::trim_spaces(data));
 
     // NOTE - Qubit num
     str = "", token = "", data = "";
     unsigned qbn = 0;
     while (str == "") {
         std::getline(topo_file, str);
-        str = dvlab::str::strip_spaces(dvlab::str::strip_comments(str));
+        str = dvlab::str::trim_spaces(dvlab::str::trim_comments(str));
     }
     token_end = dvlab::str::str_get_token(str, token, 0, ": ");
     data      = str.substr(token_end + 1);
-    data      = dvlab::str::strip_spaces(data);
+    data      = dvlab::str::trim_spaces(data);
     if (!dvlab::str::str_to_u(data, qbn)) {
         spdlog::error("The number of qubit is not a positive integer!!");
         return false;
@@ -456,7 +459,7 @@ bool Device::read_device(std::string const& filename) {
     str = "", token = "", data = "";
     while (str == "") {
         std::getline(topo_file, str);
-        str = dvlab::str::strip_spaces(dvlab::str::strip_comments(str));
+        str = dvlab::str::trim_spaces(dvlab::str::trim_comments(str));
     }
     if (!_parse_gate_set(str)) return false;
 
@@ -464,12 +467,12 @@ bool Device::read_device(std::string const& filename) {
     str = "", token = "", data = "";
     while (str == "") {
         std::getline(topo_file, str);
-        str = dvlab::str::strip_spaces(dvlab::str::strip_comments(str));
+        str = dvlab::str::trim_spaces(dvlab::str::trim_comments(str));
     }
 
     token_end = dvlab::str::str_get_token(str, token, 0, ": ");
     data      = str.substr(token_end + 1);
-    data      = dvlab::str::strip_spaces(data);
+    data      = dvlab::str::trim_spaces(data);
     data      = dvlab::str::remove_brackets(data, '[', ']');
     std::vector<std::vector<float>> cx_err, cx_delay;
     std::vector<std::vector<size_t>> adj_list;
@@ -484,7 +487,7 @@ bool Device::read_device(std::string const& filename) {
     for (size_t i = 0; i < adj_list.size(); i++) {
         for (size_t j = 0; j < adj_list[i].size(); j++) {
             if (adj_list[i][j] > i) {
-                add_adjacency(i, adj_list[i][j]);
+                add_adjacency(gsl::narrow<QubitIdType>(i), gsl::narrow<QubitIdType>(adj_list[i][j]));
                 _topology->add_adjacency_info(i, adj_list[i][j], {._time = cx_delay[i][j], ._error = cx_err[i][j]});
             }
         }
@@ -510,12 +513,12 @@ bool Device::_parse_gate_set(std::string const& gate_set_str) {
     std::string token = "", data = "", gt;
     size_t token_end = dvlab::str::str_get_token(gate_set_str, token, 0, ": ");
     data             = gate_set_str.substr(token_end + 1);
-    data             = dvlab::str::strip_spaces(data);
+    data             = dvlab::str::trim_spaces(data);
     data             = dvlab::str::remove_brackets(data, '{', '}');
     size_t m         = 0;
     while (m < data.size()) {
         m              = dvlab::str::str_get_token(data, gt, m, ',');
-        gt             = dvlab::str::strip_spaces(gt);
+        gt             = dvlab::str::trim_spaces(gt);
         gt             = dvlab::str::tolower_string(gt);
         auto gate_type = str_to_gate_type(gt);
         if (!gate_type.has_value()) {
@@ -544,12 +547,12 @@ bool Device::_parse_info(std::ifstream& f, std::vector<std::vector<float>>& cx_e
         while (str == "") {
             if (f.eof()) break;
             std::getline(f, str);
-            str = dvlab::str::strip_spaces(dvlab::str::strip_comments(str));
+            str = dvlab::str::trim_spaces(dvlab::str::trim_comments(str));
         }
         size_t token_end = dvlab::str::str_get_token(str, token, 0, ": ");
         data             = str.substr(token_end + 1);
 
-        data = dvlab::str::strip_spaces(data);
+        data = dvlab::str::trim_spaces(data);
         if (token == "SGERROR") {
             if (!_parse_singles(data, single_error)) return false;
         } else if (token == "SGTIME") {
@@ -563,7 +566,7 @@ bool Device::_parse_info(std::ifstream& f, std::vector<std::vector<float>>& cx_e
             break;
         }
         std::getline(f, str);
-        str = dvlab::str::strip_spaces(dvlab::str::strip_comments(str));
+        str = dvlab::str::trim_spaces(dvlab::str::trim_comments(str));
     }
 
     return true;
@@ -587,7 +590,7 @@ bool Device::_parse_singles(std::string const& data, std::vector<float>& contain
     std::vector<float> single_fl;
     while (m < str.size()) {
         m   = dvlab::str::str_get_token(str, num, m, ',');
-        num = dvlab::str::strip_spaces(num);
+        num = dvlab::str::trim_spaces(num);
         if (!dvlab::str::str_to_f(num, fl)) {
             spdlog::error("The number `{}` is not a float!!", num);
             return false;
@@ -616,7 +619,7 @@ bool Device::_parse_float_pairs(std::string const& data, std::vector<std::vector
         std::vector<float> single_fl;
         while (m < str.size()) {
             m   = dvlab::str::str_get_token(str, num, m, ',');
-            num = dvlab::str::strip_spaces(num);
+            num = dvlab::str::trim_spaces(num);
             if (!dvlab::str::str_to_f(num, fl)) {
                 spdlog::error("The number `{}` is not a float!!", num);
                 return false;
@@ -647,7 +650,7 @@ bool Device::_parse_size_t_pairs(std::string const& data, std::vector<std::vecto
         std::vector<size_t> single;
         while (m < str.size()) {
             m   = dvlab::str::str_get_token(str, num, m, ',');
-            num = dvlab::str::strip_spaces(num);
+            num = dvlab::str::trim_spaces(num);
             if (!dvlab::str::str_to_u(num, qbn) || qbn >= _num_qubit) {
                 spdlog::error("The number of qubit `{}` is not a positive integer or not in the legal range!!", num);
                 return false;
@@ -712,7 +715,7 @@ void Device::print_edges(std::vector<size_t> candidates) const {
         size_t cnt = 0;
         for (size_t i = 0; i < _num_qubit; i++) {
             for (auto& q : qubits[i].get_adjacencies()) {
-                if (i < q) {
+                if (std::cmp_less(i, q)) {
                     cnt++;
                     _topology->print_single_edge(i, q);
                 }
@@ -746,7 +749,7 @@ void Device::print_topology() const {
 void Device::print_predecessor() const {
     fmt::println("Predecessor Matrix:");
     for (auto& row : _predecessor) {
-        fmt::println("{:5}", fmt::join(row | std::views::transform([](size_t pred) { return (pred == SIZE_MAX) ? "/" : std::to_string(pred); }), ""));
+        fmt::println("{:5}", fmt::join(row | std::views::transform([](auto pred) { return (pred == max_qubit_id) ? "/" : std::to_string(pred); }), ""));
     }
 }
 
@@ -767,19 +770,19 @@ void Device::print_distance() const {
  * @param s start
  * @param t terminate
  */
-void Device::print_path(size_t source, size_t destination) const {
+void Device::print_path(QubitIdType src, QubitIdType dest) const {
     fmt::println("");
-    for (auto& c : {source, destination}) {
-        if (c >= _num_qubit) {
+    for (auto& c : {src, dest}) {
+        if (std::cmp_greater_equal(c, _num_qubit)) {
             spdlog::error("the maximum qubit id is {}!!", _num_qubit - 1);
             return;
         }
     }
-    std::vector<PhysicalQubit> const& path = get_path(source, destination);
-    if (path.front().get_id() != source && path.back().get_id() != destination)
-        fmt::println("No path between {} and {}", source, destination);
+    std::vector<PhysicalQubit> const& path = get_path(src, dest);
+    if (path.front().get_id() != src && path.back().get_id() != dest)
+        fmt::println("No path between {} and {}", src, dest);
     else {
-        fmt::println("Path from {} to {}:", source, destination);
+        fmt::println("Path from {} to {}:", src, dest);
         size_t cnt = 0;
         for (auto& v : path) {
             constexpr size_t num_cols = 10;
@@ -796,7 +799,7 @@ void Device::print_path(size_t source, size_t destination) const {
 void Device::print_mapping() {
     fmt::println("----------Mapping---------");
     for (size_t i = 0; i < _num_qubit; i++) {
-        fmt::println("{:<5} : {}", i, _qubit_list[i].get_logical_qubit());
+        fmt::println("{:<5} : {}", i, _qubit_list[gsl::narrow<QubitIdType>(i)].get_logical_qubit());
     }
 }
 

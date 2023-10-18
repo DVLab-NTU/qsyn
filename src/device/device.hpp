@@ -75,37 +75,37 @@ private:
 
 class PhysicalQubit {
 public:
-    using Adjacencies = dvlab::utils::ordered_hashset<size_t>;
+    using Adjacencies = dvlab::utils::ordered_hashset<QubitIdType>;
     PhysicalQubit() {}
-    PhysicalQubit(const size_t id) : _id(id) {}
+    PhysicalQubit(QubitIdType id) : _id(id) {}
 
-    void set_id(size_t id) { _id = id; }
+    void set_id(QubitIdType id) { _id = id; }
     void set_occupied_time(size_t t) { _occupied_time = t; }
     void set_logical_qubit(std::optional<size_t> id) { _logical_qubit = id; }
     void add_adjacency(size_t adj) { _adjacencies.emplace(adj); }
 
-    size_t get_id() const { return _id; }
-    size_t get_occupied_time() const { return _occupied_time; }
-    bool is_adjacency(PhysicalQubit const& pq) const { return _adjacencies.contains(pq.get_id()); }
-    Adjacencies const& get_adjacencies() const { return _adjacencies; }
-    std::optional<QubitIdType> get_logical_qubit() const { return _logical_qubit; }
+    auto get_id() const { return _id; }
+    auto get_occupied_time() const { return _occupied_time; }
+    auto is_adjacency(PhysicalQubit const& pq) const { return _adjacencies.contains(pq.get_id()); }
+    auto const& get_adjacencies() const { return _adjacencies; }
+    auto get_logical_qubit() const { return _logical_qubit; }
 
     // traversal
-    size_t get_cost() const { return _cost; }
-    bool is_marked() { return _marked; }
-    bool is_taken() { return _taken; }
-    bool get_source() const { return _source; }
-    size_t get_predecessor() const { return _pred; }
-    size_t get_swap_time() const { return _swap_time; }
+    auto get_cost() const { return _cost; }
+    auto is_marked() { return _marked; }
+    auto is_taken() { return _taken; }
+    auto get_source() const { return _source; }
+    auto get_predecessor() const { return _pred; }
+    auto get_swap_time() const { return _swap_time; }
 
     // NOTE - Duostra functions
-    void mark(bool source, size_t pred);
+    void mark(bool source, QubitIdType pred);
     void take_route(size_t cost, size_t swap_time);
     void reset();
 
 private:
     // NOTE - Device information
-    size_t _id = SIZE_MAX;
+    QubitIdType _id = max_qubit_id;
     Adjacencies _adjacencies;
 
     // NOTE - Duostra parameter
@@ -113,7 +113,7 @@ private:
     size_t _occupied_time                     = 0;
 
     bool _marked      = false;
-    size_t _pred      = 0;
+    QubitIdType _pred = 0;
     size_t _cost      = 0;
     size_t _swap_time = 0;
     bool _source      = false;  // false:0, true:1
@@ -122,33 +122,32 @@ private:
 
 class Device {
 public:
-    using PhysicalQubitList                  = dvlab::utils::ordered_hashmap<size_t, PhysicalQubit>;
+    using PhysicalQubitList                  = dvlab::utils::ordered_hashmap<QubitIdType, PhysicalQubit>;
     constexpr static size_t default_max_dist = 100000;
     Device() : _topology{std::make_shared<Topology>()} {}
 
     std::string get_name() const { return _topology->get_name(); }
     size_t get_num_qubits() const { return _num_qubit; }
     PhysicalQubitList const& get_physical_qubit_list() const { return _qubit_list; }
-    PhysicalQubit& get_physical_qubit(size_t id) { return _qubit_list[id]; }
-    size_t get_physical_by_logical(size_t id);
-    std::tuple<size_t, size_t> get_next_swap_cost(size_t source, size_t target);
-    bool qubit_id_exists(size_t id) { return _qubit_list.contains(id); }
+    PhysicalQubit& get_physical_qubit(QubitIdType id) { return _qubit_list[id]; }
+    QubitIdType get_physical_by_logical(QubitIdType id);
+    std::tuple<QubitIdType, QubitIdType> get_next_swap_cost(QubitIdType source, QubitIdType target);
+    bool qubit_id_exists(QubitIdType id) { return _qubit_list.contains(id); }
 
-    void set_num_qubits(size_t n) { _num_qubit = n; }
     void add_physical_qubit(PhysicalQubit q) { _qubit_list[q.get_id()] = std::move(q); }
-    void add_adjacency(size_t a, size_t b);
+    void add_adjacency(QubitIdType a, QubitIdType b);
 
     // NOTE - Duostra
     void apply_gate(Operation const& op);
-    void apply_single_qubit_gate(size_t physical_id);
-    void apply_swap_check(size_t qid0, size_t qid1);
+    void apply_single_qubit_gate(QubitIdType physical_id);
+    void apply_swap_check(QubitIdType qid0, QubitIdType qid1);
     std::vector<std::optional<size_t>> mapping() const;
-    void place(std::vector<size_t> const& assignment);
+    void place(std::vector<QubitIdType> const& assignment);
 
     // NOTE - All Pairs Shortest Path
     void calculate_path();
     void floyd_warshall();
-    std::vector<PhysicalQubit> get_path(size_t, size_t) const;
+    std::vector<PhysicalQubit> get_path(QubitIdType src, QubitIdType dest) const;
 
     bool read_device(std::string const&);
 
@@ -157,7 +156,7 @@ public:
     void print_topology() const;
     void print_predecessor() const;
     void print_distance() const;
-    void print_path(size_t source, size_t destination) const;
+    void print_path(QubitIdType src, QubitIdType dest) const;
     void print_mapping();
     void print_status() const;
 
@@ -175,9 +174,9 @@ private:
 
     // NOTE - Containers and helper functions for Floyd-Warshall
     int _max_dist = default_max_dist;
-    std::vector<std::vector<size_t>> _predecessor;
+    std::vector<std::vector<QubitIdType>> _predecessor;
     std::vector<std::vector<int>> _distance;
-    std::vector<std::vector<int>> _adjacency_matrix;
+    std::vector<std::vector<QubitIdType>> _adjacency_matrix;
     void _initialize_floyd_warshall();
     void _set_weight();
 };
@@ -199,12 +198,12 @@ public:
     size_t get_id() const { return _id; }
     void set_id(size_t id) { _id = id; }
 
-    std::string get_type_str() const { return qcir::gate_type_to_str(_operation, std::get<1>(get_qubits()) == SIZE_MAX ? 1 : 2, _phase); }
-    bool is_double_qubit_gate() const { return std::get<1>(_qubits) != SIZE_MAX; }
+    std::string get_type_str() const { return qcir::gate_type_to_str(_operation, is_double_qubit_gate() ? 2 : 1, _phase); }
+    bool is_double_qubit_gate() const { return std::get<1>(_qubits) != max_qubit_id; }
 
     bool is_swap() const { return _operation == qcir::GateRotationCategory::swap; }
-    bool is_cx() const { return _operation == qcir::GateRotationCategory::px && _phase == dvlab::Phase(1) && std::get<1>(_qubits) != SIZE_MAX; }
-    bool is_cz() const { return _operation == qcir::GateRotationCategory::pz && _phase == dvlab::Phase(1) && std::get<1>(_qubits) != SIZE_MAX; }
+    bool is_cx() const { return _operation == qcir::GateRotationCategory::px && _phase == dvlab::Phase(1) && is_double_qubit_gate(); }
+    bool is_cz() const { return _operation == qcir::GateRotationCategory::pz && _phase == dvlab::Phase(1) && is_double_qubit_gate(); }
 
 private:
     size_t _id = SIZE_MAX;

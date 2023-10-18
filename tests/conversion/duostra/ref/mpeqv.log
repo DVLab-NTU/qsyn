@@ -1,4 +1,4 @@
-qsyn> dtgr benchmark/topology/guadalupe.layout
+qsyn> device read benchmark/topology/guadalupe.layout
 
 qsyn> qcset -d 2 -sw 6
 

@@ -13,6 +13,7 @@
 #include "./checker.hpp"
 #include "./placer.hpp"
 #include "qcir/qcir.hpp"
+#include "qsyn/qsyn_type.hpp"
 
 extern bool stop_requested();
 
@@ -62,7 +63,7 @@ void Duostra::make_dependency() {
 
         auto rotation_category = g->get_rotation_category();
 
-        size_t q2        = SIZE_MAX;
+        auto q2          = max_qubit_id;
         QubitInfo first  = g->get_qubits()[0];
         QubitInfo second = {};
         if (g->get_qubits().size() > 1) {
@@ -128,7 +129,7 @@ bool Duostra::map(bool use_device_as_placement) {
         return false;
     }
 
-    std::vector<size_t> assign;
+    std::vector<QubitIdType> assign;
     if (!use_device_as_placement) {
         spdlog::info("Calculating Initial Placement...");
         auto placer = get_placer();
@@ -202,26 +203,6 @@ void Duostra::store_order_info(std::vector<size_t> const& order) {
     }
 }
 
-// /**
-//  * @brief Print as qasm form
-//  *
-//  */
-// void Duostra::print_assembly() const {
-//     std::cout << "Mapping Result: " << std::endl;
-//     std::cout << std::endl;
-//     for (auto const& op : _result) {
-//         std::cout << std::left << std::setw(5) << op.get_type_str() << " ";  // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
-//         std::tuple<size_t, size_t> qubits = op.get_qubits();
-//         std::string res                   = "q[" + std::to_string(get<0>(qubits)) + "]";
-//         if (get<1>(qubits) != SIZE_MAX) {
-//             res += ",q[" + std::to_string(get<1>(qubits)) + "]";
-//         }
-//         res += ";";
-//         std::cout << std::left << std::setw(20) << res;  // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
-//         std::cout << " // (" << op.get_time_begin() << "," << op.get_time_end() << ")   Origin gate: " << op.get_id() << "\n";
-//     }
-// }
-
 /**
  * @brief Construct physical QCir by operation
  *
@@ -229,10 +210,10 @@ void Duostra::store_order_info(std::vector<size_t> const& order) {
 void Duostra::build_circuit_by_result() {
     _physical_circuit->add_qubits(_device.get_num_qubits());
     for (auto const& operation : _result) {
-        std::tuple<size_t, size_t> qubits = operation.get_qubits();
+        auto qubits = operation.get_qubits();
         QubitIdList qu;
         qu.emplace_back(get<0>(qubits));
-        if (get<1>(qubits) != SIZE_MAX) {
+        if (get<1>(qubits) != max_qubit_id) {
             qu.emplace_back(get<1>(qubits));
         }
         if (operation.is_swap()) {
