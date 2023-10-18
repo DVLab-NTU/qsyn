@@ -92,7 +92,7 @@ public:
     std::vector<QCirGate*> const& get_topologically_ordered_gates() const { return _topological_order; }
     std::vector<QCirGate*> const& get_gates() const { return _qgates; }
     QCirGate* get_gate(size_t gid) const;
-    QCirQubit* get_qubit(size_t qid) const;
+    QCirQubit* get_qubit(QubitIdType qid) const;
     std::string get_filename() const { return _filename; }
     std::vector<std::string> const& get_procedures() const { return _procedures; }
 
@@ -100,7 +100,6 @@ public:
     void add_procedures(std::vector<std::string> const& ps) { _procedures.insert(_procedures.end(), ps.begin(), ps.end()); }
     void add_procedure(std::string const& p) { _procedures.emplace_back(p); }
 
-    //
     void reset();
     QCir* compose(QCir const& other);
     QCir* tensor_product(QCir const& other);

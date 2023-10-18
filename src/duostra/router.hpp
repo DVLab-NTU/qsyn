@@ -13,6 +13,7 @@
 
 #include "./duostra_def.hpp"
 #include "device/device.hpp"
+#include "qsyn/qsyn_type.hpp"
 
 namespace qsyn::duostra {
 
@@ -21,15 +22,15 @@ class Gate;
 class AStarNode {
 public:
     friend class AStarComp;
-    AStarNode(size_t, size_t, bool);
+    AStarNode(size_t cost, QubitIdType id, bool source);
 
-    bool get_source() const { return _source; }
-    size_t get_id() const { return _id; }
-    size_t get_cost() const { return _estimated_cost; }
+    auto get_source() const { return _source; }
+    auto get_id() const { return _id; }
+    auto get_cost() const { return _estimated_cost; }
 
 private:
     size_t _estimated_cost;
-    size_t _id;
+    QubitIdType _id;
     bool _source;  // false q0 propagate, true q1 propagate
 };
 
@@ -54,30 +55,30 @@ public:
 
     std::unique_ptr<Router> clone() const;
 
-    Device& get_device() { return _device; }
-    Device const& get_device() const { return _device; }
+    auto& get_device() { return _device; }
+    auto const& get_device() const { return _device; }
 
     size_t get_gate_cost(Gate const&, MinMaxOptionType min_max, size_t apsp_coeff);
     bool is_executable(Gate const&);
 
     // Main Router function
-    Operation execute_single(qcir::GateRotationCategory, dvlab::Phase, size_t);
-    std::vector<Operation> duostra_routing(Gate const& gate, std::tuple<size_t, size_t>, MinMaxOptionType tie_breaking_strategy, bool swapped);
-    std::vector<Operation> apsp_routing(Gate const& gate, std::tuple<size_t, size_t>, MinMaxOptionType tie_breaking_strategy, bool swapped);
+    Operation execute_single(qcir::GateRotationCategory gate, dvlab::Phase phase, QubitIdType q);
+    std::vector<Operation> duostra_routing(Gate const& gate, std::tuple<QubitIdType, QubitIdType> qubit_pair, MinMaxOptionType tie_breaking_strategy, bool swapped);
+    std::vector<Operation> apsp_routing(Gate const& gate, std::tuple<QubitIdType, QubitIdType> qs, MinMaxOptionType tie_breaking_strategy, bool swapped);
     std::vector<Operation> assign_gate(Gate const&);
 
 private:
     MinMaxOptionType _tie_breaking_strategy;
     Device _device;
-    std::vector<size_t> _logical_to_physical;
+    std::vector<QubitIdType> _logical_to_physical;
     bool _apsp : 1;
     bool _duostra : 1;
     bool _greedy_type : 1;
 
     void _initialize();
-    std::tuple<size_t, size_t> _get_physical_qubits(Gate const& gate) const;
+    std::tuple<QubitIdType, QubitIdType> _get_physical_qubits(Gate const& gate) const;
 
-    std::tuple<bool, size_t> _touch_adjacency(PhysicalQubit& qubit, PriorityQueue& pq, bool source);  // return <if touch target, target id>, swtch: false q0 propagate, true q1 propagate
+    std::tuple<bool, QubitIdType> _touch_adjacency(PhysicalQubit& qubit, PriorityQueue& pq, bool source);  // return <if touch target, target id>, swtch: false q0 propagate, true q1 propagate
     std::vector<Operation> _traceback(Gate const& gate, PhysicalQubit& q0, PhysicalQubit& q1, PhysicalQubit& t0, PhysicalQubit& t1, bool swap_ids, bool swapped);
 };
 

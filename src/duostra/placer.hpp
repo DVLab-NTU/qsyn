@@ -12,6 +12,8 @@
 #include <random>
 #include <vector>
 
+#include "qsyn/qsyn_type.hpp"
+
 namespace qsyn::device {
 class Device;
 }
@@ -24,10 +26,10 @@ public:
     BasePlacer() {}
     virtual ~BasePlacer() = default;
 
-    std::vector<size_t> place_and_assign(Device &);
+    std::vector<QubitIdType> place_and_assign(Device&);
 
 protected:
-    virtual std::vector<size_t> _place(Device &) const = 0;
+    virtual std::vector<QubitIdType> _place(Device&) const = 0;
 };
 
 class RandomPlacer : public BasePlacer {
@@ -36,7 +38,7 @@ public:
     ~RandomPlacer() override = default;
 
 protected:
-    std::vector<size_t> _place(Device & /*unused*/) const override;
+    std::vector<QubitIdType> _place(Device& /*unused*/) const override;
 };
 
 class StaticPlacer : public BasePlacer {
@@ -45,7 +47,7 @@ public:
     ~StaticPlacer() override = default;
 
 protected:
-    std::vector<size_t> _place(Device & /*unused*/) const override;
+    std::vector<QubitIdType> _place(Device& /*unused*/) const override;
 };
 
 class DFSPlacer : public BasePlacer {
@@ -54,10 +56,10 @@ public:
     ~DFSPlacer() override = default;
 
 protected:
-    std::vector<size_t> _place(Device & /*unused*/) const override;
+    std::vector<QubitIdType> _place(Device& /*unused*/) const override;
 
 private:
-    void _dfs_device(size_t, Device &, std::vector<size_t> &, std::vector<bool> &) const;
+    void _dfs_device(QubitIdType current, Device& device, std::vector<QubitIdType>& assign, std::vector<bool>& qubit_marks) const;
 };
 
 std::unique_ptr<BasePlacer> get_placer();

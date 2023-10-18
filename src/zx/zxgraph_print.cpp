@@ -8,6 +8,7 @@
 #include <spdlog/spdlog.h>
 
 #include <cstddef>
+#include <gsl/narrow>
 #include <map>
 #include <ranges>
 #include <string>
@@ -222,7 +223,9 @@ void ZXGraph::draw() const {
     }
     qubit_ids_temp.clear();
 
-    for (QubitIdType i = 0; i < qubit_ids.size(); i++) q_pair[i] = qubit_ids[i];
+    for (size_t i = 0; i < qubit_ids.size(); i++) {
+        q_pair[gsl::narrow<QubitIdType>(i)] = qubit_ids[gsl::narrow<QubitIdType>(i)];
+    }
     std::vector<ZXVertex*> tmp;
     tmp.resize(qubit_ids.size());
     std::vector<std::vector<ZXVertex*>> col_list(max_col + 1, tmp);
@@ -256,7 +259,7 @@ void ZXGraph::draw() const {
 
         // print row
         for (size_t j = 0; j <= max_col; j++) {
-            if (i < -offset) {
+            if (std::cmp_less(i, -offset)) {
                 if (col_list[j][i] != nullptr) {
                     std::cout << "(" << detail::get_colored_vertex_string(col_list[j][i]) << ")   ";
                 } else {

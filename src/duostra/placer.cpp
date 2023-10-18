@@ -13,6 +13,7 @@
 
 #include "./duostra.hpp"
 #include "device/device.hpp"
+#include "qsyn/qsyn_type.hpp"
 #include "util/util.hpp"
 
 namespace qsyn::duostra {
@@ -40,7 +41,7 @@ std::unique_ptr<BasePlacer> get_placer() {
  *
  * @param device
  */
-std::vector<size_t> BasePlacer::place_and_assign(Device& device) {
+std::vector<QubitIdType> BasePlacer::place_and_assign(Device& device) {
     auto assign = _place(device);
     device.place(assign);
     return assign;
@@ -54,8 +55,8 @@ std::vector<size_t> BasePlacer::place_and_assign(Device& device) {
  * @param device
  * @return vector<size_t>
  */
-std::vector<size_t> RandomPlacer::_place(Device& device) const {
-    std::vector<size_t> assign;
+std::vector<QubitIdType> RandomPlacer::_place(Device& device) const {
+    std::vector<QubitIdType> assign;
     for (size_t i = 0; i < device.get_num_qubits(); ++i)
         assign.emplace_back(i);
 
@@ -72,8 +73,8 @@ std::vector<size_t> RandomPlacer::_place(Device& device) const {
  * @param device
  * @return vector<size_t>
  */
-std::vector<size_t> StaticPlacer::_place(Device& device) const {
-    std::vector<size_t> assign;
+std::vector<QubitIdType> StaticPlacer::_place(Device& device) const {
+    std::vector<QubitIdType> assign;
     for (size_t i = 0; i < device.get_num_qubits(); ++i)
         assign.emplace_back(i);
 
@@ -88,8 +89,8 @@ std::vector<size_t> StaticPlacer::_place(Device& device) const {
  * @param device
  * @return vector<size_t>
  */
-std::vector<size_t> DFSPlacer::_place(Device& device) const {
-    std::vector<size_t> assign;
+std::vector<QubitIdType> DFSPlacer::_place(Device& device) const {
+    std::vector<QubitIdType> assign;
     std::vector<bool> qubit_mark(device.get_num_qubits(), false);
     _dfs_device(0, device, assign, qubit_mark);
     assert(assign.size() == device.get_num_qubits());
@@ -104,7 +105,7 @@ std::vector<size_t> DFSPlacer::_place(Device& device) const {
  * @param assign
  * @param qubitMark
  */
-void DFSPlacer::_dfs_device(size_t current, Device& device, std::vector<size_t>& assign, std::vector<bool>& qubit_marks) const {
+void DFSPlacer::_dfs_device(QubitIdType current, Device& device, std::vector<QubitIdType>& assign, std::vector<bool>& qubit_marks) const {
     if (qubit_marks[current]) {
         std::cout << current << std::endl;
     }
@@ -113,7 +114,7 @@ void DFSPlacer::_dfs_device(size_t current, Device& device, std::vector<size_t>&
     assign.emplace_back(current);
 
     auto const& q = device.get_physical_qubit(current);
-    std::vector<size_t> adjacency_waitlist;
+    std::vector<QubitIdType> adjacency_waitlist;
 
     for (auto& adj : q.get_adjacencies()) {
         // already marked
@@ -128,7 +129,7 @@ void DFSPlacer::_dfs_device(size_t current, Device& device, std::vector<size_t>&
     }
 
     for (size_t i = 0; i < adjacency_waitlist.size(); ++i) {
-        size_t adj = adjacency_waitlist[i];
+        auto adj = adjacency_waitlist[i];
         if (qubit_marks[adj])
             continue;
         _dfs_device(adj, device, assign, qubit_marks);
