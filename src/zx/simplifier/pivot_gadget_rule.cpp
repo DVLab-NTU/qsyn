@@ -14,11 +14,9 @@ using MatchType = PivotGadgetRule::MatchType;
 std::vector<MatchType> PivotGadgetRule::find_matches(ZXGraph const& graph) const {
     std::vector<MatchType> matches;
 
-    size_t count = 0;
-
     std::unordered_set<ZXVertex*> taken;
 
-    graph.for_each_edge([&graph, &count, &taken, &matches, this](EdgePair const& epair) {
+    graph.for_each_edge([&graph, &taken, &matches](EdgePair const& epair) {
         if (epair.second != EdgeType::hadamard) return;
 
         ZXVertex* vs = epair.first.first;

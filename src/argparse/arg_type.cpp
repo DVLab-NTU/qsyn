@@ -26,7 +26,7 @@ ArgType<std::string>::ConstraintType choices_allow_prefix(std::vector<std::strin
     dvlab::utils::Trie trie{std::begin(choices), std::end(choices)};
 
     return [choices, trie](std::string const& val) -> bool {
-        auto is_exact_match_to_choice = [&val, &trie](std::string const& choice) -> bool {
+        auto is_exact_match_to_choice = [&val](std::string const& choice) -> bool {
             return dvlab::str::tolower_string(val) == choice;
         };
         auto freq = trie.frequency(dvlab::str::tolower_string(val));
@@ -127,7 +127,7 @@ ActionCallbackType store_false(ArgType<bool>& arg) {
 ActionCallbackType help(ArgType<bool>& arg) {
     arg.mark_as_help_action();
     arg.nargs(0ul);
-    return [&arg](TokensView) -> bool {
+    return [](TokensView) -> bool {
         return true;
     };
 }
@@ -135,7 +135,7 @@ ActionCallbackType help(ArgType<bool>& arg) {
 ActionCallbackType version(ArgType<bool>& arg) {
     arg.mark_as_version_action();
     arg.nargs(0ul);
-    return [&arg](TokensView) -> bool {
+    return [](TokensView) -> bool {
         return true;
     };
 }

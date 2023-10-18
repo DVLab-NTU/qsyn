@@ -15,7 +15,7 @@ std::vector<MatchType> PivotBoundaryRule::find_matches(ZXGraph const& graph) con
     std::vector<MatchType> matches;
 
     std::unordered_set<ZXVertex*> taken;
-    auto match_boundary = [&taken, &graph, &matches, this](ZXVertex* v) {
+    auto match_boundary = [&taken, &graph, &matches](ZXVertex* v) {
         ZXVertex* vs = graph.get_first_neighbor(v).first;
         if (taken.contains(vs)) return;
 

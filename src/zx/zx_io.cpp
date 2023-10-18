@@ -142,7 +142,7 @@ bool ZXGraph::_build_graph_from_parser_storage(detail::StorageType const& storag
     for (auto& [id, info] : storage) {
         ZXVertex* v = std::invoke(
             // clang++ does not support structured binding capture by reference with OpenMP
-            [&id = id, &info = info, this]() {
+            [&info = info, this]() {
                 if (info.type == 'I')
                     return add_input(info.qubit, info.column);
                 if (info.type == 'O')
@@ -222,7 +222,7 @@ bool ZXGraph::write_tikz(std::ostream& os) const {
     auto get_attr_string = [](ZXVertex* v) {
         std::string result = vt2s.at(v->get_type());
         // don't print phase for zero-phase vertices, except for h-boxes we don't print when phase is pi.
-        if ((v->get_phase() == Phase(0) && !v->is_hbox() || v->get_phase() == Phase(1) && v->is_hbox())) {
+        if ((v->get_phase() == Phase(0) && !v->is_hbox()) || (v->get_phase() == Phase(1) && v->is_hbox())) {
             return result;
         }
 
