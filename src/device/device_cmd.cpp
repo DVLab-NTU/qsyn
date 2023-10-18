@@ -16,6 +16,7 @@
 #include "device/device.hpp"
 #include "device/device_mgr.hpp"
 #include "fmt/core.h"
+#include "qsyn/qsyn_type.hpp"
 
 using namespace dvlab::argparse;
 using dvlab::CmdExecResult;
@@ -169,7 +170,7 @@ dvlab::Command device_graph_print_cmd(qsyn::device::DeviceMgr& device_mgr) {
                     return CmdExecResult::done;
                 }
                 if (parser.parsed("-path")) {
-                    auto qids = parser.get<std::vector<size_t>>("-path");
+                    auto qids = parser.get<std::vector<QubitIdType>>("-path");
                     device_mgr.get()->print_path(qids[0], qids[1]);
                     return CmdExecResult::done;
                 }

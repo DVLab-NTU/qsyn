@@ -70,7 +70,7 @@ QCirGate *QCir::get_gate(size_t id) const {
  * @param id
  * @return QCirQubit
  */
-QCirQubit *QCir::get_qubit(size_t id) const {
+QCirQubit *QCir::get_qubit(QubitIdType id) const {
     for (size_t i = 0; i < _qubits.size(); i++) {
         if (_qubits[i]->get_id() == id)
             return _qubits[i];

@@ -12,6 +12,7 @@
 
 #include "./circuit_topology.hpp"
 #include "qcir/gate_type.hpp"
+#include "qsyn/qsyn_type.hpp"
 #include "util/util.hpp"
 
 using namespace qsyn::qcir;
@@ -30,7 +31,7 @@ namespace qsyn::duostra {
 Checker::Checker(CircuitTopology& topo,
                  Checker::Device& device,
                  std::vector<Checker::Operation> const& ops,
-                 std::vector<size_t> const& assign, bool tqdm)
+                 std::vector<QubitIdType> const& assign, bool tqdm)
     : _topo(&topo), _device(&device), _ops(ops), _tqdm(tqdm) {
     _device->place(assign);
 }
@@ -105,10 +106,10 @@ void Checker::apply_gate(Checker::Operation const& op,
 void Checker::apply_swap(Checker::Operation const& op) {
     DVLAB_ASSERT(op.is_swap(), fmt::format("Gate type {} in apply_swap is not allowed!!", op.get_type_str()));
 
-    size_t q0_idx = get<0>(op.get_qubits());
-    size_t q1_idx = get<1>(op.get_qubits());
-    auto& q0      = _device->get_physical_qubit(q0_idx);
-    auto& q1      = _device->get_physical_qubit(q1_idx);
+    auto q0_idx = get<0>(op.get_qubits());
+    auto q1_idx = get<1>(op.get_qubits());
+    auto& q0    = _device->get_physical_qubit(q0_idx);
+    auto& q1    = _device->get_physical_qubit(q1_idx);
     apply_gate(op, q0, q1);
 
     // swap
@@ -127,10 +128,10 @@ void Checker::apply_swap(Checker::Operation const& op) {
  */
 bool Checker::apply_cx(Operation const& op, Gate const& gate) {
     DVLAB_ASSERT(op.is_cx() || op.is_cz(), fmt::format("Gate type {} in apply_cx is not allowed!!", op.get_type_str()));
-    size_t q0_idx = get<0>(op.get_qubits());
-    size_t q1_idx = get<1>(op.get_qubits());
-    auto& q0      = _device->get_physical_qubit(q0_idx);
-    auto& q1      = _device->get_physical_qubit(q1_idx);
+    auto q0_idx = get<0>(op.get_qubits());
+    auto q1_idx = get<1>(op.get_qubits());
+    auto& q0    = _device->get_physical_qubit(q0_idx);
+    auto& q1    = _device->get_physical_qubit(q1_idx);
 
     auto topo_0 = q0.get_logical_qubit();
     auto topo_1 = q1.get_logical_qubit();
@@ -164,10 +165,10 @@ bool Checker::apply_single(Operation const& op, Gate const& gate) {
         !op.is_swap() && !op.is_cx() && !op.is_cz(),
         fmt::format("Gate type {} in apply_single is not allowed!!", op.get_type_str()));
 
-    size_t q0_idx = get<0>(op.get_qubits());
+    auto q0_idx = get<0>(op.get_qubits());
 
     DVLAB_ASSERT(
-        get<1>(op.get_qubits()) == SIZE_MAX,
+        !op.is_double_qubit_gate(),
         fmt::format("Single gate {} has no null second qubit", gate.get_id()));
 
     auto& q0 = _device->get_physical_qubit(q0_idx);
