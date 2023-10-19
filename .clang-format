@@ -12,7 +12,7 @@ IndentRequires: false
 AccessModifierOffset: -4
 
 PackConstructorInitializers: BinPack
-QualifierAlignment: Right
+# QualifierAlignment: Right # disabled because it breaks the code in some cases
 PointerAlignment: Left
 ReferenceAlignment: Left
 AlignConsecutiveAssignments: Consecutive
