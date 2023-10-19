@@ -77,8 +77,8 @@ namespace dvlab {
 namespace utils {
 
 template <typename Key, typename T, typename Hash = std::hash<Key>, typename KeyEqual = std::equal_to<Key>>
-class ordered_hashmap final : public ordered_hashtable<Key, std::pair<const Key, T>, std::pair<Key, T>, Hash, KeyEqual> {  // NOLINT(readability-identifier-naming) : ordered_hashmap intentionally mimics std::unordered_map
-    using _Table_t = ordered_hashtable<Key, std::pair<const Key, T>, std::pair<Key, T>, Hash, KeyEqual>;
+class ordered_hashmap final : public ordered_hashtable<Key, std::pair<Key const, T>, std::pair<Key, T>, Hash, KeyEqual> {  // NOLINT(readability-identifier-naming) : ordered_hashmap intentionally mimics std::unordered_map
+    using _Table_t = ordered_hashtable<Key, std::pair<Key const, T>, std::pair<Key, T>, Hash, KeyEqual>;
 
 public:
     using key_type        = typename _Table_t::key_type;
