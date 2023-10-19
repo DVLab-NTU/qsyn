@@ -16,3 +16,5 @@ QualifierAlignment: Right
 PointerAlignment: Left
 ReferenceAlignment: Left
 AlignConsecutiveAssignments: Consecutive
+
+InsertNewlineAtEOF: true
