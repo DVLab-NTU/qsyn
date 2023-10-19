@@ -2,4 +2,4 @@ zxgr benchmark/zx/cnot.zx
 zxgr benchmark/zx/cnot.zx
 zxten 0
 zxgp -v
-qq -f
+quit -f

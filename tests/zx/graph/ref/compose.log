@@ -21,5 +21,5 @@ ID:  11 (●, 0)           (Qubit, Col): (1, 5)         #Neighbors:   1     (9, 
 Total #Vertices: 12
 
 
-qsyn> qq -f
+qsyn> quit -f
 

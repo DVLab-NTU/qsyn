@@ -110,5 +110,5 @@ Clifford    : 3280
 T-family    : 280
 Others      : 0
 
-qsyn> qq -f
+qsyn> quit -f
 

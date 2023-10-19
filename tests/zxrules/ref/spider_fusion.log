@@ -204,5 +204,5 @@ qsyn> zxgp -e
 (2, 3)       Type: -
 Total #Edges: 3
 
-qsyn> qq -f
+qsyn> quit -f
 

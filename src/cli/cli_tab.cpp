@@ -377,16 +377,6 @@ void dvlab::CommandLineInterface::_print_as_table(std::vector<std::string> words
     fmt::print("\n{}", table.to_string());
 }
 
-size_t dvlab::CommandLineInterface::_get_last_token_pos(std::string_view str, char token) const {
-    if (std::ranges::all_of(str, [token](char ch) { return ch == token; })) return std::string::npos;
-    size_t pos = str.find_last_of(token);
-    while (pos != std::string::npos && _is_escaped(str, pos)) {
-        pos = str.find_last_of(token, pos - 1);
-    }
-    if (pos == std::string::npos) return 0;
-    return pos + 1;
-}
-
 void dvlab::CommandLineInterface::_replace_at_cursor(std::string_view old_str, std::string_view new_str) {
     if (_read_buffer.substr(_cursor_position - old_str.size(), old_str.size()) != std::string(old_str)) {
         spdlog::critical("word replacement failed: old string not matched");

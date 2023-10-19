@@ -88,5 +88,5 @@ qsyn> zxgsimp -fr
 qsyn> zxgtest -gl
 The graph is graph-like!
 
-qsyn> qq -f
+qsyn> quit -f
 

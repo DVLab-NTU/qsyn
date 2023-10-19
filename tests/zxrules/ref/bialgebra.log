@@ -213,7 +213,7 @@ Total #Vertices: 6
 
 qsyn> zx2ts
 
-qsyn> tseq 0 1
+qsyn> tensor equiv 0 1
 Equivalent
 - Global Norm : 1
 - Global Phase: 0
@@ -331,5 +331,5 @@ qsyn> zxgp -e
 (13, 14)     Type: -
 Total #Edges: 14
 
-qsyn> qq -f
+qsyn> quit -f
 

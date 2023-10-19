@@ -599,5 +599,5 @@ qsyn> qc2ts
 
 qsyn> logger level warning
 
-qsyn> qq -f
+qsyn> quit -f
 

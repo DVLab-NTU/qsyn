@@ -7,5 +7,5 @@ zxgp -v
 zx2ts
 qcba 3
 qc2ts
-tseq 0 1 -strict
-qq -f
+tensor equiv 0 1 -strict
+quit -f

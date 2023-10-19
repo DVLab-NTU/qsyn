@@ -17,7 +17,7 @@ qc2zx
 zxgp -v
 qc2ts
 zx2ts
-tseq 0 1
+tensor equiv 0 1
 qcr
 qccread benchmark/SABRE/small/qft_4.qasm
 qccread benchmark/SABRE/small/qft_4.qasm
@@ -26,5 +26,5 @@ qccompose 1
 qccp -q
 qccompose 0
 qccp -q
-qq -f
+quit -f
 

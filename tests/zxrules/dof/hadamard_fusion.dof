@@ -118,4 +118,4 @@ zxge -adde 4 5 HADAMARD
 zxgp -v
 zxgsimp -hf
 zxgp -v
-qq -f
+quit -f

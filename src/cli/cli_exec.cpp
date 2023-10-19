@@ -7,6 +7,7 @@
 #include <spdlog/spdlog.h>
 
 #include <atomic>
+#include <optional>
 #include <regex>
 #include <string>
 #include <tl/enumerate.hpp>
@@ -111,12 +112,8 @@ dvlab::CommandLineInterface::_parse_one_command(std::string_view cmd) {
     assert(buffer[0] != '\0' && buffer[0] != ' ');
 
     // get the first token. The first token should be a command or an alias
-    std::string first_token;
-
-    size_t n = dvlab::str::str_get_token(buffer, first_token);
-    if (n == std::string::npos) {
-        n = buffer.size();
-    }
+    auto first_space_pos    = _get_first_token_pos(buffer);
+    std::string first_token = buffer.substr(0, first_space_pos);
 
     auto identifier = _identifiers.find_with_prefix(first_token);
     if (!identifier.has_value()) {
@@ -130,7 +127,7 @@ dvlab::CommandLineInterface::_parse_one_command(std::string_view cmd) {
     } else {
         // if the first token is an alias, replace it with the replacement string and update the first token
         if (_aliases.contains(*identifier)) {
-            buffer = _aliases.at(*identifier) + buffer.substr(n);
+            buffer = _aliases.at(*identifier) + buffer.substr(first_space_pos);
         }
     }
 
@@ -138,7 +135,7 @@ dvlab::CommandLineInterface::_parse_one_command(std::string_view cmd) {
     buffer = _replace_variable_keys_with_values(buffer);
 
     // get the first token again (since the first token may be a variable)
-    n = dvlab::str::str_get_token(buffer, first_token);
+    first_space_pos = dvlab::str::str_get_token(buffer, first_token);
 
     dvlab::Command* command = get_command(first_token);
 
@@ -148,10 +145,10 @@ dvlab::CommandLineInterface::_parse_one_command(std::string_view cmd) {
     }
 
     // tokenize the rest of the buffer
-    if (n == std::string::npos) {
-        n = buffer.size();
+    if (first_space_pos == std::string::npos) {
+        first_space_pos = buffer.size();
     }
-    buffer = buffer.substr(n);
+    buffer = buffer.substr(first_space_pos);
 
     for (auto& ch : buffer) {
         using namespace std::string_view_literals;
@@ -231,7 +228,7 @@ std::string dvlab::CommandLineInterface::_replace_variable_keys_with_values(std:
         std::sregex_token_iterator regex_end;
         std::sregex_token_iterator regex_begin(str.begin(), str.end(), re);
         for (auto regex_itr = regex_begin; regex_itr != regex_end; ++regex_itr) {
-            auto var = (*regex_itr).str();
+            auto var = regex_itr->str();
             // tell if it is a curly brace variable or not
             bool is_brace       = var[1] == '{';
             std::string var_key = is_brace ? var.substr(2, var.length() - 3) : var.substr(1);
@@ -277,14 +274,28 @@ std::string dvlab::CommandLineInterface::_replace_variable_keys_with_values(std:
  * @return dvlab::Command*
  */
 dvlab::Command* dvlab::CommandLineInterface::get_command(std::string const& cmd) const {
-    auto match = _identifiers.find_all_with_prefix(cmd);
-    for (auto const& identifier : match) {
-        if (_commands.contains(identifier)) {
-            return _commands.at(identifier).get();
-        }
+    auto match = _identifiers.find_with_prefix(cmd);
+    if (!match.has_value()) {
+        return nullptr;
+    }
+
+    if (_commands.contains(match.value())) {
+        return _commands.at(match.value()).get();
     }
 
     return nullptr;
+}
+
+std::optional<std::string> dvlab::CommandLineInterface::get_alias_replacement_string(std::string const& alias_prefix) const {
+    auto alias = _identifiers.find_with_prefix(alias_prefix);
+    if (!alias.has_value()) {
+        return std::nullopt;
+    }
+    if (_aliases.contains(alias.value())) {
+        return _aliases.at(alias.value());
+    }
+
+    return std::nullopt;
 }
 
 std::string dvlab::CommandLineInterface::_decode(std::string str) const {

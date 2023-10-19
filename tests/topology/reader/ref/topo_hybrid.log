@@ -122,5 +122,5 @@ qsyn> device print -p 33 33
 
 Path from 33 to 33:
   33 
-qsyn> qq -f
+qsyn> quit -f
 

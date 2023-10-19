@@ -22,5 +22,5 @@ Regular printing (level `off`)
 [critical] A log message with level `critical`
 [error]    A log message with level `error`
 
-qsyn> qq -f
+qsyn> quit -f
 

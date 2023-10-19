@@ -8,15 +8,14 @@ zxgp -q
 zxgs -fr
 zxgp -q
 zx2ts
-tseq 0 1
+tensor equiv 0 1
 qcr
 zxr
-tsr
-tsr
+tensor clear
 
 qcba 1
 qcgadd mcpx -ph pi 0
 qcgp 0
 qc2zx
 zxgp -v
-qq -f
+quit -f

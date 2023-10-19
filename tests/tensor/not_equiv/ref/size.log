@@ -7,15 +7,15 @@ qsyn> qcba
 
 qsyn> qc2ts
 
-qsyn> tsp -l
+qsyn> tensor list
   0                        #Dim: 2   QC2TS
 ★ 1                        #Dim: 2   QC2TS
 
-qsyn> tseq 0 1 
+qsyn> tensor equiv 0 1 
 Not Equivalent
 
-qsyn> tseq 0 1 -strict
+qsyn> tensor equiv 0 1 -strict
 Not Equivalent
 
-qsyn> qq -f
+qsyn> quit -f
 

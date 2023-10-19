@@ -6,4 +6,4 @@ zxgr benchmark/zx/cnot.zx
 zxgedit -rme 0 2 ALL
 zx2ts // invalid graph 2: boundary has no neighbors
 
-qq -f
+quit -f

@@ -17,5 +17,5 @@ qsyn> qcp -f
 -> Now focused on: QCir 2 (adr4_197)
 
 qsyn> 
-qsyn> qq -f
+qsyn> quit -f
 

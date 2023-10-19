@@ -14,5 +14,5 @@ qsyn> zx2ts // invalid graph 2: boundary has no neighbors
 [error]    The ZXGraph is not valid!!
 
 qsyn> 
-qsyn> qq -f
+qsyn> quit -f
 

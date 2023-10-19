@@ -539,5 +539,5 @@ ID:   7 (Z, π)           (Qubit, Col): (0, 7)         #Neighbors:   2     (1, -
 Total #Vertices: 4
 
 
-qsyn> qq -f
+qsyn> quit -f
 

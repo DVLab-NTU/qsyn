@@ -19,4 +19,4 @@ qccp -q
 logger level trace
 qc2ts
 logger level warning
-qq -f
+quit -f

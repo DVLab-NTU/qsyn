@@ -189,5 +189,5 @@ ID:   6 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (2, 
 Total #Vertices: 6
 
 
-qsyn> qq -f
+qsyn> quit -f
 

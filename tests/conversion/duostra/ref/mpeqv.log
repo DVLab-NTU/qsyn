@@ -42,5 +42,5 @@ Options:
 qsyn> mpeq -l 0 -p 1
 Equivalent up to permutation
 
-qsyn> qq -f
+qsyn> quit -f
 

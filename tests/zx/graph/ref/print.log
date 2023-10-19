@@ -55,5 +55,5 @@ qsyn> zxgprint -e
 (3, 5)       Type: -
 Total #Edges: 5
 
-qsyn> qq -f
+qsyn> quit -f
 
