@@ -1087,10 +1087,10 @@ qsyn> zxge -adde 6 7 SIMPLE
 
 qsyn> zx2ts
 
-qsyn> tseq 0 1
+qsyn> tensor equiv 0 1
 Equivalent
 - Global Norm : 1
 - Global Phase: 0
 
-qsyn> qq -f
+qsyn> quit -f
 

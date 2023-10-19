@@ -6,4 +6,4 @@ qccp
 qcp -l
 help mpeq
 mpeq -l 0 -p 1
-qq -f
+quit -f

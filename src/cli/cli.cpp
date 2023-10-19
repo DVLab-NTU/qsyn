@@ -25,12 +25,13 @@ bool dvlab::CommandLineInterface::open_dofile(std::string const& filepath) {
     if (this->stop_requested()) {
         return false;
     }
-    if (_dofile_stack.size() >= dofile_stack_limit) {
+    if (_cli_level >= dofile_stack_limit) {
         spdlog::error("dofile stack overflow ({})!!", dofile_stack_limit);
         return false;
     }
 
     _dofile_stack.push(std::ifstream(filepath));
+    _cli_level++;
 
     if (!_dofile_stack.top().is_open()) {
         close_dofile();
@@ -46,6 +47,7 @@ bool dvlab::CommandLineInterface::open_dofile(std::string const& filepath) {
 void dvlab::CommandLineInterface::close_dofile() {
     assert(_dofile_stack.size());
     _dofile_stack.pop();
+    _cli_level--;
 }
 
 /**
@@ -211,7 +213,7 @@ bool dvlab::CommandLineInterface::add_variables_from_dofiles(std::string const& 
  */
 void dvlab::CommandLineInterface::sigint_handler(int signum) {
     if (_listening_for_inputs) {
-        _reset_read_buffer();
+        _clear_read_buffer();
         fmt::println("");
         _print_prompt();
     } else if (_command_thread.has_value()) {
@@ -304,6 +306,31 @@ bool CommandLineInterface::_is_escaped(std::string_view str, size_t pos) const {
     //                  `\\'` is not escaped,
     //                  `\\\'` is escaped, etc.
     return (pos - n) % 2 == 0;
+}
+std::string CommandLineInterface::get_first_token(std::string_view str) const {
+    return std::string{str.substr(0, _get_first_token_pos(str))};
+}
+
+std::string CommandLineInterface::get_last_token(std::string_view str) const {
+    return std::string{str.substr(_get_last_token_pos(str))};
+}
+
+size_t CommandLineInterface::_get_first_token_pos(std::string_view str, char token) const {
+    auto first_space_pos = str.find_first_of(token);
+    while (first_space_pos != std::string::npos && _is_escaped(str, first_space_pos)) {
+        first_space_pos = str.find_first_of(token, first_space_pos + 1);
+    }
+    return first_space_pos;
+}
+
+size_t dvlab::CommandLineInterface::_get_last_token_pos(std::string_view str, char token) const {
+    if (std::ranges::all_of(str, [token](char ch) { return ch == token; })) return std::string::npos;
+    size_t pos = str.find_last_of(token);
+    while (pos != std::string::npos && _is_escaped(str, pos)) {
+        pos = str.find_last_of(token, pos - 1);
+    }
+    if (pos == std::string::npos) return 0;
+    return pos + 1;
 }
 
 }  // namespace dvlab

@@ -13,6 +13,6 @@ device print -p 0 64
 device print -p 12 56
 device print -p 35 21
 device print -p 33 33
-qq -f
+quit -f
 
 

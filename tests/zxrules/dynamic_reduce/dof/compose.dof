@@ -7,4 +7,4 @@ zxgadjoint
 zxcompose 0
 zxgs -freduce
 zxgtest -id
-qq -f
+quit -f

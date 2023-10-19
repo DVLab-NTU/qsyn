@@ -37,4 +37,4 @@ zxgp -v
 zxge -adde 6 2 SIMPLE
 zxge -adde 2 3 SIMPLE
 zxgp -v
-qq -f
+quit -f

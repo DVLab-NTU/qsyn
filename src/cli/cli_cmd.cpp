@@ -20,7 +20,7 @@ Command alias_cmd(CommandLineInterface& cli) {
     return {
         "alias",
         [](ArgumentParser& parser) {
-            parser.description("alias a command to another name");
+            parser.description("alias command string to another name");
 
             parser.add_argument<std::string>("alias")
                 .required(false)
@@ -33,9 +33,17 @@ Command alias_cmd(CommandLineInterface& cli) {
             parser.add_argument<std::string>("-d", "--delete")
                 .metavar("alias")
                 .help("delete the alias");
+
+            parser.add_argument<bool>("-l", "--list")
+                .action(store_true)
+                .help("list all aliases");
         },
 
         [&cli](ArgumentParser const& parser) {
+            if (parser.parsed("-l")) {
+                cli.list_all_aliases();
+                return CmdExecResult::done;
+            }
             if (parser.parsed("-d")) {
                 if (parser.parsed("alias") || parser.parsed("replace-str")) {
                     fmt::println(stderr, "Error: cannot specify replacement string when deleting alias!!");
@@ -80,9 +88,18 @@ Command set_variable_cmd(CommandLineInterface& cli) {
             parser.add_argument<std::string>("-d", "--delete")
                 .metavar("variable")
                 .help("delete the variable");
+
+            parser.add_argument<bool>("-l", "--list")
+                .action(store_true)
+                .help("list all variables");
         },
 
         [&cli](ArgumentParser const& parser) {
+            if (parser.parsed("-l")) {
+                cli.list_all_variables();
+                return CmdExecResult::done;
+            }
+
             if (parser.parsed("-d")) {
                 if (parser.parsed("variable") || parser.parsed("value")) {
                     fmt::println(stderr, "Error: cannot specify values when deleting variable!!");
@@ -131,22 +148,33 @@ Command help_cmd(CommandLineInterface& cli) {
             auto command = parser.get<std::string>("command");
             if (command.empty()) {
                 cli.list_all_commands();
-            } else {
-                Command* e = cli.get_command(command);
-                if (!e) {
-                    fmt::println(stderr, "Error: illegal command!! ({})", command);
-                    return CmdExecResult::error;
-                }
-                e->print_help();
+                return CmdExecResult::done;
             }
-            return CmdExecResult::done;
+
+            // this also handles the case when `command` is an alias to itself
+
+            auto alias_replacement_string = cli.get_alias_replacement_string(command);
+            if (alias_replacement_string.has_value()) {
+                fmt::println("`{}` is an alias to `{}`.", command, alias_replacement_string.value());
+                fmt::println("Showing help message to `{}`:\n", alias_replacement_string.value());
+                command = cli.get_first_token(alias_replacement_string.value());
+            }
+
+            auto e = cli.get_command(command);
+            if (e) {
+                e->print_help();
+                return CmdExecResult::done;
+            }
+
+            fmt::println(stderr, "Error: illegal command or alias!! ({})", command);
+            return CmdExecResult::error;
         }};
 }
 
-Command exit_cmd(CommandLineInterface& cli) {
-    return {"exit",
+Command quit_cmd(CommandLineInterface& cli) {
+    return {"quit",
             [](ArgumentParser& parser) {
-                parser.description("quit Qsyn");
+                parser.description("quit qsyn");
 
                 parser.add_argument<bool>("-force")
                     .action(store_true)
@@ -190,14 +218,14 @@ Command history_cmd(CommandLineInterface& cli) {
             }};
 }
 
-Command dofile_cmd(CommandLineInterface& cli) {
-    return {"dofile",
+Command source_cmd(CommandLineInterface& cli) {
+    return {"source",
             [](ArgumentParser& parser) {
                 parser.description("execute the commands in the dofile");
 
                 parser.add_argument<std::string>("file")
                     .constraint(path_readable)
-                    .help("path to a dofile, i.e., a list of Qsyn commands");
+                    .help("path to a dofile, i.e., a list of qsyn commands");
 
                 parser.add_argument<std::string>("arguments")
                     .nargs(NArgsOption::zero_or_more)
@@ -335,13 +363,16 @@ Command clear_cmd() {
 
 bool add_cli_common_cmds(dvlab::CommandLineInterface& cli) {
     if (!(cli.add_command(alias_cmd(cli)) &&
+          cli.add_alias("unalias", "alias -d") &&
           cli.add_command(set_variable_cmd(cli)) &&
-          cli.add_command(exit_cmd(cli)) &&
-          cli.add_alias("qquit", "exit") &&
-          cli.add_alias("q", "exit") &&
+          cli.add_alias("unset", "set -d") &&
+          cli.add_command(quit_cmd(cli)) &&
+          cli.add_alias("q", "quit") &&
+          cli.add_alias("exit", "quit") &&
           cli.add_command(history_cmd(cli)) &&
           cli.add_command(help_cmd(cli)) &&
-          cli.add_command(dofile_cmd(cli)) &&
+          cli.add_command(source_cmd(cli)) &&
+          cli.add_alias("dofile", "source") &&
           cli.add_command(usage_cmd()) &&
           cli.add_command(seed_cmd()) &&
           cli.add_command(clear_cmd()) &&

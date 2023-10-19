@@ -9,6 +9,7 @@
 
 #include "./cli.hpp"
 #include "tl/enumerate.hpp"
+#include "tl/to.hpp"
 
 namespace dvlab {
 
@@ -17,8 +18,7 @@ namespace dvlab {
  *
  */
 void dvlab::CommandLineInterface::list_all_commands() const {
-    auto cmd_range = _commands | std::views::keys;
-    std::vector<std::string> cmd_vec(std::begin(cmd_range), std::end(cmd_range));
+    auto cmd_vec = _commands | std::views::keys | tl::to<std::vector>();
     std::ranges::sort(cmd_vec);
     for (auto const& cmd : cmd_vec)
         _commands.at(cmd)->print_summary();
@@ -26,6 +26,27 @@ void dvlab::CommandLineInterface::list_all_commands() const {
     fmt::println("");
 }
 
+/**
+ * @brief print a summary of all aliases
+ *
+ */
+void dvlab::CommandLineInterface::list_all_aliases() const {
+    std::vector<std::pair<std::string, std::string>> alias_vec(std::begin(_aliases), std::end(_aliases));
+    std::ranges::sort(alias_vec);
+    for (auto const& [alias, cmd] : alias_vec)
+        fmt::println("{:>10} = \"{}\"", alias, cmd);
+
+    fmt::println("");
+}
+
+void dvlab::CommandLineInterface::list_all_variables() const {
+    std::vector<std::pair<std::string, std::string>> var_vec(std::begin(_variables), std::end(_variables));
+    std::ranges::sort(var_vec);
+    for (auto const& [var, val] : var_vec)
+        fmt::println("{:>10} = {}", var, val);
+
+    fmt::println("");
+}
 /**
  * @brief print all CLI history
  *

@@ -670,5 +670,5 @@ GFlow exists.
 #Levels: 38
 
 qsyn> 
-qsyn> qq -f 
+qsyn> quit -f 
 

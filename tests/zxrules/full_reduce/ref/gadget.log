@@ -152,10 +152,10 @@ Total #Vertices: 16
 
 qsyn> zx2ts
 
-qsyn> tseq 0 1
+qsyn> tensor equiv 0 1
 Equivalent
 - Global Norm : 0.707107
 - Global Phase: -π/4
 
-qsyn> qq -f
+qsyn> quit -f
 

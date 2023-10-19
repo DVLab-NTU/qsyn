@@ -5,4 +5,4 @@ zxgp -e
 zxgsimp -lcomp
 zxgp -v
 zxgp -e
-qq -f
+quit -f

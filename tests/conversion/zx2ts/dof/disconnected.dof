@@ -68,4 +68,4 @@ logger level trace
 zx2ts
 logger level warn
 
-qq -f
+quit -f

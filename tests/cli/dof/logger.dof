@@ -4,4 +4,4 @@ logger
 logger test
 logger level error
 logger test
-qq -f
+quit -f

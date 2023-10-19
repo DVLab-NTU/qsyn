@@ -9,5 +9,5 @@ qsyn> zxprint
 qsyn> zxprint -f
 -> Now focused on: ZXGraph 1
 
-qsyn> qq -f
+qsyn> quit -f
 

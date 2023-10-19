@@ -7,4 +7,4 @@ zxgs -hrule
 logger level warn
 zxgp -v
 zxgp -e
-qq -f
+quit -f

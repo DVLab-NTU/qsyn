@@ -235,10 +235,10 @@ qsyn> qcga h 0
 
 qsyn> qc2ts
 
-qsyn> tseq 0 5
+qsyn> tensor equiv 0 5
 Equivalent
 - Global Norm : 1
 - Global Phase: 0
 
-qsyn> qq -f 
+qsyn> quit -f 
 

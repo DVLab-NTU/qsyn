@@ -6,4 +6,4 @@ qccoptimize -c
 qcp -l
 qcp -f
 
-qq -f
+quit -f

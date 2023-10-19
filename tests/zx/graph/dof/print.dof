@@ -8,4 +8,4 @@ zxprint
 zxgr benchmark/zx/cnot.zx
 zxgprint -v
 zxgprint -e
-qq -f
+quit -f
