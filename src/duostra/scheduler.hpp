@@ -230,7 +230,7 @@ public:
 
     std::unique_ptr<BaseScheduler> clone() const override;
 
-    const size_t _lookAhead;
+    size_t const _lookAhead;
 
 protected:
     bool _never_cache;

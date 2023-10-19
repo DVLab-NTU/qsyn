@@ -262,7 +262,7 @@ template <typename... Args>
 std::pair<typename ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::iterator, bool>
 ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::emplace(Args&&... args) {
     this->_data.emplace_back(value_type(std::forward<Args>(args)...));
-    const key_type key = this->key(this->_data.back().value());
+    key_type const key = this->key(this->_data.back().value());
     bool has_item      = this->_key2id.contains(key);
     if (has_item) {
         this->_data.pop_back();
@@ -325,7 +325,7 @@ size_t ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::erase(Key cons
  */
 template <typename Key, typename Value, typename StoredType, typename Hash, typename KeyEqual>
 size_t ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::erase(
-    const typename ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::iterator& itr) {
+    typename ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::iterator const& itr) {
     return erase(key(*itr));
 }
 

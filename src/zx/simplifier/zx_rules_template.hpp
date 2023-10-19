@@ -26,7 +26,7 @@ class ZXRuleBase {
 public:
     ZXRuleBase(std::string const& n) : name(n) {}
 
-    const std::string name;
+    std::string const name;
 
 protected:
     void _update(ZXGraph& graph, ZXOperation const& op) const {

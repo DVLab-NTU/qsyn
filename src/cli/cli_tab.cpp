@@ -123,7 +123,7 @@ dvlab::CommandLineInterface::TabActionResult dvlab::CommandLineInterface::_match
 
 dvlab::CommandLineInterface::TabActionResult dvlab::CommandLineInterface::_match_variables(std::string const& str) {
     // if there is a complete variable names trailing the string, replace it with its values
-    static const std::regex var_matcher(R"((\$[\w]+$|\$\{[\w]+\}$))");
+    static std::regex const var_matcher(R"((\$[\w]+$|\$\{[\w]+\}$))");
     std::smatch matches;
 
     if (std::regex_search(str, matches, var_matcher) && matches.prefix().str().back() != '\\') {
@@ -141,7 +141,7 @@ dvlab::CommandLineInterface::TabActionResult dvlab::CommandLineInterface::_match
     }
 
     // if there are incomplete variable name, tries to complete for the user
-    static const std::regex var_prefix_matcher(R"(\$\{?[\w]*$)");
+    static std::regex const var_prefix_matcher(R"(\$\{?[\w]*$)");
 
     if (!std::regex_search(str, matches, var_prefix_matcher) || matches.prefix().str().back() == '\\') {
         return TabActionResult::no_op;
