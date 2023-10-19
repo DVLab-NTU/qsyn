@@ -8,6 +8,7 @@
 #include "./rational.hpp"
 
 #include <numeric>
+#include <ostream>
 #include <stdexcept>
 #include <string>
 
