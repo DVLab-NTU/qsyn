@@ -77,7 +77,7 @@ zxge -adde 3 5 SIMPLE
 zxge -adde 4 5 SIMPLE
 zxgp -v
 zx2ts
-tseq 0 1
+tensor equiv 0 1
 zxr
 zxnew 
 zxge -addi 0
@@ -117,4 +117,4 @@ zxgsimp -bia
 logger level warn
 zxgp -v
 zxgp -e
-qq -f
+quit -f

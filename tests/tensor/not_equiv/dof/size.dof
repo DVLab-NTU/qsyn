@@ -2,7 +2,7 @@ qcba
 qc2ts
 qcba
 qc2ts
-tsp -l
-tseq 0 1 
-tseq 0 1 -strict
-qq -f
+tensor list
+tensor equiv 0 1 
+tensor equiv 0 1 -strict
+quit -f

@@ -21,11 +21,11 @@ zx2ts       // should convert ZXGraph 1 to Tensor 0
 zx2ts -ts 2 // should convert ZXGraph 1 to Tensor 2
 zx2ts -zx 0 // should convert ZXGraph 0 to Tensor 3, without changing focused ZXGraph
 zxprint -l
-tsprint -l
+tensor list
 zx2ts -zx 2                // should log error: ZXGraph does not exist
 zx2ts -zx 0 -ts 2          // should log error: Tensor ID already occupied. In this case, the error should occur before trying to convert the tensor
 zx2ts -zx 0 -ts 2 -replace // should replace Tensor 2 and convert ZXGraph 0 to Tensor 2
-tsprint -l
+tensor list
 
 //-------------------------
 //  Logger Level Testing
@@ -35,4 +35,4 @@ zxgr benchmark/zx/cnot.zx
 logger level trace
 zx2ts
 
-qq -f
+quit -f

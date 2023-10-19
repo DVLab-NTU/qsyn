@@ -350,5 +350,5 @@ qsyn> logger level warn
 qsyn> zxgtest -id
 The graph is an identity!
 
-qsyn> qq -f
+qsyn> quit -f
 

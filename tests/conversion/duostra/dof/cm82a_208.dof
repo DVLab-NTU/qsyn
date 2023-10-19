@@ -13,4 +13,4 @@ duoset -sc greedy
 duoprint
 duostra -c
 qccp -a
-qq -f
+quit -f

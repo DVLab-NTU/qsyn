@@ -57,5 +57,5 @@ qsyn> qccr benchmark/qsim/circuits/circuit_q24 -r
 
 qsyn> qc2zx
 
-qsyn> qq -f
+qsyn> quit -f
 

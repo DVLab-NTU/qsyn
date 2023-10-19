@@ -76,4 +76,4 @@ qcba 2
 qccp -q
 qcga cx 7 8
 qccp -q
-qq -f
+quit -f

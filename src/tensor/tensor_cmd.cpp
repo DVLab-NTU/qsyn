@@ -27,10 +27,10 @@ ArgType<size_t>::ConstraintType valid_tensor_id(TensorMgr const& tensor_mgr) {
     };
 }
 
-Command tensor_mgr_reset_cmd(TensorMgr& tensor_mgr) {
-    return {"tsreset",
+Command tensor_clear_cmd(TensorMgr& tensor_mgr) {
+    return {"clear",
             [](ArgumentParser& parser) {
-                parser.description("reset the tensor manager");
+                parser.description("clear the tensor manager");
             },
             [&](ArgumentParser const& /*parser*/) {
                 tensor_mgr.clear();
@@ -38,33 +38,20 @@ Command tensor_mgr_reset_cmd(TensorMgr& tensor_mgr) {
             }};
 }
 
-Command tensor_mgr_print_cmd(TensorMgr& tensor_mgr) {
-    return {"tsprint",
+Command tensor_list_cmd(TensorMgr& tensor_mgr) {
+    return {"list",
             [](ArgumentParser& parser) {
-                parser.description("print info about Tensors");
-                auto mutex = parser.add_mutually_exclusive_group().required(false);
-
-                mutex.add_argument<bool>("-focus")
-                    .action(store_true)
-                    .help("print the info of the Tensor in focus");
-                mutex.add_argument<bool>("-list")
-                    .action(store_true)
-                    .help("print a list of Tensors");
+                parser.description("list info about Tensors");
             },
-            [&](ArgumentParser const& parser) {
-                if (parser.parsed("-focus"))
-                    tensor_mgr.print_focus();
-                else if (parser.parsed("-list"))
-                    tensor_mgr.print_list();
-                else
-                    tensor_mgr.print_manager();
+            [&](ArgumentParser const& /*unused*/) {
+                tensor_mgr.print_list();
 
                 return CmdExecResult::done;
             }};
 }
 
 Command tensor_print_cmd(TensorMgr& tensor_mgr) {
-    return {"tstprint",
+    return {"print",
             [&](ArgumentParser& parser) {
                 parser.description("print info of Tensor");
 
@@ -85,7 +72,7 @@ Command tensor_print_cmd(TensorMgr& tensor_mgr) {
 }
 
 Command tensor_adjoint_cmd(TensorMgr& tensor_mgr) {
-    return {"tsadjoint",
+    return {"adjoint",
             [&](ArgumentParser& parser) {
                 parser.description("adjoint the specified tensor");
 
@@ -104,7 +91,7 @@ Command tensor_adjoint_cmd(TensorMgr& tensor_mgr) {
             }};
 }
 Command tensor_equivalence_check_cmd(TensorMgr& tensor_mgr) {
-    return {"tsequiv",
+    return {"equiv",
             [&](ArgumentParser& parser) {
                 parser.description("check the equivalency of two stored tensors");
 
@@ -157,13 +144,26 @@ Command tensor_equivalence_check_cmd(TensorMgr& tensor_mgr) {
             }};
 }
 
+Command tensor_cmd(TensorMgr& tensor_mgr) {
+    auto cmd = Command{"tensor",
+                       [&](ArgumentParser& parser) {
+                           parser.description("tensor commands");
+                       },
+                       [&](ArgumentParser const& /*parser*/) {
+                           tensor_mgr.print_manager();
+                           return CmdExecResult::done;
+                       }};
+    cmd.add_subcommand(tensor_clear_cmd(tensor_mgr));
+    cmd.add_subcommand(tensor_list_cmd(tensor_mgr));
+    cmd.add_subcommand(tensor_print_cmd(tensor_mgr));
+    cmd.add_subcommand(tensor_adjoint_cmd(tensor_mgr));
+    cmd.add_subcommand(tensor_equivalence_check_cmd(tensor_mgr));
+
+    return cmd;
+}
+
 bool add_tensor_cmds(dvlab::CommandLineInterface& cli, TensorMgr& tensor_mgr) {
-    if (!(
-            cli.add_command(tensor_mgr_reset_cmd(tensor_mgr)) &&
-            cli.add_command(tensor_mgr_print_cmd(tensor_mgr)) &&
-            cli.add_command(tensor_adjoint_cmd(tensor_mgr)) &&
-            cli.add_command(tensor_print_cmd(tensor_mgr)) &&
-            cli.add_command(tensor_equivalence_check_cmd(tensor_mgr)))) {
+    if (!(cli.add_command(tensor_cmd(tensor_mgr)))) {
         std::cerr << "Registering \"tensor\" commands fails... exiting" << std::endl;
         return false;
     }

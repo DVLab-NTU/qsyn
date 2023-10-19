@@ -3,7 +3,7 @@ qc2ts
 qc2zx
 zxgp -v
 zx2ts
-tseq 0 1
+tensor equiv 0 1
 zxgp -v
 zxgas 0 I X pi
 zxgas 0 O X pi
@@ -13,5 +13,5 @@ qcnew
 qcba 2
 qcga cx 0 1
 qc2ts
-tseq 2 3
-qq -f
+tensor equiv 2 3
+quit -f

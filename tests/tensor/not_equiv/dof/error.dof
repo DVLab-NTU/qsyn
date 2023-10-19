@@ -2,9 +2,9 @@ qcba
 qc2ts
 qcga rz -ph 0.001 0
 qc2ts
-tseq 0 1 -eps 1e-2
-tseq 0 1 -eps 1e-4
-tseq 0 1 -eps 1e-6
-tseq 0 1 -eps 1e-8
-tseq 0 1 -eps 1e-10
-qq -f
+tensor equiv 0 1 -eps 1e-2
+tensor equiv 0 1 -eps 1e-4
+tensor equiv 0 1 -eps 1e-6
+tensor equiv 0 1 -eps 1e-8
+tensor equiv 0 1 -eps 1e-10
+quit -f

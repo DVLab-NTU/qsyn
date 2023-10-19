@@ -83,6 +83,7 @@ public:
     void print_help() const { _parser.print_help(); }
 
     void add_subcommand(dvlab::Command const& cmd);
+    void add_subcommands(std::span<dvlab::Command const> cmds);
 
 private:
     dvlab::argparse::ArgumentParser _parser;
@@ -110,7 +111,7 @@ public:
      *
      * @param prompt the prompt of the CLI
      */
-    CommandLineInterface(std::string const& prompt) : _command_prompt{prompt} {
+    CommandLineInterface(std::string const& prompt, size_t level = 0) : _command_prompt{prompt}, _cli_level{level} {
         _read_buffer.reserve(read_buf_size);
     }
 
@@ -123,6 +124,7 @@ public:
     bool add_variable(std::string const& key, std::string const& value);
     bool remove_variable(std::string const& key);
     dvlab::Command* get_command(std::string const& cmd) const;
+    std::optional<std::string> get_alias_replacement_string(std::string const& alias_prefix) const;
 
     CmdExecResult start_interactive();
     CmdExecResult execute_one_line();
@@ -134,6 +136,8 @@ public:
 
     // printing functions
     void list_all_commands() const;
+    void list_all_aliases() const;
+    void list_all_variables() const;
     void print_history() const;
     void print_history(size_t n_print) const;
 
@@ -153,9 +157,12 @@ public:
         double_quote,
     };
 
+    std::string get_first_token(std::string_view str) const;
+    std::string get_last_token(std::string_view str) const;
+
 private:
     // Private member functions
-    void _reset_read_buffer();
+    void _clear_read_buffer();
     void _print_prompt() const;
 
     CmdExecResult _execute_one_line_internal(std::istream&);
@@ -182,9 +189,11 @@ private:
     std::vector<std::string> _get_file_matches(std::filesystem::path const& filepath) const;
     bool _autocomplete(std::string prefix_copy, std::vector<std::string> const& strs, parse_state state);
     void _print_as_table(std::vector<std::string> words) const;
-    size_t _get_last_token_pos(std::string_view str, char token = ' ') const;
 
     // Helper functions
+    size_t _get_first_token_pos(std::string_view str, char token = ' ') const;
+    size_t _get_last_token_pos(std::string_view str, char token = ' ') const;
+
     bool _move_cursor_to(size_t pos);
     bool _delete_char();
     void _insert_char(char);
@@ -218,6 +227,7 @@ private:
     std::unordered_map<std::string, std::string> _variables;  // stores the variables key-value pairs, e.g., $1, $INPUT_FILE, etc...
 
     std::stack<std::ifstream> _dofile_stack;
+    size_t _cli_level = 0;
 
     std::optional<jthread::jthread> _command_thread = std::nullopt;  // the current (ongoing) command
 };

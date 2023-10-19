@@ -385,5 +385,5 @@ zxge -adde 2 3 SIMPLE
 zxge -adde 4 5 SIMPLE
 zxge -adde 6 7 SIMPLE
 zx2ts
-tseq 0 1
-qq -f
+tensor equiv 0 1
+quit -f

@@ -149,7 +149,7 @@ std::pair<CmdExecResult, std::string> dvlab::CommandLineInterface::listen_to_inp
 
     settings_restorer restorer{this, prompt};
 
-    _reset_read_buffer();
+    _clear_read_buffer();
     _print_prompt();
 
     while (true) {
@@ -193,8 +193,8 @@ std::pair<CmdExecResult, std::string> dvlab::CommandLineInterface::listen_to_inp
                 break;
             case clear_terminal_key:
                 detail::clear_terminal();
+                _clear_read_buffer();
                 fmt::println("");
-                _reset_read_buffer();
                 _print_prompt();
                 break;
             case arrow_up_key:
@@ -392,7 +392,7 @@ void dvlab::CommandLineInterface::_replace_read_buffer_with_history() {
  * @brief reset the read buffer
  *
  */
-void dvlab::CommandLineInterface::_reset_read_buffer() {
+void dvlab::CommandLineInterface::_clear_read_buffer() {
     _read_buffer.clear();
     _cursor_position = 0;
     _tab_press_count = 0;

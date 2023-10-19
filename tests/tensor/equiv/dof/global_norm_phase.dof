@@ -9,11 +9,11 @@ zxge -adde 3 1 SIMPLE
 zx2ts
 zxge -adde 2 3 SIMPLE
 zx2ts
-tsp -l
-tseq 0 1
-tseq 0 1 -strict
+tensor list
+tensor equiv 0 1
+tensor equiv 0 1 -strict
 zxr
-tsr
+tensor clear
 qcba
 qc2ts 
 qcga t 0
@@ -21,7 +21,7 @@ qcga x 0
 qcga t 0
 qcga x 0
 qc2ts
-tsp -l
-tseq 0 1
-tseq 0 1 -strict
-qq -f
+tensor list
+tensor equiv 0 1
+tensor equiv 0 1 -strict
+quit -f
