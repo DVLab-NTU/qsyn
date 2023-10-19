@@ -49,11 +49,11 @@ public:
     friend constexpr Phase operator-(Phase lhs, Phase const& rhs);
 
     // Multiplication / Devision w/ unitless constants
-    constexpr Phase& operator*=(unitless const auto& rhs);
-    constexpr Phase& operator/=(unitless const auto& rhs);
-    friend constexpr Phase operator*(Phase lhs, unitless const auto& rhs);
-    friend constexpr Phase operator*(unitless const auto& lhs, Phase rhs);
-    friend constexpr Phase operator/(Phase lhs, unitless const auto& rhs);
+    constexpr Phase& operator*=(unitless auto const& rhs);
+    constexpr Phase& operator/=(unitless auto const& rhs);
+    friend constexpr Phase operator*(Phase lhs, unitless auto const& rhs);
+    friend constexpr Phase operator*(unitless auto const& lhs, Phase rhs);
+    friend constexpr Phase operator/(Phase lhs, unitless auto const& rhs);
     friend constexpr Rational operator/(Phase const& lhs, Phase const& rhs);
     // Operator *, / between phases are not supported deliberately as they don't make physical sense (Changes unit)
 
