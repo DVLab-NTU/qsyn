@@ -4,4 +4,4 @@ logger level debug
 zxgs -freduce
 logger level warn
 zxgp -v
-qq -f
+quit -f

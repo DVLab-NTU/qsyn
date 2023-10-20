@@ -19,5 +19,5 @@ qcnew
 qcba 1
 qcga x 0
 qc2ts
-tseq 0 1
-qq -f
+tensor equiv 0 1
+quit -f

@@ -128,5 +128,5 @@ ID:   7 (●, 0)           (Qubit, Col): (3, 39)        #Neighbors:   1     (13,
 ID:  13 (Z, -π/2)        (Qubit, Col): (3, 2)         #Neighbors:   6     (6, H) (7, H) (62, H) (68, H) (70, H) (74, H)
 
 
-qsyn> qq -f
+qsyn> quit -f
 

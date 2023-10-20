@@ -26,10 +26,10 @@ Note: QCir list is empty now. Create a new one.
 
 qsyn> qc2ts
 
-qsyn> tseq 0 1 -strict
+qsyn> tensor equiv 0 1 -strict
 Equivalent
 - Global Norm : 1
 - Global Phase: 0
 
-qsyn> qq -f
+qsyn> quit -f
 

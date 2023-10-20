@@ -271,5 +271,5 @@ qsyn> zxgp -e
 (1, 9)       Type: -
 Total #Edges: 6
 
-qsyn> qq -f
+qsyn> quit -f
 

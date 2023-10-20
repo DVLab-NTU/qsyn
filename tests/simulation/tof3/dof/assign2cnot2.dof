@@ -13,5 +13,5 @@ zx2ts
 zxgs -stco
 zxgp -v
 zx2ts
-tseq 0 1
-qq -f
+tensor equiv 0 1
+quit -f

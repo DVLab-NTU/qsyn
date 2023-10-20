@@ -18,4 +18,4 @@ qcga sdg 1
 qc2zx
 qccr benchmark/qsim/circuits/circuit_q24 -r
 qc2zx
-qq -f
+quit -f

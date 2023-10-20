@@ -12,4 +12,4 @@ logger level info
 qccoptimize -stat
 logger level warn
 qccp -a
-qq -f
+quit -f

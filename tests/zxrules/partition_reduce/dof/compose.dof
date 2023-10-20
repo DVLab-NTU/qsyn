@@ -11,4 +11,4 @@ logger level debug
 zxgs -freduce
 logger level warn
 zxgtest -id
-qq -f
+quit -f

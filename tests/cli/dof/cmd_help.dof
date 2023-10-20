@@ -1,8 +1,8 @@
 help logger
-help dofile
+help source
 help zxge
 zxge -rmvertex -h
 zxge -rmedge -h
 help extract
 help zxgr
-qq -f
+quit -f

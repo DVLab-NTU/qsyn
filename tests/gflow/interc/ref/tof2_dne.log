@@ -17,5 +17,5 @@ The flow breaks at level 3.
 No correction sets found for the following vertices:
 0 8 9 13 2 14 16
 
-qsyn> qq -f 
+qsyn> quit -f 
 

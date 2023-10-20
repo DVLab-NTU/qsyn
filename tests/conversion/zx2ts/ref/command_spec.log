@@ -47,7 +47,7 @@ qsyn> zxprint -l
   0    3_17_13             QC2ZX
 ★ 1    3_17_13             QC2ZX ➔ INTERC
 
-qsyn> tsprint -l
+qsyn> tensor list
   0    3_17_13             #Dim: 2   QC2ZX ➔ INTERC ➔ ZX2TS
   2    3_17_13             #Dim: 2   QC2ZX ➔ INTERC ➔ ZX2TS
 ★ 3    3_17_13             #Dim: 2   QC2ZX ➔ ZX2TS
@@ -60,7 +60,7 @@ qsyn> zx2ts -zx 0 -ts 2          // should log error: Tensor ID already occupied
 
 qsyn> zx2ts -zx 0 -ts 2 -replace // should replace Tensor 2 and convert ZXGraph 0 to Tensor 2
 
-qsyn> tsprint -l
+qsyn> tensor list
   0    3_17_13             #Dim: 2   QC2ZX ➔ INTERC ➔ ZX2TS
 ★ 2    3_17_13             #Dim: 2   QC2ZX ➔ ZX2TS
   3    3_17_13             #Dim: 2   QC2ZX ➔ ZX2TS
@@ -117,5 +117,5 @@ qsyn> zx2ts
 [info]     Successfully created and checked out to Tensor 4
 
 qsyn> 
-qsyn> qq -f
+qsyn> quit -f
 

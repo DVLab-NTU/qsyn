@@ -60,4 +60,4 @@ zxgp -e
 zxgsimp -spi
 zxgp -v
 zxgp -e
-qq -f
+quit -f

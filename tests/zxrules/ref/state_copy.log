@@ -105,5 +105,5 @@ qsyn> zxgp -e
 (7, 8)       Type: H
 Total #Edges: 5
 
-qsyn> qq -f
+qsyn> quit -f
 

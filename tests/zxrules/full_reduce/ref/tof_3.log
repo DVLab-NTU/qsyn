@@ -72,5 +72,5 @@ ID:  34 (Z, 0)           (Qubit, Col): (-1, 5)        #Neighbors:   4     (7, H)
 Total #Vertices: 17
 
 
-qsyn> qq -f
+qsyn> quit -f
 

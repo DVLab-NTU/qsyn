@@ -1,8 +1,8 @@
 qsyn> exi -h
-Usage: exit [-h] [-force]
+Usage: quit [-h] [-force]
 
 Description:
-  quit Qsyn
+  quit qsyn
 
 Options:
   flag  -h, --help    show this help message and exit 
@@ -27,10 +27,10 @@ Options:
   flag  -replace      if specified, replace the current circuit; otherwise store to a new one 
 
 qsyn> exit -h
-Usage: exit [-h] [-force]
+Usage: quit [-h] [-force]
 
 Description:
-  quit Qsyn
+  quit qsyn
 
 Options:
   flag  -h, --help    show this help message and exit 
@@ -39,10 +39,10 @@ Options:
 qsyn> alias -d exir
 
 qsyn> exit -h
-Usage: exit [-h] [-force]
+Usage: quit [-h] [-force]
 
 Description:
-  quit Qsyn
+  quit qsyn
 
 Options:
   flag  -h, --help    show this help message and exit 
@@ -52,10 +52,10 @@ qsyn> exir -h
 [error]    Unknown command!! (exir)
 
 qsyn> exi -h
-Usage: exit [-h] [-force]
+Usage: quit [-h] [-force]
 
 Description:
-  quit Qsyn
+  quit qsyn
 
 Options:
   flag  -h, --help    show this help message and exit 

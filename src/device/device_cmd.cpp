@@ -50,7 +50,7 @@ dvlab::Command device_checkout_cmd(qsyn::device::DeviceMgr& device_mgr) {
             }};
 }
 
-dvlab::Command device_mgr_reset_cmd(qsyn::device::DeviceMgr& device_mgr) {
+dvlab::Command device_clear_cmd(qsyn::device::DeviceMgr& device_mgr) {
     return {"clear",
             [](ArgumentParser& parser) {
                 parser.description("clear DeviceMgr");
@@ -76,7 +76,7 @@ dvlab::Command device_delete_cmd(qsyn::device::DeviceMgr& device_mgr) {
             }};
 }
 
-dvlab::Command device_graph_read_cmd(qsyn::device::DeviceMgr& device_mgr) {
+dvlab::Command device_read_cmd(qsyn::device::DeviceMgr& device_mgr) {
     return {"read",
             [](ArgumentParser& parser) {
                 parser.description("read a device topology");
@@ -112,8 +112,6 @@ dvlab::Command device_list_cmd(qsyn::device::DeviceMgr& device_mgr) {
     return {"list",
             [](ArgumentParser& parser) {
                 parser.description("list info about Devices");
-
-                auto mutex = parser.add_mutually_exclusive_group();
             },
             [&device_mgr](ArgumentParser const& /* parser */) {
                 device_mgr.print_list();
@@ -122,11 +120,7 @@ dvlab::Command device_list_cmd(qsyn::device::DeviceMgr& device_mgr) {
             }};
 }
 
-//-----------------------------------------------------------------------------------------------------------
-//    DTGPrint [-Summary | -Edges | -Path | -Qubit]
-//-----------------------------------------------------------------------------------------------------------
-
-dvlab::Command device_graph_print_cmd(qsyn::device::DeviceMgr& device_mgr) {
+dvlab::Command device_print_cmd(qsyn::device::DeviceMgr& device_mgr) {
     return {"print",
             [](ArgumentParser& parser) {
                 parser.description("print info of device topology");
@@ -152,7 +146,7 @@ dvlab::Command device_graph_print_cmd(qsyn::device::DeviceMgr& device_mgr) {
                         "If no qubit ID is specified, print for all qubits;"
                         "otherwise, print information of the specified qubit IDs");
 
-                mutex.add_argument<size_t>("-path")
+                mutex.add_argument<QubitIdType>("-path")
                     .nargs(2)
                     .metavar("(q1, q2)")
                     .help(
@@ -190,11 +184,11 @@ dvlab::Command device_cmd(qsyn::device::DeviceMgr& device_mgr) {
                                   return CmdExecResult::done;
                               }};
     cmd.add_subcommand(device_checkout_cmd(device_mgr));
-    cmd.add_subcommand(device_mgr_reset_cmd(device_mgr));
+    cmd.add_subcommand(device_clear_cmd(device_mgr));
     cmd.add_subcommand(device_delete_cmd(device_mgr));
-    cmd.add_subcommand(device_graph_read_cmd(device_mgr));
     cmd.add_subcommand(device_list_cmd(device_mgr));
-    cmd.add_subcommand(device_graph_print_cmd(device_mgr));
+    cmd.add_subcommand(device_print_cmd(device_mgr));
+    cmd.add_subcommand(device_read_cmd(device_mgr));
     return cmd;
 }
 

@@ -45,7 +45,7 @@ ID:   5 (Z, 0)           (Qubit, Col): (1, 4)         #Neighbors:   3     (2, H)
 
 qsyn> zx2ts
 
-qsyn> tseq 0 1
+qsyn> tensor equiv 0 1
 Equivalent
 - Global Norm : 1
 - Global Phase: 0
@@ -54,9 +54,7 @@ qsyn> qcr
 
 qsyn> zxr
 
-qsyn> tsr
-
-qsyn> tsr
+qsyn> tensor clear
 
 qsyn> 
 qsyn> qcba 1
@@ -79,5 +77,5 @@ ID:   2 (X, π)           (Qubit, Col): (0, 2)         #Neighbors:   2     (0, -
 Total #Vertices: 3
 
 
-qsyn> qq -f
+qsyn> quit -f
 
