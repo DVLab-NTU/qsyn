@@ -4,7 +4,7 @@ qsyn> qcset -d 2 -sw 6
 
 qsyn> qccr benchmark/SABRE/small/3_17_13.qasm
 
-qsyn> duostra -c
+qsyn> duostra --check
 Routing...
 
 Checking...

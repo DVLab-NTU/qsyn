@@ -320,6 +320,7 @@ size_t CommandLineInterface::_get_first_token_pos(std::string_view str, char tok
     while (first_space_pos != std::string::npos && _is_escaped(str, first_space_pos)) {
         first_space_pos = str.find_first_of(token, first_space_pos + 1);
     }
+    if (first_space_pos == std::string::npos) return str.size();
     return first_space_pos;
 }
 

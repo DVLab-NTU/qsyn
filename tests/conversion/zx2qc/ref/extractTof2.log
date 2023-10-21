@@ -1,4 +1,4 @@
-qsyn> exts -op 1
+qsyn> extract config --optimize-level 1
 
 qsyn> zxgread benchmark/zx/tof3.zx
 

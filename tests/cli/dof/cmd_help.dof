@@ -3,6 +3,6 @@ help source
 help zxge
 zxge -rmvertex -h
 zxge -rmedge -h
-help extract
+extract step -h
 help zxgr
 quit -f

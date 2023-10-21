@@ -1,32 +1,32 @@
 qccr benchmark/SABRE/small/3_17_13.qasm
-exts -op 1
+extract config --optimize-level 1
 qc2zx
-extp -f
+extract print --frontier
 zxgs -fr
 zxcopy 1
 qcn
 qcba 3
 qcp
 zxgp -q
-extp -f
-extp -n
-extp -a
-extr -zx 1 -qc 1 -ph
+extract print --frontier
+extract print --neighbors
+extract print --axels
+extract step -zx 1 -qc 1 -ph
 qccp -q
-extr -zx 1 -qc 1 -cz
+extract step -zx 1 -qc 1 -cz
 qccp -q
-extr -zx 1 -qc 1 -rmg
+extract step -zx 1 -qc 1 -rmg
 qccp -q
-extp -f
-extp -n
-extp -m
-extr -zx 1 -qc 1 -cx
+extract print --frontier
+extract print --neighbors
+extract print --matrix
+extract step -zx 1 -qc 1 -cx
 qccp -q
-extr -zx 1 -qc 1 -H
+extract step -zx 1 -qc 1 -H
 qccp -q
-extr -zx 1 -qc 1 -l 2
+extract step -zx 1 -qc 1 -l 2
 qccp -q
-extr -zx 1 -qc 1 -l 100
+extract step -zx 1 -qc 1 -l 100
 qccp -q
 qc2zx
 zxgadj
