@@ -1,7 +1,7 @@
 device read benchmark/topology/guadalupe.layout
 qcset -d 2 -sw 6
 qccr benchmark/SABRE/small/3_17_13.qasm
-duostra -c
+duostra --check
 qccp
 qcp -l
 help mpeq

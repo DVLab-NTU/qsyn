@@ -2,6 +2,8 @@
 
 ## CLI Common Commands
 
+### Status: Done
+
 | Original Command | New Command | Synopsis             | Notes                                       |
 | :--------------- | :---------- | :------------------- | :------------------------------------------ |
 | n/a              | alias       | set alias to command |                                             |
@@ -10,12 +12,16 @@
 | qquit            | quit        | quit qsyn            | renamed because alias system is implemented |
 | history          | history     | show history         | consider add filter, dump functions         |
 | dofile           | source      | run script           | also aliased to dofile                      |
-| usage            | usage       | show usage           | consider add current usage                  |
-| seed             | seed        | set seed             | I don't know if this actually makes sense?  |
+| usage            | usage       | show usage           | consider add current memory usage           |
+| seed             | n/a         | set seed             | left to individual commands\*               |
 | clear            | clear       | clear terminal       |                                             |
-| logger           | logger      | set logger level     |                                             |
+| verbose          | logger      | set logger level     | migrated to logger system                   |
+
+\* It is not a good nor a practical idea to tie every rand-gen to the same random device.
 
 ## Device Commands
+
+### Status: Done
 
 | Original Command | New Command     | Synopsis                         | Notes |
 | :--------------- | :-------------- | :------------------------------- | :---- |
@@ -28,13 +34,17 @@
 
 ## Conversion Commands
 
-| Original Command | New Command | Synopsis                  | Notes            |
-| :--------------- | :---------- | :------------------------ | :--------------- |
-| qc2zx            | qcir2zx     | convert QCir to ZXGraph   | aliased as qc2zx |
-| qc2ts            | qcir2tensor | convert QCir to tensor    | aliased as qc2ts |
-| zx2ts            | zx2tensor   | convert ZXGraph to tensor | aliased as zx2ts |
+### Status: Done
+
+| Original Command | New Command | Synopsis                  | Notes                |
+| :--------------- | :---------- | :------------------------ | :------------------- |
+| qc2zx            | qcir2zx     | convert QCir to ZXGraph   | also alised to qc2zx |
+| qc2ts            | qcir2tensor | convert QCir to tensor    | also alised to qc2ts |
+| zx2ts            | zx2tensor   | convert ZXGraph to tensor | also alised to zx2ts |
 
 ## Duostra Commands
+
+### Status: Not Started
 
 | Original Command | New Command        | Synopsis                                          | Notes |
 | :--------------- | :----------------- | :------------------------------------------------ | :---- |
@@ -45,14 +55,19 @@
 
 ## Extractor Commands
 
-| Original Command | New Command        | Synopsis                          | Notes               |
-| :--------------- | :----------------- | :-------------------------------- | :------------------ |
-| zx2qc            | extract -full      | extract ZXGraph to QCir           | zx2qc becomes alias |
-| extract          | extract            | extract a part of ZXGraph to QCir |                     |
-| extprint         | extract config     | print extract config              |                     |
-| extset           | extract config ... | set extract config                |                     |
+### Status: Not Started
+
+| Original Command    | New Command        | Synopsis                          | Notes               |
+| :------------------ | :----------------- | :-------------------------------- | :------------------ |
+| zx2qc               | extract -full      | extract ZXGraph to QCir           | zx2qc becomes alias |
+| extract             | extract            | extract a part of ZXGraph to QCir |                     |
+| extprint --settings | extract config     | print extract config              |                     |
+| extprint            | extract print      | print extractor status            |                     |
+| extset              | extract config ... | set extract config                |                     |
 
 ## QCir Commands
+
+### Status: Not Started
 
 | Original Command | New Command        | Synopsis                        | Notes                           |
 | :--------------- | :----------------- | :------------------------------ | :------------------------------ |
@@ -81,11 +96,15 @@
 
 ## QCir Optimizer Commands
 
+### Status: Not Started
+
 | Original Command | New Command   | Synopsis      | Notes |
 | :--------------- | :------------ | :------------ | :---- |
 | qccoptimize      | qcir optimize | optimize QCir |       |
 
 ## Tensor Commands
+
+### Status: Done
 
 | Original Command | New Command     | Synopsis                       | Notes |
 | :--------------- | :-------------- | :----------------------------- | :---- |
@@ -100,6 +119,8 @@
 | tsadjoint        | tensor adjoint  | perform adjoint                |       |
 
 ## ZXGraph Commands
+
+### Status: Not Started
 
 | Original Command   | New Command           | Synopsis                          | Notes                  |
 | :----------------- | :-------------------- | :-------------------------------- | :--------------------- |
@@ -126,12 +147,16 @@
 
 ## ZXGraph Optimizer Commands
 
+### Status: Not Started
+
 | Original Command  | New Command          | Synopsis         | Notes                         |
 | :---------------- | :------------------- | :--------------- | :---------------------------- |
 | zxgsimp [routine] | zxgraph optimize ... | optimize ZXGraph |                               |
 | zxgsimp [rule]    | zxgraph rule ...     | apply rule       | add match and selective apply |
 
 ## ZXGraph GFlow Commands
+
+### Status: Not Started
 
 | Original Command | New Command   | Synopsis      | Notes |
 | :--------------- | :------------ | :------------ | :---- |

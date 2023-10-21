@@ -24,7 +24,7 @@ Clifford    : 370
 T-family    : 280
 Others      : 0
 
-qsyn> duoprint -d
+qsyn> duostra config --verbose
 
 Scheduler:         search
 Router:            duostra
@@ -40,9 +40,9 @@ Cost Selector:     min
 Never Cache:       true
 Single Immed.:     false
 
-qsyn> duoset -depth 2 -si true
+qsyn> duostra config --depth 2 --single-immediate true
 
-qsyn> duoprint -d
+qsyn> duostra config --verbose
 
 Scheduler:         search
 Router:            duostra
@@ -58,7 +58,7 @@ Cost Selector:     min
 Never Cache:       true
 Single Immed.:     true
 
-qsyn> duostra -c
+qsyn> duostra --check
 Routing...
 
 Checking...
@@ -80,15 +80,15 @@ Clifford    : 1720
 T-family    : 280
 Others      : 0
 
-qsyn> duoset -sc greedy
+qsyn> duostra config --scheduler greedy
 
-qsyn> duoprint
+qsyn> duostra config
 
 Scheduler:         greedy
 Router:            duostra
 Placer:            dfs
 
-qsyn> duostra -c
+qsyn> duostra --check
 Routing...
 
 Checking...
