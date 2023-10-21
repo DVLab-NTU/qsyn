@@ -330,25 +330,6 @@ Command logger_cmd() {
     return cmd;
 }
 
-Command seed_cmd() {
-    return {"seed",
-
-            [](ArgumentParser& parser) {
-                parser.description("set the random seed");
-
-                parser.add_argument<unsigned>("seed")
-                    .default_value(353)  // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
-                    .nargs(NArgsOption::optional)
-                    .help("random seed value");
-            },
-
-            [](ArgumentParser const& parser) {
-                srand(parser.get<unsigned>("seed"));
-                fmt::println("Note: seed is set to {}", parser.get<unsigned>("seed"));
-                return CmdExecResult::done;
-            }};
-}
-
 Command clear_cmd() {
     return {"clear",
             [](ArgumentParser& parser) {
@@ -374,7 +355,6 @@ bool add_cli_common_cmds(dvlab::CommandLineInterface& cli) {
           cli.add_command(source_cmd(cli)) &&
           cli.add_alias("dofile", "source") &&
           cli.add_command(usage_cmd()) &&
-          cli.add_command(seed_cmd()) &&
           cli.add_command(clear_cmd()) &&
           cli.add_command(logger_cmd()))) {
         spdlog::critical("Registering \"cli\" commands fails... exiting");

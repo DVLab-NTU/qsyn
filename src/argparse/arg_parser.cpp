@@ -10,7 +10,6 @@
 #include <fmt/format.h>
 
 #include <cassert>
-#include <cstdlib>
 #include <numeric>
 #include <ranges>
 
@@ -239,7 +238,6 @@ std::pair<bool, std::vector<Token>> ArgumentParser::parse_known_args(TokensView 
  */
 std::pair<bool, std::vector<Token>> ArgumentParser::_parse_known_args_impl(TokensView tokens) {
     if (!analyze_options()) return {false, {}};
-
     _pimpl->activated_subparser = std::nullopt;
     for (auto& mutex : _pimpl->mutually_exclusive_groups) {
         mutex.set_parsed(false);
@@ -271,7 +269,6 @@ std::pair<bool, std::vector<Token>> ArgumentParser::_parse_known_args_impl(Token
         !_parse_positional_arguments(main_parser_tokens, unrecognized)) {
         return {false, {}};
     }
-
     _fill_unparsed_args_with_defaults();
     if (has_subparsers()) {
         TokensView subparser_tokens = tokens.subspan(subparser_token_pos + 1);

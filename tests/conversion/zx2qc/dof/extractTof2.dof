@@ -1,4 +1,4 @@
-exts -op 1
+extract config --optimize-level 1
 zxgread benchmark/zx/tof3.zx
 zx2ts
 zxgs -fr

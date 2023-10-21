@@ -36,14 +36,13 @@ public:
         return *this;
     }
 
-    void swap(TrieNode& other) {
-        using std::swap;
-        swap(children, other.children);
-        swap(is_word, other.is_word);
-        swap(frequency, other.frequency);
+    void swap(TrieNode& other) noexcept {
+        std::swap(children, other.children);
+        std::swap(is_word, other.is_word);
+        std::swap(frequency, other.frequency);
     }
 
-    friend void swap(TrieNode& a, TrieNode& b) {
+    friend void swap(TrieNode& a, TrieNode& b) noexcept {
         a.swap(b);
     }
 
@@ -82,12 +81,11 @@ public:
         return *this;
     }
 
-    void swap(Trie& other) {
-        using std::swap;
-        swap(_root, other._root);
+    void swap(Trie& other) noexcept {
+        std::swap(_root, other._root);
     }
 
-    friend void swap(Trie& a, Trie& b) {
+    friend void swap(Trie& a, Trie& b) noexcept {
         a.swap(b);
     }
 

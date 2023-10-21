@@ -9,13 +9,11 @@
 
 #include <spdlog/spdlog.h>
 
-#include <cstddef>
 #include <memory>
 #include <string>
 
 #include "device/device.hpp"
 #include "device/device_mgr.hpp"
-#include "fmt/core.h"
 #include "qsyn/qsyn_type.hpp"
 
 using namespace dvlab::argparse;

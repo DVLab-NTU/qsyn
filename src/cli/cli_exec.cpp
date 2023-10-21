@@ -18,10 +18,6 @@
 
 namespace dvlab {
 
-//----------------------------------------------------------------------
-//    Member Function for class cmdParser
-//----------------------------------------------------------------------
-
 CmdExecResult CommandLineInterface::start_interactive() {
     auto status = dvlab::CmdExecResult::done;
 
@@ -112,8 +108,8 @@ dvlab::CommandLineInterface::_parse_one_command(std::string_view cmd) {
     assert(buffer[0] != '\0' && buffer[0] != ' ');
 
     // get the first token. The first token should be a command or an alias
-    auto first_space_pos    = _get_first_token_pos(buffer);
-    std::string first_token = buffer.substr(0, first_space_pos);
+    auto first_space_pos = _get_first_token_pos(buffer);
+    auto first_token     = buffer.substr(0, first_space_pos);
 
     auto identifier = _identifiers.find_with_prefix(first_token);
     if (!identifier.has_value()) {

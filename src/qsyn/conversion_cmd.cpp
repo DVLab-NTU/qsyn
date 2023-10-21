@@ -29,12 +29,8 @@ bool valid_decomposition_mode(size_t const& val) {
     return false;
 };
 
-//----------------------------------------------------------------------
-//    QC2ZX
-//----------------------------------------------------------------------
-
 Command qcir_to_zx_cmd(QCirMgr& qcir_mgr, qsyn::zx::ZXGraphMgr& zxgraph_mgr) {
-    return {"qc2zx",
+    return {"qcir2zx",
             [](ArgumentParser& parser) {
                 parser.description("convert QCir to ZXGraph");
 
@@ -60,12 +56,8 @@ Command qcir_to_zx_cmd(QCirMgr& qcir_mgr, qsyn::zx::ZXGraphMgr& zxgraph_mgr) {
             }};
 }
 
-//----------------------------------------------------------------------
-//    QC2TS
-//----------------------------------------------------------------------
-
 Command qcir_to_tensor_cmd(QCirMgr& qcir_mgr, qsyn::tensor::TensorMgr& tensor_mgr) {
-    return {"qc2ts",
+    return {"qcir2tensor",
             [](ArgumentParser& parser) {
                 parser.description("convert QCir to tensor");
             },
@@ -87,11 +79,8 @@ Command qcir_to_tensor_cmd(QCirMgr& qcir_mgr, qsyn::tensor::TensorMgr& tensor_mg
             }};
 }
 
-//----------------------------------------------------------------------
-//    ZX2TS
-//----------------------------------------------------------------------
 Command zxgraph_to_tensor_cmd(qsyn::zx::ZXGraphMgr& zxgraph_mgr, qsyn::tensor::TensorMgr& tensor_mgr) {
-    return {"zx2ts",
+    return {"zx2tensor",
             [&](ArgumentParser& parser) {
                 parser.description("convert ZXGraph to tensor");
 
@@ -142,7 +131,10 @@ Command zxgraph_to_tensor_cmd(qsyn::zx::ZXGraphMgr& zxgraph_mgr, qsyn::tensor::T
 bool add_conversion_cmds(dvlab::CommandLineInterface& cli, QCirMgr& qcir_mgr, qsyn::tensor::TensorMgr& tensor_mgr, qsyn::zx::ZXGraphMgr& zxgraph_mgr) {
     if (!(cli.add_command(qcir_to_zx_cmd(qcir_mgr, zxgraph_mgr)) &&
           cli.add_command(zxgraph_to_tensor_cmd(zxgraph_mgr, tensor_mgr)) &&
-          cli.add_command(qcir_to_tensor_cmd(qcir_mgr, tensor_mgr)))) {
+          cli.add_command(qcir_to_tensor_cmd(qcir_mgr, tensor_mgr)) &&
+          cli.add_alias("qc2zx", "qcir2zx") &&
+          cli.add_alias("qc2ts", "qcir2tensor") &&
+          cli.add_alias("zx2ts", "zx2tensor"))) {
         fmt::println(stderr, "Registering \"conversion\" commands fails... exiting");
         return false;
     }

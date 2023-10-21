@@ -57,8 +57,8 @@ Positional Arguments:
 Options:
   flag  -h, --help    show this help message and exit 
 
-qsyn> help extract
-Usage: extract [-h] (-zxgraph <size_t ID>) (-qcir <size_t ID>) (-cx | -cz | -phase | -H | -clf | -rmg | -permute | -loop [<size_t N>])
+qsyn> extract step -h
+Usage: step [-h] (-zxgraph <size_t ID>) (-qcir <size_t ID>) (-cx | -cz | -phase | -H | -clf | -rmg | -permute | -loop [<size_t N>])
 
 Description:
   perform step(s) in extraction
