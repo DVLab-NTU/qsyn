@@ -102,8 +102,7 @@ class CommandLineInterface {
     static constexpr size_t read_buf_size = 65536;
     static constexpr size_t page_offset   = 10;
 
-    using CmdMap     = std::unordered_map<std::string, std::unique_ptr<dvlab::Command>>;
-    using CmdRegPair = std::pair<std::string, std::unique_ptr<dvlab::Command>>;
+    using CmdMap = std::unordered_map<std::string, std::unique_ptr<dvlab::Command>>;
 
 public:
     /**

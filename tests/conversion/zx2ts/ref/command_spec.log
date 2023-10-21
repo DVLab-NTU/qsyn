@@ -3,7 +3,10 @@ qsyn> //  Help Message
 qsyn> //-------------------------
 qsyn> 
 qsyn> help zx2ts
-Usage: zx2ts [-h] [-zx <size_t id>] [-ts <size_t id>] [-replace]
+`zx2ts` is an alias to `zx2tensor`.
+Showing help message to `zx2tensor`:
+
+Usage: zx2tensor [-h] [-zx <size_t id>] [-ts <size_t id>] [-replace]
 
 Description:
   convert ZXGraph to tensor

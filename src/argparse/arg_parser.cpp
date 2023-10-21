@@ -10,7 +10,6 @@
 #include <fmt/format.h>
 
 #include <cassert>
-#include <cstdlib>
 #include <numeric>
 #include <ranges>
 

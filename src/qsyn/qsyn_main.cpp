@@ -44,9 +44,7 @@ qsyn::zx::ZXGraphMgr zxgraph_mgr{"ZXGraph"};
 
 }  // namespace
 
-bool stop_requested() {
-    return cli.stop_requested();
-}
+bool stop_requested() { return cli.stop_requested(); }
 
 int main(int argc, char** argv) {
     using namespace dvlab::argparse;
@@ -60,7 +58,10 @@ int main(int argc, char** argv) {
         QSYN_VERSION, std::chrono::system_clock::now());
 
     // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-    auto parser = ArgumentParser(argv[0], {.add_help_action = true, .add_version_action = true, .exitOnFailure = true, .version = version_str});
+    auto parser = ArgumentParser(argv[0], {.add_help_action    = true,
+                                           .add_version_action = true,
+                                           .exitOnFailure      = true,
+                                           .version            = version_str});
 
     parser.add_argument<std::string>("-f", "--file")
         .nargs(NArgsOption::one_or_more)
@@ -70,7 +71,11 @@ int main(int argc, char** argv) {
         .action(store_true)
         .help("suppress version information on start up");
 
-    std::vector<std::string> arguments{std::next(argv), std::next(argv, argc)};
+    parser.add_argument<unsigned>("--random-seed")
+        .help("specify the random seed for the program.");
+
+    std::vector<std::string> arguments{std::next(argv),
+                                       std::next(argv, argc)};
 
     if (!parser.parse_args(arguments)) {
         parser.print_usage();
@@ -85,7 +90,9 @@ int main(int argc, char** argv) {
             return 1;
         }
 
-        if (!cli.add_variables_from_dofiles(args[0], std::ranges::subrange(args.begin() + 1, args.end()))) {
+        if (!cli.add_variables_from_dofiles(
+                args[0],
+                std::ranges::subrange(args.begin() + 1, args.end()))) {
             return 1;
         }
     }
@@ -97,7 +104,8 @@ int main(int argc, char** argv) {
     if (!dvlab::add_cli_common_cmds(cli) ||
         !qsyn::device::add_device_cmds(cli, device_mgr) ||
         !qsyn::duostra::add_duostra_cmds(cli, qcir_mgr, device_mgr) ||
-        !qsyn::add_conversion_cmds(cli, qcir_mgr, tensor_mgr, zxgraph_mgr) ||
+        !qsyn::add_conversion_cmds(cli, qcir_mgr, tensor_mgr,
+                                   zxgraph_mgr) ||
         !qsyn::extractor::add_extract_cmds(cli, zxgraph_mgr, qcir_mgr) ||
         !qsyn::qcir::add_qcir_cmds(cli, qcir_mgr) ||
         !qsyn::qcir::add_qcir_optimize_cmds(cli, qcir_mgr) ||
@@ -108,11 +116,15 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    signal(SIGINT, [](int signum) -> void { cli.sigint_handler(signum); return; });
+    signal(SIGINT, [](int signum) -> void {
+        cli.sigint_handler(signum);
+        return;
+    });
 
     dvlab::utils::Usage::reset();
 
     auto result = cli.start_interactive();
 
-    return static_cast<std::underlying_type_t<dvlab::CmdExecResult>>(result);
+    return static_cast<std::underlying_type_t<dvlab::CmdExecResult>>(
+        result);
 }

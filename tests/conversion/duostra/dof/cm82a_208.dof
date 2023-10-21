@@ -4,13 +4,13 @@ qcp -se
 qccr benchmark/SABRE/large/cm82a_208.qasm
 device read benchmark/topology/guadalupe.layout 
 qccp -a
-duoprint -d
-duoset -depth 2 -si true
-duoprint -d
-duostra -c
+duostra config --verbose
+duostra config --depth 2 --single-immediate true
+duostra config --verbose
+duostra --check
 qccp -a
-duoset -sc greedy
-duoprint
-duostra -c
+duostra config --scheduler greedy
+duostra config
+duostra --check
 qccp -a
 quit -f
