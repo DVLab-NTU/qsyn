@@ -37,14 +37,12 @@ private:
         dvlab::utils::ordered_hashmap<std::string, ArgumentParser> subparsers;
         std::string help;
         bool required = false;
-        bool parsed   = false;
         ArgumentParserConfig parent_config;
     };
     std::shared_ptr<SubParsersImpl> _pimpl;
 
 public:
     SubParsers(ArgumentParserConfig const& parent_config) : _pimpl{std::make_shared<SubParsersImpl>()} { _pimpl->parent_config = parent_config; }
-    void set_parsed(bool is_parsed) { _pimpl->parsed = is_parsed; }
     SubParsers required(bool is_req) {
         _pimpl->required = is_req;
         return *this;
@@ -63,7 +61,6 @@ public:
     auto const& get_help() const { return _pimpl->help; }
 
     bool is_required() const { return _pimpl->required; }
-    bool is_parsed() const { return _pimpl->parsed; }
 };
 
 namespace detail {
@@ -185,7 +182,6 @@ private:
 
     void _activate_subparser(std::string const& name) {
         _pimpl->activated_subparser = name;
-        _pimpl->subparsers->set_parsed(true);
     }
     Argument const& _get_arg(std::string const& name) const;
     Argument& _get_arg(std::string const& name);
@@ -338,7 +334,7 @@ ArgType<T>& ArgumentParser::_add_option(std::string const& name, std::convertibl
 
 template <typename T>
 auto& ArgumentParser::_get_arg_impl(T& t, std::string const& name) {
-    if (t._pimpl->subparsers.has_value() && t._pimpl->subparsers->is_parsed()) {
+    if (t._pimpl->subparsers.has_value() && t._pimpl->activated_subparser.has_value()) {
         if (t._get_activated_subparser()->_has_arg(name)) {
             return t._get_activated_subparser()->_get_arg(name);
         }
