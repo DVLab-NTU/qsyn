@@ -25,9 +25,9 @@ namespace qsyn::qcir {
  * @return false if error in file or not found
  */
 bool QCir::read_qcir_file(std::string const& filename) {
-    std::string lastname = filename.substr(filename.find_last_of('/') + 1);
+    auto const lastname = filename.substr(filename.find_last_of('/') + 1);
 
-    std::string extension = (lastname.find('.') != std::string::npos) ? lastname.substr(lastname.find_last_of('.')) : "";
+    auto const extension = (lastname.find('.') != std::string::npos) ? lastname.substr(lastname.find_last_of('.')) : "";
 
     if (extension == ".qasm")
         return read_qasm(filename);
@@ -71,10 +71,8 @@ bool QCir::read_qcir_file(std::string const& filename) {
 bool QCir::read_qasm(std::string const& filename) {
     using dvlab::str::str_get_token;
     // read file and open
-    std::string lastname = filename.substr(filename.find_last_of('/') + 1);
+    auto const lastname = filename.substr(filename.find_last_of('/') + 1);
     _procedures.clear();
-    std::string tmp;
-    std::vector<std::string> record;
     std::fstream qasm_file{filename};
     if (!qasm_file.is_open()) {
         spdlog::error("Cannot open the QASM file \"{}\"!!", filename);
@@ -87,10 +85,8 @@ bool QCir::read_qasm(std::string const& filename) {
         // qreg q[int];
         qasm_file >> str;
     }
-    // For netlist
-    std::string tok;
 
-    size_t nqubit = stoul(str.substr(str.find('[') + 1, str.size() - str.find('[') - 3));
+    auto const nqubit = stoul(str.substr(str.find('[') + 1, str.size() - str.find('[') - 3));
     add_qubits(nqubit);
     getline(qasm_file, str);
     while (getline(qasm_file, str)) {
@@ -98,10 +94,10 @@ bool QCir::read_qasm(std::string const& filename) {
         str = dvlab::str::trim_spaces(str);
         if (str == "") continue;
         std::string type;
-        size_t type_end       = str_get_token(str, type);
+        auto const type_end   = str_get_token(str, type);
         std::string phase_str = "0";
         if (str_get_token(str, phase_str, 0, '(') != std::string::npos) {
-            size_t stop = str_get_token(str, type, 0, '(');
+            auto const stop = str_get_token(str, type, 0, '(');
             str_get_token(str, phase_str, stop + 1, ')');
         } else
             phase_str = "0";
@@ -181,12 +177,11 @@ bool QCir::read_qc(std::string const& filename) {
         {
             std::string type, qubit_label;
             QubitIdList qubit_ids;
-            size_t pos = 0;
-            pos        = str_get_token(line, type, pos);
+            size_t pos = str_get_token(line, type, 0);
             while (pos != std::string::npos) {
                 pos = str_get_token(line, qubit_label, pos);
                 if (count(qubit_labels.begin(), qubit_labels.end(), qubit_label)) {
-                    size_t qubit_id = distance(qubit_labels.begin(), find(qubit_labels.begin(), qubit_labels.end(), qubit_label));
+                    auto const qubit_id = distance(qubit_labels.begin(), find(qubit_labels.begin(), qubit_labels.end(), qubit_label));
                     qubit_ids.emplace_back(qubit_id);
                 } else {
                     spdlog::error("encountered a undefined qubit ({})!!", qubit_label);
@@ -226,8 +221,8 @@ bool QCir::read_qsim(std::string const& filename) {
         return false;
     }
 
-    std::string n_qubit_str, line;
-    std::vector<std::string> single_gate_list{"x", "y", "z", "h", "t", "x_1_2", "y_1_2", "rx", "rz", "s"};
+    std::string line;
+    static std::vector<std::string> const single_gate_list{"x", "y", "z", "h", "t", "x_1_2", "y_1_2", "rx", "rz", "s"};
     // decide qubit number
     int n_qubit;
     getline(qsim_file, line);
@@ -323,7 +318,7 @@ bool QCir::read_quipper(std::string const& filename) {
                             spdlog::error("Unsupported controlled gate type!! Only `cnot`, `CX` and `CZ` are supported.");
                             return false;
                         }
-                        size_t qubit_control = stoul(ctrls_info.substr(1));
+                        auto const qubit_control = stoul(ctrls_info.substr(1));
                         qubit_ids.emplace_back(qubit_control);
                         qubit_ids.emplace_back(qubit_target);
                         type.insert(0, "C");

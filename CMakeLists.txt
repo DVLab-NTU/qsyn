@@ -88,7 +88,13 @@ target_compile_definitions(spdlog PUBLIC SPDLOG_SHORT_LEVEL_NAMES={\"[trace]\ \ 
 target_link_libraries(spdlog PUBLIC fmt::fmt)
 
 target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE QSYN_VERSION="${CMAKE_PROJECT_VERSION}")
-target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wall -Werror)
+target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wall -Wextra -Werror)
+
+# g++ is being too paranoid about missing field initializers
+if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
+    target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wno-missing-field-initializers)
+endif()
+
 target_include_directories(${CMAKE_PROJECT_NAME}
     PRIVATE ${CMAKE_SOURCE_DIR}/src)
 

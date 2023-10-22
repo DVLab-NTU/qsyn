@@ -32,7 +32,7 @@ namespace extractor {
 extern bool SORT_FRONTIER;
 extern bool SORT_NEIGHBORS;
 extern bool PERMUTE_QUBITS;
-extern bool FILTER_DUPLICATED_CXS;
+extern bool FILTER_DUPLICATE_CXS;
 extern size_t BLOCK_SIZE;
 extern size_t OPTIMIZE_LEVEL;
 
@@ -98,6 +98,7 @@ private:
 
     void _block_elimination(dvlab::BooleanMatrix& matrix, size_t& min_n_cxs, size_t block_size);
     void _block_elimination(size_t& best_block, dvlab::BooleanMatrix& best_matrix, size_t& min_cost, size_t block_size);
+    void _filter_duplicate_cxs();
     std::vector<Operation> _duostra_assigned;
     std::vector<Operation> _duostra_mapped;
     // NOTE - Use only in column optimal swap

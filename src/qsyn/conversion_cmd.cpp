@@ -24,7 +24,7 @@ using dvlab::Command, dvlab::CmdExecResult;
 namespace qsyn {
 
 bool valid_decomposition_mode(size_t const& val) {
-    if (0 <= val && val <= 4) return true;
+    if (val <= 4) return true;
     std::cerr << "Error: decomposition Mode " << val << " is not valid!!\n";
     return false;
 };

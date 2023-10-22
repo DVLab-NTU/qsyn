@@ -10,6 +10,7 @@
 #include <cstddef>
 
 #include "./zx_rules_template.hpp"
+#include "util/util.hpp"
 #include "zx/zx_def.hpp"
 #include "zx/zx_partition.hpp"
 #include "zx/zxgraph.hpp"
@@ -94,16 +95,14 @@ void Simplifier::to_x_graph() {
 size_t Simplifier::interior_clifford_simp() {
     this->spider_fusion_simp();
     this->to_z_graph();
-    size_t iterations = 0;
-    while (true) {
-        size_t i1 = this->identity_removal_simp();
-        size_t i2 = this->spider_fusion_simp();
-        size_t i3 = this->pivot_simp();
-        size_t i4 = this->local_complement_simp();
-        if (i1 + i2 + i3 + i4 == 0) break;
-        iterations++;
+    for (size_t iterations = 0; !stop_requested(); iterations++) {
+        auto const i1 = this->identity_removal_simp();
+        auto const i2 = this->spider_fusion_simp();
+        auto const i3 = this->pivot_simp();
+        auto const i4 = this->local_complement_simp();
+        if (i1 + i2 + i3 + i4 == 0) return iterations;
     }
-    return iterations;
+    DVLAB_UNREACHABLE("This line should not be reached");
 }
 
 /**
@@ -114,9 +113,9 @@ size_t Simplifier::interior_clifford_simp() {
 size_t Simplifier::clifford_simp() {
     size_t iterations = 0;
     while (true) {
-        size_t i1 = this->interior_clifford_simp();
+        auto const i1 = this->interior_clifford_simp();
         iterations += i1;
-        size_t i2 = this->pivot_boundary_simp();
+        auto const i2 = this->pivot_boundary_simp();
         if (i2 == 0) break;
     }
     return iterations;

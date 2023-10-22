@@ -96,7 +96,7 @@ QubitInfo QCirGate::get_qubit(QubitIdType qubit) const {
  * @param isTarget
  */
 void QCirGate::add_qubit(QubitIdType qubit, bool is_target) {
-    QubitInfo temp = {._qubit = qubit, ._prev = nullptr, ._next = nullptr, ._isTarget = is_target};
+    auto const temp = QubitInfo{._qubit = qubit, ._prev = nullptr, ._next = nullptr, ._isTarget = is_target};
     // _qubits.emplace_back(temp);
     if (is_target)
         _qubits.emplace_back(temp);
@@ -134,8 +134,7 @@ void QCirGate::set_parent(QubitIdType qubit, QCirGate* p) {
  * @param c
  */
 void QCirGate::add_dummy_child(QCirGate* c) {
-    QubitInfo temp = {._qubit = 0, ._prev = nullptr, ._next = c, ._isTarget = false};
-    _qubits.emplace_back(temp);
+    _qubits.push_back({._qubit = 0, ._prev = nullptr, ._next = c, ._isTarget = false});
 }
 
 /**
@@ -181,9 +180,9 @@ void QCirGate::_print_single_qubit_or_controlled_gate(std::string gtype, bool sh
     if (_qubits.size() > 1 && gtype.size() % 2 == 0) {
         gtype = " " + gtype;
     }
-    std::string max_qubit = std::to_string(max_element(_qubits.begin(), _qubits.end(), [](QubitInfo const a, QubitInfo const b) {
-                                               return a._qubit < b._qubit;
-                                           })->_qubit);
+    auto const max_qubit = std::to_string(max_element(_qubits.begin(), _qubits.end(), [](QubitInfo const a, QubitInfo const b) {
+                                              return a._qubit < b._qubit;
+                                          })->_qubit);
 
     std::vector<std::string> prevs;
     for (size_t i = 0; i < _qubits.size(); i++) {
@@ -192,18 +191,18 @@ void QCirGate::_print_single_qubit_or_controlled_gate(std::string gtype, bool sh
         else
             prevs.emplace_back("G" + std::to_string(get_qubits()[i]._prev->get_id()));
     }
-    std::string max_prev = *max_element(prevs.begin(), prevs.end(), [](std::string const& a, std::string const& b) {
+    auto const max_prev = *max_element(prevs.begin(), prevs.end(), [](std::string const& a, std::string const& b) {
         return a.size() < b.size();
     });
 
     for (size_t i = 0; i < _qubits.size(); i++) {
-        QubitInfo info         = get_qubits()[i];
+        auto const info        = get_qubits()[i];
         std::string qubit_info = "Q";
         for (size_t j = 0; j < max_qubit.size() - std::to_string(info._qubit).size(); j++)
             qubit_info += " ";
         qubit_info += std::to_string(info._qubit);
-        std::string prev_info = (info._prev == nullptr) ? "Start" : ("G" + std::to_string(info._prev->get_id()));
-        std::string next_info = (info._next == nullptr) ? "End" : ("G" + std::to_string(info._next->get_id()));
+        auto const prev_info = (info._prev == nullptr) ? "Start" : ("G" + std::to_string(info._prev->get_id()));
+        auto const next_info = (info._next == nullptr) ? "End" : ("G" + std::to_string(info._next->get_id()));
         if (info._isTarget) {
             fmt::println("{0: ^{1}} ┌─{2:─^{3}}─┐ ", "", max_qubit.size() + max_prev.size() + 3, _qubits.size() > 1 ? "┴" : "", gtype.size());
             fmt::println("{0} {1:<{4}} ─┤ {3} ├─ {2}", qubit_info, prev_info, next_info, gtype, max_prev.size());
@@ -213,9 +212,9 @@ void QCirGate::_print_single_qubit_or_controlled_gate(std::string gtype, bool sh
         }
     }
     if (show_rotation)
-        std::cout << "Rotate Phase: " << _phase << std::endl;
+        fmt::println("Rotate Phase: {0}", _phase);
     if (show_time)
-        std::cout << "Execute at t= " << get_time() << std::endl;
+        fmt::println("Execute at t= {}", get_time());
 }
 
 }  // namespace qsyn::qcir

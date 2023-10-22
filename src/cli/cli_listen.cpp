@@ -52,7 +52,7 @@ auto mygetc(std::istream& istr) -> char {
 
 int get_char(std::istream& istr) {
     using namespace dvlab::key_code;
-    char ch = mygetc(istr);
+    auto const ch = mygetc(istr);
 
     assert(ch != interrupt_key);
     switch (ch) {
@@ -78,10 +78,10 @@ int get_char(std::istream& istr) {
         // Combo keys: multiple codes for one key press
         // -- Usually starts with ESC key, so we check the "case ESC"
         case esc_key: {
-            char combo = mygetc(istr);
+            auto const combo = mygetc(istr);
             // Note: ARROW_KEY_INT == MOD_KEY_INT, so we only check MOD_KEY_INT
             if (combo == char(mod_key_int)) {
-                char key = mygetc(istr);
+                auto const key = mygetc(istr);
                 if ((key >= char(mod_key_begin)) && (key <= char(mod_key_end))) {
                     if (mygetc(istr) == mod_key_dummy)
                         return int(key) + mod_key_flag;
@@ -147,13 +147,13 @@ std::pair<CmdExecResult, std::string> dvlab::CommandLineInterface::listen_to_inp
         CommandLineInterface* p_cli;
     };
 
-    settings_restorer restorer{this, prompt};
+    settings_restorer const restorer{this, prompt};
 
     _clear_read_buffer();
     _print_prompt();
 
     while (true) {
-        int keycode = get_char(istr);
+        auto keycode = get_char(istr);
 
         if (istr.eof()) {
             return {CmdExecResult::done, dvlab::str::trim_spaces(dvlab::str::trim_comments(_read_buffer))};
@@ -286,7 +286,7 @@ bool dvlab::CommandLineInterface::_delete_char() {
 
     _read_buffer.erase(_cursor_position, 1);
 
-    size_t idx       = _cursor_position;
+    auto const idx   = _cursor_position;
     _cursor_position = _read_buffer.size();  // before moving cursor, reflect the change in actual cursor location
     _move_cursor_to(idx);                    // move the cursor back to where it should be
     return true;
@@ -304,7 +304,7 @@ void dvlab::CommandLineInterface::_insert_char(char ch) {
     }
     _read_buffer.insert(_cursor_position, 1, ch);
     fmt::print("{}", _read_buffer.substr(_cursor_position));
-    size_t idx       = _cursor_position + 1;
+    auto const idx   = _cursor_position + 1;
     _cursor_position = _read_buffer.size();
     _move_cursor_to(idx);
 }
@@ -327,7 +327,7 @@ void dvlab::CommandLineInterface::_delete_line() {
  */
 void dvlab::CommandLineInterface::_reprint_command() {
     // NOTE - DON'T CHANGE - The logic here is as concise as it can be although seemingly redundant.
-    size_t idx       = _cursor_position;
+    auto const idx   = _cursor_position;
     _cursor_position = _read_buffer.size();  // before moving cursor, reflect the change in actual cursor location
     fmt::println("");
     _print_prompt();

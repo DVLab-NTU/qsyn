@@ -87,6 +87,8 @@ qsyn> zx2qc
 [debug]    10 (phase gadget: 9)
 [debug]    
 [debug]    Perform Gaussian elimination.
+[debug]    Filter 0 CXs. Total: 0
+[debug]    Filter 0 CXs. Total: 0
 [debug]    Updating graph by matrix
 [debug]    Extracting CXs
 [debug]    Adding CX: 0 1
@@ -152,6 +154,8 @@ qsyn> zx2qc
 [debug]    Axels:
 [debug]    
 [debug]    Perform Gaussian elimination.
+[debug]    Filter 0 CXs. Total: 0
+[debug]    Filter 0 CXs. Total: 0
 [debug]    Updating graph by matrix
 [debug]    Extracting CXs
 [debug]    Adding CX: 2 1

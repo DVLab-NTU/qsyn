@@ -29,14 +29,14 @@ fmt::text_style ls_color(fs::path const& path) {
             std::unordered_map<std::string, fmt::text_style> map;
             char const* const ls_colors_str = getenv("LS_COLORS");
             if (ls_colors_str == nullptr) return map;
-            std::string ls_colors{ls_colors_str};
+            std::string const ls_colors{ls_colors_str};
 
             for (auto&& token : dvlab::str::split(ls_colors, ":")) {
                 if (token.empty()) continue;
-                size_t pos                      = token.find('=');
-                std::string key                 = token.substr(0, pos);
-                std::vector<std::string> values = dvlab::str::split(token.substr(pos + 1), ";");
-                fmt::text_style style           = std::transform_reduce(
+                auto const pos    = token.find('=');
+                auto const key    = token.substr(0, pos);
+                auto const values = dvlab::str::split(token.substr(pos + 1), ";");
+                auto const style  = std::transform_reduce(
                     values.begin(), values.end(),
                     fmt::text_style{},
                     std::bit_or<>{},
@@ -47,7 +47,7 @@ fmt::text_style ls_color(fs::path const& path) {
                         if (tmp >= 90 && tmp <= 97) return fmt::fg(fmt::terminal_color{gsl::narrow<uint8_t>(tmp)});
                         if (tmp >= 40 && tmp <= 47) return fmt::bg(fmt::terminal_color{gsl::narrow<uint8_t>(tmp)});
                         if (tmp >= 100 && tmp <= 107) return fmt::bg(fmt::terminal_color{gsl::narrow<uint8_t>(tmp)});
-                        assert(tmp >= 0 && tmp <= 7);
+                        assert(tmp <= 7);
                         return fmt::text_style{fmt::emphasis{gsl::narrow<uint8_t>(1 << (tmp - 1))}};
                     });
 
@@ -65,15 +65,15 @@ fmt::text_style ls_color(fs::path const& path) {
     namespace fs = std::filesystem;
     using fs::file_type, fs::perms;
 
-    auto status      = fs::status(path);
-    auto type        = status.type();
-    auto permissions = status.permissions();
+    auto const status      = fs::status(path);
+    auto const type        = status.type();
+    auto const permissions = status.permissions();
     // checks for file types
 
     switch (type) {
         case file_type::directory: {
-            bool is_sticky         = (permissions & perms::sticky_bit) != perms::none;
-            bool is_other_writable = (permissions & perms::others_write) != perms::none;
+            auto const is_sticky         = (permissions & perms::sticky_bit) != perms::none;
+            auto const is_other_writable = (permissions & perms::others_write) != perms::none;
             if (is_sticky) {
                 return is_other_writable ? ls_color_internal("tw") : ls_color_internal("st");
             }

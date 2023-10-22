@@ -5,39 +5,32 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
+#include <unordered_set>
+
 #include "./zx_rules_template.hpp"
+#include "zx/zxgraph.hpp"
 
 using namespace qsyn::zx;
 
 using MatchType = HadamardRule::MatchType;
 
 std::vector<MatchType> HadamardRule::find_matches(ZXGraph const& graph) const {
+    std::unordered_set<ZXVertex*> taken;
     std::vector<MatchType> matches;
 
-    std::unordered_map<size_t, size_t> id2idx;
-
-    size_t count = 0;
-    for (auto const& v : graph.get_vertices()) {
-        id2idx[v->get_id()] = count;
-        count++;
-    }
     // Find all H-boxes
-    std::vector<bool> taken(graph.get_num_vertices(), false);
-    std::vector<bool> in_matches(graph.get_num_vertices(), false);
-
     for (auto const& v : graph.get_vertices()) {
-        if (v->get_type() == VertexType::h_box && graph.get_num_neighbors(v) == 2) {
-            auto nbp0 = graph.get_first_neighbor(v);
-            auto nbp1 = graph.get_second_neighbor(v);
-            size_t n0 = id2idx[nbp0.first->get_id()], n1 = id2idx[nbp1.first->get_id()];
-            if (taken[n0] || taken[n1]) continue;
-            if (!in_matches[n0] && !in_matches[n1]) {
-                matches.emplace_back(v);
-                in_matches[id2idx[v->get_id()]] = true;
-                taken[n0]                       = true;
-                taken[n1]                       = true;
-            }
-        }
+        if (!v->is_hbox() || graph.get_num_neighbors(v) != 2) continue;
+
+        auto [nv0, _0] = graph.get_first_neighbor(v);
+        auto [nv1, _1] = graph.get_second_neighbor(v);
+
+        if (taken.contains(nv0) || taken.contains(nv1)) continue;
+
+        matches.emplace_back(v);
+        taken.insert(v);
+        taken.insert(nv0);
+        taken.insert(nv1);
     }
 
     return matches;

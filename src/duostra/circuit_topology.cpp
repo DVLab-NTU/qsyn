@@ -100,19 +100,19 @@ void CircuitTopology::update_available_gates(size_t executed) {
     assert(gate_executed.get_id() == executed);
 
     _executed_gates[executed] = 0;
-    for (size_t next : gate_executed.get_nexts()) {
+    for (auto next : gate_executed.get_nexts()) {
         if (get_gate(next).is_available(_executed_gates))
             _available_gates.emplace_back(next);
     }
 
     std::vector<size_t> gates_to_trim;
-    for (size_t prev_id : gate_executed.get_prevs()) {
+    for (auto prev_id : gate_executed.get_prevs()) {
         auto const& prev_gate = get_gate(prev_id);
         ++_executed_gates[prev_id];
         if (_executed_gates[prev_id] >= prev_gate.get_nexts().size())
             gates_to_trim.emplace_back(prev_id);
     }
-    for (size_t gate_id : gates_to_trim)
+    for (auto gate_id : gates_to_trim)
         _executed_gates.erase(gate_id);
 }
 

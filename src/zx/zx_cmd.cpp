@@ -532,14 +532,14 @@ Command zxgraph_edit_cmd(ZXGraphMgr& zxgraph_mgr) {
                         return CmdExecResult::error;
                     }
 
-                    bool had_edge = zxgraph_mgr.get()->is_neighbor(vs, vt, etype.value());
+                    auto const had_edge = zxgraph_mgr.get()->is_neighbor(vs, vt, etype.value());
 
                     zxgraph_mgr.get()->add_edge(vs, vt, etype.value());
 
                     if (vs == vt) {
                         spdlog::info("Note: converting this self-loop to phase {} on vertex {}...", etype.value() == EdgeType::hadamard ? Phase(1) : Phase(0), vs->get_id());
                     } else if (had_edge) {
-                        bool has_edge = zxgraph_mgr.get()->is_neighbor(vs, vt, etype.value());
+                        auto const has_edge = zxgraph_mgr.get()->is_neighbor(vs, vt, etype.value());
                         if (has_edge) {
                             spdlog::info("Note: redundant edge; merging into existing edge ({}, {})...", vs->get_id(), vt->get_id());
                         } else {
@@ -653,11 +653,11 @@ Command zxgraph_write_cmd(ZXGraphMgr const& zxgraph_mgr) {
             },
             [&](ArgumentParser const& parser) {
                 if (!zxgraph_mgr_not_empty(zxgraph_mgr)) return CmdExecResult::error;
-                auto filepath        = parser.get<std::string>("filepath");
-                auto do_complete     = parser.get<bool>("-complete");
-                size_t extension_pos = filepath.find_last_of('.');
+                auto const filepath      = parser.get<std::string>("filepath");
+                auto const do_complete   = parser.get<bool>("-complete");
+                auto const extension_pos = filepath.find_last_of('.');
 
-                std::string extension = (extension_pos == std::string::npos) ? "" : filepath.substr(extension_pos);
+                auto const extension = (extension_pos == std::string::npos) ? "" : filepath.substr(extension_pos);
                 if (extension == ".zx") {
                     if (!zxgraph_mgr.get()->write_zx(filepath, do_complete)) {
                         std::cerr << "Error: fail to write ZXGraph to \"" << filepath << "\"!!\n";
@@ -704,18 +704,18 @@ Command zxgraph_assign_boundary_cmd(ZXGraphMgr& zxgraph_mgr) {
             },
             [&](ArgumentParser const& parser) {
                 if (!zxgraph_mgr_not_empty(zxgraph_mgr)) return CmdExecResult::error;
-                auto qid      = parser.get<int>("qubit");
-                bool is_input = dvlab::str::tolower_string(parser.get<std::string>("io")).starts_with('i');
+                auto const qid      = parser.get<int>("qubit");
+                auto const is_input = dvlab::str::tolower_string(parser.get<std::string>("io")).starts_with('i');
 
                 if (!(is_input ? zxgraph_mgr.get()->is_input_qubit(qid) : zxgraph_mgr.get()->is_output_qubit(qid))) {
                     std::cerr << "Error: the specified boundary does not exist!!" << std::endl;
                     return CmdExecResult::error;
                 }
 
-                auto vtype = str_to_vertex_type(parser.get<std::string>("vtype"));
+                auto const vtype = str_to_vertex_type(parser.get<std::string>("vtype"));
                 assert(vtype.has_value());
 
-                auto phase = parser.get<Phase>("phase");
+                auto const phase = parser.get<Phase>("phase");
                 zxgraph_mgr.get()->assign_vertex_to_boundary(qid, is_input, vtype.value(), phase);
 
                 return CmdExecResult::done;

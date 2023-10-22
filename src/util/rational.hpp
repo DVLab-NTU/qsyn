@@ -132,7 +132,7 @@ constexpr void Rational::reduce() {
         _numer = -_numer;
         _denom = -_denom;
     }
-    IntegralType gcd = std::gcd(static_cast<IntegralType>(_numer), static_cast<IntegralType>(_denom));
+    IntegralType const gcd = std::gcd(static_cast<IntegralType>(_numer), static_cast<IntegralType>(_denom));
     _numer /= gcd;
     _denom /= gcd;
 }

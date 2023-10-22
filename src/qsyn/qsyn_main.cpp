@@ -74,8 +74,7 @@ int main(int argc, char** argv) {
     parser.add_argument<unsigned>("--random-seed")
         .help("specify the random seed for the program.");
 
-    std::vector<std::string> arguments{std::next(argv),
-                                       std::next(argv, argc)};
+    std::vector<std::string> const arguments{std::next(argv), std::next(argv, argc)};
 
     if (!parser.parse_args(arguments)) {
         parser.print_usage();

@@ -134,7 +134,7 @@ std::optional<QTensor<double>> to_tensor(QCir const &qcir) {
         std::vector<size_t> new_pin;
         for (size_t np = 0; np < gate->get_qubits().size(); np++) {
             new_pin.emplace_back(2 * np);
-            QubitInfo info = gate->get_qubits()[np];
+            auto const info = gate->get_qubits()[np];
             ori_pin.emplace_back(qubit2pin[info._qubit].second);
         }
         tensor = tensordot(tensor, *tmp, ori_pin, new_pin);
