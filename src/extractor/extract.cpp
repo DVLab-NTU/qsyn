@@ -10,6 +10,7 @@
 #include <cassert>
 #include <memory>
 #include <ranges>
+#include <tuple>
 
 #include "duostra/duostra.hpp"
 #include "duostra/mapping_eqv_checker.hpp"
@@ -30,12 +31,12 @@ extern bool stop_requested();
 
 namespace qsyn::extractor {
 
-bool SORT_FRONTIER         = 0;
-bool SORT_NEIGHBORS        = 1;
-bool PERMUTE_QUBITS        = 1;
-bool FILTER_DUPLICATED_CXS = 1;
-size_t BLOCK_SIZE          = 5;
-size_t OPTIMIZE_LEVEL      = 2;
+bool SORT_FRONTIER        = false;
+bool SORT_NEIGHBORS       = true;
+bool PERMUTE_QUBITS       = true;
+bool FILTER_DUPLICATE_CXS = true;
+size_t BLOCK_SIZE         = 5;
+size_t OPTIMIZE_LEVEL     = 2;
 
 /**
  * @brief Construct a new Extractor:: Extractor object
@@ -186,7 +187,7 @@ void Extractor::extract_singles() {
             prepend_single_qubit_gate("h", _qubit_map[o->get_qubit()], dvlab::Phase(0));
             toggle_list.emplace_back(o, _graph->get_first_neighbor(o).first);
         }
-        dvlab::Phase ph = _graph->get_first_neighbor(o).first->get_phase();
+        auto const ph = _graph->get_first_neighbor(o).first->get_phase();
         if (ph != dvlab::Phase(0)) {
             prepend_single_qubit_gate("rotate", _qubit_map[o->get_qubit()], ph);
             _graph->get_first_neighbor(o).first->set_phase(dvlab::Phase(0));
@@ -237,8 +238,7 @@ bool Extractor::extract_czs(bool check) {
     std::vector<Operation> ops;
     for (auto const& [s, t] : remove_list) {
         _graph->remove_edge(s, t, EdgeType::hadamard);
-        Operation op(GateRotationCategory::pz, dvlab::Phase(1), {_qubit_map[s->get_qubit()], _qubit_map[t->get_qubit()]}, {});
-        ops.emplace_back(op);
+        ops.emplace_back(GateRotationCategory::pz, dvlab::Phase(1), std::make_tuple(_qubit_map[s->get_qubit()], _qubit_map[t->get_qubit()]), std::make_tuple(0, 0));
     }
     if (ops.size() > 0) {
         prepend_series_gates(ops);
@@ -381,9 +381,6 @@ bool Extractor::remove_gadget(bool check) {
         }
         for (auto& [candidate, _] : _graph->get_neighbors(n)) {
             if (_frontier.contains(candidate)) {
-                std::vector<PivotBoundaryRule::MatchType> matches = {
-                    {candidate, n},
-                };
                 _axels.erase(n);
                 _frontier.erase(candidate);
 
@@ -395,7 +392,7 @@ bool Extractor::remove_gadget(bool check) {
                     }
                 }
 
-                PivotBoundaryRule().apply(*_graph, matches);
+                PivotBoundaryRule().apply(*_graph, {{candidate, n}});
 
                 assert(target_boundary != nullptr);
                 _frontier.emplace(_graph->get_first_neighbor(target_boundary).first);
@@ -422,9 +419,9 @@ void Extractor::column_optimal_swap() {
     _row_info.clear();
     _col_info.clear();
 
-    size_t row_cnt = _biadjacency.num_rows();
+    auto const row_cnt = _biadjacency.num_rows();
+    auto const col_cnt = _biadjacency.num_cols();
 
-    size_t col_cnt = _biadjacency.num_cols();
     _row_info.resize(row_cnt);
     _col_info.resize(col_cnt);
 
@@ -474,8 +471,7 @@ void Extractor::column_optimal_swap() {
  * @return Target (unordered_map of swaps)
  */
 Extractor::Target Extractor::_find_column_swap(Target target) {
-    size_t row_cnt = _row_info.size();
-    // size_t colCnt = _colInfo.size();
+    auto const row_cnt = _row_info.size();
 
     std::set<size_t> claimed_cols;
     std::set<size_t> claimed_rows;
@@ -496,7 +492,7 @@ Extractor::Target Extractor::_find_column_swap(Target target) {
             set_difference(_row_info[i].begin(), _row_info[i].end(), claimed_cols.begin(), claimed_cols.end(), inserter(free_cols, free_cols.end()));
             if (free_cols.size() == 1) {
                 // NOTE - pop the only element
-                size_t j = *(free_cols.begin());
+                auto const j = *(free_cols.begin());
                 free_cols.erase(j);
 
                 target[j] = i;
@@ -568,6 +564,16 @@ Extractor::Target Extractor::_find_column_swap(Target target) {
  * @return true if check pass
  * @return false if not
  */
+void Extractor::_filter_duplicate_cxs() {
+    auto const old = _num_cx_filtered;
+    while (true) {
+        auto const reduce = _biadjacency.filter_duplicate_row_operations();
+        if (reduce == 0) break;
+        _num_cx_filtered += reduce;
+    }
+    spdlog::debug("Filter {} CXs. Total: {}", _num_cx_filtered - old, _num_cx_filtered);
+}
+
 bool Extractor::biadjacency_eliminations(bool check) {
     if (check) {
         if (!frontier_is_cleaned()) {
@@ -596,7 +602,7 @@ bool Extractor::biadjacency_eliminations(bool check) {
 
     update_matrix();
     dvlab::BooleanMatrix greedy_matrix = _biadjacency;
-    ZXVertexList backup_neighbors      = _neighbors;
+    auto const backup_neighbors        = _neighbors;
 
     DVLAB_ASSERT(0 <= OPTIMIZE_LEVEL && OPTIMIZE_LEVEL <= 3, "Error: wrong optimize level");
 
@@ -615,18 +621,10 @@ bool Extractor::biadjacency_eliminations(bool check) {
 
         if (OPTIMIZE_LEVEL == 0) {
             _biadjacency.gaussian_elimination_skip(BLOCK_SIZE, true, true);
-            if (FILTER_DUPLICATED_CXS) {
-                size_t old = _num_cx_filtered;
-                while (true) {
-                    size_t reduce = _biadjacency.filter_duplicate_row_operations();
-                    _num_cx_filtered += reduce;
-                    if (reduce == 0) break;
-                }
-                spdlog::debug("Filter {} CXs. Total: {}", _num_cx_filtered - old, _num_cx_filtered);
-            }
+            if (FILTER_DUPLICATE_CXS) _filter_duplicate_cxs();
             _cnots = _biadjacency.get_row_operations();
         } else if (OPTIMIZE_LEVEL == 1 || OPTIMIZE_LEVEL == 3) {
-            size_t min_cnots = size_t(-1);
+            auto min_cnots = SIZE_MAX;
             dvlab::BooleanMatrix best_matrix;
             for (size_t blk = 1; blk < _biadjacency.num_cols(); blk++) {
                 _block_elimination(best_matrix, min_cnots, blk);
@@ -635,11 +633,11 @@ bool Extractor::biadjacency_eliminations(bool check) {
                 _biadjacency = best_matrix;
                 _cnots       = _biadjacency.get_row_operations();
             } else {
-                size_t n_gauss_opers     = best_matrix.get_row_operations().size();
-                size_t n_single_one_rows = accumulate(best_matrix.get_matrix().begin(), best_matrix.get_matrix().end(), 0,
-                                                      [](size_t acc, dvlab::BooleanMatrix::Row const& r) { return acc + size_t(r.is_one_hot()); });
+                auto const n_gauss_opers     = best_matrix.get_row_operations().size();
+                auto const n_single_one_rows = accumulate(best_matrix.get_matrix().begin(), best_matrix.get_matrix().end(), 0,
+                                                          [](size_t acc, dvlab::BooleanMatrix::Row const& r) { return acc + size_t(r.is_one_hot()); });
                 // NOTE - opers per extractable rows for Gaussian is bigger than greedy
-                bool found_greedy = float(n_gauss_opers) / float(n_single_one_rows) > float(greedy_opers.size()) - 0.1;
+                auto const found_greedy = (float(n_gauss_opers) / float(n_single_one_rows)) > (float(greedy_opers.size()) - 0.1);
                 if (!greedy_opers.empty() && found_greedy) {
                     _biadjacency = greedy_matrix;
                     _cnots       = greedy_matrix.get_row_operations();
@@ -671,13 +669,7 @@ bool Extractor::biadjacency_eliminations(bool check) {
 void Extractor::_block_elimination(dvlab::BooleanMatrix& best_matrix, size_t& min_n_cxs, size_t block_size) {
     dvlab::BooleanMatrix copied_matrix = _biadjacency;
     copied_matrix.gaussian_elimination_skip(block_size, true, true);
-    if (FILTER_DUPLICATED_CXS) {
-        while (true) {
-            size_t reduce = copied_matrix.filter_duplicate_row_operations();
-            _num_cx_filtered += reduce;
-            if (reduce == 0) break;
-        }
-    }
+    if (FILTER_DUPLICATE_CXS) _filter_duplicate_cxs();
     if (copied_matrix.get_row_operations().size() < min_n_cxs) {
         min_n_cxs   = copied_matrix.get_row_operations().size();
         best_matrix = copied_matrix;
@@ -687,13 +679,7 @@ void Extractor::_block_elimination(dvlab::BooleanMatrix& best_matrix, size_t& mi
 void Extractor::_block_elimination(size_t& best_block, dvlab::BooleanMatrix& best_matrix, size_t& min_cost, size_t block_size) {
     dvlab::BooleanMatrix copied_matrix = _biadjacency;
     copied_matrix.gaussian_elimination_skip(block_size, true, true);
-    if (FILTER_DUPLICATED_CXS) {
-        while (true) {
-            size_t reduce = copied_matrix.filter_duplicate_row_operations();
-            _num_cx_filtered += reduce;
-            if (reduce == 0) break;
-        }
-    }
+    if (FILTER_DUPLICATE_CXS) _filter_duplicate_cxs();
 
     // NOTE - Construct Duostra Input
     std::unordered_map<size_t, ZXVertex*> front_id2_vertex;
@@ -708,8 +694,7 @@ void Extractor::_block_elimination(size_t& best_block, dvlab::BooleanMatrix& bes
         size_t ctrl = _qubit_map[front_id2_vertex[c]->get_qubit()];
         size_t targ = _qubit_map[front_id2_vertex[t]->get_qubit()];
         spdlog::debug("Adding CX: {} {}", ctrl, targ);
-        Operation op(GateRotationCategory::px, dvlab::Phase(0), {ctrl, targ}, {});
-        ops.emplace_back(op);
+        ops.emplace_back(GateRotationCategory::px, dvlab::Phase(0), std::make_tuple(ctrl, targ), std::make_tuple(0, 0));
     }
 
     // NOTE - Get Mapping result, Device is passed by copy
@@ -782,7 +767,7 @@ void Extractor::update_neighbors() {
     std::vector<ZXVertex*> rm_vs;
 
     for (auto& f : _frontier) {
-        size_t num_boundaries = std::ranges::count_if(
+        auto const num_boundaries = std::ranges::count_if(
             _graph->get_neighbors(f),
             [](NeighborPair const& nbp) { return nbp.first->is_boundary(); });
 

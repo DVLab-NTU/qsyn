@@ -5,8 +5,11 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
+#include <unordered_set>
+
 #include "./zx_rules_template.hpp"
 #include "tl/enumerate.hpp"
+#include "zx/zxgraph.hpp"
 
 using namespace qsyn::zx;
 
@@ -20,41 +23,34 @@ using MatchType = StateCopyRule::MatchType;
 std::vector<MatchType> StateCopyRule::find_matches(ZXGraph const& graph) const {
     std::vector<MatchType> matches;
 
-    std::unordered_map<ZXVertex*, size_t> vertex2idx;
-
-    std::unordered_map<size_t, size_t> id2idx;
-    for (auto const& [count, v] : tl::views::enumerate(graph.get_vertices())) {
-        vertex2idx[v] = count;
-    }
-
-    std::vector<bool> valid_vertex(graph.get_num_vertices(), true);
+    std::unordered_set<ZXVertex*> taken;
 
     for (auto const& v : graph.get_vertices()) {
-        if (!valid_vertex[vertex2idx[v]]) continue;
+        if (taken.contains(v)) continue;
 
         if (v->get_type() != VertexType::z) {
-            valid_vertex[vertex2idx[v]] = false;
+            taken.emplace(v);
             continue;
         }
         if (v->get_phase() != Phase(0) && v->get_phase() != Phase(1)) {
-            valid_vertex[vertex2idx[v]] = false;
+            taken.emplace(v);
             continue;
         }
         if (graph.get_num_neighbors(v) != 1) {
-            valid_vertex[vertex2idx[v]] = false;
+            taken.emplace(v);
             continue;
         }
 
         ZXVertex* pi_neighbor = graph.get_first_neighbor(v).first;
         if (pi_neighbor->get_type() != VertexType::z) {
-            valid_vertex[vertex2idx[v]] = false;
+            taken.emplace(v);
             continue;
         }
         std::vector<ZXVertex*> apply_neighbors;
         for (auto const& [nebOfPiNeighbor, _] : graph.get_neighbors(pi_neighbor)) {
             if (nebOfPiNeighbor != v)
                 apply_neighbors.emplace_back(nebOfPiNeighbor);
-            valid_vertex[vertex2idx[nebOfPiNeighbor]] = false;
+            taken.emplace(nebOfPiNeighbor);
         }
         matches.emplace_back(make_tuple(v, pi_neighbor, apply_neighbors));
     }
@@ -66,21 +62,18 @@ void StateCopyRule::apply(ZXGraph& graph, std::vector<MatchType> const& matches)
     ZXOperation op;
 
     // Need to update global scalar and phase
-    for (auto& match : matches) {
-        ZXVertex* npi                    = get<0>(match);
-        ZXVertex* a                      = get<1>(match);
-        std::vector<ZXVertex*> neighbors = get<2>(match);
+    for (auto const& [npi, a, neighbors] : matches) {
         op.vertices_to_remove.emplace_back(npi);
         op.vertices_to_remove.emplace_back(a);
         for (auto neighbor : neighbors) {
             if (neighbor->get_type() == VertexType::boundary) {
-                ZXVertex* new_v  = graph.add_vertex(neighbor->get_qubit(), VertexType::z, npi->get_phase());
-                bool simple_edge = graph.get_first_neighbor(neighbor).second == EdgeType::simple;
+                ZXVertex* const new_v     = graph.add_vertex(neighbor->get_qubit(), VertexType::z, npi->get_phase());
+                auto const is_simple_edge = graph.get_first_neighbor(neighbor).second == EdgeType::simple;
 
                 op.edges_to_remove.emplace_back(std::make_pair(a, neighbor), graph.get_first_neighbor(neighbor).second);
 
                 // new to Boundary
-                op.edges_to_add.emplace_back(std::make_pair(new_v, neighbor), simple_edge ? EdgeType::hadamard : EdgeType::simple);
+                op.edges_to_add.emplace_back(std::make_pair(new_v, neighbor), is_simple_edge ? EdgeType::hadamard : EdgeType::simple);
 
                 // a to new
                 op.edges_to_add.emplace_back(std::make_pair(a, new_v), EdgeType::hadamard);

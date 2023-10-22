@@ -45,7 +45,7 @@ MappingEquivalenceChecker::MappingEquivalenceChecker(QCir* phy, QCir* log, Devic
  * @return false
  */
 bool MappingEquivalenceChecker::check() {
-    std::vector<QCirGate*> execute_order = _physical->get_topologically_ordered_gates();
+    auto execute_order = _physical->get_topologically_ordered_gates();
     if (_reverse) reverse(execute_order.begin(), execute_order.end());  // NOTE - Now the order starts from back
     // NOTE - Traverse all physical gates, should match dependency of logical gate
     std::unordered_set<QCirGate*> swaps;
@@ -55,18 +55,14 @@ bool MappingEquivalenceChecker::check() {
         }
         if (phys_gate->is_cx() || phys_gate->is_cz()) {
             if (is_swap(phys_gate)) {
-                bool correct = execute_swap(phys_gate, swaps);
-                if (!correct) return false;
+                if (!execute_swap(phys_gate, swaps)) return false;
             } else {
-                bool correct = execute_double(phys_gate);
-                if (!correct) return false;
+                if (!execute_double(phys_gate)) return false;
             }
         } else if (phys_gate->get_num_qubits() > 1) {
             return false;
-        } else {
-            bool correct = execute_single(phys_gate);
-            if (!correct) return false;
-        }
+        } else if (!execute_single(phys_gate))
+            return false;
     }
     // REVIEW - check remaining gates in logical are swaps
     check_remaining();
@@ -128,15 +124,15 @@ bool MappingEquivalenceChecker::is_swap(QCirGate* candidate) {
  * @return false
  */
 bool MappingEquivalenceChecker::execute_swap(QCirGate* first, std::unordered_set<QCirGate*>& swaps) {
-    bool connect = _device.get_physical_qubit(first->get_qubits()[0]._qubit).is_adjacency(_device.get_physical_qubit(first->get_qubits()[1]._qubit));
-    if (!connect) return false;
+    auto const& q_info0 = first->get_qubits()[0];
+    auto const& q_info1 = first->get_qubits()[1];
+    if (!_device.get_physical_qubit(q_info0._qubit).is_adjacency(_device.get_physical_qubit(q_info1._qubit))) return false;
 
     swaps.emplace(first);
-    QCirGate* next = get_next(first->get_qubits()[0]);
-    swaps.emplace(next);
-    next = get_next(next->get_qubits()[0]);
-    swaps.emplace(next);
-    _device.apply_swap_check(first->get_qubits()[0]._qubit, first->get_qubits()[1]._qubit);
+    auto next_gate = get_next(q_info0);
+    swaps.emplace(next_gate);
+    swaps.emplace(get_next(next_gate->get_qubits()[0]));
+    _device.apply_swap_check(q_info0._qubit, q_info1._qubit);
     return true;
 }
 
@@ -220,8 +216,7 @@ bool MappingEquivalenceChecker::execute_double(QCirGate* gate) {
         return false;
     }
 
-    bool connect = _device.get_physical_qubit(gate->get_qubits()[0]._qubit).is_adjacency(_device.get_physical_qubit(gate->get_qubits()[1]._qubit));
-    if (!connect) return false;
+    if (!_device.get_physical_qubit(gate->get_qubits()[0]._qubit).is_adjacency(_device.get_physical_qubit(gate->get_qubits()[1]._qubit))) return false;
 
     _dependency[logical_gate->get_qubits()[0]._qubit] = get_next(logical_gate->get_qubits()[0]);
     _dependency[logical_gate->get_qubits()[1]._qubit] = get_next(logical_gate->get_qubits()[1]);

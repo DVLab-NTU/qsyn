@@ -35,7 +35,6 @@ std::vector<MatchType> PhaseGadgetRule::find_matches(ZXGraph const& graph) const
 
     std::unordered_map<ZXVertex*, ZXVertex*> axel2leaf;
     std::unordered_multimap<std::vector<ZXVertex*>, ZXVertex*, ZXVerticesHash> group2axel;
-    std::unordered_set<std::vector<ZXVertex*>, ZXVerticesHash> done;
 
     std::vector<ZXVertex*> axels;
     std::vector<ZXVertex*> leaves;
@@ -69,8 +68,8 @@ std::vector<MatchType> PhaseGadgetRule::find_matches(ZXGraph const& graph) const
         axels.clear();
         leaves.clear();
 
-        Phase total_phase = Phase(0);
-        bool flip_axel    = false;
+        auto total_phase = Phase(0);
+        bool flip_axel   = false;
         for (auto& [_, axel] : std::ranges::subrange(groupBegin, groupEnd)) {
             ZXVertex* const& leaf = axel2leaf[axel];
             if (axel->get_phase() == Phase(1)) {

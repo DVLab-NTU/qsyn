@@ -50,12 +50,7 @@ std::vector<MatchType> IdentityRemovalRule::find_matches(ZXGraph const& graph) c
 void IdentityRemovalRule::apply(ZXGraph& graph, std::vector<MatchType> const& matches) const {
     ZXOperation op;
 
-    for (auto const& match : matches) {
-        ZXVertex* v        = std::get<0>(match);
-        ZXVertex* n0       = std::get<1>(match);
-        ZXVertex* n1       = std::get<2>(match);
-        EdgeType edge_type = std::get<3>(match);
-
+    for (auto const& [v, n0, n1, edge_type] : matches) {
         op.vertices_to_remove.emplace_back(v);
         if (n0 == n1) {
             n0->set_phase(n0->get_phase() + Phase(1));

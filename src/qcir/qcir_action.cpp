@@ -22,7 +22,7 @@ namespace qsyn::qcir {
  * @return QCir*
  */
 QCir* QCir::compose(QCir const& other) {
-    std::vector<QCirQubit*> targ_qubits = other.get_qubits();
+    auto const targ_qubits = other.get_qubits();
     for (auto& qubit : targ_qubits) {
         if (get_qubit(qubit->get_id()) == nullptr)
             insert_qubit(qubit->get_id());
@@ -46,7 +46,7 @@ QCir* QCir::compose(QCir const& other) {
  */
 QCir* QCir::tensor_product(QCir const& other) {
     std::unordered_map<size_t, QCirQubit*> old_q2_new_q;
-    std::vector<QCirQubit*> targ_qubits = other.get_qubits();
+    auto const targ_qubits = other.get_qubits();
     for (auto& qubit : targ_qubits) {
         old_q2_new_q[qubit->get_id()] = push_qubit();
     }
@@ -103,7 +103,7 @@ void QCir::_dfs(QCirGate* curr_gate) const {
 std::vector<QCirGate*> const& QCir::update_topological_order() const {
     _topological_order.clear();
     _global_dfs_counter++;
-    QCirGate* dummy = new QCirGate(0, GateRotationCategory::id, dvlab::Phase(0));
+    auto dummy = new QCirGate(0, GateRotationCategory::id, dvlab::Phase(0));
     for (size_t i = 0; i < _qubits.size(); i++) {
         dummy->add_dummy_child(_qubits[i]->get_first());
     }

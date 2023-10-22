@@ -122,9 +122,9 @@ Command tensor_equivalence_check_cmd(TensorMgr& tensor_mgr) {
                     tensor2 = tensor_mgr.find_by_id(ids[0]);
                 }
 
-                bool equiv         = is_equivalent(*tensor1, *tensor2, eps);
-                double norm        = global_norm<double>(*tensor1, *tensor2);
-                dvlab::Phase phase = global_phase<double>(*tensor1, *tensor2);
+                bool equiv       = is_equivalent(*tensor1, *tensor2, eps);
+                auto const norm  = global_norm(*tensor1, *tensor2);
+                auto const phase = global_phase(*tensor1, *tensor2);
 
                 if (strict) {
                     if (norm > 1 + eps || norm < 1 - eps || phase != dvlab::Phase(0)) {

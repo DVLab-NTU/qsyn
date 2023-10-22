@@ -36,7 +36,23 @@ void dvlab_unreachable_impl(std::string_view file, int line, std::string_view ms
 namespace utils {
 
 bool expect(bool condition, std::string const& msg = "");
-size_t int_pow(size_t base, size_t n);
+
+/**
+ * @brief Specialization of std::pow where both the base and the exponent are non-negative integers.
+ *
+ * @param base
+ * @param n
+ * @return constexpr size_t
+ */
+constexpr size_t int_pow(size_t base, size_t exponent) {
+    if (exponent == 0) return 1;
+    if (exponent == 1) return base;
+    auto const tmp = int_pow(base, exponent / 2);
+    if (exponent % 2 == 0)
+        return tmp * tmp;
+    else
+        return base * tmp * tmp;
+}
 
 }  // namespace utils
 
@@ -187,7 +203,7 @@ T detail::stonum(std::string const& str, size_t* pos) {
         // unsigned integer types
         if constexpr (std::is_same<T, unsigned>::value) {
             if (dvlab::str::trim_spaces(str)[0] == '-') throw std::out_of_range("unsigned number underflow");
-            unsigned long result = std::stoul(str, pos);  // NOTE - for some reason there isn't stou (lol)
+            unsigned long const result = std::stoul(str, pos);  // NOTE - for some reason there isn't stou (lol)
             if (result > std::numeric_limits<unsigned>::max()) {
                 throw std::out_of_range("stou");
             }

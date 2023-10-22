@@ -34,8 +34,8 @@ protected:
         assert(op.vertices_to_add.empty());
 
         for (auto& edge : op.edges_to_add) {
-            auto [v0, v1]      = std::get<0>(edge);
-            EdgeType edge_type = std::get<1>(edge);
+            auto const [v0, v1]      = std::get<0>(edge);
+            EdgeType const edge_type = std::get<1>(edge);
             graph.add_edge(v0, v1, edge_type);
         }
         graph.remove_edges(op.edges_to_remove);
@@ -82,9 +82,6 @@ public:
         auto [v0, v1] = match.first;
         return {v0, v1};
     }
-
-private:
-    bool _has_dupicate(std::vector<ZXVertex*> vec) const;
 };
 
 class StateCopyRule : public ZXRuleTemplate<std::tuple<ZXVertex*, ZXVertex*, std::vector<ZXVertex*>>> {

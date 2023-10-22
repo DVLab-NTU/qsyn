@@ -250,7 +250,7 @@ ZXVertex* ZXGraph::add_output(QubitIdType qubit, ColumnIdType col) {
  * @return ZXVertex*
  */
 ZXVertex* ZXGraph::add_vertex(QubitIdType qubit, VertexType vt, Phase phase, ColumnIdType col) {
-    ZXVertex* v = new ZXVertex(_next_v_id, qubit, vt, phase, col);
+    auto v = new ZXVertex(_next_v_id, qubit, vt, phase, col);
     _vertices.emplace(v);
     _next_v_id++;
     return v;
@@ -355,8 +355,8 @@ size_t ZXGraph::remove_vertex(ZXVertex* v) {
     auto v_neighbors = this->get_neighbors(v);
     for (auto const& n : v_neighbors) {
         v->_neighbors.erase(n);
-        ZXVertex* nv = n.first;
-        EdgeType ne  = n.second;
+        ZXVertex* const nv = n.first;
+        EdgeType const ne  = n.second;
         nv->_neighbors.erase({v, ne});
     }
     _vertices.erase(v);
@@ -405,7 +405,7 @@ size_t ZXGraph::remove_edge(EdgePair const& ep) {
  * @param etype
  */
 size_t ZXGraph::remove_edge(ZXVertex* vs, ZXVertex* vt, EdgeType etype) {
-    size_t count = vs->_neighbors.erase({vt, etype}) + vt->_neighbors.erase({vs, etype});
+    auto const count = vs->_neighbors.erase({vt, etype}) + vt->_neighbors.erase({vs, etype});
     if (count == 1) {
         throw std::out_of_range("Graph connection error in " + std::to_string(vs->get_id()) + " and " + std::to_string(vt->get_id()));
     }

@@ -99,14 +99,14 @@ void Optimizer::_match_z_rotations(QCirGate* gate) {
     if (_availty[qubit] == false && available != nullptr) {
         std::erase(_available[qubit], available);
         std::erase(_gates[qubit], available);
-        dvlab::Phase ph = available->get_phase() + gate->get_phase();
+        auto const phase = available->get_phase() + gate->get_phase();
         _statistics.FUSE_PHASE++;
-        if (ph == dvlab::Phase(1)) {
+        if (phase == dvlab::Phase(1)) {
             _toggle_element(_ElementType::z, qubit);
             return;
         }
-        if (ph != dvlab::Phase(0)) {
-            _add_rotation_gate(qubit, ph, GateRotationCategory::pz);
+        if (phase != dvlab::Phase(0)) {
+            _add_rotation_gate(qubit, phase, GateRotationCategory::pz);
         }
     } else {
         if (_availty[qubit] == true) {

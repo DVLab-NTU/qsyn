@@ -90,7 +90,7 @@ size_t QCir::get_depth() {
  * @return QCirQubit*
  */
 QCirQubit *QCir::push_qubit() {
-    QCirQubit *temp = new QCirQubit(_qubit_id);
+    auto temp = new QCirQubit(_qubit_id);
     _qubits.emplace_back(temp);
     _qubit_id++;
     return temp;
@@ -104,8 +104,8 @@ QCirQubit *QCir::push_qubit() {
  */
 QCirQubit *QCir::insert_qubit(QubitIdType id) {
     assert(get_qubit(id) == nullptr);
-    QCirQubit *temp = new QCirQubit(id);
-    auto cnt        = std::ranges::count_if(_qubits, [id](QCirQubit *q) { return q->get_id() < id; });
+    auto temp = new QCirQubit(id);
+    auto cnt  = std::ranges::count_if(_qubits, [id](QCirQubit *q) { return q->get_id() < id; });
 
     _qubits.insert(_qubits.begin() + cnt, temp);
     return temp;
@@ -156,7 +156,7 @@ bool QCir::remove_qubit(QubitIdType id) {
  * @return QCirGate*
  */
 QCirGate *QCir::add_single_rz(QubitIdType bit, dvlab::Phase phase, bool append) {
-    QubitIdList qubit{bit};
+    auto qubit = QubitIdList{bit};
     if (phase == dvlab::Phase(1, 4))
         return add_gate("t", qubit, phase, append);
     else if (phase == dvlab::Phase(1, 2))
@@ -196,7 +196,7 @@ QCirGate *QCir::add_gate(std::string type, QubitIdList bits, dvlab::Phase phase,
     if (gate_phase.has_value()) {
         phase = gate_phase.value();
     }
-    QCirGate *temp = new QCirGate(_gate_id, category, phase);
+    auto temp = new QCirGate(_gate_id, category, phase);
 
     if (append) {
         size_t max_time = 0;
@@ -295,7 +295,6 @@ std::vector<int> QCir::count_gates(bool detail, bool print) {
     size_t mcpz = 0;
     size_t cz   = 0;
     size_t ccz  = 0;
-    size_t crz  = 0;
     size_t mcrx = 0;
     size_t cx   = 0;
     size_t ccx  = 0;
@@ -325,7 +324,7 @@ std::vector<int> QCir::count_gates(bool detail, bool print) {
     };
 
     for (auto &g : _qgates) {
-        GateRotationCategory type = g->get_rotation_category();
+        auto type = g->get_rotation_category();
         switch (type) {
             case GateRotationCategory::h:
                 h++;
@@ -425,9 +424,9 @@ std::vector<int> QCir::count_gates(bool detail, bool print) {
                 DVLAB_ASSERT(false, fmt::format("Gate {} is not supported!!", g->get_type_str()));
         }
     }
-    size_t single_z = rz + z + s + sdg + t + tdg;
-    size_t single_x = rx + x + sx;
-    size_t single_y = ry + y + sy;
+    auto const single_z = rz + z + s + sdg + t + tdg;
+    auto const single_x = rx + x + sx;
+    auto const single_y = ry + y + sy;
     // cout << "───── Quantum Circuit Analysis ─────" << endl;
     // cout << endl;
     if (detail) {
@@ -448,11 +447,10 @@ std::vector<int> QCir::count_gates(bool detail, bool print) {
         std::cout << "│       ├── Y   : " << y << std::endl;
         std::cout << "│       ├── SY  : " << sy << std::endl;
         std::cout << "│       └── RY  : " << ry << std::endl;
-        std::cout << "└── Multiple-qubit gate: " << crz + mcpz + cz + ccz + mcrx + cx + ccx + mcry << std::endl;
-        std::cout << "    ├── Z-family: " << cz + ccz + crz + mcpz << std::endl;
+        std::cout << "└── Multiple-qubit gate: " << mcpz + cz + ccz + mcrx + cx + ccx + mcry << std::endl;
+        std::cout << "    ├── Z-family: " << cz + ccz + mcpz << std::endl;
         std::cout << "    │   ├── CZ  : " << cz << std::endl;
         std::cout << "    │   ├── CCZ : " << ccz << std::endl;
-        std::cout << "    │   ├── CRZ : " << crz << std::endl;
         std::cout << "    │   └── MCP : " << mcpz << std::endl;
         std::cout << "    ├── X-family: " << cx + ccx + mcrx << std::endl;
         std::cout << "    │   ├── CX  : " << cx << std::endl;

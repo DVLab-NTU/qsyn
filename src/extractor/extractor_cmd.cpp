@@ -228,8 +228,8 @@ Command extractor_config_cmd() {
                     print_current_config = false;
                 }
                 if (parser.parsed("--filter-cx")) {
-                    FILTER_DUPLICATED_CXS = parser.get<bool>("--filter-cx");
-                    print_current_config  = false;
+                    FILTER_DUPLICATE_CXS = parser.get<bool>("--filter-cx");
+                    print_current_config = false;
                 }
                 if (parser.parsed("--frontier-sorted")) {
                     SORT_FRONTIER        = parser.get<bool>("--frontier-sorted");
@@ -246,7 +246,7 @@ Command extractor_config_cmd() {
                     fmt::println("Sort Frontier:     {}", SORT_FRONTIER);
                     fmt::println("Sort Neighbors:    {}", SORT_NEIGHBORS);
                     fmt::println("Permute Qubits:    {}", PERMUTE_QUBITS);
-                    fmt::println("Filter Duplicated: {}", FILTER_DUPLICATED_CXS);
+                    fmt::println("Filter Duplicated: {}", FILTER_DUPLICATE_CXS);
                     fmt::println("Block Size:        {}", BLOCK_SIZE);
                 }
                 return CmdExecResult::done;

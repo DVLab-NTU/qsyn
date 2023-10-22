@@ -30,10 +30,7 @@ std::vector<MatchType> PivotRule::find_matches(ZXGraph const& graph) const {
         if (!vs->is_z() || !vt->is_z()) return;
 
         // 3: Check Neighbors Phase
-        bool vs_is_n_pi = vs->has_n_pi_phase();
-        bool vt_is_n_pi = vt->has_n_pi_phase();
-
-        if (!vs_is_n_pi || !vt_is_n_pi) return;
+        if (!vs->has_n_pi_phase() || !vt->has_n_pi_phase()) return;
 
         // 4: Check neighbors of Neighbors
 

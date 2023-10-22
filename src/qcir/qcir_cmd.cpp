@@ -134,7 +134,7 @@ dvlab::Command qcir_new_cmd(QCirMgr& qcir_mgr) {
                     .help("if specified, replace the current circuit; otherwise store to a new one");
             },
             [&](ArgumentParser const& parser) {
-                size_t id = parser.parsed("id") ? parser.get<size_t>("id") : qcir_mgr.get_next_id();
+                auto const id = parser.parsed("id") ? parser.get<size_t>("id") : qcir_mgr.get_next_id();
 
                 if (qcir_mgr.is_id(id)) {
                     if (!parser.parsed("-Replace")) {

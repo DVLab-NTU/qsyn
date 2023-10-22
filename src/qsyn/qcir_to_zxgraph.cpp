@@ -121,7 +121,7 @@ void create_multi_control_p_gate_gadgets(ZXGraph& g, std::vector<ZXVertex*> cons
         v->set_phase(phase);
     }
     for (size_t k = 2; k <= vertices.size(); k++) {
-        std::vector<std::vector<ZXVertex*>> combinations = make_combinations(vertices, k);
+        auto const combinations = make_combinations(vertices, k);
         for (auto& combination : combinations) {
             g.add_gadget((combination.size() % 2) ? phase : -phase, combination);
         }
@@ -130,9 +130,9 @@ void create_multi_control_p_gate_gadgets(ZXGraph& g, std::vector<ZXVertex*> cons
 
 ZXGraph create_mcr_zx_form(std::vector<QubitInfo> const& qubits, dvlab::Phase const& phase, RotationAxis ax) {
     ZXGraph g;
-    dvlab::Phase gadget_phase = get_gadget_phase(phase, qubits.size());
+    auto const gadget_phase = get_gadget_phase(phase, qubits.size());
 
-    auto [controls, target] = create_multi_control_backbone(g, qubits, ax);
+    auto const [controls, target] = create_multi_control_backbone(g, qubits, ax);
 
     create_multi_control_r_gate_gadgets(g, controls, target, gadget_phase);
 
@@ -141,7 +141,7 @@ ZXGraph create_mcr_zx_form(std::vector<QubitInfo> const& qubits, dvlab::Phase co
 
 ZXGraph create_mcp_zx_form(std::vector<QubitInfo> const& qubits, dvlab::Phase const& phase, RotationAxis ax) {
     ZXGraph g;
-    dvlab::Phase gadget_phase = get_gadget_phase(phase, qubits.size());
+    auto const gadget_phase = get_gadget_phase(phase, qubits.size());
 
     auto [vertices, target] = create_multi_control_backbone(g, qubits, ax);
     vertices.emplace_back(target);

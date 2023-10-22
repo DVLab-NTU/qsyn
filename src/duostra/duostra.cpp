@@ -59,20 +59,18 @@ void Duostra::make_dependency() {
     spdlog::info("Creating dependency of quantum circuit...");
     std::vector<Gate> all_gates;
     for (auto const& g : _logical_circuit->get_gates()) {
-        size_t id = g->get_id();
-
         auto rotation_category = g->get_rotation_category();
 
         auto q2          = max_qubit_id;
-        QubitInfo first  = g->get_qubits()[0];
-        QubitInfo second = {};
+        auto const first = g->get_qubits()[0];
+        auto second      = QubitInfo{};
         if (g->get_qubits().size() > 1) {
             second = g->get_qubits()[1];
             q2     = second._qubit;
         }
 
-        std::tuple<size_t, size_t> temp{first._qubit, q2};
-        Gate temp_gate{id, rotation_category, g->get_phase(), temp};
+        auto const temp = std::make_tuple(first._qubit, q2);
+        Gate temp_gate{g->get_id(), rotation_category, g->get_phase(), temp};
         if (first._prev != nullptr) temp_gate.add_prev(first._prev->get_id());
         if (first._next != nullptr) temp_gate.add_next(first._next->get_id());
         if (g->get_qubits().size() > 1) {
@@ -95,8 +93,8 @@ void Duostra::make_dependency(std::vector<Operation> const& ops, size_t n_qubits
     last_gate.resize(n_qubits, SIZE_MAX);
     for (size_t i = 0; i < ops.size(); i++) {
         Gate temp_gate{i, ops[i].get_type(), ops[i].get_phase(), ops[i].get_qubits()};
-        size_t q0_gate = last_gate[get<0>(ops[i].get_qubits())];
-        size_t q1_gate = last_gate[get<1>(ops[i].get_qubits())];
+        auto const q0_gate = last_gate[get<0>(ops[i].get_qubits())];
+        auto const q1_gate = last_gate[get<1>(ops[i].get_qubits())];
         temp_gate.add_prev(q0_gate);
         if (q0_gate != q1_gate)
             temp_gate.add_prev(q1_gate);

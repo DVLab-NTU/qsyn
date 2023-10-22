@@ -21,15 +21,15 @@ size_t scoped_clifford_simp(ZXGraph* graph, ZXVertexList const& scope);
  * @param iterations number of iterations
  */
 void Simplifier::partition_reduce(size_t n_partitions) {
-    std::vector<ZXVertexList> partitions = kl_partition(*_simp_graph, n_partitions);
-    auto [subgraphs, cuts]               = _simp_graph->create_subgraphs(partitions);
+    auto const partitions        = kl_partition(*_simp_graph, n_partitions);
+    auto const [subgraphs, cuts] = _simp_graph->create_subgraphs(partitions);
 
     for (auto& graph : subgraphs) {
-        Simplifier simplifier = Simplifier(graph);
+        auto simplifier = Simplifier(graph);
         simplifier.dynamic_reduce();
     }
 
-    ZXGraph* temp_graph = ZXGraph::from_subgraphs(subgraphs, cuts);
+    ZXGraph* const temp_graph = ZXGraph::from_subgraphs(subgraphs, cuts);
     _simp_graph->swap(*temp_graph);
     delete temp_graph;
 
@@ -39,66 +39,64 @@ void Simplifier::partition_reduce(size_t n_partitions) {
 void scoped_dynamic_reduce(ZXGraph* graph, ZXVertexList const& scope) {
     ZXGraph copied_graph = *graph;
     scoped_full_reduce(&copied_graph, scope);
-    size_t t_optimal = copied_graph.t_count();
+    auto const optimal_t_count = copied_graph.t_count();
 
-    Simplifier simplifier = Simplifier(graph);
+    auto simplifier = Simplifier(graph);
 
     scoped_interior_clifford_simp(graph, scope);
     simplifier.scoped_simplify(PivotGadgetRule(), scope);
-    if (graph->t_count() <= t_optimal) return;
+    if (graph->t_count() <= optimal_t_count) return;
 
     while (!stop_requested()) {
         scoped_clifford_simp(graph, scope);
-        if (graph->t_count() <= t_optimal) return;
-        size_t i1 = simplifier.scoped_simplify(PhaseGadgetRule(), scope);
-        if (graph->t_count() <= t_optimal) return;
+        if (graph->t_count() <= optimal_t_count) return;
+        auto const i1 = simplifier.scoped_simplify(PhaseGadgetRule(), scope);
+        if (graph->t_count() <= optimal_t_count) return;
         scoped_interior_clifford_simp(graph, scope);
-        if (graph->t_count() <= t_optimal) return;
-        size_t i2 = simplifier.scoped_simplify(PivotGadgetRule(), scope);
-        if (graph->t_count() <= t_optimal) return;
+        if (graph->t_count() <= optimal_t_count) return;
+        auto const i2 = simplifier.scoped_simplify(PivotGadgetRule(), scope);
+        if (graph->t_count() <= optimal_t_count) return;
         if (i1 + i2 == 0) break;
     }
 }
 
 void scoped_full_reduce(ZXGraph* graph, ZXVertexList const& scope) {
-    Simplifier simplifier = Simplifier(graph);
+    auto simplifier = Simplifier(graph);
 
     scoped_interior_clifford_simp(graph, scope);
     simplifier.scoped_simplify(PivotGadgetRule(), scope);
     while (!stop_requested()) {
         scoped_clifford_simp(graph, scope);
-        size_t i1 = simplifier.scoped_simplify(PhaseGadgetRule(), scope);
+        auto const i1 = simplifier.scoped_simplify(PhaseGadgetRule(), scope);
         scoped_interior_clifford_simp(graph, scope);
-        size_t i2 = simplifier.scoped_simplify(PivotGadgetRule(), scope);
+        auto const i2 = simplifier.scoped_simplify(PivotGadgetRule(), scope);
         if (i1 + i2 == 0) break;
     }
 }
 
 size_t scoped_interior_clifford_simp(ZXGraph* graph, ZXVertexList const& scope) {
-    Simplifier simplifier = Simplifier(graph);
+    auto simplifier = Simplifier(graph);
 
     simplifier.scoped_simplify(SpiderFusionRule(), scope);
     simplifier.to_z_graph();
-    size_t iterations = 0;
-    while (true) {
-        size_t i1 = simplifier.scoped_simplify(IdentityRemovalRule(), scope);
-        size_t i2 = simplifier.scoped_simplify(SpiderFusionRule(), scope);
-        size_t i3 = simplifier.scoped_simplify(PivotRule(), scope);
-        size_t i4 = simplifier.scoped_simplify(LocalComplementRule(), scope);
-        if (i1 + i2 + i3 + i4 == 0) break;
-        iterations += 1;
+    for (size_t iterations = 0; !stop_requested(); iterations++) {
+        auto const i1 = simplifier.scoped_simplify(IdentityRemovalRule(), scope);
+        auto const i2 = simplifier.scoped_simplify(SpiderFusionRule(), scope);
+        auto const i3 = simplifier.scoped_simplify(PivotRule(), scope);
+        auto const i4 = simplifier.scoped_simplify(LocalComplementRule(), scope);
+        if (i1 + i2 + i3 + i4 == 0) return iterations;
     }
-    return iterations;
+    DVLAB_UNREACHABLE("This line should not be reached");
 }
 
 size_t scoped_clifford_simp(ZXGraph* graph, ZXVertexList const& scope) {
-    Simplifier simplifier = Simplifier(graph);
+    auto simplifier = Simplifier(graph);
 
     size_t iteration = 0;
     while (true) {
-        size_t i1 = scoped_interior_clifford_simp(graph, scope);
+        auto i1 = scoped_interior_clifford_simp(graph, scope);
         iteration += i1;
-        size_t i2 = simplifier.scoped_simplify(PivotBoundaryRule(), scope);
+        auto i2 = simplifier.scoped_simplify(PivotBoundaryRule(), scope);
         if (i2 == 0) break;
     }
     return iteration;

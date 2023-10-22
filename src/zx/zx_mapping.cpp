@@ -77,7 +77,7 @@ void ZXGraph::concatenate(ZXGraph const& other) {
 
     ZXGraph copy{other};
     // Reconnect Input
-    std::unordered_map<size_t, ZXVertex*> copy_inputs = copy.get_input_list();
+    std::unordered_map<size_t, ZXVertex*> const copy_inputs = copy.get_input_list();
     for (auto& [qubit, i] : copy_inputs) {
         auto [other_i_vtx, other_i_et] = copy.get_first_neighbor(i);
         auto [this_o_vtx, this_o_et]   = copy.get_first_neighbor(this->get_output_by_qubit(qubit));
@@ -88,7 +88,7 @@ void ZXGraph::concatenate(ZXGraph const& other) {
     }
 
     // Reconnect Output
-    std::unordered_map<size_t, ZXVertex*> copy_outputs = copy.get_output_list();
+    std::unordered_map<size_t, ZXVertex*> const copy_outputs = copy.get_output_list();
     for (auto& [qubit, o] : copy_outputs) {
         auto [other_o_vtx, etype] = copy.get_first_neighbor(o);
         this->add_edge(other_o_vtx, this->get_output_by_qubit(qubit), etype);
