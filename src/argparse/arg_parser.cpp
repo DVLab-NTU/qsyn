@@ -262,7 +262,7 @@ std::pair<bool, std::vector<Token>> ArgumentParser::_parse_known_args_impl(Token
         arg.reset();
     }
 
-    TokensView main_parser_tokens = tokens.subspan(0, subparser_token_pos);
+    TokensView const main_parser_tokens = tokens.subspan(0, subparser_token_pos);
 
     std::vector<Token> unrecognized;
     if (!_parse_options(main_parser_tokens) ||
@@ -271,9 +271,9 @@ std::pair<bool, std::vector<Token>> ArgumentParser::_parse_known_args_impl(Token
     }
     _fill_unparsed_args_with_defaults();
     if (has_subparsers()) {
-        TokensView subparser_tokens = tokens.subspan(subparser_token_pos + 1);
+        TokensView const subparser_tokens = tokens.subspan(subparser_token_pos + 1);
         if (_pimpl->activated_subparser) {
-            auto [success, subparser_unrecognized] = _get_activated_subparser()->parse_known_args(subparser_tokens);
+            auto const [success, subparser_unrecognized] = _get_activated_subparser()->parse_known_args(subparser_tokens);
             if (!success) return {false, {}};
             unrecognized.insert(std::end(unrecognized), std::begin(subparser_unrecognized), std::end(subparser_unrecognized));
         } else if (_pimpl->subparsers->is_required()) {

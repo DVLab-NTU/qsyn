@@ -11,6 +11,7 @@
 #include <cmath>
 #include <gsl/util>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 #include "fmt/core.h"
@@ -213,7 +214,7 @@ size_t BooleanMatrix::gaussian_elimination_skip(size_t block_size, bool do_fully
         clear_section_duplicates(section_begin, section_end, std::views::iota(pivots.size(), num_rows()));
 
         for (auto col_idx : std::views::iota(section_begin, section_end)) {
-            size_t row_idx =
+            auto const row_idx =
                 std::ranges::find_if(
                     dvlab::iterator::next(_matrix.begin(), pivots.size()), _matrix.end(),
                     [col_idx](Row const& row) -> bool {
@@ -221,10 +222,10 @@ size_t BooleanMatrix::gaussian_elimination_skip(size_t block_size, bool do_fully
                     }) -
                 _matrix.begin();
 
-            if (row_idx >= num_rows()) continue;
+            if (std::cmp_greater_equal(row_idx, num_rows())) continue;
 
             // ensures that the pivot row has a 1 in the current column
-            if (row_idx != pivots.size()) {
+            if (std::cmp_not_equal(row_idx, pivots.size())) {
                 row_operation(row_idx, pivots.size(), track);
             }
 
@@ -234,7 +235,7 @@ size_t BooleanMatrix::gaussian_elimination_skip(size_t block_size, bool do_fully
             if (do_fully_reduced) pivots.emplace_back(col_idx);
         }
     }
-    size_t rank = pivots.size();
+    auto const rank = pivots.size();
 
     // NOTE - at this point the matrix is in row echelon form
     //        https://en.wikipedia.org/wiki/Row_echelon_form
@@ -277,11 +278,11 @@ size_t BooleanMatrix::filter_duplicate_row_operations() {
     std::unordered_map<RowIdxType, RowAndOp> last_used;  // NOTE - bit, (another bit, gateId)
     for (size_t ith_row_op = 0; ith_row_op < _row_operations.size(); ith_row_op++) {
         auto& [row_src, row_dest] = _row_operations[ith_row_op];
-        bool first_match          = last_used.contains(row_src) &&
-                           last_used[row_src].row_idx == row_dest;
+        auto const first_match    = last_used.contains(row_src) &&
+                                 last_used[row_src].row_idx == row_dest;
 
-        bool second_match = last_used.contains(row_dest) &&
-                            last_used[row_dest].row_idx == row_src;
+        auto const second_match = last_used.contains(row_dest) &&
+                                  last_used[row_dest].row_idx == row_src;
 
         if (first_match && second_match) {
             dups.emplace_back(ith_row_op);
@@ -313,7 +314,7 @@ size_t BooleanMatrix::filter_duplicate_row_operations() {
 bool BooleanMatrix::gaussian_elimination(bool track, bool is_augmented_matrix) {
     _row_operations.clear();
 
-    size_t num_variables = num_cols() - ((is_augmented_matrix) ? 1 : 0);
+    auto const num_variables = num_cols() - ((is_augmented_matrix) ? 1 : 0);
 
     /**
      * @brief If _matrix[i][i] is 0, greedily perform row operations
@@ -394,7 +395,7 @@ bool BooleanMatrix::is_solved_form() const {
 bool BooleanMatrix::gaussian_elimination_augmented(bool track) {
     _row_operations.clear();
 
-    size_t num_variables = num_cols() - 1;
+    auto const num_variables = num_cols() - 1;
 
     size_t cur_row = 0, cur_col = 0;
 
@@ -409,12 +410,12 @@ bool BooleanMatrix::gaussian_elimination_augmented(bool track) {
 
         // make current element a 1
         if (_matrix[cur_row][cur_col] == 0) {
-            size_t the_first_row_with_one = find_if(_matrix.begin() + static_cast<ssize_t>(cur_row), _matrix.end(), [&cur_col](Row const& row) -> bool {
-                                                return row[cur_col] == 1;
-                                            }) -
-                                            _matrix.begin();
+            auto const the_first_row_with_one = find_if(_matrix.begin() + static_cast<ssize_t>(cur_row), _matrix.end(), [&cur_col](Row const& row) -> bool {
+                                                    return row[cur_col] == 1;
+                                                }) -
+                                                _matrix.begin();
 
-            if (the_first_row_with_one >= num_rows()) {  // cannot find rows with independent equation for current variable
+            if (std::cmp_greater_equal(the_first_row_with_one, num_rows())) {  // cannot find rows with independent equation for current variable
                 cur_col++;
                 continue;
             }
@@ -446,7 +447,7 @@ bool BooleanMatrix::gaussian_elimination_augmented(bool track) {
  * @return true or false
  */
 bool BooleanMatrix::is_augmented_solved_form() const {
-    size_t n = std::min(num_rows(), num_cols() - 1);
+    auto const n = std::min(num_rows(), num_cols() - 1);
     for (size_t i = 0; i < n; ++i) {
         for (size_t j = 0; j < n; ++j) {
             if (i == j && _matrix[i][j] != 1) return false;
@@ -487,9 +488,9 @@ size_t BooleanMatrix::row_operation_depth() {
         return 0;
     }
     for (auto const& [a, b] : _row_operations) {
-        size_t max_depth = std::max(row_depth[a], row_depth[b]);
-        row_depth[a]     = max_depth + 1;
-        row_depth[b]     = max_depth + 1;
+        auto const max_depth = std::max(row_depth[a], row_depth[b]);
+        row_depth[a]         = max_depth + 1;
+        row_depth[b]         = max_depth + 1;
     }
     return *max_element(row_depth.begin(), row_depth.end());
 }
@@ -500,10 +501,10 @@ size_t BooleanMatrix::row_operation_depth() {
  * @return float
  */
 float BooleanMatrix::dense_ratio() {
-    size_t depth = row_operation_depth();
+    auto const depth = row_operation_depth();
     if (depth == 0)
         return 0;
-    float ratio = float(depth) / float(_row_operations.size());
+    float const ratio = float(depth) / float(_row_operations.size());
     return round(ratio * 100) / 100;
 }
 

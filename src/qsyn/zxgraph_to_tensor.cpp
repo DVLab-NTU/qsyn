@@ -10,6 +10,8 @@
 
 #include <cassert>
 #include <limits>
+#include <ranges>
+#include <tl/to.hpp>
 #include <unordered_map>
 
 #include "zx/zx_def.hpp"
@@ -144,8 +146,8 @@ void ZX2TSMapper::_map_one_vertex(zx::ZXGraph const& graph, zx::ZXVertex* v) {
     _add_edges.clear();
     _tensor_id = 0;
 
-    bool is_new_graph = _is_of_new_graph(graph, v);
-    bool is_boundary  = v->is_boundary();
+    auto const is_new_graph = _is_of_new_graph(graph, v);
+    auto const is_boundary  = v->is_boundary();
 
     spdlog::debug("Mapping vertex {:>4} ({}): {}", v->get_id(), v->get_type(), is_new_graph ? "New Subgraph" : is_boundary ? "Boundary"
                                                                                                                            : "Tensordot");
@@ -182,8 +184,8 @@ void ZX2TSMapper::_initialize_subgraph(zx::ZXGraph const& graph, zx::ZXVertex* v
     _tensor_id = _zx2ts_list.size() - 1;
     assert(v->is_boundary());
 
-    zx::EdgePair edge_key = make_edge_pair(v, nb, etype);
-    _curr_tensor()        = tensordot(_curr_tensor(), tensor::QTensor<double>::identity(graph.get_num_neighbors(v)));
+    auto const edge_key = make_edge_pair(v, nb, etype);
+    _curr_tensor()      = tensordot(_curr_tensor(), tensor::QTensor<double>::identity(graph.get_num_neighbors(v)));
     _boundary_edges.emplace_back(edge_key);
     _curr_frontiers().emplace(edge_key, 1);
 }
@@ -237,11 +239,11 @@ ZX2TSMapper::InOutAxisList ZX2TSMapper::_get_axis_orders(zx::ZXGraph const& zxgr
     for (size_t i = 0; i < _zx2ts_list.size(); ++i) {
         bool has_boundary2_boundary_edge = false;
         for (auto& [epair, axid] : _zx2ts_list.frontiers(i)) {
-            auto const& [v1, v2] = epair.first;
-            bool v1_is_input     = zxgraph.get_inputs().contains(v1);
-            bool v2_is_input     = zxgraph.get_inputs().contains(v2);
-            bool v1_is_output    = zxgraph.get_outputs().contains(v1);
-            bool v2_is_output    = zxgraph.get_outputs().contains(v2);
+            auto const& [v1, v2]    = epair.first;
+            auto const v1_is_input  = zxgraph.get_inputs().contains(v1);
+            auto const v2_is_input  = zxgraph.get_inputs().contains(v2);
+            auto const v1_is_output = zxgraph.get_outputs().contains(v1);
+            auto const v2_is_output = zxgraph.get_outputs().contains(v2);
 
             if (v1_is_input) axis_lists.inputs[input_table[v1->get_qubit()]] = axid + acc_frontier_size;
             if (v2_is_input) axis_lists.inputs[input_table[v2->get_qubit()]] = axid + acc_frontier_size;
@@ -274,13 +276,13 @@ ZX2TSMapper::InOutAxisList ZX2TSMapper::_get_axis_orders(zx::ZXGraph const& zxgr
  * @param v the current vertex
  */
 void ZX2TSMapper::_update_pins_and_frontiers(zx::ZXGraph const& graph, zx::ZXVertex* v) {
-    zx::Neighbors nbrs = graph.get_neighbors(v);
+    auto const nbrs = graph.get_neighbors(v);
 
     // unordered_set<NeighborPair> seenFrontiers; // only for look-up
     for (auto& nbr : nbrs) {
         auto& [nb, etype] = nbr;
 
-        zx::EdgePair edge_key = make_edge_pair(v, nb, etype);
+        auto edge_key = make_edge_pair(v, nb, etype);
         if (!_is_frontier(nbr)) {
             _add_edges.emplace_back(edge_key);
         } else {
@@ -302,7 +304,7 @@ void ZX2TSMapper::_update_pins_and_frontiers(zx::ZXGraph const& graph, zx::ZXVer
  * @return QTensor<double>
  */
 tensor::QTensor<double> ZX2TSMapper::_dehadamardize(tensor::QTensor<double> const& ts) {
-    tensor::QTensor<double> h_tensor_product = tensor_product_pow(
+    auto const h_tensor_product = tensor_product_pow(
         tensor::QTensor<double>::hbox(2), _hadamard_pins.size());
 
     qsyn::tensor::TensorAxisList connect_pin;
@@ -316,8 +318,8 @@ tensor::QTensor<double> ZX2TSMapper::_dehadamardize(tensor::QTensor<double> cons
         if (std::find(_hadamard_pins.begin(), _hadamard_pins.end(), axisId) == _hadamard_pins.end()) {
             axisId = tmp.get_new_axis_id(axisId);
         } else {
-            size_t id = std::find(_hadamard_pins.begin(), _hadamard_pins.end(), axisId) - _hadamard_pins.begin();
-            axisId    = tmp.get_new_axis_id(ts.dimension() + connect_pin[id] + 1);
+            auto const id = std::find(_hadamard_pins.begin(), _hadamard_pins.end(), axisId) - _hadamard_pins.begin();
+            axisId        = tmp.get_new_axis_id(ts.dimension() + connect_pin[id] + 1);
         }
     }
 
@@ -338,17 +340,13 @@ tensor::QTensor<double> ZX2TSMapper::_dehadamardize(tensor::QTensor<double> cons
  * @param v current vertex
  */
 void ZX2TSMapper::_tensordot_vertex(zx::ZXGraph const& graph, zx::ZXVertex* v) {
-    tensor::QTensor<double> dehadamarded = _dehadamardize(_curr_tensor());
+    auto const dehadamarded = _dehadamardize(_curr_tensor());
 
-    tensor::TensorAxisList connect_pin;
-    for (size_t t = 0; t < _simple_pins.size(); t++)
-        connect_pin.emplace_back(t);
-
-    _curr_tensor() = tensordot(dehadamarded, get_tensor_form(graph, v), _simple_pins, connect_pin);
+    _curr_tensor() = tensordot(dehadamarded, get_tensor_form(graph, v), _simple_pins, std::views::iota(0ul, _simple_pins.size()) | tl::to<std::vector>());
 
     // remove dotted frontiers
-    for (size_t i = 0; i < _remove_edges.size(); i++)
-        _curr_frontiers().erase(_remove_edges[i]);  // Erase old edges
+    for (auto const& edge : _remove_edges)
+        _curr_frontiers().erase(edge);  // Erase old edges
 
     // post-tensordot axis id update
     for (auto& frontier : _curr_frontiers()) {
@@ -356,12 +354,10 @@ void ZX2TSMapper::_tensordot_vertex(zx::ZXGraph const& graph, zx::ZXVertex* v) {
     }
 
     // add new frontiers
-    connect_pin.clear();
-    for (size_t t = 0; t < _add_edges.size(); t++)
-        connect_pin.emplace_back(_simple_pins.size() + t);
+    auto const connect_pin = std::views::iota(_simple_pins.size(), _simple_pins.size() + _add_edges.size()) | tl::to<std::vector>();
 
     for (size_t t = 0; t < _add_edges.size(); t++) {
-        size_t new_id = _curr_tensor().get_new_axis_id(dehadamarded.dimension() + connect_pin[t]);
+        auto const new_id = _curr_tensor().get_new_axis_id(dehadamarded.dimension() + connect_pin[t]);
         _curr_frontiers().emplace(_add_edges[t], new_id);  // origin pin (neighbot count) + 1,3,5,7,9
     }
 }

@@ -172,10 +172,10 @@ void PhysicalQubit::reset() {
  * @return tuple<size_t, size_t> (index of next qubit, cost)
  */
 std::tuple<QubitIdType, QubitIdType> Device::get_next_swap_cost(QubitIdType source, QubitIdType target) {
-    auto next_idx           = _predecessor[source][target];
-    PhysicalQubit& q_source = get_physical_qubit(source);
-    PhysicalQubit& q_next   = get_physical_qubit(next_idx);
-    size_t cost             = std::max(q_source.get_occupied_time(), q_next.get_occupied_time());
+    auto const next_idx  = _predecessor[source][target];
+    auto const& q_source = get_physical_qubit(source);
+    auto const& q_next   = get_physical_qubit(next_idx);
+    auto const cost      = std::max(q_source.get_occupied_time(), q_next.get_occupied_time());
 
     assert(q_source.is_adjacency(q_next));
     return {next_idx, cost};
@@ -205,12 +205,10 @@ QubitIdType Device::get_physical_by_logical(QubitIdType id) {
 void Device::add_adjacency(QubitIdType a, QubitIdType b) {
     if (a > b) std::swap(a, b);
     if (!qubit_id_exists(a)) {
-        PhysicalQubit temp = PhysicalQubit(a);
-        add_physical_qubit(temp);
+        add_physical_qubit(PhysicalQubit(a));
     }
     if (!qubit_id_exists(b)) {
-        PhysicalQubit temp = PhysicalQubit(b);
-        add_physical_qubit(temp);
+        add_physical_qubit(PhysicalQubit(b));
     }
     _qubit_list[a].add_adjacency(_qubit_list[b].get_id());
     _qubit_list[b].add_adjacency(_qubit_list[a].get_id());
@@ -257,9 +255,9 @@ void Device::apply_swap_check(QubitIdType qid0, QubitIdType qid1) {
     auto temp = q0.get_logical_qubit();
     q0.set_logical_qubit(q1.get_logical_qubit());
     q1.set_logical_qubit(temp);
-    size_t t = std::max(q0.get_occupied_time(), q1.get_occupied_time());
-    q0.set_occupied_time(t + DOUBLE_DELAY);
-    q1.set_occupied_time(t + DOUBLE_DELAY);
+    auto const max_occupied_time = std::max(q0.get_occupied_time(), q1.get_occupied_time());
+    q0.set_occupied_time(max_occupied_time + DOUBLE_DELAY);
+    q1.set_occupied_time(max_occupied_time + DOUBLE_DELAY);
 }
 
 /**
@@ -268,7 +266,7 @@ void Device::apply_swap_check(QubitIdType qid0, QubitIdType qid1) {
  * @param physicalId
  */
 void Device::apply_single_qubit_gate(QubitIdType physical_id) {
-    size_t start_time = _qubit_list[physical_id].get_occupied_time();
+    auto const start_time = _qubit_list[physical_id].get_occupied_time();
     _qubit_list[physical_id].set_occupied_time(start_time + SINGLE_DELAY);
     _qubit_list[physical_id].reset();
 }
@@ -511,11 +509,11 @@ bool Device::read_device(std::string const& filename) {
  */
 bool Device::_parse_gate_set(std::string const& gate_set_str) {
     std::string token = "", data = "", gt;
-    size_t token_end = dvlab::str::str_get_token(gate_set_str, token, 0, ": ");
-    data             = gate_set_str.substr(token_end + 1);
-    data             = dvlab::str::trim_spaces(data);
-    data             = dvlab::str::remove_brackets(data, '{', '}');
-    size_t m         = 0;
+    auto const token_end = dvlab::str::str_get_token(gate_set_str, token, 0, ": ");
+    data                 = gate_set_str.substr(token_end + 1);
+    data                 = dvlab::str::trim_spaces(data);
+    data                 = dvlab::str::remove_brackets(data, '{', '}');
+    size_t m             = 0;
     while (m < data.size()) {
         m              = dvlab::str::str_get_token(data, gt, m, ',');
         gt             = dvlab::str::trim_spaces(gt);
@@ -542,17 +540,16 @@ bool Device::_parse_gate_set(std::string const& gate_set_str) {
  * @return false
  */
 bool Device::_parse_info(std::ifstream& f, std::vector<std::vector<float>>& cx_error, std::vector<std::vector<float>>& cx_delay, std::vector<float>& single_error, std::vector<float>& single_delay) {
-    std::string str = "", token = "", data = "";
+    std::string str = "", token = "";
     while (true) {
         while (str == "") {
             if (f.eof()) break;
             std::getline(f, str);
             str = dvlab::str::trim_spaces(dvlab::str::trim_comments(str));
         }
-        size_t token_end = dvlab::str::str_get_token(str, token, 0, ": ");
-        data             = str.substr(token_end + 1);
+        auto const token_end = dvlab::str::str_get_token(str, token, 0, ": ");
+        auto const data      = dvlab::str::trim_spaces(str.substr(token_end + 1));
 
-        data = dvlab::str::trim_spaces(data);
         if (token == "SGERROR") {
             if (!_parse_singles(data, single_error)) return false;
         } else if (token == "SGTIME") {
@@ -587,7 +584,6 @@ bool Device::_parse_singles(std::string const& data, std::vector<float>& contain
 
     str = dvlab::str::remove_brackets(data, '[', ']');
 
-    std::vector<float> single_fl;
     while (m < str.size()) {
         m   = dvlab::str::str_get_token(str, num, m, ',');
         num = dvlab::str::trim_spaces(num);
@@ -843,10 +839,7 @@ std::ostream& operator<<(std::ostream& os, Operation const& op) {
  */
 Operation::Operation(GateRotationCategory op, dvlab::Phase ph, std::tuple<size_t, size_t> qubits, std::tuple<size_t, size_t> duration)
     : _operation(op), _phase(ph), _qubits(qubits), _duration(duration) {
-    // sort qs
-    size_t a = std::get<0>(qubits);
-    size_t b = std::get<1>(qubits);
-    assert(a != b);
+    assert(std::get<0>(qubits) != std::get<1>(qubits));
 }
 
 }  // namespace qsyn::device

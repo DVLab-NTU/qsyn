@@ -225,7 +225,7 @@ QCir Optimizer::_build_from_storage(size_t n_qubits, bool reversed) {
                     continue;
                 }
 
-                bool type = !(g->is_cz() || g->get_control()._qubit == q);
+                auto const type = !(g->is_cz() || g->get_control()._qubit == q);
                 std::vector<size_t> removed;
                 available_id.emplace(g->get_id());
                 for (size_t i = 1; i < gs.size(); i++) {
@@ -250,7 +250,7 @@ QCir Optimizer::_build_from_storage(size_t n_qubits, bool reversed) {
                         break;
                     }
                 }
-                for (size_t i : removed) {
+                for (auto const i : removed) {
                     gs.erase(dvlab::iterator::next(gs.begin(), i));
                 }
                 break;
@@ -411,13 +411,13 @@ bool Optimizer::_replace_cx_and_cz_with_s_and_cx(QubitIdType t1, QubitIdType t2)
     _gates[ctrl].erase(--(find_if(_gates[ctrl].rbegin(), _gates[ctrl].rend(), [&](QCirGate* g) { return Optimizer::two_qubit_gate_exists(g, GateRotationCategory::px, ctrl, targ); })).base());
     _gates[targ].erase(--(find_if(_gates[targ].rbegin(), _gates[targ].rend(), [&](QCirGate* g) { return Optimizer::two_qubit_gate_exists(g, GateRotationCategory::px, ctrl, targ); })).base());
 
-    QCirGate* s1 = new QCirGate(_gate_count, GateRotationCategory::pz, dvlab::Phase(-1, 2));
+    auto s1 = new QCirGate(_gate_count, GateRotationCategory::pz, dvlab::Phase(-1, 2));
     s1->add_qubit(targ, true);
     _gate_count++;
-    QCirGate* s2 = new QCirGate(_gate_count, GateRotationCategory::pz, dvlab::Phase(1, 2));
+    auto s2 = new QCirGate(_gate_count, GateRotationCategory::pz, dvlab::Phase(1, 2));
     s2->add_qubit(targ, true);
     _gate_count++;
-    QCirGate* s3 = new QCirGate(_gate_count, GateRotationCategory::pz, dvlab::Phase(1, 2));
+    auto s3 = new QCirGate(_gate_count, GateRotationCategory::pz, dvlab::Phase(1, 2));
     s3->add_qubit(ctrl, true);
     _gate_count++;
 

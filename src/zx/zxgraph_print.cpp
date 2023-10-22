@@ -135,7 +135,7 @@ void ZXGraph::print_edges() const {
 void ZXGraph::print_difference(ZXGraph* other) const {
     assert(other != nullptr);
 
-    size_t n_idx = std::max(_next_v_id, other->_next_v_id);
+    auto const n_idx = std::max(_next_v_id, other->_next_v_id);
     ZXVertexList v1s, v2s;
     for (size_t i = 0; i < n_idx; ++i) {
         auto v1 = find_vertex_by_id(i);

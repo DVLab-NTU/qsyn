@@ -107,10 +107,10 @@ bool ZXFileParser::_tokenize(std::string const& line, std::vector<std::string>& 
     tokens.emplace_back(token);
 
     // parsing parenthesis
-    size_t left_paren_pos      = line.find_first_of('(', pos);
-    size_t right_paren_pos     = line.find_first_of(')', left_paren_pos == std::string::npos ? 0 : left_paren_pos);
-    bool has_left_parenthesis  = (left_paren_pos != std::string::npos);
-    bool has_right_parenthesis = (right_paren_pos != std::string::npos);
+    auto const left_paren_pos        = line.find_first_of('(', pos);
+    auto const right_paren_pos       = line.find_first_of(')', left_paren_pos == std::string::npos ? 0 : left_paren_pos);
+    auto const has_left_parenthesis  = (left_paren_pos != std::string::npos);
+    auto const has_right_parenthesis = (right_paren_pos != std::string::npos);
 
     if (has_left_parenthesis) {
         if (has_right_parenthesis) {
@@ -194,7 +194,7 @@ bool ZXFileParser::_parse_type_and_id(std::string const& token, char& type, unsi
         return false;
     }
 
-    std::string id_string = token.substr(1);
+    auto const id_string = token.substr(1);
 
     if (id_string.empty()) {
         _print_failed_at_line_no();
@@ -335,7 +335,7 @@ bool ZXFileParser::_parse_column(std::string const& token, float& column) {
  * @return false
  */
 bool ZXFileParser::_parse_neighbors(std::string const& token, std::pair<char, size_t>& neighbor) {
-    char type = dvlab::str::toupper(token[0]);
+    auto const type = dvlab::str::toupper(token[0]);
     unsigned id;
     if (std::string("SH").find(type) == std::string::npos) {
         _print_failed_at_line_no();
@@ -343,7 +343,7 @@ bool ZXFileParser::_parse_neighbors(std::string const& token, std::pair<char, si
         return false;
     }
 
-    std::string neighbor_string = token.substr(1);
+    auto const neighbor_string = token.substr(1);
 
     if (neighbor_string.empty()) {
         _print_failed_at_line_no();

@@ -23,13 +23,13 @@ static_assert(is_container_type<std::array<int, 3>> == false);
 
 ArgType<std::string>::ConstraintType choices_allow_prefix(std::vector<std::string> choices) {
     std::ranges::for_each(choices, [](std::string& str) { str = dvlab::str::tolower_string(str); });
-    dvlab::utils::Trie trie{std::begin(choices), std::end(choices)};
+    dvlab::utils::Trie const trie{std::begin(choices), std::end(choices)};
 
     return [choices, trie](std::string const& val) -> bool {
-        auto is_exact_match_to_choice = [&val](std::string const& choice) -> bool {
+        auto const is_exact_match_to_choice = [&val](std::string const& choice) -> bool {
             return dvlab::str::tolower_string(val) == choice;
         };
-        auto freq = trie.frequency(dvlab::str::tolower_string(val));
+        auto const freq = trie.frequency(dvlab::str::tolower_string(val));
 
         if (freq == 1) return true;
         if (std::ranges::any_of(choices, is_exact_match_to_choice)) return true;

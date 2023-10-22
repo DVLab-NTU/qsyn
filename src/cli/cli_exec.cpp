@@ -220,16 +220,15 @@ std::string dvlab::CommandLineInterface::_replace_variable_keys_with_values(std:
     std::vector<std::tuple<size_t, size_t, std::string>> to_replace;
     // FIXME - doesn't work for nested variables and multiple variables in one line
     for (auto const& re : {var_without_braces, var_with_braces}) {
-        std::smatch matches;
-        std::sregex_token_iterator regex_end;
-        std::sregex_token_iterator regex_begin(str.begin(), str.end(), re);
+        std::sregex_token_iterator const regex_end;
+        std::sregex_token_iterator const regex_begin(str.begin(), str.end(), re);
         for (auto regex_itr = regex_begin; regex_itr != regex_end; ++regex_itr) {
-            auto var = regex_itr->str();
+            auto const var = regex_itr->str();
             // tell if it is a curly brace variable or not
-            bool is_brace       = var[1] == '{';
-            std::string var_key = is_brace ? var.substr(2, var.length() - 3) : var.substr(1);
-            bool is_defined     = _variables.contains(var_key);
-            std::string val     = is_defined ? _variables.at(var_key) : "";
+            auto const is_brace   = var[1] == '{';
+            auto const var_key    = is_brace ? var.substr(2, var.length() - 3) : var.substr(1);
+            auto const is_defined = _variables.contains(var_key);
+            auto const val        = is_defined ? _variables.at(var_key) : "";
 
             if (is_brace && !is_defined) {
                 for (auto ch : var_key) {
@@ -241,7 +240,7 @@ std::string dvlab::CommandLineInterface::_replace_variable_keys_with_values(std:
                 }
             }
 
-            size_t pos = std::distance(str.begin(), regex_itr->first);
+            auto const pos = std::distance(str.begin(), regex_itr->first);
             if (_is_escaped(str, pos)) {
                 continue;
             }

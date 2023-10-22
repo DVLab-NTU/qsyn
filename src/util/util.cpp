@@ -59,16 +59,6 @@ bool expect(bool condition, std::string const& msg) {
     return true;
 }
 
-size_t int_pow(size_t base, size_t n) {
-    if (n == 0) return 1;
-    if (n == 1) return base;
-    size_t tmp = int_pow(base, n / 2);
-    if (n % 2 == 0)
-        return tmp * tmp;
-    else
-        return base * tmp * tmp;
-}
-
 }  // namespace utils
 
 }  // namespace dvlab

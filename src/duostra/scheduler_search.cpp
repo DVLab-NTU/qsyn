@@ -87,7 +87,7 @@ void TreeNode::_grow() {
     auto const& avail_gates = scheduler().get_available_gates();
     assert(_children.empty());
     _children.reserve(avail_gates.size());
-    for (size_t gate_id : avail_gates)
+    for (auto gate_id : avail_gates)
         _children.emplace_back(_conf, gate_id, router().clone(), scheduler().clone(), _max_cost);
 }
 
@@ -114,7 +114,7 @@ void TreeNode::_route_internal_gates() {
     assert(_children.empty());
 
     // Execute the initial gates.
-    for (size_t gate_id : _gate_ids) {
+    for (auto const& gate_id : _gate_ids) {
         [[maybe_unused]] auto const& avail_gates = scheduler().get_available_gates();
         assert(find(avail_gates.begin(), avail_gates.end(), gate_id) != avail_gates.end());
         _max_cost = std::max(_max_cost, _scheduler->route_one_gate(*_router, gate_id, true));
@@ -130,9 +130,6 @@ void TreeNode::_route_internal_gates() {
         _max_cost = std::max(_max_cost, _scheduler->route_one_gate(*_router, gate_id.value(), true));
         _gate_ids.emplace_back(gate_id.value());
     }
-
-    std::unordered_set<size_t> executed{_gate_ids.begin(), _gate_ids.end()};
-    assert(executed.size() == _gate_ids.size());
 }
 
 /**
@@ -212,8 +209,8 @@ size_t TreeNode::best_cost() const {
 
 #pragma omp parallel for reduction(min : best)
     for (auto& gate : scheduler().get_available_gates()) {
-        TreeNode child_node{_conf, gate, router().clone(),
-                            scheduler().clone(), _max_cost};
+        TreeNode const child_node{_conf, gate, router().clone(),
+                                  scheduler().clone(), _max_cost};
         best = std::min(best, child_node._max_cost);
     }
 
@@ -301,7 +298,7 @@ SearchScheduler::Device SearchScheduler::_assign_gates(std::unique_ptr<Router> r
         auto selected_node = std::make_unique<TreeNode>(root->best_child(static_cast<int>(_lookAhead)));
         root               = std::move(selected_node);
 
-        for (size_t gate_id : root->get_executed_gates()) {
+        for (auto const& gate_id : root->get_executed_gates()) {
             route_one_gate(*router, gate_id);
             ++bar;
         }

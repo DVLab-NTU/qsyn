@@ -52,8 +52,8 @@ std::pair<std::vector<ZXGraph*>, std::vector<ZXCut>> ZXGraph::create_subgraphs(s
     std::vector<ZXCut> outer_cuts;
     std::unordered_map<ZXCut, ZXVertex*, DirectionalZXCutHash> cut_to_boundary;
 
-    ZXVertexList primary_inputs  = get_inputs();
-    ZXVertexList primary_outputs = get_outputs();
+    auto const primary_inputs  = get_inputs();
+    auto const primary_outputs = get_outputs();
 
     // by pass the output qubit id collision check in the copy constructor
     int next_boundary_qubit_id = INT_MIN;
@@ -77,7 +77,7 @@ std::pair<std::vector<ZXGraph*>, std::vector<ZXCut>> ZXGraph::create_subgraphs(s
             std::vector<NeighborPair> neighbors_to_add;
             for (auto const& [neighbor, edgeType] : this->get_neighbors(vertex)) {
                 if (!partition.contains(neighbor)) {
-                    ZXVertex* boundary = new ZXVertex(next_vertex_id++, next_boundary_qubit_id++, VertexType::boundary);
+                    auto boundary = new ZXVertex(next_vertex_id++, next_boundary_qubit_id++, VertexType::boundary);
                     inner_cuts.emplace(vertex, neighbor, edgeType);
                     cut_to_boundary[{vertex, neighbor, edgeType}] = boundary;
 
@@ -147,7 +147,7 @@ ZXGraph* ZXGraph::from_subgraphs(std::vector<ZXGraph*> const& subgraphs, std::ve
         auto [v1, e1] = *b1->_neighbors.begin();
         auto [v2, e2] = *b2->_neighbors.begin();
 
-        EdgeType new_edge_type = zx::concat_edge(e1, e2, edgeType);
+        auto const new_edge_type = zx::concat_edge(e1, e2, edgeType);
 
         v1->_neighbors.erase({b1, e1});
         v2->_neighbors.erase({b2, e2});
@@ -233,8 +233,8 @@ std::pair<ZXVertexList, ZXVertexList> detail::kl_bipartition(ZXGraph const& grap
             int internal_cost = 0;
             int external_cost = 0;
 
-            ZXVertexList& my_partition    = partition1.contains(v) ? partition1 : partition2;
-            ZXVertexList& other_partition = partition1.contains(v) ? partition2 : partition1;
+            auto const& my_partition    = partition1.contains(v) ? partition1 : partition2;
+            auto const& other_partition = partition1.contains(v) ? partition2 : partition1;
 
             for (auto& [neighbor, edge] : graph.get_neighbors(v)) {
                 if (my_partition.contains(neighbor)) {
@@ -256,7 +256,7 @@ std::pair<ZXVertexList, ZXVertexList> detail::kl_bipartition(ZXGraph const& grap
             if (locked_vertices.contains(v1)) continue;
             for (auto& v2 : partition2) {
                 if (locked_vertices.contains(v2)) continue;
-                int swap_gain = d_values[v1] + d_values[v2] - 2 * (graph.is_neighbor(v1, v2) ? 1 : 0);
+                auto const swap_gain = d_values[v1] + d_values[v2] - 2 * (graph.is_neighbor(v1, v2) ? 1 : 0);
                 if (swap_gain > best_swap_gain) {
                     best_swap_gain = swap_gain;
                     best_swap      = {v1, v2};
