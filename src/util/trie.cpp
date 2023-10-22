@@ -144,17 +144,11 @@ namespace {
 void find_all_with_prefix_helper(TrieNode const* itr, std::vector<std::string>& ret, std::string& return_str) {
     if (itr->is_word) ret.push_back(return_str);
 
-#ifndef NDEBUG
-    std::string copy = return_str;
-#endif
     for (auto& [ch, child] : itr->children) {
         return_str.push_back(ch);
         find_all_with_prefix_helper(child.get(), ret, return_str);
         return_str.pop_back();
     }
-#ifndef NDEBUG
-    assert(copy == return_str);
-#endif
 }
 
 }  // namespace

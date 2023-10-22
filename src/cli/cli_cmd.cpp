@@ -282,7 +282,7 @@ Command logger_cmd() {
     Command cmd{
         "logger",
         [](ArgumentParser& parser) {
-            std::vector<std::string> log_levels = {"off", "critical", "error", "warning", "info", "debug", "trace"};
+            static auto const log_levels = std::vector<std::string>{"off", "critical", "error", "warning", "info", "debug", "trace"};
             parser.description("display and set the logger's status");
 
             auto parsers = parser.add_subparsers()
@@ -290,8 +290,6 @@ Command logger_cmd() {
         },
         [](ArgumentParser const& /*parser*/) {
             fmt::println("Logger Level: {}", spdlog::level::to_string_view(spdlog::get_level()));
-            std::vector<std::string> masked;
-            std::vector<std::string> log_levels = {"critical", "error", "warning", "info", "debug", "trace"};
 
             return CmdExecResult::done;
         }};

@@ -167,7 +167,7 @@ bool ZXGraph::_build_graph_from_parser_storage(detail::StorageType const& storag
                 spdlog::error("failed to build the graph: cannot find vertex with ID {}!!", nbid);
                 return false;
             }
-            EdgeType etype = (type == 'S') ? EdgeType::simple : EdgeType::hadamard;
+            auto const etype = (type == 'S') ? EdgeType::simple : EdgeType::hadamard;
             if (this->is_neighbor(id2_vertex[vid], id2_vertex[nbid], etype)) continue;
             add_edge(id2_vertex[vid], id2_vertex[nbid], etype);
         }
@@ -337,7 +337,7 @@ bool ZXGraph::write_pdf(std::string const& filename) const {
         return false;
     }
 
-    dv::TmpDir tmp_dir;
+    dv::TmpDir const tmp_dir;
 
     auto temp_tex_path = tmp_dir.path() / filepath.filename();
 
@@ -352,7 +352,7 @@ bool ZXGraph::write_pdf(std::string const& filename) const {
     tex_file.close();
 
     // Unix cmd: pdflatex -halt-on-error -output-directory <path/to/dir> <path/to/tex>
-    std::string cmd = fmt::format("pdflatex -halt-on-error -output-directory {0} {1} >/dev/null 2>&1", temp_tex_path.parent_path().string(), temp_tex_path.string());
+    auto const cmd = fmt::format("pdflatex -halt-on-error -output-directory {0} {1} >/dev/null 2>&1", temp_tex_path.parent_path().string(), temp_tex_path.string());
     if (system(cmd.c_str()) != 0) {
         spdlog::error("failed to generate PDF");
         return false;
@@ -379,7 +379,7 @@ bool ZXGraph::write_pdf(std::string const& filename) const {
  */
 bool ZXGraph::write_tex(std::string const& filename) const {
     namespace fs = std::filesystem;
-    fs::path filepath{filename};
+    fs::path const filepath{filename};
 
     if (filepath.extension() == "") {
         spdlog::error("no file extension!!");

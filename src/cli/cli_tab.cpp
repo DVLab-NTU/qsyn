@@ -12,6 +12,7 @@
 #include <fort.hpp>
 #include <ranges>
 #include <regex>
+#include <tl/to.hpp>
 
 #include "./cli.hpp"
 #include "fmt/color.h"
@@ -40,8 +41,8 @@ void dvlab::CommandLineInterface::_on_tab_pressed() {
 
     auto str = _read_buffer.substr(0, _cursor_position);
 
-    size_t last_token_pos  = _get_last_token_pos(str);
-    std::string last_token = last_token_pos != std::string::npos ? _read_buffer.substr(last_token_pos, _cursor_position - last_token_pos) : "";
+    auto const last_token_pos = _get_last_token_pos(str);
+    std::string last_token    = last_token_pos != std::string::npos ? _read_buffer.substr(last_token_pos, _cursor_position - last_token_pos) : "";
     assert(last_token.empty() || last_token[0] != ' ');
 
     // if this is the first token in the command, try to match identifiers first
@@ -127,9 +128,9 @@ dvlab::CommandLineInterface::TabActionResult dvlab::CommandLineInterface::_match
     std::smatch matches;
 
     if (std::regex_search(str, matches, var_matcher) && matches.prefix().str().back() != '\\') {
-        std::string var     = matches[0];
-        bool is_brace       = (var[1] == '{');
-        std::string var_key = is_brace ? var.substr(2, var.size() - 3) : var.substr(1);
+        auto const var      = static_cast<std::string>(matches[0]);
+        auto const is_brace = (var[1] == '{');
+        auto const var_key  = is_brace ? var.substr(2, var.size() - 3) : var.substr(1);
         if (_variables.contains(var_key)) {
             if (_is_escaped(str, matches.position(0))) {
                 return TabActionResult::no_op;
@@ -147,20 +148,17 @@ dvlab::CommandLineInterface::TabActionResult dvlab::CommandLineInterface::_match
         return TabActionResult::no_op;
     }
 
-    std::string var_prefix = matches[0];
+    auto const var_prefix = static_cast<std::string>(matches[0]);
     if (_is_escaped(str, str.find(var_prefix))) {
         return TabActionResult::no_op;
     }
-    bool is_brace       = (var_prefix[1] == '{');
-    std::string var_key = var_prefix.substr(is_brace ? 2 : 1);
+    auto const is_brace = (var_prefix[1] == '{');
+    auto const var_key  = var_prefix.substr(is_brace ? 2 : 1);
 
-    std::vector<std::string> matching_variables;
-
-    for (auto& [key, val] : _variables) {
-        if (key.starts_with(var_key)) {
-            matching_variables.emplace_back(key);
-        }
-    }
+    auto matching_variables = _variables |
+                              std::views::keys |
+                              std::views::filter([&var_key](std::string_view key) { return key.starts_with(var_key); }) |
+                              tl::to<std::vector>();
 
     if (matching_variables.size() == 0) {
         return TabActionResult::no_op;
@@ -313,7 +311,7 @@ bool dvlab::CommandLineInterface::_autocomplete(std::string prefix_copy, std::ve
     }
     assert(std::ranges::all_of(strs, [&prefix_copy](std::string const& str) { return str.starts_with(prefix_copy); }));
 
-    size_t shortest_file_len = std::ranges::min(
+    auto const shortest_file_len = std::ranges::min(
         strs | std::views::transform([](std::string const& str) { return str.size(); }));
 
     std::string autocomplete_str = "";
@@ -355,18 +353,18 @@ void dvlab::CommandLineInterface::_print_as_table(std::vector<std::string> words
 
     ft_set_u8strwid_func(
         [](void const* beg, void const* end, size_t* width) -> int {
-            std::string tmp_str(static_cast<const char*>(beg), static_cast<const char*>(end));
+            std::string const tmp_str(static_cast<const char*>(beg), static_cast<const char*>(end));
 
             *width = unicode::display_width(tmp_str);
 
             return 0;
         });
 
-    auto longest_word_len = std::ranges::max(
+    auto const longest_word_len = std::ranges::max(
         words | std::views::transform([](std::string const& str) { return unicode::display_width(str); }));
 
-    size_t num_columns = dvlab::utils::get_terminal_size().width / (longest_word_len + 2);
-    size_t num_rows    = 1 + (words.size() - 1) / num_columns;
+    auto const num_columns = dvlab::utils::get_terminal_size().width / (longest_word_len + 2);
+    auto const num_rows    = 1 + (words.size() - 1) / num_columns;
 
     for (size_t i = 0; i < num_rows; ++i) {
         for (size_t j = i; j < words.size(); j += num_rows) {

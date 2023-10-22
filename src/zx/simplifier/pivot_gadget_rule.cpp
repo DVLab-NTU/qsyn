@@ -33,8 +33,8 @@ std::vector<MatchType> PivotGadgetRule::find_matches(ZXGraph const& graph) const
             return;
         }
 
-        bool vs_is_n_pi = (vs->get_phase().denominator() == 1);
-        bool vt_is_n_pi = (vt->get_phase().denominator() == 1);
+        auto const vs_is_n_pi = (vs->get_phase().denominator() == 1);
+        auto const vt_is_n_pi = (vt->get_phase().denominator() == 1);
 
         // if both n*pi --> ordinary pivot rules
         // if both not, --> maybe pivot double-boundary

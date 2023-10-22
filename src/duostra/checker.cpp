@@ -59,8 +59,8 @@ size_t Checker::get_cycle(Operation const& op) {
  * @param q0
  */
 void Checker::apply_gate(Checker::Operation const& op, Checker::PhysicalQubit& q0) {
-    size_t start = get<0>(op.get_time_range());
-    size_t end   = get<1>(op.get_time_range());
+    auto const start = get<0>(op.get_time_range());
+    auto const end   = get<1>(op.get_time_range());
 
     DVLAB_ASSERT(
         start >= q0.get_occupied_time(),
@@ -83,8 +83,8 @@ void Checker::apply_gate(Checker::Operation const& op, Checker::PhysicalQubit& q
 void Checker::apply_gate(Checker::Operation const& op,
                          Checker::PhysicalQubit& q0,
                          Checker::PhysicalQubit& q1) {
-    size_t start = get<0>(op.get_time_range());
-    size_t end   = get<1>(op.get_time_range());
+    auto const start = get<0>(op.get_time_range());
+    auto const end   = get<1>(op.get_time_range());
 
     DVLAB_ASSERT(
         start >= q0.get_occupied_time(),

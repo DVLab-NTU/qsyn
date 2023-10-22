@@ -63,7 +63,7 @@ public:
         std::vector<size_t> match_counts;
 
         while (!stop_requested()) {
-            size_t vcount = _simp_graph->get_num_vertices();
+            auto const old_vertex_count = _simp_graph->get_num_vertices();
 
             std::vector<typename Rule::MatchType> matches = rule.find_matches(*_simp_graph);
             if (matches.empty()) {
@@ -72,7 +72,7 @@ public:
             match_counts.emplace_back(matches.size());
 
             rule.apply(*_simp_graph, matches);
-            if (_simp_graph->get_num_vertices() >= vcount) break;
+            if (_simp_graph->get_num_vertices() >= old_vertex_count) break;
         }
 
         _report_simp_result(rule.name, match_counts);

@@ -47,9 +47,9 @@ inline void beep() {
 
 inline void clear_terminal() {
 #ifdef _WIN32
-    int result = system("cls");
+    int const result = system("cls");
 #else
-    int result = system("clear");
+    int const result = system("clear");
 #endif
     if (result != 0) {
         fmt::println(stderr, "Error clearing the terminal!!");

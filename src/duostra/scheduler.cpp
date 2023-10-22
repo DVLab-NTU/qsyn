@@ -204,12 +204,10 @@ RandomScheduler::Device RandomScheduler::_assign_gates(std::unique_ptr<Router> r
         auto& waitlist = _circuit_topology.get_available_gates();
         assert(waitlist.size() > 0);
 
-        size_t choose = rand() % waitlist.size();
+        auto const choice = rand() % waitlist.size();
 
-        route_one_gate(*router, waitlist[choose]);
-#ifdef DEBUG
-        cout << waitlist << " " << waitlist[choose] << "\n\n";
-#endif
+        route_one_gate(*router, waitlist[choice]);
+
         ++count;
     }
     assert(count == _circuit_topology.get_num_gates());
