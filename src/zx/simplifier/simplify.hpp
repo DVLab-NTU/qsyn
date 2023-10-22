@@ -37,7 +37,7 @@ public:
         std::vector<size_t> match_counts;
 
         while (!stop_requested()) {
-            std::vector<typename Rule::MatchType> matches = rule.find_matches(*_simp_graph);
+            std::vector<typename Rule::MatchType> const matches = rule.find_matches(*_simp_graph);
             if (matches.empty()) {
                 break;
             }
@@ -65,7 +65,7 @@ public:
         while (!stop_requested()) {
             auto const old_vertex_count = _simp_graph->get_num_vertices();
 
-            std::vector<typename Rule::MatchType> matches = rule.find_matches(*_simp_graph);
+            std::vector<typename Rule::MatchType> const matches = rule.find_matches(*_simp_graph);
             if (matches.empty()) {
                 break;
             }
@@ -92,7 +92,7 @@ public:
         std::vector<size_t> match_counts;
 
         while (!stop_requested()) {
-            std::vector<typename Rule::MatchType> matches = rule.find_matches(*_simp_graph);
+            std::vector<typename Rule::MatchType> const matches = rule.find_matches(*_simp_graph);
             std::vector<typename Rule::MatchType> scoped_matches;
             auto is_in_scope = [&scope](ZXVertex* v) { return scope.contains(v); };
             for (auto& match : matches) {
