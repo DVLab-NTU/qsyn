@@ -103,6 +103,12 @@ public:
     };
 
     ordered_hashtable() : _size(0) {}
+    virtual ~ordered_hashtable() = default;
+
+    ordered_hashtable(ordered_hashtable const& other)                = default;
+    ordered_hashtable(ordered_hashtable&& other) noexcept            = default;
+    ordered_hashtable& operator=(ordered_hashtable const& other)     = default;
+    ordered_hashtable& operator=(ordered_hashtable&& other) noexcept = default;
 
     // iterators
     iterator begin() noexcept {
@@ -262,8 +268,8 @@ template <typename... Args>
 std::pair<typename ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::iterator, bool>
 ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::emplace(Args&&... args) {
     this->_data.emplace_back(value_type(std::forward<Args>(args)...));
-    key_type const key = this->key(this->_data.back().value());
-    bool has_item      = this->_key2id.contains(key);
+    key_type const key  = this->key(this->_data.back().value());
+    bool const has_item = this->_key2id.contains(key);
     if (has_item) {
         this->_data.pop_back();
     } else {

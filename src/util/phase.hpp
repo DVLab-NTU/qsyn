@@ -224,7 +224,7 @@ bool Phase::str_to_phase(std::string const& str, Phase& p) {
         }
     }
 
-    dvlab::Rational tmp_rational(temp_float * std::pow(std::numbers::pi_v<T>, n_pis - 1), 1e-4 / std::numbers::pi_v<T>);
+    dvlab::Rational const tmp_rational(temp_float * std::pow(std::numbers::pi_v<T>, n_pis - 1), 1e-4 / std::numbers::pi_v<T>);
 
     p = Phase(numerator, denominator) * tmp_rational;
 

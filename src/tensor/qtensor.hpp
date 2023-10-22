@@ -6,6 +6,8 @@
 ****************************************************************************/
 #pragma once
 
+#include <gsl/narrow>
+
 #include "./tensor.hpp"
 #include "util/phase.hpp"
 #include "util/util.hpp"
@@ -67,7 +69,7 @@ public:
 
     QTensor<T> self_tensor_dot(TensorAxisList const& ax1 = {}, TensorAxisList const& ax2 = {});
 
-    QTensor<T> to_qtensor();
+    QTensor<T> to_qtensor() const;
 
     template <typename U>
     friend std::complex<U> global_scalar_factor(QTensor<U> const& t1, QTensor<U> const& t2);
@@ -89,7 +91,7 @@ public:
     std::vector<std::string> const& get_procedures() const { return _procedures; }
 
 private:
-    static DataType _nu_pow(int const& n);
+    static DataType _nu_pow(int n);
 
     std::string _filename;
     std::vector<std::string> _procedures;
@@ -153,10 +155,8 @@ template <typename T>
 QTensor<T> QTensor<T>::xspider(size_t const& arity, dvlab::Phase const& phase) {
     using namespace std::literals;
     QTensor<T> t = xt::ones<QTensor<T>::DataType>(TensorShape(arity, 2));
-    QTensor<T> ket_minus(TensorShape{2});
-    ket_minus(0, 0) = 1.;
-    ket_minus(0, 1) = -1.;
-    QTensor<T> tmp  = tensor_product_pow(ket_minus, arity);
+    QTensor<T> const ket_minus({1. + 0.i, -1. + 0.i});
+    QTensor<T> const tmp = tensor_product_pow(ket_minus, arity);
     t._tensor += tmp._tensor * std::exp(1.0i * dvlab::Phase::phase_to_floating_point<T>(phase));
     t._tensor /= std::pow(std::sqrt(2), arity);
     t._tensor *= _nu_pow(2 - arity);
@@ -303,9 +303,9 @@ QTensor<T> QTensor<T>::self_tensor_dot(TensorAxisList const& ax1, TensorAxisList
  * @return QTensor<T>
  */
 template <typename T>
-QTensor<T> QTensor<T>::to_qtensor() {
+QTensor<T> QTensor<T>::to_qtensor() const {
     assert(this->dimension() == 2);
-    size_t dim = std::log2(this->shape()[0]) + std::log2(this->shape()[1]);
+    auto dim = gsl::narrow<size_t>(std::log2(this->shape()[0]) + std::log2(this->shape()[1]));
 
     assert(dim % 2 == 0);
 
@@ -314,9 +314,10 @@ QTensor<T> QTensor<T>::to_qtensor() {
         ax.emplace_back(i);
         ax.emplace_back(i + dim / 2);
     }
-    this->reshape(TensorAxisList(dim, 2));
+    auto result = *this;
+    result.reshape(TensorAxisList(dim, 2));
 
-    return this->transpose(ax);
+    return result.transpose(ax);
 }
 
 /**
@@ -332,7 +333,7 @@ QTensor<T> QTensor<T>::control(QTensor<T> const& gate, size_t n_ctrls) {
     using dvlab::utils::int_pow;
     if (n_ctrls == 0) return gate;
 
-    size_t dim = gate.dimension();
+    auto const dim = gate.dimension();
 
     assert(dim % 2 == 0);
 
@@ -345,14 +346,14 @@ QTensor<T> QTensor<T>::control(QTensor<T> const& gate, size_t n_ctrls) {
         ax.emplace_back(2 * i + 1);
     }
 
-    size_t gate_size     = int_pow(2, dim / 2);
-    size_t identity_size = gate_size * (int_pow(2, n_ctrls) - 1);
+    auto const gate_size     = int_pow(2, dim / 2);
+    auto const identity_size = gate_size * (int_pow(2, n_ctrls) - 1);
 
-    QTensor<T> identity    = xt::eye({identity_size, identity_size});
-    QTensor<T> gate_matrix = gate.transpose(ax);
+    QTensor<T> const identity = xt::eye({identity_size, identity_size});
+    QTensor<T> gate_matrix    = gate.transpose(ax);
     gate_matrix.reshape({gate_size, gate_size});
 
-    QTensor<T> result = direct_sum(identity, gate_matrix);
+    QTensor<T> const result = direct_sum(identity, gate_matrix);
     return result.to_qtensor();
 }
 
@@ -413,7 +414,7 @@ bool is_equivalent(QTensor<U> const& t1, QTensor<U> const& t2, double eps = 1e-6
  * @return QTensor<T>::DataType
  */
 template <typename T>
-typename QTensor<T>::DataType QTensor<T>::_nu_pow(int const& n) {
+typename QTensor<T>::DataType QTensor<T>::_nu_pow(int n) {
     return std::pow(2., -0.25 * n);
 }
 

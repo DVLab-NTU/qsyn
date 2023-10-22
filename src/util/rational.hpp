@@ -97,7 +97,7 @@ private:
 template <class T>
 requires std::floating_point<T>
 Rational Rational::to_rational(T f, T eps) {
-    IntegralType integral_part = gsl::narrow_cast<IntegralType>(floor(f));
+    auto integral_part = gsl::narrow_cast<IntegralType>(floor(f));
     f -= integral_part;
     Rational lower(0, 1), upper(1, 1);
     Rational med(1, 2);
