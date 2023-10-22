@@ -604,7 +604,7 @@ bool Extractor::biadjacency_eliminations(bool check) {
     dvlab::BooleanMatrix greedy_matrix = _biadjacency;
     auto const backup_neighbors        = _neighbors;
 
-    DVLAB_ASSERT(0 <= OPTIMIZE_LEVEL && OPTIMIZE_LEVEL <= 3, "Error: wrong optimize level");
+    DVLAB_ASSERT(OPTIMIZE_LEVEL <= 3, "Error: wrong optimize level");
 
     if (OPTIMIZE_LEVEL > 1) {
         // NOTE - opt = 2 or 3

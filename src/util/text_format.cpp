@@ -47,7 +47,7 @@ fmt::text_style ls_color(fs::path const& path) {
                         if (tmp >= 90 && tmp <= 97) return fmt::fg(fmt::terminal_color{gsl::narrow<uint8_t>(tmp)});
                         if (tmp >= 40 && tmp <= 47) return fmt::bg(fmt::terminal_color{gsl::narrow<uint8_t>(tmp)});
                         if (tmp >= 100 && tmp <= 107) return fmt::bg(fmt::terminal_color{gsl::narrow<uint8_t>(tmp)});
-                        assert(tmp >= 0 && tmp <= 7);
+                        assert(tmp <= 7);
                         return fmt::text_style{fmt::emphasis{gsl::narrow<uint8_t>(1 << (tmp - 1))}};
                     });
 
