@@ -23,7 +23,7 @@ Checks: >
 #  cppcoreguidelines-macro-usage,
 #  cppcoreguidelines-missing-std-forward,
 WarningsAsErrors: ""
-HeaderFilterRegex: ""
+HeaderFilterRegex: ".*"
 AnalyzeTemporaryDtors: false
 FormatStyle: none
 User: zwischen
