@@ -22,7 +22,7 @@ namespace qsyn::qcir {
 void QCir::print_gates() {
     if (_dirty)
         update_gate_time();
-    std::cout << "Listed by gate ID" << std::endl;
+    fmt::println("Listed by gate ID");
     for (size_t i = 0; i < _qgates.size(); i++) {
         _qgates[i]->print_gate();
     }
@@ -33,7 +33,7 @@ void QCir::print_gates() {
  *
  */
 void QCir::print_depth() {
-    std::cout << "Depth       : " << get_depth() << std::endl;
+    fmt::println("Depth       : {}", get_depth());
 }
 
 /**
@@ -70,15 +70,15 @@ void QCir::print_qubits(spdlog::level::level_enum lvl) {
  * @param showTime if true, show the time
  */
 bool QCir::print_gate_info(size_t id, bool show_time) {
-    if (get_gate(id) != nullptr) {
-        if (show_time && _dirty)
-            update_gate_time();
-        get_gate(id)->print_gate_info(show_time);
-        return true;
-    } else {
-        std::cerr << "Error: id " << id << " not found!!" << std::endl;
+    if (get_gate(id) == nullptr) {
+        spdlog::error("Gate ID {} not found!!", id);
         return false;
     }
+
+    if (show_time && _dirty)
+        update_gate_time();
+    get_gate(id)->print_gate_info(show_time);
+    return true;
 }
 
 void QCir::print_qcir_info() {

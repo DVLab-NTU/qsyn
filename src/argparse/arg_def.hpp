@@ -10,7 +10,7 @@
 #include <span>
 #include <string>
 
-#include "util/util.hpp"
+#include "util/dvlab_string.hpp"
 
 namespace dvlab::argparse {
 

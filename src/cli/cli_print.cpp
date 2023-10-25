@@ -71,9 +71,4 @@ void dvlab::CommandLineInterface::print_history(size_t n_print) const {
     }
 }
 
-void dvlab::CommandLineInterface::_print_prompt() const {
-    fmt::print("{}", _command_prompt);
-    fflush(stdout);
-}
-
 }  // namespace dvlab

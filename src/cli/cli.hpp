@@ -161,8 +161,7 @@ public:
 
 private:
     // Private member functions
-    void _clear_read_buffer();
-    void _print_prompt() const;
+    void _clear_read_buffer_and_print_prompt();
 
     CmdExecResult _execute_one_line_internal(std::istream&);
     std::pair<dvlab::Command*, std::vector<argparse::Token>> _parse_one_command(std::string_view cmd);

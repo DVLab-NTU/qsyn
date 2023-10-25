@@ -7,15 +7,16 @@
 
 #include "./qcir_gate.hpp"
 
+#include <fmt/core.h>
 #include <spdlog/spdlog.h>
 
 #include <algorithm>
 #include <cassert>
 #include <iomanip>
+#include <ranges>
 #include <string>
 #include <type_traits>
 
-#include "qcir/gate_type.hpp"
 #include "qsyn/qsyn_type.hpp"
 #include "util/util.hpp"
 
@@ -25,10 +26,6 @@ size_t SINGLE_DELAY   = 1;
 size_t DOUBLE_DELAY   = 2;
 size_t SWAP_DELAY     = 6;
 size_t MULTIPLE_DELAY = 5;
-
-std::ostream& operator<<(std::ostream& stream, GateRotationCategory const& type) {
-    return stream << static_cast<typename std::underlying_type<GateRotationCategory>::type>(type);
-}
 
 std::string QCirGate::get_type_str() const {
     return gate_type_to_str(_rotation_category, get_num_qubits(), _phase);
@@ -85,7 +82,7 @@ QubitInfo QCirGate::get_qubit(QubitIdType qubit) const {
         if (_qubits[i]._qubit == qubit)
             return _qubits[i];
     }
-    std::cerr << "Not Found" << std::endl;
+    spdlog::error("Qubit {} not found!", qubit);
     return _qubits[0];
 }
 
@@ -156,17 +153,17 @@ void QCirGate::set_child(QubitIdType qubit, QCirGate* c) {
  * @brief Print Gate brief information
  */
 void QCirGate::print_gate() const {
-    std::cout << "ID:" << std::right << std::setw(4) << _id;
-    std::cout << " (" << std::right << std::setw(3) << get_type_str() << ") ";
-    std::cout << "     Time: " << std::right << std::setw(4) << _time << "     Qubit: ";
-    for (size_t i = 0; i < _qubits.size(); i++) {
-        std::cout << std::right << std::setw(3) << _qubits[i]._qubit << " ";
-    }
+    fmt::print("ID:{:>4} ({:>3})      Time: {:>4}     Qubit: {:>3} ",
+               _id,
+               get_type_str(),
+               _time,
+               fmt::join(_qubits | std::views::transform([](QubitInfo const& info) { return info._qubit; }), " "));
+
     if ((get_rotation_category() == GateRotationCategory::pz || get_rotation_category() == GateRotationCategory::rx || get_rotation_category() == GateRotationCategory::ry || get_rotation_category() == GateRotationCategory::rz) &&
         get_phase().denominator() != 1 && get_phase().denominator() != 2 && get_phase().denominator() != 4) {
-        std::cout << "      Phase: " << std::right << std::setw(4) << get_phase() << " ";
+        fmt::print("      Phase: {}", get_phase().get_print_string());
     }
-    std::cout << std::endl;
+    fmt::println("");
 }
 
 /**

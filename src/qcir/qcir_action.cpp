@@ -12,6 +12,7 @@
 #include "qcir/qcir.hpp"
 #include "qcir/qcir_gate.hpp"
 #include "qcir/qcir_qubit.hpp"
+#include "util/util.hpp"
 
 namespace qsyn::qcir {
 
@@ -120,8 +121,10 @@ std::vector<QCirGate*> const& QCir::update_topological_order() const {
  * @brief Print topological order
  */
 bool QCir::print_topological_order() {
-    auto test_lambda = [](QCirGate* gate) { std::cout << gate->get_id() << std::endl; };
-    topological_traverse(test_lambda);
+    auto print_gate_id = [](QCirGate* gate) {
+        fmt::println("{}", gate->get_id());
+    };
+    topological_traverse(print_gate_id);
     return true;
 }
 

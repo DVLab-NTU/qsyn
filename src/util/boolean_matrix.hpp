@@ -87,7 +87,7 @@ public:
     void print_trace() const;
     size_t filter_duplicate_row_operations();
     size_t row_operation_depth();
-    float dense_ratio();
+    double dense_ratio();
     void append_one_hot_column(size_t idx);
     void push_zeros_column();
     void push_zeros_row() { _matrix.emplace_back(std::vector<unsigned char>(_matrix[0].size(), 0)); }

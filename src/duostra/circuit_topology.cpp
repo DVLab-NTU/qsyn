@@ -8,6 +8,8 @@
 
 #include "./circuit_topology.hpp"
 
+#include <fmt/ranges.h>
+
 #include "qcir/gate_type.hpp"
 
 using namespace qsyn::qcir;
@@ -121,14 +123,9 @@ void CircuitTopology::update_available_gates(size_t executed) {
  *
  */
 void CircuitTopology::print_gates_with_nexts() {
-    std::cout << "Successors of each gate" << std::endl;
-    auto const& gates = _dependency_graph->get_gates();
-    for (size_t i = 0; i < gates.size(); i++) {
-        std::vector<size_t> temp = gates[i].get_nexts();
-        std::cout << gates[i].get_id() << "(" << gates[i].get_type() << ") || ";
-        for (size_t j = 0; j < temp.size(); j++)
-            std::cout << temp[j] << " ";
-        std::cout << std::endl;
+    fmt::println("Successors of each gate");
+    for (auto const& gate : _dependency_graph->get_gates()) {
+        fmt::println("{}({}) || {}", gate.get_id(), gate.get_type(), fmt::join(gate.get_nexts(), " "));
     }
 }
 
@@ -137,14 +134,9 @@ void CircuitTopology::print_gates_with_nexts() {
  *
  */
 void CircuitTopology::print_gates_with_prevs() {
-    std::cout << "Predecessors of each gate" << std::endl;
-    auto const& gate = _dependency_graph->get_gates();
-    for (size_t i = 0; i < gate.size(); i++) {
-        auto const& prevs = gate.at(i).get_prevs();
-        std::cout << gate.at(i).get_id() << "(" << gate.at(i).get_type() << ") || ";
-        for (size_t j = 0; j < prevs.size(); j++)
-            std::cout << prevs[j] << " ";
-        std::cout << std::endl;
+    fmt::println("Predecessors of each gate");
+    for (auto const& gate : _dependency_graph->get_gates()) {
+        fmt::println("{}({}) || {}", gate.get_id(), gate.get_type(), fmt::join(gate.get_prevs(), " "));
     }
 }
 

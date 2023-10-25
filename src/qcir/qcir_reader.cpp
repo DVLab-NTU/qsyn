@@ -12,8 +12,8 @@
 #include <string>
 
 #include "qcir/qcir.hpp"
+#include "util/dvlab_string.hpp"
 #include "util/phase.hpp"
-#include "util/util.hpp"
 
 namespace qsyn::qcir {
 
@@ -90,8 +90,7 @@ bool QCir::read_qasm(std::string const& filename) {
     add_qubits(nqubit);
     getline(qasm_file, str);
     while (getline(qasm_file, str)) {
-        str = dvlab::str::trim_comments(str);
-        str = dvlab::str::trim_spaces(str);
+        str = dvlab::str::trim_spaces(dvlab::str::trim_comments(str));
         if (str == "") continue;
         std::string type;
         auto const type_end   = str_get_token(str, type);

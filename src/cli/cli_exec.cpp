@@ -4,6 +4,7 @@
   Author       [ Design Verification Lab, Chia-Hsu Chuang ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
+#include <fmt/core.h>
 #include <spdlog/spdlog.h>
 
 #include <atomic>
@@ -13,8 +14,11 @@
 #include <tl/enumerate.hpp>
 
 #include "cli/cli.hpp"
-#include "fmt/core.h"
-#include "util/util.hpp"
+#include "util/dvlab_string.hpp"
+
+namespace std {
+extern istream cin;
+}
 
 namespace dvlab {
 

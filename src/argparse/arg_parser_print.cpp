@@ -16,6 +16,7 @@
 
 #include "./argparse.hpp"
 #include "unicode/display_width.hpp"
+#include "util/dvlab_string.hpp"
 #include "util/terminal_attributes.hpp"
 #include "util/text_format.hpp"
 #include "util/util.hpp"

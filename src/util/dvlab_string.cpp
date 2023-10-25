@@ -5,15 +5,13 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
+#include "./dvlab_string.hpp"
+
+#include <algorithm>
 #include <cassert>
 #include <cctype>
 #include <concepts>
 #include <cstddef>
-#include <stdexcept>
-#include <string>
-#include <vector>
-
-#include "util/util.hpp"
 
 namespace dvlab {
 
@@ -24,10 +22,10 @@ namespace str {
  *
  * @param str
  */
-std::string trim_leading_spaces(std::string const& str) {
+std::string trim_leading_spaces(std::string_view str) {
     auto const start = str.find_first_not_of(" \t\n\v\f\r");
     if (start == std::string::npos) return "";
-    return str.substr(start);
+    return std::string{str.substr(start)};
 }
 
 /**
@@ -35,11 +33,11 @@ std::string trim_leading_spaces(std::string const& str) {
  *
  * @param str
  */
-std::string trim_spaces(std::string const& str) {
+std::string trim_spaces(std::string_view str) {
     auto const start = str.find_first_not_of(" \t\n\v\f\r");
     auto const end   = str.find_last_not_of(" \t\n\v\f\r");
     if (start == std::string::npos && end == std::string::npos) return "";
-    return str.substr(start, end + 1 - start);
+    return std::string{str.substr(start, end + 1 - start)};
 }
 
 /**
@@ -105,7 +103,7 @@ char toupper(char ch) {
  */
 std::string tolower_string(std::string const& str) {
     std::string ret = str;
-    for_each(ret.begin(), ret.end(), [](char& ch) { ch = dvlab::str::tolower(ch); });
+    std::for_each(ret.begin(), ret.end(), [](char& ch) { ch = dvlab::str::tolower(ch); });
     return ret;
 };
 
@@ -117,7 +115,7 @@ std::string tolower_string(std::string const& str) {
  */
 std::string toupper_string(std::string const& str) {
     std::string ret = str;
-    for_each(ret.begin(), ret.end(), [](char& ch) { ch = dvlab::str::toupper(ch); });
+    std::for_each(ret.begin(), ret.end(), [](char& ch) { ch = dvlab::str::toupper(ch); });
     return ret;
 };
 

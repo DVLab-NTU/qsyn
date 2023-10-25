@@ -15,6 +15,7 @@
 #include "device/device.hpp"
 #include "device/device_mgr.hpp"
 #include "qsyn/qsyn_type.hpp"
+#include "util/util.hpp"
 
 using namespace dvlab::argparse;
 using dvlab::CmdExecResult;
