@@ -129,7 +129,7 @@ T detail::stonum(std::string const& str, size_t* pos) {
 template <class T>
 requires std::is_arithmetic_v<T>
 bool str_to_num(std::string const& str, T& f) {
-    size_t i;
+    size_t i = 0;
     try {
         f = detail::stonum<T>(str, &i);
     } catch (std::exception const& e) {

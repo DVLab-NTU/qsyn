@@ -113,7 +113,7 @@ std::optional<QTensor<double>> to_tensor(QCir const &qcir) {
     //       To make this process interruptible by SIGINT (ctrl-C), we grow the qubit size one by one
     for (size_t i = 0; i < qcir.get_qubits().size(); ++i) {
         if (stop_requested()) {
-            std::cerr << "Warning: conversion interrupted." << std::endl;
+            spdlog::warn("Conversion interrupted.");
             return std::nullopt;
         }
         tensor = tensordot(tensor, QTensor<double>::identity(1));
@@ -142,7 +142,7 @@ std::optional<QTensor<double>> to_tensor(QCir const &qcir) {
     });
 
     if (stop_requested()) {
-        std::cerr << "Warning: conversion interrupted." << std::endl;
+        spdlog::warn("Conversion interrupted.");
         return std::nullopt;
     }
 

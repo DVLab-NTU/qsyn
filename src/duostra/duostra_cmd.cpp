@@ -167,37 +167,6 @@ Command duostra_set_cmd() {
             }};
 }
 
-// Command duostra_print_cmd() {
-//     return {"duoprint",
-//             [](ArgumentParser& parser) {
-//                 parser.description("print Duostra parameters");
-//                 parser.add_argument<bool>("-detail")
-//                     .default_value(false)
-//                     .action(store_true)
-//                     .help("print detailed information");
-//             },
-//             [](ArgumentParser const& parser) {
-//                 fmt::println("");
-//                 fmt::println("Scheduler:         {}", get_scheduler_type_str(DuostraConfig::SCHEDULER_TYPE));
-//                 fmt::println("Router:            {}", get_router_type_str(DuostraConfig::ROUTER_TYPE));
-//                 fmt::println("Placer:            {}", get_placer_type_str(DuostraConfig::PLACER_TYPE));
-
-//                 if (parser.parsed("-detail")) {
-//                     std::cout << '\n'
-//                               << "# Candidates:      " << ((DuostraConfig::NUM_CANDIDATES == SIZE_MAX) ? "unlimited" : std::to_string(DuostraConfig::NUM_CANDIDATES)) << '\n'
-//                               << "Search Depth:      " << DuostraConfig::SEARCH_DEPTH << '\n'
-//                               << '\n'
-//                               << "Tie breaker:       " << get_minmax_type_str(DuostraConfig::TIE_BREAKING_STRATEGY) << '\n'
-//                               << "APSP Coeff.:       " << DuostraConfig::APSP_COEFF << '\n'
-//                               << "2-Qb. Avail. Time: " << get_minmax_type_str(DuostraConfig::AVAILABLE_TIME_STRATEGY) << '\n'
-//                               << "Cost Selector:     " << get_minmax_type_str(DuostraConfig::COST_SELECTION_STRATEGY) << '\n'
-//                               << "Never Cache:       " << ((DuostraConfig::NEVER_CACHE == true) ? "true" : "false") << '\n'
-//                               << "Single Immed.:     " << ((DuostraConfig::EXECUTE_SINGLE_QUBIT_GATES_ASAP == 1) ? "true" : "false") << std::endl;
-//                 }
-//                 return CmdExecResult::done;
-//             }};
-// }
-
 Command mapping_equivalence_check_cmd(qcir::QCirMgr& qcir_mgr, device::DeviceMgr& device_mgr) {
     return {
         "mpequiv",

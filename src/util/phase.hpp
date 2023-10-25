@@ -190,7 +190,7 @@ bool Phase::str_to_phase(std::string const& str, Phase& p) {
     IntegralType numerator = 1, denominator = 1;
     T temp_float = 1.0;
 
-    IntegralType buffer_int;
+    IntegralType buffer_int = 0;
     T buffer_float;
 
     bool do_division = false;

@@ -45,9 +45,7 @@ size_t OPTIMIZE_LEVEL     = 2;
  * @param c
  * @param d
  */
-Extractor::Extractor(ZXGraph* g, QCir* c, std::optional<Device> const& d) : _graph(g), _device(d), _device_backup(d) {
-    _logical_circuit  = (c == nullptr) ? new QCir : c;
-    _physical_circuit = to_physical() ? new QCir() : nullptr;
+Extractor::Extractor(ZXGraph* g, QCir* c, std::optional<Device> const& d) : _graph(g), _logical_circuit{c ? c : new QCir()}, _physical_circuit{to_physical() ? new QCir() : nullptr}, _device(d), _device_backup(d) {
     initialize(c == nullptr);
 }
 

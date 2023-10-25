@@ -6,6 +6,9 @@
 ****************************************************************************/
 #pragma once
 
+#include <fmt/core.h>
+#include <fmt/ostream.h>
+
 #include <gsl/narrow>
 
 #include "./tensor.hpp"
@@ -32,7 +35,7 @@ public:
     QTensor(xt::nested_initializer_list_t<DataType, 4> il) : Tensor<DataType>(il) {}
     QTensor(xt::nested_initializer_list_t<DataType, 5> il) : Tensor<DataType>(il) {}
 
-    virtual ~QTensor() = default;
+    ~QTensor() override = default;
 
     QTensor(TensorShape const& shape) : Tensor<DataType>(shape) {}
     QTensor(TensorShape&& shape) : Tensor<DataType>(shape) {}
@@ -91,6 +94,7 @@ public:
     std::vector<std::string> const& get_procedures() const { return _procedures; }
 
 private:
+    friend struct fmt::formatter<QTensor>;
     static DataType _nu_pow(int n);
 
     std::string _filename;
@@ -419,3 +423,6 @@ typename QTensor<T>::DataType QTensor<T>::_nu_pow(int n) {
 }
 
 }  // namespace qsyn::tensor
+
+template <typename T>
+struct fmt::formatter<qsyn::tensor::QTensor<T>> : fmt::ostream_formatter {};

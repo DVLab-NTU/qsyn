@@ -228,9 +228,9 @@ size_t TreeNode::best_cost() const {
  */
 SearchScheduler::SearchScheduler(CircuitTopology const& topo, bool tqdm)
     : GreedyScheduler(topo, tqdm),
-      _lookAhead(DuostraConfig::SEARCH_DEPTH),
       _never_cache(DuostraConfig::NEVER_CACHE),
-      _execute_single(DuostraConfig::EXECUTE_SINGLE_QUBIT_GATES_ASAP) {
+      _execute_single(DuostraConfig::EXECUTE_SINGLE_QUBIT_GATES_ASAP),
+      _lookahead(DuostraConfig::SEARCH_DEPTH) {
     _cache_when_necessary();
 }
 
@@ -241,9 +241,9 @@ SearchScheduler::SearchScheduler(CircuitTopology const& topo, bool tqdm)
  */
 SearchScheduler::SearchScheduler(SearchScheduler const& other)
     : GreedyScheduler(other),
-      _lookAhead(other._lookAhead),
       _never_cache(other._never_cache),
-      _execute_single(other._execute_single) {}
+      _execute_single(other._execute_single),
+      _lookahead(other._lookahead) {}
 
 /**
  * @brief Construct a new Search Scheduler:: Search Scheduler object
@@ -252,9 +252,9 @@ SearchScheduler::SearchScheduler(SearchScheduler const& other)
  */
 SearchScheduler::SearchScheduler(SearchScheduler&& other) noexcept
     : GreedyScheduler(std::move(other)),
-      _lookAhead(other._lookAhead),
       _never_cache(other._never_cache),
-      _execute_single(other._execute_single) {}
+      _execute_single(other._execute_single),
+      _lookahead(other._lookahead) {}
 
 /**
  * @brief Clone scheduler
@@ -270,7 +270,7 @@ std::unique_ptr<BaseScheduler> SearchScheduler::clone() const {
  *
  */
 void SearchScheduler::_cache_when_necessary() {
-    if (!_never_cache && _lookAhead == 1) {
+    if (!_never_cache && _lookahead == 1) {
         spdlog::error("When _lookAhead = 1, '_neverCache' is used by default.");
         _never_cache = true;
     }
@@ -291,19 +291,20 @@ SearchScheduler::Device SearchScheduler::_assign_gates(std::unique_ptr<Router> r
 
     // For each step. (all nodes + 1 dummy)
     dvlab::TqdmWrapper bar{total_gates + 1, _tqdm};
-    do {
+    assert(!root->done());
+    while (!root->done()) {
         // Update the _candidates.
         if (stop_requested()) {
             return router->get_device();
         }
-        auto selected_node = std::make_unique<TreeNode>(root->best_child(static_cast<int>(_lookAhead)));
+        auto selected_node = std::make_unique<TreeNode>(root->best_child(static_cast<int>(_lookahead)));
         root               = std::move(selected_node);
 
         for (auto const& gate_id : root->get_executed_gates()) {
             route_one_gate(*router, gate_id);
             ++bar;
         }
-    } while (!root->done());
+    }
     return router->get_device();
 }
 

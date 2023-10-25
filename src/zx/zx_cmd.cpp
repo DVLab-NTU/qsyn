@@ -7,6 +7,7 @@
 
 #include "./zx_cmd.hpp"
 
+#include <fmt/core.h>
 #include <spdlog/spdlog.h>
 
 #include <cassert>
@@ -16,9 +17,7 @@
 #include <string>
 
 #include "./zxgraph_mgr.hpp"
-#include "spdlog/common.h"
 #include "tensor/tensor_mgr.hpp"
-#include "zx/zx_def.hpp"
 #include "zx/zxgraph.hpp"
 
 using namespace dvlab::argparse;
@@ -286,25 +285,29 @@ Command zxgraph_test_cmd(ZXGraphMgr const& zxgraph_mgr) {
             [&](ArgumentParser const& parser) {
                 if (!zxgraph_mgr_not_empty(zxgraph_mgr)) return CmdExecResult::error;
                 if (parser.parsed("-empty")) {
-                    if (zxgraph_mgr.get()->is_empty())
-                        std::cout << "The graph is empty!" << std::endl;
-                    else
-                        std::cout << "The graph is not empty!" << std::endl;
+                    if (zxgraph_mgr.get()->is_empty()) {
+                        fmt::println("The graph is empty!");
+                    } else {
+                        fmt::println("The graph is not empty!");
+                    }
                 } else if (parser.parsed("-valid")) {
-                    if (zxgraph_mgr.get()->is_valid())
-                        std::cout << "The graph is valid!" << std::endl;
-                    else
-                        std::cout << "The graph is invalid!" << std::endl;
+                    if (zxgraph_mgr.get()->is_valid()) {
+                        fmt::println("The graph is valid!");
+                    } else {
+                        fmt::println("The graph is invalid!");
+                    }
                 } else if (parser.parsed("-glike")) {
-                    if (zxgraph_mgr.get()->is_graph_like())
-                        std::cout << "The graph is graph-like!" << std::endl;
-                    else
-                        std::cout << "The graph is not graph-like!" << std::endl;
+                    if (zxgraph_mgr.get()->is_graph_like()) {
+                        fmt::println("The graph is graph-like!");
+                    } else {
+                        fmt::println("The graph is not graph-like!");
+                    }
                 } else if (parser.parsed("-identity")) {
-                    if (zxgraph_mgr.get()->is_identity())
-                        std::cout << "The graph is an identity!" << std::endl;
-                    else
-                        std::cout << "The graph is not an identity!" << std::endl;
+                    if (zxgraph_mgr.get()->is_identity()) {
+                        fmt::println("The graph is an identity!");
+                    } else {
+                        fmt::println("The graph is not an identity!");
+                    }
                 }
                 return CmdExecResult::done;
             }};
@@ -373,22 +376,23 @@ Command zxgraph_print_cmd(ZXGraphMgr const& zxgraph_mgr) {
                         zxgraph_mgr.get()->print_vertices();
                     else
                         zxgraph_mgr.get()->print_vertices(vids);
-                } else if (parser.parsed("-edges"))
+                } else if (parser.parsed("-edges")) {
                     zxgraph_mgr.get()->print_edges();
-                else if (parser.parsed("-qubits")) {
+                } else if (parser.parsed("-qubits")) {
                     auto qids = parser.get<std::vector<int>>("-qubits");
                     zxgraph_mgr.get()->print_vertices_by_qubits(spdlog::level::level_enum::off, qids);
                 } else if (parser.parsed("-neighbors")) {
                     auto v = zxgraph_mgr.get()->find_vertex_by_id(parser.get<size_t>("-neighbors"));
                     v->print_vertex();
-                    std::cout << "----- Neighbors -----" << std::endl;
+                    fmt::println("----- Neighbors -----");
                     for (auto [nb, _] : zxgraph_mgr.get()->get_neighbors(v)) {
                         nb->print_vertex();
                     }
                 } else if (parser.parsed("-density")) {
-                    std::cout << "Density: " << zxgraph_mgr.get()->density() << std::endl;
-                } else
+                    fmt::println("Density: {}", zxgraph_mgr.get()->density());
+                } else {
                     zxgraph_mgr.get()->print_graph();
+                }
                 return CmdExecResult::done;
             }};
 }
@@ -754,7 +758,7 @@ bool add_zx_cmds(dvlab::CommandLineInterface& cli, ZXGraphMgr& zxgraph_mgr) {
           cli.add_command(zxgraph_draw_cmd(zxgraph_mgr)) &&
           cli.add_command(zxgraph_read_cmd(zxgraph_mgr)) &&
           cli.add_command(zxgraph_write_cmd(zxgraph_mgr)))) {
-        std::cerr << "Registering \"zx\" commands fails... exiting" << std::endl;
+        spdlog::error("Registering \"zx\" commands fails... exiting");
         return false;
     }
     return true;
