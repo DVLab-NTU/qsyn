@@ -9,6 +9,7 @@
 
 #include <spdlog/spdlog.h>
 
+#include <algorithm>
 #include <cassert>
 #include <cstdlib>
 #include <string>
@@ -19,6 +20,7 @@
 #include "qsyn/qsyn_type.hpp"
 #include "util/phase.hpp"
 #include "util/text_format.hpp"
+#include "util/util.hpp"
 
 namespace qsyn::qcir {
 
@@ -134,11 +136,11 @@ bool QCir::remove_qubit(QubitIdType id) {
     // Delete the ancilla only if whole line is empty
     QCirQubit *target = get_qubit(id);
     if (target == nullptr) {
-        std::cerr << "Error: id " << id << " not found!!" << std::endl;
+        spdlog::error("Qubit ID {} not found!!", id);
         return false;
     } else {
         if (target->get_last() != nullptr || target->get_first() != nullptr) {
-            std::cerr << "Error: id " << id << " is not an empty qubit!!" << std::endl;
+            spdlog::error("Qubit ID {} is not empty!!", id);
             return false;
         } else {
             std::erase(_qubits, target);
@@ -245,7 +247,7 @@ QCirGate *QCir::add_gate(std::string type, QubitIdList bits, dvlab::Phase phase,
 bool QCir::remove_gate(size_t id) {
     QCirGate *target = get_gate(id);
     if (target == nullptr) {
-        std::cerr << "Error: id " << id << " not found!!" << std::endl;
+        spdlog::error("Gate ID {} not found!!", id);
         return false;
     } else {
         std::vector<QubitInfo> info = target->get_qubits();
@@ -427,38 +429,36 @@ std::vector<int> QCir::count_gates(bool detail, bool print) {
     auto const single_z = rz + z + s + sdg + t + tdg;
     auto const single_x = rx + x + sx;
     auto const single_y = ry + y + sy;
-    // cout << "───── Quantum Circuit Analysis ─────" << endl;
-    // cout << endl;
     if (detail) {
-        std::cout << "├── Single-qubit gate: " << h + single_z + single_x + single_y << std::endl;
-        std::cout << "│   ├── H: " << h << std::endl;
-        std::cout << "│   ├── Z-family: " << single_z << std::endl;
-        std::cout << "│   │   ├── Z   : " << z << std::endl;
-        std::cout << "│   │   ├── S   : " << s << std::endl;
-        std::cout << "│   │   ├── S†  : " << sdg << std::endl;
-        std::cout << "│   │   ├── T   : " << t << std::endl;
-        std::cout << "│   │   ├── T†  : " << tdg << std::endl;
-        std::cout << "│   │   └── RZ  : " << rz << std::endl;
-        std::cout << "│   ├── X-family: " << single_x << std::endl;
-        std::cout << "│   │   ├── X   : " << x << std::endl;
-        std::cout << "│   │   ├── SX  : " << sx << std::endl;
-        std::cout << "│   │   └── RX  : " << rx << std::endl;
-        std::cout << "│   └── Y-family: " << single_y << std::endl;
-        std::cout << "│       ├── Y   : " << y << std::endl;
-        std::cout << "│       ├── SY  : " << sy << std::endl;
-        std::cout << "│       └── RY  : " << ry << std::endl;
-        std::cout << "└── Multiple-qubit gate: " << mcpz + cz + ccz + mcrx + cx + ccx + mcry << std::endl;
-        std::cout << "    ├── Z-family: " << cz + ccz + mcpz << std::endl;
-        std::cout << "    │   ├── CZ  : " << cz << std::endl;
-        std::cout << "    │   ├── CCZ : " << ccz << std::endl;
-        std::cout << "    │   └── MCP : " << mcpz << std::endl;
-        std::cout << "    ├── X-family: " << cx + ccx + mcrx << std::endl;
-        std::cout << "    │   ├── CX  : " << cx << std::endl;
-        std::cout << "    │   ├── CCX : " << ccx << std::endl;
-        std::cout << "    │   └── MCRX: " << mcrx << std::endl;
-        std::cout << "    └── Y family: " << mcry << std::endl;
-        std::cout << "        └── MCRY: " << mcry << std::endl;
-        std::cout << std::endl;
+        fmt::println("├── Single-qubit gate: {}", h + single_z + single_x + single_y);
+        fmt::println("│   ├── H: {}", h);
+        fmt::println("│   ├── Z-family: {}", single_z);
+        fmt::println("│   │   ├── Z   : {}", z);
+        fmt::println("│   │   ├── S   : {}", s);
+        fmt::println("│   │   ├── S†  : {}", sdg);
+        fmt::println("│   │   ├── T   : {}", t);
+        fmt::println("│   │   ├── T†  : {}", tdg);
+        fmt::println("│   │   └── RZ  : {}", rz);
+        fmt::println("│   ├── X-family: {}", single_x);
+        fmt::println("│   │   ├── X   : {}", x);
+        fmt::println("│   │   ├── SX  : {}", sx);
+        fmt::println("│   │   └── RX  : {}", rx);
+        fmt::println("│   └── Y family: {}", single_y);
+        fmt::println("│       ├── Y   : {}", y);
+        fmt::println("│       ├── SY  : {}", sy);
+        fmt::println("│       └── RY  : {}", ry);
+        fmt::println("└── Multiple-qubit gate: {}", mcpz + cz + ccz + mcrx + cx + ccx + mcry);
+        fmt::println("    ├── Z-family: {}", cz + ccz + mcpz);
+        fmt::println("    │   ├── CZ  : {}", cz);
+        fmt::println("    │   ├── CCZ : {}", ccz);
+        fmt::println("    │   └── MCP : {}", mcpz);
+        fmt::println("    ├── X-family: {}", cx + ccx + mcrx);
+        fmt::println("    │   ├── CX  : {}", cx);
+        fmt::println("    │   ├── CCX : {}", ccx);
+        fmt::println("    │   └── MCRX: {}", mcrx);
+        fmt::println("    └── Y family: {}", mcry);
+        fmt::println("        └── MCRY: {}", mcry);
+        fmt::println("");
     }
     if (print) {
         using namespace dvlab;

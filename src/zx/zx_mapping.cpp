@@ -36,7 +36,7 @@ ZXVertexList ZXGraph::get_non_boundary_vertices() {
  */
 ZXVertex* ZXGraph::get_input_by_qubit(size_t const& q) {
     if (!_input_list.contains(q)) {
-        std::cerr << "Input qubit id " << q << "not found" << std::endl;
+        spdlog::error("Input qubit id {} not found", q);
         return nullptr;
     } else
         return _input_list[q];
@@ -50,7 +50,7 @@ ZXVertex* ZXGraph::get_input_by_qubit(size_t const& q) {
  */
 ZXVertex* ZXGraph::get_output_by_qubit(size_t const& q) {
     if (!_output_list.contains(q)) {
-        std::cerr << "Output qubit id " << q << "not found" << std::endl;
+        spdlog::error("Output qubit id {} not found", q);
         return nullptr;
     } else
         return _output_list[q];
@@ -71,7 +71,7 @@ void ZXGraph::concatenate(ZXGraph const& other) {
     */
 
     if (other.get_num_inputs() != other.get_num_outputs()) {
-        std::cerr << "Error: the graph being concatenated does not have the same number of inputs and outputs. Concatenation aborted!!\n";
+        spdlog::error("Error: the graph being concatenated does not have the same number of inputs and outputs. Concatenation aborted!!");
         return;
     }
 

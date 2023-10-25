@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <cstddef>
+#include <util/util.hpp>
 
 #include "./simplify.hpp"
 #include "./zx_rules_template.hpp"

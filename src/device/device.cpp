@@ -25,6 +25,7 @@
 #include "qcir/gate_type.hpp"
 #include "qcir/qcir_gate.hpp"
 #include "qsyn/qsyn_type.hpp"
+#include "util/dvlab_string.hpp"
 #include "util/util.hpp"
 
 using namespace qsyn::qcir;

@@ -10,6 +10,7 @@
 #include <spdlog/spdlog.h>
 
 #include <cstddef>
+#include <gsl/narrow>
 
 #include "qcir/qcir.hpp"
 #include "qcir/qcir_gate.hpp"
@@ -29,7 +30,7 @@ using qcir::QCirGate, qcir::GateRotationCategory, qcir::QubitInfo, qcir::QCir;
 namespace {
 
 dvlab::Phase get_gadget_phase(dvlab::Phase const& phase, size_t n_qubits) {
-    return phase * dvlab::Rational(1, static_cast<int>(pow(2, n_qubits - 1)));
+    return phase * dvlab::Rational(1, static_cast<int>(pow(2, gsl::narrow<double>(n_qubits) - 1)));
 }
 
 enum class RotationAxis {

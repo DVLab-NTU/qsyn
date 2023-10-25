@@ -106,7 +106,7 @@ std::vector<QubitIdType> DFSPlacer::_place(Device& device) const {
  */
 void DFSPlacer::_dfs_device(QubitIdType current, Device& device, std::vector<QubitIdType>& assign, std::vector<bool>& qubit_marks) const {
     if (qubit_marks[current]) {
-        std::cout << current << std::endl;
+        fmt::println("{}", current);
     }
     assert(!qubit_marks[current]);
     qubit_marks[current] = true;

@@ -98,7 +98,7 @@ QCir* Extractor::extract() {
         return nullptr;
     }
     if (stop_requested()) {
-        std::cerr << "Warning: conversion is interrupted" << std::endl;
+        spdlog::warn("Conversion is interrupted");
         return nullptr;
     }
 
@@ -285,11 +285,11 @@ size_t Extractor::extract_hadamards_from_matrix(bool check) {
 
     if (check) {
         if (!frontier_is_cleaned()) {
-            std::cout << "Note: frontier is dirty, please clean it first." << std::endl;
+            spdlog::error("Frontier is dirty!! Please clean it first.");
             return 0;
         }
         if (axel_in_neighbors()) {
-            std::cout << "Note: axel(s) are in the neighbors, please remove gadget(s) first." << std::endl;
+            spdlog::error("Axel(s) are in the neighbors!! Please remove gadget(s) first.");
             return 0;
         }
         update_matrix();
@@ -343,7 +343,7 @@ size_t Extractor::extract_hadamards_from_matrix(bool check) {
     }
 
     if (check && front_neigh_pairs.size() == 0) {
-        std::cerr << "Error: no candidate found!!" << std::endl;
+        spdlog::error("No candidate found!!");
         print_matrix();
     }
     return front_neigh_pairs.size();
@@ -536,10 +536,7 @@ Extractor::Target Extractor::_find_column_swap(Target target) {
             if (done) {
                 return target;
             }
-            if (min_index == std::nullopt) {
-                std::cerr << "Error: this shouldn't happen ever" << std::endl;
-                assert(false);
-            }
+            DVLAB_ASSERT(min_index != std::nullopt, "Min index should always exist");
             // NOTE -  depth-first search
             Target copied_target = target;
             spdlog::trace("Backtracking on {}", min_index.value());
@@ -577,11 +574,11 @@ void Extractor::_filter_duplicate_cxs() {
 bool Extractor::biadjacency_eliminations(bool check) {
     if (check) {
         if (!frontier_is_cleaned()) {
-            std::cout << "Note: frontier is dirty, please clean it first." << std::endl;
+            spdlog::error("Frontier is dirty!! Please clean it first.");
             return false;
         }
         if (axel_in_neighbors()) {
-            std::cout << "Note: axel(s) are in the neighbors, please remove gadget(s) first." << std::endl;
+            spdlog::error("Axel(s) are in the neighbors!! Please remove gadget(s) first.");
             return false;
         }
     }
@@ -719,12 +716,12 @@ void Extractor::permute_qubits() {
     bool matched = true;
     for (auto& o : _graph->get_outputs()) {
         if (_graph->get_num_neighbors(o) != 1) {
-            std::cout << "Note: output is not connected to only one vertex" << std::endl;
+            spdlog::error("Output is not connected to only one vertex!!");
             return;
         }
         ZXVertex* i = _graph->get_first_neighbor(o).first;
         if (!_graph->get_inputs().contains(i)) {
-            std::cout << "Note: output is not connected to input" << std::endl;
+            spdlog::error("Output is not connected to input!!");
             return;
         }
         if (i->get_qubit() != o->get_qubit()) {
@@ -955,7 +952,7 @@ bool Extractor::contains_single_neighbor() {
  * @brief Print frontier
  *
  */
-void Extractor::print_frontier(spdlog::level::level_enum lvl) {
+void Extractor::print_frontier(spdlog::level::level_enum lvl) const {
     spdlog::log(lvl, "Frontier:");
     for (auto& f : _frontier)
         spdlog::log(lvl, "Qubit {}: {}", f->get_qubit(), f->get_id());
@@ -966,7 +963,7 @@ void Extractor::print_frontier(spdlog::level::level_enum lvl) {
  * @brief Print neighbors
  *
  */
-void Extractor::print_neighbors(spdlog::level::level_enum lvl) {
+void Extractor::print_neighbors(spdlog::level::level_enum lvl) const {
     spdlog::log(lvl, "Neighbors:");
     for (auto& n : _neighbors)
         spdlog::log(lvl, "{}", n->get_id());
@@ -977,7 +974,7 @@ void Extractor::print_neighbors(spdlog::level::level_enum lvl) {
  * @brief Print axels
  *
  */
-void Extractor::print_axels(spdlog::level::level_enum lvl) {
+void Extractor::print_axels(spdlog::level::level_enum lvl) const {
     spdlog::log(lvl, "Axels:");
     for (auto& n : _axels) {
         spdlog::log(lvl,
@@ -992,12 +989,8 @@ void Extractor::print_axels(spdlog::level::level_enum lvl) {
     spdlog::log(lvl, "");
 }
 
-void Extractor::print_cxs() {
-    std::cout << "CXs: " << std::endl;
-    for (auto& [c, t] : _cnots) {
-        std::cout << "(" << c << ", " << t << ")  ";
-    }
-    std::cout << std::endl;
+void Extractor::print_cxs() const {
+    fmt::println("CXs: {}", fmt::join(_cnots | std::views::transform([](auto& p) { return fmt::format("({}, {})", p.first, p.second); }), "  "));
 }
 
 }  // namespace qsyn::extractor

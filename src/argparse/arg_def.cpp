@@ -11,7 +11,7 @@
 #include <string>
 #include <valarray>
 
-#include "util/util.hpp"
+#include "util/dvlab_string.hpp"
 
 namespace dvlab::argparse {
 

@@ -14,6 +14,7 @@
 #include <cstring>
 #include <filesystem>
 #include <string>
+#include <tqdm/tqdm.hpp>
 #include <vector>
 
 #include "./usage.hpp"
@@ -60,5 +61,17 @@ bool expect(bool condition, std::string const& msg) {
 }
 
 }  // namespace utils
+
+TqdmWrapper::TqdmWrapper(size_t total, bool show)
+    : _total{gsl::narrow<CounterType>(total)}, _tqdm{std::make_unique<tqdm>(show)} {}
+
+TqdmWrapper::~TqdmWrapper() {
+    _tqdm->finish();
+}
+
+TqdmWrapper& TqdmWrapper::operator++() {
+    _tqdm->progress(_counter++, _total);
+    return *this;
+}
 
 }  // namespace dvlab

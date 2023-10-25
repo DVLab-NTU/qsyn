@@ -72,11 +72,11 @@ public:
     bool frontier_is_cleaned();
     bool axel_in_neighbors();
     bool contains_single_neighbor();
-    void print_cxs();
-    void print_frontier(spdlog::level::level_enum lvl = spdlog::level::off);
-    void print_neighbors(spdlog::level::level_enum lvl = spdlog::level::off);
-    void print_axels(spdlog::level::level_enum lvl = spdlog::level::off);
-    void print_matrix() { _biadjacency.print_matrix(); }
+    void print_cxs() const;
+    void print_frontier(spdlog::level::level_enum lvl = spdlog::level::off) const;
+    void print_neighbors(spdlog::level::level_enum lvl = spdlog::level::off) const;
+    void print_axels(spdlog::level::level_enum lvl = spdlog::level::off) const;
+    void print_matrix() const { _biadjacency.print_matrix(); }
 
     std::vector<size_t> find_minimal_sums(dvlab::BooleanMatrix& matrix);
     std::vector<dvlab::BooleanMatrix::RowOperation> greedy_reduction(dvlab::BooleanMatrix&);

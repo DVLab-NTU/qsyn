@@ -292,7 +292,7 @@ Command duostra_cmd(qcir::QCirMgr& qcir_mgr, device::DeviceMgr& device_mgr) {
 bool add_duostra_cmds(dvlab::CommandLineInterface& cli, qcir::QCirMgr& qcir_mgr, device::DeviceMgr& device_mgr) {
     if (!(cli.add_command(duostra_cmd(qcir_mgr, device_mgr)) &&
           cli.add_command(mapping_equivalence_check_cmd(qcir_mgr, device_mgr)))) {
-        std::cerr << "Registering \"Duostra\" commands fails... exiting" << std::endl;
+        spdlog::error("Registering \"Duostra\" commands fails... exiting");
         return false;
     }
     return true;

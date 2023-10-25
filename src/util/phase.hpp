@@ -15,8 +15,8 @@
 #include <string>
 #include <vector>
 
+#include "util/dvlab_string.hpp"
 #include "util/rational.hpp"
-#include "util/util.hpp"
 
 namespace dvlab {
 
