@@ -106,7 +106,7 @@ public:
     using Device    = BaseScheduler::Device;
     using Operation = BaseScheduler::Operation;
     GreedyScheduler(CircuitTopology const& topo, bool tqdm) : BaseScheduler(topo, tqdm) {}
-    ~GreedyScheduler() = default;
+    ~GreedyScheduler() override = default;
     GreedyScheduler(GreedyScheduler const& other) : BaseScheduler(other), _conf(other._conf) {}
     GreedyScheduler(GreedyScheduler&& other) noexcept : BaseScheduler(other) {
         _conf = std::exchange(other._conf, {});
@@ -210,7 +210,7 @@ public:
     using Device    = GreedyScheduler::Device;
     using Operation = GreedyScheduler::Operation;
     SearchScheduler(CircuitTopology const&, bool = true);
-    ~SearchScheduler() = default;
+    ~SearchScheduler() override = default;
     SearchScheduler(SearchScheduler const&);
     SearchScheduler(SearchScheduler&&) noexcept;
 
@@ -230,11 +230,10 @@ public:
 
     std::unique_ptr<BaseScheduler> clone() const override;
 
-    size_t const _lookAhead;
-
 protected:
     bool _never_cache;
     bool _execute_single;
+    size_t _lookahead;
 
     Device _assign_gates(std::unique_ptr<Router> /*unused*/) override;
     void _cache_when_necessary();

@@ -222,10 +222,10 @@ std::pair<ZXVertexList, ZXVertexList> detail::kl_bipartition(ZXGraph const& grap
     }
 
     std::unordered_map<ZXVertex*, int> d_values;
-    int cumulative_gain;
+    int cumulative_gain = 0;
     std::stack<SwapPair> swap_history;
-    int best_cumulative_gain;
-    size_t best_iteration;
+    int best_cumulative_gain = INT_MIN;
+    size_t best_iteration    = 0;
     std::unordered_set<ZXVertex*> locked_vertices;
 
     auto compute_d = [&]() {

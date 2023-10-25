@@ -1,11 +1,11 @@
 ---
 Checks: >
   -*,
-  cppcoreguidelines-pro-*,
-  cppcoreguidelines-narrowing-conversions,
-  cppcoreguidelines-virtual-class-destructor,
-  cppcoreguidelines-special-member-functions,
-  cppcoreguidelines-narrowing-conversions,
+  cppcoreguidelines-*,
+  -cppcoreguidelines-avoid-non-const-global-variables,
+  -cppcoreguidelines-avoid-magic-numbers,
+  -cppcoreguidelines-owning-memory,
+  -cppcoreguidelines-non-private-member-variables-in-classes,
   performance-noexcept-*,
   modernize-use-auto,
   misc-const-correctness,
@@ -20,13 +20,10 @@ Checks: >
   bugprone-assert-side-effect,
   performance-*
   readability-*
-#  cppcoreguidelines-macro-usage,
-#  cppcoreguidelines-missing-std-forward,
 WarningsAsErrors: ""
 HeaderFilterRegex: ".*"
 AnalyzeTemporaryDtors: false
 FormatStyle: none
-User: zwischen
 CheckOptions:
   - { key: readability-identifier-naming.VariableCase, value: lower_case }
   - { key: readability-identifier-naming.GlobalVariableCase, value: UPPER_CASE }

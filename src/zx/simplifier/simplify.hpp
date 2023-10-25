@@ -46,7 +46,7 @@ public:
             rule.apply(*_simp_graph, matches);
         }
 
-        _report_simp_result(rule.name, match_counts);
+        _report_simp_result(rule.get_name(), match_counts);
 
         return match_counts.size();
     }
@@ -75,7 +75,7 @@ public:
             if (_simp_graph->get_num_vertices() >= old_vertex_count) break;
         }
 
-        _report_simp_result(rule.name, match_counts);
+        _report_simp_result(rule.get_name(), match_counts);
 
         return match_counts.size();
     }
@@ -109,7 +109,7 @@ public:
             rule.apply(*_simp_graph, scoped_matches);
         }
 
-        _report_simp_result(rule.name, match_counts);
+        _report_simp_result(rule.get_name(), match_counts);
 
         return match_counts.size();
     }

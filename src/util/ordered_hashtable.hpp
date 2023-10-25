@@ -60,9 +60,10 @@ public:
         OTableIterator(VecIterType const& itr, VecIterType const& begin, VecIterType const& end) : _itr(itr), _begin(begin), _end(end) {}
 
         OTableIterator& operator++() noexcept {
-            do {
+            ++_itr;
+            while (_itr != _end && !_itr->has_value()) {
                 ++_itr;
-            } while (_itr != _end && !_itr->has_value());
+            }
             return *this;
         }
 
@@ -73,9 +74,10 @@ public:
         }
 
         OTableIterator& operator--() noexcept {
-            do {
+            --_itr;
+            while (_itr != _begin && !_itr->has_value()) {
                 --_itr;
-            } while (_itr != _begin && !_itr->has_value());
+            }
             return *this;
         }
 

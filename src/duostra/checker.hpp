@@ -23,7 +23,7 @@ public:
     using PhysicalQubit = qsyn::device::PhysicalQubit;
     Checker(CircuitTopology& topo,
             Checker::Device& device,
-            std::vector<Checker::Operation> const& ops,
+            std::span<Checker::Operation const> ops,
             std::vector<QubitIdType> const& assign, bool tqdm = true);
 
     size_t get_cycle(Operation const& op);
@@ -39,7 +39,7 @@ public:
 private:
     CircuitTopology* _topo;
     Device* _device;
-    std::vector<Operation> const& _ops;
+    std::span<Operation const> _ops;
     bool _tqdm;
 };
 

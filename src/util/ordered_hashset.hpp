@@ -108,7 +108,7 @@ public:
     }
 
     // lookup
-    virtual Key const& key(stored_type const& value) const override { return value; }
+    Key const& key(stored_type const& value) const override { return value; }
 };
 
 static_assert(std::ranges::bidirectional_range<ordered_hashset<int>>);
