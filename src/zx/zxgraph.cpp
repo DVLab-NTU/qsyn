@@ -33,11 +33,7 @@ namespace qsyn::zx {
  */
 ZXGraph::ZXGraph(ZXVertexList const& vertices,
                  ZXVertexList const& inputs,
-                 ZXVertexList const& outputs) {
-    _vertices  = vertices;
-    _inputs    = inputs;
-    _outputs   = outputs;
-    _next_v_id = 0;
+                 ZXVertexList const& outputs) : _next_v_id{0}, _inputs{inputs}, _outputs{outputs}, _vertices{vertices} {
     for (auto v : _vertices) {
         v->set_id(_next_v_id);
         _next_v_id++;

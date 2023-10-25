@@ -214,12 +214,12 @@ ZXGraph create_ccx_zx_form(QCirGate* gate, size_t decomposition_mode) {
     std::vector<std::pair<std::pair<size_t, size_t>, EdgeType>> adj_pair;
     std::vector<int> vertices_col;
     std::vector<ZXVertex*> vertices_list = {};
-    ZXVertex* in_ctrl_1;
-    ZXVertex* in_ctrl_2;
-    ZXVertex* in_targ;
-    ZXVertex* out_ctrl_1;
-    ZXVertex* out_ctrl_2;
-    ZXVertex* out_targ;
+    ZXVertex* in_ctrl_1                  = nullptr;
+    ZXVertex* in_ctrl_2                  = nullptr;
+    ZXVertex* in_targ                    = nullptr;
+    ZXVertex* out_ctrl_1                 = nullptr;
+    ZXVertex* out_ctrl_2                 = nullptr;
+    ZXVertex* out_targ                   = nullptr;
     if (decomposition_mode == 1) {
         vertices_info = {{{VertexType::z, dvlab::Phase(0)}, targ_qubit}, {{VertexType::z, dvlab::Phase(0)}, targ_qubit}, {{VertexType::z, dvlab::Phase(-1, 4)}, targ_qubit}, {{VertexType::z, dvlab::Phase(0)}, targ_qubit}, {{VertexType::z, dvlab::Phase(1, 4)}, targ_qubit}, {{VertexType::z, dvlab::Phase(0)}, targ_qubit}, {{VertexType::z, dvlab::Phase(-1, 4)}, targ_qubit}, {{VertexType::z, dvlab::Phase(0)}, targ_qubit}, {{VertexType::z, dvlab::Phase(1, 4)}, targ_qubit}, {{VertexType::z, dvlab::Phase(0)}, targ_qubit}, {{VertexType::z, dvlab::Phase(0)}, ctrl_qubit_2}, {{VertexType::z, dvlab::Phase(0)}, ctrl_qubit_2}, {{VertexType::z, dvlab::Phase(1, 4)}, ctrl_qubit_2}, {{VertexType::z, dvlab::Phase(0)}, ctrl_qubit_2}, {{VertexType::z, dvlab::Phase(-1, 4)}, ctrl_qubit_2}, {{VertexType::z, dvlab::Phase(0)}, ctrl_qubit_2}, {{VertexType::z, dvlab::Phase(0)}, ctrl_qubit_1}, {{VertexType::z, dvlab::Phase(0)}, ctrl_qubit_1}, {{VertexType::z, dvlab::Phase(0)}, ctrl_qubit_1}, {{VertexType::z, dvlab::Phase(1, 4)}, ctrl_qubit_1}, {{VertexType::z, dvlab::Phase(0)}, ctrl_qubit_1}};
         adj_pair      = {{{0, 1}, EdgeType::hadamard}, {{1, 10}, EdgeType::hadamard}, {{1, 2}, EdgeType::hadamard}, {{2, 3}, EdgeType::hadamard}, {{3, 16}, EdgeType::hadamard}, {{3, 4}, EdgeType::hadamard}, {{4, 5}, EdgeType::hadamard}, {{5, 11}, EdgeType::hadamard}, {{5, 6}, EdgeType::hadamard}, {{6, 7}, EdgeType::hadamard}, {{7, 17}, EdgeType::hadamard}, {{7, 8}, EdgeType::hadamard}, {{8, 9}, EdgeType::hadamard}, {{10, 11}, EdgeType::simple}, {{11, 12}, EdgeType::simple}, {{12, 13}, EdgeType::hadamard}, {{13, 18}, EdgeType::hadamard}, {{13, 14}, EdgeType::hadamard}, {{14, 15}, EdgeType::hadamard}, {{15, 20}, EdgeType::hadamard}, {{16, 17}, EdgeType::simple}, {{17, 18}, EdgeType::simple}, {{18, 19}, EdgeType::simple}, {{19, 20}, EdgeType::simple}};

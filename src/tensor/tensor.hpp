@@ -6,6 +6,9 @@
 ****************************************************************************/
 #pragma once
 
+#include <fmt/core.h>
+#include <fmt/ostream.h>
+
 #include <cassert>
 #include <complex>
 #include <concepts>
@@ -111,6 +114,7 @@ public:
     void adjoint();
 
 protected:
+    friend struct fmt::formatter<Tensor>;
     InternalType _tensor;
     std::unordered_map<size_t, size_t> _axis_history;
 };
@@ -338,3 +342,6 @@ bool is_partition(Tensor<U> const& t, TensorAxisList const& axin, TensorAxisList
 }
 
 }  // namespace qsyn::tensor
+
+template <typename DT>
+struct fmt::formatter<qsyn::tensor::Tensor<DT>> : fmt::ostream_formatter {};

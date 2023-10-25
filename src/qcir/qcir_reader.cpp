@@ -104,18 +104,18 @@ bool QCir::read_qasm(std::string const& filename) {
             continue;
         }
         QubitIdList qubit_ids;
-        std::string tmp;
-        std::string qub;
-        size_t n = str_get_token(str, tmp, type_end, ',');
-        while (tmp.size()) {
-            str_get_token(tmp, qub, str_get_token(tmp, qub, 0, '[') + 1, ']');
-            unsigned qub_n;
-            if (!dvlab::str::str_to_u(qub, qub_n) || qub_n >= nqubit) {
+        std::string token;
+        std::string qubit_id_str;
+        size_t n = str_get_token(str, token, type_end, ',');
+        while (token.size()) {
+            str_get_token(token, qubit_id_str, str_get_token(token, qubit_id_str, 0, '[') + 1, ']');
+            unsigned qubit_id_num = 0;
+            if (!dvlab::str::str_to_u(qubit_id_str, qubit_id_num) || qubit_id_num >= nqubit) {
                 spdlog::error("invalid qubit id on line {}!!", str);
                 return false;
             }
-            qubit_ids.emplace_back(qub_n);
-            n = str_get_token(str, tmp, n, ',');
+            qubit_ids.emplace_back(qubit_id_num);
+            n = str_get_token(str, token, n, ',');
         }
 
         dvlab::Phase phase;
@@ -223,7 +223,7 @@ bool QCir::read_qsim(std::string const& filename) {
     std::string line;
     static std::vector<std::string> const single_gate_list{"x", "y", "z", "h", "t", "x_1_2", "y_1_2", "rx", "rz", "s"};
     // decide qubit number
-    int n_qubit;
+    int n_qubit = 0;
     getline(qsim_file, line);
     n_qubit = stoi(line);
     add_qubits(n_qubit);
@@ -284,7 +284,7 @@ bool QCir::read_quipper(std::string const& filename) {
     }
 
     std::string line;
-    size_t n_qubit;
+    size_t n_qubit = 0;
     std::vector<std::string> single_list{"X", "T", "S", "H", "Z", "not"};
 
     // Count qubit number
@@ -295,8 +295,8 @@ bool QCir::read_quipper(std::string const& filename) {
     while (getline(quipper_file, line)) {
         if (line.find("QGate") == 0) {
             // addgate
-            std::string type = line.substr(line.find('[') + 2, line.find(']') - line.find('[') - 3);
-            size_t qubit_target;
+            std::string type    = line.substr(line.find('[') + 2, line.find(']') - line.find('[') - 3);
+            size_t qubit_target = 0;
             if (find(single_list.begin(), single_list.end(), type) != single_list.end()) {
                 qubit_target = stoul(line.substr(line.find('(') + 1, line.find(')') - line.find('(') - 1));
                 QubitIdList qubit_ids;
@@ -328,7 +328,7 @@ bool QCir::read_quipper(std::string const& filename) {
                             spdlog::error("Unsupported doubly-controlled gate type!! Only `ccx` and `ccz` are supported.");
                             return false;
                         }
-                        size_t qubit_control1, qubit_control2;
+                        size_t qubit_control1 = 0, qubit_control2 = 0;
                         qubit_control1 = stoul(ctrls_info.substr(1, ctrls_info.find(',') - 1));
                         qubit_control2 = stoul(ctrls_info.substr(ctrls_info.find(',') + 2));
                         qubit_ids.emplace_back(qubit_control1);

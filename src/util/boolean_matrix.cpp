@@ -497,7 +497,7 @@ size_t BooleanMatrix::row_operation_depth() {
 }
 
 /**
- * @brief Get dense of operations
+ * @brief Get dense ratio of operations
  *
  * @return float
  */

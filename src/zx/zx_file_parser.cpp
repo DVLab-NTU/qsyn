@@ -59,7 +59,7 @@ bool ZXFileParser::_parse_internal(std::ifstream& f) {
         std::vector<std::string> tokens;
         if (!_tokenize(line, tokens)) return false;
 
-        unsigned id;
+        unsigned id = 0;
         VertexInfo info;
 
         if (!_parse_type_and_id(tokens[0], info.type, id)) return false;
@@ -340,7 +340,7 @@ bool ZXFileParser::_parse_column(std::string const& token, float& column) {
  */
 bool ZXFileParser::_parse_neighbors(std::string const& token, std::pair<char, size_t>& neighbor) {
     auto const type = dvlab::str::toupper(token[0]);
-    unsigned id;
+    unsigned id     = 0;
     if (std::string("SH").find(type) == std::string::npos) {
         _print_failed_at_line_no();
         spdlog::error("unsupported edge type ({})!!", type);

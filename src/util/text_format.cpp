@@ -44,7 +44,7 @@ fmt::text_style ls_color(fs::path const& path) {
                     fmt::text_style{},
                     std::bit_or<>{},
                     [&](std::string const& str) {
-                        size_t tmp;
+                        size_t tmp = 0;
                         if (!dvlab::str::str_to_num<size_t>(str, tmp) || tmp == 0) return fmt::text_style{};
                         if (tmp >= 30 && tmp <= 37) return fmt::fg(fmt::terminal_color{gsl::narrow<uint8_t>(tmp)});
                         if (tmp >= 90 && tmp <= 97) return fmt::fg(fmt::terminal_color{gsl::narrow<uint8_t>(tmp)});

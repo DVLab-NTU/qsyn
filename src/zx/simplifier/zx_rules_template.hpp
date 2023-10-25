@@ -11,9 +11,7 @@
 
 #include "../zxgraph.hpp"
 
-namespace qsyn {
-
-namespace zx {
+namespace qsyn::zx {
 
 struct ZXOperation {
     std::vector<ZXVertex*> vertices_to_add;
@@ -24,11 +22,12 @@ struct ZXOperation {
 
 class ZXRuleBase {
 public:
-    ZXRuleBase(std::string const& n) : name(n) {}
+    ZXRuleBase(std::string const& n) : _name(n) {}
 
-    std::string const name;
+    std::string get_name() const { return _name; }
 
 protected:
+    std::string _name;
     void _update(ZXGraph& graph, ZXOperation const& op) const {
         // TODO: add vertices is not implemented yet
         assert(op.vertices_to_add.empty());
@@ -87,7 +86,6 @@ public:
 class StateCopyRule : public ZXRuleTemplate<std::tuple<ZXVertex*, ZXVertex*, std::vector<ZXVertex*>>> {
 public:
     StateCopyRule() : ZXRuleTemplate("State Copy Rule") {}
-    virtual ~StateCopyRule() = default;
 
     std::vector<MatchType> find_matches(ZXGraph const& graph) const override;
     void apply(ZXGraph& graph, std::vector<MatchType> const& matches) const override;
@@ -111,7 +109,6 @@ public:
 class IdentityRemovalRule : public ZXRuleTemplate<std::tuple<ZXVertex*, ZXVertex*, ZXVertex*, EdgeType>> {
 public:
     IdentityRemovalRule() : ZXRuleTemplate("Identity Removal Rule") {}
-    virtual ~IdentityRemovalRule() = default;
 
     std::vector<MatchType> find_matches(ZXGraph const& graph) const override;
     void apply(ZXGraph& graph, std::vector<MatchType> const& matches) const override;
@@ -134,7 +131,6 @@ public:
 class PhaseGadgetRule : public ZXRuleTemplate<std::tuple<Phase, std::vector<ZXVertex*>, std::vector<ZXVertex*>>> {
 public:
     PhaseGadgetRule() : ZXRuleTemplate("Phase Gadget Rule") {}
-    virtual ~PhaseGadgetRule() = default;
 
     std::vector<MatchType> find_matches(ZXGraph const& graph) const override;
     void apply(ZXGraph& graph, std::vector<MatchType> const& matches) const override;
@@ -149,7 +145,7 @@ class PivotRuleInterface : public ZXRuleTemplate<std::pair<ZXVertex*, ZXVertex*>
 public:
     PivotRuleInterface(std::string const& name) : ZXRuleTemplate(name) {}
 
-    virtual std::vector<MatchType> find_matches(ZXGraph const& graph) const override = 0;
+    std::vector<MatchType> find_matches(ZXGraph const& graph) const override = 0;
     void apply(ZXGraph& graph, std::vector<MatchType> const& matches) const override;
     std::vector<ZXVertex*> flatten_vertices(MatchType match) const override { return {match.first, match.second}; }
 };
@@ -157,7 +153,6 @@ public:
 class PivotRule : public PivotRuleInterface {
 public:
     PivotRule() : PivotRuleInterface("Pivot Rule") {}
-    virtual ~PivotRule() = default;
 
     std::vector<MatchType> find_matches(ZXGraph const& graph) const override;
     void apply(ZXGraph& graph, std::vector<MatchType> const& matches) const override;
@@ -174,7 +169,6 @@ public:
 class PivotBoundaryRule : public PivotRuleInterface {
 public:
     PivotBoundaryRule() : PivotRuleInterface("Pivot Boundary Rule") {}
-    virtual ~PivotBoundaryRule() = default;
 
     std::vector<MatchType> find_matches(ZXGraph const& graph) const override;
     void apply(ZXGraph& graph, std::vector<MatchType> const& matches) const override;
@@ -183,7 +177,6 @@ public:
 class SpiderFusionRule : public ZXRuleTemplate<std::pair<ZXVertex*, ZXVertex*>> {
 public:
     SpiderFusionRule() : ZXRuleTemplate("Spider Fusion Rule") {}
-    virtual ~SpiderFusionRule() = default;
 
     std::vector<MatchType> find_matches(ZXGraph const& graph) const override;
     void apply(ZXGraph& graph, std::vector<MatchType> const& matches) const override;
@@ -193,13 +186,10 @@ public:
 class HadamardRule : public HZXRuleTemplate<ZXVertex*> {
 public:
     HadamardRule() : HZXRuleTemplate("Hadamard Rule") {}
-    virtual ~HadamardRule() = default;
 
     std::vector<MatchType> find_matches(ZXGraph const& graph) const override;
     void apply(ZXGraph& graph, std::vector<MatchType> const& matches) const override;
     std::vector<ZXVertex*> flatten_vertices(MatchType match) const override { return {match}; }
 };
 
-}  // namespace zx
-
-}  // namespace qsyn
+}  // namespace qsyn::zx

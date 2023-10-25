@@ -25,7 +25,7 @@ namespace qsyn {
 
 bool valid_decomposition_mode(size_t const& val) {
     if (val <= 4) return true;
-    std::cerr << "Error: decomposition Mode " << val << " is not valid!!\n";
+    spdlog::error("Decomposition Mode {} is not valid!!", val);
     return false;
 };
 

@@ -107,7 +107,7 @@ Iter prev(Iter iter, DiffT n = 1) {
 
 }  // namespace dvlab
 
-#ifndef NDEBUG
+// NOLINTBEGIN(cppcoreguidelines-macro-usage)
 #define DVLAB_ASSERT(Expr, Msg) \
     dvlab::detail::dvlab_assert_impl(#Expr, Expr, __FILE__, __LINE__, Msg)
 #define DVLAB_ABORT(Msg)                                      \
@@ -116,6 +116,4 @@ Iter prev(Iter iter, DiffT n = 1) {
 #define DVLAB_UNREACHABLE(Msg)                                      \
     dvlab::detail::dvlab_unreachable_impl(__FILE__, __LINE__, Msg); \
     abort()
-#else
-#define M_Assert(Expr, Msg) ;
-#endif
+// NOLINTEND(cppcoreguidelines-macro-usage)
