@@ -6,6 +6,7 @@
 ****************************************************************************/
 
 #include <cstddef>
+#include <gsl/narrow>
 #include <queue>
 
 #include "./zx_def.hpp"
@@ -76,7 +77,7 @@ void ZXGraph::lift_qubit(int n) {
 ZXGraph& ZXGraph::compose(ZXGraph const& target) {
     // Check ori-outputNum == target-inputNum
     if (this->get_num_outputs() != target.get_num_inputs()) {
-        std::cerr << "Error: The composing ZXGraph's #input is not equivalent to the original ZXGraph's #output." << std::endl;
+        spdlog::error("Error: The composing ZXGraph's #input is not equivalent to the original ZXGraph's #output.");
         return *this;
     }
 

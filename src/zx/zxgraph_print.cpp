@@ -77,11 +77,11 @@ void ZXGraph::print_vertices(spdlog::level::level_enum lvl) const {
 void ZXGraph::print_vertices(std::vector<size_t> cand) const {
     std::unordered_map<size_t, ZXVertex*> id2_vmap = create_id_to_vertex_map();
 
-    std::cout << "\n";
+    fmt::println("");
     for (size_t i = 0; i < cand.size(); i++) {
         if (is_v_id(cand[i])) id2_vmap[cand[i]]->print_vertex();
     }
-    std::cout << "\n";
+    fmt::println("");
 }
 
 /**
@@ -159,15 +159,15 @@ void ZXGraph::print_difference(ZXGraph* other) const {
             v2s.insert(v2);
         }
     }
-    std::cout << ">>>" << std::endl;
+    fmt::println(">>>");
     for (auto& v : v1s) {
         v->print_vertex();
     }
-    std::cout << "===" << std::endl;
+    fmt::println("===");
     for (auto& v : v2s) {
         v->print_vertex();
     }
-    std::cout << "<<<" << std::endl;
+    fmt::println("<<<");
 }
 namespace detail {
 
@@ -195,7 +195,7 @@ std::string get_colored_vertex_string(ZXVertex* v) {
  *
  */
 void ZXGraph::draw() const {
-    std::cout << std::endl;
+    fmt::println("");
     std::unordered_map<QubitIdType, QubitIdType> q_pair;
     QubitIdList qubit_ids;  // number of qubit
 
@@ -209,7 +209,7 @@ void ZXGraph::draw() const {
     }
     std::sort(qubit_ids_temp.begin(), qubit_ids_temp.end());
     if (qubit_ids_temp.size() == 0) {
-        std::cout << "Empty graph!!" << std::endl;
+        fmt::println("Empty graph!!");
         return;
     }
     auto offset = qubit_ids_temp[0];
@@ -251,38 +251,38 @@ void ZXGraph::draw() const {
     for (size_t i = 0; i < qubit_ids.size(); i++) {
         // print qubit
         auto temp = offset + i;
-        std::cout << "[";
-        for (size_t i = 0; i < max_length_q - std::to_string(temp).length(); i++) {
-            std::cout << " ";
-        }
-        std::cout << temp << "]";
+        fmt::println("[{:<{}}]", temp, max_length_q);
+        // std::cout << "[";
+        // for (size_t i = 0; i < max_length_q - std::to_string(temp).length(); i++) {
+        //     std::cout << " ";
+        // }
+        // std::cout << temp << "]";
 
         // print row
         for (size_t j = 0; j <= max_col; j++) {
             if (std::cmp_less(i, -offset)) {
                 if (col_list[j][i] != nullptr) {
-                    std::cout << "(" << detail::get_colored_vertex_string(col_list[j][i]) << ")   ";
+                    fmt::println("({})   ", detail::get_colored_vertex_string(col_list[j][i]));
                 } else {
-                    if (j == max_col)
-                        std::cout << std::endl;
-                    else {
-                        std::cout << "   ";
-                        for (size_t k = 0; k < max_length[j] + 2; k++) std::cout << " ";
+                    if (j == max_col) {
+                        fmt::println("");
+                    } else {
+                        fmt::println("   {}", std::string(max_length[j] + 2, ' '));
                     }
                 }
             } else if (col_list[j][i] != nullptr) {
-                if (j == max_col)
-                    std::cout << "(" << detail::get_colored_vertex_string(col_list[j][i]) << ")" << std::endl;
-                else
-                    std::cout << "(" << detail::get_colored_vertex_string(col_list[j][i]) << ")---";
-
-                for (size_t k = 0; k < max_length[j] - std::to_string(col_list[j][i]->get_id()).length(); k++) std::cout << "-";
+                if (j == max_col) {
+                    fmt::println("({})", detail::get_colored_vertex_string(col_list[j][i]));
+                } else {
+                    fmt::print("({})---", detail::get_colored_vertex_string(col_list[j][i]));
+                }
+                fmt::print("{}", std::string(max_length[j] - std::to_string(col_list[j][i]->get_id()).length(), ' '));
             } else {
-                std::cout << "---";
-                for (size_t k = 0; k < max_length[j] + 2; k++) std::cout << "-";
+                fmt::print("---");
+                fmt::print("{}", std::string(max_length[j] + 2, '-'));
             }
         }
-        std::cout << std::endl;
+        fmt::println("");
     }
     for (auto& a : col_list) {
         a.clear();

@@ -14,7 +14,6 @@
 
 #include <functional>  // for invoke()
 #include <future>
-#include <iostream>  // for debugging output
 #include <thread>
 #include <type_traits>
 
@@ -22,7 +21,7 @@
 
 /**
  * @brief Change the namespace from `std` to avoid name clashing with <thread> on GNU c++ compilers
- * 
+ *
  */
 namespace jthread {
 
@@ -39,7 +38,7 @@ public:
     //   to be able to switch from std::thread to std::jthread
 
     // types are those from std::thread:
-    using id = ::std::thread::id;
+    using id                 = ::std::thread::id;
     using native_handle_type = ::std::thread::native_handle_type;
 
     // construct/copy/destroy:
@@ -52,8 +51,8 @@ public:
     explicit jthread(Callable&& cb, Args&&... args);
     ~jthread();
 
-    jthread(const jthread&) = delete;
-    jthread(jthread&&) noexcept = default;
+    jthread(const jthread&)            = delete;
+    jthread(jthread&&) noexcept        = default;
     jthread& operator=(const jthread&) = delete;
     jthread& operator=(jthread&&) noexcept;
 
@@ -134,14 +133,14 @@ inline jthread& jthread::operator=(jthread&& t) noexcept {
         join();
     }
 
-    _thread = std::move(t._thread);
+    _thread     = std::move(t._thread);
     _stopSource = std::move(t._stopSource);
     return *this;
 }
 
 // destructor:
 inline jthread::~jthread() {
-    if (joinable()) {  // if not joined/detached, signal stop and wait for end: 
+    if (joinable()) {  // if not joined/detached, signal stop and wait for end:
         request_stop();
         join();
     }
@@ -176,6 +175,6 @@ inline void jthread::swap(jthread& t) noexcept {
     std::swap(_thread, t._thread);
 }
 
-}  // namespace mythread
+}  // namespace jthread
 
 #endif  // JTHREAD_HPP

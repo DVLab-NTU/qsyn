@@ -10,7 +10,10 @@
 #include "fmt/color.h"
 #include "spdlog/common.h"
 #include "util/usage.hpp"
-#include "util/util.hpp"
+
+namespace std {
+extern istream cin;
+}
 
 namespace dvlab {
 

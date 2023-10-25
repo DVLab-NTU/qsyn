@@ -5,6 +5,7 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
+#include <gsl/narrow>
 #include <unordered_set>
 #include <utility>
 

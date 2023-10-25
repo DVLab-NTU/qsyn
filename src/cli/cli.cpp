@@ -12,6 +12,8 @@
 #include <regex>
 #include <tl/enumerate.hpp>
 
+#include "util/dvlab_string.hpp"
+
 namespace dvlab {
 /**
  * @brief open a dofile and push it to the dofile stack.
@@ -213,9 +215,8 @@ bool dvlab::CommandLineInterface::add_variables_from_dofiles(std::string const& 
  */
 void dvlab::CommandLineInterface::sigint_handler(int signum) {
     if (_listening_for_inputs) {
-        _clear_read_buffer();
         fmt::println("");
-        _print_prompt();
+        _clear_read_buffer_and_print_prompt();
     } else if (_command_thread.has_value()) {
         // there is an executing command
         _command_thread->request_stop();

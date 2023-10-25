@@ -151,21 +151,20 @@ bool MappingEquivalenceChecker::execute_single(QCirGate* gate) {
 
     QCirGate* logical = _dependency[logical_qubit.value()];
     if (logical == nullptr) {
-        std::cout << "Error: corresponding logical gate of gate " << gate->get_id() << " is nullptr!!" << std::endl;
+        spdlog::error("Corresponding logical gate of gate {} is nullptr!!", gate->get_id());
         return false;
     }
 
     if (logical->get_type() != gate->get_type()) {
-        std::cout << logical->get_type_str() << "(" << logical->get_id() << ") " << gate->get_type_str() << std::endl;
-        std::cout << "Error: type of gate " << gate->get_id() << " mismatches!!" << std::endl;
+        spdlog::error("Type of gate {} mismatches!!", gate->get_id());
         return false;
     }
     if (logical->get_phase() != gate->get_phase()) {
-        std::cout << "Error: phase of gate " << gate->get_id() << " mismatches!!" << std::endl;
+        spdlog::error("Phase of gate {} mismatches!!", gate->get_id());
         return false;
     }
     if (logical->get_qubits()[0]._qubit != logical_qubit.value()) {
-        std::cout << "Error: target of gate " << gate->get_id() << " mismatches!!" << std::endl;
+        spdlog::error("Target qubit of gate {} mismatches!!", gate->get_id());
         return false;
     }
 
@@ -190,29 +189,29 @@ bool MappingEquivalenceChecker::execute_double(QCirGate* gate) {
     assert(logical_targ_id.has_value());
 
     if (_dependency[logical_ctrl_id.value()] != _dependency[logical_targ_id.value()]) {
-        std::cout << "Error: gate " << gate->get_id() << " violates dependency graph!!" << std::endl;
+        spdlog::error("Gate {} violates dependency graph!!", gate->get_id());
         return false;
     }
     QCirGate* logical_gate = _dependency[logical_targ_id.value()];
     if (logical_gate == nullptr) {
-        std::cout << "Error: corresponding logical gate of gate " << gate->get_id() << " is nullptr!!" << std::endl;
+        spdlog::error("Corresponding logical gate of gate {} is nullptr!!", gate->get_id());
         return false;
     }
 
     if (logical_gate->get_type() != gate->get_type()) {
-        std::cout << "Error: type of gate " << gate->get_id() << " mismatches!!" << std::endl;
+        spdlog::error("Type of gate {} mismatches!!", gate->get_id());
         return false;
     }
     if (logical_gate->get_phase() != gate->get_phase()) {
-        std::cout << "Error: phase of gate " << gate->get_id() << " mismatches!!" << std::endl;
+        spdlog::error("Phase of gate {} mismatches!!", gate->get_id());
         return false;
     }
     if (logical_gate->get_qubits()[0]._qubit != logical_ctrl_id.value()) {
-        std::cout << "Error: control of gate " << gate->get_id() << " mismatches!!" << std::endl;
+        spdlog::error("Control qubit of gate {} mismatches!!", gate->get_id());
         return false;
     }
     if (logical_gate->get_qubits()[1]._qubit != logical_targ_id.value()) {
-        std::cout << "Error: target of gate " << gate->get_id() << " mismatches!!" << std::endl;
+        spdlog::error("Target qubit of gate {} mismatches!!", gate->get_id());
         return false;
     }
 
@@ -233,7 +232,7 @@ bool MappingEquivalenceChecker::execute_double(QCirGate* gate) {
 void MappingEquivalenceChecker::check_remaining() {
     for (auto const& [q, g] : _dependency) {
         if (g != nullptr) {
-            std::cout << "Note: qubit " << q << " has gates remaining" << std::endl;
+            spdlog::warn("Note: qubit {} has gates remaining", q);
         }
     }
 }

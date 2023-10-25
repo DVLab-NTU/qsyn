@@ -11,7 +11,6 @@
 
 #include "util/ordered_hashset.hpp"
 #include "util/trie.hpp"
-#include "util/util.hpp"
 
 namespace dvlab::argparse {
 
