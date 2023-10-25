@@ -7,6 +7,9 @@
 
 #include "./tensor_util.hpp"
 
+#include <fmt/core.h>
+#include <fmt/ranges.h>
+
 namespace qsyn::tensor {
 
 //------------------------------
@@ -32,11 +35,7 @@ TensorAxisList concat_axis_list(TensorAxisList const& ax1, TensorAxisList const&
  * @param ax
  */
 void print_axis_list(TensorAxisList const& ax) {
-    if (!ax.empty()) {
-        std::cout << *ax.begin();
-        std::for_each(ax.begin() + 1, ax.end(), [](size_t const& id) { std::cout << " " << id; });
-    }
-    std::cout << std::endl;
+    fmt::println("{}", fmt::join(ax, ", "));
 }
 
 /**

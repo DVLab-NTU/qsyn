@@ -147,7 +147,7 @@ bool ZXGraph::_build_graph_from_parser_storage(detail::StorageType const& storag
                     return add_input(info.qubit, info.column);
                 if (info.type == 'O')
                     return add_output(info.qubit, info.column);
-                VertexType vtype;
+                VertexType vtype = VertexType::boundary;
                 if (info.type == 'Z')
                     vtype = VertexType::z;
                 else if (info.type == 'X')

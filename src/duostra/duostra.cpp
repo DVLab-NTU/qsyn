@@ -135,7 +135,7 @@ bool Duostra::map(bool use_device_as_placement) {
     }
     // scheduler
     spdlog::info("Creating Scheduler...");
-    auto sched = get_scheduler(std::move(topo), _tqdm);
+    auto scheduler = get_scheduler(std::move(topo), _tqdm);
 
     // router
     spdlog::info("Creating Router...");
@@ -147,7 +147,7 @@ bool Duostra::map(bool use_device_as_placement) {
     if (!_silent) {
         fmt::println("Routing...");
     }
-    _device = sched->assign_gates_and_sort(std::move(router));
+    _device = scheduler->assign_gates_and_sort(std::move(router));
 
     if (stop_requested()) {
         spdlog::warn("Warning: mapping interrupted");
@@ -158,7 +158,7 @@ bool Duostra::map(bool use_device_as_placement) {
         if (!_silent) {
             fmt::println("Checking...");
         }
-        Checker checker(*check_topo, check_device, sched->get_operations(), assign, _tqdm);
+        Checker checker(*check_topo, check_device, scheduler->get_operations(), assign, _tqdm);
         if (!checker.test_operations()) {
             return false;
         }
@@ -170,15 +170,15 @@ bool Duostra::map(bool use_device_as_placement) {
         fmt::println("Router:         {}", get_router_type_str(DuostraConfig::ROUTER_TYPE));
         fmt::println("Placer:         {}", get_placer_type_str(DuostraConfig::PLACER_TYPE));
         fmt::println("");
-        fmt::println("Mapping Depth:  {}", sched->get_final_cost());
-        fmt::println("Total Time:     {}", sched->get_total_time());
-        fmt::println("#SWAP:          {}", sched->get_num_swaps());
+        fmt::println("Mapping Depth:  {}", scheduler->get_final_cost());
+        fmt::println("Total Time:     {}", scheduler->get_total_time());
+        fmt::println("#SWAP:          {}", scheduler->get_num_swaps());
         fmt::println("");
     }
-    assert(sched->is_sorted());
-    assert(sched->get_order().size() == _dependency->get_gates().size());
-    _result = sched->get_operations();
-    store_order_info(sched->get_order());
+    assert(scheduler->is_sorted());
+    assert(scheduler->get_order().size() == _dependency->get_gates().size());
+    _result = scheduler->get_operations();
+    store_order_info(scheduler->get_order());
     build_circuit_by_result();
 
     return true;

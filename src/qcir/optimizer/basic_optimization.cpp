@@ -362,9 +362,9 @@ void Optimizer::_add_cx(QubitIdType t1, QubitIdType t2, bool do_swap) {
 bool Optimizer::_replace_cx_and_cz_with_s_and_cx(QubitIdType t1, QubitIdType t2) {
     bool found_match = false;
     // NOTE - Checkout t1 as control and t2 as control respectively.
-    QubitIdType ctrl;
-    QubitIdType targ;
-    QCirGate* cnot;
+    QubitIdType ctrl = 0;
+    QubitIdType targ = 0;
+    QCirGate* cnot   = nullptr;
     for (size_t i = 0; i < 2; i++) {
         ctrl = !i ? t1 : t2;
         targ = !i ? t2 : t1;

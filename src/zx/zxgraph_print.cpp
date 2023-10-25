@@ -252,11 +252,6 @@ void ZXGraph::draw() const {
         // print qubit
         auto temp = offset + i;
         fmt::println("[{:<{}}]", temp, max_length_q);
-        // std::cout << "[";
-        // for (size_t i = 0; i < max_length_q - std::to_string(temp).length(); i++) {
-        //     std::cout << " ";
-        // }
-        // std::cout << temp << "]";
 
         // print row
         for (size_t j = 0; j <= max_col; j++) {

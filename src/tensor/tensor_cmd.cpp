@@ -22,7 +22,7 @@ namespace qsyn::tensor {
 ArgType<size_t>::ConstraintType valid_tensor_id(TensorMgr const& tensor_mgr) {
     return [&](size_t const& id) {
         if (tensor_mgr.is_id(id)) return true;
-        std::cerr << "Error: Can't find tensor with ID " << id << "!!" << std::endl;
+        spdlog::error("Cannot find tensor with ID {}!!", id);
         return false;
     };
 }
@@ -62,9 +62,9 @@ Command tensor_print_cmd(TensorMgr& tensor_mgr) {
             },
             [&](ArgumentParser const& parser) {
                 if (parser.parsed("id")) {
-                    std::cout << *tensor_mgr.find_by_id(parser.get<size_t>("id")) << std::endl;
+                    fmt::println("{}", *tensor_mgr.find_by_id(parser.get<size_t>("id")));
                 } else {
-                    std::cout << *tensor_mgr.get() << std::endl;
+                    fmt::println("{}", *tensor_mgr.get());
                 }
 
                 return CmdExecResult::done;
@@ -112,8 +112,8 @@ Command tensor_equivalence_check_cmd(TensorMgr& tensor_mgr) {
                 auto eps    = parser.get<double>("-epsilon");
                 auto strict = parser.get<bool>("-strict");
 
-                QTensor<double>* tensor1;
-                QTensor<double>* tensor2;
+                QTensor<double>* tensor1 = nullptr;
+                QTensor<double>* tensor2 = nullptr;
                 if (ids.size() == 2) {
                     tensor1 = tensor_mgr.find_by_id(ids[0]);
                     tensor2 = tensor_mgr.find_by_id(ids[1]);
@@ -164,7 +164,7 @@ Command tensor_cmd(TensorMgr& tensor_mgr) {
 
 bool add_tensor_cmds(dvlab::CommandLineInterface& cli, TensorMgr& tensor_mgr) {
     if (!(cli.add_command(tensor_cmd(tensor_mgr)))) {
-        std::cerr << "Registering \"tensor\" commands fails... exiting" << std::endl;
+        spdlog::error("Registering \"tensor\" commands fails... exiting");
         return false;
     }
     return true;

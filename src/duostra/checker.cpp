@@ -30,7 +30,7 @@ namespace qsyn::duostra {
  */
 Checker::Checker(CircuitTopology& topo,
                  Checker::Device& device,
-                 std::vector<Checker::Operation> const& ops,
+                 std::span<Checker::Operation const> ops,
                  std::vector<QubitIdType> const& assign, bool tqdm)
     : _topo(&topo), _device(&device), _ops(ops), _tqdm(tqdm) {
     _device->place(assign);

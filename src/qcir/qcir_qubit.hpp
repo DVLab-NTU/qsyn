@@ -24,10 +24,7 @@ class QCirGate;
 class QCirQubit {
 public:
     using QubitIdType = qsyn::QubitIdType;
-    QCirQubit(QubitIdType id) : _id(id) {
-        _bit_first = nullptr;
-        _bit_last  = nullptr;
-    }
+    QCirQubit(QubitIdType id) : _id(id) {}
 
     // Basic access method
     void set_id(QubitIdType id) { _id = id; }
@@ -41,8 +38,8 @@ public:
 
 private:
     QubitIdType _id;
-    QCirGate* _bit_last;
-    QCirGate* _bit_first;
+    QCirGate* _bit_last  = nullptr;
+    QCirGate* _bit_first = nullptr;
 };
 
 }  // namespace qsyn::qcir
