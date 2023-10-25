@@ -9,6 +9,7 @@
 
 #include "./cli.hpp"
 #include "cli/cli_char_def.hpp"
+#include "util/dvlab_string.hpp"
 
 //----------------------------------------------------------------------
 //    Member Function for class CmdParser
@@ -149,8 +150,7 @@ std::pair<CmdExecResult, std::string> dvlab::CommandLineInterface::listen_to_inp
 
     settings_restorer const restorer{this, prompt};
 
-    _clear_read_buffer();
-    _print_prompt();
+    _clear_read_buffer_and_print_prompt();
 
     while (true) {
         auto keycode = get_char(istr);
@@ -193,9 +193,7 @@ std::pair<CmdExecResult, std::string> dvlab::CommandLineInterface::listen_to_inp
                 break;
             case clear_terminal_key:
                 detail::clear_terminal();
-                _clear_read_buffer();
-                fmt::println("");
-                _print_prompt();
+                _reprint_command();
                 break;
             case arrow_up_key:
                 if (!config.allow_browse_history || _history_idx == 0) {
@@ -329,9 +327,8 @@ void dvlab::CommandLineInterface::_reprint_command() {
     // NOTE - DON'T CHANGE - The logic here is as concise as it can be although seemingly redundant.
     auto const idx   = _cursor_position;
     _cursor_position = _read_buffer.size();  // before moving cursor, reflect the change in actual cursor location
-    fmt::println("");
-    _print_prompt();
-    fmt::print("{}", _read_buffer);
+    fmt::print("\n{}{}", _command_prompt, _read_buffer);
+    std::fflush(stdout);
     _move_cursor_to(idx);  // move the cursor back to where it should be
 }
 
@@ -392,10 +389,12 @@ void dvlab::CommandLineInterface::_replace_read_buffer_with_history() {
  * @brief reset the read buffer
  *
  */
-void dvlab::CommandLineInterface::_clear_read_buffer() {
+void dvlab::CommandLineInterface::_clear_read_buffer_and_print_prompt() {
     _read_buffer.clear();
     _cursor_position = 0;
     _tab_press_count = 0;
+    fmt::print("{}", _command_prompt);
+    fflush(stdout);
 }
 
 }  // namespace dvlab

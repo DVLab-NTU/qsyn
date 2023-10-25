@@ -24,7 +24,7 @@ namespace qsyn::zx {
 
 bool valid_partition_reduce_partitions(size_t const &n_parts) {
     if (n_parts > 0) return true;
-    std::cerr << "The paritions parameter in partition reduce should be greater than 0" << std::endl;
+    spdlog::error("The paritions parameter in partition reduce should be greater than 0");
     return false;
 };
 
@@ -186,7 +186,7 @@ Command zxgraph_simplify_cmd(zx::ZXGraphMgr &zxgraph_mgr) {
 
 bool add_zx_simplifier_cmds(dvlab::CommandLineInterface &cli, zx::ZXGraphMgr &zxgraph_mgr) {
     if (!cli.add_command(zxgraph_simplify_cmd(zxgraph_mgr))) {
-        std::cerr << "Registering \"zx\" commands fails... exiting" << std::endl;
+        spdlog::error("Registering \"zx simplifier\" commands fails... exiting");
         return false;
     }
     return true;

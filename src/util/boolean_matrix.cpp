@@ -10,6 +10,7 @@
 #include <cassert>
 #include <cmath>
 #include <gsl/util>
+#include <tl/enumerate.hpp>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -131,11 +132,12 @@ void BooleanMatrix::print_matrix(spdlog::level::level_enum lvl) const {
  *
  */
 void BooleanMatrix::print_trace() const {
-    std::cout << "Track:" << std::endl;
-    for (size_t i = 0; i < _row_operations.size(); i++) {
-        std::cout << "Step " << i + 1 << ": " << _row_operations[i].first << " to " << _row_operations[i].second << std::endl;
+    fmt::println("Track:");
+    for (auto const& [i, row_op] : tl::views::enumerate(_row_operations)) {
+        auto const& [row_src, row_dest] = row_op;
+        fmt::println("Step {}: {} to {}", i + 1, row_src, row_dest);
     }
-    std::cout << std::endl;
+    fmt::println("");
 }
 
 /**
@@ -149,11 +151,11 @@ void BooleanMatrix::print_trace() const {
  */
 bool BooleanMatrix::row_operation(size_t ctrl, size_t targ, bool track) {
     if (ctrl >= _matrix.size()) {
-        std::cerr << "Error: wrong dimension " << ctrl << std::endl;
+        spdlog::error("Wrong dimension {}", ctrl);
         return false;
     }
     if (targ >= _matrix.size()) {
-        std::cerr << "Error: wrong dimension " << targ << std::endl;
+        spdlog::error("Wrong dimension {}", targ);
         return false;
     }
     _matrix[targ] += _matrix[ctrl];
@@ -484,7 +486,6 @@ size_t BooleanMatrix::row_operation_depth() {
     std::vector<size_t> row_depth;
     row_depth.resize(num_rows(), 0);
     if (_row_operations.size() == 0) {
-        std::cout << "Warning: no row operation" << std::endl;
         return 0;
     }
     for (auto const& [a, b] : _row_operations) {
@@ -500,7 +501,7 @@ size_t BooleanMatrix::row_operation_depth() {
  *
  * @return float
  */
-float BooleanMatrix::dense_ratio() {
+double BooleanMatrix::dense_ratio() {
     auto const depth = row_operation_depth();
     if (depth == 0)
         return 0;

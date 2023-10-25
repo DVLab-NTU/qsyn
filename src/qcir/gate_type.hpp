@@ -16,7 +16,6 @@
 #include <utility>
 
 #include "util/phase.hpp"
-#include "util/util.hpp"
 
 namespace qsyn::qcir {
 
@@ -42,6 +41,14 @@ bool is_fixed_phase_gate(GateRotationCategory category);
 
 dvlab::Phase get_fixed_phase(GateRotationCategory category);
 
-std::ostream& operator<<(std::ostream& stream, GateRotationCategory const& type);
-
 }  // namespace qsyn::qcir
+
+template <>
+struct fmt::formatter<qsyn::qcir::GateRotationCategory> {
+    constexpr auto parse(format_parse_context& ctx) { return ctx.begin(); }
+
+    template <typename FormatContext>
+    auto format(qsyn::qcir::GateRotationCategory const& type, FormatContext& ctx) {
+        return fmt::format_to(ctx.out(), "{}", qsyn::qcir::gate_type_to_str(type));
+    }
+};

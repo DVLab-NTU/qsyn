@@ -9,6 +9,7 @@
 #include <fmt/core.h>
 #include <fmt/ranges.h>
 
+#include <algorithm>
 #include <cassert>
 #include <climits>
 #include <functional>

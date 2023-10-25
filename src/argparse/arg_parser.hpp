@@ -13,9 +13,9 @@
 #include "./arg_group.hpp"
 #include "./argument.hpp"
 #include "fmt/core.h"
+#include "util/dvlab_string.hpp"
 #include "util/ordered_hashmap.hpp"
 #include "util/trie.hpp"
-#include "util/util.hpp"
 
 namespace dvlab::argparse {
 

@@ -16,6 +16,7 @@
 
 #include "./duostra.hpp"
 #include "./scheduler.hpp"
+#include "util/util.hpp"
 
 extern bool stop_requested();
 
@@ -270,7 +271,7 @@ std::unique_ptr<BaseScheduler> SearchScheduler::clone() const {
  */
 void SearchScheduler::_cache_when_necessary() {
     if (!_never_cache && _lookAhead == 1) {
-        std::cerr << "When _lookAhead = 1, '_neverCache' is used by default.\n";
+        spdlog::error("When _lookAhead = 1, '_neverCache' is used by default.");
         _never_cache = true;
     }
 }

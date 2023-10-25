@@ -14,6 +14,7 @@
 
 #include "./duostra.hpp"
 #include "./scheduler.hpp"
+#include "util/util.hpp"
 
 extern bool stop_requested();
 

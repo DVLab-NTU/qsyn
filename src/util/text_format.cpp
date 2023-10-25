@@ -8,11 +8,14 @@
 
 #include <unistd.h>
 
+#include <algorithm>
 #include <cassert>
 #include <exception>
+#include <gsl/narrow>
+#include <numeric>
 #include <ranges>
 
-#include "./util.hpp"
+#include "./dvlab_string.hpp"
 #include "fmt/color.h"
 #include "fmt/core.h"
 #include "util/terminal_attributes.hpp"

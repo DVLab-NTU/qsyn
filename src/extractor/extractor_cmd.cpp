@@ -133,10 +133,11 @@ dvlab::Command extraction_step_cmd(zx::ZXGraphMgr& zxgraph_mgr, QCirMgr& qcir_mg
                     return CmdExecResult::done;
                 }
                 if (parser.parsed("-rmg")) {
-                    if (ext.remove_gadget(true))
-                        std::cout << "Gadget(s) are removed" << std::endl;
-                    else
-                        std::cout << "No gadget(s) are found" << std::endl;
+                    if (ext.remove_gadget(true)) {
+                        spdlog::info("Gadget(s) are removed");
+                    } else {
+                        spdlog::info("No gadgets are found");
+                    }
                     return CmdExecResult::done;
                 }
 
@@ -296,7 +297,7 @@ Command extract_cmd(zx::ZXGraphMgr& zxgraph_mgr, qcir::QCirMgr& qcir_mgr) {
 bool add_extract_cmds(dvlab::CommandLineInterface& cli, zx::ZXGraphMgr& zxgraph_mgr, qcir::QCirMgr& qcir_mgr) {
     if (!(cli.add_command(extract_cmd(zxgraph_mgr, qcir_mgr)) &&
           cli.add_alias("zx2qc", "extract"))) {
-        std::cerr << "Registering \"extract\" commands fails... exiting" << std::endl;
+        spdlog::error("Registering \"extract\" commands fails... exiting");
         return false;
     }
     return true;
