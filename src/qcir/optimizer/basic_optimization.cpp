@@ -16,6 +16,7 @@
 #include "../qcir_gate.hpp"
 #include "./optimizer.hpp"
 #include "fmt/core.h"
+#include "util/dvlab_string.hpp"
 #include "util/phase.hpp"
 #include "util/util.hpp"
 
@@ -148,7 +149,7 @@ QCir Optimizer::_parse_once(QCir const& qcir, bool reversed, bool do_minimize_cz
     if (config.printStatistics) {
         fmt::println("{}", statistics_str);
     }
-    for (auto& line : dvlab::str::split(statistics_str, "\n")) {
+    for (auto const& line : dvlab::str::views::split_to_string_views(statistics_str, "\n")) {
         spdlog::debug("{}", line);
     }
     spdlog::debug("");

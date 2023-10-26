@@ -135,7 +135,8 @@ dvlab::CommandLineInterface::_parse_one_command(std::string_view cmd) {
     buffer = _replace_variable_keys_with_values(buffer);
 
     // get the first token again (since the first token may be a variable)
-    first_space_pos = dvlab::str::str_get_token(buffer, first_token);
+    first_space_pos = _get_first_token_pos(buffer);
+    first_token     = buffer.substr(0, first_space_pos);
 
     dvlab::Command* command = get_command(first_token);
 

@@ -109,18 +109,21 @@ bool QCir::read_qasm(std::string const& filename) {
         size_t n = str_get_token(str, token, type_end, ',');
         while (token.size()) {
             str_get_token(token, qubit_id_str, str_get_token(token, qubit_id_str, 0, '[') + 1, ']');
-            unsigned qubit_id_num = 0;
-            if (!dvlab::str::str_to_u(qubit_id_str, qubit_id_num) || qubit_id_num >= nqubit) {
+            auto qubit_id_num = dvlab::str::from_string<unsigned>(qubit_id_str);
+            if (!qubit_id_num.has_value() || qubit_id_num >= nqubit) {
                 spdlog::error("invalid qubit id on line {}!!", str);
                 return false;
             }
-            qubit_ids.emplace_back(qubit_id_num);
+            qubit_ids.emplace_back(qubit_id_num.value());
             n = str_get_token(str, token, n, ',');
         }
 
-        dvlab::Phase phase;
-        dvlab::Phase::from_string(phase_str, phase);
-        add_gate(type, qubit_ids, phase, true);
+        auto phase = dvlab::Phase::from_string(phase_str);
+        if (!phase.has_value()) {
+            spdlog::error("invalid phase on line {}!!", str);
+            return false;
+        }
+        add_gate(type, qubit_ids, phase.value(), true);
     }
     update_gate_time();
     return true;
@@ -248,12 +251,15 @@ bool QCir::read_qsim(std::string const& filename) {
             add_gate(type, qubit_ids, dvlab::Phase(1), true);
         } else if (type == "rx" || type == "rz") {
             // add phase gate
-            dvlab::Phase phase;
             pos = str_get_token(line, qubit_id, pos);
             qubit_ids.emplace_back(stoul(qubit_id));
             str_get_token(line, phase_str, pos);
-            dvlab::Phase::from_string(phase_str, phase);
-            add_gate(type, qubit_ids, phase, true);
+            auto phase = dvlab::Phase::from_string(phase_str);
+            if (!phase.has_value()) {
+                spdlog::error("invalid phase on line {}!!", line);
+                return false;
+            }
+            add_gate(type, qubit_ids, phase.value(), true);
         } else if (count(single_gate_list.begin(), single_gate_list.end(), type)) {
             // add single qubit gate
             str_get_token(line, qubit_id, pos);

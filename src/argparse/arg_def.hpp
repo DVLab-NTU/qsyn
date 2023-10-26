@@ -36,7 +36,14 @@ concept valid_argument_type = requires(T t) {
 
 template <typename T>
 requires std::is_arithmetic_v<T>
-bool parse_from_string(T& val, std::string const& token) { return dvlab::str::str_to_num<T>(token, val); }
+bool parse_from_string(T& val, std::string const& token) {
+    auto result = dvlab::str::from_string<T>(token);
+    if (result.has_value()) {
+        val = result.value();
+        return true;
+    }
+    return false;
+}
 
 // NOTE - keep in the header to shadow the previous definition (bool is arithmetic type)
 template <>
