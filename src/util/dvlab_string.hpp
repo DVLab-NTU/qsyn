@@ -7,11 +7,17 @@
 
 #pragma once
 
+#include <charconv>
+#include <concepts>
 #include <exception>
+#include <functional>
 #include <limits>
+#include <optional>
+#include <ranges>
 #include <span>
 #include <stdexcept>
 #include <string>
+#include <system_error>
 #include <vector>
 
 namespace dvlab::str {
@@ -31,11 +37,8 @@ std::string trim_spaces(std::string_view str);
  */
 inline std::string_view trim_comments(std::string_view line) { return line.substr(0, line.find("//")); }
 std::string remove_brackets(std::string const& str, char const left, char const right);
-size_t str_get_token(std::string const& str, std::string& tok, size_t pos = 0, std::string const& delim = " \t\n\v\f\r");
-size_t str_get_token(std::string const& str, std::string& tok, size_t pos, char const delim);
-
-std::vector<std::string> split(std::string const& str, std::string const& delim);
-std::string join(std::string const& infix, std::span<std::string> strings);
+size_t str_get_token(std::string_view str, std::string& tok, size_t pos = 0, std::string const& delim = " \t\n\v\f\r");
+size_t str_get_token(std::string_view str, std::string& tok, size_t pos, char const delim);
 
 namespace detail {
 template <class T>
@@ -63,9 +66,66 @@ inline bool str_to_size_t(std::string const& str, size_t& num) { return str_to_n
 
 char tolower(char ch);
 char toupper(char ch);
-std::string tolower_string(std::string const& str);
-std::string toupper_string(std::string const& str);
+std::string tolower_string(std::string_view str);
+std::string toupper_string(std::string_view str);
 
+namespace views {
+
+/**
+ * @brief A wrapper for std::views::split that returns std::string_views instead of std::ranges::subrange so as to ease pipelining.
+ *
+ * @param str
+ * @param delim
+ * @return auto
+ */
+template <typename DelimT>
+requires std::convertible_to<DelimT, std::string_view> || std::convertible_to<DelimT, char>
+inline auto split_to_string_views(std::string_view str, DelimT delim) {
+    return std::views::split(str, delim) | std::views::transform([](auto&& rng) { return std::string_view(&*rng.begin(), std::ranges::distance(rng)); });
+}
+
+/**
+ * @brief A wrapper for std::views::split that returns std::string_views instead of std::ranges::subrange so as to ease pipelining.
+ *
+ * @param str
+ * @param delim
+ * @return auto
+ */
+inline auto split_to_string_views(std::string_view str, char const* const delim) {
+    return std::views::split(str, std::string_view{delim}) | std::views::transform([](auto&& rng) { return std::string_view(&*rng.begin(), std::ranges::distance(rng)); });
+}
+
+/**
+ * @brief skip empty string_views
+ *
+ */
+constexpr auto skip_empty = std::views::filter([](auto&& sv) { return !sv.empty(); });
+
+/**
+ * @brief trim leading and trailing spaces
+ *
+ */
+constexpr auto trim_spaces = std::views::transform([](auto&& sv) {
+    auto const start = sv.find_first_not_of(" \t\n\v\f\r");
+    auto const end   = sv.find_last_not_of(" \t\n\v\f\r");
+    if (start == std::string::npos && end == std::string::npos) return std::string_view{""};
+    return sv.substr(start, end + 1 - start);
+});
+
+/**
+ * @brief Tokenize the string with the given delimiter. As opposed to split_to_string_views, this function skips empty tokens and trims spaces.
+ *
+ * @param str
+ * @param delim
+ * @return auto
+ */
+template <typename DelimT>
+requires std::convertible_to<DelimT, std::string_view> || std::convertible_to<DelimT, char> || std::convertible_to<DelimT, char const* const>
+inline auto tokenize(std::string_view str, DelimT delim) {
+    return split_to_string_views(str, delim) | skip_empty | trim_spaces;
+}
+
+}  // namespace views
 /**
  * @brief An indirection layer for std::stoXXX(const string& str, size_t* pos = nullptr).
  *        All the dirty compile-time checking happens here.
@@ -137,6 +197,28 @@ bool str_to_num(std::string const& str, T& f) {
     }
     // Check if str have un-parsable parts
     return (i == str.size());
+}
+
+namespace detail {
+
+template <typename T>
+::std::from_chars_result from_chars_wrapper(std::string_view str, T& val) {
+    return ::std::from_chars(str.data(), str.data() + str.size(), val);
+}
+
+}  // namespace detail
+
+template <class T>
+inline std::optional<T> from_string(std::string_view str) {
+    T result;
+
+    auto [ptr, ec] = detail::from_chars_wrapper<T>(str, result);
+    if (ec == std::errc{} && ptr == str.data() + str.size()) {
+        return result;
+    } else {
+        // perror(std::make_error_code(ec).message().c_str());
+        return std::nullopt;
+    }
 }
 
 }  // namespace dvlab::str

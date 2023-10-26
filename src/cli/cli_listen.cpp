@@ -156,17 +156,17 @@ std::pair<CmdExecResult, std::string> dvlab::CommandLineInterface::listen_to_inp
         auto keycode = get_char(istr);
 
         if (istr.eof()) {
-            return {CmdExecResult::done, dvlab::str::trim_spaces(dvlab::str::trim_comments(_read_buffer))};
+            return {CmdExecResult::done, std::string{dvlab::str::trim_spaces(dvlab::str::trim_comments(_read_buffer))}};
         }
 
         if (keycode == input_end_key) {
-            return {CmdExecResult::quit, dvlab::str::trim_spaces(dvlab::str::trim_comments(_read_buffer))};
+            return {CmdExecResult::quit, std::string{dvlab::str::trim_spaces(dvlab::str::trim_comments(_read_buffer))}};
         }
 
         switch (keycode) {
             case newline_key: {
                 if (_dequote(_read_buffer).has_value()) {
-                    return {CmdExecResult::done, dvlab::str::trim_spaces(dvlab::str::trim_comments(_read_buffer))};
+                    return {CmdExecResult::done, std::string{dvlab::str::trim_spaces(dvlab::str::trim_comments(_read_buffer))}};
                 } else {
                     fmt::print("\n{0:<{1}}", "...", _command_prompt.size());
                     break;

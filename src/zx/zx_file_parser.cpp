@@ -20,6 +20,9 @@ namespace qsyn {
 
 namespace zx {
 
+static constexpr std::string_view supported_vertex_type = "IOZXH";
+static constexpr std::string_view supported_edge_type   = "SH";
+
 /**
  * @brief Parse the file
  *
@@ -59,10 +62,13 @@ bool ZXFileParser::_parse_internal(std::ifstream& f) {
         std::vector<std::string> tokens;
         if (!_tokenize(line, tokens)) return false;
 
-        unsigned id = 0;
         VertexInfo info;
 
-        if (!_parse_type_and_id(tokens[0], info.type, id)) return false;
+        auto const type_and_id = _parse_type_and_id(tokens[0]);
+        if (!type_and_id.has_value()) return false;
+
+        info.type = type_and_id.value().first;
+        auto id   = type_and_id.value().second;
 
         if (info.type == 'I' || info.type == 'O') {
             if (!_is_valid_tokens_for_boundary_vertex(tokens)) return false;
@@ -75,11 +81,10 @@ bool ZXFileParser::_parse_internal(std::ifstream& f) {
         if (!_parse_qubit(tokens[1], info.type, info.qubit)) return false;
         if (!_parse_column(tokens[2], info.column)) return false;
 
-        Phase tmp;
         if (tokens.size() > 3) {
-            if (Phase::from_string(tokens.back(), tmp)) {
+            if (auto phase = Phase::from_string(tokens.back()); phase.has_value()) {
                 tokens.pop_back();
-                info.phase = tmp;
+                info.phase = phase.value();
             }
 
             std::pair<char, size_t> neighbor;
@@ -183,19 +188,19 @@ bool ZXFileParser::_tokenize(std::string const& line, std::vector<std::string>& 
  * @return true
  * @return false
  */
-bool ZXFileParser::_parse_type_and_id(std::string const& token, char& type, unsigned& id) {
-    type = dvlab::str::toupper(token[0]);
+std::optional<std::pair<char, unsigned>> ZXFileParser::_parse_type_and_id(std::string const& token) {
+    auto type = dvlab::str::toupper(token[0]);
 
     if (type == 'G') {
         _print_failed_at_line_no();
         spdlog::error("ground vertices are not supported yet!!");
-        return false;
+        return std::nullopt;
     }
 
-    if (std::string("IOZXH").find(type) == std::string::npos) {
+    if (supported_vertex_type.find(type) == std::string::npos) {
         _print_failed_at_line_no();
         spdlog::error("unsupported vertex type ({})!!", type);
-        return false;
+        return std::nullopt;
     }
 
     auto const id_string = token.substr(1);
@@ -203,22 +208,24 @@ bool ZXFileParser::_parse_type_and_id(std::string const& token, char& type, unsi
     if (id_string.empty()) {
         _print_failed_at_line_no();
         spdlog::error("Missing vertex ID after vertex type declaration ({})!!", type);
-        return false;
+        return std::nullopt;
     }
 
-    if (!dvlab::str::str_to_u(id_string, id)) {
+    auto id = dvlab::str::from_string<unsigned>(id_string);
+
+    if (!id.has_value()) {
         _print_failed_at_line_no();
         spdlog::error("vertex ID ({}) is not an unsigned integer!!", id_string);
-        return false;
+        return std::nullopt;
     }
 
-    if (_storage.contains(id)) {
+    if (_storage.contains(id.value())) {
         _print_failed_at_line_no();
         spdlog::error("duplicated vertex ID ({})!!", id);
-        return false;
+        return std::nullopt;
     }
 
-    return true;
+    return std::make_optional<std::pair<char, unsigned>>({type, id.value()});
 }
 
 /**
@@ -237,8 +244,7 @@ bool ZXFileParser::_is_valid_tokens_for_boundary_vertex(std::vector<std::string>
 
     if (tokens.size() <= 3) return true;
 
-    Phase tmp;
-    if (Phase::from_string(tokens.back(), tmp)) {
+    if (Phase::from_string(tokens.back()).has_value()) {
         _print_failed_at_line_no();
         spdlog::error("cannot assign phase to boundary vertex!!");
         return false;
@@ -256,8 +262,7 @@ bool ZXFileParser::_is_valid_tokens_for_boundary_vertex(std::vector<std::string>
 bool ZXFileParser::_is_valid_tokens_for_h_box(std::vector<std::string> const& tokens) {
     if (tokens.size() <= 3) return true;
 
-    Phase tmp;
-    if (Phase::from_string(tokens.back(), tmp)) {
+    if (Phase::from_string(tokens.back()).has_value()) {
         _print_failed_at_line_no();
         spdlog::error("cannot assign phase to H-box!!");
         return false;
@@ -341,7 +346,7 @@ bool ZXFileParser::_parse_column(std::string const& token, float& column) {
 bool ZXFileParser::_parse_neighbors(std::string const& token, std::pair<char, size_t>& neighbor) {
     auto const type = dvlab::str::toupper(token[0]);
     unsigned id     = 0;
-    if (std::string("SH").find(type) == std::string::npos) {
+    if (supported_edge_type.find(type) == std::string::npos) {
         _print_failed_at_line_no();
         spdlog::error("unsupported edge type ({})!!", type);
         return false;
