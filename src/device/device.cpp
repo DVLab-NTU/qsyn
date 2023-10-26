@@ -7,6 +7,8 @@
 
 #include "device/device.hpp"
 
+#include <bits/ranges_algo.h>
+#include <bits/ranges_base.h>
 #include <fmt/ranges.h>
 #include <fmt/std.h>
 #include <spdlog/spdlog.h>
@@ -20,6 +22,7 @@
 #include <limits>
 #include <ranges>
 #include <string>
+#include <tl/to.hpp>
 #include <utility>
 
 #include "qcir/gate_type.hpp"
@@ -436,11 +439,10 @@ bool Device::read_device(std::string const& filename) {
     size_t token_end = dvlab::str::str_get_token(str, token, 0, ": ");
     data             = str.substr(token_end + 1);
 
-    _topology->set_name(dvlab::str::trim_spaces(data));
+    _topology->set_name(std::string{dvlab::str::trim_spaces(data)});
 
     // NOTE - Qubit num
     str = "", token = "", data = "";
-    unsigned qbn = 0;
     while (str == "") {
         std::getline(topo_file, str);
         str = dvlab::str::trim_spaces(dvlab::str::trim_comments(str));
@@ -448,11 +450,12 @@ bool Device::read_device(std::string const& filename) {
     token_end = dvlab::str::str_get_token(str, token, 0, ": ");
     data      = str.substr(token_end + 1);
     data      = dvlab::str::trim_spaces(data);
-    if (!dvlab::str::str_to_u(data, qbn)) {
+    auto qbn  = dvlab::str::from_string<unsigned>(data);
+    if (!qbn.has_value()) {
         spdlog::error("The number of qubit is not a positive integer!!");
         return false;
     }
-    _num_qubit = size_t(qbn);
+    _num_qubit = qbn.value();
 
     // NOTE - Gate set
     str = "", token = "", data = "";
@@ -509,24 +512,24 @@ bool Device::read_device(std::string const& filename) {
  * @return false
  */
 bool Device::_parse_gate_set(std::string const& gate_set_str) {
-    std::string token = "", data = "", gt;
-    auto const token_end = dvlab::str::str_get_token(gate_set_str, token, 0, ": ");
-    data                 = gate_set_str.substr(token_end + 1);
+    std::string _;
+    auto const token_end = dvlab::str::str_get_token(gate_set_str, _, 0, ": ");
+    auto data            = gate_set_str.substr(token_end + 1);
     data                 = dvlab::str::trim_spaces(data);
     data                 = dvlab::str::remove_brackets(data, '{', '}');
-    size_t m             = 0;
-    while (m < data.size()) {
-        m              = dvlab::str::str_get_token(data, gt, m, ',');
-        gt             = dvlab::str::trim_spaces(gt);
-        gt             = dvlab::str::tolower_string(gt);
-        auto gate_type = str_to_gate_type(gt);
-        if (!gate_type.has_value()) {
-            spdlog::error("unsupported gate type \"{}\"!!", gt);
-            return false;
-        }
-        _topology->add_gate_type(gate_type.value());
-    }
-    return true;
+    auto gate_set_view =
+        dvlab::str::views::tokenize(data, ',') |
+        std::views::transform([](auto const& str) { return dvlab::str::tolower_string(str); }) |
+        std::views::transform([&](auto const& str) {
+            auto gate_type = str_to_gate_type(str);
+            if (!gate_type.has_value()) {
+                spdlog::error("unsupported gate type \"{}\"!!", str);
+            };
+            _topology->add_gate_type(gate_type.value());
+            return gate_type;
+        });
+
+    return std::ranges::all_of(gate_set_view, [](auto const& gate_type) { return gate_type.has_value(); });
 }
 
 /**
@@ -552,13 +555,13 @@ bool Device::_parse_info(std::ifstream& f, std::vector<std::vector<float>>& cx_e
         auto const data      = dvlab::str::trim_spaces(str.substr(token_end + 1));
 
         if (token == "SGERROR") {
-            if (!_parse_singles(data, single_error)) return false;
+            if (!_parse_singles(std::string{data}, single_error)) return false;
         } else if (token == "SGTIME") {
-            if (!_parse_singles(data, single_delay)) return false;
+            if (!_parse_singles(std::string{data}, single_delay)) return false;
         } else if (token == "CNOTERROR") {
-            if (!_parse_float_pairs(data, cx_error)) return false;
+            if (!_parse_float_pairs(std::string{data}, cx_error)) return false;
         } else if (token == "CNOTTIME") {
-            if (!_parse_float_pairs(data, cx_delay)) return false;
+            if (!_parse_float_pairs(std::string{data}, cx_delay)) return false;
         }
         if (f.eof()) {
             break;
@@ -579,20 +582,15 @@ bool Device::_parse_info(std::ifstream& f, std::vector<std::vector<float>>& cx_e
  * @return false
  */
 bool Device::_parse_singles(std::string const& data, std::vector<float>& container) {
-    std::string str, num;
-    float fl = 0.;
-    size_t m = 0;
+    std::string const buffer = dvlab::str::remove_brackets(data, '[', ']');
 
-    str = dvlab::str::remove_brackets(data, '[', ']');
-
-    while (m < str.size()) {
-        m   = dvlab::str::str_get_token(str, num, m, ',');
-        num = dvlab::str::trim_spaces(num);
-        if (!dvlab::str::str_to_f(num, fl)) {
-            spdlog::error("The number `{}` is not a float!!", num);
+    for (auto const& token : dvlab::str::views::tokenize(buffer, ',')) {
+        auto fl = dvlab::str::from_string<float>(dvlab::str::trim_spaces(token));
+        if (!fl.has_value()) {
+            spdlog::error("The number `{}` is not a float!!", token);
             return false;
         }
-        container.emplace_back(fl);
+        container.emplace_back(fl.value());
     }
     return true;
 }
@@ -606,24 +604,24 @@ bool Device::_parse_singles(std::string const& data, std::vector<float>& contain
  * @return false
  */
 bool Device::_parse_float_pairs(std::string const& data, std::vector<std::vector<float>>& containers) {
-    std::string str, num;
-    float fl = 0.;
-    size_t n = 0, m = 0;
-    while (n < data.size()) {
-        n   = dvlab::str::str_get_token(data, str, n, '[');
-        str = str.substr(0, str.find_first_of(']'));
-        m   = 0;
-        std::vector<float> single_fl;
-        while (m < str.size()) {
-            m   = dvlab::str::str_get_token(str, num, m, ',');
-            num = dvlab::str::trim_spaces(num);
-            if (!dvlab::str::str_to_f(num, fl)) {
-                spdlog::error("The number `{}` is not a float!!", num);
-                return false;
-            }
-            single_fl.emplace_back(fl);
+    for (auto const& outer_token : dvlab::str::views::tokenize(data, '[')) {
+        std::string const buffer{outer_token.substr(0, outer_token.find_first_of(']'))};
+        auto floats =
+            dvlab::str::views::tokenize(buffer, ',') |
+            std::views::transform([](auto const& str) {
+                auto result = dvlab::str::from_string<float>(str);
+                if (!result.has_value()) {
+                    spdlog::error("The number `{}` is not a float!!", str);
+                    return std::optional<float>{};
+                }
+                return result;
+            });
+
+        if (std::ranges::any_of(floats, [](auto const& fl) { return !fl.has_value(); })) {
+            return false;
         }
-        containers.emplace_back(single_fl);
+
+        containers.emplace_back(floats | std::views::transform([](auto const& fl) { return fl.value(); }) | tl::to<std::vector>());
     }
     return true;
 }
@@ -637,25 +635,26 @@ bool Device::_parse_float_pairs(std::string const& data, std::vector<std::vector
  * @return false
  */
 bool Device::_parse_size_t_pairs(std::string const& data, std::vector<std::vector<size_t>>& containers) {
-    std::string str, num;
-    unsigned qbn = 0;
-    size_t n = 0, m = 0;
-    while (n < data.size()) {
-        n   = dvlab::str::str_get_token(data, str, n, '[');
-        str = str.substr(0, str.find_first_of(']'));
-        m   = 0;
-        std::vector<size_t> single;
-        while (m < str.size()) {
-            m   = dvlab::str::str_get_token(str, num, m, ',');
-            num = dvlab::str::trim_spaces(num);
-            if (!dvlab::str::str_to_u(num, qbn) || qbn >= _num_qubit) {
-                spdlog::error("The number of qubit `{}` is not a positive integer or not in the legal range!!", num);
-                return false;
-            }
-            single.emplace_back(size_t(qbn));
+    for (auto const& outer_token : dvlab::str::views::tokenize(data, '[')) {
+        std::string const buffer{outer_token.substr(0, outer_token.find_first_of(']'))};
+        auto qubit_ids =
+            dvlab::str::views::tokenize(buffer, ',') |
+            std::views::transform([](auto const& str) {
+                auto result = dvlab::str::from_string<size_t>(str);
+                if (!result.has_value()) {
+                    spdlog::error("The number `{}` is not a positive integer!!", str);
+                    return std::optional<size_t>{};
+                }
+                return result;
+            });
+
+        if (std::ranges::any_of(qubit_ids, [](auto const& fl) { return !fl.has_value(); })) {
+            return false;
         }
-        containers.emplace_back(single);
+
+        containers.emplace_back(qubit_ids | std::views::transform([](auto const& fl) { return fl.value(); }) | tl::to<std::vector>());
     }
+
     return true;
 }
 

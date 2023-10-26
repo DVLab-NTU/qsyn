@@ -9,8 +9,10 @@
 
 #include <spdlog/spdlog.h>
 
+#include <ranges>
 #include <regex>
 #include <tl/enumerate.hpp>
+#include <tl/to.hpp>
 
 #include "util/dvlab_string.hpp"
 
@@ -171,9 +173,9 @@ bool dvlab::CommandLineInterface::add_variables_from_dofiles(std::string const& 
 
     dofile.close();
 
-    std::vector<std::string> tokens = dvlab::str::split(line, " ");
-
-    std::erase_if(tokens, [](std::string const& token) { return token == ""; });
+    auto tokens = dvlab::str::views::tokenize(line, ' ') |
+                  std::views::transform([](std::string_view sv) { return std::string{sv}; }) |  // regex does not support string_view
+                  tl::to<std::vector<std::string>>();
 
     if (tokens.empty()) return true;
 
@@ -183,6 +185,7 @@ bool dvlab::CommandLineInterface::add_variables_from_dofiles(std::string const& 
 
         std::vector<std::string> keys;
         for (auto const& token : tokens) {
+            // regex does not support string_view
             if (!regex_match(token, valid_variable_name)) {
                 spdlog::error("invalid argument name \"{}\" in \"//!ARGS\" directive", token);
                 return false;

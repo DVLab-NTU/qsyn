@@ -39,7 +39,7 @@ private:
     // parsing subroutines
     bool _tokenize(std::string const& line, std::vector<std::string>& tokens);
 
-    bool _parse_type_and_id(std::string const& token, char& type, unsigned& id);
+    std::optional<std::pair<char, unsigned>> _parse_type_and_id(std::string const& token);
     bool _is_valid_tokens_for_boundary_vertex(std::vector<std::string> const& tokens);
     bool _is_valid_tokens_for_h_box(std::vector<std::string> const& tokens);
 
