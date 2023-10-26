@@ -13,6 +13,7 @@
 #include <numeric>
 #include <ranges>
 #include <tl/enumerate.hpp>
+#include <tl/to.hpp>
 
 #include "./argparse.hpp"
 #include "unicode/display_width.hpp"
@@ -148,8 +149,7 @@ std::string get_syntax(ArgumentParser parser, MutuallyExclusiveGroup const& grou
  */
 std::string wrap_text(std::string const& str, size_t max_help_width) {
     if (!dvlab::utils::is_terminal()) return str;
-
-    std::vector<std::string> lines = dvlab::str::split(str, "\n");
+    auto lines = dvlab::str::views::split_to_string_views(str, '\n') | tl::to<std::vector>();
 
     // NOTE - the following code modifies the vector while iterating over it.
     //        don't use range-based for loop here.

@@ -10,10 +10,12 @@
 
 #include <algorithm>
 #include <cassert>
+#include <cstdint>
 #include <exception>
 #include <gsl/narrow>
 #include <numeric>
 #include <ranges>
+#include <tl/to.hpp>
 
 #include "./dvlab_string.hpp"
 #include "fmt/color.h"
@@ -26,45 +28,69 @@ namespace dvlab {
 
 namespace fmt_ext {
 
+constexpr uint8_t ansi_fg_begin        = 30;
+constexpr uint8_t ansi_fg_end          = 38;
+constexpr uint8_t ansi_bg_begin        = 40;
+constexpr uint8_t ansi_bg_end          = 48;
+constexpr uint8_t ansi_fg_bright_begin = 90;
+constexpr uint8_t ansi_fg_bright_end   = 98;
+constexpr uint8_t ansi_bg_bright_begin = 100;
+constexpr uint8_t ansi_bg_bright_end   = 108;
+
+namespace {
+
+auto is_ansi_fg_color(uint8_t code) -> bool {
+    return (code >= ansi_fg_begin && code < ansi_fg_end) || (code >= ansi_fg_bright_begin && code < ansi_fg_bright_end);
+}
+
+auto is_ansi_bg_color(uint8_t code) -> bool {
+    return (code >= ansi_bg_begin && code < ansi_bg_end) || (code >= ansi_bg_bright_begin && code < ansi_bg_bright_end);
+}
+
+auto const ls_color_map = std::invoke([]() {
+    std::unordered_map<std::string, fmt::text_style> map;
+
+    char const* const ls_colors_str = getenv("LS_COLORS");
+    if (ls_colors_str == nullptr) return map;
+
+    for (auto&& token : dvlab::str::views::split_to_string_views(ls_colors_str, ':')) {
+        if (token.empty()) continue;
+        auto const equal_sign_pos = token.find('=');
+
+        auto const key        = token.substr(0, equal_sign_pos);
+        auto const values_str = token.substr(equal_sign_pos + 1);
+        auto const values     = dvlab::str::views::split_to_string_views(values_str, ';') | tl::to<std::vector>();
+
+        auto const style = std::transform_reduce(
+            values.begin(), values.end(),
+            fmt::text_style{},
+            std::bit_or<>{},
+            [&](std::string_view str) {
+                auto ansi_code = dvlab::str::from_string<uint8_t>(str);
+                if (!ansi_code.has_value() || ansi_code == 0) return fmt::text_style{};
+                if (is_ansi_fg_color(ansi_code.value())) return fmt::fg(fmt::terminal_color{ansi_code.value()});
+                if (is_ansi_bg_color(ansi_code.value())) return fmt::bg(fmt::terminal_color{ansi_code.value()});
+                // The shift operator promote the value to an `int`, which is not allowed to initialize a `fmt::emphasis`.
+                // Therefore, we need to cast it back to `uint8_t`.
+                // If somehow `ansi_code.value()` is not between [0, 7], the narrow cast will panic.
+                return fmt::text_style{fmt::emphasis{gsl::narrow<uint8_t>(1 << (ansi_code.value() - 1))}};
+            });
+
+        map.emplace(key, style);
+    }
+
+    return map;
+});
+
+auto ls_color_internal(std::string const& key) -> fmt::text_style {
+    if (ls_color_map.contains(key)) return ls_color_map.at(key);
+
+    return fmt::text_style{};
+};
+
+}  // namespace
+
 fmt::text_style ls_color(fs::path const& path) {
-    static auto const ls_color_internal = [](std::string const& key) -> fmt::text_style {
-        static auto const ls_color_map = std::invoke([]() {
-            std::unordered_map<std::string, fmt::text_style> map;
-            char const* const ls_colors_str = getenv("LS_COLORS");
-            if (ls_colors_str == nullptr) return map;
-            std::string const ls_colors{ls_colors_str};
-
-            for (auto&& token : dvlab::str::split(ls_colors, ":")) {
-                if (token.empty()) continue;
-                auto const pos    = token.find('=');
-                auto const key    = token.substr(0, pos);
-                auto const values = dvlab::str::split(token.substr(pos + 1), ";");
-                auto const style  = std::transform_reduce(
-                    values.begin(), values.end(),
-                    fmt::text_style{},
-                    std::bit_or<>{},
-                    [&](std::string const& str) {
-                        size_t tmp = 0;
-                        if (!dvlab::str::str_to_num<size_t>(str, tmp) || tmp == 0) return fmt::text_style{};
-                        if (tmp >= 30 && tmp <= 37) return fmt::fg(fmt::terminal_color{gsl::narrow<uint8_t>(tmp)});
-                        if (tmp >= 90 && tmp <= 97) return fmt::fg(fmt::terminal_color{gsl::narrow<uint8_t>(tmp)});
-                        if (tmp >= 40 && tmp <= 47) return fmt::bg(fmt::terminal_color{gsl::narrow<uint8_t>(tmp)});
-                        if (tmp >= 100 && tmp <= 107) return fmt::bg(fmt::terminal_color{gsl::narrow<uint8_t>(tmp)});
-                        assert(tmp <= 7);
-                        return fmt::text_style{fmt::emphasis{gsl::narrow<uint8_t>(1 << (tmp - 1))}};
-                    });
-
-                map.emplace(key, style);
-            }
-
-            return map;
-        });
-
-        if (ls_color_map.contains(key)) return ls_color_map.at(key);
-
-        return fmt::text_style{};
-    };
-
     namespace fs = std::filesystem;
     using fs::file_type, fs::perms;
 

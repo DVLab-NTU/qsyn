@@ -60,7 +60,7 @@ std::string remove_brackets(std::string const& str, char const left, char const 
 // (i.e. "delim" or string::npos) if found.
 // This function will not treat '\ ' as a space in the token. That is, "a\ b" is two token ("a\", "b") and not one
 size_t
-str_get_token(std::string const& str, std::string& tok, size_t pos, std::string const& delim) {
+str_get_token(std::string_view str, std::string& tok, size_t pos, std::string const& delim) {
     auto const begin = str.find_first_not_of(delim, pos);
     if (begin == std::string::npos) {
         tok = "";
@@ -71,7 +71,7 @@ str_get_token(std::string const& str, std::string& tok, size_t pos, std::string 
     return end;
 }
 
-size_t str_get_token(std::string const& str, std::string& tok, size_t pos, char const delim) {
+size_t str_get_token(std::string_view str, std::string& tok, size_t pos, char const delim) {
     return str_get_token(str, tok, pos, std::string(1, delim));
 }
 
@@ -101,8 +101,8 @@ char toupper(char ch) {
  * @param str
  * @return std::string
  */
-std::string tolower_string(std::string const& str) {
-    std::string ret = str;
+std::string tolower_string(std::string_view str) {
+    std::string ret{str};
     std::for_each(ret.begin(), ret.end(), [](char& ch) { ch = dvlab::str::tolower(ch); });
     return ret;
 };
@@ -113,33 +113,11 @@ std::string tolower_string(std::string const& str) {
  * @param str
  * @return std::string
  */
-std::string toupper_string(std::string const& str) {
-    std::string ret = str;
+std::string toupper_string(std::string_view str) {
+    std::string ret{str};
     std::for_each(ret.begin(), ret.end(), [](char& ch) { ch = dvlab::str::toupper(ch); });
     return ret;
 };
-
-std::vector<std::string> split(std::string const& str, std::string const& delim = " ") {
-    std::vector<std::string> result;
-    std::string token;
-    size_t pos = str_get_token(str, token, 0, delim);
-    while (token.size()) {
-        result.emplace_back(token);
-        pos = str_get_token(str, token, pos, delim);
-    }
-
-    return result;
-}
-
-std::string join(std::string const& infix, std::span<std::string> strings) {
-    std::string result = *strings.begin();
-
-    for (auto& str : strings.subspan(1)) {
-        result += infix + str;
-    }
-
-    return result;
-}
 
 //---------------------------------------------
 // number parsing

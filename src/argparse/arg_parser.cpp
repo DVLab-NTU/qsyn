@@ -293,23 +293,29 @@ std::pair<bool, std::vector<Token>> ArgumentParser::_parse_known_args_impl(Token
  * @return false if failed
  */
 bool ArgumentParser::_parse_options(TokensView tokens) {
-    for (auto const& [i, token] : tl::views::enumerate(tokens)) {
-        if (!has_option_prefix(token.token) || token.parsed) continue;
-        auto match = _match_option(token.token);
+    for (auto const& [i, token_pair] : tl::views::enumerate(tokens)) {
+        auto const& token = token_pair.token;
+        auto& parsed      = token_pair.parsed;
+        if (!has_option_prefix(token) || parsed) continue;
+        auto match = _match_option(token);
+
         if (std::holds_alternative<size_t>(match)) {
-            if (float tmp = 0; dvlab::str::str_to_f(token.token, tmp))  // if the argument is a number, skip to the next arg
+            // check if the argument is a number
+            if (dvlab::str::from_string<float>(token).has_value())
                 continue;
             auto frequency = std::get<size_t>(match);
             assert(frequency != 1);
 
-            if (frequency == 0) continue;  // unrecognized; may be positional arguments or errors
-            // else this is an error
+            // If the option is unrecognized, skip to the next arg
+            // because it may be a positional argument
+            if (frequency == 0) continue;
+
+            // Else the option is ambiguous. Report the error and quit parsing
+            auto const matching_option_filter = [this, &token = token](std::string const& name) {
+                return has_option_prefix(name) && name.starts_with(token);
+            };
             fmt::println(stderr, "Error: ambiguous option: \"{}\" could match {}",
-                         token.token,
-                         fmt::join(_pimpl->arguments | std::views::keys | std::views::filter([this, &token = tokens[i].token](std::string const& name) {
-                                       return has_option_prefix(name) && name.starts_with(token);
-                                   }),
-                                   ", "));
+                         token, fmt::join(_pimpl->arguments | std::views::keys | std::views::filter(matching_option_filter), ", "));
             return false;
         }
         Argument& arg = _get_arg(std::get<std::string>(match));
@@ -324,7 +330,7 @@ bool ArgumentParser::_parse_options(TokensView tokens) {
             return false;  // break the parsing
         }
 
-        token.parsed     = true;
+        parsed           = true;
         auto parse_range = arg.get_parse_range(tokens.subspan(i + 1));
         if (!arg.tokens_enough_to_parse(parse_range)) {
             fmt::println(stderr, "Error: missing argument(s) for \"{}\": expected {}{} arguments!!",
@@ -372,8 +378,6 @@ bool ArgumentParser::_parse_positional_arguments(TokensView tokens, std::vector<
             if (!_no_conflict_with_parsed_arguments(arg)) return false;
             arg.mark_as_parsed();
         }
-
-        // only mark as parsed if at least some tokens is associated with this argument
     }
     std::ranges::copy_if(tokens, back_inserter(unrecognized), [](Token const& token) { return !token.parsed; });
 

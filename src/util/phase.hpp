@@ -12,6 +12,7 @@
 #include <cmath>
 #include <iosfwd>
 #include <numbers>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -87,13 +88,13 @@ public:
 
     template <class T = double>
     requires std::floating_point<T>
-    static bool
-    from_string(std::string const& str, Phase& phase) {
+    static std::optional<Phase>
+    from_string(std::string const& str) {
+        Phase phase;
         if (!str_to_phase<T>(str, phase)) {
-            phase = Phase(0);
-            return false;
+            return std::nullopt;
         }
-        return true;
+        return phase;
     }
 
     template <class T = double>
