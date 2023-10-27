@@ -11,7 +11,7 @@
 #include <memory>
 #include <type_traits>
 
-#include "./zx_rules_template.hpp"
+#include "./rules/zx_rules_template.hpp"
 
 extern bool stop_requested();
 

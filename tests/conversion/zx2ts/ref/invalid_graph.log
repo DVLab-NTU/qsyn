@@ -1,14 +1,14 @@
-qsyn> zxgr benchmark/zx/cnot.zx
+qsyn> zxgraph read benchmark/zx/cnot.zx
 
-qsyn> zxgedit -adde 0 5 SIMPLE
+qsyn> zxgraph edge add 0 5 SIMPLE
 
 qsyn> zx2ts // invalid graph 1: boundary has too more than one neighbors
 [error]    The ZXGraph is not valid!!
 
 qsyn> 
-qsyn> zxgr benchmark/zx/cnot.zx
+qsyn> zxgraph read benchmark/zx/cnot.zx
 
-qsyn> zxgedit -rme 0 2 ALL
+qsyn> zxgraph edge remove 0 2 ALL
 
 qsyn> zx2ts // invalid graph 2: boundary has no neighbors
 [error]    The ZXGraph is not valid!!

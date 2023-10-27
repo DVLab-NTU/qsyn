@@ -1,8 +1,8 @@
-zxn
-zxgr benchmark/zx/lcomp_1.zx
-zxgp -v
-zxgp -e
-zxgsimp -lcomp
-zxgp -v
-zxgp -e
+zxgraph new
+zxgraph read benchmark/zx/lcomp_1.zx
+zxgraph print -v
+zxgraph print -e
+zxgraph rule --local-complementation
+zxgraph print -v
+zxgraph print -e
 quit -f

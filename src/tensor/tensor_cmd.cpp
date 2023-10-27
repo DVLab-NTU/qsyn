@@ -10,6 +10,7 @@
 
 #include "./tensor_mgr.hpp"
 #include "cli/cli.hpp"
+#include "util/data_structure_manager_common_cmd.hpp"
 #include "util/phase.hpp"
 #include "util/text_format.hpp"
 
@@ -25,29 +26,6 @@ ArgType<size_t>::ConstraintType valid_tensor_id(TensorMgr const& tensor_mgr) {
         spdlog::error("Cannot find tensor with ID {}!!", id);
         return false;
     };
-}
-
-Command tensor_clear_cmd(TensorMgr& tensor_mgr) {
-    return {"clear",
-            [](ArgumentParser& parser) {
-                parser.description("clear the tensor manager");
-            },
-            [&](ArgumentParser const& /*parser*/) {
-                tensor_mgr.clear();
-                return CmdExecResult::done;
-            }};
-}
-
-Command tensor_list_cmd(TensorMgr& tensor_mgr) {
-    return {"list",
-            [](ArgumentParser& parser) {
-                parser.description("list info about Tensors");
-            },
-            [&](ArgumentParser const& /*unused*/) {
-                tensor_mgr.print_list();
-
-                return CmdExecResult::done;
-            }};
 }
 
 Command tensor_print_cmd(TensorMgr& tensor_mgr) {
@@ -145,16 +123,10 @@ Command tensor_equivalence_check_cmd(TensorMgr& tensor_mgr) {
 }
 
 Command tensor_cmd(TensorMgr& tensor_mgr) {
-    auto cmd = Command{"tensor",
-                       [&](ArgumentParser& parser) {
-                           parser.description("tensor commands");
-                       },
-                       [&](ArgumentParser const& /*parser*/) {
-                           tensor_mgr.print_manager();
-                           return CmdExecResult::done;
-                       }};
-    cmd.add_subcommand(tensor_clear_cmd(tensor_mgr));
-    cmd.add_subcommand(tensor_list_cmd(tensor_mgr));
+    using namespace dvlab::utils;
+    auto cmd = mgr_root_cmd(tensor_mgr);
+    cmd.add_subcommand(mgr_clear_cmd(tensor_mgr));
+    cmd.add_subcommand(mgr_list_cmd(tensor_mgr));
     cmd.add_subcommand(tensor_print_cmd(tensor_mgr));
     cmd.add_subcommand(tensor_adjoint_cmd(tensor_mgr));
     cmd.add_subcommand(tensor_equivalence_check_cmd(tensor_mgr));

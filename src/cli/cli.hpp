@@ -69,7 +69,7 @@ class Command {
 
 public:
     Command(std::string const& name, ParserDefinition defn, OnParseSuccess on)
-        : _parser{name, {.exitOnFailure = false}}, _parser_definition{std::move(defn)}, _on_parse_success{std::move(on)} {}
+        : _parser{name, {.exit_on_failure = false}}, _parser_definition{std::move(defn)}, _on_parse_success{std::move(on)} {}
     Command(std::string const& name)
         : dvlab::Command(name, nullptr, nullptr) {}
 

@@ -34,7 +34,7 @@ Description:
   check equivalence of the physical and the logical circuits
 
 Options:
-  flag    -h, --help            show this help message and exit                        
+  flag    -h, --help            show this help message                                 
   size_t  -logical    LOGICAL   logical circuit id                                     
   size_t  -physical   PHYSICAL  physical circuit id                                    
   flag    -reverse              check the circuit reversily, used in extracted circuit 

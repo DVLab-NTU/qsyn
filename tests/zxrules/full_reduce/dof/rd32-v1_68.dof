@@ -1,8 +1,8 @@
 qccread ./benchmark/SABRE/small/rd32-v1_68.qasm
 qc2zx
-zxgp -q
+zxgraph print -q
 logger level info
-zxgs -fr
+zxgraph optimize --full-reduce
 logger level warn
-zxgp -q
+zxgraph print -q
 quit -f

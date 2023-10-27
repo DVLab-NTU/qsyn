@@ -1,18 +1,18 @@
-zxn
-zxge -addi 0
-zxge -addo 0
-zxge -addv 0 Z 0
-zxge -addv 0 Z 0
-zxge -adde 0 2 SIMPLE
-zxge -adde 2 3 SIMPLE
-zxge -adde 3 1 SIMPLE
+zxgraph new
+zxgraph vertex add i 0
+zxgraph vertex add o 0
+zxgraph vertex add z 0 0
+zxgraph vertex add z 0 0
+zxgraph edge add 0 2 SIMPLE
+zxgraph edge add 2 3 SIMPLE
+zxgraph edge add 3 1 SIMPLE
 zx2ts
-zxge -adde 2 3 SIMPLE
+zxgraph edge add 2 3 SIMPLE
 zx2ts
 tensor list
 tensor equiv 0 1
 tensor equiv 0 1 -strict
-zxr
+zxgraph clear
 tensor clear
 qcba
 qc2ts 

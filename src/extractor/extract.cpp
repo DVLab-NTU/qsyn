@@ -20,7 +20,6 @@
 #include "util/boolean_matrix.hpp"
 #include "util/util.hpp"
 #include "zx/simplifier/simplify.hpp"
-#include "zx/simplifier/zx_rules_template.hpp"
 #include "zx/zx_def.hpp"
 #include "zx/zxgraph.hpp"
 

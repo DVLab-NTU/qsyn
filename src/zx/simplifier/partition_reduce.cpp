@@ -2,8 +2,8 @@
 #include <cstddef>
 #include <util/util.hpp>
 
+#include "./rules/zx_rules_template.hpp"
 #include "./simplify.hpp"
-#include "./zx_rules_template.hpp"
 #include "zx/zx_partition.hpp"
 #include "zx/zxgraph.hpp"
 

@@ -1,22 +1,22 @@
-qsyn> zxn
+qsyn> zxgraph new
 
-qsyn> zxge -addi 0
+qsyn> zxgraph vertex add i 0
 
-qsyn> zxge -addo 0
+qsyn> zxgraph vertex add o 0
 
-qsyn> zxge -addo 1
+qsyn> zxgraph vertex add o 1
 
-qsyn> zxge -addv 0 Z pi/2
+qsyn> zxgraph vertex add z 0 pi/2
 
-qsyn> zxge -adde 0 3 SIMPLE
+qsyn> zxgraph edge add 0 3 SIMPLE
 
-qsyn> zxge -adde 1 3 SIMPLE
+qsyn> zxgraph edge add 1 3 SIMPLE
 
-qsyn> zxge -adde 2 3 SIMPLE
+qsyn> zxgraph edge add 2 3 SIMPLE
 
 qsyn> zx2ts
 
-qsyn> zxgadj
+qsyn> zxgraph adjoint
 
 qsyn> zx2ts
 

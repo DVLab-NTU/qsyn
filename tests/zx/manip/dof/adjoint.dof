@@ -1,9 +1,9 @@
-zxgr benchmark/zx/tof2_opt.zx
-zxcopy 1
-zxgadj
-zxcomp 0
-zxgsimp -fr
-zxgp -v
+zxgraph read benchmark/zx/tof2_opt.zx
+zxgraph copy 1
+zxgraph adjoint
+zxgraph compose 0
+zxgraph optimize --full-reduce
+zxgraph print -v
 zx2ts
 qcba 3
 qc2ts

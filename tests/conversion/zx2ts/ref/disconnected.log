@@ -1,37 +1,37 @@
-qsyn> zxnew
+qsyn> zxgraph new
 
-qsyn> zxgedit -addi 0
+qsyn> zxgraph vertex add input 0
 
-qsyn> zxgedit -addo 0
+qsyn> zxgraph vertex add output 0
 
-qsyn> zxgedit -addi 1
+qsyn> zxgraph vertex add input 1
 
-qsyn> zxgedit -addo 1
+qsyn> zxgraph vertex add output 1
 
-qsyn> zxgedit -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxgedit -addv 0 Z pi
+qsyn> zxgraph vertex add z 0 pi
 
-qsyn> zxgedit -addi 2
+qsyn> zxgraph vertex add input 2
 
-qsyn> zxgedit -addo 2
+qsyn> zxgraph vertex add output 2
 
-qsyn> zxgedit -addi 3
+qsyn> zxgraph vertex add input 3
 
-qsyn> zxgedit -addo 3
+qsyn> zxgraph vertex add output 3
 
 qsyn> 
-qsyn> zxgedit -adde 0 4 SIMPLE
+qsyn> zxgraph edge add 0 4 SIMPLE
 
-qsyn> zxgedit -adde 4 1 SIMPLE
+qsyn> zxgraph edge add 4 1 SIMPLE
 
-qsyn> zxgedit -adde 2 5 SIMPLE
+qsyn> zxgraph edge add 2 5 SIMPLE
 
-qsyn> zxgedit -adde 5 3 SIMPLE
+qsyn> zxgraph edge add 5 3 SIMPLE
 
-qsyn> zxgedit -adde 6 7 SIMPLE
+qsyn> zxgraph edge add 6 7 SIMPLE
 
-qsyn> zxgedit -adde 8 9 SIMPLE
+qsyn> zxgraph edge add 8 9 SIMPLE
 
 qsyn> 
 qsyn> logger level trace
@@ -88,13 +88,13 @@ qsyn> zx2ts
 qsyn> logger level warn
 
 qsyn> 
-qsyn> zxgr benchmark/zx/cnot.zx
+qsyn> zxgraph read benchmark/zx/cnot.zx
 
-qsyn> zxgr benchmark/zx/cnot.zx
+qsyn> zxgraph read benchmark/zx/cnot.zx
 
-qsyn> zxch 0
+qsyn> zxgraph checkout 0
 
-qsyn> zxtensor 1
+qsyn> zxgraph tensor-product 1
 
 qsyn> 
 qsyn> logger level trace
@@ -184,68 +184,68 @@ qsyn> zx2ts
 qsyn> logger level warn
 
 qsyn> 
-qsyn> zxnew
+qsyn> zxgraph new
 
-qsyn> zxgedit -addi 0
+qsyn> zxgraph vertex add input 0
 
-qsyn> zxgedit -addo 0
+qsyn> zxgraph vertex add output 0
 
-qsyn> zxgedit -addi 1
+qsyn> zxgraph vertex add input 1
 
-qsyn> zxgedit -addo 1
+qsyn> zxgraph vertex add output 1
 
-qsyn> zxgedit -addi 2
+qsyn> zxgraph vertex add input 2
 
-qsyn> zxgedit -addo 2
+qsyn> zxgraph vertex add output 2
 
-qsyn> zxgedit -addi 3
+qsyn> zxgraph vertex add input 3
 
-qsyn> zxgedit -addo 3
+qsyn> zxgraph vertex add output 3
 
-qsyn> zxgedit -addi 4
+qsyn> zxgraph vertex add input 4
 
-qsyn> zxgedit -addo 4
-
-qsyn> 
-qsyn> zxgedit -addv 0 Z 0
-
-qsyn> zxgedit -addv 0 Z 0
-
-qsyn> zxgedit -addv 0 Z 0
-
-qsyn> zxgedit -addv 0 Z 0
+qsyn> zxgraph vertex add output 4
 
 qsyn> 
-qsyn> zxgedit -addi 5
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxgedit -addo 5
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxgedit -addi 6
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxgedit -addo 6
+qsyn> zxgraph vertex add z 0 0
 
 qsyn> 
-qsyn> zxgedit -adde 0 1 SIMPLE
+qsyn> zxgraph vertex add input 5
 
-qsyn> zxgedit -adde 2 10 SIMPLE
+qsyn> zxgraph vertex add output 5
 
-qsyn> zxgedit -adde 3 11 SIMPLE
+qsyn> zxgraph vertex add input 6
 
-qsyn> zxgedit -adde 4 12 SIMPLE
+qsyn> zxgraph vertex add output 6
 
-qsyn> zxgedit -adde 5 12 SIMPLE
+qsyn> 
+qsyn> zxgraph edge add 0 1 SIMPLE
 
-qsyn> zxgedit -adde 6 12 SIMPLE
+qsyn> zxgraph edge add 2 10 SIMPLE
 
-qsyn> zxgedit -adde 7 13 SIMPLE
+qsyn> zxgraph edge add 3 11 SIMPLE
 
-qsyn> zxgedit -adde 8 13 SIMPLE
+qsyn> zxgraph edge add 4 12 SIMPLE
 
-qsyn> zxgedit -adde 9 13 SIMPLE
+qsyn> zxgraph edge add 5 12 SIMPLE
 
-qsyn> zxgedit -adde 14 16 SIMPLE
+qsyn> zxgraph edge add 6 12 SIMPLE
 
-qsyn> zxgedit -adde 15 17 SIMPLE
+qsyn> zxgraph edge add 7 13 SIMPLE
+
+qsyn> zxgraph edge add 8 13 SIMPLE
+
+qsyn> zxgraph edge add 9 13 SIMPLE
+
+qsyn> zxgraph edge add 14 16 SIMPLE
+
+qsyn> zxgraph edge add 15 17 SIMPLE
 
 qsyn> 
 qsyn> logger level trace

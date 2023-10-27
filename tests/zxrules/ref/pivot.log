@@ -1,64 +1,64 @@
-qsyn> zxnew
+qsyn> zxgraph new
 
-qsyn> zxge -addi 0
+qsyn> zxgraph vertex add i 0
 
-qsyn> zxge -addo 0
+qsyn> zxgraph vertex add o 0
 
-qsyn> zxge -addi 1
+qsyn> zxgraph vertex add i 1
 
-qsyn> zxge -addo 1
+qsyn> zxgraph vertex add o 1
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -addv 0 Z 3.14159
+qsyn> zxgraph vertex add z 0 3.14159
 
-qsyn> zxge -addv 0 Z 3.14159
+qsyn> zxgraph vertex add z 0 3.14159
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -adde 4 6 HADAMARD
+qsyn> zxgraph edge add 4 6 HADAMARD
 
-qsyn> zxge -adde 5 6 HADAMARD
+qsyn> zxgraph edge add 5 6 HADAMARD
 
-qsyn> zxge -adde 6 7 HADAMARD
+qsyn> zxgraph edge add 6 7 HADAMARD
 
-qsyn> zxge -adde 7 8 HADAMARD
+qsyn> zxgraph edge add 7 8 HADAMARD
 
-qsyn> zxge -adde 7 9 HADAMARD
+qsyn> zxgraph edge add 7 9 HADAMARD
 
-qsyn> zxge -adde 6 10 HADAMARD
+qsyn> zxgraph edge add 6 10 HADAMARD
 
-qsyn> zxge -adde 7 10 HADAMARD
+qsyn> zxgraph edge add 7 10 HADAMARD
 
-qsyn> zxge -adde 5 10 SIMPLE
+qsyn> zxgraph edge add 5 10 SIMPLE
 
-qsyn> zxge -adde 9 10 SIMPLE
+qsyn> zxgraph edge add 9 10 SIMPLE
 
-qsyn> zxge -adde 0 4 SIMPLE
+qsyn> zxgraph edge add 0 4 SIMPLE
 
-qsyn> zxge -adde 2 5 SIMPLE
+qsyn> zxgraph edge add 2 5 SIMPLE
 
-qsyn> zxge -adde 1 8 SIMPLE
+qsyn> zxgraph edge add 1 8 SIMPLE
 
-qsyn> zxge -adde 3 9 SIMPLE
+qsyn> zxgraph edge add 3 9 SIMPLE
 
 qsyn> logger level debug
 [info]     Setting logger level to "debug"
 
-qsyn> zxgs -pivotr
+qsyn> zxgraph rule --pivot
 [info]     Pivot Rule                    2 iterations, total    2 matches
 [debug]       1) 1 matches
 [debug]       2) 1 matches
 
 qsyn> logger level warn
 
-qsyn> zxgp -v
+qsyn> zxgraph print -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (11, H)
 ID:   1 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (12, H)
@@ -72,7 +72,7 @@ ID:  12 (Z, π)           (Qubit, Col): (0, 0)         #Neighbors:   4     (1, H
 Total #Vertices: 9
 
 
-qsyn> zxgp -e
+qsyn> zxgraph print -e
 (0, 11)      Type: H
 (1, 12)      Type: H
 (2, 5)       Type: -
@@ -86,59 +86,59 @@ qsyn> zxgp -e
 (11, 12)     Type: H
 Total #Edges: 11
 
-qsyn> zxr
+qsyn> zxgraph clear
 
-qsyn> zxnew
+qsyn> zxgraph new
 
-qsyn> zxge -addi 0
+qsyn> zxgraph vertex add i 0
 
-qsyn> zxge -addo 0
+qsyn> zxgraph vertex add o 0
 
-qsyn> zxge -addi 1
+qsyn> zxgraph vertex add i 1
 
-qsyn> zxge -addo 1
+qsyn> zxgraph vertex add o 1
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -addv 0 Z 3.14159
+qsyn> zxgraph vertex add z 0 3.14159
 
-qsyn> zxge -addv 0 Z 3.14159
+qsyn> zxgraph vertex add z 0 3.14159
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -adde 4 6 HADAMARD
+qsyn> zxgraph edge add 4 6 HADAMARD
 
-qsyn> zxge -adde 5 6 HADAMARD
+qsyn> zxgraph edge add 5 6 HADAMARD
 
-qsyn> zxge -adde 6 7 HADAMARD
+qsyn> zxgraph edge add 6 7 HADAMARD
 
-qsyn> zxge -adde 7 8 HADAMARD
+qsyn> zxgraph edge add 7 8 HADAMARD
 
-qsyn> zxge -adde 7 9 HADAMARD
+qsyn> zxgraph edge add 7 9 HADAMARD
 
-qsyn> zxge -adde 0 4 SIMPLE
+qsyn> zxgraph edge add 0 4 SIMPLE
 
-qsyn> zxge -adde 2 5 SIMPLE
+qsyn> zxgraph edge add 2 5 SIMPLE
 
-qsyn> zxge -adde 1 8 SIMPLE
+qsyn> zxgraph edge add 1 8 SIMPLE
 
-qsyn> zxge -adde 3 9 SIMPLE
+qsyn> zxgraph edge add 3 9 SIMPLE
 
 qsyn> logger level debug
 [info]     Setting logger level to "debug"
 
-qsyn> zxgs -pivotr
+qsyn> zxgraph rule --pivot
 [info]     Pivot Rule                    2 iterations, total    2 matches
 [debug]       1) 1 matches
 [debug]       2) 1 matches
 
 qsyn> logger level warn
 
-qsyn> zxgp -v
+qsyn> zxgraph print -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (10, H)
 ID:   1 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (11, H)
@@ -151,7 +151,7 @@ ID:  11 (Z, π)           (Qubit, Col): (0, 0)         #Neighbors:   3     (1, H
 Total #Vertices: 8
 
 
-qsyn> zxgp -e
+qsyn> zxgraph print -e
 (0, 10)      Type: H
 (1, 11)      Type: H
 (2, 5)       Type: -
@@ -161,131 +161,131 @@ qsyn> zxgp -e
 (10, 11)     Type: H
 Total #Edges: 7
 
-qsyn> zxr
+qsyn> zxgraph clear
 
 qsyn> // might match (4, 5)
-qsyn> zxnew
+qsyn> zxgraph new
 
-qsyn> zxge -addi 0
+qsyn> zxgraph vertex add i 0
 
-qsyn> zxge -addo 0
+qsyn> zxgraph vertex add o 0
 
-qsyn> zxge -addi 1
+qsyn> zxgraph vertex add i 1
 
-qsyn> zxge -addo 1
+qsyn> zxgraph vertex add o 1
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -addv 0 Z 3.14159
+qsyn> zxgraph vertex add z 0 3.14159
 
-qsyn> zxge -adde 4 5 HADAMARD
+qsyn> zxgraph edge add 4 5 HADAMARD
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -adde 4 6 HADAMARD
+qsyn> zxgraph edge add 4 6 HADAMARD
 
-qsyn> zxge -addv 0 Z 3.14159
+qsyn> zxgraph vertex add z 0 3.14159
 
-qsyn> zxge -addv 0 Z 3.14159
+qsyn> zxgraph vertex add z 0 3.14159
 
-qsyn> zxge -addv 0 Z 3.14159
+qsyn> zxgraph vertex add z 0 3.14159
 
-qsyn> zxge -adde 5 7 HADAMARD
+qsyn> zxgraph edge add 5 7 HADAMARD
 
-qsyn> zxge -adde 5 8 HADAMARD
+qsyn> zxgraph edge add 5 8 HADAMARD
 
-qsyn> zxge -adde 5 9 HADAMARD
+qsyn> zxgraph edge add 5 9 HADAMARD
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -adde 5 10 HADAMARD
+qsyn> zxgraph edge add 5 10 HADAMARD
 
-qsyn> zxge -adde 5 11 HADAMARD
+qsyn> zxgraph edge add 5 11 HADAMARD
 
-qsyn> zxge -addv 0 Z 3.14159
+qsyn> zxgraph vertex add z 0 3.14159
 
-qsyn> zxge -addv 0 Z 3.14159
+qsyn> zxgraph vertex add z 0 3.14159
 
-qsyn> zxge -addv 0 Z 3.14159
+qsyn> zxgraph vertex add z 0 3.14159
 
-qsyn> zxge -addv 0 Z 3.14159
+qsyn> zxgraph vertex add z 0 3.14159
 
-qsyn> zxge -adde 4 12 HADAMARD
+qsyn> zxgraph edge add 4 12 HADAMARD
 
-qsyn> zxge -adde 4 13 HADAMARD
+qsyn> zxgraph edge add 4 13 HADAMARD
 
-qsyn> zxge -adde 4 14 HADAMARD
+qsyn> zxgraph edge add 4 14 HADAMARD
 
-qsyn> zxge -adde 4 15 HADAMARD
+qsyn> zxgraph edge add 4 15 HADAMARD
 
-qsyn> zxge -adde 5 12 HADAMARD
+qsyn> zxgraph edge add 5 12 HADAMARD
 
-qsyn> zxge -adde 5 13 HADAMARD
+qsyn> zxgraph edge add 5 13 HADAMARD
 
-qsyn> zxge -adde 5 14 HADAMARD
+qsyn> zxgraph edge add 5 14 HADAMARD
 
-qsyn> zxge -adde 5 15 HADAMARD
+qsyn> zxgraph edge add 5 15 HADAMARD
 
-qsyn> zxge -adde 0 10 SIMPLE
+qsyn> zxgraph edge add 0 10 SIMPLE
 
-qsyn> zxge -adde 2 7 SIMPLE
+qsyn> zxgraph edge add 2 7 SIMPLE
 
-qsyn> zxge -adde 1 11 SIMPLE
+qsyn> zxgraph edge add 1 11 SIMPLE
 
-qsyn> zxge -adde 3 11 SIMPLE
+qsyn> zxgraph edge add 3 11 SIMPLE
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -adde 6 16 SIMPLE
+qsyn> zxgraph edge add 6 16 SIMPLE
 
-qsyn> zxge -addv 0 X 0
+qsyn> zxgraph vertex add x 0 0
 
-qsyn> zxge -adde 7 17 SIMPLE
+qsyn> zxgraph edge add 7 17 SIMPLE
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -adde 8 18 SIMPLE
+qsyn> zxgraph edge add 8 18 SIMPLE
 
-qsyn> zxge -addv 0 X 0
+qsyn> zxgraph vertex add x 0 0
 
-qsyn> zxge -adde 9 19 SIMPLE
+qsyn> zxgraph edge add 9 19 SIMPLE
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -adde 10 20 SIMPLE
+qsyn> zxgraph edge add 10 20 SIMPLE
 
-qsyn> zxge -addv 0 X 0
+qsyn> zxgraph vertex add x 0 0
 
-qsyn> zxge -adde 11 21 SIMPLE
+qsyn> zxgraph edge add 11 21 SIMPLE
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -adde 12 22 SIMPLE
+qsyn> zxgraph edge add 12 22 SIMPLE
 
-qsyn> zxge -addv 0 X 0
+qsyn> zxgraph vertex add x 0 0
 
-qsyn> zxge -adde 13 23 SIMPLE
+qsyn> zxgraph edge add 13 23 SIMPLE
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -adde 14 24 SIMPLE
+qsyn> zxgraph edge add 14 24 SIMPLE
 
-qsyn> zxge -addv 0 X 0
+qsyn> zxgraph vertex add x 0 0
 
-qsyn> zxge -adde 15 25 SIMPLE
+qsyn> zxgraph edge add 15 25 SIMPLE
 
 qsyn> logger level debug
 [info]     Setting logger level to "debug"
 
-qsyn> zxgs -pivotr
+qsyn> zxgraph rule --pivot
 [info]     Pivot Rule                    1 iterations, total    1 matches
 [debug]       1) 1 matches
 
 qsyn> logger level warn
 
-qsyn> zxgp -v
+qsyn> zxgraph print -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (10, -)
 ID:   1 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (11, -)
@@ -314,7 +314,7 @@ ID:  25 (X, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (15, -
 Total #Vertices: 24
 
 
-qsyn> zxgp -e
+qsyn> zxgraph print -e
 (0, 10)      Type: -
 (1, 11)      Type: -
 (2, 7)       Type: -
@@ -360,277 +360,277 @@ qsyn> zxgp -e
 (15, 25)     Type: -
 Total #Edges: 43
 
-qsyn> zxr
+qsyn> zxgraph clear
 
 qsyn> // Might match  (4, 5) (16, 17)
-qsyn> zxnew
+qsyn> zxgraph new
 
-qsyn> zxge -addi 0
+qsyn> zxgraph vertex add i 0
 
-qsyn> zxge -addo 0
+qsyn> zxgraph vertex add o 0
 
-qsyn> zxge -addi 1
+qsyn> zxgraph vertex add i 1
 
-qsyn> zxge -addo 1
+qsyn> zxgraph vertex add o 1
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -addv 0 Z 3.14159
+qsyn> zxgraph vertex add z 0 3.14159
 
-qsyn> zxge -adde 4 5 HADAMARD
+qsyn> zxgraph edge add 4 5 HADAMARD
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -adde 4 6 HADAMARD
+qsyn> zxgraph edge add 4 6 HADAMARD
 
-qsyn> zxge -addv 0 Z 3.14159
+qsyn> zxgraph vertex add z 0 3.14159
 
-qsyn> zxge -addv 0 Z 3.14159
+qsyn> zxgraph vertex add z 0 3.14159
 
-qsyn> zxge -addv 0 Z 3.14159
+qsyn> zxgraph vertex add z 0 3.14159
 
-qsyn> zxge -adde 5 7 HADAMARD
+qsyn> zxgraph edge add 5 7 HADAMARD
 
-qsyn> zxge -adde 5 8 HADAMARD
+qsyn> zxgraph edge add 5 8 HADAMARD
 
-qsyn> zxge -adde 5 9 HADAMARD
+qsyn> zxgraph edge add 5 9 HADAMARD
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -adde 5 10 HADAMARD
+qsyn> zxgraph edge add 5 10 HADAMARD
 
-qsyn> zxge -adde 5 11 HADAMARD
+qsyn> zxgraph edge add 5 11 HADAMARD
 
-qsyn> zxge -addv 0 Z 3.14159
+qsyn> zxgraph vertex add z 0 3.14159
 
-qsyn> zxge -addv 0 Z 3.14159
+qsyn> zxgraph vertex add z 0 3.14159
 
-qsyn> zxge -addv 0 Z 3.14159
+qsyn> zxgraph vertex add z 0 3.14159
 
-qsyn> zxge -addv 0 Z 3.14159
+qsyn> zxgraph vertex add z 0 3.14159
 
-qsyn> zxge -adde 4 12 HADAMARD
+qsyn> zxgraph edge add 4 12 HADAMARD
 
-qsyn> zxge -adde 4 13 HADAMARD
+qsyn> zxgraph edge add 4 13 HADAMARD
 
-qsyn> zxge -adde 4 14 HADAMARD
+qsyn> zxgraph edge add 4 14 HADAMARD
 
-qsyn> zxge -adde 4 15 HADAMARD
+qsyn> zxgraph edge add 4 15 HADAMARD
 
-qsyn> zxge -adde 5 12 HADAMARD
+qsyn> zxgraph edge add 5 12 HADAMARD
 
-qsyn> zxge -adde 5 13 HADAMARD
+qsyn> zxgraph edge add 5 13 HADAMARD
 
-qsyn> zxge -adde 5 14 HADAMARD
+qsyn> zxgraph edge add 5 14 HADAMARD
 
-qsyn> zxge -adde 5 15 HADAMARD
+qsyn> zxgraph edge add 5 15 HADAMARD
 
-qsyn> zxge -addv 0 Z 3.14159
+qsyn> zxgraph vertex add z 0 3.14159
 
-qsyn> zxge -addv 0 Z 3.14159
+qsyn> zxgraph vertex add z 0 3.14159
 
-qsyn> zxge -adde 16 17 HADAMARD
+qsyn> zxgraph edge add 16 17 HADAMARD
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -adde 16 18 HADAMARD
+qsyn> zxgraph edge add 16 18 HADAMARD
 
-qsyn> zxge -addv 0 Z 0.1
+qsyn> zxgraph vertex add z 0 0.1
 
-qsyn> zxge -addv 0 Z 0.1
+qsyn> zxgraph vertex add z 0 0.1
 
-qsyn> zxge -addv 0 Z 0.1
+qsyn> zxgraph vertex add z 0 0.1
 
-qsyn> zxge -adde 17 19 HADAMARD
+qsyn> zxgraph edge add 17 19 HADAMARD
 
-qsyn> zxge -adde 17 20 HADAMARD
+qsyn> zxgraph edge add 17 20 HADAMARD
 
-qsyn> zxge -adde 17 21 HADAMARD
+qsyn> zxgraph edge add 17 21 HADAMARD
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -adde 17 22 HADAMARD
+qsyn> zxgraph edge add 17 22 HADAMARD
 
-qsyn> zxge -adde 17 23 HADAMARD
+qsyn> zxgraph edge add 17 23 HADAMARD
 
-qsyn> zxge -addv 0 Z 1.2
+qsyn> zxgraph vertex add z 0 1.2
 
-qsyn> zxge -addv 0 Z 1.2
+qsyn> zxgraph vertex add z 0 1.2
 
-qsyn> zxge -addv 0 Z 1.2
+qsyn> zxgraph vertex add z 0 1.2
 
-qsyn> zxge -addv 0 Z 1.2
+qsyn> zxgraph vertex add z 0 1.2
 
-qsyn> zxge -adde 4 24 HADAMARD
+qsyn> zxgraph edge add 4 24 HADAMARD
 
-qsyn> zxge -adde 4 25 HADAMARD
+qsyn> zxgraph edge add 4 25 HADAMARD
 
-qsyn> zxge -adde 4 26 HADAMARD
+qsyn> zxgraph edge add 4 26 HADAMARD
 
-qsyn> zxge -adde 4 27 HADAMARD
+qsyn> zxgraph edge add 4 27 HADAMARD
 
-qsyn> zxge -adde 5 24 HADAMARD
+qsyn> zxgraph edge add 5 24 HADAMARD
 
-qsyn> zxge -adde 5 25 HADAMARD
+qsyn> zxgraph edge add 5 25 HADAMARD
 
-qsyn> zxge -adde 5 26 HADAMARD
+qsyn> zxgraph edge add 5 26 HADAMARD
 
-qsyn> zxge -adde 5 27 HADAMARD
+qsyn> zxgraph edge add 5 27 HADAMARD
 
-qsyn> zxge -adde 16 24 HADAMARD
+qsyn> zxgraph edge add 16 24 HADAMARD
 
-qsyn> zxge -adde 16 25 HADAMARD
+qsyn> zxgraph edge add 16 25 HADAMARD
 
-qsyn> zxge -adde 16 26 HADAMARD
+qsyn> zxgraph edge add 16 26 HADAMARD
 
-qsyn> zxge -adde 16 27 HADAMARD
+qsyn> zxgraph edge add 16 27 HADAMARD
 
-qsyn> zxge -adde 17 24 HADAMARD
+qsyn> zxgraph edge add 17 24 HADAMARD
 
-qsyn> zxge -adde 17 25 HADAMARD
+qsyn> zxgraph edge add 17 25 HADAMARD
 
-qsyn> zxge -adde 17 26 HADAMARD
+qsyn> zxgraph edge add 17 26 HADAMARD
 
-qsyn> zxge -adde 17 27 HADAMARD
+qsyn> zxgraph edge add 17 27 HADAMARD
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -adde 6 28 SIMPLE
+qsyn> zxgraph edge add 6 28 SIMPLE
 
-qsyn> zxge -addv 0 X 0
+qsyn> zxgraph vertex add x 0 0
 
-qsyn> zxge -adde 7 29 SIMPLE
+qsyn> zxgraph edge add 7 29 SIMPLE
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -adde 8 30 SIMPLE
+qsyn> zxgraph edge add 8 30 SIMPLE
 
-qsyn> zxge -addv 0 X 0
+qsyn> zxgraph vertex add x 0 0
 
-qsyn> zxge -adde 9 31 SIMPLE
+qsyn> zxgraph edge add 9 31 SIMPLE
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -adde 10 32 SIMPLE
+qsyn> zxgraph edge add 10 32 SIMPLE
 
-qsyn> zxge -addv 0 X 0
+qsyn> zxgraph vertex add x 0 0
 
-qsyn> zxge -adde 11 33 SIMPLE
+qsyn> zxgraph edge add 11 33 SIMPLE
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -adde 12 34 SIMPLE
+qsyn> zxgraph edge add 12 34 SIMPLE
 
-qsyn> zxge -addv 0 X 0
+qsyn> zxgraph vertex add x 0 0
 
-qsyn> zxge -adde 13 35 SIMPLE
+qsyn> zxgraph edge add 13 35 SIMPLE
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -adde 14 36 SIMPLE
+qsyn> zxgraph edge add 14 36 SIMPLE
 
-qsyn> zxge -addv 0 X 0
+qsyn> zxgraph vertex add x 0 0
 
-qsyn> zxge -adde 15 37 SIMPLE
+qsyn> zxgraph edge add 15 37 SIMPLE
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -adde 18 38 SIMPLE
+qsyn> zxgraph edge add 18 38 SIMPLE
 
-qsyn> zxge -addv 0 X 0
+qsyn> zxgraph vertex add x 0 0
 
-qsyn> zxge -adde 19 39 SIMPLE
+qsyn> zxgraph edge add 19 39 SIMPLE
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -adde 20 40 SIMPLE
+qsyn> zxgraph edge add 20 40 SIMPLE
 
-qsyn> zxge -addv 0 X 0
+qsyn> zxgraph vertex add x 0 0
 
-qsyn> zxge -adde 21 41 SIMPLE
+qsyn> zxgraph edge add 21 41 SIMPLE
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -adde 22 42 SIMPLE
+qsyn> zxgraph edge add 22 42 SIMPLE
 
-qsyn> zxge -addv 0 X 0
+qsyn> zxgraph vertex add x 0 0
 
-qsyn> zxge -adde 23 43 SIMPLE
+qsyn> zxgraph edge add 23 43 SIMPLE
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -adde 24 44 SIMPLE
+qsyn> zxgraph edge add 24 44 SIMPLE
 
-qsyn> zxge -addv 0 X 0
+qsyn> zxgraph vertex add x 0 0
 
-qsyn> zxge -adde 25 45 SIMPLE
+qsyn> zxgraph edge add 25 45 SIMPLE
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -adde 26 46 SIMPLE
+qsyn> zxgraph edge add 26 46 SIMPLE
 
-qsyn> zxge -addv 0 X 0
+qsyn> zxgraph vertex add x 0 0
 
-qsyn> zxge -adde 27 47 SIMPLE
+qsyn> zxgraph edge add 27 47 SIMPLE
 
-qsyn> zxge -adde 10 18 SIMPLE
+qsyn> zxgraph edge add 10 18 SIMPLE
 
-qsyn> zxge -adde 11 18 SIMPLE
+qsyn> zxgraph edge add 11 18 SIMPLE
 
-qsyn> zxge -adde 12 24 SIMPLE
+qsyn> zxgraph edge add 12 24 SIMPLE
 
-qsyn> zxge -adde 12 25 SIMPLE
+qsyn> zxgraph edge add 12 25 SIMPLE
 
-qsyn> zxge -adde 12 26 SIMPLE
+qsyn> zxgraph edge add 12 26 SIMPLE
 
-qsyn> zxge -adde 12 27 SIMPLE
+qsyn> zxgraph edge add 12 27 SIMPLE
 
-qsyn> zxge -adde 13 24 SIMPLE
+qsyn> zxgraph edge add 13 24 SIMPLE
 
-qsyn> zxge -adde 13 25 SIMPLE
+qsyn> zxgraph edge add 13 25 SIMPLE
 
-qsyn> zxge -adde 13 26 SIMPLE
+qsyn> zxgraph edge add 13 26 SIMPLE
 
-qsyn> zxge -adde 13 27 SIMPLE
+qsyn> zxgraph edge add 13 27 SIMPLE
 
-qsyn> zxge -adde 14 24 SIMPLE
+qsyn> zxgraph edge add 14 24 SIMPLE
 
-qsyn> zxge -adde 14 25 SIMPLE
+qsyn> zxgraph edge add 14 25 SIMPLE
 
-qsyn> zxge -adde 14 26 SIMPLE
+qsyn> zxgraph edge add 14 26 SIMPLE
 
-qsyn> zxge -adde 14 27 SIMPLE
+qsyn> zxgraph edge add 14 27 SIMPLE
 
-qsyn> zxge -adde 15 24 SIMPLE
+qsyn> zxgraph edge add 15 24 SIMPLE
 
-qsyn> zxge -adde 15 25 SIMPLE
+qsyn> zxgraph edge add 15 25 SIMPLE
 
-qsyn> zxge -adde 15 26 SIMPLE
+qsyn> zxgraph edge add 15 26 SIMPLE
 
-qsyn> zxge -adde 15 27 SIMPLE
+qsyn> zxgraph edge add 15 27 SIMPLE
 
-qsyn> zxge -adde 0 10 SIMPLE
+qsyn> zxgraph edge add 0 10 SIMPLE
 
-qsyn> zxge -adde 2 22 SIMPLE
+qsyn> zxgraph edge add 2 22 SIMPLE
 
-qsyn> zxge -adde 1 43 SIMPLE
+qsyn> zxgraph edge add 1 43 SIMPLE
 
-qsyn> zxge -adde 3 45 SIMPLE
+qsyn> zxgraph edge add 3 45 SIMPLE
 
 qsyn> logger level debug
 [info]     Setting logger level to "debug"
 
-qsyn> zxgs -pivotr
+qsyn> zxgraph rule --pivot
 [info]     Pivot Rule                    1 iterations, total    2 matches
 [debug]       1) 2 matches
 
 qsyn> logger level warn
 
-qsyn> zxgp -v
+qsyn> zxgraph print -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (10, -)
 ID:   1 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (43, -)
@@ -679,7 +679,7 @@ ID:  47 (X, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (27, -
 Total #Vertices: 44
 
 
-qsyn> zxgp -e
+qsyn> zxgraph print -e
 (0, 10)      Type: -
 (1, 43)      Type: -
 (2, 22)      Type: -
@@ -806,236 +806,236 @@ qsyn> zxgp -e
 (27, 47)     Type: -
 Total #Edges: 124
 
-qsyn> zxr
+qsyn> zxgraph clear
 
 qsyn> logger level warn
 
-qsyn> zxnew
+qsyn> zxgraph new
 
-qsyn> zxge -addi 0
+qsyn> zxgraph vertex add i 0
 
-qsyn> zxge -addo 0
+qsyn> zxgraph vertex add o 0
 
-qsyn> zxge -addi 1
+qsyn> zxgraph vertex add i 1
 
-qsyn> zxge -addo 1
+qsyn> zxgraph vertex add o 1
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -addv 0 Z 3.14159
+qsyn> zxgraph vertex add z 0 3.14159
 
-qsyn> zxge -adde 4 5 HADAMARD
+qsyn> zxgraph edge add 4 5 HADAMARD
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -adde 4 6 HADAMARD
+qsyn> zxgraph edge add 4 6 HADAMARD
 
-qsyn> zxge -addv 0 Z 3.14159
+qsyn> zxgraph vertex add z 0 3.14159
 
-qsyn> zxge -addv 0 Z 3.14159
+qsyn> zxgraph vertex add z 0 3.14159
 
-qsyn> zxge -addv 0 Z 3.14159
+qsyn> zxgraph vertex add z 0 3.14159
 
-qsyn> zxge -adde 5 7 HADAMARD
+qsyn> zxgraph edge add 5 7 HADAMARD
 
-qsyn> zxge -adde 5 8 HADAMARD
+qsyn> zxgraph edge add 5 8 HADAMARD
 
-qsyn> zxge -adde 5 9 HADAMARD
+qsyn> zxgraph edge add 5 9 HADAMARD
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -adde 5 10 HADAMARD
+qsyn> zxgraph edge add 5 10 HADAMARD
 
-qsyn> zxge -adde 5 11 HADAMARD
+qsyn> zxgraph edge add 5 11 HADAMARD
 
-qsyn> zxge -addv 0 Z 3.14159
+qsyn> zxgraph vertex add z 0 3.14159
 
-qsyn> zxge -addv 0 Z 3.14159
+qsyn> zxgraph vertex add z 0 3.14159
 
-qsyn> zxge -addv 0 Z 3.14159
+qsyn> zxgraph vertex add z 0 3.14159
 
-qsyn> zxge -addv 0 Z 3.14159
+qsyn> zxgraph vertex add z 0 3.14159
 
-qsyn> zxge -adde 4 12 HADAMARD
+qsyn> zxgraph edge add 4 12 HADAMARD
 
-qsyn> zxge -adde 4 13 HADAMARD
+qsyn> zxgraph edge add 4 13 HADAMARD
 
-qsyn> zxge -adde 4 14 HADAMARD
+qsyn> zxgraph edge add 4 14 HADAMARD
 
-qsyn> zxge -adde 4 15 HADAMARD
+qsyn> zxgraph edge add 4 15 HADAMARD
 
-qsyn> zxge -adde 5 12 HADAMARD
+qsyn> zxgraph edge add 5 12 HADAMARD
 
-qsyn> zxge -adde 5 13 HADAMARD
+qsyn> zxgraph edge add 5 13 HADAMARD
 
-qsyn> zxge -adde 5 14 HADAMARD
+qsyn> zxgraph edge add 5 14 HADAMARD
 
-qsyn> zxge -adde 5 15 HADAMARD
+qsyn> zxgraph edge add 5 15 HADAMARD
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -addv 0 Z 3.14159
+qsyn> zxgraph vertex add z 0 3.14159
 
-qsyn> zxge -adde 16 17 HADAMARD
+qsyn> zxgraph edge add 16 17 HADAMARD
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -adde 16 18 HADAMARD
+qsyn> zxgraph edge add 16 18 HADAMARD
 
-qsyn> zxge -addv 0 Z 3.14159
+qsyn> zxgraph vertex add z 0 3.14159
 
-qsyn> zxge -addv 0 Z 3.14159
+qsyn> zxgraph vertex add z 0 3.14159
 
-qsyn> zxge -addv 0 Z 3.14159
+qsyn> zxgraph vertex add z 0 3.14159
 
-qsyn> zxge -adde 17 19 HADAMARD
+qsyn> zxgraph edge add 17 19 HADAMARD
 
-qsyn> zxge -adde 17 20 HADAMARD
+qsyn> zxgraph edge add 17 20 HADAMARD
 
-qsyn> zxge -adde 17 21 HADAMARD
+qsyn> zxgraph edge add 17 21 HADAMARD
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -adde 17 22 HADAMARD
+qsyn> zxgraph edge add 17 22 HADAMARD
 
-qsyn> zxge -adde 17 23 HADAMARD
+qsyn> zxgraph edge add 17 23 HADAMARD
 
-qsyn> zxge -addv 0 Z 3.14159
+qsyn> zxgraph vertex add z 0 3.14159
 
-qsyn> zxge -addv 0 Z 3.14159
+qsyn> zxgraph vertex add z 0 3.14159
 
-qsyn> zxge -addv 0 Z 3.14159
+qsyn> zxgraph vertex add z 0 3.14159
 
-qsyn> zxge -addv 0 Z 3.14159
+qsyn> zxgraph vertex add z 0 3.14159
 
-qsyn> zxge -adde 4 24 HADAMARD
+qsyn> zxgraph edge add 4 24 HADAMARD
 
-qsyn> zxge -adde 4 25 HADAMARD
+qsyn> zxgraph edge add 4 25 HADAMARD
 
-qsyn> zxge -adde 4 26 HADAMARD
+qsyn> zxgraph edge add 4 26 HADAMARD
 
-qsyn> zxge -adde 4 27 HADAMARD
+qsyn> zxgraph edge add 4 27 HADAMARD
 
-qsyn> zxge -adde 5 24 HADAMARD
+qsyn> zxgraph edge add 5 24 HADAMARD
 
-qsyn> zxge -adde 5 25 HADAMARD
+qsyn> zxgraph edge add 5 25 HADAMARD
 
-qsyn> zxge -adde 5 26 HADAMARD
+qsyn> zxgraph edge add 5 26 HADAMARD
 
-qsyn> zxge -adde 5 27 HADAMARD
+qsyn> zxgraph edge add 5 27 HADAMARD
 
-qsyn> zxge -adde 16 24 HADAMARD
+qsyn> zxgraph edge add 16 24 HADAMARD
 
-qsyn> zxge -adde 16 25 HADAMARD
+qsyn> zxgraph edge add 16 25 HADAMARD
 
-qsyn> zxge -adde 16 26 HADAMARD
+qsyn> zxgraph edge add 16 26 HADAMARD
 
-qsyn> zxge -adde 16 27 HADAMARD
+qsyn> zxgraph edge add 16 27 HADAMARD
 
-qsyn> zxge -adde 17 24 HADAMARD
+qsyn> zxgraph edge add 17 24 HADAMARD
 
-qsyn> zxge -adde 17 25 HADAMARD
+qsyn> zxgraph edge add 17 25 HADAMARD
 
-qsyn> zxge -adde 17 26 HADAMARD
+qsyn> zxgraph edge add 17 26 HADAMARD
 
-qsyn> zxge -adde 17 27 HADAMARD
+qsyn> zxgraph edge add 17 27 HADAMARD
 
-qsyn> zxge -adde 0 5 SIMPLE
+qsyn> zxgraph edge add 0 5 SIMPLE
 
-qsyn> zxge -adde 2 7 SIMPLE
+qsyn> zxgraph edge add 2 7 SIMPLE
 
-qsyn> zxge -adde 1 23 SIMPLE
+qsyn> zxgraph edge add 1 23 SIMPLE
 
-qsyn> zxge -adde 3 23 SIMPLE
+qsyn> zxgraph edge add 3 23 SIMPLE
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -adde 6 28 HADAMARD
+qsyn> zxgraph edge add 6 28 HADAMARD
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -adde 7 29 HADAMARD
+qsyn> zxgraph edge add 7 29 HADAMARD
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -adde 8 30 HADAMARD
+qsyn> zxgraph edge add 8 30 HADAMARD
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -adde 9 31 HADAMARD
+qsyn> zxgraph edge add 9 31 HADAMARD
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -adde 10 32 HADAMARD
+qsyn> zxgraph edge add 10 32 HADAMARD
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -adde 11 33 HADAMARD
+qsyn> zxgraph edge add 11 33 HADAMARD
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -adde 12 34 HADAMARD
+qsyn> zxgraph edge add 12 34 HADAMARD
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -adde 13 35 HADAMARD
+qsyn> zxgraph edge add 13 35 HADAMARD
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -adde 14 36 HADAMARD
+qsyn> zxgraph edge add 14 36 HADAMARD
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -adde 15 37 HADAMARD
+qsyn> zxgraph edge add 15 37 HADAMARD
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -adde 18 38 HADAMARD
+qsyn> zxgraph edge add 18 38 HADAMARD
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -adde 19 39 HADAMARD
+qsyn> zxgraph edge add 19 39 HADAMARD
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -adde 20 40 HADAMARD
+qsyn> zxgraph edge add 20 40 HADAMARD
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -adde 21 41 HADAMARD
+qsyn> zxgraph edge add 21 41 HADAMARD
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -adde 22 42 HADAMARD
+qsyn> zxgraph edge add 22 42 HADAMARD
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -adde 23 43 HADAMARD
+qsyn> zxgraph edge add 23 43 HADAMARD
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -adde 24 44 HADAMARD
+qsyn> zxgraph edge add 24 44 HADAMARD
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -adde 25 45 HADAMARD
+qsyn> zxgraph edge add 25 45 HADAMARD
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -adde 26 46 HADAMARD
+qsyn> zxgraph edge add 26 46 HADAMARD
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -adde 27 47 HADAMARD
+qsyn> zxgraph edge add 27 47 HADAMARD
 
 qsyn> logger level debug
 [info]     Setting logger level to "debug"
 
-qsyn> zxgs -pivotr
+qsyn> zxgraph rule --pivot
 [info]     Pivot Rule                    4 iterations, total   21 matches
 [debug]       1) 2 matches
 [debug]       2) 2 matches
@@ -1044,7 +1044,7 @@ qsyn> zxgs -pivotr
 
 qsyn> logger level warn
 
-qsyn> zxgp -v
+qsyn> zxgraph print -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (48, H)
 ID:   1 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (23, -)
@@ -1059,31 +1059,31 @@ Total #Vertices: 8
 
 qsyn> zx2ts
 
-qsyn> zxnew
+qsyn> zxgraph new
 
-qsyn> zxge -addi 0
+qsyn> zxgraph vertex add i 0
 
-qsyn> zxge -addv 0 X 0
+qsyn> zxgraph vertex add x 0 0
 
-qsyn> zxge -addv 0 X 0
+qsyn> zxgraph vertex add x 0 0
 
-qsyn> zxge -addo 0
+qsyn> zxgraph vertex add o 0
 
-qsyn> zxge -addi 1
+qsyn> zxgraph vertex add i 1
 
-qsyn> zxge -addv 1 X 0
+qsyn> zxgraph vertex add x 1 0
 
-qsyn> zxge -addv 1 X 0
+qsyn> zxgraph vertex add x 1 0
 
-qsyn> zxge -addo 1
+qsyn> zxgraph vertex add o 1
 
-qsyn> zxge -adde 0 1 SIMPLE
+qsyn> zxgraph edge add 0 1 SIMPLE
 
-qsyn> zxge -adde 2 3 SIMPLE
+qsyn> zxgraph edge add 2 3 SIMPLE
 
-qsyn> zxge -adde 4 5 SIMPLE
+qsyn> zxgraph edge add 4 5 SIMPLE
 
-qsyn> zxge -adde 6 7 SIMPLE
+qsyn> zxgraph edge add 6 7 SIMPLE
 
 qsyn> zx2ts
 

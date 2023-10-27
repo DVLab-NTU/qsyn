@@ -1,26 +1,26 @@
-zxgr benchmark/zx/cnot.zx
-zxgp
-zxcopy
-zxgp
-zxge -rmv 1
-zxgp
-zxch 0
-zxgp
-zxr
-zxgr benchmark/zx/cnot.zx
-zxgp
-zxcopy
-zxgp
-zxge -rmv 1
-zxgp
-zxcop -r 0
-zxgp
-zxr
-zxgr benchmark/zx/cnot.zx
-zxgp -v
-zxcopy
-zxge -adde 0 5 HADAMARD
-zxgp -v
-zxcheckout 0
-zxgp -v
+zxgraph read benchmark/zx/cnot.zx
+zxgraph print
+zxgraph copy
+zxgraph print
+zxgraph vertex remove 1
+zxgraph print
+zxgraph checkout 0
+zxgraph print
+zxgraph clear
+zxgraph read benchmark/zx/cnot.zx
+zxgraph print
+zxgraph copy
+zxgraph print
+zxgraph vertex remove 1
+zxgraph print
+zxgraph copy -r 0
+zxgraph print
+zxgraph clear
+zxgraph read benchmark/zx/cnot.zx
+zxgraph print -v
+zxgraph copy
+zxgraph edge add 0 5 HADAMARD
+zxgraph print -v
+zxgraph checkout 0
+zxgraph print -v
 quit -f

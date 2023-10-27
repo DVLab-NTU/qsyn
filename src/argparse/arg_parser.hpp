@@ -22,7 +22,7 @@ namespace dvlab::argparse {
 struct ArgumentParserConfig {
     bool add_help_action     = true;
     bool add_version_action  = false;
-    bool exitOnFailure       = true;
+    bool exit_on_failure     = true;
     std::string_view version = "";
 };
 
@@ -83,7 +83,7 @@ public:
     ArgumentParser(std::string const& n, ArgumentParserConfig config = {
                                              .add_help_action    = true,
                                              .add_version_action = false,
-                                             .exitOnFailure      = true,
+                                             .exit_on_failure    = true,
                                              .version            = "",
                                          });
 
@@ -117,10 +117,11 @@ public:
     size_t get_num_required_chars() const { return _pimpl->num_required_chars; }
     size_t get_arg_num_required_chars(std::string const& name) const;
     std::optional<SubParsers> const& get_subparsers() const { return _pimpl->subparsers; }
+    std::optional<ArgumentParser> get_activated_subparser() const;
     bool parsed(std::string const& key) const { return this->_get_arg(key).is_parsed(); }
     bool has_option_prefix(std::string const& str) const { return str.find_first_of(_pimpl->option_prefixes) == 0UL; }
     bool has_subparsers() const { return _pimpl->subparsers.has_value(); }
-    bool used_subparser(std::string const& name) const { return _pimpl->subparsers.has_value() && _pimpl->activated_subparser == name; }
+    bool used_subparser(std::string const& name) const;
 
     // action
     template <typename T>
@@ -185,12 +186,7 @@ private:
     }
     Argument const& _get_arg(std::string const& name) const;
     Argument& _get_arg(std::string const& name);
-    bool _has_arg(std::string const& name) const { return _pimpl->arguments.contains(name) || _pimpl->alias_forward_map.contains(name); }
-
-    std::optional<ArgumentParser> _get_activated_subparser() const {
-        if (!_pimpl->subparsers.has_value() || !_pimpl->activated_subparser.has_value()) return std::nullopt;
-        return _pimpl->subparsers->get_subparsers().at(*(_pimpl->activated_subparser));
-    }
+    bool _has_arg(std::string const& name) const;
 
     // parse subroutine
     std::string _get_activated_subparser_name() const { return _pimpl->activated_subparser.value_or(""); }
@@ -241,12 +237,12 @@ requires valid_argument_type<T>
 ArgType<T>& ArgumentParser::add_argument(std::string const& name, std::convertible_to<std::string> auto... alias) {
     if (name.empty()) {
         fmt::println(stderr, "[ArgParse] Error: argument name cannot be an empty string!!");
-        exit(1);
+        throw std::runtime_error("argument name cannot be an empty string");
     }
 
     if (_pimpl->arguments.contains(name) || _pimpl->alias_forward_map.contains(name)) {
         fmt::println(stderr, "[ArgParse] Error: duplicate argument name \"{}\"!!", name);
-        exit(1);
+        throw std::runtime_error("cannot have duplicate argument name");
     }
 
     _pimpl->options_analyzed = false;
@@ -269,7 +265,7 @@ ArgType<T>& ArgumentParser::_add_positional_argument(std::string const& name, st
 
     if ((0 + ... + sizeof(alias)) > 0 /* has aliases */) {
         fmt::println(stderr, "[ArgParse] Error: positional argument \"{}\" cannot have alias!!", name);
-        exit(1);
+        throw std::runtime_error("positional argument cannot have alias");
     }
 
     _pimpl->arguments.emplace(name, Argument(name, T{}));
@@ -323,7 +319,7 @@ ArgType<T>& ArgumentParser::_add_option(std::string const& name, std::convertibl
               return true;
           }) &&
           ...)) {
-        exit(1);
+        throw std::runtime_error("invalid argument alias");
     }
 
     _pimpl->arguments.emplace(name, Argument(name, T{}));
@@ -335,8 +331,8 @@ ArgType<T>& ArgumentParser::_add_option(std::string const& name, std::convertibl
 template <typename T>
 auto& ArgumentParser::_get_arg_impl(T& t, std::string const& name) {
     if (t._pimpl->subparsers.has_value() && t._pimpl->activated_subparser.has_value()) {
-        if (t._get_activated_subparser()->_has_arg(name)) {
-            return t._get_activated_subparser()->_get_arg(name);
+        if (t.get_activated_subparser()->_has_arg(name)) {
+            return t.get_activated_subparser()->_get_arg(name);
         }
     }
     if (t._pimpl->alias_forward_map.contains(name)) {
@@ -349,7 +345,7 @@ auto& ArgumentParser::_get_arg_impl(T& t, std::string const& name) {
     fmt::println(stderr, "[ArgParse] Error: argument name \"{}\" does not exist for command \"{}\"",
                  name,
                  t.get_name());
-    exit(1);
+    throw std::runtime_error("argument name does not exist");
 }
 
 }  // namespace dvlab::argparse

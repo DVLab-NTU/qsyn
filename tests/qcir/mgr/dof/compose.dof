@@ -14,7 +14,7 @@ qccp -q
 qccompose 1
 qccp -q
 qc2zx
-zxgp -v
+zxgraph print -v
 qc2ts
 zx2ts
 tensor equiv 0 1

@@ -2,12 +2,12 @@ qccr benchmark/SABRE/small/3_17_13.qasm
 extract config --optimize-level 1
 qc2zx
 extract print --frontier
-zxgs -fr
-zxcopy 1
+zxgraph optimize --full-reduce
+zxgraph copy 1
 qcn
 qcba 3
 qcp
-zxgp -q
+zxgraph print -q
 extract print --frontier
 extract print --neighbors
 extract print --axels
@@ -29,8 +29,8 @@ qccp -q
 extract step -zx 1 -qc 1 -l 100
 qccp -q
 qc2zx
-zxgadj
-zxcomp 0
-zxgs -fr  
-zxgp -q
+zxgraph adjoint
+zxgraph compose 0
+zxgraph optimize --full-reduce
+zxgraph print -q
 quit -f

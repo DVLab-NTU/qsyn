@@ -4,18 +4,18 @@ qccp -q
 qcgp 0
 qc2ts
 qc2zx
-zxgp -q
-zxgs -fr
-zxgp -q
+zxgraph print -q
+zxgraph optimize --full-reduce
+zxgraph print -q
 zx2ts
 tensor equiv 0 1
 qcr
-zxr
+zxgraph clear
 tensor clear
 
 qcba 1
 qcgadd mcp -ph pi/3 0
 qcgp 0
 qc2zx
-zxgp -v
+zxgraph print -v
 quit -f

@@ -1,8 +1,8 @@
-help logger
-help source
-help zxge
-zxge -rmvertex -h
-zxge -rmedge -h
+logger -h
+source -h
+zxgraph vertex -h
+zxgraph vertex remove -h
+zxgraph edge remove -h
 extract step -h
-help zxgr
+zxgraph read -h
 quit -f

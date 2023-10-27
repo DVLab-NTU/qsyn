@@ -5,7 +5,7 @@ qccoptimize
 logger level warn
 qccp -a
 qc2zx
-zxgs
+zxgraph optimize
 zx2qc
 qccp -a
 logger level info

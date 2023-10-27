@@ -15,6 +15,7 @@
 #include "cli/cli.hpp"
 #include "qcir/qcir_mgr.hpp"
 #include "tensor/tensor_mgr.hpp"
+#include "util/data_structure_manager_common_cmd.hpp"
 #include "zx/zx_cmd.hpp"
 
 using namespace dvlab::argparse;
@@ -86,7 +87,7 @@ Command zxgraph_to_tensor_cmd(qsyn::zx::ZXGraphMgr& zxgraph_mgr, qsyn::tensor::T
 
                 parser.add_argument<size_t>("-zx")
                     .metavar("id")
-                    .constraint(qsyn::zx::valid_zxgraph_id(zxgraph_mgr))
+                    .constraint(dvlab::utils::valid_mgr_id(zxgraph_mgr))
                     .help("the ID of the ZXGraph to be converted. If not specified, the focused ZXGraph is used");
 
                 parser.add_argument<size_t>("-ts")
@@ -98,7 +99,7 @@ Command zxgraph_to_tensor_cmd(qsyn::zx::ZXGraphMgr& zxgraph_mgr, qsyn::tensor::T
                     .help("replace the target tensor if the tensor ID is occupied");
             },
             [&](ArgumentParser const& parser) {
-                if (!qsyn::zx::zxgraph_mgr_not_empty(zxgraph_mgr)) return CmdExecResult::error;
+                if (!dvlab::utils::mgr_has_data(zxgraph_mgr)) return CmdExecResult::error;
                 auto zx_id = parser.parsed("-zx") ? parser.get<size_t>("-zx") : zxgraph_mgr.focused_id();
                 auto zx    = zxgraph_mgr.find_by_id(zx_id);
 

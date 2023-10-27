@@ -22,7 +22,6 @@
 #include "tensor/tensor_cmd.hpp"
 #include "util/usage.hpp"
 #include "util/util.hpp"
-#include "zx/gflow/gflow_cmd.hpp"
 #include "zx/simplifier/simp_cmd.hpp"
 #include "zx/zx_cmd.hpp"
 
@@ -60,7 +59,7 @@ int main(int argc, char** argv) {
     // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     auto parser = ArgumentParser(argv[0], {.add_help_action    = true,
                                            .add_version_action = true,
-                                           .exitOnFailure      = true,
+                                           .exit_on_failure    = true,
                                            .version            = version_str});
 
     parser.add_argument<std::string>("-f", "--file")
@@ -109,9 +108,7 @@ int main(int argc, char** argv) {
         !qsyn::qcir::add_qcir_cmds(cli, qcir_mgr) ||
         !qsyn::qcir::add_qcir_optimize_cmds(cli, qcir_mgr) ||
         !qsyn::tensor::add_tensor_cmds(cli, tensor_mgr) ||
-        !qsyn::zx::add_zx_cmds(cli, zxgraph_mgr) ||
-        !qsyn::zx::add_zx_gflow_cmds(cli, zxgraph_mgr) ||
-        !qsyn::zx::add_zx_simplifier_cmds(cli, zxgraph_mgr)) {
+        !qsyn::zx::add_zx_cmds(cli, zxgraph_mgr)) {
         return 1;
     }
 

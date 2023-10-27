@@ -1,7 +1,7 @@
-zxgread benchmark/zx/tof3.zx
-zxgp -v
+zxgraph read benchmark/zx/tof3.zx
+zxgraph print -v
 logger level debug
-zxgs -freduce
+zxgraph optimize --full-reduce
 logger level warn
-zxgp -v
+zxgraph print -v
 quit -f
