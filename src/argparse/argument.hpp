@@ -170,7 +170,7 @@ T Argument::get() const {
         }
     }
     fmt::println(stderr, "[ArgParse] Error: cannot cast argument \"{}\" to target type!!", get_name());
-    exit(1);
+    throw std::runtime_error("cannot cast argument to target type");
 }
 
 template <typename T>

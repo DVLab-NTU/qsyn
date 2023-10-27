@@ -1,5 +1,4 @@
 qsyn> qcba 2
-Note: QCir list is empty now. Create a new one.
 
 qsyn> qcgadd mcpx -ph pi 0 1
 
@@ -17,7 +16,7 @@ qsyn> qc2ts
 
 qsyn> qc2zx
 
-qsyn> zxgp -q
+qsyn> zxgraph print -q
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (4, -)
 ID:   1 (●, 0)           (Qubit, Col): (0, 5)         #Neighbors:   1     (4, -)
@@ -29,9 +28,9 @@ ID:   3 (●, 0)           (Qubit, Col): (1, 5)         #Neighbors:   1     (5, 
 ID:   5 (X, 0)           (Qubit, Col): (1, 4)         #Neighbors:   3     (2, -) (3, -) (4, -)
 
 
-qsyn> zxgs -fr
+qsyn> zxgraph optimize --full-reduce
 
-qsyn> zxgp -q
+qsyn> zxgraph print -q
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (4, -)
 ID:   1 (●, 0)           (Qubit, Col): (0, 5)         #Neighbors:   1     (4, -)
@@ -52,13 +51,12 @@ Equivalent
 
 qsyn> qcr
 
-qsyn> zxr
+qsyn> zxgraph clear
 
 qsyn> tensor clear
 
 qsyn> 
 qsyn> qcba 1
-Note: QCir list is empty now. Create a new one.
 
 qsyn> qcgadd mcpx -ph pi 0
 
@@ -69,7 +67,7 @@ Q0 Start ─┤ X ├─ End
 
 qsyn> qc2zx
 
-qsyn> zxgp -v
+qsyn> zxgraph print -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (2, -)
 ID:   1 (●, 0)           (Qubit, Col): (0, 3)         #Neighbors:   1     (2, -)

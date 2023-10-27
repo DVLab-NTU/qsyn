@@ -1,8 +1,8 @@
-qsyn> zxn
+qsyn> zxgraph new
 
-qsyn> zxgr benchmark/zx/lcomp_1.zx
+qsyn> zxgraph read benchmark/zx/lcomp_1.zx
 
-qsyn> zxgp -v
+qsyn> zxgraph print -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (4, -)
 ID:   1 (●, 0)           (Qubit, Col): (1, 0)         #Neighbors:   1     (5, -)
@@ -16,7 +16,7 @@ ID:   8 (Z, 0)           (Qubit, Col): (0, 0)         #Neighbors:   2     (3, -)
 Total #Vertices: 9
 
 
-qsyn> zxgp -e
+qsyn> zxgraph print -e
 (0, 4)       Type: -
 (1, 5)       Type: -
 (2, 7)       Type: -
@@ -27,9 +27,9 @@ qsyn> zxgp -e
 (6, 8)       Type: H
 Total #Edges: 8
 
-qsyn> zxgsimp -lcomp
+qsyn> zxgraph rule --local-complementation
 
-qsyn> zxgp -v
+qsyn> zxgraph print -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (4, -)
 ID:   1 (●, 0)           (Qubit, Col): (1, 0)         #Neighbors:   1     (5, -)
@@ -42,7 +42,7 @@ ID:   8 (Z, -π/2)        (Qubit, Col): (0, 0)         #Neighbors:   4     (3, -
 Total #Vertices: 8
 
 
-qsyn> zxgp -e
+qsyn> zxgraph print -e
 (0, 4)       Type: -
 (1, 5)       Type: -
 (2, 7)       Type: -

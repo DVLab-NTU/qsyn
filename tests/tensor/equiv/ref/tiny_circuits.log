@@ -1,5 +1,4 @@
 qsyn> qcba 2
-Note: QCir list is empty now. Create a new one.
 
 qsyn> qcga cx 0 1
 
@@ -9,7 +8,7 @@ qsyn> qcga cx 0 1
 
 qsyn> qc2ts
 
-qsyn> zxgr benchmark/zx/swap.zx
+qsyn> zxgraph read benchmark/zx/swap.zx
 
 qsyn> zx2ts
 
@@ -24,13 +23,13 @@ Equivalent
 
 qsyn> tensor clear
 
-qsyn> zxr
+qsyn> zxgraph clear
 
-qsyn> zxgr benchmark/zx/tof3.zx
+qsyn> zxgraph read benchmark/zx/tof3.zx
 
 qsyn> zx2ts
 
-qsyn> zxgr benchmark/zx/tof3_zh.zx
+qsyn> zxgraph read benchmark/zx/tof3_zh.zx
 
 qsyn> zx2ts
 

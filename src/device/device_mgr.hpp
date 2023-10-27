@@ -23,13 +23,13 @@ bool device_mgr_not_empty(DeviceMgr const& device_mgr);
 }  // namespace qsyn::device
 
 template <>
-inline std::string dvlab::utils::data_structure_info_string(qsyn::device::Device* t) {
+inline std::string dvlab::utils::data_structure_info_string(qsyn::device::Device const& t) {
     return fmt::format("{:<19} #Q: {:>4}",
-                       t->get_name().substr(0, 19),  // NOLINT(cppcoreguidelines-avoid-magic-numbers)
-                       t->get_num_qubits());
+                       t.get_name().substr(0, 19),  // NOLINT(cppcoreguidelines-avoid-magic-numbers)
+                       t.get_num_qubits());
 }
 
 template <>
-inline std::string dvlab::utils::data_structure_name(qsyn::device::Device* t) {
-    return t->get_name();
+inline std::string dvlab::utils::data_structure_name(qsyn::device::Device const& t) {
+    return t.get_name();
 }

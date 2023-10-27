@@ -6,7 +6,6 @@
 ****************************************************************************/
 #pragma once
 
-#include <iosfwd>
 #include <map>
 #include <string>
 
@@ -24,14 +23,14 @@ using TensorMgr = dvlab::utils::DataStructureManager<QTensor<double>>;
 }  // namespace qsyn::tensor
 
 template <>
-inline std::string dvlab::utils::data_structure_info_string(qsyn::tensor::QTensor<double>* tensor) {
+inline std::string dvlab::utils::data_structure_info_string(qsyn::tensor::QTensor<double> const& tensor) {
     return fmt::format("{:<19} #Dim: {}   {}",
-                       tensor->get_filename().substr(0, 19),
-                       tensor->dimension(),
-                       fmt::join(tensor->get_procedures(), " ➔ "));
+                       tensor.get_filename().substr(0, 19),
+                       tensor.dimension(),
+                       fmt::join(tensor.get_procedures(), " ➔ "));
 }
 
 template <>
-inline std::string dvlab::utils::data_structure_name(qsyn::tensor::QTensor<double>* tensor) {
-    return tensor->get_filename();
+inline std::string dvlab::utils::data_structure_name(qsyn::tensor::QTensor<double> const& tensor) {
+    return tensor.get_filename();
 }

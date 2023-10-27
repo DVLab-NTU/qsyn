@@ -19,6 +19,7 @@
 #include "qcir/qcir.hpp"
 #include "qcir/qcir_cmd.hpp"
 #include "qcir/qcir_mgr.hpp"
+#include "util/data_structure_manager_common_cmd.hpp"
 #include "util/util.hpp"
 #include "zx/zx_cmd.hpp"
 #include "zx/zxgraph.hpp"
@@ -39,7 +40,7 @@ dvlab::Command extraction_step_cmd(zx::ZXGraphMgr& zxgraph_mgr, QCirMgr& qcir_mg
                 parser.description("perform step(s) in extraction");
                 parser.add_argument<size_t>("-zxgraph")
                     .required(true)
-                    .constraint(zx::valid_zxgraph_id(zxgraph_mgr))
+                    .constraint(dvlab::utils::valid_mgr_id(zxgraph_mgr))
                     .metavar("ID")
                     .help("the ID of the ZXGraph to extract from");
 
@@ -86,7 +87,7 @@ dvlab::Command extraction_step_cmd(zx::ZXGraphMgr& zxgraph_mgr, QCirMgr& qcir_mg
                     .help("Run N iteration of extraction loop. N is defaulted to 1");
             },
             [&](ArgumentParser const& parser) {
-                if (!zx::zxgraph_mgr_not_empty(zxgraph_mgr)) return CmdExecResult::error;
+                if (!dvlab::utils::mgr_has_data(zxgraph_mgr)) return CmdExecResult::error;
                 auto zx_id   = parser.get<size_t>("-zxgraph");
                 auto qcir_id = parser.get<size_t>("-qcir");
                 if (!zxgraph_mgr.find_by_id(zx_id)->is_graph_like()) {
@@ -260,7 +261,7 @@ Command extract_cmd(zx::ZXGraphMgr& zxgraph_mgr, qcir::QCirMgr& qcir_mgr) {
                            parser.description("extract ZXGraph to QCir");
                        },
                        [&](ArgumentParser const& /* unused */) {
-                           if (!zx::zxgraph_mgr_not_empty(zxgraph_mgr)) return CmdExecResult::error;
+                           if (!dvlab::utils::mgr_has_data(zxgraph_mgr)) return CmdExecResult::error;
                            if (!zxgraph_mgr.get()->is_graph_like()) {
                                spdlog::error("ZXGraph {} is not extractable because it is not graph-like!!", zxgraph_mgr.focused_id());
                                return CmdExecResult::error;

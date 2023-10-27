@@ -2,7 +2,7 @@ qsyn> qccr benchmark/qasm/tof3.qasm
 
 qsyn> qc2zx
 
-qsyn> zxgp -v
+qsyn> zxgraph print -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (26, -)
 ID:   1 (●, 0)           (Qubit, Col): (0, 32)        #Neighbors:   1     (72, -)
@@ -80,19 +80,19 @@ ID:  72 (Z, 0)           (Qubit, Col): (0, 31)        #Neighbors:   3     (1, -)
 Total #Vertices: 73
 
 
-qsyn> zxgas 0 I X pi
+qsyn> zxgraph assign 0 I X pi
 
-qsyn> zxgas 0 O X pi
+qsyn> zxgraph assign 0 O X pi
 
-qsyn> zxgas 1 I X pi
+qsyn> zxgraph assign 1 I X pi
 
-qsyn> zxgas 1 O X pi
+qsyn> zxgraph assign 1 O X pi
 
-qsyn> zxgas 4 I X 0
+qsyn> zxgraph assign 4 I X 0
 
-qsyn> zxgas 4 O X 0
+qsyn> zxgraph assign 4 O X 0
 
-qsyn> zxgp -v
+qsyn> zxgraph print -v
 
 ID:   4 (●, 0)           (Qubit, Col): (2, 0)         #Neighbors:   1     (47, -)
 ID:   5 (●, 0)           (Qubit, Col): (2, 32)        #Neighbors:   1     (51, -)
@@ -170,13 +170,13 @@ ID:  78 (X, 0)           (Qubit, Col): (4, 0)         #Neighbors:   1     (61, -
 Total #Vertices: 73
 
 
-qsyn> zxgs -fr
+qsyn> zxgraph optimize --full-reduce
 
 qsyn> zx2ts
 
-qsyn> zxgs -stco
+qsyn> zxgraph rule --state-copy
 
-qsyn> zxgp -v
+qsyn> zxgraph print -v
 
 ID:   4 (●, 0)           (Qubit, Col): (2, 0)         #Neighbors:   1     (47, -)
 ID:   5 (●, 0)           (Qubit, Col): (2, 32)        #Neighbors:   1     (47, -)

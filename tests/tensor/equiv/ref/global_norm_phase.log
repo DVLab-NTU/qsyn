@@ -1,22 +1,22 @@
-qsyn> zxn
+qsyn> zxgraph new
 
-qsyn> zxge -addi 0
+qsyn> zxgraph vertex add i 0
 
-qsyn> zxge -addo 0
+qsyn> zxgraph vertex add o 0
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -adde 0 2 SIMPLE
+qsyn> zxgraph edge add 0 2 SIMPLE
 
-qsyn> zxge -adde 2 3 SIMPLE
+qsyn> zxgraph edge add 2 3 SIMPLE
 
-qsyn> zxge -adde 3 1 SIMPLE
+qsyn> zxgraph edge add 3 1 SIMPLE
 
 qsyn> zx2ts
 
-qsyn> zxge -adde 2 3 SIMPLE
+qsyn> zxgraph edge add 2 3 SIMPLE
 
 qsyn> zx2ts
 
@@ -34,12 +34,11 @@ Equivalent
 - Global Norm : 1
 - Global Phase: 0
 
-qsyn> zxr
+qsyn> zxgraph clear
 
 qsyn> tensor clear
 
 qsyn> qcba
-Note: QCir list is empty now. Create a new one.
 
 qsyn> qc2ts 
 

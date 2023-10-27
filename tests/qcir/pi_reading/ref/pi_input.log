@@ -1,5 +1,4 @@
 qsyn> qcba
-Note: QCir list is empty now. Create a new one.
 
 qsyn> qcga rz -ph 11*pi/17 0 
 

@@ -1,53 +1,53 @@
-qsyn> zxnew 10
+qsyn> zxgraph new 10
 
-qsyn> zxge -addi 0
+qsyn> zxgraph vertex add i 0
 
-qsyn> zxge -addo 0
+qsyn> zxgraph vertex add o 0
 
-qsyn> zxge -addi 1
+qsyn> zxgraph vertex add i 1
 
-qsyn> zxge -addo 1
+qsyn> zxgraph vertex add o 1
 
-qsyn> zxge -addv 0 X
+qsyn> zxgraph vertex add x 0
 
-qsyn> zxge -addv 0 Z
+qsyn> zxgraph vertex add z 0
 
-qsyn> zxge -addv 1 X
+qsyn> zxgraph vertex add x 1
 
-qsyn> zxge -addv 0 X
+qsyn> zxgraph vertex add x 0
 
-qsyn> zxge -addv 0 Z
+qsyn> zxgraph vertex add z 0
 
-qsyn> zxge -addv 1 Z
+qsyn> zxgraph vertex add z 1
 
-qsyn> zxge -adde 5 7 SIMPLE
+qsyn> zxgraph edge add 5 7 SIMPLE
 
-qsyn> zxge -adde 0 4 SIMPLE
+qsyn> zxgraph edge add 0 4 SIMPLE
 
-qsyn> zxge -adde 1 8 SIMPLE
+qsyn> zxgraph edge add 1 8 SIMPLE
 
-qsyn> zxge -adde 2 6 SIMPLE
+qsyn> zxgraph edge add 2 6 SIMPLE
 
-qsyn> zxge -adde 3 9 SIMPLE
+qsyn> zxgraph edge add 3 9 SIMPLE
 
-qsyn> zxge -adde 4 5 SIMPLE
+qsyn> zxgraph edge add 4 5 SIMPLE
 
-qsyn> zxge -adde 5 6 SIMPLE
+qsyn> zxgraph edge add 5 6 SIMPLE
 
-qsyn> zxge -adde 7 8 SIMPLE
+qsyn> zxgraph edge add 7 8 SIMPLE
 
-qsyn> zxge -adde 7 9 SIMPLE
+qsyn> zxgraph edge add 7 9 SIMPLE
 
 qsyn> logger level debug
 [info]     Setting logger level to "debug"
 
-qsyn> zxgsimp -bia
+qsyn> zxgraph rule --bialgebra
 [info]     Bialgebra Rule                1 iterations, total    1 matches
 [debug]       1) 1 matches
 
 qsyn> logger level warn
 
-qsyn> zxgp -v
+qsyn> zxgraph print -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (4, -)
 ID:   1 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (8, -)
@@ -60,7 +60,7 @@ ID:   9 (Z, 0)           (Qubit, Col): (1, 0)         #Neighbors:   3     (3, -)
 Total #Vertices: 8
 
 
-qsyn> zxgp -e
+qsyn> zxgraph print -e
 (0, 4)       Type: -
 (1, 8)       Type: -
 (2, 6)       Type: -
@@ -71,85 +71,85 @@ qsyn> zxgp -e
 (6, 9)       Type: -
 Total #Edges: 8
 
-qsyn> zxr
+qsyn> zxgraph clear
 
-qsyn> zxnew 
+qsyn> zxgraph new 
 
-qsyn> zxge -addi 0
+qsyn> zxgraph vertex add i 0
 
-qsyn> zxge -addo 0
+qsyn> zxgraph vertex add o 0
 
-qsyn> zxge -addi 1
+qsyn> zxgraph vertex add i 1
 
-qsyn> zxge -addo 1
+qsyn> zxgraph vertex add o 1
 
-qsyn> zxge -addv 0 X
+qsyn> zxgraph vertex add x 0
 
-qsyn> zxge -addv 0 Z
+qsyn> zxgraph vertex add z 0
 
-qsyn> zxge -addv 1 X
+qsyn> zxgraph vertex add x 1
 
-qsyn> zxge -addv 0 X
+qsyn> zxgraph vertex add x 0
 
-qsyn> zxge -addv 0 Z
+qsyn> zxgraph vertex add z 0
 
-qsyn> zxge -addv 1 Z
+qsyn> zxgraph vertex add z 1
 
-qsyn> zxge -addv 0 X
+qsyn> zxgraph vertex add x 0
 
-qsyn> zxge -addv 0 Z
+qsyn> zxgraph vertex add z 0
 
-qsyn> zxge -addv 1 X
+qsyn> zxgraph vertex add x 1
 
-qsyn> zxge -addv 0 X
+qsyn> zxgraph vertex add x 0
 
-qsyn> zxge -addv 0 Z
+qsyn> zxgraph vertex add z 0
 
-qsyn> zxge -addv 0 Z
+qsyn> zxgraph vertex add z 0
 
-qsyn> zxge -adde 0 4 SIMPLE
+qsyn> zxgraph edge add 0 4 SIMPLE
 
-qsyn> zxge -adde 1 14 SIMPLE
+qsyn> zxgraph edge add 1 14 SIMPLE
 
-qsyn> zxge -adde 2 6 SIMPLE
+qsyn> zxgraph edge add 2 6 SIMPLE
 
-qsyn> zxge -adde 3 15 SIMPLE
+qsyn> zxgraph edge add 3 15 SIMPLE
 
-qsyn> zxge -adde 4 5 SIMPLE
+qsyn> zxgraph edge add 4 5 SIMPLE
 
-qsyn> zxge -adde 5 7 SIMPLE
+qsyn> zxgraph edge add 5 7 SIMPLE
 
-qsyn> zxge -adde 5 6 SIMPLE
+qsyn> zxgraph edge add 5 6 SIMPLE
 
-qsyn> zxge -adde 7 8 SIMPLE
+qsyn> zxgraph edge add 7 8 SIMPLE
 
-qsyn> zxge -adde 7 9 SIMPLE
+qsyn> zxgraph edge add 7 9 SIMPLE
 
-qsyn> zxge -adde 8 10 SIMPLE
+qsyn> zxgraph edge add 8 10 SIMPLE
 
-qsyn> zxge -adde 10 9 SIMPLE
+qsyn> zxgraph edge add 10 9 SIMPLE
 
-qsyn> zxge -adde 10 11 SIMPLE
+qsyn> zxgraph edge add 10 11 SIMPLE
 
-qsyn> zxge -adde 11 12 SIMPLE
+qsyn> zxgraph edge add 11 12 SIMPLE
 
-qsyn> zxge -adde 11 13 SIMPLE
+qsyn> zxgraph edge add 11 13 SIMPLE
 
-qsyn> zxge -adde 14 13 SIMPLE
+qsyn> zxgraph edge add 14 13 SIMPLE
 
-qsyn> zxge -adde 12 15 SIMPLE
+qsyn> zxgraph edge add 12 15 SIMPLE
 
 qsyn> logger level debug
 [info]     Setting logger level to "debug"
 
-qsyn> zxgsimp -bia
+qsyn> zxgraph rule --bialgebra
 [info]     Bialgebra Rule                2 iterations, total    3 matches
 [debug]       1) 2 matches
 [debug]       2) 1 matches
 
 qsyn> logger level warn
 
-qsyn> zxgp -v
+qsyn> zxgraph print -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (4, -)
 ID:   1 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (14, -)
@@ -163,7 +163,7 @@ ID:  15 (Z, 0)           (Qubit, Col): (0, 0)         #Neighbors:   4     (3, -)
 Total #Vertices: 9
 
 
-qsyn> zxgprint -e
+qsyn> zxgraph print -e
 (0, 4)       Type: -
 (1, 14)      Type: -
 (2, 6)       Type: -
@@ -176,31 +176,31 @@ Total #Edges: 8
 
 qsyn> zx2ts
 
-qsyn> zxnew
+qsyn> zxgraph new
 
-qsyn> zxge -addi 0
+qsyn> zxgraph vertex add i 0
 
-qsyn> zxge -addo 0
+qsyn> zxgraph vertex add o 0
 
-qsyn> zxge -addi 1
+qsyn> zxgraph vertex add i 1
 
-qsyn> zxge -addo 1
+qsyn> zxgraph vertex add o 1
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -addv 0 Z 0
+qsyn> zxgraph vertex add z 0 0
 
-qsyn> zxge -adde 0 4 SIMPLE
+qsyn> zxgraph edge add 0 4 SIMPLE
 
-qsyn> zxge -adde 2 4 SIMPLE
+qsyn> zxgraph edge add 2 4 SIMPLE
 
-qsyn> zxge -adde 1 5 SIMPLE
+qsyn> zxgraph edge add 1 5 SIMPLE
 
-qsyn> zxge -adde 3 5 SIMPLE
+qsyn> zxgraph edge add 3 5 SIMPLE
 
-qsyn> zxge -adde 4 5 SIMPLE
+qsyn> zxgraph edge add 4 5 SIMPLE
 
-qsyn> zxgp -v
+qsyn> zxgraph print -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (4, -)
 ID:   1 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (5, -)
@@ -218,84 +218,84 @@ Equivalent
 - Global Norm : 1
 - Global Phase: 0
 
-qsyn> zxr
+qsyn> zxgraph clear
 
-qsyn> zxnew 
+qsyn> zxgraph new 
 
-qsyn> zxge -addi 0
+qsyn> zxgraph vertex add i 0
 
-qsyn> zxge -addo 0
+qsyn> zxgraph vertex add o 0
 
-qsyn> zxge -addi 1
+qsyn> zxgraph vertex add i 1
 
-qsyn> zxge -addo 1
+qsyn> zxgraph vertex add o 1
 
-qsyn> zxge -addv 0 X
+qsyn> zxgraph vertex add x 0
 
-qsyn> zxge -addv 0 Z
+qsyn> zxgraph vertex add z 0
 
-qsyn> zxge -addv 1 X
+qsyn> zxgraph vertex add x 1
 
-qsyn> zxge -addv 0 X
+qsyn> zxgraph vertex add x 0
 
-qsyn> zxge -addv 0 Z
+qsyn> zxgraph vertex add z 0
 
-qsyn> zxge -addv 1 Z
+qsyn> zxgraph vertex add z 1
 
-qsyn> zxge -addv 0 X
+qsyn> zxgraph vertex add x 0
 
-qsyn> zxge -addv 0 Z
+qsyn> zxgraph vertex add z 0
 
-qsyn> zxge -addv 1 X
+qsyn> zxgraph vertex add x 1
 
-qsyn> zxge -addv 0 X
+qsyn> zxgraph vertex add x 0
 
-qsyn> zxge -addv 0 Z
+qsyn> zxgraph vertex add z 0
 
-qsyn> zxge -addv 0 Z
+qsyn> zxgraph vertex add z 0
 
-qsyn> zxge -adde 0 4 SIMPLE
+qsyn> zxgraph edge add 0 4 SIMPLE
 
-qsyn> zxge -adde 1 14 HADAMARD
+qsyn> zxgraph edge add 1 14 HADAMARD
 
-qsyn> zxge -adde 2 6 SIMPLE
+qsyn> zxgraph edge add 2 6 SIMPLE
 
-qsyn> zxge -adde 3 15 SIMPLE
+qsyn> zxgraph edge add 3 15 SIMPLE
 
-qsyn> zxge -adde 4 5 SIMPLE
+qsyn> zxgraph edge add 4 5 SIMPLE
 
-qsyn> zxge -adde 5 7 SIMPLE
+qsyn> zxgraph edge add 5 7 SIMPLE
 
-qsyn> zxge -adde 5 6 HADAMARD
+qsyn> zxgraph edge add 5 6 HADAMARD
 
-qsyn> zxge -adde 7 8 SIMPLE
+qsyn> zxgraph edge add 7 8 SIMPLE
 
-qsyn> zxge -adde 7 9 SIMPLE
+qsyn> zxgraph edge add 7 9 SIMPLE
 
-qsyn> zxge -adde 8 10 HADAMARD
+qsyn> zxgraph edge add 8 10 HADAMARD
 
-qsyn> zxge -adde 10 9 SIMPLE
+qsyn> zxgraph edge add 10 9 SIMPLE
 
-qsyn> zxge -adde 10 11 SIMPLE
+qsyn> zxgraph edge add 10 11 SIMPLE
 
-qsyn> zxge -adde 11 12 HADAMARD
+qsyn> zxgraph edge add 11 12 HADAMARD
 
-qsyn> zxge -adde 11 13 HADAMARD
+qsyn> zxgraph edge add 11 13 HADAMARD
 
-qsyn> zxge -adde 14 13 SIMPLE
+qsyn> zxgraph edge add 14 13 SIMPLE
 
-qsyn> zxge -adde 12 15 SIMPLE
+qsyn> zxgraph edge add 12 15 SIMPLE
 
 qsyn> logger level debug
 [info]     Setting logger level to "debug"
 
-qsyn> zxgsimp -bia
+qsyn> zxgraph rule --bialgebra
 [info]     Bialgebra Rule                1 iterations, total    1 matches
 [debug]       1) 1 matches
 
 qsyn> logger level warn
 
-qsyn> zxgp -v
+qsyn> zxgraph print -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (4, -)
 ID:   1 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (14, H)
@@ -314,7 +314,7 @@ ID:  15 (Z, 0)           (Qubit, Col): (0, 0)         #Neighbors:   2     (3, -)
 Total #Vertices: 14
 
 
-qsyn> zxgp -e
+qsyn> zxgraph print -e
 (0, 4)       Type: -
 (1, 14)      Type: H
 (2, 6)       Type: -

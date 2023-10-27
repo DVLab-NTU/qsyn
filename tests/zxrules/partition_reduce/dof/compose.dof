@@ -1,14 +1,14 @@
 qccread ./benchmark/qft/qft_7.qasm
 qc2zx 
-zxcopy 1
+zxgraph copy 1
 logger level debug
-zxgs -preduce 4
+zxgraph optimize --partition-reduce 4
 logger level warn
-zxgp -s
-zxgadjoint 
-zxcompose 0
+zxgraph print -s
+zxgraph adjoint
+zxgraph compose 0
 logger level debug
-zxgs -freduce
+zxgraph optimize --full-reduce
 logger level warn
-zxgtest -id
+zxgraph test --identity
 quit -f

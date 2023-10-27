@@ -1,40 +1,40 @@
-zxgr benchmark/zx/cnot.zx
-zxgp -v
-zxge -rme 2 3 SIMPLE
-zxgp -v
-zxr
-zxgr benchmark/zx/cnot.zx
-zxgp -v
-zxge -rmv 2
-zxgp -v
-zxge -rmv -i
-zxgp -v
-zxr
-zxgr benchmark/zx/cnot.zx
-zxgp -v
-zxge -rmv 1 2
-zxgp -v
-zxr 
-zxnew
-zxge -addi 1
-zxge -addi 0
-zxge -addi 2
-zxge -addo 0
-zxge -addo 2
-zxge -addo 1
-zxgp -inputs
-zxgp -o
-zxgp -v
-zxr
-zxgr benchmark/zx/cnot.zx
-zxgp -v
-zxge -rmv 0
-zxgp -v
-zxge -rme 2 3 SIMPLE
-zxgp -v 
-zxge -addi 0
-zxgp -v
-zxge -adde 6 2 SIMPLE
-zxge -adde 2 3 SIMPLE
-zxgp -v
+zxgraph read benchmark/zx/cnot.zx
+zxgraph print -v
+zxgraph edge remove 2 3 SIMPLE
+zxgraph print -v
+zxgraph clear
+zxgraph read benchmark/zx/cnot.zx
+zxgraph print -v
+zxgraph vertex remove 2
+zxgraph print -v
+zxgraph vertex remove -i
+zxgraph print -v
+zxgraph clear
+zxgraph read benchmark/zx/cnot.zx
+zxgraph print -v
+zxgraph vertex remove 1 2
+zxgraph print -v
+zxgraph clear 
+zxgraph new
+zxgraph vertex add i 1
+zxgraph vertex add i 0
+zxgraph vertex add i 2
+zxgraph vertex add o 0
+zxgraph vertex add o 2
+zxgraph vertex add o 1
+zxgraph print -inputs
+zxgraph print -o
+zxgraph print -v
+zxgraph clear
+zxgraph read benchmark/zx/cnot.zx
+zxgraph print -v
+zxgraph vertex remove 0
+zxgraph print -v
+zxgraph edge remove 2 3 SIMPLE
+zxgraph print -v 
+zxgraph vertex add i 0
+zxgraph print -v
+zxgraph edge add 6 2 SIMPLE
+zxgraph edge add 2 3 SIMPLE
+zxgraph print -v
 quit -f

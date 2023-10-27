@@ -12,6 +12,7 @@
 
 namespace qsyn::zx {
 
-bool add_zx_simplifier_cmds(dvlab::CommandLineInterface& cli, zx::ZXGraphMgr& zxgraph_mgr);
+dvlab::Command zxgraph_optimize_cmd(ZXGraphMgr &zxgraph_mgr);
+dvlab::Command zxgraph_rule_cmd(ZXGraphMgr &zxgraph_mgr);
 
 }  // namespace qsyn::zx

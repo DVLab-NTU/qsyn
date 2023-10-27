@@ -1,5 +1,5 @@
-zxgr benchmark/zx/cnot.zx
-zxgr benchmark/zx/cnot.zx
-zxten 0
-zxgp -v
+zxgraph read benchmark/zx/cnot.zx
+zxgraph read benchmark/zx/cnot.zx
+zxgraph tensor-product 0
+zxgraph print -v
 quit -f

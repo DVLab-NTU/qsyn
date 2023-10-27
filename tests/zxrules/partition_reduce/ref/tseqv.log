@@ -4,9 +4,9 @@ qsyn> qc2zx
 
 qsyn> zx2ts
 
-qsyn> zxcopy
+qsyn> zxgraph copy
 
-qsyn> zxgs -preduce 4
+qsyn> zxgraph optimize --partition-reduce 4
 
 qsyn> zx2ts
 

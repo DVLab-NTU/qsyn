@@ -6,7 +6,7 @@ qcgp 0 -t
 qcgp 1 -t
 qcgp 2 -t
 qc2zx
-zxgp -v
+zxgraph print -v
 zx2ts
 qcnew
 qcba 2

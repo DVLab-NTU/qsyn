@@ -1,7 +1,7 @@
 qccr benchmark/qasm/tof3.qasm
 qc2zx
-zxgp -v
-zxgtest -gl
-zxgsimp -fr
-zxgtest -gl
+zxgraph print -v
+zxgraph test --graph-like
+zxgraph optimize --full-reduce
+zxgraph test --graph-like
 quit -f

@@ -5,13 +5,12 @@ qsyn> qcga cx 0 1
 [error]    QCir list is empty. Please create a QCir first!!
 
 qsyn> qcba
-Note: QCir list is empty now. Create a new one.
 
 qsyn> qccp -q
 Q 0  
 
 qsyn> qcga h
-Error: too few qubits are supplied for gate h!!
+[error]    Too few qubits are supplied for gate h!!
 
 qsyn> qcga h 0
 
@@ -19,7 +18,7 @@ qsyn> qccp -q
 Q 0  - h( 0)-
 
 qsyn> qcga cx 0 1
-Error: Qubit ID 1 does not exist!!
+[error]    Qubit ID 1 does not exist!!
 
 qsyn> qcba 3
 
@@ -210,7 +209,7 @@ Execute at t= 27
 qsyn> qcgd 24
 
 qsyn> qcgp 24
-Error: gate id 24 does not exist!!
+[error]    Gate ID 24 does not exist!!
 
 qsyn> qcgp 26
         ┌─────┐ 
@@ -17514,7 +17513,7 @@ Q 4  ---------cx( 0)-- t( 3)----------cx( 5)----------cx( 6)--td( 8)------------
 Q 6  -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------cx(67)-
 
 qsyn> qcga x 5
-Error: Qubit ID 5 does not exist!!
+[error]    Qubit ID 5 does not exist!!
 
 qsyn> qcba 2
 

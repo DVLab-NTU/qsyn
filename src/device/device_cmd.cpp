@@ -15,6 +15,7 @@
 #include "device/device.hpp"
 #include "device/device_mgr.hpp"
 #include "qsyn/qsyn_type.hpp"
+#include "util/data_structure_manager_common_cmd.hpp"
 #include "util/util.hpp"
 
 using namespace dvlab::argparse;
@@ -174,14 +175,7 @@ dvlab::Command device_print_cmd(qsyn::device::DeviceMgr& device_mgr) {
 }
 
 dvlab::Command device_cmd(qsyn::device::DeviceMgr& device_mgr) {
-    auto cmd = dvlab::Command{"device",
-                              [&](ArgumentParser& parser) {
-                                  parser.description("device commands");
-                              },
-                              [&](ArgumentParser const& /*parser*/) {
-                                  device_mgr.print_manager();
-                                  return CmdExecResult::done;
-                              }};
+    auto cmd = dvlab::utils::mgr_root_cmd(device_mgr);
     cmd.add_subcommand(device_checkout_cmd(device_mgr));
     cmd.add_subcommand(device_clear_cmd(device_mgr));
     cmd.add_subcommand(device_delete_cmd(device_mgr));

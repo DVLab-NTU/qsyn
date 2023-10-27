@@ -1,3 +1,3 @@
-zxgr benchmark/zx/tof2_opt.zx
-zxggf -all
+zxgraph read benchmark/zx/tof2_opt.zx
+zxgraph gflow -all
 quit -f 

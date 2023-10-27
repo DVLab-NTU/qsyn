@@ -1,12 +1,9 @@
-qsyn> zxnew
+qsyn> zxgraph new
 
-qsyn> zxnew
+qsyn> zxgraph new
 
-qsyn> zxprint
+qsyn> zxgraph
 -> #ZXGraph: 2
--> Now focused on: ZXGraph 1
-
-qsyn> zxprint -f
 -> Now focused on: ZXGraph 1
 
 qsyn> quit -f

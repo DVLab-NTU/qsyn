@@ -1,6 +1,6 @@
-qsyn> zxgread benchmark/zx/tof3.zx
+qsyn> zxgraph read benchmark/zx/tof3.zx
 
-qsyn> zxgp -v
+qsyn> zxgraph print -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (10, -)
 ID:   1 (●, 0)           (Qubit, Col): (1, 0)         #Neighbors:   1     (7, -)
@@ -35,7 +35,7 @@ Total #Vertices: 27
 qsyn> logger level debug
 [info]     Setting logger level to "debug"
 
-qsyn> zxgs -freduce
+qsyn> zxgraph optimize --full-reduce
 [info]     Hadamard Rule                 1 iterations, total    2 matches
 [debug]       1) 2 matches
 [info]     Spider Fusion Rule            3 iterations, total    6 matches
@@ -50,7 +50,7 @@ qsyn> zxgs -freduce
 
 qsyn> logger level warn
 
-qsyn> zxgp -v
+qsyn> zxgraph print -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (10, -)
 ID:   1 (●, 0)           (Qubit, Col): (1, 0)         #Neighbors:   1     (7, -)

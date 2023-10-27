@@ -2,7 +2,7 @@ qsyn> qccr benchmark/SABRE/large/adr4_197.qasm
 
 qsyn> qc2zx
 
-qsyn> zxgs -fr
+qsyn> zxgraph optimize --full-reduce
 
 qsyn> zx2qc
 

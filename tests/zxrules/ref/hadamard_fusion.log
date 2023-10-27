@@ -2,7 +2,7 @@ qsyn> logger level debug
 [info]     Setting logger level to "debug"
 
 qsyn> qcba
-Note: QCir list is empty now. Create a new one.
+[info]     QCir list is empty now. Create a new one.
 [info]     Successfully created and checked out to QCir 0
 
 qsyn> qcga h 0
@@ -21,7 +21,7 @@ qsyn> qc2zx
 [debug]    Gate 1 (h)
 [info]     Successfully created and checked out to ZXGraph 0
 
-qsyn> zxgp -v
+qsyn> zxgraph print -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (2, -)
 ID:   1 (●, 0)           (Qubit, Col): (0, 4)         #Neighbors:   1     (3, -)
@@ -30,31 +30,31 @@ ID:   3 (H, π)           (Qubit, Col): (0, 3)         #Neighbors:   2     (1, -
 Total #Vertices: 4
 
 
-qsyn> zxgsimp -hr
+qsyn> zxgraph rule --hadamard-rule
 [info]     Hadamard Rule                 2 iterations, total    2 matches
 [debug]       1) 1 matches
 [debug]       2) 1 matches
 
-qsyn> zxgp -v
+qsyn> zxgraph print -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (1, -)
 ID:   1 (●, 0)           (Qubit, Col): (0, 4)         #Neighbors:   1     (0, -)
 Total #Vertices: 2
 
 
-qsyn> zxge -addv 0 HBOX 0
+qsyn> zxgraph vertex add hbox 0 0
 [info]     Adding vertex 4...
 
-qsyn> zxge -adde 0 4 HADAMARD
+qsyn> zxgraph edge add 0 4 HADAMARD
 [info]     Adding edge (0, 4), edge type: H...
 
-qsyn> zxge -adde 1 4 SIMPLE
+qsyn> zxgraph edge add 1 4 SIMPLE
 [info]     Adding edge (1, 4), edge type: -...
 
-qsyn> zxge -rme 0 1 ALL
+qsyn> zxgraph edge remove 0 1 ALL
 [info]     Removing all edges between (0, 1)...
 
-qsyn> zxgp -v
+qsyn> zxgraph print -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (4, H)
 ID:   1 (●, 0)           (Qubit, Col): (0, 4)         #Neighbors:   1     (4, -)
@@ -62,11 +62,11 @@ ID:   4 (H, 0)           (Qubit, Col): (0, 0)         #Neighbors:   2     (0, H)
 Total #Vertices: 3
 
 
-qsyn> zxgsimp -hf
+qsyn> zxgraph rule --hadamard-fusion
 [info]     Hadamard Rule                 1 iterations, total    1 matches
 [debug]       1) 1 matches
 
-qsyn> zxr
+qsyn> zxgraph clear
 
 qsyn> qcr
 
@@ -74,7 +74,7 @@ qsyn> logger level debug
 [info]     Setting logger level to "debug"
 
 qsyn> qcba
-Note: QCir list is empty now. Create a new one.
+[info]     QCir list is empty now. Create a new one.
 [info]     Successfully created and checked out to QCir 0
 
 qsyn> qcga h 0
@@ -97,7 +97,7 @@ qsyn> qc2zx
 [debug]    Gate 2 (h)
 [info]     Successfully created and checked out to ZXGraph 0
 
-qsyn> zxgp -v
+qsyn> zxgraph print -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (2, -)
 ID:   1 (●, 0)           (Qubit, Col): (0, 5)         #Neighbors:   1     (4, -)
@@ -107,19 +107,19 @@ ID:   4 (H, π)           (Qubit, Col): (0, 4)         #Neighbors:   2     (1, -
 Total #Vertices: 5
 
 
-qsyn> zxge -rme 2 3 ALL
+qsyn> zxgraph edge remove 2 3 ALL
 [info]     Removing all edges between (2, 3)...
 
-qsyn> zxge -rme 3 4 ALL
+qsyn> zxgraph edge remove 3 4 ALL
 [info]     Removing all edges between (3, 4)...
 
-qsyn> zxge -adde 2 3 HADAMARD
+qsyn> zxgraph edge add 2 3 HADAMARD
 [info]     Adding edge (2, 3), edge type: H...
 
-qsyn> zxge -adde 3 4 HADAMARD
+qsyn> zxgraph edge add 3 4 HADAMARD
 [info]     Adding edge (3, 4), edge type: H...
 
-qsyn> zxgp -v
+qsyn> zxgraph print -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (2, -)
 ID:   1 (●, 0)           (Qubit, Col): (0, 5)         #Neighbors:   1     (4, -)
@@ -129,18 +129,18 @@ ID:   4 (H, π)           (Qubit, Col): (0, 4)         #Neighbors:   2     (1, -
 Total #Vertices: 5
 
 
-qsyn> zxgsimp -hf
+qsyn> zxgraph rule --hadamard-fusion
 [info]     Hadamard Rule                 3 iterations, total    3 matches
 [debug]       1) 1 matches
 [debug]       2) 1 matches
 [debug]       3) 1 matches
 
-qsyn> zxr
+qsyn> zxgraph clear
 
 qsyn> qcr
 
 qsyn> qcba
-Note: QCir list is empty now. Create a new one.
+[info]     QCir list is empty now. Create a new one.
 [info]     Successfully created and checked out to QCir 0
 
 qsyn> qcga h 0
@@ -159,7 +159,7 @@ qsyn> qc2zx
 [debug]    Gate 1 (h)
 [info]     Successfully created and checked out to ZXGraph 0
 
-qsyn> zxgp -v
+qsyn> zxgraph print -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (2, -)
 ID:   1 (●, 0)           (Qubit, Col): (0, 4)         #Neighbors:   1     (3, -)
@@ -168,25 +168,25 @@ ID:   3 (H, π)           (Qubit, Col): (0, 3)         #Neighbors:   2     (1, -
 Total #Vertices: 4
 
 
-qsyn> zxge -rme 0 2 ALL
+qsyn> zxgraph edge remove 0 2 ALL
 [info]     Removing all edges between (0, 2)...
 
-qsyn> zxge -rme 2 3 ALL
+qsyn> zxgraph edge remove 2 3 ALL
 [info]     Removing all edges between (2, 3)...
 
-qsyn> zxge -rme 3 1 ALL
+qsyn> zxgraph edge remove 3 1 ALL
 [info]     Removing all edges between (3, 1)...
 
-qsyn> zxge -adde 0 2 HADAMARD
+qsyn> zxgraph edge add 0 2 HADAMARD
 [info]     Adding edge (0, 2), edge type: H...
 
-qsyn> zxge -adde 2 3 HADAMARD
+qsyn> zxgraph edge add 2 3 HADAMARD
 [info]     Adding edge (2, 3), edge type: H...
 
-qsyn> zxge -adde 3 1 HADAMARD
+qsyn> zxgraph edge add 3 1 HADAMARD
 [info]     Adding edge (3, 1), edge type: H...
 
-qsyn> zxgp -v
+qsyn> zxgraph print -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (2, H)
 ID:   1 (●, 0)           (Qubit, Col): (0, 4)         #Neighbors:   1     (3, H)
@@ -195,24 +195,24 @@ ID:   3 (H, π)           (Qubit, Col): (0, 3)         #Neighbors:   2     (1, H
 Total #Vertices: 4
 
 
-qsyn> zxgsimp -hf
+qsyn> zxgraph rule --hadamard-fusion
 [info]     Hadamard Rule                 2 iterations, total    2 matches
 [debug]       1) 1 matches
 [debug]       2) 1 matches
 
-qsyn> zxgp -v
+qsyn> zxgraph print -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (1, H)
 ID:   1 (●, 0)           (Qubit, Col): (0, 4)         #Neighbors:   1     (0, H)
 Total #Vertices: 2
 
 
-qsyn> zxr
+qsyn> zxgraph clear
 
 qsyn> qcr
 
 qsyn> qcba
-Note: QCir list is empty now. Create a new one.
+[info]     QCir list is empty now. Create a new one.
 [info]     Successfully created and checked out to QCir 0
 
 qsyn> qcga h 0
@@ -235,7 +235,7 @@ qsyn> qc2zx
 [debug]    Gate 2 (h)
 [info]     Successfully created and checked out to ZXGraph 0
 
-qsyn> zxgp -v
+qsyn> zxgraph print -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (2, -)
 ID:   1 (●, 0)           (Qubit, Col): (0, 5)         #Neighbors:   1     (4, -)
@@ -245,31 +245,31 @@ ID:   4 (H, π)           (Qubit, Col): (0, 4)         #Neighbors:   2     (1, -
 Total #Vertices: 5
 
 
-qsyn> zxge -rme 0 2 SIMPLE
+qsyn> zxgraph edge remove 0 2 SIMPLE
 [info]     Removing edge (0, 2), edge type: -...
 
-qsyn> zxge -rme 2 3 SIMPLE
+qsyn> zxgraph edge remove 2 3 SIMPLE
 [info]     Removing edge (2, 3), edge type: -...
 
-qsyn> zxge -rme 3 4 SIMPLE
+qsyn> zxgraph edge remove 3 4 SIMPLE
 [info]     Removing edge (3, 4), edge type: -...
 
-qsyn> zxge -rme 4 1 SIMPLE
+qsyn> zxgraph edge remove 4 1 SIMPLE
 [info]     Removing edge (4, 1), edge type: -...
 
-qsyn> zxge -adde 0 2 HADAMARD
+qsyn> zxgraph edge add 0 2 HADAMARD
 [info]     Adding edge (0, 2), edge type: H...
 
-qsyn> zxge -adde 2 3 HADAMARD
+qsyn> zxgraph edge add 2 3 HADAMARD
 [info]     Adding edge (2, 3), edge type: H...
 
-qsyn> zxge -adde 3 4 HADAMARD
+qsyn> zxgraph edge add 3 4 HADAMARD
 [info]     Adding edge (3, 4), edge type: H...
 
-qsyn> zxge -adde 4 1 HADAMARD
+qsyn> zxgraph edge add 4 1 HADAMARD
 [info]     Adding edge (4, 1), edge type: H...
 
-qsyn> zxgp -v
+qsyn> zxgraph print -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (2, H)
 ID:   1 (●, 0)           (Qubit, Col): (0, 5)         #Neighbors:   1     (4, H)
@@ -279,25 +279,25 @@ ID:   4 (H, π)           (Qubit, Col): (0, 4)         #Neighbors:   2     (1, H
 Total #Vertices: 5
 
 
-qsyn> zxgsimp -hf
+qsyn> zxgraph rule --hadamard-fusion
 [info]     Hadamard Rule                 3 iterations, total    3 matches
 [debug]       1) 1 matches
 [debug]       2) 1 matches
 [debug]       3) 1 matches
 
-qsyn> zxgp -v
+qsyn> zxgraph print -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (1, H)
 ID:   1 (●, 0)           (Qubit, Col): (0, 5)         #Neighbors:   1     (0, H)
 Total #Vertices: 2
 
 
-qsyn> zxr
+qsyn> zxgraph clear
 
 qsyn> qcr
 
 qsyn> qcba
-Note: QCir list is empty now. Create a new one.
+[info]     QCir list is empty now. Create a new one.
 [info]     Successfully created and checked out to QCir 0
 
 qsyn> qcga h 0
@@ -320,7 +320,7 @@ qsyn> qc2zx
 [debug]    Gate 2 (h)
 [info]     Successfully created and checked out to ZXGraph 0
 
-qsyn> zxgp -v
+qsyn> zxgraph print -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (2, -)
 ID:   1 (●, 0)           (Qubit, Col): (0, 5)         #Neighbors:   1     (4, -)
@@ -330,19 +330,19 @@ ID:   4 (H, π)           (Qubit, Col): (0, 4)         #Neighbors:   2     (1, -
 Total #Vertices: 5
 
 
-qsyn> zxge -rme 0 2 SIMPLE
+qsyn> zxgraph edge remove 0 2 SIMPLE
 [info]     Removing edge (0, 2), edge type: -...
 
-qsyn> zxge -rme 3 4 SIMPLE
+qsyn> zxgraph edge remove 3 4 SIMPLE
 [info]     Removing edge (3, 4), edge type: -...
 
-qsyn> zxge -adde 0 2 HADAMARD
+qsyn> zxgraph edge add 0 2 HADAMARD
 [info]     Adding edge (0, 2), edge type: H...
 
-qsyn> zxge -adde 3 4 HADAMARD
+qsyn> zxgraph edge add 3 4 HADAMARD
 [info]     Adding edge (3, 4), edge type: H...
 
-qsyn> zxgp -v
+qsyn> zxgraph print -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (2, H)
 ID:   1 (●, 0)           (Qubit, Col): (0, 5)         #Neighbors:   1     (4, -)
@@ -352,12 +352,12 @@ ID:   4 (H, π)           (Qubit, Col): (0, 4)         #Neighbors:   2     (1, -
 Total #Vertices: 5
 
 
-qsyn> zxgsimp -hf
+qsyn> zxgraph rule --hadamard-fusion
 [info]     Hadamard Rule                 2 iterations, total    2 matches
 [debug]       1) 1 matches
 [debug]       2) 1 matches
 
-qsyn> zxgp -v
+qsyn> zxgraph print -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (3, -)
 ID:   1 (●, 0)           (Qubit, Col): (0, 5)         #Neighbors:   1     (3, -)
@@ -365,12 +365,12 @@ ID:   3 (Z, π)           (Qubit, Col): (0, 3)         #Neighbors:   2     (0, -
 Total #Vertices: 3
 
 
-qsyn> zxr
+qsyn> zxgraph clear
 
 qsyn> qcr
 
 qsyn> qcba
-Note: QCir list is empty now. Create a new one.
+[info]     QCir list is empty now. Create a new one.
 [info]     Successfully created and checked out to QCir 0
 
 qsyn> qcba 
@@ -391,7 +391,7 @@ qsyn> qc2zx
 [debug]    Gate 1 (z)
 [info]     Successfully created and checked out to ZXGraph 0
 
-qsyn> zxgp -v
+qsyn> zxgraph print -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (4, -)
 ID:   1 (●, 0)           (Qubit, Col): (0, 3)         #Neighbors:   1     (4, -)
@@ -402,22 +402,22 @@ ID:   5 (Z, π)           (Qubit, Col): (1, 2)         #Neighbors:   2     (2, -
 Total #Vertices: 6
 
 
-qsyn> zxge -addv 0 HBOX 0
+qsyn> zxgraph vertex add hbox 0 0
 [info]     Adding vertex 6...
 
-qsyn> zxge -addv 1 HBOX 0
+qsyn> zxgraph vertex add hbox 1 0
 [info]     Adding vertex 7...
 
-qsyn> zxge -adde 4 6 HADAMARD
+qsyn> zxgraph edge add 4 6 HADAMARD
 [info]     Adding edge (4, 6), edge type: H...
 
-qsyn> zxge -adde 6 7 SIMPLE
+qsyn> zxgraph edge add 6 7 SIMPLE
 [info]     Adding edge (6, 7), edge type: -...
 
-qsyn> zxge -adde 7 5 HADAMARD
+qsyn> zxgraph edge add 7 5 HADAMARD
 [info]     Adding edge (7, 5), edge type: H...
 
-qsyn> zxgp -v
+qsyn> zxgraph print -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (4, -)
 ID:   1 (●, 0)           (Qubit, Col): (0, 3)         #Neighbors:   1     (4, -)
@@ -430,12 +430,12 @@ ID:   7 (H, 0)           (Qubit, Col): (1, 0)         #Neighbors:   2     (5, H)
 Total #Vertices: 8
 
 
-qsyn> zxgsimp -hf
+qsyn> zxgraph rule --hadamard-fusion
 [info]     Hadamard Rule                 2 iterations, total    2 matches
 [debug]       1) 1 matches
 [debug]       2) 1 matches
 
-qsyn> zxgp -v
+qsyn> zxgraph print -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (4, -)
 ID:   1 (●, 0)           (Qubit, Col): (0, 3)         #Neighbors:   1     (4, -)
@@ -446,12 +446,12 @@ ID:   5 (Z, π)           (Qubit, Col): (1, 2)         #Neighbors:   3     (2, -
 Total #Vertices: 6
 
 
-qsyn> zxr
+qsyn> zxgraph clear
 
 qsyn> qcr
 
 qsyn> qcba
-Note: QCir list is empty now. Create a new one.
+[info]     QCir list is empty now. Create a new one.
 [info]     Successfully created and checked out to QCir 0
 
 qsyn> qcga h 0
@@ -486,7 +486,7 @@ qsyn> qc2zx
 [debug]    Gate 5 (z)
 [info]     Successfully created and checked out to ZXGraph 0
 
-qsyn> zxgp -v
+qsyn> zxgraph print -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (2, -)
 ID:   1 (●, 0)           (Qubit, Col): (0, 8)         #Neighbors:   1     (7, -)
@@ -499,19 +499,19 @@ ID:   7 (Z, π)           (Qubit, Col): (0, 7)         #Neighbors:   2     (1, -
 Total #Vertices: 8
 
 
-qsyn> zxge -rme 2 3 SIMPLE
+qsyn> zxgraph edge remove 2 3 SIMPLE
 [info]     Removing edge (2, 3), edge type: -...
 
-qsyn> zxge -adde 2 3 HADAMARD
+qsyn> zxgraph edge add 2 3 HADAMARD
 [info]     Adding edge (2, 3), edge type: H...
 
-qsyn> zxge -rme 4 5 SIMPLE
+qsyn> zxgraph edge remove 4 5 SIMPLE
 [info]     Removing edge (4, 5), edge type: -...
 
-qsyn> zxge -adde 4 5 HADAMARD
+qsyn> zxgraph edge add 4 5 HADAMARD
 [info]     Adding edge (4, 5), edge type: H...
 
-qsyn> zxgp -v
+qsyn> zxgraph print -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (2, -)
 ID:   1 (●, 0)           (Qubit, Col): (0, 8)         #Neighbors:   1     (7, -)
@@ -524,13 +524,13 @@ ID:   7 (Z, π)           (Qubit, Col): (0, 7)         #Neighbors:   2     (1, -
 Total #Vertices: 8
 
 
-qsyn> zxgsimp -hf
+qsyn> zxgraph rule --hadamard-fusion
 [info]     Hadamard Rule                 3 iterations, total    4 matches
 [debug]       1) 2 matches
 [debug]       2) 1 matches
 [debug]       3) 1 matches
 
-qsyn> zxgp -v
+qsyn> zxgraph print -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (4, H)
 ID:   1 (●, 0)           (Qubit, Col): (0, 8)         #Neighbors:   1     (7, -)
