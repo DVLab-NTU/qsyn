@@ -8,14 +8,14 @@ qccp -q
 qccopy 0 -r
 qccp -q
 qc2zx
-zxgp -v
-zxgadjoint
-zxcompose 0
-zxgp -v
-zxgs -fr
-zxgp -v
+zxgraph print -v
+zxgraph adjoint
+zxgraph compose 0
+zxgraph print -v
+zxgraph optimize --full-reduce
+zxgraph print -v
 qcr
-zxr
+zxgraph clear
 qccp -q
 qcga cx 0 1
 qcba
@@ -56,5 +56,5 @@ qcga cx 2 4
 qcga -pr rz -ph 1.2345 0
 qccp -q
 qc2zx
-zxgp
+zxgraph print
 quit -f

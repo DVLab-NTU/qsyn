@@ -16,9 +16,7 @@
 #include "./qcir_gate.hpp"
 #include "cli/cli.hpp"
 #include "qcir/qcir.hpp"
-#include "tensor/tensor_mgr.hpp"
 #include "util/phase.hpp"
-#include "zx/zxgraph_mgr.hpp"
 
 using namespace dvlab::argparse;
 using dvlab::CmdExecResult;
@@ -38,7 +36,7 @@ bool qcir_mgr_not_empty(QCirMgr const& qcir_mgr) {
 std::function<bool(size_t const&)> valid_qcir_id(QCirMgr const& qcir_mgr) {
     return [&](size_t const& id) {
         if (qcir_mgr.is_id(id)) return true;
-        std::cerr << "Error: QCir " << id << " does not exist!!\n";
+        spdlog::error("QCir {} does not exist!!", id);
         return false;
     };
 }
@@ -47,7 +45,7 @@ std::function<bool(size_t const&)> valid_qcir_gate_id(QCirMgr const& qcir_mgr) {
     return [&](size_t const& id) {
         if (!qcir_mgr_not_empty(qcir_mgr)) return false;
         if (qcir_mgr.get()->get_gate(id) != nullptr) return true;
-        std::cerr << "Error: gate id " << id << " does not exist!!\n";
+        spdlog::error("Gate ID {} does not exist!!", id);
         return false;
     };
 }
@@ -56,7 +54,7 @@ std::function<bool(QubitIdType const&)> valid_qcir_qubit_id(QCirMgr const& qcir_
     return [&](QubitIdType const& id) {
         if (!qcir_mgr_not_empty(qcir_mgr)) return false;
         if (qcir_mgr.get()->get_qubit(id) != nullptr) return true;
-        std::cerr << "Error: Qubit ID " << id << " does not exist!!\n";
+        spdlog::error("Qubit ID {} does not exist!!", id);
         return false;
     };
 }
@@ -138,7 +136,7 @@ dvlab::Command qcir_new_cmd(QCirMgr& qcir_mgr) {
 
                 if (qcir_mgr.is_id(id)) {
                     if (!parser.parsed("-Replace")) {
-                        std::cerr << "Error: QCir " << id << " already exists!! Specify `-Replace` if needed.\n";
+                        spdlog::error("QCir {} already exists!! Specify `-Replace` if needed.", id);
                         return CmdExecResult::error;
                     }
 
@@ -173,7 +171,7 @@ dvlab::Command qcir_copy_cmd(QCirMgr& qcir_mgr) {
                 if (!qcir_mgr_not_empty(qcir_mgr)) return CmdExecResult::error;
                 size_t const id = parser.parsed("id") ? parser.get<size_t>("id") : qcir_mgr.get_next_id();
                 if (qcir_mgr.is_id(id) && !parser.parsed("-replace")) {
-                    std::cerr << "Error: QCir " << id << " already exists!! Specify `-Replace` if needed." << std::endl;
+                    spdlog::error("QCir {} already exists!! Specify `-Replace` if needed.", id);
                     return CmdExecResult::error;
                 }
                 qcir_mgr.copy(id);
@@ -245,11 +243,11 @@ dvlab::Command qcir_mgr_print_cmd(QCirMgr const& qcir_mgr) {
             },
             [&](ArgumentParser const& parser) {
                 if (parser.parsed("-settings")) {
-                    std::cout << std::endl;
-                    std::cout << "Delay of Single-qubit gate :     " << SINGLE_DELAY << std::endl;
-                    std::cout << "Delay of Double-qubit gate :     " << DOUBLE_DELAY << std::endl;
-                    std::cout << "Delay of SWAP gate :             " << SWAP_DELAY << ((SWAP_DELAY == 3 * DOUBLE_DELAY) ? " (3 CXs)" : "") << std::endl;
-                    std::cout << "Delay of Multiple-qubit gate :   " << MULTIPLE_DELAY << std::endl;
+                    fmt::println("");
+                    fmt::println("Delay of Single-qubit gate :     {}", SINGLE_DELAY);
+                    fmt::println("Delay of Double-qubit gate :     {}", DOUBLE_DELAY);
+                    fmt::println("Delay of SWAP gate :             {} {}", SWAP_DELAY, (SWAP_DELAY == 3 * DOUBLE_DELAY) ? "(3 CXs)" : "");
+                    fmt::println("Delay of Multiple-qubit gate :   {}", MULTIPLE_DELAY);
                 } else if (parser.parsed("-focus"))
                     qcir_mgr.print_focus();
                 else if (parser.parsed("-list"))
@@ -283,28 +281,28 @@ dvlab::Command qcir_settings_cmd() {
                 if (parser.parsed("-single-delay")) {
                     auto single_delay = parser.get<size_t>("-single-delay");
                     if (single_delay == 0)
-                        std::cerr << "Error: single delay value should > 0, skipping this option!!\n";
+                        fmt::println("Error: single delay value should > 0, skipping this option!!");
                     else
                         SINGLE_DELAY = single_delay;
                 }
                 if (parser.parsed("-double-delay")) {
                     auto double_delay = parser.get<size_t>("-double-delay");
                     if (double_delay == 0)
-                        std::cerr << "Error: double delay value should > 0, skipping this option!!\n";
+                        fmt::println("Error: double delay value should > 0, skipping this option!!");
                     else
                         DOUBLE_DELAY = double_delay;
                 }
                 if (parser.parsed("-swap-delay")) {
                     auto swap_delay = parser.get<size_t>("-swap-delay");
                     if (swap_delay == 0)
-                        std::cerr << "Error: swap delay value should > 0, skipping this option!!\n";
+                        fmt::println("Error: swap delay value should > 0, skipping this option!!");
                     else
                         SWAP_DELAY = swap_delay;
                 }
                 if (parser.parsed("-multiple-delay")) {
                     auto multi_delay = parser.get<size_t>("-multiple-delay");
                     if (multi_delay == 0)
-                        std::cerr << "Error: multiple delay value should > 0, skipping this option!!\n";
+                        fmt::println("Error: multiple delay value should > 0, skipping this option!!");
                     else
                         MULTIPLE_DELAY = multi_delay;
                 }
@@ -335,7 +333,7 @@ dvlab::Command qcir_read_cmd(QCirMgr& qcir_mgr) {
                 auto filepath = parser.get<std::string>("filepath");
                 auto replace  = parser.get<bool>("-replace");
                 if (!buffer_q_cir.read_qcir_file(filepath)) {
-                    std::cerr << "Error: the format in \"" << filepath << "\" has something wrong!!" << std::endl;
+                    fmt::println("Error: the format in \"{}\" has something wrong!!", filepath);
                     return CmdExecResult::error;
                 }
                 if (qcir_mgr.empty() || !replace) {
@@ -531,12 +529,12 @@ dvlab::Command qcir_gate_add_cmd(QCirMgr& qcir_mgr) {
             if (is_gate_category(single_qubit_gates_with_phase) ||
                 is_gate_category(multi_qubit_gates_with_phase)) {
                 if (!parser.parsed("-phase")) {
-                    std::cerr << "Error: phase must be specified for gate type " << type << "!!\n";
+                    spdlog::error("Phase must be specified for gate type {}!!", type);
                     return CmdExecResult::error;
                 }
                 phase = parser.get<dvlab::Phase>("-phase");
             } else if (parser.parsed("-phase")) {
-                std::cerr << "Error: phase is incompatible with gate type " << type << "!!\n";
+                spdlog::error("Phase is incompatible with gate type {}!!", type);
                 return CmdExecResult::error;
             }
 
@@ -545,30 +543,30 @@ dvlab::Command qcir_gate_add_cmd(QCirMgr& qcir_mgr) {
             if (is_gate_category(single_qubit_gates_no_phase) ||
                 is_gate_category(single_qubit_gates_with_phase)) {
                 if (bits.size() < 1) {
-                    std::cerr << "Error: too few qubits are supplied for gate " << type << "!!\n";
+                    spdlog::error("Too few qubits are supplied for gate {}!!", type);
                     return CmdExecResult::error;
                 } else if (bits.size() > 1) {
-                    std::cerr << "Error: too many qubits are supplied for gate " << type << "!!\n";
+                    spdlog::error("Too many qubits are supplied for gate {}!!", type);
                     return CmdExecResult::error;
                 }
             }
 
             if (is_gate_category(double_qubit_gates_no_phase)) {
                 if (bits.size() < 2) {
-                    std::cerr << "Error: too few qubits are supplied for gate " << type << "!!\n";
+                    spdlog::error("Too few qubits are supplied for gate {}!!", type);
                     return CmdExecResult::error;
                 } else if (bits.size() > 2) {
-                    std::cerr << "Error: too many qubits are supplied for gate " << type << "!!\n";
+                    spdlog::error("Too many qubits are supplied for gate {}!!", type);
                     return CmdExecResult::error;
                 }
             }
 
             if (is_gate_category(three_qubit_gates_no_phase)) {
                 if (bits.size() < 3) {
-                    std::cerr << "Error: too few qubits are supplied for gate " << type << "!!\n";
+                    spdlog::error("Too few qubits are supplied for gate {}!!", type);
                     return CmdExecResult::error;
                 } else if (bits.size() > 3) {
-                    std::cerr << "Error: too many qubits are supplied for gate " << type << "!!\n";
+                    spdlog::error("Too many qubits are supplied for gate {}!!", type);
                     return CmdExecResult::error;
                 }
             }
@@ -594,7 +592,7 @@ dvlab::Command qcir_qubit_add_cmd(QCirMgr& qcir_mgr) {
             },
             [&](ArgumentParser const& parser) {
                 if (qcir_mgr.empty()) {
-                    std::cout << "Note: QCir list is empty now. Create a new one." << std::endl;
+                    spdlog::info("QCir list is empty now. Create a new one.");
                     qcir_mgr.add(qcir_mgr.get_next_id());
                 }
                 if (parser.parsed("amount"))
@@ -664,7 +662,7 @@ dvlab::Command qcir_write_cmd(QCirMgr const& qcir_mgr) {
             [&](ArgumentParser const& parser) {
                 if (!qcir_mgr_not_empty(qcir_mgr)) return CmdExecResult::error;
                 if (!qcir_mgr.get()->write_qasm(parser.get<std::string>("output_path"))) {
-                    std::cerr << "Error: path " << parser.get<std::string>("output_path") << " not found!!" << std::endl;
+                    spdlog::error("Path {} not found!!", parser.get<std::string>("output_path"));
                     return CmdExecResult::error;
                 }
                 return CmdExecResult::done;
@@ -705,18 +703,18 @@ Command qcir_draw_cmd(QCirMgr const& qcir_mgr) {
 
                 if (drawer.value() == QCirDrawerType::latex || drawer.value() == QCirDrawerType::latex_source) {
                     if (output_path.empty()) {
-                        std::cerr << "Error: Using drawer \"" << fmt::format("{}", drawer.value()) << "\" requires an output destination!!" << std::endl;
+                        spdlog::error("Using drawer \"{}\" requires an output destination!!", parser.get<std::string>("-drawer"));
                         return CmdExecResult::error;
                     }
                 }
 
                 if (drawer == QCirDrawerType::text && parser.parsed("-scale")) {
-                    std::cerr << "Error: Cannot set scale for \'text\' drawer!!" << std::endl;
+                    spdlog::error("Cannot set scale for \'text\' drawer!!");
                     return CmdExecResult::error;
                 }
 
                 if (!qcir_mgr.get()->draw(drawer.value(), output_path, scale)) {
-                    std::cerr << "Error: could not draw the QCir successfully!!" << std::endl;
+                    spdlog::error("Could not draw the QCir successfully!!");
                     return CmdExecResult::error;
                 }
 

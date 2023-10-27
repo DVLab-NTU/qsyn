@@ -3,15 +3,15 @@ qcga cx 0 1
 qcga cx 1 0
 qcga cx 0 1
 qc2ts
-zxgr benchmark/zx/swap.zx
+zxgraph read benchmark/zx/swap.zx
 zx2ts
 tensor list
 tensor equiv 0 1 -strict
 tensor clear
-zxr
-zxgr benchmark/zx/tof3.zx
+zxgraph clear
+zxgraph read benchmark/zx/tof3.zx
 zx2ts
-zxgr benchmark/zx/tof3_zh.zx
+zxgraph read benchmark/zx/tof3_zh.zx
 zx2ts
 tensor list
 tensor equiv 0 1 

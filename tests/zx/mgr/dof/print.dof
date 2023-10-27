@@ -1,5 +1,4 @@
-zxnew
-zxnew
-zxprint
-zxprint -f
+zxgraph new
+zxgraph new
+zxgraph
 quit -f

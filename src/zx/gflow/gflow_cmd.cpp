@@ -14,6 +14,7 @@
 
 #include "./gflow.hpp"
 #include "cli/cli.hpp"
+#include "util/data_structure_manager_common_cmd.hpp"
 #include "zx/zx_cmd.hpp"
 #include "zx/zxgraph.hpp"
 
@@ -23,10 +24,8 @@ using dvlab::Command;
 
 namespace qsyn::zx {
 
-dvlab::Command zxgraph_gflow_cmd();
-
 Command zxgraph_gflow_cmd(ZXGraphMgr const& zxgraph_mgr) {
-    return {"zxggflow",
+    return {"gflow",
             [](ArgumentParser& parser) {
                 parser.description("calculate and print the generalized flow of a ZXGraph");
 
@@ -54,7 +53,7 @@ Command zxgraph_gflow_cmd(ZXGraphMgr const& zxgraph_mgr) {
                     .help("force each GFlow level to be an independent set");
             },
             [&](ArgumentParser const& parser) {
-                if (!zxgraph_mgr_not_empty(zxgraph_mgr)) return CmdExecResult::error;
+                if (!dvlab::utils::mgr_has_data(zxgraph_mgr)) return CmdExecResult::error;
                 GFlow gflow(zxgraph_mgr.get());
 
                 gflow.do_extended_gflow(parser.get<bool>("-extended"));
@@ -75,14 +74,6 @@ Command zxgraph_gflow_cmd(ZXGraphMgr const& zxgraph_mgr) {
 
                 return CmdExecResult::done;
             }};
-}
-
-bool add_zx_gflow_cmds(dvlab::CommandLineInterface& cli, ZXGraphMgr& zxgraph_mgr) {
-    if (!cli.add_command(zxgraph_gflow_cmd(zxgraph_mgr))) {
-        spdlog::critical("Registering \"gflow\" commands fails... exiting");
-        return false;
-    }
-    return true;
 }
 
 }  // namespace qsyn::zx

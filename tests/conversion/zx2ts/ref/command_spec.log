@@ -12,7 +12,7 @@ Description:
   convert ZXGraph to tensor
 
 Options:
-  flag    -h, --help      show this help message and exit                                                      
+  flag    -h, --help      show this help message                                                               
   size_t  -zx         id  the ID of the ZXGraph to be converted. If not specified, the focused ZXGraph is used 
   size_t  -ts         id  the ID of the target tensor. If not specified, an ID is automatically assigned       
   flag    -replace        replace the target tensor if the tensor ID is occupied                               
@@ -31,13 +31,13 @@ qsyn> qccr benchmark/SABRE/small/3_17_13.qasm
 
 qsyn> qc2zx 
 
-qsyn> zxcopy 1
+qsyn> zxgraph copy 1
 
-qsyn> zxgs -interc
+qsyn> zxgraph optimize --interior-clifford-reduce
 
-qsyn> zxprint -l
+qsyn> zxgraph list 
   0    3_17_13             QC2ZX
-★ 1    3_17_13             QC2ZX ➔ INTERC
+★ 1    3_17_13             QC2ZX ➔ ICR
 
 qsyn> 
 qsyn> zx2ts       // should convert ZXGraph 1 to Tensor 0
@@ -46,13 +46,13 @@ qsyn> zx2ts -ts 2 // should convert ZXGraph 1 to Tensor 2
 
 qsyn> zx2ts -zx 0 // should convert ZXGraph 0 to Tensor 3, without changing focused ZXGraph
 
-qsyn> zxprint -l
+qsyn> zxgraph list 
   0    3_17_13             QC2ZX
-★ 1    3_17_13             QC2ZX ➔ INTERC
+★ 1    3_17_13             QC2ZX ➔ ICR
 
 qsyn> tensor list
-  0    3_17_13             #Dim: 2   QC2ZX ➔ INTERC ➔ ZX2TS
-  2    3_17_13             #Dim: 2   QC2ZX ➔ INTERC ➔ ZX2TS
+  0    3_17_13             #Dim: 2   QC2ZX ➔ ICR ➔ ZX2TS
+  2    3_17_13             #Dim: 2   QC2ZX ➔ ICR ➔ ZX2TS
 ★ 3    3_17_13             #Dim: 2   QC2ZX ➔ ZX2TS
 
 qsyn> zx2ts -zx 2                // should log error: ZXGraph does not exist
@@ -64,7 +64,7 @@ qsyn> zx2ts -zx 0 -ts 2          // should log error: Tensor ID already occupied
 qsyn> zx2ts -zx 0 -ts 2 -replace // should replace Tensor 2 and convert ZXGraph 0 to Tensor 2
 
 qsyn> tensor list
-  0    3_17_13             #Dim: 2   QC2ZX ➔ INTERC ➔ ZX2TS
+  0    3_17_13             #Dim: 2   QC2ZX ➔ ICR ➔ ZX2TS
 ★ 2    3_17_13             #Dim: 2   QC2ZX ➔ ZX2TS
   3    3_17_13             #Dim: 2   QC2ZX ➔ ZX2TS
 
@@ -73,7 +73,7 @@ qsyn> //-------------------------
 qsyn> //  Logger Level Testing
 qsyn> //-------------------------
 qsyn> 
-qsyn> zxgr benchmark/zx/cnot.zx
+qsyn> zxgraph read benchmark/zx/cnot.zx
 
 qsyn> logger level trace
 [info]     Setting logger level to "trace"

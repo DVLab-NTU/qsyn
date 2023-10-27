@@ -19,16 +19,19 @@ namespace dvlab {
 namespace utils {
 
 template <typename T>
-std::string data_structure_info_string(T* t);
+std::string data_structure_info_string(T const& t);
 
 template <typename T>
-std::string data_structure_name(T* t);
+std::string data_structure_name(T const& t);
 
 template <typename T>
-requires requires(T t) {
-    { data_structure_info_string(&t) } -> std::convertible_to<std::string>;
-    { data_structure_name(&t) } -> std::convertible_to<std::string>;
-}
+concept manager_manageable = requires {
+    { data_structure_info_string(std::declval<T>()) } -> std::convertible_to<std::string>;
+    { data_structure_name(std::declval<T>()) } -> std::convertible_to<std::string>;
+};
+
+template <typename T>
+requires manager_manageable<T>
 class DataStructureManager {  // NOLINT(hicpp-special-member-functions, cppcoreguidelines-special-member-functions) : copy-swap idiom
 public:
     DataStructureManager(std::string_view name) : _next_id{0}, _focused_id{0}, _type_name{name} {}
@@ -68,11 +71,15 @@ public:
 
     T* get() const { return _list.at(_focused_id).get(); }
 
-    void set(std::unique_ptr<T> t) {
-        if (_list.contains(_focused_id)) {
-            spdlog::info("Note: Replacing {} {}...", _type_name, _focused_id);
+    void set_by_id(size_t id, std::unique_ptr<T> t) {
+        if (_list.contains(id)) {
+            spdlog::info("Note: Replacing {} {}...", _type_name, id);
         }
-        _list.at(_focused_id).swap(t);
+        _list.insert_or_assign(id, std::move(t));
+    }
+
+    void set(std::unique_ptr<T> t) {
+        set_by_id(_focused_id, std::move(t));
     }
 
     bool empty() const { return _list.empty(); }
@@ -152,7 +159,7 @@ public:
     void print_manager() const {
         fmt::println("-> #{}: {}", _type_name, this->size());
         if (this->size()) {
-            auto name = data_structure_name(get());
+            auto name = data_structure_name(*get());
             fmt::println("-> Now focused on: {} {}{}", _type_name, _focused_id, name.empty() ? "" : fmt::format(" ({})", name));
         }
     }
@@ -160,7 +167,7 @@ public:
     void print_list() const {
         if (this->size()) {
             for (auto& [id, data] : _list) {
-                fmt::println("{} {}    {}", (id == _focused_id ? "★" : " "), id, data_structure_info_string(data.get()));
+                fmt::println("{} {}    {}", (id == _focused_id ? "★" : " "), id, data_structure_info_string(*data.get()));
             }
         } else {
             fmt::println("The {} list is empty", _type_name);
@@ -169,12 +176,14 @@ public:
 
     void print_focus() const {
         if (this->size()) {
-            auto name = data_structure_name(get());
+            auto name = data_structure_name(*get());
             fmt::println("-> Now focused on: {} {}{}", _type_name, _focused_id, name.empty() ? "" : fmt::format(" ({})", name));
         } else {
             fmt::println("The {} list is empty", _type_name);
         }
     }
+
+    std::string get_type_name() const { return _type_name; }
 
 private:
     size_t _next_id;

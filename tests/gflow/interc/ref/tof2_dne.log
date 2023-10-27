@@ -1,6 +1,6 @@
-qsyn> zxgr benchmark/zx/tof2_opt.zx
+qsyn> zxgraph read benchmark/zx/tof2_opt.zx
 
-qsyn> zxggf -all
+qsyn> zxgraph gflow -all
 GFlow of the graph:
 Level 0
    1 (XY): (None)

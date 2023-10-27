@@ -11,7 +11,6 @@
 #include "cli/cli.hpp"
 
 namespace qsyn::zx {
-
-bool add_zx_gflow_cmds(dvlab::CommandLineInterface& cli, ZXGraphMgr& zxgraph_mgr);
+dvlab::Command zxgraph_gflow_cmd(ZXGraphMgr const& zxgraph_mgr);
 
 }  // namespace qsyn::zx

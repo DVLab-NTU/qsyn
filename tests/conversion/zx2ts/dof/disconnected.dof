@@ -1,68 +1,68 @@
-zxnew
-zxgedit -addi 0
-zxgedit -addo 0
-zxgedit -addi 1
-zxgedit -addo 1
-zxgedit -addv 0 Z 0
-zxgedit -addv 0 Z pi
-zxgedit -addi 2
-zxgedit -addo 2
-zxgedit -addi 3
-zxgedit -addo 3
+zxgraph new
+zxgraph vertex add input 0
+zxgraph vertex add output 0
+zxgraph vertex add input 1
+zxgraph vertex add output 1
+zxgraph vertex add z 0 0
+zxgraph vertex add z 0 pi
+zxgraph vertex add input 2
+zxgraph vertex add output 2
+zxgraph vertex add input 3
+zxgraph vertex add output 3
 
-zxgedit -adde 0 4 SIMPLE
-zxgedit -adde 4 1 SIMPLE
-zxgedit -adde 2 5 SIMPLE
-zxgedit -adde 5 3 SIMPLE
-zxgedit -adde 6 7 SIMPLE
-zxgedit -adde 8 9 SIMPLE
-
-logger level trace
-zx2ts
-logger level warn
-
-zxgr benchmark/zx/cnot.zx
-zxgr benchmark/zx/cnot.zx
-zxch 0
-zxtensor 1
+zxgraph edge add 0 4 SIMPLE
+zxgraph edge add 4 1 SIMPLE
+zxgraph edge add 2 5 SIMPLE
+zxgraph edge add 5 3 SIMPLE
+zxgraph edge add 6 7 SIMPLE
+zxgraph edge add 8 9 SIMPLE
 
 logger level trace
 zx2ts
 logger level warn
 
-zxnew
-zxgedit -addi 0
-zxgedit -addo 0
-zxgedit -addi 1
-zxgedit -addo 1
-zxgedit -addi 2
-zxgedit -addo 2
-zxgedit -addi 3
-zxgedit -addo 3
-zxgedit -addi 4
-zxgedit -addo 4
+zxgraph read benchmark/zx/cnot.zx
+zxgraph read benchmark/zx/cnot.zx
+zxgraph checkout 0
+zxgraph tensor-product 1
 
-zxgedit -addv 0 Z 0
-zxgedit -addv 0 Z 0
-zxgedit -addv 0 Z 0
-zxgedit -addv 0 Z 0
+logger level trace
+zx2ts
+logger level warn
 
-zxgedit -addi 5
-zxgedit -addo 5
-zxgedit -addi 6
-zxgedit -addo 6
+zxgraph new
+zxgraph vertex add input 0
+zxgraph vertex add output 0
+zxgraph vertex add input 1
+zxgraph vertex add output 1
+zxgraph vertex add input 2
+zxgraph vertex add output 2
+zxgraph vertex add input 3
+zxgraph vertex add output 3
+zxgraph vertex add input 4
+zxgraph vertex add output 4
 
-zxgedit -adde 0 1 SIMPLE
-zxgedit -adde 2 10 SIMPLE
-zxgedit -adde 3 11 SIMPLE
-zxgedit -adde 4 12 SIMPLE
-zxgedit -adde 5 12 SIMPLE
-zxgedit -adde 6 12 SIMPLE
-zxgedit -adde 7 13 SIMPLE
-zxgedit -adde 8 13 SIMPLE
-zxgedit -adde 9 13 SIMPLE
-zxgedit -adde 14 16 SIMPLE
-zxgedit -adde 15 17 SIMPLE
+zxgraph vertex add z 0 0
+zxgraph vertex add z 0 0
+zxgraph vertex add z 0 0
+zxgraph vertex add z 0 0
+
+zxgraph vertex add input 5
+zxgraph vertex add output 5
+zxgraph vertex add input 6
+zxgraph vertex add output 6
+
+zxgraph edge add 0 1 SIMPLE
+zxgraph edge add 2 10 SIMPLE
+zxgraph edge add 3 11 SIMPLE
+zxgraph edge add 4 12 SIMPLE
+zxgraph edge add 5 12 SIMPLE
+zxgraph edge add 6 12 SIMPLE
+zxgraph edge add 7 13 SIMPLE
+zxgraph edge add 8 13 SIMPLE
+zxgraph edge add 9 13 SIMPLE
+zxgraph edge add 14 16 SIMPLE
+zxgraph edge add 15 17 SIMPLE
 
 logger level trace
 zx2ts
