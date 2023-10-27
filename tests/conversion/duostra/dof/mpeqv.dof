@@ -4,6 +4,6 @@ qccr benchmark/SABRE/small/3_17_13.qasm
 duostra --check
 qccp
 qcp -l
-help mpeq
-mpeq -l 0 -p 1
+help map-equiv
+map-equiv -l 0 -p 1
 quit -f

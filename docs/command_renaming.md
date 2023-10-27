@@ -51,7 +51,7 @@
 | duostra          | duostra            | run duostra mapper to a quantum circuit           |       |
 | duoset           | duostra config ... | set duostra config                                |       |
 | duoprint         | duostra config     | print duostra config                              |       |
-| mpequiv          | qcir mapequiv      | check if logical and physical QCir are equivalent |       |
+| mpequiv          | map-equiv          | check if logical and physical QCir are equivalent |       |
 
 ## Extractor Commands
 
