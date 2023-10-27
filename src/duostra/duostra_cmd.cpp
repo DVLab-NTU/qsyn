@@ -169,7 +169,7 @@ Command duostra_set_cmd() {
 
 Command mapping_equivalence_check_cmd(qcir::QCirMgr& qcir_mgr, device::DeviceMgr& device_mgr) {
     return {
-        "mpequiv",
+        "map-equiv",
         [](ArgumentParser& parser) {
             parser.description("check equivalence of the physical and the logical circuits");
             parser.add_argument<size_t>("-logical")
