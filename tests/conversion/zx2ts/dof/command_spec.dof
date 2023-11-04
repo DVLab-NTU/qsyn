@@ -13,14 +13,14 @@ zx2ts // don't do anything if there's no ZXGraph
 // creates some ZXGraph from a small circuit
 qccr benchmark/SABRE/small/3_17_13.qasm
 qc2zx 
-zxcopy 1
-zxgs -interc
-zxprint -l
+zxgraph copy 1
+zxgraph optimize --interior-clifford-reduce
+zxgraph list 
 
 zx2ts       // should convert ZXGraph 1 to Tensor 0
 zx2ts -ts 2 // should convert ZXGraph 1 to Tensor 2
 zx2ts -zx 0 // should convert ZXGraph 0 to Tensor 3, without changing focused ZXGraph
-zxprint -l
+zxgraph list 
 tensor list
 zx2ts -zx 2                // should log error: ZXGraph does not exist
 zx2ts -zx 0 -ts 2          // should log error: Tensor ID already occupied. In this case, the error should occur before trying to convert the tensor
@@ -31,7 +31,7 @@ tensor list
 //  Logger Level Testing
 //-------------------------
 
-zxgr benchmark/zx/cnot.zx
+zxgraph read benchmark/zx/cnot.zx
 logger level trace
 zx2ts
 

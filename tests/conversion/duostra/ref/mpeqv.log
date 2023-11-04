@@ -27,19 +27,19 @@ qsyn> qcp -l
   0    3_17_13             
 ★ 1    3_17_13             Duostra
 
-qsyn> help mpeq
-Usage: mpequiv [-h] (-logical <size_t LOGICAL>) (-physical <size_t PHYSICAL>) [-reverse]
+qsyn> help map-equiv
+Usage: map-equiv [-h] (-logical <size_t LOGICAL>) (-physical <size_t PHYSICAL>) [-reverse]
 
 Description:
   check equivalence of the physical and the logical circuits
 
 Options:
-  flag    -h, --help            show this help message and exit                        
+  flag    -h, --help            show this help message                                 
   size_t  -logical    LOGICAL   logical circuit id                                     
   size_t  -physical   PHYSICAL  physical circuit id                                    
   flag    -reverse              check the circuit reversily, used in extracted circuit 
 
-qsyn> mpeq -l 0 -p 1
+qsyn> map-equiv -l 0 -p 1
 Equivalent up to permutation
 
 qsyn> quit -f

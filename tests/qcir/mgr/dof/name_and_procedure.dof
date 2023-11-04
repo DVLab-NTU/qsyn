@@ -1,6 +1,6 @@
 qccr benchmark/SABRE/large/adr4_197.qasm
 qc2zx
-zxgs -fr
+zxgraph optimize --full-reduce
 zx2qc
 qccoptimize -c
 qcp -l

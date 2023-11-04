@@ -12,6 +12,7 @@
 #include <cassert>
 #include <numeric>
 #include <ranges>
+#include <stdexcept>
 
 #include "fmt/core.h"
 #include "tl/adjacent.hpp"
@@ -27,12 +28,12 @@ ArgumentParser::ArgumentParser(std::string const& n, ArgumentParserConfig config
     if (config.add_help_action) {
         this->add_argument<bool>("-h", "--help")
             .action(help)
-            .help("show this help message and exit");
+            .help(fmt::format("show this help message{}", config.exit_on_failure ? " and exit" : ""));
     }
     if (config.add_version_action) {
         this->add_argument<bool>("-V", "--version")
             .action(version)
-            .help("show program's version number and exit");
+            .help(fmt::format("show the program's version number{}", config.exit_on_failure ? " and exit" : ""));
     }
 
     _pimpl->config = config;
@@ -46,6 +47,22 @@ size_t ArgumentParser::num_parsed_args() const {
         });
 }
 
+bool ArgumentParser::_has_arg(std::string const& name) const {
+    return _pimpl->arguments.contains(name) ||
+           _pimpl->alias_forward_map.contains(name) ||
+           (_pimpl->subparsers.has_value() && get_activated_subparser()->_has_arg(name));
+}
+
+std::optional<ArgumentParser> ArgumentParser::get_activated_subparser() const {
+    if (!_pimpl->subparsers.has_value()) return std::nullopt;
+    if (!_pimpl->activated_subparser.has_value()) return std::nullopt;
+    return _pimpl->subparsers->get_subparsers().at(_pimpl->activated_subparser.value());
+}
+
+bool ArgumentParser::used_subparser(std::string const& name) const {
+    auto activated_subparser = get_activated_subparser();
+    return activated_subparser.has_value() && (activated_subparser->get_name() == name || activated_subparser->used_subparser(name));
+}
 /**
  * @brief Print the tokens and their parse states
  *
@@ -143,7 +160,7 @@ bool ArgumentParser::analyze_options() const {
         for (auto const& name : group.get_arg_names()) {
             if (_pimpl->arguments.at(name).is_required()) {
                 fmt::println(stderr, "[ArgParse] Error: mutually exclusive argument \"{}\" must be optional!!", name);
-                exit(1);
+                throw std::runtime_error("mutually exclusive argument must be optional");
                 return false;
             }
             _pimpl->conflict_groups.emplace(name, group);
@@ -223,7 +240,7 @@ std::pair<bool, std::vector<Token>> ArgumentParser::parse_known_args(std::vector
  */
 std::pair<bool, std::vector<Token>> ArgumentParser::parse_known_args(TokensView tokens) {
     auto result = _parse_known_args_impl(tokens);
-    if (!result.first && _pimpl->config.exitOnFailure) {
+    if (!result.first && _pimpl->config.exit_on_failure) {
         exit(0);
     }
 
@@ -242,7 +259,6 @@ std::pair<bool, std::vector<Token>> ArgumentParser::_parse_known_args_impl(Token
     for (auto& mutex : _pimpl->mutually_exclusive_groups) {
         mutex.set_parsed(false);
     }
-
     auto subparser_token_pos = std::invoke([this, tokens]() -> size_t {
         if (!_pimpl->subparsers.has_value())
             return tokens.size();
@@ -273,7 +289,7 @@ std::pair<bool, std::vector<Token>> ArgumentParser::_parse_known_args_impl(Token
     if (has_subparsers()) {
         TokensView const subparser_tokens = tokens.subspan(subparser_token_pos + 1);
         if (_pimpl->activated_subparser) {
-            auto const [success, subparser_unrecognized] = _get_activated_subparser()->parse_known_args(subparser_tokens);
+            auto const [success, subparser_unrecognized] = get_activated_subparser()->parse_known_args(subparser_tokens);
             if (!success) return {false, {}};
             unrecognized.insert(std::end(unrecognized), std::begin(subparser_unrecognized), std::end(subparser_unrecognized));
         } else if (_pimpl->subparsers->is_required()) {
@@ -281,7 +297,6 @@ std::pair<bool, std::vector<Token>> ArgumentParser::_parse_known_args_impl(Token
             return {false, {}};
         }
     }
-
     return {true, unrecognized};
 }
 
@@ -494,6 +509,10 @@ ArgumentParser SubParsers::add_parser(std::string const& name) {
  * @return ArgumentParser
  */
 ArgumentParser SubParsers::add_parser(std::string const& name, ArgumentParserConfig const& config) {
+    if (_pimpl->subparsers.contains(name)) {
+        fmt::println(stderr, "[ArgParse Error] Subparser \"{}\" already exists!!", name);
+        throw std::runtime_error("subparser already exists");
+    }
     _pimpl->subparsers.emplace(name, ArgumentParser{name, config});
     return _pimpl->subparsers.at(name);
 }
@@ -505,7 +524,7 @@ ArgumentParser SubParsers::add_parser(std::string const& name, ArgumentParserCon
 [[nodiscard]] SubParsers ArgumentParser::add_subparsers() {
     if (_pimpl->subparsers.has_value()) {
         fmt::println(stderr, "Error: an ArgumentParser can only have one set of subparsers!!");
-        exit(-1);
+        throw std::runtime_error("cannot have multiple subparsers");
     }
     _pimpl->subparsers = SubParsers{this->_pimpl->config};
     return _pimpl->subparsers.value();

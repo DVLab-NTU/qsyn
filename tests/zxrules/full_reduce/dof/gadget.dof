@@ -1,20 +1,20 @@
 qccr benchmark/qasm/tof2.qasm
 qc2zx
-zxgas 1 I X pi
-zxgas 1 O X pi
+zxgraph assign 1 I X pi
+zxgraph assign 1 O X pi
 zx2ts
-zxgp -v
-zxgs -spiderf
-zxgp -v
-zxgs -idr
-zxgp -v
-zxgs -tog
+zxgraph print -v
+zxgraph rule --spider-fusion
+zxgraph print -v
+zxgraph rule --identity-removal
+zxgraph print -v
+zxgraph rule --to-z-graph
 logger level debug
-zxgs -pivotg
+zxgraph rule --pivot-gadget
 logger level warn
-zxgp -v
-zxgs -idr
-zxgp -v
+zxgraph print -v
+zxgraph rule --identity-removal
+zxgraph print -v
 zx2ts
 tensor equiv 0 1
 quit -f

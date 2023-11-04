@@ -9,7 +9,6 @@
 
 #include <cstddef>
 
-#include "./zx_rules_template.hpp"
 #include "util/util.hpp"
 #include "zx/zx_def.hpp"
 #include "zx/zx_partition.hpp"

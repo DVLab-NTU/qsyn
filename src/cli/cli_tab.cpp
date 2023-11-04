@@ -47,13 +47,13 @@ void dvlab::CommandLineInterface::_on_tab_pressed() {
 
     // if this is the first token in the command, try to match identifiers first
     auto last_cmd_pos = _read_buffer.find_first_not_of(' ', _get_last_token_pos(str, ';'));
-    if (last_cmd_pos == std::string::npos) last_cmd_pos = 0;
     if (last_cmd_pos == last_token_pos) {
         if (auto result = _match_identifiers(last_token); result != TabActionResult::no_op) {
             return;
         }
     }
 
+    if (last_cmd_pos == std::string::npos) last_cmd_pos = 0;
     auto first_space_pos_in_last_cmd = _read_buffer.find_first_of(' ', last_cmd_pos);
     while (first_space_pos_in_last_cmd != std::string::npos && _is_escaped(_read_buffer, first_space_pos_in_last_cmd)) {
         first_space_pos_in_last_cmd = _read_buffer.find_first_of(' ', first_space_pos_in_last_cmd + 1);

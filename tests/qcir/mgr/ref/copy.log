@@ -34,7 +34,7 @@ Q 3  -----------------------------------------cx( 2)----------cx( 4)----------cx
 
 qsyn> qc2zx
 
-qsyn> zxgp -v
+qsyn> zxgraph print -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (8, -)
 ID:   1 (●, 0)           (Qubit, Col): (0, 13)        #Neighbors:   1     (14, -)
@@ -59,11 +59,11 @@ ID:  19 (X, 0)           (Qubit, Col): (3, 12)        #Neighbors:   3     (7, -)
 Total #Vertices: 20
 
 
-qsyn> zxgadjoint
+qsyn> zxgraph adjoint
 
-qsyn> zxcompose 0
+qsyn> zxgraph compose 0
 
-qsyn> zxgp -v
+qsyn> zxgraph print -v
 
 ID:   0 (Z, 0)           (Qubit, Col): (0, 13)        #Neighbors:   2     (8, -) (20, -)
 ID:   1 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (14, -)
@@ -108,9 +108,9 @@ ID:  39 (X, 0)           (Qubit, Col): (3, 26)        #Neighbors:   3     (27, -
 Total #Vertices: 40
 
 
-qsyn> zxgs -fr
+qsyn> zxgraph optimize --full-reduce
 
-qsyn> zxgp -v
+qsyn> zxgraph print -v
 
 ID:   1 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (21, -)
 ID:   3 (●, 0)           (Qubit, Col): (1, 0)         #Neighbors:   1     (23, -)
@@ -125,7 +125,7 @@ Total #Vertices: 8
 
 qsyn> qcr
 
-qsyn> zxr
+qsyn> zxgraph clear
 
 qsyn> qccp -q
 [error]    QCir list is empty. Please create a QCir first!!
@@ -134,13 +134,12 @@ qsyn> qcga cx 0 1
 [error]    QCir list is empty. Please create a QCir first!!
 
 qsyn> qcba
-Note: QCir list is empty now. Create a new one.
 
 qsyn> qccp -q
 Q 0  
 
 qsyn> qcga h
-Error: too few qubits are supplied for gate h!!
+[error]    Too few qubits are supplied for gate h!!
 
 qsyn> qcga h 0
 
@@ -148,7 +147,7 @@ qsyn> qccp -q
 Q 0  - h( 0)-
 
 qsyn> qcga cx 0 1
-Error: Qubit ID 1 does not exist!!
+[error]    Qubit ID 1 does not exist!!
 
 qsyn> qcba 3
 
@@ -254,7 +253,7 @@ Q 4  -----------------cx(11)----------------------------------------------------
 
 qsyn> qc2zx
 
-qsyn> zxgp
+qsyn> zxgraph print
 Graph (4 inputs, 4 outputs, 21 vertices, 20 edges)
 
 qsyn> quit -f

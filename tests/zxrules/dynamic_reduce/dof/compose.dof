@@ -1,10 +1,10 @@
 logger level debug
-zxgread benchmark/zx/tof3.zx
-zxcopy 1
-zxgs -dreduce
-zxgp -s
-zxgadjoint 
-zxcompose 0
-zxgs -freduce
-zxgtest -id
+zxgraph read benchmark/zx/tof3.zx
+zxgraph copy 1
+zxgraph optimize --dynamic-reduce
+zxgraph print -s
+zxgraph adjoint
+zxgraph compose 0
+zxgraph optimize --full-reduce
+zxgraph test --identity
 quit -f

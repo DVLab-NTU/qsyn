@@ -1,13 +1,13 @@
 qccr benchmark/qasm/tof2.qasm
 qc2ts
 qc2zx
-zxgp -v
+zxgraph print -v
 zx2ts
 tensor equiv 0 1
-zxgp -v
-zxgas 0 I X pi
-zxgas 0 O X pi
-zxgp -v
+zxgraph print -v
+zxgraph assign 0 I X pi
+zxgraph assign 0 O X pi
+zxgraph print -v
 zx2ts
 qcnew
 qcba 2

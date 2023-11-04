@@ -2,7 +2,7 @@ qsyn> qccr benchmark/qasm/tof3.qasm
 
 qsyn> qc2zx
 
-qsyn> zxgp -v
+qsyn> zxgraph print -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (26, -)
 ID:   1 (●, 0)           (Qubit, Col): (0, 32)        #Neighbors:   1     (72, -)
@@ -80,12 +80,12 @@ ID:  72 (Z, 0)           (Qubit, Col): (0, 31)        #Neighbors:   3     (1, -)
 Total #Vertices: 73
 
 
-qsyn> zxgtest -gl
+qsyn> zxgraph test --graph-like
 The graph is not graph-like!
 
-qsyn> zxgsimp -fr
+qsyn> zxgraph optimize --full-reduce
 
-qsyn> zxgtest -gl
+qsyn> zxgraph test --graph-like
 The graph is graph-like!
 
 qsyn> quit -f

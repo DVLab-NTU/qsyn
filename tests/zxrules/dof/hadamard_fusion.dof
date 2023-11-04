@@ -4,16 +4,16 @@ qcga h 0
 qcga h 0
 qccp -l
 qc2zx
-zxgp -v
-zxgsimp -hr
-zxgp -v
-zxge -addv 0 HBOX 0
-zxge -adde 0 4 HADAMARD
-zxge -adde 1 4 SIMPLE
-zxge -rme 0 1 ALL
-zxgp -v
-zxgsimp -hf
-zxr
+zxgraph print -v
+zxgraph rule --hadamard-rule
+zxgraph print -v
+zxgraph vertex add hbox 0 0
+zxgraph edge add 0 4 HADAMARD
+zxgraph edge add 1 4 SIMPLE
+zxgraph edge remove 0 1 ALL
+zxgraph print -v
+zxgraph rule --hadamard-fusion
+zxgraph clear
 qcr
 logger level debug
 qcba
@@ -22,31 +22,31 @@ qcga h 0
 qcga h 0
 qccp -l
 qc2zx
-zxgp -v
-zxge -rme 2 3 ALL
-zxge -rme 3 4 ALL
-zxge -adde 2 3 HADAMARD
-zxge -adde 3 4 HADAMARD
-zxgp -v
-zxgsimp -hf
-zxr
+zxgraph print -v
+zxgraph edge remove 2 3 ALL
+zxgraph edge remove 3 4 ALL
+zxgraph edge add 2 3 HADAMARD
+zxgraph edge add 3 4 HADAMARD
+zxgraph print -v
+zxgraph rule --hadamard-fusion
+zxgraph clear
 qcr
 qcba
 qcga h 0
 qcga h 0
 qccp -l
 qc2zx
-zxgp -v
-zxge -rme 0 2 ALL
-zxge -rme 2 3 ALL
-zxge -rme 3 1 ALL
-zxge -adde 0 2 HADAMARD
-zxge -adde 2 3 HADAMARD
-zxge -adde 3 1 HADAMARD
-zxgp -v
-zxgsimp -hf
-zxgp -v
-zxr
+zxgraph print -v
+zxgraph edge remove 0 2 ALL
+zxgraph edge remove 2 3 ALL
+zxgraph edge remove 3 1 ALL
+zxgraph edge add 0 2 HADAMARD
+zxgraph edge add 2 3 HADAMARD
+zxgraph edge add 3 1 HADAMARD
+zxgraph print -v
+zxgraph rule --hadamard-fusion
+zxgraph print -v
+zxgraph clear
 qcr
 qcba
 qcga h 0
@@ -54,19 +54,19 @@ qcga h 0
 qcga h 0
 qccp -l
 qc2zx
-zxgp -v
-zxge -rme 0 2 SIMPLE
-zxge -rme 2 3 SIMPLE
-zxge -rme 3 4 SIMPLE
-zxge -rme 4 1 SIMPLE
-zxge -adde 0 2 HADAMARD
-zxge -adde 2 3 HADAMARD
-zxge -adde 3 4 HADAMARD
-zxge -adde 4 1 HADAMARD
-zxgp -v
-zxgsimp -hf
-zxgp -v
-zxr
+zxgraph print -v
+zxgraph edge remove 0 2 SIMPLE
+zxgraph edge remove 2 3 SIMPLE
+zxgraph edge remove 3 4 SIMPLE
+zxgraph edge remove 4 1 SIMPLE
+zxgraph edge add 0 2 HADAMARD
+zxgraph edge add 2 3 HADAMARD
+zxgraph edge add 3 4 HADAMARD
+zxgraph edge add 4 1 HADAMARD
+zxgraph print -v
+zxgraph rule --hadamard-fusion
+zxgraph print -v
+zxgraph clear
 qcr
 qcba
 qcga h 0
@@ -74,15 +74,15 @@ qcga z 0
 qcga h 0
 qccp -l
 qc2zx
-zxgp -v
-zxge -rme 0 2 SIMPLE
-zxge -rme 3 4 SIMPLE
-zxge -adde 0 2 HADAMARD
-zxge -adde 3 4 HADAMARD
-zxgp -v
-zxgsimp -hf
-zxgp -v
-zxr
+zxgraph print -v
+zxgraph edge remove 0 2 SIMPLE
+zxgraph edge remove 3 4 SIMPLE
+zxgraph edge add 0 2 HADAMARD
+zxgraph edge add 3 4 HADAMARD
+zxgraph print -v
+zxgraph rule --hadamard-fusion
+zxgraph print -v
+zxgraph clear
 qcr
 qcba
 qcba 
@@ -90,16 +90,16 @@ qcga z 0
 qcga z 1
 qccp -l
 qc2zx
-zxgp -v
-zxge -addv 0 HBOX 0
-zxge -addv 1 HBOX 0
-zxge -adde 4 6 HADAMARD
-zxge -adde 6 7 SIMPLE
-zxge -adde 7 5 HADAMARD
-zxgp -v
-zxgsimp -hf
-zxgp -v
-zxr
+zxgraph print -v
+zxgraph vertex add hbox 0 0
+zxgraph vertex add hbox 1 0
+zxgraph edge add 4 6 HADAMARD
+zxgraph edge add 6 7 SIMPLE
+zxgraph edge add 7 5 HADAMARD
+zxgraph print -v
+zxgraph rule --hadamard-fusion
+zxgraph print -v
+zxgraph clear
 qcr
 qcba
 qcga h 0
@@ -110,12 +110,12 @@ qcga h 0
 qcga z 0
 qccp -l
 qc2zx
-zxgp -v
-zxge -rme 2 3 SIMPLE
-zxge -adde 2 3 HADAMARD
-zxge -rme 4 5 SIMPLE
-zxge -adde 4 5 HADAMARD
-zxgp -v
-zxgsimp -hf
-zxgp -v
+zxgraph print -v
+zxgraph edge remove 2 3 SIMPLE
+zxgraph edge add 2 3 HADAMARD
+zxgraph edge remove 4 5 SIMPLE
+zxgraph edge add 4 5 HADAMARD
+zxgraph print -v
+zxgraph rule --hadamard-fusion
+zxgraph print -v
 quit -f

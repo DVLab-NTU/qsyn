@@ -194,7 +194,7 @@ std::string get_colored_vertex_string(ZXVertex* v) {
  * @brief Draw ZXGraph in CLI
  *
  */
-void ZXGraph::draw() const {
+[[deprecated("Console output is too limited to draw a graph")]] void ZXGraph::draw() const {
     fmt::println("");
     std::unordered_map<QubitIdType, QubitIdType> q_pair;
     QubitIdList qubit_ids;  // number of qubit

@@ -9,7 +9,7 @@
 
 #include <vector>
 
-#include "../zxgraph.hpp"
+#include "zx/zxgraph.hpp"
 
 namespace qsyn::zx {
 

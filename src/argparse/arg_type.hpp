@@ -280,7 +280,7 @@ requires valid_argument_type<T>
 ArgType<T>& ArgType<T>::constraint(ArgType<T>::ConstraintType const& constraint) {
     if (constraint == nullptr) {
         fmt::println(stderr, "[ArgParse] Error: failed to add constraint to argument \"{}\": condition cannot be `nullptr`!!", _name);
-        exit(1);
+        throw std::runtime_error("failed to add constraint to argument");
     }
 
     _constraints.emplace_back(constraint);
