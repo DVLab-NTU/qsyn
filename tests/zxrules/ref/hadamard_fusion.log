@@ -1,15 +1,15 @@
 qsyn> logger level debug
 [info]     Setting logger level to "debug"
 
-qsyn> qcba
+qsyn> qcir qubit add
 [info]     QCir list is empty now. Create a new one.
 [info]     Successfully created and checked out to QCir 0
 
-qsyn> qcga h 0
+qsyn> qcir gate add h 0
 
-qsyn> qcga h 0
+qsyn> qcir gate add h 0
 
-qsyn> qccp -l
+qsyn> qcir print --gate
 Listed by gate ID
 ID:   0 (  h)      Time:    1     Qubit:   0 
 ID:   1 (  h)      Time:    2     Qubit:   0 
@@ -68,22 +68,22 @@ qsyn> zxgraph rule --hadamard-fusion
 
 qsyn> zxgraph clear
 
-qsyn> qcr
+qsyn> qcir clear
 
 qsyn> logger level debug
 [info]     Setting logger level to "debug"
 
-qsyn> qcba
+qsyn> qcir qubit add
 [info]     QCir list is empty now. Create a new one.
 [info]     Successfully created and checked out to QCir 0
 
-qsyn> qcga h 0
+qsyn> qcir gate add h 0
 
-qsyn> qcga h 0
+qsyn> qcir gate add h 0
 
-qsyn> qcga h 0
+qsyn> qcir gate add h 0
 
-qsyn> qccp -l
+qsyn> qcir print --gate
 Listed by gate ID
 ID:   0 (  h)      Time:    1     Qubit:   0 
 ID:   1 (  h)      Time:    2     Qubit:   0 
@@ -137,17 +137,17 @@ qsyn> zxgraph rule --hadamard-fusion
 
 qsyn> zxgraph clear
 
-qsyn> qcr
+qsyn> qcir clear
 
-qsyn> qcba
+qsyn> qcir qubit add
 [info]     QCir list is empty now. Create a new one.
 [info]     Successfully created and checked out to QCir 0
 
-qsyn> qcga h 0
+qsyn> qcir gate add h 0
 
-qsyn> qcga h 0
+qsyn> qcir gate add h 0
 
-qsyn> qccp -l
+qsyn> qcir print --gate
 Listed by gate ID
 ID:   0 (  h)      Time:    1     Qubit:   0 
 ID:   1 (  h)      Time:    2     Qubit:   0 
@@ -209,19 +209,19 @@ Total #Vertices: 2
 
 qsyn> zxgraph clear
 
-qsyn> qcr
+qsyn> qcir clear
 
-qsyn> qcba
+qsyn> qcir qubit add
 [info]     QCir list is empty now. Create a new one.
 [info]     Successfully created and checked out to QCir 0
 
-qsyn> qcga h 0
+qsyn> qcir gate add h 0
 
-qsyn> qcga h 0
+qsyn> qcir gate add h 0
 
-qsyn> qcga h 0
+qsyn> qcir gate add h 0
 
-qsyn> qccp -l
+qsyn> qcir print --gate
 Listed by gate ID
 ID:   0 (  h)      Time:    1     Qubit:   0 
 ID:   1 (  h)      Time:    2     Qubit:   0 
@@ -294,19 +294,19 @@ Total #Vertices: 2
 
 qsyn> zxgraph clear
 
-qsyn> qcr
+qsyn> qcir clear
 
-qsyn> qcba
+qsyn> qcir qubit add
 [info]     QCir list is empty now. Create a new one.
 [info]     Successfully created and checked out to QCir 0
 
-qsyn> qcga h 0
+qsyn> qcir gate add h 0
 
-qsyn> qcga z 0
+qsyn> qcir gate add z 0
 
-qsyn> qcga h 0
+qsyn> qcir gate add h 0
 
-qsyn> qccp -l
+qsyn> qcir print --gate
 Listed by gate ID
 ID:   0 (  h)      Time:    1     Qubit:   0 
 ID:   1 (  z)      Time:    2     Qubit:   0 
@@ -367,19 +367,19 @@ Total #Vertices: 3
 
 qsyn> zxgraph clear
 
-qsyn> qcr
+qsyn> qcir clear
 
-qsyn> qcba
+qsyn> qcir qubit add
 [info]     QCir list is empty now. Create a new one.
 [info]     Successfully created and checked out to QCir 0
 
-qsyn> qcba 
+qsyn> qcir qubit add 
 
-qsyn> qcga z 0
+qsyn> qcir gate add z 0
 
-qsyn> qcga z 1
+qsyn> qcir gate add z 1
 
-qsyn> qccp -l
+qsyn> qcir print --gate
 Listed by gate ID
 ID:   0 (  z)      Time:    1     Qubit:   0 
 ID:   1 (  z)      Time:    1     Qubit:   1 
@@ -448,25 +448,25 @@ Total #Vertices: 6
 
 qsyn> zxgraph clear
 
-qsyn> qcr
+qsyn> qcir clear
 
-qsyn> qcba
+qsyn> qcir qubit add
 [info]     QCir list is empty now. Create a new one.
 [info]     Successfully created and checked out to QCir 0
 
-qsyn> qcga h 0
+qsyn> qcir gate add h 0
 
-qsyn> qcga h 0
+qsyn> qcir gate add h 0
 
-qsyn> qcga z 0
+qsyn> qcir gate add z 0
 
-qsyn> qcga h 0
+qsyn> qcir gate add h 0
 
-qsyn> qcga h 0
+qsyn> qcir gate add h 0
 
-qsyn> qcga z 0
+qsyn> qcir gate add z 0
 
-qsyn> qccp -l
+qsyn> qcir print --gate
 Listed by gate ID
 ID:   0 (  h)      Time:    1     Qubit:   0 
 ID:   1 (  h)      Time:    2     Qubit:   0 

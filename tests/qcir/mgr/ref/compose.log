@@ -1,40 +1,40 @@
-qsyn> qcba 3
+qsyn> qcir qubit add 3
 
-qsyn> qcga cx 0 2
+qsyn> qcir gate add cx 0 2
 
-qsyn> qcga rz -ph pi 0
+qsyn> qcir gate add rz -ph pi 0
 
-qsyn> qcbd 1
+qsyn> qcir qubit remove 1
 
-qsyn> qccp -q
+qsyn> qcir print --diagram
 Q 0  ---------cx( 0)--rz( 1)-
 Q 2  ---------cx( 0)-
 
-qsyn> qcnew
+qsyn> qcir new
 
-qsyn> qcba 4
+qsyn> qcir qubit add 4
 
-qsyn> qcga cx 1 2
+qsyn> qcir gate add cx 1 2
 
-qsyn> qcga cx 0 3
+qsyn> qcir gate add cx 0 3
 
-qsyn> qcga cx 0 2
+qsyn> qcir gate add cx 0 2
 
-qsyn> qccp -q
+qsyn> qcir print --diagram
 Q 0  ---------cx( 1)----------cx( 2)-
 Q 1  ---------cx( 0)-
 Q 2  ---------cx( 0)----------cx( 2)-
 Q 3  ---------cx( 1)-
 
-qsyn> qcch 0
+qsyn> qcir checkout 0
 
-qsyn> qccp -q
+qsyn> qcir print --diagram
 Q 0  ---------cx( 0)--rz( 1)-
 Q 2  ---------cx( 0)-
 
-qsyn> qccompose 1
+qsyn> qcir compose 1
 
-qsyn> qccp -q
+qsyn> qcir print --diagram
 Q 0  ---------cx( 0)--rz( 1)----------cx( 3)----------cx( 4)-
 Q 1  -------------------------cx( 2)-
 Q 2  ---------cx( 0)----------cx( 2)------------------cx( 4)-
@@ -73,29 +73,29 @@ Equivalent
 - Global Norm : 0.140055
 - Global Phase: -178π/183
 
-qsyn> qcr
+qsyn> qcir clear
 
-qsyn> qccread benchmark/SABRE/small/qft_4.qasm
+qsyn> qcir read benchmark/SABRE/small/qft_4.qasm
 
-qsyn> qccread benchmark/SABRE/small/qft_4.qasm
+qsyn> qcir read benchmark/SABRE/small/qft_4.qasm
 
-qsyn> qccp -q
+qsyn> qcir print --diagram
 Q 0  ---------cx( 0)----------cx( 1)----------cx( 2)-
 Q 1  ---------cx( 0)--------------------------cx( 3)----------cx( 4)-
 Q 2  -------------------------cx( 1)----------cx( 3)--------------------------cx( 5)-
 Q 3  -----------------------------------------cx( 2)----------cx( 4)----------cx( 5)-
 
-qsyn> qccompose 1
+qsyn> qcir compose 1
 
-qsyn> qccp -q
+qsyn> qcir print --diagram
 Q 0  ---------cx( 0)----------cx( 1)----------cx( 2)--------------------------cx( 6)----------cx( 7)----------cx( 9)-
 Q 1  ---------cx( 0)--------------------------cx( 3)----------cx( 4)----------cx( 6)--------------------------cx( 8)----------cx(10)-
 Q 2  -------------------------cx( 1)----------cx( 3)--------------------------cx( 5)----------cx( 7)----------cx( 8)--------------------------cx(11)-
 Q 3  -----------------------------------------cx( 2)----------cx( 4)----------cx( 5)--------------------------cx( 9)----------cx(10)----------cx(11)-
 
-qsyn> qccompose 0
+qsyn> qcir compose 0
 
-qsyn> qccp -q
+qsyn> qcir print --diagram
 Q 0  ---------cx( 0)----------cx( 1)----------cx( 2)--------------------------cx( 6)----------cx( 7)----------cx( 9)--------------------------cx(12)----------cx(13)----------cx(15)-
 Q 1  ---------cx( 0)--------------------------cx( 3)----------cx( 4)----------cx( 6)--------------------------cx( 8)----------cx(10)----------cx(12)--------------------------cx(14)----------cx(16)-
 Q 2  -------------------------cx( 1)----------cx( 3)--------------------------cx( 5)----------cx( 7)----------cx( 8)--------------------------cx(11)----------cx(13)----------cx(14)--------------------------cx(17)-

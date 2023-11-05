@@ -106,7 +106,6 @@ int main(int argc, char** argv) {
                                    zxgraph_mgr) ||
         !qsyn::extractor::add_extract_cmds(cli, zxgraph_mgr, qcir_mgr) ||
         !qsyn::qcir::add_qcir_cmds(cli, qcir_mgr) ||
-        !qsyn::qcir::add_qcir_optimize_cmds(cli, qcir_mgr) ||
         !qsyn::tensor::add_tensor_cmds(cli, tensor_mgr) ||
         !qsyn::zx::add_zx_cmds(cli, zxgraph_mgr)) {
         return 1;

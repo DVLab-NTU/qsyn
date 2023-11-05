@@ -1,4 +1,4 @@
-qsyn> qccr benchmark/qasm/tof3.qasm
+qsyn> qcir read benchmark/qasm/tof3.qasm
 
 qsyn> qc2zx
 
@@ -206,11 +206,11 @@ Total #Vertices: 3
 
 qsyn> zx2ts
 
-qsyn> qcnew
+qsyn> qcir new
 
-qsyn> qcba 1
+qsyn> qcir qubit add 1
 
-qsyn> qcga x 0
+qsyn> qcir gate add x 0
 
 qsyn> qc2ts
 

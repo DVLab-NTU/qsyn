@@ -1,4 +1,4 @@
-qccread ./benchmark/qft/qft_7.qasm
+qcir read ./benchmark/qft/qft_7.qasm
 qc2zx 
 zxgraph copy 1
 logger level debug

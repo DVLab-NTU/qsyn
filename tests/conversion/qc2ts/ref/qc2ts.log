@@ -1,4 +1,4 @@
-qsyn> qccr benchmark/qasm/qc2ts/control_z.qasm
+qsyn> qcir read benchmark/qasm/qc2ts/control_z.qasm
 
 qsyn> logger level trace
 [info]     Setting logger level to "trace"
@@ -49,7 +49,7 @@ qsyn> qc2ts
 
 qsyn> logger level warning
 
-qsyn> qccr benchmark/qasm/qc2ts/control_h.qasm -r
+qsyn> qcir read benchmark/qasm/qc2ts/control_h.qasm -r
 
 qsyn> logger level trace
 [info]     Setting logger level to "trace"
@@ -116,7 +116,7 @@ qsyn> qc2ts
 
 qsyn> logger level warning
 
-qsyn> qccr benchmark/qasm/qc2ts/toffoli_dec.qasm -r
+qsyn> qcir read benchmark/qasm/qc2ts/toffoli_dec.qasm -r
 
 qsyn> logger level trace
 [info]     Setting logger level to "trace"
@@ -207,7 +207,7 @@ qsyn> qc2ts
 
 qsyn> logger level warning
 
-qsyn> qccr benchmark/qasm/qc2ts/toffoli_qiskit.qasm -r
+qsyn> qcir read benchmark/qasm/qc2ts/toffoli_qiskit.qasm -r
 
 qsyn> logger level trace
 [info]     Setting logger level to "trace"
@@ -398,9 +398,9 @@ qsyn> qc2ts
 
 qsyn> logger level warning
 
-qsyn> qccr benchmark/SABRE/small/3_17_13.qasm
+qsyn> qcir read benchmark/SABRE/small/3_17_13.qasm
 
-qsyn> qccp -q
+qsyn> qcir print --diagram
 Q 0  -----------------cx( 1)-- h( 3)-- t( 6)----------------------------------cx( 8)----------cx( 9)-- t(14)--------------------------cx(15)----------cx(16)-- h(18)-- t(20)------------------cx(23)--------------------------cx(25)----------cx(27)--td(28)--------------------------cx(32)----------cx(33)-
 Q 1  ---------------------------------cx( 2)-- t( 4)----------cx( 7)--------------------------cx( 9)----------cx(11)--td(12)--------------------------cx(16)----------cx(17)-- t(21)----------cx(23)----------cx(24)--td(26)------------------cx(27)--td(29)----------cx(31)--------------------------cx(33)----------cx(35)-
 Q 2  - x( 0)----------cx( 1)----------cx( 2)-- t( 5)----------cx( 7)----------cx( 8)--td(10)------------------cx(11)--td(13)----------cx(15)--------------------------cx(17)-- h(19)-- t(22)------------------cx(24)----------cx(25)-- t(30)--------------------------cx(31)----------cx(32)-- h(34)------------------cx(35)-

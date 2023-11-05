@@ -1,21 +1,21 @@
-qccr benchmark/SABRE/large/9symml_195.qasm
-qccp -q
+qcir read benchmark/SABRE/large/9symml_195.qasm
+qcir print --diagram
 qc2zx
-qcn
-qcba 2
-qcga x 0
+qcir new
+qcir qubit add 2
+qcir gate add x 0
 qc2zx
-qcga cx -pr 0 1
+qcir gate add cx -pr 0 1
 qc2zx
-qccr -r benchmark/SABRE/small/3_17_13.qasm
+qcir read -r benchmark/SABRE/small/3_17_13.qasm
 qc2zx
-qccp -q
-qcn
-qcba 2
-qcga y 0
-qcga sy 1
-qcga sdg 1
+qcir print --diagram
+qcir new
+qcir qubit add 2
+qcir gate add y 0
+qcir gate add sy 1
+qcir gate add sdg 1
 qc2zx
-qccr benchmark/qsim/circuits/circuit_q24 -r
+qcir read benchmark/qsim/circuits/circuit_q24 -r
 qc2zx
 quit -f

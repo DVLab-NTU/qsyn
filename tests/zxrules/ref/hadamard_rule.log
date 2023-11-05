@@ -1,6 +1,6 @@
-qsyn> qccr benchmark/qasm/to_graph2.qasm
+qsyn> qcir read benchmark/qasm/to_graph2.qasm
 
-qsyn> qccp -q
+qsyn> qcir print --diagram
 Q 0  ---------cx( 0)-- t( 1)-- h( 2)----------cx( 3)-
 Q 1  ---------cx( 0)--------------------------cx( 3)-
 

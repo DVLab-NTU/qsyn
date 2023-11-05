@@ -1,16 +1,14 @@
-qsyn> qcba 2
+qsyn> qcir qubit add 2
 
-qsyn> qcgadd mcpx -ph pi 0 1
+qsyn> qcir gate add mcpx -ph pi 0 1
 
-qsyn> qccp -q
+qsyn> qcir print --diagram
 Q 0  ---------cx( 0)-
 Q 1  ---------cx( 0)-
 
-qsyn> qcgp 0
-Q0 Start ───●─── End
-          ┌─┴─┐ 
-Q1 Start ─┤ X ├─ End
-          └───┘ 
+qsyn> qcir print --gate 0
+Listed by gate ID
+ID:   0 ( cx)      Time:    2     Qubit:   0   1 
 
 qsyn> qc2ts
 
@@ -49,21 +47,20 @@ Equivalent
 - Global Norm : 1
 - Global Phase: 0
 
-qsyn> qcr
+qsyn> qcir clear
 
 qsyn> zxgraph clear
 
 qsyn> tensor clear
 
 qsyn> 
-qsyn> qcba 1
+qsyn> qcir qubit add 1
 
-qsyn> qcgadd mcpx -ph pi 0
+qsyn> qcir gate add mcpx -ph pi 0
 
-qsyn> qcgp 0
-          ┌───┐ 
-Q0 Start ─┤ X ├─ End
-          └───┘ 
+qsyn> qcir print --gate 0
+Listed by gate ID
+ID:   0 (  x)      Time:    1     Qubit:   0 
 
 qsyn> qc2zx
 

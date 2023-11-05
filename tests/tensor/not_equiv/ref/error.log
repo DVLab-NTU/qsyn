@@ -1,8 +1,8 @@
-qsyn> qcba
+qsyn> qcir qubit add
 
 qsyn> qc2ts
 
-qsyn> qcga rz -ph 0.001 0
+qsyn> qcir gate add rz -ph 0.001 0
 
 qsyn> qc2ts
 

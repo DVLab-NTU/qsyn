@@ -227,11 +227,11 @@ qsyn> zx2ts
 
 qsyn> logger level warn
 
-qsyn> qcnew
+qsyn> qcir new
 
-qsyn> qcba 1
+qsyn> qcir qubit add 1
 
-qsyn> qcga h 0
+qsyn> qcir gate add h 0
 
 qsyn> qc2ts
 

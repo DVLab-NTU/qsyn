@@ -1,16 +1,16 @@
-qcp -se
-qcset -double 2 -sw 6
-qcp -se
-qccr benchmark/SABRE/large/cm82a_208.qasm
+qcir config
+qcir config --double-delay 2 --swap-delay 6
+qcir config
+qcir read benchmark/SABRE/large/cm82a_208.qasm
 device read benchmark/topology/guadalupe.layout 
-qccp -a
+qcir print --statistics
 duostra config --verbose
 duostra config --depth 2 --single-immediate true
 duostra config --verbose
 duostra --check
-qccp -a
+qcir print --statistics
 duostra config --scheduler greedy
 duostra config
 duostra --check
-qccp -a
+qcir print --statistics
 quit -f

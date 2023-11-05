@@ -1,4 +1,4 @@
-qccr benchmark/qft/qft_10dec.qasm
+qcir read benchmark/qft/qft_10dec.qasm
 qc2zx
 zxgraph gflow -all
 zxgraph optimize --interior-clifford-reduce

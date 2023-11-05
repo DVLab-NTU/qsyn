@@ -1,8 +1,8 @@
 logger level debug
-qcba
-qcga h 0
-qcga h 0
-qccp -l
+qcir qubit add
+qcir gate add h 0
+qcir gate add h 0
+qcir print --gate
 qc2zx
 zxgraph print -v
 zxgraph rule --hadamard-rule
@@ -14,13 +14,13 @@ zxgraph edge remove 0 1 ALL
 zxgraph print -v
 zxgraph rule --hadamard-fusion
 zxgraph clear
-qcr
+qcir clear
 logger level debug
-qcba
-qcga h 0
-qcga h 0
-qcga h 0
-qccp -l
+qcir qubit add
+qcir gate add h 0
+qcir gate add h 0
+qcir gate add h 0
+qcir print --gate
 qc2zx
 zxgraph print -v
 zxgraph edge remove 2 3 ALL
@@ -30,11 +30,11 @@ zxgraph edge add 3 4 HADAMARD
 zxgraph print -v
 zxgraph rule --hadamard-fusion
 zxgraph clear
-qcr
-qcba
-qcga h 0
-qcga h 0
-qccp -l
+qcir clear
+qcir qubit add
+qcir gate add h 0
+qcir gate add h 0
+qcir print --gate
 qc2zx
 zxgraph print -v
 zxgraph edge remove 0 2 ALL
@@ -47,12 +47,12 @@ zxgraph print -v
 zxgraph rule --hadamard-fusion
 zxgraph print -v
 zxgraph clear
-qcr
-qcba
-qcga h 0
-qcga h 0
-qcga h 0
-qccp -l
+qcir clear
+qcir qubit add
+qcir gate add h 0
+qcir gate add h 0
+qcir gate add h 0
+qcir print --gate
 qc2zx
 zxgraph print -v
 zxgraph edge remove 0 2 SIMPLE
@@ -67,12 +67,12 @@ zxgraph print -v
 zxgraph rule --hadamard-fusion
 zxgraph print -v
 zxgraph clear
-qcr
-qcba
-qcga h 0
-qcga z 0
-qcga h 0
-qccp -l
+qcir clear
+qcir qubit add
+qcir gate add h 0
+qcir gate add z 0
+qcir gate add h 0
+qcir print --gate
 qc2zx
 zxgraph print -v
 zxgraph edge remove 0 2 SIMPLE
@@ -83,12 +83,12 @@ zxgraph print -v
 zxgraph rule --hadamard-fusion
 zxgraph print -v
 zxgraph clear
-qcr
-qcba
-qcba 
-qcga z 0
-qcga z 1
-qccp -l
+qcir clear
+qcir qubit add
+qcir qubit add 
+qcir gate add z 0
+qcir gate add z 1
+qcir print --gate
 qc2zx
 zxgraph print -v
 zxgraph vertex add hbox 0 0
@@ -100,15 +100,15 @@ zxgraph print -v
 zxgraph rule --hadamard-fusion
 zxgraph print -v
 zxgraph clear
-qcr
-qcba
-qcga h 0
-qcga h 0
-qcga z 0
-qcga h 0
-qcga h 0
-qcga z 0
-qccp -l
+qcir clear
+qcir qubit add
+qcir gate add h 0
+qcir gate add h 0
+qcir gate add z 0
+qcir gate add h 0
+qcir gate add h 0
+qcir gate add z 0
+qcir print --gate
 qc2zx
 zxgraph print -v
 zxgraph edge remove 2 3 SIMPLE

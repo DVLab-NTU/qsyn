@@ -1,8 +1,8 @@
-qsyn> qcba
+qsyn> qcir qubit add
 
 qsyn> qc2ts
 
-qsyn> qcba
+qsyn> qcir qubit add
 
 qsyn> qc2ts
 
