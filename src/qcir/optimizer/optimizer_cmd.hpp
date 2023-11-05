@@ -12,6 +12,6 @@
 
 namespace qsyn::qcir {
 
-bool add_qcir_optimize_cmds(dvlab::CommandLineInterface& cli, QCirMgr& qcir_mgr);
+dvlab::Command qcir_optimize_cmd(QCirMgr& qcir_mgr);
 
 }

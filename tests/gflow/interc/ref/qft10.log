@@ -1,4 +1,4 @@
-qsyn> qccr benchmark/qft/qft_10dec.qasm
+qsyn> qcir read benchmark/qft/qft_10dec.qasm
 
 qsyn> qc2zx
 

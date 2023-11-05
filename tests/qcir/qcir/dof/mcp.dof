@@ -1,7 +1,7 @@
-qcba 2
-qcgadd mcp -ph pi/3 0 1
-qccp -q
-qcgp 0
+qcir qubit add 2
+qcir gate add mcp -ph pi/3 0 1
+qcir print --diagram
+qcir print --gate 0
 qc2ts
 qc2zx
 zxgraph print -q
@@ -9,13 +9,13 @@ zxgraph optimize --full-reduce
 zxgraph print -q
 zx2ts
 tensor equiv 0 1
-qcr
+qcir clear
 zxgraph clear
 tensor clear
 
-qcba 1
-qcgadd mcp -ph pi/3 0
-qcgp 0
+qcir qubit add 1
+qcir gate add mcp -ph pi/3 0
+qcir print --gate 0
 qc2zx
 zxgraph print -v
 quit -f

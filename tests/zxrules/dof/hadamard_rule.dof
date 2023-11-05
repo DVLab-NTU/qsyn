@@ -1,5 +1,5 @@
-qccr benchmark/qasm/to_graph2.qasm
-qccp -q
+qcir read benchmark/qasm/to_graph2.qasm
+qcir print --diagram
 qc2zx
 zxgraph print -v
 logger level info

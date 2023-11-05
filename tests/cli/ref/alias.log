@@ -8,13 +8,13 @@ Options:
   flag  -h, --help    show this help message   
   flag  -force        quit without reaffirming 
 
-qsyn> alias exir qccr
+qsyn> alias exir "qcir read"
 
 qsyn> exi -h
 [error]    Ambiguous command or alias `exi`!!
 
 qsyn> exir -h
-Usage: qccread [-h] [-replace] <string filepath>
+Usage: read [-h] [-replace] <string filepath>
 
 Description:
   read a circuit and construct the corresponding netlist

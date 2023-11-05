@@ -1,4 +1,4 @@
-qccr benchmark/qasm/tof3.qasm
+qcir read benchmark/qasm/tof3.qasm
 qc2zx
 zxgraph print -v
 zxgraph assign 0 I X pi
@@ -15,9 +15,9 @@ zxgraph print -v
 zxgraph rule --state-copy
 zxgraph print -v
 zx2ts
-qcnew
-qcba 1
-qcga x 0
+qcir new
+qcir qubit add 1
+qcir gate add x 0
 qc2ts
 tensor equiv 0 1
 quit -f

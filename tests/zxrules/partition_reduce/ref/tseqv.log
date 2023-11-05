@@ -1,4 +1,4 @@
-qsyn> qccread ./benchmark/qft/qft_5.qasm
+qsyn> qcir read ./benchmark/qft/qft_5.qasm
 
 qsyn> qc2zx
 

@@ -1,7 +1,7 @@
-qcba 2
-qcga cx 0 1
-qcga cx 1 0
-qcga cx 0 1
+qcir qubit add 2
+qcir gate add cx 0 1
+qcir gate add cx 1 0
+qcir gate add cx 0 1
 qc2ts
 zxgraph read benchmark/zx/swap.zx
 zx2ts

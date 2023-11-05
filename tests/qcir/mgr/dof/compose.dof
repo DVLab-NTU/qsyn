@@ -1,30 +1,30 @@
-qcba 3
-qcga cx 0 2
-qcga rz -ph pi 0
-qcbd 1
-qccp -q
-qcnew
-qcba 4
-qcga cx 1 2
-qcga cx 0 3
-qcga cx 0 2
-qccp -q
-qcch 0
-qccp -q
-qccompose 1
-qccp -q
+qcir qubit add 3
+qcir gate add cx 0 2
+qcir gate add rz -ph pi 0
+qcir qubit remove 1
+qcir print --diagram
+qcir new
+qcir qubit add 4
+qcir gate add cx 1 2
+qcir gate add cx 0 3
+qcir gate add cx 0 2
+qcir print --diagram
+qcir checkout 0
+qcir print --diagram
+qcir compose 1
+qcir print --diagram
 qc2zx
 zxgraph print -v
 qc2ts
 zx2ts
 tensor equiv 0 1
-qcr
-qccread benchmark/SABRE/small/qft_4.qasm
-qccread benchmark/SABRE/small/qft_4.qasm
-qccp -q
-qccompose 1
-qccp -q
-qccompose 0
-qccp -q
+qcir clear
+qcir read benchmark/SABRE/small/qft_4.qasm
+qcir read benchmark/SABRE/small/qft_4.qasm
+qcir print --diagram
+qcir compose 1
+qcir print --diagram
+qcir compose 0
+qcir print --diagram
 quit -f
 

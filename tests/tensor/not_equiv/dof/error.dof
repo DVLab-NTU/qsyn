@@ -1,6 +1,6 @@
-qcba
+qcir qubit add
 qc2ts
-qcga rz -ph 0.001 0
+qcir gate add rz -ph 0.001 0
 qc2ts
 tensor equiv 0 1 -eps 1e-2
 tensor equiv 0 1 -eps 1e-4
