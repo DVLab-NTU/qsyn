@@ -1,4 +1,4 @@
-qsyn> qccr benchmark/qasm/tof3.qasm
+qsyn> qcir read benchmark/qasm/tof3.qasm
 
 qsyn> qc2zx
 

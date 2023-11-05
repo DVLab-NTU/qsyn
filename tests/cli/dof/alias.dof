@@ -1,5 +1,5 @@
 exi -h
-alias exir qccr
+alias exir "qcir read"
 exi -h
 exir -h
 exit -h

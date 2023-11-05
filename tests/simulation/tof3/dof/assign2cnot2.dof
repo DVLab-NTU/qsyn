@@ -1,4 +1,4 @@
-qccr benchmark/qasm/tof3.qasm
+qcir read benchmark/qasm/tof3.qasm
 qc2zx
 zxgraph print -v
 zxgraph assign 0 I X pi

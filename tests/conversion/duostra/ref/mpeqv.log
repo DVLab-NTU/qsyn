@@ -1,8 +1,8 @@
 qsyn> device read benchmark/topology/guadalupe.layout
 
-qsyn> qcset -d 2 -sw 6
+qsyn> qcir config --double-delay 2 --swap-delay 6
 
-qsyn> qccr benchmark/SABRE/small/3_17_13.qasm
+qsyn> qcir read benchmark/SABRE/small/3_17_13.qasm
 
 qsyn> duostra --check
 Routing...
@@ -20,10 +20,10 @@ Total Time:     101
 #SWAP:          8
 
 
-qsyn> qccp
+qsyn> qcir print
 QCir (16 qubits, 60 gates, 41 2-qubits gates, 14 T-gates, 85 depths)
 
-qsyn> qcp -l
+qsyn> qcir list
   0    3_17_13             
 ★ 1    3_17_13             Duostra
 

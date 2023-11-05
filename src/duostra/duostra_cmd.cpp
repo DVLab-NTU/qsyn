@@ -27,7 +27,7 @@ using dvlab::Command;
 
 namespace qsyn::duostra {
 
-Command duostra_set_cmd() {
+Command duostra_config_cmd() {
     return {"config",
             [](ArgumentParser& parser) {
                 parser.description("set Duostra parameter(s)");
@@ -254,7 +254,7 @@ Command duostra_cmd(qcir::QCirMgr& qcir_mgr, device::DeviceMgr& device_mgr) {
                            return CmdExecResult::done;
                        }};
 
-    cmd.add_subcommand(duostra_set_cmd());
+    cmd.add_subcommand(duostra_config_cmd());
     return cmd;
 }
 

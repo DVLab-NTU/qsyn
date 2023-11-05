@@ -81,7 +81,8 @@ bool dvlab::CommandLineInterface::add_command(dvlab::Command cmd) {
         spdlog::warn("Command name `{}` is shadowed by an alias with the same name...", name);
     }
 
-    _identifiers.insert(name);
+    auto inserted = _identifiers.insert(name);
+    assert(inserted);
     _commands.emplace(name, std::make_unique<dvlab::Command>(std::move(cmd)));
 
     for (auto& [name, c] : _commands) {

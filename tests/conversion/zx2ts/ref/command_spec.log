@@ -27,7 +27,7 @@ qsyn> zx2ts // don't do anything if there's no ZXGraph
 
 qsyn> 
 qsyn> // creates some ZXGraph from a small circuit
-qsyn> qccr benchmark/SABRE/small/3_17_13.qasm
+qsyn> qcir read benchmark/SABRE/small/3_17_13.qasm
 
 qsyn> qc2zx 
 

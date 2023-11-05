@@ -1,4 +1,4 @@
-qsyn> qccr benchmark/SABRE/small/3_17_13.qasm
+qsyn> qcir read benchmark/SABRE/small/3_17_13.qasm
 
 qsyn> extract config --optimize-level 1
 
@@ -11,11 +11,11 @@ qsyn> zxgraph optimize --full-reduce
 
 qsyn> zxgraph copy 1
 
-qsyn> qcn
+qsyn> qcir new
 
-qsyn> qcba 3
+qsyn> qcir qubit add 3
 
-qsyn> qcp
+qsyn> qcir
 -> #QCir: 2
 -> Now focused on: QCir 1
 
@@ -93,21 +93,21 @@ Axels:
 
 qsyn> extract step -zx 1 -qc 1 -ph
 
-qsyn> qccp -q
+qsyn> qcir print --diagram
 Q 0  - h( 0)-
 Q 1  - h( 1)-
 Q 2  -td( 3)-- h( 2)-
 
 qsyn> extract step -zx 1 -qc 1 -cz
 
-qsyn> qccp -q
+qsyn> qcir print --diagram
 Q 0  -------------------------cz( 4)-- h( 0)-
 Q 1  ---------cz( 5)-- h( 1)-
 Q 2  ---------cz( 5)----------cz( 4)--td( 3)-- h( 2)-
 
 qsyn> extract step -zx 1 -qc 1 -rmg
 
-qsyn> qccp -q
+qsyn> qcir print --diagram
 Q 0  -------------------------cz( 4)-- h( 0)-
 Q 1  ---------cz( 5)-- h( 1)-
 Q 2  ---------cz( 5)----------cz( 4)--td( 3)-- h( 2)-
@@ -134,7 +134,7 @@ qsyn> extract print --matrix
 qsyn> extract step -zx 1 -qc 1 -cx
 [error]    Frontier is dirty!! Please clean it first.
 
-qsyn> qccp -q
+qsyn> qcir print --diagram
 Q 0  -------------------------cz( 4)-- h( 0)-
 Q 1  ---------cz( 5)-- h( 1)-
 Q 2  ---------cz( 5)----------cz( 4)--td( 3)-- h( 2)-
@@ -142,21 +142,21 @@ Q 2  ---------cz( 5)----------cz( 4)--td( 3)-- h( 2)-
 qsyn> extract step -zx 1 -qc 1 -H
 [error]    Frontier is dirty!! Please clean it first.
 
-qsyn> qccp -q
+qsyn> qcir print --diagram
 Q 0  -------------------------cz( 4)-- h( 0)-
 Q 1  ---------cz( 5)-- h( 1)-
 Q 2  ---------cz( 5)----------cz( 4)--td( 3)-- h( 2)-
 
 qsyn> extract step -zx 1 -qc 1 -l 2
 
-qsyn> qccp -q
+qsyn> qcir print --diagram
 Q 0  - h(10)----------cz( 9)-- t( 8)-- h( 7)----------cz( 4)-- h( 0)-
 Q 1  - h(11)----------cz( 9)----------cz( 5)-- h( 1)-
 Q 2  - h( 6)--------------------------cz( 5)----------cz( 4)--td( 3)-- h( 2)-
 
 qsyn> extract step -zx 1 -qc 1 -l 100
 
-qsyn> qccp -q
+qsyn> qcir print --diagram
 Q 0  - h(52)--------------------------------------------------------------------------cz(51)-- h(47)--------------------------------------------------cz(45)--------------------------cz(41)--rz(39)-- h(37)------------------cz(34)------------------------------------------cz(29)--------------------------------------------------------------------------cx(20)--------------------------cz(17)-- h(10)--------------------------------------------------cz( 9)-- t( 8)-- h( 7)----------cz( 4)-- h( 0)-
 Q 1  - h(60)-- h(59)----------cz(57)--------------------------cz(54)-- h(53)----------cz(51)----------cz(50)--td(49)-- h(48)----------cz(46)-- h(42)-- t(40)-- h(38)------------------------------------------cz(35)-- h(31)----------------------------------cz(30)----------cz(29)--rz(28)-- h(27)----------cz(26)--rz(24)-- h(22)----------cx(21)----------cx(20)----------cz(18)-- h(14)----------------------------------cz(13)-- t(12)-- h(11)----------cz( 9)----------cz( 5)-- h( 1)-
 Q 2  - h(58)------------------cz(57)-- z(56)-- h(55)----------cz(54)----------------------------------cz(50)--------------------------cz(46)----------cz(45)--rz(44)-- h(43)----------cz(41)-- h(36)----------cz(35)----------cz(34)--rz(33)-- h(32)----------cz(30)------------------------------------------cz(26)-- t(25)-- h(23)----------cx(21)-- h(19)------------------cz(18)----------cz(17)--rz(16)-- h(15)----------cz(13)-- h( 6)----------------------------------cz( 5)----------cz( 4)--td( 3)-- h( 2)-

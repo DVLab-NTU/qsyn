@@ -21,7 +21,7 @@ Total #Vertices: 6
 
 qsyn> zx2ts
 
-qsyn> qcba 3
+qsyn> qcir qubit add 3
 
 qsyn> qc2ts
 

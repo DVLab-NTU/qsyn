@@ -1,4 +1,4 @@
-qccr benchmark/qasm/tof2.qasm
+qcir read benchmark/qasm/tof2.qasm
 qc2zx
 zxgraph assign 1 I X pi
 zxgraph assign 1 O X pi
