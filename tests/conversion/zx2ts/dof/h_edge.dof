@@ -54,9 +54,9 @@ zxgraph edge add 6 7 HADAMARD
 logger level trace
 zx2ts
 logger level warn
-qcnew
-qcba 1
-qcga h 0
+qcir new
+qcir qubit add 1
+qcir gate add h 0
 qc2ts
 tensor equiv 0 5
 quit -f 

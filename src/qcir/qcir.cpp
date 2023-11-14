@@ -80,7 +80,7 @@ QCirQubit *QCir::get_qubit(QubitIdType id) const {
     return nullptr;
 }
 
-size_t QCir::get_depth() {
+size_t QCir::calculate_depth() const {
     if (_dirty) update_gate_time();
     _dirty = false;
     return std::ranges::max(_qgates | std::views::transform([](QCirGate *qg) { return qg->get_time(); }));
@@ -275,7 +275,7 @@ bool QCir::remove_gate(size_t id) {
  * @param detail if true, print the detail information
  */
 // TODO - Analysis qasm is correct since no MC in it. Would fix MC in future.
-std::vector<int> QCir::count_gates(bool detail, bool print) {
+std::vector<int> QCir::print_gate_statistics(bool detail, bool print) const {
     size_t clifford = 0;
     size_t tfamily  = 0;
     size_t cxcnt    = 0;

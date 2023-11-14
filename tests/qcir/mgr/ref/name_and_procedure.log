@@ -1,4 +1,4 @@
-qsyn> qccr benchmark/SABRE/large/adr4_197.qasm
+qsyn> qcir read benchmark/SABRE/large/adr4_197.qasm
 
 qsyn> qc2zx
 
@@ -6,14 +6,15 @@ qsyn> zxgraph optimize --full-reduce
 
 qsyn> zx2qc
 
-qsyn> qccoptimize -c
+qsyn> qcir optimize -c
 
-qsyn> qcp -l
+qsyn> qcir list
   0    adr4_197            
   1    adr4_197            QC2ZX ➔ FR ➔ ZX2QC
 ★ 2    adr4_197            QC2ZX ➔ FR ➔ ZX2QC ➔ Optimize
 
-qsyn> qcp -f
+qsyn> qcir
+-> #QCir: 3
 -> Now focused on: QCir 2 (adr4_197)
 
 qsyn> 

@@ -87,7 +87,7 @@ public:
 
     // Access functions
     size_t get_num_qubits() const { return _qubits.size(); }
-    size_t get_depth();
+    size_t calculate_depth() const;
     std::vector<QCirQubit*> const& get_qubits() const { return _qubits; }
     std::vector<QCirGate*> const& get_topologically_ordered_gates() const { return _topological_order; }
     std::vector<QCirGate*> const& get_gates() const { return _qgates; }
@@ -122,7 +122,7 @@ public:
 
     bool draw(QCirDrawerType drawer, std::filesystem::path const& output_path = "", float scale = 1.0f);
 
-    std::vector<int> count_gates(bool detail = false, bool print = true);
+    std::vector<int> print_gate_statistics(bool detail = false, bool print = true) const;
 
     void update_gate_time() const;
     void print_zx_form_topological_order();
@@ -144,13 +144,12 @@ public:
     std::vector<QCirGate*> const& update_topological_order() const;
 
     // Member functions about circuit reporting
-    void print_depth();
-    void print_gates();
-    void print_qcir();
-    bool print_gate_info(size_t, bool);
-    void print_summary();
-    void print_qubits(spdlog::level::level_enum lvl = spdlog::level::off);
-    void print_qcir_info();
+    void print_depth() const;
+    void print_gates(bool print_neighbors = false, std::span<size_t> gate_ids = {}) const;
+    void print_qcir() const;
+    bool print_gate_as_diagram(size_t, bool) const;
+    void print_circuit_diagram(spdlog::level::level_enum lvl = spdlog::level::off) const;
+    void print_qcir_info() const;
 
 private:
     void _dfs(QCirGate* curr_gate) const;

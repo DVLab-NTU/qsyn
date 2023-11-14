@@ -1,32 +1,32 @@
-qsyn> qccr benchmark/SABRE/small/rd32-v1_68.qasm
+qsyn> qcir read benchmark/SABRE/small/rd32-v1_68.qasm
 
-qsyn> qccp -q
+qsyn> qcir print --diagram
 Q 0  - t( 3)----------cx( 5)----------cx( 6)--td( 8)------------------cx( 9)--td(11)----------cx(13)--------------------------cx(15)----------cx(17)-
 Q 1  - t( 2)----------cx( 5)--------------------------cx( 7)----------cx( 9)--td(10)--------------------------cx(14)----------cx(15)----------cx(17)-- t(20)----------cx(22)----------cx(23)--td(25)------------------cx(26)--td(28)----------cx(30)--------------------------cx(32)----------cx(35)-
 Q 2  - t(19)----------------------------------------------------------------------------------------------------------------------------------------------------------cx(22)--------------------------cx(24)----------cx(26)--td(27)--------------------------cx(31)----------cx(32)----------cx(35)-
 Q 3  - x( 0)-- h( 1)-- t( 4)----------cx( 6)----------cx( 7)-- t(12)--------------------------cx(13)----------cx(14)-- h(16)-- h(18)-- t(21)------------------------------------------cx(23)----------cx(24)-- t(29)--------------------------cx(30)----------cx(31)-- h(33)-- x(34)-
 
-qsyn> qccopy
+qsyn> qcir copy
 
-qsyn> qccp -q
+qsyn> qcir print --diagram
 Q 0  - t( 3)----------cx( 5)----------cx( 6)--td( 8)------------------cx( 9)--td(11)----------cx(13)--------------------------cx(15)----------cx(17)-
 Q 1  - t( 2)----------cx( 5)--------------------------cx( 7)----------cx( 9)--td(10)--------------------------cx(14)----------cx(15)----------cx(17)-- t(20)----------cx(22)----------cx(23)--td(25)------------------cx(26)--td(28)----------cx(30)--------------------------cx(32)----------cx(35)-
 Q 2  - t(19)----------------------------------------------------------------------------------------------------------------------------------------------------------cx(22)--------------------------cx(24)----------cx(26)--td(27)--------------------------cx(31)----------cx(32)----------cx(35)-
 Q 3  - x( 0)-- h( 1)-- t( 4)----------cx( 6)----------cx( 7)-- t(12)--------------------------cx(13)----------cx(14)-- h(16)-- h(18)-- t(21)------------------------------------------cx(23)----------cx(24)-- t(29)--------------------------cx(30)----------cx(31)-- h(33)-- x(34)-
 
-qsyn> qccr benchmark/SABRE/small/qft_4.qasm
+qsyn> qcir read benchmark/SABRE/small/qft_4.qasm
 
 qsyn> qc2zx
 
-qsyn> qccp -q
+qsyn> qcir print --diagram
 Q 0  ---------cx( 0)----------cx( 1)----------cx( 2)-
 Q 1  ---------cx( 0)--------------------------cx( 3)----------cx( 4)-
 Q 2  -------------------------cx( 1)----------cx( 3)--------------------------cx( 5)-
 Q 3  -----------------------------------------cx( 2)----------cx( 4)----------cx( 5)-
 
-qsyn> qccopy 0 -r
+qsyn> qcir copy 0 -r
 
-qsyn> qccp -q
+qsyn> qcir print --diagram
 Q 0  ---------cx( 0)----------cx( 1)----------cx( 2)-
 Q 1  ---------cx( 0)--------------------------cx( 3)----------cx( 4)-
 Q 2  -------------------------cx( 1)----------cx( 3)--------------------------cx( 5)-
@@ -123,129 +123,126 @@ ID:  27 (●, 0)           (Qubit, Col): (3, 27)        #Neighbors:   1     (7, 
 Total #Vertices: 8
 
 
-qsyn> qcr
+qsyn> qcir clear
 
 qsyn> zxgraph clear
 
-qsyn> qccp -q
+qsyn> qcir print --diagram
 [error]    QCir list is empty. Please create a QCir first!!
 
-qsyn> qcga cx 0 1
+qsyn> qcir gate add cx 0 1
 [error]    QCir list is empty. Please create a QCir first!!
 
-qsyn> qcba
+qsyn> qcir qubit add
 
-qsyn> qccp -q
+qsyn> qcir print --diagram
 Q 0  
 
-qsyn> qcga h
+qsyn> qcir gate add h
 [error]    Too few qubits are supplied for gate h!!
 
-qsyn> qcga h 0
+qsyn> qcir gate add h 0
 
-qsyn> qccp -q
+qsyn> qcir print --diagram
 Q 0  - h( 0)-
 
-qsyn> qcga cx 0 1
+qsyn> qcir gate add cx 0 1
 [error]    Qubit ID 1 does not exist!!
 
-qsyn> qcba 3
+qsyn> qcir qubit add 3
 
-qsyn> qccp -q
+qsyn> qcir print --diagram
 Q 0  - h( 0)-
 Q 1  
 Q 2  
 Q 3  
 
-qsyn> qcga cx 0 2
+qsyn> qcir gate add cx 0 2
 
-qsyn> qccp -q
+qsyn> qcir print --diagram
 Q 0  - h( 0)----------cx( 1)-
 Q 1  
 Q 2  -----------------cx( 1)-
 Q 3  
 
-qsyn> qcga cx 1 3
+qsyn> qcir gate add cx 1 3
 
-qsyn> qccp -q
+qsyn> qcir print --diagram
 Q 0  - h( 0)----------cx( 1)-
 Q 1  ---------cx( 2)-
 Q 2  -----------------cx( 1)-
 Q 3  ---------cx( 2)-
 
-qsyn> qcga t 2
+qsyn> qcir gate add t 2
 
-qsyn> qcga cx 2 1
+qsyn> qcir gate add cx 2 1
 
-qsyn> qcga x 3
+qsyn> qcir gate add x 3
 
-qsyn> qcga t 3
+qsyn> qcir gate add t 3
 
-qsyn> qcga cx 3 2
+qsyn> qcir gate add cx 3 2
 
-qsyn> qcga cx 0 1
+qsyn> qcir gate add cx 0 1
 
-qsyn> qccp -q
+qsyn> qcir print --diagram
 Q 0  - h( 0)----------cx( 1)----------------------------------cx( 8)-
 Q 1  ---------cx( 2)--------------------------cx( 4)----------cx( 8)-
 Q 2  -----------------cx( 1)-- t( 3)----------cx( 4)----------cx( 7)-
 Q 3  ---------cx( 2)-- x( 5)-- t( 6)--------------------------cx( 7)-
 
-qsyn> qcga -pr rz -ph 0.00001 0
+qsyn> qcir gate add -pr rz -ph 0.00001 0
 
-qsyn> qcga -pr rz -ph 1.2345 0
+qsyn> qcir gate add -pr rz -ph 1.2345 0
 
-qsyn> qcgp 10
-          ┌────┐ 
-Q0 Start ─┤ RZ ├─ G9
-          └────┘ 
-Rotate Phase: 112π/285
+qsyn> qcir print --gate 10
+Listed by gate ID
+ID:  10 ( rz)      Time:    1     Qubit:   0       Phase: 112π/285
 
-qsyn> qcgp 9 -t
-        ┌────┐ 
-Q0 G10 ─┤ RZ ├─ G0
-        └────┘ 
-Rotate Phase: 0
-Execute at t= 2
+qsyn> qcir print --verbose --gate 9
+Listed by gate ID
+ID:   9 ( rz)      Time:    2     Qubit:   0 
+- Predecessors: 10
+- Successors  : 0
 
-qsyn> qccp -q
+qsyn> qcir print --diagram
 Q 0  -rz(10)--rz( 9)-- h( 0)----------cx( 1)----------------------------------cx( 8)-
 Q 1  ---------cx( 2)------------------------------------------cx( 4)----------cx( 8)-
 Q 2  ---------------------------------cx( 1)-- t( 3)----------cx( 4)----------cx( 7)-
 Q 3  ---------cx( 2)-- x( 5)-- t( 6)------------------------------------------cx( 7)-
 
-qsyn> qcgd 2
+qsyn> qcir gate remove 2
 
-qsyn> qcgd 4
+qsyn> qcir gate remove 4
 
-qsyn> qcgd 8
+qsyn> qcir gate remove 8
 
-qsyn> qcgd 7
+qsyn> qcir gate remove 7
 
-qsyn> qcbd 1
+qsyn> qcir qubit remove 1
 
-qsyn> qccp -q
+qsyn> qcir print --diagram
 Q 0  -rz(10)--rz( 9)-- h( 0)----------cx( 1)-
 Q 2  ---------------------------------cx( 1)-- t( 3)-
 Q 3  - x( 5)-- t( 6)-
 
-qsyn> qccopy
+qsyn> qcir copy
 
-qsyn> qcba
+qsyn> qcir qubit add
 
-qsyn> qccp -q
+qsyn> qcir print --diagram
 Q 0  -rz(10)--rz( 9)-- h( 0)----------cx( 1)-
 Q 2  ---------------------------------cx( 1)-- t( 3)-
 Q 3  - x( 5)-- t( 6)-
 Q 4  
 
-qsyn> qcga -pr cx 0 4
+qsyn> qcir gate add -pr cx 0 4
 
-qsyn> qcga cx 2 4
+qsyn> qcir gate add cx 2 4
 
-qsyn> qcga -pr rz -ph 1.2345 0
+qsyn> qcir gate add -pr rz -ph 1.2345 0
 
-qsyn> qccp -q
+qsyn> qcir print --diagram
 Q 0  -rz(13)----------cx(11)--rz(10)--rz( 9)-- h( 0)----------cx( 1)-
 Q 2  ---------------------------------------------------------cx( 1)-- t( 3)----------cx(12)-
 Q 3  - x( 5)-- t( 6)-

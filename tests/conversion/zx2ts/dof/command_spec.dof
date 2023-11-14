@@ -11,7 +11,7 @@ help zx2ts
 zx2ts // don't do anything if there's no ZXGraph
 
 // creates some ZXGraph from a small circuit
-qccr benchmark/SABRE/small/3_17_13.qasm
+qcir read benchmark/SABRE/small/3_17_13.qasm
 qc2zx 
 zxgraph copy 1
 zxgraph optimize --interior-clifford-reduce

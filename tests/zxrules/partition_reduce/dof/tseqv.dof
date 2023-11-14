@@ -1,4 +1,4 @@
-qccread ./benchmark/qft/qft_5.qasm
+qcir read ./benchmark/qft/qft_5.qasm
 qc2zx
 zx2ts
 zxgraph copy

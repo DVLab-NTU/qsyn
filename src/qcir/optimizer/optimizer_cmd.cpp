@@ -29,7 +29,7 @@ namespace qsyn::qcir {
 //    Optimize
 //----------------------------------------------------------------------
 Command qcir_optimize_cmd(QCirMgr& qcir_mgr) {
-    return {"qccoptimize",
+    return {"optimize",
             [](ArgumentParser& parser) {
                 parser.description("optimize QCir");
 
@@ -84,14 +84,6 @@ Command qcir_optimize_cmd(QCirMgr& qcir_mgr) {
 
                 return CmdExecResult::done;
             }};
-}
-
-bool add_qcir_optimize_cmds(dvlab::CommandLineInterface& cli, QCirMgr& qcir_mgr) {
-    if (!(cli.add_command(qcir_optimize_cmd(qcir_mgr)))) {
-        spdlog::critical("Registering \"optimize\" commands fails... exiting");
-        return false;
-    }
-    return true;
 }
 
 }  // namespace qsyn::qcir

@@ -7,6 +7,7 @@
 
 #include <cassert>
 #include <cstdlib>
+#include <ranges>
 #include <string>
 
 #include "./qcir.hpp"
@@ -19,12 +20,49 @@ namespace qsyn::qcir {
 /**
  * @brief Print QCir Gates
  */
-void QCir::print_gates() {
+void QCir::print_gates(bool print_neighbors, std::span<size_t> gate_ids) const {
     if (_dirty)
         update_gate_time();
     fmt::println("Listed by gate ID");
-    for (size_t i = 0; i < _qgates.size(); i++) {
-        _qgates[i]->print_gate();
+
+    auto const print_predecessors = [](QCirGate const* const gate) {
+        auto const get_predecessor_gate_id = [](QubitInfo const& qinfo) -> std::string {
+            if (qinfo._prev == nullptr)
+                return "Begin";
+            return fmt::format("{}", qinfo._prev->get_id());
+        };
+        fmt::println("- Predecessors: {}", fmt::join(gate->get_qubits() | std::views::transform(get_predecessor_gate_id), ", "));
+    };
+
+    auto const print_successors = [](QCirGate const* const gate) {
+        auto const get_successor_gate_id = [](QubitInfo const& qinfo) -> std::string {
+            if (qinfo._next == nullptr)
+                return "End";
+            return fmt::format("{}", qinfo._next->get_id());
+        };
+        fmt::println("- Successors  : {}", fmt::join(gate->get_qubits() | std::views::transform(get_successor_gate_id), ", "));
+    };
+
+    if (gate_ids.empty()) {
+        for (auto const* gate : _qgates) {
+            gate->print_gate();
+            if (print_neighbors) {
+                print_predecessors(gate);
+                print_successors(gate);
+            }
+        }
+    } else {
+        for (auto id : gate_ids) {
+            if (get_gate(id) == nullptr) {
+                spdlog::error("Gate ID {} not found!!", id);
+                continue;
+            }
+            get_gate(id)->print_gate();
+            if (print_neighbors) {
+                print_predecessors(get_gate(id));
+                print_successors(get_gate(id));
+            }
+        }
     }
 }
 
@@ -32,30 +70,21 @@ void QCir::print_gates() {
  * @brief Print Depth of QCir
  *
  */
-void QCir::print_depth() {
-    fmt::println("Depth       : {}", get_depth());
+void QCir::print_depth() const {
+    fmt::println("Depth       : {}", calculate_depth());
 }
 
 /**
  * @brief Print QCir
  */
-void QCir::print_qcir() {
+void QCir::print_qcir() const {
     fmt::println("QCir ({} qubits, {} gates)", _qubits.size(), _qgates.size());
-}
-
-/**
- * @brief Print QCir Summary
- */
-void QCir::print_summary() {
-    print_qcir();
-    count_gates();
-    print_depth();
 }
 
 /**
  * @brief Print Qubits
  */
-void QCir::print_qubits(spdlog::level::level_enum lvl) {
+void QCir::print_circuit_diagram(spdlog::level::level_enum lvl) const {
     if (_dirty)
         update_gate_time();
 
@@ -69,7 +98,7 @@ void QCir::print_qubits(spdlog::level::level_enum lvl) {
  * @param id
  * @param showTime if true, show the time
  */
-bool QCir::print_gate_info(size_t id, bool show_time) {
+bool QCir::print_gate_as_diagram(size_t id, bool show_time) const {
     if (get_gate(id) == nullptr) {
         spdlog::error("Gate ID {} not found!!", id);
         return false;
@@ -81,9 +110,9 @@ bool QCir::print_gate_info(size_t id, bool show_time) {
     return true;
 }
 
-void QCir::print_qcir_info() {
-    std::vector<int> info = count_gates(false, false);
-    fmt::println("QCir ({} qubits, {} gates, {} 2-qubits gates, {} T-gates, {} depths)", _qubits.size(), _qgates.size(), info[1], info[2], get_depth());
+void QCir::print_qcir_info() const {
+    auto info = print_gate_statistics(false, false);
+    fmt::println("QCir ({} qubits, {} gates, {} 2-qubits gates, {} T-gates, {} depths)", _qubits.size(), _qgates.size(), info[1], info[2], calculate_depth());
 }
 
 }  // namespace qsyn::qcir

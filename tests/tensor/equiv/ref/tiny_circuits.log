@@ -1,10 +1,10 @@
-qsyn> qcba 2
+qsyn> qcir qubit add 2
 
-qsyn> qcga cx 0 1
+qsyn> qcir gate add cx 0 1
 
-qsyn> qcga cx 1 0
+qsyn> qcir gate add cx 1 0
 
-qsyn> qcga cx 0 1
+qsyn> qcir gate add cx 0 1
 
 qsyn> qc2ts
 

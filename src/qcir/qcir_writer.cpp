@@ -59,6 +59,26 @@ bool QCir::draw(QCirDrawerType drawer, std::filesystem::path const& output_path,
     namespace dv = dvlab::utils;
     namespace fs = std::filesystem;
 
+    // if "qiskit" is available, the following command should return 0; otherwise, it should return 1
+    char const* const check_qiskit_exists_system_call =
+        "python3 -c 'import importlib; exit(0 if importlib.util.find_spec(\"qiskit\") is not None else 1)'";
+
+    // if system(...) returns 0, then qiskit is installed
+    if (system(check_qiskit_exists_system_call) != 0) {
+        spdlog::error("qiskit is not installed in the system!!");
+        spdlog::error("Please install qiskit first or check if you have used the correct python environment!!");
+        return false;
+    }
+
+    if (drawer == QCirDrawerType::latex) {
+        char const* const check_pdflatex_exists_system_call =
+            "pdflatex --version > /dev/null 2>&1";
+        if (system(check_pdflatex_exists_system_call) != 0) {
+            spdlog::error("pdflatex is not installed in the system. Please install pdflatex first!!");
+            return false;
+        }
+    }
+
     // check if output_path is valid
     if (output_path.string().size()) {
         if (!std::ofstream{output_path}) {

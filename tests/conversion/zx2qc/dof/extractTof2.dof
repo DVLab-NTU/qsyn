@@ -11,8 +11,8 @@ zxgraph adjoint
 zxgraph compose 0
 zxgraph optimize --full-reduce    
 zxgraph print -q
-qccp
-qccp -q
+qcir print
+qcir print --diagram
 zxgraph test --identity
 qc2ts
 tensor equiv 0 1
