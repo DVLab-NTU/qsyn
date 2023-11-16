@@ -7,6 +7,7 @@
 
 #include "./cli.hpp"
 
+#include <fmt/std.h>
 #include <spdlog/spdlog.h>
 
 #include <ranges>
@@ -17,41 +18,43 @@
 #include "util/dvlab_string.hpp"
 
 namespace dvlab {
-/**
- * @brief open a dofile and push it to the dofile stack.
- *
- * @param filepath the file to be opened
- * @return true
- * @return false
- */
-bool dvlab::CommandLineInterface::open_dofile(std::string const& filepath) {
-    constexpr size_t dofile_stack_limit = 256;
-    if (this->stop_requested()) {
-        return false;
+
+constexpr size_t dofile_stack_limit = 256;
+
+CmdExecResult CommandLineInterface::source_dofile(std::filesystem::path const& filepath, std::span<std::string const> arguments, bool echo) {
+    namespace fs = std::filesystem;
+    if (!fs::exists(filepath)) {
+        spdlog::error("file \"{}\" does not exist!!", filepath);
+        return CmdExecResult::error;
+    }
+
+    if (!add_variables_from_dofiles(filepath, arguments)) {
+        return CmdExecResult::error;
+    }
+
+    std::ifstream dofile{filepath};
+    if (!dofile.is_open()) {
+        spdlog::error("cannot open file \"{}\"!!", filepath);
+        return CmdExecResult::error;
     }
     if (_cli_level >= dofile_stack_limit) {
         spdlog::error("dofile stack overflow ({})!!", dofile_stack_limit);
-        return false;
+        return CmdExecResult::error;
     }
 
-    _dofile_stack.push(std::ifstream(filepath));
     _cli_level++;
 
-    if (!_dofile_stack.top().is_open()) {
-        close_dofile();
-        return false;
-    }
-    return true;
-}
+    while (!dofile.eof()) {
+        auto result = execute_one_line(dofile, echo);
 
-/**
- * @brief close the top dofile in the dofile stack.
- *
- */
-void dvlab::CommandLineInterface::close_dofile() {
-    assert(_dofile_stack.size());
-    _dofile_stack.pop();
+        if (result == CmdExecResult::quit) {
+            return CmdExecResult::quit;
+        }
+    }
+
     _cli_level--;
+
+    return CmdExecResult::done;
 }
 
 /**
@@ -147,7 +150,7 @@ bool dvlab::CommandLineInterface::remove_variable(std::string const& key) {
     return true;
 }
 
-bool dvlab::CommandLineInterface::add_variables_from_dofiles(std::string const& filepath, std::span<std::string> arguments) {
+bool dvlab::CommandLineInterface::add_variables_from_dofiles(std::string const& filepath, std::span<std::string const> arguments) {
     // parse the string
     // "//!ARGS <ARG1> <ARG2> ... <ARGn>"
     // and check if for all k = 1 to n,
@@ -164,8 +167,7 @@ bool dvlab::CommandLineInterface::add_variables_from_dofiles(std::string const& 
     }
 
     if (dofile.peek() == std::ifstream::traits_type::eof()) {
-        spdlog::error("file \"{}\" is empty!!", filepath);
-        return false;
+        return true;
     }
     std::string line{""};
     while (line == "") {  // skip empty lines
@@ -219,11 +221,11 @@ bool dvlab::CommandLineInterface::add_variables_from_dofiles(std::string const& 
  */
 void dvlab::CommandLineInterface::sigint_handler(int signum) {
     if (_listening_for_inputs) {
-        fmt::println("");
+        _println_if_echo("");
         _clear_read_buffer_and_print_prompt();
-    } else if (_command_thread.has_value()) {
+    } else if (_command_threads.size()) {
         // there is an executing command
-        _command_thread->request_stop();
+        _command_threads.top().request_stop();
     } else {
         spdlog::critical("Failed to handle the SIGINT signal. Exiting...");
         exit(signum);
