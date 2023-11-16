@@ -375,18 +375,4 @@ void dvlab::CommandLineInterface::_print_as_table(std::vector<std::string> words
     fmt::print("\n{}", table.to_string());
 }
 
-void dvlab::CommandLineInterface::_replace_at_cursor(std::string_view old_str, std::string_view new_str) {
-    if (_read_buffer.substr(_cursor_position - old_str.size(), old_str.size()) != std::string(old_str)) {
-        spdlog::critical("word replacement failed: old string not matched");
-        return;
-    }
-    _move_cursor_to(_cursor_position - old_str.size());
-    for (size_t i = 0; i < old_str.size(); ++i) {
-        _delete_char();
-    }
-    for (auto ch : new_str) {
-        _insert_char(ch);
-    }
-}
-
 }  // namespace dvlab

@@ -114,8 +114,8 @@ public:
         _read_buffer.reserve(read_buf_size);
     }
 
-    bool open_dofile(std::string const& filepath);
-    void close_dofile();
+    CmdExecResult execute_one_line(std::istream& istr, bool echo);
+    CmdExecResult source_dofile(std::filesystem::path const& filepath, std::span<std::string const> arguments = {}, bool echo = true);
 
     bool add_command(dvlab::Command cmd);
     bool add_alias(std::string const& alias, std::string const& replace_str);
@@ -126,12 +126,11 @@ public:
     std::optional<std::string> get_alias_replacement_string(std::string const& alias_prefix) const;
 
     CmdExecResult start_interactive();
-    CmdExecResult execute_one_line();
 
-    bool add_variables_from_dofiles(std::string const& filepath, std::span<std::string> arguments);
+    bool add_variables_from_dofiles(std::string const& filepath, std::span<std::string const> arguments);
 
     void sigint_handler(int signum);
-    bool stop_requested() const { return _command_thread.has_value() && _command_thread->get_stop_token().stop_requested(); }
+    bool stop_requested() const { return _command_threads.size() && _command_threads.top().get_stop_token().stop_requested(); }
 
     // printing functions
     void list_all_commands() const;
@@ -163,7 +162,6 @@ private:
     // Private member functions
     void _clear_read_buffer_and_print_prompt();
 
-    CmdExecResult _execute_one_line_internal(std::istream&);
     std::pair<dvlab::Command*, std::vector<argparse::Token>> _parse_one_command(std::string_view cmd);
     std::optional<std::string> _dequote(std::string_view str) const;
     std::string _decode(std::string str) const;
@@ -194,7 +192,7 @@ private:
 
     bool _move_cursor_to(size_t pos);
     bool _delete_char();
-    void _insert_char(char);
+    void _insert_char(char ch);
     void _delete_line();
     void _replace_at_cursor(std::string_view old_str, std::string_view new_str);
     void _reprint_command();
@@ -202,6 +200,22 @@ private:
     bool _add_to_history(std::string_view input);
     void _replace_read_buffer_with_history();
 
+    template <typename... Args>
+    void _print_if_echo(fmt::format_string<Args...> fmt, Args&&... args) const {
+        if (_echo)
+            fmt::print(fmt, std::forward<Args>(args)...);
+    }
+
+    template <typename... Args>
+    void _println_if_echo(fmt::format_string<Args...> fmt, Args&&... args) const {
+        if (_echo)
+            fmt::println(fmt, std::forward<Args>(args)...);
+    }
+
+    void _flush_if_echo() const {
+        if (_echo)
+            fflush(stdout);
+    }
     std::string _replace_variable_keys_with_values(std::string const& str) const;
 
     inline bool _is_special_char(char ch) const { return special_chars.find_first_of(ch) != std::string::npos; }
@@ -219,15 +233,15 @@ private:
                                          // will be stored in _history and
                                          // _tempCmdStored will be true.
                                          // Reset to false when new command added
+    bool _echo = true;
     dvlab::utils::Trie _identifiers;
     CmdMap _commands;
     std::unordered_map<std::string, std::string> _aliases;
     std::unordered_map<std::string, std::string> _variables;  // stores the variables key-value pairs, e.g., $1, $INPUT_FILE, etc...
 
-    std::stack<std::ifstream> _dofile_stack;
     size_t _cli_level = 0;
 
-    std::optional<jthread::jthread> _command_thread = std::nullopt;  // the current (ongoing) command
+    std::stack<jthread::jthread> _command_threads;
 };
 
 bool add_cli_common_cmds(dvlab::CommandLineInterface& cli);

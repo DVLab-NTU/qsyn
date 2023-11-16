@@ -22,8 +22,6 @@ void dvlab::CommandLineInterface::list_all_commands() const {
     std::ranges::sort(cmd_vec);
     for (auto const& cmd : cmd_vec)
         _commands.at(cmd)->print_summary();
-
-    fmt::println("");
 }
 
 /**

@@ -4,6 +4,6 @@ qsyn> // 2nd tab: list all files in the `tests/cli/` directory
 qsyn> // 3rd tab: autocomplete `h` to `helper/`
 qsyn> // 4th tab: autocomplete `e` to `empty_dof `
 qsyn> source 
-Usage: source [-h] <string file> [<string arguments>]...
+Usage: source [-h] [-q] <string file> [<string arguments>]...
 
 qsyn> source 

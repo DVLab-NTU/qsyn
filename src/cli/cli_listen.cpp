@@ -10,6 +10,7 @@
 #include "./cli.hpp"
 #include "cli/cli_char_def.hpp"
 #include "util/dvlab_string.hpp"
+#include "util/scope_guard.hpp"
 
 //----------------------------------------------------------------------
 //    Member Function for class CmdParser
@@ -117,38 +118,19 @@ namespace dvlab {
  */
 std::pair<CmdExecResult, std::string> dvlab::CommandLineInterface::listen_to_input(std::istream& istr, std::string const& prompt, ListenConfig const& config) {
     using namespace key_code;
-
-    /**
-     * @brief this is a local RAII struct that restores the CLI settings
-     *        when it goes out of scope
-     *
-     */
-    struct settings_restorer {
-        settings_restorer(CommandLineInterface* this_cli, std::string_view prompt)
-            : stored_settings{set_keypress()}, stored_prompt{this_cli->_command_prompt}, p_cli{this_cli} {
-            p_cli->_command_prompt       = prompt;
-            p_cli->_listening_for_inputs = true;
-        }
-        ~settings_restorer() {
-            reset_keypress(stored_settings);
-            p_cli->_command_prompt       = stored_prompt;
-            p_cli->_listening_for_inputs = false;
-            if (p_cli->_temp_command_stored) {
-                p_cli->_history.pop_back();
-                p_cli->_temp_command_stored = false;
+    auto const setting_restorer = dvlab::utils::scope_exit{
+        [old_settings             = set_keypress(),
+         old_listening_for_inputs = std::exchange(_listening_for_inputs, true),
+         old_prompt               = std::exchange(_command_prompt, prompt),
+         this]() {
+            reset_keypress(old_settings);
+            _command_prompt       = old_prompt;
+            _listening_for_inputs = old_listening_for_inputs;
+            if (_temp_command_stored) {
+                _history.pop_back();
+                _temp_command_stored = false;
             }
-        }
-        settings_restorer(settings_restorer const&)            = delete;
-        settings_restorer(settings_restorer&&)                 = delete;
-        settings_restorer& operator=(settings_restorer const&) = delete;
-        settings_restorer& operator=(settings_restorer&&)      = delete;
-
-        termios stored_settings;
-        std::string stored_prompt;
-        CommandLineInterface* p_cli;
-    };
-
-    settings_restorer const restorer{this, prompt};
+        }};
 
     _clear_read_buffer_and_print_prompt();
 
@@ -168,7 +150,7 @@ std::pair<CmdExecResult, std::string> dvlab::CommandLineInterface::listen_to_inp
                 if (_dequote(_read_buffer).has_value()) {
                     return {CmdExecResult::done, std::string{dvlab::str::trim_spaces(dvlab::str::trim_comments(_read_buffer))}};
                 } else {
-                    fmt::print("\n{0:<{1}}", "...", _command_prompt.size());
+                    _print_if_echo("\n{0:<{1}}", "...", _command_prompt.size());
                     break;
                 }
             }
@@ -256,12 +238,12 @@ bool dvlab::CommandLineInterface::_move_cursor_to(size_t pos) {
 
     // move left
     if (_cursor_position > pos) {
-        fmt::print("{}", std::string(_cursor_position - pos, '\b'));
+        _print_if_echo("{}", std::string(_cursor_position - pos, '\b'));
     }
 
     // move right
     if (_cursor_position < pos) {
-        fmt::print("{}", _read_buffer.substr(_cursor_position, pos - _cursor_position));
+        _print_if_echo("{}", _read_buffer.substr(_cursor_position, pos - _cursor_position));
     }
     _cursor_position = pos;
     return true;
@@ -279,8 +261,8 @@ bool dvlab::CommandLineInterface::_delete_char() {
         return false;
     }
     // NOTE - DON'T CHANGE - The logic here is as concise as it can be although seemingly redundant.
-    fmt::print("{}", _read_buffer.substr(_cursor_position + 1));  // move cursor to the end
-    fmt::print(" \b");                                            // get rid of the last character
+    _print_if_echo("{}", _read_buffer.substr(_cursor_position + 1));  // move cursor to the end
+    _print_if_echo(" \b");                                            // get rid of the last character
 
     _read_buffer.erase(_cursor_position, 1);
 
@@ -301,7 +283,7 @@ void dvlab::CommandLineInterface::_insert_char(char ch) {
         return;
     }
     _read_buffer.insert(_cursor_position, 1, ch);
-    fmt::print("{}", _read_buffer.substr(_cursor_position));
+    _print_if_echo("{}", _read_buffer.substr(_cursor_position));
     auto const idx   = _cursor_position + 1;
     _cursor_position = _read_buffer.size();
     _move_cursor_to(idx);
@@ -313,9 +295,9 @@ void dvlab::CommandLineInterface::_insert_char(char ch) {
  */
 void dvlab::CommandLineInterface::_delete_line() {
     _move_cursor_to(_read_buffer.size());
-    fmt::print("{}", std::string(_cursor_position, '\b'));
-    fmt::print("{}", std::string(_cursor_position, ' '));
-    fmt::print("{}", std::string(_cursor_position, '\b'));
+    _print_if_echo("{}", std::string(_cursor_position, '\b'));
+    _print_if_echo("{}", std::string(_cursor_position, ' '));
+    _print_if_echo("{}", std::string(_cursor_position, '\b'));
     _read_buffer.clear();
 }
 
@@ -327,8 +309,8 @@ void dvlab::CommandLineInterface::_reprint_command() {
     // NOTE - DON'T CHANGE - The logic here is as concise as it can be although seemingly redundant.
     auto const idx   = _cursor_position;
     _cursor_position = _read_buffer.size();  // before moving cursor, reflect the change in actual cursor location
-    fmt::print("\n{}{}", _command_prompt, _read_buffer);
-    std::fflush(stdout);
+    _print_if_echo("\n{}{}", _command_prompt, _read_buffer);
+    _flush_if_echo();
     _move_cursor_to(idx);  // move the cursor back to where it should be
 }
 
@@ -381,7 +363,7 @@ bool dvlab::CommandLineInterface::_add_to_history(std::string_view input) {
 void dvlab::CommandLineInterface::_replace_read_buffer_with_history() {
     _delete_line();
     _read_buffer = _history[_history_idx];
-    fmt::print("{}", _read_buffer);
+    _print_if_echo("{}", _read_buffer);
     _cursor_position = _history[_history_idx].size();
 }
 
@@ -393,8 +375,22 @@ void dvlab::CommandLineInterface::_clear_read_buffer_and_print_prompt() {
     _read_buffer.clear();
     _cursor_position = 0;
     _tab_press_count = 0;
-    fmt::print("{}", _command_prompt);
-    fflush(stdout);
+    _print_if_echo("{}", _command_prompt);
+    _flush_if_echo();
+}
+
+void dvlab::CommandLineInterface::_replace_at_cursor(std::string_view old_str, std::string_view new_str) {
+    if (_read_buffer.substr(_cursor_position - old_str.size(), old_str.size()) != std::string(old_str)) {
+        spdlog::critical("word replacement failed: old string not matched");
+        return;
+    }
+    _move_cursor_to(_cursor_position - old_str.size());
+    for (size_t i = 0; i < old_str.size(); ++i) {
+        _delete_char();
+    }
+    for (auto ch : new_str) {
+        _insert_char(ch);
+    }
 }
 
 }  // namespace dvlab

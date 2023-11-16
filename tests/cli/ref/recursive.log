@@ -1,517 +1,516 @@
 qsyn> // makes sure an edge case where a dofile references itself is handled properly
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
-
-qsyn> do tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
+qsyn> source tests/cli/helper/recursive_internal
 [error]    dofile stack overflow (256)!!
-[error]    cannot open file "tests/cli/helper/recursive_internal"!!
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 qsyn> quit -f
 

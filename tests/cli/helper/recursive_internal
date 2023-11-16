@@ -1,1 +1,1 @@
-do tests/cli/helper/recursive_internal
+source tests/cli/helper/recursive_internal

@@ -226,6 +226,9 @@ Command source_cmd(CommandLineInterface& cli) {
             [](ArgumentParser& parser) {
                 parser.description("execute the commands in the dofile");
 
+                parser.add_argument<bool>("-q", "--quiet")
+                    .action(store_true)
+                    .help("suppress the echoing of commands");
                 parser.add_argument<std::string>("file")
                     .constraint(path_readable)
                     .help("path to a dofile, i.e., a list of qsyn commands");
@@ -236,16 +239,7 @@ Command source_cmd(CommandLineInterface& cli) {
             },
             [&cli](ArgumentParser const& parser) {
                 auto arguments = parser.get<std::vector<std::string>>("arguments");
-                if (!cli.add_variables_from_dofiles(parser.get<std::string>("file"), arguments)) {
-                    return CmdExecResult::error;
-                }
-
-                if (!cli.open_dofile(parser.get<std::string>("file"))) {
-                    spdlog::error("cannot open file \"{}\"!!", parser.get<std::string>("file"));
-                    return CmdExecResult::error;
-                }
-
-                return CmdExecResult::done;
+                return cli.source_dofile(parser.get<std::string>("file"), arguments, !parser.get<bool>("--quiet"));
             }};
 }
 
@@ -354,7 +348,6 @@ bool add_cli_common_cmds(dvlab::CommandLineInterface& cli) {
           cli.add_command(history_cmd(cli)) &&
           cli.add_command(help_cmd(cli)) &&
           cli.add_command(source_cmd(cli)) &&
-          cli.add_alias("dofile", "source") &&
           cli.add_command(usage_cmd()) &&
           cli.add_command(clear_cmd()) &&
           cli.add_command(logger_cmd()))) {
