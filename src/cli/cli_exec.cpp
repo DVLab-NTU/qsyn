@@ -8,6 +8,7 @@
 #include <spdlog/spdlog.h>
 
 #include <atomic>
+#include <cstdio>
 #include <optional>
 #include <regex>
 #include <string>
@@ -15,6 +16,7 @@
 
 #include "cli/cli.hpp"
 #include "util/dvlab_string.hpp"
+#include "util/scope_guard.hpp"
 
 namespace std {
 extern istream cin;
@@ -26,25 +28,10 @@ CmdExecResult CommandLineInterface::start_interactive() {
     auto status = dvlab::CmdExecResult::done;
 
     while (status != dvlab::CmdExecResult::quit) {  // until "quit" or command error
-        status = this->execute_one_line();
-        fmt::println("");
+        status = this->execute_one_line(std::cin, true);
     }
 
     return status;
-}
-
-/**
- * @brief execute one line of commands.
- *
- * @return CmdExecResult
- */
-CmdExecResult
-dvlab::CommandLineInterface::execute_one_line() {
-    while (_dofile_stack.size() && _dofile_stack.top().eof()) close_dofile();
-
-    return _dofile_stack.size()
-               ? _execute_one_line_internal(_dofile_stack.top())
-               : _execute_one_line_internal(std::cin);
 }
 
 /**
@@ -53,8 +40,14 @@ dvlab::CommandLineInterface::execute_one_line() {
  * @param istr
  * @return CmdExecResult
  */
-CmdExecResult dvlab::CommandLineInterface::_execute_one_line_internal(std::istream& istr) {
-    auto [listen_result, input] = this->listen_to_input(istr, _command_prompt);
+CmdExecResult dvlab::CommandLineInterface::execute_one_line(std::istream& istr, bool echo) {
+    dvlab::utils::scope_exit const line_breaker{[this, do_echo = std::exchange(_echo, echo)]() {
+        _println_if_echo("");
+        _echo = do_echo;
+    }};
+    // The _command_prompt is copied to avoid invalidating the reference
+    auto [listen_result, input] = this->listen_to_input(istr, std::string{_command_prompt});
+
     if (listen_result == CmdExecResult::quit) {
         return CmdExecResult::quit;
     }
@@ -62,8 +55,7 @@ CmdExecResult dvlab::CommandLineInterface::_execute_one_line_internal(std::istre
     if (!_add_to_history(input)) {
         return CmdExecResult::no_op;
     }
-
-    fmt::println("");
+    _println_if_echo("");
 
     auto stripped = _dequote(input);
 
@@ -75,6 +67,7 @@ CmdExecResult dvlab::CommandLineInterface::_execute_one_line_internal(std::istre
     CmdExecResult exec_result = CmdExecResult::done;
 
     while (true) {
+        stripped             = dvlab::str::trim_leading_spaces(*stripped);
         size_t semicolon_pos = stripped->find_first_of(';');
         while (semicolon_pos != std::string::npos && _is_escaped(stripped.value(), semicolon_pos)) {
             semicolon_pos = stripped->find_first_of(';', semicolon_pos + 1);
@@ -184,21 +177,19 @@ dvlab::CommandLineInterface::_parse_one_command(std::string_view cmd) {
 CmdExecResult CommandLineInterface::_dispatch_command(dvlab::Command* cmd, std::vector<argparse::Token> options) {
     std::atomic<CmdExecResult> exec_result = CmdExecResult::done;
 
-    _command_thread = jthread::jthread(
+    _command_threads.push(jthread::jthread{
         [&cmd, &options, &exec_result]() {
             exec_result = cmd->execute(options);
-        });
+        }});
 
-    assert(_command_thread.has_value());
+    assert(_command_threads.size());
 
-    _command_thread->join();
+    _command_threads.pop();
 
     if (this->stop_requested()) {
         spdlog::warn("Command interrupted");
         return CmdExecResult::interrupted;
     }
-
-    _command_thread = std::nullopt;
 
     return exec_result;
 }
