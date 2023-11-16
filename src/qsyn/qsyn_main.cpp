@@ -106,7 +106,7 @@ dvlab::argparse::ArgumentParser get_qsyn_parser(std::string_view const prog_name
 
     parser.add_argument<bool>("-q", "--quiet")
         .action(store_true)
-        .help("suppress echo of commands when supplying commands from `-c` or `-f` flags. This argument does not affect the interactive mode");
+        .help("suppress echoing of commands when supplying commands from `-c` or `-f` flags. This argument does not affect the interactive mode");
 
     parser.add_argument<bool>("--no-version")
         .action(store_true)

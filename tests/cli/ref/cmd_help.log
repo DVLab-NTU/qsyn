@@ -13,7 +13,7 @@ Subcommands:
     level         set logger level        
 
 qsyn> source -h
-Usage: source [-h] <string file> [<string arguments>]...
+Usage: source [-h] [-q] <string file> [<string arguments>]...
 
 Description:
   execute the commands in the dofile
@@ -23,7 +23,8 @@ Positional Arguments:
   string  arguments    arguments to the dofile                         
 
 Options:
-  flag  -h, --help    show this help message 
+  flag  -h, --help     show this help message           
+  flag  -q, --quiet    suppress the echoing of commands 
 
 qsyn> zxgraph vertex -h
 Usage: vertex [-h] (add | remove) ...
