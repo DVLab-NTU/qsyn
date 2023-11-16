@@ -226,6 +226,9 @@ Command source_cmd(CommandLineInterface& cli) {
             [](ArgumentParser& parser) {
                 parser.description("execute the commands in the dofile");
 
+                parser.add_argument<bool>("-q", "--quiet")
+                    .action(store_true)
+                    .help("suppress the echoing of commands");
                 parser.add_argument<std::string>("file")
                     .constraint(path_readable)
                     .help("path to a dofile, i.e., a list of qsyn commands");
@@ -236,7 +239,7 @@ Command source_cmd(CommandLineInterface& cli) {
             },
             [&cli](ArgumentParser const& parser) {
                 auto arguments = parser.get<std::vector<std::string>>("arguments");
-                return cli.source_dofile(parser.get<std::string>("file"), arguments, true);
+                return cli.source_dofile(parser.get<std::string>("file"), arguments, !parser.get<bool>("--quiet"));
             }};
 }
 
