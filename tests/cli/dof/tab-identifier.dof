@@ -8,6 +8,7 @@
 // tests when there are no matching commands or aliases, nothing is printed
 x					
 // ---------- ALIAS AUTOCOMPLETE ---------
+alias dofile source
 // 1st tab: complete to `dofile` (no space follows!)
 // -f: argument to `quit` commands
 do	 tests/cli/helper/empty_dof
