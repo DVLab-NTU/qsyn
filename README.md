@@ -178,7 +178,7 @@ We have provided some DOFILEs, i.e., a sequence of commands, to serve as functio
 
   All arguments are the same as `RUN_TESTS`.
 
-  Notice that if you use a different BLAS or LAPACK inplementation to build `Qsyn`, some of the DOFILEs may produce different results, which is to be expected.
+  Notice that if you use a different BLAS or LAPACK implementation to build `Qsyn`, some of the DOFILEs may produce different results, which is to be expected.
 
 ## License
 
