@@ -185,7 +185,7 @@ Command quit_cmd(CommandLineInterface& cli) {
                     .help("quit without reaffirming");
             },
             [&cli](ArgumentParser const& parser) {
-                using namespace std::string_literals;
+                using namespace std::string_view_literals;
                 if (parser.get<bool>("--force")) return CmdExecResult::quit;
 
                 std::string const prompt = "Are you sure you want to exit (Yes/[No])? ";
@@ -198,7 +198,7 @@ Command quit_cmd(CommandLineInterface& cli) {
 
                 if (input.empty()) return CmdExecResult::done;
 
-                return ("yes"s.starts_with(input))
+                return (dvlab::str::is_prefix_of(input, "yes"))
                            ? CmdExecResult::quit
                            : CmdExecResult::done;  // not yet to quit
             }};
