@@ -221,4 +221,8 @@ inline std::optional<T> from_string(std::string_view str) {
     }
 }
 
+inline bool is_prefix_of(std::string_view prefix, std::string_view str) {
+    return str.starts_with(prefix);
+}
+
 }  // namespace dvlab::str
