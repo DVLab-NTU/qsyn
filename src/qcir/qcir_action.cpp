@@ -103,6 +103,8 @@ void QCir::_dfs(QCirGate* curr_gate) const {
  */
 std::vector<QCirGate*> const& QCir::update_topological_order() const {
     _topological_order.clear();
+    if (_qgates.empty())
+        return _topological_order;
     _global_dfs_counter++;
     auto dummy = new QCirGate(0, GateRotationCategory::id, dvlab::Phase(0));
     for (size_t i = 0; i < _qubits.size(); i++) {
