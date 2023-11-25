@@ -9,6 +9,8 @@
 
 #include <spdlog/spdlog.h>
 
+#include <string>
+
 #include "./qcir_to_tensor.hpp"
 #include "./qcir_to_zxgraph.hpp"
 #include "./zxgraph_to_tensor.hpp"
@@ -18,6 +20,8 @@
 #include "qcir/qcir_mgr.hpp"
 #include "tensor/tensor_mgr.hpp"
 #include "util/data_structure_manager_common_cmd.hpp"
+#include "util/dvlab_string.hpp"
+#include "util/util.hpp"
 #include "zx/zx_cmd.hpp"
 
 using namespace dvlab::argparse;
@@ -53,6 +57,7 @@ Command conversion_cmd(QCirMgr& qcir_mgr, qsyn::tensor::TensorMgr& tensor_mgr, q
                     .help("specify the decomposition mode (default: 3). The higher the number, the more aggressive the decomposition is. This option is currently only meaningful when converting from QCir to ZXGraph.");
             },
             [&](ArgumentParser const& parser) {
+                using namespace std::string_view_literals;
                 auto from = parser.get<std::string>("from");
                 auto to   = parser.get<std::string>("to");
 
@@ -60,8 +65,17 @@ Command conversion_cmd(QCirMgr& qcir_mgr, qsyn::tensor::TensorMgr& tensor_mgr, q
                     spdlog::error("The source and destination data structure should not be the same!!", from, to);
                     return CmdExecResult::error;
                 }
+                enum class data_type { qcir,
+                                       zx,
+                                       tensor };
+                auto constexpr get_data_type = [](std::string_view pfx) -> data_type {
+                    if (dvlab::str::is_prefix_of(dvlab::str::tolower_string(pfx), "qcir")) return data_type::qcir;
+                    if (dvlab::str::is_prefix_of(dvlab::str::tolower_string(pfx), "zx")) return data_type::zx;
+                    if (dvlab::str::is_prefix_of(dvlab::str::tolower_string(pfx), "tensor")) return data_type::tensor;
+                    DVLAB_UNREACHABLE("Invalid data type");
+                };
 
-                if (from == "qcir" && to == "zx") {
+                if (get_data_type(from) == data_type::qcir && get_data_type(to) == data_type::zx) {
                     if (!dvlab::utils::mgr_has_data(qcir_mgr)) return CmdExecResult::error;
                     if (to == "zx") {
                         spdlog::info("Converting to QCir {} to ZXGraph {}...", qcir_mgr.focused_id(), zxgraph_mgr.get_next_id());
@@ -79,7 +93,7 @@ Command conversion_cmd(QCirMgr& qcir_mgr, qsyn::tensor::TensorMgr& tensor_mgr, q
                     }
                 }
 
-                if (from == "qcir" && to == "tensor") {
+                if (get_data_type(from) == data_type::qcir && get_data_type(to) == data_type::tensor) {
                     if (!dvlab::utils::mgr_has_data(qcir_mgr)) return CmdExecResult::error;
                     spdlog::info("Converting to QCir {} to tensor {}...", qcir_mgr.focused_id(), tensor_mgr.get_next_id());
                     auto tensor = to_tensor(*qcir_mgr.get());
@@ -96,7 +110,7 @@ Command conversion_cmd(QCirMgr& qcir_mgr, qsyn::tensor::TensorMgr& tensor_mgr, q
                     return CmdExecResult::done;
                 }
 
-                if (from == "zx" && to == "tensor") {
+                if (get_data_type(from) == data_type::zx && get_data_type(to) == data_type::tensor) {
                     if (!dvlab::utils::mgr_has_data(zxgraph_mgr)) return CmdExecResult::error;
                     auto zx = zxgraph_mgr.get();
 
@@ -114,7 +128,7 @@ Command conversion_cmd(QCirMgr& qcir_mgr, qsyn::tensor::TensorMgr& tensor_mgr, q
                     return CmdExecResult::done;
                 }
 
-                if (from == "zx" && to == "qcir") {
+                if (get_data_type(from) == data_type::zx && get_data_type(to) == data_type::qcir) {
                     if (!dvlab::utils::mgr_has_data(zxgraph_mgr)) return CmdExecResult::error;
                     if (!zxgraph_mgr.get()->is_graph_like()) {
                         spdlog::error("ZXGraph {} is not extractable because it is not graph-like!!", zxgraph_mgr.focused_id());

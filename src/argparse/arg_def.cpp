@@ -44,12 +44,12 @@ template <>
 std::string type_string(DummyArgType const& /*unused*/) { return "dummy"; }
 
 template <>
-bool parse_from_string(bool& val, std::string const& token) {
-    using namespace std::string_literals;
-    if ("true"s.starts_with(dvlab::str::tolower_string(token))) {
+bool parse_from_string(bool& val, std::string_view token) {
+    using namespace std::string_view_literals;
+    if (dvlab::str::is_prefix_of(dvlab::str::tolower_string(token), "true")) {
         val = true;
         return true;
-    } else if ("false"s.starts_with(dvlab::str::tolower_string(token))) {
+    } else if (dvlab::str::is_prefix_of(dvlab::str::tolower_string(token), "false")) {
         val = false;
         return true;
     }
@@ -57,13 +57,13 @@ bool parse_from_string(bool& val, std::string const& token) {
 }
 
 template <>
-bool parse_from_string(std::string& val, std::string const& token) {
+bool parse_from_string(std::string& val, std::string_view token) {
     val = token;
     return true;
 }
 
 template <>
-bool parse_from_string(DummyArgType& /*val*/, std::string const& /*token*/) {
+bool parse_from_string(DummyArgType& /*val*/, std::string_view /*token*/) {
     return true;
 }
 

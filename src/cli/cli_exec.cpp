@@ -64,6 +64,14 @@ CmdExecResult dvlab::CommandLineInterface::execute_one_line(std::istream& istr, 
         return CmdExecResult::no_op;
     }
 
+    auto first_token = get_first_token(*stripped);
+
+    // if the first token is an alias
+    if (auto alias_replacement = get_alias_replacement_string(first_token); alias_replacement.has_value()) {
+        // replace the alias with the replacement string
+        stripped = alias_replacement.value() + stripped->substr(first_token.size());
+    }
+
     CmdExecResult exec_result = CmdExecResult::done;
 
     while (true) {
@@ -212,7 +220,6 @@ std::string dvlab::CommandLineInterface::_replace_variable_keys_with_values(std:
     //       "${foo}_bar"   --> "banana_bar"
     //       "foo_$bar"     --> "foo_"
     //       "${foo}${bar}" --> "banana"
-
     std::vector<std::tuple<size_t, size_t, std::string>> to_replace;
     // FIXME - doesn't work for nested variables and multiple variables in one line
     for (auto const& re : {var_without_braces, var_with_braces}) {
@@ -264,7 +271,7 @@ std::string dvlab::CommandLineInterface::_replace_variable_keys_with_values(std:
  * @param cmd
  * @return dvlab::Command*
  */
-dvlab::Command* dvlab::CommandLineInterface::get_command(std::string const& cmd) const {
+dvlab::Command* dvlab::CommandLineInterface::get_command(std::string_view cmd) const {
     auto match = _identifiers.find_with_prefix(cmd);
     if (!match.has_value()) {
         return nullptr;
@@ -277,7 +284,7 @@ dvlab::Command* dvlab::CommandLineInterface::get_command(std::string const& cmd)
     return nullptr;
 }
 
-std::optional<std::string> dvlab::CommandLineInterface::get_alias_replacement_string(std::string const& alias_prefix) const {
+std::optional<std::string> dvlab::CommandLineInterface::get_alias_replacement_string(std::string_view alias_prefix) const {
     auto alias = _identifiers.find_with_prefix(alias_prefix);
     if (!alias.has_value()) {
         return std::nullopt;

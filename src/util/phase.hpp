@@ -99,7 +99,7 @@ public:
 
     template <class T = double>
     requires std::floating_point<T>
-    static bool str_to_phase(std::string const& str, Phase& p);
+    static bool str_to_phase(std::string_view str, Phase& p);
 
 private:
     dvlab::Rational _rational;
@@ -166,7 +166,7 @@ constexpr bool Phase::operator!=(Phase const& rhs) const {
 
 template <class T>
 requires std::floating_point<T>
-bool Phase::str_to_phase(std::string const& str, Phase& p) {
+bool Phase::str_to_phase(std::string_view str, Phase& p) {
     std::vector<std::string> number_strings;
     std::vector<char> operators;
 

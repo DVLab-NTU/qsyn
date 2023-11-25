@@ -35,5 +35,5 @@ qsyn> qcir list
   2    3_17_13             
 ★ 3    3_17_13             
 
-qsyn> q -f
+qsyn> quit -f
 

@@ -70,12 +70,12 @@ EdgeType toggle_edge(EdgeType const& et) {
  * @return VertexType
  */
 std::optional<VertexType> str_to_vertex_type(std::string const& str) {
-    using namespace std::string_literals;
+    using namespace std::string_view_literals;
     using dvlab::str::tolower_string;
-    if ("boundary"s.starts_with(tolower_string(str))) return VertexType::boundary;
-    if ("zspider"s.starts_with(tolower_string(str))) return VertexType::z;
-    if ("xspider"s.starts_with(tolower_string(str))) return VertexType::x;
-    if ("hbox"s.starts_with(tolower_string(str))) return VertexType::h_box;
+    if (dvlab::str::is_prefix_of(tolower_string(str), "boundary")) return VertexType::boundary;
+    if (dvlab::str::is_prefix_of(tolower_string(str), "zspider")) return VertexType::z;
+    if (dvlab::str::is_prefix_of(tolower_string(str), "xspider")) return VertexType::x;
+    if (dvlab::str::is_prefix_of(tolower_string(str), "hbox")) return VertexType::h_box;
     return std::nullopt;
 }
 
@@ -86,9 +86,9 @@ std::optional<VertexType> str_to_vertex_type(std::string const& str) {
  * @return EdgeType
  */
 std::optional<EdgeType> str_to_edge_type(std::string const& str) {
-    using namespace std::string_literals;
-    if ("simple"s.starts_with(dvlab::str::tolower_string(str))) return EdgeType::simple;
-    if ("hadamard"s.starts_with(dvlab::str::tolower_string(str))) return EdgeType::hadamard;
+    using namespace std::string_view_literals;
+    if (dvlab::str::is_prefix_of(dvlab::str::tolower_string(str), "simple")) return EdgeType::simple;
+    if (dvlab::str::is_prefix_of(dvlab::str::tolower_string(str), "hadamard")) return EdgeType::hadamard;
     return std::nullopt;
 }
 

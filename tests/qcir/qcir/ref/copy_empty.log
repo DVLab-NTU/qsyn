@@ -1,0 +1,11 @@
+qsyn> qcir new
+
+qsyn> qcir copy
+
+qsyn> qcir qubit add 1
+
+qsyn> qcir copy
+
+qsyn> 
+qsyn> quit -f
+

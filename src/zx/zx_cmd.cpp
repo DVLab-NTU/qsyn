@@ -392,7 +392,7 @@ Command zxgraph_adjoint_cmd(ZXGraphMgr& zxgraph_mgr) {
 }
 
 Command zxgraph_vertex_add_cmd(ZXGraphMgr& zxgraph_mgr) {
-    using namespace std::string_literals;
+    using namespace std::string_view_literals;
     return {"add",
             [](ArgumentParser& parser) {
                 parser.description("add vertices to ZXGraph");
@@ -412,7 +412,7 @@ Command zxgraph_vertex_add_cmd(ZXGraphMgr& zxgraph_mgr) {
             [&](ArgumentParser const& parser) {
                 if (!dvlab::utils::mgr_has_data(zxgraph_mgr)) return CmdExecResult::error;
                 auto const vtype_str = parser.get<std::string>("vtype");
-                if ("input"s.starts_with(vtype_str)) {
+                if (dvlab::str::is_prefix_of(vtype_str, "input")) {
                     if (!parser.parsed("qubit")) {
                         spdlog::error("The qubit ID of the input vertex must be specified!!");
                         return CmdExecResult::error;
@@ -434,7 +434,7 @@ Command zxgraph_vertex_add_cmd(ZXGraphMgr& zxgraph_mgr) {
                     return CmdExecResult::done;
                 }
 
-                if ("output"s.starts_with(vtype_str)) {
+                if (dvlab::str::is_prefix_of(vtype_str, "output")) {
                     if (!parser.parsed("qubit")) {
                         spdlog::error("The qubit ID of the output vertex must be specified!!");
                         return CmdExecResult::error;

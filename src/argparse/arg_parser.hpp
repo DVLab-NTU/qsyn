@@ -7,6 +7,7 @@
 #pragma once
 
 #include <concepts>
+#include <functional>
 #include <unordered_map>
 #include <variant>
 
@@ -34,7 +35,7 @@ struct ArgumentParserConfig {
 class SubParsers {
 private:
     struct SubParsersImpl {
-        dvlab::utils::ordered_hashmap<std::string, ArgumentParser> subparsers;
+        dvlab::utils::ordered_hashmap<std::string, ArgumentParser, detail::heterogeneous_string_hash, std::equal_to<>> subparsers;
         std::string help;
         bool required = false;
         ArgumentParserConfig parent_config;
@@ -47,13 +48,13 @@ public:
         _pimpl->required = is_req;
         return *this;
     }
-    SubParsers help(std::string const& help) {
+    SubParsers help(std::string_view help) {
         _pimpl->help = help;
         return *this;
     }
 
-    ArgumentParser add_parser(std::string const& name);
-    ArgumentParser add_parser(std::string const& name, ArgumentParserConfig const& config);
+    ArgumentParser add_parser(std::string_view name);
+    ArgumentParser add_parser(std::string_view name, ArgumentParserConfig const& config);
 
     size_t size() const noexcept { return _pimpl->subparsers.size(); }
 
@@ -80,22 +81,22 @@ class ArgumentParser {
 
 public:
     ArgumentParser() : _pimpl{std::make_shared<ArgumentParserImpl>()} {}
-    ArgumentParser(std::string const& n, ArgumentParserConfig config = {
-                                             .add_help_action    = true,
-                                             .add_version_action = false,
-                                             .exit_on_failure    = true,
-                                             .version            = "",
-                                         });
+    ArgumentParser(std::string_view n, ArgumentParserConfig config = {
+                                           .add_help_action    = true,
+                                           .add_version_action = false,
+                                           .exit_on_failure    = true,
+                                           .version            = "",
+                                       });
 
     template <typename T>
-    T get(std::string const& name) const {
+    T get(std::string_view name) const {
         return this->_get_arg(name).get<T>();
     }
 
-    ArgumentParser& name(std::string const& name);
-    ArgumentParser& description(std::string const& help);
+    ArgumentParser& name(std::string_view name);
+    ArgumentParser& description(std::string_view help);
     ArgumentParser& num_required_chars(size_t num);
-    ArgumentParser& option_prefix(std::string const& prefix);
+    ArgumentParser& option_prefix(std::string_view prefix);
 
     size_t num_parsed_args() const;
 
@@ -115,18 +116,18 @@ public:
     std::string const& get_name() const { return _pimpl->name; }
     std::string const& get_description() const { return _pimpl->description; }
     size_t get_num_required_chars() const { return _pimpl->num_required_chars; }
-    size_t get_arg_num_required_chars(std::string const& name) const;
+    size_t get_arg_num_required_chars(std::string_view name) const;
     std::optional<SubParsers> const& get_subparsers() const { return _pimpl->subparsers; }
     std::optional<ArgumentParser> get_activated_subparser() const;
-    bool parsed(std::string const& key) const { return this->_get_arg(key).is_parsed(); }
-    bool has_option_prefix(std::string const& str) const { return str.find_first_of(_pimpl->option_prefixes) == 0UL; }
+    bool parsed(std::string_view key) const { return this->_get_arg(key).is_parsed(); }
+    bool has_option_prefix(std::string_view str) const { return str.find_first_of(_pimpl->option_prefixes) == 0UL; }
     bool has_subparsers() const { return _pimpl->subparsers.has_value(); }
-    bool used_subparser(std::string const& name) const;
+    bool used_subparser(std::string_view name) const;
 
     // action
     template <typename T>
     requires valid_argument_type<T>
-    ArgType<T>& add_argument(std::string const& name, std::convertible_to<std::string> auto... alias);
+    ArgType<T>& add_argument(std::string_view name, std::convertible_to<std::string> auto... alias);
 
     [[nodiscard]] MutuallyExclusiveGroup add_mutually_exclusive_group();
     [[nodiscard]] SubParsers add_subparsers();
@@ -144,9 +145,9 @@ private:
     friend std::string detail::get_syntax(ArgumentParser parser, MutuallyExclusiveGroup const& group);
     friend std::string detail::styled_option_name_and_aliases(ArgumentParser parser, Argument const& arg);
     struct ArgumentParserImpl {
-        dvlab::utils::ordered_hashmap<std::string, Argument> arguments;
-        std::unordered_map<std::string, std::string> alias_forward_map;
-        std::unordered_multimap<std::string, std::string> alias_reverse_map;
+        dvlab::utils::ordered_hashmap<std::string, Argument, detail::heterogeneous_string_hash, std::equal_to<>> arguments;
+        std::unordered_map<std::string, std::string, detail::heterogeneous_string_hash, std::equal_to<>> alias_forward_map;
+        std::unordered_multimap<std::string, std::string, detail::heterogeneous_string_hash, std::equal_to<>> alias_reverse_map;
         std::string option_prefixes = "-";
         std::vector<Token> tokens;
 
@@ -171,22 +172,22 @@ private:
 
     template <typename T>
     requires valid_argument_type<T>
-    ArgType<T>& _add_positional_argument(std::string const& name, std::convertible_to<std::string> auto... alias);
+    ArgType<T>& _add_positional_argument(std::string_view name, std::convertible_to<std::string> auto... alias);
 
     template <typename T>
     requires valid_argument_type<T>
-    ArgType<T>& _add_option(std::string const& name, std::convertible_to<std::string> auto... alias);
+    ArgType<T>& _add_option(std::string_view name, std::convertible_to<std::string> auto... alias);
 
     // pretty printing helpers
 
     std::pair<bool, std::vector<Token>> _parse_known_args_impl(TokensView);
 
-    void _activate_subparser(std::string const& name) {
+    void _activate_subparser(std::string_view name) {
         _pimpl->activated_subparser = name;
     }
-    Argument const& _get_arg(std::string const& name) const;
-    Argument& _get_arg(std::string const& name);
-    bool _has_arg(std::string const& name) const;
+    Argument const& _get_arg(std::string_view name) const;
+    Argument& _get_arg(std::string_view name);
+    bool _has_arg(std::string_view name) const;
 
     // parse subroutine
     std::string _get_activated_subparser_name() const { return _pimpl->activated_subparser.value_or(""); }
@@ -196,7 +197,7 @@ private:
 
     // parseOptions subroutine
 
-    std::variant<std::string, size_t> _match_option(std::string const& token) const;
+    std::variant<std::string, size_t> _match_option(std::string_view token) const;
     bool _all_required_options_are_parsed() const;
     bool _all_required_mutex_groups_are_parsed() const;
 
@@ -207,7 +208,7 @@ private:
     bool _all_required_args_are_parsed() const;
 
     template <typename T>
-    static auto& _get_arg_impl(T& t, std::string const& name);
+    static auto& _get_arg_impl(T& t, std::string_view name);
 };
 
 /**
@@ -219,7 +220,7 @@ private:
  */
 template <typename T>
 requires valid_argument_type<T>
-ArgType<T>& MutuallyExclusiveGroup::add_argument(std::string const& name, std::convertible_to<std::string> auto... alias) {
+ArgType<T>& MutuallyExclusiveGroup::add_argument(std::string_view name, std::convertible_to<std::string> auto... alias) {
     ArgType<T>& return_ref = _pimpl->_parser->add_argument<T>(name, alias...);
     _pimpl->_arguments.insert(return_ref._name);
     return return_ref;
@@ -234,7 +235,7 @@ ArgType<T>& MutuallyExclusiveGroup::add_argument(std::string const& name, std::c
  */
 template <typename T>
 requires valid_argument_type<T>
-ArgType<T>& ArgumentParser::add_argument(std::string const& name, std::convertible_to<std::string> auto... alias) {
+ArgType<T>& ArgumentParser::add_argument(std::string_view name, std::convertible_to<std::string> auto... alias) {
     if (name.empty()) {
         fmt::println(stderr, "[ArgParse] Error: argument name cannot be an empty string!!");
         throw std::runtime_error("argument name cannot be an empty string");
@@ -260,7 +261,7 @@ ArgType<T>& ArgumentParser::add_argument(std::string const& name, std::convertib
  */
 template <typename T>
 requires valid_argument_type<T>
-ArgType<T>& ArgumentParser::_add_positional_argument(std::string const& name, std::convertible_to<std::string> auto... alias) {
+ArgType<T>& ArgumentParser::_add_positional_argument(std::string_view name, std::convertible_to<std::string> auto... alias) {
     assert(!has_option_prefix(name));
 
     if ((0 + ... + sizeof(alias)) > 0 /* has aliases */) {
@@ -268,9 +269,9 @@ ArgType<T>& ArgumentParser::_add_positional_argument(std::string const& name, st
         throw std::runtime_error("positional argument cannot have alias");
     }
 
-    _pimpl->arguments.emplace(name, Argument(name, T{}));
+    _pimpl->arguments.emplace(std::string{name}, Argument(name, T{}));
 
-    return get_underlying_type<T>(_pimpl->arguments.at(name))  //
+    return get_underlying_type<T>(_pimpl->arguments.at(std::string{name}))  //
         .required(true)
         .metavar(name);
 }
@@ -285,7 +286,7 @@ ArgType<T>& ArgumentParser::_add_positional_argument(std::string const& name, st
  */
 template <typename T>
 requires valid_argument_type<T>
-ArgType<T>& ArgumentParser::_add_option(std::string const& name, std::convertible_to<std::string> auto... alias) {
+ArgType<T>& ArgumentParser::_add_option(std::string_view name, std::convertible_to<std::string> auto... alias) {
     assert(has_option_prefix(name));
 
     // checking if every alias is valid
@@ -322,24 +323,24 @@ ArgType<T>& ArgumentParser::_add_option(std::string const& name, std::convertibl
         throw std::runtime_error("invalid argument alias");
     }
 
-    _pimpl->arguments.emplace(name, Argument(name, T{}));
+    _pimpl->arguments.emplace(std::string{name}, Argument(name, T{}));
 
-    return get_underlying_type<T>(_pimpl->arguments.at(name))  //
+    return get_underlying_type<T>(_pimpl->arguments.at(std::string{name}))  //
         .metavar(dvlab::str::toupper_string(name.substr(name.find_first_not_of(_pimpl->option_prefixes))));
 }
 
 template <typename T>
-auto& ArgumentParser::_get_arg_impl(T& t, std::string const& name) {
+auto& ArgumentParser::_get_arg_impl(T& t, std::string_view name) {
     if (t._pimpl->subparsers.has_value() && t._pimpl->activated_subparser.has_value()) {
         if (t.get_activated_subparser()->_has_arg(name)) {
             return t.get_activated_subparser()->_get_arg(name);
         }
     }
     if (t._pimpl->alias_forward_map.contains(name)) {
-        return t._pimpl->arguments.at(t._pimpl->alias_forward_map.at(name));
+        return t._pimpl->arguments.at(t._pimpl->alias_forward_map.at(std::string{name}));
     }
     if (t._pimpl->arguments.contains(name)) {
-        return t._pimpl->arguments.at(name);
+        return t._pimpl->arguments.at(std::string{name});
     }
 
     fmt::println(stderr, "[ArgParse] Error: argument name \"{}\" does not exist for command \"{}\"",

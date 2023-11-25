@@ -9,6 +9,7 @@
 #include "cli/cli.hpp"
 #include "fmt/color.h"
 #include "spdlog/common.h"
+#include "util/sysdep.hpp"
 #include "util/usage.hpp"
 
 namespace std {
@@ -184,7 +185,7 @@ Command quit_cmd(CommandLineInterface& cli) {
                     .help("quit without reaffirming");
             },
             [&cli](ArgumentParser const& parser) {
-                using namespace std::string_literals;
+                using namespace std::string_view_literals;
                 if (parser.get<bool>("--force")) return CmdExecResult::quit;
 
                 std::string const prompt = "Are you sure you want to exit (Yes/[No])? ";
@@ -197,7 +198,7 @@ Command quit_cmd(CommandLineInterface& cli) {
 
                 if (input.empty()) return CmdExecResult::done;
 
-                return ("yes"s.starts_with(input))
+                return (dvlab::str::is_prefix_of(input, "yes"))
                            ? CmdExecResult::quit
                            : CmdExecResult::done;  // not yet to quit
             }};
@@ -328,7 +329,7 @@ Command clear_cmd() {
             },
 
             [](ArgumentParser const& /*parser*/) {
-                ::dvlab::detail::clear_terminal();
+                utils::clear_terminal();
                 return CmdExecResult::done;
             }};
 };
@@ -339,8 +340,6 @@ bool add_cli_common_cmds(dvlab::CommandLineInterface& cli) {
           cli.add_command(set_variable_cmd(cli)) &&
           cli.add_alias("unset", "set -d") &&
           cli.add_command(quit_cmd(cli)) &&
-          cli.add_alias("q", "quit") &&
-          cli.add_alias("exit", "quit") &&
           cli.add_command(history_cmd(cli)) &&
           cli.add_command(help_cmd(cli)) &&
           cli.add_command(source_cmd(cli)) &&

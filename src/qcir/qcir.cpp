@@ -28,7 +28,6 @@ QCir::QCir(QCir const &other) {
     namespace views = std::ranges::views;
     other.update_topological_order();
     this->add_qubits(other._qubits.size());
-
     for (size_t i = 0; i < _qubits.size(); i++) {
         _qubits[i]->set_id(other._qubits[i]->get_id());
     }
@@ -42,13 +41,22 @@ QCir::QCir(QCir const &other) {
 
         new_gate->set_id(gate->get_id());
     }
+    if (other._qgates.size() > 0) {
+        this->_set_next_gate_id(1 + std::ranges::max(
+                                        other._qgates | views::transform(
+                                                            [](QCirGate *g) { return g->get_id(); })));
+    } else {
+        this->_set_next_gate_id(0);
+    }
 
-    this->_set_next_gate_id(1 + std::ranges::max(
-                                    other._topological_order | views::transform(
-                                                                   [](QCirGate *g) { return g->get_id(); })));
-    this->_set_next_qubit_id(1 + std::ranges::max(
-                                     other._qubits | views::transform(
-                                                         [](QCirQubit *qb) { return qb->get_id(); })));
+    if (other._qubits.size() > 0) {
+        this->_set_next_qubit_id(1 + std::ranges::max(
+                                         other._qubits | views::transform(
+                                                             [](QCirQubit *qb) { return qb->get_id(); })));
+    } else {
+        this->_set_next_qubit_id(0);
+    }
+
     this->set_filename(other._filename);
     this->add_procedures(other._procedures);
 }

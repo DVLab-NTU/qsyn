@@ -23,5 +23,5 @@ qsyn> zx2ts
 [error]    The ZXGraph is empty!!
 
 qsyn> 
-qsyn> q -f
+qsyn> quit -f
 

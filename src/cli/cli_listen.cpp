@@ -11,6 +11,7 @@
 #include "cli/cli_char_def.hpp"
 #include "util/dvlab_string.hpp"
 #include "util/scope_guard.hpp"
+#include "util/sysdep.hpp"
 
 //----------------------------------------------------------------------
 //    Member Function for class CmdParser
@@ -116,7 +117,7 @@ namespace dvlab {
  * @param config
  * @return CmdExecResult
  */
-std::pair<CmdExecResult, std::string> dvlab::CommandLineInterface::listen_to_input(std::istream& istr, std::string const& prompt, ListenConfig const& config) {
+std::pair<CmdExecResult, std::string> dvlab::CommandLineInterface::listen_to_input(std::istream& istr, std::string_view prompt, ListenConfig const& config) {
     using namespace key_code;
     auto const setting_restorer = dvlab::utils::scope_exit{
         [old_settings             = set_keypress(),
@@ -174,7 +175,7 @@ std::pair<CmdExecResult, std::string> dvlab::CommandLineInterface::listen_to_inp
                 _delete_char();
                 break;
             case clear_terminal_key:
-                detail::clear_terminal();
+                utils::clear_terminal();
                 _reprint_command();
                 break;
             case arrow_up_key:
