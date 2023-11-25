@@ -1,13 +1,13 @@
 qcir read benchmark/qasm/tof2.qasm
 qc2ts
 qc2zx
-zxgraph print -v
+zx print -v
 zx2ts
 tensor equiv 0 1
-zxgraph print -v
-zxgraph assign 0 I X pi
-zxgraph assign 0 O X pi
-zxgraph print -v
+zx print -v
+zx assign 0 I X pi
+zx assign 0 O X pi
+zx print -v
 zx2ts
 qcir new
 qcir qubit add 2

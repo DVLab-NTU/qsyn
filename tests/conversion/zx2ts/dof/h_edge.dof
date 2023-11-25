@@ -1,56 +1,56 @@
-zxgraph new
-zxgraph vertex add i 0
-zxgraph vertex add o 0
-zxgraph vertex add z 0
+zx new
+zx vertex add i 0
+zx vertex add o 0
+zx vertex add z 0
 
 // out-edge are H-edge
-zxgraph edge add 0 2 SIMPLE
-zxgraph edge add 2 1 HADAMARD
+zx edge add 0 2 SIMPLE
+zx edge add 2 1 HADAMARD
 
 logger level trace
 zx2ts
 logger level warn
 
 // both edges are S-edge
-zxgraph edge remove 2 1 ALL
-zxgraph edge add 2 1 SIMPLE
+zx edge remove 2 1 ALL
+zx edge add 2 1 SIMPLE
 
 logger level trace
 zx2ts
 logger level warn
 
 // in-edge are H-edge
-zxgraph edge remove 0 2 ALL
-zxgraph edge add 2 0 HADAMARD
+zx edge remove 0 2 ALL
+zx edge add 2 0 HADAMARD
 
 logger level trace
 zx2ts
 logger level warn
 
 // Both edges are H-edge
-zxgraph edge remove 1 2 ALL
-zxgraph edge add 2 1 HADAMARD
+zx edge remove 1 2 ALL
+zx edge add 2 1 HADAMARD
 
 logger level trace
 zx2ts
 logger level warn
 
-zxgraph new
-zxgraph vertex add i 0
-zxgraph vertex add o 0
-zxgraph vertex add i 1
-zxgraph vertex add o 1
-zxgraph vertex add z 0
-zxgraph vertex add z 0
-zxgraph vertex add z 0
-zxgraph vertex add z 0
-zxgraph edge add 0 4 SIMPLE
-zxgraph edge add 1 4 SIMPLE
-zxgraph edge add 2 5 HADAMARD
-zxgraph edge add 3 5 HADAMARD
-zxgraph edge add 6 5 HADAMARD
-zxgraph edge add 6 4 HADAMARD
-zxgraph edge add 6 7 HADAMARD
+zx new
+zx vertex add i 0
+zx vertex add o 0
+zx vertex add i 1
+zx vertex add o 1
+zx vertex add z 0
+zx vertex add z 0
+zx vertex add z 0
+zx vertex add z 0
+zx edge add 0 4 SIMPLE
+zx edge add 1 4 SIMPLE
+zx edge add 2 5 HADAMARD
+zx edge add 3 5 HADAMARD
+zx edge add 6 5 HADAMARD
+zx edge add 6 4 HADAMARD
+zx edge add 6 7 HADAMARD
 logger level trace
 zx2ts
 logger level warn

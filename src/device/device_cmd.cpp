@@ -84,14 +84,14 @@ dvlab::Command device_read_cmd(qsyn::device::DeviceMgr& device_mgr) {
                 parser.add_argument<std::string>("filepath")
                     .help("the filepath to device file");
 
-                parser.add_argument<bool>("-replace")
+                parser.add_argument<bool>("-r", "--replace")
                     .action(store_true)
                     .help("if specified, replace the current device; otherwise store to a new one");
             },
             [&device_mgr](ArgumentParser const& parser) {
                 qsyn::device::Device buffer_device;
                 auto filepath = parser.get<std::string>("filepath");
-                auto replace  = parser.get<bool>("-replace");
+                auto replace  = parser.get<bool>("--replace");
 
                 if (!buffer_device.read_device(filepath)) {
                     spdlog::error("the format in \"{}\" has something wrong!!", filepath);
@@ -127,11 +127,7 @@ dvlab::Command device_print_cmd(qsyn::device::DeviceMgr& device_mgr) {
 
                 auto mutex = parser.add_mutually_exclusive_group().required(false);
 
-                mutex.add_argument<bool>("-summary")
-                    .action(store_true)
-                    .help("print basic information of the topology");
-
-                mutex.add_argument<size_t>("-edges")
+                mutex.add_argument<size_t>("-e", "--edges")
                     .nargs(0, 2)
                     .help(
                         "print information of edges. "
@@ -139,14 +135,14 @@ dvlab::Command device_print_cmd(qsyn::device::DeviceMgr& device_mgr) {
                         "if one qubit ID specified, list the adjacent edges to the qubit; "
                         "if two qubit IDs are specified, list the edge between them");
 
-                mutex.add_argument<size_t>("-qubits")
+                mutex.add_argument<size_t>("-q", "--qubits")
                     .nargs(NArgsOption::zero_or_more)
                     .help(
                         "print information of qubits. "
                         "If no qubit ID is specified, print for all qubits;"
                         "otherwise, print information of the specified qubit IDs");
 
-                mutex.add_argument<QubitIdType>("-path")
+                mutex.add_argument<QubitIdType>("-p", "--path")
                     .nargs(2)
                     .metavar("(q1, q2)")
                     .help(
@@ -155,16 +151,16 @@ dvlab::Command device_print_cmd(qsyn::device::DeviceMgr& device_mgr) {
             [&device_mgr](ArgumentParser const& parser) {
                 if (!qsyn::device::device_mgr_not_empty(device_mgr)) return CmdExecResult::error;
 
-                if (parser.parsed("-edges")) {
-                    device_mgr.get()->print_edges(parser.get<std::vector<size_t>>("-edges"));
+                if (parser.parsed("--edges")) {
+                    device_mgr.get()->print_edges(parser.get<std::vector<size_t>>("--edges"));
                     return CmdExecResult::done;
                 }
-                if (parser.parsed("-qubits")) {
-                    device_mgr.get()->print_qubits(parser.get<std::vector<size_t>>("-qubits"));
+                if (parser.parsed("--qubits")) {
+                    device_mgr.get()->print_qubits(parser.get<std::vector<size_t>>("--qubits"));
                     return CmdExecResult::done;
                 }
-                if (parser.parsed("-path")) {
-                    auto qids = parser.get<std::vector<QubitIdType>>("-path");
+                if (parser.parsed("--path")) {
+                    auto qids = parser.get<std::vector<QubitIdType>>("--path");
                     device_mgr.get()->print_path(qids[0], qids[1]);
                     return CmdExecResult::done;
                 }

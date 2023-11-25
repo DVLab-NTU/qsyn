@@ -38,13 +38,13 @@ dvlab::Command extraction_step_cmd(zx::ZXGraphMgr& zxgraph_mgr, QCirMgr& qcir_mg
     return {"step",
             [&](ArgumentParser& parser) {
                 parser.description("perform step(s) in extraction");
-                parser.add_argument<size_t>("-zxgraph")
+                parser.add_argument<size_t>("-zx", "--zxgraph")
                     .required(true)
                     .constraint(dvlab::utils::valid_mgr_id(zxgraph_mgr))
                     .metavar("ID")
                     .help("the ID of the ZXGraph to extract from");
 
-                parser.add_argument<size_t>("-qcir")
+                parser.add_argument<size_t>("-qc", "--qcir")
                     .required(true)
                     .constraint(valid_qcir_id(qcir_mgr))
                     .metavar("ID")
@@ -60,7 +60,7 @@ dvlab::Command extraction_step_cmd(zx::ZXGraphMgr& zxgraph_mgr, QCirMgr& qcir_mg
                     .action(store_true)
                     .help("Extract CZ gates");
 
-                mutex.add_argument<bool>("-phase")
+                mutex.add_argument<bool>("-ph", "--phase")
                     .action(store_true)
                     .help("Extract Z-rotation gates");
 
@@ -68,19 +68,19 @@ dvlab::Command extraction_step_cmd(zx::ZXGraphMgr& zxgraph_mgr, QCirMgr& qcir_mg
                     .action(store_true)
                     .help("Extract Hadamard gates");
 
-                mutex.add_argument<bool>("-clf", "--clear-frontier")
+                mutex.add_argument<bool>("--clear-frontier")
                     .action(store_true)
                     .help("Extract Z-rotation and then CZ gates");
 
-                mutex.add_argument<bool>("-rmg", "--remove-gadgets")
+                mutex.add_argument<bool>("--remove-gadgets")
                     .action(store_true)
                     .help("Remove phase gadgets in the neighbor of the frontiers");
 
-                mutex.add_argument<bool>("-permute")
+                mutex.add_argument<bool>("--permute")
                     .action(store_true)
                     .help("Add swap gates to account for ZXGraph I/O permutations");
 
-                mutex.add_argument<size_t>("-loop")
+                mutex.add_argument<size_t>("-l", "--loop")
                     .nargs(NArgsOption::optional)
                     .default_value(1)
                     .metavar("N")
@@ -88,8 +88,8 @@ dvlab::Command extraction_step_cmd(zx::ZXGraphMgr& zxgraph_mgr, QCirMgr& qcir_mg
             },
             [&](ArgumentParser const& parser) {
                 if (!dvlab::utils::mgr_has_data(zxgraph_mgr)) return CmdExecResult::error;
-                auto zx_id   = parser.get<size_t>("-zxgraph");
-                auto qcir_id = parser.get<size_t>("-qcir");
+                auto zx_id   = parser.get<size_t>("--zxgraph");
+                auto qcir_id = parser.get<size_t>("--qcir");
                 if (!zxgraph_mgr.find_by_id(zx_id)->is_graph_like()) {
                     spdlog::error("ZXGraph {} is not extractable because it is not graph-like!!", zx_id);
                     return CmdExecResult::error;
@@ -104,17 +104,17 @@ dvlab::Command extraction_step_cmd(zx::ZXGraphMgr& zxgraph_mgr, QCirMgr& qcir_mg
                 qcir_mgr.checkout(qcir_id);
                 Extractor ext(zxgraph_mgr.get(), qcir_mgr.get(), std::nullopt);
 
-                if (parser.parsed("-loop")) {
-                    ext.extraction_loop(parser.get<size_t>("-loop"));
+                if (parser.parsed("--loop")) {
+                    ext.extraction_loop(parser.get<size_t>("--loop"));
                     return CmdExecResult::done;
                 }
 
-                if (parser.parsed("-clf")) {
+                if (parser.parsed("--clear-frontier")) {
                     ext.clean_frontier();
                     return CmdExecResult::done;
                 }
 
-                if (parser.parsed("-phase")) {
+                if (parser.parsed("--phase")) {
                     ext.extract_singles();
                     return CmdExecResult::done;
                 }
@@ -133,7 +133,7 @@ dvlab::Command extraction_step_cmd(zx::ZXGraphMgr& zxgraph_mgr, QCirMgr& qcir_mg
                     ext.extract_hadamards_from_matrix(true);
                     return CmdExecResult::done;
                 }
-                if (parser.parsed("-rmg")) {
+                if (parser.parsed("--remove-gadgets")) {
                     if (ext.remove_gadget(true)) {
                         spdlog::info("Gadget(s) are removed");
                     } else {
@@ -142,7 +142,7 @@ dvlab::Command extraction_step_cmd(zx::ZXGraphMgr& zxgraph_mgr, QCirMgr& qcir_mg
                     return CmdExecResult::done;
                 }
 
-                if (parser.parsed("-permute")) {
+                if (parser.parsed("--permute")) {
                     ext.permute_qubits();
                     return CmdExecResult::done;
                 }

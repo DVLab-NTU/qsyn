@@ -2,12 +2,12 @@ qsyn> qcir read ./benchmark/qft/qft_7.qasm
 
 qsyn> qc2zx 
 
-qsyn> zxgraph copy 1
+qsyn> zx copy 1
 
 qsyn> logger level debug
 [info]     Setting logger level to "debug"
 
-qsyn> zxgraph optimize --partition-reduce 4
+qsyn> zx optimize --partition 4
 [info]     Hadamard Rule                 1 iterations, total    7 matches
 [debug]       1) 7 matches
 [debug]    subgraph 0
@@ -218,20 +218,20 @@ qsyn> zxgraph optimize --partition-reduce 4
 
 qsyn> logger level warn
 
-qsyn> zxgraph print -s
+qsyn> zx print -s
 Graph (7 inputs, 7 outputs, 68 vertices, 82 edges)
 #T-gate:                      8
 #Non-(Clifford+T)-gate:       25
 #Non-Clifford-gate:           33
 
-qsyn> zxgraph adjoint
+qsyn> zx adjoint
 
-qsyn> zxgraph compose 0
+qsyn> zx compose 0
 
 qsyn> logger level debug
 [info]     Setting logger level to "debug"
 
-qsyn> zxgraph optimize --full-reduce
+qsyn> zx optimize --full
 [info]     Hadamard Rule                 1 iterations, total    7 matches
 [debug]       1) 7 matches
 [info]     Spider Fusion Rule            5 iterations, total   49 matches
@@ -347,7 +347,7 @@ qsyn> zxgraph optimize --full-reduce
 
 qsyn> logger level warn
 
-qsyn> zxgraph test --identity
+qsyn> zx test --identity
 The graph is an identity!
 
 qsyn> quit -f

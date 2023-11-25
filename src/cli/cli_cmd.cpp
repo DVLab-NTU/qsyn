@@ -179,13 +179,13 @@ Command quit_cmd(CommandLineInterface& cli) {
             [](ArgumentParser& parser) {
                 parser.description("quit qsyn");
 
-                parser.add_argument<bool>("-force")
+                parser.add_argument<bool>("-f", "--force")
                     .action(store_true)
                     .help("quit without reaffirming");
             },
             [&cli](ArgumentParser const& parser) {
                 using namespace std::string_literals;
-                if (parser.get<bool>("-force")) return CmdExecResult::quit;
+                if (parser.get<bool>("--force")) return CmdExecResult::quit;
 
                 std::string const prompt = "Are you sure you want to exit (Yes/[No])? ";
 
@@ -250,24 +250,20 @@ Command usage_cmd() {
 
                 auto mutex = parser.add_mutually_exclusive_group();
 
-                mutex.add_argument<bool>("-all")
+                mutex.add_argument<bool>("-t", "--time")
                     .action(store_true)
-                    .help("print both time and memory usage");
-                mutex.add_argument<bool>("-time")
+                    .help("print only time usage");
+                mutex.add_argument<bool>("-m", "--memory")
                     .action(store_true)
-                    .help("print time usage");
-                mutex.add_argument<bool>("-memory")
-                    .action(store_true)
-                    .help("print memory usage");
+                    .help("print only memory usage");
             },
             [](ArgumentParser const& parser) {
-                auto rep_all  = parser.get<bool>("-all");
-                auto rep_time = parser.get<bool>("-time");
-                auto rep_mem  = parser.get<bool>("-memory");
-
-                if (!rep_all && !rep_time && !rep_mem) rep_all = true;
-
-                if (rep_all) rep_time = true, rep_mem = true;
+                auto rep_time = parser.get<bool>("--time");
+                auto rep_mem  = parser.get<bool>("--memory");
+                if (!rep_time && !rep_mem) {
+                    rep_time = true;
+                    rep_mem  = true;
+                }
 
                 dvlab::utils::Usage::report(rep_time, rep_mem);
 

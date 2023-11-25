@@ -1,8 +1,8 @@
-qsyn> zxgraph new
+qsyn> zx new
 
-qsyn> zxgraph new
+qsyn> zx new
 
-qsyn> zxgraph
+qsyn> zx
 -> #ZXGraph: 2
 -> Now focused on: ZXGraph 1
 

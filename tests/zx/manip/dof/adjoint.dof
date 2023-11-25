@@ -1,11 +1,11 @@
-zxgraph read benchmark/zx/tof2_opt.zx
-zxgraph copy 1
-zxgraph adjoint
-zxgraph compose 0
-zxgraph optimize --full-reduce
-zxgraph print -v
+zx read benchmark/zx/tof2_opt.zx
+zx copy 1
+zx adjoint
+zx compose 0
+zx optimize --full
+zx print -v
 zx2ts
 qcir qubit add 3
 qc2ts
-tensor equiv 0 1 -strict
+tensor equiv 0 1 --strict
 quit -f

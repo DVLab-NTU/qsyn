@@ -1,8 +1,8 @@
 logger -h
 source -h
-zxgraph vertex -h
-zxgraph vertex remove -h
-zxgraph edge remove -h
+zx vertex -h
+zx vertex remove -h
+zx edge remove -h
 extract step -h
-zxgraph read -h
+zx read -h
 quit -f

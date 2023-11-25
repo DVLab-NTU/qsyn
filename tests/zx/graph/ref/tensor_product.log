@@ -1,10 +1,10 @@
-qsyn> zxgraph read benchmark/zx/cnot.zx
+qsyn> zx read benchmark/zx/cnot.zx
 
-qsyn> zxgraph read benchmark/zx/cnot.zx
+qsyn> zx read benchmark/zx/cnot.zx
 
-qsyn> zxgraph tensor-product 0
+qsyn> zx tensor-product 0
 
-qsyn> zxgraph print -v
+qsyn> zx print -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (2, -)
 ID:   1 (●, 0)           (Qubit, Col): (1, 0)         #Neighbors:   1     (3, -)

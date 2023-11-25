@@ -1,17 +1,17 @@
 qcir read benchmark/qasm/tof3.qasm
 qc2zx
-zxgraph print -v
-zxgraph assign 0 I X pi
-zxgraph assign 0 O X pi
-zxgraph assign 2 I X pi
-zxgraph assign 2 O X pi
-zxgraph assign 4 I X 0
-zxgraph assign 4 O X 0
-zxgraph print -v
-zxgraph optimize --full-reduce
-zxgraph print -v
-zxgraph rule --state-copy
-zxgraph print -v
+zx print -v
+zx assign 0 I X pi
+zx assign 0 O X pi
+zx assign 2 I X pi
+zx assign 2 O X pi
+zx assign 4 I X 0
+zx assign 4 O X 0
+zx print -v
+zx optimize --full
+zx print -v
+zx rule --state-copy
+zx print -v
 zx2ts
 qcir new
 qcir qubit add 2

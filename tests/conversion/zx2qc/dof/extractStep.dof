@@ -2,12 +2,12 @@ qcir read benchmark/SABRE/small/3_17_13.qasm
 extract config --optimize-level 1
 qc2zx
 extract print --frontier
-zxgraph optimize --full-reduce
-zxgraph copy 1
+zx optimize --full
+zx copy 1
 qcir new
 qcir qubit add 3
 qcir
-zxgraph print -q
+zx print -q
 extract print --frontier
 extract print --neighbors
 extract print --axels
@@ -15,7 +15,7 @@ extract step -zx 1 -qc 1 -ph
 qcir print --diagram
 extract step -zx 1 -qc 1 -cz
 qcir print --diagram
-extract step -zx 1 -qc 1 -rmg
+extract step -zx 1 -qc 1 --remove-gadget
 qcir print --diagram
 extract print --frontier
 extract print --neighbors
@@ -29,8 +29,8 @@ qcir print --diagram
 extract step -zx 1 -qc 1 -l 100
 qcir print --diagram
 qc2zx
-zxgraph adjoint
-zxgraph compose 0
-zxgraph optimize --full-reduce
-zxgraph print -q
+zx adjoint
+zx compose 0
+zx optimize --full
+zx print -q
 quit -f

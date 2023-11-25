@@ -1,389 +1,389 @@
-zxgraph new
-zxgraph vertex add i 0
-zxgraph vertex add o 0
-zxgraph vertex add i 1
-zxgraph vertex add o 1
-zxgraph vertex add z 0 0
-zxgraph vertex add z 0 0
-zxgraph vertex add z 0 3.14159
-zxgraph vertex add z 0 3.14159
-zxgraph vertex add z 0 0
-zxgraph vertex add z 0 0
-zxgraph vertex add z 0 0
-zxgraph edge add 4 6 HADAMARD
-zxgraph edge add 5 6 HADAMARD
-zxgraph edge add 6 7 HADAMARD
-zxgraph edge add 7 8 HADAMARD
-zxgraph edge add 7 9 HADAMARD
-zxgraph edge add 6 10 HADAMARD
-zxgraph edge add 7 10 HADAMARD
-zxgraph edge add 5 10 SIMPLE
-zxgraph edge add 9 10 SIMPLE
-zxgraph edge add 0 4 SIMPLE
-zxgraph edge add 2 5 SIMPLE
-zxgraph edge add 1 8 SIMPLE
-zxgraph edge add 3 9 SIMPLE
+zx new
+zx vertex add i 0
+zx vertex add o 0
+zx vertex add i 1
+zx vertex add o 1
+zx vertex add z 0 0
+zx vertex add z 0 0
+zx vertex add z 0 3.14159
+zx vertex add z 0 3.14159
+zx vertex add z 0 0
+zx vertex add z 0 0
+zx vertex add z 0 0
+zx edge add 4 6 HADAMARD
+zx edge add 5 6 HADAMARD
+zx edge add 6 7 HADAMARD
+zx edge add 7 8 HADAMARD
+zx edge add 7 9 HADAMARD
+zx edge add 6 10 HADAMARD
+zx edge add 7 10 HADAMARD
+zx edge add 5 10 SIMPLE
+zx edge add 9 10 SIMPLE
+zx edge add 0 4 SIMPLE
+zx edge add 2 5 SIMPLE
+zx edge add 1 8 SIMPLE
+zx edge add 3 9 SIMPLE
 logger level debug
-zxgraph rule --pivot
+zx rule --pivot
 logger level warn
-zxgraph print -v
-zxgraph print -e
-zxgraph clear
-zxgraph new
-zxgraph vertex add i 0
-zxgraph vertex add o 0
-zxgraph vertex add i 1
-zxgraph vertex add o 1
-zxgraph vertex add z 0 0
-zxgraph vertex add z 0 0
-zxgraph vertex add z 0 3.14159
-zxgraph vertex add z 0 3.14159
-zxgraph vertex add z 0 0
-zxgraph vertex add z 0 0
-zxgraph edge add 4 6 HADAMARD
-zxgraph edge add 5 6 HADAMARD
-zxgraph edge add 6 7 HADAMARD
-zxgraph edge add 7 8 HADAMARD
-zxgraph edge add 7 9 HADAMARD
-zxgraph edge add 0 4 SIMPLE
-zxgraph edge add 2 5 SIMPLE
-zxgraph edge add 1 8 SIMPLE
-zxgraph edge add 3 9 SIMPLE
+zx print -v
+zx print -e
+zx clear
+zx new
+zx vertex add i 0
+zx vertex add o 0
+zx vertex add i 1
+zx vertex add o 1
+zx vertex add z 0 0
+zx vertex add z 0 0
+zx vertex add z 0 3.14159
+zx vertex add z 0 3.14159
+zx vertex add z 0 0
+zx vertex add z 0 0
+zx edge add 4 6 HADAMARD
+zx edge add 5 6 HADAMARD
+zx edge add 6 7 HADAMARD
+zx edge add 7 8 HADAMARD
+zx edge add 7 9 HADAMARD
+zx edge add 0 4 SIMPLE
+zx edge add 2 5 SIMPLE
+zx edge add 1 8 SIMPLE
+zx edge add 3 9 SIMPLE
 logger level debug
-zxgraph rule --pivot
+zx rule --pivot
 logger level warn
-zxgraph print -v
-zxgraph print -e
-zxgraph clear
+zx print -v
+zx print -e
+zx clear
 // might match (4, 5)
-zxgraph new
-zxgraph vertex add i 0
-zxgraph vertex add o 0
-zxgraph vertex add i 1
-zxgraph vertex add o 1
-zxgraph vertex add z 0 0
-zxgraph vertex add z 0 3.14159
-zxgraph edge add 4 5 HADAMARD
-zxgraph vertex add z 0 0
-zxgraph edge add 4 6 HADAMARD
-zxgraph vertex add z 0 3.14159
-zxgraph vertex add z 0 3.14159
-zxgraph vertex add z 0 3.14159
-zxgraph edge add 5 7 HADAMARD
-zxgraph edge add 5 8 HADAMARD
-zxgraph edge add 5 9 HADAMARD
-zxgraph vertex add z 0 0
-zxgraph vertex add z 0 0
-zxgraph edge add 5 10 HADAMARD
-zxgraph edge add 5 11 HADAMARD
-zxgraph vertex add z 0 3.14159
-zxgraph vertex add z 0 3.14159
-zxgraph vertex add z 0 3.14159
-zxgraph vertex add z 0 3.14159
-zxgraph edge add 4 12 HADAMARD
-zxgraph edge add 4 13 HADAMARD
-zxgraph edge add 4 14 HADAMARD
-zxgraph edge add 4 15 HADAMARD
-zxgraph edge add 5 12 HADAMARD
-zxgraph edge add 5 13 HADAMARD
-zxgraph edge add 5 14 HADAMARD
-zxgraph edge add 5 15 HADAMARD
-zxgraph edge add 0 10 SIMPLE
-zxgraph edge add 2 7 SIMPLE
-zxgraph edge add 1 11 SIMPLE
-zxgraph edge add 3 11 SIMPLE
-zxgraph vertex add z 0 0
-zxgraph edge add 6 16 SIMPLE
-zxgraph vertex add x 0 0
-zxgraph edge add 7 17 SIMPLE
-zxgraph vertex add z 0 0
-zxgraph edge add 8 18 SIMPLE
-zxgraph vertex add x 0 0
-zxgraph edge add 9 19 SIMPLE
-zxgraph vertex add z 0 0
-zxgraph edge add 10 20 SIMPLE
-zxgraph vertex add x 0 0
-zxgraph edge add 11 21 SIMPLE
-zxgraph vertex add z 0 0
-zxgraph edge add 12 22 SIMPLE
-zxgraph vertex add x 0 0
-zxgraph edge add 13 23 SIMPLE
-zxgraph vertex add z 0 0
-zxgraph edge add 14 24 SIMPLE
-zxgraph vertex add x 0 0
-zxgraph edge add 15 25 SIMPLE
+zx new
+zx vertex add i 0
+zx vertex add o 0
+zx vertex add i 1
+zx vertex add o 1
+zx vertex add z 0 0
+zx vertex add z 0 3.14159
+zx edge add 4 5 HADAMARD
+zx vertex add z 0 0
+zx edge add 4 6 HADAMARD
+zx vertex add z 0 3.14159
+zx vertex add z 0 3.14159
+zx vertex add z 0 3.14159
+zx edge add 5 7 HADAMARD
+zx edge add 5 8 HADAMARD
+zx edge add 5 9 HADAMARD
+zx vertex add z 0 0
+zx vertex add z 0 0
+zx edge add 5 10 HADAMARD
+zx edge add 5 11 HADAMARD
+zx vertex add z 0 3.14159
+zx vertex add z 0 3.14159
+zx vertex add z 0 3.14159
+zx vertex add z 0 3.14159
+zx edge add 4 12 HADAMARD
+zx edge add 4 13 HADAMARD
+zx edge add 4 14 HADAMARD
+zx edge add 4 15 HADAMARD
+zx edge add 5 12 HADAMARD
+zx edge add 5 13 HADAMARD
+zx edge add 5 14 HADAMARD
+zx edge add 5 15 HADAMARD
+zx edge add 0 10 SIMPLE
+zx edge add 2 7 SIMPLE
+zx edge add 1 11 SIMPLE
+zx edge add 3 11 SIMPLE
+zx vertex add z 0 0
+zx edge add 6 16 SIMPLE
+zx vertex add x 0 0
+zx edge add 7 17 SIMPLE
+zx vertex add z 0 0
+zx edge add 8 18 SIMPLE
+zx vertex add x 0 0
+zx edge add 9 19 SIMPLE
+zx vertex add z 0 0
+zx edge add 10 20 SIMPLE
+zx vertex add x 0 0
+zx edge add 11 21 SIMPLE
+zx vertex add z 0 0
+zx edge add 12 22 SIMPLE
+zx vertex add x 0 0
+zx edge add 13 23 SIMPLE
+zx vertex add z 0 0
+zx edge add 14 24 SIMPLE
+zx vertex add x 0 0
+zx edge add 15 25 SIMPLE
 logger level debug
-zxgraph rule --pivot
+zx rule --pivot
 logger level warn
-zxgraph print -v
-zxgraph print -e
-zxgraph clear
+zx print -v
+zx print -e
+zx clear
 // Might match  (4, 5) (16, 17)
-zxgraph new
-zxgraph vertex add i 0
-zxgraph vertex add o 0
-zxgraph vertex add i 1
-zxgraph vertex add o 1
-zxgraph vertex add z 0 0
-zxgraph vertex add z 0 3.14159
-zxgraph edge add 4 5 HADAMARD
-zxgraph vertex add z 0 0
-zxgraph edge add 4 6 HADAMARD
-zxgraph vertex add z 0 3.14159
-zxgraph vertex add z 0 3.14159
-zxgraph vertex add z 0 3.14159
-zxgraph edge add 5 7 HADAMARD
-zxgraph edge add 5 8 HADAMARD
-zxgraph edge add 5 9 HADAMARD
-zxgraph vertex add z 0 0
-zxgraph vertex add z 0 0
-zxgraph edge add 5 10 HADAMARD
-zxgraph edge add 5 11 HADAMARD
-zxgraph vertex add z 0 3.14159
-zxgraph vertex add z 0 3.14159
-zxgraph vertex add z 0 3.14159
-zxgraph vertex add z 0 3.14159
-zxgraph edge add 4 12 HADAMARD
-zxgraph edge add 4 13 HADAMARD
-zxgraph edge add 4 14 HADAMARD
-zxgraph edge add 4 15 HADAMARD
-zxgraph edge add 5 12 HADAMARD
-zxgraph edge add 5 13 HADAMARD
-zxgraph edge add 5 14 HADAMARD
-zxgraph edge add 5 15 HADAMARD
-zxgraph vertex add z 0 3.14159
-zxgraph vertex add z 0 3.14159
-zxgraph edge add 16 17 HADAMARD
-zxgraph vertex add z 0 0
-zxgraph edge add 16 18 HADAMARD
-zxgraph vertex add z 0 0.1
-zxgraph vertex add z 0 0.1
-zxgraph vertex add z 0 0.1
-zxgraph edge add 17 19 HADAMARD
-zxgraph edge add 17 20 HADAMARD
-zxgraph edge add 17 21 HADAMARD
-zxgraph vertex add z 0 0
-zxgraph vertex add z 0 0
-zxgraph edge add 17 22 HADAMARD
-zxgraph edge add 17 23 HADAMARD
-zxgraph vertex add z 0 1.2
-zxgraph vertex add z 0 1.2
-zxgraph vertex add z 0 1.2
-zxgraph vertex add z 0 1.2
-zxgraph edge add 4 24 HADAMARD
-zxgraph edge add 4 25 HADAMARD
-zxgraph edge add 4 26 HADAMARD
-zxgraph edge add 4 27 HADAMARD
-zxgraph edge add 5 24 HADAMARD
-zxgraph edge add 5 25 HADAMARD
-zxgraph edge add 5 26 HADAMARD
-zxgraph edge add 5 27 HADAMARD
-zxgraph edge add 16 24 HADAMARD
-zxgraph edge add 16 25 HADAMARD
-zxgraph edge add 16 26 HADAMARD
-zxgraph edge add 16 27 HADAMARD
-zxgraph edge add 17 24 HADAMARD
-zxgraph edge add 17 25 HADAMARD
-zxgraph edge add 17 26 HADAMARD
-zxgraph edge add 17 27 HADAMARD
-zxgraph vertex add z 0 0
-zxgraph edge add 6 28 SIMPLE
-zxgraph vertex add x 0 0
-zxgraph edge add 7 29 SIMPLE
-zxgraph vertex add z 0 0
-zxgraph edge add 8 30 SIMPLE
-zxgraph vertex add x 0 0
-zxgraph edge add 9 31 SIMPLE
-zxgraph vertex add z 0 0
-zxgraph edge add 10 32 SIMPLE
-zxgraph vertex add x 0 0
-zxgraph edge add 11 33 SIMPLE
-zxgraph vertex add z 0 0
-zxgraph edge add 12 34 SIMPLE
-zxgraph vertex add x 0 0
-zxgraph edge add 13 35 SIMPLE
-zxgraph vertex add z 0 0
-zxgraph edge add 14 36 SIMPLE
-zxgraph vertex add x 0 0
-zxgraph edge add 15 37 SIMPLE
-zxgraph vertex add z 0 0
-zxgraph edge add 18 38 SIMPLE
-zxgraph vertex add x 0 0
-zxgraph edge add 19 39 SIMPLE
-zxgraph vertex add z 0 0
-zxgraph edge add 20 40 SIMPLE
-zxgraph vertex add x 0 0
-zxgraph edge add 21 41 SIMPLE
-zxgraph vertex add z 0 0
-zxgraph edge add 22 42 SIMPLE
-zxgraph vertex add x 0 0
-zxgraph edge add 23 43 SIMPLE
-zxgraph vertex add z 0 0
-zxgraph edge add 24 44 SIMPLE
-zxgraph vertex add x 0 0
-zxgraph edge add 25 45 SIMPLE
-zxgraph vertex add z 0 0
-zxgraph edge add 26 46 SIMPLE
-zxgraph vertex add x 0 0
-zxgraph edge add 27 47 SIMPLE
-zxgraph edge add 10 18 SIMPLE
-zxgraph edge add 11 18 SIMPLE
-zxgraph edge add 12 24 SIMPLE
-zxgraph edge add 12 25 SIMPLE
-zxgraph edge add 12 26 SIMPLE
-zxgraph edge add 12 27 SIMPLE
-zxgraph edge add 13 24 SIMPLE
-zxgraph edge add 13 25 SIMPLE
-zxgraph edge add 13 26 SIMPLE
-zxgraph edge add 13 27 SIMPLE
-zxgraph edge add 14 24 SIMPLE
-zxgraph edge add 14 25 SIMPLE
-zxgraph edge add 14 26 SIMPLE
-zxgraph edge add 14 27 SIMPLE
-zxgraph edge add 15 24 SIMPLE
-zxgraph edge add 15 25 SIMPLE
-zxgraph edge add 15 26 SIMPLE
-zxgraph edge add 15 27 SIMPLE
-zxgraph edge add 0 10 SIMPLE
-zxgraph edge add 2 22 SIMPLE
-zxgraph edge add 1 43 SIMPLE
-zxgraph edge add 3 45 SIMPLE
+zx new
+zx vertex add i 0
+zx vertex add o 0
+zx vertex add i 1
+zx vertex add o 1
+zx vertex add z 0 0
+zx vertex add z 0 3.14159
+zx edge add 4 5 HADAMARD
+zx vertex add z 0 0
+zx edge add 4 6 HADAMARD
+zx vertex add z 0 3.14159
+zx vertex add z 0 3.14159
+zx vertex add z 0 3.14159
+zx edge add 5 7 HADAMARD
+zx edge add 5 8 HADAMARD
+zx edge add 5 9 HADAMARD
+zx vertex add z 0 0
+zx vertex add z 0 0
+zx edge add 5 10 HADAMARD
+zx edge add 5 11 HADAMARD
+zx vertex add z 0 3.14159
+zx vertex add z 0 3.14159
+zx vertex add z 0 3.14159
+zx vertex add z 0 3.14159
+zx edge add 4 12 HADAMARD
+zx edge add 4 13 HADAMARD
+zx edge add 4 14 HADAMARD
+zx edge add 4 15 HADAMARD
+zx edge add 5 12 HADAMARD
+zx edge add 5 13 HADAMARD
+zx edge add 5 14 HADAMARD
+zx edge add 5 15 HADAMARD
+zx vertex add z 0 3.14159
+zx vertex add z 0 3.14159
+zx edge add 16 17 HADAMARD
+zx vertex add z 0 0
+zx edge add 16 18 HADAMARD
+zx vertex add z 0 0.1
+zx vertex add z 0 0.1
+zx vertex add z 0 0.1
+zx edge add 17 19 HADAMARD
+zx edge add 17 20 HADAMARD
+zx edge add 17 21 HADAMARD
+zx vertex add z 0 0
+zx vertex add z 0 0
+zx edge add 17 22 HADAMARD
+zx edge add 17 23 HADAMARD
+zx vertex add z 0 1.2
+zx vertex add z 0 1.2
+zx vertex add z 0 1.2
+zx vertex add z 0 1.2
+zx edge add 4 24 HADAMARD
+zx edge add 4 25 HADAMARD
+zx edge add 4 26 HADAMARD
+zx edge add 4 27 HADAMARD
+zx edge add 5 24 HADAMARD
+zx edge add 5 25 HADAMARD
+zx edge add 5 26 HADAMARD
+zx edge add 5 27 HADAMARD
+zx edge add 16 24 HADAMARD
+zx edge add 16 25 HADAMARD
+zx edge add 16 26 HADAMARD
+zx edge add 16 27 HADAMARD
+zx edge add 17 24 HADAMARD
+zx edge add 17 25 HADAMARD
+zx edge add 17 26 HADAMARD
+zx edge add 17 27 HADAMARD
+zx vertex add z 0 0
+zx edge add 6 28 SIMPLE
+zx vertex add x 0 0
+zx edge add 7 29 SIMPLE
+zx vertex add z 0 0
+zx edge add 8 30 SIMPLE
+zx vertex add x 0 0
+zx edge add 9 31 SIMPLE
+zx vertex add z 0 0
+zx edge add 10 32 SIMPLE
+zx vertex add x 0 0
+zx edge add 11 33 SIMPLE
+zx vertex add z 0 0
+zx edge add 12 34 SIMPLE
+zx vertex add x 0 0
+zx edge add 13 35 SIMPLE
+zx vertex add z 0 0
+zx edge add 14 36 SIMPLE
+zx vertex add x 0 0
+zx edge add 15 37 SIMPLE
+zx vertex add z 0 0
+zx edge add 18 38 SIMPLE
+zx vertex add x 0 0
+zx edge add 19 39 SIMPLE
+zx vertex add z 0 0
+zx edge add 20 40 SIMPLE
+zx vertex add x 0 0
+zx edge add 21 41 SIMPLE
+zx vertex add z 0 0
+zx edge add 22 42 SIMPLE
+zx vertex add x 0 0
+zx edge add 23 43 SIMPLE
+zx vertex add z 0 0
+zx edge add 24 44 SIMPLE
+zx vertex add x 0 0
+zx edge add 25 45 SIMPLE
+zx vertex add z 0 0
+zx edge add 26 46 SIMPLE
+zx vertex add x 0 0
+zx edge add 27 47 SIMPLE
+zx edge add 10 18 SIMPLE
+zx edge add 11 18 SIMPLE
+zx edge add 12 24 SIMPLE
+zx edge add 12 25 SIMPLE
+zx edge add 12 26 SIMPLE
+zx edge add 12 27 SIMPLE
+zx edge add 13 24 SIMPLE
+zx edge add 13 25 SIMPLE
+zx edge add 13 26 SIMPLE
+zx edge add 13 27 SIMPLE
+zx edge add 14 24 SIMPLE
+zx edge add 14 25 SIMPLE
+zx edge add 14 26 SIMPLE
+zx edge add 14 27 SIMPLE
+zx edge add 15 24 SIMPLE
+zx edge add 15 25 SIMPLE
+zx edge add 15 26 SIMPLE
+zx edge add 15 27 SIMPLE
+zx edge add 0 10 SIMPLE
+zx edge add 2 22 SIMPLE
+zx edge add 1 43 SIMPLE
+zx edge add 3 45 SIMPLE
 logger level debug
-zxgraph rule --pivot
+zx rule --pivot
 logger level warn
-zxgraph print -v
-zxgraph print -e
-zxgraph clear
+zx print -v
+zx print -e
+zx clear
 logger level warn
-zxgraph new
-zxgraph vertex add i 0
-zxgraph vertex add o 0
-zxgraph vertex add i 1
-zxgraph vertex add o 1
-zxgraph vertex add z 0 0
-zxgraph vertex add z 0 3.14159
-zxgraph edge add 4 5 HADAMARD
-zxgraph vertex add z 0 0
-zxgraph edge add 4 6 HADAMARD
-zxgraph vertex add z 0 3.14159
-zxgraph vertex add z 0 3.14159
-zxgraph vertex add z 0 3.14159
-zxgraph edge add 5 7 HADAMARD
-zxgraph edge add 5 8 HADAMARD
-zxgraph edge add 5 9 HADAMARD
-zxgraph vertex add z 0 0
-zxgraph vertex add z 0 0
-zxgraph edge add 5 10 HADAMARD
-zxgraph edge add 5 11 HADAMARD
-zxgraph vertex add z 0 3.14159
-zxgraph vertex add z 0 3.14159
-zxgraph vertex add z 0 3.14159
-zxgraph vertex add z 0 3.14159
-zxgraph edge add 4 12 HADAMARD
-zxgraph edge add 4 13 HADAMARD
-zxgraph edge add 4 14 HADAMARD
-zxgraph edge add 4 15 HADAMARD
-zxgraph edge add 5 12 HADAMARD
-zxgraph edge add 5 13 HADAMARD
-zxgraph edge add 5 14 HADAMARD
-zxgraph edge add 5 15 HADAMARD
-zxgraph vertex add z 0 0
-zxgraph vertex add z 0 3.14159
-zxgraph edge add 16 17 HADAMARD
-zxgraph vertex add z 0 0
-zxgraph edge add 16 18 HADAMARD
-zxgraph vertex add z 0 3.14159
-zxgraph vertex add z 0 3.14159
-zxgraph vertex add z 0 3.14159
-zxgraph edge add 17 19 HADAMARD
-zxgraph edge add 17 20 HADAMARD
-zxgraph edge add 17 21 HADAMARD
-zxgraph vertex add z 0 0
-zxgraph vertex add z 0 0
-zxgraph edge add 17 22 HADAMARD
-zxgraph edge add 17 23 HADAMARD
-zxgraph vertex add z 0 3.14159
-zxgraph vertex add z 0 3.14159
-zxgraph vertex add z 0 3.14159
-zxgraph vertex add z 0 3.14159
-zxgraph edge add 4 24 HADAMARD
-zxgraph edge add 4 25 HADAMARD
-zxgraph edge add 4 26 HADAMARD
-zxgraph edge add 4 27 HADAMARD
-zxgraph edge add 5 24 HADAMARD
-zxgraph edge add 5 25 HADAMARD
-zxgraph edge add 5 26 HADAMARD
-zxgraph edge add 5 27 HADAMARD
-zxgraph edge add 16 24 HADAMARD
-zxgraph edge add 16 25 HADAMARD
-zxgraph edge add 16 26 HADAMARD
-zxgraph edge add 16 27 HADAMARD
-zxgraph edge add 17 24 HADAMARD
-zxgraph edge add 17 25 HADAMARD
-zxgraph edge add 17 26 HADAMARD
-zxgraph edge add 17 27 HADAMARD
-zxgraph edge add 0 5 SIMPLE
-zxgraph edge add 2 7 SIMPLE
-zxgraph edge add 1 23 SIMPLE
-zxgraph edge add 3 23 SIMPLE
-zxgraph vertex add z 0 0
-zxgraph edge add 6 28 HADAMARD
-zxgraph vertex add z 0 0
-zxgraph edge add 7 29 HADAMARD
-zxgraph vertex add z 0 0
-zxgraph edge add 8 30 HADAMARD
-zxgraph vertex add z 0 0
-zxgraph edge add 9 31 HADAMARD
-zxgraph vertex add z 0 0
-zxgraph edge add 10 32 HADAMARD
-zxgraph vertex add z 0 0
-zxgraph edge add 11 33 HADAMARD
-zxgraph vertex add z 0 0
-zxgraph edge add 12 34 HADAMARD
-zxgraph vertex add z 0 0
-zxgraph edge add 13 35 HADAMARD
-zxgraph vertex add z 0 0
-zxgraph edge add 14 36 HADAMARD
-zxgraph vertex add z 0 0
-zxgraph edge add 15 37 HADAMARD
-zxgraph vertex add z 0 0
-zxgraph edge add 18 38 HADAMARD
-zxgraph vertex add z 0 0
-zxgraph edge add 19 39 HADAMARD
-zxgraph vertex add z 0 0
-zxgraph edge add 20 40 HADAMARD
-zxgraph vertex add z 0 0
-zxgraph edge add 21 41 HADAMARD
-zxgraph vertex add z 0 0
-zxgraph edge add 22 42 HADAMARD
-zxgraph vertex add z 0 0
-zxgraph edge add 23 43 HADAMARD
-zxgraph vertex add z 0 0
-zxgraph edge add 24 44 HADAMARD
-zxgraph vertex add z 0 0
-zxgraph edge add 25 45 HADAMARD
-zxgraph vertex add z 0 0
-zxgraph edge add 26 46 HADAMARD
-zxgraph vertex add z 0 0
-zxgraph edge add 27 47 HADAMARD
+zx new
+zx vertex add i 0
+zx vertex add o 0
+zx vertex add i 1
+zx vertex add o 1
+zx vertex add z 0 0
+zx vertex add z 0 3.14159
+zx edge add 4 5 HADAMARD
+zx vertex add z 0 0
+zx edge add 4 6 HADAMARD
+zx vertex add z 0 3.14159
+zx vertex add z 0 3.14159
+zx vertex add z 0 3.14159
+zx edge add 5 7 HADAMARD
+zx edge add 5 8 HADAMARD
+zx edge add 5 9 HADAMARD
+zx vertex add z 0 0
+zx vertex add z 0 0
+zx edge add 5 10 HADAMARD
+zx edge add 5 11 HADAMARD
+zx vertex add z 0 3.14159
+zx vertex add z 0 3.14159
+zx vertex add z 0 3.14159
+zx vertex add z 0 3.14159
+zx edge add 4 12 HADAMARD
+zx edge add 4 13 HADAMARD
+zx edge add 4 14 HADAMARD
+zx edge add 4 15 HADAMARD
+zx edge add 5 12 HADAMARD
+zx edge add 5 13 HADAMARD
+zx edge add 5 14 HADAMARD
+zx edge add 5 15 HADAMARD
+zx vertex add z 0 0
+zx vertex add z 0 3.14159
+zx edge add 16 17 HADAMARD
+zx vertex add z 0 0
+zx edge add 16 18 HADAMARD
+zx vertex add z 0 3.14159
+zx vertex add z 0 3.14159
+zx vertex add z 0 3.14159
+zx edge add 17 19 HADAMARD
+zx edge add 17 20 HADAMARD
+zx edge add 17 21 HADAMARD
+zx vertex add z 0 0
+zx vertex add z 0 0
+zx edge add 17 22 HADAMARD
+zx edge add 17 23 HADAMARD
+zx vertex add z 0 3.14159
+zx vertex add z 0 3.14159
+zx vertex add z 0 3.14159
+zx vertex add z 0 3.14159
+zx edge add 4 24 HADAMARD
+zx edge add 4 25 HADAMARD
+zx edge add 4 26 HADAMARD
+zx edge add 4 27 HADAMARD
+zx edge add 5 24 HADAMARD
+zx edge add 5 25 HADAMARD
+zx edge add 5 26 HADAMARD
+zx edge add 5 27 HADAMARD
+zx edge add 16 24 HADAMARD
+zx edge add 16 25 HADAMARD
+zx edge add 16 26 HADAMARD
+zx edge add 16 27 HADAMARD
+zx edge add 17 24 HADAMARD
+zx edge add 17 25 HADAMARD
+zx edge add 17 26 HADAMARD
+zx edge add 17 27 HADAMARD
+zx edge add 0 5 SIMPLE
+zx edge add 2 7 SIMPLE
+zx edge add 1 23 SIMPLE
+zx edge add 3 23 SIMPLE
+zx vertex add z 0 0
+zx edge add 6 28 HADAMARD
+zx vertex add z 0 0
+zx edge add 7 29 HADAMARD
+zx vertex add z 0 0
+zx edge add 8 30 HADAMARD
+zx vertex add z 0 0
+zx edge add 9 31 HADAMARD
+zx vertex add z 0 0
+zx edge add 10 32 HADAMARD
+zx vertex add z 0 0
+zx edge add 11 33 HADAMARD
+zx vertex add z 0 0
+zx edge add 12 34 HADAMARD
+zx vertex add z 0 0
+zx edge add 13 35 HADAMARD
+zx vertex add z 0 0
+zx edge add 14 36 HADAMARD
+zx vertex add z 0 0
+zx edge add 15 37 HADAMARD
+zx vertex add z 0 0
+zx edge add 18 38 HADAMARD
+zx vertex add z 0 0
+zx edge add 19 39 HADAMARD
+zx vertex add z 0 0
+zx edge add 20 40 HADAMARD
+zx vertex add z 0 0
+zx edge add 21 41 HADAMARD
+zx vertex add z 0 0
+zx edge add 22 42 HADAMARD
+zx vertex add z 0 0
+zx edge add 23 43 HADAMARD
+zx vertex add z 0 0
+zx edge add 24 44 HADAMARD
+zx vertex add z 0 0
+zx edge add 25 45 HADAMARD
+zx vertex add z 0 0
+zx edge add 26 46 HADAMARD
+zx vertex add z 0 0
+zx edge add 27 47 HADAMARD
 logger level debug
-zxgraph rule --pivot
+zx rule --pivot
 logger level warn
-zxgraph print -v
+zx print -v
 zx2ts
-zxgraph new
-zxgraph vertex add i 0
-zxgraph vertex add x 0 0
-zxgraph vertex add x 0 0
-zxgraph vertex add o 0
-zxgraph vertex add i 1
-zxgraph vertex add x 1 0
-zxgraph vertex add x 1 0
-zxgraph vertex add o 1
-zxgraph edge add 0 1 SIMPLE
-zxgraph edge add 2 3 SIMPLE
-zxgraph edge add 4 5 SIMPLE
-zxgraph edge add 6 7 SIMPLE
+zx new
+zx vertex add i 0
+zx vertex add x 0 0
+zx vertex add x 0 0
+zx vertex add o 0
+zx vertex add i 1
+zx vertex add x 1 0
+zx vertex add x 1 0
+zx vertex add o 1
+zx edge add 0 1 SIMPLE
+zx edge add 2 3 SIMPLE
+zx edge add 4 5 SIMPLE
+zx edge add 6 7 SIMPLE
 zx2ts
 tensor equiv 0 1
 quit -f

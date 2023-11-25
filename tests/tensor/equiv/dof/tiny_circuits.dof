@@ -3,17 +3,17 @@ qcir gate add cx 0 1
 qcir gate add cx 1 0
 qcir gate add cx 0 1
 qc2ts
-zxgraph read benchmark/zx/swap.zx
+zx read benchmark/zx/swap.zx
 zx2ts
 tensor list
-tensor equiv 0 1 -strict
+tensor equiv 0 1 --strict
 tensor clear
-zxgraph clear
-zxgraph read benchmark/zx/tof3.zx
+zx clear
+zx read benchmark/zx/tof3.zx
 zx2ts
-zxgraph read benchmark/zx/tof3_zh.zx
+zx read benchmark/zx/tof3_zh.zx
 zx2ts
 tensor list
 tensor equiv 0 1 
-tensor equiv 0 1 -strict
+tensor equiv 0 1 --strict
 quit -f
