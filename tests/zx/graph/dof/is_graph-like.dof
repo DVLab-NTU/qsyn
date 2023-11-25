@@ -1,7 +1,7 @@
 qcir read benchmark/qasm/tof3.qasm
 qc2zx
-zxgraph print -v
-zxgraph test --graph-like
-zxgraph optimize --full-reduce
-zxgraph test --graph-like
+zx print -v
+zx test --graph-like
+zx optimize --full
+zx test --graph-like
 quit -f

@@ -31,24 +31,24 @@ Command zxgraph_gflow_cmd(ZXGraphMgr const& zxgraph_mgr) {
 
                 auto mutex = parser.add_mutually_exclusive_group().required(false);
 
-                mutex.add_argument<bool>("-all")
+                mutex.add_argument<bool>("-a", "--all")
                     .action(store_true)
                     .help("print both GFlow levels and correction sets");
-                mutex.add_argument<bool>("-levels")
+                mutex.add_argument<bool>("-l", "--levels")
                     .action(store_true)
                     .help("print GFlow levels");
-                mutex.add_argument<bool>("-corrections")
+                mutex.add_argument<bool>("-c", "--corrections")
                     .action(store_true)
                     .help("print the correction set to each ZXVertex");
-                mutex.add_argument<bool>("-summary")
+                mutex.add_argument<bool>("-s", "--summary")
                     .action(store_true)
                     .help("print basic information on the ZXGraph's GFlow");
 
-                parser.add_argument<bool>("-extended")
+                parser.add_argument<bool>("--only-xy-plane")
                     .action(store_true)
-                    .help("calculate the extended GFlow, i.e., allowing XY, YZ, XZ plane measurements");
+                    .help("Only allowing XY plane measurements");
 
-                parser.add_argument<bool>("-independent-set")
+                parser.add_argument<bool>("--independent-set")
                     .action(store_true)
                     .help("force each GFlow level to be an independent set");
             },
@@ -56,16 +56,16 @@ Command zxgraph_gflow_cmd(ZXGraphMgr const& zxgraph_mgr) {
                 if (!dvlab::utils::mgr_has_data(zxgraph_mgr)) return CmdExecResult::error;
                 GFlow gflow(zxgraph_mgr.get());
 
-                gflow.do_extended_gflow(parser.get<bool>("-extended"));
-                gflow.do_independent_layers(parser.get<bool>("-independent-set"));
+                gflow.do_extended_gflow(!parser.get<bool>("--only-xy-plane"));
+                gflow.do_independent_layers(parser.get<bool>("--independent-set"));
 
                 gflow.calculate();
 
-                if (parser.parsed("-all")) {
+                if (parser.parsed("--all")) {
                     gflow.print();
-                } else if (parser.parsed("-levels")) {
+                } else if (parser.parsed("--levels")) {
                     gflow.print_levels();
-                } else if (parser.parsed("-corrections")) {
+                } else if (parser.parsed("--corrections")) {
                     gflow.print_x_correction_sets();
                 }
 

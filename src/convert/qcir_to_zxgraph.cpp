@@ -446,6 +446,10 @@ std::optional<ZXGraph> to_zxgraph(QCirGate* gate, size_t decomposition_mode) {
  * @brief Mapping QCir to ZXGraph
  */
 std::optional<ZXGraph> to_zxgraph(QCir const& qcir, size_t decomposition_mode) {
+    if (qcir.is_empty()) {
+        spdlog::error("QCir is empty!!");
+        return std::nullopt;
+    }
     qcir.update_gate_time();
     ZXGraph g;
     spdlog::debug("Add boundaries");

@@ -1,19 +1,19 @@
 extract config --optimize-level 1
-zxgraph read benchmark/zx/tof3.zx
+zx read benchmark/zx/tof3.zx
 zx2ts
-zxgraph optimize --full-reduce
-zxgraph print -q
+zx optimize --full
+zx print -q
 logger level debug
 zx2qc
 logger level warn
 qc2zx 
-zxgraph adjoint
-zxgraph compose 0
-zxgraph optimize --full-reduce    
-zxgraph print -q
+zx adjoint
+zx compose 0
+zx optimize --full  
+zx print -q
 qcir print
 qcir print --diagram
-zxgraph test --identity
+zx test --identity
 qc2ts
 tensor equiv 0 1
 quit -f

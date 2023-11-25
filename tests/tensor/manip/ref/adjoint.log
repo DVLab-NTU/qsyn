@@ -1,28 +1,28 @@
-qsyn> zxgraph new
+qsyn> zx new
 
-qsyn> zxgraph vertex add i 0
+qsyn> zx vertex add i 0
 
-qsyn> zxgraph vertex add o 0
+qsyn> zx vertex add o 0
 
-qsyn> zxgraph vertex add o 1
+qsyn> zx vertex add o 1
 
-qsyn> zxgraph vertex add z 0 pi/2
+qsyn> zx vertex add z 0 pi/2
 
-qsyn> zxgraph edge add 0 3 SIMPLE
+qsyn> zx edge add 0 3 SIMPLE
 
-qsyn> zxgraph edge add 1 3 SIMPLE
+qsyn> zx edge add 1 3 SIMPLE
 
-qsyn> zxgraph edge add 2 3 SIMPLE
+qsyn> zx edge add 2 3 SIMPLE
 
 qsyn> zx2ts
 
-qsyn> zxgraph adjoint
+qsyn> zx adjoint
 
 qsyn> zx2ts
 
 qsyn> tensor adjoint 0
 
-qsyn> tensor equiv 0 1 -strict
+qsyn> tensor equiv 0 1 --strict
 Equivalent
 - Global Norm : 1
 - Global Phase: 0

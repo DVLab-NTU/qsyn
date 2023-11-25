@@ -170,14 +170,14 @@ dvlab::Command qcir_read_cmd(QCirMgr& qcir_mgr) {
                     .constraint(allowed_extension({".qasm", ".qc", ".qsim", ".quipper", ""}))
                     .help("the filepath to quantum circuit file. Supported extension: .qasm, .qc, .qsim, .quipper");
 
-                parser.add_argument<bool>("-replace")
+                parser.add_argument<bool>("-r", "--replace")
                     .action(store_true)
                     .help("if specified, replace the current circuit; otherwise store to a new one");
             },
             [&](ArgumentParser const& parser) {
                 QCir buffer_q_cir;
                 auto filepath = parser.get<std::string>("filepath");
-                auto replace  = parser.get<bool>("-replace");
+                auto replace  = parser.get<bool>("--replace");
                 if (!buffer_q_cir.read_qcir_file(filepath)) {
                     fmt::println("Error: the format in \"{}\" has something wrong!!", filepath);
                     return CmdExecResult::error;
@@ -373,15 +373,15 @@ dvlab::Command qcir_gate_add_cmd(QCirMgr& qcir_mgr) {
                 .constraint(choices_allow_prefix(type_choices));
 
             auto append_or_prepend = parser.add_mutually_exclusive_group().required(false);
-            append_or_prepend.add_argument<bool>("-append")
+            append_or_prepend.add_argument<bool>("--append")
                 .help("append the gate at the end of QCir")
                 .action(store_true);
-            append_or_prepend.add_argument<bool>("-prepend")
+            append_or_prepend.add_argument<bool>("--prepend")
                 .help("prepend the gate at the start of QCir")
                 .action(store_true);
 
-            parser.add_argument<dvlab::Phase>("-phase")
-                .help("The rotation angle θ (default = π). This option must be specified if and only if the gate type takes a phase parameter.");
+            parser.add_argument<dvlab::Phase>("-ph", "--phase")
+                .help("The rotation angle θ. This option must be specified if and only if the gate type takes a phase parameter.");
 
             parser.add_argument<QubitIdType>("qubits")
                 .nargs(NArgsOption::zero_or_more)
@@ -390,7 +390,7 @@ dvlab::Command qcir_gate_add_cmd(QCirMgr& qcir_mgr) {
         },
         [=, &qcir_mgr](ArgumentParser const& parser) {
             if (!qcir_mgr_not_empty(qcir_mgr)) return CmdExecResult::error;
-            bool const do_prepend = parser.parsed("-prepend");
+            bool const do_prepend = parser.parsed("--prepend");
 
             auto type = parser.get<std::string>("type");
             type      = dvlab::str::tolower_string(type);
@@ -405,12 +405,12 @@ dvlab::Command qcir_gate_add_cmd(QCirMgr& qcir_mgr) {
             dvlab::Phase phase{1};
             if (is_gate_category(single_qubit_gates_with_phase) ||
                 is_gate_category(multi_qubit_gates_with_phase)) {
-                if (!parser.parsed("-phase")) {
+                if (!parser.parsed("--phase")) {
                     spdlog::error("Phase must be specified for gate type {}!!", type);
                     return CmdExecResult::error;
                 }
-                phase = parser.get<dvlab::Phase>("-phase");
-            } else if (parser.parsed("-phase")) {
+                phase = parser.get<dvlab::Phase>("--phase");
+            } else if (parser.parsed("--phase")) {
                 spdlog::error("Phase is incompatible with gate type {}!!", type);
                 return CmdExecResult::error;
             }

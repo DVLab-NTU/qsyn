@@ -1,13 +1,13 @@
-zxgraph read benchmark/zx/stcopy.zx
-zxgraph print -v
-zxgraph print -e
-zxgraph rule --state-copy
-zxgraph print -v
-zxgraph print -e
-zxgraph read -r benchmark/zx/stcopy_boundary.zx
-zxgraph print -v
-zxgraph print -e
-zxgraph rule --state-copy
-zxgraph print -v
-zxgraph print -e
+zx read benchmark/zx/stcopy.zx
+zx print -v
+zx print -e
+zx rule --state-copy
+zx print -v
+zx print -e
+zx read -r benchmark/zx/stcopy_boundary.zx
+zx print -v
+zx print -e
+zx rule --state-copy
+zx print -v
+zx print -e
 quit -f

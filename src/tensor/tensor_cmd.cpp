@@ -77,18 +77,18 @@ Command tensor_equivalence_check_cmd(TensorMgr& tensor_mgr) {
                     .nargs(1, 2)
                     .constraint(valid_tensor_id(tensor_mgr))
                     .help("Compare the two tensors. If only one is specified, compare with the tensor on focus");
-                parser.add_argument<double>("-epsilon")
+                parser.add_argument<double>("-e", "--epsilon")
                     .metavar("eps")
                     .default_value(1e-6)
                     .help("output \"equivalent\" if the Frobenius inner product is at least than 1 - eps (default: 1e-6)");
-                parser.add_argument<bool>("-strict")
+                parser.add_argument<bool>("-s", "--strict")
                     .help("requires global scaling factor to be 1")
                     .action(store_true);
             },
             [&](ArgumentParser const& parser) {
                 auto ids    = parser.get<std::vector<size_t>>("ids");
-                auto eps    = parser.get<double>("-epsilon");
-                auto strict = parser.get<bool>("-strict");
+                auto eps    = parser.get<double>("--epsilon");
+                auto strict = parser.get<bool>("--strict");
 
                 QTensor<double>* tensor1 = nullptr;
                 QTensor<double>* tensor2 = nullptr;

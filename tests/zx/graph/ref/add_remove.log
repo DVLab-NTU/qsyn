@@ -1,6 +1,6 @@
-qsyn> zxgraph read benchmark/zx/cnot.zx
+qsyn> zx read benchmark/zx/cnot.zx
 
-qsyn> zxgraph print -v
+qsyn> zx print -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (2, -)
 ID:   1 (●, 0)           (Qubit, Col): (1, 0)         #Neighbors:   1     (3, -)
@@ -11,9 +11,9 @@ ID:   5 (●, 0)           (Qubit, Col): (1, 2)         #Neighbors:   1     (3, 
 Total #Vertices: 6
 
 
-qsyn> zxgraph edge remove 2 3 SIMPLE
+qsyn> zx edge remove 2 3 SIMPLE
 
-qsyn> zxgraph print -v
+qsyn> zx print -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (2, -)
 ID:   1 (●, 0)           (Qubit, Col): (1, 0)         #Neighbors:   1     (3, -)
@@ -24,11 +24,11 @@ ID:   5 (●, 0)           (Qubit, Col): (1, 2)         #Neighbors:   1     (3, 
 Total #Vertices: 6
 
 
-qsyn> zxgraph clear
+qsyn> zx clear
 
-qsyn> zxgraph read benchmark/zx/cnot.zx
+qsyn> zx read benchmark/zx/cnot.zx
 
-qsyn> zxgraph print -v
+qsyn> zx print -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (2, -)
 ID:   1 (●, 0)           (Qubit, Col): (1, 0)         #Neighbors:   1     (3, -)
@@ -39,9 +39,9 @@ ID:   5 (●, 0)           (Qubit, Col): (1, 2)         #Neighbors:   1     (3, 
 Total #Vertices: 6
 
 
-qsyn> zxgraph vertex remove 2
+qsyn> zx vertex remove 2
 
-qsyn> zxgraph print -v
+qsyn> zx print -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   0     
 ID:   1 (●, 0)           (Qubit, Col): (1, 0)         #Neighbors:   1     (3, -)
@@ -51,9 +51,9 @@ ID:   5 (●, 0)           (Qubit, Col): (1, 2)         #Neighbors:   1     (3, 
 Total #Vertices: 5
 
 
-qsyn> zxgraph vertex remove -i
+qsyn> zx vertex remove -i
 
-qsyn> zxgraph print -v
+qsyn> zx print -v
 
 ID:   1 (●, 0)           (Qubit, Col): (1, 0)         #Neighbors:   1     (3, -)
 ID:   3 (X, 0)           (Qubit, Col): (1, 1)         #Neighbors:   2     (1, -) (5, -)
@@ -61,11 +61,11 @@ ID:   5 (●, 0)           (Qubit, Col): (1, 2)         #Neighbors:   1     (3, 
 Total #Vertices: 3
 
 
-qsyn> zxgraph clear
+qsyn> zx clear
 
-qsyn> zxgraph read benchmark/zx/cnot.zx
+qsyn> zx read benchmark/zx/cnot.zx
 
-qsyn> zxgraph print -v
+qsyn> zx print -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (2, -)
 ID:   1 (●, 0)           (Qubit, Col): (1, 0)         #Neighbors:   1     (3, -)
@@ -76,9 +76,9 @@ ID:   5 (●, 0)           (Qubit, Col): (1, 2)         #Neighbors:   1     (3, 
 Total #Vertices: 6
 
 
-qsyn> zxgraph vertex remove 1 2
+qsyn> zx vertex remove 1 2
 
-qsyn> zxgraph print -v
+qsyn> zx print -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   0     
 ID:   3 (X, 0)           (Qubit, Col): (1, 1)         #Neighbors:   1     (5, -)
@@ -87,31 +87,31 @@ ID:   5 (●, 0)           (Qubit, Col): (1, 2)         #Neighbors:   1     (3, 
 Total #Vertices: 4
 
 
-qsyn> zxgraph clear 
+qsyn> zx clear 
 
-qsyn> zxgraph new
+qsyn> zx new
 
-qsyn> zxgraph vertex add i 1
+qsyn> zx vertex add i 1
 
-qsyn> zxgraph vertex add i 0
+qsyn> zx vertex add i 0
 
-qsyn> zxgraph vertex add i 2
+qsyn> zx vertex add i 2
 
-qsyn> zxgraph vertex add o 0
+qsyn> zx vertex add o 0
 
-qsyn> zxgraph vertex add o 2
+qsyn> zx vertex add o 2
 
-qsyn> zxgraph vertex add o 1
+qsyn> zx vertex add o 1
 
-qsyn> zxgraph print -inputs
+qsyn> zx print -i
 Input:  (0, 1, 2)
 Total #Inputs: 3
 
-qsyn> zxgraph print -o
+qsyn> zx print -o
 Output: (3, 4, 5)
 Total #Outputs: 3
 
-qsyn> zxgraph print -v
+qsyn> zx print -v
 
 ID:   0 (●, 0)           (Qubit, Col): (1, 0)         #Neighbors:   0     
 ID:   1 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   0     
@@ -122,11 +122,11 @@ ID:   5 (●, 0)           (Qubit, Col): (1, 0)         #Neighbors:   0
 Total #Vertices: 6
 
 
-qsyn> zxgraph clear
+qsyn> zx clear
 
-qsyn> zxgraph read benchmark/zx/cnot.zx
+qsyn> zx read benchmark/zx/cnot.zx
 
-qsyn> zxgraph print -v
+qsyn> zx print -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (2, -)
 ID:   1 (●, 0)           (Qubit, Col): (1, 0)         #Neighbors:   1     (3, -)
@@ -137,9 +137,9 @@ ID:   5 (●, 0)           (Qubit, Col): (1, 2)         #Neighbors:   1     (3, 
 Total #Vertices: 6
 
 
-qsyn> zxgraph vertex remove 0
+qsyn> zx vertex remove 0
 
-qsyn> zxgraph print -v
+qsyn> zx print -v
 
 ID:   1 (●, 0)           (Qubit, Col): (1, 0)         #Neighbors:   1     (3, -)
 ID:   2 (Z, 0)           (Qubit, Col): (0, 1)         #Neighbors:   2     (3, -) (4, -)
@@ -149,9 +149,9 @@ ID:   5 (●, 0)           (Qubit, Col): (1, 2)         #Neighbors:   1     (3, 
 Total #Vertices: 5
 
 
-qsyn> zxgraph edge remove 2 3 SIMPLE
+qsyn> zx edge remove 2 3 SIMPLE
 
-qsyn> zxgraph print -v 
+qsyn> zx print -v 
 
 ID:   1 (●, 0)           (Qubit, Col): (1, 0)         #Neighbors:   1     (3, -)
 ID:   2 (Z, 0)           (Qubit, Col): (0, 1)         #Neighbors:   1     (4, -)
@@ -161,9 +161,9 @@ ID:   5 (●, 0)           (Qubit, Col): (1, 2)         #Neighbors:   1     (3, 
 Total #Vertices: 5
 
 
-qsyn> zxgraph vertex add i 0
+qsyn> zx vertex add i 0
 
-qsyn> zxgraph print -v
+qsyn> zx print -v
 
 ID:   1 (●, 0)           (Qubit, Col): (1, 0)         #Neighbors:   1     (3, -)
 ID:   2 (Z, 0)           (Qubit, Col): (0, 1)         #Neighbors:   1     (4, -)
@@ -174,11 +174,11 @@ ID:   6 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   0
 Total #Vertices: 6
 
 
-qsyn> zxgraph edge add 6 2 SIMPLE
+qsyn> zx edge add 6 2 SIMPLE
 
-qsyn> zxgraph edge add 2 3 SIMPLE
+qsyn> zx edge add 2 3 SIMPLE
 
-qsyn> zxgraph print -v
+qsyn> zx print -v
 
 ID:   1 (●, 0)           (Qubit, Col): (1, 0)         #Neighbors:   1     (3, -)
 ID:   2 (Z, 0)           (Qubit, Col): (0, 1)         #Neighbors:   3     (3, -) (4, -) (6, -)

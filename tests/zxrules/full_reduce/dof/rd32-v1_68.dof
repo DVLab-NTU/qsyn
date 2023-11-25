@@ -1,8 +1,8 @@
 qcir read ./benchmark/SABRE/small/rd32-v1_68.qasm
 qc2zx
-zxgraph print -q
+zx print -q
 logger level info
-zxgraph optimize --full-reduce
+zx optimize --full
 logger level warn
-zxgraph print -q
+zx print -q
 quit -f

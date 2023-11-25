@@ -91,6 +91,10 @@ void Extractor::initialize(bool from_empty_qcir) {
  * @return QCir*
  */
 QCir* Extractor::extract() {
+    if (_graph->is_empty()) {
+        spdlog::error("The ZXGraph is empty!!");
+        return nullptr;
+    }
     if (!extraction_loop(-1)) {
         return nullptr;
     }

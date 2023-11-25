@@ -5,7 +5,7 @@ qcir new
 qcir qubit add 2
 qcir gate add x 0
 qc2zx
-qcir gate add cx -pr 0 1
+qcir gate add cx --prepend 0 1
 qc2zx
 qcir read -r benchmark/SABRE/small/3_17_13.qasm
 qc2zx

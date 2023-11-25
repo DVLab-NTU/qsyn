@@ -1,8 +1,8 @@
 qcir read ./benchmark/qft/qft_5.qasm
 qc2zx
 zx2ts
-zxgraph copy
-zxgraph optimize --partition-reduce 4
+zx copy
+zx optimize --partition 4
 zx2ts
 tensor equiv 0 1
 quit -f

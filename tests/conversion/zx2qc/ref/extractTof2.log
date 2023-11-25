@@ -1,12 +1,12 @@
 qsyn> extract config --optimize-level 1
 
-qsyn> zxgraph read benchmark/zx/tof3.zx
+qsyn> zx read benchmark/zx/tof3.zx
 
 qsyn> zx2ts
 
-qsyn> zxgraph optimize --full-reduce
+qsyn> zx optimize --full
 
-qsyn> zxgraph print -q
+qsyn> zx print -q
 
 ID:  27 (Z, -π/4)        (Qubit, Col): (-2, 3)        #Neighbors:   1     (28, H)
 ID:  29 (Z, -π/4)        (Qubit, Col): (-2, 7)        #Neighbors:   1     (30, H)
@@ -175,13 +175,13 @@ qsyn> logger level warn
 
 qsyn> qc2zx 
 
-qsyn> zxgraph adjoint
+qsyn> zx adjoint
 
-qsyn> zxgraph compose 0
+qsyn> zx compose 0
 
-qsyn> zxgraph optimize --full-reduce    
+qsyn> zx optimize --full  
 
-qsyn> zxgraph print -q
+qsyn> zx print -q
 
 ID:   1 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (50, -)
 ID:  50 (●, 0)           (Qubit, Col): (0, 39)        #Neighbors:   1     (1, -)
@@ -203,7 +203,7 @@ Q 0  ---------cx(30)----------cx(29)----------cx(28)-- h(25)----------cx(22)----
 Q 1  - h(26)-- h(23)--------------------------------------------------cx(22)--------------------------cx(20)----------cz(17)--td(14)-- h(10)----------cx( 9)--------------------------cx( 7)-- h( 5)-- t( 1)-
 Q 2  ---------cx(30)----------cx(29)----------cx(28)-- h(27)-- h(24)------------------cx(21)----------cx(20)-- t(15)-- h(12)--------------------------cx( 9)----------cx( 8)-- h( 6)-- t( 3)-- h( 2)-
 
-qsyn> zxgraph test --identity
+qsyn> zx test --identity
 The graph is an identity!
 
 qsyn> qc2ts
