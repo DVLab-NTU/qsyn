@@ -12,6 +12,7 @@
 #include <fort.hpp>
 #include <ranges>
 #include <regex>
+#include <string>
 #include <tl/to.hpp>
 
 #include "./cli.hpp"
@@ -82,7 +83,7 @@ void dvlab::CommandLineInterface::_on_tab_pressed() {
     detail::beep();
 }
 
-dvlab::CommandLineInterface::TabActionResult dvlab::CommandLineInterface::_match_identifiers(std::string const& str) {
+dvlab::CommandLineInterface::TabActionResult dvlab::CommandLineInterface::_match_identifiers(std::string_view str) {
     _tab_press_count = 0;
 
     auto matches = _identifiers.find_all_with_prefix(str);
@@ -100,7 +101,7 @@ dvlab::CommandLineInterface::TabActionResult dvlab::CommandLineInterface::_match
     if (matches.size() == 1) {
         // if completely matched an alias, replace it with its replacement string and insert a space
         if (matches[0].size() == str.size() && _aliases.contains(str)) {
-            _replace_at_cursor(str, _aliases.at(str));
+            _replace_at_cursor(str, _aliases.at(std::string{str}));
         } else {
             std::for_each(dvlab::iterator::next(matches[0].begin(), str.size()), matches[0].end(), [this](char ch) { _insert_char(ch); });
             // if the matched command is not an alias, insert a space
@@ -180,14 +181,15 @@ dvlab::CommandLineInterface::TabActionResult dvlab::CommandLineInterface::_match
     return TabActionResult::list_options;
 }
 
-dvlab::CommandLineInterface::TabActionResult dvlab::CommandLineInterface::_match_files(std::string const& str) {
+dvlab::CommandLineInterface::TabActionResult dvlab::CommandLineInterface::_match_files(std::string_view str) {
+    using namespace std::string_view_literals;
     std::optional<std::string> search_string;
     parse_state state = parse_state::normal;
     if (search_string = _dequote(str); search_string.has_value()) {
         state = parse_state::normal;
-    } else if (search_string = _dequote(str + "\""); search_string.has_value()) {
+    } else if (search_string = _dequote(std::string{str} + '\"'); search_string.has_value()) {
         state = parse_state::double_quote;
-    } else if (search_string = _dequote(str + "\'"); search_string.has_value()) {
+    } else if (search_string = _dequote(std::string{str} + '\''); search_string.has_value()) {
         state = parse_state::single_quote;
     } else {
         spdlog::critical("unexpected dequote result!!");

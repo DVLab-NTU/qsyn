@@ -26,8 +26,8 @@ public:
         : _pimpl{std::make_unique<Model<ArgType<DummyArgType>>>(ArgType<DummyArgType>{"dummy", DummyArgType{}})} {}
 
     template <typename T>
-    Argument(std::string name, T val)
-        : _pimpl{std::make_unique<Model<ArgType<T>>>(ArgType<T>{std::move(name), std::move(val)})} {}
+    Argument(std::string_view name, T val)
+        : _pimpl{std::make_unique<Model<ArgType<T>>>(ArgType<T>{std::string{name}, std::move(val)})} {}
 
     ~Argument() = default;
     Argument(Argument const& other) : _pimpl(other._pimpl->clone()), _is_option(other._is_option) {}

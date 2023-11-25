@@ -10,6 +10,7 @@
 #include <fmt/std.h>
 #include <spdlog/spdlog.h>
 
+#include <filesystem>
 #include <ranges>
 #include <regex>
 #include <tl/enumerate.hpp>
@@ -28,7 +29,7 @@ CmdExecResult CommandLineInterface::source_dofile(std::filesystem::path const& f
         return CmdExecResult::error;
     }
 
-    if (!add_variables_from_dofiles(filepath, arguments)) {
+    if (!add_variables_from_dofiles(filepath.string(), arguments)) {
         return CmdExecResult::error;
     }
 
@@ -96,7 +97,7 @@ bool dvlab::CommandLineInterface::add_command(dvlab::Command cmd) {
     return true;
 }
 
-bool dvlab::CommandLineInterface::add_alias(std::string const& alias, std::string const& replace_str) {
+bool dvlab::CommandLineInterface::add_alias(std::string_view alias, std::string_view replace_str) {
     if (_aliases.contains(alias)) {
         spdlog::warn("Overwriting the definition of alias `{}`...", alias);
     }
@@ -107,7 +108,7 @@ bool dvlab::CommandLineInterface::add_alias(std::string const& alias, std::strin
     if (!_aliases.contains(alias)) {
         _identifiers.insert(alias);
     }
-    _aliases.insert_or_assign(alias, replace_str);
+    _aliases.insert_or_assign(std::string{alias}, replace_str);
 
     for (auto& [name, c] : _commands) {
         if (auto n_req = _identifiers.shortest_unique_prefix(name).size(); n_req != c->get_num_required_chars()) {
@@ -118,11 +119,11 @@ bool dvlab::CommandLineInterface::add_alias(std::string const& alias, std::strin
     return true;
 }
 
-bool dvlab::CommandLineInterface::remove_alias(std::string const& alias) {
+bool dvlab::CommandLineInterface::remove_alias(std::string_view alias) {
     if (!_identifiers.erase(alias)) {
         return false;
     }
-    _aliases.erase(alias);
+    _aliases.erase(std::string{alias});
 
     for (auto& [name, c] : _commands) {
         if (auto n_req = _identifiers.shortest_unique_prefix(name).size(); n_req != c->get_num_required_chars()) {
@@ -133,24 +134,24 @@ bool dvlab::CommandLineInterface::remove_alias(std::string const& alias) {
     return true;
 }
 
-bool dvlab::CommandLineInterface::add_variable(std::string const& key, std::string const& value) {
+bool dvlab::CommandLineInterface::add_variable(std::string_view key, std::string_view value) {
     if (_variables.contains(key)) {
         spdlog::error("Variable `{}` is already defined!!", key);
         return false;
     }
-    _variables.insert_or_assign(key, value);
+    _variables.insert_or_assign(std::string{key}, value);
     return true;
 }
 
-bool dvlab::CommandLineInterface::remove_variable(std::string const& key) {
-    if (!_variables.erase(key)) {
+bool dvlab::CommandLineInterface::remove_variable(std::string_view key) {
+    if (!_variables.erase(std::string{key})) {
         spdlog::error("Variable `{}` is not defined!!", key);
         return false;
     }
     return true;
 }
 
-bool dvlab::CommandLineInterface::add_variables_from_dofiles(std::string const& filepath, std::span<std::string const> arguments) {
+bool dvlab::CommandLineInterface::add_variables_from_dofiles(std::filesystem::path const& filepath, std::span<std::string const> arguments) {
     // parse the string
     // "//!ARGS <ARG1> <ARG2> ... <ARGn>"
     // and check if for all k = 1 to n,
@@ -198,7 +199,7 @@ bool dvlab::CommandLineInterface::add_variables_from_dofiles(std::string const& 
 
         if (arguments.size() != keys.size()) {
             spdlog::error("wrong number of arguments provided, expected {} but got {}!!", keys.size(), arguments.size());
-            spdlog::error("Usage: ... {} <{}>", filepath, fmt::join(keys, "> <"));
+            spdlog::error("Usage: ... {} <{}>", filepath.string(), fmt::join(keys, "> <"));
             return false;
         }
 
