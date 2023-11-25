@@ -7,11 +7,13 @@
 
 #include <fmt/chrono.h>
 #include <fmt/color.h>
+#include <fmt/std.h>
 #include <spdlog/spdlog.h>
 #include <unistd.h>
 
 #include <chrono>
 #include <csignal>
+#include <filesystem>
 #include <string>
 #include <tl/enumerate.hpp>
 #include <type_traits>
@@ -25,6 +27,7 @@
 #include "qcir/optimizer/optimizer_cmd.hpp"
 #include "qcir/qcir_cmd.hpp"
 #include "tensor/tensor_cmd.hpp"
+#include "util/sysdep.hpp"
 #include "util/text_format.hpp"
 #include "util/usage.hpp"
 #include "util/util.hpp"
@@ -77,6 +80,41 @@ bool initialize_qsyn() {
     return true;
 }
 
+bool read_qsynrc_file(std::filesystem::path qsynrc_path) {
+    namespace fs = std::filesystem;
+    if (qsynrc_path.empty()) {
+        auto const home_dir = dvlab::utils::get_home_directory();
+        if (!home_dir) {
+            spdlog::critical("Cannot find home directory");
+            return false;
+        }
+        qsynrc_path = fs::path{home_dir.value() + "/.config/qsynrc"};
+        if (!fs::exists(qsynrc_path)) {
+            fmt::println("Cannot find qsynrc file from {}. Creating a new one...", qsynrc_path);
+            if (!fs::is_directory(qsynrc_path.parent_path()) &&
+                !fs::create_directories(qsynrc_path.parent_path())) {
+                spdlog::critical("Cannot create directory {}", qsynrc_path.parent_path());
+                return false;
+            }
+            // clang-format off
+            std::ofstream{qsynrc_path} <<
+            // embedded default qsynrc file
+                #include "./qsynrc.default"
+            ;
+            // clang-format on
+        }
+    }
+
+    auto const result = cli.source_dofile(qsynrc_path, {}, false);
+
+    if (result == dvlab::CmdExecResult::error) {
+        spdlog::critical("Some errors occurred while reading the qsynrc file from {}", qsynrc_path);
+        return false;
+    }
+
+    return true;
+}
+
 dvlab::argparse::ArgumentParser get_qsyn_parser(std::string_view const prog_name) {
     using namespace dvlab::argparse;
 
@@ -112,6 +150,10 @@ dvlab::argparse::ArgumentParser get_qsyn_parser(std::string_view const prog_name
         .action(store_true)
         .help("suppress version information on start up");
 
+    parser.add_argument<std::string>("--qsynrc-path")
+        .default_value("")
+        .help("specify the path to the qsynrc file");
+
     return parser;
 }
 
@@ -134,6 +176,10 @@ int main(int argc, char** argv) {
 
     if (!parser.parsed("--no-version")) {
         fmt::println("{}", version_str);
+    }
+
+    if (!read_qsynrc_file(parser.get<std::string>("--qsynrc-path"))) {
+        return -1;
     }
 
     auto const quiet = parser.get<bool>("--quiet");

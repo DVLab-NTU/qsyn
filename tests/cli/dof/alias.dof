@@ -1,3 +1,4 @@
+alias exit quit
 exi -h
 alias exir "qcir read"
 exi -h

@@ -39,10 +39,14 @@ bool is_terminal(FILE* f) {
 }
 
 bool ansi_supported(FILE* f) {
-    char const* term = getenv("TERM");
+#if defined(_WIN32)
+    return true;
+#else  // UNIX-like
+    char const* term = std::getenv("TERM");
     if (term == nullptr) return false;
     if (strcasecmp(term, "dumb") == 0) return false;
     return is_terminal(f);
+#endif
 }
 
 /**

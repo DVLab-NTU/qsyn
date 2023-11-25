@@ -1,3 +1,5 @@
+qsyn> alias exit quit
+
 qsyn> exi -h
 Usage: quit [-h] [-f]
 

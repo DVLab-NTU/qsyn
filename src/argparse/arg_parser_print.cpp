@@ -38,8 +38,8 @@ std::string styled_option_name_and_aliases(ArgumentParser parser, Argument const
 
     static auto const decorate = [](std::string_view str, size_t n_req) -> std::string {
         if (dvlab::utils::ansi_supported()) {
-            std::string_view mand = str.substr(0, n_req);
-            std::string_view rest = str.substr(n_req);
+            auto const mand = str.substr(0, n_req);
+            auto const rest = str.substr(n_req);
             return option_styled(accent_styled(mand)) + option_styled(rest);
         }
 

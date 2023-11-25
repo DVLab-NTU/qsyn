@@ -50,7 +50,7 @@ auto is_ansi_bg_color(uint8_t code) -> bool {
 auto const ls_color_map = std::invoke([]() {
     std::unordered_map<std::string, fmt::text_style> map;
 
-    char const* const ls_colors_str = getenv("LS_COLORS");
+    char const* const ls_colors_str = std::getenv("LS_COLORS");
     if (ls_colors_str == nullptr) return map;
 
     for (auto&& token : dvlab::str::views::split_to_string_views(ls_colors_str, ':')) {
