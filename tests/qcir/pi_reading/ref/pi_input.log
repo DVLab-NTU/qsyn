@@ -2,7 +2,7 @@ qsyn> qcir qubit add
 
 qsyn> qcir gate add rz -ph 11*pi/17 0 
 
-qsyn> Error: invalid Phase value "1l*pi/17" for argument "-phase"!!
+qsyn> Error: invalid Phase value "1l*pi/17" for argument "-ph"!!
 qcir gate add rz -ph 1l*pi/17 0 
 
 qsyn> qcir gate add rz -ph 3*3*PI/4/3 0
@@ -11,7 +11,7 @@ qsyn> qcir gate add rz -ph 3*4/PI 0
 
 qsyn> qcir gate add rz -ph PI*PI/pi 0
 
-qsyn> Error: invalid Phase value "PI*3PI/pi" for argument "-phase"!!
+qsyn> Error: invalid Phase value "PI*3PI/pi" for argument "-ph"!!
 qcir gate add rz -ph PI*3PI/pi 0
 
 qsyn> qc2zx

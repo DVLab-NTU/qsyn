@@ -1,10 +1,10 @@
 qcir read benchmark/qasm/to_graph2.qasm
 qcir print --diagram
 qc2zx
-zxgraph print -v
+zx print -v
 logger level info
-zxgraph rule --hadamard-rule
+zx rule --hadamard-rule
 logger level warn
-zxgraph print -v
-zxgraph print -e
+zx print -v
+zx print -e
 quit -f

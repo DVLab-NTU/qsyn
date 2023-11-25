@@ -5,11 +5,11 @@ qcir optimize
 logger level warn
 qcir print --statistics
 qc2zx
-zxgraph optimize
+zx optimize
 zx2qc
 qcir print --statistics
 logger level info
-qcir optimize -stat
+qcir optimize --stat
 logger level warn
 qcir print --statistics
 quit -f

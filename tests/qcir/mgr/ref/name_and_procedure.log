@@ -2,11 +2,11 @@ qsyn> qcir read benchmark/SABRE/large/adr4_197.qasm
 
 qsyn> qc2zx
 
-qsyn> zxgraph optimize --full-reduce
+qsyn> zx optimize --full
 
 qsyn> zx2qc
 
-qsyn> qcir optimize -c
+qsyn> qcir optimize --copy
 
 qsyn> qcir list
   0    adr4_197            

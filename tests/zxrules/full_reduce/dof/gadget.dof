@@ -1,20 +1,20 @@
 qcir read benchmark/qasm/tof2.qasm
 qc2zx
-zxgraph assign 1 I X pi
-zxgraph assign 1 O X pi
+zx assign 1 I X pi
+zx assign 1 O X pi
 zx2ts
-zxgraph print -v
-zxgraph rule --spider-fusion
-zxgraph print -v
-zxgraph rule --identity-removal
-zxgraph print -v
-zxgraph rule --to-z-graph
+zx print -v
+zx rule --spider-fusion
+zx print -v
+zx rule --identity-removal
+zx print -v
+zx rule --to-z-graph
 logger level debug
-zxgraph rule --pivot-gadget
+zx rule --pivot-gadget
 logger level warn
-zxgraph print -v
-zxgraph rule --identity-removal
-zxgraph print -v
+zx print -v
+zx rule --identity-removal
+zx print -v
 zx2ts
 tensor equiv 0 1
 quit -f

@@ -4,18 +4,18 @@ qcir print --diagram
 qcir print --gate 0
 qc2ts
 qc2zx
-zxgraph print -q
-zxgraph optimize --full-reduce
-zxgraph print -q
+zx print -q
+zx optimize --full
+zx print -q
 zx2ts
 tensor equiv 0 1
 qcir clear
-zxgraph clear
+zx clear
 tensor clear
 
 qcir qubit add 1
 qcir gate add mcpx -ph pi 0
 qcir print --gate 0
 qc2zx
-zxgraph print -v
+zx print -v
 quit -f

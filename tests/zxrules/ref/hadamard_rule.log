@@ -6,7 +6,7 @@ Q 1  ---------cx( 0)--------------------------cx( 3)-
 
 qsyn> qc2zx
 
-qsyn> zxgraph print -v
+qsyn> zx print -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (4, -)
 ID:   1 (●, 0)           (Qubit, Col): (0, 9)         #Neighbors:   1     (9, -)
@@ -24,12 +24,12 @@ Total #Vertices: 10
 qsyn> logger level info
 [info]     Setting logger level to "info"
 
-qsyn> zxgraph rule --hadamard-rule
+qsyn> zx rule --hadamard-rule
 [info]     Hadamard Rule                 1 iterations, total    1 matches
 
 qsyn> logger level warn
 
-qsyn> zxgraph print -v
+qsyn> zx print -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (4, -)
 ID:   1 (●, 0)           (Qubit, Col): (0, 9)         #Neighbors:   1     (9, -)
@@ -43,7 +43,7 @@ ID:   9 (X, 0)           (Qubit, Col): (0, 8)         #Neighbors:   3     (1, -)
 Total #Vertices: 9
 
 
-qsyn> zxgraph print -e
+qsyn> zx print -e
 (0, 4)       Type: -
 (1, 9)       Type: -
 (2, 5)       Type: -

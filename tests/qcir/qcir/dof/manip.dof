@@ -19,8 +19,8 @@ qcir gate add t 3
 qcir gate add cx 3 2
 qcir gate add cx 0 1
 qcir print --diagram
-qcir gate add rz -pr -ph 0.00001 0
-qcir gate add rz -pr -ph 1.2345 0
+qcir gate add rz --prepend -ph 0.00001 0
+qcir gate add rz --prepend -ph 1.2345 0
 qcir print --gate 10
 qcir print --gate 9
 qcir print --diagram

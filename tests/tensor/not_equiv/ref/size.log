@@ -13,7 +13,7 @@ qsyn> tensor list
 qsyn> tensor equiv 0 1 
 Not Equivalent
 
-qsyn> tensor equiv 0 1 -strict
+qsyn> tensor equiv 0 1 --strict
 Not Equivalent
 
 qsyn> quit -f

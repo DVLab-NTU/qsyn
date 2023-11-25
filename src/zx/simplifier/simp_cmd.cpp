@@ -36,25 +36,25 @@ Command zxgraph_optimize_cmd(zx::ZXGraphMgr &zxgraph_mgr) {
                 parser.description("perform optimization routines for ZXGraph");
 
                 auto mutex = parser.add_mutually_exclusive_group();
-                mutex.add_argument<bool>("-fr", "--full-reduce")
+                mutex.add_argument<bool>("-f", "--full")
                     .action(store_true)
                     .help("Runs full reduction routine. This is the default routine.");
-                mutex.add_argument<bool>("-dr", "--dynamic-reduce")
+                mutex.add_argument<bool>("-d", "--dynamic")
                     .action(store_true)
                     .help("Runs full reduction routine, but stops early when T-count stops decreasing and the graph density starts increasing.");
-                mutex.add_argument<bool>("-sr", "--symbolic-reduce")
+                mutex.add_argument<bool>("-s", "--symbolic")
                     .action(store_true)
                     .help("Runs an optimization that is suitable for symbolically calculating output states given input states.");
-                mutex.add_argument<size_t>("-pr", "--partition-reduce")
+                mutex.add_argument<size_t>("-p", "--partition")
                     .metavar("#partitions")
                     .default_value(2)
                     .nargs(NArgsOption::optional)
                     .constraint(valid_partition_reduce_partitions)
                     .help("Partitions the graph into `#partitions` subgraphs and runs full reduction on each of them.");
-                mutex.add_argument<bool>("-icr", "--interior-clifford-reduce")
+                mutex.add_argument<bool>("-i", "--interior-clifford")
                     .action(store_true)
                     .help("Runs reduction to the interior of the ZXGraph without producing phase gadgets");
-                mutex.add_argument<bool>("-cr", "--clifford-reduce")
+                mutex.add_argument<bool>("-c", "--clifford")
                     .action(store_true)
                     .help("Runs reduction without producing phase gadgets");
             },
@@ -63,19 +63,19 @@ Command zxgraph_optimize_cmd(zx::ZXGraphMgr &zxgraph_mgr) {
                 zx::Simplifier s(zxgraph_mgr.get());
                 std::string procedure_str = "";
 
-                if (parser.parsed("--symbolic-reduce")) {
+                if (parser.parsed("--symbolic")) {
                     s.symbolic_reduce();
                     procedure_str = "SR";
-                } else if (parser.parsed("--dynamic-reduce")) {
+                } else if (parser.parsed("--dynamic")) {
                     s.dynamic_reduce();
                     procedure_str = "DR";
-                } else if (parser.parsed("--partition-reduce")) {
-                    s.partition_reduce(parser.get<size_t>("--partition-reduce"));
+                } else if (parser.parsed("--partition")) {
+                    s.partition_reduce(parser.get<size_t>("--partition"));
                     procedure_str = "PR";
-                } else if (parser.parsed("--interior-clifford-reduce")) {
+                } else if (parser.parsed("--interior-clifford")) {
                     s.interior_clifford_simp();
                     procedure_str = "ICR";
-                } else if (parser.parsed("--clifford-reduce")) {
+                } else if (parser.parsed("--clifford")) {
                     s.clifford_simp();
                     procedure_str = "CR";
                 } else {
@@ -99,43 +99,43 @@ Command zxgraph_rule_cmd(zx::ZXGraphMgr &zxgraph_mgr) {
             parser.description("apply simplification rules to ZXGraph");
 
             auto mutex = parser.add_mutually_exclusive_group().required(true);
-            mutex.add_argument<bool>("-bialgebra", "--bialgebra")
+            mutex.add_argument<bool>("--bialgebra")
                 .action(store_true)
                 .help("applies bialgebra rules");
-            mutex.add_argument<bool>("-gfuse", "--gadget-fusion")
+            mutex.add_argument<bool>("--gadget-fusion")
                 .action(store_true)
                 .help("fuses phase gadgets connected to the same set of vertices");
-            mutex.add_argument<bool>("-hfuse", "--hadamard-fusion")
+            mutex.add_argument<bool>("--hadamard-fusion")
                 .action(store_true)
                 .help("removes adjacent H-boxes or H-edges");
-            mutex.add_argument<bool>("-hrule", "--hadamard-rule")
+            mutex.add_argument<bool>("--hadamard-rule")
                 .action(store_true)
                 .help("converts H-boxes to H-edges");
-            mutex.add_argument<bool>("-idrm", "--identity-removal")
+            mutex.add_argument<bool>("--identity-removal")
                 .action(store_true)
                 .help("removes Z/X-spiders with no phase and arity of 2");
-            mutex.add_argument<bool>("-lcomp", "--local-complementation")
+            mutex.add_argument<bool>("--local-complementation")
                 .action(store_true)
                 .help("applies local complementations to vertices with phase ±π/2");
-            mutex.add_argument<bool>("-pvt", "--pivot")
+            mutex.add_argument<bool>("--pivot")
                 .action(store_true)
                 .help("applies pivot rules to vertex pairs with phase 0 or π");
-            mutex.add_argument<bool>("-pvbnd", "--pivot-boundary")
+            mutex.add_argument<bool>("--pivot-boundary")
                 .action(store_true)
                 .help("applies pivot rules to vertex pairs connected to the boundary");
-            mutex.add_argument<bool>("-pvgad", "--pivot-gadget")
+            mutex.add_argument<bool>("--pivot-gadget")
                 .action(store_true)
                 .help("unfuses the phase and applies pivot rules to form gadgets");
-            mutex.add_argument<bool>("-spfuse", "--spider-fusion")
+            mutex.add_argument<bool>("--spider-fusion")
                 .action(store_true)
                 .help("fuses spiders of the same color");
-            mutex.add_argument<bool>("-stcopy", "--state-copy")
+            mutex.add_argument<bool>("--state-copy")
                 .action(store_true)
                 .help("applies state copy rules to eliminate gadgets with phase 0 or π");
-            mutex.add_argument<bool>("-toz", "--to-z-graph")
+            mutex.add_argument<bool>("--to-z-graph")
                 .action(store_true)
                 .help("convert all X-spiders to Z-spiders");
-            mutex.add_argument<bool>("-tox", "--to-x-graph")
+            mutex.add_argument<bool>("--to-x-graph")
                 .action(store_true)
                 .help("convert all Z-spiders to X-spiders");
         },

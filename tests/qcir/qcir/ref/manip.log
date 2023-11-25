@@ -62,9 +62,9 @@ Q 1  ---------cx( 2)--------------------------cx( 4)----------cx( 8)-
 Q 2  -----------------cx( 1)-- t( 3)----------cx( 4)----------cx( 7)-
 Q 3  ---------cx( 2)-- x( 5)-- t( 6)--------------------------cx( 7)-
 
-qsyn> qcir gate add rz -pr -ph 0.00001 0
+qsyn> qcir gate add rz --prepend -ph 0.00001 0
 
-qsyn> qcir gate add rz -pr -ph 1.2345 0
+qsyn> qcir gate add rz --prepend -ph 1.2345 0
 
 qsyn> qcir print --gate 10
 Listed by gate ID

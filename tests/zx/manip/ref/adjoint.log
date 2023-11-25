@@ -1,14 +1,14 @@
-qsyn> zxgraph read benchmark/zx/tof2_opt.zx
+qsyn> zx read benchmark/zx/tof2_opt.zx
 
-qsyn> zxgraph copy 1
+qsyn> zx copy 1
 
-qsyn> zxgraph adjoint
+qsyn> zx adjoint
 
-qsyn> zxgraph compose 0
+qsyn> zx compose 0
 
-qsyn> zxgraph optimize --full-reduce
+qsyn> zx optimize --full
 
-qsyn> zxgraph print -v
+qsyn> zx print -v
 
 ID:   1 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (20, -)
 ID:   3 (●, 0)           (Qubit, Col): (1, 0)         #Neighbors:   1     (22, -)
@@ -25,7 +25,7 @@ qsyn> qcir qubit add 3
 
 qsyn> qc2ts
 
-qsyn> tensor equiv 0 1 -strict
+qsyn> tensor equiv 0 1 --strict
 Equivalent
 - Global Norm : 1
 - Global Phase: 0

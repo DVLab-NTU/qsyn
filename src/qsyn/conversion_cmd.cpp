@@ -25,7 +25,7 @@ using dvlab::Command, dvlab::CmdExecResult;
 namespace qsyn {
 
 bool valid_decomposition_mode(size_t const& val) {
-    if (val <= 4) return true;
+    if (val < 4) return true;
     spdlog::error("Decomposition Mode {} is not valid!!", val);
     return false;
 };
@@ -36,9 +36,9 @@ Command qcir_to_zx_cmd(QCirMgr& qcir_mgr, qsyn::zx::ZXGraphMgr& zxgraph_mgr) {
                 parser.description("convert QCir to ZXGraph");
 
                 parser.add_argument<size_t>("decomp_mode")
-                    .default_value(0)
+                    .default_value(3)
                     .constraint(valid_decomposition_mode)
-                    .help("specify the decomposition mode (default: 0). The higher the number, the more aggressive the decomposition is.");
+                    .help("specify the decomposition mode (default: 3). The higher the number, the more aggressive the decomposition is.");
             },
             [&](ArgumentParser const& parser) {
                 if (!qcir_mgr_not_empty(qcir_mgr)) return CmdExecResult::error;
@@ -84,41 +84,16 @@ Command zxgraph_to_tensor_cmd(qsyn::zx::ZXGraphMgr& zxgraph_mgr, qsyn::tensor::T
     return {"zx2tensor",
             [&](ArgumentParser& parser) {
                 parser.description("convert ZXGraph to tensor");
-
-                parser.add_argument<size_t>("-zx")
-                    .metavar("id")
-                    .constraint(dvlab::utils::valid_mgr_id(zxgraph_mgr))
-                    .help("the ID of the ZXGraph to be converted. If not specified, the focused ZXGraph is used");
-
-                parser.add_argument<size_t>("-ts")
-                    .metavar("id")
-                    .help("the ID of the target tensor. If not specified, an ID is automatically assigned");
-
-                parser.add_argument<bool>("-replace")
-                    .action(store_true)
-                    .help("replace the target tensor if the tensor ID is occupied");
             },
-            [&](ArgumentParser const& parser) {
+            [&](ArgumentParser const& /* parser */) {
                 if (!dvlab::utils::mgr_has_data(zxgraph_mgr)) return CmdExecResult::error;
-                auto zx_id = parser.parsed("-zx") ? parser.get<size_t>("-zx") : zxgraph_mgr.focused_id();
-                auto zx    = zxgraph_mgr.find_by_id(zx_id);
+                auto zx = zxgraph_mgr.get();
 
-                auto ts_id = parser.parsed("-ts") ? parser.get<size_t>("-ts") : tensor_mgr.get_next_id();
-
-                if (tensor_mgr.is_id(ts_id) && !parser.parsed("-replace")) {
-                    spdlog::error("Tensor {} already exists!! Specify `-Replace` if you intend to replace the current one.", ts_id);
-                    return CmdExecResult::error;
-                }
-                spdlog::info("Converting ZXGraph {} to Tensor {}...", zx_id, ts_id);
+                spdlog::info("Converting ZXGraph {} to Tensor {}...", zxgraph_mgr.focused_id(), tensor_mgr.get_next_id());
                 auto tensor = qsyn::to_tensor(*zx);
 
                 if (tensor.has_value()) {
-                    if (!tensor_mgr.is_id(ts_id)) {
-                        tensor_mgr.add(ts_id, std::make_unique<qsyn::tensor::QTensor<double>>(std::move(tensor.value())));
-                    } else {
-                        tensor_mgr.checkout(ts_id);
-                        tensor_mgr.set(std::make_unique<qsyn::tensor::QTensor<double>>(std::move(tensor.value())));
-                    }
+                    tensor_mgr.add(tensor_mgr.get_next_id(), std::make_unique<qsyn::tensor::QTensor<double>>(std::move(tensor.value())));
 
                     tensor_mgr.get()->set_filename(zx->get_filename());
                     tensor_mgr.get()->add_procedures(zx->get_procedures());

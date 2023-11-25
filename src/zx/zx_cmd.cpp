@@ -105,10 +105,10 @@ Command zxgraph_test_cmd(ZXGraphMgr const& zxgraph_mgr) {
                 mutex.add_argument<bool>("-e", "--empty")
                     .action(store_true)
                     .help("check if the ZXGraph is empty");
-                mutex.add_argument<bool>("-gl", "--graph-like")
+                mutex.add_argument<bool>("-g", "--graph-like")
                     .action(store_true)
                     .help("check if the ZXGraph is graph-like");
-                mutex.add_argument<bool>("-id", "--identity")
+                mutex.add_argument<bool>("-i", "--identity")
                     .action(store_true)
                     .help("check if the ZXGraph is equivalent to identity");
             },
@@ -149,73 +149,73 @@ Command zxgraph_print_cmd(ZXGraphMgr const& zxgraph_mgr) {
                 parser.description("print info of ZXGraph");
 
                 auto mutex = parser.add_mutually_exclusive_group();
-                mutex.add_argument<bool>("-list")
+                mutex.add_argument<bool>("-l", "--list")
                     .action(store_true)
                     .help("print a list of ZXGraphs");
-                mutex.add_argument<bool>("-summary")
+                mutex.add_argument<bool>("-s", "--summary")
                     .action(store_true)
                     .help("print the summary info of ZXGraph");
-                mutex.add_argument<bool>("-io")
+                mutex.add_argument<bool>("--io")
                     .action(store_true)
                     .help("print the I/O info of ZXGraph");
-                mutex.add_argument<bool>("-inputs")
+                mutex.add_argument<bool>("-i", "--inputs")
                     .action(store_true)
                     .help("print the input info of ZXGraph");
-                mutex.add_argument<bool>("-outputs")
+                mutex.add_argument<bool>("-o", "--outputs")
                     .action(store_true)
                     .help("print the output info of ZXGraph");
-                mutex.add_argument<size_t>("-vertices")
+                mutex.add_argument<size_t>("-v", "--vertices")
                     .nargs(NArgsOption::zero_or_more)
                     .constraint(valid_zxvertex_id(zxgraph_mgr))
                     .help("print the vertex info of ZXGraph");
-                mutex.add_argument<bool>("-edges")
+                mutex.add_argument<bool>("-e", "--edges")
                     .action(store_true)
                     .help("print the edges info of ZXGraph");
-                mutex.add_argument<int>("-qubits")
+                mutex.add_argument<int>("-q", "--qubits")
                     .nargs(NArgsOption::zero_or_more)
-                    .help("print the qubit info of ZXGraph");
-                mutex.add_argument<size_t>("-neighbors")
+                    .help("print the vertices of ZXGraph by their qubits");
+                mutex.add_argument<size_t>("-n", "--neighbors")
                     .constraint(valid_zxvertex_id(zxgraph_mgr))
                     .help("print the neighbor info of ZXGraph");
-                mutex.add_argument<bool>("-density")
+                mutex.add_argument<bool>("-d", "--density")
                     .action(store_true)
-                    .help("print the density of ZXGraph");
+                    .help("calculate the density of ZXGraph");
             },
 
             [&](ArgumentParser const& parser) {
                 if (!dvlab::utils::mgr_has_data(zxgraph_mgr)) return CmdExecResult::error;
-                if (parser.parsed("-summary")) {
+                if (parser.parsed("--summary")) {
                     zxgraph_mgr.get()->print_graph();
                     fmt::println("{:<29} {}", "#T-gate:", zxgraph_mgr.get()->t_count());
                     fmt::println("{:<29} {}", "#Non-(Clifford+T)-gate: ", zxgraph_mgr.get()->non_clifford_t_count());
                     fmt::println("{:<29} {}", "#Non-Clifford-gate: ", zxgraph_mgr.get()->non_clifford_count());
-                } else if (parser.parsed("-io"))
+                } else if (parser.parsed("--io"))
                     zxgraph_mgr.get()->print_io();
-                else if (parser.parsed("-list"))
+                else if (parser.parsed("--list"))
                     zxgraph_mgr.print_list();
-                else if (parser.parsed("-inputs"))
+                else if (parser.parsed("--inputs"))
                     zxgraph_mgr.get()->print_inputs();
-                else if (parser.parsed("-outputs"))
+                else if (parser.parsed("--outputs"))
                     zxgraph_mgr.get()->print_outputs();
-                else if (parser.parsed("-vertices")) {
-                    auto vids = parser.get<std::vector<size_t>>("-vertices");
+                else if (parser.parsed("--vertices")) {
+                    auto vids = parser.get<std::vector<size_t>>("--vertices");
                     if (vids.empty())
                         zxgraph_mgr.get()->print_vertices();
                     else
                         zxgraph_mgr.get()->print_vertices(vids);
-                } else if (parser.parsed("-edges")) {
+                } else if (parser.parsed("--edges")) {
                     zxgraph_mgr.get()->print_edges();
-                } else if (parser.parsed("-qubits")) {
-                    auto qids = parser.get<std::vector<int>>("-qubits");
+                } else if (parser.parsed("--qubits")) {
+                    auto qids = parser.get<std::vector<int>>("--qubits");
                     zxgraph_mgr.get()->print_vertices_by_qubits(spdlog::level::level_enum::off, qids);
-                } else if (parser.parsed("-neighbors")) {
-                    auto v = zxgraph_mgr.get()->find_vertex_by_id(parser.get<size_t>("-neighbors"));
+                } else if (parser.parsed("--neighbors")) {
+                    auto v = zxgraph_mgr.get()->find_vertex_by_id(parser.get<size_t>("--neighbors"));
                     v->print_vertex();
                     fmt::println("----- Neighbors -----");
                     for (auto [nb, _] : zxgraph_mgr.get()->get_neighbors(v)) {
                         nb->print_vertex();
                     }
-                } else if (parser.parsed("-density")) {
+                } else if (parser.parsed("--density")) {
                     fmt::println("Density: {}", zxgraph_mgr.get()->density());
                 } else {
                     zxgraph_mgr.get()->print_graph();
@@ -263,19 +263,19 @@ Command zxgraph_read_cmd(ZXGraphMgr& zxgraph_mgr) {
                     .constraint(allowed_extension({".zx"}))
                     .help("path to the ZX file. Supported extensions: .zx");
 
-                parser.add_argument<bool>("-keepid")
+                parser.add_argument<bool>("--keep-id")
                     .action(store_true)
                     .help("if set, retain the IDs in the ZX file; otherwise the ID is rearranged to be consecutive");
 
-                parser.add_argument<bool>("-replace")
+                parser.add_argument<bool>("-r", "--replace")
                     .action(store_true)
                     .constraint(zxgraph_id_not_exist(zxgraph_mgr))
                     .help("replace the current ZXGraph");
             },
             [&](ArgumentParser const& parser) {
                 auto filepath   = parser.get<std::string>("filepath");
-                auto do_keep_id = parser.get<bool>("-keepid");
-                auto do_replace = parser.get<bool>("-replace");
+                auto do_keep_id = parser.get<bool>("--keep-id");
+                auto do_replace = parser.get<bool>("--replace");
 
                 auto buffer_graph = std::make_unique<ZXGraph>();
                 if (!buffer_graph->read_zx(filepath, do_keep_id)) {
@@ -308,14 +308,14 @@ Command zxgraph_write_cmd(ZXGraphMgr const& zxgraph_mgr) {
                     .constraint(allowed_extension({".zx", ".tikz", ".tex"}))
                     .help("the path to the output ZX file");
 
-                parser.add_argument<bool>("-complete")
+                parser.add_argument<bool>("--complete")
                     .action(store_true)
                     .help("if specified, output neighbor information on both vertices of each edge");
             },
             [&](ArgumentParser const& parser) {
                 if (!dvlab::utils::mgr_has_data(zxgraph_mgr)) return CmdExecResult::error;
                 auto const filepath      = parser.get<std::string>("filepath");
-                auto const do_complete   = parser.get<bool>("-complete");
+                auto const do_complete   = parser.get<bool>("--complete");
                 auto const extension_pos = filepath.find_last_of('.');
 
                 auto const extension = (extension_pos == std::string::npos) ? "" : filepath.substr(extension_pos);
@@ -634,7 +634,15 @@ Command zxgraph_edge_cmd(ZXGraphMgr& zxgraph_mgr) {
 Command zxgraph_cmd(ZXGraphMgr& zxgraph_mgr) {
     using namespace dvlab::utils;
 
-    auto cmd = mgr_root_cmd(zxgraph_mgr);
+    auto cmd = Command{
+        "zx",
+        [&](ArgumentParser& parser) {
+            parser.description(fmt::format("ZXGraph commands"));
+        },
+        [&](ArgumentParser const& /* parser */) {
+            zxgraph_mgr.print_manager();
+            return CmdExecResult::done;
+        }};
     cmd.add_subcommand(mgr_list_cmd(zxgraph_mgr));
     cmd.add_subcommand(mgr_checkout_cmd(zxgraph_mgr));
     cmd.add_subcommand(mgr_new_cmd(zxgraph_mgr));

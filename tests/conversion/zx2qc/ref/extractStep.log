@@ -7,9 +7,9 @@ qsyn> qc2zx
 qsyn> extract print --frontier
 [error]    ZXGraph 0 is not extractable because it is not graph-like!!
 
-qsyn> zxgraph optimize --full-reduce
+qsyn> zx optimize --full
 
-qsyn> zxgraph copy 1
+qsyn> zx copy 1
 
 qsyn> qcir new
 
@@ -19,7 +19,7 @@ qsyn> qcir
 -> #QCir: 2
 -> Now focused on: QCir 1
 
-qsyn> zxgraph print -q
+qsyn> zx print -q
 
 ID:  15 (Z, π/4)         (Qubit, Col): (-2, 6)        #Neighbors:   1     (16, H)
 ID:  17 (Z, -π/4)        (Qubit, Col): (-2, 16)       #Neighbors:   1     (18, H)
@@ -105,7 +105,7 @@ Q 0  -------------------------cz( 4)-- h( 0)-
 Q 1  ---------cz( 5)-- h( 1)-
 Q 2  ---------cz( 5)----------cz( 4)--td( 3)-- h( 2)-
 
-qsyn> extract step -zx 1 -qc 1 -rmg
+qsyn> extract step -zx 1 -qc 1 --remove-gadget
 
 qsyn> qcir print --diagram
 Q 0  -------------------------cz( 4)-- h( 0)-
@@ -163,13 +163,13 @@ Q 2  - h(58)------------------cz(57)-- z(56)-- h(55)----------cz(54)------------
 
 qsyn> qc2zx
 
-qsyn> zxgraph adjoint
+qsyn> zx adjoint
 
-qsyn> zxgraph compose 0
+qsyn> zx compose 0
 
-qsyn> zxgraph optimize --full-reduce
+qsyn> zx optimize --full
 
-qsyn> zxgraph print -q
+qsyn> zx print -q
 
 ID: 102 (Z, π/4)         (Qubit, Col): (-2, 71)       #Neighbors:   1     (103, H)
 ID: 104 (Z, -π/4)        (Qubit, Col): (-2, 81)       #Neighbors:   1     (105, H)

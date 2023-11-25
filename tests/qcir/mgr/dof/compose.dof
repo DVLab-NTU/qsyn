@@ -14,7 +14,7 @@ qcir print --diagram
 qcir compose 1
 qcir print --diagram
 qc2zx
-zxgraph print -v
+zx print -v
 qc2ts
 zx2ts
 tensor equiv 0 1

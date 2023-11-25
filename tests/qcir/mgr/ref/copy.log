@@ -34,7 +34,7 @@ Q 3  -----------------------------------------cx( 2)----------cx( 4)----------cx
 
 qsyn> qc2zx
 
-qsyn> zxgraph print -v
+qsyn> zx print -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (8, -)
 ID:   1 (●, 0)           (Qubit, Col): (0, 13)        #Neighbors:   1     (14, -)
@@ -59,11 +59,11 @@ ID:  19 (X, 0)           (Qubit, Col): (3, 12)        #Neighbors:   3     (7, -)
 Total #Vertices: 20
 
 
-qsyn> zxgraph adjoint
+qsyn> zx adjoint
 
-qsyn> zxgraph compose 0
+qsyn> zx compose 0
 
-qsyn> zxgraph print -v
+qsyn> zx print -v
 
 ID:   0 (Z, 0)           (Qubit, Col): (0, 13)        #Neighbors:   2     (8, -) (20, -)
 ID:   1 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (14, -)
@@ -108,9 +108,9 @@ ID:  39 (X, 0)           (Qubit, Col): (3, 26)        #Neighbors:   3     (27, -
 Total #Vertices: 40
 
 
-qsyn> zxgraph optimize --full-reduce
+qsyn> zx optimize --full
 
-qsyn> zxgraph print -v
+qsyn> zx print -v
 
 ID:   1 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (21, -)
 ID:   3 (●, 0)           (Qubit, Col): (1, 0)         #Neighbors:   1     (23, -)
@@ -125,7 +125,7 @@ Total #Vertices: 8
 
 qsyn> qcir clear
 
-qsyn> zxgraph clear
+qsyn> zx clear
 
 qsyn> qcir print --diagram
 [error]    QCir list is empty. Please create a QCir first!!
@@ -191,9 +191,9 @@ Q 1  ---------cx( 2)--------------------------cx( 4)----------cx( 8)-
 Q 2  -----------------cx( 1)-- t( 3)----------cx( 4)----------cx( 7)-
 Q 3  ---------cx( 2)-- x( 5)-- t( 6)--------------------------cx( 7)-
 
-qsyn> qcir gate add -pr rz -ph 0.00001 0
+qsyn> qcir gate add --prepend rz -ph 0.00001 0
 
-qsyn> qcir gate add -pr rz -ph 1.2345 0
+qsyn> qcir gate add --prepend rz -ph 1.2345 0
 
 qsyn> qcir print --gate 10
 Listed by gate ID
@@ -236,11 +236,11 @@ Q 2  ---------------------------------cx( 1)-- t( 3)-
 Q 3  - x( 5)-- t( 6)-
 Q 4  
 
-qsyn> qcir gate add -pr cx 0 4
+qsyn> qcir gate add --prepend cx 0 4
 
 qsyn> qcir gate add cx 2 4
 
-qsyn> qcir gate add -pr rz -ph 1.2345 0
+qsyn> qcir gate add --prepend rz -ph 1.2345 0
 
 qsyn> qcir print --diagram
 Q 0  -rz(13)----------cx(11)--rz(10)--rz( 9)-- h( 0)----------cx( 1)-
@@ -250,7 +250,7 @@ Q 4  -----------------cx(11)----------------------------------------------------
 
 qsyn> qc2zx
 
-qsyn> zxgraph print
+qsyn> zx print
 Graph (4 inputs, 4 outputs, 21 vertices, 20 edges)
 
 qsyn> quit -f
