@@ -16,9 +16,9 @@
 #include <tl/enumerate.hpp>
 #include <type_traits>
 
-#include "./conversion_cmd.hpp"
 #include "argparse/arg_parser.hpp"
 #include "cli/cli.hpp"
+#include "convert/conversion_cmd.hpp"
 #include "device/device_cmd.hpp"
 #include "duostra/duostra_cmd.hpp"
 #include "extractor/extractor_cmd.hpp"

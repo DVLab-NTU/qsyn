@@ -104,6 +104,10 @@ std::optional<QTensor<double>> to_tensor(QCirGate *gate) {
  * @brief Convert QCir to tensor
  */
 std::optional<QTensor<double>> to_tensor(QCir const &qcir) {
+    if (qcir.get_qubits().empty()) {
+        spdlog::warn("QCir is empty!!");
+        return std::nullopt;
+    }
     qcir.update_topological_order();
     spdlog::debug("Add boundary");
 
