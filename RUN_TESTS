@@ -9,6 +9,7 @@ import sys
 import textwrap
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 
+qsyn_args = ["--no-version", "--qsynrc-path", "/dev/null", "--file"]
 
 def cprint(*args, color=None, attrs=[], sep=" ", end="\n"):
     """Print colored text"""
@@ -55,7 +56,7 @@ def dofile_result_same_with_ref(dofile, args):
         return False, [dofile, " [Reference File Not Found]"]
 
     run_qsyn = subprocess.Popen(
-        [args.qsyn, "--no-version", "--file", dofile],
+        [args.qsyn] + qsyn_args + [dofile],
         stdout=PIPE,
         stderr=STDOUT,
         env={"OMP_WAIT_POLICY": "passive"},
@@ -93,7 +94,7 @@ def update_dofile_ref(dofile, args):
             os.utime(reffile, None)
 
     run_qsyn = subprocess.Popen(
-        [args.qsyn, "--no-version", "--file", dofile],
+        [args.qsyn] + qsyn_args + [dofile],
         stdout=PIPE,
         stderr=STDOUT,
         env={"OMP_WAIT_POLICY": "passive"},
@@ -289,7 +290,7 @@ def main():
 
     if args.file:
         for dofile in dofiles:
-            subprocess.run([args.qsyn, "-s", "-f", dofile], env={"OMP_WAIT_POLICY": "passive"})
+            subprocess.run([args.qsyn] + qsyn_args + [dofile], env={"OMP_WAIT_POLICY": "passive"})
         return 0
     if args.update:
         update_test_refs(dofiles, args)

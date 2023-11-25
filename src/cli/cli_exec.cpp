@@ -64,6 +64,14 @@ CmdExecResult dvlab::CommandLineInterface::execute_one_line(std::istream& istr, 
         return CmdExecResult::no_op;
     }
 
+    auto first_token = get_first_token(*stripped);
+
+    // if the first token is an alias
+    if (auto alias_replacement = get_alias_replacement_string(first_token); alias_replacement.has_value()) {
+        // replace the alias with the replacement string
+        stripped = alias_replacement.value() + stripped->substr(first_token.size());
+    }
+
     CmdExecResult exec_result = CmdExecResult::done;
 
     while (true) {

@@ -1,0 +1,37 @@
+// [For Users]
+// This file contains the default aliases for the qsynrc tool.
+// If you are an end-user, you should not edit this file.
+// Instead, you should edit the file at ~/.config/qsynrc
+// or use the `alias` command to define aliases at runtime
+
+// [For Devs]
+// If you are a developer, you can edit this file to change the default aliases
+// This file is included into the binary upon compilation
+// If you want to change the default aliases, you must recompile the binary
+// Also, note that the default aliases are only copied to ~/.config/qsynrc if the file does not exist
+
+// The following texts will be interpreted as a c++ raw string literal
+R"(
+// qcir aliases
+alias qc "qcir" // allows you to use `qc` instead of `qcir`
+alias qcr "qcir read"
+alias qcw "qcir write"
+alias qcl "qcir list"
+alias qcopt "qcir optimize"
+
+// zx aliases
+alias zxr "zx read"
+alias zxw "zx write"
+alias zxl "zx list"
+alias zxopt "zx optimize"
+
+// device aliases
+alias ts tensor
+alias tseq "tensor equiv"
+
+// aliasing the `quit` command to `q` for convenience
+alias q quit
+
+// lazy-man synthesis
+alias qzq "convert qcir zx; zx optimize --full; convert zx qcir"
+)"

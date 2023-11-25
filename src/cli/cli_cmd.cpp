@@ -9,6 +9,7 @@
 #include "cli/cli.hpp"
 #include "fmt/color.h"
 #include "spdlog/common.h"
+#include "util/sysdep.hpp"
 #include "util/usage.hpp"
 
 namespace std {
@@ -328,7 +329,7 @@ Command clear_cmd() {
             },
 
             [](ArgumentParser const& /*parser*/) {
-                ::dvlab::detail::clear_terminal();
+                utils::clear_terminal();
                 return CmdExecResult::done;
             }};
 };
@@ -339,8 +340,6 @@ bool add_cli_common_cmds(dvlab::CommandLineInterface& cli) {
           cli.add_command(set_variable_cmd(cli)) &&
           cli.add_alias("unset", "set -d") &&
           cli.add_command(quit_cmd(cli)) &&
-          cli.add_alias("q", "quit") &&
-          cli.add_alias("exit", "quit") &&
           cli.add_command(history_cmd(cli)) &&
           cli.add_command(help_cmd(cli)) &&
           cli.add_command(source_cmd(cli)) &&

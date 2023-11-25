@@ -223,7 +223,7 @@ Command duostra_cmd(qcir::QCirMgr& qcir_mgr, device::DeviceMgr& device_mgr) {
                        [&](ArgumentParser const& parser) {
                            if (!qcir_mgr_not_empty(qcir_mgr) || !device_mgr_not_empty(device_mgr)) return CmdExecResult::error;
 #ifdef __GNUC__
-                           char const* const omp_wait_policy = getenv("OMP_WAIT_POLICY");
+                           char const* const omp_wait_policy = std::getenv("OMP_WAIT_POLICY");
 
                            if (omp_wait_policy == nullptr || (strcasecmp(omp_wait_policy, "passive") != 0)) {
                                spdlog::error("Cannot run command `DUOSTRA`: environment variable `OMP_WAIT_POLICY` is not set to `PASSIVE`.");

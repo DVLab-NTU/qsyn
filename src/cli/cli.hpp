@@ -56,17 +56,6 @@ inline void beep() {
     fmt::print("{}", (char)key_code::beep_char);
 }
 
-inline void clear_terminal() {
-#ifdef _WIN32
-    int const result = system("cls");
-#else
-    int const result = system("clear");
-#endif
-    if (result != 0) {
-        fmt::println(stderr, "Error clearing the terminal!!");
-    }
-}
-
 }  // namespace detail
 /**
  * @brief class specification for commands that uses

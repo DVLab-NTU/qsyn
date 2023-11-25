@@ -79,7 +79,7 @@ FetchContent_MakeAvailable(GSL)
 file(
     GLOB_RECURSE SOURCES
     RELATIVE ${CMAKE_SOURCE_DIR}
-    "src/**/*.cpp" "src/**/*.hpp")
+    "src/**/*.cpp" "src/**/*.hpp" "src/qsyn/qsynrc.default")
 add_executable(${CMAKE_PROJECT_NAME} ${SOURCES})
 
 target_compile_definitions(spdlog PUBLIC SPDLOG_FMT_EXTERNAL=1)
@@ -157,6 +157,8 @@ target_link_libraries(
 
 # default to ON
 option(COPY_EXECUTABLE " Copy executable to project root " ON)
+
+install(TARGETS ${CMAKE_PROJECT_NAME} DESTINATION bin)
 
 if(COPY_EXECUTABLE)
     add_custom_command(

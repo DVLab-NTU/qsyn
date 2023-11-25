@@ -11,6 +11,7 @@
 #include "cli/cli_char_def.hpp"
 #include "util/dvlab_string.hpp"
 #include "util/scope_guard.hpp"
+#include "util/sysdep.hpp"
 
 //----------------------------------------------------------------------
 //    Member Function for class CmdParser
@@ -174,7 +175,7 @@ std::pair<CmdExecResult, std::string> dvlab::CommandLineInterface::listen_to_inp
                 _delete_char();
                 break;
             case clear_terminal_key:
-                detail::clear_terminal();
+                utils::clear_terminal();
                 _reprint_command();
                 break;
             case arrow_up_key:

@@ -10,4 +10,4 @@ qcir read ${var1}${var2}/SABRE/small/3_17_13.qasm
 qcir list
 
 qcir list
-q -f
+quit -f
