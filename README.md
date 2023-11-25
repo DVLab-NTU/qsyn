@@ -1,6 +1,6 @@
-![license](https://img.shields.io/github/license/ric2k1/qsyn?style=plastic)
-![stars](https://img.shields.io/github/stars/ric2k1/qsyn?style=plastic)
-![contributors](https://img.shields.io/github/contributors/ric2k1/qsyn?style=plastic)
+![license](https://img.shields.io/github/license/DVLab-NTU/qsyn?style=plastic)
+![stars](https://img.shields.io/github/stars/DVLab-NTU/qsyn?style=plastic)
+![contributors](https://img.shields.io/github/contributors/DVLab-NTU/qsyn?style=plastic)
 ![pr-welcome](https://img.shields.io/badge/PRs-welcome-green?style=plastic)
 ![g++-10](https://img.shields.io/badge/g++-≥10-blue?style=plastic)
 ![clang++-16](https://img.shields.io/badge/clang++-≥16-blueviolet?style=plastic)
@@ -11,7 +11,7 @@
 
 ![](https://i.imgur.com/KeliAHn.png)
 
-<!-- ![example branch parameter](https://github.com/ric2k1/qsyn/actions/workflows/build-and-test.yml/badge.svg)
+<!-- ![example branch parameter](https://github.com/DVLab-NTU/qsyn/actions/workflows/build-and-test.yml/badge.svg)
  -->
 
 ## Introduction
@@ -23,25 +23,28 @@
 ## Getting Started
 
 ### System Requirements
+
 `qsyn` requires `c++-20` to build. We support compilation with (1) `g++-10` or above, or (2) `clang++-16` or above. We regularly perform build tests for the two compilers.
 
 ### Installation
 
 ```shell!
-git clone https://github.com/ric2k1/qsyn.git
+git clone https://github.com/DVLab-NTU/qsyn.git
 cd qsyn
 ```
 
 ### Optional Dependencies for Visualization
+
 Visualization functionalities of `qsyn` depends at runtime on the following dependencies. Please refer to the linked pages for installation instructions:
-* `qiskit`, `qiskit[visualization]` for drawing quantum circuits
-    * Please refer to [this page](https://qiskit.org/documentation/getting_started.html)
-* `texlive` for drawing ZX-diagrams.
-    * For Ubuntu:
-        ```shell
-        sudo apt-get install texlive-latex-base
-        ```
-    * Other Platforms: please refer to [this page](https://tug.org/texlive/quickinstall.html) 
+
+- `qiskit`, `qiskit[visualization]` for drawing quantum circuits
+  - Please refer to [this page](https://qiskit.org/documentation/getting_started.html)
+- `texlive` for drawing ZX-diagrams.
+  - For Ubuntu:
+    ```shell
+    sudo apt-get install texlive-latex-base
+    ```
+  - Other Platforms: please refer to [this page](https://tug.org/texlive/quickinstall.html)
 
 ### Compilation
 
@@ -133,8 +136,9 @@ We have provided some DOFILEs, i.e., a sequence of commands, to serve as functio
   Notice that if you use `clang` to compile `Qsyn`, some of the DOFILEs may produce different results, which is to be expected.
 
 ## License
+
 `qsyn` is licensed under the
-[Apache License 2.0](https://github.com/ric2k1/qsyn/blob/main/LICENSE).
+[Apache License 2.0](https://github.com/DVLab-NTU/qsyn/blob/main/LICENSE).
 
 Certain functions of `qsyn` is enabled by a series of third-party libraries. For a list of these libraries, as well as their license information, please refer to [this document](/vendor/List-of-Used-Libraries.md).
 

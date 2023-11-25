@@ -1,19 +1,24 @@
 # Getting Start with Qsyn
+
 ###### tags: `qsyn`
 
 ## How to start running Qsyn ?
+
 ### Installation
+
 ```shell!
-git clone https://github.com/ric2k1/qsyn.lab.git
+git clone https://github.com/DVLab-NTU/qsyn.lab.git
 cd qsyn.lab
 ```
 
 ### Compilation
+
 ```shell!
 make -j16
 ```
 
 ### Run
+
 ```shell!
 ./qsyn
 ```
@@ -22,27 +27,27 @@ make -j16
 
 ## Command Briefly Introduction
 
-* Information
-    * help: see all commands and briefly introduction
-    * history: print command history
-    * usage: report the runtime and/or memory usage
-    * qquit: quit the exection
-* Settings
-    * color: toggle colored printing in command line (default: true)
-    * verbose: set verbosity levle to 0-9 (default: 3)
-    * seed: set the random seed
-* Device Topology
-    * Commands start with **DT**
-* DuosTra
-    * Commands start with **DUO**
-* EXTraction
-    * Commands start with **EXT**
-* Quantum Circuit
-    * Commands start with **QC**
-* ZX-graph
-    * Commands start with **ZX**
-* TenSor
-    * Commands start with **TS**
+- Information
+  - help: see all commands and briefly introduction
+  - history: print command history
+  - usage: report the runtime and/or memory usage
+  - qquit: quit the execution
+- Settings
+  - color: toggle colored printing in command line (default: true)
+  - verbose: set verbosity level to 0-9 (default: 3)
+  - seed: set the random seed
+- Device Topology
+  - Commands start with **DT**
+- DuosTra
+  - Commands start with **DUO**
+- EXTraction
+  - Commands start with **EXT**
+- Quantum Circuit
+  - Commands start with **QC**
+- ZX-graph
+  - Commands start with **ZX**
+- TenSor
+  - Commands start with **TS**
 
 > You can type the first several characters of the command and press **`Tab`** to see more information for the corresponding command.
 
@@ -51,16 +56,17 @@ make -j16
 > See /examples/basic_cmd.dof for full commands
 
 1. Read a QASM file of QFT_3 circuit and print some information
+
 ```
-qccread ./benchmark/qft/qft_3.qasm 
+qccread ./benchmark/qft/qft_3.qasm
 qccprint -s
 qccprint -q
 ```
 
 ![](https://hackmd.io/_uploads/BJccpspB3.png)
 
-
 2. Transform the quantum circuit to ZX-graph
+
 ```
 qc2zx
 ```
@@ -79,7 +85,6 @@ zxgwrite ./examples/zx-format/qft_3-after.zx
 ```
 
 ![](https://hackmd.io/_uploads/ByMqRjarh.png)
-
 
 4. Transform the optimized ZX-graph back to quantum circuit and write it to a new QASM file
 
@@ -103,7 +108,6 @@ tsequiv 0 1
 
 ![](https://hackmd.io/_uploads/BJ8nRi6H3.png)
 
-
 6. Adjoint the original ZX-graph and compose it with the optimized one and `full_reduce` the new ZX-graph again to check if it is identity ($AA^{T} = I$)
 
 ```
@@ -114,16 +118,18 @@ zxgsimp -freduce
 zxgp -s
 zxgp -v
 ```
+
 ![](https://hackmd.io/_uploads/rkx-1nprh.png)
 
-7. Quit the exection
+7. Quit the execution
+
 ```
 qq -f
 ```
 
-
 ## Try yourself
+
 1. Change verbosity from 0-9 and see the printing information in command line
 2. Use `qcprint`, `zxprint`, and `tsprint` to see the information of `QCirMgr`, `ZXGraphMgr` and `TSMgr`
 3. Use different simplification rules in `zxgsimp` cmd and see the difference before and after those rules.
-![](https://hackmd.io/_uploads/ryp2lnTS3.png)
+   ![](https://hackmd.io/_uploads/ryp2lnTS3.png)
