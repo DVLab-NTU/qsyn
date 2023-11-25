@@ -1,5 +1,5 @@
-zxgraph read benchmark/zx/cnot.zx
-zxgraph read benchmark/zx/cnot.zx
-zxgraph compose 0
-zxgraph print -v
+zx read benchmark/zx/cnot.zx
+zx read benchmark/zx/cnot.zx
+zx compose 0
+zx print -v
 quit -f

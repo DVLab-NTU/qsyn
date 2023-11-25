@@ -2,7 +2,7 @@ qsyn> qcir read benchmark/qft/qft_10dec.qasm
 
 qsyn> qc2zx
 
-qsyn> zxgraph gflow -all
+qsyn> zx gflow --all --only-xy-plane
 GFlow of the graph:
 Level 0
    1 (XY): (None)
@@ -415,9 +415,9 @@ Level 62
 GFlow exists.
 #Levels: 63
 
-qsyn> zxgraph optimize --interior-clifford-reduce
+qsyn> zx optimize --interior-clifford
 
-qsyn> zxgraph gflow -all
+qsyn> zx gflow --all --only-xy-plane
 GFlow of the graph:
 Level 0
    1 (XY): (None)

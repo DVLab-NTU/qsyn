@@ -8,14 +8,14 @@ qcir print --diagram
 qcir copy 0 -r
 qcir print --diagram
 qc2zx
-zxgraph print -v
-zxgraph adjoint
-zxgraph compose 0
-zxgraph print -v
-zxgraph optimize --full-reduce
-zxgraph print -v
+zx print -v
+zx adjoint
+zx compose 0
+zx print -v
+zx optimize --full
+zx print -v
 qcir clear
-zxgraph clear
+zx clear
 qcir print --diagram
 qcir gate add cx 0 1
 qcir qubit add
@@ -37,8 +37,8 @@ qcir gate add t 3
 qcir gate add cx 3 2
 qcir gate add cx 0 1
 qcir print --diagram
-qcir gate add -pr rz -ph 0.00001 0
-qcir gate add -pr rz -ph 1.2345 0
+qcir gate add --prepend rz -ph 0.00001 0
+qcir gate add --prepend rz -ph 1.2345 0
 qcir print --gate 10
 qcir print --verbose --gate 9
 qcir print --diagram
@@ -51,10 +51,10 @@ qcir print --diagram
 qcir copy
 qcir qubit add
 qcir print --diagram
-qcir gate add -pr cx 0 4
+qcir gate add --prepend cx 0 4
 qcir gate add cx 2 4
-qcir gate add -pr rz -ph 1.2345 0
+qcir gate add --prepend rz -ph 1.2345 0
 qcir print --diagram
 qc2zx
-zxgraph print
+zx print
 quit -f

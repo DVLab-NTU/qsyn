@@ -14,7 +14,7 @@ qsyn> qc2ts
 
 qsyn> qc2zx
 
-qsyn> zxgraph print -q
+qsyn> zx print -q
 
 ID:   7 (Z, -π/6)        (Qubit, Col): (-2, 4)        #Neighbors:   1     (6, H)
 
@@ -32,9 +32,9 @@ ID:   3 (●, 0)           (Qubit, Col): (1, 5)         #Neighbors:   1     (5, 
 ID:   5 (Z, π/6)         (Qubit, Col): (1, 4)         #Neighbors:   3     (2, -) (3, -) (6, H)
 
 
-qsyn> zxgraph optimize --full-reduce
+qsyn> zx optimize --full
 
-qsyn> zxgraph print -q
+qsyn> zx print -q
 
 ID:   7 (Z, -π/6)        (Qubit, Col): (-2, 4)        #Neighbors:   1     (6, H)
 
@@ -61,7 +61,7 @@ Equivalent
 
 qsyn> qcir clear
 
-qsyn> zxgraph clear
+qsyn> zx clear
 
 qsyn> tensor clear
 
@@ -76,7 +76,7 @@ ID:   0 (  p)      Time:    1     Qubit:   0       Phase: π/3
 
 qsyn> qc2zx
 
-qsyn> zxgraph print -v
+qsyn> zx print -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (2, -)
 ID:   1 (●, 0)           (Qubit, Col): (0, 3)         #Neighbors:   1     (2, -)

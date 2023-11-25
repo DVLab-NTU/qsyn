@@ -6,25 +6,25 @@ qsyn> qcir gate add rz -ph 0.001 0
 
 qsyn> qc2ts
 
-qsyn> tensor equiv 0 1 -eps 1e-2
+qsyn> tensor equiv 0 1 --eps 1e-2
 Equivalent
 - Global Norm : 1
 - Global Phase: 0
 
-qsyn> tensor equiv 0 1 -eps 1e-4
+qsyn> tensor equiv 0 1 --eps 1e-4
 Equivalent
 - Global Norm : 1
 - Global Phase: 0
 
-qsyn> tensor equiv 0 1 -eps 1e-6
+qsyn> tensor equiv 0 1 --eps 1e-6
 Equivalent
 - Global Norm : 1
 - Global Phase: 0
 
-qsyn> tensor equiv 0 1 -eps 1e-8
+qsyn> tensor equiv 0 1 --eps 1e-8
 Not Equivalent
 
-qsyn> tensor equiv 0 1 -eps 1e-10
+qsyn> tensor equiv 0 1 --eps 1e-10
 Not Equivalent
 
 qsyn> quit -f

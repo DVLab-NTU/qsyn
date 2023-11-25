@@ -2,7 +2,7 @@ qsyn> qcir read ./benchmark/SABRE/small/rd32-v1_68.qasm
 
 qsyn> qc2zx
 
-qsyn> zxgraph print -q
+qsyn> zx print -q
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (8, -)
 ID:   1 (●, 0)           (Qubit, Col): (0, 39)        #Neighbors:   1     (35, -)
@@ -75,7 +75,7 @@ ID:  55 (X, π)           (Qubit, Col): (3, 35)        #Neighbors:   2     (7, -
 qsyn> logger level info
 [info]     Setting logger level to "info"
 
-qsyn> zxgraph optimize --full-reduce
+qsyn> zx optimize --full
 [info]     Hadamard Rule                 2 iterations, total    4 matches
 [info]     Spider Fusion Rule            3 iterations, total   16 matches
 [info]     Identity Removal Rule         1 iterations, total    4 matches
@@ -90,7 +90,7 @@ qsyn> zxgraph optimize --full-reduce
 
 qsyn> logger level warn
 
-qsyn> zxgraph print -q
+qsyn> zx print -q
 
 ID:  61 (Z, -π/4)        (Qubit, Col): (-2, 7)        #Neighbors:   1     (62, H)
 ID:  67 (Z, -π/4)        (Qubit, Col): (-2, 29)       #Neighbors:   1     (68, H)

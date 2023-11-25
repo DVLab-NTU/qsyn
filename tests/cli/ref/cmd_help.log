@@ -26,7 +26,7 @@ Options:
   flag  -h, --help     show this help message           
   flag  -q, --quiet    suppress the echoing of commands 
 
-qsyn> zxgraph vertex -h
+qsyn> zx vertex -h
 Usage: vertex [-h] (add | remove) ...
 
 Description:
@@ -39,7 +39,7 @@ Subcommands:
   (add | remove)                          
     add           add vertices to ZXGraph 
 
-qsyn> zxgraph vertex remove -h
+qsyn> zx vertex remove -h
 Usage: remove [-h] ([<size_t ids>]... | -i)
 
 Positional Arguments:
@@ -49,7 +49,7 @@ Options:
   flag  -h, --help        show this help message               
   flag  -i, --isolated    if set, remove all isolated vertices 
 
-qsyn> zxgraph edge remove -h
+qsyn> zx edge remove -h
 Usage: remove [-h] <size_t (vs, vt)> <size_t (vs, vt)> <string etype>
 
 Description:
@@ -63,26 +63,26 @@ Options:
   flag  -h, --help    show this help message 
 
 qsyn> extract step -h
-Usage: step [-h] (-zxgraph <size_t ID>) (-qcir <size_t ID>) (-cx | -cz | -phase | -H | -clf | -rmg | -permute | -loop [<size_t N>])
+Usage: step [-h] (-zx <size_t ID>) (-qc <size_t ID>) (-cx | -cz | -ph | -H | --clear-frontier | --remove-gadgets | --permute | -l [<size_t N>])
 
 Description:
   perform step(s) in extraction
 
 Options:
-  flag    -h, --help                  show this help message                                  
-  size_t  -zxgraph                ID  the ID of the ZXGraph to extract from                   
-  size_t  -qcir                   ID  the ID of the QCir to extract to                        
-  flag    -cx                         Extract CX gates                                        
-  flag    -cz                         Extract CZ gates                                        
-  flag    -phase                      Extract Z-rotation gates                                
-  flag    -H, --hadamard              Extract Hadamard gates                                  
-  flag    -clf, --clear-frontier      Extract Z-rotation and then CZ gates                    
-  flag    -rmg, --remove-gadgets      Remove phase gadgets in the neighbor of the frontiers   
-  flag    -permute                    Add swap gates to account for ZXGraph I/O permutations  
-  size_t  -loop                   N   Run N iteration of extraction loop. N is defaulted to 1 
+  flag    -h, --help            show this help message                                  
+  size_t  -zx, --zxgraph    ID  the ID of the ZXGraph to extract from                   
+  size_t  -qc, --qcir       ID  the ID of the QCir to extract to                        
+  flag    -cx                   Extract CX gates                                        
+  flag    -cz                   Extract CZ gates                                        
+  flag    -ph, --phase          Extract Z-rotation gates                                
+  flag    -H, --hadamard        Extract Hadamard gates                                  
+  flag    --clear-frontier      Extract Z-rotation and then CZ gates                    
+  flag    --remove-gadgets      Remove phase gadgets in the neighbor of the frontiers   
+  flag    --permute             Add swap gates to account for ZXGraph I/O permutations  
+  size_t  -l, --loop        N   Run N iteration of extraction loop. N is defaulted to 1 
 
-qsyn> zxgraph read -h
-Usage: read [-h] [-keepid] [-replace] <string filepath>
+qsyn> zx read -h
+Usage: read [-h] [--keep-id] [-r] <string filepath>
 
 Description:
   read a file and construct the corresponding ZXGraph
@@ -91,9 +91,9 @@ Positional Arguments:
   string  filepath    path to the ZX file. Supported extensions: .zx 
 
 Options:
-  flag  -h, --help    show this help message                                                                  
-  flag  -keepid       if set, retain the IDs in the ZX file; otherwise the ID is rearranged to be consecutive 
-  flag  -replace      replace the current ZXGraph                                                             
+  flag  -h, --help       show this help message                                                                  
+  flag  --keep-id        if set, retain the IDs in the ZX file; otherwise the ID is rearranged to be consecutive 
+  flag  -r, --replace    replace the current ZXGraph                                                             
 
 qsyn> quit -f
 

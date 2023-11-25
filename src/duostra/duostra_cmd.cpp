@@ -172,21 +172,23 @@ Command mapping_equivalence_check_cmd(qcir::QCirMgr& qcir_mgr, device::DeviceMgr
         "map-equiv",
         [](ArgumentParser& parser) {
             parser.description("check equivalence of the physical and the logical circuits");
-            parser.add_argument<size_t>("-logical")
+            parser.add_argument<size_t>("-l", "--logical")
+                .metavar("l-id")
                 .required(true)
-                .help("logical circuit id");
-            parser.add_argument<size_t>("-physical")
+                .help("the ID to the logical QCir");
+            parser.add_argument<size_t>("-p", "--physical")
+                .metavar("p-id")
                 .required(true)
-                .help("physical circuit id");
-            parser.add_argument<bool>("-reverse")
+                .help("the ID to the physical QCir");
+            parser.add_argument<bool>("-r", "--reverse")
                 .default_value(false)
                 .action(store_true)
-                .help("check the circuit reversily, used in extracted circuit");
+                .help("check the QCir in reverse. This option is supposed to be used for extracted QCir");
         },
         [&](ArgumentParser const& parser) {
             using dvlab::fmt_ext::styled_if_ansi_supported;
-            auto physical_qc = qcir_mgr.find_by_id(parser.get<size_t>("-physical"));
-            auto logical_qc  = qcir_mgr.find_by_id(parser.get<size_t>("-logical"));
+            auto physical_qc = qcir_mgr.find_by_id(parser.get<size_t>("--physical"));
+            auto logical_qc  = qcir_mgr.find_by_id(parser.get<size_t>("--logical"));
             if (physical_qc == nullptr || logical_qc == nullptr) {
                 return CmdExecResult::error;
             }
