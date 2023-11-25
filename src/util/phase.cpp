@@ -51,7 +51,7 @@ namespace dvlab::argparse {
 template <>
 std::string type_string(dvlab::Phase const& /*unused*/) { return "Phase"; }
 template <>
-bool parse_from_string(dvlab::Phase& val, std::string const& token) {
+bool parse_from_string(dvlab::Phase& val, std::string_view token) {
     return dvlab::Phase::str_to_phase(token, val);
 }
 }  // namespace dvlab::argparse

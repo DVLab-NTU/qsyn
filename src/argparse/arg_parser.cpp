@@ -22,7 +22,7 @@
 
 namespace dvlab::argparse {
 
-ArgumentParser::ArgumentParser(std::string const& n, ArgumentParserConfig config) : ArgumentParser() {
+ArgumentParser::ArgumentParser(std::string_view n, ArgumentParserConfig config) : ArgumentParser() {
     this->name(n);
 
     if (config.add_help_action) {
@@ -47,7 +47,7 @@ size_t ArgumentParser::num_parsed_args() const {
         });
 }
 
-bool ArgumentParser::_has_arg(std::string const& name) const {
+bool ArgumentParser::_has_arg(std::string_view name) const {
     return _pimpl->arguments.contains(name) ||
            _pimpl->alias_forward_map.contains(name) ||
            (_pimpl->subparsers.has_value() && get_activated_subparser()->_has_arg(name));
@@ -59,7 +59,7 @@ std::optional<ArgumentParser> ArgumentParser::get_activated_subparser() const {
     return _pimpl->subparsers->get_subparsers().at(_pimpl->activated_subparser.value());
 }
 
-bool ArgumentParser::used_subparser(std::string const& name) const {
+bool ArgumentParser::used_subparser(std::string_view name) const {
     auto activated_subparser = get_activated_subparser();
     return activated_subparser.has_value() && (activated_subparser->get_name() == name || activated_subparser->used_subparser(name));
 }
@@ -84,11 +84,11 @@ void ArgumentParser::print_arguments() const {
     }
 }
 
-Argument& ArgumentParser::_get_arg(std::string const& name) {
+Argument& ArgumentParser::_get_arg(std::string_view name) {
     return _get_arg_impl(*this, name);
 }
 
-Argument const& ArgumentParser::_get_arg(std::string const& name) const {
+Argument const& ArgumentParser::_get_arg(std::string_view name) const {
     return _get_arg_impl(*this, name);
 }
 
@@ -98,7 +98,7 @@ Argument const& ArgumentParser::_get_arg(std::string const& name) const {
  * @param name
  * @return ArgumentParser&
  */
-ArgumentParser& ArgumentParser::name(std::string const& name) {
+ArgumentParser& ArgumentParser::name(std::string_view name) {
     _pimpl->name = name;
     return *this;
 }
@@ -109,7 +109,7 @@ ArgumentParser& ArgumentParser::name(std::string const& name) {
  * @param name
  * @return ArgumentParser&
  */
-ArgumentParser& ArgumentParser::description(std::string const& help) {
+ArgumentParser& ArgumentParser::description(std::string_view help) {
     _pimpl->description = help;
     return *this;
 }
@@ -119,12 +119,12 @@ ArgumentParser& ArgumentParser::num_required_chars(size_t num) {
     return *this;
 }
 
-ArgumentParser& ArgumentParser::option_prefix(std::string const& prefix) {
+ArgumentParser& ArgumentParser::option_prefix(std::string_view prefix) {
     _pimpl->option_prefixes = prefix;
     return *this;
 }
 
-size_t ArgumentParser::get_arg_num_required_chars(std::string const& name) const {
+size_t ArgumentParser::get_arg_num_required_chars(std::string_view name) const {
     assert(_pimpl->arguments.contains(name) || _pimpl->alias_forward_map.contains(name));
     auto n_req = _pimpl->identifiers.shortest_unique_prefix(name).size();
     while (_pimpl->option_prefixes.find_first_of(name[n_req - 1]) != std::string::npos) {
@@ -413,7 +413,7 @@ void ArgumentParser::_fill_unparsed_args_with_defaults() {
  * @param token
  * @return optional<string> return the option name if exactly one option matches the token. Otherwise, return std::nullopt
  */
-std::variant<std::string, size_t> ArgumentParser::_match_option(std::string const& token) const {
+std::variant<std::string, size_t> ArgumentParser::_match_option(std::string_view token) const {
     auto match = _pimpl->identifiers.find_with_prefix(token);
     if (match.has_value()) {
         if (token.size() < get_arg_num_required_chars(match.value())) {
@@ -497,7 +497,7 @@ bool ArgumentParser::_all_required_args_are_parsed() const {
  * @param name
  * @return ArgumentParser
  */
-ArgumentParser SubParsers::add_parser(std::string const& name) {
+ArgumentParser SubParsers::add_parser(std::string_view name) {
     return add_parser(name, _pimpl->parent_config);
 }
 
@@ -508,13 +508,13 @@ ArgumentParser SubParsers::add_parser(std::string const& name) {
  * @param config
  * @return ArgumentParser
  */
-ArgumentParser SubParsers::add_parser(std::string const& name, ArgumentParserConfig const& config) {
+ArgumentParser SubParsers::add_parser(std::string_view name, ArgumentParserConfig const& config) {
     if (_pimpl->subparsers.contains(name)) {
         fmt::println(stderr, "[ArgParse Error] Subparser \"{}\" already exists!!", name);
         throw std::runtime_error("subparser already exists");
     }
     _pimpl->subparsers.emplace(name, ArgumentParser{name, config});
-    return _pimpl->subparsers.at(name);
+    return _pimpl->subparsers.at(std::string{name});
 }
 /**
  * @brief

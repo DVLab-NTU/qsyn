@@ -165,6 +165,8 @@ public:
      */
     inline size_type id(Key const& key) const { return this->_key2id.at(key); }
     bool contains(Key const& key) const;
+    template <typename KT>
+    bool contains(KT const& key) const;
     virtual Key const& key(stored_type const& value) const = 0;
 
     // properties
@@ -217,6 +219,13 @@ protected:
 template <typename Key, typename Value, typename StoredType, typename Hash, typename KeyEqual>
 bool ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::contains(Key const& key) const {
     return (this->_key2id.contains(key) && this->_data[id(key)].has_value());
+}
+
+template <typename Key, typename Value, typename StoredType, typename Hash, typename KeyEqual>
+template <typename KT>
+bool ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::contains(KT const& key) const {
+    // REVIEW - Can we avoid casting the key to Key?
+    return (this->_key2id.contains(key) && this->_data[id(Key{key})].has_value());
 }
 
 //------------------------------------------------------

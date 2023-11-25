@@ -64,12 +64,12 @@ public:
     ArgType(std::string name, T val)
         : _values{std::move(val)}, _name{std::move(name)} {}
 
-    ArgType& usage(std::string const& usage);
-    ArgType& help(std::string const& help);
+    ArgType& usage(std::string_view usage);
+    ArgType& help(std::string_view help);
     ArgType& required(bool is_required);
     ArgType& default_value(T const& val);
     ArgType& action(ActionType const& action);
-    ArgType& metavar(std::string const& metavar);
+    ArgType& metavar(std::string_view metavar);
     ArgType& constraint(ConstraintType const& constraint);
     ArgType& choices(std::vector<T> const& choices);
     ArgType& nargs(size_t n);
@@ -146,8 +146,8 @@ ActionCallbackType help(ArgType<bool>& arg);
 ActionCallbackType version(ArgType<bool>& arg);
 
 ArgType<std::string>::ConstraintType choices_allow_prefix(std::vector<std::string> choices);
-bool path_readable(std::string const& filepath);
-bool path_writable(std::string const& filepath);
+bool path_readable(std::string_view filepath);
+bool path_writable(std::string_view filepath);
 ArgType<std::string>::ConstraintType starts_with(std::vector<std::string> const& prefixes);
 ArgType<std::string>::ConstraintType ends_with(std::vector<std::string> const& suffixes);
 ArgType<std::string>::ConstraintType allowed_extension(std::vector<std::string> const& extensions);
@@ -189,7 +189,7 @@ namespace dvlab::argparse {
  */
 template <typename T>
 requires valid_argument_type<T>
-ArgType<T>& ArgType<T>::usage(std::string const& usage) {
+ArgType<T>& ArgType<T>::usage(std::string_view usage) {
     _usage = usage;
     return *this;
 }
@@ -203,7 +203,7 @@ ArgType<T>& ArgType<T>::usage(std::string const& usage) {
  */
 template <typename T>
 requires valid_argument_type<T>
-ArgType<T>& ArgType<T>::help(std::string const& help) {
+ArgType<T>& ArgType<T>::help(std::string_view help) {
     _help = help;
     return *this;
 }
@@ -263,7 +263,7 @@ ArgType<T>& ArgType<T>::action(ArgType<T>::ActionType const& action) {
  */
 template <typename T>
 requires valid_argument_type<T>
-ArgType<T>& ArgType<T>::metavar(std::string const& metavar) {
+ArgType<T>& ArgType<T>::metavar(std::string_view metavar) {
     _metavar = metavar;
     return *this;
 }

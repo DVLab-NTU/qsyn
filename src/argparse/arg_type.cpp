@@ -24,8 +24,8 @@ ArgType<std::string>::ConstraintType choices_allow_prefix(std::vector<std::strin
     std::ranges::for_each(choices, [](std::string& str) { str = dvlab::str::tolower_string(str); });
     dvlab::utils::Trie const trie{std::begin(choices), std::end(choices)};
 
-    return [choices, trie](std::string const& val) -> bool {
-        auto const is_exact_match_to_choice = [&val](std::string const& choice) -> bool {
+    return [choices, trie](std::string_view val) -> bool {
+        auto const is_exact_match_to_choice = [&val](std::string_view choice) -> bool {
             return dvlab::str::tolower_string(val) == choice;
         };
         auto const freq = trie.frequency(dvlab::str::tolower_string(val));
@@ -35,7 +35,7 @@ ArgType<std::string>::ConstraintType choices_allow_prefix(std::vector<std::strin
 
         if (freq > 1) {
             fmt::println(stderr, "Error: ambiguous choice \"{}\": could match {}!!\n",
-                         val, fmt::join(choices | std::views::filter([&val](std::string const& choice) { return choice.starts_with(dvlab::str::tolower_string(val)); }), ", "));
+                         val, fmt::join(choices | std::views::filter([&val](std::string_view choice) { return choice.starts_with(dvlab::str::tolower_string(val)); }), ", "));
         } else {
             fmt::println(stderr, "Error: invalid choice \"{}\": please choose from {{{}}}!!\n",
                          val, fmt::join(choices, ", "));
@@ -44,7 +44,7 @@ ArgType<std::string>::ConstraintType choices_allow_prefix(std::vector<std::strin
     };
 }
 
-bool path_readable(std::string const& filepath) {
+bool path_readable(std::string_view filepath) {
     namespace fs = std::filesystem;
     if (!fs::exists(filepath)) {
         fmt::println(stderr, "Error: the file \"{}\" does not exist!!", filepath);
@@ -53,7 +53,7 @@ bool path_readable(std::string const& filepath) {
     return true;
 }
 
-bool path_writable(std::string const& filepath) {
+bool path_writable(std::string_view filepath) {
     namespace fs = std::filesystem;
     auto dir     = fs::path{filepath}.parent_path();
     if (dir.empty()) dir = ".";
@@ -65,8 +65,8 @@ bool path_writable(std::string const& filepath) {
 }
 
 ArgType<std::string>::ConstraintType starts_with(std::vector<std::string> const& prefixes) {
-    return [prefixes](std::string const& str) {
-        if (std::ranges::none_of(prefixes, [&str](std::string const& prefix) { return str.starts_with(prefix); })) {
+    return [prefixes](std::string_view str) {
+        if (std::ranges::none_of(prefixes, [&str](std::string_view prefix) { return str.starts_with(prefix); })) {
             fmt::println(stderr, "Error: string \"{}\" should start with one of \"{}\"!!",
                          str, fmt::join(prefixes, "\", \""));
             return false;
@@ -76,8 +76,8 @@ ArgType<std::string>::ConstraintType starts_with(std::vector<std::string> const&
 }
 
 ArgType<std::string>::ConstraintType ends_with(std::vector<std::string> const& suffixes) {
-    return [suffixes](std::string const& str) {
-        if (std::ranges::none_of(suffixes, [&str](std::string const& suffix) { return str.ends_with(suffix); })) {
+    return [suffixes](std::string_view str) {
+        if (std::ranges::none_of(suffixes, [&str](std::string_view suffix) { return str.ends_with(suffix); })) {
             fmt::println(stderr, "Error: string \"{}\" should start end one of \"{}\"!!",
                          str, fmt::join(suffixes, "\", \""));
             return false;
@@ -87,8 +87,8 @@ ArgType<std::string>::ConstraintType ends_with(std::vector<std::string> const& s
 }
 
 ArgType<std::string>::ConstraintType allowed_extension(std::vector<std::string> const& extensions) {
-    return [extensions](std::string const& str) {
-        if (std::ranges::none_of(extensions, [&str](std::string const& ext) { return str.substr(std::min(str.find_last_of('.'), str.size())) == ext; })) {
+    return [extensions](std::string_view str) {
+        if (std::ranges::none_of(extensions, [&str](std::string_view ext) { return str.substr(std::min(str.find_last_of('.'), str.size())) == ext; })) {
             fmt::println(stderr, "Error: file \"{}\" must have one of the following extension: \"{}\"!!",
                          str, fmt::join(extensions, "\", \""));
             return false;

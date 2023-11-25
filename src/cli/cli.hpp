@@ -8,6 +8,7 @@
 
 #include <filesystem>
 #include <fstream>
+#include <functional>
 #include <map>
 #include <memory>
 #include <stack>
@@ -22,6 +23,16 @@
 #include "jthread/jthread.hpp"
 
 namespace dvlab {
+
+namespace detail {
+struct heterogeneous_string_hash {
+    using is_transparent = void;
+
+    [[nodiscard]] size_t operator()(std::string_view str) const noexcept { return std::hash<std::string_view>{}(str); }
+    [[nodiscard]] size_t operator()(std::string const& str) const noexcept { return std::hash<std::string>{}(str); }
+    [[nodiscard]] size_t operator()(char const* const str) const noexcept { return std::hash<std::string_view>{}(str); }
+};
+}  // namespace detail
 
 class CommandLineInterface;
 
@@ -68,9 +79,9 @@ class Command {
     using OnParseSuccess   = std::function<CmdExecResult(dvlab::argparse::ArgumentParser const&)>;
 
 public:
-    Command(std::string const& name, ParserDefinition defn, OnParseSuccess on)
+    Command(std::string_view name, ParserDefinition defn, OnParseSuccess on)
         : _parser{name, {.exit_on_failure = false}}, _parser_definition{std::move(defn)}, _on_parse_success{std::move(on)} {}
-    Command(std::string const& name)
+    Command(std::string_view name)
         : dvlab::Command(name, nullptr, nullptr) {}
 
     bool initialize(size_t n_req_chars);
@@ -102,7 +113,7 @@ class CommandLineInterface {
     static constexpr size_t read_buf_size = 65536;
     static constexpr size_t page_offset   = 10;
 
-    using CmdMap = std::unordered_map<std::string, std::unique_ptr<dvlab::Command>>;
+    using CmdMap = std::unordered_map<std::string, std::unique_ptr<dvlab::Command>, detail::heterogeneous_string_hash, std::equal_to<>>;
 
 public:
     /**
@@ -110,7 +121,7 @@ public:
      *
      * @param prompt the prompt of the CLI
      */
-    CommandLineInterface(std::string const& prompt, size_t level = 0) : _command_prompt{prompt}, _cli_level{level} {
+    CommandLineInterface(std::string_view prompt, size_t level = 0) : _command_prompt{prompt}, _cli_level{level} {
         _read_buffer.reserve(read_buf_size);
     }
 
@@ -118,16 +129,16 @@ public:
     CmdExecResult source_dofile(std::filesystem::path const& filepath, std::span<std::string const> arguments = {}, bool echo = true);
 
     bool add_command(dvlab::Command cmd);
-    bool add_alias(std::string const& alias, std::string const& replace_str);
-    bool remove_alias(std::string const& alias);
-    bool add_variable(std::string const& key, std::string const& value);
-    bool remove_variable(std::string const& key);
-    dvlab::Command* get_command(std::string const& cmd) const;
-    std::optional<std::string> get_alias_replacement_string(std::string const& alias_prefix) const;
+    bool add_alias(std::string_view alias, std::string_view replace_str);
+    bool remove_alias(std::string_view alias);
+    bool add_variable(std::string_view key, std::string_view value);
+    bool remove_variable(std::string_view key);
+    dvlab::Command* get_command(std::string_view cmd) const;
+    std::optional<std::string> get_alias_replacement_string(std::string_view alias_prefix) const;
 
     CmdExecResult start_interactive();
 
-    bool add_variables_from_dofiles(std::string const& filepath, std::span<std::string const> arguments);
+    bool add_variables_from_dofiles(std::filesystem::path const& filepath, std::span<std::string const> arguments);
 
     void sigint_handler(int signum);
     bool stop_requested() const { return _command_threads.size() && _command_threads.top().get_stop_token().stop_requested(); }
@@ -144,7 +155,7 @@ public:
         bool allow_tab_completion = true;
     };
 
-    std::pair<CmdExecResult, std::string> listen_to_input(std::istream& istr, std::string const& prompt, ListenConfig const& config = {true, true});
+    std::pair<CmdExecResult, std::string> listen_to_input(std::istream& istr, std::string_view prompt, ListenConfig const& config = {true, true});
 
     constexpr static std::string_view double_quote_special_chars = "\\$";        // The characters that are identified as special characters when parsing inside double quotes
     constexpr static std::string_view special_chars              = "\\$\"\' ;";  // The characters that are identified as special characters when parsing
@@ -177,9 +188,10 @@ private:
     // tab-related features features
     void _on_tab_pressed();
     // onTabPressed subroutines
-    TabActionResult _match_identifiers(std::string const& str);
+    TabActionResult _match_identifiers(std::string_view str);
+    // NOTE - This function passes the string by const ref instead of string_view because it uses std::regex
     TabActionResult _match_variables(std::string const& str);
-    TabActionResult _match_files(std::string const& str);
+    TabActionResult _match_files(std::string_view str);
 
     // helper functions
     std::vector<std::string> _get_file_matches(std::filesystem::path const& filepath) const;
@@ -216,6 +228,7 @@ private:
         if (_echo)
             fflush(stdout);
     }
+    // NOTE - This function passes the string by const ref instead of string_view because it uses std::regex
     std::string _replace_variable_keys_with_values(std::string const& str) const;
 
     inline bool _is_special_char(char ch) const { return special_chars.find_first_of(ch) != std::string::npos; }
@@ -236,8 +249,8 @@ private:
     bool _echo = true;
     dvlab::utils::Trie _identifiers;
     CmdMap _commands;
-    std::unordered_map<std::string, std::string> _aliases;
-    std::unordered_map<std::string, std::string> _variables;  // stores the variables key-value pairs, e.g., $1, $INPUT_FILE, etc...
+    std::unordered_map<std::string, std::string, detail::heterogeneous_string_hash, std::equal_to<>> _aliases;
+    std::unordered_map<std::string, std::string, detail::heterogeneous_string_hash, std::equal_to<>> _variables;  // stores the variables key-value pairs, e.g., $1, $INPUT_FILE, etc...
 
     size_t _cli_level = 0;
 
