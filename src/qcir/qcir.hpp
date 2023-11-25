@@ -96,6 +96,8 @@ public:
     std::string get_filename() const { return _filename; }
     std::vector<std::string> const& get_procedures() const { return _procedures; }
 
+    bool is_empty() const { return _qubits.empty(); }
+
     void set_filename(std::string f) { _filename = std::move(f); }
     void add_procedures(std::vector<std::string> const& ps) { _procedures.insert(_procedures.end(), ps.begin(), ps.end()); }
     void add_procedure(std::string const& p) { _procedures.emplace_back(p); }

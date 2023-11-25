@@ -259,33 +259,10 @@ Command extract_cmd(zx::ZXGraphMgr& zxgraph_mgr, qcir::QCirMgr& qcir_mgr) {
     auto cmd = Command{"extract",
                        [](ArgumentParser& parser) {
                            parser.description("extract ZXGraph to QCir");
+                           parser.add_subparsers().required(true);
                        },
                        [&](ArgumentParser const& /* unused */) {
-                           if (!dvlab::utils::mgr_has_data(zxgraph_mgr)) return CmdExecResult::error;
-                           if (!zxgraph_mgr.get()->is_graph_like()) {
-                               spdlog::error("ZXGraph {} is not extractable because it is not graph-like!!", zxgraph_mgr.focused_id());
-                               return CmdExecResult::error;
-                           }
-                           auto next_id = zxgraph_mgr.get_next_id();
-                           zxgraph_mgr.copy(next_id);
-                           Extractor ext(zxgraph_mgr.get(), nullptr, std::nullopt);
-
-                           qcir::QCir* result = ext.extract();
-                           if (result != nullptr) {
-                               qcir_mgr.add(qcir_mgr.get_next_id(), std::make_unique<qcir::QCir>(*result));
-                               if (PERMUTE_QUBITS)
-                                   zxgraph_mgr.remove(next_id);
-                               else {
-                                   spdlog::warn("The extracted circuit is up to a qubit permutation.");
-                                   spdlog::warn("Remaining permutation information is in ZXGraph id {}.", next_id);
-                                   zxgraph_mgr.get()->add_procedure("ZX2QC");
-                               }
-
-                               qcir_mgr.get()->add_procedures(zxgraph_mgr.get()->get_procedures());
-                               qcir_mgr.get()->add_procedure("ZX2QC");
-                               qcir_mgr.get()->set_filename(zxgraph_mgr.get()->get_filename());
-                           }
-                           return CmdExecResult::done;
+                           return CmdExecResult::error;
                        }};
 
     cmd.add_subcommand(extractor_config_cmd());
@@ -296,8 +273,7 @@ Command extract_cmd(zx::ZXGraphMgr& zxgraph_mgr, qcir::QCirMgr& qcir_mgr) {
 }
 
 bool add_extract_cmds(dvlab::CommandLineInterface& cli, zx::ZXGraphMgr& zxgraph_mgr, qcir::QCirMgr& qcir_mgr) {
-    if (!(cli.add_command(extract_cmd(zxgraph_mgr, qcir_mgr)) &&
-          cli.add_alias("zx2qc", "extract"))) {
+    if (!cli.add_command(extract_cmd(zxgraph_mgr, qcir_mgr))) {
         spdlog::error("Registering \"extract\" commands fails... exiting");
         return false;
     }
