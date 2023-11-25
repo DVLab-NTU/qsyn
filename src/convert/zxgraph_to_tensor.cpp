@@ -100,6 +100,10 @@ std::optional<tensor::QTensor<double>> to_tensor(zx::ZXGraph const& zxgraph) {
  * @return std::optional<QTensor<double>> containing a QTensor<double> if the conversion succeeds
  */
 std::optional<tensor::QTensor<double>> ZX2TSMapper::map(zx::ZXGraph const& graph) {
+    if (graph.is_empty()) {
+        spdlog::error("The ZXGraph is empty!!");
+        return std::nullopt;
+    }
     if (!graph.is_valid()) {
         spdlog::error("The ZXGraph is not valid!!");
         return std::nullopt;
