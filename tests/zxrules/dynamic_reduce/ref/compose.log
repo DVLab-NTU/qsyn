@@ -1,4 +1,4 @@
-qsyn> logger level debug
+qsyn> logger debug
 [info]     Setting logger level to "debug"
 
 qsyn> zx read benchmark/zx/tof3.zx

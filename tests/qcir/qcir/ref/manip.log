@@ -80,7 +80,7 @@ Q 1  ---------cx( 2)------------------------------------------cx( 4)----------cx
 Q 2  ---------------------------------cx( 1)-- t( 3)----------cx( 4)----------cx( 7)-
 Q 3  ---------cx( 2)-- x( 5)-- t( 6)------------------------------------------cx( 7)-
 
-qsyn> qcir clear
+qsyn> qcir delete --all
 
 qsyn> qcir read benchmark/SABRE/small/3_17_13.qasm
 
@@ -167,7 +167,7 @@ Q 4  ---------------------------------------------------------------------------
 Q 5  - h(37)-
 Q 6  -td(38)-
 
-qsyn> qcir clear
+qsyn> qcir delete --all
 
 qsyn> qcir read benchmark/SABRE/small/3_17_13.qasm
 
@@ -198,7 +198,7 @@ qsyn> qcir print --gate 26
 Listed by gate ID
 ID:  26 (tdg)      Time:   25     Qubit:   1 
 
-qsyn> qcir clear
+qsyn> qcir delete --all
 
 qsyn> qcir read benchmark/SABRE/large/root_255.qasm
 

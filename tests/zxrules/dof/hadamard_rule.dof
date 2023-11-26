@@ -2,9 +2,9 @@ qcir read benchmark/qasm/to_graph2.qasm
 qcir print --diagram
 qc2zx
 zx print -v
-logger level info
+logger info
 zx rule --hadamard-rule
-logger level warn
+logger warn
 zx print -v
 zx print -e
 quit -f

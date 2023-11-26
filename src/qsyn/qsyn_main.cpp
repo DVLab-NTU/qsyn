@@ -106,6 +106,7 @@ bool read_qsynrc_file(std::filesystem::path qsynrc_path) {
     }
 
     auto const result = cli.source_dofile(qsynrc_path, {}, false);
+    cli.clear_history();
 
     if (result == dvlab::CmdExecResult::error) {
         spdlog::critical("Some errors occurred while reading the qsynrc file from {}", qsynrc_path);

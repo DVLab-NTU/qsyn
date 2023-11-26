@@ -1,4 +1,4 @@
-qsyn> logger level debug
+qsyn> logger debug
 [info]     Setting logger level to "debug"
 
 qsyn> qcir qubit add
@@ -66,11 +66,11 @@ qsyn> zx rule --hadamard-fusion
 [info]     Hadamard Rule                 1 iterations, total    1 matches
 [debug]       1) 1 matches
 
-qsyn> zx clear
+qsyn> zx delete --all
 
-qsyn> qcir clear
+qsyn> qcir delete --all
 
-qsyn> logger level debug
+qsyn> logger debug
 [info]     Setting logger level to "debug"
 
 qsyn> qcir qubit add
@@ -135,9 +135,9 @@ qsyn> zx rule --hadamard-fusion
 [debug]       2) 1 matches
 [debug]       3) 1 matches
 
-qsyn> zx clear
+qsyn> zx delete --all
 
-qsyn> qcir clear
+qsyn> qcir delete --all
 
 qsyn> qcir qubit add
 [info]     QCir list is empty now. Create a new one.
@@ -207,9 +207,9 @@ ID:   1 (●, 0)           (Qubit, Col): (0, 4)         #Neighbors:   1     (0, 
 Total #Vertices: 2
 
 
-qsyn> zx clear
+qsyn> zx delete --all
 
-qsyn> qcir clear
+qsyn> qcir delete --all
 
 qsyn> qcir qubit add
 [info]     QCir list is empty now. Create a new one.
@@ -292,9 +292,9 @@ ID:   1 (●, 0)           (Qubit, Col): (0, 5)         #Neighbors:   1     (0, 
 Total #Vertices: 2
 
 
-qsyn> zx clear
+qsyn> zx delete --all
 
-qsyn> qcir clear
+qsyn> qcir delete --all
 
 qsyn> qcir qubit add
 [info]     QCir list is empty now. Create a new one.
@@ -365,9 +365,9 @@ ID:   3 (Z, π)           (Qubit, Col): (0, 3)         #Neighbors:   2     (0, -
 Total #Vertices: 3
 
 
-qsyn> zx clear
+qsyn> zx delete --all
 
-qsyn> qcir clear
+qsyn> qcir delete --all
 
 qsyn> qcir qubit add
 [info]     QCir list is empty now. Create a new one.
@@ -446,9 +446,9 @@ ID:   5 (Z, π)           (Qubit, Col): (1, 2)         #Neighbors:   3     (2, -
 Total #Vertices: 6
 
 
-qsyn> zx clear
+qsyn> zx delete --all
 
-qsyn> qcir clear
+qsyn> qcir delete --all
 
 qsyn> qcir qubit add
 [info]     QCir list is empty now. Create a new one.

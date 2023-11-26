@@ -14,8 +14,8 @@ zx compose 0
 zx print -v
 zx optimize --full
 zx print -v
-qcir clear
-zx clear
+qcir delete --all
+zx delete --all
 qcir print --diagram
 qcir gate add cx 0 1
 qcir qubit add

@@ -21,13 +21,13 @@ ID:   9 (X, 0)           (Qubit, Col): (0, 8)         #Neighbors:   3     (1, -)
 Total #Vertices: 10
 
 
-qsyn> logger level info
+qsyn> logger info
 [info]     Setting logger level to "info"
 
 qsyn> zx rule --hadamard-rule
 [info]     Hadamard Rule                 1 iterations, total    1 matches
 
-qsyn> logger level warn
+qsyn> logger warn
 
 qsyn> zx print -v
 

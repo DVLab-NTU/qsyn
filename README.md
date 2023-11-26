@@ -50,7 +50,7 @@ Visualization functionalities of `qsyn` depends at runtime on the following depe
 - `texlive` for drawing ZX-diagrams.
   - For Ubuntu:
     ```sh
-    sudo apt-get install texlive-latex-base
+    sudo apt-get install texlive-latex-base texlive-latex-extra
     ```
   - Other Platforms: please refer to [this page](https://tug.org/texlive/quickinstall.html)
 
@@ -71,7 +71,7 @@ cd build
 cmake ..
 ```
 
-Since we use some C++20 features that are not yet supported by Apple Clang, you'll need to install a the compiler yourself. You can install the `llvm` toolchain with `clang++` by running
+**Note for Mac Users:** Since we use some C++20 features that are not yet supported by Apple Clang, you'll need to install another compiler yourself. We recommand installing the `llvm` toolchain with `clang++` by running
 
 ```sh
 brew install llvm
@@ -186,93 +186,3 @@ We have provided some DOFILEs, i.e., a sequence of commands, to serve as functio
 [Apache License 2.0](https://github.com/DVLab-NTU/qsyn/blob/main/LICENSE).
 
 Certain functions of `qsyn` is enabled by a series of third-party libraries. For a list of these libraries, as well as their license information, please refer to [this document](/vendor/List-of-Used-Libraries.md).
-
-## Commands List
-
-### Info
-
-| Command | Description                             | Options |
-| ------- | --------------------------------------- | ------- |
-| COLOR   | toggle colored printing (1: on, 0: off) |         |
-| DOfile  | execute the commands in the dofile      |         |
-| HELp    | print this help message                 |         |
-| HIStory | print command history                   |         |
-| QQuit   | quit Qsyn                               |         |
-| SEED    | fix the seed                            |         |
-| USAGE   | report the runtime and/or memory usage  |         |
-| VERbose | set verbose level to 0-9 (default: 3)   |         |
-
-### QCir
-
-| Command    | Description                                            | Options |
-| ---------- | ------------------------------------------------------ | ------- |
-| QC2TS      | convert QCir to tensor                                 |         |
-| QC2ZX      | convert QCir to ZX-graph                               |         |
-| QCBAdd     | add qubit(s)                                           |         |
-| QCBDelete  | delete an empty qubit                                  |         |
-| QCCHeckout | checkout to QCir <id> in QCirMgr                       |         |
-| QCCOMpose  | compose a QCir                                         |         |
-| QCCOPy     | copy a QCir                                            |         |
-| QCCPrint   | print info of QCir                                     |         |
-| QCCRead    | read a circuit and construct the corresponding netlist |         |
-| QCCWrite   | write QCir to a QASM file                              |         |
-| QCDelete   | remove a QCir from QCirMgr                             |         |
-| QCGAdd     | add quantum gate                                       |         |
-| QCGDelete  | delete quantum gate                                    |         |
-| QCGPrint   | print gate info in QCir                                |         |
-| QCNew      | create a new QCir to QCirMgr                           |         |
-| QCPrint    | print info of QCirMgr                                  |         |
-| QCReset    | reset QCirMgr                                          |         |
-| QCTensor   | tensor a QCir                                          |         |
-
-### Graph
-
-| Command     | Description                                                | Options |
-| ----------- | ---------------------------------------------------------- | ------- |
-| ZX2QC       | extract QCir from ZX-graph                                 |         |
-| ZX2TS       | convert ZX-graph to tensor                                 |         |
-| ZXCHeckout  | checkout to Graph <id> in ZXGraphMgr                       |         |
-| ZXCOMpose   | compose a ZX-graph                                         |         |
-| ZXCOPy      | copy a ZX-graph                                            |         |
-| ZXDelete    | remove a ZX-graph from ZXGraphMgr                          |         |
-| ZXGADJoint  | adjoint ZX-graph                                           |         |
-| ZXGASsign   | assign quantum states to input/output vertex               |         |
-| ZXGDraw     | draw ZX-graph                                              |         |
-| ZXGEdit     | edit ZX-graph                                              |         |
-| ZXGGFlow    | calculate the generalized flow of current ZX-graph         |         |
-| ZXGPrint    | print info of ZX-graph                                     |         |
-| ZXGRead     | read a file and construct the corresponding ZX-graph       |         |
-| ZXGSimp     | perform simplification strategies for ZX-graph             |         |
-| ZXGTest     | test ZX-graph structures and functions                     |         |
-| ZXGTRaverse | traverse ZX-graph and update topological order of vertices |         |
-| ZXGWrite    | write a ZX-graph to a file                                 |         |
-| ZXNew       | create a new ZX-graph to ZXGraphMgr                        |         |
-| ZXPrint     | print info of ZXGraphMgr                                   |         |
-| ZXReset     | reset ZXGraphMgr                                           |         |
-| ZXTensor    | tensor a ZX-graph                                          |         |
-
-### Tensor
-
-| Command   | Description                                 | Options |
-| --------- | ------------------------------------------- | ------- |
-| TSADJoint | adjoint the specified tensor                |         |
-| TSEQuiv   | check the equivalency of two stored tensors |         |
-| TSPrint   | print info of stored tensors                |         |
-| TSReset   | reset the tensor manager                    |         |
-
-### Extraction
-
-| Command  | Description                       | Options |
-| -------- | --------------------------------- | ------- |
-| EXTPrint | print info of extracting ZX-graph |         |
-| EXTRact  | perform step(s) in extraction     |         |
-
-### Lattice
-
-| Command | Description                                                                   | Options |
-| ------- | ----------------------------------------------------------------------------- | ------- |
-| LTS     | (experimental) perform mapping from ZX-graph to corresponding lattice surgery |         |
-
-```
-
-```

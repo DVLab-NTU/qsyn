@@ -48,7 +48,7 @@ qsyn> zx edge add 1 8 SIMPLE
 
 qsyn> zx edge add 3 9 SIMPLE
 
-qsyn> logger level debug
+qsyn> logger debug
 [info]     Setting logger level to "debug"
 
 qsyn> zx rule --pivot
@@ -56,7 +56,7 @@ qsyn> zx rule --pivot
 [debug]       1) 1 matches
 [debug]       2) 1 matches
 
-qsyn> logger level warn
+qsyn> logger warn
 
 qsyn> zx print -v
 
@@ -86,7 +86,7 @@ qsyn> zx print -e
 (11, 12)     Type: H
 Total #Edges: 11
 
-qsyn> zx clear
+qsyn> zx delete --all
 
 qsyn> zx new
 
@@ -128,7 +128,7 @@ qsyn> zx edge add 1 8 SIMPLE
 
 qsyn> zx edge add 3 9 SIMPLE
 
-qsyn> logger level debug
+qsyn> logger debug
 [info]     Setting logger level to "debug"
 
 qsyn> zx rule --pivot
@@ -136,7 +136,7 @@ qsyn> zx rule --pivot
 [debug]       1) 1 matches
 [debug]       2) 1 matches
 
-qsyn> logger level warn
+qsyn> logger warn
 
 qsyn> zx print -v
 
@@ -161,7 +161,7 @@ qsyn> zx print -e
 (10, 11)     Type: H
 Total #Edges: 7
 
-qsyn> zx clear
+qsyn> zx delete --all
 
 qsyn> // might match (4, 5)
 qsyn> zx new
@@ -276,14 +276,14 @@ qsyn> zx vertex add x 0 0
 
 qsyn> zx edge add 15 25 SIMPLE
 
-qsyn> logger level debug
+qsyn> logger debug
 [info]     Setting logger level to "debug"
 
 qsyn> zx rule --pivot
 [info]     Pivot Rule                    1 iterations, total    1 matches
 [debug]       1) 1 matches
 
-qsyn> logger level warn
+qsyn> logger warn
 
 qsyn> zx print -v
 
@@ -360,7 +360,7 @@ qsyn> zx print -e
 (15, 25)     Type: -
 Total #Edges: 43
 
-qsyn> zx clear
+qsyn> zx delete --all
 
 qsyn> // Might match  (4, 5) (16, 17)
 qsyn> zx new
@@ -621,14 +621,14 @@ qsyn> zx edge add 1 43 SIMPLE
 
 qsyn> zx edge add 3 45 SIMPLE
 
-qsyn> logger level debug
+qsyn> logger debug
 [info]     Setting logger level to "debug"
 
 qsyn> zx rule --pivot
 [info]     Pivot Rule                    1 iterations, total    2 matches
 [debug]       1) 2 matches
 
-qsyn> logger level warn
+qsyn> logger warn
 
 qsyn> zx print -v
 
@@ -806,9 +806,9 @@ qsyn> zx print -e
 (27, 47)     Type: -
 Total #Edges: 124
 
-qsyn> zx clear
+qsyn> zx delete --all
 
-qsyn> logger level warn
+qsyn> logger warn
 
 qsyn> zx new
 
@@ -1032,7 +1032,7 @@ qsyn> zx vertex add z 0 0
 
 qsyn> zx edge add 27 47 HADAMARD
 
-qsyn> logger level debug
+qsyn> logger debug
 [info]     Setting logger level to "debug"
 
 qsyn> zx rule --pivot
@@ -1042,7 +1042,7 @@ qsyn> zx rule --pivot
 [debug]       3) 9 matches
 [debug]       4) 8 matches
 
-qsyn> logger level warn
+qsyn> logger warn
 
 qsyn> zx print -v
 

@@ -35,7 +35,7 @@ ID:   5 (●, 0)           (Qubit, Col): (2, 11)        #Neighbors:   1     (19,
 ID:  19 (Z, π/4)         (Qubit, Col): (2, 9)         #Neighbors:   5     (2, H) (5, H) (28, H) (30, H) (34, H)
 
 
-qsyn> logger level debug
+qsyn> logger debug
 [info]     Setting logger level to "debug"
 
 qsyn> zx2qc
@@ -171,7 +171,7 @@ qsyn> zx2qc
 [info]     Successfully removed ZXGraph 1
 [info]     Checked out to ZXGraph 0
 
-qsyn> logger level warn
+qsyn> logger warn
 
 qsyn> qc2zx 
 

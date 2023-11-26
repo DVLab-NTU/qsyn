@@ -7,8 +7,8 @@ zx read benchmark/zx/swap.zx
 zx2ts
 tensor list
 tensor equiv 0 1 --strict
-tensor clear
-zx clear
+tensor delete --all
+zx delete --all
 zx read benchmark/zx/tof3.zx
 zx2ts
 zx read benchmark/zx/tof3_zh.zx

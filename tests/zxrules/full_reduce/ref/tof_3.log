@@ -32,7 +32,7 @@ ID:  26 (X, 0)           (Qubit, Col): (1, 6)         #Neighbors:   3     (4, -)
 Total #Vertices: 27
 
 
-qsyn> logger level debug
+qsyn> logger debug
 [info]     Setting logger level to "debug"
 
 qsyn> zx optimize --full
@@ -48,7 +48,7 @@ qsyn> zx optimize --full
 [info]     Identity Removal Rule         1 iterations, total    2 matches
 [debug]       1) 2 matches
 
-qsyn> logger level warn
+qsyn> logger warn
 
 qsyn> zx print -v
 

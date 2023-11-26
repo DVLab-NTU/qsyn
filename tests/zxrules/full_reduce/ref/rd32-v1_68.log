@@ -72,7 +72,7 @@ ID:  54 (H, π)           (Qubit, Col): (3, 34)        #Neighbors:   2     (53, 
 ID:  55 (X, π)           (Qubit, Col): (3, 35)        #Neighbors:   2     (7, -) (54, -)
 
 
-qsyn> logger level info
+qsyn> logger info
 [info]     Setting logger level to "info"
 
 qsyn> zx optimize --full
@@ -88,7 +88,7 @@ qsyn> zx optimize --full
 [info]     Phase Gadget Rule             1 iterations, total    1 matches
 [info]     Pivot Rule                    1 iterations, total    1 matches
 
-qsyn> logger level warn
+qsyn> logger warn
 
 qsyn> zx print -q
 

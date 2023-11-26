@@ -15,7 +15,7 @@ Logger Level: warning
 qsyn> source tests/cli/helper/param_dof trace
 qsyn> // placeholder
 
-qsyn> logger level $1 // should change logger level to trace
+qsyn> logger $1 // should change logger level to trace
 [info]     Setting logger level to "trace"
 
 qsyn> source tests/cli/helper/param_dof_kw // should error and print usage
@@ -30,16 +30,16 @@ qsyn>
 qsyn> source tests/cli/helper/param_dof_kw debug trace
 qsyn> //!ARGS input1 input2
 
-qsyn> logger level ${input1} // should change logger level to debug
+qsyn> logger ${input1} // should change logger level to debug
 [info]     Setting logger level to "debug"
 
-qsyn> logger level $input2   // should change logger level to trace
+qsyn> logger $input2   // should change logger level to trace
 [info]     Setting logger level to "trace"
 
-qsyn> logger level $1        // should change logger level to debug
+qsyn> logger $1        // should change logger level to debug
 [info]     Setting logger level to "debug"
 
-qsyn> logger level ${2}      // should change logger level to trace
+qsyn> logger ${2}      // should change logger level to trace
 [info]     Setting logger level to "trace"
 
 qsyn> 

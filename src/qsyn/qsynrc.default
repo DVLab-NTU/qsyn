@@ -18,16 +18,19 @@ alias qcr "qcir read"
 alias qcw "qcir write"
 alias qcl "qcir list"
 alias qcopt "qcir optimize"
+alias qcco "qcir checkout"
 
 // zx aliases
 alias zxr "zx read"
 alias zxw "zx write"
 alias zxl "zx list"
 alias zxopt "zx optimize"
+alias zxco "zx checkout"
 
 // device aliases
 alias ts tensor
 alias tseq "tensor equiv"
+alias tsco "tensor checkout"
 
 // aliasing the `quit` command to `q` for convenience
 alias q quit

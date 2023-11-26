@@ -1,4 +1,4 @@
-logger level debug
+logger debug
 zx read benchmark/zx/tof3.zx
 zx copy 1
 zx optimize --dynamic

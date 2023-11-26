@@ -18,7 +18,7 @@ qsyn> zx checkout 0
 qsyn> zx print
 Graph (2 inputs, 2 outputs, 6 vertices, 5 edges)
 
-qsyn> zx clear
+qsyn> zx delete --all
 
 qsyn> zx read benchmark/zx/cnot.zx
 
@@ -40,7 +40,7 @@ qsyn> zx copy -r 0
 qsyn> zx print
 Graph (1 inputs, 2 outputs, 5 vertices, 4 edges)
 
-qsyn> zx clear
+qsyn> zx delete --all
 
 qsyn> zx read benchmark/zx/cnot.zx
 

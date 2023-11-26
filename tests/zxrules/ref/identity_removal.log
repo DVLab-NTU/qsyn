@@ -57,7 +57,7 @@ qsyn> zx print -e
 (2, 3)       Type: -
 Total #Edges: 3
 
-qsyn> zx clear
+qsyn> zx delete --all
 
 qsyn> zx new
 
@@ -161,7 +161,7 @@ qsyn> zx print -e
 (5, 11)      Type: -
 Total #Edges: 3
 
-qsyn> zx clear
+qsyn> zx delete --all
 
 qsyn> zx new
 

@@ -73,7 +73,7 @@ Equivalent
 - Global Norm : 0.140055
 - Global Phase: -178π/183
 
-qsyn> qcir clear
+qsyn> qcir delete --all
 
 qsyn> qcir read benchmark/SABRE/small/qft_4.qasm
 

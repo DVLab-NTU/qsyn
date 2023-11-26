@@ -18,12 +18,12 @@ zx edge add 4 5 SIMPLE
 zx edge add 5 6 SIMPLE
 zx edge add 7 8 SIMPLE
 zx edge add 7 9 SIMPLE
-logger level debug
+logger debug
 zx rule --bialgebra
-logger level warn
+logger warn
 zx print -v
 zx print -e
-zx clear
+zx delete --all
 zx new 
 zx vertex add i 0
 zx vertex add o 0
@@ -57,9 +57,9 @@ zx edge add 11 12 SIMPLE
 zx edge add 11 13 SIMPLE
 zx edge add 14 13 SIMPLE
 zx edge add 12 15 SIMPLE
-logger level debug
+logger debug
 zx rule --bialgebra
-logger level warn
+logger warn
 zx print -v
 zx print -e
 zx2ts
@@ -78,7 +78,7 @@ zx edge add 4 5 SIMPLE
 zx print -v
 zx2ts
 tensor equiv 0 1
-zx clear
+zx delete --all
 zx new 
 zx vertex add i 0
 zx vertex add o 0
@@ -112,9 +112,9 @@ zx edge add 11 12 HADAMARD
 zx edge add 11 13 HADAMARD
 zx edge add 14 13 SIMPLE
 zx edge add 12 15 SIMPLE
-logger level debug
+logger debug
 zx rule --bialgebra
-logger level warn
+logger warn
 zx print -v
 zx print -e
 quit -f

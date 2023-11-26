@@ -648,7 +648,6 @@ Command zxgraph_cmd(ZXGraphMgr& zxgraph_mgr) {
     cmd.add_subcommand(mgr_new_cmd(zxgraph_mgr));
     cmd.add_subcommand(mgr_delete_cmd(zxgraph_mgr));
     cmd.add_subcommand(mgr_copy_cmd(zxgraph_mgr));
-    cmd.add_subcommand(mgr_clear_cmd(zxgraph_mgr));
     cmd.add_subcommand(zxgraph_compose_cmd(zxgraph_mgr));
     cmd.add_subcommand(zxgraph_tensor_product_cmd(zxgraph_mgr));
     cmd.add_subcommand(zxgraph_print_cmd(zxgraph_mgr));

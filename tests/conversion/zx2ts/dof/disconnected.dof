@@ -17,18 +17,18 @@ zx edge add 5 3 SIMPLE
 zx edge add 6 7 SIMPLE
 zx edge add 8 9 SIMPLE
 
-logger level trace
+logger trace
 zx2ts
-logger level warn
+logger warn
 
 zx read benchmark/zx/cnot.zx
 zx read benchmark/zx/cnot.zx
 zx checkout 0
 zx tensor-product 1
 
-logger level trace
+logger trace
 zx2ts
-logger level warn
+logger warn
 
 zx new
 zx vertex add input 0
@@ -64,8 +64,8 @@ zx edge add 9 13 SIMPLE
 zx edge add 14 16 SIMPLE
 zx edge add 15 17 SIMPLE
 
-logger level trace
+logger trace
 zx2ts
-logger level warn
+logger warn
 
 quit -f

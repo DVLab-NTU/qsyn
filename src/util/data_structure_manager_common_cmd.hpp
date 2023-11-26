@@ -66,20 +66,6 @@ Command mgr_list_cmd(DataStructureManager<T>& mgr) {
 
 template <typename T>
 requires manager_manageable<T>
-Command mgr_clear_cmd(DataStructureManager<T>& mgr) {
-    using dvlab::argparse::ArgumentParser;
-    return {"clear",
-            [&](ArgumentParser& parser) {
-                parser.description(fmt::format("Clear the {} list", mgr.get_type_name()));
-            },
-            [&](ArgumentParser const& /* parser */) {
-                mgr.clear();
-                return CmdExecResult::done;
-            }};
-}
-
-template <typename T>
-requires manager_manageable<T>
 Command mgr_checkout_cmd(DataStructureManager<T>& mgr) {
     using dvlab::argparse::ArgumentParser;
     return {"checkout",
@@ -138,13 +124,26 @@ Command mgr_delete_cmd(DataStructureManager<T>& mgr) {
             [&](ArgumentParser& parser) {
                 parser.description(fmt::format("Delete a {} from the list", mgr.get_type_name(), mgr.get_type_name()));
 
-                parser.add_argument<size_t>("id")
+                auto mutex = parser.add_mutually_exclusive_group();
+
+                mutex.add_argument<size_t>("id")
+                    .nargs(NArgsOption::optional)
                     .constraint(valid_mgr_id(mgr))
                     .help(fmt::format("the ID of the {}", mgr.get_type_name()));
+
+                mutex.add_argument<bool>("--all")
+                    .action(store_true)
+                    .help(fmt::format("delete all {}s", mgr.get_type_name()));
             },
             [&](ArgumentParser const& parser) {
                 if (!mgr_has_data(mgr)) return CmdExecResult::error;
-                mgr.remove(parser.get<size_t>("id"));
+
+                if (parser.parsed("--all")) {
+                    mgr.clear();
+                } else {
+                    mgr.remove(parser.get<size_t>("id"));
+                }
+
                 return CmdExecResult::done;
             }};
 }

@@ -14,3 +14,9 @@ qsyn*
 # vim configuration files and folders
 .cache/
 compile_commands.json
+
+# doxygen, sphinx, and other documentation files and folders
+docs/_build/
+docs/_doxygen/
+docs/api/
+docs/doc-coverage.info

@@ -80,14 +80,14 @@ Total #Vertices: 17
 
 qsyn> zx rule --to-z-graph
 
-qsyn> logger level debug
+qsyn> logger debug
 [info]     Setting logger level to "debug"
 
 qsyn> zx rule --pivot-gadget
 [info]     Pivot Gadget Rule             1 iterations, total    1 matches
 [debug]       1) 1 matches
 
-qsyn> logger level warn
+qsyn> logger warn
 
 qsyn> zx print -v
 

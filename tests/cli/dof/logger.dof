@@ -1,7 +1,7 @@
 logger
-logger level debug
+logger debug
 logger
-logger test
-logger level error
-logger test
+logger --test
+logger error
+logger --test
 quit -f

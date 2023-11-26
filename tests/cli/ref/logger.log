@@ -1,13 +1,13 @@
 qsyn> logger
 Logger Level: warning
 
-qsyn> logger level debug
+qsyn> logger debug
 [info]     Setting logger level to "debug"
 
 qsyn> logger
 Logger Level: debug
 
-qsyn> logger test
+qsyn> logger --test
 Regular printing (level `off`)
 [critical] A log message with level `critical`
 [error]    A log message with level `error`
@@ -15,9 +15,9 @@ Regular printing (level `off`)
 [info]     A log message with level `info`
 [debug]    A log message with level `debug`
 
-qsyn> logger level error
+qsyn> logger error
 
-qsyn> logger test
+qsyn> logger --test
 Regular printing (level `off`)
 [critical] A log message with level `critical`
 [error]    A log message with level `error`

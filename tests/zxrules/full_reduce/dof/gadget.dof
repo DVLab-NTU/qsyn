@@ -9,9 +9,9 @@ zx print -v
 zx rule --identity-removal
 zx print -v
 zx rule --to-z-graph
-logger level debug
+logger debug
 zx rule --pivot-gadget
-logger level warn
+logger warn
 zx print -v
 zx rule --identity-removal
 zx print -v

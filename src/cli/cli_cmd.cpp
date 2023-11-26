@@ -209,15 +209,31 @@ Command history_cmd(CommandLineInterface& cli) {
             [](ArgumentParser& parser) {
                 parser.description("print command history");
                 parser.add_argument<size_t>("num")
-                    .nargs(NArgsOption::optional)
+                    .default_value(SIZE_MAX)
                     .help("if specified, print the `num` latest command history");
+
+                parser.add_argument<bool>("-c", "--clear")
+                    .action(store_true)
+                    .help("clear the command history");
+
+                parser.add_argument<std::string>("-o", "--output")
+                    .metavar("file")
+                    .constraint(path_writable)
+                    .help("output the command history to a file");
             },
             [&cli](ArgumentParser const& parser) {
-                if (parser.parsed("num")) {
-                    cli.print_history(parser.get<size_t>("num"));
-                } else {
-                    cli.print_history();
+                auto num = parser.get<size_t>("num");
+                if (parser.parsed("--clear")) {
+                    cli.clear_history();
+                    return CmdExecResult::done;
                 }
+                if (parser.parsed("--output")) {
+                    cli.write_history(parser.get<std::string>("--output"), num);
+                    return CmdExecResult::done;
+                }
+
+                cli.print_history(num);
+
                 return CmdExecResult::done;
             }};
 }
@@ -273,53 +289,45 @@ Command usage_cmd() {
 }
 
 Command logger_cmd() {
-    Command cmd{
+    return Command{
         "logger",
         [](ArgumentParser& parser) {
             static auto const log_levels = std::vector<std::string>{"off", "critical", "error", "warning", "info", "debug", "trace"};
             parser.description("display and set the logger's status");
 
-            auto parsers = parser.add_subparsers()
-                               .help("subcommands for logger");
+            auto mutex = parser.add_mutually_exclusive_group();
+
+            mutex.add_argument<bool>("-t", "--test")
+                .action(store_true)
+                .help("test current logger setting");
+
+            mutex.add_argument<std::string>("level")
+                .nargs(NArgsOption::optional)
+                .constraint(choices_allow_prefix(log_levels))
+                .help("set log levels. Levels (ascending): off, critical, error, warning, info, debug, trace");
         },
-        [](ArgumentParser const& /*parser*/) {
+        [](ArgumentParser const& parser) {
+            if (parser.parsed("level")) {
+                auto level = spdlog::level::from_str(parser.get<std::string>("level"));
+                spdlog::set_level(level);
+                spdlog::info("Setting logger level to \"{}\"", spdlog::level::to_string_view(level));
+                return CmdExecResult::done;
+            }
+            if (parser.parsed("--test")) {
+                spdlog::log(spdlog::level::level_enum::off, "Regular printing (level `off`)");
+                spdlog::critical("A log message with level `critical`");
+                spdlog::error("A log message with level `error`");
+                spdlog::warn("A log message with level `warning`");
+                spdlog::info("A log message with level `info`");
+                spdlog::debug("A log message with level `debug`");
+                spdlog::trace("A log message with level `trace`");
+                return CmdExecResult::done;
+            }
+
             fmt::println("Logger Level: {}", spdlog::level::to_string_view(spdlog::get_level()));
 
             return CmdExecResult::done;
         }};
-
-    cmd.add_subcommand(
-        {"test",
-         [](ArgumentParser& parser) {
-             parser.description("Test out logger setting");
-         },
-         [](ArgumentParser const& /*parser*/) {
-             spdlog::log(spdlog::level::level_enum::off, "Regular printing (level `off`)");
-             spdlog::critical("A log message with level `critical`");
-             spdlog::error("A log message with level `error`");
-             spdlog::warn("A log message with level `warning`");
-             spdlog::info("A log message with level `info`");
-             spdlog::debug("A log message with level `debug`");
-             spdlog::trace("A log message with level `trace`");
-             return CmdExecResult::done;
-         }});
-
-    cmd.add_subcommand(
-        {"level",
-         [](ArgumentParser& parser) {
-             parser.description("set logger level");
-             parser.add_argument<std::string>("level")
-                 .constraint(choices_allow_prefix(std::vector<std::string>{"off", "critical", "error", "warning", "info", "debug", "trace"}))
-                 .help("set log levels. Levels (ascending): off, critical, error, warning, info, debug, trace");
-         },
-         [](ArgumentParser const& parser) {
-             auto level = spdlog::level::from_str(parser.get<std::string>("level"));
-             spdlog::set_level(level);
-             spdlog::info("Setting logger level to \"{}\"", spdlog::level::to_string_view(level));
-             return CmdExecResult::done;
-         }});
-
-    return cmd;
 }
 
 Command clear_cmd() {

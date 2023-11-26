@@ -4,7 +4,7 @@ qsyn> qc2zx
 
 qsyn> zx copy 1
 
-qsyn> logger level debug
+qsyn> logger debug
 [info]     Setting logger level to "debug"
 
 qsyn> zx optimize --partition 4
@@ -216,7 +216,7 @@ qsyn> zx optimize --partition 4
 [debug]       1) 8 matches
 [debug]       2) 1 matches
 
-qsyn> logger level warn
+qsyn> logger warn
 
 qsyn> zx print -s
 Graph (7 inputs, 7 outputs, 68 vertices, 82 edges)
@@ -228,7 +228,7 @@ qsyn> zx adjoint
 
 qsyn> zx compose 0
 
-qsyn> logger level debug
+qsyn> logger debug
 [info]     Setting logger level to "debug"
 
 qsyn> zx optimize --full
@@ -345,7 +345,7 @@ qsyn> zx optimize --full
 [info]     Identity Removal Rule         1 iterations, total    7 matches
 [debug]       1) 7 matches
 
-qsyn> logger level warn
+qsyn> logger warn
 
 qsyn> zx test --identity
 The graph is an identity!

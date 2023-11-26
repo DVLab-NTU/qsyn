@@ -38,14 +38,14 @@ qsyn> zx edge add 7 8 SIMPLE
 
 qsyn> zx edge add 7 9 SIMPLE
 
-qsyn> logger level debug
+qsyn> logger debug
 [info]     Setting logger level to "debug"
 
 qsyn> zx rule --bialgebra
 [info]     Bialgebra Rule                1 iterations, total    1 matches
 [debug]       1) 1 matches
 
-qsyn> logger level warn
+qsyn> logger warn
 
 qsyn> zx print -v
 
@@ -71,7 +71,7 @@ qsyn> zx print -e
 (6, 9)       Type: -
 Total #Edges: 8
 
-qsyn> zx clear
+qsyn> zx delete --all
 
 qsyn> zx new 
 
@@ -139,7 +139,7 @@ qsyn> zx edge add 14 13 SIMPLE
 
 qsyn> zx edge add 12 15 SIMPLE
 
-qsyn> logger level debug
+qsyn> logger debug
 [info]     Setting logger level to "debug"
 
 qsyn> zx rule --bialgebra
@@ -147,7 +147,7 @@ qsyn> zx rule --bialgebra
 [debug]       1) 2 matches
 [debug]       2) 1 matches
 
-qsyn> logger level warn
+qsyn> logger warn
 
 qsyn> zx print -v
 
@@ -218,7 +218,7 @@ Equivalent
 - Global Norm : 1
 - Global Phase: 0
 
-qsyn> zx clear
+qsyn> zx delete --all
 
 qsyn> zx new 
 
@@ -286,14 +286,14 @@ qsyn> zx edge add 14 13 SIMPLE
 
 qsyn> zx edge add 12 15 SIMPLE
 
-qsyn> logger level debug
+qsyn> logger debug
 [info]     Setting logger level to "debug"
 
 qsyn> zx rule --bialgebra
 [info]     Bialgebra Rule                1 iterations, total    1 matches
 [debug]       1) 1 matches
 
-qsyn> logger level warn
+qsyn> logger warn
 
 qsyn> zx print -v
 

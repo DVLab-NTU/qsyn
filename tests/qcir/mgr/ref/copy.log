@@ -123,9 +123,9 @@ ID:  27 (●, 0)           (Qubit, Col): (3, 27)        #Neighbors:   1     (7, 
 Total #Vertices: 8
 
 
-qsyn> qcir clear
+qsyn> qcir delete --all
 
-qsyn> zx clear
+qsyn> zx delete --all
 
 qsyn> qcir print --diagram
 [error]    QCir list is empty. Please create a QCir first!!

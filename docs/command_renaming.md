@@ -1,27 +1,25 @@
 # Command Renaming
 
+This document lists the commands that have been renamed in the new version of Qsyn.
+
 ## CLI Common Commands
 
-### Status: Done
-
-| Original Command | New Command | Synopsis             | Notes                                       |
-| :--------------- | :---------- | :------------------- | :------------------------------------------ |
-| n/a              | alias       | set alias to command |                                             |
-| n/a              | set         | set variables        |                                             |
-| help             | help        | show help            | consider repurpose                          |
-| qquit            | quit        | quit qsyn            | renamed because alias system is implemented |
-| history          | history     | show history         | consider add filter, dump functions         |
-| dofile           | source      | run script           | also aliased to dofile                      |
-| usage            | usage       | show usage           | consider add current memory usage           |
-| seed             | n/a         | set seed             | left to individual commands\*               |
-| clear            | clear       | clear terminal       |                                             |
-| verbose          | logger      | set logger level     | migrated to logger system                   |
+| Original Command | New Command | Synopsis             | Notes                         |
+| :--------------- | :---------- | :------------------- | :---------------------------- |
+| n/a              | alias       | set alias to command |                               |
+| n/a              | set         | set variables        |                               |
+| help             | help        | show help            |                               |
+| qquit            | quit        | quit qsyn            |                               |
+| history          | history     | show history         | added output/clear flags      |
+| dofile           | source      | run script           |                               |
+| usage            | usage       | show usage           |                               |
+| seed             | n/a         | set seed             | left to individual commands\* |
+| clear            | clear       | clear terminal       |                               |
+| verbose          | logger      | set logger level     | migrated to logger system     |
 
 \* It is not a good nor a practical idea to tie every rand-gen to the same random device.
 
 ## Device Commands
-
-### Status: Done
 
 | Original Command | New Command     | Synopsis                         | Notes |
 | :--------------- | :-------------- | :------------------------------- | :---- |
@@ -34,17 +32,14 @@
 
 ## Conversion Commands
 
-### Status: Done
-
-| Original Command | New Command | Synopsis                  | Notes                |
-| :--------------- | :---------- | :------------------------ | :------------------- |
-| qc2zx            | qcir2zx     | convert QCir to ZXGraph   | also alised to qc2zx |
-| qc2ts            | qcir2tensor | convert QCir to tensor    | also alised to qc2ts |
-| zx2ts            | zx2tensor   | convert ZXGraph to tensor | also alised to zx2ts |
+| Original Command | New Command         | Synopsis                  | Notes                |
+| :--------------- | :------------------ | :------------------------ | :------------------- |
+| qc2zx            | convert qcir zx     | convert QCir to ZXGraph   | also alised to qc2zx |
+| qc2ts            | convert qcir tensor | convert QCir to tensor    | also alised to qc2ts |
+| zx2ts            | convert zx tensor   | convert ZXGraph to tensor | also alised to zx2ts |
+| zx2qc            | convert zx qcir     | convert ZXGraph to QCir   | also alised to zx2qc |
 
 ## Duostra Commands
-
-### Status: Not Started
 
 | Original Command | New Command        | Synopsis                                          | Notes |
 | :--------------- | :----------------- | :------------------------------------------------ | :---- |
@@ -55,8 +50,6 @@
 
 ## Extractor Commands
 
-### Status: Not Started
-
 | Original Command    | New Command        | Synopsis                          | Notes               |
 | :------------------ | :----------------- | :-------------------------------- | :------------------ |
 | zx2qc               | extract -full      | extract ZXGraph to QCir           | zx2qc becomes alias |
@@ -66,8 +59,6 @@
 | extset              | extract config ... | set extract config                |                     |
 
 ## QCir Commands
-
-### Status: Not Started
 
 | Original Command | New Command        | Synopsis                        | Notes                           |
 | :--------------- | :----------------- | :------------------------------ | :------------------------------ |
@@ -93,71 +84,47 @@
 | qcgd             | qcir gate remove   | remove gate from QCir           |                                 |
 | qcgprint         | qcir gate print    | print QCir gate                 |                                 |
 | n/a              | qcir adjoint       | perform adjoint                 |                                 |
-
-## QCir Optimizer Commands
-
-### Status: Not Started
-
-| Original Command | New Command   | Synopsis      | Notes |
-| :--------------- | :------------ | :------------ | :---- |
-| qccoptimize      | qcir optimize | optimize QCir |       |
+| qccoptimize      | qcir optimize      | optimize QCir                   |                                 |
+| qcreset          | qcir delete --all  | delete all QCir                 |                                 |
 
 ## Tensor Commands
 
-### Status: Done
-
-| Original Command | New Command     | Synopsis                       | Notes |
-| :--------------- | :-------------- | :----------------------------- | :---- |
-| tsprint          | tensor          | print tensor                   |       |
-| tsprint -l       | tensor list     | list tensor                    |       |
-| tsreset          | tensor clear    | clear tensor                   |       |
-| n/a              | tensor delete   | delete tensor                  |       |
-| tscheckout       | tensor checkout | checkout tensor                |       |
-| tscopy           | tensor copy     | copy tensor                    |       |
-| tsequiv          | tensor equiv    | check if tensor are equivalent |       |
-| tstprint         | tensor print    | print tensor in focus          |       |
-| tsadjoint        | tensor adjoint  | perform adjoint                |       |
+| Original Command | New Command         | Synopsis                       | Notes |
+| :--------------- | :------------------ | :----------------------------- | :---- |
+| tsprint          | tensor              | print tensor                   |       |
+| tsprint -l       | tensor list         | list tensor                    |       |
+| n/a              | tensor delete       | delete tensor                  |       |
+| tsreset          | tensor delete --all | delete all tensor              |       |
+| tscheckout       | tensor checkout     | checkout tensor                |       |
+| tscopy           | tensor copy         | copy tensor                    |       |
+| tsequiv          | tensor equiv        | check if tensor are equivalent |       |
+| tstprint         | tensor print        | print tensor in focus          |       |
+| tsadjoint        | tensor adjoint      | perform adjoint                |       |
 
 ## ZXGraph Commands
 
-### Status: Not Started
-
-| Original Command   | New Command           | Synopsis                          | Notes                  |
-| :----------------- | :-------------------- | :-------------------------------- | :--------------------- |
-| zxcheckout         | zxgraph checkout      | checkout ZXGraph                  |                        |
-| zxprint            | zxgraph               | print ZXGraph                     |                        |
-| zxprint -l         | zxgraph list          | list ZXGraph                      |                        |
-| zxgprint           | zxgraph print         | print ZXGraph in focus            |                        |
-| zxreset            | zxgraph clear         | clear ZXGraph                     |                        |
-| zxnew              | zxgraph new           | new ZXGraph                       |                        |
-| zxdelete           | zxgraph delete        | delete ZXGraph                    |                        |
-| zxcopy             | zxgraph copy          | copy ZXGraph                      |                        |
-| zxcompose          | zxgraph compose       | compose ZXGraph                   |                        |
-| zxtensor           | zxgraph direct        | perform direct (tensor) product   |                        |
-| zxgtest            | zxgraph test          | test ZXGraph attributes           |                        |
-| zxgedit -addvertex | zxgraph vertex add    | add vertex to ZXGraph             |                        |
-| zxgedit -addedge   | zxgraph edge add      | add edge to ZXGraph               |                        |
-| zxgedit -rmvertex  | zxgraph vertex remove | remove vertex from ZXGraph        |                        |
-| zxgedit -rmedge    | zxgraph edge remove   | remove edge from ZXGraph          |                        |
-| zxgassign          | zxgraph assign        | assign vertex to a boundary qubit | change API?            |
-| zxgadjoint         | zxgraph adjoint       | perform adjoint                   |                        |
-| zxgdraw            | zxgraph draw          | draw ZXGraph                      | deprecate CLI drawing? |
-| zxgread            | zxgraph read          | read ZXGraph from file            |                        |
-| zxgwrite           | zxgraph write         | write ZXGraph to file             |                        |
-
-## ZXGraph Optimizer Commands
-
-### Status: Not Started
-
-| Original Command  | New Command          | Synopsis         | Notes                         |
-| :---------------- | :------------------- | :--------------- | :---------------------------- |
-| zxgsimp [routine] | zxgraph optimize ... | optimize ZXGraph |                               |
-| zxgsimp [rule]    | zxgraph rule ...     | apply rule       | add match and selective apply |
-
-## ZXGraph GFlow Commands
-
-### Status: Not Started
-
-| Original Command | New Command   | Synopsis      | Notes |
-| :--------------- | :------------ | :------------ | :---- |
-| zxgflow          | zxgraph gflow | perform gflow |       |
+| Original Command   | New Command      | Synopsis                          | Notes                                      |
+| :----------------- | :--------------- | :-------------------------------- | :----------------------------------------- |
+| zxcheckout         | zx checkout      | checkout ZXGraph                  |                                            |
+| zxprint            | zx               | print ZXGraph                     |                                            |
+| zxprint -l         | zx list          | list ZXGraph                      |                                            |
+| zxgprint           | zx print         | print ZXGraph in focus            |                                            |
+| zxreset            | zx delete --all  | delete all ZXGraph                |                                            |
+| zxnew              | zx new           | new ZXGraph                       |                                            |
+| zxdelete           | zx delete        | delete ZXGraph                    |                                            |
+| zxcopy             | zx copy          | copy ZXGraph                      |                                            |
+| zxcompose          | zx compose       | compose ZXGraph                   |                                            |
+| zxtensor           | zx direct        | perform direct (tensor) product   |                                            |
+| zxgtest            | zx test          | test ZXGraph attributes           |                                            |
+| zxgedit -addvertex | zx vertex add    | add vertex to ZXGraph             |                                            |
+| zxgedit -addedge   | zx edge add      | add edge to ZXGraph               |                                            |
+| zxgedit -rmvertex  | zx vertex remove | remove vertex from ZXGraph        |                                            |
+| zxgedit -rmedge    | zx edge remove   | remove edge from ZXGraph          |                                            |
+| zxgassign          | zx assign        | assign vertex to a boundary qubit | may be moved under zx vertex in the future |
+| zxgadjoint         | zx adjoint       | perform adjoint                   |                                            |
+| zxgdraw            | zx draw          | draw ZXGraph                      | deprecated CLI drawing                     |
+| zxgread            | zx read          | read ZXGraph from file            |                                            |
+| zxgwrite           | zx write         | write ZXGraph to file             |                                            |
+| zxgsimp [routine]  | zx optimize ...  | optimize ZXGraph                  |                                            |
+| zxgsimp [rule]     | zx rule ...      | apply rule                        |                                            |
+| zxggflow           | zx gflow         | perform gflow                     |                                            |

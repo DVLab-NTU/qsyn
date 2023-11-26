@@ -21,9 +21,9 @@ Equivalent
 - Global Norm : 1
 - Global Phase: 0
 
-qsyn> tensor clear
+qsyn> tensor delete --all
 
-qsyn> zx clear
+qsyn> zx delete --all
 
 qsyn> zx read benchmark/zx/tof3.zx
 
