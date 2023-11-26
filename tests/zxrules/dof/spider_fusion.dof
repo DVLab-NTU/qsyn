@@ -16,7 +16,7 @@ zx print -e
 zx rule --spider-fusion
 zx print -v
 zx print -e
-zx clear
+zx delete --all
 zx new
 zx vertex add input 0
 zx vertex add input 1
@@ -43,7 +43,7 @@ zx print -e
 zx rule --spider-fusion
 zx print -v
 zx print -e
-zx clear
+zx delete --all
 zx new
 zx vertex add input 0
 zx vertex add input 1

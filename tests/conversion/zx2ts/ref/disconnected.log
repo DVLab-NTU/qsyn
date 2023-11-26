@@ -34,7 +34,7 @@ qsyn> zx edge add 6 7 SIMPLE
 qsyn> zx edge add 8 9 SIMPLE
 
 qsyn> 
-qsyn> logger level trace
+qsyn> logger trace
 [info]     Setting logger level to "trace"
 
 qsyn> zx2ts
@@ -85,7 +85,7 @@ qsyn> zx2ts
 [trace]    Output Axis IDs: 7 5 3 1
 [info]     Successfully created and checked out to Tensor 0
 
-qsyn> logger level warn
+qsyn> logger warn
 
 qsyn> 
 qsyn> zx read benchmark/zx/cnot.zx
@@ -97,7 +97,7 @@ qsyn> zx checkout 0
 qsyn> zx tensor-product 1
 
 qsyn> 
-qsyn> logger level trace
+qsyn> logger trace
 [info]     Setting logger level to "trace"
 
 qsyn> zx2ts
@@ -181,7 +181,7 @@ qsyn> zx2ts
 [trace]    Output Axis IDs: 11 9 7 5 1 3
 [info]     Successfully created and checked out to Tensor 1
 
-qsyn> logger level warn
+qsyn> logger warn
 
 qsyn> 
 qsyn> zx new
@@ -248,7 +248,7 @@ qsyn> zx edge add 14 16 SIMPLE
 qsyn> zx edge add 15 17 SIMPLE
 
 qsyn> 
-qsyn> logger level trace
+qsyn> logger trace
 [info]     Setting logger level to "trace"
 
 qsyn> zx2ts
@@ -335,7 +335,7 @@ qsyn> zx2ts
 [trace]    Output Axis IDs: 13 2 9 6 7 0 1
 [info]     Successfully created and checked out to Tensor 2
 
-qsyn> logger level warn
+qsyn> logger warn
 
 qsyn> 
 qsyn> quit -f

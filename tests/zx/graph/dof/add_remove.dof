@@ -2,19 +2,19 @@ zx read benchmark/zx/cnot.zx
 zx print -v
 zx edge remove 2 3 SIMPLE
 zx print -v
-zx clear
+zx delete --all
 zx read benchmark/zx/cnot.zx
 zx print -v
 zx vertex remove 2
 zx print -v
 zx vertex remove -i
 zx print -v
-zx clear
+zx delete --all
 zx read benchmark/zx/cnot.zx
 zx print -v
 zx vertex remove 1 2
 zx print -v
-zx clear 
+zx delete --all 
 zx new
 zx vertex add i 1
 zx vertex add i 0
@@ -25,7 +25,7 @@ zx vertex add o 1
 zx print -i
 zx print -o
 zx print -v
-zx clear
+zx delete --all
 zx read benchmark/zx/cnot.zx
 zx print -v
 zx vertex remove 0

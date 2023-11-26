@@ -24,7 +24,7 @@ qcir gate add rz --prepend -ph 1.2345 0
 qcir print --gate 10
 qcir print --gate 9
 qcir print --diagram
-qcir clear
+qcir delete --all
 qcir read benchmark/SABRE/small/3_17_13.qasm
 qcir print --diagram
 qcir print --gate 1
@@ -48,7 +48,7 @@ qcir gate add tdg 6
 qcir qubit remove 6
 qcir qubit remove 7
 qcir print --diagram
-qcir clear
+qcir delete --all
 qcir read benchmark/SABRE/small/3_17_13.qasm
 qcir print --diagram
 qcir print --gate 1
@@ -57,7 +57,7 @@ qcir gate remove 24
 qcir print --gate 24
 qcir print --gate 26
 qcir print --gate 26
-qcir clear
+qcir delete --all
 qcir read benchmark/SABRE/large/root_255.qasm
 qcir print --gate
 qcir print --diagram

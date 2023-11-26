@@ -8,7 +8,7 @@ T-family    : 1498
 Others      : 0
 Depth       : 3088
 
-qsyn> logger level trace
+qsyn> logger trace
 [info]     Setting logger level to "trace"
 
 qsyn> qcir optimize
@@ -230,7 +230,7 @@ qsyn> qcir optimize
 [info]       Non-Pauli gates: 1498 → 1491
 [info]     Note: Replacing QCir 0...
 
-qsyn> logger level warn
+qsyn> logger warn
 
 qsyn> qcir print --statistics
 QCir (16 qubits, 3200 gates)
@@ -254,7 +254,7 @@ T-family    : 692
 Others      : 0
 Depth       : 3966
 
-qsyn> logger level info
+qsyn> logger info
 [info]     Setting logger level to "info"
 
 qsyn> qcir optimize --stat
@@ -391,7 +391,7 @@ qsyn> qcir optimize --stat
 [info]       Non-Pauli gates: 694 → 742
 [info]     Note: Replacing QCir 1...
 
-qsyn> logger level warn
+qsyn> logger warn
 
 qsyn> qcir print --statistics
 QCir (16 qubits, 2284 gates)

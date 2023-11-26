@@ -9,9 +9,9 @@ zx optimize --full
 zx print -q
 zx2ts
 tensor equiv 0 1
-qcir clear
-zx clear
-tensor clear
+qcir delete --all
+zx delete --all
+tensor delete --all
 
 qcir qubit add 1
 qcir gate add mcp -ph pi/3 0

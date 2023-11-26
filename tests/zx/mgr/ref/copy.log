@@ -18,7 +18,7 @@ qsyn> zx checkout 0
 qsyn> zx print
 Graph (2 inputs, 2 outputs, 6 vertices, 5 edges)
 
-qsyn> zx clear
+qsyn> zx delete --all
 
 qsyn> zx read benchmark/zx/cnot.zx
 
@@ -40,18 +40,18 @@ qsyn> zx copy -r 0
 qsyn> zx print
 Graph (1 inputs, 2 outputs, 5 vertices, 4 edges)
 
-qsyn> zx clear
+qsyn> zx delete --all
 
 qsyn> zx read benchmark/zx/cnot.zx
 
 qsyn> zx print -v
 
-ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (2, -)
-ID:   1 (●, 0)           (Qubit, Col): (1, 0)         #Neighbors:   1     (3, -)
-ID:   2 (Z, 0)           (Qubit, Col): (0, 1)         #Neighbors:   3     (0, -) (3, -) (4, -)
-ID:   3 (X, 0)           (Qubit, Col): (1, 1)         #Neighbors:   3     (1, -) (2, -) (5, -)
-ID:   4 (●, 0)           (Qubit, Col): (0, 2)         #Neighbors:   1     (2, -)
-ID:   5 (●, 0)           (Qubit, Col): (1, 2)         #Neighbors:   1     (3, -)
+ID:    0 (●, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (2, -)
+ID:    1 (●, 0)       (Qubit, Col): (1, 0)         #Neighbors:   1    (3, -)
+ID:    2 (Z, 0)       (Qubit, Col): (0, 1)         #Neighbors:   3    (0, -) (3, -) (4, -)
+ID:    3 (X, 0)       (Qubit, Col): (1, 1)         #Neighbors:   3    (1, -) (2, -) (5, -)
+ID:    4 (●, 0)       (Qubit, Col): (0, 2)         #Neighbors:   1    (2, -)
+ID:    5 (●, 0)       (Qubit, Col): (1, 2)         #Neighbors:   1    (3, -)
 Total #Vertices: 6
 
 
@@ -61,12 +61,12 @@ qsyn> zx edge add 0 5 HADAMARD
 
 qsyn> zx print -v
 
-ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   2     (2, -) (5, H)
-ID:   1 (●, 0)           (Qubit, Col): (1, 0)         #Neighbors:   1     (3, -)
-ID:   2 (Z, 0)           (Qubit, Col): (0, 1)         #Neighbors:   3     (0, -) (3, -) (4, -)
-ID:   3 (X, 0)           (Qubit, Col): (1, 1)         #Neighbors:   3     (1, -) (2, -) (5, -)
-ID:   4 (●, 0)           (Qubit, Col): (0, 2)         #Neighbors:   1     (2, -)
-ID:   5 (●, 0)           (Qubit, Col): (1, 2)         #Neighbors:   2     (0, H) (3, -)
+ID:    0 (●, 0)       (Qubit, Col): (0, 0)         #Neighbors:   2    (2, -) (5, H)
+ID:    1 (●, 0)       (Qubit, Col): (1, 0)         #Neighbors:   1    (3, -)
+ID:    2 (Z, 0)       (Qubit, Col): (0, 1)         #Neighbors:   3    (0, -) (3, -) (4, -)
+ID:    3 (X, 0)       (Qubit, Col): (1, 1)         #Neighbors:   3    (1, -) (2, -) (5, -)
+ID:    4 (●, 0)       (Qubit, Col): (0, 2)         #Neighbors:   1    (2, -)
+ID:    5 (●, 0)       (Qubit, Col): (1, 2)         #Neighbors:   2    (0, H) (3, -)
 Total #Vertices: 6
 
 
@@ -74,12 +74,12 @@ qsyn> zx checkout 0
 
 qsyn> zx print -v
 
-ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (2, -)
-ID:   1 (●, 0)           (Qubit, Col): (1, 0)         #Neighbors:   1     (3, -)
-ID:   2 (Z, 0)           (Qubit, Col): (0, 1)         #Neighbors:   3     (0, -) (3, -) (4, -)
-ID:   3 (X, 0)           (Qubit, Col): (1, 1)         #Neighbors:   3     (1, -) (2, -) (5, -)
-ID:   4 (●, 0)           (Qubit, Col): (0, 2)         #Neighbors:   1     (2, -)
-ID:   5 (●, 0)           (Qubit, Col): (1, 2)         #Neighbors:   1     (3, -)
+ID:    0 (●, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (2, -)
+ID:    1 (●, 0)       (Qubit, Col): (1, 0)         #Neighbors:   1    (3, -)
+ID:    2 (Z, 0)       (Qubit, Col): (0, 1)         #Neighbors:   3    (0, -) (3, -) (4, -)
+ID:    3 (X, 0)       (Qubit, Col): (1, 1)         #Neighbors:   3    (1, -) (2, -) (5, -)
+ID:    4 (●, 0)       (Qubit, Col): (0, 2)         #Neighbors:   1    (2, -)
+ID:    5 (●, 0)       (Qubit, Col): (1, 2)         #Neighbors:   1    (3, -)
 Total #Vertices: 6
 
 

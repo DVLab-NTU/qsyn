@@ -1,7 +1,7 @@
 /****************************************************************************
   PackageName  [ qsyn ]
   Synopsis     [ Define qsyn common types ]
-  Author       [ Design Verification Lab, Chia-Hsu Chuang ]
+  Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 

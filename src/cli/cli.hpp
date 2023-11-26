@@ -6,6 +6,7 @@
 ****************************************************************************/
 #pragma once
 
+#include <cstdint>
 #include <filesystem>
 #include <fstream>
 #include <functional>
@@ -136,8 +137,9 @@ public:
     void list_all_commands() const;
     void list_all_aliases() const;
     void list_all_variables() const;
-    void print_history() const;
-    void print_history(size_t n_print) const;
+    void print_history(size_t n_print = SIZE_MAX) const;
+    void write_history(std::filesystem::path const& filepath, size_t n_print = SIZE_MAX) const;
+    inline void clear_history() { _history.clear(); }
 
     struct ListenConfig {
         bool allow_browse_history = true;

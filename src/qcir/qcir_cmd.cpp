@@ -552,7 +552,6 @@ Command qcir_cmd(QCirMgr& qcir_mgr) {
     cmd.add_subcommand(dvlab::utils::mgr_new_cmd(qcir_mgr));
     cmd.add_subcommand(dvlab::utils::mgr_delete_cmd(qcir_mgr));
     cmd.add_subcommand(dvlab::utils::mgr_copy_cmd(qcir_mgr));
-    cmd.add_subcommand(dvlab::utils::mgr_clear_cmd(qcir_mgr));
     cmd.add_subcommand(qcir_config_cmd());
     cmd.add_subcommand(qcir_compose_cmd(qcir_mgr));
     cmd.add_subcommand(qcir_tensor_product_cmd(qcir_mgr));

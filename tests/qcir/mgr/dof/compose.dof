@@ -18,7 +18,7 @@ zx print -v
 qc2ts
 zx2ts
 tensor equiv 0 1
-qcir clear
+qcir delete --all
 qcir read benchmark/SABRE/small/qft_4.qasm
 qcir read benchmark/SABRE/small/qft_4.qasm
 qcir print --diagram

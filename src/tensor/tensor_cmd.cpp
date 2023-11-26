@@ -125,9 +125,10 @@ Command tensor_equivalence_check_cmd(TensorMgr& tensor_mgr) {
 Command tensor_cmd(TensorMgr& tensor_mgr) {
     using namespace dvlab::utils;
     auto cmd = mgr_root_cmd(tensor_mgr);
-    cmd.add_subcommand(mgr_clear_cmd(tensor_mgr));
     cmd.add_subcommand(mgr_list_cmd(tensor_mgr));
     cmd.add_subcommand(tensor_print_cmd(tensor_mgr));
+    cmd.add_subcommand(mgr_checkout_cmd(tensor_mgr));
+    cmd.add_subcommand(mgr_delete_cmd(tensor_mgr));
     cmd.add_subcommand(tensor_adjoint_cmd(tensor_mgr));
     cmd.add_subcommand(tensor_equivalence_check_cmd(tensor_mgr));
 
@@ -135,7 +136,7 @@ Command tensor_cmd(TensorMgr& tensor_mgr) {
 }
 
 bool add_tensor_cmds(dvlab::CommandLineInterface& cli, TensorMgr& tensor_mgr) {
-    if (!(cli.add_command(tensor_cmd(tensor_mgr)))) {
+    if (!cli.add_command(tensor_cmd(tensor_mgr))) {
         spdlog::error("Registering \"tensor\" commands fails... exiting");
         return false;
     }

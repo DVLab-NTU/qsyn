@@ -1,15 +1,15 @@
 qcir read benchmark/SABRE/large/adr4_197.qasm
 qcir print --statistics
-logger level trace
+logger trace
 qcir optimize
-logger level warn
+logger warn
 qcir print --statistics
 qc2zx
 zx optimize
 zx2qc
 qcir print --statistics
-logger level info
+logger info
 qcir optimize --stat
-logger level warn
+logger warn
 qcir print --statistics
 quit -f

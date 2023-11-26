@@ -172,12 +172,12 @@ dvlab::Command device_print_cmd(qsyn::device::DeviceMgr& device_mgr) {
 
 dvlab::Command device_cmd(qsyn::device::DeviceMgr& device_mgr) {
     auto cmd = dvlab::utils::mgr_root_cmd(device_mgr);
-    cmd.add_subcommand(device_checkout_cmd(device_mgr));
-    cmd.add_subcommand(device_clear_cmd(device_mgr));
-    cmd.add_subcommand(device_delete_cmd(device_mgr));
-    cmd.add_subcommand(device_list_cmd(device_mgr));
+    // print functions
+    cmd.add_subcommand(dvlab::utils::mgr_list_cmd(device_mgr));
     cmd.add_subcommand(device_print_cmd(device_mgr));
+    cmd.add_subcommand(device_checkout_cmd(device_mgr));
     cmd.add_subcommand(device_read_cmd(device_mgr));
+    cmd.add_subcommand(dvlab::utils::mgr_delete_cmd(device_mgr));
     return cmd;
 }
 

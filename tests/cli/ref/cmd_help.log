@@ -1,16 +1,15 @@
 qsyn> logger -h
-Usage: logger [-h] [test | level] ...
+Usage: logger [-h] [-t | [<string level>]]
 
 Description:
   display and set the logger's status
 
-Options:
-  flag  -h, --help    show this help message 
+Positional Arguments:
+  string  level    set log levels. Levels (ascending): off, critical, error, warning, info, debug, trace 
 
-Subcommands:
-  [test | level]  subcommands for logger  
-    test          Test out logger setting 
-    level         set logger level        
+Options:
+  flag  -h, --help    show this help message      
+  flag  -t, --test    test current logger setting 
 
 qsyn> source -h
 Usage: source [-h] [-q] <string file> [<string arguments>]...

@@ -16,40 +16,40 @@ qsyn> qc2zx
 
 qsyn> zx print -q
 
-ID:   7 (Z, -π/6)        (Qubit, Col): (-2, 4)        #Neighbors:   1     (6, H)
+ID:    7 (Z, -π/6)    (Qubit, Col): (-2, 4)        #Neighbors:   1    (6, H)
 
 
-ID:   6 (Z, 0)           (Qubit, Col): (-1, 4)        #Neighbors:   3     (4, H) (5, H) (7, H)
+ID:    6 (Z, 0)       (Qubit, Col): (-1, 4)        #Neighbors:   3    (4, H) (5, H) (7, H)
 
 
-ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (4, -)
-ID:   1 (●, 0)           (Qubit, Col): (0, 5)         #Neighbors:   1     (4, -)
-ID:   4 (Z, π/6)         (Qubit, Col): (0, 4)         #Neighbors:   3     (0, -) (1, -) (6, H)
+ID:    0 (●, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (4, -)
+ID:    1 (●, 0)       (Qubit, Col): (0, 5)         #Neighbors:   1    (4, -)
+ID:    4 (Z, π/6)     (Qubit, Col): (0, 4)         #Neighbors:   3    (0, -) (1, -) (6, H)
 
 
-ID:   2 (●, 0)           (Qubit, Col): (1, 0)         #Neighbors:   1     (5, -)
-ID:   3 (●, 0)           (Qubit, Col): (1, 5)         #Neighbors:   1     (5, -)
-ID:   5 (Z, π/6)         (Qubit, Col): (1, 4)         #Neighbors:   3     (2, -) (3, -) (6, H)
+ID:    2 (●, 0)       (Qubit, Col): (1, 0)         #Neighbors:   1    (5, -)
+ID:    3 (●, 0)       (Qubit, Col): (1, 5)         #Neighbors:   1    (5, -)
+ID:    5 (Z, π/6)     (Qubit, Col): (1, 4)         #Neighbors:   3    (2, -) (3, -) (6, H)
 
 
 qsyn> zx optimize --full
 
 qsyn> zx print -q
 
-ID:   7 (Z, -π/6)        (Qubit, Col): (-2, 4)        #Neighbors:   1     (6, H)
+ID:    7 (Z, -π/6)    (Qubit, Col): (-2, 4)        #Neighbors:   1    (6, H)
 
 
-ID:   6 (Z, 0)           (Qubit, Col): (-1, 4)        #Neighbors:   3     (4, H) (5, H) (7, H)
+ID:    6 (Z, 0)       (Qubit, Col): (-1, 4)        #Neighbors:   3    (4, H) (5, H) (7, H)
 
 
-ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (4, -)
-ID:   1 (●, 0)           (Qubit, Col): (0, 5)         #Neighbors:   1     (4, -)
-ID:   4 (Z, π/6)         (Qubit, Col): (0, 4)         #Neighbors:   3     (0, -) (1, -) (6, H)
+ID:    0 (●, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (4, -)
+ID:    1 (●, 0)       (Qubit, Col): (0, 5)         #Neighbors:   1    (4, -)
+ID:    4 (Z, π/6)     (Qubit, Col): (0, 4)         #Neighbors:   3    (0, -) (1, -) (6, H)
 
 
-ID:   2 (●, 0)           (Qubit, Col): (1, 0)         #Neighbors:   1     (5, -)
-ID:   3 (●, 0)           (Qubit, Col): (1, 5)         #Neighbors:   1     (5, -)
-ID:   5 (Z, π/6)         (Qubit, Col): (1, 4)         #Neighbors:   3     (2, -) (3, -) (6, H)
+ID:    2 (●, 0)       (Qubit, Col): (1, 0)         #Neighbors:   1    (5, -)
+ID:    3 (●, 0)       (Qubit, Col): (1, 5)         #Neighbors:   1    (5, -)
+ID:    5 (Z, π/6)     (Qubit, Col): (1, 4)         #Neighbors:   3    (2, -) (3, -) (6, H)
 
 
 qsyn> zx2ts
@@ -59,11 +59,11 @@ Equivalent
 - Global Norm : 1
 - Global Phase: 0
 
-qsyn> qcir clear
+qsyn> qcir delete --all
 
-qsyn> zx clear
+qsyn> zx delete --all
 
-qsyn> tensor clear
+qsyn> tensor delete --all
 
 qsyn> 
 qsyn> qcir qubit add 1
@@ -78,9 +78,9 @@ qsyn> qc2zx
 
 qsyn> zx print -v
 
-ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (2, -)
-ID:   1 (●, 0)           (Qubit, Col): (0, 3)         #Neighbors:   1     (2, -)
-ID:   2 (Z, π/3)         (Qubit, Col): (0, 2)         #Neighbors:   2     (0, -) (1, -)
+ID:    0 (●, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (2, -)
+ID:    1 (●, 0)       (Qubit, Col): (0, 3)         #Neighbors:   1    (2, -)
+ID:    2 (Z, π/3)     (Qubit, Col): (0, 2)         #Neighbors:   2    (0, -) (1, -)
 Total #Vertices: 3
 
 

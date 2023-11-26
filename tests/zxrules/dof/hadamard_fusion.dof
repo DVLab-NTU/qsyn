@@ -1,4 +1,4 @@
-logger level debug
+logger debug
 qcir qubit add
 qcir gate add h 0
 qcir gate add h 0
@@ -13,9 +13,9 @@ zx edge add 1 4 SIMPLE
 zx edge remove 0 1 ALL
 zx print -v
 zx rule --hadamard-fusion
-zx clear
-qcir clear
-logger level debug
+zx delete --all
+qcir delete --all
+logger debug
 qcir qubit add
 qcir gate add h 0
 qcir gate add h 0
@@ -29,8 +29,8 @@ zx edge add 2 3 HADAMARD
 zx edge add 3 4 HADAMARD
 zx print -v
 zx rule --hadamard-fusion
-zx clear
-qcir clear
+zx delete --all
+qcir delete --all
 qcir qubit add
 qcir gate add h 0
 qcir gate add h 0
@@ -46,8 +46,8 @@ zx edge add 3 1 HADAMARD
 zx print -v
 zx rule --hadamard-fusion
 zx print -v
-zx clear
-qcir clear
+zx delete --all
+qcir delete --all
 qcir qubit add
 qcir gate add h 0
 qcir gate add h 0
@@ -66,8 +66,8 @@ zx edge add 4 1 HADAMARD
 zx print -v
 zx rule --hadamard-fusion
 zx print -v
-zx clear
-qcir clear
+zx delete --all
+qcir delete --all
 qcir qubit add
 qcir gate add h 0
 qcir gate add z 0
@@ -82,8 +82,8 @@ zx edge add 3 4 HADAMARD
 zx print -v
 zx rule --hadamard-fusion
 zx print -v
-zx clear
-qcir clear
+zx delete --all
+qcir delete --all
 qcir qubit add
 qcir qubit add 
 qcir gate add z 0
@@ -99,8 +99,8 @@ zx edge add 7 5 HADAMARD
 zx print -v
 zx rule --hadamard-fusion
 zx print -v
-zx clear
-qcir clear
+zx delete --all
+qcir delete --all
 qcir qubit add
 qcir gate add h 0
 qcir gate add h 0

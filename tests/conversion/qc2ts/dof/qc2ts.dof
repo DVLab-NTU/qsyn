@@ -1,22 +1,22 @@
 qcir read benchmark/qasm/qc2ts/control_z.qasm
-logger level trace
+logger trace
 qc2ts
-logger level warning
+logger warning
 qcir read benchmark/qasm/qc2ts/control_h.qasm -r
-logger level trace
+logger trace
 qc2ts
-logger level warning
+logger warning
 qcir read benchmark/qasm/qc2ts/toffoli_dec.qasm -r
-logger level trace
+logger trace
 qc2ts
-logger level warning
+logger warning
 qcir read benchmark/qasm/qc2ts/toffoli_qiskit.qasm -r
-logger level trace
+logger trace
 qc2ts
-logger level warning
+logger warning
 qcir read benchmark/SABRE/small/3_17_13.qasm
 qcir print --diagram
-logger level trace
+logger trace
 qc2ts
-logger level warning
+logger warning
 quit -f

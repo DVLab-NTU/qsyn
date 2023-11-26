@@ -23,12 +23,12 @@ zx edge add 0 4 SIMPLE
 zx edge add 2 5 SIMPLE
 zx edge add 1 8 SIMPLE
 zx edge add 3 9 SIMPLE
-logger level debug
+logger debug
 zx rule --pivot
-logger level warn
+logger warn
 zx print -v
 zx print -e
-zx clear
+zx delete --all
 zx new
 zx vertex add i 0
 zx vertex add o 0
@@ -49,12 +49,12 @@ zx edge add 0 4 SIMPLE
 zx edge add 2 5 SIMPLE
 zx edge add 1 8 SIMPLE
 zx edge add 3 9 SIMPLE
-logger level debug
+logger debug
 zx rule --pivot
-logger level warn
+logger warn
 zx print -v
 zx print -e
-zx clear
+zx delete --all
 // might match (4, 5)
 zx new
 zx vertex add i 0
@@ -112,12 +112,12 @@ zx vertex add z 0 0
 zx edge add 14 24 SIMPLE
 zx vertex add x 0 0
 zx edge add 15 25 SIMPLE
-logger level debug
+logger debug
 zx rule --pivot
-logger level warn
+logger warn
 zx print -v
 zx print -e
-zx clear
+zx delete --all
 // Might match  (4, 5) (16, 17)
 zx new
 zx vertex add i 0
@@ -248,13 +248,13 @@ zx edge add 0 10 SIMPLE
 zx edge add 2 22 SIMPLE
 zx edge add 1 43 SIMPLE
 zx edge add 3 45 SIMPLE
-logger level debug
+logger debug
 zx rule --pivot
-logger level warn
+logger warn
 zx print -v
 zx print -e
-zx clear
-logger level warn
+zx delete --all
+logger warn
 zx new
 zx vertex add i 0
 zx vertex add o 0
@@ -366,9 +366,9 @@ zx vertex add z 0 0
 zx edge add 26 46 HADAMARD
 zx vertex add z 0 0
 zx edge add 27 47 HADAMARD
-logger level debug
+logger debug
 zx rule --pivot
-logger level warn
+logger warn
 zx print -v
 zx2ts
 zx new

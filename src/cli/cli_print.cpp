@@ -5,6 +5,9 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
+#include <fmt/ostream.h>
+#include <spdlog/spdlog.h>
+
 #include <ranges>
 
 #include "./cli.hpp"
@@ -45,13 +48,6 @@ void dvlab::CommandLineInterface::list_all_variables() const {
 
     fmt::println("");
 }
-/**
- * @brief print all CLI history
- *
- */
-void dvlab::CommandLineInterface::print_history() const {
-    print_history(_history.size());
-}
 
 /**
  * @brief print the last nPrint commands in CLI history
@@ -60,12 +56,36 @@ void dvlab::CommandLineInterface::print_history() const {
  */
 void dvlab::CommandLineInterface::print_history(size_t n_print) const {
     assert(_temp_command_stored == false);
+
+    if (n_print > _history.size())
+        n_print = _history.size();
+
     if (_history.empty()) {
         fmt::println(("Empty command history!!"));
         return;
     }
     for (auto const& [i, history] : _history | std::views::drop(_history.size() - n_print) | tl::views::enumerate) {
         fmt::println("{:>4}: {}", i, history);
+    }
+}
+
+void dvlab::CommandLineInterface::write_history(std::filesystem::path const& filepath, size_t n_print) const {
+    assert(_temp_command_stored == false);
+
+    if (n_print > _history.size())
+        n_print = _history.size();
+
+    std::ofstream ofs(filepath);
+    if (!ofs.is_open()) {
+        spdlog::error("Cannot open file: {}\n", filepath.string());
+        return;
+    }
+    if (_history.empty()) {
+        spdlog::info("Empty command history!!");
+        return;
+    }
+    for (auto const& history : _history | std::views::drop(_history.size() - n_print)) {
+        fmt::println(ofs, "{}", history);
     }
 }
 

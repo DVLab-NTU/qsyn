@@ -34,9 +34,9 @@ Equivalent
 - Global Norm : 1
 - Global Phase: 0
 
-qsyn> zx clear
+qsyn> zx delete --all
 
-qsyn> tensor clear
+qsyn> tensor delete --all
 
 qsyn> qcir qubit add
 

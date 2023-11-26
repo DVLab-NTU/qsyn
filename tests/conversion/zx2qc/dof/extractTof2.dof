@@ -3,9 +3,9 @@ zx read benchmark/zx/tof3.zx
 zx2ts
 zx optimize --full
 zx print -q
-logger level debug
+logger debug
 zx2qc
-logger level warn
+logger warn
 qc2zx 
 zx adjoint
 zx compose 0

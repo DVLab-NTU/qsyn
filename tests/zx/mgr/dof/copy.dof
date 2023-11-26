@@ -6,7 +6,7 @@ zx vertex remove 1
 zx print
 zx checkout 0
 zx print
-zx clear
+zx delete --all
 zx read benchmark/zx/cnot.zx
 zx print
 zx copy
@@ -15,7 +15,7 @@ zx vertex remove 1
 zx print
 zx copy -r 0
 zx print
-zx clear
+zx delete --all
 zx read benchmark/zx/cnot.zx
 zx print -v
 zx copy
