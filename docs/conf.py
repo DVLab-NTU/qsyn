@@ -32,7 +32,7 @@ breathe_default_project = "qsyn"
 
 exhale_args = {
     # These arguments are required
-    "containmentFolder":     "./api",
+    "containmentFolder":     "./dev/api",
     "rootFileName":          "library_root.rst",
     "doxygenStripFromPath":  "..",
     # Heavily encouraged optional argument (see docs)

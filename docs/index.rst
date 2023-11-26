@@ -10,11 +10,11 @@ Warning: This documentation page is currently experimental and may be incomplete
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption: Contents
+   command_renaming
+   list_of_vendors
+   dev/index
 
-   api/library_root
-
-   build_doc
 
 
 

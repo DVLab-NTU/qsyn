@@ -1,4 +1,4 @@
-# Command Renaming
+# Command Naming Changes in Qsyn 1.0
 
 This document lists the commands that have been renamed in the new version of Qsyn.
 

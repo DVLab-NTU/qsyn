@@ -185,4 +185,4 @@ We have provided some DOFILEs, i.e., a sequence of commands, to serve as functio
 `qsyn` is licensed under the
 [Apache License 2.0](https://github.com/DVLab-NTU/qsyn/blob/main/LICENSE).
 
-Certain functions of `qsyn` is enabled by a series of third-party libraries. For a list of these libraries, as well as their license information, please refer to [this document](/vendor/List-of-Used-Libraries.md).
+Certain functions of `qsyn` is enabled by a series of third-party libraries. For a list of these libraries, as well as their license information, please refer to [this document](/vendor/README.md).
