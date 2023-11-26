@@ -136,7 +136,7 @@ Command tensor_cmd(TensorMgr& tensor_mgr) {
 }
 
 bool add_tensor_cmds(dvlab::CommandLineInterface& cli, TensorMgr& tensor_mgr) {
-    if (!(cli.add_command(tensor_cmd(tensor_mgr)))) {
+    if (!cli.add_command(tensor_cmd(tensor_mgr))) {
         spdlog::error("Registering \"tensor\" commands fails... exiting");
         return false;
     }

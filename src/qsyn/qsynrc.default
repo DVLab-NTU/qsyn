@@ -17,6 +17,7 @@ alias qc "qcir" // allows you to use `qc` instead of `qcir`
 alias qcr "qcir read"
 alias qcw "qcir write"
 alias qcl "qcir list"
+alias qcp "qcir print"
 alias qcopt "qcir optimize"
 alias qcco "qcir checkout"
 
@@ -24,22 +25,25 @@ alias qcco "qcir checkout"
 alias zxr "zx read"
 alias zxw "zx write"
 alias zxl "zx list"
+alias zxp "zx print"
 alias zxopt "zx optimize"
 alias zxco "zx checkout"
 
 // tensor aliases
 alias ts tensor
 alias tsl "tensor list"
+alias tsp "tensor print"
 alias tsco "tensor checkout"
 alias tseq "tensor equiv"
 
 // device aliases
-alias devr "device read"
-alias devco "device checkout"
+alias dvr "device read"
+alias dvp "device print"
+alias dvco "device checkout"
 
 // aliasing the `quit` command to `q` for convenience
 alias q quit
 
 // lazy-man synthesis
-alias qzq "convert qcir zx; zx optimize --full; convert zx qcir"
+alias qzq "convert qcir zx; zx optimize --full; convert zx qcir; qcir optimize"
 )"
