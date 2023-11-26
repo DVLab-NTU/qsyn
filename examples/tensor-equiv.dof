@@ -1,0 +1,11 @@
+zx read benchmark/zx/tof3_op.zx; zx print -v
+zx read benchmark/zx/tof3_zh.zx; zx print -v
+convert zx tensor
+zx checkout 0
+convert zx tensor
+tensor list
+tensor print
+tensor checkout 0
+tensor print
+tensor equiv 0 1
+quit -f

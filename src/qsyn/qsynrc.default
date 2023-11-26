@@ -27,10 +27,15 @@ alias zxl "zx list"
 alias zxopt "zx optimize"
 alias zxco "zx checkout"
 
-// device aliases
+// tensor aliases
 alias ts tensor
-alias tseq "tensor equiv"
+alias tsl "tensor list"
 alias tsco "tensor checkout"
+alias tseq "tensor equiv"
+
+// device aliases
+alias devr "device read"
+alias devco "device checkout"
 
 // aliasing the `quit` command to `q` for convenience
 alias q quit

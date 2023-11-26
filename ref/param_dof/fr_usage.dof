@@ -1,8 +1,0 @@
-//!ARGS INPUT_PATH OUTPUT_PATH
-qccr $1
-qc2zx
-zxgs -fr
-zx2qc
-qccoptimize
-qccw $2
-qq -f

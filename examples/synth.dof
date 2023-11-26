@@ -1,0 +1,21 @@
+qcir read benchmark/SABRE/large/adr4_197.qasm
+qcir print --stat
+qc2zx
+zx print --stat
+zx copy
+zx optimize --full
+zx print --stat
+zx2qc
+qcir print --stat
+qcir optimize
+qcir print --stat
+
+device read benchmark/topology/guadalupe.layout
+duostra -c
+qcir print --stat
+
+qcir list
+
+qcir write examples/adr4_197-opt.qasm
+
+quit -f

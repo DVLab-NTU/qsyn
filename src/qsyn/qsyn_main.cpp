@@ -145,7 +145,7 @@ dvlab::argparse::ArgumentParser get_qsyn_parser(std::string_view const prog_name
 
     parser.add_argument<bool>("-q", "--quiet")
         .action(store_true)
-        .help("suppress echoing of commands when supplying commands from `-c` or `-f` flags. This argument does not affect the interactive mode");
+        .help("suppress echoing of commands when supplying commands from `-c` or `-f` flags. This argument also implies `--no-version`");
 
     parser.add_argument<bool>("--no-version")
         .action(store_true)
@@ -175,15 +175,15 @@ int main(int argc, char** argv) {
         return -1;
     }
 
-    if (!parser.parsed("--no-version")) {
+    auto const quiet = parser.get<bool>("--quiet");
+
+    if (!parser.parsed("--no-version") && !quiet) {
         fmt::println("{}", version_str);
     }
 
     if (!read_qsynrc_file(parser.get<std::string>("--qsynrc-path"))) {
         return -1;
     }
-
-    auto const quiet = parser.get<bool>("--quiet");
 
     if (parser.parsed("--command")) {
         auto args = parser.get<std::vector<std::string>>("--command");

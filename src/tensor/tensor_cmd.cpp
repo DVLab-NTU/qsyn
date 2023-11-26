@@ -127,9 +127,10 @@ Command tensor_cmd(TensorMgr& tensor_mgr) {
     auto cmd = mgr_root_cmd(tensor_mgr);
     cmd.add_subcommand(mgr_list_cmd(tensor_mgr));
     cmd.add_subcommand(tensor_print_cmd(tensor_mgr));
+    cmd.add_subcommand(mgr_checkout_cmd(tensor_mgr));
+    cmd.add_subcommand(mgr_delete_cmd(tensor_mgr));
     cmd.add_subcommand(tensor_adjoint_cmd(tensor_mgr));
     cmd.add_subcommand(tensor_equivalence_check_cmd(tensor_mgr));
-    cmd.add_subcommand(mgr_delete_cmd(tensor_mgr));
 
     return cmd;
 }

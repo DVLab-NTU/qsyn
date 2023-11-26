@@ -9,9 +9,11 @@
 #include <exception>
 #include <ranges>
 #include <string>
+#include <unicode/display_width.hpp>
 
 #include "./zxgraph.hpp"
 #include "spdlog/common.h"
+#include "util/dvlab_string.hpp"
 
 namespace qsyn::zx {
 
@@ -37,12 +39,14 @@ void ZXVertex::print_vertex(spdlog::level::level_enum lvl) const {
     std::ranges::sort(storage, [](NeighborPair const& a, NeighborPair const& b) {
         return (a.first->get_id() != b.first->get_id()) ? (a.first->get_id() < b.first->get_id()) : (a.second < b.second);
     });
-
+    auto type_str       = fmt::format("{}", _type);
+    auto ansi_token_len = type_str.size();
     spdlog::log(
         lvl,
-        "ID: {:>3} {:<16} (Qubit, Col): {:<14} #Neighbors: {:>3}     {}",
+        "ID: {0:>4} {1:<{2}} (Qubit, Col): {3:<14} #Neighbors: {4:>3}    {5}",
         _id,
-        fmt::format("({}, {})", _type, _phase.get_print_string()),
+        fmt::format("({}, {})", type_str, _phase.get_print_string()),
+        11ul + ansi_token_len - 2 * (_type == VertexType::boundary ? 1 : 0),
         fmt::format("({}, {})", _qubit, _col),
         _neighbors.size(),
         fmt::join(storage | std::views::transform([](NeighborPair const& nbp) { return fmt::format("({}, {})", nbp.first->get_id(), nbp.second); }), " "));

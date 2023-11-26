@@ -152,7 +152,7 @@ Command zxgraph_print_cmd(ZXGraphMgr const& zxgraph_mgr) {
                 mutex.add_argument<bool>("-l", "--list")
                     .action(store_true)
                     .help("print a list of ZXGraphs");
-                mutex.add_argument<bool>("-s", "--summary")
+                mutex.add_argument<bool>("-s", "--statistics")
                     .action(store_true)
                     .help("print the summary info of ZXGraph");
                 mutex.add_argument<bool>("--io")
@@ -184,7 +184,7 @@ Command zxgraph_print_cmd(ZXGraphMgr const& zxgraph_mgr) {
 
             [&](ArgumentParser const& parser) {
                 if (!dvlab::utils::mgr_has_data(zxgraph_mgr)) return CmdExecResult::error;
-                if (parser.parsed("--summary")) {
+                if (parser.parsed("--statistics")) {
                     zxgraph_mgr.get()->print_graph();
                     fmt::println("{:<29} {}", "#T-gate:", zxgraph_mgr.get()->t_count());
                     fmt::println("{:<29} {}", "#Non-(Clifford+T)-gate: ", zxgraph_mgr.get()->non_clifford_t_count());

@@ -26,10 +26,10 @@ qsyn> zx edge add 3 1 SIMPLE
 
 qsyn> zx print -v
 
-ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (2, -)
-ID:   1 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   2     (2, -) (3, -)
-ID:   2 (Z, 0)           (Qubit, Col): (0, 0)         #Neighbors:   4     (0, -) (1, -) (3, -) (3, H)
-ID:   3 (Z, 0)           (Qubit, Col): (0, 0)         #Neighbors:   3     (1, -) (2, -) (2, H)
+ID:    0 (●, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (2, -)
+ID:    1 (●, 0)       (Qubit, Col): (0, 0)         #Neighbors:   2    (2, -) (3, -)
+ID:    2 (Z, 0)       (Qubit, Col): (0, 0)         #Neighbors:   4    (0, -) (1, -) (3, -) (3, H)
+ID:    3 (Z, 0)       (Qubit, Col): (0, 0)         #Neighbors:   3    (1, -) (2, -) (2, H)
 Total #Vertices: 4
 
 
@@ -45,9 +45,9 @@ qsyn> zx rule --spider-fusion
 
 qsyn> zx print -v
 
-ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (2, -)
-ID:   1 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (2, -)
-ID:   2 (Z, π)           (Qubit, Col): (0, 0)         #Neighbors:   2     (0, -) (1, -)
+ID:    0 (●, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (2, -)
+ID:    1 (●, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (2, -)
+ID:    2 (Z, π)       (Qubit, Col): (0, 0)         #Neighbors:   2    (0, -) (1, -)
 Total #Vertices: 3
 
 
@@ -102,14 +102,14 @@ qsyn> zx edge add 7 2 SIMPLE
 
 qsyn> zx print -v
 
-ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (3, -)
-ID:   1 (●, 0)           (Qubit, Col): (1, 0)         #Neighbors:   1     (3, -)
-ID:   2 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   2     (5, -) (7, -)
-ID:   3 (Z, 0)           (Qubit, Col): (0, 0)         #Neighbors:   5     (0, -) (1, -) (4, -) (4, H) (6, H)
-ID:   4 (Z, 0)           (Qubit, Col): (0, 0)         #Neighbors:   4     (3, -) (3, H) (5, -) (6, -)
-ID:   5 (Z, 0)           (Qubit, Col): (0, 0)         #Neighbors:   3     (2, -) (4, -) (7, H)
-ID:   6 (X, 0)           (Qubit, Col): (0, 0)         #Neighbors:   3     (3, H) (4, -) (7, -)
-ID:   7 (X, 0)           (Qubit, Col): (0, 0)         #Neighbors:   3     (2, -) (5, H) (6, -)
+ID:    0 (●, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (3, -)
+ID:    1 (●, 0)       (Qubit, Col): (1, 0)         #Neighbors:   1    (3, -)
+ID:    2 (●, 0)       (Qubit, Col): (0, 0)         #Neighbors:   2    (5, -) (7, -)
+ID:    3 (Z, 0)       (Qubit, Col): (0, 0)         #Neighbors:   5    (0, -) (1, -) (4, -) (4, H) (6, H)
+ID:    4 (Z, 0)       (Qubit, Col): (0, 0)         #Neighbors:   4    (3, -) (3, H) (5, -) (6, -)
+ID:    5 (Z, 0)       (Qubit, Col): (0, 0)         #Neighbors:   3    (2, -) (4, -) (7, H)
+ID:    6 (X, 0)       (Qubit, Col): (0, 0)         #Neighbors:   3    (3, H) (4, -) (7, -)
+ID:    7 (X, 0)       (Qubit, Col): (0, 0)         #Neighbors:   3    (2, -) (5, H) (6, -)
 Total #Vertices: 8
 
 
@@ -131,11 +131,11 @@ qsyn> zx rule --spider-fusion
 
 qsyn> zx print -v
 
-ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (3, -)
-ID:   1 (●, 0)           (Qubit, Col): (1, 0)         #Neighbors:   1     (3, -)
-ID:   2 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   2     (3, -) (6, -)
-ID:   3 (Z, π)           (Qubit, Col): (0, 0)         #Neighbors:   5     (0, -) (1, -) (2, -) (6, -) (6, H)
-ID:   6 (X, 0)           (Qubit, Col): (0, 0)         #Neighbors:   3     (2, -) (3, -) (3, H)
+ID:    0 (●, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (3, -)
+ID:    1 (●, 0)       (Qubit, Col): (1, 0)         #Neighbors:   1    (3, -)
+ID:    2 (●, 0)       (Qubit, Col): (0, 0)         #Neighbors:   2    (3, -) (6, -)
+ID:    3 (Z, π)       (Qubit, Col): (0, 0)         #Neighbors:   5    (0, -) (1, -) (2, -) (6, -) (6, H)
+ID:    6 (X, 0)       (Qubit, Col): (0, 0)         #Neighbors:   3    (2, -) (3, -) (3, H)
 Total #Vertices: 5
 
 
@@ -174,10 +174,10 @@ qsyn> zx edge add 3 3 HADAMARD
 
 qsyn> zx print -v
 
-ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (3, -)
-ID:   1 (●, 0)           (Qubit, Col): (1, 0)         #Neighbors:   1     (3, -)
-ID:   2 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (3, -)
-ID:   3 (Z, π)           (Qubit, Col): (0, 0)         #Neighbors:   3     (0, -) (1, -) (2, -)
+ID:    0 (●, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (3, -)
+ID:    1 (●, 0)       (Qubit, Col): (1, 0)         #Neighbors:   1    (3, -)
+ID:    2 (●, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (3, -)
+ID:    3 (Z, π)       (Qubit, Col): (0, 0)         #Neighbors:   3    (0, -) (1, -) (2, -)
 Total #Vertices: 4
 
 
@@ -191,10 +191,10 @@ qsyn> zx rule --spider-fusion
 
 qsyn> zx print -v
 
-ID:   0 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (3, -)
-ID:   1 (●, 0)           (Qubit, Col): (1, 0)         #Neighbors:   1     (3, -)
-ID:   2 (●, 0)           (Qubit, Col): (0, 0)         #Neighbors:   1     (3, -)
-ID:   3 (Z, π)           (Qubit, Col): (0, 0)         #Neighbors:   3     (0, -) (1, -) (2, -)
+ID:    0 (●, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (3, -)
+ID:    1 (●, 0)       (Qubit, Col): (1, 0)         #Neighbors:   1    (3, -)
+ID:    2 (●, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (3, -)
+ID:    3 (Z, π)       (Qubit, Col): (0, 0)         #Neighbors:   3    (0, -) (1, -) (2, -)
 Total #Vertices: 4
 
 

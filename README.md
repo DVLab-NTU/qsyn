@@ -60,45 +60,45 @@ Visualization functionalities of `qsyn` depends at runtime on the following depe
 
 1. create a `build` directory to store CMake artifacts
 
-```sh
-mkdir build
-cd build
-```
+   ```sh
+   mkdir build
+   cd build
+   ```
 
 2. run CMake to generate Makefiles, if this step fails, you might have to install `blas` and `lapack` libraries.
 
-```sh
-cmake ..
-```
+   ```sh
+   cmake ..
+   ```
 
-**Note for Mac Users:** Since we use some C++20 features that are not yet supported by Apple Clang, you'll need to install another compiler yourself. We recommand installing the `llvm` toolchain with `clang++` by running
+   **Note for Mac Users:** Since we use some C++20 features that are not yet supported by Apple Clang, you'll need to install another compiler yourself. We recommand installing the `llvm` toolchain with `clang++` by running
 
-```sh
-brew install llvm
-```
+   ```sh
+   brew install llvm
+   ```
 
-Then, run the following command to force `cmake` to use the new `clang++` you installed.
+   Then, run the following command to force `cmake` to use the new `clang++` you installed.
 
-```sh
-cmake .. -DCMAKE_CXX_COMPILER=$(which clang++)
-```
+   ```sh
+   cmake .. -DCMAKE_CXX_COMPILER=$(which clang++)
+   ```
 
 3. run `make` to build up the executable, you would want to crank up the number of threads to speed up the compilation process
 
-```sh
-cmake --build . -j16
-# or
-make -j16
-```
+   ```sh
+   cmake --build . -j16
+   # or
+   make -j16
+   ```
 
-You can also build `qsyn` in a containerized environment by running
+   You can also build `qsyn` in a containerized environment by running
 
-```sh
-docker run -it --rm -v $(pwd):/qsyn dvlab/qsyn-env
-cd /qsyn
-```
+   ```sh
+   docker run -it --rm -v $(pwd):/qsyn dvlab/qsyn-env
+   cd /qsyn
+   ```
 
-Then, you can follow the instructions above to build `qsyn` in the container.
+   Then, you can follow the instructions above to build `qsyn` in the container.
 
 ### Run
 
@@ -114,18 +114,11 @@ Then, you can follow the instructions above to build `qsyn` in the container.
 
   ```sh
   ❯ ./qsyn -f tests/demo/demo/dof/tof_3.dof
-  DV Lab, NTUEE, Qsyn 0.5.1
-  qsyn> verb 0
-  Note: verbose level is set to 0
+  qsyn 0.5.1 - Copyright © 2022-2023, DVLab NTUEE.
+  Licensed under Apache 2.0 License.
+  qsyn> qcir read benchmark/zx/tof3.zx
 
-  qsyn> zxgread benchmark/zx/tof3.zx
 
-  qsyn> zxgs -freduce
-
-  qsyn> zxgp
-  Graph 0( 3 inputs, 3 outputs, 17 vertices, 19 edges )
-
-  qsyn> qq -f
   ```
 
 - The same result can be produced by running in the command-line mode:
