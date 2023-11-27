@@ -18,9 +18,13 @@
 #include "util/dvlab_string.hpp"
 #include "util/scope_guard.hpp"
 
+#ifdef _LIBCPP_VERSION
+#include <iostream>
+#else
 namespace std {
 extern istream cin;
 }
+#endif
 
 namespace dvlab {
 
@@ -185,13 +189,18 @@ dvlab::CommandLineInterface::_parse_one_command(std::string_view cmd) {
 CmdExecResult CommandLineInterface::_dispatch_command(dvlab::Command* cmd, std::vector<argparse::Token> options) {
     std::atomic<CmdExecResult> exec_result = CmdExecResult::done;
 
-    _command_threads.push(jthread::jthread{
+    _command_threads.emplace(
         [&cmd, &options, &exec_result]() {
             exec_result = cmd->execute(options);
-        }});
+        });
 
     assert(_command_threads.size());
 
+    assert(_command_threads.top().get_stop_token().stop_requested() == false);
+
+    // NOTE - on some platforms, directly popping the thread object from the stack will cause the stop token to be triggered.
+    //        This results in weird CLI behavior. To avoid this, we first join the thread, then pop it from the stack.
+    _command_threads.top().join();
     _command_threads.pop();
 
     if (this->stop_requested()) {
