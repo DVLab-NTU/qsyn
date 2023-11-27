@@ -21,12 +21,12 @@ run-docker:
 # run all tests with current qsyn binary at the root of the project
 # use ./scripts/RUN_TESTS to run tests with specific dofiles
 test:
-	./scripts/RUN_TESTS ./tests
+	./scripts/RUN_TESTS
 
 # compile and run all tests with current source code in the docker container
 # use ./scripts/RUN_TESTS_DOCKER to run tests with specific dofiles
 test-docker:
-	./scripts/RUN_TESTS_DOCKER ./tests
+	./scripts/RUN_TESTS_DOCKER
 
 # run clang-format and clang-tidy on the source code
 lint:
