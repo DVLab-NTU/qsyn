@@ -41,4 +41,9 @@ clean:
 	rm -rf build
 	rm -f qsyn
 
-.PHONY: all build build-clang++ test test-docker lint publish clean
+clean-docker:
+	docker container prune -f
+	docker rmi qsyn-test-gcc -f
+	docker rmi qsyn-test-clang -f
+
+.PHONY: all build build-clang++ test test-docker lint publish clean clean-docker

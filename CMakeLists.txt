@@ -18,7 +18,7 @@ set(FETCHCONTENT_UPDATES_DISCONNECTED TRUE)
 project(
   qsyn
   LANGUAGES CXX
-  VERSION v0.6.1)
+  VERSION 0.6.1)
 
 find_package(OpenMP REQUIRED)
 
@@ -92,7 +92,7 @@ target_compile_definitions(
 target_link_libraries(spdlog PUBLIC fmt::fmt)
 
 target_compile_definitions(${CMAKE_PROJECT_NAME}
-                           PRIVATE QSYN_VERSION="${CMAKE_PROJECT_VERSION}")
+                           PRIVATE QSYN_VERSION="v${CMAKE_PROJECT_VERSION}")
 target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wall -Wextra -Werror)
 
 # g++ is being too paranoid about missing field initializers
