@@ -1,4 +1,4 @@
-# Command Naming Changes in Qsyn 0.6.0
+# Command Naming Changes in Qsyn v0.6.1
 
 This document lists the commands that have been renamed in the new version of Qsyn.
 
@@ -32,12 +32,12 @@ This document lists the commands that have been renamed in the new version of Qs
 
 ## Conversion Commands
 
-| Original Command | New Command         | Synopsis                  | Notes                |
-| :--------------- | :------------------ | :------------------------ | :------------------- |
-| qc2zx            | convert qcir zx     | convert QCir to ZXGraph   | also alised to qc2zx |
-| qc2ts            | convert qcir tensor | convert QCir to tensor    | also alised to qc2ts |
-| zx2ts            | convert zx tensor   | convert ZXGraph to tensor | also alised to zx2ts |
-| zx2qc            | convert zx qcir     | convert ZXGraph to QCir   | also alised to zx2qc |
+| Original Command | New Command         | Synopsis                  | Notes                 |
+| :--------------- | :------------------ | :------------------------ | :-------------------- |
+| qc2zx            | convert qcir zx     | convert QCir to ZXGraph   | also aliased to qc2zx |
+| qc2ts            | convert qcir tensor | convert QCir to tensor    | also aliased to qc2ts |
+| zx2ts            | convert zx tensor   | convert ZXGraph to tensor | also aliased to zx2ts |
+| zx2qc            | convert zx qcir     | convert ZXGraph to QCir   | also aliased to zx2qc |
 
 ## Duostra Commands
 
