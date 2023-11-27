@@ -479,6 +479,7 @@ Command zxgraph_vertex_remove_cmd(ZXGraphMgr& zxgraph_mgr) {
     return Command{
         "remove",
         [&](ArgumentParser& parser) {
+            parser.description("remove vertices from ZXGraph");
             auto mutex = parser.add_mutually_exclusive_group().required(true);
 
             mutex.add_argument<size_t>("ids")
