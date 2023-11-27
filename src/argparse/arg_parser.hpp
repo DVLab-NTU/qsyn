@@ -125,10 +125,10 @@ public:
     [[nodiscard]] SubParsers add_subparsers();
 
     bool parse_args(std::vector<std::string> const& tokens);
-    bool parse_args(TokensView);
+    bool parse_args(TokensSpan);
 
     std::pair<bool, std::vector<Token>> parse_known_args(std::vector<std::string> const& tokens);
-    std::pair<bool, std::vector<Token>> parse_known_args(TokensView);
+    std::pair<bool, std::vector<Token>> parse_known_args(TokensSpan);
 
     bool analyze_options() const;
 
@@ -177,7 +177,7 @@ private:
 
     // pretty printing helpers
 
-    std::pair<bool, std::vector<Token>> _parse_known_args_impl(TokensView);
+    std::pair<bool, std::vector<Token>> _parse_known_args_impl(TokensSpan);
 
     void _activate_subparser(std::string_view name) {
         _pimpl->activated_subparser = name;
@@ -188,8 +188,10 @@ private:
 
     // parse subroutine
     std::string _get_activated_subparser_name() const { return _pimpl->activated_subparser.value_or(""); }
-    bool _parse_options(TokensView tokens);
-    bool _parse_positional_arguments(TokensView tokens, std::vector<Token>& unrecognized);
+    bool _parse_options(TokensSpan tokens);
+    bool _parse_one_option(Argument& arg, TokensSpan tokens);
+    std::pair<std::vector<std::string>, std::string> _explode_option(std::string_view token) const;
+    bool _parse_positional_arguments(TokensSpan tokens, std::vector<Token>& unrecognized);
     void _fill_unparsed_args_with_defaults();
 
     // parseOptions subroutine

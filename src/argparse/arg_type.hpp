@@ -52,7 +52,7 @@ enum class NArgsOption {
     zero_or_more
 };
 
-using ActionCallbackType = std::function<bool(TokensView)>;  // perform an action and return if it succeeds
+using ActionCallbackType = std::function<bool(TokensSpan)>;  // perform an action and return if it succeeds
 
 template <typename T>
 requires valid_argument_type<T>
@@ -76,7 +76,7 @@ public:
     ArgType& nargs(size_t l, size_t u);
     ArgType& nargs(NArgsOption opt);
 
-    inline bool take_action(TokensView tokens);
+    inline bool take_action(TokensSpan tokens);
     inline void reset();
 
     template <typename Ret>
@@ -356,7 +356,7 @@ void ArgType<T>::reset() {
  */
 template <typename T>
 requires valid_argument_type<T>
-bool ArgType<T>::take_action(TokensView tokens) {
+bool ArgType<T>::take_action(TokensSpan tokens) {
     assert(_action_callback != nullptr);
 
     return _action_callback(tokens);
@@ -374,7 +374,7 @@ bool ArgType<T>::take_action(TokensView tokens) {
 template <typename T>
 requires valid_argument_type<T>
 ActionCallbackType store(ArgType<T>& arg) {
-    return [&arg](TokensView tokens) -> bool {
+    return [&arg](TokensSpan tokens) -> bool {
         T tmp;
         for (auto& [token, parsed] : tokens) {
             if (!parse_from_string(tmp, token)) {
@@ -401,7 +401,7 @@ requires valid_argument_type<T>
 typename ArgType<T>::ActionType store_const(T const& const_value) {
     return [const_value](ArgType<T>& arg) -> ActionCallbackType {
         arg.nargs(0ul);
-        return [&arg, const_value](TokensView) { arg.append_value(const_value); return true; };
+        return [&arg, const_value](TokensSpan) { arg.append_value(const_value); return true; };
     };
 }
 
