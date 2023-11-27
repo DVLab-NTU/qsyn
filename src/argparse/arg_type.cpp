@@ -107,7 +107,7 @@ ArgType<std::string>::ConstraintType allowed_extension(std::vector<std::string> 
 ActionCallbackType store_true(ArgType<bool>& arg) {
     arg.default_value(false);
     arg.nargs(0ul);
-    return [&arg](TokensView) { arg.append_value(true); return true; };
+    return [&arg](TokensSpan) { arg.append_value(true); return true; };
 }
 
 /**
@@ -120,13 +120,13 @@ ActionCallbackType store_true(ArgType<bool>& arg) {
 ActionCallbackType store_false(ArgType<bool>& arg) {
     arg.default_value(true);
     arg.nargs(0ul);
-    return [&arg](TokensView) { arg.append_value(false); return true; };
+    return [&arg](TokensSpan) { arg.append_value(false); return true; };
 }
 
 ActionCallbackType help(ArgType<bool>& arg) {
     arg.mark_as_help_action();
     arg.nargs(0ul);
-    return [](TokensView) -> bool {
+    return [](TokensSpan) -> bool {
         return true;
     };
 }
@@ -134,7 +134,7 @@ ActionCallbackType help(ArgType<bool>& arg) {
 ActionCallbackType version(ArgType<bool>& arg) {
     arg.mark_as_version_action();
     arg.nargs(0ul);
-    return [](TokensView) -> bool {
+    return [](TokensSpan) -> bool {
         return true;
     };
 }

@@ -14,6 +14,7 @@
 #include <ranges>
 #include <stdexcept>
 
+#include "argparse/arg_def.hpp"
 #include "fmt/core.h"
 #include "tl/adjacent.hpp"
 #include "tl/enumerate.hpp"
@@ -240,7 +241,7 @@ bool ArgumentParser::parse_args(std::vector<std::string> const& tokens) {
  * @return true
  * @return false
  */
-bool ArgumentParser::parse_args(TokensView tokens) {
+bool ArgumentParser::parse_args(TokensSpan tokens) {
     auto [success, unrecognized] = parse_known_args(tokens);
 
     if (!success) return false;
@@ -269,7 +270,7 @@ std::pair<bool, std::vector<Token>> ArgumentParser::parse_known_args(std::vector
  *         the first return value specifies whether the parse has succeeded, and
  *         the second one specifies the unrecognized tokens
  */
-std::pair<bool, std::vector<Token>> ArgumentParser::parse_known_args(TokensView tokens) {
+std::pair<bool, std::vector<Token>> ArgumentParser::parse_known_args(TokensSpan tokens) {
     auto result = _parse_known_args_impl(tokens);
     if (!result.first && _pimpl->config.exit_on_failure) {
         exit(0);
@@ -284,7 +285,7 @@ std::pair<bool, std::vector<Token>> ArgumentParser::parse_known_args(TokensView 
  * @param tokens
  * @return std::pair<bool, std::vector<Token>>
  */
-std::pair<bool, std::vector<Token>> ArgumentParser::_parse_known_args_impl(TokensView tokens) {
+std::pair<bool, std::vector<Token>> ArgumentParser::_parse_known_args_impl(TokensSpan tokens) {
     if (!analyze_options()) return {false, {}};
     _pimpl->activated_subparser = std::nullopt;
     for (auto& mutex : _pimpl->mutually_exclusive_groups) {
@@ -309,7 +310,7 @@ std::pair<bool, std::vector<Token>> ArgumentParser::_parse_known_args_impl(Token
         arg.reset();
     }
 
-    TokensView const main_parser_tokens = tokens.subspan(0, subparser_token_pos);
+    TokensSpan const main_parser_tokens = tokens.subspan(0, subparser_token_pos);
 
     std::vector<Token> unrecognized;
     if (!_parse_options(main_parser_tokens) ||
@@ -318,7 +319,7 @@ std::pair<bool, std::vector<Token>> ArgumentParser::_parse_known_args_impl(Token
     }
     _fill_unparsed_args_with_defaults();
     if (has_subparsers()) {
-        TokensView const subparser_tokens = tokens.subspan(subparser_token_pos + 1);
+        TokensSpan const subparser_tokens = tokens.subspan(subparser_token_pos + 1);
         if (_pimpl->activated_subparser) {
             auto const [success, subparser_unrecognized] = get_activated_subparser()->parse_known_args(subparser_tokens);
             if (!success) return {false, {}};
@@ -338,62 +339,126 @@ std::pair<bool, std::vector<Token>> ArgumentParser::_parse_known_args_impl(Token
  * @return true if succeeded
  * @return false if failed
  */
-bool ArgumentParser::_parse_options(TokensView tokens) {
-    for (auto const& [i, token_pair] : tl::views::enumerate(tokens)) {
+bool ArgumentParser::_parse_options(TokensSpan tokens) {
+    for (auto const& [idx, token_pair] : tl::views::enumerate(tokens)) {
         auto const& token = token_pair.token;
         auto& parsed      = token_pair.parsed;
-        if (!has_option_prefix(token) || parsed) continue;
+
+        if (!has_option_prefix(token) || tokens[idx].parsed) continue;
+
+        // special token: if the token is two prefix chars, everything after it is positional
+        if (token.size() == 2 && _pimpl->option_prefixes.find(token[0]) != std::string::npos && _pimpl->option_prefixes.find(token[1]) != std::string::npos) {
+            parsed = true;
+            return true;
+        }
+
+        // tries to match the token as a prefix to the full option name
         auto match = _match_option(token);
+        if (auto p_arg_name = std::get_if<std::string>(&match)) {
+            if (!_parse_one_option(_get_arg(*p_arg_name), tokens.subspan(idx + 1))) {
+                return false;
+            }
+            parsed = true;
+            continue;
+        }
+        // check if the option is ambiguous
+        if (auto p_frequency = std::get_if<size_t>(&match)) {
+            assert(p_frequency != nullptr);
 
-        if (std::holds_alternative<size_t>(match)) {
             // check if the argument is a number
-            if (dvlab::str::from_string<float>(token).has_value())
+            if (dvlab::str::from_string<float>(token).has_value()) {
                 continue;
-            auto frequency = std::get<size_t>(match);
-            assert(frequency != 1);
+            }
 
-            // If the option is unrecognized, skip to the next arg
-            // because it may be a positional argument
-            if (frequency == 0) continue;
-
-            // Else the option is ambiguous. Report the error and quit parsing
-            auto const matching_option_filter = [this, &token = token](std::string const& name) {
-                return has_option_prefix(name) && name.starts_with(token);
-            };
-            fmt::println(stderr, "Error: ambiguous option: \"{}\" could match {}",
-                         token, fmt::join(_pimpl->arguments | std::views::keys | std::views::filter(matching_option_filter), ", "));
-            return false;
+            // If the option is ambiguous, report the error and quit parsing
+            if (*p_frequency > 0) {
+                auto const matching_option_filter = [this, &token = token](std::string const& name) {
+                    return has_option_prefix(name) && name.starts_with(token);
+                };
+                fmt::println(stderr, "Error: ambiguous option: \"{}\" could match {}",
+                             token, fmt::join(_pimpl->arguments | std::views::keys | std::views::filter(matching_option_filter), ", "));
+                return false;
+            }
         }
-        Argument& arg = _get_arg(std::get<std::string>(match));
+        // else the option is unrecognized. Tries to match the token with a single-char option
+        // for example, if the token is "-abc", then it will try to match "-a", "-b", and "-c",
+        // among which only the last one can have an subsequent argument.
 
-        if (arg.is_help_action()) {
-            this->print_help();
-            return false;  // break the parsing
+        auto const [single_char_options, remainder_token] = _explode_option(token);
+
+        for (auto const& [j, option] : tl::views::enumerate(single_char_options)) {
+            auto& arg = _get_arg(option);
+            if (j == single_char_options.size() - 1) {
+                if (remainder_token.empty()) {
+                    if (!_parse_one_option(arg, tokens.subspan(idx + 1))) {
+                        return false;
+                    }
+                } else {
+                    std::array<Token, 1> tmpToken{Token{remainder_token}};
+                    if (!_parse_one_option(arg, TokensSpan{tmpToken})) {
+                        return false;
+                    }
+                }
+            } else {
+                if (!_parse_one_option(arg, TokensSpan{})) {
+                    return false;
+                }
+            }
         }
 
-        if (arg.is_version_action()) {
-            this->print_version();
-            return false;  // break the parsing
-        }
-
-        parsed           = true;
-        auto parse_range = arg.get_parse_range(tokens.subspan(i + 1));
-        if (!arg.tokens_enough_to_parse(parse_range)) {
-            fmt::println(stderr, "Error: missing argument(s) for \"{}\": expected {}{} arguments!!",
-                         arg.get_name(), (arg.get_nargs().lower < arg.get_nargs().upper ? "at least " : ""), arg.get_nargs().lower);
-            return false;
-        }
-
-        if (!arg.take_action(parse_range)) {
-            return false;
-        }
-
-        if (!_no_conflict_with_parsed_arguments(arg)) return false;
-
-        arg.mark_as_parsed();  // if the options is present, no matter if there's any argument the follows, mark it as parsed
+        parsed = true;
     }
 
     return _all_required_options_are_parsed();
+}
+std::pair<std::vector<std::string>, std::string> ArgumentParser::_explode_option(std::string_view token) const {
+    std::vector<std::string> single_char_options;
+    std::string remainder_token;
+    for (auto const& [j, ch] : tl::views::enumerate(token.substr(1))) {
+        std::string const single_char_option{token[0], ch};
+        auto match = _match_option(single_char_option);
+        if (auto p_arg_name = std::get_if<std::string>(&match)) {
+            single_char_options.push_back(single_char_option);
+            // if the option need at least one argument, then the remainder of the token is the argument
+            if (_get_arg(*p_arg_name).get_nargs().lower > 0) {
+                remainder_token = token.substr(j + 2);
+                break;
+            }
+        }
+        // if we encounter a single-char that does not match any option, then everything after it is the argument for the last option
+        else if (std::get_if<size_t>(&match)) {
+            remainder_token = token.substr(j + 2);
+        }
+    }
+    return {single_char_options, remainder_token};
+}
+
+bool ArgumentParser::_parse_one_option(Argument& arg, TokensSpan tokens) {
+    auto parse_range = arg.get_parse_range(tokens);
+    if (arg.is_help_action()) {
+        this->print_help();
+        return false;  // break the parsing
+    }
+
+    if (arg.is_version_action()) {
+        this->print_version();
+        return false;  // break the parsing
+    }
+
+    if (!arg.tokens_enough_to_parse(parse_range)) {
+        fmt::println(stderr, "Error: missing argument(s) for \"{}\": expected {}{} arguments!!",
+                     arg.get_name(), (arg.get_nargs().lower < arg.get_nargs().upper ? "at least " : ""), arg.get_nargs().lower);
+        return false;
+    }
+
+    if (!arg.take_action(parse_range)) {
+        return false;
+    }
+
+    if (!_no_conflict_with_parsed_arguments(arg)) return false;
+
+    arg.mark_as_parsed();  // if the options is present, no matter if there's any argument the follows, mark it as parsed
+    return true;
 }
 
 /**
@@ -402,7 +467,7 @@ bool ArgumentParser::_parse_options(TokensView tokens) {
  * @return true if succeeded
  * @return false if failed
  */
-bool ArgumentParser::_parse_positional_arguments(TokensView tokens, std::vector<Token>& unrecognized) {
+bool ArgumentParser::_parse_positional_arguments(TokensSpan tokens, std::vector<Token>& unrecognized) {
     for (auto& [name, arg] : _pimpl->arguments) {
         if (arg.is_parsed() || has_option_prefix(name)) continue;
 

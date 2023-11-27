@@ -30,7 +30,7 @@ struct Token {
     bool parsed;
 };
 
-using TokensView = std::span<Token>;
+using TokensSpan = std::span<Token>;
 
 template <typename T>
 std::string type_string(T const&);

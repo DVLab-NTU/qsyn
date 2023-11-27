@@ -64,8 +64,8 @@ public:
     bool is_version_action() const { return _pimpl->do_is_version_action(); }
     bool is_constraints_satisfied() const { return _pimpl->do_is_constraints_satisfied(); }
     bool is_parsed() const { return _pimpl->do_is_parsed(); }
-    TokensView get_parse_range(TokensView) const;
-    bool tokens_enough_to_parse(TokensView) const;
+    TokensSpan get_parse_range(TokensSpan) const;
+    bool tokens_enough_to_parse(TokensSpan) const;
 
     template <typename T>
     T get() const;
@@ -79,7 +79,7 @@ public:
 
     // action
     void reset();
-    bool take_action(TokensView tokens);
+    bool take_action(TokensSpan tokens);
     void mark_as_parsed() { _pimpl->do_mark_as_parsed(); }
 
 private:
@@ -105,7 +105,7 @@ private:
 
         virtual std::string do_to_string() const = 0;
 
-        virtual bool do_take_action(TokensView) = 0;
+        virtual bool do_take_action(TokensSpan) = 0;
         virtual void do_set_value_to_default()  = 0;
         virtual void do_reset()                 = 0;
     };
@@ -139,7 +139,7 @@ private:
 
         inline std::string do_to_string() const override { return fmt::format("{}", inner); }
 
-        inline bool do_take_action(TokensView tokens) override { return inner.take_action(tokens); }
+        inline bool do_take_action(TokensSpan tokens) override { return inner.take_action(tokens); }
         inline void do_set_value_to_default() override { return inner.set_value_to_default(); }
         inline void do_reset() override { inner.reset(); }
     };
