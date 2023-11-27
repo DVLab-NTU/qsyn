@@ -18,7 +18,7 @@ set(FETCHCONTENT_UPDATES_DISCONNECTED TRUE)
 project(
     qsyn
     LANGUAGES CXX
-    VERSION 0.5.1)
+    VERSION 0.6.0)
 
 find_package(OpenMP REQUIRED)
 

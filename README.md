@@ -16,34 +16,36 @@
 
 ## Introduction
 
-`qsyn` is a `C++`-based growing software system for synthesis, optimization and verification of quantum circuits for to aid the development of quantum computing. `qsyn` implements scalable quantum circuits optimization by combining ZX-Calculus and technology mapping.
+`qsyn` is a `C++-based growing software system for synthesizing, optimizing, and verifying quantum circuits to aid the development of quantum computing. `qsyn` implements scalable quantum circuit optimization by combining ZX-Calculus and technology mapping.
 
-`qsyn` provides an experimental implementation of optimization algorithms and a programming environment for simulation or building similar applications. Future development will focus on enhancing the optimization and qubit mapping routines, adding support to synthesize from arbitrary unitaries, as well as adding in verification functionalities.
+`qsyn` provides an experimental implementation of optimization algorithms and a programming environment for simulation or building similar applications. Future development will focus on enhancing the optimization and qubit mapping routines, adding support to synthesize from arbitrary unitaries, and adding verification functionalities.
 
 ## Getting Started
 
 ### System Requirements
 
-`qsyn` requires `c++-20` to build. We support compilation with (1) `g++-10` or above, or (2) `clang++-16` or above. We regularly perform build tests for the two compilers.
+`qsyn` requires `c++-20` to build. We support compilation with (1) `g++-10` or above or (2) `clang++-16` or above. We regularly perform build tests for the two compilers.
 
 ### Installation
+
+Clone the repository to your local machine by running
 
 ```shell!
 git clone https://github.com/DVLab-NTU/qsyn.git
 cd qsyn
 ```
 
-Then, you can follow the instructions below to install the dependencies and build `qsyn`.
+Then, follow the instructions below to install the dependencies and build `qsyn`.
 
 Or you can try out `qsyn` in a containerized environment by running
 
-```sh
+```shell!
 docker run -it --rm dvlab/qsyn
 ```
 
 ### Optional Dependencies for Visualization
 
-Visualization functionalities of `qsyn` depends at runtime on the following dependencies. Please refer to the linked pages for installation instructions:
+Visualization functionalities of `qsyn` depend at runtime on the following dependencies. Please refer to the linked pages for installation instructions of these dependencies:
 
 - `qiskit`, `qiskit[visualization]` for drawing quantum circuits
   - Please refer to [this page](https://qiskit.org/documentation/getting_started.html)
@@ -56,7 +58,7 @@ Visualization functionalities of `qsyn` depends at runtime on the following depe
 
 ### Compilation
 
-`qsyn` uses CMake to manage dependencies:
+`qsyn` uses CMake to manage the build process. To build `qsyn`, follow the instructions below:
 
 1. create a `build` directory to store CMake artifacts
 
@@ -83,7 +85,7 @@ Visualization functionalities of `qsyn` depends at runtime on the following depe
    cmake .. -DCMAKE_CXX_COMPILER=$(which clang++)
    ```
 
-3. run `make` to build up the executable, you would want to crank up the number of threads to speed up the compilation process
+3. run `make` to build up the executable. You would want to crank up the number of threads to speed up the compilation process:
 
    ```sh
    cmake --build . -j16
@@ -102,43 +104,44 @@ Visualization functionalities of `qsyn` depends at runtime on the following depe
 
 ### Run
 
-- After successful compilation, you can call the command-line interface of `Qsyn` where you can execute commands implemented into `Qsyn`.
+- After successful compilation, open the command-line interface of `qsyn` by running
 
   ```sh
    ❯ ./qsyn
-   DV Lab, NTUEE, Qsyn 0.5.1
+   qsyn 0.6.0 - Copyright © 2022-2023, DVLab NTUEE.
+   Licensed under Apache 2.0 License.
    qsyn>
   ```
 
-- To run the demo program, you can provide a file containing commands. For example:
+- To see what commands are available, type `help` in the command-line interface.
 
   ```sh
-  ❯ ./qsyn -f tests/demo/demo/dof/tof_3.dof
-  qsyn 0.5.1 - Copyright © 2022-2023, DVLab NTUEE.
-  Licensed under Apache 2.0 License.
-  qsyn> qcir read benchmark/zx/tof3.zx
-
-
+  qsyn> help
   ```
 
-- The same result can be produced by running in the command-line mode:
+- To see the help message of a specific command, type `<command> -h`.
 
   ```sh
-  ❯ ./qsyn
-  DV Lab, NTUEE, Qsyn 0.4.0
-  qsyn> dofile tests/demo/demo/dof/tof_3.dof
+  qsyn> qcir read -h
+  ```
 
-  qsyn> verb 0
-  Note: verbose level is set to 0
+- You can also let `qsyn` to execute a sequence of commands by passing a DOFILE to `qsyn`:
 
-  qsyn> zxgread benchmark/zx/tof3.zx
+  ```sh
+  ❯ ./qsyn -f examples/synth.dof
+  qsyn 0.6.0 - DVLab NTUEE.
+  Licensed under Apache 2.0 License.
+  qsyn> qcir read benchmark/zx/tof3.zx
+  ```
 
-  qsyn> zxgs -freduce
+  Some example DOFILEs are provided under `examples/`. You can also write your own DOFILEs to automate your workflow.
 
-  qsyn> zxgp
-  Graph 0( 3 inputs, 3 outputs, 17 vertices, 19 edges )
+- If you're new to `qsyn`, you will be prompted to run the command `create-qsynrc` to create a configuration file for `qsyn`. This file will be stored under `~/.config/qsynrc` and can be used to store your aliases, variables, etc.
 
-  qsyn> qq -f
+- For more options, please refer to the help message of `qsyn` by running
+
+  ```sh
+  ./qsyn -h
   ```
 
 ### Testing
