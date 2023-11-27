@@ -3,6 +3,7 @@ import glob
 import itertools
 import multiprocessing
 import os
+import platform
 import shutil
 import subprocess
 import sys
@@ -10,6 +11,7 @@ import textwrap
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 
 qsyn_args = ["--no-version", "--qsynrc-path", "/dev/null", "--file"]
+
 
 def cprint(*args, color=None, attrs=[], sep=" ", end="\n"):
     """Print colored text"""
@@ -180,8 +182,7 @@ Run test dofiles to qsyn, and help comparing to/updating the reference. When a r
 
     parser.add_argument(
         "paths",
-        nargs="*",
-        default=["tests"],
+        nargs="+",
         help="run the provided dofiles. If directories are provided, tests all dofiles in tests/",
     )
 
@@ -257,13 +258,13 @@ class Colors:
     CROSSED = "\033[9m"
     END = "\033[0m"
     # cancel SGR codes if we don't write to a terminal
-    if not __import__("sys").stdout.isatty():
+    if not sys.stdout.isatty():
         for _ in dir():
             if isinstance(_, str) and _[0] != "_":
                 locals()[_] = ""
     else:
         # set Windows console in VT mode
-        if __import__("platform").system() == "Windows":
+        if platform.system() == "Windows":
             kernel32 = __import__("ctypes").windll.kernel32
             kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
             del kernel32
@@ -277,8 +278,6 @@ def main():
     dofiles = []
 
     args.qsyn = os.path.abspath(args.qsyn)
-    # cd to this script's directory
-    os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
     for path in args.paths:
         if os.path.isfile(path):
@@ -290,7 +289,9 @@ def main():
 
     if args.file:
         for dofile in dofiles:
-            subprocess.run([args.qsyn] + qsyn_args + [dofile], env={"OMP_WAIT_POLICY": "passive"})
+            subprocess.run(
+                [args.qsyn] + qsyn_args + [dofile], env={"OMP_WAIT_POLICY": "passive"}
+            )
         return 0
     if args.update:
         update_test_refs(dofiles, args)
