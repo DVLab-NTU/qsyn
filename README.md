@@ -16,105 +16,132 @@
 
 ## Introduction
 
-`qsyn` is a `C++`-based growing software system for synthesis, optimization and verification of quantum circuits for to aid the development of quantum computing. `qsyn` implements scalable quantum circuits optimization by combining ZX-Calculus and technology mapping.
+`qsyn` is a `C++-based growing software system for synthesizing, optimizing, and verifying quantum circuits to aid the development of quantum computing. `qsyn` implements scalable quantum circuit optimization by combining ZX-Calculus and technology mapping.
 
-`qsyn` provides an experimental implementation of optimization algorithms and a programming environment for simulation or building similar applications. Future development will focus on enhancing the optimization and qubit mapping routines, adding support to synthesize from arbitrary unitaries, as well as adding in verification functionalities.
+`qsyn` provides an experimental implementation of optimization algorithms and a programming environment for simulation or building similar applications. Future development will focus on enhancing the optimization and qubit mapping routines, adding support to synthesize from arbitrary unitaries, and adding verification functionalities.
 
 ## Getting Started
 
 ### System Requirements
 
-`qsyn` requires `c++-20` to build. We support compilation with (1) `g++-10` or above, or (2) `clang++-16` or above. We regularly perform build tests for the two compilers.
+`qsyn` requires `c++-20` to build. We support compilation with (1) `g++-10` or above or (2) `clang++-16` or above. We regularly perform build tests for the two compilers.
 
 ### Installation
+
+Clone the repository to your local machine by running
 
 ```shell!
 git clone https://github.com/DVLab-NTU/qsyn.git
 cd qsyn
 ```
 
+Then, follow the instructions below to install the dependencies and build `qsyn`.
+
+Or you can try out `qsyn` in a containerized environment by running
+
+```shell!
+docker run -it --rm dvlab/qsyn
+```
+
 ### Optional Dependencies for Visualization
 
-Visualization functionalities of `qsyn` depends at runtime on the following dependencies. Please refer to the linked pages for installation instructions:
+Visualization functionalities of `qsyn` depend at runtime on the following dependencies. Please refer to the linked pages for installation instructions of these dependencies:
 
 - `qiskit`, `qiskit[visualization]` for drawing quantum circuits
   - Please refer to [this page](https://qiskit.org/documentation/getting_started.html)
 - `texlive` for drawing ZX-diagrams.
   - For Ubuntu:
-    ```shell
-    sudo apt-get install texlive-latex-base
+    ```sh
+    sudo apt-get install texlive-latex-base texlive-latex-extra
     ```
   - Other Platforms: please refer to [this page](https://tug.org/texlive/quickinstall.html)
 
 ### Compilation
 
-`qsyn` uses CMake manage the dependencies:
+`qsyn` uses CMake to manage the build process. To build `qsyn`, follow the instructions below:
 
-1. create a `build` directory to store CMake files
+1. create a `build` directory to store CMake artifacts
 
-   ```shell!
+   ```sh
    mkdir build
    cd build
    ```
 
-2. run CMake to generate Makefiles, if this step fails, you might have to install `blas` and `lapack` libraries
+2. run CMake to generate Makefiles, if this step fails, you might have to install `blas` and `lapack` libraries.
 
-   ```shell!
+   ```sh
    cmake ..
    ```
 
-3. run `make` to build up the executable, you would want to crank up the number of threads to speed up the compilation process
+   **Note for Mac Users:** Since we use some C++20 features that are not yet supported by Apple Clang, you'll need to install another compiler yourself. We recommand installing the `llvm` toolchain with `clang++` by running
 
-   ```shell!
-    make -j16
+   ```sh
+   brew install llvm
    ```
+
+   Then, run the following command to force `cmake` to use the new `clang++` you installed.
+
+   ```sh
+   cmake .. -DCMAKE_CXX_COMPILER=$(which clang++)
+   ```
+
+3. run `make` to build up the executable. You would want to crank up the number of threads to speed up the compilation process:
+
+   ```sh
+   cmake --build . -j16
+   # or
+   make -j16
+   ```
+
+   You can also build `qsyn` in a containerized environment by running
+
+   ```sh
+   docker run -it --rm -v $(pwd):/qsyn dvlab/qsyn-env
+   cd /qsyn
+   ```
+
+   Then, you can follow the instructions above to build `qsyn` in the container.
 
 ### Run
 
-- After successful compilation, you can call the command-line interface of `Qsyn` where you can execute commands implemented into `Qsyn`.
+- After successful compilation, open the command-line interface of `qsyn` by running
 
-  ```shell!
+  ```sh
    ❯ ./qsyn
-   DV Lab, NTUEE, Qsyn 0.5.1
+   qsyn 0.6.0 - Copyright © 2022-2023, DVLab NTUEE.
+   Licensed under Apache 2.0 License.
    qsyn>
   ```
 
-- To run the demo program, you can provide a file containing commands. For example:
+- To see what commands are available, type `help` in the command-line interface.
 
-  ```shell!
-  ❯ ./qsyn -f tests/demo/demo/dof/tof_3.dof
-  DV Lab, NTUEE, Qsyn 0.5.1
-  qsyn> verb 0
-  Note: verbose level is set to 0
-
-  qsyn> zxgread benchmark/zx/tof3.zx
-
-  qsyn> zxgs -freduce
-
-  qsyn> zxgp
-  Graph 0( 3 inputs, 3 outputs, 17 vertices, 19 edges )
-
-  qsyn> qq -f
+  ```sh
+  qsyn> help
   ```
 
-- The same result can be produced by running in the command-line mode:
+- To see the help message of a specific command, type `<command> -h`.
 
-  ```shell!
-  ❯ ./qsyn
-  DV Lab, NTUEE, Qsyn 0.4.0
-  qsyn> dofile tests/demo/demo/dof/tof_3.dof
+  ```sh
+  qsyn> qcir read -h
+  ```
 
-  qsyn> verb 0
-  Note: verbose level is set to 0
+- You can also let `qsyn` to execute a sequence of commands by passing a DOFILE to `qsyn`:
 
-  qsyn> zxgread benchmark/zx/tof3.zx
+  ```sh
+  ❯ ./qsyn -f examples/synth.dof
+  qsyn 0.6.0 - DVLab NTUEE.
+  Licensed under Apache 2.0 License.
+  qsyn> qcir read benchmark/zx/tof3.zx
+  ```
 
-  qsyn> zxgs -freduce
+  Some example DOFILEs are provided under `examples/`. You can also write your own DOFILEs to automate your workflow.
 
-  qsyn> zxgp
-  Graph 0( 3 inputs, 3 outputs, 17 vertices, 19 edges )
+- If you're new to `qsyn`, you will be prompted to run the command `create-qsynrc` to create a configuration file for `qsyn`. This file will be stored under `~/.config/qsynrc` and can be used to store your aliases, variables, etc.
 
-  qsyn> qq -f
+- For more options, please refer to the help message of `qsyn` by running
+
+  ```sh
+  ./qsyn -h
   ```
 
 ### Testing
@@ -122,108 +149,36 @@ Visualization functionalities of `qsyn` depends at runtime on the following depe
 We have provided some DOFILEs, i.e., a sequence of commands, to serve as functionality checks as well as demonstration of use. DOFILEs are Located under `tests/<section>/<subsection>/dof/`.
 
 - To run a DOFILE and compare the result to the reference, type
-  ```shell!
-  ./RUN_TEST <path/to/test> -d
+
+  ```sh
+  ./RUN_TESTS <path/to/test> -d
   ```
+
 - To update the reference to a dofile, type
-  ```shell!
-  ./RUN_TEST <path/to/test> -u
+
+  ```sh
+  ./RUN_TESTS <path/to/test> -u
   ```
+
 - You may also run all DOFILEs by running
-  ```bash!
-  ./RUN_TEST
+
+  ```sh
+  ./RUN_TESTS
   ```
-  Notice that if you use `clang` to compile `Qsyn`, some of the DOFILEs may produce different results, which is to be expected.
+
+- To run test in a containerized environment, run
+
+  ```sh
+  ./RUN_TESTS_DOCKER
+  ```
+
+  All arguments are the same as `RUN_TESTS`.
+
+  Notice that if you use a different BLAS or LAPACK implementation to build `Qsyn`, some of the DOFILEs may produce different results, which is to be expected.
 
 ## License
 
 `qsyn` is licensed under the
 [Apache License 2.0](https://github.com/DVLab-NTU/qsyn/blob/main/LICENSE).
 
-Certain functions of `qsyn` is enabled by a series of third-party libraries. For a list of these libraries, as well as their license information, please refer to [this document](/vendor/List-of-Used-Libraries.md).
-
-## Commands List
-
-### Info
-
-| Command | Description                             | Options |
-| ------- | --------------------------------------- | ------- |
-| COLOR   | toggle colored printing (1: on, 0: off) |         |
-| DOfile  | execute the commands in the dofile      |         |
-| HELp    | print this help message                 |         |
-| HIStory | print command history                   |         |
-| QQuit   | quit Qsyn                               |         |
-| SEED    | fix the seed                            |         |
-| USAGE   | report the runtime and/or memory usage  |         |
-| VERbose | set verbose level to 0-9 (default: 3)   |         |
-
-### QCir
-
-| Command    | Description                                            | Options |
-| ---------- | ------------------------------------------------------ | ------- |
-| QC2TS      | convert QCir to tensor                                 |         |
-| QC2ZX      | convert QCir to ZX-graph                               |         |
-| QCBAdd     | add qubit(s)                                           |         |
-| QCBDelete  | delete an empty qubit                                  |         |
-| QCCHeckout | checkout to QCir <id> in QCirMgr                       |         |
-| QCCOMpose  | compose a QCir                                         |         |
-| QCCOPy     | copy a QCir                                            |         |
-| QCCPrint   | print info of QCir                                     |         |
-| QCCRead    | read a circuit and construct the corresponding netlist |         |
-| QCCWrite   | write QCir to a QASM file                              |         |
-| QCDelete   | remove a QCir from QCirMgr                             |         |
-| QCGAdd     | add quantum gate                                       |         |
-| QCGDelete  | delete quantum gate                                    |         |
-| QCGPrint   | print gate info in QCir                                |         |
-| QCNew      | create a new QCir to QCirMgr                           |         |
-| QCPrint    | print info of QCirMgr                                  |         |
-| QCReset    | reset QCirMgr                                          |         |
-| QCTensor   | tensor a QCir                                          |         |
-
-### Graph
-
-| Command     | Description                                                | Options |
-| ----------- | ---------------------------------------------------------- | ------- |
-| ZX2QC       | extract QCir from ZX-graph                                 |         |
-| ZX2TS       | convert ZX-graph to tensor                                 |         |
-| ZXCHeckout  | checkout to Graph <id> in ZXGraphMgr                       |         |
-| ZXCOMpose   | compose a ZX-graph                                         |         |
-| ZXCOPy      | copy a ZX-graph                                            |         |
-| ZXDelete    | remove a ZX-graph from ZXGraphMgr                          |         |
-| ZXGADJoint  | adjoint ZX-graph                                           |         |
-| ZXGASsign   | assign quantum states to input/output vertex               |         |
-| ZXGDraw     | draw ZX-graph                                              |         |
-| ZXGEdit     | edit ZX-graph                                              |         |
-| ZXGGFlow    | calculate the generalized flow of current ZX-graph         |         |
-| ZXGPrint    | print info of ZX-graph                                     |         |
-| ZXGRead     | read a file and construct the corresponding ZX-graph       |         |
-| ZXGSimp     | perform simplification strategies for ZX-graph             |         |
-| ZXGTest     | test ZX-graph structures and functions                     |         |
-| ZXGTRaverse | traverse ZX-graph and update topological order of vertices |         |
-| ZXGWrite    | write a ZX-graph to a file                                 |         |
-| ZXNew       | create a new ZX-graph to ZXGraphMgr                        |         |
-| ZXPrint     | print info of ZXGraphMgr                                   |         |
-| ZXReset     | reset ZXGraphMgr                                           |         |
-| ZXTensor    | tensor a ZX-graph                                          |         |
-
-### Tensor
-
-| Command   | Description                                 | Options |
-| --------- | ------------------------------------------- | ------- |
-| TSADJoint | adjoint the specified tensor                |         |
-| TSEQuiv   | check the equivalency of two stored tensors |         |
-| TSPrint   | print info of stored tensors                |         |
-| TSReset   | reset the tensor manager                    |         |
-
-### Extraction
-
-| Command  | Description                       | Options |
-| -------- | --------------------------------- | ------- |
-| EXTPrint | print info of extracting ZX-graph |         |
-| EXTRact  | perform step(s) in extraction     |         |
-
-### Lattice
-
-| Command | Description                                                                   | Options |
-| ------- | ----------------------------------------------------------------------------- | ------- |
-| LTS     | (experimental) perform mapping from ZX-graph to corresponding lattice surgery |         |
+Certain functions of `qsyn` is enabled by a series of third-party libraries. For a list of these libraries, as well as their license information, please refer to [this document](/vendor/README.md).

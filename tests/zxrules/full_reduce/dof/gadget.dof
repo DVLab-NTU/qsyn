@@ -1,19 +1,20 @@
-qccr benchmark/pseudoSimp/tof2.qasm
+qcir read benchmark/qasm/tof2.qasm
 qc2zx
-zxgas 1 I X pi
-zxgas 1 O X pi
+zx assign 1 I X pi
+zx assign 1 O X pi
 zx2ts
-zxgp -v
-zxgs -spiderf
-zxgp -v
-zxgs -idr
-zxgp -v
-zxgs -tog
-verb 9
-zxgs -pivotg
-zxgp -v
-zxgs -idr
-zxgp -v
+zx print -v
+zx rule --spider-fusion
+zx print -v
+zx rule --identity-removal
+zx print -v
+zx rule --to-z-graph
+logger debug
+zx rule --pivot-gadget
+logger warn
+zx print -v
+zx rule --identity-removal
+zx print -v
 zx2ts
-tseq 0 1
-qq -f
+tensor equiv 0 1
+quit -f

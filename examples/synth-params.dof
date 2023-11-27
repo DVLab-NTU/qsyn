@@ -1,0 +1,10 @@
+//!ARGS IN_QASM OUT_QASM LAYOUT
+qcir read ${IN_QASM}
+qc2zx
+zx optimize --full
+zx2qc
+qcir optimize
+device read ${LAYOUT}
+duostra -c -s
+qcir write ${OUT_QASM}
+quit -f

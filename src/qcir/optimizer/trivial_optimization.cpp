@@ -1,20 +1,21 @@
 /****************************************************************************
-  FileName     [ trivial_optimization.cpp ]
-  PackageName  [ optimizer ]
+  PackageName  [ qcir/optimizer ]
   Synopsis     [ Implement the trivial optimization ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
+#include <spdlog/spdlog.h>
+
 #include <cassert>
 
 #include "../qcir.hpp"
-#include "../qcirGate.hpp"
+#include "../qcir_gate.hpp"
 #include "./optimizer.hpp"
-#include "util/logger.hpp"
 
-extern dvlab::utils::Logger logger;
 extern bool stop_requested();
+
+namespace qsyn::qcir {
 
 /**
  * @brief Trivial optimization
@@ -22,44 +23,44 @@ extern bool stop_requested();
  * @return QCir*
  */
 std::optional<QCir> Optimizer::trivial_optimization(QCir const& qcir) {
-    logger.info("Start trivial optimization");
+    spdlog::info("Start trivial optimization");
 
     reset(qcir);
     QCir result;
-    result.setFileName(qcir.getFileName());
-    result.addProcedures(qcir.getProcedures());
-    result.addQubit(qcir.getNQubit());
+    result.set_filename(qcir.get_filename());
+    result.add_procedures(qcir.get_procedures());
+    result.add_qubits(qcir.get_num_qubits());
 
-    std::vector<QCirGate*> gateList = qcir.getTopoOrderedGates();
-    for (auto gate : gateList) {
+    auto const gate_list = qcir.get_topologically_ordered_gates();
+    for (auto gate : gate_list) {
         if (stop_requested()) {
-            logger.warning("optimization interrupted");
+            spdlog::warn("optimization interrupted");
             return std::nullopt;
         }
-        std::vector<QCirGate*> LastLayer = getFirstLayerGates(result, true);
-        size_t qubit = gate->getTarget()._qubit;
-        if (LastLayer[qubit] == nullptr) {
-            Optimizer::_addGate2Circuit(result, gate, false);
+        auto const last_layer = _get_first_layer_gates(result, true);
+        auto const qubit      = gate->get_targets()._qubit;
+        if (last_layer[qubit] == nullptr) {
+            Optimizer::_add_gate_to_circuit(result, gate, false);
             continue;
         }
-        QCirGate* previousGate = LastLayer[qubit];
-        if (isDoubleQubitGate(gate)) {
-            size_t q2 = gate->getTarget()._qubit;
-            if (previousGate->getId() != LastLayer[q2]->getId()) {
+        QCirGate* previous_gate = last_layer[qubit];
+        if (is_double_qubit_gate(gate)) {
+            auto const q2 = gate->get_targets()._qubit;
+            if (previous_gate->get_id() != last_layer[q2]->get_id()) {
                 // 2-qubit gate do not match up
-                Optimizer::_addGate2Circuit(result, gate, false);
+                Optimizer::_add_gate_to_circuit(result, gate, false);
                 continue;
             }
-            cancelDoubleGate(result, previousGate, gate);
-        } else if (isSingleRotateZ(gate) && isSingleRotateZ(previousGate)) {
-            FuseZPhase(result, previousGate, gate);
-        } else if (gate->getType() == previousGate->getType()) {
-            result.removeGate(previousGate->getId());
+            _cancel_double_gate(result, previous_gate, gate);
+        } else if (is_single_z_rotation(gate) && is_single_z_rotation(previous_gate)) {
+            _fuse_z_phase(result, previous_gate, gate);
+        } else if (gate->get_rotation_category() == previous_gate->get_rotation_category()) {
+            result.remove_gate(previous_gate->get_id());
         } else {
-            Optimizer::_addGate2Circuit(result, gate, false);
+            Optimizer::_add_gate_to_circuit(result, gate, false);
         }
     }
-    logger.info("Finished trivial optimization");
+    spdlog::info("Finished trivial optimization");
     return result;
 }
 
@@ -70,23 +71,22 @@ std::optional<QCir> Optimizer::trivial_optimization(QCir const& qcir) {
  *
  * @return vector<QCirGate*> with size = circuit->getNqubit()
  */
-std::vector<QCirGate*> Optimizer::getFirstLayerGates(QCir& qcir, bool fromLast) {
-    std::vector<QCirGate*> gateList = qcir.updateTopoOrder();
-    if (fromLast) reverse(gateList.begin(), gateList.end());
+std::vector<QCirGate*> Optimizer::_get_first_layer_gates(QCir& qcir, bool from_last) {
+    std::vector<QCirGate*> gate_list = qcir.update_topological_order();
+    if (from_last) reverse(gate_list.begin(), gate_list.end());
     std::vector<QCirGate*> result;
     std::vector<bool> blocked;
-    for (size_t i = 0; i < qcir.getNQubit(); i++) {
+    for (size_t i = 0; i < qcir.get_num_qubits(); i++) {
         result.emplace_back(nullptr);
         blocked.emplace_back(false);
     }
 
-    for (auto gate : gateList) {
-        std::vector<BitInfo> qubits = gate->getQubits();
-        bool gateIsNotBlocked = all_of(qubits.begin(), qubits.end(), [&](BitInfo qubit) { return blocked[qubit._qubit] == false; });
+    for (auto gate : gate_list) {
+        auto const qubits              = gate->get_qubits();
+        auto const gate_is_not_blocked = all_of(qubits.begin(), qubits.end(), [&](QubitInfo qubit) { return blocked[qubit._qubit] == false; });
         for (auto q : qubits) {
-            size_t qubit = q._qubit;
-            if (gateIsNotBlocked) result[qubit] = gate;
-            blocked[qubit] = true;
+            if (gate_is_not_blocked) result[q._qubit] = gate;
+            blocked[q._qubit] = true;
         }
         if (all_of(blocked.begin(), blocked.end(), [](bool block) { return block; })) break;
     }
@@ -102,19 +102,19 @@ std::vector<QCirGate*> Optimizer::getFirstLayerGates(QCir& qcir, bool fromLast) 
  *
  * @return modified circuit
  */
-void Optimizer::FuseZPhase(QCir& qcir, QCirGate* previousGate, QCirGate* gate) {
-    Phase p = previousGate->getPhase() + gate->getPhase();
-    if (p == Phase(0)) {
-        qcir.removeGate(previousGate->getId());
+void Optimizer::_fuse_z_phase(QCir& qcir, QCirGate* prev_gate, QCirGate* gate) {
+    auto const phase = prev_gate->get_phase() + gate->get_phase();
+    if (phase == dvlab::Phase(0)) {
+        qcir.remove_gate(prev_gate->get_id());
         return;
     }
-    if (previousGate->getType() == GateType::P)
-        previousGate->setRotatePhase(p);
+    if (prev_gate->get_rotation_category() == GateRotationCategory::pz)
+        prev_gate->set_phase(phase);
     else {
-        std::vector<size_t> qubit_list;
-        qubit_list.emplace_back(previousGate->getTarget()._qubit);
-        qcir.removeGate(previousGate->getId());
-        qcir.addGate("p", qubit_list, p, true);
+        QubitIdList qubit_list;
+        qubit_list.emplace_back(prev_gate->get_targets()._qubit);
+        qcir.remove_gate(prev_gate->get_id());
+        qcir.add_gate("p", qubit_list, phase, true);
     }
 }
 
@@ -126,13 +126,15 @@ void Optimizer::FuseZPhase(QCir& qcir, QCirGate* previousGate, QCirGate* gate) {
  *
  * @return modified circuit
  */
-void Optimizer::cancelDoubleGate(QCir& qcir, QCirGate* previousGate, QCirGate* gate) {
-    if (previousGate->getType() != gate->getType()) {
-        Optimizer::_addGate2Circuit(qcir, gate, false);
+void Optimizer::_cancel_double_gate(QCir& qcir, QCirGate* prev_gate, QCirGate* gate) {
+    if (prev_gate->get_rotation_category() != gate->get_rotation_category()) {
+        Optimizer::_add_gate_to_circuit(qcir, gate, false);
         return;
     }
-    if (previousGate->getType() == GateType::CZ || previousGate->getControl()._qubit == gate->getControl()._qubit)
-        qcir.removeGate(previousGate->getId());
+    if (prev_gate->is_cz() || prev_gate->get_control()._qubit == gate->get_control()._qubit)
+        qcir.remove_gate(prev_gate->get_id());
     else
-        Optimizer::_addGate2Circuit(qcir, gate, false);
+        Optimizer::_add_gate_to_circuit(qcir, gate, false);
 }
+
+}  // namespace qsyn::qcir

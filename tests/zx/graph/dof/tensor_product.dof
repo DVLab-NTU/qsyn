@@ -1,0 +1,5 @@
+zx read benchmark/zx/cnot.zx
+zx read benchmark/zx/cnot.zx
+zx tensor-product 0
+zx print -v
+quit -f

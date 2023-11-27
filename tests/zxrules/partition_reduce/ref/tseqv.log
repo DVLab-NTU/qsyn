@@ -1,67 +1,19 @@
-DV Lab, NTUEE, Qsyn 0.5.1
-qsyn> verb 3
-Note: verbose level is set to 3
-
-qsyn> qccread ./benchmark/qft/qft_5.qasm
+qsyn> qcir read ./benchmark/qft/qft_5.qasm
 
 qsyn> qc2zx
 
 qsyn> zx2ts
 
-qsyn> zxcopy
+qsyn> zx copy
 
-qsyn> zxgs -preduce 4
-
-All rules applied in order:
-Spider Fusion Rule            3 iterations.
-  1) 5 matches
-  2) 5 matches
-  3) 2 matches
-
-Full Reduce:
-All rules applied in order:
-
-Dynamic Reduce: (T-optimal: 5)
-All rules applied in order:
-
-Full Reduce:
-All rules applied in order:
-Spider Fusion Rule            2 iterations.
-  1) 2 matches
-  2) 1 matches
-
-Dynamic Reduce: (T-optimal: 1)
-All rules applied in order:
-Spider Fusion Rule            2 iterations.
-  1) 2 matches
-  2) 1 matches
-
-Full Reduce:
-All rules applied in order:
-Spider Fusion Rule            1 iterations.
-  1) 2 matches
-
-Dynamic Reduce: (T-optimal: 4)
-All rules applied in order:
-Spider Fusion Rule            1 iterations.
-  1) 2 matches
-
-Full Reduce:
-All rules applied in order:
-Spider Fusion Rule            1 iterations.
-  1) 2 matches
-
-Dynamic Reduce: (T-optimal: 0)
-All rules applied in order:
-Spider Fusion Rule            1 iterations.
-  1) 2 matches
+qsyn> zx optimize --partition 4
 
 qsyn> zx2ts
 
-qsyn> tseq 0 1
+qsyn> tensor equiv 0 1
 Equivalent
 - Global Norm : 1
 - Global Phase: 0
 
-qsyn> qq -f
+qsyn> quit -f
 

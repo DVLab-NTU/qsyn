@@ -1,9 +1,9 @@
-qccr benchmark/benchmark_SABRE/large/adr4_197.qasm
+qcir read benchmark/SABRE/large/adr4_197.qasm
 qc2zx
-zxgs -fr
+zx optimize --full
 zx2qc
-qccoptimize -c
-qcp -l
-qcp -f
+qcir optimize --copy
+qcir list
+qcir
 
-qq -f
+quit -f

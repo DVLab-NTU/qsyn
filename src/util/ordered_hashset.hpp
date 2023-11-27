@@ -1,5 +1,4 @@
 /****************************************************************************
-  FileName     [ ordered_hashset.hpp ]
   PackageName  [ util ]
   Synopsis     [ Define ordered_hashset ]
   Author       [ Design Verification Lab ]
@@ -70,25 +69,29 @@
 
 #include "./ordered_hashtable.hpp"
 
+namespace dvlab {
+
+namespace utils {
+
 template <typename Key, typename Hash = std::hash<Key>, typename KeyEqual = std::equal_to<Key>>
-class ordered_hashset final : public ordered_hashtable<Key, const Key, Key, Hash, KeyEqual> {
-    using __OrderedHashTable = ordered_hashtable<Key, const Key, Key, Hash, KeyEqual>;
+class ordered_hashset final : public ordered_hashtable<Key, Key const, Key, Hash, KeyEqual> {  // NOLINT(readability-identifier-naming) : ordered_hashset intentionally mimics std::unordered_set
+    using _Table_t = ordered_hashtable<Key, Key const, Key, Hash, KeyEqual>;
 
 public:
-    using key_type = typename __OrderedHashTable::key_type;
-    using value_type = typename __OrderedHashTable::value_type;
-    using stored_type = typename __OrderedHashTable::stored_type;
-    using size_type = typename __OrderedHashTable::size_type;
-    using difference_type = typename __OrderedHashTable::difference_type;
-    using hasher = typename __OrderedHashTable::hasher;
-    using key_equal = typename __OrderedHashTable::key_equal;
-    using container = typename __OrderedHashTable::container;
-    using iterator = typename __OrderedHashTable::iterator;
-    using const_iterator = typename __OrderedHashTable::const_iterator;
+    using key_type        = typename _Table_t::key_type;
+    using value_type      = typename _Table_t::value_type;
+    using stored_type     = typename _Table_t::stored_type;
+    using size_type       = typename _Table_t::size_type;
+    using difference_type = typename _Table_t::difference_type;
+    using hasher          = typename _Table_t::hasher;
+    using key_equal       = typename _Table_t::key_equal;
+    using container       = typename _Table_t::container;
+    using iterator        = typename _Table_t::iterator;
+    using const_iterator  = typename _Table_t::const_iterator;
 
-    ordered_hashset() : __OrderedHashTable() {}
-    ordered_hashset(const std::initializer_list<value_type>& il) : __OrderedHashTable() {
-        for (const value_type& item : il) {
+    ordered_hashset() : _Table_t() {}
+    ordered_hashset(std::initializer_list<value_type> const& il) : _Table_t() {
+        for (value_type const& item : il) {
             this->_key2id.emplace(key(item), this->_data.size());
             this->_data.emplace_back(item);
         }
@@ -105,7 +108,11 @@ public:
     }
 
     // lookup
-    virtual const Key& key(const stored_type& value) const override { return value; }
+    Key const& key(stored_type const& value) const override { return value; }
 };
 
 static_assert(std::ranges::bidirectional_range<ordered_hashset<int>>);
+
+}  // namespace utils
+
+}  // namespace dvlab

@@ -1,21 +1,22 @@
-DV Lab, NTUEE, Qsyn 0.5.1
-qsyn> qq -h
-Usage: qquit [-h] [-force]
+qsyn> alias exit quit
+
+qsyn> exi -h
+Usage: quit [-h] [-f]
 
 Description:
-  quit Qsyn
+  quit qsyn
 
 Options:
-  flag  -h, --help    show this help message and exit 
-  flag  -force        quit without reaffirming        
+  flag  -h, --help     show this help message   
+  flag  -f, --force    quit without reaffirming 
 
-qsyn> alias qqqq qccr
+qsyn> alias exir "qcir read"
 
-qsyn> qq -h
-[Error] Ambiguous command or alias `qq`!!
+qsyn> exi -h
+[error]    Ambiguous command or alias `exi`!!
 
-qsyn> qqq -h
-Usage: qccread [-h] [-replace] <string filepath>
+qsyn> exir -h
+Usage: qcir read [-h] [-r] <string filepath>
 
 Description:
   read a circuit and construct the corresponding netlist
@@ -24,43 +25,43 @@ Positional Arguments:
   string  filepath    the filepath to quantum circuit file. Supported extension: .qasm, .qc, .qsim, .quipper 
 
 Options:
-  flag  -h, --help    show this help message and exit                                         
-  flag  -replace      if specified, replace the current circuit; otherwise store to a new one 
+  flag  -h, --help       show this help message                                                  
+  flag  -r, --replace    if specified, replace the current circuit; otherwise store to a new one 
 
-qsyn> qqu -h
-Usage: qquit [-h] [-force]
-
-Description:
-  quit Qsyn
-
-Options:
-  flag  -h, --help    show this help message and exit 
-  flag  -force        quit without reaffirming        
-
-qsyn> alias -d qqqq
-
-qsyn> qquit -h
-Usage: qquit [-h] [-force]
+qsyn> exit -h
+Usage: quit [-h] [-f]
 
 Description:
-  quit Qsyn
+  quit qsyn
 
 Options:
-  flag  -h, --help    show this help message and exit 
-  flag  -force        quit without reaffirming        
+  flag  -h, --help     show this help message   
+  flag  -f, --force    quit without reaffirming 
 
-qsyn> qqq -h
-[Error] Unknown command or alias `qqq`!!
+qsyn> alias -d exir
 
-qsyn> qq -h
-Usage: qquit [-h] [-force]
+qsyn> exit -h
+Usage: quit [-h] [-f]
 
 Description:
-  quit Qsyn
+  quit qsyn
 
 Options:
-  flag  -h, --help    show this help message and exit 
-  flag  -force        quit without reaffirming        
+  flag  -h, --help     show this help message   
+  flag  -f, --force    quit without reaffirming 
 
-qsyn> qq -f
+qsyn> exir -h
+[error]    Unknown command!! (exir)
+
+qsyn> exi -h
+Usage: quit [-h] [-f]
+
+Description:
+  quit qsyn
+
+Options:
+  flag  -h, --help     show this help message   
+  flag  -f, --force    quit without reaffirming 
+
+qsyn> exit -f
 

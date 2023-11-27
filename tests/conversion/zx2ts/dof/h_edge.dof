@@ -1,62 +1,62 @@
-zxnew
-zxgedit -addi 0
-zxgedit -addo 0
-zxgedit -addv 0 Z
+zx new
+zx vertex add i 0
+zx vertex add o 0
+zx vertex add z 0
 
 // out-edge are H-edge
-zxgedit -adde 0 2 SIMPLE
-zxgedit -adde 2 1 HADAMARD
+zx edge add 0 2 SIMPLE
+zx edge add 2 1 HADAMARD
 
-logger level trace
+logger trace
 zx2ts
-logger level warning
+logger warn
 
 // both edges are S-edge
-zxgedit -rme 2 1 ALL
-zxgedit -adde 2 1 SIMPLE
+zx edge remove 2 1 ALL
+zx edge add 2 1 SIMPLE
 
-logger level trace
+logger trace
 zx2ts
-logger level warning
+logger warn
 
 // in-edge are H-edge
-zxgedit -rme 0 2 ALL
-zxgedit -adde 2 0 HADAMARD
+zx edge remove 0 2 ALL
+zx edge add 2 0 HADAMARD
 
-logger level trace
+logger trace
 zx2ts
-logger level warning
+logger warn
 
 // Both edges are H-edge
-zxgedit -rme 1 2 ALL
-zxgedit -adde 2 1 HADAMARD
+zx edge remove 1 2 ALL
+zx edge add 2 1 HADAMARD
 
-logger level trace
+logger trace
 zx2ts
-logger level warning
+logger warn
 
-zxn
-zxge -addi 0
-zxge -addo 0
-zxge -addi 1
-zxge -addo 1
-zxge -addv 0 Z
-zxge -addv 0 Z
-zxge -addv 0 Z
-zxge -addv 0 Z
-zxge -adde 0 4 SIMPLE
-zxge -adde 1 4 SIMPLE
-zxge -adde 2 5 HADAMARD
-zxge -adde 3 5 HADAMARD
-zxge -adde 6 5 HADAMARD
-zxge -adde 6 4 HADAMARD
-zxge -adde 6 7 HADAMARD
-logger level trace
+zx new
+zx vertex add i 0
+zx vertex add o 0
+zx vertex add i 1
+zx vertex add o 1
+zx vertex add z 0
+zx vertex add z 0
+zx vertex add z 0
+zx vertex add z 0
+zx edge add 0 4 SIMPLE
+zx edge add 1 4 SIMPLE
+zx edge add 2 5 HADAMARD
+zx edge add 3 5 HADAMARD
+zx edge add 6 5 HADAMARD
+zx edge add 6 4 HADAMARD
+zx edge add 6 7 HADAMARD
+logger trace
 zx2ts
-logger level warning
-qcnew
-qcba 1
-qcga h 0
+logger warn
+qcir new
+qcir qubit add 1
+qcir gate add h 0
 qc2ts
-tseq 0 5
-qq -f 
+tensor equiv 0 5
+quit -f 

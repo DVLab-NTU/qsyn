@@ -1,0 +1,56 @@
+---
+Checks: >
+  -*,
+  cppcoreguidelines-*,
+  -cppcoreguidelines-avoid-non-const-global-variables,
+  -cppcoreguidelines-avoid-magic-numbers,
+  -cppcoreguidelines-owning-memory,
+  -cppcoreguidelines-non-private-member-variables-in-classes,
+  performance-noexcept-*,
+  modernize-use-auto,
+  misc-const-correctness,
+  misc-non-copyable-objects,
+  misc-redundant-expression,
+  misc-static-assert,
+  misc-throw-by-value-catch-by-reference,
+  misc-unconventional-assign-operator,
+  misc-uniqueptr-reset-release,
+  misc-unused-*,
+  misc-use-anonymous-namespace,
+  bugprone-assert-side-effect,
+  performance-*
+  readability-*
+WarningsAsErrors: ""
+HeaderFilterRegex: ".*"
+AnalyzeTemporaryDtors: false
+FormatStyle: none
+CheckOptions:
+  - { key: readability-identifier-naming.VariableCase, value: lower_case }
+  - { key: readability-identifier-naming.GlobalVariableCase, value: UPPER_CASE }
+  - { key: readability-identifier-naming.GlobalConstantCase, value: lower_case }
+  - { key: readability-identifier-naming.FunctionCase, value: lower_case }
+  - { key: readability-identifier-naming.ClassCase, value: CamelCase }
+  - { key: readability-identifier-naming.StructCase, value: CamelCase }
+  - { key: readability-identifier-naming.PrivateMemberCase, value: lower_case }
+  - { key: readability-identifier-naming.PrivateMemberPrefix, value: _ }
+  - { key: readability-identifier-naming.PrivateMethodCase, value: lower_case }
+  - { key: readability-identifier-naming.PrivateMethodPrefix, value: _ }
+  - {
+      key: readability-identifier-naming.ProtectedMemberCase,
+      value: lower_case,
+    }
+  - { key: readability-identifier-naming.ProtectedMemberPrefix, value: _ }
+  - {
+      key: readability-identifier-naming.ProtectedMethodCase,
+      value: lower_case,
+    }
+  - { key: readability-identifier-naming.ProtectedMethodPrefix, value: _ }
+  - { key: readability-identifier-naming.EnumCase, value: CamelCase }
+  - { key: readability-identifier-naming.EnumConstantCase, value: lower_case }
+  - { key: readability-identifier-naming.NamespaceCase, value: lower_case }
+  - { key: readability-identifier-naming.MacroCase, value: UPPER_CASE }
+  - { key: readability-identifier-naming.ParameterCase, value: lower_case }
+  - {
+      key: cppcoreguidelines-special-member-functions.AllowSoleDefaultDtor,
+      value: true,
+    }

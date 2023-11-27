@@ -1,194 +1,354 @@
-DV Lab, NTUEE, Qsyn 0.5.1
-qsyn> verb 3
-Note: verbose level is set to 3
-
-qsyn> qccread ./benchmark/qft/qft_7.qasm
+qsyn> qcir read ./benchmark/qft/qft_7.qasm
 
 qsyn> qc2zx 
 
-qsyn> zxcopy 1
+qsyn> zx copy 1
 
-qsyn> zxgs -preduce 4
+qsyn> logger debug
+[info]     Setting logger level to "debug"
 
-All rules applied in order:
-Spider Fusion Rule            4 iterations.
-  1) 14 matches
-  2) 7 matches
-  3) 7 matches
-  4) 2 matches
+qsyn> zx optimize --partition 4
+[info]     Hadamard Rule                 1 iterations, total    7 matches
+[debug]       1) 7 matches
+[debug]    subgraph 0
+[debug]    
+[debug]    ID:    0 (Z, -π/64)   (Qubit, Col): (-2, 13)       #Neighbors:   1    (24, H)
+[debug]    ID:    1 (Z, π/16)    (Qubit, Col): (2, 17)        #Neighbors:   3    (9, -) (25, -) (26, H)
+[debug]    ID:    2 (Z, π/8)     (Qubit, Col): (4, 15)        #Neighbors:   3    (3, -) (27, -) (28, H)
+[debug]    ID:    3 (Z, π/4)     (Qubit, Col): (4, 17)        #Neighbors:   3    (2, -) (4, H) (29, H)
+[debug]    ID:    4 (Z, 0)       (Qubit, Col): (-1, 17)       #Neighbors:   3    (3, H) (5, H) (30, H)
+[debug]    ID:    5 (Z, -π/4)    (Qubit, Col): (-2, 17)       #Neighbors:   1    (4, H)
+[debug]    ID:    6 (Z, π/32)    (Qubit, Col): (6, 19)        #Neighbors:   3    (7, H) (14, -) (31, -)
+[debug]    ID:    7 (Z, 0)       (Qubit, Col): (-1, 19)       #Neighbors:   3    (6, H) (8, H) (9, H)
+[debug]    ID:    8 (Z, -π/32)   (Qubit, Col): (-2, 19)       #Neighbors:   1    (7, H)
+[debug]    ID:    9 (Z, π/32)    (Qubit, Col): (2, 19)        #Neighbors:   3    (1, -) (7, H) (10, -)
+[debug]    ID:   10 (●, 0)       (Qubit, Col): (2, 26)        #Neighbors:   1    (9, -)
+[debug]    ID:   11 (●, 0)       (Qubit, Col): (3, 26)        #Neighbors:   1    (12, -)
+[debug]    ID:   12 (Z, π/16)    (Qubit, Col): (3, 21)        #Neighbors:   3    (11, -) (13, H) (32, -)
+[debug]    ID:   13 (Z, 0)       (Qubit, Col): (-1, 21)       #Neighbors:   3    (12, H) (14, H) (15, H)
+[debug]    ID:   14 (Z, π/16)    (Qubit, Col): (6, 21)        #Neighbors:   3    (6, -) (13, H) (16, -)
+[debug]    ID:   15 (Z, -π/16)   (Qubit, Col): (-2, 21)       #Neighbors:   1    (13, H)
+[debug]    ID:   16 (Z, π/8)     (Qubit, Col): (6, 23)        #Neighbors:   3    (14, -) (17, -) (33, H)
+[debug]    ID:   17 (Z, π/4)     (Qubit, Col): (6, 25)        #Neighbors:   3    (16, -) (18, H) (34, H)
+[debug]    ID:   18 (●, 0)       (Qubit, Col): (6, 26)        #Neighbors:   1    (17, H)
+[debug]    ID:   19 (Z, -π/128)  (Qubit, Col): (-2, 15)       #Neighbors:   1    (35, H)
+[debug]    ID:   20 (Z, π/64)    (Qubit, Col): (0, 13)        #Neighbors:   3    (21, -) (23, -) (36, H)
+[debug]    ID:   21 (Z, π/32)    (Qubit, Col): (0, 11)        #Neighbors:   3    (20, -) (22, H) (37, -)
+[debug]    ID:   22 (Z, 0)       (Qubit, Col): (-1, 11)       #Neighbors:   3    (21, H) (38, H) (39, H)
+[debug]    ID:   23 (Z, π/128)   (Qubit, Col): (0, 15)        #Neighbors:   3    (20, -) (40, -) (41, H)
+[debug]    ID:   24 (●, 0)       (Qubit, Col): (-2147483648, 0) #Neighbors:   1    (0, H)
+[debug]    ID:   25 (●, 0)       (Qubit, Col): (-2147483647, 0) #Neighbors:   1    (1, -)
+[debug]    ID:   26 (●, 0)       (Qubit, Col): (-2147483646, 0) #Neighbors:   1    (1, H)
+[debug]    ID:   27 (●, 0)       (Qubit, Col): (-2147483645, 0) #Neighbors:   1    (2, -)
+[debug]    ID:   28 (●, 0)       (Qubit, Col): (-2147483644, 0) #Neighbors:   1    (2, H)
+[debug]    ID:   29 (●, 0)       (Qubit, Col): (-2147483643, 0) #Neighbors:   1    (3, H)
+[debug]    ID:   30 (●, 0)       (Qubit, Col): (-2147483642, 0) #Neighbors:   1    (4, H)
+[debug]    ID:   31 (●, 0)       (Qubit, Col): (-2147483641, 0) #Neighbors:   1    (6, -)
+[debug]    ID:   32 (●, 0)       (Qubit, Col): (-2147483640, 0) #Neighbors:   1    (12, -)
+[debug]    ID:   33 (●, 0)       (Qubit, Col): (-2147483639, 0) #Neighbors:   1    (16, H)
+[debug]    ID:   34 (●, 0)       (Qubit, Col): (-2147483638, 0) #Neighbors:   1    (17, H)
+[debug]    ID:   35 (●, 0)       (Qubit, Col): (-2147483637, 0) #Neighbors:   1    (19, H)
+[debug]    ID:   36 (●, 0)       (Qubit, Col): (-2147483636, 0) #Neighbors:   1    (20, H)
+[debug]    ID:   37 (●, 0)       (Qubit, Col): (-2147483635, 0) #Neighbors:   1    (21, -)
+[debug]    ID:   38 (●, 0)       (Qubit, Col): (-2147483634, 0) #Neighbors:   1    (22, H)
+[debug]    ID:   39 (●, 0)       (Qubit, Col): (-2147483633, 0) #Neighbors:   1    (22, H)
+[debug]    ID:   40 (●, 0)       (Qubit, Col): (-2147483632, 0) #Neighbors:   1    (23, -)
+[debug]    ID:   41 (●, 0)       (Qubit, Col): (-2147483631, 0) #Neighbors:   1    (23, H)
+[debug]    Total #Vertices: 42
+[debug]    
+[debug]    subgraph 1
+[debug]    
+[debug]    ID:    0 (Z, -π/8)    (Qubit, Col): (-2, 23)       #Neighbors:   1    (24, H)
+[debug]    ID:    1 (Z, π/8)     (Qubit, Col): (1, 11)        #Neighbors:   3    (17, H) (25, -) (26, -)
+[debug]    ID:    2 (●, 0)       (Qubit, Col): (4, 0)         #Neighbors:   1    (27, -)
+[debug]    ID:    3 (Z, π/4)     (Qubit, Col): (4, 21)        #Neighbors:   3    (9, H) (28, -) (29, H)
+[debug]    ID:    4 (Z, -π/4)    (Qubit, Col): (-2, 25)       #Neighbors:   1    (5, H)
+[debug]    ID:    5 (Z, 0)       (Qubit, Col): (-1, 25)       #Neighbors:   3    (4, H) (6, H) (30, H)
+[debug]    ID:    6 (Z, π/4)     (Qubit, Col): (5, 25)        #Neighbors:   3    (5, H) (7, -) (8, H)
+[debug]    ID:    7 (●, 0)       (Qubit, Col): (5, 26)        #Neighbors:   1    (6, -)
+[debug]    ID:    8 (Z, π/4)     (Qubit, Col): (5, 21)        #Neighbors:   3    (6, H) (9, H) (11, -)
+[debug]    ID:    9 (Z, 0)       (Qubit, Col): (-1, 21)       #Neighbors:   3    (3, H) (8, H) (10, H)
+[debug]    ID:   10 (Z, -π/4)    (Qubit, Col): (-2, 21)       #Neighbors:   1    (9, H)
+[debug]    ID:   11 (Z, π/8)     (Qubit, Col): (5, 19)        #Neighbors:   3    (8, -) (12, H) (31, -)
+[debug]    ID:   12 (Z, 0)       (Qubit, Col): (-1, 19)       #Neighbors:   3    (11, H) (13, H) (14, H)
+[debug]    ID:   13 (Z, -π/8)    (Qubit, Col): (-2, 19)       #Neighbors:   1    (12, H)
+[debug]    ID:   14 (Z, π/8)     (Qubit, Col): (3, 19)        #Neighbors:   3    (12, H) (15, -) (32, -)
+[debug]    ID:   15 (Z, π/4)     (Qubit, Col): (3, 17)        #Neighbors:   3    (14, -) (22, H) (33, H)
+[debug]    ID:   16 (●, 0)       (Qubit, Col): (3, 0)         #Neighbors:   1    (20, -)
+[debug]    ID:   17 (Z, 0)       (Qubit, Col): (-1, 11)       #Neighbors:   3    (1, H) (18, H) (21, H)
+[debug]    ID:   18 (Z, -π/8)    (Qubit, Col): (-2, 11)       #Neighbors:   1    (17, H)
+[debug]    ID:   19 (Z, -π/4)    (Qubit, Col): (-2, 13)       #Neighbors:   1    (23, H)
+[debug]    ID:   20 (Z, π/16)    (Qubit, Col): (3, 9)         #Neighbors:   3    (16, -) (21, -) (34, H)
+[debug]    ID:   21 (Z, π/8)     (Qubit, Col): (3, 11)        #Neighbors:   3    (17, H) (20, -) (22, -)
+[debug]    ID:   22 (Z, π/4)     (Qubit, Col): (3, 13)        #Neighbors:   3    (15, H) (21, -) (23, H)
+[debug]    ID:   23 (Z, 0)       (Qubit, Col): (-1, 13)       #Neighbors:   3    (19, H) (22, H) (35, H)
+[debug]    ID:   24 (●, 0)       (Qubit, Col): (-2147483630, 0) #Neighbors:   1    (0, H)
+[debug]    ID:   25 (●, 0)       (Qubit, Col): (-2147483629, 0) #Neighbors:   1    (1, -)
+[debug]    ID:   26 (●, 0)       (Qubit, Col): (-2147483628, 0) #Neighbors:   1    (1, -)
+[debug]    ID:   27 (●, 0)       (Qubit, Col): (-2147483627, 0) #Neighbors:   1    (2, -)
+[debug]    ID:   28 (●, 0)       (Qubit, Col): (-2147483626, 0) #Neighbors:   1    (3, -)
+[debug]    ID:   29 (●, 0)       (Qubit, Col): (-2147483625, 0) #Neighbors:   1    (3, H)
+[debug]    ID:   30 (●, 0)       (Qubit, Col): (-2147483624, 0) #Neighbors:   1    (5, H)
+[debug]    ID:   31 (●, 0)       (Qubit, Col): (-2147483623, 0) #Neighbors:   1    (11, -)
+[debug]    ID:   32 (●, 0)       (Qubit, Col): (-2147483622, 0) #Neighbors:   1    (14, -)
+[debug]    ID:   33 (●, 0)       (Qubit, Col): (-2147483621, 0) #Neighbors:   1    (15, H)
+[debug]    ID:   34 (●, 0)       (Qubit, Col): (-2147483620, 0) #Neighbors:   1    (20, H)
+[debug]    ID:   35 (●, 0)       (Qubit, Col): (-2147483619, 0) #Neighbors:   1    (23, H)
+[debug]    Total #Vertices: 36
+[debug]    
+[debug]    subgraph 2
+[debug]    
+[debug]    ID:    0 (Z, 0)       (Qubit, Col): (-1, 15)       #Neighbors:   3    (7, H) (25, H) (26, H)
+[debug]    ID:    1 (●, 0)       (Qubit, Col): (0, 26)        #Neighbors:   1    (27, -)
+[debug]    ID:    2 (Z, -π/4)    (Qubit, Col): (-2, 5)        #Neighbors:   1    (28, H)
+[debug]    ID:    3 (Z, π/32)    (Qubit, Col): (4, 11)        #Neighbors:   3    (4, -) (29, -) (30, H)
+[debug]    ID:    4 (Z, π/16)    (Qubit, Col): (4, 13)        #Neighbors:   3    (3, -) (14, H) (31, -)
+[debug]    ID:    5 (Z, -π/16)   (Qubit, Col): (-2, 17)       #Neighbors:   1    (21, H)
+[debug]    ID:    6 (●, 0)       (Qubit, Col): (1, 26)        #Neighbors:   1    (12, -)
+[debug]    ID:    7 (Z, π/128)   (Qubit, Col): (6, 15)        #Neighbors:   3    (0, H) (8, -) (17, -)
+[debug]    ID:    8 (●, 0)       (Qubit, Col): (6, 0)         #Neighbors:   1    (7, -)
+[debug]    ID:    9 (Z, -π/32)   (Qubit, Col): (-2, 15)       #Neighbors:   1    (10, H)
+[debug]    ID:   10 (Z, 0)       (Qubit, Col): (-1, 15)       #Neighbors:   3    (9, H) (11, H) (19, H)
+[debug]    ID:   11 (Z, π/32)    (Qubit, Col): (1, 15)        #Neighbors:   3    (10, H) (12, -) (13, -)
+[debug]    ID:   12 (Z, π/64)    (Qubit, Col): (1, 17)        #Neighbors:   3    (6, -) (11, -) (16, H)
+[debug]    ID:   13 (Z, π/16)    (Qubit, Col): (1, 13)        #Neighbors:   3    (11, -) (14, H) (32, -)
+[debug]    ID:   14 (Z, 0)       (Qubit, Col): (-1, 13)       #Neighbors:   3    (4, H) (13, H) (15, H)
+[debug]    ID:   15 (Z, -π/16)   (Qubit, Col): (-2, 13)       #Neighbors:   1    (14, H)
+[debug]    ID:   16 (Z, 0)       (Qubit, Col): (-1, 17)       #Neighbors:   3    (12, H) (17, H) (18, H)
+[debug]    ID:   17 (Z, π/64)    (Qubit, Col): (6, 17)        #Neighbors:   3    (7, -) (16, H) (33, -)
+[debug]    ID:   18 (Z, -π/64)   (Qubit, Col): (-2, 17)       #Neighbors:   1    (16, H)
+[debug]    ID:   19 (Z, π/32)    (Qubit, Col): (5, 15)        #Neighbors:   3    (10, H) (20, -) (22, -)
+[debug]    ID:   20 (Z, π/16)    (Qubit, Col): (5, 17)        #Neighbors:   3    (19, -) (21, H) (34, -)
+[debug]    ID:   21 (Z, 0)       (Qubit, Col): (-1, 17)       #Neighbors:   3    (5, H) (20, H) (35, H)
+[debug]    ID:   22 (Z, π/64)    (Qubit, Col): (5, 13)        #Neighbors:   3    (19, -) (23, -) (24, H)
+[debug]    ID:   23 (●, 0)       (Qubit, Col): (5, 0)         #Neighbors:   1    (22, -)
+[debug]    ID:   24 (Z, 0)       (Qubit, Col): (-1, 13)       #Neighbors:   3    (22, H) (36, H) (37, H)
+[debug]    ID:   25 (●, 0)       (Qubit, Col): (-2147483618, 0) #Neighbors:   1    (0, H)
+[debug]    ID:   26 (●, 0)       (Qubit, Col): (-2147483617, 0) #Neighbors:   1    (0, H)
+[debug]    ID:   27 (●, 0)       (Qubit, Col): (-2147483616, 0) #Neighbors:   1    (1, -)
+[debug]    ID:   28 (●, 0)       (Qubit, Col): (-2147483615, 0) #Neighbors:   1    (2, H)
+[debug]    ID:   29 (●, 0)       (Qubit, Col): (-2147483614, 0) #Neighbors:   1    (3, -)
+[debug]    ID:   30 (●, 0)       (Qubit, Col): (-2147483613, 0) #Neighbors:   1    (3, H)
+[debug]    ID:   31 (●, 0)       (Qubit, Col): (-2147483612, 0) #Neighbors:   1    (4, -)
+[debug]    ID:   32 (●, 0)       (Qubit, Col): (-2147483611, 0) #Neighbors:   1    (13, -)
+[debug]    ID:   33 (●, 0)       (Qubit, Col): (-2147483610, 0) #Neighbors:   1    (17, -)
+[debug]    ID:   34 (●, 0)       (Qubit, Col): (-2147483609, 0) #Neighbors:   1    (20, -)
+[debug]    ID:   35 (●, 0)       (Qubit, Col): (-2147483608, 0) #Neighbors:   1    (21, H)
+[debug]    ID:   36 (●, 0)       (Qubit, Col): (-2147483607, 0) #Neighbors:   1    (24, H)
+[debug]    ID:   37 (●, 0)       (Qubit, Col): (-2147483606, 0) #Neighbors:   1    (24, H)
+[debug]    Total #Vertices: 38
+[debug]    
+[debug]    subgraph 3
+[debug]    
+[debug]    ID:    0 (Z, 0)       (Qubit, Col): (-1, 9)        #Neighbors:   3    (1, H) (3, H) (25, H)
+[debug]    ID:    1 (Z, -π/16)   (Qubit, Col): (-2, 9)        #Neighbors:   1    (0, H)
+[debug]    ID:    2 (Z, -π/32)   (Qubit, Col): (-2, 11)       #Neighbors:   1    (26, H)
+[debug]    ID:    3 (Z, π/16)    (Qubit, Col): (0, 9)         #Neighbors:   3    (0, H) (4, -) (27, -)
+[debug]    ID:    4 (Z, π/8)     (Qubit, Col): (0, 7)         #Neighbors:   3    (3, -) (6, -) (10, H)
+[debug]    ID:    5 (●, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (6, H)
+[debug]    ID:    6 (Z, π/4)     (Qubit, Col): (0, 5)         #Neighbors:   3    (4, -) (5, H) (7, H)
+[debug]    ID:    7 (Z, 0)       (Qubit, Col): (-1, 5)        #Neighbors:   3    (6, H) (21, H) (28, H)
+[debug]    ID:    8 (●, 0)       (Qubit, Col): (4, 26)        #Neighbors:   1    (23, -)
+[debug]    ID:    9 (Z, -π/8)    (Qubit, Col): (-2, 7)        #Neighbors:   1    (10, H)
+[debug]    ID:   10 (Z, 0)       (Qubit, Col): (-1, 7)        #Neighbors:   3    (4, H) (9, H) (11, H)
+[debug]    ID:   11 (Z, π/8)     (Qubit, Col): (2, 7)         #Neighbors:   3    (10, H) (12, -) (13, -)
+[debug]    ID:   12 (●, 0)       (Qubit, Col): (2, 0)         #Neighbors:   1    (11, -)
+[debug]    ID:   13 (Z, π/4)     (Qubit, Col): (2, 9)         #Neighbors:   3    (11, -) (14, H) (18, H)
+[debug]    ID:   14 (Z, π/4)     (Qubit, Col): (2, 13)        #Neighbors:   3    (13, H) (15, -) (29, H)
+[debug]    ID:   15 (Z, π/8)     (Qubit, Col): (2, 15)        #Neighbors:   3    (14, -) (16, H) (30, -)
+[debug]    ID:   16 (Z, 0)       (Qubit, Col): (-1, 15)       #Neighbors:   3    (15, H) (17, H) (31, H)
+[debug]    ID:   17 (Z, -π/8)    (Qubit, Col): (-2, 15)       #Neighbors:   1    (16, H)
+[debug]    ID:   18 (Z, 0)       (Qubit, Col): (-1, 9)        #Neighbors:   3    (13, H) (19, H) (20, H)
+[debug]    ID:   19 (Z, -π/4)    (Qubit, Col): (-2, 9)        #Neighbors:   1    (18, H)
+[debug]    ID:   20 (Z, π/4)     (Qubit, Col): (1, 9)         #Neighbors:   3    (18, H) (21, H) (32, -)
+[debug]    ID:   21 (Z, π/4)     (Qubit, Col): (1, 5)         #Neighbors:   3    (7, H) (20, H) (22, -)
+[debug]    ID:   22 (●, 0)       (Qubit, Col): (1, 0)         #Neighbors:   1    (21, -)
+[debug]    ID:   23 (Z, π/8)     (Qubit, Col): (4, 23)        #Neighbors:   3    (8, -) (24, H) (33, -)
+[debug]    ID:   24 (Z, 0)       (Qubit, Col): (-1, 23)       #Neighbors:   3    (23, H) (34, H) (35, H)
+[debug]    ID:   25 (●, 0)       (Qubit, Col): (-2147483605, 0) #Neighbors:   1    (0, H)
+[debug]    ID:   26 (●, 0)       (Qubit, Col): (-2147483604, 0) #Neighbors:   1    (2, H)
+[debug]    ID:   27 (●, 0)       (Qubit, Col): (-2147483603, 0) #Neighbors:   1    (3, -)
+[debug]    ID:   28 (●, 0)       (Qubit, Col): (-2147483602, 0) #Neighbors:   1    (7, H)
+[debug]    ID:   29 (●, 0)       (Qubit, Col): (-2147483601, 0) #Neighbors:   1    (14, H)
+[debug]    ID:   30 (●, 0)       (Qubit, Col): (-2147483600, 0) #Neighbors:   1    (15, -)
+[debug]    ID:   31 (●, 0)       (Qubit, Col): (-2147483599, 0) #Neighbors:   1    (16, H)
+[debug]    ID:   32 (●, 0)       (Qubit, Col): (-2147483598, 0) #Neighbors:   1    (20, -)
+[debug]    ID:   33 (●, 0)       (Qubit, Col): (-2147483597, 0) #Neighbors:   1    (23, -)
+[debug]    ID:   34 (●, 0)       (Qubit, Col): (-2147483596, 0) #Neighbors:   1    (24, H)
+[debug]    ID:   35 (●, 0)       (Qubit, Col): (-2147483595, 0) #Neighbors:   1    (24, H)
+[debug]    Total #Vertices: 36
+[debug]    
+[info]     Full Reduce:
+[info]     Spider Fusion Rule            3 iterations, total    7 matches
+[debug]       1) 4 matches
+[debug]       2) 2 matches
+[debug]       3) 1 matches
+[info]     Dynamic Reduce: (T-optimal: 1)
+[info]     Spider Fusion Rule            3 iterations, total    7 matches
+[debug]       1) 4 matches
+[debug]       2) 2 matches
+[debug]       3) 1 matches
+[info]     Full Reduce:
+[info]     Spider Fusion Rule            2 iterations, total    4 matches
+[debug]       1) 3 matches
+[debug]       2) 1 matches
+[info]     Dynamic Reduce: (T-optimal: 5)
+[info]     Spider Fusion Rule            2 iterations, total    4 matches
+[debug]       1) 3 matches
+[debug]       2) 1 matches
+[info]     Full Reduce:
+[info]     Spider Fusion Rule            2 iterations, total    6 matches
+[debug]       1) 4 matches
+[debug]       2) 2 matches
+[info]     Dynamic Reduce: (T-optimal: 1)
+[info]     Spider Fusion Rule            2 iterations, total    6 matches
+[debug]       1) 4 matches
+[debug]       2) 2 matches
+[info]     Full Reduce:
+[info]     Spider Fusion Rule            2 iterations, total    4 matches
+[debug]       1) 2 matches
+[debug]       2) 2 matches
+[info]     Dynamic Reduce: (T-optimal: 3)
+[info]     Spider Fusion Rule            2 iterations, total    4 matches
+[debug]       1) 2 matches
+[debug]       2) 2 matches
+[info]     Spider Fusion Rule            2 iterations, total    9 matches
+[debug]       1) 8 matches
+[debug]       2) 1 matches
 
-Full Reduce:
-All rules applied in order:
-Spider Fusion Rule            3 iterations.
-  1) 4 matches
-  2) 2 matches
-  3) 1 matches
+qsyn> logger warn
 
-Dynamic Reduce: (T-optimal: 1)
-All rules applied in order:
-Spider Fusion Rule            3 iterations.
-  1) 4 matches
-  2) 2 matches
-  3) 1 matches
+qsyn> zx print -s
+Graph (7 inputs, 7 outputs, 68 vertices, 82 edges)
+#T-gate:                      8
+#Non-(Clifford+T)-gate:       25
+#Non-Clifford-gate:           33
 
-Full Reduce:
-All rules applied in order:
-Spider Fusion Rule            2 iterations.
-  1) 3 matches
-  2) 1 matches
+qsyn> zx adjoint
 
-Dynamic Reduce: (T-optimal: 5)
-All rules applied in order:
-Spider Fusion Rule            2 iterations.
-  1) 3 matches
-  2) 1 matches
+qsyn> zx compose 0
 
-Full Reduce:
-All rules applied in order:
-Spider Fusion Rule            2 iterations.
-  1) 4 matches
-  2) 2 matches
+qsyn> logger debug
+[info]     Setting logger level to "debug"
 
-Dynamic Reduce: (T-optimal: 1)
-All rules applied in order:
-Spider Fusion Rule            2 iterations.
-  1) 4 matches
-  2) 2 matches
+qsyn> zx optimize --full
+[info]     Hadamard Rule                 1 iterations, total    7 matches
+[debug]       1) 7 matches
+[info]     Spider Fusion Rule            5 iterations, total   49 matches
+[debug]       1) 21 matches
+[debug]       2) 13 matches
+[debug]       3) 7 matches
+[debug]       4) 7 matches
+[debug]       5) 1 matches
+[info]     Identity Removal Rule         1 iterations, total    1 matches
+[debug]       1) 1 matches
+[info]     Spider Fusion Rule            1 iterations, total    1 matches
+[debug]       1) 1 matches
+[info]     Pivot Rule                    1 iterations, total    5 matches
+[debug]       1) 5 matches
+[info]     Identity Removal Rule         1 iterations, total    2 matches
+[debug]       1) 2 matches
+[info]     Spider Fusion Rule            1 iterations, total    2 matches
+[debug]       1) 2 matches
+[info]     Pivot Rule                    1 iterations, total    1 matches
+[debug]       1) 1 matches
+[info]     Identity Removal Rule         1 iterations, total    1 matches
+[debug]       1) 1 matches
+[info]     Spider Fusion Rule            1 iterations, total    1 matches
+[debug]       1) 1 matches
+[info]     Identity Removal Rule         1 iterations, total    2 matches
+[debug]       1) 2 matches
+[info]     Spider Fusion Rule            1 iterations, total    2 matches
+[debug]       1) 2 matches
+[info]     Pivot Rule                    1 iterations, total    1 matches
+[debug]       1) 1 matches
+[info]     Identity Removal Rule         1 iterations, total    1 matches
+[debug]       1) 1 matches
+[info]     Spider Fusion Rule            1 iterations, total    1 matches
+[debug]       1) 1 matches
+[info]     Identity Removal Rule         1 iterations, total    1 matches
+[debug]       1) 1 matches
+[info]     Spider Fusion Rule            1 iterations, total    1 matches
+[debug]       1) 1 matches
+[info]     Pivot Rule                    1 iterations, total    1 matches
+[debug]       1) 1 matches
+[info]     Identity Removal Rule         1 iterations, total    1 matches
+[debug]       1) 1 matches
+[info]     Spider Fusion Rule            1 iterations, total    1 matches
+[debug]       1) 1 matches
+[info]     Identity Removal Rule         1 iterations, total    1 matches
+[debug]       1) 1 matches
+[info]     Spider Fusion Rule            1 iterations, total    1 matches
+[debug]       1) 1 matches
+[info]     Identity Removal Rule         1 iterations, total    1 matches
+[debug]       1) 1 matches
+[info]     Spider Fusion Rule            1 iterations, total    1 matches
+[debug]       1) 1 matches
+[info]     Pivot Rule                    1 iterations, total    1 matches
+[debug]       1) 1 matches
+[info]     Identity Removal Rule         1 iterations, total    1 matches
+[debug]       1) 1 matches
+[info]     Spider Fusion Rule            1 iterations, total    1 matches
+[debug]       1) 1 matches
+[info]     Pivot Rule                    1 iterations, total    1 matches
+[debug]       1) 1 matches
+[info]     Identity Removal Rule         1 iterations, total    1 matches
+[debug]       1) 1 matches
+[info]     Spider Fusion Rule            1 iterations, total    1 matches
+[debug]       1) 1 matches
+[info]     Pivot Rule                    1 iterations, total    1 matches
+[debug]       1) 1 matches
+[info]     Identity Removal Rule         1 iterations, total    1 matches
+[debug]       1) 1 matches
+[info]     Spider Fusion Rule            1 iterations, total    1 matches
+[debug]       1) 1 matches
+[info]     Identity Removal Rule         1 iterations, total    1 matches
+[debug]       1) 1 matches
+[info]     Spider Fusion Rule            1 iterations, total    1 matches
+[debug]       1) 1 matches
+[info]     Identity Removal Rule         1 iterations, total    1 matches
+[debug]       1) 1 matches
+[info]     Spider Fusion Rule            1 iterations, total    1 matches
+[debug]       1) 1 matches
+[info]     Pivot Rule                    1 iterations, total    1 matches
+[debug]       1) 1 matches
+[info]     Identity Removal Rule         1 iterations, total    1 matches
+[debug]       1) 1 matches
+[info]     Spider Fusion Rule            1 iterations, total    1 matches
+[debug]       1) 1 matches
+[info]     Pivot Rule                    1 iterations, total    1 matches
+[debug]       1) 1 matches
+[info]     Identity Removal Rule         1 iterations, total    1 matches
+[debug]       1) 1 matches
+[info]     Spider Fusion Rule            1 iterations, total    1 matches
+[debug]       1) 1 matches
+[info]     Pivot Rule                    1 iterations, total    1 matches
+[debug]       1) 1 matches
+[info]     Identity Removal Rule         1 iterations, total    1 matches
+[debug]       1) 1 matches
+[info]     Spider Fusion Rule            1 iterations, total    1 matches
+[debug]       1) 1 matches
+[info]     Pivot Rule                    1 iterations, total    1 matches
+[debug]       1) 1 matches
+[info]     Identity Removal Rule         1 iterations, total    1 matches
+[debug]       1) 1 matches
+[info]     Spider Fusion Rule            1 iterations, total    1 matches
+[debug]       1) 1 matches
+[info]     Identity Removal Rule         1 iterations, total    1 matches
+[debug]       1) 1 matches
+[info]     Spider Fusion Rule            1 iterations, total    1 matches
+[debug]       1) 1 matches
+[info]     Phase Gadget Rule             1 iterations, total    6 matches
+[debug]       1) 6 matches
+[info]     Pivot Rule                    1 iterations, total    6 matches
+[debug]       1) 6 matches
+[info]     Identity Removal Rule         1 iterations, total    7 matches
+[debug]       1) 7 matches
 
-Full Reduce:
-All rules applied in order:
-Spider Fusion Rule            2 iterations.
-  1) 2 matches
-  2) 2 matches
+qsyn> logger warn
 
-Dynamic Reduce: (T-optimal: 3)
-All rules applied in order:
-Spider Fusion Rule            2 iterations.
-  1) 2 matches
-  2) 2 matches
-
-qsyn> zxgadjoint 
-
-qsyn> zxcompose 0
-
-qsyn> zxgs -freduce
-
-All rules applied in order:
-Hadamard Rule                 1 iterations.
-  1) 7 matches
-Spider Fusion Rule            5 iterations.
-  1) 21 matches
-  2) 13 matches
-  3) 7 matches
-  4) 7 matches
-  5) 1 matches
-Identity Removal Rule         1 iterations.
-  1) 1 matches
-Spider Fusion Rule            1 iterations.
-  1) 1 matches
-Pivot Rule                    1 iterations.
-  1) 5 matches
-Identity Removal Rule         1 iterations.
-  1) 2 matches
-Spider Fusion Rule            1 iterations.
-  1) 2 matches
-Pivot Rule                    1 iterations.
-  1) 1 matches
-Identity Removal Rule         1 iterations.
-  1) 1 matches
-Spider Fusion Rule            1 iterations.
-  1) 1 matches
-Identity Removal Rule         1 iterations.
-  1) 2 matches
-Spider Fusion Rule            1 iterations.
-  1) 2 matches
-Pivot Rule                    1 iterations.
-  1) 1 matches
-Identity Removal Rule         1 iterations.
-  1) 1 matches
-Spider Fusion Rule            1 iterations.
-  1) 1 matches
-Identity Removal Rule         1 iterations.
-  1) 1 matches
-Spider Fusion Rule            1 iterations.
-  1) 1 matches
-Pivot Rule                    1 iterations.
-  1) 1 matches
-Identity Removal Rule         1 iterations.
-  1) 1 matches
-Spider Fusion Rule            1 iterations.
-  1) 1 matches
-Identity Removal Rule         1 iterations.
-  1) 1 matches
-Spider Fusion Rule            1 iterations.
-  1) 1 matches
-Identity Removal Rule         1 iterations.
-  1) 1 matches
-Spider Fusion Rule            1 iterations.
-  1) 1 matches
-Pivot Rule                    1 iterations.
-  1) 1 matches
-Identity Removal Rule         1 iterations.
-  1) 1 matches
-Spider Fusion Rule            1 iterations.
-  1) 1 matches
-Pivot Rule                    1 iterations.
-  1) 1 matches
-Identity Removal Rule         1 iterations.
-  1) 1 matches
-Spider Fusion Rule            1 iterations.
-  1) 1 matches
-Pivot Rule                    1 iterations.
-  1) 1 matches
-Identity Removal Rule         1 iterations.
-  1) 1 matches
-Spider Fusion Rule            1 iterations.
-  1) 1 matches
-Identity Removal Rule         1 iterations.
-  1) 1 matches
-Spider Fusion Rule            1 iterations.
-  1) 1 matches
-Identity Removal Rule         1 iterations.
-  1) 1 matches
-Spider Fusion Rule            1 iterations.
-  1) 1 matches
-Pivot Rule                    1 iterations.
-  1) 1 matches
-Identity Removal Rule         1 iterations.
-  1) 1 matches
-Spider Fusion Rule            1 iterations.
-  1) 1 matches
-Pivot Rule                    1 iterations.
-  1) 1 matches
-Identity Removal Rule         1 iterations.
-  1) 1 matches
-Spider Fusion Rule            1 iterations.
-  1) 1 matches
-Pivot Rule                    1 iterations.
-  1) 1 matches
-Identity Removal Rule         1 iterations.
-  1) 1 matches
-Spider Fusion Rule            1 iterations.
-  1) 1 matches
-Pivot Rule                    1 iterations.
-  1) 1 matches
-Identity Removal Rule         1 iterations.
-  1) 1 matches
-Spider Fusion Rule            1 iterations.
-  1) 1 matches
-Identity Removal Rule         1 iterations.
-  1) 1 matches
-Spider Fusion Rule            1 iterations.
-  1) 1 matches
-Phase Gadget Rule             1 iterations.
-  1) 6 matches
-Pivot Rule                    1 iterations.
-  1) 6 matches
-Identity Removal Rule         1 iterations.
-  1) 7 matches
-
-qsyn> zxgtest -id
+qsyn> zx test --identity
 The graph is an identity!
 
-qsyn> qq -f
+qsyn> quit -f
 

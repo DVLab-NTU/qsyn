@@ -1,5 +1,4 @@
 /****************************************************************************
-  FileName     [ scheduler.hpp ]
   PackageName  [ duostra ]
   Synopsis     [ Define class Scheduler structure ]
   Author       [ Chin-Yi Cheng, Chien-Yi Yang, Ren-Chu Wang, Yi-Hsiang Kuo ]
@@ -15,94 +14,121 @@
 #include <utility>
 #include <vector>
 
-#include "./circuitTopology.hpp"
+#include "./circuit_topology.hpp"
+#include "./duostra_def.hpp"
 #include "./router.hpp"
 #include "device/device.hpp"
 
+namespace qsyn::duostra {
+
 class BaseScheduler {
 public:
-    BaseScheduler(std::unique_ptr<CircuitTopo>, bool = true);
-    BaseScheduler(BaseScheduler const&);
-    BaseScheduler(BaseScheduler&&) = default;
-    virtual ~BaseScheduler() {}
+    using Device    = qsyn::device::Device;
+    using Operation = qsyn::device::Operation;
+    BaseScheduler(CircuitTopology topo, bool tqdm)
+        : _circuit_topology(std::move(topo)), _tqdm(tqdm) {}
+    virtual ~BaseScheduler() = default;
+
+    void swap(BaseScheduler& other) noexcept {
+        std::swap(_circuit_topology, other._circuit_topology);
+        std::swap(_operations, other._operations);
+        std::swap(_assign_order, other._assign_order);
+        std::swap(_tqdm, other._tqdm);
+    }
+
+    friend void swap(BaseScheduler& a, BaseScheduler& b) noexcept {
+        a.swap(b);
+    }
 
     virtual std::unique_ptr<BaseScheduler> clone() const;
 
-    CircuitTopo& circuitTopology() { return *_circuitTopology; }
-    const CircuitTopo& circuitTopology() const { return *_circuitTopology; }
+    CircuitTopology& circuit_topology() { return _circuit_topology; }
+    CircuitTopology const& circuit_topology() const { return _circuit_topology; }
 
-    size_t getFinalCost() const;
-    size_t getTotalTime() const;
-    size_t getSwapNum() const;
-    size_t getExecutable(Router&) const;
-    bool isSorted() const { return _sorted; }
-    const std::vector<size_t>& getAvailableGates() const { return _circuitTopology->getAvailableGates(); }
-    const std::vector<Operation>& getOperations() const { return _operations; }
-    const std::vector<size_t>& getOrder() const { return _assignOrder; }
-    size_t operationsCost() const;
+    size_t get_final_cost() const;
+    size_t get_total_time() const;
+    size_t get_num_swaps() const;
+    std::optional<size_t> get_executable_gate(Router&) const;
+    size_t get_operations_cost() const;
+    bool is_sorted() const { return _sorted; }
+    std::vector<size_t> const& get_available_gates() const { return _circuit_topology.get_available_gates(); }
+    std::vector<Operation> const& get_operations() const { return _operations; }
+    std::vector<size_t> const& get_order() const { return _assign_order; }
 
-    Device assignGatesAndSort(std::unique_ptr<Router>);
-    size_t routeOneGate(Router&, size_t, bool = false);
+    Device assign_gates_and_sort(std::unique_ptr<Router>);
+    size_t route_one_gate(Router&, size_t, bool = false);
 
 protected:
-    std::unique_ptr<CircuitTopo> _circuitTopology;
+    CircuitTopology _circuit_topology;
     std::vector<Operation> _operations;
-    std::vector<size_t> _assignOrder;
+    std::vector<size_t> _assign_order;
     bool _sorted = false;
-    bool _tqdm = true;
-    virtual Device assignGates(std::unique_ptr<Router>);
-    void sort();
+    bool _tqdm   = true;
+    virtual Device _assign_gates(std::unique_ptr<Router>);
+    void _sort();
 };
 
 class RandomScheduler : public BaseScheduler {
 public:
-    RandomScheduler(std::unique_ptr<CircuitTopo>, bool = true);
-    RandomScheduler(const RandomScheduler&);
-    RandomScheduler(RandomScheduler&&);
-    ~RandomScheduler() override {}
+    using Device    = BaseScheduler::Device;
+    using Operation = BaseScheduler::Operation;
+    RandomScheduler(CircuitTopology const& topo, bool tqdm) : BaseScheduler(topo, tqdm) {}
 
     std::unique_ptr<BaseScheduler> clone() const override;
 
 protected:
-    Device assignGates(std::unique_ptr<Router>) override;
+    Device _assign_gates(std::unique_ptr<Router> /*unused*/) override;
 };
 
-class StaticScheduler : public BaseScheduler {
+class NaiveScheduler : public BaseScheduler {
 public:
-    StaticScheduler(std::unique_ptr<CircuitTopo>, bool = true);
-    StaticScheduler(const StaticScheduler&);
-    StaticScheduler(StaticScheduler&&);
-    ~StaticScheduler() override {}
+    using Device    = BaseScheduler::Device;
+    using Operation = BaseScheduler::Operation;
+    NaiveScheduler(CircuitTopology const& topo, bool tqdm) : BaseScheduler(topo, tqdm) {}
 
     std::unique_ptr<BaseScheduler> clone() const override;
 
 protected:
-    Device assignGates(std::unique_ptr<Router>) override;
+    Device _assign_gates(std::unique_ptr<Router> /*unused*/) override;
 };
 
 struct GreedyConf {
     GreedyConf();
 
-    bool _availableType;  // true is max, false is min
-    bool _costType;       // true is max, false is min
-    size_t _candidates;
-    size_t _APSPCoeff;
+    MinMaxOptionType available_time_strategy;
+    MinMaxOptionType cost_type;
+    size_t num_candidates;
+    size_t apsp_coeff;
 };
 
-class GreedyScheduler : public BaseScheduler {
+class GreedyScheduler : public BaseScheduler {  // NOLINT(hicpp-special-member-functions, cppcoreguidelines-special-member-functions) : copy-swap idiom
 public:
-    GreedyScheduler(std::unique_ptr<CircuitTopo>, bool = true);
-    GreedyScheduler(const GreedyScheduler&);
-    GreedyScheduler(GreedyScheduler&&);
-    ~GreedyScheduler() override {}
+    using Device    = BaseScheduler::Device;
+    using Operation = BaseScheduler::Operation;
+    GreedyScheduler(CircuitTopology const& topo, bool tqdm) : BaseScheduler(topo, tqdm) {}
+    ~GreedyScheduler() override = default;
+    GreedyScheduler(GreedyScheduler const& other) : BaseScheduler(other), _conf(other._conf) {}
+    GreedyScheduler(GreedyScheduler&& other) noexcept : BaseScheduler(other) {
+        _conf = std::exchange(other._conf, {});
+    }
+
+    GreedyScheduler& operator=(GreedyScheduler copy) {
+        copy.swap(*this);
+        return *this;
+    }
+
+    void swap(GreedyScheduler& other) noexcept {
+        std::swap(static_cast<BaseScheduler&>(*this), static_cast<BaseScheduler&>(other));
+        std::swap(_conf, other._conf);
+    }
 
     std::unique_ptr<BaseScheduler> clone() const override;
-    size_t greedyFallback(Router&, const std::vector<size_t>&, size_t) const;
+    size_t greedy_fallback(Router& router, std::vector<size_t> const& waitlist) const;
 
 protected:
     GreedyConf _conf;
 
-    Device assignGates(std::unique_ptr<Router>) override;
+    Device _assign_gates(std::unique_ptr<Router> /*unused*/) override;
 };
 
 struct TreeNodeConf {
@@ -116,70 +142,103 @@ struct TreeNodeConf {
 };
 
 // This is a node of the heuristic search tree.
-class TreeNode {
+class TreeNode {  // NOLINT(hicpp-special-member-functions, cppcoreguidelines-special-member-functions) : copy-swap idiom
+
 public:
     TreeNode(TreeNodeConf, size_t, std::unique_ptr<Router>, std::unique_ptr<BaseScheduler>, size_t);
     TreeNode(TreeNodeConf, std::vector<size_t>&&, std::unique_ptr<Router>, std::unique_ptr<BaseScheduler>, size_t);
-    TreeNode(const TreeNode&);
-    TreeNode(TreeNode&&);
 
-    TreeNode& operator=(const TreeNode&);
-    TreeNode& operator=(TreeNode&&);
+    ~TreeNode() = default;
 
-    bool isLeaf() const { return _children.empty(); }
-    void growIfNeeded();
-    bool canGrow() const;
+    TreeNode(TreeNode const&);
+    TreeNode(TreeNode&&) noexcept = default;
 
-    TreeNode bestChild(int);
-    size_t bestCost(int);
-    size_t bestCost() const;
+    void swap(TreeNode& other) noexcept {
+        std::swap(_conf, other._conf);
+        std::swap(_gate_ids, other._gate_ids);
+        std::swap(_children, other._children);
+        std::swap(_max_cost, other._max_cost);
+        std::swap(_router, other._router);
+        std::swap(_scheduler, other._scheduler);
+    }
 
-    const Router& router() const { return *_router; }
-    const BaseScheduler& scheduler() const { return *_scheduler; }
+    friend void swap(TreeNode& a, TreeNode& b) noexcept {
+        a.swap(b);
+    }
 
-    const std::vector<size_t>& executedGates() const { return _gateIds; }
+    TreeNode& operator=(TreeNode copy) {
+        copy.swap(*this);
+        return *this;
+    }
 
-    bool done() const { return scheduler().getAvailableGates().empty(); }
+    bool is_leaf() const { return _children.empty(); }
+    bool can_grow() const { return scheduler().get_available_gates().size(); }
+
+    TreeNode best_child(size_t depth);
+    size_t best_cost(size_t depth);
+    size_t best_cost() const;
+
+    Router const& router() const { return *_router; }
+    BaseScheduler const& scheduler() const { return *_scheduler; }
+
+    std::vector<size_t> const& get_executed_gates() const { return _gate_ids; }
+
+    bool done() const { return scheduler().get_available_gates().empty(); }
 
 private:
     TreeNodeConf _conf;
 
     // The head of the node.
-    std::vector<size_t> _gateIds;
+    std::vector<size_t> _gate_ids;
 
     // Using vector to pointer so that frequent cache misses
     // won't be as bad in parallel code.
     std::vector<TreeNode> _children;
 
     // The state of duostra.
-    size_t _maxCost;
+    size_t _max_cost;
     std::unique_ptr<Router> _router;
     std::unique_ptr<BaseScheduler> _scheduler;
 
-    std::vector<TreeNode>&& children();
-
-    void grow();
-    size_t immediateNext() const;
-    void routeInternalGates();
+    void _grow();
+    std::optional<size_t> _immediate_next() const;
+    void _route_internal_gates();
 };
 
-class SearchScheduler : public GreedyScheduler {
+class SearchScheduler : public GreedyScheduler {  // NOLINT(hicpp-special-member-functions, cppcoreguidelines-special-member-functions) : copy-swap idiom
 public:
-    SearchScheduler(std::unique_ptr<CircuitTopo>, bool = true);
-    SearchScheduler(const SearchScheduler&);
-    SearchScheduler(SearchScheduler&&);
-    ~SearchScheduler() override {}
+    using Device    = GreedyScheduler::Device;
+    using Operation = GreedyScheduler::Operation;
+    SearchScheduler(CircuitTopology const&, bool = true);
+    ~SearchScheduler() override = default;
+    SearchScheduler(SearchScheduler const&);
+    SearchScheduler(SearchScheduler&&) noexcept;
+
+    SearchScheduler& operator=(SearchScheduler copy) {
+        copy.swap(*this);
+        return *this;
+    }
+
+    void swap(SearchScheduler& other) noexcept {
+        std::swap(static_cast<GreedyScheduler&>(*this), static_cast<GreedyScheduler&>(other));
+        std::swap(_conf, other._conf);
+    }
+
+    friend void swap(SearchScheduler& a, SearchScheduler& b) noexcept {
+        a.swap(b);
+    }
 
     std::unique_ptr<BaseScheduler> clone() const override;
 
-    const size_t _lookAhead;
-
 protected:
-    bool _neverCache;
-    bool _executeSingle;
+    bool _never_cache;
+    bool _execute_single;
+    size_t _lookahead;
 
-    Device assignGates(std::unique_ptr<Router>) override;
-    void cacheOnlyWhenNecessary();
+    Device _assign_gates(std::unique_ptr<Router> /*unused*/) override;
+    void _cache_when_necessary();
 };
 
-std::unique_ptr<BaseScheduler> getScheduler(std::unique_ptr<CircuitTopo>, bool = true);
+std::unique_ptr<BaseScheduler> get_scheduler(std::unique_ptr<CircuitTopology>, bool = true);
+
+}  // namespace qsyn::duostra

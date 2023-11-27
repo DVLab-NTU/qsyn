@@ -1,10 +1,9 @@
-verb 3
-qccread ./benchmark/qft/qft_5.qasm
+qcir read ./benchmark/qft/qft_5.qasm
 qc2zx
 zx2ts
-zxcopy
-zxgs -preduce 4
+zx copy
+zx optimize --partition 4
 zx2ts
-tseq 0 1
-qq -f
+tensor equiv 0 1
+quit -f
 

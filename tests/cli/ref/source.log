@@ -1,0 +1,47 @@
+qsyn> // testing empty dofiles
+qsyn> 
+qsyn> source tests/cli/helper/empty_dof
+qsyn> 
+
+qsyn> 
+qsyn> // Testing dofile arguments
+qsyn> 
+qsyn> source tests/cli/helper/param_dof
+qsyn> // placeholder
+
+qsyn> logger // should print logger level
+Logger Level: warning
+
+qsyn> source tests/cli/helper/param_dof trace
+qsyn> // placeholder
+
+qsyn> logger $1 // should change logger level to trace
+[info]     Setting logger level to "trace"
+
+qsyn> source tests/cli/helper/param_dof_kw // should error and print usage
+[error]    wrong number of arguments provided, expected 2 but got 0!!
+[error]    Usage: ... tests/cli/helper/param_dof_kw <input1> <input2>
+
+qsyn> source tests/cli/helper/param_dof_kw info debug trace // should error and print usage
+[error]    wrong number of arguments provided, expected 2 but got 3!!
+[error]    Usage: ... tests/cli/helper/param_dof_kw <input1> <input2>
+
+qsyn> 
+qsyn> source tests/cli/helper/param_dof_kw debug trace
+qsyn> //!ARGS input1 input2
+
+qsyn> logger ${input1} // should change logger level to debug
+[info]     Setting logger level to "debug"
+
+qsyn> logger $input2   // should change logger level to trace
+[info]     Setting logger level to "trace"
+
+qsyn> logger $1        // should change logger level to debug
+[info]     Setting logger level to "debug"
+
+qsyn> logger ${2}      // should change logger level to trace
+[info]     Setting logger level to "trace"
+
+qsyn> 
+qsyn> quit -f
+

@@ -1,77 +1,76 @@
-DV Lab, NTUEE, Qsyn 0.5.1
-qsyn> verb 3
-Note: verbose level is set to 3
+qsyn> zx read benchmark/zx/tof3.zx
 
-qsyn> zxgread benchmark/zx/tof3.zx
+qsyn> zx print -v
 
-qsyn> zxgp -v
-
-ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (10, -) 
-ID:   1 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (7, -) 
-ID:   2 (●, 0)           (Qubit, Col): (2, 0)	  #Neighbors:   1     (6, -) 
-ID:   3 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (25, -) 
-ID:   4 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (26, -) 
-ID:   5 (●, 0)           (Qubit, Col): (2, 0)	  #Neighbors:   1     (22, -) 
-ID:   6 (H, π)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (2, -) (8, -) 
-ID:   7 (Z, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   3     (1, -) (8, -) (13, -) 
-ID:   8 (X, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   3     (6, -) (7, -) (9, -) 
-ID:   9 (Z, -π/4)        (Qubit, Col): (0, 0)	  #Neighbors:   2     (8, -) (11, -) 
-ID:  10 (Z, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   3     (0, -) (11, -) (16, -) 
-ID:  11 (X, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   3     (9, -) (10, -) (12, -) 
-ID:  12 (Z, π/4)         (Qubit, Col): (0, 0)	  #Neighbors:   2     (11, -) (14, -) 
-ID:  13 (Z, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   3     (7, -) (14, -) (18, -) 
-ID:  14 (X, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   3     (12, -) (13, -) (15, -) 
-ID:  15 (Z, -π/4)        (Qubit, Col): (0, 0)	  #Neighbors:   2     (14, -) (17, -) 
-ID:  16 (Z, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   3     (10, -) (17, -) (20, -) 
-ID:  17 (X, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   3     (15, -) (16, -) (19, -) 
-ID:  18 (Z, π/4)         (Qubit, Col): (0, 0)	  #Neighbors:   2     (13, -) (21, -) 
-ID:  19 (Z, π/4)         (Qubit, Col): (0, 0)	  #Neighbors:   2     (17, -) (22, -) 
-ID:  20 (Z, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   3     (16, -) (21, -) (23, -) 
-ID:  21 (X, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   3     (18, -) (20, -) (24, -) 
-ID:  22 (H, π)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (5, -) (19, -) 
-ID:  23 (Z, π/4)         (Qubit, Col): (0, 0)	  #Neighbors:   2     (20, -) (25, -) 
-ID:  24 (Z, -π/4)        (Qubit, Col): (0, 0)	  #Neighbors:   2     (21, -) (26, -) 
-ID:  25 (Z, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   3     (3, -) (23, -) (26, -) 
-ID:  26 (X, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   3     (4, -) (24, -) (25, -) 
+ID:    0 (●, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (10, -)
+ID:    1 (●, 0)       (Qubit, Col): (1, 0)         #Neighbors:   1    (7, -)
+ID:    2 (●, 0)       (Qubit, Col): (2, 0)         #Neighbors:   1    (6, -)
+ID:    3 (●, 0)       (Qubit, Col): (0, 11)        #Neighbors:   1    (25, -)
+ID:    4 (●, 0)       (Qubit, Col): (1, 11)        #Neighbors:   1    (26, -)
+ID:    5 (●, 0)       (Qubit, Col): (2, 11)        #Neighbors:   1    (22, -)
+ID:    6 (H, π)       (Qubit, Col): (2, 1)         #Neighbors:   2    (2, -) (8, -)
+ID:    7 (Z, 0)       (Qubit, Col): (1, 1)         #Neighbors:   3    (1, -) (8, -) (13, -)
+ID:    8 (X, 0)       (Qubit, Col): (2, 2)         #Neighbors:   3    (6, -) (7, -) (9, -)
+ID:    9 (Z, -π/4)    (Qubit, Col): (2, 3)         #Neighbors:   2    (8, -) (11, -)
+ID:   10 (Z, 0)       (Qubit, Col): (0, 1)         #Neighbors:   3    (0, -) (11, -) (16, -)
+ID:   11 (X, 0)       (Qubit, Col): (2, 4)         #Neighbors:   3    (9, -) (10, -) (12, -)
+ID:   12 (Z, π/4)     (Qubit, Col): (2, 5)         #Neighbors:   2    (11, -) (14, -)
+ID:   13 (Z, 0)       (Qubit, Col): (1, 2)         #Neighbors:   3    (7, -) (14, -) (18, -)
+ID:   14 (X, 0)       (Qubit, Col): (2, 6)         #Neighbors:   3    (12, -) (13, -) (15, -)
+ID:   15 (Z, -π/4)    (Qubit, Col): (2, 7)         #Neighbors:   2    (14, -) (17, -)
+ID:   16 (Z, 0)       (Qubit, Col): (0, 2)         #Neighbors:   3    (10, -) (17, -) (20, -)
+ID:   17 (X, 0)       (Qubit, Col): (2, 8)         #Neighbors:   3    (15, -) (16, -) (19, -)
+ID:   18 (Z, π/4)     (Qubit, Col): (1, 3)         #Neighbors:   2    (13, -) (21, -)
+ID:   19 (Z, π/4)     (Qubit, Col): (2, 9)         #Neighbors:   2    (17, -) (22, -)
+ID:   20 (Z, 0)       (Qubit, Col): (0, 3)         #Neighbors:   3    (16, -) (21, -) (23, -)
+ID:   21 (X, 0)       (Qubit, Col): (1, 4)         #Neighbors:   3    (18, -) (20, -) (24, -)
+ID:   22 (H, π)       (Qubit, Col): (2, 10)        #Neighbors:   2    (5, -) (19, -)
+ID:   23 (Z, π/4)     (Qubit, Col): (0, 4)         #Neighbors:   2    (20, -) (25, -)
+ID:   24 (Z, -π/4)    (Qubit, Col): (1, 5)         #Neighbors:   2    (21, -) (26, -)
+ID:   25 (Z, 0)       (Qubit, Col): (0, 5)         #Neighbors:   3    (3, -) (23, -) (26, -)
+ID:   26 (X, 0)       (Qubit, Col): (1, 6)         #Neighbors:   3    (4, -) (24, -) (25, -)
 Total #Vertices: 27
 
 
-qsyn> zxgs -freduce
+qsyn> logger debug
+[info]     Setting logger level to "debug"
 
-All rules applied in order:
-Hadamard Rule                 1 iterations.
-  1) 2 matches
-Spider Fusion Rule            3 iterations.
-  1) 3 matches
-  2) 2 matches
-  3) 1 matches
-Pivot Gadget Rule             2 iterations.
-  1) 3 matches
-  2) 1 matches
-Identity Removal Rule         1 iterations.
-  1) 2 matches
+qsyn> zx optimize --full
+[info]     Hadamard Rule                 1 iterations, total    2 matches
+[debug]       1) 2 matches
+[info]     Spider Fusion Rule            3 iterations, total    6 matches
+[debug]       1) 3 matches
+[debug]       2) 2 matches
+[debug]       3) 1 matches
+[info]     Pivot Gadget Rule             2 iterations, total    4 matches
+[debug]       1) 3 matches
+[debug]       2) 1 matches
+[info]     Identity Removal Rule         1 iterations, total    2 matches
+[debug]       1) 2 matches
 
-qsyn> zxgp -v
+qsyn> logger warn
 
-ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (10, -) 
-ID:   1 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (7, -) 
-ID:   2 (●, 0)           (Qubit, Col): (2, 0)	  #Neighbors:   1     (19, H) 
-ID:   3 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (10, -) 
-ID:   4 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (7, -) 
-ID:   5 (●, 0)           (Qubit, Col): (2, 0)	  #Neighbors:   1     (19, H) 
-ID:   7 (Z, π/4)         (Qubit, Col): (0, 0)	  #Neighbors:   5     (1, -) (4, -) (28, H) (32, H) (34, H) 
-ID:  10 (Z, π/4)         (Qubit, Col): (0, 0)	  #Neighbors:   5     (0, -) (3, -) (30, H) (32, H) (34, H) 
-ID:  19 (Z, π/4)         (Qubit, Col): (0, 0)	  #Neighbors:   5     (2, H) (5, H) (28, H) (30, H) (34, H) 
-ID:  27 (Z, -π/4)        (Qubit, Col): (-2, 0)	  #Neighbors:   1     (28, H) 
-ID:  28 (Z, 0)           (Qubit, Col): (-1, 0)	  #Neighbors:   3     (7, H) (19, H) (27, H) 
-ID:  29 (Z, -π/4)        (Qubit, Col): (-2, 0)	  #Neighbors:   1     (30, H) 
-ID:  30 (Z, 0)           (Qubit, Col): (-1, 0)	  #Neighbors:   3     (10, H) (19, H) (29, H) 
-ID:  31 (Z, -π/4)        (Qubit, Col): (-2, 0)	  #Neighbors:   1     (32, H) 
-ID:  32 (Z, 0)           (Qubit, Col): (-1, 0)	  #Neighbors:   3     (7, H) (10, H) (31, H) 
-ID:  33 (Z, π/4)         (Qubit, Col): (-2, 0)	  #Neighbors:   1     (34, H) 
-ID:  34 (Z, 0)           (Qubit, Col): (-1, 0)	  #Neighbors:   4     (7, H) (10, H) (19, H) (33, H) 
+qsyn> zx print -v
+
+ID:    0 (●, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (10, -)
+ID:    1 (●, 0)       (Qubit, Col): (1, 0)         #Neighbors:   1    (7, -)
+ID:    2 (●, 0)       (Qubit, Col): (2, 0)         #Neighbors:   1    (19, H)
+ID:    3 (●, 0)       (Qubit, Col): (0, 11)        #Neighbors:   1    (10, -)
+ID:    4 (●, 0)       (Qubit, Col): (1, 11)        #Neighbors:   1    (7, -)
+ID:    5 (●, 0)       (Qubit, Col): (2, 11)        #Neighbors:   1    (19, H)
+ID:    7 (Z, π/4)     (Qubit, Col): (1, 1)         #Neighbors:   5    (1, -) (4, -) (28, H) (32, H) (34, H)
+ID:   10 (Z, π/4)     (Qubit, Col): (0, 1)         #Neighbors:   5    (0, -) (3, -) (30, H) (32, H) (34, H)
+ID:   19 (Z, π/4)     (Qubit, Col): (2, 9)         #Neighbors:   5    (2, H) (5, H) (28, H) (30, H) (34, H)
+ID:   27 (Z, -π/4)    (Qubit, Col): (-2, 3)        #Neighbors:   1    (28, H)
+ID:   28 (Z, 0)       (Qubit, Col): (-1, 3)        #Neighbors:   3    (7, H) (19, H) (27, H)
+ID:   29 (Z, -π/4)    (Qubit, Col): (-2, 7)        #Neighbors:   1    (30, H)
+ID:   30 (Z, 0)       (Qubit, Col): (-1, 7)        #Neighbors:   3    (10, H) (19, H) (29, H)
+ID:   31 (Z, -π/4)    (Qubit, Col): (-2, 5)        #Neighbors:   1    (32, H)
+ID:   32 (Z, 0)       (Qubit, Col): (-1, 5)        #Neighbors:   3    (7, H) (10, H) (31, H)
+ID:   33 (Z, π/4)     (Qubit, Col): (-2, 5)        #Neighbors:   1    (34, H)
+ID:   34 (Z, 0)       (Qubit, Col): (-1, 5)        #Neighbors:   4    (7, H) (10, H) (19, H) (33, H)
 Total #Vertices: 17
 
 
-qsyn> qq -f
+qsyn> quit -f
 

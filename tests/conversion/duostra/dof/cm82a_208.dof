@@ -1,17 +1,16 @@
-ver 0
-qcp -se
-qcset -double 2 -sw 6
-qcp -se
-qccr benchmark/benchmark_SABRE/large/cm82a_208.qasm
-dtgr benchmark/topology/guadalupe.layout 
-qccp -a
-duoprint -d
-duoset -depth 2 -si true
-duoprint -d
-duostra -c
-qccp -a
-duoset -sc greedy
-duoprint
-duostra -c
-qccp -a
-qq -f
+qcir config
+qcir config --double-delay 2 --swap-delay 6
+qcir config
+qcir read benchmark/SABRE/large/cm82a_208.qasm
+device read benchmark/topology/guadalupe.layout 
+qcir print --statistics
+duostra config --verbose
+duostra config --depth 2 --single-immediate true
+duostra config --verbose
+duostra --check
+qcir print --statistics
+duostra config --scheduler greedy
+duostra config
+duostra --check
+qcir print --statistics
+quit -f

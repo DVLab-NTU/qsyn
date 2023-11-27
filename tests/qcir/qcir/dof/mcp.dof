@@ -1,21 +1,21 @@
-qcba 2
-qcgadd mcp -ph pi/3 0 1
-qccp -q
-qcgp 0
+qcir qubit add 2
+qcir gate add mcp -ph pi/3 0 1
+qcir print --diagram
+qcir print --gate 0
 qc2ts
 qc2zx
-zxgp -q
-zxgs -fr
-zxgp -q
+zx print -q
+zx optimize --full
+zx print -q
 zx2ts
-tseq 0 1
-qcr
-zxr
-tsr
+tensor equiv 0 1
+qcir delete --all
+zx delete --all
+tensor delete --all
 
-qcba 1
-qcgadd mcp -ph pi/3 0
-qcgp 0
+qcir qubit add 1
+qcir gate add mcp -ph pi/3 0
+qcir print --gate 0
 qc2zx
-zxgp -v
-qq -f
+zx print -v
+quit -f

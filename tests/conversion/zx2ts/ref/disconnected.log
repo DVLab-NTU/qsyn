@@ -1,343 +1,342 @@
-DV Lab, NTUEE, Qsyn 0.5.1
-qsyn> zxnew
+qsyn> zx new
 
-qsyn> zxgedit -addi 0
+qsyn> zx vertex add input 0
 
-qsyn> zxgedit -addo 0
+qsyn> zx vertex add output 0
 
-qsyn> zxgedit -addi 1
+qsyn> zx vertex add input 1
 
-qsyn> zxgedit -addo 1
+qsyn> zx vertex add output 1
 
-qsyn> zxgedit -addv 0 Z 0
+qsyn> zx vertex add z 0 0
 
-qsyn> zxgedit -addv 0 Z pi
+qsyn> zx vertex add z 0 pi
 
-qsyn> zxgedit -addi 2
+qsyn> zx vertex add input 2
 
-qsyn> zxgedit -addo 2
+qsyn> zx vertex add output 2
 
-qsyn> zxgedit -addi 3
+qsyn> zx vertex add input 3
 
-qsyn> zxgedit -addo 3
-
-qsyn> 
-qsyn> zxgedit -adde 0 4 SIMPLE
-
-qsyn> zxgedit -adde 4 1 SIMPLE
-
-qsyn> zxgedit -adde 2 5 SIMPLE
-
-qsyn> zxgedit -adde 5 3 SIMPLE
-
-qsyn> zxgedit -adde 6 7 SIMPLE
-
-qsyn> zxgedit -adde 8 9 SIMPLE
+qsyn> zx vertex add output 3
 
 qsyn> 
-qsyn> logger level trace
-[Debug] Setting logger level to trace
+qsyn> zx edge add 0 4 SIMPLE
+
+qsyn> zx edge add 4 1 SIMPLE
+
+qsyn> zx edge add 2 5 SIMPLE
+
+qsyn> zx edge add 5 3 SIMPLE
+
+qsyn> zx edge add 6 7 SIMPLE
+
+qsyn> zx edge add 8 9 SIMPLE
+
+qsyn> 
+qsyn> logger trace
+[info]     Setting logger level to "trace"
 
 qsyn> zx2ts
-[Info] Converting ZXGraph 0 to Tensor 0...
-[Trace] Topological order from first input: 8 9 6 7 2 5 3 0 4 1
-[Trace] Size of topological order: 10
-[Debug] Mapping vertex    8 (●): New Subgraph
-[Debug] Done. Current tensor dimension: 2
-[Trace] Current frontiers:
-[Trace]   8--9 (-) axis id: 1
-[Debug] Mapping vertex    9 (●): Boundary
-[Debug] Done. Current tensor dimension: 2
-[Trace] Current frontiers:
-[Trace]   8--9 (-) axis id: 1
-[Debug] Mapping vertex    6 (●): New Subgraph
-[Debug] Done. Current tensor dimension: 2
-[Trace] Current frontiers:
-[Trace]   6--7 (-) axis id: 1
-[Debug] Mapping vertex    7 (●): Boundary
-[Debug] Done. Current tensor dimension: 2
-[Trace] Current frontiers:
-[Trace]   6--7 (-) axis id: 1
-[Debug] Mapping vertex    2 (●): New Subgraph
-[Debug] Done. Current tensor dimension: 2
-[Trace] Current frontiers:
-[Trace]   2--5 (-) axis id: 1
-[Debug] Mapping vertex    5 (Z): Tensordot
-[Debug] Done. Current tensor dimension: 2
-[Trace] Current frontiers:
-[Trace]   3--5 (-) axis id: 1
-[Debug] Mapping vertex    3 (●): Boundary
-[Debug] Done. Current tensor dimension: 2
-[Trace] Current frontiers:
-[Trace]   3--5 (-) axis id: 1
-[Debug] Mapping vertex    0 (●): New Subgraph
-[Debug] Done. Current tensor dimension: 2
-[Trace] Current frontiers:
-[Trace]   0--4 (-) axis id: 1
-[Debug] Mapping vertex    4 (Z): Tensordot
-[Debug] Done. Current tensor dimension: 2
-[Trace] Current frontiers:
-[Trace]   1--4 (-) axis id: 1
-[Debug] Mapping vertex    1 (●): Boundary
-[Debug] Done. Current tensor dimension: 2
-[Trace] Current frontiers:
-[Trace]   1--4 (-) axis id: 1
-[Trace] Input  Axis IDs: 6 4 2 0
-[Trace] Output Axis IDs: 7 5 3 1
-[Info] Successfully created and checked out to Tensor 0
+[info]     Converting ZXGraph 0 to Tensor 0...
+[trace]    Topological order from first input: 8 9 6 7 2 5 3 0 4 1
+[trace]    Size of topological order: 10
+[debug]    Mapping vertex    8 (●): New Subgraph
+[debug]    Done. Current tensor dimension: 2
+[trace]    Current frontiers:
+[trace]      8--9 (-) axis id: 1
+[debug]    Mapping vertex    9 (●): Boundary
+[debug]    Done. Current tensor dimension: 2
+[trace]    Current frontiers:
+[trace]      8--9 (-) axis id: 1
+[debug]    Mapping vertex    6 (●): New Subgraph
+[debug]    Done. Current tensor dimension: 2
+[trace]    Current frontiers:
+[trace]      6--7 (-) axis id: 1
+[debug]    Mapping vertex    7 (●): Boundary
+[debug]    Done. Current tensor dimension: 2
+[trace]    Current frontiers:
+[trace]      6--7 (-) axis id: 1
+[debug]    Mapping vertex    2 (●): New Subgraph
+[debug]    Done. Current tensor dimension: 2
+[trace]    Current frontiers:
+[trace]      2--5 (-) axis id: 1
+[debug]    Mapping vertex    5 (Z): Tensordot
+[debug]    Done. Current tensor dimension: 2
+[trace]    Current frontiers:
+[trace]      3--5 (-) axis id: 1
+[debug]    Mapping vertex    3 (●): Boundary
+[debug]    Done. Current tensor dimension: 2
+[trace]    Current frontiers:
+[trace]      3--5 (-) axis id: 1
+[debug]    Mapping vertex    0 (●): New Subgraph
+[debug]    Done. Current tensor dimension: 2
+[trace]    Current frontiers:
+[trace]      0--4 (-) axis id: 1
+[debug]    Mapping vertex    4 (Z): Tensordot
+[debug]    Done. Current tensor dimension: 2
+[trace]    Current frontiers:
+[trace]      1--4 (-) axis id: 1
+[debug]    Mapping vertex    1 (●): Boundary
+[debug]    Done. Current tensor dimension: 2
+[trace]    Current frontiers:
+[trace]      1--4 (-) axis id: 1
+[trace]    Input  Axis IDs: 6 4 2 0
+[trace]    Output Axis IDs: 7 5 3 1
+[info]     Successfully created and checked out to Tensor 0
 
-qsyn> logger level warning
-
-qsyn> 
-qsyn> zxgr benchmark/zx/cnot.zx
-
-qsyn> zxgr benchmark/zx/cnot.zx
-
-qsyn> zxch 0
-
-qsyn> zxtensor 1
+qsyn> logger warn
 
 qsyn> 
-qsyn> logger level trace
-[Debug] Setting logger level to trace
+qsyn> zx read benchmark/zx/cnot.zx
+
+qsyn> zx read benchmark/zx/cnot.zx
+
+qsyn> zx checkout 0
+
+qsyn> zx tensor-product 1
+
+qsyn> 
+qsyn> logger trace
+[info]     Setting logger level to "trace"
 
 qsyn> zx2ts
-[Info] Converting ZXGraph 0 to Tensor 1...
-[Trace] Topological order from first input: 10 12 13 11 15 14 8 9 6 7 2 5 3 0 4 1
-[Trace] Size of topological order: 16
-[Debug] Mapping vertex   10 (●): New Subgraph
-[Debug] Done. Current tensor dimension: 2
-[Trace] Current frontiers:
-[Trace]   10--12 (-) axis id: 1
-[Debug] Mapping vertex   12 (Z): Tensordot
-[Debug] Done. Current tensor dimension: 3
-[Trace] Current frontiers:
-[Trace]   12--13 (-) axis id: 1
-[Trace]   12--14 (-) axis id: 2
-[Debug] Mapping vertex   13 (X): Tensordot
-[Debug] Done. Current tensor dimension: 4
-[Trace] Current frontiers:
-[Trace]   12--14 (-) axis id: 1
-[Trace]   11--13 (-) axis id: 2
-[Trace]   13--15 (-) axis id: 3
-[Debug] Mapping vertex   11 (●): Boundary
-[Debug] Done. Current tensor dimension: 4
-[Trace] Current frontiers:
-[Trace]   12--14 (-) axis id: 1
-[Trace]   11--13 (-) axis id: 2
-[Trace]   13--15 (-) axis id: 3
-[Debug] Mapping vertex   15 (●): Boundary
-[Debug] Done. Current tensor dimension: 4
-[Trace] Current frontiers:
-[Trace]   12--14 (-) axis id: 1
-[Trace]   11--13 (-) axis id: 2
-[Trace]   13--15 (-) axis id: 3
-[Debug] Mapping vertex   14 (●): Boundary
-[Debug] Done. Current tensor dimension: 4
-[Trace] Current frontiers:
-[Trace]   12--14 (-) axis id: 1
-[Trace]   11--13 (-) axis id: 2
-[Trace]   13--15 (-) axis id: 3
-[Debug] Mapping vertex    8 (●): New Subgraph
-[Debug] Done. Current tensor dimension: 2
-[Trace] Current frontiers:
-[Trace]   8--9 (-) axis id: 1
-[Debug] Mapping vertex    9 (●): Boundary
-[Debug] Done. Current tensor dimension: 2
-[Trace] Current frontiers:
-[Trace]   8--9 (-) axis id: 1
-[Debug] Mapping vertex    6 (●): New Subgraph
-[Debug] Done. Current tensor dimension: 2
-[Trace] Current frontiers:
-[Trace]   6--7 (-) axis id: 1
-[Debug] Mapping vertex    7 (●): Boundary
-[Debug] Done. Current tensor dimension: 2
-[Trace] Current frontiers:
-[Trace]   6--7 (-) axis id: 1
-[Debug] Mapping vertex    2 (●): New Subgraph
-[Debug] Done. Current tensor dimension: 2
-[Trace] Current frontiers:
-[Trace]   2--5 (-) axis id: 1
-[Debug] Mapping vertex    5 (Z): Tensordot
-[Debug] Done. Current tensor dimension: 2
-[Trace] Current frontiers:
-[Trace]   3--5 (-) axis id: 1
-[Debug] Mapping vertex    3 (●): Boundary
-[Debug] Done. Current tensor dimension: 2
-[Trace] Current frontiers:
-[Trace]   3--5 (-) axis id: 1
-[Debug] Mapping vertex    0 (●): New Subgraph
-[Debug] Done. Current tensor dimension: 2
-[Trace] Current frontiers:
-[Trace]   0--4 (-) axis id: 1
-[Debug] Mapping vertex    4 (Z): Tensordot
-[Debug] Done. Current tensor dimension: 2
-[Trace] Current frontiers:
-[Trace]   1--4 (-) axis id: 1
-[Debug] Mapping vertex    1 (●): Boundary
-[Debug] Done. Current tensor dimension: 2
-[Trace] Current frontiers:
-[Trace]   1--4 (-) axis id: 1
-[Trace] Input  Axis IDs: 10 8 6 4 0 2
-[Trace] Output Axis IDs: 11 9 7 5 1 3
-[Info] Successfully created and checked out to Tensor 1
+[info]     Converting ZXGraph 0 to Tensor 1...
+[trace]    Topological order from first input: 10 12 13 11 15 14 8 9 6 7 2 5 3 0 4 1
+[trace]    Size of topological order: 16
+[debug]    Mapping vertex   10 (●): New Subgraph
+[debug]    Done. Current tensor dimension: 2
+[trace]    Current frontiers:
+[trace]      10--12 (-) axis id: 1
+[debug]    Mapping vertex   12 (Z): Tensordot
+[debug]    Done. Current tensor dimension: 3
+[trace]    Current frontiers:
+[trace]      12--13 (-) axis id: 1
+[trace]      12--14 (-) axis id: 2
+[debug]    Mapping vertex   13 (X): Tensordot
+[debug]    Done. Current tensor dimension: 4
+[trace]    Current frontiers:
+[trace]      12--14 (-) axis id: 1
+[trace]      11--13 (-) axis id: 2
+[trace]      13--15 (-) axis id: 3
+[debug]    Mapping vertex   11 (●): Boundary
+[debug]    Done. Current tensor dimension: 4
+[trace]    Current frontiers:
+[trace]      12--14 (-) axis id: 1
+[trace]      11--13 (-) axis id: 2
+[trace]      13--15 (-) axis id: 3
+[debug]    Mapping vertex   15 (●): Boundary
+[debug]    Done. Current tensor dimension: 4
+[trace]    Current frontiers:
+[trace]      12--14 (-) axis id: 1
+[trace]      11--13 (-) axis id: 2
+[trace]      13--15 (-) axis id: 3
+[debug]    Mapping vertex   14 (●): Boundary
+[debug]    Done. Current tensor dimension: 4
+[trace]    Current frontiers:
+[trace]      12--14 (-) axis id: 1
+[trace]      11--13 (-) axis id: 2
+[trace]      13--15 (-) axis id: 3
+[debug]    Mapping vertex    8 (●): New Subgraph
+[debug]    Done. Current tensor dimension: 2
+[trace]    Current frontiers:
+[trace]      8--9 (-) axis id: 1
+[debug]    Mapping vertex    9 (●): Boundary
+[debug]    Done. Current tensor dimension: 2
+[trace]    Current frontiers:
+[trace]      8--9 (-) axis id: 1
+[debug]    Mapping vertex    6 (●): New Subgraph
+[debug]    Done. Current tensor dimension: 2
+[trace]    Current frontiers:
+[trace]      6--7 (-) axis id: 1
+[debug]    Mapping vertex    7 (●): Boundary
+[debug]    Done. Current tensor dimension: 2
+[trace]    Current frontiers:
+[trace]      6--7 (-) axis id: 1
+[debug]    Mapping vertex    2 (●): New Subgraph
+[debug]    Done. Current tensor dimension: 2
+[trace]    Current frontiers:
+[trace]      2--5 (-) axis id: 1
+[debug]    Mapping vertex    5 (Z): Tensordot
+[debug]    Done. Current tensor dimension: 2
+[trace]    Current frontiers:
+[trace]      3--5 (-) axis id: 1
+[debug]    Mapping vertex    3 (●): Boundary
+[debug]    Done. Current tensor dimension: 2
+[trace]    Current frontiers:
+[trace]      3--5 (-) axis id: 1
+[debug]    Mapping vertex    0 (●): New Subgraph
+[debug]    Done. Current tensor dimension: 2
+[trace]    Current frontiers:
+[trace]      0--4 (-) axis id: 1
+[debug]    Mapping vertex    4 (Z): Tensordot
+[debug]    Done. Current tensor dimension: 2
+[trace]    Current frontiers:
+[trace]      1--4 (-) axis id: 1
+[debug]    Mapping vertex    1 (●): Boundary
+[debug]    Done. Current tensor dimension: 2
+[trace]    Current frontiers:
+[trace]      1--4 (-) axis id: 1
+[trace]    Input  Axis IDs: 10 8 6 4 0 2
+[trace]    Output Axis IDs: 11 9 7 5 1 3
+[info]     Successfully created and checked out to Tensor 1
 
-qsyn> logger level warning
-
-qsyn> 
-qsyn> zxnew
-
-qsyn> zxgedit -addi 0
-
-qsyn> zxgedit -addo 0
-
-qsyn> zxgedit -addi 1
-
-qsyn> zxgedit -addo 1
-
-qsyn> zxgedit -addi 2
-
-qsyn> zxgedit -addo 2
-
-qsyn> zxgedit -addi 3
-
-qsyn> zxgedit -addo 3
-
-qsyn> zxgedit -addi 4
-
-qsyn> zxgedit -addo 4
+qsyn> logger warn
 
 qsyn> 
-qsyn> zxgedit -addv 0 Z 0
+qsyn> zx new
 
-qsyn> zxgedit -addv 0 Z 0
+qsyn> zx vertex add input 0
 
-qsyn> zxgedit -addv 0 Z 0
+qsyn> zx vertex add output 0
 
-qsyn> zxgedit -addv 0 Z 0
+qsyn> zx vertex add input 1
 
-qsyn> 
-qsyn> zxgedit -addi 5
+qsyn> zx vertex add output 1
 
-qsyn> zxgedit -addo 5
+qsyn> zx vertex add input 2
 
-qsyn> zxgedit -addi 6
+qsyn> zx vertex add output 2
 
-qsyn> zxgedit -addo 6
+qsyn> zx vertex add input 3
 
-qsyn> 
-qsyn> zxgedit -adde 0 1 SIMPLE
+qsyn> zx vertex add output 3
 
-qsyn> zxgedit -adde 2 10 SIMPLE
+qsyn> zx vertex add input 4
 
-qsyn> zxgedit -adde 3 11 SIMPLE
-
-qsyn> zxgedit -adde 4 12 SIMPLE
-
-qsyn> zxgedit -adde 5 12 SIMPLE
-
-qsyn> zxgedit -adde 6 12 SIMPLE
-
-qsyn> zxgedit -adde 7 13 SIMPLE
-
-qsyn> zxgedit -adde 8 13 SIMPLE
-
-qsyn> zxgedit -adde 9 13 SIMPLE
-
-qsyn> zxgedit -adde 14 16 SIMPLE
-
-qsyn> zxgedit -adde 15 17 SIMPLE
+qsyn> zx vertex add output 4
 
 qsyn> 
-qsyn> logger level trace
-[Debug] Setting logger level to trace
+qsyn> zx vertex add z 0 0
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx vertex add z 0 0
+
+qsyn> 
+qsyn> zx vertex add input 5
+
+qsyn> zx vertex add output 5
+
+qsyn> zx vertex add input 6
+
+qsyn> zx vertex add output 6
+
+qsyn> 
+qsyn> zx edge add 0 1 SIMPLE
+
+qsyn> zx edge add 2 10 SIMPLE
+
+qsyn> zx edge add 3 11 SIMPLE
+
+qsyn> zx edge add 4 12 SIMPLE
+
+qsyn> zx edge add 5 12 SIMPLE
+
+qsyn> zx edge add 6 12 SIMPLE
+
+qsyn> zx edge add 7 13 SIMPLE
+
+qsyn> zx edge add 8 13 SIMPLE
+
+qsyn> zx edge add 9 13 SIMPLE
+
+qsyn> zx edge add 14 16 SIMPLE
+
+qsyn> zx edge add 15 17 SIMPLE
+
+qsyn> 
+qsyn> logger trace
+[info]     Setting logger level to "trace"
 
 qsyn> zx2ts
-[Info] Converting ZXGraph 3 to Tensor 2...
-[Trace] Topological order from first input: 15 17 3 11 14 16 8 13 7 9 4 12 5 6 2 10 0 1
-[Trace] Size of topological order: 18
-[Debug] Mapping vertex   15 (●): New Subgraph
-[Debug] Done. Current tensor dimension: 2
-[Trace] Current frontiers:
-[Trace]   15--17 (-) axis id: 1
-[Debug] Mapping vertex   17 (●): Boundary
-[Debug] Done. Current tensor dimension: 2
-[Trace] Current frontiers:
-[Trace]   15--17 (-) axis id: 1
-[Debug] Mapping vertex    3 (●): New Subgraph
-[Debug] Done. Current tensor dimension: 2
-[Trace] Current frontiers:
-[Trace]   3--11 (-) axis id: 1
-[Debug] Mapping vertex   11 (Z): Tensordot
-[Debug] Done. Current tensor dimension: 1
-[Trace] Current frontiers:
-[Debug] Mapping vertex   14 (●): New Subgraph
-[Debug] Done. Current tensor dimension: 2
-[Trace] Current frontiers:
-[Trace]   14--16 (-) axis id: 1
-[Debug] Mapping vertex   16 (●): Boundary
-[Debug] Done. Current tensor dimension: 2
-[Trace] Current frontiers:
-[Trace]   14--16 (-) axis id: 1
-[Debug] Mapping vertex    8 (●): New Subgraph
-[Debug] Done. Current tensor dimension: 2
-[Trace] Current frontiers:
-[Trace]   8--13 (-) axis id: 1
-[Debug] Mapping vertex   13 (Z): Tensordot
-[Debug] Done. Current tensor dimension: 3
-[Trace] Current frontiers:
-[Trace]   7--13 (-) axis id: 1
-[Trace]   9--13 (-) axis id: 2
-[Debug] Mapping vertex    7 (●): Boundary
-[Debug] Done. Current tensor dimension: 3
-[Trace] Current frontiers:
-[Trace]   7--13 (-) axis id: 1
-[Trace]   9--13 (-) axis id: 2
-[Debug] Mapping vertex    9 (●): Boundary
-[Debug] Done. Current tensor dimension: 3
-[Trace] Current frontiers:
-[Trace]   7--13 (-) axis id: 1
-[Trace]   9--13 (-) axis id: 2
-[Debug] Mapping vertex    4 (●): New Subgraph
-[Debug] Done. Current tensor dimension: 2
-[Trace] Current frontiers:
-[Trace]   4--12 (-) axis id: 1
-[Debug] Mapping vertex   12 (Z): Tensordot
-[Debug] Done. Current tensor dimension: 3
-[Trace] Current frontiers:
-[Trace]   5--12 (-) axis id: 1
-[Trace]   6--12 (-) axis id: 2
-[Debug] Mapping vertex    5 (●): Boundary
-[Debug] Done. Current tensor dimension: 3
-[Trace] Current frontiers:
-[Trace]   5--12 (-) axis id: 1
-[Trace]   6--12 (-) axis id: 2
-[Debug] Mapping vertex    6 (●): Boundary
-[Debug] Done. Current tensor dimension: 3
-[Trace] Current frontiers:
-[Trace]   5--12 (-) axis id: 1
-[Trace]   6--12 (-) axis id: 2
-[Debug] Mapping vertex    2 (●): New Subgraph
-[Debug] Done. Current tensor dimension: 2
-[Trace] Current frontiers:
-[Trace]   2--10 (-) axis id: 1
-[Debug] Mapping vertex   10 (Z): Tensordot
-[Debug] Done. Current tensor dimension: 1
-[Trace] Current frontiers:
-[Debug] Mapping vertex    0 (●): New Subgraph
-[Debug] Done. Current tensor dimension: 2
-[Trace] Current frontiers:
-[Trace]   0--1 (-) axis id: 1
-[Debug] Mapping vertex    1 (●): Boundary
-[Debug] Done. Current tensor dimension: 2
-[Trace] Current frontiers:
-[Trace]   0--1 (-) axis id: 1
-[Trace] Input  Axis IDs: 12 11 8 10 5 3 4
-[Trace] Output Axis IDs: 13 2 9 6 7 0 1
-[Info] Successfully created and checked out to Tensor 2
+[info]     Converting ZXGraph 3 to Tensor 2...
+[trace]    Topological order from first input: 15 17 3 11 14 16 8 13 7 9 4 12 5 6 2 10 0 1
+[trace]    Size of topological order: 18
+[debug]    Mapping vertex   15 (●): New Subgraph
+[debug]    Done. Current tensor dimension: 2
+[trace]    Current frontiers:
+[trace]      15--17 (-) axis id: 1
+[debug]    Mapping vertex   17 (●): Boundary
+[debug]    Done. Current tensor dimension: 2
+[trace]    Current frontiers:
+[trace]      15--17 (-) axis id: 1
+[debug]    Mapping vertex    3 (●): New Subgraph
+[debug]    Done. Current tensor dimension: 2
+[trace]    Current frontiers:
+[trace]      3--11 (-) axis id: 1
+[debug]    Mapping vertex   11 (Z): Tensordot
+[debug]    Done. Current tensor dimension: 1
+[trace]    Current frontiers:
+[debug]    Mapping vertex   14 (●): New Subgraph
+[debug]    Done. Current tensor dimension: 2
+[trace]    Current frontiers:
+[trace]      14--16 (-) axis id: 1
+[debug]    Mapping vertex   16 (●): Boundary
+[debug]    Done. Current tensor dimension: 2
+[trace]    Current frontiers:
+[trace]      14--16 (-) axis id: 1
+[debug]    Mapping vertex    8 (●): New Subgraph
+[debug]    Done. Current tensor dimension: 2
+[trace]    Current frontiers:
+[trace]      8--13 (-) axis id: 1
+[debug]    Mapping vertex   13 (Z): Tensordot
+[debug]    Done. Current tensor dimension: 3
+[trace]    Current frontiers:
+[trace]      7--13 (-) axis id: 1
+[trace]      9--13 (-) axis id: 2
+[debug]    Mapping vertex    7 (●): Boundary
+[debug]    Done. Current tensor dimension: 3
+[trace]    Current frontiers:
+[trace]      7--13 (-) axis id: 1
+[trace]      9--13 (-) axis id: 2
+[debug]    Mapping vertex    9 (●): Boundary
+[debug]    Done. Current tensor dimension: 3
+[trace]    Current frontiers:
+[trace]      7--13 (-) axis id: 1
+[trace]      9--13 (-) axis id: 2
+[debug]    Mapping vertex    4 (●): New Subgraph
+[debug]    Done. Current tensor dimension: 2
+[trace]    Current frontiers:
+[trace]      4--12 (-) axis id: 1
+[debug]    Mapping vertex   12 (Z): Tensordot
+[debug]    Done. Current tensor dimension: 3
+[trace]    Current frontiers:
+[trace]      5--12 (-) axis id: 1
+[trace]      6--12 (-) axis id: 2
+[debug]    Mapping vertex    5 (●): Boundary
+[debug]    Done. Current tensor dimension: 3
+[trace]    Current frontiers:
+[trace]      5--12 (-) axis id: 1
+[trace]      6--12 (-) axis id: 2
+[debug]    Mapping vertex    6 (●): Boundary
+[debug]    Done. Current tensor dimension: 3
+[trace]    Current frontiers:
+[trace]      5--12 (-) axis id: 1
+[trace]      6--12 (-) axis id: 2
+[debug]    Mapping vertex    2 (●): New Subgraph
+[debug]    Done. Current tensor dimension: 2
+[trace]    Current frontiers:
+[trace]      2--10 (-) axis id: 1
+[debug]    Mapping vertex   10 (Z): Tensordot
+[debug]    Done. Current tensor dimension: 1
+[trace]    Current frontiers:
+[debug]    Mapping vertex    0 (●): New Subgraph
+[debug]    Done. Current tensor dimension: 2
+[trace]    Current frontiers:
+[trace]      0--1 (-) axis id: 1
+[debug]    Mapping vertex    1 (●): Boundary
+[debug]    Done. Current tensor dimension: 2
+[trace]    Current frontiers:
+[trace]      0--1 (-) axis id: 1
+[trace]    Input  Axis IDs: 12 11 8 10 5 3 4
+[trace]    Output Axis IDs: 13 2 9 6 7 0 1
+[info]     Successfully created and checked out to Tensor 2
 
-qsyn> logger level warning
+qsyn> logger warn
 
 qsyn> 
-qsyn> qq -f
+qsyn> quit -f
 

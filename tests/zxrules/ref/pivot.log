@@ -1,0 +1,1096 @@
+qsyn> zx new
+
+qsyn> zx vertex add i 0
+
+qsyn> zx vertex add o 0
+
+qsyn> zx vertex add i 1
+
+qsyn> zx vertex add o 1
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx vertex add z 0 3.14159
+
+qsyn> zx vertex add z 0 3.14159
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx edge add 4 6 HADAMARD
+
+qsyn> zx edge add 5 6 HADAMARD
+
+qsyn> zx edge add 6 7 HADAMARD
+
+qsyn> zx edge add 7 8 HADAMARD
+
+qsyn> zx edge add 7 9 HADAMARD
+
+qsyn> zx edge add 6 10 HADAMARD
+
+qsyn> zx edge add 7 10 HADAMARD
+
+qsyn> zx edge add 5 10 SIMPLE
+
+qsyn> zx edge add 9 10 SIMPLE
+
+qsyn> zx edge add 0 4 SIMPLE
+
+qsyn> zx edge add 2 5 SIMPLE
+
+qsyn> zx edge add 1 8 SIMPLE
+
+qsyn> zx edge add 3 9 SIMPLE
+
+qsyn> logger debug
+[info]     Setting logger level to "debug"
+
+qsyn> zx rule --pivot
+[info]     Pivot Rule                    2 iterations, total    2 matches
+[debug]       1) 1 matches
+[debug]       2) 1 matches
+
+qsyn> logger warn
+
+qsyn> zx print -v
+
+ID:    0 (●, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (11, H)
+ID:    1 (●, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (12, H)
+ID:    2 (●, 0)       (Qubit, Col): (1, 0)         #Neighbors:   1    (5, -)
+ID:    3 (●, 0)       (Qubit, Col): (1, 0)         #Neighbors:   1    (9, -)
+ID:    5 (Z, 0)       (Qubit, Col): (0, 0)         #Neighbors:   3    (2, -) (10, -) (11, H)
+ID:    9 (Z, 0)       (Qubit, Col): (0, 0)         #Neighbors:   3    (3, -) (10, -) (12, H)
+ID:   10 (Z, 0)       (Qubit, Col): (0, 0)         #Neighbors:   4    (5, -) (9, -) (11, H) (12, H)
+ID:   11 (Z, π)       (Qubit, Col): (0, 0)         #Neighbors:   4    (0, H) (5, H) (10, H) (12, H)
+ID:   12 (Z, π)       (Qubit, Col): (0, 0)         #Neighbors:   4    (1, H) (9, H) (10, H) (11, H)
+Total #Vertices: 9
+
+
+qsyn> zx print -e
+(0, 11)      Type: H
+(1, 12)      Type: H
+(2, 5)       Type: -
+(3, 9)       Type: -
+(5, 10)      Type: -
+(5, 11)      Type: H
+(9, 10)      Type: -
+(9, 12)      Type: H
+(10, 11)     Type: H
+(10, 12)     Type: H
+(11, 12)     Type: H
+Total #Edges: 11
+
+qsyn> zx delete --all
+
+qsyn> zx new
+
+qsyn> zx vertex add i 0
+
+qsyn> zx vertex add o 0
+
+qsyn> zx vertex add i 1
+
+qsyn> zx vertex add o 1
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx vertex add z 0 3.14159
+
+qsyn> zx vertex add z 0 3.14159
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx edge add 4 6 HADAMARD
+
+qsyn> zx edge add 5 6 HADAMARD
+
+qsyn> zx edge add 6 7 HADAMARD
+
+qsyn> zx edge add 7 8 HADAMARD
+
+qsyn> zx edge add 7 9 HADAMARD
+
+qsyn> zx edge add 0 4 SIMPLE
+
+qsyn> zx edge add 2 5 SIMPLE
+
+qsyn> zx edge add 1 8 SIMPLE
+
+qsyn> zx edge add 3 9 SIMPLE
+
+qsyn> logger debug
+[info]     Setting logger level to "debug"
+
+qsyn> zx rule --pivot
+[info]     Pivot Rule                    2 iterations, total    2 matches
+[debug]       1) 1 matches
+[debug]       2) 1 matches
+
+qsyn> logger warn
+
+qsyn> zx print -v
+
+ID:    0 (●, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (10, H)
+ID:    1 (●, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (11, H)
+ID:    2 (●, 0)       (Qubit, Col): (1, 0)         #Neighbors:   1    (5, -)
+ID:    3 (●, 0)       (Qubit, Col): (1, 0)         #Neighbors:   1    (9, -)
+ID:    5 (Z, 0)       (Qubit, Col): (0, 0)         #Neighbors:   2    (2, -) (10, H)
+ID:    9 (Z, 0)       (Qubit, Col): (0, 0)         #Neighbors:   2    (3, -) (11, H)
+ID:   10 (Z, π)       (Qubit, Col): (0, 0)         #Neighbors:   3    (0, H) (5, H) (11, H)
+ID:   11 (Z, π)       (Qubit, Col): (0, 0)         #Neighbors:   3    (1, H) (9, H) (10, H)
+Total #Vertices: 8
+
+
+qsyn> zx print -e
+(0, 10)      Type: H
+(1, 11)      Type: H
+(2, 5)       Type: -
+(3, 9)       Type: -
+(5, 10)      Type: H
+(9, 11)      Type: H
+(10, 11)     Type: H
+Total #Edges: 7
+
+qsyn> zx delete --all
+
+qsyn> // might match (4, 5)
+qsyn> zx new
+
+qsyn> zx vertex add i 0
+
+qsyn> zx vertex add o 0
+
+qsyn> zx vertex add i 1
+
+qsyn> zx vertex add o 1
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx vertex add z 0 3.14159
+
+qsyn> zx edge add 4 5 HADAMARD
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx edge add 4 6 HADAMARD
+
+qsyn> zx vertex add z 0 3.14159
+
+qsyn> zx vertex add z 0 3.14159
+
+qsyn> zx vertex add z 0 3.14159
+
+qsyn> zx edge add 5 7 HADAMARD
+
+qsyn> zx edge add 5 8 HADAMARD
+
+qsyn> zx edge add 5 9 HADAMARD
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx edge add 5 10 HADAMARD
+
+qsyn> zx edge add 5 11 HADAMARD
+
+qsyn> zx vertex add z 0 3.14159
+
+qsyn> zx vertex add z 0 3.14159
+
+qsyn> zx vertex add z 0 3.14159
+
+qsyn> zx vertex add z 0 3.14159
+
+qsyn> zx edge add 4 12 HADAMARD
+
+qsyn> zx edge add 4 13 HADAMARD
+
+qsyn> zx edge add 4 14 HADAMARD
+
+qsyn> zx edge add 4 15 HADAMARD
+
+qsyn> zx edge add 5 12 HADAMARD
+
+qsyn> zx edge add 5 13 HADAMARD
+
+qsyn> zx edge add 5 14 HADAMARD
+
+qsyn> zx edge add 5 15 HADAMARD
+
+qsyn> zx edge add 0 10 SIMPLE
+
+qsyn> zx edge add 2 7 SIMPLE
+
+qsyn> zx edge add 1 11 SIMPLE
+
+qsyn> zx edge add 3 11 SIMPLE
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx edge add 6 16 SIMPLE
+
+qsyn> zx vertex add x 0 0
+
+qsyn> zx edge add 7 17 SIMPLE
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx edge add 8 18 SIMPLE
+
+qsyn> zx vertex add x 0 0
+
+qsyn> zx edge add 9 19 SIMPLE
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx edge add 10 20 SIMPLE
+
+qsyn> zx vertex add x 0 0
+
+qsyn> zx edge add 11 21 SIMPLE
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx edge add 12 22 SIMPLE
+
+qsyn> zx vertex add x 0 0
+
+qsyn> zx edge add 13 23 SIMPLE
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx edge add 14 24 SIMPLE
+
+qsyn> zx vertex add x 0 0
+
+qsyn> zx edge add 15 25 SIMPLE
+
+qsyn> logger debug
+[info]     Setting logger level to "debug"
+
+qsyn> zx rule --pivot
+[info]     Pivot Rule                    1 iterations, total    1 matches
+[debug]       1) 1 matches
+
+qsyn> logger warn
+
+qsyn> zx print -v
+
+ID:    0 (●, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (10, -)
+ID:    1 (●, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (11, -)
+ID:    2 (●, 0)       (Qubit, Col): (1, 0)         #Neighbors:   1    (7, -)
+ID:    3 (●, 0)       (Qubit, Col): (1, 0)         #Neighbors:   1    (11, -)
+ID:    6 (Z, π)       (Qubit, Col): (0, 0)         #Neighbors:  10    (7, H) (8, H) (9, H) (10, H) (11, H) (12, H) (13, H) (14, H) (15, H) (16, -)
+ID:    7 (Z, π)       (Qubit, Col): (0, 0)         #Neighbors:   7    (2, -) (6, H) (12, H) (13, H) (14, H) (15, H) (17, -)
+ID:    8 (Z, π)       (Qubit, Col): (0, 0)         #Neighbors:   6    (6, H) (12, H) (13, H) (14, H) (15, H) (18, -)
+ID:    9 (Z, π)       (Qubit, Col): (0, 0)         #Neighbors:   6    (6, H) (12, H) (13, H) (14, H) (15, H) (19, -)
+ID:   10 (Z, 0)       (Qubit, Col): (0, 0)         #Neighbors:   7    (0, -) (6, H) (12, H) (13, H) (14, H) (15, H) (20, -)
+ID:   11 (Z, 0)       (Qubit, Col): (0, 0)         #Neighbors:   8    (1, -) (3, -) (6, H) (12, H) (13, H) (14, H) (15, H) (21, -)
+ID:   12 (Z, π)       (Qubit, Col): (0, 0)         #Neighbors:   7    (6, H) (7, H) (8, H) (9, H) (10, H) (11, H) (22, -)
+ID:   13 (Z, π)       (Qubit, Col): (0, 0)         #Neighbors:   7    (6, H) (7, H) (8, H) (9, H) (10, H) (11, H) (23, -)
+ID:   14 (Z, π)       (Qubit, Col): (0, 0)         #Neighbors:   7    (6, H) (7, H) (8, H) (9, H) (10, H) (11, H) (24, -)
+ID:   15 (Z, π)       (Qubit, Col): (0, 0)         #Neighbors:   7    (6, H) (7, H) (8, H) (9, H) (10, H) (11, H) (25, -)
+ID:   16 (Z, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (6, -)
+ID:   17 (X, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (7, -)
+ID:   18 (Z, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (8, -)
+ID:   19 (X, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (9, -)
+ID:   20 (Z, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (10, -)
+ID:   21 (X, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (11, -)
+ID:   22 (Z, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (12, -)
+ID:   23 (X, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (13, -)
+ID:   24 (Z, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (14, -)
+ID:   25 (X, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (15, -)
+Total #Vertices: 24
+
+
+qsyn> zx print -e
+(0, 10)      Type: -
+(1, 11)      Type: -
+(2, 7)       Type: -
+(3, 11)      Type: -
+(6, 16)      Type: -
+(6, 7)       Type: H
+(6, 8)       Type: H
+(6, 9)       Type: H
+(6, 10)      Type: H
+(6, 11)      Type: H
+(6, 12)      Type: H
+(6, 13)      Type: H
+(6, 14)      Type: H
+(6, 15)      Type: H
+(7, 17)      Type: -
+(7, 12)      Type: H
+(7, 13)      Type: H
+(7, 14)      Type: H
+(7, 15)      Type: H
+(8, 18)      Type: -
+(8, 12)      Type: H
+(8, 13)      Type: H
+(8, 14)      Type: H
+(8, 15)      Type: H
+(9, 19)      Type: -
+(9, 12)      Type: H
+(9, 13)      Type: H
+(9, 14)      Type: H
+(9, 15)      Type: H
+(10, 20)     Type: -
+(10, 12)     Type: H
+(10, 13)     Type: H
+(10, 14)     Type: H
+(10, 15)     Type: H
+(11, 21)     Type: -
+(11, 12)     Type: H
+(11, 13)     Type: H
+(11, 14)     Type: H
+(11, 15)     Type: H
+(12, 22)     Type: -
+(13, 23)     Type: -
+(14, 24)     Type: -
+(15, 25)     Type: -
+Total #Edges: 43
+
+qsyn> zx delete --all
+
+qsyn> // Might match  (4, 5) (16, 17)
+qsyn> zx new
+
+qsyn> zx vertex add i 0
+
+qsyn> zx vertex add o 0
+
+qsyn> zx vertex add i 1
+
+qsyn> zx vertex add o 1
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx vertex add z 0 3.14159
+
+qsyn> zx edge add 4 5 HADAMARD
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx edge add 4 6 HADAMARD
+
+qsyn> zx vertex add z 0 3.14159
+
+qsyn> zx vertex add z 0 3.14159
+
+qsyn> zx vertex add z 0 3.14159
+
+qsyn> zx edge add 5 7 HADAMARD
+
+qsyn> zx edge add 5 8 HADAMARD
+
+qsyn> zx edge add 5 9 HADAMARD
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx edge add 5 10 HADAMARD
+
+qsyn> zx edge add 5 11 HADAMARD
+
+qsyn> zx vertex add z 0 3.14159
+
+qsyn> zx vertex add z 0 3.14159
+
+qsyn> zx vertex add z 0 3.14159
+
+qsyn> zx vertex add z 0 3.14159
+
+qsyn> zx edge add 4 12 HADAMARD
+
+qsyn> zx edge add 4 13 HADAMARD
+
+qsyn> zx edge add 4 14 HADAMARD
+
+qsyn> zx edge add 4 15 HADAMARD
+
+qsyn> zx edge add 5 12 HADAMARD
+
+qsyn> zx edge add 5 13 HADAMARD
+
+qsyn> zx edge add 5 14 HADAMARD
+
+qsyn> zx edge add 5 15 HADAMARD
+
+qsyn> zx vertex add z 0 3.14159
+
+qsyn> zx vertex add z 0 3.14159
+
+qsyn> zx edge add 16 17 HADAMARD
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx edge add 16 18 HADAMARD
+
+qsyn> zx vertex add z 0 0.1
+
+qsyn> zx vertex add z 0 0.1
+
+qsyn> zx vertex add z 0 0.1
+
+qsyn> zx edge add 17 19 HADAMARD
+
+qsyn> zx edge add 17 20 HADAMARD
+
+qsyn> zx edge add 17 21 HADAMARD
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx edge add 17 22 HADAMARD
+
+qsyn> zx edge add 17 23 HADAMARD
+
+qsyn> zx vertex add z 0 1.2
+
+qsyn> zx vertex add z 0 1.2
+
+qsyn> zx vertex add z 0 1.2
+
+qsyn> zx vertex add z 0 1.2
+
+qsyn> zx edge add 4 24 HADAMARD
+
+qsyn> zx edge add 4 25 HADAMARD
+
+qsyn> zx edge add 4 26 HADAMARD
+
+qsyn> zx edge add 4 27 HADAMARD
+
+qsyn> zx edge add 5 24 HADAMARD
+
+qsyn> zx edge add 5 25 HADAMARD
+
+qsyn> zx edge add 5 26 HADAMARD
+
+qsyn> zx edge add 5 27 HADAMARD
+
+qsyn> zx edge add 16 24 HADAMARD
+
+qsyn> zx edge add 16 25 HADAMARD
+
+qsyn> zx edge add 16 26 HADAMARD
+
+qsyn> zx edge add 16 27 HADAMARD
+
+qsyn> zx edge add 17 24 HADAMARD
+
+qsyn> zx edge add 17 25 HADAMARD
+
+qsyn> zx edge add 17 26 HADAMARD
+
+qsyn> zx edge add 17 27 HADAMARD
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx edge add 6 28 SIMPLE
+
+qsyn> zx vertex add x 0 0
+
+qsyn> zx edge add 7 29 SIMPLE
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx edge add 8 30 SIMPLE
+
+qsyn> zx vertex add x 0 0
+
+qsyn> zx edge add 9 31 SIMPLE
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx edge add 10 32 SIMPLE
+
+qsyn> zx vertex add x 0 0
+
+qsyn> zx edge add 11 33 SIMPLE
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx edge add 12 34 SIMPLE
+
+qsyn> zx vertex add x 0 0
+
+qsyn> zx edge add 13 35 SIMPLE
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx edge add 14 36 SIMPLE
+
+qsyn> zx vertex add x 0 0
+
+qsyn> zx edge add 15 37 SIMPLE
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx edge add 18 38 SIMPLE
+
+qsyn> zx vertex add x 0 0
+
+qsyn> zx edge add 19 39 SIMPLE
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx edge add 20 40 SIMPLE
+
+qsyn> zx vertex add x 0 0
+
+qsyn> zx edge add 21 41 SIMPLE
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx edge add 22 42 SIMPLE
+
+qsyn> zx vertex add x 0 0
+
+qsyn> zx edge add 23 43 SIMPLE
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx edge add 24 44 SIMPLE
+
+qsyn> zx vertex add x 0 0
+
+qsyn> zx edge add 25 45 SIMPLE
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx edge add 26 46 SIMPLE
+
+qsyn> zx vertex add x 0 0
+
+qsyn> zx edge add 27 47 SIMPLE
+
+qsyn> zx edge add 10 18 SIMPLE
+
+qsyn> zx edge add 11 18 SIMPLE
+
+qsyn> zx edge add 12 24 SIMPLE
+
+qsyn> zx edge add 12 25 SIMPLE
+
+qsyn> zx edge add 12 26 SIMPLE
+
+qsyn> zx edge add 12 27 SIMPLE
+
+qsyn> zx edge add 13 24 SIMPLE
+
+qsyn> zx edge add 13 25 SIMPLE
+
+qsyn> zx edge add 13 26 SIMPLE
+
+qsyn> zx edge add 13 27 SIMPLE
+
+qsyn> zx edge add 14 24 SIMPLE
+
+qsyn> zx edge add 14 25 SIMPLE
+
+qsyn> zx edge add 14 26 SIMPLE
+
+qsyn> zx edge add 14 27 SIMPLE
+
+qsyn> zx edge add 15 24 SIMPLE
+
+qsyn> zx edge add 15 25 SIMPLE
+
+qsyn> zx edge add 15 26 SIMPLE
+
+qsyn> zx edge add 15 27 SIMPLE
+
+qsyn> zx edge add 0 10 SIMPLE
+
+qsyn> zx edge add 2 22 SIMPLE
+
+qsyn> zx edge add 1 43 SIMPLE
+
+qsyn> zx edge add 3 45 SIMPLE
+
+qsyn> logger debug
+[info]     Setting logger level to "debug"
+
+qsyn> zx rule --pivot
+[info]     Pivot Rule                    1 iterations, total    2 matches
+[debug]       1) 2 matches
+
+qsyn> logger warn
+
+qsyn> zx print -v
+
+ID:    0 (●, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (10, -)
+ID:    1 (●, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (43, -)
+ID:    2 (●, 0)       (Qubit, Col): (1, 0)         #Neighbors:   1    (22, -)
+ID:    3 (●, 0)       (Qubit, Col): (1, 0)         #Neighbors:   1    (45, -)
+ID:    6 (Z, π)       (Qubit, Col): (0, 0)         #Neighbors:  14    (7, H) (8, H) (9, H) (10, H) (11, H) (12, H) (13, H) (14, H) (15, H) (24, H) (25, H) (26, H) (27, H) (28, -)
+ID:    7 (Z, π)       (Qubit, Col): (0, 0)         #Neighbors:  10    (6, H) (12, H) (13, H) (14, H) (15, H) (24, H) (25, H) (26, H) (27, H) (29, -)
+ID:    8 (Z, π)       (Qubit, Col): (0, 0)         #Neighbors:  10    (6, H) (12, H) (13, H) (14, H) (15, H) (24, H) (25, H) (26, H) (27, H) (30, -)
+ID:    9 (Z, π)       (Qubit, Col): (0, 0)         #Neighbors:  10    (6, H) (12, H) (13, H) (14, H) (15, H) (24, H) (25, H) (26, H) (27, H) (31, -)
+ID:   10 (Z, 0)       (Qubit, Col): (0, 0)         #Neighbors:  12    (0, -) (6, H) (12, H) (13, H) (14, H) (15, H) (18, -) (24, H) (25, H) (26, H) (27, H) (32, -)
+ID:   11 (Z, 0)       (Qubit, Col): (0, 0)         #Neighbors:  11    (6, H) (12, H) (13, H) (14, H) (15, H) (18, -) (24, H) (25, H) (26, H) (27, H) (33, -)
+ID:   12 (Z, π)       (Qubit, Col): (0, 0)         #Neighbors:  11    (6, H) (7, H) (8, H) (9, H) (10, H) (11, H) (24, -) (25, -) (26, -) (27, -) (34, -)
+ID:   13 (Z, π)       (Qubit, Col): (0, 0)         #Neighbors:  11    (6, H) (7, H) (8, H) (9, H) (10, H) (11, H) (24, -) (25, -) (26, -) (27, -) (35, -)
+ID:   14 (Z, π)       (Qubit, Col): (0, 0)         #Neighbors:  11    (6, H) (7, H) (8, H) (9, H) (10, H) (11, H) (24, -) (25, -) (26, -) (27, -) (36, -)
+ID:   15 (Z, π)       (Qubit, Col): (0, 0)         #Neighbors:  11    (6, H) (7, H) (8, H) (9, H) (10, H) (11, H) (24, -) (25, -) (26, -) (27, -) (37, -)
+ID:   18 (Z, π)       (Qubit, Col): (0, 0)         #Neighbors:  12    (10, -) (11, -) (19, H) (20, H) (21, H) (22, H) (23, H) (24, H) (25, H) (26, H) (27, H) (38, -)
+ID:   19 (Z, -152π/157) (Qubit, Col): (0, 0)         #Neighbors:   6    (18, H) (24, H) (25, H) (26, H) (27, H) (39, -)
+ID:   20 (Z, -152π/157) (Qubit, Col): (0, 0)         #Neighbors:   6    (18, H) (24, H) (25, H) (26, H) (27, H) (40, -)
+ID:   21 (Z, -152π/157) (Qubit, Col): (0, 0)         #Neighbors:   6    (18, H) (24, H) (25, H) (26, H) (27, H) (41, -)
+ID:   22 (Z, π)       (Qubit, Col): (0, 0)         #Neighbors:   7    (2, -) (18, H) (24, H) (25, H) (26, H) (27, H) (42, -)
+ID:   23 (Z, π)       (Qubit, Col): (0, 0)         #Neighbors:   6    (18, H) (24, H) (25, H) (26, H) (27, H) (43, -)
+ID:   24 (Z, -89π/144) (Qubit, Col): (0, 0)         #Neighbors:  17    (6, H) (7, H) (8, H) (9, H) (10, H) (11, H) (12, -) (13, -) (14, -) (15, -) (18, H) (19, H) (20, H) (21, H) (22, H) (23, H) (44, -)
+ID:   25 (Z, -89π/144) (Qubit, Col): (0, 0)         #Neighbors:  17    (6, H) (7, H) (8, H) (9, H) (10, H) (11, H) (12, -) (13, -) (14, -) (15, -) (18, H) (19, H) (20, H) (21, H) (22, H) (23, H) (45, -)
+ID:   26 (Z, -89π/144) (Qubit, Col): (0, 0)         #Neighbors:  17    (6, H) (7, H) (8, H) (9, H) (10, H) (11, H) (12, -) (13, -) (14, -) (15, -) (18, H) (19, H) (20, H) (21, H) (22, H) (23, H) (46, -)
+ID:   27 (Z, -89π/144) (Qubit, Col): (0, 0)         #Neighbors:  17    (6, H) (7, H) (8, H) (9, H) (10, H) (11, H) (12, -) (13, -) (14, -) (15, -) (18, H) (19, H) (20, H) (21, H) (22, H) (23, H) (47, -)
+ID:   28 (Z, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (6, -)
+ID:   29 (X, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (7, -)
+ID:   30 (Z, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (8, -)
+ID:   31 (X, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (9, -)
+ID:   32 (Z, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (10, -)
+ID:   33 (X, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (11, -)
+ID:   34 (Z, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (12, -)
+ID:   35 (X, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (13, -)
+ID:   36 (Z, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (14, -)
+ID:   37 (X, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (15, -)
+ID:   38 (Z, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (18, -)
+ID:   39 (X, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (19, -)
+ID:   40 (Z, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (20, -)
+ID:   41 (X, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (21, -)
+ID:   42 (Z, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (22, -)
+ID:   43 (X, 0)       (Qubit, Col): (0, 0)         #Neighbors:   2    (1, -) (23, -)
+ID:   44 (Z, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (24, -)
+ID:   45 (X, 0)       (Qubit, Col): (0, 0)         #Neighbors:   2    (3, -) (25, -)
+ID:   46 (Z, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (26, -)
+ID:   47 (X, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (27, -)
+Total #Vertices: 44
+
+
+qsyn> zx print -e
+(0, 10)      Type: -
+(1, 43)      Type: -
+(2, 22)      Type: -
+(3, 45)      Type: -
+(6, 28)      Type: -
+(6, 7)       Type: H
+(6, 8)       Type: H
+(6, 9)       Type: H
+(6, 10)      Type: H
+(6, 11)      Type: H
+(6, 12)      Type: H
+(6, 13)      Type: H
+(6, 14)      Type: H
+(6, 15)      Type: H
+(6, 24)      Type: H
+(6, 25)      Type: H
+(6, 26)      Type: H
+(6, 27)      Type: H
+(7, 29)      Type: -
+(7, 12)      Type: H
+(7, 13)      Type: H
+(7, 14)      Type: H
+(7, 15)      Type: H
+(7, 24)      Type: H
+(7, 25)      Type: H
+(7, 26)      Type: H
+(7, 27)      Type: H
+(8, 30)      Type: -
+(8, 12)      Type: H
+(8, 13)      Type: H
+(8, 14)      Type: H
+(8, 15)      Type: H
+(8, 24)      Type: H
+(8, 25)      Type: H
+(8, 26)      Type: H
+(8, 27)      Type: H
+(9, 31)      Type: -
+(9, 12)      Type: H
+(9, 13)      Type: H
+(9, 14)      Type: H
+(9, 15)      Type: H
+(9, 24)      Type: H
+(9, 25)      Type: H
+(9, 26)      Type: H
+(9, 27)      Type: H
+(10, 32)     Type: -
+(10, 18)     Type: -
+(10, 12)     Type: H
+(10, 13)     Type: H
+(10, 14)     Type: H
+(10, 15)     Type: H
+(10, 24)     Type: H
+(10, 25)     Type: H
+(10, 26)     Type: H
+(10, 27)     Type: H
+(11, 33)     Type: -
+(11, 18)     Type: -
+(11, 12)     Type: H
+(11, 13)     Type: H
+(11, 14)     Type: H
+(11, 15)     Type: H
+(11, 24)     Type: H
+(11, 25)     Type: H
+(11, 26)     Type: H
+(11, 27)     Type: H
+(12, 34)     Type: -
+(12, 24)     Type: -
+(12, 25)     Type: -
+(12, 26)     Type: -
+(12, 27)     Type: -
+(13, 35)     Type: -
+(13, 24)     Type: -
+(13, 25)     Type: -
+(13, 26)     Type: -
+(13, 27)     Type: -
+(14, 36)     Type: -
+(14, 24)     Type: -
+(14, 25)     Type: -
+(14, 26)     Type: -
+(14, 27)     Type: -
+(15, 37)     Type: -
+(15, 24)     Type: -
+(15, 25)     Type: -
+(15, 26)     Type: -
+(15, 27)     Type: -
+(18, 38)     Type: -
+(18, 19)     Type: H
+(18, 20)     Type: H
+(18, 21)     Type: H
+(18, 22)     Type: H
+(18, 23)     Type: H
+(18, 24)     Type: H
+(18, 25)     Type: H
+(18, 26)     Type: H
+(18, 27)     Type: H
+(19, 39)     Type: -
+(19, 24)     Type: H
+(19, 25)     Type: H
+(19, 26)     Type: H
+(19, 27)     Type: H
+(20, 40)     Type: -
+(20, 24)     Type: H
+(20, 25)     Type: H
+(20, 26)     Type: H
+(20, 27)     Type: H
+(21, 41)     Type: -
+(21, 24)     Type: H
+(21, 25)     Type: H
+(21, 26)     Type: H
+(21, 27)     Type: H
+(22, 42)     Type: -
+(22, 24)     Type: H
+(22, 25)     Type: H
+(22, 26)     Type: H
+(22, 27)     Type: H
+(23, 43)     Type: -
+(23, 24)     Type: H
+(23, 25)     Type: H
+(23, 26)     Type: H
+(23, 27)     Type: H
+(24, 44)     Type: -
+(25, 45)     Type: -
+(26, 46)     Type: -
+(27, 47)     Type: -
+Total #Edges: 124
+
+qsyn> zx delete --all
+
+qsyn> logger warn
+
+qsyn> zx new
+
+qsyn> zx vertex add i 0
+
+qsyn> zx vertex add o 0
+
+qsyn> zx vertex add i 1
+
+qsyn> zx vertex add o 1
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx vertex add z 0 3.14159
+
+qsyn> zx edge add 4 5 HADAMARD
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx edge add 4 6 HADAMARD
+
+qsyn> zx vertex add z 0 3.14159
+
+qsyn> zx vertex add z 0 3.14159
+
+qsyn> zx vertex add z 0 3.14159
+
+qsyn> zx edge add 5 7 HADAMARD
+
+qsyn> zx edge add 5 8 HADAMARD
+
+qsyn> zx edge add 5 9 HADAMARD
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx edge add 5 10 HADAMARD
+
+qsyn> zx edge add 5 11 HADAMARD
+
+qsyn> zx vertex add z 0 3.14159
+
+qsyn> zx vertex add z 0 3.14159
+
+qsyn> zx vertex add z 0 3.14159
+
+qsyn> zx vertex add z 0 3.14159
+
+qsyn> zx edge add 4 12 HADAMARD
+
+qsyn> zx edge add 4 13 HADAMARD
+
+qsyn> zx edge add 4 14 HADAMARD
+
+qsyn> zx edge add 4 15 HADAMARD
+
+qsyn> zx edge add 5 12 HADAMARD
+
+qsyn> zx edge add 5 13 HADAMARD
+
+qsyn> zx edge add 5 14 HADAMARD
+
+qsyn> zx edge add 5 15 HADAMARD
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx vertex add z 0 3.14159
+
+qsyn> zx edge add 16 17 HADAMARD
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx edge add 16 18 HADAMARD
+
+qsyn> zx vertex add z 0 3.14159
+
+qsyn> zx vertex add z 0 3.14159
+
+qsyn> zx vertex add z 0 3.14159
+
+qsyn> zx edge add 17 19 HADAMARD
+
+qsyn> zx edge add 17 20 HADAMARD
+
+qsyn> zx edge add 17 21 HADAMARD
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx edge add 17 22 HADAMARD
+
+qsyn> zx edge add 17 23 HADAMARD
+
+qsyn> zx vertex add z 0 3.14159
+
+qsyn> zx vertex add z 0 3.14159
+
+qsyn> zx vertex add z 0 3.14159
+
+qsyn> zx vertex add z 0 3.14159
+
+qsyn> zx edge add 4 24 HADAMARD
+
+qsyn> zx edge add 4 25 HADAMARD
+
+qsyn> zx edge add 4 26 HADAMARD
+
+qsyn> zx edge add 4 27 HADAMARD
+
+qsyn> zx edge add 5 24 HADAMARD
+
+qsyn> zx edge add 5 25 HADAMARD
+
+qsyn> zx edge add 5 26 HADAMARD
+
+qsyn> zx edge add 5 27 HADAMARD
+
+qsyn> zx edge add 16 24 HADAMARD
+
+qsyn> zx edge add 16 25 HADAMARD
+
+qsyn> zx edge add 16 26 HADAMARD
+
+qsyn> zx edge add 16 27 HADAMARD
+
+qsyn> zx edge add 17 24 HADAMARD
+
+qsyn> zx edge add 17 25 HADAMARD
+
+qsyn> zx edge add 17 26 HADAMARD
+
+qsyn> zx edge add 17 27 HADAMARD
+
+qsyn> zx edge add 0 5 SIMPLE
+
+qsyn> zx edge add 2 7 SIMPLE
+
+qsyn> zx edge add 1 23 SIMPLE
+
+qsyn> zx edge add 3 23 SIMPLE
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx edge add 6 28 HADAMARD
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx edge add 7 29 HADAMARD
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx edge add 8 30 HADAMARD
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx edge add 9 31 HADAMARD
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx edge add 10 32 HADAMARD
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx edge add 11 33 HADAMARD
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx edge add 12 34 HADAMARD
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx edge add 13 35 HADAMARD
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx edge add 14 36 HADAMARD
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx edge add 15 37 HADAMARD
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx edge add 18 38 HADAMARD
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx edge add 19 39 HADAMARD
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx edge add 20 40 HADAMARD
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx edge add 21 41 HADAMARD
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx edge add 22 42 HADAMARD
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx edge add 23 43 HADAMARD
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx edge add 24 44 HADAMARD
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx edge add 25 45 HADAMARD
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx edge add 26 46 HADAMARD
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx edge add 27 47 HADAMARD
+
+qsyn> logger debug
+[info]     Setting logger level to "debug"
+
+qsyn> zx rule --pivot
+[info]     Pivot Rule                    4 iterations, total   21 matches
+[debug]       1) 2 matches
+[debug]       2) 2 matches
+[debug]       3) 9 matches
+[debug]       4) 8 matches
+
+qsyn> logger warn
+
+qsyn> zx print -v
+
+ID:    0 (●, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (48, H)
+ID:    1 (●, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (23, -)
+ID:    2 (●, 0)       (Qubit, Col): (1, 0)         #Neighbors:   1    (49, H)
+ID:    3 (●, 0)       (Qubit, Col): (1, 0)         #Neighbors:   1    (23, -)
+ID:   23 (Z, 0)       (Qubit, Col): (0, 0)         #Neighbors:   3    (1, -) (3, -) (43, H)
+ID:   43 (Z, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (23, H)
+ID:   48 (Z, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (0, H)
+ID:   49 (Z, 0)       (Qubit, Col): (1, 0)         #Neighbors:   1    (2, H)
+Total #Vertices: 8
+
+
+qsyn> zx2ts
+
+qsyn> zx new
+
+qsyn> zx vertex add i 0
+
+qsyn> zx vertex add x 0 0
+
+qsyn> zx vertex add x 0 0
+
+qsyn> zx vertex add o 0
+
+qsyn> zx vertex add i 1
+
+qsyn> zx vertex add x 1 0
+
+qsyn> zx vertex add x 1 0
+
+qsyn> zx vertex add o 1
+
+qsyn> zx edge add 0 1 SIMPLE
+
+qsyn> zx edge add 2 3 SIMPLE
+
+qsyn> zx edge add 4 5 SIMPLE
+
+qsyn> zx edge add 6 7 SIMPLE
+
+qsyn> zx2ts
+
+qsyn> tensor equiv 0 1
+Equivalent
+- Global Norm : 1
+- Global Phase: 0
+
+qsyn> quit -f
+

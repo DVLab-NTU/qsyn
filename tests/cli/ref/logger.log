@@ -1,93 +1,26 @@
-DV Lab, NTUEE, Qsyn 0.5.1
 qsyn> logger
 Logger Level: warning
 
-qsyn> logger level debug
-[Debug] Setting logger level to debug
+qsyn> logger debug
+[info]     Setting logger level to "debug"
 
 qsyn> logger
 Logger Level: debug
 
-qsyn> logger test
-[Fatal] Test fatal log
-[Error] Test error log
-[Warning] Test warning log
-[Info] Test info log
-[Debug] Test debug log
+qsyn> logger --test
+Regular printing (level `off`)
+[critical] A log message with level `critical`
+[error]    A log message with level `error`
+[warn]     A log message with level `warning`
+[info]     A log message with level `info`
+[debug]    A log message with level `debug`
 
-qsyn> logger mask -error -warning
-[Debug] Masked logger level: error
-[Debug] Masked logger level: warning
+qsyn> logger error
 
-qsyn> logger
-Logger Level: debug
-Masked logging levels: error, warning
+qsyn> logger --test
+Regular printing (level `off`)
+[critical] A log message with level `critical`
+[error]    A log message with level `error`
 
-qsyn> logger test
-[Fatal] Test fatal log
-[Info] Test info log
-[Debug] Test debug log
-
-qsyn> logger mask +warning
-[Debug] Unmasked logger level: warning
-
-qsyn> logger
-Logger Level: debug
-Masked logging levels: error
-
-qsyn> logger test
-[Fatal] Test fatal log
-[Warning] Test warning log
-[Info] Test info log
-[Debug] Test debug log
-
-qsyn> logger level error
-
-qsyn> logger test
-[Fatal] Test fatal log
-
-qsyn> logger history
-[Debug] Setting logger level to debug
-[Fatal] Test fatal log
-[Error] Test error log
-[Warning] Test warning log
-[Info] Test info log
-[Debug] Test debug log
-[Trace] Test trace log
-[Debug] Masked logger level: error
-[Debug] Masked logger level: warning
-[Fatal] Test fatal log
-[Error] Test error log
-[Warning] Test warning log
-[Info] Test info log
-[Debug] Test debug log
-[Trace] Test trace log
-[Debug] Unmasked logger level: warning
-[Fatal] Test fatal log
-[Error] Test error log
-[Warning] Test warning log
-[Info] Test info log
-[Debug] Test debug log
-[Trace] Test trace log
-[Debug] Setting logger level to error
-[Fatal] Test fatal log
-[Error] Test error log
-[Warning] Test warning log
-[Info] Test info log
-[Debug] Test debug log
-[Trace] Test trace log
-
-qsyn> logger history 10
-[Info] Test info log
-[Debug] Test debug log
-[Trace] Test trace log
-[Debug] Setting logger level to error
-[Fatal] Test fatal log
-[Error] Test error log
-[Warning] Test warning log
-[Info] Test info log
-[Debug] Test debug log
-[Trace] Test trace log
-
-qsyn> qq -f
+qsyn> quit -f
 

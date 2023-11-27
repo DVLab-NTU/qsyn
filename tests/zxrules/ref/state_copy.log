@@ -1,0 +1,108 @@
+qsyn> zx read benchmark/zx/stcopy.zx
+
+qsyn> zx print -v
+
+ID:    0 (●, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (3, -)
+ID:    1 (●, 0)       (Qubit, Col): (1, 0)         #Neighbors:   1    (4, H)
+ID:    2 (●, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (10, -)
+ID:    3 (Z, 0)       (Qubit, Col): (0, 0)         #Neighbors:   2    (0, -) (5, H)
+ID:    4 (Z, 0)       (Qubit, Col): (0, 0)         #Neighbors:   2    (1, H) (6, H)
+ID:    5 (Z, 3π/4)    (Qubit, Col): (0, 0)         #Neighbors:   2    (3, H) (7, H)
+ID:    6 (Z, 5π/6)    (Qubit, Col): (0, 0)         #Neighbors:   2    (4, H) (7, H)
+ID:    7 (Z, 0)       (Qubit, Col): (0, 0)         #Neighbors:   4    (5, H) (6, H) (8, H) (9, H)
+ID:    8 (Z, π)       (Qubit, Col): (0, 0)         #Neighbors:   1    (7, H)
+ID:    9 (Z, 7π/8)    (Qubit, Col): (0, 0)         #Neighbors:   2    (7, H) (10, H)
+ID:   10 (Z, 0)       (Qubit, Col): (0, 0)         #Neighbors:   2    (2, -) (9, H)
+Total #Vertices: 11
+
+
+qsyn> zx print -e
+(0, 3)       Type: -
+(1, 4)       Type: H
+(2, 10)      Type: -
+(3, 5)       Type: H
+(4, 6)       Type: H
+(5, 7)       Type: H
+(6, 7)       Type: H
+(7, 8)       Type: H
+(7, 9)       Type: H
+(9, 10)      Type: H
+Total #Edges: 10
+
+qsyn> zx rule --state-copy
+
+qsyn> zx print -v
+
+ID:    0 (●, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (3, -)
+ID:    1 (●, 0)       (Qubit, Col): (1, 0)         #Neighbors:   1    (4, H)
+ID:    2 (●, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (10, -)
+ID:    3 (Z, 0)       (Qubit, Col): (0, 0)         #Neighbors:   2    (0, -) (5, H)
+ID:    4 (Z, 0)       (Qubit, Col): (0, 0)         #Neighbors:   2    (1, H) (6, H)
+ID:    5 (Z, -π/4)    (Qubit, Col): (0, 0)         #Neighbors:   1    (3, H)
+ID:    6 (Z, -π/6)    (Qubit, Col): (0, 0)         #Neighbors:   1    (4, H)
+ID:    9 (Z, -π/8)    (Qubit, Col): (0, 0)         #Neighbors:   1    (10, H)
+ID:   10 (Z, 0)       (Qubit, Col): (0, 0)         #Neighbors:   2    (2, -) (9, H)
+Total #Vertices: 9
+
+
+qsyn> zx print -e
+(0, 3)       Type: -
+(1, 4)       Type: H
+(2, 10)      Type: -
+(3, 5)       Type: H
+(4, 6)       Type: H
+(9, 10)      Type: H
+Total #Edges: 6
+
+qsyn> zx read -r benchmark/zx/stcopy_boundary.zx
+
+qsyn> zx print -v
+
+ID:    0 (●, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (3, -)
+ID:    1 (●, 0)       (Qubit, Col): (1, 0)         #Neighbors:   1    (5, H)
+ID:    2 (●, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (8, -)
+ID:    3 (Z, 0)       (Qubit, Col): (0, 0)         #Neighbors:   2    (0, -) (4, H)
+ID:    4 (Z, 3π/4)    (Qubit, Col): (0, 0)         #Neighbors:   2    (3, H) (5, H)
+ID:    5 (Z, 0)       (Qubit, Col): (0, 0)         #Neighbors:   4    (1, H) (4, H) (6, H) (7, H)
+ID:    6 (Z, π)       (Qubit, Col): (0, 0)         #Neighbors:   1    (5, H)
+ID:    7 (Z, 7π/8)    (Qubit, Col): (0, 0)         #Neighbors:   2    (5, H) (8, H)
+ID:    8 (Z, 0)       (Qubit, Col): (0, 0)         #Neighbors:   2    (2, -) (7, H)
+Total #Vertices: 9
+
+
+qsyn> zx print -e
+(0, 3)       Type: -
+(1, 5)       Type: H
+(2, 8)       Type: -
+(3, 4)       Type: H
+(4, 5)       Type: H
+(5, 6)       Type: H
+(5, 7)       Type: H
+(7, 8)       Type: H
+Total #Edges: 8
+
+qsyn> zx rule --state-copy
+
+qsyn> zx print -v
+
+ID:    0 (●, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (3, -)
+ID:    1 (●, 0)       (Qubit, Col): (1, 0)         #Neighbors:   1    (9, -)
+ID:    2 (●, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (8, -)
+ID:    3 (Z, 0)       (Qubit, Col): (0, 0)         #Neighbors:   2    (0, -) (4, H)
+ID:    4 (Z, -π/4)    (Qubit, Col): (0, 0)         #Neighbors:   1    (3, H)
+ID:    7 (Z, -π/8)    (Qubit, Col): (0, 0)         #Neighbors:   1    (8, H)
+ID:    8 (Z, 0)       (Qubit, Col): (0, 0)         #Neighbors:   2    (2, -) (7, H)
+ID:    9 (Z, π)       (Qubit, Col): (1, 0)         #Neighbors:   1    (1, -)
+Total #Vertices: 8
+
+
+qsyn> zx print -e
+(0, 3)       Type: -
+(1, 9)       Type: -
+(2, 8)       Type: -
+(3, 4)       Type: H
+(7, 8)       Type: H
+Total #Edges: 5
+
+qsyn> quit -f
+

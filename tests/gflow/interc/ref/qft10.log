@@ -1,9 +1,8 @@
-DV Lab, NTUEE, Qsyn 0.5.1
-qsyn> qccr benchmark/qft/qft_10dec.qasm
+qsyn> qcir read benchmark/qft/qft_10dec.qasm
 
 qsyn> qc2zx
 
-qsyn> zxggf -all
+qsyn> zx gflow --all --only-xy-plane
 GFlow of the graph:
 Level 0
    1 (XY): (None)
@@ -416,9 +415,9 @@ Level 62
 GFlow exists.
 #Levels: 63
 
-qsyn> zxgs -interclifford
+qsyn> zx optimize --interior-clifford
 
-qsyn> zxggf -all
+qsyn> zx gflow --all --only-xy-plane
 GFlow of the graph:
 Level 0
    1 (XY): (None)
@@ -671,5 +670,5 @@ GFlow exists.
 #Levels: 38
 
 qsyn> 
-qsyn> qq -f 
+qsyn> quit -f 
 

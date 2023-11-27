@@ -1,5 +1,4 @@
-zxnew
-zxnew
-zxprint
-zxprint -f
-qq -f
+zx new
+zx new
+zx
+quit -f

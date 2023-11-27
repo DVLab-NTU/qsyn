@@ -1,5 +1,4 @@
 /****************************************************************************
-  FileName     [ placer.hpp ]
   PackageName  [ duostra ]
   Synopsis     [ Define class Placer structure ]
   Author       [ Chin-Yi Cheng, Chien-Yi Yang, Ren-Chu Wang, Yi-Hsiang Kuo ]
@@ -13,46 +12,56 @@
 #include <random>
 #include <vector>
 
+#include "qsyn/qsyn_type.hpp"
+
+namespace qsyn::device {
 class Device;
+}
+
+namespace qsyn::duostra {
 
 class BasePlacer {
 public:
+    using Device = qsyn::device::Device;
     BasePlacer() {}
-    BasePlacer(const BasePlacer&) = delete;
-    BasePlacer(BasePlacer&&) = delete;
-    virtual ~BasePlacer() {}
+    virtual ~BasePlacer() = default;
 
-    std::vector<size_t> placeAndAssign(Device&);
+    std::vector<QubitIdType> place_and_assign(Device&);
 
 protected:
-    virtual std::vector<size_t> place(Device&) const = 0;
+    virtual std::vector<QubitIdType> _place(Device&) const = 0;
 };
 
 class RandomPlacer : public BasePlacer {
 public:
-    ~RandomPlacer() override {}
+    using Device             = BasePlacer::Device;
+    ~RandomPlacer() override = default;
 
 protected:
-    std::vector<size_t> place(Device&) const override;
+    std::vector<QubitIdType> _place(Device& /*unused*/) const override;
 };
 
 class StaticPlacer : public BasePlacer {
 public:
-    ~StaticPlacer() override {}
+    using Device             = BasePlacer::Device;
+    ~StaticPlacer() override = default;
 
 protected:
-    std::vector<size_t> place(Device&) const override;
+    std::vector<QubitIdType> _place(Device& /*unused*/) const override;
 };
 
 class DFSPlacer : public BasePlacer {
 public:
-    ~DFSPlacer() override {}
+    using Device          = BasePlacer::Device;
+    ~DFSPlacer() override = default;
 
 protected:
-    std::vector<size_t> place(Device&) const override;
+    std::vector<QubitIdType> _place(Device& /*unused*/) const override;
 
 private:
-    void DFSDevice(size_t, Device&, std::vector<size_t>&, std::vector<bool>&) const;
+    void _dfs_device(QubitIdType current, Device& device, std::vector<QubitIdType>& assign, std::vector<bool>& qubit_marks) const;
 };
 
-std::unique_ptr<BasePlacer> getPlacer();
+std::unique_ptr<BasePlacer> get_placer();
+
+}  // namespace qsyn::duostra

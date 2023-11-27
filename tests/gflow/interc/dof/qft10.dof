@@ -1,7 +1,7 @@
-qccr benchmark/qft/qft_10dec.qasm
+qcir read benchmark/qft/qft_10dec.qasm
 qc2zx
-zxggf -all
-zxgs -interclifford
-zxggf -all
+zx gflow --all --only-xy-plane
+zx optimize --interior-clifford
+zx gflow --all --only-xy-plane
 
-qq -f 
+quit -f 

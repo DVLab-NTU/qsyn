@@ -1,14 +1,22 @@
-ver 8
-qccr benchmark/qc2ts/circuit/control_z.qasm
+qcir read benchmark/qasm/qc2ts/control_z.qasm
+logger trace
 qc2ts
-qccr benchmark/qc2ts/circuit/control_h.qasm -r
+logger warning
+qcir read benchmark/qasm/qc2ts/control_h.qasm -r
+logger trace
 qc2ts
-qccr benchmark/qc2ts/circuit/toffoli_dec.qasm -r
+logger warning
+qcir read benchmark/qasm/qc2ts/toffoli_dec.qasm -r
+logger trace
 qc2ts
-qccr benchmark/qc2ts/circuit/toffoli_qiskit.qasm -r
+logger warning
+qcir read benchmark/qasm/qc2ts/toffoli_qiskit.qasm -r
+logger trace
 qc2ts
-ver 8
-qccr benchmark/benchmark_SABRE/small/3_17_13.qasm
-qccp -q
+logger warning
+qcir read benchmark/SABRE/small/3_17_13.qasm
+qcir print --diagram
+logger trace
 qc2ts
-qq -f
+logger warning
+quit -f

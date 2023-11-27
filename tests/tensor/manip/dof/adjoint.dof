@@ -1,14 +1,14 @@
-zxn
-zxge -addi 0
-zxge -addo 0
-zxge -addo 1
-zxge -addv 0 Z pi/2
-zxge -adde 0 3 SIMPLE
-zxge -adde 1 3 SIMPLE
-zxge -adde 2 3 SIMPLE
+zx new
+zx vertex add i 0
+zx vertex add o 0
+zx vertex add o 1
+zx vertex add z 0 pi/2
+zx edge add 0 3 SIMPLE
+zx edge add 1 3 SIMPLE
+zx edge add 2 3 SIMPLE
 zx2ts
-zxgadj
+zx adjoint
 zx2ts
-tsadj 0
-tseq 0 1 -strict
-qq -f
+tensor adjoint 0
+tensor equiv 0 1 --strict
+quit -f

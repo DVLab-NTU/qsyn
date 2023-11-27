@@ -1,5 +1,5 @@
-zxgr benchmark/zx/cnot.zx
-zxgr benchmark/zx/cnot.zx
-zxcompose 0
-zxgp -v
-qq -f
+zx read benchmark/zx/cnot.zx
+zx read benchmark/zx/cnot.zx
+zx compose 0
+zx print -v
+quit -f

@@ -1,15 +1,7 @@
 logger
-logger level debug
+logger debug
 logger
-logger test
-logger mask -error -warning
-logger
-logger test
-logger mask +warning
-logger
-logger test
-logger level error
-logger test
-logger history
-logger history 10
-qq -f
+logger --test
+logger error
+logger --test
+quit -f

@@ -1,0 +1,27 @@
+qsyn> qc2zx
+[error]    QCir list is empty. Please create a QCir first!!
+
+qsyn> qc2ts
+[error]    QCir list is empty. Please create a QCir first!!
+
+qsyn> zx2ts
+[error]    ZXGraph list is empty. Please create a ZXGraph first!!
+
+qsyn> 
+qsyn> qcir new
+
+qsyn> qc2zx
+[error]    QCir is empty!!
+
+qsyn> qc2ts
+[warn]     QCir is empty!!
+
+qsyn> 
+qsyn> zx new
+
+qsyn> zx2ts
+[error]    The ZXGraph is empty!!
+
+qsyn> 
+qsyn> quit -f
+

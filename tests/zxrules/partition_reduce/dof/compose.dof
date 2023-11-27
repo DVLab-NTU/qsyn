@@ -1,10 +1,14 @@
-verb 3
-qccread ./benchmark/qft/qft_7.qasm
+qcir read ./benchmark/qft/qft_7.qasm
 qc2zx 
-zxcopy 1
-zxgs -preduce 4
-zxgadjoint 
-zxcompose 0
-zxgs -freduce
-zxgtest -id
-qq -f
+zx copy 1
+logger debug
+zx optimize --partition 4
+logger warn
+zx print -s
+zx adjoint
+zx compose 0
+logger debug
+zx optimize --full
+logger warn
+zx test --identity
+quit -f

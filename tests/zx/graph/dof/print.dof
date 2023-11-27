@@ -1,11 +1,11 @@
-zxgr benchmark/zx/cnot.zx
-zxgp -v 1 0
-zxgp -v 1 0 d 9
-zxgp -q 1 2
-zxgr benchmark/zx/cnot.zx
-zxgp -v
-zxprint
-zxgr benchmark/zx/cnot.zx
-zxgprint -v
-zxgprint -e
-qq -f
+zx read benchmark/zx/cnot.zx
+zx print -v 1 0
+zx print -v 1 0 d 9
+zx print -q 1 2
+zx read benchmark/zx/cnot.zx
+zx print -v
+zx
+zx read benchmark/zx/cnot.zx
+zx print -v
+zx print -e
+quit -f

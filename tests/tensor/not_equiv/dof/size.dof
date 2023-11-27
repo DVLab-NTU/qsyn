@@ -1,10 +1,8 @@
-ver 2
-qcba
+qcir qubit add
 qc2ts
-qcba
+qcir qubit add
 qc2ts
-ver 3
-tsp -l
-tseq 0 1 
-tseq 0 1 -strict
-qq -f
+tensor list
+tensor equiv 0 1 
+tensor equiv 0 1 --strict
+quit -f

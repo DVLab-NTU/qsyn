@@ -1,0 +1,13 @@
+zx read benchmark/zx/stcopy.zx
+zx print -v
+zx print -e
+zx rule --state-copy
+zx print -v
+zx print -e
+zx read -r benchmark/zx/stcopy_boundary.zx
+zx print -v
+zx print -e
+zx rule --state-copy
+zx print -v
+zx print -e
+quit -f

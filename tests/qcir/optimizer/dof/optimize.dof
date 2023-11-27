@@ -1,16 +1,15 @@
-ver 0
-qccr benchmark/benchmark_SABRE/large/adr4_197.qasm
-qccp -a
-logger level trace
-qccoptimize
-logger level warning
-qccp -a
+qcir read benchmark/SABRE/large/adr4_197.qasm
+qcir print --statistics
+logger trace
+qcir optimize
+logger warn
+qcir print --statistics
 qc2zx
-zxgs
+zx optimize
 zx2qc
-qccp -a
-logger level info
-qccoptimize -stat
-logger level warning
-qccp -a
-qq -f
+qcir print --statistics
+logger info
+qcir optimize --stat
+logger warn
+qcir print --statistics
+quit -f

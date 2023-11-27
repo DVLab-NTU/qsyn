@@ -1,0 +1,19 @@
+qcir qubit add 2
+qcir gate add cx 0 1
+qcir gate add cx 1 0
+qcir gate add cx 0 1
+qc2ts
+zx read benchmark/zx/swap.zx
+zx2ts
+tensor list
+tensor equiv 0 1 --strict
+tensor delete --all
+zx delete --all
+zx read benchmark/zx/tof3.zx
+zx2ts
+zx read benchmark/zx/tof3_zh.zx
+zx2ts
+tensor list
+tensor equiv 0 1 
+tensor equiv 0 1 --strict
+quit -f

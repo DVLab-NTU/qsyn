@@ -1,14 +1,10 @@
-DV Lab, NTUEE, Qsyn 0.5.1
-qsyn> ver 0
-Note: verbose level is set to 0
+qsyn> device read benchmark/topology/guadalupe.layout
 
-qsyn> dtgr benchmark/topology/guadalupe.layout
+qsyn> qcir config --double-delay 2 --swap-delay 6
 
-qsyn> qcset -d 2 -sw 6
+qsyn> qcir read benchmark/SABRE/small/3_17_13.qasm
 
-qsyn> qccr benchmark/benchmark_SABRE/small/3_17_13.qasm
-
-qsyn> duostra -c
+qsyn> duostra --check
 Routing...
 
 Checking...
@@ -24,27 +20,27 @@ Total Time:     101
 #SWAP:          8
 
 
-qsyn> qccp
+qsyn> qcir print
 QCir (16 qubits, 60 gates, 41 2-qubits gates, 14 T-gates, 85 depths)
 
-qsyn> qcp -l
+qsyn> qcir list
   0    3_17_13             
 ★ 1    3_17_13             Duostra
 
-qsyn> help mpeq
-Usage: mpequiv [-h] (-logical <size_t LOGICAL>) (-physical <size_t PHYSICAL>) [-reverse]
+qsyn> help map-equiv
+Usage: map-equiv [-h] (-l <size_t l-id>) (-p <size_t p-id>) [-r]
 
 Description:
   check equivalence of the physical and the logical circuits
 
 Options:
-  flag    -h, --help            show this help message and exit                        
-  size_t  -logical    LOGICAL   logical circuit id                                     
-  size_t  -physical   PHYSICAL  physical circuit id                                    
-  flag    -reverse              check the circuit reversily, used in extracted circuit 
+  flag    -h, --help            show this help message                                                           
+  size_t  -l, --logical   l-id  the ID to the logical QCir                                                       
+  size_t  -p, --physical  p-id  the ID to the physical QCir                                                      
+  flag    -r, --reverse         check the QCir in reverse. This option is supposed to be used for extracted QCir 
 
-qsyn> mpeq -l 0 -p 1
+qsyn> map-equiv -l 0 -p 1
 Equivalent up to permutation
 
-qsyn> qq -f
+qsyn> quit -f
 

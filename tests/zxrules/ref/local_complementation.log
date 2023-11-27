@@ -1,0 +1,59 @@
+qsyn> zx new
+
+qsyn> zx read benchmark/zx/lcomp_1.zx
+
+qsyn> zx print -v
+
+ID:    0 (●, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (4, -)
+ID:    1 (●, 0)       (Qubit, Col): (1, 0)         #Neighbors:   1    (5, -)
+ID:    2 (●, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (7, -)
+ID:    3 (●, 0)       (Qubit, Col): (1, 0)         #Neighbors:   1    (8, -)
+ID:    4 (Z, π/2)     (Qubit, Col): (0, 0)         #Neighbors:   2    (0, -) (6, H)
+ID:    5 (Z, 0)       (Qubit, Col): (0, 0)         #Neighbors:   2    (1, -) (6, H)
+ID:    6 (Z, π/2)     (Qubit, Col): (0, 0)         #Neighbors:   4    (4, H) (5, H) (7, H) (8, H)
+ID:    7 (Z, 0)       (Qubit, Col): (0, 0)         #Neighbors:   2    (2, -) (6, H)
+ID:    8 (Z, 0)       (Qubit, Col): (0, 0)         #Neighbors:   2    (3, -) (6, H)
+Total #Vertices: 9
+
+
+qsyn> zx print -e
+(0, 4)       Type: -
+(1, 5)       Type: -
+(2, 7)       Type: -
+(3, 8)       Type: -
+(4, 6)       Type: H
+(5, 6)       Type: H
+(6, 7)       Type: H
+(6, 8)       Type: H
+Total #Edges: 8
+
+qsyn> zx rule --local-complementation
+
+qsyn> zx print -v
+
+ID:    0 (●, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (4, -)
+ID:    1 (●, 0)       (Qubit, Col): (1, 0)         #Neighbors:   1    (5, -)
+ID:    2 (●, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (7, -)
+ID:    3 (●, 0)       (Qubit, Col): (1, 0)         #Neighbors:   1    (8, -)
+ID:    4 (Z, 0)       (Qubit, Col): (0, 0)         #Neighbors:   4    (0, -) (5, H) (7, H) (8, H)
+ID:    5 (Z, -π/2)    (Qubit, Col): (0, 0)         #Neighbors:   4    (1, -) (4, H) (7, H) (8, H)
+ID:    7 (Z, -π/2)    (Qubit, Col): (0, 0)         #Neighbors:   4    (2, -) (4, H) (5, H) (8, H)
+ID:    8 (Z, -π/2)    (Qubit, Col): (0, 0)         #Neighbors:   4    (3, -) (4, H) (5, H) (7, H)
+Total #Vertices: 8
+
+
+qsyn> zx print -e
+(0, 4)       Type: -
+(1, 5)       Type: -
+(2, 7)       Type: -
+(3, 8)       Type: -
+(4, 5)       Type: H
+(4, 7)       Type: H
+(4, 8)       Type: H
+(5, 7)       Type: H
+(5, 8)       Type: H
+(7, 8)       Type: H
+Total #Edges: 10
+
+qsyn> quit -f
+

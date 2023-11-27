@@ -1,17 +1,17 @@
-qccr benchmark/pseudoSimp/tof_3.qasm
+qcir read benchmark/qasm/tof3.qasm
 qc2zx
-zxgp -v
-zxgas 0 I X pi
-zxgas 0 O X pi
-zxgas 1 I X pi
-zxgas 1 O X pi
-zxgas 4 I X 0
-zxgas 4 O X 0
-zxgp -v
-zxgs -fr
+zx print -v
+zx assign 0 I X pi
+zx assign 0 O X pi
+zx assign 1 I X pi
+zx assign 1 O X pi
+zx assign 4 I X 0
+zx assign 4 O X 0
+zx print -v
+zx optimize --full
 zx2ts
-zxgs -stco
-zxgp -v
+zx rule --state-copy
+zx print -v
 zx2ts
-tseq 0 1
-qq -f
+tensor equiv 0 1
+quit -f

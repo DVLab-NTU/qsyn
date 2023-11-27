@@ -1,5 +1,4 @@
 /****************************************************************************
-  FileName     [ placer.cpp ]
   PackageName  [ duostra ]
   Synopsis     [ Define class Placer member functions ]
   Author       [ Chin-Yi Cheng, Chien-Yi Yang, Ren-Chu Wang, Yi-Hsiang Kuo ]
@@ -12,27 +11,27 @@
 #include <cassert>
 #include <random>
 
-#include "./variables.hpp"
+#include "./duostra.hpp"
 #include "device/device.hpp"
+#include "qsyn/qsyn_type.hpp"
+#include "util/util.hpp"
 
-using namespace std;
+namespace qsyn::duostra {
 
 /**
  * @brief Get the Placer object
  *
  * @return unique_ptr<BasePlacer>
  */
-unique_ptr<BasePlacer> getPlacer() {
-    // 0:static 1:random 2:dfs
-    if (DUOSTRA_PLACER == 0) {
-        return make_unique<StaticPlacer>();
-    } else if (DUOSTRA_PLACER == 1) {
-        return make_unique<RandomPlacer>();
-    } else if (DUOSTRA_PLACER == 2) {
-        return make_unique<DFSPlacer>();
+std::unique_ptr<BasePlacer> get_placer() {
+    if (DuostraConfig::PLACER_TYPE == PlacerType::naive) {
+        return std::make_unique<StaticPlacer>();
+    } else if (DuostraConfig::PLACER_TYPE == PlacerType::random) {
+        return std::make_unique<RandomPlacer>();
+    } else if (DuostraConfig::PLACER_TYPE == PlacerType::dfs) {
+        return std::make_unique<DFSPlacer>();
     }
-    cerr << "Error: placer type not found." << endl;
-    abort();
+    DVLAB_UNREACHABLE("Unknown placer type");
 }
 
 // SECTION - Class BasePlacer Member Functions
@@ -42,8 +41,8 @@ unique_ptr<BasePlacer> getPlacer() {
  *
  * @param device
  */
-vector<size_t> BasePlacer::placeAndAssign(Device& device) {
-    auto assign = place(device);
+std::vector<QubitIdType> BasePlacer::place_and_assign(Device& device) {
+    auto assign = _place(device);
     device.place(assign);
     return assign;
 }
@@ -56,13 +55,12 @@ vector<size_t> BasePlacer::placeAndAssign(Device& device) {
  * @param device
  * @return vector<size_t>
  */
-vector<size_t> RandomPlacer::place(Device& device) const {
-    vector<size_t> assign;
-    for (size_t i = 0; i < device.getNQubit(); ++i)
+std::vector<QubitIdType> RandomPlacer::_place(Device& device) const {
+    std::vector<QubitIdType> assign;
+    for (size_t i = 0; i < device.get_num_qubits(); ++i)
         assign.emplace_back(i);
 
-    size_t seed = chrono::system_clock::now().time_since_epoch().count();
-    shuffle(assign.begin(), assign.end(), default_random_engine(seed));
+    shuffle(assign.begin(), assign.end(), std::default_random_engine(std::random_device{}()));
     return assign;
 }
 
@@ -74,9 +72,9 @@ vector<size_t> RandomPlacer::place(Device& device) const {
  * @param device
  * @return vector<size_t>
  */
-vector<size_t> StaticPlacer::place(Device& device) const {
-    vector<size_t> assign;
-    for (size_t i = 0; i < device.getNQubit(); ++i)
+std::vector<QubitIdType> StaticPlacer::_place(Device& device) const {
+    std::vector<QubitIdType> assign;
+    for (size_t i = 0; i < device.get_num_qubits(); ++i)
         assign.emplace_back(i);
 
     return assign;
@@ -90,11 +88,11 @@ vector<size_t> StaticPlacer::place(Device& device) const {
  * @param device
  * @return vector<size_t>
  */
-vector<size_t> DFSPlacer::place(Device& device) const {
-    vector<size_t> assign;
-    vector<bool> qubitMark(device.getNQubit(), false);
-    DFSDevice(0, device, assign, qubitMark);
-    assert(assign.size() == device.getNQubit());
+std::vector<QubitIdType> DFSPlacer::_place(Device& device) const {
+    std::vector<QubitIdType> assign;
+    std::vector<bool> qubit_mark(device.get_num_qubits(), false);
+    _dfs_device(0, device, assign, qubit_mark);
+    assert(assign.size() == device.get_num_qubits());
     return assign;
 }
 
@@ -106,34 +104,36 @@ vector<size_t> DFSPlacer::place(Device& device) const {
  * @param assign
  * @param qubitMark
  */
-void DFSPlacer::DFSDevice(size_t current, Device& device, vector<size_t>& assign, vector<bool>& qubitMark) const {
-    if (qubitMark[current]) {
-        cout << current << endl;
+void DFSPlacer::_dfs_device(QubitIdType current, Device& device, std::vector<QubitIdType>& assign, std::vector<bool>& qubit_marks) const {
+    if (qubit_marks[current]) {
+        fmt::println("{}", current);
     }
-    assert(!qubitMark[current]);
-    qubitMark[current] = true;
+    assert(!qubit_marks[current]);
+    qubit_marks[current] = true;
     assign.emplace_back(current);
 
-    const PhysicalQubit& q = device.getPhysicalQubit(current);
-    vector<size_t> adjacencyWaitlist;
+    auto const& q = device.get_physical_qubit(current);
+    std::vector<QubitIdType> adjacency_waitlist;
 
-    for (auto& adj : q.getAdjacencies()) {
+    for (auto& adj : q.get_adjacencies()) {
         // already marked
-        if (qubitMark[adj])
+        if (qubit_marks[adj])
             continue;
-        assert(q.getAdjacencies().size() > 0);
+        assert(q.get_adjacencies().size() > 0);
         // corner
-        if (q.getAdjacencies().size() == 1)
-            DFSDevice(adj, device, assign, qubitMark);
+        if (q.get_adjacencies().size() == 1)
+            _dfs_device(adj, device, assign, qubit_marks);
         else
-            adjacencyWaitlist.emplace_back(adj);
+            adjacency_waitlist.emplace_back(adj);
     }
 
-    for (size_t i = 0; i < adjacencyWaitlist.size(); ++i) {
-        size_t adj = adjacencyWaitlist[i];
-        if (qubitMark[adj])
+    for (size_t i = 0; i < adjacency_waitlist.size(); ++i) {
+        auto adj = adjacency_waitlist[i];
+        if (qubit_marks[adj])
             continue;
-        DFSDevice(adj, device, assign, qubitMark);
+        _dfs_device(adj, device, assign, qubit_marks);
     }
     return;
 }
+
+}  // namespace qsyn::duostra

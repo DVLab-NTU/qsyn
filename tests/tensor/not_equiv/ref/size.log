@@ -1,28 +1,20 @@
-DV Lab, NTUEE, Qsyn 0.5.1
-qsyn> ver 2
-Note: verbose level is set to 2
-
-qsyn> qcba
-Note: QCir list is empty now. Create a new one.
+qsyn> qcir qubit add
 
 qsyn> qc2ts
 
-qsyn> qcba
+qsyn> qcir qubit add
 
 qsyn> qc2ts
 
-qsyn> ver 3
-Note: verbose level is set to 3
-
-qsyn> tsp -l
+qsyn> tensor list
   0                        #Dim: 2   QC2TS
 ★ 1                        #Dim: 2   QC2TS
 
-qsyn> tseq 0 1 
+qsyn> tensor equiv 0 1 
 Not Equivalent
 
-qsyn> tseq 0 1 -strict
+qsyn> tensor equiv 0 1 --strict
 Not Equivalent
 
-qsyn> qq -f
+qsyn> quit -f
 

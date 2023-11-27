@@ -1,11 +1,11 @@
-zxgr benchmark/zx/tof2_opt.zx
-zxcopy 1
-zxgadj
-zxcomp 0
-zxgsimp -fr
-zxgp -v
+zx read benchmark/zx/tof2_opt.zx
+zx copy 1
+zx adjoint
+zx compose 0
+zx optimize --full
+zx print -v
 zx2ts
-qcba 3
+qcir qubit add 3
 qc2ts
-tseq 0 1 -strict
-qq -f
+tensor equiv 0 1 --strict
+quit -f

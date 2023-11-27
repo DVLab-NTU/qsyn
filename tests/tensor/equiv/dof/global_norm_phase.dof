@@ -1,0 +1,27 @@
+zx new
+zx vertex add i 0
+zx vertex add o 0
+zx vertex add z 0 0
+zx vertex add z 0 0
+zx edge add 0 2 SIMPLE
+zx edge add 2 3 SIMPLE
+zx edge add 3 1 SIMPLE
+zx2ts
+zx edge add 2 3 SIMPLE
+zx2ts
+tensor list
+tensor equiv 0 1
+tensor equiv 0 1 --strict
+zx delete --all
+tensor delete --all
+qcir qubit add
+qc2ts 
+qcir gate add t 0
+qcir gate add x 0
+qcir gate add t 0
+qcir gate add x 0
+qc2ts
+tensor list
+tensor equiv 0 1
+tensor equiv 0 1 --strict
+quit -f

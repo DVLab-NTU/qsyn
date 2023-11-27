@@ -1,213 +1,217 @@
-DV Lab, NTUEE, Qsyn 0.5.1
-qsyn> exts -op 1
+qsyn> extract config --optimize-level 1
 
-qsyn> zxgread benchmark/bzx/tof3.bzx
+qsyn> zx read benchmark/zx/tof3.zx
 
 qsyn> zx2ts
 
-qsyn> ver 0
-Note: verbose level is set to 0
+qsyn> zx optimize --full
 
-qsyn> zxgs -fr
+qsyn> zx print -q
 
-qsyn> zxgp -q
-
-ID:  27 (Z, -π/4)        (Qubit, Col): (-2, 3)	  #Neighbors:   1     (28, H) 
-ID:  29 (Z, -π/4)        (Qubit, Col): (-2, 7)	  #Neighbors:   1     (30, H) 
-ID:  31 (Z, -π/4)        (Qubit, Col): (-2, 5)	  #Neighbors:   1     (32, H) 
-ID:  33 (Z, π/4)         (Qubit, Col): (-2, 5)	  #Neighbors:   1     (34, H) 
+ID:   27 (Z, -π/4)    (Qubit, Col): (-2, 3)        #Neighbors:   1    (28, H)
+ID:   29 (Z, -π/4)    (Qubit, Col): (-2, 7)        #Neighbors:   1    (30, H)
+ID:   31 (Z, -π/4)    (Qubit, Col): (-2, 5)        #Neighbors:   1    (32, H)
+ID:   33 (Z, π/4)     (Qubit, Col): (-2, 5)        #Neighbors:   1    (34, H)
 
 
-ID:  28 (Z, 0)           (Qubit, Col): (-1, 3)	  #Neighbors:   3     (7, H) (19, H) (27, H) 
-ID:  30 (Z, 0)           (Qubit, Col): (-1, 7)	  #Neighbors:   3     (10, H) (19, H) (29, H) 
-ID:  32 (Z, 0)           (Qubit, Col): (-1, 5)	  #Neighbors:   3     (7, H) (10, H) (31, H) 
-ID:  34 (Z, 0)           (Qubit, Col): (-1, 5)	  #Neighbors:   4     (7, H) (10, H) (19, H) (33, H) 
+ID:   28 (Z, 0)       (Qubit, Col): (-1, 3)        #Neighbors:   3    (7, H) (19, H) (27, H)
+ID:   30 (Z, 0)       (Qubit, Col): (-1, 7)        #Neighbors:   3    (10, H) (19, H) (29, H)
+ID:   32 (Z, 0)       (Qubit, Col): (-1, 5)        #Neighbors:   3    (7, H) (10, H) (31, H)
+ID:   34 (Z, 0)       (Qubit, Col): (-1, 5)        #Neighbors:   4    (7, H) (10, H) (19, H) (33, H)
 
 
-ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (10, -) 
-ID:   3 (●, 0)           (Qubit, Col): (0, 11)	  #Neighbors:   1     (10, -) 
-ID:  10 (Z, π/4)         (Qubit, Col): (0, 1)	  #Neighbors:   5     (0, -) (3, -) (30, H) (32, H) (34, H) 
+ID:    0 (●, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (10, -)
+ID:    3 (●, 0)       (Qubit, Col): (0, 11)        #Neighbors:   1    (10, -)
+ID:   10 (Z, π/4)     (Qubit, Col): (0, 1)         #Neighbors:   5    (0, -) (3, -) (30, H) (32, H) (34, H)
 
 
-ID:   1 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (7, -) 
-ID:   4 (●, 0)           (Qubit, Col): (1, 11)	  #Neighbors:   1     (7, -) 
-ID:   7 (Z, π/4)         (Qubit, Col): (1, 1)	  #Neighbors:   5     (1, -) (4, -) (28, H) (32, H) (34, H) 
+ID:    1 (●, 0)       (Qubit, Col): (1, 0)         #Neighbors:   1    (7, -)
+ID:    4 (●, 0)       (Qubit, Col): (1, 11)        #Neighbors:   1    (7, -)
+ID:    7 (Z, π/4)     (Qubit, Col): (1, 1)         #Neighbors:   5    (1, -) (4, -) (28, H) (32, H) (34, H)
 
 
-ID:   2 (●, 0)           (Qubit, Col): (2, 0)	  #Neighbors:   1     (19, H) 
-ID:   5 (●, 0)           (Qubit, Col): (2, 11)	  #Neighbors:   1     (19, H) 
-ID:  19 (Z, π/4)         (Qubit, Col): (2, 9)	  #Neighbors:   5     (2, H) (5, H) (28, H) (30, H) (34, H) 
+ID:    2 (●, 0)       (Qubit, Col): (2, 0)         #Neighbors:   1    (19, H)
+ID:    5 (●, 0)       (Qubit, Col): (2, 11)        #Neighbors:   1    (19, H)
+ID:   19 (Z, π/4)     (Qubit, Col): (2, 9)         #Neighbors:   5    (2, H) (5, H) (28, H) (30, H) (34, H)
 
 
-qsyn> ver 5
-Note: verbose level is set to 5
+qsyn> logger debug
+[info]     Setting logger level to "debug"
 
 qsyn> zx2qc
-Initialize
-Clean Frontier
-Extract Singles
-Extract CZs
-Remove Gadget
-Frontier:
-Qubit:0: 7
-Qubit:1: 6
-Qubit:2: 8
+[info]     Successfully copied ZXGraph 0 to ZXGraph 1
+[info]     Checked out to ZXGraph 1
+[debug]    Initializing extractor
+[debug]    Cleaning frontier
+[debug]    Extracting single qubit gates
+[debug]    Extracting CZs
+[debug]    Removing gadget(s)
+[debug]    Frontier:
+[debug]    Qubit 0: 7
+[debug]    Qubit 1: 6
+[debug]    Qubit 2: 8
+[debug]    
+[debug]    Axels:
+[debug]    10 (phase gadget: 9)
+[debug]    12 (phase gadget: 11)
+[debug]    14 (phase gadget: 13)
+[debug]    16 (phase gadget: 15)
+[debug]    
+[debug]    Frontier:
+[debug]    Qubit 1: 20
+[debug]    Qubit 0: 21
+[debug]    Qubit 2: 22
+[debug]    
+[debug]    Axels:
+[debug]    10 (phase gadget: 9)
+[debug]    
+[debug]    Gadget(s) are removed.
+[debug]    Cleaning frontier
+[debug]    Extracting single qubit gates
+[debug]    Extracting CZs
+[debug]    Removing gadget(s)
+[debug]    Frontier:
+[debug]    Qubit 1: 20
+[debug]    Qubit 0: 21
+[debug]    Qubit 2: 22
+[debug]    
+[debug]    Axels:
+[debug]    10 (phase gadget: 9)
+[debug]    
+[debug]    Frontier:
+[debug]    Qubit 1: 20
+[debug]    Qubit 0: 21
+[debug]    Qubit 2: 22
+[debug]    
+[debug]    Axels:
+[debug]    10 (phase gadget: 9)
+[debug]    
+[debug]    Perform Gaussian elimination.
+[debug]    Filter 0 CXs. Total: 0
+[debug]    Filter 0 CXs. Total: 0
+[debug]    Updating graph by matrix
+[debug]    Extracting CXs
+[debug]    Adding CX: 0 1
+[debug]    Adding CX: 2 0
+[debug]    Adding CX: 1 2
+[debug]    Extracting Hadamards from matrix
+[debug]    Cleaning frontier
+[debug]    Extracting single qubit gates
+[debug]    Extracting CZs
+[debug]    Removing gadget(s)
+[debug]    Frontier:
+[debug]    Qubit 1: 11
+[debug]    Qubit 0: 13
+[debug]    Qubit 2: 15
+[debug]    
+[debug]    Axels:
+[debug]    10 (phase gadget: 9)
+[debug]    
+[debug]    Frontier:
+[debug]    Qubit 1: 11
+[debug]    Qubit 2: 15
+[debug]    Qubit 0: 23
+[debug]    
+[debug]    Axels:
+[debug]    
+[debug]    Gadget(s) are removed.
+[debug]    Cleaning frontier
+[debug]    Extracting single qubit gates
+[debug]    Extracting CZs
+[debug]    Removing gadget(s)
+[debug]    Frontier:
+[debug]    Qubit 1: 11
+[debug]    Qubit 2: 15
+[debug]    Qubit 0: 23
+[debug]    
+[debug]    Axels:
+[debug]    
+[debug]    Frontier:
+[debug]    Qubit 1: 11
+[debug]    Qubit 2: 15
+[debug]    Qubit 0: 23
+[debug]    
+[debug]    Axels:
+[debug]    
+[debug]    Single neighbor found. Construct an easy matrix.
+[debug]    Extracting Hadamards from matrix
+[debug]    Cleaning frontier
+[debug]    Extracting single qubit gates
+[debug]    Extracting CZs
+[debug]    Removing gadget(s)
+[debug]    Frontier:
+[debug]    Qubit 1: 11
+[debug]    Qubit 2: 15
+[debug]    Qubit 0: 9
+[debug]    
+[debug]    Axels:
+[debug]    
+[debug]    Frontier:
+[debug]    Qubit 1: 11
+[debug]    Qubit 2: 15
+[debug]    Qubit 0: 9
+[debug]    
+[debug]    Axels:
+[debug]    
+[debug]    Perform Gaussian elimination.
+[debug]    Filter 0 CXs. Total: 0
+[debug]    Filter 0 CXs. Total: 0
+[debug]    Updating graph by matrix
+[debug]    Extracting CXs
+[debug]    Adding CX: 2 1
+[debug]    Adding CX: 0 2
+[debug]    Adding CX: 1 0
+[debug]    Extracting Hadamards from matrix
+[debug]    Cleaning frontier
+[debug]    Extracting single qubit gates
+[debug]    Extracting CZs
+[info]     Finished Extracting!
+[debug]    Permuting qubits
+[info]     Successfully created and checked out to QCir 0
+[info]     Successfully removed ZXGraph 1
+[info]     Checked out to ZXGraph 0
 
-Axels:
-10 (phase gadget: 9)
-12 (phase gadget: 11)
-14 (phase gadget: 13)
-16 (phase gadget: 15)
-
-Frontier:
-Qubit:1: 20
-Qubit:0: 21
-Qubit:2: 22
-
-Axels:
-10 (phase gadget: 9)
-
-Gadget(s) are removed.
-Clean Frontier
-Extract Singles
-Extract CZs
-Remove Gadget
-Frontier:
-Qubit:1: 20
-Qubit:0: 21
-Qubit:2: 22
-
-Axels:
-10 (phase gadget: 9)
-
-Frontier:
-Qubit:1: 20
-Qubit:0: 21
-Qubit:2: 22
-
-Axels:
-10 (phase gadget: 9)
-
-Perform Gaussian Elimination.
-Update Graph by Matrix
-Extract CXs
-Add CX: 0 1
-Add CX: 2 0
-Add CX: 1 2
-Extract Hs
-Clean Frontier
-Extract Singles
-Extract CZs
-Remove Gadget
-Frontier:
-Qubit:1: 11
-Qubit:0: 13
-Qubit:2: 15
-
-Axels:
-10 (phase gadget: 9)
-
-Frontier:
-Qubit:1: 11
-Qubit:2: 15
-Qubit:0: 23
-
-Axels:
-
-Gadget(s) are removed.
-Clean Frontier
-Extract Singles
-Extract CZs
-Remove Gadget
-Frontier:
-Qubit:1: 11
-Qubit:2: 15
-Qubit:0: 23
-
-Axels:
-
-Frontier:
-Qubit:1: 11
-Qubit:2: 15
-Qubit:0: 23
-
-Axels:
-
-Construct an easy matrix.
-Extract Hs
-Clean Frontier
-Extract Singles
-Extract CZs
-Remove Gadget
-Frontier:
-Qubit:1: 11
-Qubit:2: 15
-Qubit:0: 9
-
-Axels:
-
-Frontier:
-Qubit:1: 11
-Qubit:2: 15
-Qubit:0: 9
-
-Axels:
-
-Perform Gaussian Elimination.
-Update Graph by Matrix
-Extract CXs
-Add CX: 2 1
-Add CX: 0 2
-Add CX: 1 0
-Extract Hs
-Clean Frontier
-Extract Singles
-Extract CZs
-Finish extracting!
-Permute Qubit
-
-qsyn> ver 0
-Note: verbose level is set to 0
+qsyn> logger warn
 
 qsyn> qc2zx 
 
-qsyn> zxgadj 
+qsyn> zx adjoint
 
-qsyn> zxcomp 0
+qsyn> zx compose 0
 
-qsyn> zxgs -fr    
+qsyn> zx optimize --full  
 
-qsyn> zxgp -q
+qsyn> zx print -q
 
-ID:   1 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (50, -) 
-ID:  50 (●, 0)           (Qubit, Col): (0, 39)	  #Neighbors:   1     (1, -) 
-
-
-ID:   3 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (51, -) 
-ID:  51 (●, 0)           (Qubit, Col): (1, 39)	  #Neighbors:   1     (3, -) 
+ID:    1 (●, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (50, -)
+ID:   50 (●, 0)       (Qubit, Col): (0, 39)        #Neighbors:   1    (1, -)
 
 
-ID:   5 (●, 0)           (Qubit, Col): (2, 0)	  #Neighbors:   1     (52, -) 
-ID:  52 (●, 0)           (Qubit, Col): (2, 39)	  #Neighbors:   1     (5, -) 
+ID:    3 (●, 0)       (Qubit, Col): (1, 0)         #Neighbors:   1    (51, -)
+ID:   51 (●, 0)       (Qubit, Col): (1, 39)        #Neighbors:   1    (3, -)
 
 
-qsyn> qccp
+ID:    5 (●, 0)       (Qubit, Col): (2, 0)         #Neighbors:   1    (52, -)
+ID:   52 (●, 0)       (Qubit, Col): (2, 39)        #Neighbors:   1    (5, -)
+
+
+qsyn> qcir print
 QCir (3 qubits, 31 gates, 10 2-qubits gates, 7 T-gates, 25 depths)
 
-qsyn> qccp -q
+qsyn> qcir print --diagram
 Q 0  ---------cx(30)----------cx(29)----------cx(28)-- h(25)----------cx(22)----------cx(21)--td(19)-- h(18)----------cz(17)-- h(16)--td(13)-- h(11)------------------cx( 8)----------cx( 7)-- h( 4)-- t( 0)-
 Q 1  - h(26)-- h(23)--------------------------------------------------cx(22)--------------------------cx(20)----------cz(17)--td(14)-- h(10)----------cx( 9)--------------------------cx( 7)-- h( 5)-- t( 1)-
 Q 2  ---------cx(30)----------cx(29)----------cx(28)-- h(27)-- h(24)------------------cx(21)----------cx(20)-- t(15)-- h(12)--------------------------cx( 9)----------cx( 8)-- h( 6)-- t( 3)-- h( 2)-
 
-qsyn> zxgtest -id
+qsyn> zx test --identity
 The graph is an identity!
 
 qsyn> qc2ts
 
-qsyn> tseq 0 1
+qsyn> tensor equiv 0 1
 Equivalent
 - Global Norm : 1
 - Global Phase: 0
 
-qsyn> qq -f
+qsyn> quit -f
 

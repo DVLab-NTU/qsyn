@@ -1,0 +1,6 @@
+qcir new
+qcir copy
+qcir qubit add 1
+qcir copy
+
+quit -f

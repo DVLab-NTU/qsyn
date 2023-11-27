@@ -1,0 +1,8 @@
+zx new
+zx read benchmark/zx/lcomp_1.zx
+zx print -v
+zx print -e
+zx rule --local-complementation
+zx print -v
+zx print -e
+quit -f

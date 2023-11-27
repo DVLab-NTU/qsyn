@@ -1,0 +1,15 @@
+qcir qubit add 2
+qcir gate add mcp --phase pi/2 0 1 
+qcir gate add mcrz --phase -pi/2 0 1
+qcir gate add tdg 0
+qcir print --gate 0
+qcir print --gate 1
+qcir print --gate 2
+qc2zx
+zx print -v
+zx2ts
+qcir new
+qcir qubit add 2
+qc2ts
+tensor equiv 0 1
+quit -f

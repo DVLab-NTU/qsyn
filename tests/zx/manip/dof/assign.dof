@@ -1,17 +1,17 @@
-qccr benchmark/pseudoSimp/tof2.qasm
+qcir read benchmark/qasm/tof2.qasm
 qc2ts
 qc2zx
-zxgp -v
+zx print -v
 zx2ts
-tseq 0 1
-zxgp -v
-zxgas 0 I X pi
-zxgas 0 O X pi
-zxgp -v
+tensor equiv 0 1
+zx print -v
+zx assign 0 I X pi
+zx assign 0 O X pi
+zx print -v
 zx2ts
-qcnew
-qcba 2
-qcga cx 0 1
+qcir new
+qcir qubit add 2
+qcir gate add cx 0 1
 qc2ts
-tseq 2 3
-qq -f
+tensor equiv 2 3
+quit -f

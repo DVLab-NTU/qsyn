@@ -1,71 +1,71 @@
-zxnew
-zxgedit -addi 0
-zxgedit -addo 0
-zxgedit -addi 1
-zxgedit -addo 1
-zxgedit -addv 0 Z 0
-zxgedit -addv 0 Z pi
-zxgedit -addi 2
-zxgedit -addo 2
-zxgedit -addi 3
-zxgedit -addo 3
+zx new
+zx vertex add input 0
+zx vertex add output 0
+zx vertex add input 1
+zx vertex add output 1
+zx vertex add z 0 0
+zx vertex add z 0 pi
+zx vertex add input 2
+zx vertex add output 2
+zx vertex add input 3
+zx vertex add output 3
 
-zxgedit -adde 0 4 SIMPLE
-zxgedit -adde 4 1 SIMPLE
-zxgedit -adde 2 5 SIMPLE
-zxgedit -adde 5 3 SIMPLE
-zxgedit -adde 6 7 SIMPLE
-zxgedit -adde 8 9 SIMPLE
+zx edge add 0 4 SIMPLE
+zx edge add 4 1 SIMPLE
+zx edge add 2 5 SIMPLE
+zx edge add 5 3 SIMPLE
+zx edge add 6 7 SIMPLE
+zx edge add 8 9 SIMPLE
 
-logger level trace
+logger trace
 zx2ts
-logger level warning
+logger warn
 
-zxgr benchmark/zx/cnot.zx
-zxgr benchmark/zx/cnot.zx
-zxch 0
-zxtensor 1
+zx read benchmark/zx/cnot.zx
+zx read benchmark/zx/cnot.zx
+zx checkout 0
+zx tensor-product 1
 
-logger level trace
+logger trace
 zx2ts
-logger level warning
+logger warn
 
-zxnew
-zxgedit -addi 0
-zxgedit -addo 0
-zxgedit -addi 1
-zxgedit -addo 1
-zxgedit -addi 2
-zxgedit -addo 2
-zxgedit -addi 3
-zxgedit -addo 3
-zxgedit -addi 4
-zxgedit -addo 4
+zx new
+zx vertex add input 0
+zx vertex add output 0
+zx vertex add input 1
+zx vertex add output 1
+zx vertex add input 2
+zx vertex add output 2
+zx vertex add input 3
+zx vertex add output 3
+zx vertex add input 4
+zx vertex add output 4
 
-zxgedit -addv 0 Z 0
-zxgedit -addv 0 Z 0
-zxgedit -addv 0 Z 0
-zxgedit -addv 0 Z 0
+zx vertex add z 0 0
+zx vertex add z 0 0
+zx vertex add z 0 0
+zx vertex add z 0 0
 
-zxgedit -addi 5
-zxgedit -addo 5
-zxgedit -addi 6
-zxgedit -addo 6
+zx vertex add input 5
+zx vertex add output 5
+zx vertex add input 6
+zx vertex add output 6
 
-zxgedit -adde 0 1 SIMPLE
-zxgedit -adde 2 10 SIMPLE
-zxgedit -adde 3 11 SIMPLE
-zxgedit -adde 4 12 SIMPLE
-zxgedit -adde 5 12 SIMPLE
-zxgedit -adde 6 12 SIMPLE
-zxgedit -adde 7 13 SIMPLE
-zxgedit -adde 8 13 SIMPLE
-zxgedit -adde 9 13 SIMPLE
-zxgedit -adde 14 16 SIMPLE
-zxgedit -adde 15 17 SIMPLE
+zx edge add 0 1 SIMPLE
+zx edge add 2 10 SIMPLE
+zx edge add 3 11 SIMPLE
+zx edge add 4 12 SIMPLE
+zx edge add 5 12 SIMPLE
+zx edge add 6 12 SIMPLE
+zx edge add 7 13 SIMPLE
+zx edge add 8 13 SIMPLE
+zx edge add 9 13 SIMPLE
+zx edge add 14 16 SIMPLE
+zx edge add 15 17 SIMPLE
 
-logger level trace
+logger trace
 zx2ts
-logger level warning
+logger warn
 
-qq -f
+quit -f

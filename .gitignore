@@ -2,6 +2,8 @@
 build/
 debug/
 qsyn*
+!src/qsyn*
+!src/qsyn/qsyn*
 
 # vscode configuration files and folders
 .vscode
@@ -12,3 +14,9 @@ qsyn*
 # vim configuration files and folders
 .cache/
 compile_commands.json
+
+# doxygen, sphinx, and other documentation files and folders
+docs/_build/
+docs/_doxygen/
+docs/dev/api/
+docs/doc-coverage.info

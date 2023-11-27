@@ -1,0 +1,7 @@
+#! /usr/bin/env bash
+
+# cd to the directory of this script
+cd "$(dirname "$0")" || exit
+
+docker build -t qsyn-test-gcc -f docker/gcc-test.Dockerfile .
+docker run --rm --security-opt seccomp=unconfined -v "$(pwd)":/app/qsyn qsyn-test-gcc "$@"

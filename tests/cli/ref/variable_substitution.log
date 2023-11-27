@@ -1,0 +1,39 @@
+qsyn> set var1 bench
+
+qsyn> set var2 mark
+
+qsyn> qcir read $var1$var2/SABRE/small/3_17_13.qasm
+
+qsyn> qcir list
+★ 0    3_17_13             
+
+qsyn> qcir read ${var1}$var2/SABRE/small/3_17_13.qasm
+
+qsyn> qcir list
+  0    3_17_13             
+★ 1    3_17_13             
+
+qsyn> qcir read $var1${var2}/SABRE/small/3_17_13.qasm
+
+qsyn> qcir list
+  0    3_17_13             
+  1    3_17_13             
+★ 2    3_17_13             
+
+qsyn> qcir read ${var1}${var2}/SABRE/small/3_17_13.qasm
+
+qsyn> qcir list
+  0    3_17_13             
+  1    3_17_13             
+  2    3_17_13             
+★ 3    3_17_13             
+
+qsyn> 
+qsyn> qcir list
+  0    3_17_13             
+  1    3_17_13             
+  2    3_17_13             
+★ 3    3_17_13             
+
+qsyn> quit -f
+

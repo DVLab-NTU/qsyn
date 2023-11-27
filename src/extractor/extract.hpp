@@ -1,5 +1,4 @@
 /****************************************************************************
-  FileName     [ extract.hpp ]
   PackageName  [ extractor ]
   Synopsis     [ Define class Extractor structure ]
   Author       [ Design Verification Lab ]
@@ -13,88 +12,106 @@
 #include <set>
 
 #include "device/device.hpp"
-#include "m2/m2.hpp"
-#include "zx/zxDef.hpp"
+#include "duostra/duostra.hpp"
+#include "qsyn/qsyn_type.hpp"
+#include "spdlog/common.h"
+#include "util/boolean_matrix.hpp"
+#include "zx/zx_def.hpp"
+
+namespace qsyn {
+
+namespace qcir {
+class QCir;
+}
+namespace zx {
+class ZXGraph;
+}
+
+namespace extractor {
 
 extern bool SORT_FRONTIER;
 extern bool SORT_NEIGHBORS;
 extern bool PERMUTE_QUBITS;
-extern bool FILTER_DUPLICATED_CXS;
+extern bool FILTER_DUPLICATE_CXS;
 extern size_t BLOCK_SIZE;
 extern size_t OPTIMIZE_LEVEL;
 
-class QCir;
-class ZXGraph;
-
 class Extractor {
 public:
-    using Target = std::unordered_map<size_t, size_t>;
+    using Target      = std::unordered_map<size_t, size_t>;
     using ConnectInfo = std::vector<std::set<size_t>>;
-    Extractor(ZXGraph*, QCir* = nullptr, std::optional<Device> = std::nullopt);
-    ~Extractor() {}
+    using Device      = duostra::Duostra::Device;
+    using Operation   = duostra::Duostra::Operation;
 
-    bool toPhysical() { return _device.has_value(); }
-    QCir* getLogical() { return _logicalCircuit; }
+    Extractor(zx::ZXGraph*, qcir::QCir* = nullptr, std::optional<Device> const& = std::nullopt);
 
-    void initialize(bool fromEmpty = true);
-    QCir* extract();
-    bool extractionLoop(size_t = size_t(-1));
-    bool removeGadget(bool check = false);
-    bool biadjacencyElimination(bool check = false);
-    void columnOptimalSwap();
-    void extractSingles();
-    bool extractCZs(bool check = false);
-    void extractCXs(size_t = 1);
-    size_t extractHsFromM2(bool check = false);
-    void cleanFrontier();
-    void permuteQubit();
+    bool to_physical() { return _device.has_value(); }
+    qcir::QCir* get_logical() { return _logical_circuit; }
 
-    void updateNeighbors();
-    void updateGraphByMatrix(EdgeType = EdgeType::HADAMARD);
-    void createMatrix();
+    void initialize(bool from_empty_qcir = true);
+    qcir::QCir* extract();
+    bool extraction_loop(std::optional<size_t> max_iter = std::nullopt);
+    bool remove_gadget(bool check = false);
+    bool biadjacency_eliminations(bool check = false);
+    void column_optimal_swap();
+    void extract_singles();
+    bool extract_czs(bool check = false);
+    void extract_cxs();
+    size_t extract_hadamards_from_matrix(bool check = false);
+    void clean_frontier();
+    void permute_qubits();
 
-    void prependSingleQubitGate(std::string, size_t, Phase);
-    void prependDoubleQubitGate(std::string, const std::vector<size_t>&, Phase);
-    void prependSeriesGates(const std::vector<Operation>&, const std::vector<Operation>& = {});
-    void prependSwapGate(size_t, size_t, QCir*);
-    bool frontierIsCleaned();
-    bool axelInNeighbors();
-    bool containSingleNeighbor();
-    void printCXs();
-    void printFrontier();
-    void printNeighbors();
-    void printAxels();
-    void printMatrix() { _biAdjacency.printMatrix(); }
+    void update_neighbors();
+    void update_graph_by_matrix(qsyn::zx::EdgeType = qsyn::zx::EdgeType::hadamard);
+    void update_matrix();
 
-    std::vector<size_t> findMinimalSums(M2&, bool = false);
-    std::vector<M2::Oper> greedyReduction(M2&);
+    void prepend_single_qubit_gate(std::string const&, QubitIdType qubit, dvlab::Phase);
+    void prepend_double_qubit_gate(std::string const&, QubitIdList const& qubits, dvlab::Phase);
+    void prepend_series_gates(std::vector<Operation> const&, std::vector<Operation> const& = {});
+    void prepend_swap_gate(QubitIdType q0, QubitIdType q1, qcir::QCir*);
+    bool frontier_is_cleaned();
+    bool axel_in_neighbors();
+    bool contains_single_neighbor();
+    void print_cxs() const;
+    void print_frontier(spdlog::level::level_enum lvl = spdlog::level::off) const;
+    void print_neighbors(spdlog::level::level_enum lvl = spdlog::level::off) const;
+    void print_axels(spdlog::level::level_enum lvl = spdlog::level::off) const;
+    void print_matrix() const { _biadjacency.print_matrix(); }
+
+    std::vector<size_t> find_minimal_sums(dvlab::BooleanMatrix& matrix);
+    std::vector<dvlab::BooleanMatrix::RowOperation> greedy_reduction(dvlab::BooleanMatrix&);
 
 private:
-    size_t _cntCXIter;
-    ZXGraph* _graph;
-    QCir* _logicalCircuit;
-    QCir* _physicalCircuit;
+    size_t _num_cx_iterations = 0;
+    zx::ZXGraph* _graph;
+    qcir::QCir* _logical_circuit;
+    qcir::QCir* _physical_circuit;
     std::optional<Device> _device;
-    std::optional<Device> _deviceBackup;
-    ZXVertexList _frontier;
-    ZXVertexList _neighbors;
-    ZXVertexList _axels;
-    std::unordered_map<size_t, size_t> _qubitMap;  // zx to qc
+    std::optional<Device> _device_backup;
+    zx::ZXVertexList _frontier;
+    zx::ZXVertexList _neighbors;
+    zx::ZXVertexList _axels;
+    std::unordered_map<QubitIdType, QubitIdType> _qubit_map;  // zx to qc
 
-    M2 _biAdjacency;
-    std::vector<M2::Oper> _cnots;
+    dvlab::BooleanMatrix _biadjacency;
+    std::vector<dvlab::BooleanMatrix::RowOperation> _cnots;
 
-    void blockElimination(M2&, size_t&, size_t);
-    void blockElimination(size_t&, M2&, size_t&, size_t);
-    std::vector<Operation> _DuostraAssigned;
-    std::vector<Operation> _DuostraMapped;
+    void _block_elimination(dvlab::BooleanMatrix& matrix, size_t& min_n_cxs, size_t block_size);
+    void _block_elimination(size_t& best_block, dvlab::BooleanMatrix& best_matrix, size_t& min_cost, size_t block_size);
+    void _filter_duplicate_cxs();
+    std::vector<Operation> _duostra_assigned;
+    std::vector<Operation> _duostra_mapped;
     // NOTE - Use only in column optimal swap
-    Target findColumnSwap(Target);
-    ConnectInfo _rowInfo;
-    ConnectInfo _colInfo;
+    Target _find_column_swap(Target);
+    ConnectInfo _row_info;
+    ConnectInfo _col_info;
 
-    size_t _cntCXFiltered;
-    size_t _cntSwap;
+    size_t _num_cx_filtered = 0;
+    size_t _num_swaps       = 0;
 
-    std::vector<size_t> _initialPlacement;
+    std::vector<size_t> _initial_placement;
 };
+
+}  // namespace extractor
+
+}  // namespace qsyn

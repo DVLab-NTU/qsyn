@@ -1,5 +1,4 @@
 /****************************************************************************
-  FileName     [ checker.cpp ]
   PackageName  [ duostra ]
   Synopsis     [ Define class Checker member functions ]
   Author       [ Chin-Yi Cheng, Chien-Yi Yang, Ren-Chu Wang, Yi-Hsiang Kuo ]
@@ -9,12 +8,16 @@
 
 #include "./checker.hpp"
 
-#include "./circuitTopology.hpp"
-#include "util/logger.hpp"
+#include <spdlog/spdlog.h>
 
-using namespace std;
-extern size_t verbose;
-extern dvlab::utils::Logger logger;
+#include "./circuit_topology.hpp"
+#include "qcir/gate_type.hpp"
+#include "qsyn/qsyn_type.hpp"
+#include "util/util.hpp"
+
+using namespace qsyn::qcir;
+
+namespace qsyn::duostra {
 
 /**
  * @brief Construct a new Checker:: Checker object
@@ -25,10 +28,10 @@ extern dvlab::utils::Logger logger;
  * @param assign
  * @param tqdm
  */
-Checker::Checker(CircuitTopo& topo,
-                 Device& device,
-                 std::vector<Operation> const& ops,
-                 const vector<size_t>& assign, bool tqdm)
+Checker::Checker(CircuitTopology& topo,
+                 Checker::Device& device,
+                 std::span<Checker::Operation const> ops,
+                 std::vector<QubitIdType> const& assign, bool tqdm)
     : _topo(&topo), _device(&device), _ops(ops), _tqdm(tqdm) {
     _device->place(assign);
 }
@@ -39,16 +42,13 @@ Checker::Checker(CircuitTopo& topo,
  * @param type
  * @return size_t
  */
-size_t Checker::getCycle(GateType type) {
-    switch (type) {
-        case GateType::SWAP:
-            return SWAP_DELAY;
-        case GateType::CX:
-            return DOUBLE_DELAY;
-        case GateType::CZ:
-            return DOUBLE_DELAY;
-        default:
-            return SINGLE_DELAY;
+size_t Checker::get_cycle(Operation const& op) {
+    if (op.is_swap()) {
+        return SWAP_DELAY;
+    } else if (op.is_cx() || op.is_cz()) {
+        return DOUBLE_DELAY;
+    } else {
+        return SINGLE_DELAY;
     }
 }
 
@@ -58,21 +58,19 @@ size_t Checker::getCycle(GateType type) {
  * @param op
  * @param q0
  */
-void Checker::applyGate(const Operation& op, PhysicalQubit& q0) {
-    size_t start = get<0>(op.getDuration());
-    size_t end = get<1>(op.getDuration());
+void Checker::apply_gate(Checker::Operation const& op, Checker::PhysicalQubit& q0) {
+    auto const start = get<0>(op.get_time_range());
+    auto const end   = get<1>(op.get_time_range());
 
-    if (!(start >= q0.getOccupiedTime())) {
-        cerr << op << "\n"
-             << "Q" << q0.getId() << " occu: " << q0.getOccupiedTime()
-             << endl;
-        abort();
-    }
-    if (!(end == start + getCycle(op.getType()))) {
-        cerr << op << endl;
-        abort();
-    }
-    q0.setOccupiedTime(end);
+    DVLAB_ASSERT(
+        start >= q0.get_occupied_time(),
+        fmt::format("The starting time of Operation {} is less than Qubit {}'s occupied time of ({}) !!", op.get_id(), q0.get_id(), q0.get_occupied_time()));
+
+    DVLAB_ASSERT(
+        end == start + get_cycle(op),
+        fmt::format("The ending time of Operation {} is not equal to start time + cycle!!", op.get_id()));
+
+    q0.set_occupied_time(end);
 }
 
 /**
@@ -82,26 +80,22 @@ void Checker::applyGate(const Operation& op, PhysicalQubit& q0) {
  * @param q0
  * @param q1
  */
-void Checker::applyGate(const Operation& op,
-                        PhysicalQubit& q0,
-                        PhysicalQubit& q1) {
-    size_t start = get<0>(op.getDuration());
-    size_t end = get<1>(op.getDuration());
+void Checker::apply_gate(Checker::Operation const& op,
+                         Checker::PhysicalQubit& q0,
+                         Checker::PhysicalQubit& q1) {
+    auto const start = get<0>(op.get_time_range());
+    auto const end   = get<1>(op.get_time_range());
 
-    if (!(start >= q0.getOccupiedTime() && start >= q1.getOccupiedTime())) {
-        cerr << op << "\n"
-             << "Q" << q0.getId() << " occu: " << q0.getOccupiedTime()
-             << "\n"
-             << "Q" << q1.getId() << " occu: " << q1.getOccupiedTime()
-             << endl;
-        abort();
-    }
-    if (!(end == start + getCycle(op.getType()))) {
-        cerr << op << endl;
-        abort();
-    }
-    q0.setOccupiedTime(end);
-    q1.setOccupiedTime(end);
+    DVLAB_ASSERT(
+        start >= q0.get_occupied_time(),
+        fmt::format("The starting time of Operation {} is less than Qubit {}'s occupied time of ({}) !!", op.get_id(), q0.get_id(), q0.get_occupied_time()));
+    DVLAB_ASSERT(
+        start >= q1.get_occupied_time(),
+        fmt::format("The starting time of Operation {} is less than Qubit {}'s occupied time of ({}) !!", op.get_id(), q1.get_id(), q1.get_occupied_time()));
+    DVLAB_ASSERT(end == start + get_cycle(op), fmt::format("The ending time of Operation {} is not equal to start time + cycle!!", op.get_id()));
+
+    q0.set_occupied_time(end);
+    q1.set_occupied_time(end);
 }
 
 /**
@@ -109,22 +103,19 @@ void Checker::applyGate(const Operation& op,
  *
  * @param op
  */
-void Checker::applySwap(const Operation& op) {
-    if (op.getType() != GateType::SWAP) {
-        cerr << gateType2Str[op.getType()] << " in applySwap"
-             << endl;
-        abort();
-    }
-    size_t q0_idx = get<0>(op.getQubits());
-    size_t q1_idx = get<1>(op.getQubits());
-    auto& q0 = _device->getPhysicalQubit(q0_idx);
-    auto& q1 = _device->getPhysicalQubit(q1_idx);
-    applyGate(op, q0, q1);
+void Checker::apply_swap(Checker::Operation const& op) {
+    DVLAB_ASSERT(op.is_swap(), fmt::format("Gate type {} in apply_swap is not allowed!!", op.get_type_str()));
+
+    auto q0_idx = get<0>(op.get_qubits());
+    auto q1_idx = get<1>(op.get_qubits());
+    auto& q0    = _device->get_physical_qubit(q0_idx);
+    auto& q1    = _device->get_physical_qubit(q1_idx);
+    apply_gate(op, q0, q1);
 
     // swap
-    size_t temp = q0.getLogicalQubit();
-    q0.setLogicalQubit(q1.getLogicalQubit());
-    q1.setLogicalQubit(temp);
+    auto temp = q0.get_logical_qubit();
+    q0.set_logical_qubit(q1.get_logical_qubit());
+    q1.set_logical_qubit(temp);
 }
 
 /**
@@ -135,39 +126,29 @@ void Checker::applySwap(const Operation& op) {
  * @return true
  * @return false
  */
-bool Checker::applyCX(const Operation& op, const Gate& gate) {
-    if (!(op.getType() == GateType::CX || op.getType() == GateType::CZ)) {
-        cerr << gateType2Str[op.getType()] << " in applyCX" << endl;
-        abort();
-    }
-    size_t q0_idx = get<0>(op.getQubits());
-    size_t q1_idx = get<1>(op.getQubits());
-    auto& q0 = _device->getPhysicalQubit(q0_idx);
-    auto& q1 = _device->getPhysicalQubit(q1_idx);
+bool Checker::apply_cx(Operation const& op, Gate const& gate) {
+    DVLAB_ASSERT(op.is_cx() || op.is_cz(), fmt::format("Gate type {} in apply_cx is not allowed!!", op.get_type_str()));
+    auto q0_idx = get<0>(op.get_qubits());
+    auto q1_idx = get<1>(op.get_qubits());
+    auto& q0    = _device->get_physical_qubit(q0_idx);
+    auto& q1    = _device->get_physical_qubit(q1_idx);
 
-    size_t topo_0 = q0.getLogicalQubit();
-    if (topo_0 == ERROR_CODE) {
-        cerr << "topo_0 is ERROR CODE" << endl;
-        abort();
-    }
-    size_t topo_1 = q1.getLogicalQubit();
-    if (topo_1 == ERROR_CODE) {
-        cerr << "topo_1 is ERRORCODE" << endl;
-        abort();
-    }
+    auto topo_0 = q0.get_logical_qubit();
+    auto topo_1 = q1.get_logical_qubit();
+
+    DVLAB_ASSERT(topo_0.has_value(), "topo_0 does not have value");
+    DVLAB_ASSERT(topo_1.has_value(), "topo_1 does not have value");
+    DVLAB_ASSERT(topo_0 != topo_1, "topo_0 should not be equal to topo_1");
 
     if (topo_0 > topo_1) {
-        swap(topo_0, topo_1);
-    } else if (topo_0 == topo_1) {
-        cerr << "topo_0 == topo_1: " << topo_0 << endl;
-        abort();
+        std::swap(topo_0, topo_1);
     }
-    if (topo_0 != get<0>(gate.getQubits()) ||
-        topo_1 != get<1>(gate.getQubits())) {
+    if (topo_0 != std::get<0>(gate.get_qubits()) ||
+        topo_1 != std::get<1>(gate.get_qubits())) {
         return false;
     }
 
-    applyGate(op, q0, q1);
+    apply_gate(op, q0, q1);
     return true;
 }
 
@@ -179,31 +160,28 @@ bool Checker::applyCX(const Operation& op, const Gate& gate) {
  * @return true
  * @return false
  */
-bool Checker::applySingle(const Operation& op, const Gate& gate) {
-    if ((op.getType() == GateType::SWAP) || (op.getType() == GateType::CX) || (op.getType() == GateType::CZ)) {
-        cerr << gateType2Str[op.getType()] << " in applySingle"
-             << endl;
-        abort();
-    }
-    size_t q0_idx = get<0>(op.getQubits());
-    if (get<1>(op.getQubits()) != ERROR_CODE) {
-        cerr << "Single gate " << gate.getId()
-             << " has no null second qubit" << endl;
-        abort();
-    }
-    auto& q0 = _device->getPhysicalQubit(q0_idx);
+bool Checker::apply_single(Operation const& op, Gate const& gate) {
+    DVLAB_ASSERT(
+        !op.is_swap() && !op.is_cx() && !op.is_cz(),
+        fmt::format("Gate type {} in apply_single is not allowed!!", op.get_type_str()));
 
-    size_t topo_0 = q0.getLogicalQubit();
-    if (topo_0 == ERROR_CODE) {
-        cerr << "topo_0 is ERROR CODE" << endl;
-        abort();
-    }
+    auto q0_idx = get<0>(op.get_qubits());
 
-    if (topo_0 != get<0>(gate.getQubits())) {
+    DVLAB_ASSERT(
+        !op.is_double_qubit_gate(),
+        fmt::format("Single gate {} has no null second qubit", gate.get_id()));
+
+    auto& q0 = _device->get_physical_qubit(q0_idx);
+
+    auto topo_0 = q0.get_logical_qubit();
+
+    DVLAB_ASSERT(topo_0.has_value(), "topo_0 does not have value");
+
+    if (topo_0 != get<0>(gate.get_qubits())) {
         return false;
     }
 
-    applyGate(op, q0);
+    apply_gate(op, q0);
     return true;
 }
 
@@ -211,61 +189,52 @@ bool Checker::applySingle(const Operation& op, const Gate& gate) {
  * @brief Test Operation
  *
  */
-bool Checker::testOperations() {
-    vector<size_t> finishedGates;
-
-    // cout << "Checking..." << endl;
-    TqdmWrapper bar{_ops.size(), _tqdm};
-    for (const auto& op : _ops) {
-        if (op.getType() == GateType::SWAP) {
-            applySwap(op);
+bool Checker::test_operations() {
+    std::vector<size_t> finished_gates;
+    for (dvlab::TqdmWrapper bar{_ops.size(), _tqdm}; !bar.done(); ++bar) {
+        auto& op = _ops[bar.idx()];
+        if (op.is_swap()) {
+            apply_swap(op);
         } else {
-            auto& availableGates = _topo->getAvailableGates();
-            bool passCondition = false;
-            if (op.getType() == GateType::CX || op.getType() == GateType::CZ) {
-                for (auto gate : availableGates) {
-                    if (applyCX(op, _topo->getGate(gate))) {
-                        passCondition = true;
-                        _topo->updateAvailableGates(gate);
-                        finishedGates.emplace_back(gate);
+            auto& available_gates = _topo->get_available_gates();
+            bool pass_condition   = false;
+            if (op.is_cx() || op.is_cz()) {
+                for (auto gate : available_gates) {
+                    if (apply_cx(op, _topo->get_gate(gate))) {
+                        pass_condition = true;
+                        _topo->update_available_gates(gate);
+                        finished_gates.emplace_back(gate);
                         break;
                     }
                 }
             } else {
-                for (auto gate : availableGates) {
-                    if (applySingle(op, _topo->getGate(gate))) {
-                        passCondition = true;
-                        _topo->updateAvailableGates(gate);
-                        finishedGates.emplace_back(gate);
+                for (auto gate : available_gates) {
+                    if (apply_single(op, _topo->get_gate(gate))) {
+                        pass_condition = true;
+                        _topo->update_available_gates(gate);
+                        finished_gates.emplace_back(gate);
                         break;
                     }
                 }
             }
-            if (!passCondition) {
-                cerr << "Executed gates:\n";
-                for (auto gate : finishedGates) {
-                    cerr << gate << "\n";
-                }
-                cerr << "Available gates:\n";
-                for (auto gate : availableGates) {
-                    cerr << gate << "\n";
-                }
-                cerr << "Failed Operation: " << op;
+            if (!pass_condition) {
+                spdlog::error("Could not match operation {} to any logical gates!!", op.get_id());
+                spdlog::error("  Executed gates:   {}", fmt::join(finished_gates, " "));
+                spdlog::error("  Available gates:  {}", fmt::join(available_gates, " "));
+                spdlog::error("  Failed Operation: {}, type: ", op.get_id(), op.get_type_str());
                 return false;
             }
         }
-        ++bar;
     }
-    if (verbose > 3) {
-        cout << "\nNum gates: " << finishedGates.size() << "\n"
-             << "Num operations:" << _ops.size() << "\n";
-    }
+    spdlog::info("");
+    spdlog::info("#gates: {}", finished_gates.size());
+    spdlog::info("#operations: {}", _ops.size());
 
-    if (finishedGates.size() != _topo->getNumGates()) {
-        cerr << "Number of finished gates " << finishedGates.size()
-             << " different from number of gates "
-             << _topo->getNumGates() << endl;
+    if (finished_gates.size() != _topo->get_num_gates()) {
+        spdlog::error("Number of finished gates ({}) is different from number of gates ({})!!", finished_gates.size(), _topo->get_num_gates());
         return false;
     }
     return true;
 }
+
+}  // namespace qsyn::duostra

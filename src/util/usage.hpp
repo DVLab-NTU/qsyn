@@ -1,7 +1,6 @@
 /****************************************************************************
-  FileName     [ usage.hpp ]
   PackageName  [ util ]
-  Synopsis     [ Report the run time and memory usage ]
+  Synopsis     [ Report the runtime and memory usage ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
@@ -16,25 +15,25 @@ class Usage {
 public:
     Usage() { reset(); }
 
-    void reset();
+    static void reset();
 
-    void report(bool repTime, bool repMem);
+    static void report(bool report_time, bool report_mem);
 
 private:
     // for Memory usage (in MB)
-    double _initMem = 0.0;
-    double _currentMem = 0.0;
+    static double _initial_memory;
+    static double _current_memory;
 
     // for CPU time usage
-    double _currentTick = 0.0;
-    double _periodUsedTime = 0.0;
-    double _totalUsedTime = 0.0;
+    static double _current_tick;
+    static double _period_used_time;
+    static double _total_used_time;
 
     // private functions
-    double checkMem() const;
-    double checkTick() const;
-    void setMemUsage();
-    void setTimeUsage();
+    static double _check_memory();
+    static double _check_tick();
+    static void _set_memory_usage();
+    static void _set_time_usage();
 };
 
 }  // namespace utils

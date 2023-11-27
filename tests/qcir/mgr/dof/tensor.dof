@@ -1,6 +1,6 @@
-qccread benchmark/benchmark_SABRE/small/3_17_13.qasm
-qccread benchmark/benchmark_SABRE/small/3_17_13.qasm
-qccp -q
-qctensor 1
-qccp -q
-qq -f
+qcir read benchmark/SABRE/small/3_17_13.qasm
+qcir read benchmark/SABRE/small/3_17_13.qasm
+qcir print --diagram
+qcir tensor-product 1
+qcir print --diagram
+quit -f

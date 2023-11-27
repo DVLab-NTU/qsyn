@@ -1,7 +1,6 @@
 /****************************************************************************
-  FileName     [ trie.hpp ]
   PackageName  [ util ]
-  Synopsis     [ User-defined trie data structure for parsing ]
+  Synopsis     [ Trie data structure for prefix-based lookups ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
@@ -19,12 +18,12 @@ namespace dvlab {
 
 namespace utils {
 
-struct TrieNode {
+struct TrieNode {  // NOLINT(hicpp-special-member-functions, cppcoreguidelines-special-member-functions) : copy-swap idiom
 public:
-    TrieNode() : isWord(false), frequency(0) {}
+    TrieNode() : is_word(false), frequency(0) {}
     ~TrieNode() = default;
 
-    TrieNode(TrieNode const& other) : isWord{other.isWord}, frequency{other.frequency} {
+    TrieNode(TrieNode const& other) : is_word{other.is_word}, frequency{other.frequency} {
         for (auto&& [ch, node] : other.children) {
             children.emplace(ch, std::make_unique<TrieNode>(*node));
         }
@@ -37,37 +36,36 @@ public:
         return *this;
     }
 
-    void swap(TrieNode& other) {
-        using std::swap;
-        swap(children, other.children);
-        swap(isWord, other.isWord);
-        swap(frequency, other.frequency);
+    void swap(TrieNode& other) noexcept {
+        std::swap(children, other.children);
+        std::swap(is_word, other.is_word);
+        std::swap(frequency, other.frequency);
     }
 
-    friend void swap(TrieNode& a, TrieNode& b) {
+    friend void swap(TrieNode& a, TrieNode& b) noexcept {
         a.swap(b);
     }
 
     std::unordered_map<char, std::unique_ptr<TrieNode>> children;
-    bool isWord;
+    bool is_word;
     size_t frequency;
 };
 
 template <typename It>
-concept StringRetrivable = requires {
-    std::input_iterator<It>;
-    std::convertible_to<typename std::iterator_traits<It>::value_type, std::string>;
+concept string_retrivable = requires {
+    requires std::input_iterator<It>;
+    requires std::convertible_to<typename std::iterator_traits<It>::value_type, std::string>;
 };
 
-static_assert(StringRetrivable<std::vector<std::string>::iterator>);
-static_assert(StringRetrivable<std::vector<std::string>::const_iterator>);
+static_assert(string_retrivable<std::vector<std::string>::iterator>);
+static_assert(string_retrivable<std::vector<std::string>::const_iterator>);
 
-class Trie {
+class Trie {  // NOLINT(hicpp-special-member-functions, cppcoreguidelines-special-member-functions) : copy-swap idiom
 public:
     Trie() : _root(std::make_unique<TrieNode>()) {}
 
     template <typename InputIt>
-    requires StringRetrivable<InputIt>
+    requires string_retrivable<InputIt>
     Trie(InputIt first, InputIt last) : _root(std::make_unique<TrieNode>()) {
         for (; first != last; ++first) {
             insert(*first);
@@ -83,26 +81,24 @@ public:
         return *this;
     }
 
-    void swap(Trie& other) {
-        using std::swap;
-        swap(_root, other._root);
+    void swap(Trie& other) noexcept {
+        std::swap(_root, other._root);
     }
 
-    friend void swap(Trie& a, Trie& b) {
+    friend void swap(Trie& a, Trie& b) noexcept {
         a.swap(b);
     }
 
     void clear() { _root = std::make_unique<TrieNode>(); }
-    bool insert(std::string const& word);
-    bool erase(std::string const& word);
-    bool contains(std::string const& word) const;
+    bool insert(std::string_view word);
+    bool erase(std::string_view word);
+    bool contains(std::string_view word) const;
     bool empty() const { return _root->children.empty(); }
-    std::string shortestUniquePrefix(std::string const& word) const;
-    size_t frequency(std::string const& prefix) const;
+    size_t frequency(std::string_view prefix) const;
 
-    std::optional<std::string> findWithPrefix(std::string const& prefix) const;
-
-    std::vector<std::string> findAllStringsWithPrefix(std::string const& prefix) const;
+    std::string shortest_unique_prefix(std::string_view word) const;
+    std::optional<std::string> find_with_prefix(std::string_view prefix) const;
+    std::vector<std::string> find_all_with_prefix(std::string_view prefix) const;
 
 private:
     std::unique_ptr<TrieNode> _root;

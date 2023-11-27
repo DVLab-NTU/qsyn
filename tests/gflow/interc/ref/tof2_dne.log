@@ -1,7 +1,6 @@
-DV Lab, NTUEE, Qsyn 0.5.1
-qsyn> zxgr benchmark/zx/tof2_opt.zx
+qsyn> zx read benchmark/zx/tof2_opt.zx
 
-qsyn> zxggf -all
+qsyn> zx gflow --all --only-xy-plane
 GFlow of the graph:
 Level 0
    1 (XY): (None)
@@ -18,5 +17,5 @@ The flow breaks at level 3.
 No correction sets found for the following vertices:
 0 8 9 13 2 14 16
 
-qsyn> qq -f 
+qsyn> quit -f 
 

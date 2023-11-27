@@ -1,42 +1,40 @@
-DV Lab, NTUEE, Qsyn 0.5.1
-qsyn> qcba 3
-Note: QCir list is empty now. Create a new one.
+qsyn> qcir qubit add 3
 
-qsyn> qcga cx 0 2
+qsyn> qcir gate add cx 0 2
 
-qsyn> qcga rz -ph pi 0
+qsyn> qcir gate add rz -ph pi 0
 
-qsyn> qcbd 1
+qsyn> qcir qubit remove 1
 
-qsyn> qccp -q
+qsyn> qcir print --diagram
 Q 0  ---------cx( 0)--rz( 1)-
 Q 2  ---------cx( 0)-
 
-qsyn> qcnew
+qsyn> qcir new
 
-qsyn> qcba 4
+qsyn> qcir qubit add 4
 
-qsyn> qcga cx 1 2
+qsyn> qcir gate add cx 1 2
 
-qsyn> qcga cx 0 3
+qsyn> qcir gate add cx 0 3
 
-qsyn> qcga cx 0 2
+qsyn> qcir gate add cx 0 2
 
-qsyn> qccp -q
+qsyn> qcir print --diagram
 Q 0  ---------cx( 1)----------cx( 2)-
 Q 1  ---------cx( 0)-
 Q 2  ---------cx( 0)----------cx( 2)-
 Q 3  ---------cx( 1)-
 
-qsyn> qcch 0
+qsyn> qcir checkout 0
 
-qsyn> qccp -q
+qsyn> qcir print --diagram
 Q 0  ---------cx( 0)--rz( 1)-
 Q 2  ---------cx( 0)-
 
-qsyn> qccompose 1
+qsyn> qcir compose 1
 
-qsyn> qccp -q
+qsyn> qcir print --diagram
 Q 0  ---------cx( 0)--rz( 1)----------cx( 3)----------cx( 4)-
 Q 1  -------------------------cx( 2)-
 Q 2  ---------cx( 0)----------cx( 2)------------------cx( 4)-
@@ -44,25 +42,25 @@ Q 3  ---------------------------------cx( 3)-
 
 qsyn> qc2zx
 
-qsyn> zxgp -v
+qsyn> zx print -v
 
-ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (8, -) 
-ID:   1 (●, 0)           (Qubit, Col): (0, 10)	  #Neighbors:   1     (15, -) 
-ID:   2 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (11, -) 
-ID:   3 (●, 0)           (Qubit, Col): (1, 10)	  #Neighbors:   1     (11, -) 
-ID:   4 (●, 0)           (Qubit, Col): (2, 0)	  #Neighbors:   1     (9, -) 
-ID:   5 (●, 0)           (Qubit, Col): (2, 10)	  #Neighbors:   1     (16, -) 
-ID:   6 (●, 0)           (Qubit, Col): (3, 0)	  #Neighbors:   1     (14, -) 
-ID:   7 (●, 0)           (Qubit, Col): (3, 10)	  #Neighbors:   1     (14, -) 
-ID:   8 (Z, 0)           (Qubit, Col): (0, 4)	  #Neighbors:   3     (0, -) (9, -) (10, -) 
-ID:   9 (X, 0)           (Qubit, Col): (2, 4)	  #Neighbors:   3     (4, -) (8, -) (12, -) 
-ID:  10 (Z, π)           (Qubit, Col): (0, 4)	  #Neighbors:   2     (8, -) (13, -) 
-ID:  11 (Z, 0)           (Qubit, Col): (1, 6)	  #Neighbors:   3     (2, -) (3, -) (12, -) 
-ID:  12 (X, 0)           (Qubit, Col): (2, 6)	  #Neighbors:   3     (9, -) (11, -) (16, -) 
-ID:  13 (Z, 0)           (Qubit, Col): (0, 7)	  #Neighbors:   3     (10, -) (14, -) (15, -) 
-ID:  14 (X, 0)           (Qubit, Col): (3, 7)	  #Neighbors:   3     (6, -) (7, -) (13, -) 
-ID:  15 (Z, 0)           (Qubit, Col): (0, 9)	  #Neighbors:   3     (1, -) (13, -) (16, -) 
-ID:  16 (X, 0)           (Qubit, Col): (2, 9)	  #Neighbors:   3     (5, -) (12, -) (15, -) 
+ID:    0 (●, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (8, -)
+ID:    1 (●, 0)       (Qubit, Col): (0, 10)        #Neighbors:   1    (15, -)
+ID:    2 (●, 0)       (Qubit, Col): (1, 0)         #Neighbors:   1    (11, -)
+ID:    3 (●, 0)       (Qubit, Col): (1, 10)        #Neighbors:   1    (11, -)
+ID:    4 (●, 0)       (Qubit, Col): (2, 0)         #Neighbors:   1    (9, -)
+ID:    5 (●, 0)       (Qubit, Col): (2, 10)        #Neighbors:   1    (16, -)
+ID:    6 (●, 0)       (Qubit, Col): (3, 0)         #Neighbors:   1    (14, -)
+ID:    7 (●, 0)       (Qubit, Col): (3, 10)        #Neighbors:   1    (14, -)
+ID:    8 (Z, 0)       (Qubit, Col): (0, 4)         #Neighbors:   3    (0, -) (9, -) (10, -)
+ID:    9 (X, 0)       (Qubit, Col): (2, 4)         #Neighbors:   3    (4, -) (8, -) (12, -)
+ID:   10 (Z, π)       (Qubit, Col): (0, 4)         #Neighbors:   2    (8, -) (13, -)
+ID:   11 (Z, 0)       (Qubit, Col): (1, 6)         #Neighbors:   3    (2, -) (3, -) (12, -)
+ID:   12 (X, 0)       (Qubit, Col): (2, 6)         #Neighbors:   3    (9, -) (11, -) (16, -)
+ID:   13 (Z, 0)       (Qubit, Col): (0, 7)         #Neighbors:   3    (10, -) (14, -) (15, -)
+ID:   14 (X, 0)       (Qubit, Col): (3, 7)         #Neighbors:   3    (6, -) (7, -) (13, -)
+ID:   15 (Z, 0)       (Qubit, Col): (0, 9)         #Neighbors:   3    (1, -) (13, -) (16, -)
+ID:   16 (X, 0)       (Qubit, Col): (2, 9)         #Neighbors:   3    (5, -) (12, -) (15, -)
 Total #Vertices: 17
 
 
@@ -70,38 +68,38 @@ qsyn> qc2ts
 
 qsyn> zx2ts
 
-qsyn> tseq 0 1
+qsyn> tensor equiv 0 1
 Equivalent
-- Global Norm : 1.02536
-- Global Phase: 161π/282
+- Global Norm : 0.140055
+- Global Phase: -178π/183
 
-qsyn> qcr
+qsyn> qcir delete --all
 
-qsyn> qccread benchmark/benchmark_SABRE/small/qft_4.qasm
+qsyn> qcir read benchmark/SABRE/small/qft_4.qasm
 
-qsyn> qccread benchmark/benchmark_SABRE/small/qft_4.qasm
+qsyn> qcir read benchmark/SABRE/small/qft_4.qasm
 
-qsyn> qccp -q
+qsyn> qcir print --diagram
 Q 0  ---------cx( 0)----------cx( 1)----------cx( 2)-
 Q 1  ---------cx( 0)--------------------------cx( 3)----------cx( 4)-
 Q 2  -------------------------cx( 1)----------cx( 3)--------------------------cx( 5)-
 Q 3  -----------------------------------------cx( 2)----------cx( 4)----------cx( 5)-
 
-qsyn> qccompose 1
+qsyn> qcir compose 1
 
-qsyn> qccp -q
+qsyn> qcir print --diagram
 Q 0  ---------cx( 0)----------cx( 1)----------cx( 2)--------------------------cx( 6)----------cx( 7)----------cx( 9)-
 Q 1  ---------cx( 0)--------------------------cx( 3)----------cx( 4)----------cx( 6)--------------------------cx( 8)----------cx(10)-
 Q 2  -------------------------cx( 1)----------cx( 3)--------------------------cx( 5)----------cx( 7)----------cx( 8)--------------------------cx(11)-
 Q 3  -----------------------------------------cx( 2)----------cx( 4)----------cx( 5)--------------------------cx( 9)----------cx(10)----------cx(11)-
 
-qsyn> qccompose 0
+qsyn> qcir compose 0
 
-qsyn> qccp -q
+qsyn> qcir print --diagram
 Q 0  ---------cx( 0)----------cx( 1)----------cx( 2)--------------------------cx( 6)----------cx( 7)----------cx( 9)--------------------------cx(12)----------cx(13)----------cx(15)-
 Q 1  ---------cx( 0)--------------------------cx( 3)----------cx( 4)----------cx( 6)--------------------------cx( 8)----------cx(10)----------cx(12)--------------------------cx(14)----------cx(16)-
 Q 2  -------------------------cx( 1)----------cx( 3)--------------------------cx( 5)----------cx( 7)----------cx( 8)--------------------------cx(11)----------cx(13)----------cx(14)--------------------------cx(17)-
 Q 3  -----------------------------------------cx( 2)----------cx( 4)----------cx( 5)--------------------------cx( 9)----------cx(10)----------cx(11)--------------------------cx(15)----------cx(16)----------cx(17)-
 
-qsyn> qq -f
+qsyn> quit -f
 

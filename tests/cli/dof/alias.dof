@@ -1,10 +1,11 @@
-qq -h
-alias qqqq qccr
-qq -h
-qqq -h
-qqu -h
-alias -d qqqq
-qquit -h
-qqq -h
-qq -h
-qq -f
+alias exit quit
+exi -h
+alias exir "qcir read"
+exi -h
+exir -h
+exit -h
+alias -d exir
+exit -h
+exir -h
+exi -h
+exit -f

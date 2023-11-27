@@ -1,5 +1,4 @@
 /****************************************************************************
-  FileName     [ util.cpp ]
   PackageName  [ util ]
   Synopsis     [ Define global utility functions ]
   Author       [ Design Verification Lab ]
@@ -15,50 +14,39 @@
 #include <cstring>
 #include <filesystem>
 #include <string>
+#include <tqdm/tqdm.hpp>
 #include <vector>
 
 #include "./usage.hpp"
-
-using namespace std;
 
 //----------------------------------------------------------------------
 //    Global functions in util
 //----------------------------------------------------------------------
 #ifndef NDEBUG
-void dvlab::detail::dvlab_assert_impl(const char* expr_str, bool expr, const char* file, int line, const char* msg) {
+#endif
+
+namespace dvlab {
+
+void detail::dvlab_assert_impl(std::string_view expr_str, bool expr, std::string_view file, int line, std::string_view msg) {
     if (!expr) {
-        fprintf(stderr, "Assertion failed:\t%s\n", msg);
-        fprintf(stderr, "Expected:\t%s\n", expr_str);
-        fprintf(stderr, "Source:\t\t%s, line %d\n", file, line);
+        fmt::println(stderr, "Assertion failed:\t{}", msg);
+        fmt::println(stderr, "Expected:\t{}", expr_str);
+        fmt::println(stderr, "Source:\t\t{}, line {}\n", file, line);
         abort();
     }
 }
-#endif
 
-size_t intPow(size_t base, size_t n) {
-    if (n == 0) return 1;
-    if (n == 1) return base;
-    size_t tmp = intPow(base, n / 2);
-    if (n % 2 == 0)
-        return tmp * tmp;
-    else
-        return base * tmp * tmp;
+void detail::dvlab_abort_impl(std::string_view file, int line, std::string_view msg) {
+    fmt::println(stderr, "Abort:\t{}", msg);
+    fmt::println(stderr, "Source:\t\t{}, line {}\n", file, line);
+    abort();
 }
 
-TqdmWrapper::TqdmWrapper(size_t total, bool show)
-    : _counter(0), _total(total), _tqdm(make_unique<tqdm>(show)) {}
-
-TqdmWrapper::TqdmWrapper(int total, bool show) : TqdmWrapper(static_cast<size_t>(total), show) {}
-
-TqdmWrapper::~TqdmWrapper() {
-    _tqdm->finish();
+void detail::dvlab_unreachable_impl(std::string_view file, int line, std::string_view msg) {
+    fmt::println(stderr, "Unreachable:\t{}", msg);
+    fmt::println(stderr, "Source:\t\t{}, line {}\n", file, line);
+    abort();
 }
-
-void TqdmWrapper::add() {
-    _tqdm->progress(_counter++, _total);
-}
-
-namespace dvlab {
 
 namespace utils {
 
@@ -73,5 +61,17 @@ bool expect(bool condition, std::string const& msg) {
 }
 
 }  // namespace utils
+
+TqdmWrapper::TqdmWrapper(size_t total, bool show)
+    : _total{gsl::narrow<CounterType>(total)}, _tqdm{std::make_unique<tqdm>(show)} {}
+
+TqdmWrapper::~TqdmWrapper() {
+    _tqdm->finish();
+}
+
+TqdmWrapper& TqdmWrapper::operator++() {
+    _tqdm->progress(_counter++, _total);
+    return *this;
+}
 
 }  // namespace dvlab

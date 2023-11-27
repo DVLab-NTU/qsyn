@@ -1,20 +1,19 @@
-exts -op 1
-zxgread benchmark/bzx/tof3.bzx
+extract config --optimize-level 1
+zx read benchmark/zx/tof3.zx
 zx2ts
-ver 0
-zxgs -fr
-zxgp -q
-ver 5
+zx optimize --full
+zx print -q
+logger debug
 zx2qc
-ver 0
+logger warn
 qc2zx 
-zxgadj 
-zxcomp 0
-zxgs -fr    
-zxgp -q
-qccp
-qccp -q
-zxgtest -id
+zx adjoint
+zx compose 0
+zx optimize --full  
+zx print -q
+qcir print
+qcir print --diagram
+zx test --identity
 qc2ts
-tseq 0 1
-qq -f
+tensor equiv 0 1
+quit -f

@@ -1,0 +1,20 @@
+// testing empty dofiles
+
+source tests/cli/helper/empty_dof
+
+// Testing dofile arguments
+
+source tests/cli/helper/param_dof
+logger // should print logger level
+source tests/cli/helper/param_dof trace
+logger $1 // should change logger level to trace
+source tests/cli/helper/param_dof_kw // should error and print usage
+source tests/cli/helper/param_dof_kw info debug trace // should error and print usage
+
+source tests/cli/helper/param_dof_kw debug trace
+logger ${input1} // should change logger level to debug
+logger $input2   // should change logger level to trace
+logger $1        // should change logger level to debug
+logger ${2}      // should change logger level to trace
+
+quit -f

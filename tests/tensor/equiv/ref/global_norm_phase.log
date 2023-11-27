@@ -1,0 +1,68 @@
+qsyn> zx new
+
+qsyn> zx vertex add i 0
+
+qsyn> zx vertex add o 0
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx vertex add z 0 0
+
+qsyn> zx edge add 0 2 SIMPLE
+
+qsyn> zx edge add 2 3 SIMPLE
+
+qsyn> zx edge add 3 1 SIMPLE
+
+qsyn> zx2ts
+
+qsyn> zx edge add 2 3 SIMPLE
+
+qsyn> zx2ts
+
+qsyn> tensor list
+  0                        #Dim: 2   ZX2TS
+★ 1                        #Dim: 2   ZX2TS
+
+qsyn> tensor equiv 0 1
+Equivalent
+- Global Norm : 1
+- Global Phase: 0
+
+qsyn> tensor equiv 0 1 --strict
+Equivalent
+- Global Norm : 1
+- Global Phase: 0
+
+qsyn> zx delete --all
+
+qsyn> tensor delete --all
+
+qsyn> qcir qubit add
+
+qsyn> qc2ts 
+
+qsyn> qcir gate add t 0
+
+qsyn> qcir gate add x 0
+
+qsyn> qcir gate add t 0
+
+qsyn> qcir gate add x 0
+
+qsyn> qc2ts
+
+qsyn> tensor list
+  0                        #Dim: 2   QC2TS
+★ 1                        #Dim: 2   QC2TS
+
+qsyn> tensor equiv 0 1
+Equivalent
+- Global Norm : 1
+- Global Phase: π/4
+
+qsyn> tensor equiv 0 1 --strict
+Not Equivalent
+
+qsyn> quit -f
+

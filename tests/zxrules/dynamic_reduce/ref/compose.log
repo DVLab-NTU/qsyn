@@ -1,91 +1,93 @@
-DV Lab, NTUEE, Qsyn 0.5.1
-qsyn> verb 3
-Note: verbose level is set to 3
+qsyn> logger debug
+[info]     Setting logger level to "debug"
 
-qsyn> zxgread benchmark/zx/tof3.zx
+qsyn> zx read benchmark/zx/tof3.zx
+[info]     Successfully created and checked out to ZXGraph 0
 
-qsyn> zxcopy 1
+qsyn> zx copy 1
+[info]     Successfully copied ZXGraph 0 to ZXGraph 1
+[info]     Checked out to ZXGraph 1
 
-qsyn> zxgs -dreduce
+qsyn> zx optimize --dynamic
+[info]     Hadamard Rule                 1 iterations, total    2 matches
+[debug]       1) 2 matches
+[info]     Full Reduce:
+[info]     Spider Fusion Rule            3 iterations, total    6 matches
+[debug]       1) 3 matches
+[debug]       2) 2 matches
+[debug]       3) 1 matches
+[info]     Pivot Gadget Rule             2 iterations, total    4 matches
+[debug]       1) 3 matches
+[debug]       2) 1 matches
+[info]     Identity Removal Rule         1 iterations, total    2 matches
+[debug]       1) 2 matches
+[info]     Dynamic Reduce: (T-optimal: 7)
+[info]     Spider Fusion Rule            3 iterations, total    6 matches
+[debug]       1) 3 matches
+[debug]       2) 2 matches
+[debug]       3) 1 matches
+[info]     Pivot Gadget Rule             2 iterations, total    4 matches
+[debug]       1) 3 matches
+[debug]       2) 1 matches
 
-Full Reduce:
-All rules applied in order:
-Spider Fusion Rule            3 iterations.
-  1) 3 matches
-  2) 2 matches
-  3) 1 matches
-Pivot Gadget Rule             2 iterations.
-  1) 3 matches
-  2) 1 matches
-Identity Removal Rule         1 iterations.
-  1) 2 matches
+qsyn> zx print -s
+Graph (3 inputs, 3 outputs, 19 vertices, 21 edges)
+#T-gate:                      7
+#Non-(Clifford+T)-gate:       0
+#Non-Clifford-gate:           7
 
-Dynamic Reduce: (T-optimal: 7)
-All rules applied in order:
-Spider Fusion Rule            3 iterations.
-  1) 3 matches
-  2) 2 matches
-  3) 1 matches
-Pivot Gadget Rule             2 iterations.
-  1) 3 matches
-  2) 1 matches
-Identity Removal Rule         1 iterations.
-  1) 2 matches
+qsyn> zx adjoint
 
-qsyn> zxgadjoint 
+qsyn> zx compose 0
 
-qsyn> zxcompose 0
+qsyn> zx optimize --full
+[info]     Hadamard Rule                 1 iterations, total    2 matches
+[debug]       1) 2 matches
+[info]     Spider Fusion Rule            4 iterations, total   14 matches
+[debug]       1) 6 matches
+[debug]       2) 4 matches
+[debug]       3) 2 matches
+[debug]       4) 2 matches
+[info]     Identity Removal Rule         1 iterations, total    2 matches
+[debug]       1) 2 matches
+[info]     Pivot Rule                    1 iterations, total    1 matches
+[debug]       1) 1 matches
+[info]     Identity Removal Rule         1 iterations, total    1 matches
+[debug]       1) 1 matches
+[info]     Spider Fusion Rule            1 iterations, total    1 matches
+[debug]       1) 1 matches
+[info]     Pivot Rule                    1 iterations, total    1 matches
+[debug]       1) 1 matches
+[info]     Identity Removal Rule         1 iterations, total    1 matches
+[debug]       1) 1 matches
+[info]     Spider Fusion Rule            1 iterations, total    1 matches
+[debug]       1) 1 matches
+[info]     Pivot Rule                    1 iterations, total    1 matches
+[debug]       1) 1 matches
+[info]     Identity Removal Rule         1 iterations, total    1 matches
+[debug]       1) 1 matches
+[info]     Spider Fusion Rule            1 iterations, total    1 matches
+[debug]       1) 1 matches
+[info]     Pivot Rule                    1 iterations, total    1 matches
+[debug]       1) 1 matches
+[info]     Identity Removal Rule         2 iterations, total    2 matches
+[debug]       1) 1 matches
+[debug]       2) 1 matches
+[info]     Pivot Gadget Rule             1 iterations, total    1 matches
+[debug]       1) 1 matches
+[info]     Identity Removal Rule         1 iterations, total    1 matches
+[debug]       1) 1 matches
+[info]     Spider Fusion Rule            1 iterations, total    1 matches
+[debug]       1) 1 matches
+[info]     Phase Gadget Rule             1 iterations, total    1 matches
+[debug]       1) 1 matches
+[info]     Pivot Rule                    1 iterations, total    1 matches
+[debug]       1) 1 matches
+[info]     Identity Removal Rule         1 iterations, total    2 matches
+[debug]       1) 2 matches
 
-qsyn> zxgs -freduce
-
-All rules applied in order:
-Hadamard Rule                 1 iterations.
-  1) 2 matches
-Spider Fusion Rule            4 iterations.
-  1) 6 matches
-  2) 3 matches
-  3) 2 matches
-  4) 2 matches
-Identity Removal Rule         1 iterations.
-  1) 1 matches
-Pivot Rule                    1 iterations.
-  1) 1 matches
-Identity Removal Rule         1 iterations.
-  1) 1 matches
-Spider Fusion Rule            1 iterations.
-  1) 1 matches
-Pivot Rule                    1 iterations.
-  1) 1 matches
-Identity Removal Rule         1 iterations.
-  1) 1 matches
-Spider Fusion Rule            1 iterations.
-  1) 1 matches
-Pivot Rule                    1 iterations.
-  1) 1 matches
-Identity Removal Rule         1 iterations.
-  1) 1 matches
-Spider Fusion Rule            1 iterations.
-  1) 1 matches
-Pivot Rule                    1 iterations.
-  1) 1 matches
-Identity Removal Rule         2 iterations.
-  1) 1 matches
-  2) 1 matches
-Pivot Gadget Rule             1 iterations.
-  1) 1 matches
-Identity Removal Rule         1 iterations.
-  1) 1 matches
-Spider Fusion Rule            1 iterations.
-  1) 1 matches
-Phase Gadget Rule             1 iterations.
-  1) 1 matches
-Pivot Rule                    1 iterations.
-  1) 1 matches
-Identity Removal Rule         1 iterations.
-  1) 2 matches
-
-qsyn> zxgtest -id
+qsyn> zx test --identity
 The graph is an identity!
 
-qsyn> qq -f
+qsyn> quit -f
 

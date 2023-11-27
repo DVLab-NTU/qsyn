@@ -1,9 +1,9 @@
-zxgr benchmark/zx/cnot.zx
-zxgedit -adde 0 5 SIMPLE
+zx read benchmark/zx/cnot.zx
+zx edge add 0 5 SIMPLE
 zx2ts // invalid graph 1: boundary has too more than one neighbors
 
-zxgr benchmark/zx/cnot.zx
-zxgedit -rme 0 2 ALL
+zx read benchmark/zx/cnot.zx
+zx edge remove 0 2 ALL
 zx2ts // invalid graph 2: boundary has no neighbors
 
-qq -f
+quit -f

@@ -1,8 +1,8 @@
-help logger
-help dofile
-help zxge
-zxge -rmvertex -h
-zxge -rmedge -h
-help extract
-help zxgr
-qq -f
+logger -h
+source -h
+zx vertex -h
+zx vertex remove -h
+zx edge remove -h
+extract step -h
+zx read -h
+quit -f

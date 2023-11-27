@@ -1,9 +1,10 @@
-verb 3
-zxgread benchmark/zx/tof3.zx
-zxcopy 1
-zxgs -dreduce
-zxgadjoint 
-zxcompose 0
-zxgs -freduce
-zxgtest -id
-qq -f
+logger debug
+zx read benchmark/zx/tof3.zx
+zx copy 1
+zx optimize --dynamic
+zx print -s
+zx adjoint
+zx compose 0
+zx optimize --full
+zx test --identity
+quit -f
