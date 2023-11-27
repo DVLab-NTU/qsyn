@@ -18,9 +18,13 @@
 #include <string>
 #include <vector>
 
+#ifdef _LIBCPP_VERSION
+#include <iostream>
+#else
 namespace std {
-extern std::ostream cout;
+extern ostream cout;
 }
+#endif
 
 class tqdm {
 private:

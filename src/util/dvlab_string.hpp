@@ -18,6 +18,7 @@
 #include <stdexcept>
 #include <string>
 #include <system_error>
+#include <util/util.hpp>
 #include <vector>
 
 namespace dvlab::str {
@@ -201,10 +202,37 @@ bool str_to_num(std::string const& str, T& f) {
 
 namespace detail {
 
+#ifdef _LIBCPP_VERSION
 template <typename T>
-::std::from_chars_result from_chars_wrapper(std::string_view str, T& val) {
-    return ::std::from_chars(str.data(), str.data() + str.size(), val);
+requires std::integral<T>
+std::from_chars_result from_chars_wrapper(std::string_view str, T& val) {
+    return std::from_chars(str.data(), str.data() + str.size(), val);
 }
+
+template <typename T>
+requires std::floating_point<T>
+std::from_chars_result from_chars_wrapper(std::string_view str, T& val) {
+    size_t pos = 0;
+    if constexpr (std::is_same_v<T, float>) {
+        val = std::stof(std::string{str}, &pos);
+        return {str.data() + pos, std::errc{}};
+    } else if constexpr (std::is_same_v<T, double>) {
+        val = std::stod(std::string{str}, &pos);
+        return {str.data() + pos, std::errc{}};
+    } else if constexpr (std::is_same_v<T, long double>) {
+        val = std::stold(std::string{str}, &pos);
+        return {str.data() + pos, std::errc{}};
+    }
+    DVLAB_UNREACHABLE("unsupported type");
+}
+
+#else
+template <typename T>
+std::from_chars_result from_chars_wrapper(std::string_view str, T& val) {
+    return std::from_chars(str.data(), str.data() + str.size(), val);
+}
+
+#endif
 
 }  // namespace detail
 

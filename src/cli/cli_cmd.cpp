@@ -7,14 +7,17 @@
 #include <spdlog/spdlog.h>
 
 #include "cli/cli.hpp"
-#include "fmt/color.h"
 #include "spdlog/common.h"
 #include "util/sysdep.hpp"
 #include "util/usage.hpp"
 
+#ifdef _LIBCPP_VERSION
+#include <iostream>
+#else
 namespace std {
 extern istream cin;
 }
+#endif
 
 namespace dvlab {
 

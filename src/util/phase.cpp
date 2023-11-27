@@ -10,6 +10,10 @@
 #include "./rational.hpp"
 #include "argparse/arg_def.hpp"
 
+#ifdef _LIBCPP_VERSION
+#include <iostream>
+#endif
+
 namespace dvlab {
 
 /**
