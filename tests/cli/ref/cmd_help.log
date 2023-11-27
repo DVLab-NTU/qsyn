@@ -36,10 +36,14 @@ Options:
 
 Subcommands:
 (add | remove)  
-    add  add vertices to ZXGraph 
+    add     add vertices to ZXGraph      
+    remove  remove vertices from ZXGraph 
 
 qsyn> zx vertex remove -h
 Usage: zx vertex remove [-h] ([<size_t ids>]... | -i)
+
+Description:
+  remove vertices from ZXGraph
 
 Positional Arguments:
   size_t  ids    the IDs of vertices to remove 

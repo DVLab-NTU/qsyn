@@ -369,11 +369,9 @@ bool ArgumentParser::_parse_options(TokensSpan tokens) {
             if (dvlab::str::from_string<float>(token).has_value()) {
                 continue;
             }
-            auto frequency = std::get<size_t>(match);
-            assert(frequency != 1);
 
             // If the option is ambiguous, report the error and quit parsing
-            if (frequency > 0) {
+            if (*p_frequency > 0) {
                 auto const matching_option_filter = [this, &token = token](std::string const& name) {
                     return has_option_prefix(name) && name.starts_with(token);
                 };
@@ -428,7 +426,7 @@ std::pair<std::vector<std::string>, std::string> ArgumentParser::_explode_option
             }
         }
         // if we encounter a single-char that does not match any option, then everything after it is the argument for the last option
-        else if (auto p_frequency = std::get_if<size_t>(&match)) {
+        else if (std::get_if<size_t>(&match)) {
             remainder_token = token.substr(j + 2);
         }
     }
