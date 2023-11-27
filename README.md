@@ -40,7 +40,7 @@ Then, follow the instructions below to install the dependencies and build `qsyn`
 Or you can try out `qsyn` in a containerized environment by running
 
 ```shell!
-docker run -it --rm dvlab/qsyn
+docker run -it --rm dvlab/qsyn:latest
 ```
 
 ### Optional Dependencies for Visualization
@@ -60,20 +60,13 @@ Visualization functionalities of `qsyn` depend at runtime on the following depen
 
 `qsyn` uses CMake to manage the build process. To build `qsyn`, follow the instructions below:
 
-1. create a `build` directory to store CMake artifacts
+1. Run `cmake` to build dependencies and generate Makefiles, if this step fails, you might have to install external dependencies `blas`, `lapack` or `xtensor` yourself.
 
    ```sh
-   mkdir build
-   cd build
+   cmake -B build -S .
    ```
 
-2. run CMake to generate Makefiles, if this step fails, you might have to install `blas` and `lapack` libraries.
-
-   ```sh
-   cmake ..
-   ```
-
-   **Note for Mac Users:** Since we use some C++20 features that are not yet supported by Apple Clang, you'll need to install another compiler yourself. We recommand installing the `llvm` toolchain with `clang++` by running
+   **Note for Mac Users:** Since we use some C++20 features that are not yet supported by Apple Clang, you'll need to install another compiler yourself. We recommend installing the `llvm` toolchain with `clang++` by running
 
    ```sh
    brew install llvm
@@ -82,25 +75,32 @@ Visualization functionalities of `qsyn` depend at runtime on the following depen
    Then, run the following command to force `cmake` to use the new `clang++` you installed.
 
    ```sh
-   cmake .. -DCMAKE_CXX_COMPILER=$(which clang++)
+   cmake -DCMAKE_CXX_COMPILER=$(which clang++) -B build -S .
    ```
 
-3. run `make` to build up the executable. You would want to crank up the number of threads to speed up the compilation process:
+2. Build the executable. You would want to crank up the number of threads to speed up the compilation process:
 
    ```sh
-   cmake --build . -j16
-   # or
-   make -j16
+   cmake --build build -j 8
+   ```
+
+   You can now execute `qsyn` by running
+
+   ```sh
+    ./qsyn
    ```
 
    You can also build `qsyn` in a containerized environment by running
 
    ```sh
-   docker run -it --rm -v $(pwd):/qsyn dvlab/qsyn-env
-   cd /qsyn
+   make build-docker
    ```
 
-   Then, you can follow the instructions above to build `qsyn` in the container.
+   And run that executable by running
+
+   ```sh
+   make run-docker
+   ```
 
 ### Run
 
@@ -108,7 +108,7 @@ Visualization functionalities of `qsyn` depend at runtime on the following depen
 
   ```sh
    ❯ ./qsyn
-   qsyn 0.6.0 - Copyright © 2022-2023, DVLab NTUEE.
+   qsyn 0.6.1 - Copyright © 2022-2023, DVLab NTUEE.
    Licensed under Apache 2.0 License.
    qsyn>
   ```
@@ -129,7 +129,7 @@ Visualization functionalities of `qsyn` depend at runtime on the following depen
 
   ```sh
   ❯ ./qsyn -f examples/synth.dof
-  qsyn 0.6.0 - DVLab NTUEE.
+  qsyn 0.6.1 - DVLab NTUEE.
   Licensed under Apache 2.0 License.
   qsyn> qcir read benchmark/zx/tof3.zx
   ```
@@ -151,30 +151,28 @@ We have provided some DOFILEs, i.e., a sequence of commands, to serve as functio
 - To run a DOFILE and compare the result to the reference, type
 
   ```sh
-  ./RUN_TESTS <path/to/test> -d
+  ./scripts/RUN_TESTS <path/to/test> -d
   ```
 
 - To update the reference to a dofile, type
 
   ```sh
-  ./RUN_TESTS <path/to/test> -u
+  ./scripts/RUN_TESTS <path/to/test> -u
   ```
 
 - You may also run all DOFILEs by running
 
   ```sh
-  ./RUN_TESTS
+  make test
   ```
 
 - To run test in a containerized environment, run
 
   ```sh
-  ./RUN_TESTS_DOCKER
+  make test-docker
   ```
 
-  All arguments are the same as `RUN_TESTS`.
-
-  Notice that if you use a different BLAS or LAPACK implementation to build `Qsyn`, some of the DOFILEs may produce different results, which is to be expected.
+  Notice that if you use a different BLAS or LAPACK implementation to build `qsyn`, some of the DOFILEs may produce different results, which is expected.
 
 ## License
 
