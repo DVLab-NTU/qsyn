@@ -180,20 +180,21 @@ Run test dofiles to qsyn, and help comparing to/updating the reference. When a r
         description=descript, formatter_class=RawDescriptionHelpFormatter
     )
 
-    default_tests = os.path.join(
+    default_qsyn = os.path.join(
         os.path.dirname(os.path.realpath(__file__)), "../tests/"
     )
     parser.add_argument(
         "paths",
         nargs="*",
-        default=[default_tests],
+        default=[default_qsyn],
         help="run the provided dofiles. If directories are provided, tests all dofiles in tests/",
     )
 
+    default_qsyn = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../qsyn")
     parser.add_argument(
         "-q",
         "--qsyn",
-        default="./qsyn",
+        default=default_qsyn,
         help="path to qsyn executable",
     )
 
