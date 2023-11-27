@@ -20,6 +20,8 @@
 
 namespace dvlab::argparse {
 
+class ArgumentParser;
+
 struct ArgumentParserConfig {
     bool add_help_action     = true;
     bool add_version_action  = false;
@@ -34,40 +36,32 @@ struct ArgumentParserConfig {
  */
 class SubParsers {
 private:
-    struct SubParsersImpl {
-        dvlab::utils::ordered_hashmap<std::string, ArgumentParser, detail::heterogeneous_string_hash, std::equal_to<>> subparsers;
-        std::string help;
-        bool required = false;
-        ArgumentParserConfig parent_config;
-    };
+    struct SubParsersImpl;
+    using MapType = dvlab::utils::ordered_hashmap<std::string, ArgumentParser, detail::heterogeneous_string_hash, std::equal_to<>>;
     std::shared_ptr<SubParsersImpl> _pimpl;
 
 public:
-    SubParsers(ArgumentParserConfig const& parent_config) : _pimpl{std::make_shared<SubParsersImpl>()} { _pimpl->parent_config = parent_config; }
-    SubParsers required(bool is_req) {
-        _pimpl->required = is_req;
-        return *this;
-    }
-    SubParsers help(std::string_view help) {
-        _pimpl->help = help;
-        return *this;
-    }
+    SubParsers(ArgumentParser& parent_parser);
+    SubParsers required(bool is_req);
+    SubParsers help(std::string_view help);
 
     ArgumentParser add_parser(std::string_view name);
     ArgumentParser add_parser(std::string_view name, ArgumentParserConfig const& config);
 
-    size_t size() const noexcept { return _pimpl->subparsers.size(); }
+    size_t size() const noexcept;
 
-    auto const& get_subparsers() const { return _pimpl->subparsers; }
-    auto const& get_help() const { return _pimpl->help; }
+    SubParsers::MapType const& get_subparsers() const;
+    std::string const& get_help() const;
 
-    bool is_required() const { return _pimpl->required; }
+    bool is_required() const noexcept;
 };
 
 namespace detail {
 
 std::string get_syntax(ArgumentParser parser, MutuallyExclusiveGroup const& group);
 std::string styled_option_name_and_aliases(ArgumentParser parser, Argument const& arg);
+std::string styled_parser_name(ArgumentParser const& parser);
+std::string styled_parser_name_trace(ArgumentParser const& parser);
 
 }  // namespace detail
 
@@ -77,8 +71,6 @@ std::string styled_option_name_and_aliases(ArgumentParser parser, Argument const
  *
  */
 class ArgumentParser {
-    friend class Formatter;
-
 public:
     ArgumentParser() : _pimpl{std::make_shared<ArgumentParserImpl>()} {}
     ArgumentParser(std::string_view n, ArgumentParserConfig config = {
@@ -142,14 +134,19 @@ public:
 
 private:
     friend class Argument;
+    friend class SubParsers;
     friend std::string detail::get_syntax(ArgumentParser parser, MutuallyExclusiveGroup const& group);
     friend std::string detail::styled_option_name_and_aliases(ArgumentParser parser, Argument const& arg);
+    friend std::string detail::styled_parser_name(ArgumentParser const& parser);
+    friend std::string detail::styled_parser_name_trace(ArgumentParser const& parser);
     struct ArgumentParserImpl {
         dvlab::utils::ordered_hashmap<std::string, Argument, detail::heterogeneous_string_hash, std::equal_to<>> arguments;
         std::unordered_map<std::string, std::string, detail::heterogeneous_string_hash, std::equal_to<>> alias_forward_map;
         std::unordered_multimap<std::string, std::string, detail::heterogeneous_string_hash, std::equal_to<>> alias_reverse_map;
         std::string option_prefixes = "-";
         std::vector<Token> tokens;
+
+        ArgumentParser* parent_parser = nullptr;
 
         std::vector<MutuallyExclusiveGroup> mutually_exclusive_groups;
         std::optional<SubParsers> subparsers;

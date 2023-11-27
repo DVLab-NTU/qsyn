@@ -26,7 +26,7 @@ Options:
   flag  -q, --quiet    suppress the echoing of commands 
 
 qsyn> zx vertex -h
-Usage: vertex [-h] (add | remove) ...
+Usage: zx vertex [-h] (add | remove) ...
 
 Description:
   add, remove, or edit vertices of ZXGraph
@@ -35,11 +35,11 @@ Options:
   flag  -h, --help    show this help message 
 
 Subcommands:
-  (add | remove)                          
-    add           add vertices to ZXGraph 
+(add | remove)  
+    add  add vertices to ZXGraph 
 
 qsyn> zx vertex remove -h
-Usage: remove [-h] ([<size_t ids>]... | -i)
+Usage: zx vertex remove [-h] ([<size_t ids>]... | -i)
 
 Positional Arguments:
   size_t  ids    the IDs of vertices to remove 
@@ -49,7 +49,7 @@ Options:
   flag  -i, --isolated    if set, remove all isolated vertices 
 
 qsyn> zx edge remove -h
-Usage: remove [-h] <size_t (vs, vt)> <size_t (vs, vt)> <string etype>
+Usage: zx edge remove [-h] <size_t (vs, vt)> <size_t (vs, vt)> <string etype>
 
 Description:
   remove edges from ZXGraph
@@ -62,7 +62,7 @@ Options:
   flag  -h, --help    show this help message 
 
 qsyn> extract step -h
-Usage: step [-h] (-zx <size_t ID>) (-qc <size_t ID>) (-cx | -cz | -ph | -H | --clear-frontier | --remove-gadgets | --permute | -l [<size_t N>])
+Usage: extract step [-h] (-zx <size_t ID>) (-qc <size_t ID>) (-cx | -cz | -ph | -H | --clear-frontier | --remove-gadgets | --permute | -l [<size_t N>])
 
 Description:
   perform step(s) in extraction
@@ -81,7 +81,7 @@ Options:
   size_t  -l, --loop        N   Run N iteration of extraction loop. N is defaulted to 1 
 
 qsyn> zx read -h
-Usage: read [-h] [--keep-id] [-r] <string filepath>
+Usage: zx read [-h] [--keep-id] [-r] <string filepath>
 
 Description:
   read a file and construct the corresponding ZXGraph

@@ -22,6 +22,37 @@
 
 namespace dvlab::argparse {
 
+struct SubParsers::SubParsersImpl {
+    SubParsers::MapType subparsers;
+    std::string help;
+    bool required = false;
+    ArgumentParser parent_parser;
+};
+
+SubParsers::SubParsers(ArgumentParser& parent_parser) : _pimpl{std::make_shared<SubParsersImpl>()} {
+    assert(parent_parser._pimpl->subparsers == std::nullopt);
+    _pimpl->parent_parser = parent_parser;
+}
+SubParsers SubParsers::required(bool is_req) {
+    _pimpl->required = is_req;
+    return *this;
+}
+SubParsers SubParsers::help(std::string_view help) {
+    _pimpl->help = help;
+    return *this;
+}
+
+size_t SubParsers::size() const noexcept {
+    return _pimpl->subparsers.size();
+}
+
+bool SubParsers::is_required() const noexcept {
+    return _pimpl->required;
+}
+
+SubParsers::MapType const& SubParsers::get_subparsers() const { return _pimpl->subparsers; }
+std::string const& SubParsers::get_help() const { return _pimpl->help; }
+
 ArgumentParser::ArgumentParser(std::string_view n, ArgumentParserConfig config) : ArgumentParser() {
     this->name(n);
 
@@ -498,7 +529,7 @@ bool ArgumentParser::_all_required_args_are_parsed() const {
  * @return ArgumentParser
  */
 ArgumentParser SubParsers::add_parser(std::string_view name) {
-    return add_parser(name, _pimpl->parent_config);
+    return add_parser(name, _pimpl->parent_parser._pimpl->config);
 }
 
 /**
@@ -514,6 +545,7 @@ ArgumentParser SubParsers::add_parser(std::string_view name, ArgumentParserConfi
         throw std::runtime_error("subparser already exists");
     }
     _pimpl->subparsers.emplace(name, ArgumentParser{name, config});
+    _pimpl->subparsers.at(std::string{name})._pimpl->parent_parser = &_pimpl->parent_parser;
     return _pimpl->subparsers.at(std::string{name});
 }
 /**
@@ -526,7 +558,7 @@ ArgumentParser SubParsers::add_parser(std::string_view name, ArgumentParserConfi
         fmt::println(stderr, "Error: an ArgumentParser can only have one set of subparsers!!");
         throw std::runtime_error("cannot have multiple subparsers");
     }
-    _pimpl->subparsers = SubParsers{this->_pimpl->config};
+    _pimpl->subparsers = SubParsers{*this};
     return _pimpl->subparsers.value();
 }
 

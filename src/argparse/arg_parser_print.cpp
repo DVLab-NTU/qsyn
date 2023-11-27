@@ -95,6 +95,15 @@ std::string styled_parser_name(ArgumentParser const& parser) {
 }
 
 /**
+ * @brief return a string of styled command name. The mandatory part is accented.
+ *
+ * @return string
+ */
+std::string styled_parser_name_trace(ArgumentParser const& parser) {
+    return (parser._pimpl->parent_parser ? styled_parser_name_trace(*parser._pimpl->parent_parser) + " " : "") + styled_parser_name(parser);
+}
+
+/**
  * @brief get the syntax representation string of an argument.
  *
  * @param arg
@@ -209,7 +218,7 @@ void ArgumentParser::print_usage() const {
 
     fmt::print("{} {}",
                section_header_styled("Usage:"),
-               detail::styled_parser_name(*this));
+               detail::styled_parser_name_trace(*this));
 
     for (auto const& [name, arg] : _pimpl->arguments) {
         if (arg.is_option() && !_pimpl->conflict_groups.contains(name)) {
@@ -284,8 +293,8 @@ void ArgumentParser::print_help() const {
         total_padding;
 
     if (std::ranges::any_of(_pimpl->arguments | std::views::values, [](Argument const& arg) { return !arg.is_option(); })) {
-        auto table = detail::create_parser_help_table();
         fmt::println("\n{}", section_header_styled("Positional Arguments:"));
+        auto table = detail::create_parser_help_table();
         for (auto const& [_, arg] : _pimpl->arguments) {
             if (!arg.is_option()) {
                 detail::tabulate_help_string(*this, table, max_help_string_width, arg);
@@ -296,8 +305,8 @@ void ArgumentParser::print_help() const {
     }
 
     if (std::ranges::any_of(_pimpl->arguments | std::views::values, [](Argument const& arg) { return arg.is_option(); })) {
-        auto table = detail::create_parser_help_table();
         fmt::println("\n{}", section_header_styled("Options:"));
+        auto table = detail::create_parser_help_table();
         for (auto const& [_, arg] : _pimpl->arguments) {
             if (arg.is_option()) {
                 detail::tabulate_help_string(*this, table, max_help_string_width, arg);
@@ -307,9 +316,9 @@ void ArgumentParser::print_help() const {
     }
 
     if (_pimpl->subparsers.has_value()) {
-        auto table = detail::create_parser_help_table();
         fmt::println("\n{}", section_header_styled("Subcommands:"));
-        table.write_ln(detail::get_syntax(_pimpl->subparsers.value()), detail::wrap_text(_pimpl->subparsers.value().get_help(), max_help_string_width));
+        fmt::println("{}  {}", detail::get_syntax(_pimpl->subparsers.value()), detail::wrap_text(_pimpl->subparsers.value().get_help(), max_help_string_width));
+        auto table = detail::create_parser_help_table();
         for (auto& [_, parser] : _pimpl->subparsers->get_subparsers()) {
             if (parser.get_description().size()) {
                 table.write_ln("  " + detail::styled_parser_name(parser), detail::wrap_text(parser.get_description(), max_help_string_width));

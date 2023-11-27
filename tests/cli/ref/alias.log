@@ -16,7 +16,7 @@ qsyn> exi -h
 [error]    Ambiguous command or alias `exi`!!
 
 qsyn> exir -h
-Usage: read [-h] [-r] <string filepath>
+Usage: qcir read [-h] [-r] <string filepath>
 
 Description:
   read a circuit and construct the corresponding netlist
