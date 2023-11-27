@@ -116,15 +116,17 @@ std::string get_syntax(ArgumentParser const& parser, Argument const& arg) {
                             ? arg.get_usage().value()
                             : fmt::format("{}{} {}{}", required_styled("<"), type_styled(arg.get_type_string()), metavar_styled(arg.get_metavar()), required_styled(">"));
 
+    bool const is_required = arg.is_required();
+
     if (nargs.upper == SIZE_MAX) {
-        if (nargs.lower == 0)
+        if (nargs.lower == 0 || !is_required)
             ret = option_styled("[") + usage_string + option_styled("]") + "...";
         else {
             auto repeat_view = std::views::iota(0u, nargs.lower) | std::views::transform([&usage_string](size_t /*i*/) { return usage_string; });
             ret              = fmt::format("{}...", fmt::join(repeat_view, " "));
         }
     } else {
-        auto repeat_view = std::views::iota(0u, nargs.upper) | std::views::transform([&usage_string, &nargs](size_t i) { return (i < nargs.lower) ? usage_string : (option_styled("[") + usage_string + option_styled("]")); });
+        auto repeat_view = std::views::iota(0u, nargs.upper) | std::views::transform([&usage_string, &nargs, &is_required](size_t i) { return (i < nargs.lower && is_required) ? usage_string : (option_styled("[") + usage_string + option_styled("]")); });
         ret              = fmt::format("{}", fmt::join(repeat_view, " "));
     }
 
