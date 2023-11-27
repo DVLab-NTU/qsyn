@@ -2,13 +2,13 @@ all: build
 
 build:
 	cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=1
-	cmake --build build --parallel 6
+	$(MAKE) -C build
 
 # force macos to use the clang++ installed by brew instead of the default one
 # which is outdated
 build-clang++:
 	cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=1 $(shell which clang++)
-	cmake --build build --parallel 6
+	$(MAKE) -C build
 
 # build the current source code in the docker container
 build-docker:
@@ -28,6 +28,10 @@ test:
 test-docker:
 	./scripts/RUN_TESTS_DOCKER ./tests
 
+# run clang-format and clang-tidy on the source code
+lint:
+	./scripts/LINT
+
 version := $(shell git describe --tags --abbrev=0)
 publish:
 	@echo "publishing version $(version)"
@@ -37,4 +41,4 @@ clean:
 	rm -rf build
 	rm -f qsyn
 
-.PHONY: all build build-clang++ test test-docker publish clean
+.PHONY: all build build-clang++ test test-docker lint publish clean

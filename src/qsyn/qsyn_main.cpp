@@ -83,7 +83,7 @@ int main(int argc, char** argv) {
         fmt::println("{}", version_str);
     }
 
-    if (!qsyn::read_qsynrc_file(cli, parser.get<std::string>("--qsynrc-path"), quiet)) {
+    if (!qsyn::read_qsynrc_file(cli, parser.get<std::string>("--qsynrc-path"))) {
         return -1;
     }
 

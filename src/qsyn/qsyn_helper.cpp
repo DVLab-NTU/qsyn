@@ -27,46 +27,10 @@
 
 namespace qsyn {
 
-bool read_qsynrc_file(dvlab::CommandLineInterface& cli, std::filesystem::path qsynrc_path, bool quiet) {
-    namespace fs = std::filesystem;
-    if (qsynrc_path.empty()) {
-        auto const home_dir = dvlab::utils::get_home_directory();
-        if (!home_dir) {
-            spdlog::critical("Cannot find home directory");
-            return false;
-        }
-        qsynrc_path = fs::path{home_dir.value() + "/.config/qsynrc"};
-        if (!fs::exists(qsynrc_path)) {
-            if (!quiet) {
-                spdlog::warn("Cannot find qsynrc file at {}!!", qsynrc_path);
-                spdlog::warn("You may run the command `create-qsynrc` to create one.");
-            }
-            return true;
-        }
-    }
-
-    auto const result = cli.source_dofile(qsynrc_path, {}, false);
-    cli.clear_history();
-
-    if (result == dvlab::CmdExecResult::error) {
-        spdlog::critical("Some errors occurred while reading the qsynrc file from {}", qsynrc_path);
-        return false;
-    }
-
-    return true;
-}
-
 namespace {
 
-void create_default_qsynrc(dvlab::CommandLineInterface& cli, bool force) {
-    namespace fs        = std::filesystem;
-    auto const home_dir = dvlab::utils::get_home_directory();
-    if (!home_dir) {
-        spdlog::critical("Cannot find home directory");
-        return;
-    }
-    auto const qsynrc_path = fs::path{home_dir.value() + "/.config/qsynrc"};
-
+void create_default_qsynrc(dvlab::CommandLineInterface& cli, std::filesystem::path const& qsynrc_path, bool force) {
+    namespace fs = std::filesystem;
     if (fs::exists(qsynrc_path)) {
         if (force) {
             fmt::println("Replacing qsynrc at {}", qsynrc_path);
@@ -74,8 +38,6 @@ void create_default_qsynrc(dvlab::CommandLineInterface& cli, bool force) {
             fmt::println("qsynrc already exists at {}. Specify `-r` flag to replace it.", qsynrc_path);
             return;
         }
-    } else {
-        fmt::println("Creating qsynrc in {}...", qsynrc_path);
     }
 
     if (!fs::is_directory(qsynrc_path.parent_path()) && !fs::create_directories(qsynrc_path.parent_path())) {
@@ -102,7 +64,15 @@ dvlab::Command create_qsynrc_cmd(dvlab::CommandLineInterface& cli) {
             return parser;
         },
         [&](ArgumentParser const& parser) {
-            create_default_qsynrc(cli, parser.get<bool>("--replace"));
+            namespace fs        = std::filesystem;
+            auto const home_dir = dvlab::utils::get_home_directory();
+            if (!home_dir) {
+                spdlog::critical("Cannot find home directory");
+                return dvlab::CmdExecResult::error;
+            }
+            auto const qsynrc_path = fs::path{home_dir.value()} / ".config/qsynrc";
+            create_default_qsynrc(cli, qsynrc_path, parser.get<bool>("--replace"));
+
             return dvlab::CmdExecResult::done;
         }};
 }
@@ -112,6 +82,32 @@ bool add_qsyn_cmds(dvlab::CommandLineInterface& cli) {
 }
 
 }  // namespace
+
+bool read_qsynrc_file(dvlab::CommandLineInterface& cli, std::filesystem::path qsynrc_path) {
+    namespace fs = std::filesystem;
+    if (qsynrc_path.empty()) {
+        auto const home_dir = dvlab::utils::get_home_directory();
+        if (!home_dir) {
+            spdlog::critical("Cannot find home directory");
+            return false;
+        }
+        qsynrc_path = fs::path{home_dir.value()} / ".config/qsynrc";
+        if (!fs::exists(qsynrc_path)) {
+            create_default_qsynrc(cli, qsynrc_path, false);
+            return true;
+        }
+    }
+
+    auto const result = cli.source_dofile(qsynrc_path, {}, false);
+    cli.clear_history();
+
+    if (result == dvlab::CmdExecResult::error) {
+        spdlog::critical("Some errors occurred while reading the qsynrc file from {}", qsynrc_path);
+        return false;
+    }
+
+    return true;
+}
 
 bool initialize_qsyn(
     dvlab::CommandLineInterface& cli, qsyn::device::DeviceMgr& device_mgr, qsyn::qcir::QCirMgr& qcir_mgr,
