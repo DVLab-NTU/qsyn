@@ -18,4 +18,6 @@ RUN dnf install -y \
 
 COPY --from=builder /app/build/qsyn /usr/local/bin/qsyn
 
+WORKDIR /workdir
+
 ENTRYPOINT ["/usr/local/bin/qsyn"]
