@@ -271,7 +271,6 @@ std::vector<std::string> dvlab::CommandLineInterface::_get_file_matches(fs::path
     auto prefix  = path.filename().string();
 
     if (!fs::exists(dirname)) {
-        spdlog::error("failed to open {}!!", path.parent_path());
         return files;
     }
 
