@@ -1,6 +1,7 @@
 ![license](https://img.shields.io/github/license/DVLab-NTU/qsyn?style=plastic)
 ![stars](https://img.shields.io/github/stars/DVLab-NTU/qsyn?style=plastic)
 ![contributors](https://img.shields.io/github/contributors/DVLab-NTU/qsyn?style=plastic)
+![release-date](https://img.shields.io/github/release-date-pre/DVLab-NTU/qsyn?style=plastic)
 ![pr-welcome](https://img.shields.io/badge/PRs-welcome-green?style=plastic)
 ![g++-10](https://img.shields.io/badge/g++-≥10-blue?style=plastic)
 ![clang++-16](https://img.shields.io/badge/clang++-≥16-blueviolet?style=plastic)
