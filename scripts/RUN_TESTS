@@ -301,9 +301,9 @@ def main():
     if args.update:
         update_test_refs(dofiles, args)
         return 0
-
-    return run_tests_and_compare_to_ref(dofiles, args)
+    
+    return 0 if run_tests_and_compare_to_ref(dofiles, args) else 1
 
 
 if __name__ == "__main__":
-    main()
+    exit(main())
