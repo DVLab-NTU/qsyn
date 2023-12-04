@@ -15,18 +15,18 @@ jobs:
         uses: actions/checkout@v3
       - name: Download llvm-clang
         run: |
-          brew install llvm libomp
+          brew install llvm
           echo 'export PATH="/usr/local/opt/llvm/bin:$PATH"' >> /Users/runner/.bash_profile
-          echo 'export LDFLAGS="-L/usr/local/opt/llvm/lib"' >> /Users/runner/.bash_profile
-          echo 'export CPPFLAGS="-I/usr/local/opt/llvm/include"' >> /Users/runner/.bash_profile
+          echo 'export LDFLAGS="-L/usr/local/opt/llvm/lib -L/opt/homebrew/opt/libomp/lib"' >> /Users/runner/.bash_profile
+          echo 'export CPPFLAGS="-I/usr/local/opt/llvm/include -I/opt/homebrew/opt/libomp/include"' >> /Users/runner/.bash_profile
           source /Users/runner/.bash_profile
           clang++ --version
 
       - name: Build qsyn
         run: |
-          echo "Building qsyn using $(nproc) cores"
+          echo "Building qsyn using $(sysctl -n hw.logicalcpu) cores"
           mkdir -p build
           cmake -S . -B build -DCMAKE_CXX_COMPILER=$(which clang++)
-          cmake --build build -j $(nproc)
+          cmake --build build -j $(sysctl -n hw.logicalcpu)
       - name: Run test for qsyn
         run: make test
