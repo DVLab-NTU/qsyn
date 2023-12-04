@@ -114,13 +114,13 @@ public:
     QCirGate* add_single_rz(QubitIdType bit, dvlab::Phase phase, bool append);
     bool remove_gate(size_t id);
 
-    bool read_qcir_file(std::string const& filename);
-    bool read_qc(std::string const& filename);
-    bool read_qasm(std::string const& filename);
-    bool read_qsim(std::string const& filename);
-    bool read_quipper(std::string const& filename);
+    bool read_qcir_file(std::filesystem::path const& filepath);
+    bool read_qc(std::filesystem::path const& filepath);
+    bool read_qasm(std::filesystem::path const& filepath);
+    bool read_qsim(std::filesystem::path const& filepath);
+    bool read_quipper(std::filesystem::path const& filepath);
 
-    bool write_qasm(std::string const& filename);
+    bool write_qasm(std::filesystem::path const& filepath);
 
     bool draw(QCirDrawerType drawer, std::filesystem::path const& output_path = "", float scale = 1.0f);
 
@@ -171,6 +171,8 @@ private:
     std::vector<QCirQubit*> _qubits;
     std::vector<QCirGate*> mutable _topological_order;
 };
+
+std::string to_qasm(QCir const& qcir);
 
 }  // namespace qsyn::qcir
 

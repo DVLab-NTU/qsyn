@@ -25,26 +25,14 @@ namespace qsyn::qcir {
  * @return true if successfully write
  * @return false if path or file not found
  */
-bool QCir::write_qasm(std::string const& filename) {
-    update_topological_order();
-    std::ofstream file;
-    file.open(filename, std::fstream::out);
-    if (!file)
+bool QCir::write_qasm(std::filesystem::path const& filename) {
+    std::ofstream ofs(filename);
+    if (!ofs) {
+        spdlog::error("Cannot open file {}", filename.string());
         return false;
-    fmt::println(file, "OPENQASM 2.0;");
-    fmt::println(file, "include \"qelib1.inc\";");
-    fmt::println(file, "qreg q[{}];", _qubits.size());
-
-    for (size_t i = 0; i < _topological_order.size(); i++) {
-        QCirGate* cur_gate          = _topological_order[i];
-        auto type_str               = cur_gate->get_type_str();
-        std::vector<QubitInfo> pins = cur_gate->get_qubits();
-        auto is_clifford_t          = cur_gate->get_phase().denominator() == 1 || cur_gate->get_phase().denominator() == 2 || cur_gate->get_phase() == Phase(1, 4) || cur_gate->get_phase() == Phase(-1, 4);
-        fmt::println(file, "{}{} {};",
-                     cur_gate->get_type_str(),
-                     is_clifford_t ? "" : fmt::format("({})", cur_gate->get_phase().get_ascii_string()),
-                     fmt::join(pins | std::views::transform([](QubitInfo const& pin) { return fmt::format("q[{}]", pin._qubit); }), ", "));
     }
+    ofs << to_qasm(*this);
+
     return true;
 }
 
@@ -103,6 +91,24 @@ bool QCir::draw(QCirDrawerType drawer, std::filesystem::path const& output_path,
     }
 
     return system(cmd.c_str()) == 0;
+}
+
+std::string to_qasm(QCir const& qcir) {
+    qcir.update_topological_order();
+    std::string qasm = "OPENQASM 2.0;\n";
+    qasm += "include \"qelib1.inc\";\n";
+    qasm += fmt::format("qreg q[{}];\n", qcir.get_num_qubits());
+
+    for (auto const* cur_gate : qcir.get_topologically_ordered_gates()) {
+        auto type_str               = cur_gate->get_type_str();
+        std::vector<QubitInfo> pins = cur_gate->get_qubits();
+        auto is_clifford_t          = cur_gate->get_phase().denominator() == 1 || cur_gate->get_phase().denominator() == 2 || cur_gate->get_phase() == Phase(1, 4) || cur_gate->get_phase() == Phase(-1, 4);
+        qasm += fmt::format("{}{} {};\n",
+                            cur_gate->get_type_str(),
+                            is_clifford_t ? "" : fmt::format("({})", cur_gate->get_phase().get_ascii_string()),
+                            fmt::join(pins | std::views::transform([](QubitInfo const& pin) { return fmt::format("q[{}]", pin._qubit); }), ", "));
+    }
+    return qasm;
 }
 
 }  // namespace qsyn::qcir

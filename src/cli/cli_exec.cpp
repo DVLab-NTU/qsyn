@@ -15,16 +15,9 @@
 #include <tl/enumerate.hpp>
 
 #include "cli/cli.hpp"
+#include "util/cin_cout_cerr.hpp"
 #include "util/dvlab_string.hpp"
 #include "util/scope_guard.hpp"
-
-#ifdef _LIBCPP_VERSION
-#include <iostream>
-#else
-namespace std {
-extern istream cin;
-}
-#endif
 
 namespace dvlab {
 

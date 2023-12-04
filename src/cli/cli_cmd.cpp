@@ -8,16 +8,9 @@
 
 #include "cli/cli.hpp"
 #include "spdlog/common.h"
+#include "util/cin_cout_cerr.hpp"
 #include "util/sysdep.hpp"
 #include "util/usage.hpp"
-
-#ifdef _LIBCPP_VERSION
-#include <iostream>
-#else
-namespace std {
-extern istream cin;
-}
-#endif
 
 namespace dvlab {
 

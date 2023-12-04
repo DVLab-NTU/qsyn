@@ -7,20 +7,26 @@
 
 #include "qcir/qcir_cmd.hpp"
 
+#include <fmt/ostream.h>
 #include <spdlog/spdlog.h>
 
 #include <cstddef>
 #include <filesystem>
+#include <ostream>
 #include <string>
 
 #include "./optimizer/optimizer_cmd.hpp"
 #include "./qcir_gate.hpp"
 #include "argparse/arg_parser.hpp"
+#include "argparse/arg_type.hpp"
 #include "cli/cli.hpp"
 #include "qcir/qcir.hpp"
 #include "qcir/qcir_mgr.hpp"
+#include "util/cin_cout_cerr.hpp"
 #include "util/data_structure_manager_common_cmd.hpp"
+#include "util/dvlab_string.hpp"
 #include "util/phase.hpp"
+#include "util/util.hpp"
 
 using namespace dvlab::argparse;
 using dvlab::CmdExecResult;
@@ -198,15 +204,52 @@ dvlab::Command qcir_write_cmd(QCirMgr const& qcir_mgr) {
                 parser.description("write QCir to a QASM file");
 
                 parser.add_argument<std::string>("output_path")
+                    .nargs(NArgsOption::optional)
                     .constraint(path_writable)
                     .constraint(allowed_extension({".qasm"}))
-                    .help("the filepath to output file. Supported extension: .qasm");
+                    .help("the filepath to output file. Supported extension: .qasm. If not specified, the result will be dumped to the terminal");
+
+                parser.add_argument<std::string>("-f", "--format")
+                    .constraint(choices_allow_prefix({"qasm", "latex-qcircuit"}))
+                    .help("the output format of the QCir. If not specified, the default format is automatically chosen based on the output file extension");
             },
             [&](ArgumentParser const& parser) {
                 if (!qcir_mgr_not_empty(qcir_mgr)) return CmdExecResult::error;
-                if (!qcir_mgr.get()->write_qasm(parser.get<std::string>("output_path"))) {
-                    spdlog::error("Path {} not found!!", parser.get<std::string>("output_path"));
-                    return CmdExecResult::error;
+
+                enum class OutputFormat { qasm,
+                                          latex_qcircuit };
+                auto output_type = std::invoke([&]() -> OutputFormat {
+                    if (parser.parsed("--format")) {
+                        if (dvlab::str::is_prefix_of(parser.get<std::string>("--format"), "qasm")) return OutputFormat::qasm;
+                        if (dvlab::str::is_prefix_of(parser.get<std::string>("--format"), "latex-qcircuit")) return OutputFormat::latex_qcircuit;
+                        // if (dvlab::str::is_prefix_of(parser.get<std::string>("--format"), "latex-yquant")) return OutputFormat::latex_yquant;
+                        DVLAB_UNREACHABLE("Invalid output format!!");
+                    }
+
+                    auto extension = std::filesystem::path{parser.get<std::string>("output_path")}.extension().string();
+                    if (extension == ".qasm") return OutputFormat::qasm;
+                    if (extension == ".tex") return OutputFormat::latex_qcircuit;
+                    return OutputFormat::qasm;
+                });
+
+                switch (output_type) {
+                    case OutputFormat::qasm:
+                        if (parser.parsed("output_path")) {
+                            std::ofstream file{parser.get<std::string>("output_path")};
+                            if (!file) {
+                                spdlog::error("Path {} not found!!", parser.get<std::string>("output_path"));
+                                return CmdExecResult::error;
+                            }
+                            fmt::print(file, "{}", to_qasm(*qcir_mgr.get()));
+                        } else {
+                            fmt::print("{}", to_qasm(*qcir_mgr.get()));
+                        }
+                        break;
+                    case OutputFormat::latex_qcircuit:
+                        qcir_mgr.get()->draw(QCirDrawerType::latex_source);
+                        break;
+                    default:
+                        DVLAB_UNREACHABLE("Invalid output format!!");
                 }
                 return CmdExecResult::done;
             }};
@@ -221,9 +264,9 @@ Command qcir_draw_cmd(QCirMgr const& qcir_mgr) {
                     .constraint(path_writable)
                     .help("the output destination of the drawing");
                 parser.add_argument<std::string>("-d", "--drawer")
-                    .choices(std::initializer_list<std::string>{"text", "mpl", "latex", "latex_source"})
+                    .choices(std::initializer_list<std::string>{"text", "mpl", "latex"})
                     .default_value("text")
-                    .help("the backend for drawing quantum circuit");
+                    .help("the backend for drawing quantum circuit. If not specified, the default backend is automatically chosen based on the output file extension");
                 parser.add_argument<float>("-s", "--scale")
                     .default_value(1.0f)
                     .help("if specified, scale the resulting drawing by this factor");
@@ -239,7 +282,6 @@ Command qcir_draw_cmd(QCirMgr const& qcir_mgr) {
 
                     auto extension = output_path.extension().string();
                     if (extension == ".pdf" || extension == ".png" || extension == ".jpg" || extension == ".ps" || extension == ".eps" || extension == ".svg") return QCirDrawerType::latex;
-                    if (extension == ".tex") return QCirDrawerType::latex_source;
                     return QCirDrawerType::text;
                 });
 

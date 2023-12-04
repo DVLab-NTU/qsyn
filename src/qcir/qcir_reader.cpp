@@ -5,6 +5,7 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
+#include <fmt/std.h>
 #include <spdlog/spdlog.h>
 
 #include <cstddef>
@@ -24,34 +25,32 @@ namespace qsyn::qcir {
  * @return true if successfully read
  * @return false if error in file or not found
  */
-bool QCir::read_qcir_file(std::string const& filename) {
-    auto const lastname = filename.substr(filename.find_last_of('/') + 1);
-
-    auto const extension = (lastname.find('.') != std::string::npos) ? lastname.substr(lastname.find_last_of('.')) : "";
+bool QCir::read_qcir_file(std::filesystem::path const& filepath) {
+    auto const extension = filepath.extension();
 
     if (extension == ".qasm")
-        return read_qasm(filename);
+        return read_qasm(filepath);
     else if (extension == ".qc")
-        return read_qc(filename);
+        return read_qc(filepath);
     else if (extension == ".qsim")
-        return read_qsim(filename);
+        return read_qsim(filepath);
     else if (extension == ".quipper")
-        return read_quipper(filename);
+        return read_quipper(filepath);
     else if (extension == "") {
-        std::ifstream verify{filename};
+        std::ifstream verify{filepath};
         if (!verify.is_open()) {
-            spdlog::error("Cannot open the file \"{}\"!!", filename);
+            spdlog::error("Cannot open the file \"{}\"!!", filepath);
             return false;
         }
         std::string first_item;
         verify >> first_item;
 
         if (first_item == "Inputs:")
-            return read_quipper(filename);
+            return read_quipper(filepath);
         else if (isdigit(first_item[0]))
-            return read_qsim(filename);
+            return read_qsim(filepath);
         else {
-            spdlog::error("Cannot derive the type of file \"{}\"!!", filename);
+            spdlog::error("Cannot derive the type of file \"{}\"!!", filepath);
             return false;
         }
         return true;
@@ -68,14 +67,13 @@ bool QCir::read_qcir_file(std::string const& filename) {
  * @return true if successfully read
  * @return false if error in file or not found
  */
-bool QCir::read_qasm(std::string const& filename) {
+bool QCir::read_qasm(std::filesystem::path const& filepath) {
     using dvlab::str::str_get_token;
     // read file and open
-    auto const lastname = filename.substr(filename.find_last_of('/') + 1);
     _procedures.clear();
-    std::fstream qasm_file{filename};
+    std::fstream qasm_file{filepath};
     if (!qasm_file.is_open()) {
-        spdlog::error("Cannot open the QASM file \"{}\"!!", filename);
+        spdlog::error("Cannot open the QASM file \"{}\"!!", filepath);
         return false;
     }
     std::string str;
@@ -136,12 +134,12 @@ bool QCir::read_qasm(std::string const& filename) {
  * @return true if successfully read
  * @return false if error in file or not found
  */
-bool QCir::read_qc(std::string const& filename) {
+bool QCir::read_qc(std::filesystem::path const& filepath) {
     using dvlab::str::str_get_token;
     // read file and open
-    std::fstream qc_file{filename};
+    std::fstream qc_file{filepath};
     if (!qc_file.is_open()) {
-        spdlog::error("Cannot open the QC file \"{}\"!!", filename);
+        spdlog::error("Cannot open the QC file \"{}\"!!", filepath);
         return false;
     }
 
@@ -215,11 +213,11 @@ bool QCir::read_qc(std::string const& filename) {
  * @return true if successfully read
  * @return false if error in file or not found
  */
-bool QCir::read_qsim(std::string const& filename) {
+bool QCir::read_qsim(std::filesystem::path const& filepath) {
     // read file and open
-    std::ifstream qsim_file{filename};
+    std::ifstream qsim_file{filepath};
     if (!qsim_file.is_open()) {
-        spdlog::error("Cannot open the QSIM file \"{}\"!!", filename);
+        spdlog::error("Cannot open the QSIM file \"{}\"!!", filepath);
         return false;
     }
 
@@ -281,11 +279,11 @@ bool QCir::read_qsim(std::string const& filename) {
  * @return true if successfully read
  * @return false if error in file or not found
  */
-bool QCir::read_quipper(std::string const& filename) {
+bool QCir::read_quipper(std::filesystem::path const& filepath) {
     // read file and open
-    std::ifstream quipper_file{filename};
+    std::ifstream quipper_file{filepath};
     if (!quipper_file.is_open()) {
-        spdlog::error("Cannot open the QUIPPER file \"{}\"!!", filename);
+        spdlog::error("Cannot open the QUIPPER file \"{}\"!!", filepath);
         return false;
     }
 
