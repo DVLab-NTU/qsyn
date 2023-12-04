@@ -229,24 +229,26 @@ Command qcir_draw_cmd(QCirMgr const& qcir_mgr) {
                     .help("if specified, scale the resulting drawing by this factor");
             },
             [&](ArgumentParser const& parser) {
+                namespace fs = std::filesystem;
                 if (!qcir_mgr_not_empty(qcir_mgr)) return CmdExecResult::error;
 
-                auto drawer      = str_to_qcir_drawer_type(parser.get<std::string>("--drawer"));
-                auto output_path = parser.get<std::string>("output-path");
+                auto output_path = fs::path{parser.get<std::string>("output-path")};
                 auto scale       = parser.get<float>("--scale");
+                auto drawer      = std::invoke([&]() -> QCirDrawerType {
+                    if (parser.parsed("--drawer")) return *qcir::str_to_qcir_drawer_type(parser.get<std::string>("--drawer"));
 
-                if (!drawer.has_value()) {
-                    spdlog::critical("Invalid drawer type: {}", parser.get<std::string>("--drawer"));
-                    spdlog::critical("This error should have been unreachable. Please report this bug to the developer.");
-                    return CmdExecResult::error;
-                }
+                    auto extension = output_path.extension().string();
+                    if (extension == ".pdf" || extension == ".png" || extension == ".jpg" || extension == ".ps" || extension == ".eps" || extension == ".svg") return QCirDrawerType::latex;
+                    if (extension == ".tex") return QCirDrawerType::latex_source;
+                    return QCirDrawerType::text;
+                });
 
                 if (drawer == QCirDrawerType::text && parser.parsed("--scale")) {
                     spdlog::error("Cannot set scale for \'text\' drawer!!");
                     return CmdExecResult::error;
                 }
 
-                if (!qcir_mgr.get()->draw(drawer.value(), output_path, scale)) {
+                if (!qcir_mgr.get()->draw(drawer, output_path, scale)) {
                     spdlog::error("Could not draw the QCir successfully!!");
                     return CmdExecResult::error;
                 }
