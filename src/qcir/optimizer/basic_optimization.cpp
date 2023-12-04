@@ -145,7 +145,6 @@ QCir Optimizer::_parse_once(QCir const& qcir, bool reversed, bool do_minimize_cz
     fmt::format_to(std::back_inserter(statistics_str), "  Note: {} CZs had been transformed into CXs.\n", _statistics.CZ2CX);
     fmt::format_to(std::back_inserter(statistics_str), "        {} CXs had been transformed into CZs.\n", _statistics.CX2CZ);
     fmt::format_to(std::back_inserter(statistics_str), "  Note: {} swap gates had been added in the swap path.\n", _swaps.size());
-
     if (config.printStatistics) {
         fmt::println("{}", statistics_str);
     }
