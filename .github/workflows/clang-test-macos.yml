@@ -16,13 +16,13 @@ jobs:
       - name: Download llvm-clang
         run: |
           brew install llvm
+
+      - name: Build qsyn
+        run: |
           echo 'export PATH="/usr/local/opt/llvm/bin:$PATH"' >> /Users/runner/.bash_profile
           echo 'export LDFLAGS="-L/usr/local/opt/llvm/lib"' >> /Users/runner/.bash_profile
           echo 'export CPPFLAGS="-I/usr/local/opt/llvm/include"' >> /Users/runner/.bash_profile
           source /Users/runner/.bash_profile
-
-      - name: Build qsyn
-        run: |
           clang++ --version
           clang++ src/qsyn/qsyn_main.cpp -v
           echo "Building qsyn using $(sysctl -n hw.logicalcpu) cores"
