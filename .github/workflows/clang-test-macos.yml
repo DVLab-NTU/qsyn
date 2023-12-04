@@ -24,7 +24,6 @@ jobs:
           echo 'export CPPFLAGS="-I/usr/local/opt/llvm/include"' >> /Users/runner/.bash_profile
           source /Users/runner/.bash_profile
           clang++ --version
-          clang++ src/qsyn/qsyn_main.cpp -v
           echo "Building qsyn using $(sysctl -n hw.logicalcpu) cores"
           mkdir -p build
           cmake -S . -B build -DCMAKE_CXX_COMPILER=$(which clang++)
