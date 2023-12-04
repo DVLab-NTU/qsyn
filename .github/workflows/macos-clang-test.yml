@@ -1,0 +1,23 @@
+name: clang test
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main, develop]
+
+jobs:
+  build-and-test:
+    runs-on: macos-latest
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v3
+      - name: Download llvm-clang
+        run: |
+          brew install llvm
+          clang++ --version
+      - name: Build the test docker image
+        run: docker build -t qsyn-test-clang -f docker/clang-test.Dockerfile .
+      - name: Run the test docker image
+        run: docker run --rm --security-opt seccomp=unconfined -v "$(pwd)":/app/qsyn qsyn-test-clang
