@@ -1,11 +1,11 @@
-name: gcc test
+name: gcc test (Ubuntu)
 
 on:
   push:
-    branches: [main, devt]
+    branches: [main, develop]
   pull_request:
     types: [opened, synchronize, reopened]
-    branches: [main, devt]
+    branches: [main, develop]
 
 jobs:
   build-and-test:

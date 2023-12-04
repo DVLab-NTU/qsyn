@@ -39,7 +39,6 @@ qsyn> qcir optimize
 [debug]            0 CXs had been transformed into CZs.
 [debug]      Note: 0 swap gates had been added in the swap path.
 [debug]    
-[debug]    
 [debug]    Start parsing backward
 [trace]    Transform X gate into Z gate
 [trace]    Apply a do_swap commutation
@@ -60,7 +59,6 @@ qsyn> qcir optimize
 [debug]      Note: 0 CZs had been transformed into CXs.
 [debug]            105 CXs had been transformed into CZs.
 [debug]      Note: 4 swap gates had been added in the swap path.
-[debug]    
 [debug]    
 [debug]    Start parsing forward
 [trace]    Apply a do_swap commutation
@@ -89,7 +87,6 @@ qsyn> qcir optimize
 [debug]            0 CXs had been transformed into CZs.
 [debug]      Note: 3 swap gates had been added in the swap path.
 [debug]    
-[debug]    
 [debug]    Start parsing backward
 [trace]    Apply a do_swap commutation
 [trace]    Cancel with previous CX
@@ -110,7 +107,6 @@ qsyn> qcir optimize
 [debug]      Note: 0 CZs had been transformed into CXs.
 [debug]            52 CXs had been transformed into CZs.
 [debug]      Note: 3 swap gates had been added in the swap path.
-[debug]    
 [debug]    
 [debug]    Start parsing forward
 [trace]    Apply a do_swap commutation
@@ -137,7 +133,6 @@ qsyn> qcir optimize
 [debug]            0 CXs had been transformed into CZs.
 [debug]      Note: 2 swap gates had been added in the swap path.
 [debug]    
-[debug]    
 [debug]    Start parsing backward
 [trace]    Apply a do_swap commutation
 [trace]    Cancel with previous CX
@@ -156,7 +151,6 @@ qsyn> qcir optimize
 [debug]      Note: 0 CZs had been transformed into CXs.
 [debug]            53 CXs had been transformed into CZs.
 [debug]      Note: 2 swap gates had been added in the swap path.
-[debug]    
 [debug]    
 [debug]    Start parsing forward
 [trace]    Apply a do_swap commutation
@@ -180,7 +174,6 @@ qsyn> qcir optimize
 [debug]            0 CXs had been transformed into CZs.
 [debug]      Note: 2 swap gates had been added in the swap path.
 [debug]    
-[debug]    
 [debug]    Start parsing backward
 [trace]    Apply a do_swap commutation
 [trace]    Cancel with previous CX
@@ -199,7 +192,6 @@ qsyn> qcir optimize
 [debug]      Note: 0 CZs had been transformed into CXs.
 [debug]            35 CXs had been transformed into CZs.
 [debug]      Note: 2 swap gates had been added in the swap path.
-[debug]    
 [debug]    
 [debug]    Start parsing forward
 [trace]    Apply a do_swap commutation
@@ -222,7 +214,6 @@ qsyn> qcir optimize
 [debug]      Note: 35 CZs had been transformed into CXs.
 [debug]            0 CXs had been transformed into CZs.
 [debug]      Note: 2 swap gates had been added in the swap path.
-[debug]    
 [debug]    
 [info]     Basic optimization finished after 19 iterations.
 [info]       Two-qubit gates: 1498 → 1498

@@ -1,7 +1,0 @@
-#! /usr/bin/env bash
-
-# cd to the root of the repo
-cd "$(git rev-parse --show-toplevel)" || exit 1
-
-docker build -t qsyn-test-gcc -f docker/gcc-test.Dockerfile .
-docker run --rm --security-opt seccomp=unconfined -v "$(pwd)":/app/qsyn qsyn-test-gcc "$@"

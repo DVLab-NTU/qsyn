@@ -20,6 +20,7 @@
 
 #include "./zx_file_parser.hpp"
 #include "./zxgraph.hpp"
+#include "util/sysdep.hpp"
 #include "util/tmp_files.hpp"
 
 namespace qsyn::zx {
@@ -212,12 +213,13 @@ bool ZXGraph::write_tikz(std::ostream& os) const {
 
     static constexpr std::string_view font_size = "tiny";
 
-    auto max_col = gsl::narrow_cast<int>(std::max(
-        std::ranges::max(_inputs | std::views::transform([](ZXVertex* v) { return v->get_col(); })),
-        std::ranges::max(_outputs | std::views::transform([](ZXVertex* v) { return v->get_col(); }))));
+    // REVIEW - add scale
+    // auto max_col = gsl::narrow_cast<int>(std::max(
+    //     std::ranges::max(_inputs | std::views::transform([](ZXVertex* v) { return v->get_col(); })),
+    //     std::ranges::max(_outputs | std::views::transform([](ZXVertex* v) { return v->get_col(); }))));
 
-    double scale = 25. / max_col;
-    scale        = (scale > 3.0) ? 3.0 : scale;
+    // double scale = 25. / max_col;
+    // scale        = (scale > 3.0) ? 3.0 : scale;
 
     auto get_attr_string = [](ZXVertex* v) {
         std::string result = vt2s.at(v->get_type());
@@ -258,7 +260,8 @@ bool ZXGraph::write_tikz(std::ostream& os) const {
     fmt::println(os, "\\definecolor{{phaseColor}}{{RGB}}{{14, 39, 100}}");
     fmt::println(os, "");
     // the main tikzpicture
-    fmt::println(os, "\\scalebox{{{}}}{{", scale);
+    // REVIEW - add scale and replace 1
+    fmt::println(os, "\\scalebox{{{}}}{{", 1);
     fmt::println(os, "    \\begin{{tikzpicture}}[");
     // node and edge styles
     fmt::println(os, "        font = \\sffamily,");
@@ -305,7 +308,7 @@ bool ZXGraph::write_tikz(std::ostream& os) const {
  * @return false
  */
 bool ZXGraph::write_pdf(std::string const& filename) const {
-    if (system("which pdflatex >/dev/null 2>&1") != 0) {
+    if (!dvlab::utils::pdflatex_exists()) {
         spdlog::error("Unable to locate 'pdflatex' on your system. Please ensure that it is installed and in your system's PATH.");
         return false;
     }
@@ -419,7 +422,7 @@ bool ZXGraph::write_tex(std::string const& filename) const {
  */
 bool ZXGraph::write_tex(std::ostream& os) const {
     constexpr std::string_view includes =
-        "\\documentclass[a4paper,landscape]{article}\n"
+        "\\documentclass[preview,border=2px]{standalone}\n"
         "\\usepackage[english]{babel}\n"
         "\\usepackage[top=2cm,bottom=2cm,left=1cm,right=1cm,marginparwidth=1.75cm]{geometry}"
         "\\usepackage{amsmath}\n"

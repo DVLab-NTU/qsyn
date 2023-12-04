@@ -92,8 +92,22 @@ inline auto split_to_string_views(std::string_view str, DelimT delim) {
  * @param delim
  * @return auto
  */
+
+/**
+ * @brief Split the string into string_views using the given delimiter.
+ *
+ * @param str The input string to split.
+ * @param delim The delimiter to split the string.
+ * @return auto The range of string_views after splitting.
+ */
 inline auto split_to_string_views(std::string_view str, char const* const delim) {
-    return std::views::split(str, std::string_view{delim}) | std::views::transform([](auto&& rng) { return std::string_view(&*rng.begin(), std::ranges::distance(rng)); });
+    // Remove the trailing delimiter if present
+    auto substring = str.substr(0, str.ends_with(delim) ? str.size() - std::string_view{delim}.size() : str.size());
+
+    // Split the substring into string_views using the delimiter
+    return std::views::split(substring, std::string_view{delim}) | std::views::transform([](auto&& range) {
+               return std::string_view(&*range.begin(), std::ranges::distance(range));
+           });
 }
 
 /**
