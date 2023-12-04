@@ -94,6 +94,7 @@ bool read_qsynrc_file(dvlab::CommandLineInterface& cli, std::filesystem::path qs
         qsynrc_path = fs::path{home_dir.value()} / ".config/qsynrc";
         if (!fs::exists(qsynrc_path)) {
             create_default_qsynrc(cli, qsynrc_path, false);
+            cli.clear_history();
             return true;
         }
     }
