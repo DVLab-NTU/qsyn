@@ -69,7 +69,7 @@ void dvlab::CommandLineInterface::print_history(size_t n_print) const {
     }
 }
 
-void dvlab::CommandLineInterface::write_history(std::filesystem::path const& filepath, size_t n_print) const {
+void dvlab::CommandLineInterface::write_history(std::filesystem::path const& filepath, size_t n_print, bool append_quit) const {
     assert(_temp_command_stored == false);
 
     if (n_print > _history.size())
@@ -86,6 +86,9 @@ void dvlab::CommandLineInterface::write_history(std::filesystem::path const& fil
     }
     for (auto const& history : _history | std::views::drop(_history.size() - n_print)) {
         fmt::println(ofs, "{}", history);
+    }
+    if (append_quit) {
+        fmt::println(ofs, "quit -f");
     }
 }
 

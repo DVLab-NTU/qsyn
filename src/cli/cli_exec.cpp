@@ -43,16 +43,19 @@ CmdExecResult dvlab::CommandLineInterface::execute_one_line(std::istream& istr, 
         _echo = do_echo;
     }};
     // The _command_prompt is copied to avoid invalidating the reference
-    auto [listen_result, input] = this->listen_to_input(istr, std::string{_command_prompt});
+    auto const [listen_result, input] = this->listen_to_input(istr, std::string{_command_prompt});
 
     if (listen_result == CmdExecResult::quit) {
         return CmdExecResult::quit;
     }
 
-    if (!_add_to_history(input)) {
-        return CmdExecResult::no_op;
+    dvlab::utils::scope_exit const history_guard{[this, &input = input]() {
+        _add_to_history(input);
+    }};
+
+    if (input.size()) {
+        _println_if_echo("");
     }
-    _println_if_echo("");
 
     auto stripped = _dequote(input);
 
@@ -72,8 +75,8 @@ CmdExecResult dvlab::CommandLineInterface::execute_one_line(std::istream& istr, 
     CmdExecResult exec_result = CmdExecResult::done;
 
     while (true) {
-        stripped             = dvlab::str::trim_leading_spaces(*stripped);
-        size_t semicolon_pos = stripped->find_first_of(';');
+        stripped           = dvlab::str::trim_leading_spaces(*stripped);
+        auto semicolon_pos = stripped->find_first_of(';');
         while (semicolon_pos != std::string::npos && _is_escaped(stripped.value(), semicolon_pos)) {
             semicolon_pos = stripped->find_first_of(';', semicolon_pos + 1);
         }
@@ -104,7 +107,9 @@ CmdExecResult dvlab::CommandLineInterface::execute_one_line(std::istream& istr, 
 std::pair<dvlab::Command*, std::vector<argparse::Token>>
 dvlab::CommandLineInterface::_parse_one_command(std::string_view cmd) {
     assert(_temp_command_stored == false);
-
+    if (cmd.empty()) {
+        return {nullptr, {}};
+    }
     std::string buffer{cmd};
 
     assert(buffer[0] != '\0' && buffer[0] != ' ');
@@ -223,7 +228,7 @@ std::string dvlab::CommandLineInterface::_replace_variable_keys_with_values(std:
     //       "foo_$bar"     --> "foo_"
     //       "${foo}${bar}" --> "banana"
     std::vector<std::tuple<size_t, size_t, std::string>> to_replace;
-    // FIXME - doesn't work for nested variables and multiple variables in one line
+
     for (auto const& re : {var_without_braces, var_with_braces}) {
         std::sregex_token_iterator const regex_end;
         std::sregex_token_iterator const regex_begin(str.begin(), str.end(), re);

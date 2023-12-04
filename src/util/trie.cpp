@@ -119,6 +119,8 @@ std::optional<std::string> Trie::find_with_prefix(std::string_view prefix) const
     assert(itr != nullptr);
     std::string ret_str = "";
 
+    if (prefix.empty()) return std::nullopt;
+
     for (auto& ch : prefix) {
         if (!itr->children.contains(ch)) return std::nullopt;
         itr = itr->children.at(ch).get();
