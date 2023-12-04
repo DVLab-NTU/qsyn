@@ -28,6 +28,9 @@ test:
 test-docker:
 	./scripts/RUN_TESTS_DOCKER
 
+test-update:
+	./scripts/RUN_TESTS -u
+
 # run clang-format and clang-tidy on the source code
 lint:
 	./scripts/LINT
@@ -46,4 +49,4 @@ clean-docker:
 	docker rmi qsyn-test-gcc -f
 	docker rmi qsyn-test-clang -f
 
-.PHONY: all build build-clang++ test test-docker lint publish clean clean-docker
+.PHONY: all build build-clang++ test test-docker test-update lint publish clean clean-docker

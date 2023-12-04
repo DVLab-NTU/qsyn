@@ -468,7 +468,7 @@ std::optional<ZXGraph> to_zxgraph(QCir const& qcir, size_t decomposition_mode) {
         assert(tmp.has_value());
 
         for (auto& v : tmp->get_vertices()) {
-            v->set_col(v->get_col() + static_cast<double>(gate->get_time() + gate->get_delay()));
+            v->set_col(v->get_col() + static_cast<double>(gate->get_time()));
         }
 
         g.concatenate(*tmp);
