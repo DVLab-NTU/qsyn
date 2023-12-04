@@ -20,6 +20,7 @@
 
 #include "./zx_file_parser.hpp"
 #include "./zxgraph.hpp"
+#include "util/sysdep.hpp"
 #include "util/tmp_files.hpp"
 
 namespace qsyn::zx {
@@ -305,7 +306,7 @@ bool ZXGraph::write_tikz(std::ostream& os) const {
  * @return false
  */
 bool ZXGraph::write_pdf(std::string const& filename) const {
-    if (system("which pdflatex >/dev/null 2>&1") != 0) {
+    if (!dvlab::utils::pdflatex_exists()) {
         spdlog::error("Unable to locate 'pdflatex' on your system. Please ensure that it is installed and in your system's PATH.");
         return false;
     }

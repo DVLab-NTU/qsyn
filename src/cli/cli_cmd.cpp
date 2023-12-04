@@ -8,16 +8,9 @@
 
 #include "cli/cli.hpp"
 #include "spdlog/common.h"
+#include "util/cin_cout_cerr.hpp"
 #include "util/sysdep.hpp"
 #include "util/usage.hpp"
-
-#ifdef _LIBCPP_VERSION
-#include <iostream>
-#else
-namespace std {
-extern istream cin;
-}
-#endif
 
 namespace dvlab {
 
@@ -223,6 +216,10 @@ Command history_cmd(CommandLineInterface& cli) {
                     .metavar("file")
                     .constraint(path_writable)
                     .help("output the command history to a file");
+
+                parser.add_argument<bool>("--no-append-quit")
+                    .action(store_true)
+                    .help("don't append the quit command to the output. This argument has no effect if --output is not specified");
             },
             [&cli](ArgumentParser const& parser) {
                 auto num = parser.get<size_t>("num");
@@ -231,7 +228,7 @@ Command history_cmd(CommandLineInterface& cli) {
                     return CmdExecResult::done;
                 }
                 if (parser.parsed("--output")) {
-                    cli.write_history(parser.get<std::string>("--output"), num);
+                    cli.write_history(parser.get<std::string>("--output"), num, !parser.get<bool>("--no-append-quit"));
                     return CmdExecResult::done;
                 }
 

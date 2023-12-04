@@ -138,7 +138,7 @@ public:
     void list_all_aliases() const;
     void list_all_variables() const;
     void print_history(size_t n_print = SIZE_MAX) const;
-    void write_history(std::filesystem::path const& filepath, size_t n_print = SIZE_MAX) const;
+    void write_history(std::filesystem::path const& filepath, size_t n_print = SIZE_MAX, bool append_quit = true) const;
     inline void clear_history() {
         _history.clear();
         _history_idx = 0;
