@@ -111,8 +111,8 @@ bool QCir::print_gate_as_diagram(size_t id, bool show_time) const {
 }
 
 void QCir::print_qcir_info() const {
-    auto info = print_gate_statistics(false, false);
-    fmt::println("QCir ({} qubits, {} gates, {} 2-qubits gates, {} T-gates, {} depths)", _qubits.size(), _qgates.size(), info[1], info[2], calculate_depth());
+    auto stat = get_gate_statistics();
+    fmt::println("QCir ({} qubits, {} gates, {} 2-qubits gates, {} T-gates, {} depths)", _qubits.size(), _qgates.size(), stat.twoqubit, stat.tfamily, calculate_depth());
 }
 
 }  // namespace qsyn::qcir

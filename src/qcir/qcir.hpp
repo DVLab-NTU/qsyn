@@ -56,6 +56,33 @@ inline std::optional<QCirDrawerType> str_to_qcir_drawer_type(std::string const& 
     return std::nullopt;
 }
 
+struct QCirGateStatistics {
+    size_t clifford = 0;
+    size_t tfamily  = 0;
+    size_t twoqubit = 0;
+    size_t nct      = 0;
+    size_t h        = 0;
+    size_t rz       = 0;
+    size_t z        = 0;
+    size_t s        = 0;
+    size_t sdg      = 0;
+    size_t t        = 0;
+    size_t tdg      = 0;
+    size_t rx       = 0;
+    size_t x        = 0;
+    size_t sx       = 0;
+    size_t ry       = 0;
+    size_t y        = 0;
+    size_t sy       = 0;
+    size_t mcpz     = 0;
+    size_t cz       = 0;
+    size_t ccz      = 0;
+    size_t mcrx     = 0;
+    size_t cx       = 0;
+    size_t ccx      = 0;
+    size_t mcry     = 0;
+};
+
 class QCir {  // NOLINT(hicpp-special-member-functions, cppcoreguidelines-special-member-functions) : copy-swap idiom
 public:
     using QubitIdType = qsyn::QubitIdType;
@@ -96,7 +123,7 @@ public:
     std::string get_filename() const { return _filename; }
     std::vector<std::string> const& get_procedures() const { return _procedures; }
 
-    bool is_empty() const { return _qubits.empty(); }
+    bool is_empty() const { return _qubits.empty() || _qgates.empty(); }
 
     void set_filename(std::string f) { _filename = std::move(f); }
     void add_procedures(std::vector<std::string> const& ps) { _procedures.insert(_procedures.end(), ps.begin(), ps.end()); }
@@ -124,7 +151,9 @@ public:
 
     bool draw(QCirDrawerType drawer, std::filesystem::path const& output_path = "", float scale = 1.0f);
 
-    std::vector<int> print_gate_statistics(bool detail = false, bool print = true) const;
+    void print_gate_statistics(bool detail = false) const;
+
+    QCirGateStatistics get_gate_statistics() const;
 
     void update_gate_time() const;
     void print_zx_form_topological_order();
