@@ -1,4 +1,4 @@
-name: clang test
+name: llvm-clang test (Ubuntu)
 
 on:
   push:

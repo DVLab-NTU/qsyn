@@ -1,4 +1,4 @@
-name: gcc test
+name: gcc test (Ubuntu)
 
 on:
   push:
