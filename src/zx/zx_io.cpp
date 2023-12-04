@@ -212,11 +212,11 @@ bool ZXGraph::write_tikz(std::ostream& os) const {
 
     static constexpr std::string_view font_size = "tiny";
 
-    auto max_col = gsl::narrow_cast<int>(std::max(
-        std::ranges::max(_inputs | std::views::transform([](ZXVertex* v) { return v->get_col(); })),
-        std::ranges::max(_outputs | std::views::transform([](ZXVertex* v) { return v->get_col(); }))));
-
     // REVIEW - add scale
+    // auto max_col = gsl::narrow_cast<int>(std::max(
+    //     std::ranges::max(_inputs | std::views::transform([](ZXVertex* v) { return v->get_col(); })),
+    //     std::ranges::max(_outputs | std::views::transform([](ZXVertex* v) { return v->get_col(); }))));
+
     // double scale = 25. / max_col;
     // scale        = (scale > 3.0) ? 3.0 : scale;
 
