@@ -21,6 +21,8 @@
 #include "extractor/extractor_cmd.hpp"
 #include "pp/pp_cmd.hpp"
 #include "qcir/qcir_cmd.hpp"
+#include "tableau/tableau_cmd.hpp"
+#include "tableau/tableau_mgr.hpp"
 #include "tensor/tensor_cmd.hpp"
 #include "util/sysdep.hpp"
 #include "util/usage.hpp"
@@ -123,7 +125,7 @@ bool read_qsynrc_file(dvlab::CommandLineInterface& cli, std::filesystem::path qs
 
 bool initialize_qsyn(
     dvlab::CommandLineInterface& cli, qsyn::device::DeviceMgr& device_mgr, qsyn::qcir::QCirMgr& qcir_mgr,
-    qsyn::tensor::TensorMgr& tensor_mgr, qsyn::zx::ZXGraphMgr& zxgraph_mgr) {
+    qsyn::tensor::TensorMgr& tensor_mgr, qsyn::zx::ZXGraphMgr& zxgraph_mgr, qsyn::experimental::TableauMgr& tableau_mgr) {
     spdlog::set_pattern("%L%v");
     spdlog::set_level(spdlog::level::warn);
 
@@ -136,7 +138,8 @@ bool initialize_qsyn(
         !qsyn::qcir::add_qcir_cmds(cli, qcir_mgr) ||
         !qsyn::tensor::add_tensor_cmds(cli, tensor_mgr) ||
         !qsyn::zx::add_zx_cmds(cli, zxgraph_mgr) ||
-        !qsyn::pp::add_pp_cmds(cli, qcir_mgr)) {
+        !qsyn::pp::add_pp_cmds(cli, qcir_mgr) ||
+        !qsyn::experimental::add_tableau_command(cli, tableau_mgr)) {
         return false;
     }
     dvlab::utils::Usage::reset();
