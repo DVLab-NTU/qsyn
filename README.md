@@ -3,7 +3,7 @@
 ![contributors](https://img.shields.io/github/contributors/DVLab-NTU/qsyn?style=plastic)
 ![release-date](https://img.shields.io/github/release-date-pre/DVLab-NTU/qsyn?style=plastic)
 ![pr-welcome](https://img.shields.io/badge/PRs-welcome-green?style=plastic)
-![g++-10](https://img.shields.io/badge/g++-≥10-blue?style=plastic)
+![g++-11](https://img.shields.io/badge/g++-≥11-blue?style=plastic)
 ![clang++-16](https://img.shields.io/badge/clang++-≥16-blueviolet?style=plastic)
 
 # Qsyn: An End-to-End Quantum Circuit Synthesis Framework
@@ -25,7 +25,7 @@
 
 ### System Requirements
 
-`qsyn` requires `c++-20` to build. We support compilation with (1) `g++-10` or above or (2) `clang++-16` or above. We regularly perform build tests for the two compilers.
+`qsyn` requires `c++-20` to build. We support compilation with (1) `g++-11` or above or (2) `clang++-16` or above. We regularly perform build tests for the two compilers.
 
 ### Installation
 
