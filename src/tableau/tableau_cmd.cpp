@@ -155,9 +155,17 @@ dvlab::Command tableau_apply_cmd(TableauMgr& tableau_mgr) {
                 tableau_mgr.get()->sdg(parser.get<size_t>("-sdg"));
             } else if (parser.parsed("-cx")) {
                 auto const qubits = parser.get<std::vector<size_t>>("-cx");
+                if (qubits[0] == qubits[1]) {
+                    spdlog::error("Control and target qubits cannot be the same!!");
+                    return dvlab::CmdExecResult::error;
+                }
                 tableau_mgr.get()->cx(qubits[0], qubits[1]);
             } else if (parser.parsed("-cz")) {
                 auto const qubits = parser.get<std::vector<size_t>>("-cz");
+                if (qubits[0] == qubits[1]) {
+                    spdlog::error("Control and target qubits cannot be the same!!");
+                    return dvlab::CmdExecResult::error;
+                }
                 tableau_mgr.get()->cz(qubits[0], qubits[1]);
             } else if (parser.parsed("-x")) {
                 tableau_mgr.get()->x(parser.get<size_t>("-x"));
