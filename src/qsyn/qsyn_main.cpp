@@ -21,18 +21,6 @@
 #include "./qsyn_helper.hpp"
 #include "argparse/arg_parser.hpp"
 #include "cli/cli.hpp"
-#include "convert/conversion_cmd.hpp"
-#include "device/device_cmd.hpp"
-#include "duostra/duostra_cmd.hpp"
-#include "extractor/extractor_cmd.hpp"
-#include "qcir/qcir_cmd.hpp"
-#include "tensor/tensor_cmd.hpp"
-#include "util/sysdep.hpp"
-#include "util/text_format.hpp"
-#include "util/usage.hpp"
-#include "util/util.hpp"
-#include "zx/simplifier/simp_cmd.hpp"
-#include "zx/zx_cmd.hpp"
 
 #ifndef QSYN_VERSION
 #define QSYN_VERSION "[unknown version]"
@@ -50,7 +38,6 @@ std::string const version_str = fmt::format(
     "qsyn {} - Copyright © 2022-{:%Y}, DVLab NTUEE.\n"
     "Licensed under Apache 2.0 License.",
     QSYN_VERSION, std::chrono::system_clock::now());
-
 }  // namespace
 
 bool stop_requested() { return cli.stop_requested(); }
