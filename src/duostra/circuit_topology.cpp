@@ -140,4 +140,20 @@ void CircuitTopology::print_gates_with_prevs() {
     }
 }
 
+/**
+ * @brief HOTFIX map<old, new>
+ *
+ * @param map
+ */
+void Gate::set_prevs(std::unordered_map<size_t, size_t> const& map) {
+    for (size_t i = 0; i < _prevs.size(); i++) {
+        _prevs[i] = map.at(_prevs[i]);
+    }
+}
+void Gate::set_nexts(std::unordered_map<size_t, size_t> const& map) {
+    for (size_t i = 0; i < _nexts.size(); i++) {
+        _nexts[i] = map.at(_nexts[i]);
+    }
+}
+
 }  // namespace qsyn::duostra

@@ -79,6 +79,15 @@ void Duostra::make_dependency() {
         }
         all_gates.emplace_back(std::move(temp_gate));
     }
+    std::unordered_map<size_t, size_t> reordered_map;
+    for (size_t i = 0; i < all_gates.size(); i++) {
+        reordered_map[all_gates[i].get_id()] = i;
+    }
+    for (size_t i = 0; i < all_gates.size(); i++) {
+        all_gates[i].set_id(reordered_map[all_gates[i].get_id()]);
+        all_gates[i].set_prevs(reordered_map);
+        all_gates[i].set_nexts(reordered_map);
+    }
     _dependency = make_shared<DependencyGraph>(_logical_circuit->get_num_qubits(), std::move(all_gates));
 }
 
