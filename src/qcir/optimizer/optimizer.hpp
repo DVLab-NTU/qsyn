@@ -8,7 +8,6 @@
 #pragma once
 
 #include <cstddef>
-#include <set>
 #include <unordered_map>
 
 #include "qsyn/qsyn_type.hpp"

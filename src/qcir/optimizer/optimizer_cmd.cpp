@@ -7,11 +7,9 @@
 
 #include <spdlog/spdlog.h>
 
-#include <cstddef>
 #include <string>
 
 #include "../qcir.hpp"
-#include "../qcir_cmd.hpp"
 #include "../qcir_mgr.hpp"
 #include "./optimizer.hpp"
 #include "cli/cli.hpp"
