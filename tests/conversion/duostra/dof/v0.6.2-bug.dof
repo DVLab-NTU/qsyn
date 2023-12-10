@@ -1,0 +1,23 @@
+device read benchmark/topology/casablanca.layout
+qcir qubit add 3
+qcir gate add h 0
+qcir gate add h 1 --prepend
+qcir gate add cz 0 2 --prepend
+qcir gate add cz 1 2 --prepend
+qcir gate add h 0 --prepend
+qcir gate add h 1 --prepend
+qcir gate add h 2 --prepend
+qcir gate add h 2 --prepend
+qcir print -d
+duostra -c
+qcir new
+qcir qubit add 3
+qcir gate add cx 2 1
+qcir gate add cx 2 0
+qc2zx
+zxopt
+zx2qc
+qcir print -d
+duostra -c
+
+quit -f
