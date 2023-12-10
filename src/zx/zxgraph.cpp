@@ -33,7 +33,7 @@ namespace qsyn::zx {
  */
 ZXGraph::ZXGraph(ZXVertexList const& vertices,
                  ZXVertexList const& inputs,
-                 ZXVertexList const& outputs) : _next_v_id{0}, _inputs{inputs}, _outputs{outputs}, _vertices{vertices} {
+                 ZXVertexList const& outputs) : _inputs{inputs}, _outputs{outputs}, _vertices{vertices} {
     for (auto v : _vertices) {
         v->set_id(_next_v_id);
         _next_v_id++;
@@ -62,7 +62,7 @@ ZXGraph::ZXGraph(ZXGraph const& other) : _filename{other._filename}, _procedures
         }
     }
 
-    other.for_each_edge([&old_v2new_v_map, this](EdgePair&& epair) {
+    other.for_each_edge([&old_v2new_v_map, this](EdgePair const& epair) {
         this->add_edge(old_v2new_v_map[epair.first.first], old_v2new_v_map[epair.first.second], epair.second);
     });
 }

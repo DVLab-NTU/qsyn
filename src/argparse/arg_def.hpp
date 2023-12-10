@@ -25,9 +25,9 @@ struct heterogeneous_string_hash {
 
 struct Token {
     Token(std::string_view tok)
-        : token{tok}, parsed{false} {}
+        : token{tok} {}
     std::string token;
-    bool parsed;
+    bool parsed = false;
 };
 
 using TokensSpan = std::span<Token>;

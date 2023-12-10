@@ -34,7 +34,7 @@ template <typename T>
 requires manager_manageable<T>
 class DataStructureManager {  // NOLINT(hicpp-special-member-functions, cppcoreguidelines-special-member-functions) : copy-swap idiom
 public:
-    DataStructureManager(std::string_view name) : _next_id{0}, _focused_id{0}, _type_name{name} {}
+    DataStructureManager(std::string_view name) : _type_name{name} {}
     virtual ~DataStructureManager() = default;
 
     DataStructureManager(DataStructureManager const& other) : _next_id{other._next_id}, _focused_id{other._focused_id} {
@@ -186,8 +186,8 @@ public:
     std::string get_type_name() const { return _type_name; }
 
 private:
-    size_t _next_id;
-    size_t _focused_id;
+    size_t _next_id    = 0;
+    size_t _focused_id = 0;
     ordered_hashmap<size_t, std::unique_ptr<T>> _list;
     std::string _type_name;
 

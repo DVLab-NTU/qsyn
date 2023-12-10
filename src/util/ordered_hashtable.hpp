@@ -104,7 +104,7 @@ public:
         VecIterType _end;
     };
 
-    ordered_hashtable() : _size(0) {}
+    ordered_hashtable() {}
     virtual ~ordered_hashtable() = default;
 
     ordered_hashtable(ordered_hashtable const& other)                = default;
@@ -203,7 +203,7 @@ public:
 protected:
     std::unordered_map<Key, size_t, Hash, KeyEqual> _key2id;
     container _data;
-    size_t _size;
+    size_t _size = 0;
 };
 
 //------------------------------------------------------

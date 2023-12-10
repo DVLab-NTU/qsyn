@@ -27,11 +27,11 @@ class ArgumentParser;
 class MutuallyExclusiveGroup {
     struct MutExGroupImpl {
         MutExGroupImpl(ArgumentParser& parser)
-            : _parser{&parser}, _required{false}, _parsed{false} {}
+            : _parser{&parser} {}
         ArgumentParser* _parser;
         dvlab::utils::ordered_hashset<std::string, detail::heterogeneous_string_hash, std::equal_to<>> _arguments;
-        bool _required;
-        bool _parsed;
+        bool _required = false;
+        bool _parsed   = false;
     };
 
 public:
