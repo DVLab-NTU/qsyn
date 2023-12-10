@@ -43,8 +43,8 @@ public:
     void set_phase(dvlab::Phase p) { _phase = p; }
     void add_prev(size_t prev_gate_id);
     void add_next(size_t next_gate_id);
-    void set_prevs(std::unordered_map<size_t, size_t> const& );
-    void set_nexts(std::unordered_map<size_t, size_t> const& );
+    void set_prevs(std::unordered_map<size_t, size_t> const&);
+    void set_nexts(std::unordered_map<size_t, size_t> const&);
 
     bool is_available(std::unordered_map<size_t, size_t> const&) const;
     bool is_swapped() const { return _swap; }
