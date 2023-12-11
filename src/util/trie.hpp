@@ -20,7 +20,7 @@ namespace utils {
 
 struct TrieNode {  // NOLINT(hicpp-special-member-functions, cppcoreguidelines-special-member-functions) : copy-swap idiom
 public:
-    TrieNode() : is_word(false), frequency(0) {}
+    TrieNode() {}
     ~TrieNode() = default;
 
     TrieNode(TrieNode const& other) : is_word{other.is_word}, frequency{other.frequency} {
@@ -47,8 +47,8 @@ public:
     }
 
     std::unordered_map<char, std::unique_ptr<TrieNode>> children;
-    bool is_word;
-    size_t frequency;
+    bool is_word     = false;
+    size_t frequency = 0;
 };
 
 template <typename It>

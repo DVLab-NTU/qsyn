@@ -23,13 +23,13 @@ public:
     using VertexInfo  = detail::VertexInfo;
     using StorageType = detail::StorageType;
 
-    ZXFileParser() : _line_no(1) {}
+    ZXFileParser() {}
 
     bool parse(std::filesystem::path const& filename);
     StorageType get_storage() const { return _storage; }
 
 private:
-    unsigned _line_no;
+    unsigned _line_no = 1;
     StorageType _storage;
     std::unordered_set<int> _taken_input_qubits;
     std::unordered_set<int> _taken_output_qubits;

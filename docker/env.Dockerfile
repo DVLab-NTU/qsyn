@@ -5,4 +5,5 @@ RUN dnf install -y \
     clang \
     cmake \
     lapack-devel  \
-    openblas-devel
+    openblas-devel \
+    parallel

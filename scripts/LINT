@@ -1,4 +1,10 @@
 #!/usr/bin/env bash
+
+if [ ! -x "$(command -v parallel)" ]; then
+    echo "Error: GNU parallel is not installed!!"
+    exit 1
+fi
+
 format_one() {
     clang-format -i "$1"
 }

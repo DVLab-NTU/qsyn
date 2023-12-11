@@ -104,9 +104,9 @@ private:
 protected:
     size_t _id;
     GateRotationCategory _rotation_category;
-    size_t _time          = 0;
-    unsigned _dfs_counter = 0;
-    std::vector<QubitInfo> _qubits;
+    size_t _time                   = 0;
+    unsigned _dfs_counter          = 0;
+    std::vector<QubitInfo> _qubits = {};
     dvlab::Phase _phase;
 
     // void _print_single_qubit_gate(std::string const& gtype, bool show_rotation = false, bool show_time = false) const;

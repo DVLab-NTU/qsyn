@@ -37,7 +37,7 @@ public:
     };
     using MeasurementPlaneMap = std::unordered_map<ZXVertex*, MeasurementPlane>;
 
-    GFlow(ZXGraph* g) : _zxgraph{g}, _valid{false}, _do_independent_layers{false}, _do_extended{true} {}
+    GFlow(ZXGraph* g) : _zxgraph{g} {}
 
     bool calculate();
 
@@ -76,9 +76,9 @@ private:
     std::unordered_map<ZXVertex*, MeasurementPlane> _measurement_planes;
     std::unordered_map<ZXVertex*, size_t> _vertex2levels;
 
-    bool _valid;
-    bool _do_independent_layers;
-    bool _do_extended;
+    bool _valid                 = false;
+    bool _do_independent_layers = false;
+    bool _do_extended           = false;
 
     // helper members
     ZXVertexList _frontier;
