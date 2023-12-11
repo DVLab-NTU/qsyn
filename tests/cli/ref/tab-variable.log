@@ -1,9 +1,0 @@
-qsyn> // -------- VARIABLE TABBING --------
-qsyn> set haha source
-
-qsyn> set happy source
-
-qsyn> // 1st tab: print all variables starting with `$ha`
-qsyn> // 2nd tab: autocomplete `$hap` to `$happy`
-qsyn> // 3rd tab replace `$happy` with source
-qsyn> 

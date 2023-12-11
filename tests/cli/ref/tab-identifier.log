@@ -1,7 +1,0 @@
-qsyn> // --------- COMMAND AUTOCOMPLETE --------
-qsyn> // 1st tab: lists all commands and aliases. 
-qsyn> // 2nd tab: list all commands starting with `h`.
-qsyn> // 3rd tab: autocomplete `hel` to `help`
-qsyn> // 4th tab: print usage to `help`
-qsyn> // quit: argument to `help` command
-qsyn> 
