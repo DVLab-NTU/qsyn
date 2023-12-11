@@ -14,7 +14,8 @@ FROM fedora:38 AS runner
 RUN dnf install -y \
     lapack  \
     openblas-serial  \
-    libomp
+    libomp \
+    parallel
 
 COPY --from=builder /app/build/qsyn /usr/local/bin/qsyn
 
