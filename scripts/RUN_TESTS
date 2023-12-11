@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [ ! -x "$(command -v parallel)" ]; then
+    echo "Error: GNU parallel is not installed!!"
+    exit 1
+fi
+
 # test if colordiff is installed; if not use diff
 if [ -x "$(command -v colordiff)" ]; then
     DIFF="colordiff"
