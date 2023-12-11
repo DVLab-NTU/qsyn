@@ -201,9 +201,9 @@ public:
     void sort(F lambda);
 
 protected:
-    std::unordered_map<Key, size_t, Hash, KeyEqual> _key2id;
-    container _data;
-    size_t _size = 0;
+    std::unordered_map<Key, size_t, Hash, KeyEqual> _key2id = {};
+    container _data                                         = {};
+    size_t _size                                            = 0;
 };
 
 //------------------------------------------------------

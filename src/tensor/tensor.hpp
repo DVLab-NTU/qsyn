@@ -44,7 +44,7 @@ public:
     virtual ~Tensor() = default;
 
     Tensor(TensorShape const& shape) : _tensor(shape) { reset_axis_history(); }
-    Tensor(TensorShape&& shape) : _tensor(shape) { reset_axis_history(); }
+    Tensor(TensorShape&& shape) : _tensor(std::move(shape)) { reset_axis_history(); }
 
     template <typename From>
     requires std::convertible_to<From, InternalType>
@@ -52,7 +52,7 @@ public:
 
     template <typename From>
     requires std::convertible_to<From, InternalType>
-    Tensor(From&& internal) : _tensor(internal) { reset_axis_history(); }
+    Tensor(From&& internal) : _tensor(std::forward<InternalType>(internal)) { reset_axis_history(); }
 
     template <typename... Args>
     DT& operator()(Args const&... args);

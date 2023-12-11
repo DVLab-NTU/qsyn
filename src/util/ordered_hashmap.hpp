@@ -230,8 +230,8 @@ T& ordered_hashmap<Key, T, Hash, KeyEqual>::operator[](Key const& key) {
  */
 template <typename Key, typename T, typename Hash, typename KeyEqual>
 T& ordered_hashmap<Key, T, Hash, KeyEqual>::operator[](Key&& key) {
-    if (!this->contains(key)) this->emplace(std::move(key), T());
-    return at(key);
+    if (!this->contains(std::move(key))) this->emplace(std::move(key), T());
+    return at(std::move(key));
 }
 
 }  // namespace utils

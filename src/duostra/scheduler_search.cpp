@@ -54,7 +54,7 @@ TreeNode::TreeNode(TreeNodeConf conf,
  * @param maxCost
  */
 TreeNode::TreeNode(TreeNodeConf conf,
-                   std::vector<size_t>&& gate_ids,
+                   std::vector<size_t> gate_ids,
                    std::unique_ptr<Router> router,
                    std::unique_ptr<BaseScheduler> scheduler,
                    size_t max_cost)
@@ -142,7 +142,8 @@ void TreeNode::_route_internal_gates() {
 TreeNode TreeNode::best_child(size_t depth) {
     if (is_leaf()) _grow();
     // NOTE - best_cost(depth) is computationally expensive, so we don't use std::min_element here to avoid calling it twice.
-    size_t best_idx = 0, best_cost = SIZE_MAX;
+    size_t best_idx  = 0;
+    size_t best_cost = SIZE_MAX;
     for (auto&& [idx, node] : tl::views::enumerate(_children)) {
         assert(depth >= 1);
         auto cost = node.best_cost(depth);
