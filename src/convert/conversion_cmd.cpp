@@ -22,7 +22,6 @@
 #include "util/data_structure_manager_common_cmd.hpp"
 #include "util/dvlab_string.hpp"
 #include "util/util.hpp"
-#include "zx/zx_cmd.hpp"
 
 using namespace dvlab::argparse;
 
