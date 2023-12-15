@@ -14,6 +14,7 @@
 #include <filesystem>
 #include <string>
 
+#include "./deancilla/deancilla_cmd.hpp"
 #include "./optimizer/optimizer_cmd.hpp"
 #include "./qcir_gate.hpp"
 #include "argparse/arg_parser.hpp"
@@ -631,6 +632,7 @@ Command qcir_cmd(QCirMgr& qcir_mgr) {
     cmd.add_subcommand("qcir-cmd-group", qcir_qubit_cmd(qcir_mgr));
     cmd.add_subcommand("qcir-cmd-group", qcir_optimize_cmd(qcir_mgr));
     cmd.add_subcommand("qcir-cmd-group", qcir_translate_cmd(qcir_mgr));
+    cmd.add_subcommand("qcir-cmd-group", qcir_deancilla_cmd(qcir_mgr));
     return cmd;
 }
 
