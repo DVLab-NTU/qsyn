@@ -12,7 +12,6 @@
 
 #include <cstddef>
 #include <filesystem>
-#include <ostream>
 #include <string>
 
 #include "./optimizer/optimizer_cmd.hpp"

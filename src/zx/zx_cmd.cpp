@@ -14,7 +14,6 @@
 #include "argparse/arg_parser.hpp"
 #include "cli/cli.hpp"
 #include "qsyn/qsyn_type.hpp"
-#include "util/data_structure_manager.hpp"
 #include "util/data_structure_manager_common_cmd.hpp"
 #include "zx/simplifier/simp_cmd.hpp"
 #include "zx/zx_io.hpp"
