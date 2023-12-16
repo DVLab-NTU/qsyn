@@ -9,31 +9,30 @@
 
 #include "util/boolean_matrix.hpp"
 
-namespace qsyn {
+namespace dvlab {
 
-namespace qcir {
-class QCir;
+class Phase;
+
 }
 
-namespace pp {
+namespace qsyn::qcir {
 
-class Phase_Polynomial{
+class QCir;
+
+}
+
+namespace qsyn::pp {
+
+class Phase_Polynomial {
 public:
-    using Monomial    =  std::pair<dvlab::BooleanMatrix, dvlab::Phase> ;
-    using Polynomial  =  std::vector<Monomial>;
-    using Wire        =  std::vector<dvlab::BooleanMatrix>;
-        
-    
+    using Monomial   = std::pair<dvlab::BooleanMatrix, dvlab::Phase>;
+    using Polynomial = std::vector<Monomial>;
+    using Wire       = std::vector<dvlab::BooleanMatrix>;
+
     Phase_Polynomial(qcir::QCir*, size_t, std::string);
 
     // Polynomial calculate_pp(qcir::QCir*){};
     // qcir::QCir* resynthesis(Polynomial*){};
-
 };
 
-}
-
-
-
-
-} // namespace qsyn::qcir
+}  // namespace qsyn::pp
