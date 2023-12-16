@@ -23,7 +23,7 @@ using dvlab::CmdExecResult;
 using dvlab::Command;
 using qsyn::qcir::QCirMgr;
 
-namespace qsyn::Phase_Polynomial{
+namespace qsyn::pp{
 dvlab::Command qcir_phase_polynomial_cmd(QCirMgr& qcir_mgr) {
     return {"phase_polynomial",
             [](ArgumentParser& parser) {
@@ -68,6 +68,6 @@ bool add_pp_cmds(dvlab::CommandLineInterface& cli, QCirMgr& qcir_mgr) {
 }
 
 
-} // namespace qsyn::Phase_Polynomial
+} // namespace qsyn::pp
 
 

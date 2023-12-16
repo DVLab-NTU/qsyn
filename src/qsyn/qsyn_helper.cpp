@@ -24,6 +24,7 @@
 #include "util/sysdep.hpp"
 #include "util/usage.hpp"
 #include "zx/zx_cmd.hpp"
+#include "pp/pp_cmd.hpp"
 
 namespace qsyn {
 
@@ -134,7 +135,8 @@ bool initialize_qsyn(
         !qsyn::extractor::add_extract_cmds(cli, zxgraph_mgr, qcir_mgr) ||
         !qsyn::qcir::add_qcir_cmds(cli, qcir_mgr) ||
         !qsyn::tensor::add_tensor_cmds(cli, tensor_mgr) ||
-        !qsyn::zx::add_zx_cmds(cli, zxgraph_mgr)) {
+        !qsyn::zx::add_zx_cmds(cli, zxgraph_mgr) || 
+        !qsyn::pp::add_pp_cmds(cli, qcir_mgr) ) {
         return false;
     }
     dvlab::utils::Usage::reset();

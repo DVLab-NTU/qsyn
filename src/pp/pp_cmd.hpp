@@ -8,10 +8,9 @@
 #pragma once
 
 #include "cli/cli.hpp"
-#include "argparse/argparse.hpp"
 #include "qcir/qcir_mgr.hpp"
 
-namespace qsyn::Phase_Polynomial{
-bool add_pp_cmds(dvlab::CommandLineInterface& cli, QCirMgr& qcir_mgr);
+namespace qsyn::pp{
+bool add_pp_cmds(dvlab::CommandLineInterface& cli, qcir::QCirMgr& qcir_mgr);
 
 }

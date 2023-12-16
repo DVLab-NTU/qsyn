@@ -15,6 +15,7 @@ namespace qcir {
 class QCir;
 }
 
+namespace pp {
 
 class Phase_Polynomial{
 public:
@@ -23,12 +24,16 @@ public:
     using Wire        =  std::vector<dvlab::BooleanMatrix>;
         
     
-    Phase_Polynomial(qcir::QCir*, size_t, string);
+    Phase_Polynomial(qcir::QCir*, size_t, std::string);
 
-    Polynomial calculate_pp(qcir::QCir*){};
-    qcir::QCir* resynthesis(Polynomial*){};
+    // Polynomial calculate_pp(qcir::QCir*){};
+    // qcir::QCir* resynthesis(Polynomial*){};
 
 };
+
+}
+
+
 
 
 } // namespace qsyn::qcir
