@@ -24,8 +24,8 @@ using dvlab::Command;
 using qsyn::qcir::QCirMgr;
 
 namespace qsyn::pp{
-dvlab::Command qcir_phase_polynomial_cmd(QCirMgr& qcir_mgr) {
-    return {"phase_polynomial",
+dvlab::Command phase_polynomial_cmd(QCirMgr& qcir_mgr) {
+    return {"config",
             [](ArgumentParser& parser) {
                 parser.description("perform phase polynomial optimizer");
 
@@ -46,7 +46,7 @@ dvlab::Command qcir_phase_polynomial_cmd(QCirMgr& qcir_mgr) {
                     qcir_mgr.add(qcir_mgr.get_next_id());
                 }
 
-                // TODO
+                // TODO and move to other place
                 fmt::println("phase-polynomial {}", parser.get<std::string>("--resynthesis"));
 
                 return CmdExecResult::done;
@@ -54,8 +54,16 @@ dvlab::Command qcir_phase_polynomial_cmd(QCirMgr& qcir_mgr) {
 }
 
 Command pp_cmd(QCirMgr& qcir_mgr) {
-    auto cmd = dvlab::utils::mgr_root_cmd(qcir_mgr);
-    cmd.add_subcommand(qcir_phase_polynomial_cmd(qcir_mgr));
+    // auto cmd = dvlab::utils::mgr_root_cmd(qcir_mgr);
+    auto cmd = Command{"phase_poly",
+                       [](ArgumentParser& parser) {
+                           parser.description("Optimize Qcir with phasepolynomial");
+                           parser.add_subparsers().required(true);
+                       },
+                       [&](ArgumentParser const& /* unused */) {
+                           return CmdExecResult::error;
+                       }};
+    cmd.add_subcommand(phase_polynomial_cmd(qcir_mgr));
     return cmd;
 }
 
