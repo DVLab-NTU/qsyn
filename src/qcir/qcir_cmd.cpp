@@ -639,7 +639,6 @@ Command qcir_cmd(QCirMgr& qcir_mgr) {
     cmd.add_subcommand(qcir_gate_cmd(qcir_mgr));
     cmd.add_subcommand(qcir_qubit_cmd(qcir_mgr));
     cmd.add_subcommand(qcir_optimize_cmd(qcir_mgr));
-    cmd.add_subcommand(qcir_phase_polynomial_cmd(qcir_mgr));
     return cmd;
 }
 
