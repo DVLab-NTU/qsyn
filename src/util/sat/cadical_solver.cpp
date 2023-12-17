@@ -14,20 +14,20 @@ CaDiCalSolver::~CaDiCalSolver() { delete _solver; }
 void CaDiCalSolver::reset() {
     delete _solver;
     _solver   = new CaDiCaL::Solver();
-    _num_vars = 0;
+    _num_vars = Variable(0);
 }
 
 Variable CaDiCalSolver::new_var() { return ++_num_vars; }
 
 void CaDiCalSolver::add_clause(std::vector<Literal> const& clause) {
     for (auto const& lit : clause) {
-        _solver->add(lit);
+        _solver->add(lit.get());
     }
     _solver->add(0);
 }
 
 void CaDiCalSolver::assume(Literal lit) {
-    _solver->assume(lit);
+    _solver->assume(lit.get());
 }
 
 Result CaDiCalSolver::solve() {

@@ -25,7 +25,7 @@ public:
 
 private:
     CaDiCaL::Solver* _solver = new CaDiCaL::Solver();
-    int _num_vars            = 0;
+    Variable _num_vars       = Variable(0);
 };
 
 }  // namespace dvlab::sat
