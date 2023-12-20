@@ -10,7 +10,7 @@
 #include "cli/cli.hpp"
 #include "qcir/qcir_mgr.hpp"
 
-namespace qsyn::pp{
+namespace qsyn::pp {
 bool add_pp_cmds(dvlab::CommandLineInterface& cli, qcir::QCirMgr& qcir_mgr);
 
 }
