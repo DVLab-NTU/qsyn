@@ -16,6 +16,7 @@
 #include "qcir/qcir_mgr.hpp"
 #include "util/data_structure_manager_common_cmd.hpp"
 #include "util/util.hpp"
+#include "pp.hpp"
 
 using namespace dvlab::argparse;
 using dvlab::CmdExecResult;
@@ -47,6 +48,13 @@ dvlab::Command phase_polynomial_cmd(QCirMgr& qcir_mgr) {
 
                 // TODO and move to other place
                 fmt::println("phase-polynomial {}", parser.get<std::string>("--resynthesis"));
+                if (!qcir_mgr_not_empty(qcir_mgr)) return CmdExecResult::error;
+                
+                Phase_Polynomial pp;
+                pp.calculate_pp(*qcir_mgr.get());
+
+
+
 
                 return CmdExecResult::done;
             }};

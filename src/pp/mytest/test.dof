@@ -1,0 +1,5 @@
+logger info
+qcir read /home/arttr1521/git/QDA_final/src/pp/mytest/mybenchmark/cnot_t.qasm
+phase_poly
+
+q -f

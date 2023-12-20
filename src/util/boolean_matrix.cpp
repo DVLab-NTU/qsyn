@@ -58,6 +58,20 @@ BooleanMatrix::Row& BooleanMatrix::Row::operator+=(Row const& rhs) {
 }
 
 /**
+ * @brief Overload operator == for Row
+ *
+ * @param rhs
+ * @return Row&
+ */
+bool BooleanMatrix::Row::operator==(Row const& rhs) {
+    assert(_row.size() == rhs._row.size());
+    for (size_t i = 0; i < _row.size(); i++) {
+        if(_row[i] != rhs._row[i]) return false;
+    }
+    return true;
+}
+
+/**
  * @brief Print row
  *
  */
