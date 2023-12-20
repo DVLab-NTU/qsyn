@@ -63,7 +63,7 @@ BooleanMatrix::Row& BooleanMatrix::Row::operator+=(Row const& rhs) {
  * @param rhs
  * @return Row&
  */
-bool BooleanMatrix::Row::operator==(Row const& rhs) {
+bool BooleanMatrix::Row::operator==(Row const& rhs) const {
     assert(_row.size() == rhs._row.size());
     for (size_t i = 0; i < _row.size(); i++) {
         if(_row[i] != rhs._row[i]) return false;
@@ -533,4 +533,16 @@ void BooleanMatrix::push_zeros_column() {
     for_each(_matrix.begin(), _matrix.end(), [](Row& r) { r.emplace_back(0); });
 }
 
+/**
+ * @brief Find if the row exist in the matrix
+ * @param Row: row
+ * @return size_t r: row at matrix[r]
+ */
+std::optional<size_t> BooleanMatrix::find_row(Row row) {
+    std::vector<Row>::iterator it = std::ranges::find_if(_matrix, [&](Row& r) { return row==r; });
+    if (it != _matrix.end()) return it - _matrix.begin();
+    else return std::nullopt; 
+}
+
 }  // namespace dvlab
+
