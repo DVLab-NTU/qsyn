@@ -5,7 +5,7 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "./cadical_solver.hpp"
+#include "./sat_solver.hpp"
 
 namespace dvlab::sat {
 
@@ -14,10 +14,10 @@ CaDiCalSolver::~CaDiCalSolver() { delete _solver; }
 void CaDiCalSolver::reset() {
     delete _solver;
     _solver   = new CaDiCaL::Solver();
-    _num_vars = Variable(0);
+    _next_var = Variable(1);
 }
 
-Variable CaDiCalSolver::new_var() { return ++_num_vars; }
+Variable CaDiCalSolver::new_var() { return _next_var++; }
 
 void CaDiCalSolver::add_clause(std::vector<Literal> const& clause) {
     for (auto const& lit : clause) {
