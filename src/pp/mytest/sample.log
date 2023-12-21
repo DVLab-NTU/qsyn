@@ -5,25 +5,7 @@ qsyn> qcir read src/pp/mytest/mybenchmark/sample.qasm
 
 qsyn> phase_poly
 phase-polynomial G
-Polynomial wires
-0 1 1
-1 0 0
-1 0 1
-Polynomial terms
-1 0 0
-1 0 1
-0 1 0
-1 1 1
-0 1 1
-Polynomial coefficient
--π/2
-0
--π/4
-π/4
-3π/4
-coeff_is_0 size: 1
 1
-i = 0 1
 Polynomial wires
 0 1 1
 1 0 0

@@ -25,14 +25,10 @@ class QCir;
 namespace qsyn::pp {
 
 class Phase_Polynomial {
+    // using Monomial   = std::pair<dvlab::BooleanMatrix, dvlab::Phase>;
+    // using Polynomial_terms = std::unordered_map<dvlab::BooleanMatrix::Row, dvlab::Phase>;
 
-
-// using Monomial   = std::pair<dvlab::BooleanMatrix, dvlab::Phase>;
-// using Polynomial_terms = std::unordered_map<dvlab::BooleanMatrix::Row, dvlab::Phase>;
-  
 public:
-    
-
     Phase_Polynomial(){};
 
     bool calculate_pp(qcir::QCir const& qcir);
