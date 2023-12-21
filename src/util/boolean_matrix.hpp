@@ -96,6 +96,7 @@ public:
     void push_zeros_row() { _matrix.emplace_back(std::vector<unsigned char>(_matrix[0].size(), 0)); }
     void push_row(Row const& row) { _matrix.emplace_back(row); }
     void push_wor(Row&& row) { _matrix.emplace_back(std::move(row)); }
+    void erase_row(size_t r) {(_matrix.erase(_matrix.begin()+r));};
 
     Row& operator[](size_t const& i) {
         return _matrix[i];
