@@ -1,5 +1,5 @@
 //logger trace
-qcir read src/pp/mytest/mybenchmark/sample.qasm
+qcir read src/pp/mytest/mybenchmark/sample_H.qasm
 phase_poly
 
 q -f

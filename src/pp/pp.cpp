@@ -20,6 +20,8 @@ using namespace std;
 
 namespace qsyn::pp {
 
+using Row       =  dvlab::BooleanMatrix::Row;
+
 /**
  * @brief Calculate phase polynomial of the circuit
  * @param Qcir*
@@ -39,7 +41,21 @@ bool Phase_Polynomial::calculate_pp(QCir const& qc) {
                    (g->get_rotation_category() == GateRotationCategory::pz ||
                     g->get_rotation_category() == GateRotationCategory::rz)) {
             Phase_Polynomial::insert_phase(g->get_control()._qubit, g->get_phase());
-        } else {
+        } else if (g->is_h()){
+            size_t q = g->get_control()._qubit;
+            _hadamard.push_back(g);
+            // todo: check if the rank need to be increased
+
+            // if rank need to be increased
+            _pp_terms.push_zeros_column();
+            _wires.push_zeros_column();
+            Row h_output_state(_wires.num_cols());
+            h_output_state[_wires.num_cols()-1] = 1;
+            h_output_state.print_row();
+            _h_map.emplace_back(std::make_pair(_wires[q], h_output_state));
+            _wires[q] = h_output_state;
+        }
+        else {
             std::cout << "Find a unsupport gate " << g->get_type_str() << endl;
             return false;
         }

@@ -9,6 +9,8 @@
 
 #include "util/boolean_matrix.hpp"
 #include "util/phase.hpp"
+#include "qcir/qcir_gate.hpp"
+#include "qcir/qcir.hpp"
 
 namespace dvlab {
 
@@ -43,10 +45,13 @@ public:
 
 private:
     size_t _qubit_number;
-    size_t _ancillae;
+    // size_t _ancillae;
     dvlab::BooleanMatrix _pp_terms;
     std::vector<dvlab::Phase> _pp_coeff;
     dvlab::BooleanMatrix _wires;
+    std::vector<qcir::QCirGate*> _hadamard;
+    std::vector<std::pair<dvlab::BooleanMatrix::Row, dvlab::BooleanMatrix::Row>> _h_map;
+    // qcir::QCir* _result;
 };
 
 }  // namespace qsyn::pp
