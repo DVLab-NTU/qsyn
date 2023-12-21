@@ -1,0 +1,54 @@
+qsyn v0.6.2 - Copyright © 2022-2023, DVLab NTUEE.
+Licensed under Apache 2.0 License.
+qsyn> //logger trace
+qsyn> qcir read src/pp/mytest/mybenchmark/sample.qasm
+
+qsyn> phase_poly
+phase-polynomial G
+In function calculate_pp
+
+Find a single zphase -π/4
+In function insert_phase, q: 0 phase: -π/4
+Find a cx
+Find a single zphase π/4
+In function insert_phase, q: 2 phase: π/4
+Find a cx
+Find a single zphase -π/4
+In function insert_phase, q: 1 phase: -π/4
+Find a single zphase π/4
+In function insert_phase, q: 2 phase: π/4
+Find a cx
+Find a single zphase π/4
+In function insert_phase, q: 0 phase: π/4
+Find a cx
+Find a cx
+Find a single zphase π/4
+In function insert_phase, q: 0 phase: π/4
+Find a single zphase π/4
+In function insert_phase, q: 0 phase: π/4
+Find a cx
+Find a single zphase -π/4
+In function insert_phase, q: 2 phase: -π/4
+Find a cx
+Find a single zphase -π/4
+In function insert_phase, q: 1 phase: -π/4
+Polynomial wires
+0 1 1
+1 0 0
+1 0 1
+Polynomial terms
+1 0 0
+1 0 1
+0 1 0
+1 1 1
+0 1 1
+Polynomial coefficient
+-π/2
+0
+-π/4
+π/4
+3π/4
+
+qsyn> 
+qsyn> q -f
+

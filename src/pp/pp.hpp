@@ -41,6 +41,9 @@ public:
     void intial_wire(size_t);
     // qcir::QCir* resynthesis(Polynomial*){};
 
+    void print_polynomial(spdlog::level::level_enum lvl = spdlog::level::level_enum::off) const;
+    void print_wires(spdlog::level::level_enum lvl = spdlog::level::level_enum::off) const;
+
 private:
     size_t _qubit_number;
     size_t _ancillae;

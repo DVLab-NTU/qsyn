@@ -40,19 +40,21 @@ bool Phase_Polynomial::calculate_pp(QCir const& qc){
 
     for(QCirGate* g: gates){
         if (g->is_cx()){
-            std::cout<<"Find a cx" << endl;
             _wires.row_operation(g->get_control()._qubit, g->get_targets()._qubit);
         }
         else if (g->get_num_qubits() == 1 && 
                 (g->get_rotation_category() == GateRotationCategory::pz || 
                 g->get_rotation_category() == GateRotationCategory::rz)){
-            std::cout<<"Find a single zphase " << g->get_phase().get_print_string() << endl;
             Phase_Polynomial::insert_phase(g->get_control()._qubit, g->get_phase());
         }
         else{
             std::cout<<"Find a unsupport gate " << g->get_type_str() << endl;
+            return false;
         }
     }
+    Phase_Polynomial::print_wires(spdlog::level::level_enum::off);
+    Phase_Polynomial::print_polynomial(spdlog::level::level_enum::off);
+
     return true;
 
 }
@@ -70,13 +72,8 @@ bool Phase_Polynomial::insert_phase(size_t q, dvlab::Phase phase){
     dvlab::BooleanMatrix::Row term(_wires.get_row(q));
     if(_pp_terms.find_row(term).has_value()){
         size_t q = (_pp_terms.find_row(term).value());
-        std::cout << "Row exist at " << q << endl;
-        _pp_terms.print_matrix();
-        std::cout << "Before phase:  " << _pp_coeff[q].get_print_string() << endl;
         _pp_coeff[q] += phase;
-        std::cout << "After phase:  " << _pp_coeff[q].get_print_string() << endl;
     }else{
-        std::cout << "New row" << endl;
         _pp_terms.push_row(term);
         _pp_coeff.push_back(phase);
     }
@@ -111,6 +108,26 @@ void Phase_Polynomial::intial_wire(size_t n){
     // _wires.print_matrix();
 }
 
+/**
+ * @brief Print the info of wires
+ *
+ */
+void Phase_Polynomial::print_wires(spdlog::level::level_enum lvl) const{
+    spdlog::log(lvl, "Polynomial wires");
+    _wires.print_matrix(lvl);
+}
+
+
+/**
+ * @brief Print the info of phase polynomial
+ *
+ */
+void Phase_Polynomial::print_polynomial(spdlog::level::level_enum lvl) const{
+    spdlog::log(lvl, "Polynomial terms");
+    _pp_terms.print_matrix(lvl);
+    spdlog::log(lvl, "Polynomial coefficient");
+    for_each(_pp_coeff.begin(), _pp_coeff.end(), [&](dvlab::Phase p){spdlog::log(lvl, p.get_print_string());});
+}
 
 
 }
