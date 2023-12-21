@@ -39,6 +39,7 @@ public:
     bool insert_phase(size_t, dvlab::Phase);
     void reset();
     void intial_wire(size_t);
+    void remove_coeff_0_monomial();
     // qcir::QCir* resynthesis(Polynomial*){};
 
     void print_polynomial(spdlog::level::level_enum lvl = spdlog::level::level_enum::off) const;

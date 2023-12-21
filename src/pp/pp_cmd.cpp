@@ -53,6 +53,9 @@ dvlab::Command phase_polynomial_cmd(QCirMgr& qcir_mgr) {
                 Phase_Polynomial pp;
                 pp.calculate_pp(*qcir_mgr.get());
 
+                pp.print_wires(spdlog::level::level_enum::off);
+                pp.print_polynomial(spdlog::level::level_enum::off);
+
 
 
 

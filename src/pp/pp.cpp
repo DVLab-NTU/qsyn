@@ -29,8 +29,6 @@ namespace qsyn::pp{
  * @return Polynomial
  */
 bool Phase_Polynomial::calculate_pp(QCir const& qc){
-    
-    std::cout<<"In function calculate_pp\n" << endl;
 
     _qubit_number = qc.get_num_qubits();
 
@@ -52,9 +50,7 @@ bool Phase_Polynomial::calculate_pp(QCir const& qc){
             return false;
         }
     }
-    Phase_Polynomial::print_wires(spdlog::level::level_enum::off);
-    Phase_Polynomial::print_polynomial(spdlog::level::level_enum::off);
-
+    Phase_Polynomial::remove_coeff_0_monomial();
     return true;
 
 }
@@ -67,8 +63,6 @@ bool Phase_Polynomial::calculate_pp(QCir const& qc){
  */
 bool Phase_Polynomial::insert_phase(size_t q, dvlab::Phase phase){
     
-    std::cout<< "In function insert_phase, q: " << q << " phase: "<< phase.get_print_string() <<endl;
-
     dvlab::BooleanMatrix::Row term(_wires.get_row(q));
     if(_pp_terms.find_row(term).has_value()){
         size_t q = (_pp_terms.find_row(term).value());
@@ -81,7 +75,23 @@ bool Phase_Polynomial::insert_phase(size_t q, dvlab::Phase phase){
     return true;
 }
 
-
+/**
+ * @brief Remove the monomial that coeff = 0
+ * @param 
+ *
+ */
+void Phase_Polynomial::remove_coeff_0_monomial(){
+    vector<size_t> coeff_is_0;
+    for(size_t i = 0; i < _pp_coeff.size(); i++){
+        if ( _pp_coeff[i] == dvlab::Phase(0)) coeff_is_0.emplace_back(i);
+    }
+    for_each(coeff_is_0.begin(), coeff_is_0.end(), [](size_t i){std::cout<<i<<endl;});
+    for(int i = coeff_is_0.size()-1; i >= 0; i--){
+        _pp_terms.erase_row(coeff_is_0[i]);
+        _pp_coeff.erase(_pp_coeff.begin() + coeff_is_0[i]);
+    }
+    
+}
 
 /**
  * @brief Reset the phase poly and wires
