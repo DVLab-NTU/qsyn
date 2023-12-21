@@ -68,10 +68,15 @@ bool Phase_Polynomial::insert_phase(size_t q, dvlab::Phase phase){
     std::cout<< "In function insert_phase, q: " << q << " phase: "<< phase.get_print_string() <<endl;
 
     dvlab::BooleanMatrix::Row term(_wires.get_row(q));
-    if(_wires.find_row(term) != std::nullopt){
-        size_t q = (_wires.find_row(term).value());
+    if(_pp_terms.find_row(term).has_value()){
+        size_t q = (_pp_terms.find_row(term).value());
+        std::cout << "Row exist at " << q << endl;
+        _pp_terms.print_matrix();
+        std::cout << "Before phase:  " << _pp_coeff[q].get_print_string() << endl;
         _pp_coeff[q] += phase;
+        std::cout << "After phase:  " << _pp_coeff[q].get_print_string() << endl;
     }else{
+        std::cout << "New row" << endl;
         _pp_terms.push_row(term);
         _pp_coeff.push_back(phase);
     }
