@@ -53,7 +53,11 @@ bool Phase_Polynomial::calculate_pp(QCir const& qc) {
             h_output_state[_wires.num_cols()-1] = 1;
             h_output_state.print_row();
             _h_map.emplace_back(std::make_pair(_wires[q], h_output_state));
+            std::cout<< "Before H " << endl;
+            _wires.print_matrix(spdlog::level::level_enum::off);
             _wires[q] = h_output_state;
+            std::cout<< "After H " << endl;
+            _wires.print_matrix(spdlog::level::level_enum::off);
         }
         else {
             std::cout << "Find a unsupport gate " << g->get_type_str() << endl;
