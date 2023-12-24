@@ -5,25 +5,22 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-
 #pragma once
 
 #include "util/boolean_matrix.hpp"
 
-namespace qsyn::pp{
+namespace qsyn::pp {
 
-using Partition   = dvlab::BooleanMatrix;
-using term        = dvlab::BooleanMatrix::Row;
-using Partitions  = std::vector<dvlab::BooleanMatrix>;
-using Wires       = dvlab::BooleanMatrix;
-using HMAP        = std::vector<std::pair<dvlab::BooleanMatrix, size_t>>;
+using Partition  = dvlab::BooleanMatrix;
+using term       = dvlab::BooleanMatrix::Row;
+using Partitions = std::vector<dvlab::BooleanMatrix>;
+using Wires      = dvlab::BooleanMatrix;
+using HMAP       = std::vector<std::pair<dvlab::BooleanMatrix, size_t>>;
 
-class Partitioning{
-
+class Partitioning {
 public:
-
-    Partitioning () {};
-    Partitioning (dvlab::BooleanMatrix poly, size_t n, size_t a) {Partitioning::initial(poly, n, a);};
+    Partitioning(){};
+    Partitioning(dvlab::BooleanMatrix poly, size_t n, size_t a) : _poly(poly), _variable(n) { _qubit_num = n + a; };
 
     void initial(dvlab::BooleanMatrix poly, size_t n, size_t a);
     bool independant_oracle(Partition, term);
@@ -34,20 +31,15 @@ public:
 
     // Matroid partition
 
-
     // Get function
 
-
-    // Print function 
+    // Print function
 
 private:
     size_t _variable;
     size_t _qubit_num;
     Partitions _partitions;
     dvlab::BooleanMatrix _poly;
-
 };
 
-
-
-} // namespace qsyn::pp
+}  // namespace qsyn::pp

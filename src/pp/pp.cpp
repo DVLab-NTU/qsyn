@@ -20,7 +20,7 @@ using namespace std;
 
 namespace qsyn::pp {
 
-using Row       =  dvlab::BooleanMatrix::Row;
+using Row = dvlab::BooleanMatrix::Row;
 
 /**
  * @brief Calculate phase polynomial of the circuit
@@ -41,7 +41,7 @@ bool Phase_Polynomial::calculate_pp(QCir const& qc) {
                    (g->get_rotation_category() == GateRotationCategory::pz ||
                     g->get_rotation_category() == GateRotationCategory::rz)) {
             Phase_Polynomial::insert_phase(g->get_control()._qubit, g->get_phase());
-        } else if (g->is_h()){
+        } else if (g->is_h()) {
             size_t q = g->get_control()._qubit;
             _hadamard.push_back(g);
             // todo: check if the rank need to be increased
@@ -50,21 +50,20 @@ bool Phase_Polynomial::calculate_pp(QCir const& qc) {
             _pp_terms.push_zeros_column();
             _wires.push_zeros_column();
             Row h_output_state(_wires.num_cols());
-            h_output_state[_wires.num_cols()-1] = 1;
+            h_output_state[_wires.num_cols() - 1] = 1;
             h_output_state.print_row();
             _h_map.emplace_back(std::make_pair(_wires, q));
-            std::cout<< "Before H " << endl;
+            std::cout << "Before H " << endl;
             _wires.print_matrix(spdlog::level::level_enum::off);
             _wires[q] = h_output_state;
-            std::cout<< "After H " << endl;
+            std::cout << "After H " << endl;
             _wires.print_matrix(spdlog::level::level_enum::off);
-        }
-        else {
+        } else {
             std::cout << "Find a unsupport gate " << g->get_type_str() << endl;
             return false;
         }
     }
-    _h_map.emplace_back(make_pair(_wires, -1)); // store the teriminal states
+    _h_map.emplace_back(make_pair(_wires, -1));  // store the teriminal states
     Phase_Polynomial::remove_coeff_0_monomial();
     return true;
 }

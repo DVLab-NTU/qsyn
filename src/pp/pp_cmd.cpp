@@ -19,7 +19,6 @@
 #include "util/data_structure_manager_common_cmd.hpp"
 #include "util/util.hpp"
 
-
 using namespace dvlab::argparse;
 using dvlab::CmdExecResult;
 using dvlab::Command;
@@ -59,12 +58,12 @@ dvlab::Command phase_polynomial_cmd(QCirMgr& qcir_mgr) {
                 pp.print_polynomial(spdlog::level::level_enum::off);
 
                 Partitioning partitioning(pp.get_pp_terms(), pp.get_data_qubit_num(), 0);
-                Partitions partitions = partitioning.greedy_partitioning(pp.get_h_map(), pp.get_data_qubit_num());
+                // Partitions partitions = partitioning.greedy_partitioning(pp.get_h_map(), pp.get_data_qubit_num());
 
-                for_each(partitions.begin(), partitions.end(), [&](Partition p){
-                    // std::cout<< "======= partition " << c << "======" << endl;
-                    p.print_matrix();
-                });
+                // for_each(partitions.begin(), partitions.end(), [&](Partition p){
+                //     // std::cout<< "======= partition " << c << "======" << endl;
+                //     p.print_matrix();
+                // });
 
                 return CmdExecResult::done;
             }};
