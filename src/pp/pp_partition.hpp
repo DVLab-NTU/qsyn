@@ -10,7 +10,7 @@
 #include "util/boolean_matrix.hpp"
 
 namespace qsyn::pp {
-
+// Todo: move them to pp.hpp
 using Partition  = dvlab::BooleanMatrix;
 using term       = dvlab::BooleanMatrix::Row;
 using Partitions = std::vector<dvlab::BooleanMatrix>;

@@ -28,7 +28,12 @@ using Row = dvlab::BooleanMatrix::Row;
  * @return Polynomial
  */
 bool Phase_Polynomial::calculate_pp(QCir const& qc) {
+ 
     _qubit_number = qc.get_num_qubits();
+
+    QCir circuit;
+    circuit.add_qubits(_qubit_number);
+    _result = circuit;
 
     Phase_Polynomial::reset();
 

@@ -1,4 +1,4 @@
-//logger trace
+logger trace
 qcir read src/pp/mytest/mybenchmark/sample_H.qasm
 //qcir draw src/pp/mytest/mybenchmark/sample_H.pdf
 phase_poly

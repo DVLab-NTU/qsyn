@@ -41,8 +41,8 @@ public:
 
 
     // Resynthesis
-    void gaussian_resynthesis(std::vector<dvlab::BooleanMatrix> p); // todo: replace data type to Partitions
-
+    void gaussian_resynthesis(std::vector<dvlab::BooleanMatrix> p, dvlab::BooleanMatrix initial_wires, dvlab::BooleanMatrix terminal_wires); // todo: replace data type to Partitions
+    std::vector<Phase> get_phase_of_terms(dvlab::BooleanMatrix p);
 
     
 
@@ -66,7 +66,7 @@ private:
     std::vector<qcir::QCirGate*> _hadamard;
     // Wires before H and qubit of H
     std::vector<std::pair<dvlab::BooleanMatrix, dvlab::BooleanMatrix>> _h_map;
-    qcir::QCir* _result;
+    qcir::QCir _result;
 };
 
 }  // namespace qsyn::pp

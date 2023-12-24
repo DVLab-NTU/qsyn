@@ -74,7 +74,7 @@ dvlab::Command phase_polynomial_cmd(QCirMgr& qcir_mgr) {
 
                     Partitions partitions = partitioning.greedy_partitioning_routine(temp, initial_wires, rank);
 
-                    pp.gaussian_resynthesis(partitions);
+                    pp.gaussian_resynthesis(partitions, initial_wires, terminal_wires);
                     
                 }
 
