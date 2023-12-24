@@ -38,6 +38,7 @@ public:
     void reset();
     void intial_wire(size_t);
     void remove_coeff_0_monomial();
+    void extend_h_map();
 
 
     // Resynthesis

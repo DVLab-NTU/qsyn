@@ -110,6 +110,20 @@ void Phase_Polynomial::remove_coeff_0_monomial() {
 }
 
 /**
+ * @brief Extend H map to right size
+ * @param
+ *
+ */
+void Phase_Polynomial::extend_h_map(){
+    size_t total_variable = _wires.num_cols();
+    for(auto [first, second]: _h_map){
+        while(first.num_cols()<total_variable) first.push_zeros_column();
+        while(second.num_cols()<total_variable) second.push_zeros_column();
+    };
+}
+
+
+/**
  * @brief Reset the phase poly and wires
  * @param
  *
