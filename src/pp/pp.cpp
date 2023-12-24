@@ -64,6 +64,7 @@ bool Phase_Polynomial::calculate_pp(QCir const& qc) {
             return false;
         }
     }
+    _h_map.emplace_back(make_pair(_wires, -1)); // store the teriminal states
     Phase_Polynomial::remove_coeff_0_monomial();
     return true;
 }

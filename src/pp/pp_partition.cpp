@@ -40,7 +40,7 @@ void Partitioning::initial(dvlab::BooleanMatrix poly, size_t n, size_t a){
 bool Partitioning::independant_oracle(Partition S, term t){
     Partition temp = S;
     temp.push_row(t);
-    size_t rank = temp.gaussian_elimination_skip(temp.num_cols(), false);
+    size_t rank = temp.gaussian_elimination_skip(temp.num_cols(), true);
     cout << "Rank is " << rank << ". Return " << (_variable-rank <= _qubit_num - temp.num_rows()) << endl;
     return (_variable - rank <= _qubit_num - temp.num_rows());
 }
@@ -56,6 +56,7 @@ Partitions Partitioning::greedy_partitioning(HMAP h_map, size_t rank){
     for(auto [wires, q]: h_map){
       Partitioning::greedy_partitioning_routine(partitions, wires, rank);
     }
+    if (_poly.num_rows()!=0) _poly.print_matrix();
     assert(_poly.num_rows()==0);
     return partitions;
 }
@@ -70,9 +71,9 @@ void Partitioning::greedy_partitioning_routine(Partitions partitions, Wires wire
     Partition p;
     std::vector<size_t> partitioned;
 
-    cout << "Rank is " << rank << endl;
-    cout << "Wires rank is " << wires.gaussian_elimination_skip(wires.num_cols(), true) << endl;
-    wires.print_matrix();
+    // cout << "Rank is " << rank << endl;
+    // cout << "Wires rank is " << wires.gaussian_elimination_skip(wires.num_cols(), true) << endl;
+    // wires.print_matrix();
     
     auto is_constructable = [&](term t){
         Wires temp = wires;
@@ -82,24 +83,26 @@ void Partitioning::greedy_partitioning_routine(Partitions partitions, Wires wire
 
     for(size_t i=0; i< _poly.num_rows(); i++){
         term r = _poly.get_row(i);
-        Wires temp = wires;
-        temp.push_row(r);
-        cout << "New term rank is " << temp.gaussian_elimination_skip(temp.num_cols(), true) << endl;
+        // Wires temp = wires;
+        // temp.push_row(r);
+        // cout << "New term rank is " << temp.gaussian_elimination_skip(temp.num_cols(), true) << endl;
         if (!is_constructable(r)) continue;
         cout << "Is constructable" << endl;
         if (p.num_rows()==0){
           p.push_row(r);
+          partitioned.emplace(partitioned.begin(), i);
           continue;
         } 
         if (Partitioning::independant_oracle(p, r)) p.push_row(r);
         if (p.num_rows() == _qubit_num){
           partitions.push_back(p); // copy
           p.clear();
-          partitioned.emplace(partitioned.begin(), i);
         }
+        partitioned.emplace(partitioned.begin(), i);
     }
-
+    cout << "Before size: " << _poly.num_rows() << endl;
     for_each(partitioned.begin(), partitioned.end(), [&](size_t i){ _poly.erase_row(i);});
+    cout << "After size: " << _poly.num_rows() << endl;
 }
 
 } // namespace qsyn::pp
