@@ -1,5 +1,8 @@
 all: build
 
+decompose: decompose.cpp
+	g++ decompose.cpp -o2 -g -o decompose
+
 build:
 	cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=1
 	$(MAKE) -C build
@@ -43,6 +46,7 @@ publish:
 clean:
 	rm -rf build
 	rm -f qsyn
+	rm -rf decompose
 
 clean-docker:
 	docker container prune -f
