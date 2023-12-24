@@ -65,42 +65,53 @@ Partitions Partitioning::greedy_partitioning(HMAP h_map, size_t rank) {
  * @param Wires w: wires can be use now
  * @param size_t rank: rank of the wires (=data qubit number)
  */
-void Partitioning::greedy_partitioning_routine(Partitions partitions, Wires wires, size_t rank) {
-    Partition p;
+Partitions Partitioning::greedy_partitioning_routine(Partitions total_partitions, Wires wires, size_t rank) {
+    Partitions partitions;
     std::vector<size_t> partitioned;
-
-    // cout << "Rank is " << rank << endl;
-    // cout << "Wires rank is " << wires.gaussian_elimination_skip(wires.num_cols(), true) << endl;
-    // wires.print_matrix();
 
     auto is_constructable = [&](term t) {
         Wires temp = wires;
         temp.push_row(t);
         return (rank == temp.gaussian_elimination_skip(temp.num_cols(), true));
     };
-
+    size_t flag = 0;
     for (size_t i = 0; i < _poly.num_rows(); i++) {
         term r = _poly.get_row(i);
+        cout << "Try to partition ";
+        r.print_row();
         // Wires temp = wires;
         // temp.push_row(r);
         // cout << "New term rank is " << temp.gaussian_elimination_skip(temp.num_cols(), true) << endl;
         if (!is_constructable(r)) continue;
-        cout << "Is constructable" << endl;
-        if (p.num_rows() == 0) {
+        // cout << "Is constructable" << endl;
+        partitioned.emplace(partitioned.begin(), i);
+        if (partitions.size()==0){
+            Partition p;
             p.push_row(r);
-            partitioned.emplace(partitioned.begin(), i);
+            partitions.push_back(p);
             continue;
         }
-        if (Partitioning::independant_oracle(p, r)) p.push_row(r);
-        if (p.num_rows() == _qubit_num) {
-            partitions.push_back(p);  // copy
-            p.clear();
+        bool need_new_p = true;
+        for (size_t j = flag; j<partitions.size(); j++){
+            if (Partitioning::independant_oracle(partitions[j], r)){
+                partitions[j].push_row(r);
+                need_new_p = false;
+                if(partitions[j].num_rows() == wires.num_rows()) flag++;
+                break;
+            }
         }
-        partitioned.emplace(partitioned.begin(), i);
+        if (need_new_p) {
+            Partition p;
+            p.push_row(r);
+            partitions.push_back(p);
+        }
     }
+
+    total_partitions.insert(total_partitions.begin(), partitions.begin(), partitions.end());
     cout << "Before size: " << _poly.num_rows() << endl;
     for_each(partitioned.begin(), partitioned.end(), [&](size_t i) { _poly.erase_row(i); });
     cout << "After size: " << _poly.num_rows() << endl;
+    return partitions;
 }
 
 }  // namespace qsyn::pp

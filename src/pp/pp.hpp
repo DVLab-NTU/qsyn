@@ -38,13 +38,19 @@ public:
     void reset();
     void intial_wire(size_t);
     void remove_coeff_0_monomial();
-    // qcir::QCir* resynthesis(Polynomial*){};
+
+
+    // Resynthesis
+    void gaussian_resynthesis(std::vector<dvlab::BooleanMatrix> p); // todo: replace data type to Partitions
+
+
+    
 
     // get function
     dvlab::BooleanMatrix get_pp_terms() const { return _pp_terms; };
     dvlab::BooleanMatrix get_wires() const { return _wires; };
     std::vector<dvlab::Phase> get_pp_coeff() const { return _pp_coeff; };
-    std::vector<std::pair<dvlab::BooleanMatrix, size_t>> get_h_map() const { return _h_map; }
+    std::vector<std::pair<dvlab::BooleanMatrix, dvlab::BooleanMatrix>> get_h_map() const { return _h_map; }
     size_t get_data_qubit_num() const { return _qubit_number; };
 
     // print function
@@ -59,8 +65,8 @@ private:
     dvlab::BooleanMatrix _wires;
     std::vector<qcir::QCirGate*> _hadamard;
     // Wires before H and qubit of H
-    std::vector<std::pair<dvlab::BooleanMatrix, size_t>> _h_map;
-    // qcir::QCir* _result;
+    std::vector<std::pair<dvlab::BooleanMatrix, dvlab::BooleanMatrix>> _h_map;
+    qcir::QCir* _result;
 };
 
 }  // namespace qsyn::pp

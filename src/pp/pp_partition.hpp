@@ -20,14 +20,14 @@ using HMAP       = std::vector<std::pair<dvlab::BooleanMatrix, size_t>>;
 class Partitioning {
 public:
     Partitioning(){};
-    Partitioning(dvlab::BooleanMatrix poly, size_t n, size_t a) : _poly(poly), _variable(n) { _qubit_num = n + a; };
+    Partitioning(dvlab::BooleanMatrix poly, size_t n, size_t a) : _variable(n) , _poly(poly)  { _qubit_num = n + a; };
 
     void initial(dvlab::BooleanMatrix poly, size_t n, size_t a);
     bool independant_oracle(Partition, term);
 
     // Greedy partitiion
     Partitions greedy_partitioning(HMAP h_map, size_t rank);
-    void greedy_partitioning_routine(Partitions partitions, Wires wires, size_t rank);
+    Partitions greedy_partitioning_routine(Partitions partitions, Wires wires, size_t rank);
 
     // Matroid partition
 
