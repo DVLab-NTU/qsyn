@@ -40,6 +40,14 @@ public:
     void remove_coeff_0_monomial();
     // qcir::QCir* resynthesis(Polynomial*){};
 
+    // get function
+    dvlab::BooleanMatrix get_pp_terms(){return _pp_terms;};
+    dvlab::BooleanMatrix get_wires(){return _wires;};
+    std::vector<dvlab::Phase> get_pp_coeff(){return _pp_coeff;};
+    std::vector<std::pair<dvlab::BooleanMatrix, size_t>> get_h_map(){return _h_map;}
+    size_t get_data_qubit_num(){return _qubit_number;};
+
+    // print function
     void print_polynomial(spdlog::level::level_enum lvl = spdlog::level::level_enum::off) const;
     void print_wires(spdlog::level::level_enum lvl = spdlog::level::level_enum::off) const;
 
@@ -50,7 +58,8 @@ private:
     std::vector<dvlab::Phase> _pp_coeff;
     dvlab::BooleanMatrix _wires;
     std::vector<qcir::QCirGate*> _hadamard;
-    std::vector<std::pair<dvlab::BooleanMatrix::Row, dvlab::BooleanMatrix::Row>> _h_map;
+    // Wires before H and qubit of H
+    std::vector<std::pair<dvlab::BooleanMatrix, size_t>> _h_map;
     // qcir::QCir* _result;
 };
 
