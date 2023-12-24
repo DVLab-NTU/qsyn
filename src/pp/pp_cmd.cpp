@@ -75,15 +75,13 @@ dvlab::Command phase_polynomial_cmd(QCirMgr& qcir_mgr) {
                     Partitions partitions = partitioning.greedy_partitioning_routine(temp, initial_wires, rank);
 
                     pp.gaussian_resynthesis(partitions, initial_wires, terminal_wires);
+
+                    if (i!=pp.get_h_map().size()) pp.add_H_gate(i);
                     
                 }
 
-                
-
-                // for_each(partitions.begin(), partitions.end(), [&](Partition p){
-                //     // std::cout<< "======= partition " << c << "======" << endl;
-                //     p.print_matrix();
-                // });
+                qcir::QCir result = pp.get_result();
+                qcir_mgr.add(qcir_mgr.get_next_id(), std::make_unique<qcir::QCir>(std::move(result)));
 
                 return CmdExecResult::done;
             }};

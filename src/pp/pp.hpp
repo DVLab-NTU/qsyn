@@ -42,6 +42,7 @@ public:
 
     // Resynthesis
     void gaussian_resynthesis(std::vector<dvlab::BooleanMatrix> p, dvlab::BooleanMatrix initial_wires, dvlab::BooleanMatrix terminal_wires); // todo: replace data type to Partitions
+    void add_H_gate(size_t);
     std::vector<Phase> get_phase_of_terms(dvlab::BooleanMatrix p);
 
     
@@ -52,6 +53,7 @@ public:
     std::vector<dvlab::Phase> get_pp_coeff() const { return _pp_coeff; };
     std::vector<std::pair<dvlab::BooleanMatrix, dvlab::BooleanMatrix>> get_h_map() const { return _h_map; }
     size_t get_data_qubit_num() const { return _qubit_number; };
+    qcir::QCir get_result() const {return _result;}
 
     // print function
     void print_polynomial(spdlog::level::level_enum lvl = spdlog::level::level_enum::off) const;
@@ -66,6 +68,7 @@ private:
     std::vector<qcir::QCirGate*> _hadamard;
     // Wires before H and qubit of H
     std::vector<std::pair<dvlab::BooleanMatrix, dvlab::BooleanMatrix>> _h_map;
+    std::vector<size_t> _h;
     qcir::QCir _result;
 };
 

@@ -31,10 +31,6 @@ bool Phase_Polynomial::calculate_pp(QCir const& qc) {
  
     _qubit_number = qc.get_num_qubits();
 
-    QCir circuit;
-    circuit.add_qubits(_qubit_number);
-    _result = circuit;
-
     Phase_Polynomial::reset();
 
     std::vector<QCirGate*> gates = qc.get_topologically_ordered_gates();
@@ -67,6 +63,7 @@ bool Phase_Polynomial::calculate_pp(QCir const& qc) {
 
             // Todo: extend h map
             _h_map.emplace_back(std::make_pair(prev_wires, _wires));
+            _h.emplace_back(q);
         } else {
             std::cout << "Find a unsupport gate " << g->get_type_str() << endl;
             return false;
@@ -121,6 +118,9 @@ void Phase_Polynomial::reset() {
     _pp_terms.clear();
     _pp_coeff.clear();
     Phase_Polynomial::intial_wire(_qubit_number);
+    QCir circuit;
+    circuit.add_qubits(_qubit_number);
+    _result = circuit;
 }
 
 /**
