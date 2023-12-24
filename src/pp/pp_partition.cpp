@@ -71,20 +71,20 @@ void Partitioning::greedy_partitioning_routine(Partitions partitions, Wires wire
     std::vector<size_t> partitioned;
 
     cout << "Rank is " << rank << endl;
-    cout << "Wires rank is " << wires.gaussian_elimination_skip(wires.num_cols(), false) << endl;
+    cout << "Wires rank is " << wires.gaussian_elimination_skip(wires.num_cols(), true) << endl;
     wires.print_matrix();
     
     auto is_constructable = [&](term t){
         Wires temp = wires;
         temp.push_row(t);
-        return (rank == temp.gaussian_elimination_skip(temp.num_cols(), false));
+        return (rank == temp.gaussian_elimination_skip(temp.num_cols(), true));
     };
 
     for(size_t i=0; i< _poly.num_rows(); i++){
         term r = _poly.get_row(i);
         Wires temp = wires;
         temp.push_row(r);
-        cout << "New term rank is " << temp.gaussian_elimination_skip(temp.num_cols(), false) << endl;
+        cout << "New term rank is " << temp.gaussian_elimination_skip(temp.num_cols(), true) << endl;
         if (!is_constructable(r)) continue;
         cout << "Is constructable" << endl;
         if (p.num_rows()==0){
