@@ -51,12 +51,15 @@ Command qcir_deancilla_cmd(QCirMgr& qcir_mgr) {
                     return CmdExecResult::done;
                 }
 
-                auto qubits               = qcir_mgr.get()->get_qubits();
-                auto ancilla_qubit_id_set = std::unordered_set<QubitIdType>(ancilla_qubits_ids.begin(), ancilla_qubits_ids.end());
+                auto qubits       = qcir_mgr.get()->get_qubits();
+                auto qubit_id_set = std::unordered_set<QubitIdType>();
 
                 for (auto const& qubit : qubits) {
-                    if (!ancilla_qubit_id_set.contains(qubit->get_id())) {
-                        spdlog::error("deancilla: ancilla qubit {} is not in the quantum circuit", qubit->get_id());
+                    qubit_id_set.insert(qubit->get_id());
+                }
+                for (auto const& ancilla : ancilla_qubits_ids) {
+                    if (qubit_id_set.find(ancilla) == qubit_id_set.end()) {
+                        spdlog::error("deancilla: ancilla qubit {} does not exist", ancilla);
                         return CmdExecResult::error;
                     }
                 }

@@ -43,7 +43,7 @@ private:
 public:
     constexpr Literal(int value) : _Literal(value) {}
     constexpr Literal(Variable var, bool negate = false) : _Literal(negate ? -var.get() : var.get()) {}
-    [[nodiscard]] Literal constexpr operator-() const {
+    [[nodiscard]] Literal constexpr operator~() const {
         return Literal(-get());
     }
     constexpr Variable get_variable() const { return Variable(std::abs(get())); }
