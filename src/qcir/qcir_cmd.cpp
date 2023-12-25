@@ -14,8 +14,8 @@
 #include <filesystem>
 #include <string>
 
-#include "./deancilla/deancilla_cmd.hpp"
 #include "./optimizer/optimizer_cmd.hpp"
+#include "./oracle/deancilla_cmd.hpp"
 #include "./qcir_gate.hpp"
 #include "argparse/arg_parser.hpp"
 #include "argparse/arg_type.hpp"
