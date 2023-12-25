@@ -44,7 +44,7 @@ Result CaDiCalSolver::solve() {
 }
 
 std::optional<Solution> CaDiCalSolver::get_solution() {
-    if (!(_solver->state() & CaDiCaL::VALID)) {
+    if (!(_solver->state() & CaDiCaL::SATISFIED)) {
         return std::nullopt;
     }
 

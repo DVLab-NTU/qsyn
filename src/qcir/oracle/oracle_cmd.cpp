@@ -30,9 +30,13 @@ Command qcir_pebble_cmd() {
     return {"pebble",
             [](ArgumentParser& parser) {
                 parser.description("test ancilla qubit scheduling with SAT based reversible pebbling game");
+                parser.add_argument<size_t>("P")
+                    .required(true)
+                    .help("number of ancilla qubits to use");
             },
-            [](ArgumentParser const& /*parser*/) {
-                test_pebble();
+            [](ArgumentParser const& parser) {
+                auto P = parser.get<size_t>("P");
+                test_pebble(P);
                 return CmdExecResult::done;
             }};
 }
