@@ -1,0 +1,8 @@
+//logger debug
+qcir read src/pp/mytest/demo/sample_H.qasm
+qc2ts
+phase_poly
+qc2ts
+ts eq 0 1
+
+q -f

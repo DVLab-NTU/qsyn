@@ -35,8 +35,13 @@ dvlab::Command phase_polynomial_cmd(QCirMgr& qcir_mgr) {
                 // a=-1: unlimited ancilla
                 parser.add_argument<int>("-a", "--ancilla")
                     .nargs(NArgsOption::optional)
-                    .default_value(-1)
-                    .help("the number of ancilla to be added (default=-1)");
+                    .default_value(0)
+                    .help("the number of ancilla to be added (default=0)");
+
+                parser.add_argument<std::string>("-par", "--partition")
+                    .constraint(choices_allow_prefix({"G", "M"}))
+                    .default_value("G")
+                    .help("the partition method chosen(G/M). If not specified, the default method i\ns greedy partition(G).");
 
                 parser.add_argument<std::string>("-resyn", "--resynthesis")
                     .constraint(choices_allow_prefix({"C", "G"}))
@@ -50,15 +55,14 @@ dvlab::Command phase_polynomial_cmd(QCirMgr& qcir_mgr) {
                 }
 
                 // TODO and move to other place
-                fmt::println("phase-polynomial {}", parser.get<std::string>("--resynthesis"));
+                fmt::println("Calculating phase-polynomial {}", parser.get<std::string>("--resynthesis"));
                 if (!qcir_mgr_not_empty(qcir_mgr)) return CmdExecResult::error;
 
                 Phase_Polynomial pp;
                 pp.calculate_pp(*qcir_mgr.get());
 
-                pp.print_wires(spdlog::level::level_enum::off);
-                pp.print_polynomial(spdlog::level::level_enum::off);
-                pp.print_h_map();
+                
+                pp.print_phase_poly();
 
                 Partitioning partitioning(pp.get_pp_terms(), pp.get_data_qubit_num(), 0);
                 Partitions temp; // todo: rewrite the dirty code ==

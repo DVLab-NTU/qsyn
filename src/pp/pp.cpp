@@ -6,9 +6,13 @@
 ****************************************************************************/
 
 #include "./pp.hpp"
+#include <spdlog/common.h>
 
+#include <algorithm>
 #include <cassert>
+#include <cstddef>
 #include <iostream>
+#include <iomanip>   // std::setw
 
 #include "qcir/qcir.hpp"
 #include "qcir/qcir_gate.hpp"
@@ -30,6 +34,8 @@ using Row = dvlab::BooleanMatrix::Row;
  */
 bool Phase_Polynomial::calculate_pp(QCir const& qc) {
  
+    Phase_Polynomial::count_t_depth(qc);
+
     _qubit_number = qc.get_num_qubits();
 
     Phase_Polynomial::reset();
@@ -55,11 +61,11 @@ bool Phase_Polynomial::calculate_pp(QCir const& qc) {
             h_output_state[_wires.num_cols() - 1] = 1;
             dvlab::BooleanMatrix prev_wires = _wires;
             
-            std::cout << "Before H " << endl;
-            _wires.print_matrix(spdlog::level::level_enum::off);
+            // std::cout << "Before H " << endl;
+            // _wires.print_matrix(spdlog::level::level_enum::off);
             _wires[q] = h_output_state;
-            std::cout << "After H " << endl;
-            _wires.print_matrix(spdlog::level::level_enum::off);
+            // std::cout << "After H " << endl;
+            // _wires.print_matrix(spdlog::level::level_enum::off);
             _h_map.emplace_back(std::make_pair(prev_wires, _wires));
             _h.emplace_back(q);
         } else {
@@ -184,5 +190,44 @@ void Phase_Polynomial::print_h_map(spdlog::level::level_enum lvl) const {
         second.print_matrix();
     }
 }
+
+/**
+ * @brief Print  phase  and polynomial in the same line
+ *
+ */
+void Phase_Polynomial::print_phase_poly(spdlog::level::level_enum lvl) const {
+    spdlog::log(lvl, "\n  Phase Polynomial");
+    for(size_t i=0; i<_pp_terms.num_rows(); i++){
+        
+        cout << "Phase: "<< _pp_coeff[i].get_print_string() << endl;
+        cout << "Term : ";
+        _pp_terms[i].print_row(lvl);
+        cout << endl;
+    }
+    }
+
+/**
+ * @brief Count t-depth
+ * @return size_t: t-depth
+ */
+size_t Phase_Polynomial::count_t_depth(qcir::QCir const& qcir) {
+    vector<size_t> depths(qcir.get_num_qubits());
+    std::vector<QCirGate*> gates = qcir.get_topologically_ordered_gates();
+    for (QCirGate* g : gates) {
+        if (g->is_cx()) {
+            size_t ctrl = g->get_control()._qubit, targ = g->get_targets()._qubit;
+            if(depths[ctrl] < depths[targ]) depths[ctrl] = depths[targ];
+            else depths[targ] = depths[ctrl];
+        } else if (g->get_num_qubits() == 1 &&
+                   (g->get_rotation_category() == GateRotationCategory::pz ||
+                    g->get_rotation_category() == GateRotationCategory::rz)) {
+            if(g->get_phase().denominator() == 4) depths[g->get_control()._qubit]++;
+        }   
+    }
+    auto it = max_element(depths.begin(), depths.end());
+    spdlog::log(spdlog::level::level_enum::off, "T depth of the circuit is {}", *it);
+    return *it;
+}
+
 
 }  // namespace qsyn::pp

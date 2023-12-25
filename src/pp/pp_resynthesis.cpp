@@ -28,13 +28,13 @@ namespace qsyn::pp {
  * @return QCir
  */
 void Phase_Polynomial::gaussian_resynthesis(Partitions partitions, Wires initial_wires, Wires terminal_wires) {
-    cout << "Into resynthesis" << endl;
-    cout << "initial wires" << endl;
-    initial_wires.print_matrix();
-    cout << "terminal wires" << endl;
-    terminal_wires.print_matrix();
+    // cout << "Into resynthesis" << endl;
+    // cout << "initial wires" << endl;
+    // initial_wires.print_matrix();
+    // cout << "terminal wires" << endl;
+    // terminal_wires.print_matrix();
     
-    for_each(partitions.begin(), partitions.end(), [&](dvlab::BooleanMatrix m){cout<<"partition"<<endl;m.print_matrix();});
+    // for_each(partitions.begin(), partitions.end(), [&](dvlab::BooleanMatrix m){cout<<"partition"<<endl;m.print_matrix();});
 
 
     initial_wires.gaussian_elimination_skip(true, true, true);
@@ -49,10 +49,10 @@ void Phase_Polynomial::gaussian_resynthesis(Partitions partitions, Wires initial
     for(auto p: partitions){
         std::vector<Phase> phases = Phase_Polynomial::get_phase_of_terms(p);
         Partition complete_p = Phase_Polynomial::complete_the_partition(initial_wires, p);
-        cout << "complete_p" << endl;
-        complete_p.print_matrix();
+        // cout << "complete_p" << endl;
+        // complete_p.print_matrix();
         complete_p.gaussian_elimination_skip(complete_p.num_cols(), true, true);
-        complete_p.print_trace();
+        // complete_p.print_trace();
         auto cnots = complete_p.get_row_operations();
         reverse(cnots.begin(), cnots.end());
         for(auto [ctrl, targ]: cnots){

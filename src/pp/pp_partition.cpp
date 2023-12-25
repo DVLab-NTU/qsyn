@@ -40,7 +40,7 @@ bool Partitioning::independant_oracle(Partition S, term t) {
     Partition temp = S;
     temp.push_row(t);
     size_t rank = temp.gaussian_elimination_skip(temp.num_cols(), true);
-    cout << "Rank is " << rank << ". Return " << (_variable - rank <= _qubit_num - temp.num_rows()) << endl;
+    // cout << "Rank is " << rank << ". Return " << (_variable - rank <= _qubit_num - temp.num_rows()) << endl;
     return (_variable - rank <= _qubit_num - temp.num_rows());
 }
 
@@ -77,8 +77,8 @@ Partitions Partitioning::greedy_partitioning_routine(Partitions total_partitions
     size_t flag = 0;
     for (size_t i = 0; i < _poly.num_rows(); i++) {
         term r = _poly.get_row(i);
-        cout << "Try to partition ";
-        r.print_row();
+        // cout << "Try to partition ";
+        // r.print_row();
         Wires temp = wires;
         temp.push_row(r);
         if (!is_constructable(r)) continue;
@@ -107,9 +107,9 @@ Partitions Partitioning::greedy_partitioning_routine(Partitions total_partitions
     }
 
     total_partitions.insert(total_partitions.begin(), partitions.begin(), partitions.end());
-    cout << "Before size: " << _poly.num_rows() << endl;
+    // cout << "Before size: " << _poly.num_rows() << endl;
     for_each(partitioned.begin(), partitioned.end(), [&](size_t i) { _poly.erase_row(i); });
-    cout << "After size: " << _poly.num_rows() << endl;
+    // cout << "After size: " << _poly.num_rows() << endl;
     return partitions;
 }
 

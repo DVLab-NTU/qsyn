@@ -39,6 +39,7 @@ public:
     void intial_wire(size_t);
     void remove_coeff_0_monomial();
     void extend_h_map();
+    size_t count_t_depth(qcir::QCir const& qcir);
 
 
     // Resynthesis
@@ -61,6 +62,7 @@ public:
     void print_polynomial(spdlog::level::level_enum lvl = spdlog::level::level_enum::off) const;
     void print_wires(spdlog::level::level_enum lvl = spdlog::level::level_enum::off) const;
     void print_h_map(spdlog::level::level_enum lvl = spdlog::level::level_enum::off) const;
+    void print_phase_poly(spdlog::level::level_enum lvl = spdlog::level::level_enum::off) const;
 
 private:
     size_t _qubit_number;
