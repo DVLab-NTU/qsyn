@@ -1,6 +1,11 @@
 #include "bits/stdc++.h"
 using namespace std;
 
+struct two_level{
+    vector<vector<complex<double>>> matrix;
+    int i,j;
+};
+
 bool isUnitaryMatrix(const vector<vector<complex<double>>>& matrix) {
     // 檢查矩陣乘以其共軛轉置是否為單位矩陣
     for (int i = 0; i < matrix.size(); ++i) {
@@ -64,6 +69,58 @@ vector<vector<complex<double>>> matrixMultiply(const vector<vector<complex<doubl
     return result;
 }
 
+string intToBinary(int num, int n) {
+    string binary = "";
+    for (int i = n; i >= 0; --i) {
+        binary += (num & (1 << i)) ? '1' : '0';
+    }
+    return binary;
+}
+
+vector<string> cnu_decompose(vector<vector<complex<double>>>& U, int target_bits, int qubit) {
+    vector<string> result;
+    string temp, temp2;
+    int n = qubit - 1;
+    for(int i = 1; i <= qubit; i++){
+        if(i != target_bits){
+            //first
+            temp = "cu^(1/2) q["+to_string(i)+"], q["+to_string(target_bits)+"];";
+            result.push_back(temp);
+
+            //second
+            temp = "";
+            for(int j = 0; j < n-1; j++){
+                temp = temp + "c";
+            }
+            temp = temp + "x ";
+            for(int j = i+1; j <= qubit; j++){
+                if(j != target_bits){
+                    temp = temp + "q[" +to_string(j) + "], ";
+                }
+            }
+            temp2 = temp;
+            result.push_back(temp);
+
+            //third
+            temp = "cu^(1/2)_dag q["+to_string(i)+"], q["+to_string(target_bits)+"];";
+            result.push_back(temp);
+
+            for(int j = 1; j <= qubit; j++){
+                if(j != qubit && j!= target_bits){
+                    temp = "cx q["+to_string(i)+"], q["+to_string(target_bits)+"];";
+                    result.push_back("ccx ");
+                    
+                }
+            }
+
+        }
+    }
+}
+
+vector<string> cnu_decompose_recursive(vector<vector<complex<double>>>& U, int target_bits, int qubit) {
+    
+}
+
 int main(int argc, char *argv[]){
     //輸入matrix大小
     ifstream fin(argv[1]);
@@ -88,7 +145,7 @@ int main(int argc, char *argv[]){
     assert(isUnitaryMatrix(input_matrix));
     
     //2-level decomposition
-    vector<vector<vector<complex<double>>>> two_level_matrices;
+    vector<two_level> two_level_matrices;
     bool finish = 1, improve = 0;
 
     //check need to be decompose
@@ -102,6 +159,7 @@ int main(int argc, char *argv[]){
         //init
         improve = 0;
         vector<vector<complex<double>>> two_level_matrix(n, vector<complex<double>>(n, 0.0));
+        two_level temp;
         for(int i = 0; i < n; i++){
             two_level_matrix[i][i] = 1;
         }
@@ -135,7 +193,11 @@ int main(int argc, char *argv[]){
 
                             //dag and push back
                             conjugateMatrix(two_level_matrix);
-                            two_level_matrices.push_back(transposeMatrix(two_level_matrix));
+
+                            temp.matrix = transposeMatrix(two_level_matrix);
+                            temp.i = i>j? j:i;
+                            temp.j = i>j? i:j;
+                            two_level_matrices.push_back(temp);
                             break;
                         }
                     } 
@@ -164,7 +226,11 @@ int main(int argc, char *argv[]){
 
                             //dag and push back
                             conjugateMatrix(two_level_matrix);
-                            two_level_matrices.push_back(transposeMatrix(two_level_matrix));
+
+                            temp.matrix = transposeMatrix(two_level_matrix);
+                            temp.i = i>j? j:i;
+                            temp.j = i>j? i:j;
+                            two_level_matrices.push_back(temp);
                             break;
                         }
                     }
@@ -193,20 +259,35 @@ int main(int argc, char *argv[]){
         cout<<endl;*/
     }
     
-    two_level_matrices[two_level_matrices.size()-1] = matrixMultiply(two_level_matrices[two_level_matrices.size()-1], input_matrix);
+    two_level_matrices[two_level_matrices.size()-1].matrix = matrixMultiply(two_level_matrices[two_level_matrices.size()-1].matrix, input_matrix);
 
     //for debug
     for(int i = 0; i < two_level_matrices.size(); i++){
         cout<<"matrix "<<(i+1)<<":"<<endl;
-        for(int j = 0; j < two_level_matrices[i].size(); j++){
-            for(int k = 0; k < two_level_matrices[i][j].size(); k++){
-                cout<<two_level_matrices[i][j][k]<<" ";
+        for(int j = 0; j < two_level_matrices[i].matrix.size(); j++){
+            for(int k = 0; k < two_level_matrices[i].matrix[j].size(); k++){
+                cout<<two_level_matrices[i].matrix[j][k]<<" ";
             }
             cout<<endl;
         }
         cout<<endl;
     }
 
+    
     //gray-code
+    int qubit = int(log2(n));
+    for(int i = 0; i < two_level_matrices.size(); i++){
+        string binary_i, binary_j;
+        binary_i = intToBinary(two_level_matrices[i].i, qubit);
+        binary_j = intToBinary(two_level_matrices[i].j, qubit);
+        cout<<"i "<<binary_i<<" j "<<binary_j<<" ";
+    }
+    
+    //cnu testcase
+    vector<vector<complex<double>>> U(2, vector<complex<double>>(2, 0.0));
+    U[0][0] = 1;
+    U[1][1] = 1;
 
+    //cnu decompose
+    vector<string> cnu_gateset = cnu_decompose(U, n, qubit);
 }
