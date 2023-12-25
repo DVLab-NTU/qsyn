@@ -1,5 +1,5 @@
 //logger debug
-qcir read src/pp/mytest/demo/sample_H.qasm
+qcir read src/pp/mytest/demo/cnotT_100.qasm
 qc2ts
 phase_poly
 qc2ts

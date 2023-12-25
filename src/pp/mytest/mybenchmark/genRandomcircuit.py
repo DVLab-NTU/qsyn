@@ -21,7 +21,7 @@ def my_random_circuit(num_qubits, num_gates, seed=None):
     """Generate a pseudo random Clifford circuit."""
 
     clifford = ["cx", "h", "s"]
-    cnot_t   = ["cx", "t", "tdg", "s"]
+    cnot_t   = ["cx", "t", "tdg"]
     cnot_t_h = ["cx", "t", "tdg", "h"]
 
     instructions = {
@@ -37,7 +37,7 @@ def my_random_circuit(num_qubits, num_gates, seed=None):
         rng = np.random.default_rng(seed)
 
 
-    samples = rng.choice(cnot_t_h, num_gates)
+    samples = rng.choice(cnot_t, num_gates)
 
 
     circ = QuantumCircuit(num_qubits)

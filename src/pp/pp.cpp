@@ -69,7 +69,7 @@ bool Phase_Polynomial::calculate_pp(QCir const& qc) {
             _h_map.emplace_back(std::make_pair(prev_wires, _wires));
             _h.emplace_back(q);
         } else {
-            std::cout << "Find a unsupport gate " << g->get_type_str() << endl;
+            std::cout << "Error: Find a unsupport gate " << g->get_type_str() << endl;
             return false;
         }
     }
@@ -196,7 +196,7 @@ void Phase_Polynomial::print_h_map(spdlog::level::level_enum lvl) const {
  *
  */
 void Phase_Polynomial::print_phase_poly(spdlog::level::level_enum lvl) const {
-    spdlog::log(lvl, "\n  Phase Polynomial");
+    spdlog::log(lvl, "\n  Phase Polynomial\n");
     for(size_t i=0; i<_pp_terms.num_rows(); i++){
         
         cout << "Phase: "<< _pp_coeff[i].get_print_string() << endl;
@@ -212,6 +212,7 @@ void Phase_Polynomial::print_phase_poly(spdlog::level::level_enum lvl) const {
  */
 size_t Phase_Polynomial::count_t_depth(qcir::QCir const& qcir) {
     vector<size_t> depths(qcir.get_num_qubits());
+    size_t count = 0;
     std::vector<QCirGate*> gates = qcir.get_topologically_ordered_gates();
     for (QCirGate* g : gates) {
         if (g->is_cx()) {
@@ -221,11 +222,14 @@ size_t Phase_Polynomial::count_t_depth(qcir::QCir const& qcir) {
         } else if (g->get_num_qubits() == 1 &&
                    (g->get_rotation_category() == GateRotationCategory::pz ||
                     g->get_rotation_category() == GateRotationCategory::rz)) {
-            if(g->get_phase().denominator() == 4) depths[g->get_control()._qubit]++;
+            if(g->get_phase().denominator() == 4){
+                depths[g->get_control()._qubit]++;
+                count++;
+            } 
         }   
     }
     auto it = max_element(depths.begin(), depths.end());
-    spdlog::log(spdlog::level::level_enum::off, "T depth of the circuit is {}", *it);
+    spdlog::log(spdlog::level::level_enum::off, "T depth of the circuit is {} and T count is {}.", *it, count);
     return *it;
 }
 

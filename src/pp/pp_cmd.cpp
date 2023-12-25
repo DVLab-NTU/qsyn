@@ -27,6 +27,23 @@ using dvlab::Command;
 using qsyn::qcir::QCirMgr;
 
 namespace qsyn::pp {
+
+// dvlab::Command phase_polynomial_t_depth_cmd(QCirMgr& qcir_mgr){
+//     return {"t_depth",
+//             [](ArgumentParser& parser){
+//                 parser.description("Report t-depth and t-count");
+//             },
+//             [&](ArgumentParser const& parser) {
+//                 if (qcir_mgr.empty()) {
+//                     spdlog::info("QCir list is empty now. Create a new one.");
+//                     qcir_mgr.add(qcir_mgr.get_next_id());
+//                 }
+//                 Phase_Polynomial pp;
+//                 pp.count_t_depth(*qcir_mgr.get());
+//             }
+//     };
+// }
+
 dvlab::Command phase_polynomial_cmd(QCirMgr& qcir_mgr) {
     return {"phase_poly",
             [](ArgumentParser& parser) {
@@ -89,6 +106,7 @@ dvlab::Command phase_polynomial_cmd(QCirMgr& qcir_mgr) {
                 }
 
                 qcir::QCir result = pp.get_result();
+                pp.count_t_depth(std::move(result));
                 qcir_mgr.add(qcir_mgr.get_next_id(), std::make_unique<qcir::QCir>(std::move(result)));
 
                 return CmdExecResult::done;
