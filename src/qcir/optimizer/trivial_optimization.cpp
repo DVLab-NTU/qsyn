@@ -127,6 +127,20 @@ void Optimizer::_fuse_z_phase(QCir& qcir, QCirGate* prev_gate, QCirGate* gate) {
  * @return modified circuit
  */
 void Optimizer::_cancel_double_gate(QCir& qcir, QCirGate* prev_gate, QCirGate* gate) {
+    if (!is_double_qubit_gate(prev_gate) || !is_double_qubit_gate(gate)) {
+        Optimizer::_add_gate_to_circuit(qcir, gate, false);
+        return;
+    }
+
+    auto const prev_qubits = prev_gate->get_qubits();
+    auto const gate_qubits = gate->get_qubits();
+    if (!(
+            prev_qubits[0]._qubit == gate_qubits[0]._qubit && prev_qubits[1]._qubit == gate_qubits[1]._qubit) &&
+        !(prev_qubits[0]._qubit == gate_qubits[1]._qubit && prev_qubits[1]._qubit == gate_qubits[0]._qubit)) {
+        Optimizer::_add_gate_to_circuit(qcir, gate, false);
+        return;
+    }
+
     if (prev_gate->get_rotation_category() != gate->get_rotation_category()) {
         Optimizer::_add_gate_to_circuit(qcir, gate, false);
         return;
