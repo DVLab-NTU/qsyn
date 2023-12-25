@@ -61,7 +61,6 @@ bool Phase_Polynomial::calculate_pp(QCir const& qc) {
             std::cout << "After H " << endl;
             _wires.print_matrix(spdlog::level::level_enum::off);
 
-            // Todo: extend h map
             _h_map.emplace_back(std::make_pair(prev_wires, _wires));
             _h.emplace_back(q);
         } else {
@@ -70,6 +69,7 @@ bool Phase_Polynomial::calculate_pp(QCir const& qc) {
         }
     }
     Phase_Polynomial::remove_coeff_0_monomial();
+    Phase_Polynomial::extend_h_map();
     return true;
 }
 

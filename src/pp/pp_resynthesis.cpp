@@ -27,6 +27,7 @@ namespace qsyn::pp {
  */
 void Phase_Polynomial::gaussian_resynthesis(Partitions partitions, Wires initial_wires, Wires terminal_wires) {
     cout << "Into resynthesis" << endl;
+    
     for_each(partitions.begin(), partitions.end(), [&](dvlab::BooleanMatrix m){cout<<"partition"<<endl;m.print_matrix();});
 
 
@@ -42,8 +43,15 @@ void Phase_Polynomial::gaussian_resynthesis(Partitions partitions, Wires initial
 
     for(auto p: partitions){
         std::vector<Phase> phases = Phase_Polynomial::get_phase_of_terms(p);
-        p.gaussian_elimination(true, false);
-        auto cnots = p.get_row_operations();
+        Partition complete_p = Phase_Polynomial::complete_the_partition(initial_wires, p);
+        cout << "Wires is " << endl;
+        initial_wires.print_matrix();
+        cout << "Complete p is " << endl;
+        complete_p.print_matrix();
+        complete_p.gaussian_elimination(true, false);
+        cout << "Complete p after gaussian is " << endl;
+        complete_p.print_matrix();
+        auto cnots = complete_p.get_row_operations();
         for(auto [ctrl, targ]: cnots){
             QubitIdList qubit_list;
             qubit_list.emplace_back(std::move(ctrl));
@@ -72,9 +80,6 @@ void Phase_Polynomial::gaussian_resynthesis(Partitions partitions, Wires initial
         _result.add_gate("CX", qubit_list, Phase(1), true);
     }
 
-
-    _result.print_gate_statistics();
-    _result.print_circuit_diagram(spdlog::level::info);
 };
 
 /**
@@ -90,6 +95,19 @@ void Phase_Polynomial::add_H_gate(size_t nth_h){
     _result.add_gate("H", qubit_list, Phase(0), true);
 }
 
+
+/**
+ * @brief Complete the partition until size = wires
+ * @param Wires: wires
+ * @param Partition p
+ * @return vector<Phase>
+ */
+Partition Phase_Polynomial::complete_the_partition(Wires wires, Partition partition){
+    while(partition.num_rows() < wires.num_rows()){
+        partition.push_row(wires.get_row(partition.num_rows()));
+    }
+    return partition;
+}
 
 /**
  * @brief Get Phase of partition

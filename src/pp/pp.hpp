@@ -42,9 +42,10 @@ public:
 
 
     // Resynthesis
-    void gaussian_resynthesis(std::vector<dvlab::BooleanMatrix> p, dvlab::BooleanMatrix initial_wires, dvlab::BooleanMatrix terminal_wires); // todo: replace data type to Partitions
+    void gaussian_resynthesis(std::vector<dvlab::BooleanMatrix> partitions, dvlab::BooleanMatrix initial_wires, dvlab::BooleanMatrix terminal_wires); // todo: replace data type to Partitions
     void add_H_gate(size_t);
     std::vector<Phase> get_phase_of_terms(dvlab::BooleanMatrix p);
+    dvlab::BooleanMatrix complete_the_partition(dvlab::BooleanMatrix wires, dvlab::BooleanMatrix partition);
 
     
 
