@@ -12,7 +12,7 @@
 
 namespace qsyn::qcir {
 
-dvlab::Command qcir_deancilla_cmd(QCirMgr& qcir_mgr);
+dvlab::Command qcir_pebble_cmd(QCirMgr& qcir_mgr);
 dvlab::Command qcir_oracle_cmd(QCirMgr& qcir_mgr);
 
 }  // namespace qsyn::qcir

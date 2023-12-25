@@ -5,7 +5,7 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "./deancilla.hpp"
+#include "./pebble.hpp"
 
 #include <spdlog/spdlog.h>
 
@@ -21,27 +21,11 @@ using Node = struct Node {
     std::vector<Node*> dependencies;
 };
 
-// std::pair<std::vector<qsyn::qcir::QubitInfo>, std::vector<qsyn::qcir::QubitInfo>> get_controls_targets(qsyn::qcir::QCir* qcir) {
-//     std::vector<qsyn::qcir::QubitInfo> controls;
-//     std::vector<qsyn::qcir::QubitInfo> targets;
-//     for (auto const& gate : qcir->get_gates()) {
-//         auto qubits = gate->get_qubits();
-//         for (auto const& qubit : qubits) {
-//             if (qubit._isTarget) {
-//                 targets.push_back(qubit);
-//             } else {
-//                 controls.push_back(qubit);
-//             }
-//         }
-//     }
-//     return {controls, targets};
-// }
-
 }  // namespace
 
 namespace qsyn::qcir {
 
-void deancilla(QCirMgr& /*qcir_mgr*/, size_t /*target_ancilla_count*/, std::vector<QubitIdType> const& /*ancilla_qubit_indexes*/) {
+void pebble(QCirMgr& /*qcir_mgr*/, size_t /*target_ancilla_count*/, std::vector<QubitIdType> const& /*ancilla_qubit_indexes*/) {
     using namespace dvlab::sat;
     using std::vector, std::views::iota;
 

@@ -16,8 +16,8 @@
 #include "argparse/arg_parser.hpp"
 #include "argparse/arg_type.hpp"
 #include "cli/cli.hpp"
-#include "qcir/oracle/deancilla.hpp"
 #include "qcir/oracle/oracle.hpp"
+#include "qcir/oracle/pebble.hpp"
 
 using namespace dvlab::argparse;
 using dvlab::CmdExecResult;
@@ -27,8 +27,8 @@ extern bool stop_requested();
 
 namespace qsyn::qcir {
 
-Command qcir_deancilla_cmd(QCirMgr& qcir_mgr) {
-    return {"deancilla",
+Command qcir_pebble_cmd(QCirMgr& qcir_mgr) {
+    return {"pebble",
             [](ArgumentParser& parser) {
                 parser.description("create a new circuit that uses less ancilla qubits");
 
@@ -47,10 +47,10 @@ Command qcir_deancilla_cmd(QCirMgr& qcir_mgr) {
                 auto ancilla_qubits_ids   = parser.get<std::vector<QubitIdType>>("--ancilla");
 
                 if (ancilla_qubits_ids.size() < target_ancilla_count) {
-                    spdlog::error("deancilla: target ancilla count is larger than the number of ancilla qubits");
+                    spdlog::error("pebble: target ancilla count is larger than the number of ancilla qubits");
                     return CmdExecResult::error;
                 } else if (ancilla_qubits_ids.size() == target_ancilla_count) {
-                    spdlog::info("deancilla: target ancilla count is equal to the number of ancilla qubits, nothing to do");
+                    spdlog::info("pebble: target ancilla count is equal to the number of ancilla qubits, nothing to do");
                     return CmdExecResult::done;
                 }
 
@@ -62,12 +62,12 @@ Command qcir_deancilla_cmd(QCirMgr& qcir_mgr) {
                 }
                 for (auto const& ancilla : ancilla_qubits_ids) {
                     if (qubit_id_set.find(ancilla) == qubit_id_set.end()) {
-                        spdlog::error("deancilla: ancilla qubit {} does not exist", ancilla);
+                        spdlog::error("pebble: ancilla qubit {} does not exist", ancilla);
                         return CmdExecResult::error;
                     }
                 }
 
-                deancilla(qcir_mgr, target_ancilla_count, ancilla_qubits_ids);
+                pebble(qcir_mgr, target_ancilla_count, ancilla_qubits_ids);
 
                 return CmdExecResult::done;
             }};
