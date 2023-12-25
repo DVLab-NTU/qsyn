@@ -60,6 +60,7 @@ public:
     // print function
     void print_polynomial(spdlog::level::level_enum lvl = spdlog::level::level_enum::off) const;
     void print_wires(spdlog::level::level_enum lvl = spdlog::level::level_enum::off) const;
+    void print_h_map(spdlog::level::level_enum lvl = spdlog::level::level_enum::off) const;
 
 private:
     size_t _qubit_number;

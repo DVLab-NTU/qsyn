@@ -81,8 +81,6 @@ Partitions Partitioning::greedy_partitioning_routine(Partitions total_partitions
         r.print_row();
         Wires temp = wires;
         temp.push_row(r);
-        cout << "New term rank is " << temp.gaussian_elimination_skip(temp.num_cols(), false) << endl;
-        cout << "New term rank is " << temp.gaussian_elimination_skip(temp.num_cols(), true) << endl;
         if (!is_constructable(r)) continue;
         // cout << "Is constructable" << endl;
         partitioned.emplace(partitioned.begin(), i);

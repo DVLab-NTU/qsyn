@@ -19,6 +19,8 @@
 #include "util/data_structure_manager_common_cmd.hpp"
 #include "util/util.hpp"
 
+#include <iostream> // to delete
+
 using namespace dvlab::argparse;
 using dvlab::CmdExecResult;
 using dvlab::Command;
@@ -56,6 +58,7 @@ dvlab::Command phase_polynomial_cmd(QCirMgr& qcir_mgr) {
 
                 pp.print_wires(spdlog::level::level_enum::off);
                 pp.print_polynomial(spdlog::level::level_enum::off);
+                pp.print_h_map();
 
                 Partitioning partitioning(pp.get_pp_terms(), pp.get_data_qubit_num(), 0);
                 Partitions temp; // todo: rewrite the dirty code ==
@@ -63,6 +66,7 @@ dvlab::Command phase_polynomial_cmd(QCirMgr& qcir_mgr) {
                 for(size_t i=0; i<=pp.get_h_map().size(); i++){
                     dvlab::BooleanMatrix initial_wires;
                     dvlab::BooleanMatrix terminal_wires = (i!=pp.get_h_map().size()) ? pp.get_h_map()[i].first: pp.get_wires();
+                    
                     if (i==0){
                         for(size_t j=0; j<pp.get_wires().num_rows(); j++){
                             dvlab::BooleanMatrix::Row r(pp.get_wires().num_cols());

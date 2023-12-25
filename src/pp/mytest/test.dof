@@ -1,7 +1,10 @@
-logger trace
+//logger debug
 qcir read src/pp/mytest/mybenchmark/sample_H.qasm
-//qcir draw src/pp/mytest/mybenchmark/sample_H.pdf
+// qc draw src/pp/mytest/mybenchmark/initial_iter.pdf
+qc2ts
 phase_poly
-qcir draw src/pp/mytest/mybenchmark/test1.pdf
+// qc draw src/pp/mytest/mybenchmark/iter.pdf
+qc2ts
+ts eq 0 1
 
 q -f

@@ -34,6 +34,7 @@ public:
     // Get function
 
     // Print function
+    void print_poly() const { _poly.print_matrix();};
 
 private:
     size_t _variable;

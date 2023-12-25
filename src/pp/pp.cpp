@@ -7,6 +7,7 @@
 
 #include "./pp.hpp"
 
+#include <cassert>
 #include <iostream>
 
 #include "qcir/qcir.hpp"
@@ -52,7 +53,6 @@ bool Phase_Polynomial::calculate_pp(QCir const& qc) {
             _wires.push_zeros_column();
             Row h_output_state(_wires.num_cols());
             h_output_state[_wires.num_cols() - 1] = 1;
-            h_output_state.print_row();
             dvlab::BooleanMatrix prev_wires = _wires;
             
             std::cout << "Before H " << endl;
@@ -115,9 +115,11 @@ void Phase_Polynomial::remove_coeff_0_monomial() {
  */
 void Phase_Polynomial::extend_h_map(){
     size_t total_variable = _wires.num_cols();
-    for(auto [first, second]: _h_map){
+    for(auto& [first, second]: _h_map){
         while(first.num_cols()<total_variable) first.push_zeros_column();
-        while(second.num_cols()<total_variable) second.push_zeros_column();
+        while(second.num_cols()<total_variable) second.push_zeros_column(); ;
+        assert(first.num_cols() == _wires.num_cols());
+        assert(second.num_cols() == _wires.num_cols());
     };
 }
 
@@ -167,6 +169,20 @@ void Phase_Polynomial::print_polynomial(spdlog::level::level_enum lvl) const {
     _pp_terms.print_matrix(lvl);
     spdlog::log(lvl, "Polynomial coefficient");
     for_each(_pp_coeff.begin(), _pp_coeff.end(), [&](dvlab::Phase p) { spdlog::log(lvl, p.get_print_string()); });
+}
+
+/**
+ * @brief Print the info of phase polynomial
+ *
+ */
+void Phase_Polynomial::print_h_map(spdlog::level::level_enum lvl) const {
+    spdlog::log(lvl, "H map");
+    for(auto const &[first, second]: _h_map){
+        spdlog::log(lvl, "Before: ");
+        first.print_matrix();
+        spdlog::log(lvl, "After: ");
+        second.print_matrix();
+    }
 }
 
 }  // namespace qsyn::pp

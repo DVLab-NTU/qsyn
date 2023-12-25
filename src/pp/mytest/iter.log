@@ -1,0 +1,170 @@
+qsyn v0.6.2 - Copyright © 2022-2023, DVLab NTUEE.
+Licensed under Apache 2.0 License.
+qsyn> //logger debug
+qsyn> qcir read src/pp/mytest/mybenchmark/iter.qasm
+
+qsyn> // qc draw src/pp/mytest/mybenchmark/initial_iter.pdf
+qsyn> qc2ts
+
+qsyn> phase_poly
+phase-polynomial G
+Before H 
+1 0 0 0
+0 1 0 0
+0 0 1 0
+After H 
+1 0 0 0
+0 0 0 1
+0 0 1 0
+Polynomial wires
+0 0 1 0
+0 0 0 1
+1 0 1 0
+Polynomial terms
+0 0 0 1
+1 0 0 0
+1 0 1 0
+Polynomial coefficient
+-π/4
+π/2
+π/2
+H map
+Before: 
+1 0 0 0
+0 1 0 0
+0 0 1 0
+After: 
+1 0 0 0
+0 0 0 1
+0 0 1 0
+Try to partition 0 0 0 1
+Try to partition 1 0 0 0
+Try to partition 1 0 1 0
+Rank is 2. Return 1
+Before size: 3
+After size: 1
+Into resynthesis
+initial wires
+1 0 0 0
+0 1 0 0
+0 0 1 0
+terminal wires
+1 0 0 0
+0 1 0 0
+0 0 1 0
+partition
+1 0 0 0
+1 0 1 0
+complete_p
+1 0 0 0
+1 0 1 0
+0 0 1 0
+Track:
+Step 1: 0 to 1
+Step 2: 1 to 2
+
+Try to partition 0 0 0 1
+Before size: 1
+After size: 0
+Into resynthesis
+initial wires
+1 0 0 0
+0 0 0 1
+0 0 1 0
+terminal wires
+0 0 1 0
+0 0 0 1
+1 0 1 0
+partition
+0 0 0 1
+complete_p
+0 0 0 1
+0 0 1 0
+0 0 0 1
+Track:
+Step 1: 0 to 2
+Step 2: 1 to 0
+Step 3: 0 to 1
+Step 4: 1 to 0
+
+
+qsyn> qc draw src/pp/mytest/mybenchmark/iter.pdf
+
+qsyn> qc2ts
+
+qsyn> ts eq 0 1
+Not Equivalent
+
+qsyn> phase_poly
+phase-polynomial G
+Before H 
+1 0 0 0
+0 1 0 0
+0 0 1 0
+After H 
+1 0 0 0
+0 0 0 1
+0 0 1 0
+Polynomial wires
+0 0 1 0
+0 0 0 1
+1 0 1 0
+Polynomial terms
+1 0 0 0
+1 1 0 0
+0 0 1 0
+Polynomial coefficient
+π/2
+π/2
+-π/4
+H map
+Before: 
+1 0 0 0
+0 1 0 0
+0 0 1 0
+After: 
+1 0 0 0
+0 0 0 1
+0 0 1 0
+Try to partition 1 0 0 0
+Try to partition 1 1 0 0
+Rank is 2. Return 1
+Try to partition 0 0 1 0
+Rank is 3. Return 1
+Before size: 3
+After size: 0
+Into resynthesis
+initial wires
+1 0 0 0
+0 1 0 0
+0 0 1 0
+terminal wires
+1 0 0 0
+0 1 0 0
+0 0 1 0
+partition
+1 0 0 0
+1 1 0 0
+0 0 1 0
+complete_p
+1 0 0 0
+1 1 0 0
+0 0 1 0
+Track:
+Step 1: 0 to 1
+
+Before size: 0
+After size: 0
+Into resynthesis
+initial wires
+1 0 0 0
+0 0 0 1
+0 0 1 0
+terminal wires
+0 0 1 0
+0 0 0 1
+1 0 1 0
+
+qsyn> 
+qsyn> q -f
+

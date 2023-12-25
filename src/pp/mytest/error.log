@@ -1,0 +1,495 @@
+qsyn v0.6.2 - Copyright © 2022-2023, DVLab NTUEE.
+Licensed under Apache 2.0 License.
+qsyn> logger trace
+[info]     Setting logger level to "trace"
+
+qsyn> qcir read src/pp/mytest/mybenchmark/sample_H.qasm
+[info]     Successfully created and checked out to QCir 0
+
+qsyn> qc2ts
+[info]     Converting to QCir 0 to tensor 0...
+[debug]    Add boundary
+[trace]      - Add Qubit 0 input port: 0
+[trace]      - Add Qubit 1 input port: 2
+[trace]      - Add Qubit 2 input port: 4
+[debug]    Gate 0 (tdg)
+[trace]    Pin Permutation
+[trace]      - Qubit: 2 input : 4 -> 3 output: 5 -> 4
+[trace]      - Qubit: 1 input : 2 -> 1 output: 3 -> 2
+[trace]      - Qubit: 0 input : 0 -> 0 output: 1 -> 5
+[debug]    Gate 1 (cx)
+[trace]    Pin Permutation
+[trace]      - Qubit: 2 input : 3 -> 3 output: 4 -> 5
+[trace]      - Qubit: 1 input : 1 -> 1 output: 2 -> 2
+[trace]      - Qubit: 0 input : 0 -> 0 output: 5 -> 4
+[debug]    Gate 4 (h)
+[trace]    Pin Permutation
+[trace]      - Qubit: 2 input : 3 -> 3 output: 5 -> 4
+[trace]      - Qubit: 1 input : 1 -> 1 output: 2 -> 2
+[trace]      - Qubit: 0 input : 0 -> 0 output: 4 -> 5
+[debug]    Gate 2 (t)
+[trace]    Pin Permutation
+[trace]      - Qubit: 2 input : 3 -> 3 output: 4 -> 5
+[trace]      - Qubit: 1 input : 1 -> 1 output: 2 -> 2
+[trace]      - Qubit: 0 input : 0 -> 0 output: 5 -> 4
+[debug]    Gate 3 (cx)
+[trace]    Pin Permutation
+[trace]      - Qubit: 2 input : 3 -> 2 output: 5 -> 5
+[trace]      - Qubit: 1 input : 1 -> 1 output: 2 -> 4
+[trace]      - Qubit: 0 input : 0 -> 0 output: 4 -> 3
+[debug]    Gate 5 (tdg)
+[trace]    Pin Permutation
+[trace]      - Qubit: 2 input : 2 -> 2 output: 5 -> 4
+[trace]      - Qubit: 1 input : 1 -> 1 output: 4 -> 5
+[trace]      - Qubit: 0 input : 0 -> 0 output: 3 -> 3
+[debug]    Gate 6 (t)
+[trace]    Pin Permutation
+[trace]      - Qubit: 2 input : 2 -> 2 output: 4 -> 5
+[trace]      - Qubit: 1 input : 1 -> 1 output: 5 -> 4
+[trace]      - Qubit: 0 input : 0 -> 0 output: 3 -> 3
+[debug]    Gate 7 (cx)
+[trace]    Pin Permutation
+[trace]      - Qubit: 2 input : 2 -> 2 output: 5 -> 4
+[trace]      - Qubit: 1 input : 1 -> 1 output: 4 -> 3
+[trace]      - Qubit: 0 input : 0 -> 0 output: 3 -> 5
+[debug]    Gate 9 (h)
+[trace]    Pin Permutation
+[trace]      - Qubit: 2 input : 2 -> 2 output: 4 -> 5
+[trace]      - Qubit: 1 input : 1 -> 1 output: 3 -> 3
+[trace]      - Qubit: 0 input : 0 -> 0 output: 5 -> 4
+[debug]    Gate 8 (t)
+[trace]    Pin Permutation
+[trace]      - Qubit: 2 input : 2 -> 2 output: 5 -> 4
+[trace]      - Qubit: 1 input : 1 -> 1 output: 3 -> 3
+[trace]      - Qubit: 0 input : 0 -> 0 output: 4 -> 5
+[debug]    Gate 10 (cx)
+[trace]    Pin Permutation
+[trace]      - Qubit: 2 input : 2 -> 2 output: 4 -> 5
+[trace]      - Qubit: 1 input : 1 -> 1 output: 3 -> 3
+[trace]      - Qubit: 0 input : 0 -> 0 output: 5 -> 4
+[debug]    Gate 11 (cx)
+[trace]    Pin Permutation
+[trace]      - Qubit: 2 input : 2 -> 2 output: 5 -> 3
+[trace]      - Qubit: 1 input : 1 -> 1 output: 3 -> 5
+[trace]      - Qubit: 0 input : 0 -> 0 output: 4 -> 4
+[debug]    Gate 12 (t)
+[trace]    Pin Permutation
+[trace]      - Qubit: 2 input : 2 -> 2 output: 3 -> 3
+[trace]      - Qubit: 1 input : 1 -> 1 output: 5 -> 4
+[trace]      - Qubit: 0 input : 0 -> 0 output: 4 -> 5
+[debug]    Gate 15 (t)
+[trace]    Pin Permutation
+[trace]      - Qubit: 2 input : 2 -> 2 output: 3 -> 3
+[trace]      - Qubit: 1 input : 1 -> 1 output: 4 -> 4
+[trace]      - Qubit: 0 input : 0 -> 0 output: 5 -> 5
+[debug]    Gate 13 (cx)
+[trace]    Pin Permutation
+[trace]      - Qubit: 2 input : 2 -> 2 output: 3 -> 5
+[trace]      - Qubit: 1 input : 1 -> 1 output: 4 -> 4
+[trace]      - Qubit: 0 input : 0 -> 0 output: 5 -> 3
+[debug]    Gate 14 (tdg)
+[trace]    Pin Permutation
+[trace]      - Qubit: 2 input : 2 -> 2 output: 5 -> 5
+[trace]      - Qubit: 1 input : 1 -> 1 output: 4 -> 4
+[trace]      - Qubit: 0 input : 0 -> 0 output: 3 -> 3
+[debug]    Gate 16 (cx)
+[trace]    Pin Permutation
+[trace]      - Qubit: 2 input : 2 -> 2 output: 5 -> 4
+[trace]      - Qubit: 1 input : 1 -> 1 output: 4 -> 5
+[trace]      - Qubit: 0 input : 0 -> 0 output: 3 -> 3
+[debug]    Gate 17 (tdg)
+[trace]    Pin Permutation
+[trace]      - Qubit: 2 input : 2 -> 2 output: 4 -> 4
+[trace]      - Qubit: 1 input : 1 -> 1 output: 5 -> 5
+[trace]      - Qubit: 0 input : 0 -> 0 output: 3 -> 3
+[info]     Successfully created and checked out to Tensor 0
+[info]     Note: Replacing Tensor 0...
+
+qsyn> //qcir draw src/pp/mytest/mybenchmark/sample_H.pdf
+qsyn> phase_poly
+phase-polynomial G
+Before H 
+1 0 0 0
+0 1 0 0
+1 0 1 0
+After H 
+0 0 0 1
+0 1 0 0
+1 0 1 0
+Before H 
+1 1 1 1 0
+0 1 0 0 0
+1 1 1 0 0
+After H 
+1 1 1 1 0
+0 1 0 0 0
+0 0 0 0 1
+Polynomial wires
+1 1 1 1 0
+1 1 1 1 1
+0 1 0 0 1
+Polynomial terms
+1 0 0 0 0
+1 0 1 0 0
+0 1 0 0 0
+1 1 1 0 0
+1 1 1 1 0
+0 1 0 0 1
+1 1 1 1 1
+Polynomial coefficient
+-π/4
+π/4
+-π/4
+π/4
+3π/4
+-π/4
+-π/4
+H map
+Before: 
+1 0 0 0 0
+0 1 0 0 0
+1 0 1 0 0
+After: 
+0 0 0 1 0
+0 1 0 0 0
+1 0 1 0 0
+Before: 
+1 1 1 1 0
+0 1 0 0 0
+1 1 1 0 0
+After: 
+1 1 1 1 0
+0 1 0 0 0
+0 0 0 0 1
+Define class
+Try to partition 1 0 0 0 0
+1 0 0 0 0
+0 1 0 0 0
+0 0 1 0 0
+Try to partition 1 0 1 0 0
+1 0 0 0 0
+0 1 0 0 0
+0 0 1 0 0
+Rank is 2. Return 1
+Try to partition 0 1 0 0 0
+1 0 0 0 0
+0 1 0 0 0
+0 0 1 0 0
+Rank is 3. Return 1
+Try to partition 1 1 1 0 0
+1 0 0 0 0
+0 1 0 0 0
+0 0 1 0 0
+Try to partition 1 1 1 1 0
+1 0 0 0 0
+0 1 0 0 0
+0 0 1 0 0
+Try to partition 0 1 0 0 1
+1 0 0 0 0
+0 1 0 0 0
+0 0 1 0 0
+Try to partition 1 1 1 1 1
+1 0 0 0 0
+0 1 0 0 0
+0 0 1 0 0
+Before size: 7
+After size: 3
+Into resynthesis
+initial wires
+1 0 0 0 0
+0 1 0 0 0
+0 0 1 0 0
+terminal wires
+1 0 0 0 0
+0 1 0 0 0
+1 0 1 0 0
+partition
+1 0 0 0 0
+1 0 1 0 0
+0 1 0 0 0
+partition
+1 1 1 0 0
+Try to partition 1 1 1 1 0
+0 0 0 1 0
+0 1 0 0 0
+1 0 1 0 0
+Try to partition 0 1 0 0 1
+0 0 0 1 0
+0 1 0 0 0
+1 0 1 0 0
+Try to partition 1 1 1 1 1
+0 0 0 1 0
+0 1 0 0 0
+1 0 1 0 0
+Before size: 3
+After size: 2
+Into resynthesis
+initial wires
+0 0 0 1 0
+0 1 0 0 0
+1 0 1 0 0
+terminal wires
+1 1 1 1 0
+0 1 0 0 0
+1 1 1 0 0
+partition
+1 1 1 1 0
+Try to partition 0 1 0 0 1
+1 1 1 1 0
+0 1 0 0 0
+0 0 0 0 1
+Try to partition 1 1 1 1 1
+1 1 1 1 0
+0 1 0 0 0
+0 0 0 0 1
+Rank is 2. Return 1
+Before size: 2
+After size: 0
+Into resynthesis
+initial wires
+1 1 1 1 0
+0 1 0 0 0
+0 0 0 0 1
+terminal wires
+1 1 1 1 0
+1 1 1 1 1
+0 1 0 0 1
+partition
+0 1 0 0 1
+1 1 1 1 1
+[info]     Successfully created and checked out to QCir 1
+
+qsyn> qc2ts
+[info]     Converting to QCir 1 to tensor 1...
+[debug]    Add boundary
+[trace]      - Add Qubit 0 input port: 0
+[trace]      - Add Qubit 1 input port: 2
+[trace]      - Add Qubit 2 input port: 4
+[debug]    Gate 0 (cx)
+[trace]    Pin Permutation
+[trace]      - Qubit: 2 input : 4 -> 3 output: 5 -> 4
+[trace]      - Qubit: 1 input : 2 -> 2 output: 3 -> 5
+[trace]      - Qubit: 0 input : 0 -> 0 output: 1 -> 1
+[debug]    Gate 1 (cx)
+[trace]    Pin Permutation
+[trace]      - Qubit: 2 input : 3 -> 3 output: 4 -> 5
+[trace]      - Qubit: 1 input : 2 -> 2 output: 5 -> 4
+[trace]      - Qubit: 0 input : 0 -> 0 output: 1 -> 1
+[debug]    Gate 2 (cx)
+[trace]    Pin Permutation
+[trace]      - Qubit: 2 input : 3 -> 3 output: 5 -> 4
+[trace]      - Qubit: 1 input : 2 -> 2 output: 4 -> 5
+[trace]      - Qubit: 0 input : 0 -> 0 output: 1 -> 1
+[debug]    Gate 6 (tdg)
+[trace]    Pin Permutation
+[trace]      - Qubit: 2 input : 3 -> 3 output: 4 -> 5
+[trace]      - Qubit: 1 input : 2 -> 2 output: 5 -> 4
+[trace]      - Qubit: 0 input : 0 -> 0 output: 1 -> 1
+[debug]    Gate 3 (cx)
+[trace]    Pin Permutation
+[trace]      - Qubit: 2 input : 3 -> 2 output: 5 -> 3
+[trace]      - Qubit: 1 input : 2 -> 1 output: 4 -> 5
+[trace]      - Qubit: 0 input : 0 -> 0 output: 1 -> 4
+[debug]    Gate 4 (tdg)
+[trace]    Pin Permutation
+[trace]      - Qubit: 2 input : 2 -> 2 output: 3 -> 3
+[trace]      - Qubit: 1 input : 1 -> 1 output: 5 -> 4
+[trace]      - Qubit: 0 input : 0 -> 0 output: 4 -> 5
+[debug]    Gate 5 (t)
+[trace]    Pin Permutation
+[trace]      - Qubit: 2 input : 2 -> 2 output: 3 -> 3
+[trace]      - Qubit: 1 input : 1 -> 1 output: 4 -> 5
+[trace]      - Qubit: 0 input : 0 -> 0 output: 5 -> 4
+[debug]    Gate 7 (cx)
+[trace]    Pin Permutation
+[trace]      - Qubit: 2 input : 2 -> 2 output: 3 -> 3
+[trace]      - Qubit: 1 input : 1 -> 1 output: 5 -> 5
+[trace]      - Qubit: 0 input : 0 -> 0 output: 4 -> 4
+[debug]    Gate 8 (cx)
+[trace]    Pin Permutation
+[trace]      - Qubit: 2 input : 2 -> 2 output: 3 -> 4
+[trace]      - Qubit: 1 input : 1 -> 1 output: 5 -> 5
+[trace]      - Qubit: 0 input : 0 -> 0 output: 4 -> 3
+[debug]    Gate 9 (cx)
+[trace]    Pin Permutation
+[trace]      - Qubit: 2 input : 2 -> 2 output: 4 -> 5
+[trace]      - Qubit: 1 input : 1 -> 1 output: 5 -> 4
+[trace]      - Qubit: 0 input : 0 -> 0 output: 3 -> 3
+[debug]    Gate 10 (cx)
+[trace]    Pin Permutation
+[trace]      - Qubit: 2 input : 2 -> 2 output: 5 -> 4
+[trace]      - Qubit: 1 input : 1 -> 1 output: 4 -> 5
+[trace]      - Qubit: 0 input : 0 -> 0 output: 3 -> 3
+[debug]    Gate 11 (cx)
+[trace]    Pin Permutation
+[trace]      - Qubit: 2 input : 2 -> 2 output: 4 -> 3
+[trace]      - Qubit: 1 input : 1 -> 1 output: 5 -> 4
+[trace]      - Qubit: 0 input : 0 -> 0 output: 3 -> 5
+[debug]    Gate 12 (cx)
+[trace]    Pin Permutation
+[trace]      - Qubit: 2 input : 2 -> 2 output: 3 -> 4
+[trace]      - Qubit: 1 input : 1 -> 1 output: 4 -> 3
+[trace]      - Qubit: 0 input : 0 -> 0 output: 5 -> 5
+[debug]    Gate 13 (t)
+[trace]    Pin Permutation
+[trace]      - Qubit: 2 input : 2 -> 2 output: 4 -> 4
+[trace]      - Qubit: 1 input : 1 -> 1 output: 3 -> 3
+[trace]      - Qubit: 0 input : 0 -> 0 output: 5 -> 5
+[debug]    Gate 14 (cx)
+[trace]    Pin Permutation
+[trace]      - Qubit: 2 input : 2 -> 2 output: 4 -> 4
+[trace]      - Qubit: 1 input : 1 -> 1 output: 3 -> 3
+[trace]      - Qubit: 0 input : 0 -> 0 output: 5 -> 5
+[debug]    Gate 15 (cx)
+[trace]    Pin Permutation
+[trace]      - Qubit: 2 input : 2 -> 2 output: 4 -> 3
+[trace]      - Qubit: 1 input : 1 -> 1 output: 3 -> 4
+[trace]      - Qubit: 0 input : 0 -> 0 output: 5 -> 5
+[debug]    Gate 16 (cx)
+[trace]    Pin Permutation
+[trace]      - Qubit: 2 input : 2 -> 2 output: 3 -> 5
+[trace]      - Qubit: 1 input : 1 -> 1 output: 4 -> 3
+[trace]      - Qubit: 0 input : 0 -> 0 output: 5 -> 4
+[debug]    Gate 17 (h)
+[trace]    Pin Permutation
+[trace]      - Qubit: 2 input : 2 -> 2 output: 5 -> 4
+[trace]      - Qubit: 1 input : 1 -> 1 output: 3 -> 3
+[trace]      - Qubit: 0 input : 0 -> 0 output: 4 -> 5
+[debug]    Gate 18 (cx)
+[trace]    Pin Permutation
+[trace]      - Qubit: 2 input : 2 -> 2 output: 4 -> 4
+[trace]      - Qubit: 1 input : 1 -> 1 output: 3 -> 3
+[trace]      - Qubit: 0 input : 0 -> 0 output: 5 -> 5
+[debug]    Gate 19 (cx)
+[trace]    Pin Permutation
+[trace]      - Qubit: 2 input : 2 -> 2 output: 4 -> 5
+[trace]      - Qubit: 1 input : 1 -> 1 output: 3 -> 3
+[trace]      - Qubit: 0 input : 0 -> 0 output: 5 -> 4
+[debug]    Gate 20 (cx)
+[trace]    Pin Permutation
+[trace]      - Qubit: 2 input : 2 -> 2 output: 5 -> 4
+[trace]      - Qubit: 1 input : 1 -> 1 output: 3 -> 3
+[trace]      - Qubit: 0 input : 0 -> 0 output: 4 -> 5
+[debug]    Gate 21 (cx)
+[trace]    Pin Permutation
+[trace]      - Qubit: 2 input : 2 -> 2 output: 4 -> 3
+[trace]      - Qubit: 1 input : 1 -> 1 output: 3 -> 4
+[trace]      - Qubit: 0 input : 0 -> 0 output: 5 -> 5
+[debug]    Gate 22 (cx)
+[trace]    Pin Permutation
+[trace]      - Qubit: 2 input : 2 -> 2 output: 3 -> 4
+[trace]      - Qubit: 1 input : 1 -> 1 output: 4 -> 3
+[trace]      - Qubit: 0 input : 0 -> 0 output: 5 -> 5
+[debug]    Gate 23 (rz)
+[trace]    Pin Permutation
+[trace]      - Qubit: 2 input : 2 -> 2 output: 4 -> 4
+[trace]      - Qubit: 1 input : 1 -> 1 output: 3 -> 3
+[trace]      - Qubit: 0 input : 0 -> 0 output: 5 -> 5
+[debug]    Gate 24 (cx)
+[trace]    Pin Permutation
+[trace]      - Qubit: 2 input : 2 -> 2 output: 4 -> 4
+[trace]      - Qubit: 1 input : 1 -> 1 output: 3 -> 3
+[trace]      - Qubit: 0 input : 0 -> 0 output: 5 -> 5
+[debug]    Gate 25 (cx)
+[trace]    Pin Permutation
+[trace]      - Qubit: 2 input : 2 -> 2 output: 4 -> 3
+[trace]      - Qubit: 1 input : 1 -> 1 output: 3 -> 4
+[trace]      - Qubit: 0 input : 0 -> 0 output: 5 -> 5
+[debug]    Gate 26 (cx)
+[trace]    Pin Permutation
+[trace]      - Qubit: 2 input : 2 -> 2 output: 3 -> 3
+[trace]      - Qubit: 1 input : 1 -> 1 output: 4 -> 4
+[trace]      - Qubit: 0 input : 0 -> 0 output: 5 -> 5
+[debug]    Gate 27 (cx)
+[trace]    Pin Permutation
+[trace]      - Qubit: 2 input : 2 -> 2 output: 3 -> 4
+[trace]      - Qubit: 1 input : 1 -> 1 output: 4 -> 3
+[trace]      - Qubit: 0 input : 0 -> 0 output: 5 -> 5
+[debug]    Gate 28 (cx)
+[trace]    Pin Permutation
+[trace]      - Qubit: 2 input : 2 -> 2 output: 4 -> 5
+[trace]      - Qubit: 1 input : 1 -> 1 output: 3 -> 3
+[trace]      - Qubit: 0 input : 0 -> 0 output: 5 -> 4
+[debug]    Gate 30 (cx)
+[trace]    Pin Permutation
+[trace]      - Qubit: 2 input : 2 -> 2 output: 5 -> 3
+[trace]      - Qubit: 1 input : 1 -> 1 output: 3 -> 4
+[trace]      - Qubit: 0 input : 0 -> 0 output: 4 -> 5
+[debug]    Gate 29 (h)
+[trace]    Pin Permutation
+[trace]      - Qubit: 2 input : 2 -> 2 output: 3 -> 5
+[trace]      - Qubit: 1 input : 1 -> 1 output: 4 -> 3
+[trace]      - Qubit: 0 input : 0 -> 0 output: 5 -> 4
+[debug]    Gate 31 (cx)
+[trace]    Pin Permutation
+[trace]      - Qubit: 2 input : 2 -> 2 output: 5 -> 4
+[trace]      - Qubit: 1 input : 1 -> 1 output: 3 -> 5
+[trace]      - Qubit: 0 input : 0 -> 0 output: 4 -> 3
+[debug]    Gate 32 (cx)
+[trace]    Pin Permutation
+[trace]      - Qubit: 2 input : 2 -> 2 output: 4 -> 3
+[trace]      - Qubit: 1 input : 1 -> 1 output: 5 -> 5
+[trace]      - Qubit: 0 input : 0 -> 0 output: 3 -> 4
+[debug]    Gate 33 (cx)
+[trace]    Pin Permutation
+[trace]      - Qubit: 2 input : 2 -> 2 output: 3 -> 3
+[trace]      - Qubit: 1 input : 1 -> 1 output: 5 -> 4
+[trace]      - Qubit: 0 input : 0 -> 0 output: 4 -> 5
+[debug]    Gate 35 (tdg)
+[trace]    Pin Permutation
+[trace]      - Qubit: 2 input : 2 -> 2 output: 3 -> 3
+[trace]      - Qubit: 1 input : 1 -> 1 output: 4 -> 5
+[trace]      - Qubit: 0 input : 0 -> 0 output: 5 -> 4
+[debug]    Gate 34 (tdg)
+[trace]    Pin Permutation
+[trace]      - Qubit: 2 input : 2 -> 2 output: 3 -> 3
+[trace]      - Qubit: 1 input : 1 -> 1 output: 5 -> 4
+[trace]      - Qubit: 0 input : 0 -> 0 output: 4 -> 5
+[debug]    Gate 36 (cx)
+[trace]    Pin Permutation
+[trace]      - Qubit: 2 input : 2 -> 2 output: 3 -> 3
+[trace]      - Qubit: 1 input : 1 -> 1 output: 4 -> 4
+[trace]      - Qubit: 0 input : 0 -> 0 output: 5 -> 5
+[debug]    Gate 37 (cx)
+[trace]    Pin Permutation
+[trace]      - Qubit: 2 input : 2 -> 2 output: 3 -> 3
+[trace]      - Qubit: 1 input : 1 -> 1 output: 4 -> 5
+[trace]      - Qubit: 0 input : 0 -> 0 output: 5 -> 4
+[debug]    Gate 38 (cx)
+[trace]    Pin Permutation
+[trace]      - Qubit: 2 input : 2 -> 2 output: 3 -> 4
+[trace]      - Qubit: 1 input : 1 -> 1 output: 5 -> 5
+[trace]      - Qubit: 0 input : 0 -> 0 output: 4 -> 3
+[debug]    Gate 39 (cx)
+[trace]    Pin Permutation
+[trace]      - Qubit: 2 input : 2 -> 2 output: 4 -> 3
+[trace]      - Qubit: 1 input : 1 -> 1 output: 5 -> 4
+[trace]      - Qubit: 0 input : 0 -> 0 output: 3 -> 5
+[debug]    Gate 40 (cx)
+[trace]    Pin Permutation
+[trace]      - Qubit: 2 input : 2 -> 2 output: 3 -> 5
+[trace]      - Qubit: 1 input : 1 -> 1 output: 4 -> 4
+[trace]      - Qubit: 0 input : 0 -> 0 output: 5 -> 3
+[debug]    Gate 41 (cx)
+[trace]    Pin Permutation
+[trace]      - Qubit: 2 input : 2 -> 2 output: 5 -> 4
+[trace]      - Qubit: 1 input : 1 -> 1 output: 4 -> 5
+[trace]      - Qubit: 0 input : 0 -> 0 output: 3 -> 3
+[debug]    Gate 42 (cx)
+[trace]    Pin Permutation
+[trace]      - Qubit: 2 input : 2 -> 2 output: 4 -> 3
+[trace]      - Qubit: 1 input : 1 -> 1 output: 5 -> 5
+[trace]      - Qubit: 0 input : 0 -> 0 output: 3 -> 4
+[info]     Successfully created and checked out to Tensor 1
+[info]     Note: Replacing Tensor 1...
+
+qsyn> //qcir draw src/pp/mytest/mybenchmark/test.pdf
+qsyn> ts eq 0 1
+Equivalent
+- Global Norm : 1
+- Global Phase: -3π/8
+
+qsyn> // phase_poly
+qsyn> 
+qsyn> q -f
+
