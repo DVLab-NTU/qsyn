@@ -14,7 +14,7 @@
 #include "../qcir_mgr.hpp"
 #include "argparse/arg_type.hpp"
 #include "cli/cli.hpp"
-#include "qcir/deancilla/deancilla.hpp"
+#include "qcir/oracle/deancilla.hpp"
 
 using namespace dvlab::argparse;
 using dvlab::CmdExecResult;
