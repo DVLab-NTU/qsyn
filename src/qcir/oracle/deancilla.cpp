@@ -1,5 +1,5 @@
 /****************************************************************************
-  PackageName  [ qcir/deancilla ]
+  PackageName  [ qcir/oracle ]
   Synopsis     [ Define functions for de-ancilla ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]

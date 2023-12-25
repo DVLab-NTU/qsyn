@@ -1,6 +1,6 @@
 /****************************************************************************
   PackageName  [ qcir/oracle ]
-  Synopsis     [ Define functions for de-ancilla ]
+  Synopsis     [ Define functions for boolean oracle synthesis ]
   Author       [ Design Verification Lab ]
   Paper        [ https://arxiv.org/abs/1904.02121 ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
@@ -8,19 +8,18 @@
 
 #pragma once
 
-#include <vector>
-
-#include "qcir/qcir_mgr.hpp"
+#include "qcir/qcir.hpp"
 
 namespace qsyn::qcir {
 
 /**
- * @brief change the number of ancilla qubits to target ancilla count by SAT based reversible pebbling game
+ * @brief synthesize a boolean oracle for the given function truth table
  *
- * @param qcir_mgr
- * @param target_ancilla_count
- * @param ancilla_qubit_indexes
+ * @param qcir
+ * @param n_ancilla
+ * @param n_outputs
+ * @param truth_table i-th element is the output value when input is i
  */
-void deancilla(QCirMgr& qcir_mgr, size_t target_ancilla_count, std::vector<QubitIdType> const& ancilla_qubit_indexes);
+void synthesize_boolean_oracle(QCir* qcir, size_t n_ancilla, size_t n_outputs, std::vector<size_t> const& truth_table);
 
 }  // namespace qsyn::qcir
