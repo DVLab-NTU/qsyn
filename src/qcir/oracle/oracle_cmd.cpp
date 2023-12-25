@@ -9,7 +9,6 @@
 
 #include <cstddef>
 #include <ranges>
-#include <unordered_set>
 #include <vector>
 
 #include "../qcir_mgr.hpp"
@@ -27,48 +26,13 @@ extern bool stop_requested();
 
 namespace qsyn::qcir {
 
-Command qcir_pebble_cmd(QCirMgr& qcir_mgr) {
+Command qcir_pebble_cmd() {
     return {"pebble",
             [](ArgumentParser& parser) {
-                parser.description("create a new circuit that uses less ancilla qubits");
-
-                parser.add_argument<size_t>("-n", "--n-ancilla")
-                    .required(true)
-                    .help("target ancilla qubits after optimization");
-                parser.add_argument<QubitIdType>("-a", "--ancilla")
-                    .required(true)
-                    .nargs(NArgsOption::one_or_more)
-                    .help("ancilla qubit ids, information stored in these qubits may not be preserved");
+                parser.description("test ancilla qubit scheduling with SAT based reversible pebbling game");
             },
-            [&qcir_mgr](ArgumentParser const& parser) {
-                if (!qcir_mgr_not_empty(qcir_mgr)) return CmdExecResult::error;
-
-                auto target_ancilla_count = parser.get<size_t>("--n-ancilla");
-                auto ancilla_qubits_ids   = parser.get<std::vector<QubitIdType>>("--ancilla");
-
-                if (ancilla_qubits_ids.size() < target_ancilla_count) {
-                    spdlog::error("pebble: target ancilla count is larger than the number of ancilla qubits");
-                    return CmdExecResult::error;
-                } else if (ancilla_qubits_ids.size() == target_ancilla_count) {
-                    spdlog::info("pebble: target ancilla count is equal to the number of ancilla qubits, nothing to do");
-                    return CmdExecResult::done;
-                }
-
-                auto qubits       = qcir_mgr.get()->get_qubits();
-                auto qubit_id_set = std::unordered_set<QubitIdType>();
-
-                for (auto const& qubit : qubits) {
-                    qubit_id_set.insert(qubit->get_id());
-                }
-                for (auto const& ancilla : ancilla_qubits_ids) {
-                    if (qubit_id_set.find(ancilla) == qubit_id_set.end()) {
-                        spdlog::error("pebble: ancilla qubit {} does not exist", ancilla);
-                        return CmdExecResult::error;
-                    }
-                }
-
-                pebble(qcir_mgr, target_ancilla_count, ancilla_qubits_ids);
-
+            [](ArgumentParser const& /*parser*/) {
+                test_pebble();
                 return CmdExecResult::done;
             }};
 }
@@ -77,6 +41,8 @@ Command qcir_oracle_cmd(QCirMgr& qcir_mgr) {
     return {
         "oracle",
         [](ArgumentParser& parser) {
+            parser.description("synthesize a boolean oracle");
+
             parser.add_argument<size_t>("-i", "--n-input")
                 .required(true)
                 .help("number of input qubits to use");
@@ -114,6 +80,9 @@ Command qcir_oracle_cmd(QCirMgr& qcir_mgr) {
                 }
             }
 
+            auto new_id = qcir_mgr.get_next_id();
+            qcir_mgr.add(new_id);
+            qcir_mgr.checkout(new_id);
             synthesize_boolean_oracle(qcir_mgr.get(), n_ancilla, n_output, truth_table);
 
             return CmdExecResult::done;

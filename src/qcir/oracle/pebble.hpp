@@ -8,19 +8,11 @@
 
 #pragma once
 
-#include <vector>
-
-#include "qcir/qcir_mgr.hpp"
-
 namespace qsyn::qcir {
 
 /**
- * @brief change the number of ancilla qubits to target ancilla count by SAT based reversible pebbling game
- *
- * @param qcir_mgr
- * @param target_ancilla_count
- * @param ancilla_qubit_indexes
+ * @brief test ancilla qubit scheduling with SAT based reversible pebbling game
  */
-void pebble(QCirMgr& qcir_mgr, size_t target_ancilla_count, std::vector<QubitIdType> const& ancilla_qubit_indexes);
+void test_pebble();
 
 }  // namespace qsyn::qcir
