@@ -632,7 +632,7 @@ Command qcir_cmd(QCirMgr& qcir_mgr) {
     cmd.add_subcommand("qcir-cmd-group", qcir_qubit_cmd(qcir_mgr));
     cmd.add_subcommand("qcir-cmd-group", qcir_optimize_cmd(qcir_mgr));
     cmd.add_subcommand("qcir-cmd-group", qcir_translate_cmd(qcir_mgr));
-    cmd.add_subcommand("qcir-cmd-group", qcir_deancilla_cmd(qcir_mgr));
+    cmd.add_subcommand("qcir-cmd-group", qcir_pebble_cmd(qcir_mgr));
     cmd.add_subcommand("qcir-cmd-group", qcir_oracle_cmd(qcir_mgr));
     return cmd;
 }

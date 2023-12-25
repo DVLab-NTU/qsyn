@@ -21,6 +21,6 @@ namespace qsyn::qcir {
  * @param target_ancilla_count
  * @param ancilla_qubit_indexes
  */
-void deancilla(QCirMgr& qcir_mgr, size_t target_ancilla_count, std::vector<QubitIdType> const& ancilla_qubit_indexes);
+void pebble(QCirMgr& qcir_mgr, size_t target_ancilla_count, std::vector<QubitIdType> const& ancilla_qubit_indexes);
 
 }  // namespace qsyn::qcir
