@@ -7,12 +7,16 @@
 
 #include "./pebble.hpp"
 
+#include <fmt/core.h>
 #include <spdlog/spdlog.h>
 
 #include <ranges>
 #include <unordered_set>
 
 #include "util/sat/sat_solver.hpp"
+
+using namespace dvlab::sat;
+using std::vector, std::views::iota;
 
 namespace {
 
@@ -26,18 +30,18 @@ using Node = struct Node {
 
 namespace qsyn::qcir {
 
-void test_pebble() {
-    using namespace dvlab::sat;
-    using std::vector, std::views::iota;
-
-    const size_t N  = 6;  // number of nodes
-    const size_t K  = 7;  // time of the final state
-    const size_t P  = 4;  // number of pebbles
+void test_pebble(const size_t _P) {
     auto solver     = CaDiCalSolver();
-    auto graph      = vector<Node>(N);
+    auto graph      = vector<Node>(6);
     auto output_ids = std::unordered_set<size_t>{4, 5};
+    const size_t N  = graph.size();  // number of nodes
+    const size_t P  = std::min(_P, N);
 
-    spdlog::debug("N = {}, K = {}, P = {}", N, K, P);
+    if (P != _P) {
+        spdlog::warn("P = {} is too large, using P = {} instead", _P, P);
+    }
+
+    spdlog::debug("N = {}, P = {}", N, P);
 
     for (const size_t i : iota(0UL, N)) {
         graph[i].id = i;
@@ -49,80 +53,93 @@ void test_pebble() {
     graph[4].dependencies.emplace_back(&graph[3]);
     graph[5].dependencies.emplace_back(&graph[0]);
 
-    auto p = vector<vector<Variable>>(K);
-    for (const size_t i : iota(0UL, K)) {
-        p[i] = vector<Variable>(N);
-        for (const std::size_t j : iota(0UL, N)) {
-            p[i][j] = solver.new_var();
-        }
-    }
-
-    // Initial and final clauses
-    for (const size_t i : iota(0UL, N)) {
-        // at time 0, no node is pebbled
-        solver.add_clause({~Literal(p[0][i])});
-        // at time K, all output nodes are pebbled, and all other nodes are not pebbled
-        solver.add_clause({Literal(p[K - 1][i], !output_ids.contains(i))});
-    }
-
-    // Move CLauses
-    // if a node is pebbled at time i, then all its dependencies must be pebbled at time i + 1
-    // if a node is not pebbled at time i, then all its dependencies must be pebbled at time i
-    // (a xor b) + cd = (~a + b + c) (~a + b + d) (a + ~b + c) (a + ~b + d)
-    for (const size_t i : iota(0UL, K - 1)) {
-        for (const auto& node : graph) {
-            for (const auto& dep : node.dependencies) {
-                auto const a = Literal(p[i][node.id]);
-                auto const b = Literal(p[i + 1][node.id]);
-                auto const c = Literal(p[i][dep->id]);
-                auto const d = Literal(p[i + 1][dep->id]);
-                solver.add_clause({~a, b, c});
-                solver.add_clause({~a, b, d});
-                solver.add_clause({a, ~b, c});
-                solver.add_clause({a, ~b, d});
+    auto make_variables = [](SatSolver& solver, const size_t N, const size_t K) {
+        solver.reset();
+        auto p = vector<vector<Variable>>(K);
+        for (const size_t i : iota(0UL, K)) {
+            p[i] = vector<Variable>(N);
+            for (const std::size_t j : iota(0UL, N)) {
+                p[i][j] = solver.new_var();
             }
         }
-    }
+        return p;
+    };
 
-    // Cardinality Clauses
-    std::vector<Literal> literals;
-    for (const size_t i : iota(0UL, K)) {
-        literals.clear();
-        // sum(p_ij) <= P -> sum(~p_ij) >= N - P
-        for (const size_t j : iota(0UL, N)) {
-            literals.emplace_back(p[i][j], true);
+    auto pebble = [&output_ids, &graph](SatSolver& solver, const vector<vector<Variable>>& p, const size_t N, const size_t K, const size_t P) {
+        // Initial and final clauses
+        for (const size_t i : iota(0UL, N)) {
+            // at time 0, no node is pebbled
+            solver.add_clause({~Literal(p[0][i])});
+            // at time K, all output nodes are pebbled, and all other nodes are not pebbled
+            solver.add_clause({Literal(p[K - 1][i], !output_ids.contains(i))});
         }
-        solver.add_gte_constraint(literals, N - P);
+
+        // Move CLauses
+        // if a node is pebbled at time i, then all its dependencies must be pebbled at time i + 1
+        // if a node is not pebbled at time i, then all its dependencies must be pebbled at time i
+        // (a xor b) + cd = (~a + b + c) (~a + b + d) (a + ~b + c) (a + ~b + d)
+        for (const size_t i : iota(0UL, K - 1)) {
+            for (const auto& node : graph) {
+                for (const auto& dep : node.dependencies) {
+                    auto const a = Literal(p[i][node.id]);
+                    auto const b = Literal(p[i + 1][node.id]);
+                    auto const c = Literal(p[i][dep->id]);
+                    auto const d = Literal(p[i + 1][dep->id]);
+                    solver.add_clause({~a, b, c});
+                    solver.add_clause({~a, b, d});
+                    solver.add_clause({a, ~b, c});
+                    solver.add_clause({a, ~b, d});
+                }
+            }
+        }
+
+        // Cardinality Clauses
+        std::vector<Literal> literals;
+        for (const size_t i : iota(0UL, K)) {
+            literals.clear();
+            // sum(p_ij) <= P -> sum(~p_ij) >= N - P
+            for (const size_t j : iota(0UL, N)) {
+                literals.emplace_back(p[i][j], true);
+            }
+            solver.add_gte_constraint(literals, N - P);
+        }
+
+        return solver.solve() == Result::SAT;
+    };
+
+    // binary search to find the minimum K
+    vector<vector<Variable>> p;
+    size_t left  = 2;
+    size_t right = N * 2;
+    size_t K     = 0;
+    while (left < right) {
+        size_t mid = (left + right) / 2;
+        spdlog::debug("left = {}, right = {}, mid = {}", left, right, mid);
+        p = make_variables(solver, N, mid);
+        if (pebble(solver, p, N, mid, P)) {
+            right = mid;
+            K     = mid;
+        } else {
+            left = mid + 1;
+        }
     }
 
-    Result result = solver.solve();
-
-    switch (result) {
-        case Result::SAT:
-            spdlog::debug("SAT");
-            break;
-        case Result::UNSAT:
-            spdlog::debug("UNSAT");
-            return;
-        case Result::UNKNOWN:
-            spdlog::debug("UNKNOWN");
-            return;
-    }
-
+    p = make_variables(solver, N, K);
+    pebble(solver, p, N, K, P);
     auto _solution = solver.get_solution();
     if (!_solution.has_value()) {
-        spdlog::debug("no solution");
+        fmt::println("no solution for P = {}, consider increasing P", P);
         return;
     }
     auto solution = _solution.value();
 
-    spdlog::debug("solution:");
+    fmt::println("solution:");
     for (const size_t i : iota(0UL, K)) {
         std::string s = "";
         for (const size_t j : iota(0UL, N)) {
             s += solution[p[i][j]] ? "1" : "0";
         }
-        spdlog::debug("time: {} = {}", i, s);
+        fmt::println("time = {}: {}", i, s);
     }
 }
 

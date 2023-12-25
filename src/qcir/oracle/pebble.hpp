@@ -8,11 +8,15 @@
 
 #pragma once
 
+#include <cstddef>
+
 namespace qsyn::qcir {
 
 /**
  * @brief test ancilla qubit scheduling with SAT based reversible pebbling game
+ *
+ * @param P number of ancilla qubits
  */
-void test_pebble();
+void test_pebble(const size_t P);
 
 }  // namespace qsyn::qcir
