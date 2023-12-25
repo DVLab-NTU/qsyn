@@ -9,6 +9,7 @@
 
 #include <spdlog/spdlog.h>
 
+#include <ranges>
 #include <unordered_set>
 
 #include "util/sat/sat_solver.hpp"
@@ -25,7 +26,7 @@ using Node = struct Node {
 
 namespace qsyn::qcir {
 
-void pebble(QCirMgr& /*qcir_mgr*/, size_t /*target_ancilla_count*/, std::vector<QubitIdType> const& /*ancilla_qubit_indexes*/) {
+void test_pebble() {
     using namespace dvlab::sat;
     using std::vector, std::views::iota;
 
