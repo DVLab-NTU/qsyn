@@ -1,4 +1,7 @@
 #include "bits/stdc++.h"
+#include <string>
+#include <algorithm>
+#include <math.h>
 using namespace std;
 
 bool isUnitaryMatrix(const vector<vector<complex<double>>>& matrix) {
@@ -62,6 +65,103 @@ vector<vector<complex<double>>> matrixMultiply(const vector<vector<complex<doubl
     }
 
     return result;
+}
+
+vector<vector<complex<double>>> to_2level(vector<vector<complex<double>>>& U, int& i, int& j) {
+    complex<double> one;
+    one.real(1);
+    one.imag(0);
+    vector<vector<complex<double>>> U2(2, vector<complex<double>>(2, 0.0));
+    i = U.size() - 1;
+    while (i > -1){
+        // cout << U[i][i] << endl;
+        if (abs(U[i][i] - one) > 1e-6) break;
+        --i;
+    }
+    if (i == -1) {
+        cerr << "incorrect matrix" << endl;
+        return U2;
+    }
+    complex<double> uii = U[i][i];
+    j = 0;
+    while (j < i){
+        if (abs(U[j][i]) > 1e-6) break;
+        ++j;
+    }
+    if (j == i) {
+        cerr << "incorrect matrix" << endl;
+        return U2;
+    }
+
+    U2[0][0] = U[j][j];
+    U2[0][1] = U[j][i];
+    U2[1][0] = U[i][j];
+    U2[1][1] = U[i][i];
+    return U2;
+}
+
+string str_q(int b) {
+    return "q[" + to_string(b) + "]";
+}
+
+vector<string> vecstr_Ctrl(int b, int n, string U, vector<bool>& i_state) {
+    vector<string> half_ckt;
+    string cnU = "c" + to_string(n) + U + " ";
+    for (size_t ctrl_b = 0; ctrl_b < n; ++ctrl_b) {
+        if (ctrl_b == b) continue;
+
+        if (ctrl_b >= i_state.size() || i_state[ctrl_b] == 0) {
+            half_ckt.push_back("x " + str_q(ctrl_b) + "\n");
+        }
+        cnU += str_q(ctrl_b) + " ";
+    }
+    cnU += str_q(b) + "\n";
+    vector<string> full_ckt = half_ckt;
+    full_ckt.push_back(cnU);
+    reverse(half_ckt.begin(), half_ckt.end());
+    full_ckt.insert(full_ckt.end(), half_ckt.begin(), half_ckt.end());
+    return full_ckt;
+}
+
+vector<string> gray_code(int i, int j, int n, string U2_name, vector<vector<complex<double>>>& U2){
+    cout << i << " " << j << endl;
+    assert(i != j);
+    vector<string> half_ckt;
+    vector<bool> i_state, j_state;
+    while (i != 0) {
+        i_state.push_back(false);
+        if (i % 2) i_state[i_state.size() - 1] = true;
+        i = i / 2;
+    }
+    while (j != 0) {
+        j_state.push_back(false);
+        if (j % 2) j_state[j_state.size() - 1] = true;
+        j = j / 2;
+    }
+    while (i_state.size() != j_state.size()) {
+        if (i_state.size() < j_state.size()) i_state.push_back(false);
+        else j_state.push_back(false);
+    }
+
+    int U_b = -1;
+    for (size_t b = 0; b < i_state.size(); ++b) {
+        if (i_state[b] != j_state[b]) { // q[b] is flip
+            if (U_b < 0) {
+                U_b = b;
+                continue;
+            }
+            vector<string> cnx = vecstr_Ctrl(b, n, "x", i_state);
+            half_ckt.insert(half_ckt.end(), cnx.begin(), cnx.end());
+            i_state[b] = !i_state[b];
+        }
+    }
+    assert(U_b != -1);
+    vector<string> cnU = vecstr_Ctrl(U_b, n, U2_name, i_state);
+    vector<string> full_ckt = half_ckt;
+    full_ckt.insert(full_ckt.end(),cnU.begin(), cnU.end());
+    reverse(half_ckt.begin(), half_ckt.end());
+    full_ckt.insert(full_ckt.end(), half_ckt.begin(), half_ckt.end());
+    return full_ckt;
 }
 
 int main(int argc, char *argv[]){
@@ -208,5 +308,14 @@ int main(int argc, char *argv[]){
     }
 
     //gray-code
+    for (int t = 0; t < two_level_matrices.size(); t++) {
+        vector<vector<complex<double>>> U2;
+        int i, j;
+        U2 = to_2level(two_level_matrices[t], i, j);
+        vector<string> str_U2 = gray_code(i,j,int(log2(n)),"U"+to_string(t),U2);
+        for (int s = 0; s < str_U2.size(); s++) {
+            cout << str_U2[s] << endl;
+        }
+    }
 
 }
