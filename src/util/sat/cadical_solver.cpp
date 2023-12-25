@@ -5,6 +5,9 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
+#include <cadical/cadical.hpp>
+#include <ranges>
+
 #include "./sat_solver.hpp"
 
 namespace dvlab::sat {
@@ -16,8 +19,6 @@ void CaDiCalSolver::reset() {
     _solver   = new CaDiCaL::Solver();
     _next_var = Variable(1);
 }
-
-Variable CaDiCalSolver::new_var() { return _next_var++; }
 
 void CaDiCalSolver::add_clause(std::vector<Literal> const& clause) {
     for (auto const& lit : clause) {
@@ -40,6 +41,19 @@ Result CaDiCalSolver::solve() {
         default:
             return Result::UNKNOWN;
     }
+}
+
+std::optional<Solution> CaDiCalSolver::get_solution() {
+    if (!(_solver->state() & CaDiCaL::VALID)) {
+        return std::nullopt;
+    }
+
+    Solution solution(_next_var.get() - 1);
+    for (auto const& i : std::views::iota(0, (int)solution.size())) {
+        auto var = Variable(i + 1);
+        solution.set(var, _solver->val(var.get()) > 0);
+    }
+    return solution;
 }
 
 }  // namespace dvlab::sat
