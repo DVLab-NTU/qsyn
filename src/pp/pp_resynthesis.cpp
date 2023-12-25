@@ -48,9 +48,10 @@ void Phase_Polynomial::gaussian_resynthesis(Partitions partitions, Wires initial
         initial_wires.print_matrix();
         cout << "Complete p is " << endl;
         complete_p.print_matrix();
-        complete_p.gaussian_elimination(true, false);
+        complete_p.gaussian_elimination_skip(complete_p.num_cols(), true, true);
         cout << "Complete p after gaussian is " << endl;
         complete_p.print_matrix();
+        complete_p.print_trace();
         auto cnots = complete_p.get_row_operations();
         for(auto [ctrl, targ]: cnots){
             QubitIdList qubit_list;
@@ -70,7 +71,7 @@ void Phase_Polynomial::gaussian_resynthesis(Partitions partitions, Wires initial
         }
     }
 
-    terminal_wires.gaussian_elimination(true, false);
+    terminal_wires.gaussian_elimination_skip(terminal_wires.num_cols(), true, true);
     auto cnots_terminal = terminal_wires.get_row_operations();
     reverse(cnots_terminal.begin(), cnots_terminal.end());
     for(auto [ctrl, targ]: cnots_terminal){

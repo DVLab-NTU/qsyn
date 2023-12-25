@@ -60,7 +60,6 @@ bool Phase_Polynomial::calculate_pp(QCir const& qc) {
             _wires[q] = h_output_state;
             std::cout << "After H " << endl;
             _wires.print_matrix(spdlog::level::level_enum::off);
-
             _h_map.emplace_back(std::make_pair(prev_wires, _wires));
             _h.emplace_back(q);
         } else {
