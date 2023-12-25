@@ -44,14 +44,14 @@ void Phase_Polynomial::gaussian_resynthesis(Partitions partitions, Wires initial
     for(auto p: partitions){
         std::vector<Phase> phases = Phase_Polynomial::get_phase_of_terms(p);
         Partition complete_p = Phase_Polynomial::complete_the_partition(initial_wires, p);
-        cout << "Wires is " << endl;
-        initial_wires.print_matrix();
-        cout << "Complete p is " << endl;
-        complete_p.print_matrix();
+        // cout << "Wires is " << endl;
+        // initial_wires.print_matrix();
+        // cout << "Complete p is " << endl;
+        // complete_p.print_matrix();
         complete_p.gaussian_elimination_skip(complete_p.num_cols(), true, true);
-        cout << "Complete p after gaussian is " << endl;
-        complete_p.print_matrix();
-        complete_p.print_trace();
+        // cout << "Complete p after gaussian is " << endl;
+        // complete_p.print_matrix();
+        // complete_p.print_trace();
         auto cnots = complete_p.get_row_operations();
         for(auto [ctrl, targ]: cnots){
             QubitIdList qubit_list;
