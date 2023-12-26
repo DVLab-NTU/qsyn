@@ -1,0 +1,32 @@
+qsyn> extract config --optimize-level 2
+
+qsyn> qcir read benchmark/SABRE/large/cm82a_208.qasm
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize
+
+qsyn> convert zx qcir
+
+qsyn> qcir optimize
+
+qsyn> qcir print
+QCir (16 qubits, 384 gates, 217 2-qubits gates, 122 T-gates, 477 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx adjoint
+
+qsyn> zx list
+  0    cm82a_208           QC2ZX ➔ FR
+★ 2    cm82a_208           QC2ZX ➔ FR ➔ ZX2QC ➔ Optimize ➔ QC2ZX
+
+qsyn> zx compose 0
+
+qsyn> zx optimize
+
+qsyn> zx test --identity 
+The graph is an identity!
+
+qsyn> quit -f
+
