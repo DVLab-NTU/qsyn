@@ -84,10 +84,8 @@ Command qcir_oracle_cmd(QCirMgr& qcir_mgr) {
                 }
             }
 
-            auto new_id = qcir_mgr.get_next_id();
-            qcir_mgr.add(new_id);
-            qcir_mgr.checkout(new_id);
-            synthesize_boolean_oracle(qcir_mgr.get(), n_ancilla, n_output, truth_table);
+            auto* qcir = qcir_mgr.add(qcir_mgr.get_next_id());
+            synthesize_boolean_oracle(qcir, n_ancilla, n_output, truth_table);
 
             return CmdExecResult::done;
         }};

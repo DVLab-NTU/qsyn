@@ -10,6 +10,7 @@
 #include <fmt/core.h>
 #include <spdlog/spdlog.h>
 
+#include <algorithm>
 #include <ranges>
 #include <unordered_set>
 
@@ -35,13 +36,6 @@ void test_pebble(const size_t _P) {
     auto graph      = vector<Node>(6);
     auto output_ids = std::unordered_set<size_t>{4, 5};
     const size_t N  = graph.size();  // number of nodes
-    const size_t P  = std::min(_P, N);
-
-    if (P != _P) {
-        spdlog::warn("P = {} is too large, using P = {} instead", _P, P);
-    }
-
-    spdlog::debug("N = {}, P = {}", N, P);
 
     for (const size_t i : iota(0UL, N)) {
         graph[i].id = i;
@@ -52,6 +46,19 @@ void test_pebble(const size_t _P) {
     graph[4].dependencies.emplace_back(&graph[2]);
     graph[4].dependencies.emplace_back(&graph[3]);
     graph[5].dependencies.emplace_back(&graph[0]);
+
+    const size_t max_deps = std::max_element(graph.begin(), graph.end(), [](const Node& a, const Node& b) { return a.dependencies.size() < b.dependencies.size(); })
+                                ->dependencies.size();
+
+    const size_t P = std::max(std::min(_P, N), max_deps + 1);
+    if (P < _P) {
+        spdlog::warn("P = {} is too large, using P = {} instead", _P, P);
+    }
+    if (P > _P) {
+        spdlog::warn("P = {} is too small, using P = {} instead", _P, max_deps);
+    }
+
+    spdlog::debug("N = {}, P = {}", N, P);
 
     auto make_variables = [](SatSolver& solver, const size_t N, const size_t K) {
         solver.reset();
@@ -110,7 +117,7 @@ void test_pebble(const size_t _P) {
     // binary search to find the minimum K
     vector<vector<Variable>> p;
     size_t left  = 2;
-    size_t right = N * 2;
+    size_t right = N * N * 2;
     size_t K     = 0;
     while (left < right) {
         size_t mid = (left + right) / 2;
@@ -122,8 +129,13 @@ void test_pebble(const size_t _P) {
         } else {
             left = mid + 1;
         }
+        spdlog::debug("p.size() = {}", p.size());
     }
 
+    if (K == 0) {
+        fmt::println("no solution for P = {}, consider increasing P", P);
+        return;
+    }
     p = make_variables(solver, N, K);
     pebble(solver, p, N, K, P);
     auto _solution = solver.get_solution();
