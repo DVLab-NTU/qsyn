@@ -109,7 +109,12 @@ std::optional<tensor::QTensor<double>> ZX2TSMapper::map(zx::ZXGraph const& graph
         return std::nullopt;
     }
 
-    graph.topological_traverse([&graph, this](zx::ZXVertex* v) { _map_one_vertex(graph, v); });
+    try {
+        graph.topological_traverse([&graph, this](zx::ZXVertex* v) { _map_one_vertex(graph, v); });
+    } catch (std::bad_alloc& e) {
+        spdlog::error("Memory allocation failed!!");
+        return std::nullopt;
+    }
 
     if (stop_requested()) {
         spdlog::error("Conversion is interrupted!!");
@@ -117,8 +122,13 @@ std::optional<tensor::QTensor<double>> ZX2TSMapper::map(zx::ZXGraph const& graph
     }
     tensor::QTensor<double> result;
 
-    for (size_t i = 0; i < _zx2ts_list.size(); ++i) {
-        result = tensordot(result, _zx2ts_list.tensor(i));
+    try {
+        for (size_t i = 0; i < _zx2ts_list.size(); ++i) {
+            result = tensordot(result, _zx2ts_list.tensor(i));
+        }
+    } catch (std::bad_alloc& e) {
+        spdlog::error("Memory allocation failed!!");
+        return std::nullopt;
     }
 
     for (size_t i = 0; i < _boundary_edges.size(); ++i) {
@@ -130,8 +140,12 @@ std::optional<tensor::QTensor<double>> ZX2TSMapper::map(zx::ZXGraph const& graph
 
     spdlog::trace("Input  Axis IDs: {}", fmt::join(inputIds, " "));
     spdlog::trace("Output Axis IDs: {}", fmt::join(outputIds, " "));
-
-    result = result.to_matrix(inputIds, outputIds);
+    try {
+        result = result.to_matrix(inputIds, outputIds);
+    } catch (std::bad_alloc& e) {
+        spdlog::error("Memory allocation failed!!");
+        return std::nullopt;
+    }
 
     return result;
 }

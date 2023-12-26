@@ -115,12 +115,17 @@ std::optional<QTensor<double>> to_tensor(QCir const &qcir) {
 
     // NOTE: Constucting an identity(_qubit.size()) takes much time and memory.
     //       To make this process interruptible by SIGINT (ctrl-C), we grow the qubit size one by one
-    for (size_t i = 0; i < qcir.get_qubits().size(); ++i) {
-        if (stop_requested()) {
-            spdlog::warn("Conversion interrupted.");
-            return std::nullopt;
+    try {
+        for (size_t i = 0; i < qcir.get_qubits().size(); ++i) {
+            if (stop_requested()) {
+                spdlog::warn("Conversion interrupted.");
+                return std::nullopt;
+            }
+            tensor = tensordot(tensor, QTensor<double>::identity(1));
         }
-        tensor = tensordot(tensor, QTensor<double>::identity(1));
+    } catch (std::bad_alloc const &e) {
+        spdlog::error("Memory allocation failed!!");
+        return std::nullopt;
     }
 
     Qubit2TensorPinMap qubit2pin;
@@ -129,21 +134,26 @@ std::optional<QTensor<double>> to_tensor(QCir const &qcir) {
         spdlog::trace("  - Add Qubit {} input port: {}", qcir.get_qubits()[i]->get_id(), 2 * i);
     }
 
-    qcir.topological_traverse([&tensor, &qubit2pin](QCirGate *gate) {
-        if (stop_requested()) return;
-        spdlog::debug("Gate {} ({})", gate->get_id(), gate->get_type_str());
-        auto tmp = to_tensor(gate);
-        assert(tmp.has_value());
-        std::vector<size_t> ori_pin;
-        std::vector<size_t> new_pin;
-        for (size_t np = 0; np < gate->get_qubits().size(); np++) {
-            new_pin.emplace_back(2 * np);
-            auto const info = gate->get_qubits()[np];
-            ori_pin.emplace_back(qubit2pin[info._qubit].second);
-        }
-        tensor = tensordot(tensor, *tmp, ori_pin, new_pin);
-        update_tensor_pin(qubit2pin, gate->get_qubits(), tensor, *tmp);
-    });
+    try {
+        qcir.topological_traverse([&tensor, &qubit2pin](QCirGate *gate) {
+            if (stop_requested()) return;
+            spdlog::debug("Gate {} ({})", gate->get_id(), gate->get_type_str());
+            auto tmp = to_tensor(gate);
+            assert(tmp.has_value());
+            std::vector<size_t> ori_pin;
+            std::vector<size_t> new_pin;
+            for (size_t np = 0; np < gate->get_qubits().size(); np++) {
+                new_pin.emplace_back(2 * np);
+                auto const info = gate->get_qubits()[np];
+                ori_pin.emplace_back(qubit2pin[info._qubit].second);
+            }
+            tensor = tensordot(tensor, *tmp, ori_pin, new_pin);
+            update_tensor_pin(qubit2pin, gate->get_qubits(), tensor, *tmp);
+        });
+    } catch (std::bad_alloc const &e) {
+        spdlog::error("Memory allocation failed!!");
+        return std::nullopt;
+    }
 
     if (stop_requested()) {
         spdlog::warn("Conversion interrupted.");
@@ -155,7 +165,12 @@ std::optional<QTensor<double>> to_tensor(QCir const &qcir) {
         input_pin.emplace_back(qubit2pin[qcir.get_qubits()[i]->get_id()].first);
         output_pin.emplace_back(qubit2pin[qcir.get_qubits()[i]->get_id()].second);
     }
-    tensor = tensor.to_matrix(input_pin, output_pin);
+    try {
+        tensor = tensor.to_matrix(input_pin, output_pin);
+    } catch (std::bad_alloc const &e) {
+        spdlog::error("Memory allocation failed!!");
+        return std::nullopt;
+    }
 
     return tensor;
 }
