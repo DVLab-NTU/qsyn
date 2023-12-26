@@ -60,10 +60,10 @@ public:
 
 protected:
     CircuitTopology _circuit_topology;
-    std::vector<Operation> _operations;
-    std::vector<size_t> _assign_order;
-    bool _sorted = false;
-    bool _tqdm   = true;
+    std::vector<Operation> _operations = {};
+    std::vector<size_t> _assign_order  = {};
+    bool _sorted                       = false;
+    bool _tqdm                         = true;
     virtual Device _assign_gates(std::unique_ptr<Router>);
     void _sort();
 };
@@ -146,7 +146,7 @@ class TreeNode {  // NOLINT(hicpp-special-member-functions, cppcoreguidelines-sp
 
 public:
     TreeNode(TreeNodeConf, size_t, std::unique_ptr<Router>, std::unique_ptr<BaseScheduler>, size_t);
-    TreeNode(TreeNodeConf, std::vector<size_t>&&, std::unique_ptr<Router>, std::unique_ptr<BaseScheduler>, size_t);
+    TreeNode(TreeNodeConf, std::vector<size_t>, std::unique_ptr<Router>, std::unique_ptr<BaseScheduler>, size_t);
 
     ~TreeNode() = default;
 
@@ -186,19 +186,19 @@ public:
     bool done() const { return scheduler().get_available_gates().empty(); }
 
 private:
-    TreeNodeConf _conf;
+    TreeNodeConf _conf = {};
 
     // The head of the node.
-    std::vector<size_t> _gate_ids;
+    std::vector<size_t> _gate_ids = {};
 
     // Using vector to pointer so that frequent cache misses
     // won't be as bad in parallel code.
-    std::vector<TreeNode> _children;
+    std::vector<TreeNode> _children = {};
 
     // The state of duostra.
-    size_t _max_cost;
-    std::unique_ptr<Router> _router;
-    std::unique_ptr<BaseScheduler> _scheduler;
+    size_t _max_cost                          = {};
+    std::unique_ptr<Router> _router           = {};
+    std::unique_ptr<BaseScheduler> _scheduler = {};
 
     void _grow();
     std::optional<size_t> _immediate_next() const;

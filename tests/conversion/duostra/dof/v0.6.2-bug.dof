@@ -14,9 +14,9 @@ qcir new
 qcir qubit add 3
 qcir gate add cx 2 1
 qcir gate add cx 2 0
-qc2zx
-zxopt
-zx2qc
+convert qcir zx
+zx optimize
+convert zx qcir
 qcir print -d
 duostra -c
 

@@ -26,7 +26,7 @@ protected:
 public:
     QTensor() : Tensor<DataType>(std::complex<T>(1, 0)) {}
     QTensor(Tensor<DataType> const& t) : Tensor<DataType>(t) {}
-    QTensor(Tensor<DataType>&& t) : Tensor<DataType>(t) {}
+    QTensor(Tensor<DataType>&& t) : Tensor<DataType>(std::move(t)) {}
 
     QTensor(xt::nested_initializer_list_t<DataType, 0> il) : Tensor<DataType>(il) {}
     QTensor(xt::nested_initializer_list_t<DataType, 1> il) : Tensor<DataType>(il) {}
@@ -38,13 +38,10 @@ public:
     ~QTensor() override = default;
 
     QTensor(TensorShape const& shape) : Tensor<DataType>(shape) {}
-    QTensor(TensorShape&& shape) : Tensor<DataType>(shape) {}
+    QTensor(TensorShape&& shape) : Tensor<DataType>(std::move(shape)) {}
     template <typename From>
     requires std::convertible_to<From, InternalType>
-    QTensor(From const& internal) : Tensor<DataType>(internal) {}
-    template <typename From>
-    requires std::convertible_to<From, InternalType>
-    QTensor(From&& internal) : Tensor<DataType>(internal) {}
+    QTensor(From&& internal) : Tensor<DataType>(std::forward<From>(internal)) {}
 
     static QTensor<T> identity(size_t const& n_qubits);
     static QTensor<T> zspider(size_t const& arity, dvlab::Phase const& phase = dvlab::Phase(0));

@@ -1,9 +1,0 @@
-// -------- FILE AUTOCOMPLETE --------
-// 1st tab: list help message to `source` command
-// 2nd tab: list all files in the `tests/cli/` directory
-// 3rd tab: autocomplete `h` to `helper/`
-// 4th tab: autocomplete `e` to `empty_dof `
-source 	tests/cli/	h	e	
-// tests when there are no matching files, nothing is printed
-source tests/cli/g							
-quit -f

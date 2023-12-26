@@ -47,18 +47,16 @@ qsyn> qcir gate add cx 2 1
 
 qsyn> qcir gate add cx 2 0
 
-qsyn> qc2zx
+qsyn> convert qcir zx
 
-qsyn> zxopt
-[error]    Unknown command!! (zxopt)
+qsyn> zx optimize
 
-qsyn> zx2qc
-[error]    ZXGraph 0 is not extractable because it is not graph-like!!
+qsyn> convert zx qcir
 
 qsyn> qcir print -d
-Q 0  -------------------------cx( 1)-
-Q 1  ---------cx( 0)-
-Q 2  ---------cx( 0)----------cx( 1)-
+Q 0  - h( 4)----------------------------------cz( 2)-- h( 0)-
+Q 1  - h( 5)------------------cz( 3)-- h( 1)-
+Q 2  - h( 7)-- h( 6)----------cz( 3)----------cz( 2)-
 
 qsyn> duostra -c
 Routing...
@@ -71,8 +69,8 @@ Scheduler:      search
 Router:         duostra
 Placer:         dfs
 
-Mapping Depth:  10
-Total Time:     10
+Mapping Depth:  13
+Total Time:     16
 #SWAP:          1
 
 

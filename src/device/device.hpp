@@ -66,11 +66,11 @@ public:
     void print_single_edge(size_t a, size_t b) const;
 
 private:
-    std::string _name;
-    size_t _num_qubit = 0;
-    std::vector<qcir::GateType> _gate_set;
-    PhysicalQubitInfo _qubit_info;
-    AdjacencyMap _adjacency_info;
+    std::string _name                     = "";
+    size_t _num_qubit                     = 0;
+    std::vector<qcir::GateType> _gate_set = {};
+    PhysicalQubitInfo _qubit_info         = {};
+    AdjacencyMap _adjacency_info          = {};
 };
 
 class PhysicalQubit {
@@ -105,8 +105,8 @@ public:
 
 private:
     // NOTE - Device information
-    QubitIdType _id = max_qubit_id;
-    Adjacencies _adjacencies;
+    QubitIdType _id          = max_qubit_id;
+    Adjacencies _adjacencies = {};
 
     // NOTE - Duostra parameter
     std::optional<QubitIdType> _logical_qubit = std::nullopt;
@@ -163,7 +163,7 @@ public:
 private:
     size_t _num_qubit = 0;
     std::shared_ptr<Topology> _topology;
-    PhysicalQubitList _qubit_list;
+    PhysicalQubitList _qubit_list = {};
 
     // NOTE - Internal functions only used in reader
     bool _parse_gate_set(std::string const& gate_set_str);

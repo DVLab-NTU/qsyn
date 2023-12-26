@@ -1,309 +1,241 @@
-#!/usr/bin/env python3
-import glob
-import itertools
-import multiprocessing
-import os
-import platform
-import shutil
-import subprocess
-import sys
-import textwrap
-from argparse import ArgumentParser, RawDescriptionHelpFormatter
+#!/bin/bash
 
-qsyn_args = ["--no-version", "--qsynrc-path", "/dev/null", "--file"]
+if [ ! -x "$(command -v parallel)" ]; then
+    echo "Error: GNU parallel is not installed!!"
+    exit 1
+fi
 
+# test if colordiff is installed; if not use diff
+if [ -x "$(command -v colordiff)" ]; then
+    DIFF="colordiff"
+else
+    DIFF="diff"
+fi
 
-def cprint(*args, color=None, attrs=[], sep=" ", end="\n"):
-    """Print colored text"""
-    if not sys.stdout.isatty():
-        print(*args, sep=sep, end=end)
-        return
-    if color is not None:
-        args = [getattr(Colors, color.upper()), *args, Colors.END]
-    if len(attrs) > 0:
-        args = [
-            "".join(getattr(Colors, attr.upper()) for attr in attrs),
-            *args,
-            Colors.END,
-        ]
-    print(*args, sep=sep, end=end)
+# return text in green, bold
+pass-style() {
+    if [ $# -ne 1 ]; then
+        echo "Usage: pass-style <text>"  
+    else 
+        echo -e "\033[1;32m$1\033[0m"
+    fi
+}
+export -f pass-style
 
+# return text in red, bold
+fail-style() {
+    if [ $# -ne 1 ]; then
+        echo "Usage: fail-style <text>"  
+    else 
+        echo -e "\033[1;31m$1\033[0m"
+    fi
+}
+export -f fail-style
 
-def pass_print(string, end="\n"):
-    cprint(string, color="green", attrs=["bold"], end=end)
+# return text in cyan, bold
+unknown-style() {
+    if [ $# -ne 1 ]; then
+        echo "Usage: unknown-style <text>"  
+    else 
+        echo -e "\033[1;36m$1\033[0m"
+    fi
+}
+export -f unknown-style
 
+# print usage message
+usage() {
+    echo "Usage: $0 [-d|--diff] [-u|--update] [-q|--qsyn <path to qsyn>]"
+    echo "  -d, --diff      diff the output of qsyn with the expected output"
+    echo "  -u, --update    update the expected output with the output of qsyn"
+    echo "  -q, --qsyn      path to qsyn executable"
+    echo "  -v, --verbose   also report tests that pass"
+    echo "  -s, --silent    do not report difference between execution result and reference"
+}
+export -f usage
 
-def fail_print(string, end="\n"):
-    cprint(string, color="red", attrs=["bold"], end=end)
+# parse arguments
 
+cd "$(git rev-parse --show-toplevel)" || exit 1
+QSYN=./qsyn
+ACTION=""
+SILENT=0
+VERBOSE=0
+POSITIONAL=()
 
-def unknown_print(string, end="\n"):
-    cprint(string, color="cyan", attrs=["bold"], end=end)
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -d|--diff) 
+            if [ -n "$ACTION" ]; then
+                echo "Error: cannot specify multiple actions!!"
+                usage
+                exit 1
+            fi
+            ACTION="diff"
+            shift # argument
+            ;;
+        -u|--update) 
+            if [ -n "$ACTION" ]; then
+                echo "Error: cannot specify multiple actions!!"
+                usage
+                exit 1
+            fi
+            ACTION="update"
+            shift # argument
+            ;;
+        -q|--qsyn)
+            QSYN=$2;
+            shift # argument
+            shift # variable
+            ;;
+        -v|--verbose)
+            VERBOSE=1
+            shift # argument
+            ;;
+        -s|--silent)
+            SILENT=1
+            shift # argument
+            ;;
+        -h|--help)
+            usage
+            exit 0
+            ;;
+        -*|--*)
+            echo "Error: unknown option $1!!"
+            usage
+            exit 1
+            ;;
+        *)
+            POSITIONAL+=("$1")
+            shift # argument
+    esac
+done
 
+# the default action is to diff
+if [ ! -n "$ACTION" ]; then
+    ACTION="diff"
+fi
 
-def dofile_result_same_with_ref(dofile, args):
-    from subprocess import PIPE, STDOUT
+# if no positional argument is given, run all tests from the tests directory
+if [ ${#POSITIONAL[@]} -eq 0 ]; then
+    POSITIONAL=(tests)
+fi
 
-    if shutil.which("colordiff") is not None and sys.stdout.isatty():
-        diff_cmd = "colordiff"
-    else:
-        diff_cmd = "diff"
+TESTS=()
+# for each positional argument, if it is a file, run the test on that file
+# if it is a directory, run the test on all files in that directory
+for arg in "${POSITIONAL[@]}"; do
+    if [ -f "$arg" ]; then
+        TESTS+=("$arg")
+    elif [ -d "$arg" ]; then
+        for file in $(find $arg -regex ".*\.dof" -type f); do
+            if [ -f "$file" ]; then
+                TESTS+=("$file")
+            fi
+        done
+    else
+        echo "Error: $arg is not a file or directory!!"
+        usage
+        exit 1
+    fi
+done
 
-    path, base = os.path.split(dofile)
-    pathpath, _ = os.path.split(path)
-    reffile = os.path.join(pathpath, "ref", os.path.splitext(base)[0] + ".log")
+# run dofile with qsyn and diff the output with the expected output
 
-    if not os.path.isfile(reffile):
-        unknown_print(f"  ? {dofile}: reference file not found")
-        return False, [dofile, " [Reference File Not Found]"]
+ref-path() {
+    local TEST=$1
+    echo $(realpath --relative-to $(pwd) "$(dirname ${TEST})/../ref/$(basename ${TEST%.*}).log")
+}
+export -f ref-path
 
-    run_qsyn = subprocess.Popen(
-        [args.qsyn] + qsyn_args + [dofile],
-        stdout=PIPE,
-        stderr=STDOUT,
-        env={"OMP_WAIT_POLICY": "passive"},
-    )
-
-    diff_result = subprocess.run(
-        [diff_cmd, "-", reffile],
-        stdin=run_qsyn.stdout,
-        stdout=PIPE,
-        stderr=STDOUT,
-        text=True,
-    )
-
-    if diff_result.returncode == 0:
-        if args.verbose:
-            pass_print("  ✓ ", end="")
-            print(f"{dofile}")
-    else:
-        fail_print("  ✗ ", end="")
-        print(f"{dofile}")
-
-    return diff_result.returncode == 0, [dofile, diff_result.stdout]
-
-
-def update_dofile_ref(dofile, args):
-    from subprocess import PIPE, STDOUT
-
-    path, base = os.path.split(dofile)
-    pathpath, _ = os.path.split(path)
-    reffile = os.path.join(pathpath, "ref", os.path.splitext(base)[0] + ".log")
-
-    if not os.path.isfile(reffile):
-        os.makedirs(os.path.join(pathpath, "ref"), exist_ok=True)
-        with open(reffile, "a"):
-            os.utime(reffile, None)
-
-    run_qsyn = subprocess.Popen(
-        [args.qsyn] + qsyn_args + [dofile],
-        stdout=PIPE,
-        stderr=STDOUT,
-        env={"OMP_WAIT_POLICY": "passive"},
-    )
-
-    diff_result = subprocess.run(
-        ["diff", reffile, "-"], stdin=run_qsyn.stdout, stdout=PIPE, text=True
-    )
-
-    if diff_result.returncode == 1:
-        patch = subprocess.run(
-            ["patch", reffile], input=diff_result.stdout, text=True, capture_output=True
-        )
-        if patch.returncode == 0:
-            pass_print("  ↑ ", end="")
-            print(f"{dofile}")
-        else:
-            fail_print("  ! ", end="")
-            print(f"{dofile}")
-        return patch.returncode == 0, dofile
-
-    elif args.verbose:
-        print(f"  - {dofile}")
-
-    return False, dofile
-
-
-def update_test_refs(dofiles, args):
-    print("> Updating dofiles...")
-
-    threads = multiprocessing.Pool(4)
-
-    results = threads.starmap(update_dofile_ref, zip(dofiles, itertools.repeat(args)))
-    results = list(filter(lambda x: x[0] == True, results))
-
-    pass_print(f"Updated {len(results)} of {len(dofiles)} dofiles.")
-
-
-def run_tests_and_compare_to_ref(dofiles, args):
-    print("> Testing dofiles...")
-
-    threads = multiprocessing.Pool(4)
-
-    results = threads.starmap(
-        dofile_result_same_with_ref, zip(dofiles, itertools.repeat(args))
-    )
-    results = filter(lambda x: x[0] == False, results)
-    fails = {}
-
-    for result in results:
-        fails[result[1][0]] = result[1][1]
-
-    if len(fails) == 0:
-        pass_print(f"Passed all {len(dofiles)} dofiles.")
-    else:
-        if not args.no_report:
-            print()
-            print(" DIFFERENCES ".center(50, "-"))
-            for file, diff in fails.items():
-                fail_print("✗ ", end="")
-                print(f"{file}")
-                print(textwrap.indent(diff, "  "))
-            print("".ljust(50, "-"))
-
-        fail_print(f"{len(fails)} out of {len(dofiles)} dofiles failed.")
-
-    return len(fails) == 0
-
-
-def get_parser():
-    descript = """
-Run test dofiles to qsyn, and help comparing to/updating the reference. When a reference is used, this function expects the following file structure and extensions:
- some_folder/
- ├ dof/
- │ ├ test1.dof 
- │ └ test2.dof
- └ ref/
-   ├ test1.log
-   └ test2.log"""
-    parser = ArgumentParser(
-        description=descript, formatter_class=RawDescriptionHelpFormatter
-    )
-
-    default_qsyn = os.path.join(
-        os.path.dirname(os.path.realpath(__file__)), "../tests/"
-    )
-    parser.add_argument(
-        "paths",
-        nargs="*",
-        default=[default_qsyn],
-        help="run the provided dofiles. If directories are provided, tests all dofiles in tests/",
-    )
-
-    default_qsyn = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../qsyn")
-    parser.add_argument(
-        "-q",
-        "--qsyn",
-        default=default_qsyn,
-        help="path to qsyn executable",
-    )
-
-    mutex = parser.add_mutually_exclusive_group()
-
-    mutex.add_argument(
-        "-d",
-        "--difference",
-        action="store_true",
-        help="(default) compare the dofile output and the reference",
-    )
-    mutex.add_argument(
-        "-f",
-        "--file",
-        action="store_true",
-        help="simply run the dofile with qsyn. This argument serves as a shortcut to rerun failed dofiles",
-    )
-    mutex.add_argument(
-        "-u",
-        "--update",
-        action="store_true",
-        help="update the references to dofiles, or create one if there is none",
-    )
-
-    parser.add_argument(
-        "-v",
-        "--verbose",
-        help="if specified, print all results; otherwise only the failed ones will be printed",
-        action="count",
-    )
-    parser.add_argument(
-        "-n",
-        "--no-report",
-        help="do not report difference between execution result and reference",
-        action="store_true",
-    )
-
-    return parser
-
-
-class Colors:
-    """ANSI color codes"""
-
-    BLACK = "\033[30m"
-    RED = "\033[31m"
-    GREEN = "\033[32m"
-    BROWN = "\033[33m"
-    BLUE = "\033[34m"
-    PURPLE = "\033[35m"
-    CYAN = "\033[36m"
-    LIGHT_GRAY = "\033[37m"
-    DARK_GRAY = "\033[40m"
-    LIGHT_RED = "\033[41m"
-    LIGHT_GREEN = "\033[42m"
-    YELLOW = "\033[43m"
-    LIGHT_BLUE = "\033[44m"
-    LIGHT_PURPLE = "\033[45m"
-    LIGHT_CYAN = "\033[46m"
-    LIGHT_WHITE = "\033[47m"
-    BOLD = "\033[1m"
-    FAINT = "\033[2m"
-    ITALIC = "\033[3m"
-    UNDERLINE = "\033[4m"
-    BLINK = "\033[5m"
-    NEGATIVE = "\033[7m"
-    CROSSED = "\033[9m"
-    END = "\033[0m"
-    # cancel SGR codes if we don't write to a terminal
-    if not sys.stdout.isatty():
-        for _ in dir():
-            if isinstance(_, str) and _[0] != "_":
-                locals()[_] = ""
-    else:
-        # set Windows console in VT mode
-        if platform.system() == "Windows":
-            kernel32 = __import__("ctypes").windll.kernel32
-            kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
-            del kernel32
-
-
-def main():
-    parser = get_parser()
-
-    args = parser.parse_args()
-
-    dofiles = []
-
-    args.qsyn = os.path.abspath(args.qsyn)
-
-    for path in args.paths:
-        if os.path.isfile(path):
-            dofiles.append(path)
-        elif os.path.isdir(path):
-            dofiles.extend(glob.glob(os.path.join(path, "**/*.dof"), recursive=True))
-        else:
-            print(f"Warning: ignoring path '{path}': not a file nor a dir!!")
-
-    if args.file:
-        for dofile in dofiles:
-            subprocess.run(
-                [args.qsyn] + qsyn_args + [dofile], env={"OMP_WAIT_POLICY": "passive"}
-            )
-        return 0
-    if args.update:
-        update_test_refs(dofiles, args)
-        return 0
+# diff the output of qsyn with the reference output
+dofile-result-same-with-ref() {
+    local TEST=$1
+    local VERBOSE=$2
+    local SILENT=$3
+    local QSYN=$4
+    local DIFF=$5
+    local REF=$(ref-path $TEST)
     
-    return 0 if run_tests_and_compare_to_ref(dofiles, args) else 1
+    DIFF_OUTPUT=$(OMP_WAIT_POLICY=passive $QSYN --no-version --qsynrc-path /dev/null --file $TEST 2>&1 | $DIFF - $REF 2>&1)
+    if [ $? -eq 0 ]; then
+        if [[ $VERBOSE -eq 1 ]]; then
+            echo "  $(pass-style '✓') $TEST"
+            return 0
+        fi
+    else
+        if [ ! -f $REF ]; then
+            echo "  $(unknown-style '?') $REF"
+        else 
+            echo "  $(fail-style '✗') $TEST"
+        fi
+        if [[ $SILENT -eq 0 ]]; then
+            # indent diff output
+            DIFF_OUTPUT=$(echo "$DIFF_OUTPUT" | sed 's/^/    /')
+            echo "$DIFF_OUTPUT"
+        fi
+        return 1
+    fi
+}
+export -f dofile-result-same-with-ref
 
+update-dofile-ref() {
+    local TEST=$1
+    local VERBOSE=$2
+    local SILENT=$3
+    local QSYN=$4
+    local REF=$(ref-path $TEST)
 
-if __name__ == "__main__":
-    exit(main())
+    # if the reference file does not exist, create it
+    if [[ ! -f $REF ]]; then
+        mkdir -p $(dirname $REF)
+        touch $REF
+    fi
+
+    DIFF_OUTPUT=$(OMP_WAIT_POLICY=passive $QSYN --no-version --qsynrc-path /dev/null --file $TEST 2>&1 | diff $REF -)
+
+    # update reference file if the output of qsyn is different from the reference
+    if [[ $? -eq 0 ]]; then
+        if [[ $VERBOSE -eq 1 ]]; then
+            echo "  - $TEST"
+            return 0
+        fi
+    else
+        printf "%s\n" "$DIFF_OUTPUT" | patch -f $REF
+        if [[ $? -eq 1 ]]; then
+            echo "  $(fail-style !) $TEST"
+            return 0
+        else 
+            echo "  $(pass-style ↑) $TEST"
+            return 1
+        fi
+    fi
+}
+export -f update-dofile-ref
+
+# diff dofiles and report result
+if [[ "$ACTION" == 'diff' ]]; then
+    echo "> Testing dofiles..."
+    
+    # run in parallel and count failures
+    parallel -j"$(nproc)" "dofile-result-same-with-ref {} $VERBOSE $SILENT $QSYN $DIFF" ::: "${TESTS[@]}"
+
+    FAIL_COUNT=$?
+
+    TESTS_COUNT=${#TESTS[@]}
+    if [ $FAIL_COUNT -eq 0 ]; then
+        echo "$(pass-style "Passed all $TESTS_COUNT tests.")"
+    else
+        echo "$(fail-style "$FAIL_COUNT out of $TESTS_COUNT tests failed.")"
+    fi
+elif [[ "$ACTION" == 'update' ]]; then
+    echo "> Updating reference files..."
+
+    # run in parallel and count updates
+    parallel -j"$(nproc)" "update-dofile-ref {} $VERBOSE $SILENT $QSYN" ::: "${TESTS[@]}"
+
+    UPDATE_COUNT=$?
+
+    TESTS_COUNT=${#TESTS[@]}
+
+    echo "$(pass-style "Updated $UPDATE_COUNT out of $TESTS_COUNT reference files.")"
+fi

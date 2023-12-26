@@ -2,7 +2,8 @@ FROM dvlab/qsyn-env:latest
 
 RUN dnf install -y \
     diffutils \
-    patch
+    patch \
+    parallel
 
 COPY ./docker/test-entrypoint.sh /app/entrypoint.sh
 

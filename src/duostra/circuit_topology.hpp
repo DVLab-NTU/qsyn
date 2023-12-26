@@ -59,15 +59,15 @@ private:
     size_t _id;
     qcir::GateRotationCategory _type;
     dvlab::Phase _phase;  // For saving phase information
-    bool _swap;           // qubits is swapped for duostra
+    bool _swap = false;   // qubits is swapped for duostra
     std::tuple<QubitIdType, QubitIdType> _qubits;
-    std::vector<size_t> _prevs;
-    std::vector<size_t> _nexts;
+    std::vector<size_t> _prevs = {};
+    std::vector<size_t> _nexts = {};
 };
 
 class DependencyGraph {
 public:
-    DependencyGraph(size_t n, std::vector<Gate>&& gates) : _num_qubits(n), _gates(std::move(gates)) {}
+    DependencyGraph(size_t n, std::vector<Gate> gates) : _num_qubits(n), _gates(std::move(gates)) {}
     ~DependencyGraph()                                       = default;
     DependencyGraph(DependencyGraph const& other)            = delete;
     DependencyGraph& operator=(DependencyGraph const& other) = delete;
@@ -83,7 +83,7 @@ public:
 
 private:
     size_t _num_qubits;
-    std::vector<Gate> _gates;
+    std::vector<Gate> _gates = {};
 };
 
 class CircuitTopology {

@@ -44,9 +44,9 @@ AStarNode::AStarNode(size_t cost, QubitIdType id, bool source)
  * @param cost
  * @param orient
  */
-Router::Router(Device&& device, Router::CostStrategyType cost_strategy, MinMaxOptionType tie_breaking_strategy)
+Router::Router(Device device, Router::CostStrategyType cost_strategy, MinMaxOptionType tie_breaking_strategy)
     : _tie_breaking_strategy(tie_breaking_strategy),
-      _device(device),
+      _device(std::move(device)),
       _logical_to_physical({}),
       _apsp(DuostraConfig::ROUTER_TYPE == RouterType::shortest_path || cost_strategy == CostStrategyType::end),
       _duostra(DuostraConfig::ROUTER_TYPE == RouterType::duostra),

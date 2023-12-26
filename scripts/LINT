@@ -1,19 +1,28 @@
 #!/usr/bin/env bash
+
+if [ ! -x "$(command -v parallel)" ]; then
+    echo "Error: GNU parallel is not installed!!"
+    exit 1
+fi
+
 format_one() {
     clang-format -i "$1"
 }
 export -f format_one
 
 lint_one() {
-    clang-tidy "$1" --quiet 2>&1 | grep -v "warnings generated" | grep -v "warning generated"
+    clang-tidy -p build "$1" --quiet 2>&1 | grep -v -E "warnings? generated"
 }
 export -f lint_one
 
 FILES=$(find ./src -regex '.*\.[ch]pp' -type f)
+CPPS=$(find ./src -regex '.*\.cpp' -type f)
 
 # Format all files first to avoid linting errors
 echo "Formatting files..."
 parallel -j"$(nproc)" format_one ::: "$FILES"
+echo "Generating compile commands..."
+cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=1 > /dev/null
 echo "Linting files..."
-parallel -j"$(nproc)" lint_one ::: "$FILES"
+parallel -j"$(nproc)" lint_one ::: "$CPPS"
 echo "Done"

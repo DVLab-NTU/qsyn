@@ -280,7 +280,7 @@ void ArgumentParser::print_help() const {
         fmt::println("  {}", get_description());
     }
 
-    auto get_max_length = [this](std::function<size_t(Argument const&)>&& fn) {
+    auto get_max_length = [this](std::function<size_t(Argument const&)> const fn) {
         return _pimpl->arguments.empty() ? 0 : std::ranges::max(_pimpl->arguments | std::views::values | std::views::transform(fn));
     };
 
