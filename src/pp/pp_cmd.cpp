@@ -93,7 +93,8 @@ dvlab::Command phase_polynomial_cmd(QCirMgr& qcir_mgr) {
                 }
 
                 // TODO and move to other place
-                fmt::println("Calculating phase-polynomial {}", parser.get<std::string>("--resynthesis"));
+                auto const ancilla = parser.get<int>("--ancilla");
+                // fmt::println("Calculating phase-polynomial {}", parser.get<std::string>("--resynthesis"));
                 if (!qcir_mgr_not_empty(qcir_mgr)) return CmdExecResult::error;
 
                 Phase_Polynomial pp;
@@ -102,7 +103,7 @@ dvlab::Command phase_polynomial_cmd(QCirMgr& qcir_mgr) {
                 
                 pp.print_phase_poly();
 
-                Partitioning partitioning(pp.get_pp_terms(), pp.get_data_qubit_num(), 0);
+                Partitioning partitioning(pp.get_pp_terms(), pp.get_data_qubit_num(), ancilla);
                 Partitions temp; // todo: rewrite the dirty code ==
                 size_t rank = pp.get_data_qubit_num();
                 for(size_t i=0; i<=pp.get_h_map().size(); i++){

@@ -1,7 +1,9 @@
 //logger debug
-qcir read src/pp/mytest/demo/cnotT_100.qasm
+qcir read src/pp/mytest/demo/sample_H.qasm
+qcir draw src/pp/mytest/demo/figure/sample_H_before.png
 qc2ts
 phase_poly
+qcir draw src/pp/mytest/demo/figure/sample_H_after.png
 qc2ts
 ts eq 0 1
 
