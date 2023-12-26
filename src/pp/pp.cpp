@@ -51,7 +51,6 @@ bool Phase_Polynomial::calculate_pp(QCir const& qc) {
             Phase_Polynomial::insert_phase(g->get_control()._qubit, g->get_phase());
         } else if (g->is_h()) {
             size_t q = g->get_control()._qubit;
-            _hadamard.push_back(g);
             // todo: check if the rank need to be increased
 
             // if rank need to be increased
@@ -213,6 +212,7 @@ void Phase_Polynomial::print_phase_poly(spdlog::level::level_enum lvl) const {
 size_t Phase_Polynomial::count_t_depth(qcir::QCir const& qcir) {
     vector<size_t> depths(qcir.get_num_qubits());
     size_t count = 0;
+    qcir.update_topological_order();
     std::vector<QCirGate*> gates = qcir.get_topologically_ordered_gates();
     for (QCirGate* g : gates) {
         if (g->is_cx()) {

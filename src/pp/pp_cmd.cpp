@@ -128,8 +128,8 @@ dvlab::Command phase_polynomial_cmd(QCirMgr& qcir_mgr) {
                 }
 
                 qcir::QCir result = pp.get_result();
-                pp.count_t_depth(std::move(result));
-                qcir_mgr.add(qcir_mgr.get_next_id(), std::make_unique<qcir::QCir>(std::move(result)));
+                pp.count_t_depth(result);
+                qcir_mgr.add(qcir_mgr.get_next_id(), std::make_unique<qcir::QCir>(result));
 
                 return CmdExecResult::done;
             }};

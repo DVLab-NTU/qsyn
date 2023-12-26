@@ -56,7 +56,7 @@ public:
     std::vector<dvlab::Phase> get_pp_coeff() const { return _pp_coeff; };
     std::vector<std::pair<dvlab::BooleanMatrix, dvlab::BooleanMatrix>> get_h_map() const { return _h_map; }
     size_t get_data_qubit_num() const { return _qubit_number; };
-    qcir::QCir get_result() const {return _result;}
+    qcir::QCir get_result() const { return qcir::QCir{_result};}
 
     // print function
     void print_polynomial(spdlog::level::level_enum lvl = spdlog::level::level_enum::off) const;
@@ -70,7 +70,6 @@ private:
     dvlab::BooleanMatrix _pp_terms;
     std::vector<dvlab::Phase> _pp_coeff;
     dvlab::BooleanMatrix _wires;
-    std::vector<qcir::QCirGate*> _hadamard;
     // Wires before H and qubit of H
     std::vector<std::pair<dvlab::BooleanMatrix, dvlab::BooleanMatrix>> _h_map;
     std::vector<size_t> _h;
