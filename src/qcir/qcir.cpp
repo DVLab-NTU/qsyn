@@ -322,6 +322,7 @@ QCirGateStatistics QCir::get_gate_statistics() const {
                 stat.clifford += 3;
                 stat.twoqubit += 3;
                 stat.cx += 3;
+                break;
             case GateRotationCategory::pz:
             case GateRotationCategory::rz:
                 if (get_num_qubits() == 1) {
