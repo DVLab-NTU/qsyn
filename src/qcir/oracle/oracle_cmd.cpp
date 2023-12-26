@@ -30,13 +30,17 @@ Command qcir_pebble_cmd() {
     return {"pebble",
             [](ArgumentParser& parser) {
                 parser.description("test ancilla qubit scheduling with SAT based reversible pebbling game");
-                parser.add_argument<size_t>("P")
+                parser.add_argument<size_t>("-p")
                     .required(true)
                     .help("number of ancilla qubits to use");
+                parser.add_argument<std::string>("filepath")
+                    .constraint(path_readable)
+                    .help("path to the in put dependency graph file");
             },
             [](ArgumentParser const& parser) {
-                auto P = parser.get<size_t>("P");
-                test_pebble(P);
+                auto P        = parser.get<size_t>("-p");
+                auto filepath = parser.get<std::string>("filepath");
+                test_pebble(P, filepath);
                 return CmdExecResult::done;
             }};
 }

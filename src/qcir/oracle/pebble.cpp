@@ -11,7 +11,9 @@
 #include <spdlog/spdlog.h>
 
 #include <algorithm>
+#include <fstream>
 #include <ranges>
+#include <sstream>
 #include <unordered_set>
 
 #include "util/sat/sat_solver.hpp"
@@ -23,29 +25,53 @@ namespace {
 
 // dependency graph node
 using Node = struct Node {
+    Node(const size_t id = 0) : id(id) {}
     size_t id{};
     std::vector<Node*> dependencies;
 };
+
+std::vector<Node> parse_input_file(const std::string& filepath) {
+    auto tmp = vector<vector<size_t>>();
+    std::ifstream ifs(filepath);
+
+    if (!ifs.is_open()) {
+        spdlog::error("cannot open file: {}", filepath);
+        return {};
+    }
+
+    std::string line;
+    size_t id{}, dep{};
+    while (getline(ifs, line)) {
+        std::stringstream ss(line);
+        if (!(ss >> id)) {
+            break;
+        }
+        tmp.emplace_back();
+        while (ss >> dep) {
+            tmp.back().emplace_back(dep);
+        }
+    }
+
+    auto graph = vector<Node>(tmp.size());
+    for (const auto& i : iota(0UL, tmp.size())) {
+        graph[i].id = i;
+        for (const auto& dep : tmp[i]) {
+            graph[i].dependencies.emplace_back(&graph[dep]);
+        }
+    }
+    return graph;
+}
 
 }  // namespace
 
 namespace qsyn::qcir {
 
-void test_pebble(const size_t _P) {
-    auto solver     = CaDiCalSolver();
-    auto graph      = vector<Node>(6);
+void test_pebble(const size_t _P, const std::string& filepath) {
+    auto solver = CaDiCalSolver();
+    // auto graph      = vector<Node>(6);
+    auto graph      = parse_input_file(filepath);
     auto output_ids = std::unordered_set<size_t>{4, 5};
     const size_t N  = graph.size();  // number of nodes
-
-    for (const size_t i : iota(0UL, N)) {
-        graph[i].id = i;
-    }
-    // add direct dependencies
-    graph[2].dependencies.emplace_back(&graph[0]);
-    graph[3].dependencies.emplace_back(&graph[1]);
-    graph[4].dependencies.emplace_back(&graph[2]);
-    graph[4].dependencies.emplace_back(&graph[3]);
-    graph[5].dependencies.emplace_back(&graph[0]);
 
     const size_t max_deps = std::max_element(graph.begin(), graph.end(), [](const Node& a, const Node& b) { return a.dependencies.size() < b.dependencies.size(); })
                                 ->dependencies.size();
@@ -121,7 +147,7 @@ void test_pebble(const size_t _P) {
     size_t K     = 0;
     while (left < right) {
         size_t mid = (left + right) / 2;
-        spdlog::debug("left = {}, right = {}, mid = {}", left, right, mid);
+        spdlog::debug("trying K = {}", mid);
         p = make_variables(solver, N, mid);
         if (pebble(solver, p, N, mid, P)) {
             right = mid;
@@ -129,7 +155,6 @@ void test_pebble(const size_t _P) {
         } else {
             left = mid + 1;
         }
-        spdlog::debug("p.size() = {}", p.size());
     }
 
     if (K == 0) {
