@@ -254,7 +254,7 @@ size_t BooleanMatrix::gaussian_elimination_skip(size_t block_size, bool do_fully
             auto last = pivots.back();
             pivots.pop_back();
 
-            clear_all_1s_in_column(pivots.size() - 1, last, std::views::iota(0u, pivots.size()));
+            clear_all_1s_in_column(pivots.size(), last, std::views::iota(0u, pivots.size()));
 
             if (pivots.empty()) return rank;
         }
@@ -281,10 +281,12 @@ size_t BooleanMatrix::filter_duplicate_row_operations() {
     for (size_t ith_row_op = 0; ith_row_op < _row_operations.size(); ith_row_op++) {
         auto& [row_src, row_dest] = _row_operations[ith_row_op];
         auto const first_match    = last_used.contains(row_src) &&
-                                 last_used[row_src].row_idx == row_dest;
+                                 last_used[row_src].row_idx == row_dest &&
+                                 _row_operations[last_used[row_src].op_idx].first == row_src;  // make sure the destinations are matched
 
         auto const second_match = last_used.contains(row_dest) &&
-                                  last_used[row_dest].row_idx == row_src;
+                                  last_used[row_dest].row_idx == row_src &&
+                                  _row_operations[last_used[row_dest].op_idx].second == row_dest;  // make sure the destinations are matched
 
         if (first_match && second_match) {
             dups.emplace_back(ith_row_op);

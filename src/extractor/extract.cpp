@@ -771,7 +771,7 @@ void Extractor::update_neighbors() {
 
         if (num_boundaries != 2) continue;
 
-        if (_graph->get_num_neighbors(f) == 2) {
+        if (_graph->get_num_neighbors(f) == 2 && f->get_phase() == dvlab::Phase(0)) {
             // NOTE - Remove
             for (auto& [b, ep] : _graph->get_neighbors(f)) {
                 if (_graph->get_inputs().contains(b)) {
