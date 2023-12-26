@@ -46,6 +46,25 @@ dvlab::Command phase_polynomial_t_depth_cmd(QCirMgr& qcir_mgr){
     };
 }
 
+dvlab::Command phase_polynomial_print_cmd(QCirMgr& qcir_mgr){
+    return {"print",
+            [](ArgumentParser& parser){
+                parser.description("Print Phase-Polynonmials");
+            },
+            [&](ArgumentParser const& /*parser*/) {
+                if (qcir_mgr.empty()) {
+                    spdlog::info("QCir list is empty now. Create a new one.");
+                    qcir_mgr.add(qcir_mgr.get_next_id());
+                    return CmdExecResult::error;
+                }
+                Phase_Polynomial pp;
+                pp.calculate_pp(*qcir_mgr.get());
+                pp.print_phase_poly();
+                return CmdExecResult::done;
+            }
+    };
+}
+
 dvlab::Command phase_polynomial_cmd(QCirMgr& qcir_mgr) {
     return {"phase_poly",
             [](ArgumentParser& parser) {
@@ -127,8 +146,9 @@ Command pp_cmd(QCirMgr& qcir_mgr) {
     //                        return CmdExecResult::error;
     //                    }};
     auto cmd = phase_polynomial_cmd(qcir_mgr);
+    cmd.add_subcommand(phase_polynomial_print_cmd(qcir_mgr));
     cmd.add_subcommand(phase_polynomial_t_depth_cmd(qcir_mgr));
-    // cmd.add_subcommand(phase_polynomial_cmd(qcir_mgr));
+
     return cmd;
 }
 
