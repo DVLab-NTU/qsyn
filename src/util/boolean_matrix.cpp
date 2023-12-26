@@ -282,11 +282,11 @@ size_t BooleanMatrix::filter_duplicate_row_operations() {
         auto& [row_src, row_dest] = _row_operations[ith_row_op];
         auto const first_match    = last_used.contains(row_src) &&
                                  last_used[row_src].row_idx == row_dest &&
-                                 _row_operations[last_used[row_src].op_idx].first == row_src; // make sure the destinations are matched
+                                 _row_operations[last_used[row_src].op_idx].first == row_src;  // make sure the destinations are matched
 
         auto const second_match = last_used.contains(row_dest) &&
                                   last_used[row_dest].row_idx == row_src &&
-                                  _row_operations[last_used[row_dest].op_idx].second == row_dest; // make sure the destinations are matched
+                                  _row_operations[last_used[row_dest].op_idx].second == row_dest;  // make sure the destinations are matched
 
         if (first_match && second_match) {
             dups.emplace_back(ith_row_op);
