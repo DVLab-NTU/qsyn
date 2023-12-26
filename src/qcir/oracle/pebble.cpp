@@ -13,8 +13,8 @@
 #include <algorithm>
 #include <fstream>
 #include <ranges>
+#include <set>
 #include <sstream>
-#include <unordered_set>
 
 #include "util/sat/sat_solver.hpp"
 
@@ -30,17 +30,25 @@ using Node = struct Node {
     std::vector<Node*> dependencies;
 };
 
-std::vector<Node> parse_input_file(const std::string& filepath) {
+void parse_input_file(const std::string& filepath, std::vector<Node>& graph, std::set<size_t>& output_ids) {
     auto tmp = vector<vector<size_t>>();
     std::ifstream ifs(filepath);
 
     if (!ifs.is_open()) {
         spdlog::error("cannot open file: {}", filepath);
-        return {};
+        return;
     }
 
     std::string line;
     size_t id{}, dep{};
+
+    getline(ifs, line);
+
+    std::stringstream ss(line);
+    while (ss >> id) {
+        output_ids.emplace(id);
+    }
+
     while (getline(ifs, line)) {
         std::stringstream ss(line);
         if (!(ss >> id)) {
@@ -52,14 +60,13 @@ std::vector<Node> parse_input_file(const std::string& filepath) {
         }
     }
 
-    auto graph = vector<Node>(tmp.size());
+    graph.resize(tmp.size());
     for (const auto& i : iota(0UL, tmp.size())) {
         graph[i].id = i;
         for (const auto& dep : tmp[i]) {
             graph[i].dependencies.emplace_back(&graph[dep]);
         }
     }
-    return graph;
 }
 
 }  // namespace
@@ -68,20 +75,19 @@ namespace qsyn::qcir {
 
 void test_pebble(const size_t _P, const std::string& filepath) {
     auto solver = CaDiCalSolver();
-    // auto graph      = vector<Node>(6);
-    auto graph      = parse_input_file(filepath);
-    auto output_ids = std::unordered_set<size_t>{4, 5};
-    const size_t N  = graph.size();  // number of nodes
+    std::vector<Node> graph;
+    std::set<size_t> output_ids;
+    parse_input_file(filepath, graph, output_ids);
 
+    const size_t N        = graph.size();  // number of nodes
     const size_t max_deps = std::max_element(graph.begin(), graph.end(), [](const Node& a, const Node& b) { return a.dependencies.size() < b.dependencies.size(); })
                                 ->dependencies.size();
-
     const size_t P = std::max(std::min(_P, N), max_deps + 1);
     if (P < _P) {
         spdlog::warn("P = {} is too large, using P = {} instead", _P, P);
     }
     if (P > _P) {
-        spdlog::warn("P = {} is too small, using P = {} instead", _P, max_deps);
+        spdlog::warn("P = {} is too small, using P = {} instead", _P, P);
     }
 
     spdlog::debug("N = {}, P = {}", N, P);
@@ -98,7 +104,12 @@ void test_pebble(const size_t _P, const std::string& filepath) {
         return p;
     };
 
-    auto pebble = [&output_ids, &graph](SatSolver& solver, const vector<vector<Variable>>& p, const size_t N, const size_t K, const size_t P) {
+    auto pebble = [&output_ids = output_ids, &graph = graph](
+                      SatSolver& solver,
+                      const vector<vector<Variable>>& p,
+                      const size_t N,
+                      const size_t K,
+                      const size_t P) {
         // Initial and final clauses
         for (const size_t i : iota(0UL, N)) {
             // at time 0, no node is pebbled
@@ -144,7 +155,15 @@ void test_pebble(const size_t _P, const std::string& filepath) {
     vector<vector<Variable>> p;
     size_t left  = 2;
     size_t right = N * N * 2;
-    size_t K     = 0;
+    size_t K     = N;
+
+    spdlog::debug("trying K = {}", right);
+    p = make_variables(solver, N, right);
+    if (!pebble(solver, p, N, right, P)) {
+        fmt::println("no solution for P = {}, consider increasing P", P);
+        return;
+    }
+
     while (left < right) {
         size_t mid = (left + right) / 2;
         spdlog::debug("trying K = {}", mid);
@@ -174,9 +193,9 @@ void test_pebble(const size_t _P, const std::string& filepath) {
     for (const size_t i : iota(0UL, K)) {
         std::string s = "";
         for (const size_t j : iota(0UL, N)) {
-            s += solution[p[i][j]] ? "1" : "0";
+            s += solution[p[i][j]] ? "*" : ".";
         }
-        fmt::println("time = {}: {}", i, s);
+        fmt::println("time = {:02} : {}", i, s);
     }
 }
 

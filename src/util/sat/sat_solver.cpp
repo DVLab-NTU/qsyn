@@ -28,6 +28,10 @@ void SatSolver::assume_all(std::vector<Literal> const& literals) {
 void SatSolver::add_gte_constraint(std::vector<Literal> const& literals, size_t const& k) {
     using std::vector, std::views::iota;
 
+    if (k == 0) {
+        return;
+    }
+
     auto bdd        = vector<vector<Literal>>(literals.size(), vector<Literal>(k));
     auto true_node  = Literal(new_var());
     auto false_node = Literal(new_var());
