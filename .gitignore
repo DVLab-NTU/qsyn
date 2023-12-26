@@ -20,3 +20,6 @@ docs/_build/
 docs/_doxygen/
 docs/dev/api/
 docs/doc-coverage.info
+
+decompose
+result.qasm
