@@ -106,16 +106,19 @@ string str_q(int b) {
 
 vector<string> vecstr_Ctrl(int b, int n, string U, vector<bool>& i_state) {
     vector<string> half_ckt;
-    string cnU = "c" + to_string(n) + U + " ";
+    string cnU = "c" + to_string(n-1) + U + " ";
+    if((n-1) == 1){
+        cnU = "c" + U + " ";
+    }
     for (size_t ctrl_b = 0; ctrl_b < n; ++ctrl_b) {
         if (ctrl_b == b) continue;
 
         if (ctrl_b >= i_state.size() || i_state[ctrl_b] == 0) {
-            half_ckt.push_back("x " + str_q(ctrl_b) + "\n");
+            half_ckt.push_back("x " + str_q(ctrl_b) + ";\n");
         }
         cnU += str_q(ctrl_b) + " ";
     }
-    cnU += str_q(b) + "\n";
+    cnU += str_q(b) + ";\n";
     vector<string> full_ckt = half_ckt;
     full_ckt.push_back(cnU);
     reverse(half_ckt.begin(), half_ckt.end());
@@ -124,7 +127,7 @@ vector<string> vecstr_Ctrl(int b, int n, string U, vector<bool>& i_state) {
 }
 
 vector<string> gray_code(int i, int j, int n, string U2_name, vector<vector<complex<double>>>& U2){
-    cout << i << " " << j << endl;
+    //cout << i << " " << j << endl;
     assert(i != j);
     vector<string> half_ckt;
     vector<bool> i_state, j_state;
@@ -254,10 +257,10 @@ int main(int argc, char *argv[]){
                         if((i != j) && fabs(abs(input_matrix[i][j]) - 1.0) > 1e-6){
                             improve = 1;
                             //create two level matrix
-                            two_level_matrix[i][i] = conj(input_matrix[i][i]);
-                            two_level_matrix[i][j] = conj(input_matrix[j][i]);
-                            two_level_matrix[j][i] = -input_matrix[j][i];
-                            two_level_matrix[j][j] = input_matrix[i][i];
+                            two_level_matrix[i][i] = conj(input_matrix[i][i])/sqrt(norm(input_matrix[i][i]) + norm(input_matrix[j][i]));
+                            two_level_matrix[i][j] = conj(input_matrix[j][i])/sqrt(norm(input_matrix[i][i]) + norm(input_matrix[j][i]));
+                            two_level_matrix[j][i] = -input_matrix[j][i]/sqrt(norm(input_matrix[i][i]) + norm(input_matrix[j][i]));
+                            two_level_matrix[j][j] = input_matrix[i][i]/sqrt(norm(input_matrix[i][i]) + norm(input_matrix[j][i]));
 
                             //multiply U
                             input_matrix = matrixMultiply(two_level_matrix, input_matrix);
@@ -295,7 +298,7 @@ int main(int argc, char *argv[]){
     
     two_level_matrices[two_level_matrices.size()-1] = matrixMultiply(two_level_matrices[two_level_matrices.size()-1], input_matrix);
 
-    //for debug
+    /*//for debug
     for(int i = 0; i < two_level_matrices.size(); i++){
         cout<<"matrix "<<(i+1)<<":"<<endl;
         for(int j = 0; j < two_level_matrices[i].size(); j++){
@@ -305,16 +308,18 @@ int main(int argc, char *argv[]){
             cout<<endl;
         }
         cout<<endl;
-    }
+    }*/
+
+    cout<<"OPENQASM 2.0;\ninclude \"qelib1.inc\";\nqreg q["<<int(log2(n))<<"];\n\n";
 
     //gray-code
     for (int t = 0; t < two_level_matrices.size(); t++) {
         vector<vector<complex<double>>> U2;
         int i, j;
         U2 = to_2level(two_level_matrices[t], i, j);
-        vector<string> str_U2 = gray_code(i,j,int(log2(n)),"U"+to_string(t),U2);
+        vector<string> str_U2 = gray_code(i,j,(int(log2(n))),"U"+to_string(t),U2);
         for (int s = 0; s < str_U2.size(); s++) {
-            cout << str_U2[s] << endl;
+            cout << str_U2[s];
         }
     }
 
