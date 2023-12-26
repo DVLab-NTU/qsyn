@@ -1,7 +1,4 @@
 #include "bits/stdc++.h"
-#include <string>
-#include <algorithm>
-#include <math.h>
 using namespace std;
 
 bool isUnitaryMatrix(const vector<vector<complex<double>>>& matrix) {
@@ -75,43 +72,60 @@ string intToBinary(int num, int n) {
     return binary;
 }
 
-vector<string> cnu_decompose(vector<vector<complex<double>>>& U, int target_bits, int qubit) {
+vector<string> cnu_decompose(vector<vector<complex<double>>> U, int target_bits, int qubit) {
+    vector<vector<complex<double>>> U_dag;
     vector<string> result;
     string temp, temp2;
     int n = qubit - 1;
-    for(int i = 1; i <= qubit; i++){
+    for(int i = 0; i < qubit; i++){
+        assert(n > 0);
         if(i != target_bits){
-            //first
-            temp = "cu^(1/2) q["+to_string(i)+"], q["+to_string(target_bits)+"];";
-            result.push_back(temp);
-
-            //second
-            temp = "";
-            for(int j = 0; j < n-1; j++){
-                temp = temp + "c";
+            //if n = 1;
+            if(n == 1){
+                //result.push_back(cu_decompose(i, target_bits, U));
+                n--;
+                break;
             }
-            temp = temp + "x ";
-            for(int j = i+1; j <= qubit; j++){
-                if(j != target_bits){
+
+            //first CV
+            complex<double> s = sqrt(U[0][0]*U[1][1] - U[0][1]*U[1][0]); 
+            complex<double> t = sqrt(U[0][0] + U[1][1] + (2.0 * s));
+            U[0][0] = (U[0][0] + s)/t;
+            U[0][1] = (U[0][1])/t;
+            U[1][0] = (U[1][0])/t;
+            U[1][1] = (U[1][1] + s)/t;
+            //result.push_back(cu_decompose(i, target_bits, U));
+
+            //second Cn-1X
+            temp = "c" + to_string(n-1) + "x";
+            for(int j = i+1; j < qubit; j++){
+                if(qubit-1 != target_bits && (j != target_bits && j != qubit-1)){
                     temp = temp + "q[" +to_string(j) + "], ";
                 }
-            }
-            temp2 = temp;
-            result.push_back(temp);
-
-            //third
-            temp = "cu^(1/2)_dag q["+to_string(i)+"], q["+to_string(target_bits)+"];";
-            result.push_back(temp);
-
-            for(int j = 1; j <= qubit; j++){
-                if(j != qubit && j!= target_bits){
-                    temp = "cx q["+to_string(i)+"], q["+to_string(target_bits)+"];";
-                    result.push_back("ccx ");
-                    
+                else if(qubit-1 != target_bits && (j != target_bits && j == qubit-1)){
+                    temp = temp + "q[" +to_string(j) + "];\n";
+                }
+                else if(qubit-1 == target_bits && (j != target_bits && j != qubit-2)){
+                    temp = temp + "q[" +to_string(j) + "], ";
+                }
+                else if(qubit-1 == target_bits && (j != target_bits && j == qubit-2)){
+                    temp = temp + "q[" +to_string(j) + "];\n";
                 }
             }
+            result.push_back(temp);
+
+            //third CV_dag
+            U_dag = transposeMatrix(U);
+            conjugateMatrix(U_dag);
+            //result.push_back(cu_decompose(i, target_bits, U));
+
+
+            // fourth Cn-1X
+            result.push_back(temp);
+            n--;
         }
     }
+    return result;
 }
 
     
@@ -162,9 +176,9 @@ vector<string> vecstr_Ctrl(int b, int n, string U, vector<bool>& i_state) {
         if (ctrl_b == b) continue;
 
         if (ctrl_b >= i_state.size() || i_state[ctrl_b] == 0) {
-            half_ckt.push_back("x " + str_q(ctrl_b) + ";\n");
+            half_ckt.push_back("rx(pi) " + str_q(ctrl_b) + ";\n");
         }
-        cnU += str_q(ctrl_b) + " ";
+        cnU += str_q(ctrl_b) + ", ";
     }
     cnU += str_q(b) + ";\n";
     vector<string> full_ckt = half_ckt;
@@ -374,10 +388,14 @@ int main(int argc, char *argv[]){
     
     //cnu testcase
     vector<vector<complex<double>>> U(2, vector<complex<double>>(2, 0.0));
-    U[0][0] = 1;
-    U[1][1] = 1;
+    U[0][1] = 1;
+    U[1][0] = 1;
 
     int qubit = int(log2(n));
     //cnu decompose
-    //vector<string> cnu_gateset = cnu_decompose(U, n, qubit);
+    cout<<"\n\n";
+    vector<string> cnu_gateset = cnu_decompose(U, 1, qubit);
+    for(int i = 0; i < cnu_gateset.size(); i++){
+        cout<<cnu_gateset[i];
+    }
 }
