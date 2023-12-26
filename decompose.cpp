@@ -67,6 +67,54 @@ vector<vector<complex<double>>> matrixMultiply(const vector<vector<complex<doubl
     return result;
 }
 
+string intToBinary(int num, int n) {
+    string binary = "";
+    for (int i = n; i >= 0; --i) {
+        binary += (num & (1 << i)) ? '1' : '0';
+    }
+    return binary;
+}
+
+vector<string> cnu_decompose(vector<vector<complex<double>>>& U, int target_bits, int qubit) {
+    vector<string> result;
+    string temp, temp2;
+    int n = qubit - 1;
+    for(int i = 1; i <= qubit; i++){
+        if(i != target_bits){
+            //first
+            temp = "cu^(1/2) q["+to_string(i)+"], q["+to_string(target_bits)+"];";
+            result.push_back(temp);
+
+            //second
+            temp = "";
+            for(int j = 0; j < n-1; j++){
+                temp = temp + "c";
+            }
+            temp = temp + "x ";
+            for(int j = i+1; j <= qubit; j++){
+                if(j != target_bits){
+                    temp = temp + "q[" +to_string(j) + "], ";
+                }
+            }
+            temp2 = temp;
+            result.push_back(temp);
+
+            //third
+            temp = "cu^(1/2)_dag q["+to_string(i)+"], q["+to_string(target_bits)+"];";
+            result.push_back(temp);
+
+            for(int j = 1; j <= qubit; j++){
+                if(j != qubit && j!= target_bits){
+                    temp = "cx q["+to_string(i)+"], q["+to_string(target_bits)+"];";
+                    result.push_back("ccx ");
+                    
+                }
+            }
+        }
+    }
+}
+
+    
 vector<vector<complex<double>>> to_2level(vector<vector<complex<double>>>& U, int& i, int& j) {
     complex<double> one;
     one.real(1);
@@ -301,9 +349,9 @@ int main(int argc, char *argv[]){
     /*//for debug
     for(int i = 0; i < two_level_matrices.size(); i++){
         cout<<"matrix "<<(i+1)<<":"<<endl;
-        for(int j = 0; j < two_level_matrices[i].size(); j++){
-            for(int k = 0; k < two_level_matrices[i][j].size(); k++){
-                cout<<two_level_matrices[i][j][k]<<" ";
+        for(int j = 0; j < two_level_matrices[i].matrix.size(); j++){
+            for(int k = 0; k < two_level_matrices[i].matrix[j].size(); k++){
+                cout<<two_level_matrices[i].matrix[j][k]<<" ";
             }
             cout<<endl;
         }
@@ -312,6 +360,7 @@ int main(int argc, char *argv[]){
 
     cout<<"OPENQASM 2.0;\ninclude \"qelib1.inc\";\nqreg q["<<int(log2(n))<<"];\n\n";
 
+    
     //gray-code
     for (int t = 0; t < two_level_matrices.size(); t++) {
         vector<vector<complex<double>>> U2;
@@ -322,5 +371,13 @@ int main(int argc, char *argv[]){
             cout << str_U2[s];
         }
     }
+    
+    //cnu testcase
+    vector<vector<complex<double>>> U(2, vector<complex<double>>(2, 0.0));
+    U[0][0] = 1;
+    U[1][1] = 1;
 
+    int qubit = int(log2(n));
+    //cnu decompose
+    //vector<string> cnu_gateset = cnu_decompose(U, n, qubit);
 }
