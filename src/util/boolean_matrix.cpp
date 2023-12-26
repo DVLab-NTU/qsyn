@@ -254,7 +254,7 @@ size_t BooleanMatrix::gaussian_elimination_skip(size_t block_size, bool do_fully
             auto last = pivots.back();
             pivots.pop_back();
 
-            clear_all_1s_in_column(pivots.size() - 1, last, std::views::iota(0u, pivots.size()));
+            clear_all_1s_in_column(pivots.size(), last, std::views::iota(0u, pivots.size()));
 
             if (pivots.empty()) return rank;
         }
