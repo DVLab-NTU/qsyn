@@ -28,21 +28,23 @@ using qsyn::qcir::QCirMgr;
 
 namespace qsyn::pp {
 
-// dvlab::Command phase_polynomial_t_depth_cmd(QCirMgr& qcir_mgr){
-//     return {"t_depth",
-//             [](ArgumentParser& parser){
-//                 parser.description("Report t-depth and t-count");
-//             },
-//             [&](ArgumentParser const& parser) {
-//                 if (qcir_mgr.empty()) {
-//                     spdlog::info("QCir list is empty now. Create a new one.");
-//                     qcir_mgr.add(qcir_mgr.get_next_id());
-//                 }
-//                 Phase_Polynomial pp;
-//                 pp.count_t_depth(*qcir_mgr.get());
-//             }
-//     };
-// }
+dvlab::Command phase_polynomial_t_depth_cmd(QCirMgr& qcir_mgr){
+    return {"calcTDepth",
+            [](ArgumentParser& parser){
+                parser.description("Report t-depth and t-count");
+            },
+            [&](ArgumentParser const& /*parser*/) {
+                if (qcir_mgr.empty()) {
+                    spdlog::info("QCir list is empty now. Create a new one.");
+                    qcir_mgr.add(qcir_mgr.get_next_id());
+                    return CmdExecResult::error;
+                }
+                Phase_Polynomial pp;
+                pp.count_t_depth(*qcir_mgr.get());
+                return CmdExecResult::done;
+            }
+    };
+}
 
 dvlab::Command phase_polynomial_cmd(QCirMgr& qcir_mgr) {
     return {"phase_poly",
@@ -125,6 +127,7 @@ Command pp_cmd(QCirMgr& qcir_mgr) {
     //                        return CmdExecResult::error;
     //                    }};
     auto cmd = phase_polynomial_cmd(qcir_mgr);
+    cmd.add_subcommand(phase_polynomial_t_depth_cmd(qcir_mgr));
     // cmd.add_subcommand(phase_polynomial_cmd(qcir_mgr));
     return cmd;
 }
