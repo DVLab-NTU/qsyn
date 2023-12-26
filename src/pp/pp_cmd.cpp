@@ -5,6 +5,7 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
+#include <iostream>  // to delete
 #include <string>
 
 #include "argparse/arg_parser.hpp"
@@ -19,8 +20,6 @@
 #include "util/data_structure_manager_common_cmd.hpp"
 #include "util/util.hpp"
 
-#include <iostream> // to delete
-
 using namespace dvlab::argparse;
 using dvlab::CmdExecResult;
 using dvlab::Command;
@@ -28,9 +27,9 @@ using qsyn::qcir::QCirMgr;
 
 namespace qsyn::pp {
 
-dvlab::Command phase_polynomial_t_depth_cmd(QCirMgr& qcir_mgr){
+dvlab::Command phase_polynomial_t_depth_cmd(QCirMgr& qcir_mgr) {
     return {"calcTDepth",
-            [](ArgumentParser& parser){
+            [](ArgumentParser& parser) {
                 parser.description("Report t-depth and t-count");
             },
             [&](ArgumentParser const& /*parser*/) {
@@ -42,13 +41,12 @@ dvlab::Command phase_polynomial_t_depth_cmd(QCirMgr& qcir_mgr){
                 Phase_Polynomial pp;
                 pp.count_t_depth(*qcir_mgr.get());
                 return CmdExecResult::done;
-            }
-    };
+            }};
 }
 
-dvlab::Command phase_polynomial_print_cmd(QCirMgr& qcir_mgr){
+dvlab::Command phase_polynomial_print_cmd(QCirMgr& qcir_mgr) {
     return {"print",
-            [](ArgumentParser& parser){
+            [](ArgumentParser& parser) {
                 parser.description("Print Phase-Polynonmials");
             },
             [&](ArgumentParser const& /*parser*/) {
@@ -61,8 +59,7 @@ dvlab::Command phase_polynomial_print_cmd(QCirMgr& qcir_mgr){
                 pp.calculate_pp(*qcir_mgr.get());
                 pp.print_phase_poly();
                 return CmdExecResult::done;
-            }
-    };
+            }};
 }
 
 dvlab::Command phase_polynomial_cmd(QCirMgr& qcir_mgr) {
@@ -100,31 +97,30 @@ dvlab::Command phase_polynomial_cmd(QCirMgr& qcir_mgr) {
                 Phase_Polynomial pp;
                 pp.calculate_pp(*qcir_mgr.get());
 
-                
                 pp.print_phase_poly();
 
                 Partitioning partitioning(pp.get_pp_terms(), pp.get_data_qubit_num(), ancilla);
-                Partitions temp; // todo: rewrite the dirty code ==
+                Partitions temp;  // todo: rewrite the dirty code ==
                 size_t rank = pp.get_data_qubit_num();
-                for(size_t i=0; i<=pp.get_h_map().size(); i++){
+                for (size_t i = 0; i <= pp.get_h_map().size(); i++) {
                     dvlab::BooleanMatrix initial_wires;
-                    dvlab::BooleanMatrix terminal_wires = (i!=pp.get_h_map().size()) ? pp.get_h_map()[i].first: pp.get_wires();
-                    
-                    if (i==0){
-                        for(size_t j=0; j<pp.get_wires().num_rows(); j++){
+                    dvlab::BooleanMatrix terminal_wires = (i != pp.get_h_map().size()) ? pp.get_h_map()[i].first : pp.get_wires();
+
+                    if (i == 0) {
+                        for (size_t j = 0; j < pp.get_wires().num_rows(); j++) {
                             dvlab::BooleanMatrix::Row r(pp.get_wires().num_cols());
                             initial_wires.push_row(r);
-                            if (j<pp.get_data_qubit_num()) initial_wires[j][j] = 1;
+                            if (j < pp.get_data_qubit_num()) initial_wires[j][j] = 1;
                         }
-                        
-                    }else initial_wires = pp.get_h_map()[i-1].second;
+
+                    } else
+                        initial_wires = pp.get_h_map()[i - 1].second;
 
                     Partitions partitions = partitioning.greedy_partitioning_routine(temp, initial_wires, rank);
 
                     pp.gaussian_resynthesis(partitions, initial_wires, terminal_wires);
 
-                    if (i!=pp.get_h_map().size()) pp.add_H_gate(i);
-                    
+                    if (i != pp.get_h_map().size()) pp.add_H_gate(i);
                 }
 
                 qcir::QCir result = pp.get_result();

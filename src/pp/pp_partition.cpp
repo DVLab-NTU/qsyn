@@ -84,18 +84,18 @@ Partitions Partitioning::greedy_partitioning_routine(Partitions total_partitions
         if (!is_constructable(r)) continue;
         // cout << "Is constructable" << endl;
         partitioned.emplace(partitioned.begin(), i);
-        if (partitions.size()==0){
+        if (partitions.size() == 0) {
             Partition p;
             p.push_row(r);
             partitions.push_back(p);
             continue;
         }
         bool need_new_p = true;
-        for (size_t j = flag; j<partitions.size(); j++){
-            if (Partitioning::independant_oracle(partitions[j], r)){
+        for (size_t j = flag; j < partitions.size(); j++) {
+            if (Partitioning::independant_oracle(partitions[j], r)) {
                 partitions[j].push_row(r);
                 need_new_p = false;
-                if(partitions[j].num_rows() == wires.num_rows()) flag++;
+                if (partitions[j].num_rows() == wires.num_rows()) flag++;
                 break;
             }
         }

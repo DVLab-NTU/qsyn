@@ -6,13 +6,14 @@
 ****************************************************************************/
 
 #include "./pp.hpp"
+
 #include <spdlog/common.h>
 
 #include <algorithm>
 #include <cassert>
 #include <cstddef>
+#include <iomanip>  // std::setw
 #include <iostream>
-#include <iomanip>   // std::setw
 
 #include "qcir/qcir.hpp"
 #include "qcir/qcir_gate.hpp"
@@ -33,7 +34,6 @@ using Row = dvlab::BooleanMatrix::Row;
  * @return Polynomial
  */
 bool Phase_Polynomial::calculate_pp(QCir const& qc) {
- 
     Phase_Polynomial::count_t_depth(qc);
 
     _qubit_number = qc.get_num_qubits();
@@ -58,8 +58,8 @@ bool Phase_Polynomial::calculate_pp(QCir const& qc) {
             _wires.push_zeros_column();
             Row h_output_state(_wires.num_cols());
             h_output_state[_wires.num_cols() - 1] = 1;
-            dvlab::BooleanMatrix prev_wires = _wires;
-            
+            dvlab::BooleanMatrix prev_wires       = _wires;
+
             // std::cout << "Before H " << endl;
             // _wires.print_matrix(spdlog::level::level_enum::off);
             _wires[q] = h_output_state;
@@ -118,16 +118,16 @@ void Phase_Polynomial::remove_coeff_0_monomial() {
  * @param
  *
  */
-void Phase_Polynomial::extend_h_map(){
+void Phase_Polynomial::extend_h_map() {
     size_t total_variable = _wires.num_cols();
-    for(auto& [first, second]: _h_map){
-        while(first.num_cols()<total_variable) first.push_zeros_column();
-        while(second.num_cols()<total_variable) second.push_zeros_column(); ;
+    for (auto& [first, second] : _h_map) {
+        while (first.num_cols() < total_variable) first.push_zeros_column();
+        while (second.num_cols() < total_variable) second.push_zeros_column();
+        ;
         assert(first.num_cols() == _wires.num_cols());
         assert(second.num_cols() == _wires.num_cols());
     };
 }
-
 
 /**
  * @brief Reset the phase poly and wires
@@ -182,7 +182,7 @@ void Phase_Polynomial::print_polynomial(spdlog::level::level_enum lvl) const {
  */
 void Phase_Polynomial::print_h_map(spdlog::level::level_enum lvl) const {
     spdlog::log(lvl, "H map");
-    for(auto const &[first, second]: _h_map){
+    for (auto const& [first, second] : _h_map) {
         spdlog::log(lvl, "Before: ");
         first.print_matrix();
         spdlog::log(lvl, "After: ");
@@ -196,14 +196,13 @@ void Phase_Polynomial::print_h_map(spdlog::level::level_enum lvl) const {
  */
 void Phase_Polynomial::print_phase_poly(spdlog::level::level_enum lvl) const {
     spdlog::log(lvl, "\n  Phase Polynomial\n");
-    for(size_t i=0; i<_pp_terms.num_rows(); i++){
-        
-        cout << "Phase: "<< _pp_coeff[i].get_print_string() << endl;
+    for (size_t i = 0; i < _pp_terms.num_rows(); i++) {
+        cout << "Phase: " << _pp_coeff[i].get_print_string() << endl;
         cout << "Term : ";
         _pp_terms[i].print_row(lvl);
         cout << endl;
     }
-    }
+}
 
 /**
  * @brief Count t-depth
@@ -217,21 +216,22 @@ size_t Phase_Polynomial::count_t_depth(qcir::QCir const& qcir) {
     for (QCirGate* g : gates) {
         if (g->is_cx()) {
             size_t ctrl = g->get_control()._qubit, targ = g->get_targets()._qubit;
-            if(depths[ctrl] < depths[targ]) depths[ctrl] = depths[targ];
-            else depths[targ] = depths[ctrl];
+            if (depths[ctrl] < depths[targ])
+                depths[ctrl] = depths[targ];
+            else
+                depths[targ] = depths[ctrl];
         } else if (g->get_num_qubits() == 1 &&
                    (g->get_rotation_category() == GateRotationCategory::pz ||
                     g->get_rotation_category() == GateRotationCategory::rz)) {
-            if(g->get_phase().denominator() == 4){
+            if (g->get_phase().denominator() == 4) {
                 depths[g->get_control()._qubit]++;
                 count++;
-            } 
-        }   
+            }
+        }
     }
     auto it = max_element(depths.begin(), depths.end());
     spdlog::log(spdlog::level::level_enum::off, "T depth of the circuit is {} and T count is {}.", *it, count);
     return *it;
 }
-
 
 }  // namespace qsyn::pp
