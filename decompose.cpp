@@ -1,7 +1,4 @@
 #include "bits/stdc++.h"
-#include <string>
-#include <algorithm>
-#include <math.h>
 using namespace std;
 
 bool isUnitaryMatrix(const vector<vector<complex<double>>>& matrix) {
@@ -114,6 +111,22 @@ vector<string> cnu_decompose(vector<vector<complex<double>>>& U, int target_bits
     }
 }
 
+vector<double> to_bloch(vector<vector<complex<double>>>& U) {
+    complex<double> a = U[0][0];
+    complex<double> b = U[0][1];
+    
+    double theta, lambda, mu;
+    theta = acos(abs(a));
+    lambda = (a.real() != 0) ? atan(a.imag()/a.real()) : M_PI/2;
+    mu = (b.real() != 0) ? atan(b.imag()/b.real()) : M_PI/2;
+
+    vector<double> bloch{theta, lambda, mu};
+    if (abs(pow(abs(a),2) + pow(abs(b),2) - 1) > 1e-6) bloch.clear();
+    if (U[1][1])
+}
+vector<string> cu_decompose(vector<vector<complex<double>>>& U, int targit_b, int ctrl_b) {
+
+}
     
 vector<vector<complex<double>>> to_2level(vector<vector<complex<double>>>& U, int& i, int& j) {
     complex<double> one;
