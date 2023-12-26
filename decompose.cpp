@@ -72,17 +72,67 @@ string intToBinary(int num, int n) {
     return binary;
 }
 
+double get_angle(complex<double> s) {
+    return (s.real() != 0) ? atan(s.imag()/s.real()) : M_PI/2;
+}
+
+vector<double> to_bloch(vector<vector<complex<double>>>& U) {
+    assert(U.size() == 2);
+    assert(U[0].size() == 2);
+    assert(U[1].size() == 2);
+    
+    double theta, lambda, mu, global_phase;
+    theta = acos(abs(U[0][0]));
+    global_phase = (get_angle(U[0][1]) + get_angle(U[1][0]))/2;
+    lambda = get_angle(U[0][0]) - global_phase;
+    mu = get_angle(U[0][1]) - global_phase;
+
+    // if (global_phase > 1e-6) cerr << "not su" << endl;
+
+    vector<double> bloch{theta, lambda, mu};
+    if (abs(pow(abs(U[0][0]),2) + pow(abs(U[0][1]),2) - 1) > 1e-6) bloch.clear(); // ||U|| != 1
+    if (get_angle(U[1][1]) + lambda - global_phase > 1e-6) bloch.clear();   // |U| is not e^it
+
+    return bloch;
+}
+vector<string> cu_decompose(vector<vector<complex<double>>>& U, int targit_b, int ctrl_b) {
+    vector<string> ckt(7);
+    vector<double> U_bloch = to_bloch(U);
+    if (U_bloch.empty()) {
+        // cerr << "not SU" << endl;
+        ckt.clear();
+        ckt.push_back("cu q[" + to_string(ctrl_b) + "], q[" + to_string(targit_b) + "];\n");
+        return ckt;
+    }
+    double theta = U_bloch[0];
+    double lambda = U_bloch[1];
+    double mu = U_bloch[2];
+
+    ckt[0] = "rz(" + to_string(-mu) +") q[" + to_string(targit_b) + "];"+ "---start cu" + "\n";
+    ckt[1] = "cx q[" + to_string(ctrl_b) + "], q[" + to_string(targit_b) + "];\n";
+    ckt[2] = "rz(" + to_string(-lambda) +") q[" + to_string(targit_b) + "];\n";
+    ckt[3] = "ry(" + to_string(-theta) +") q[" + to_string(targit_b) + "];\n";
+    ckt[4] = "cx q[" + to_string(ctrl_b) + "], q[" + to_string(targit_b) + "];\n";
+    ckt[5] = "ry(" + to_string(theta) +") q[" + to_string(targit_b) + "];\n";
+    ckt[6] = "rz(" + to_string(lambda + mu) +") q[" + to_string(targit_b) + "];" + "---end cu" + "\n";
+
+    return ckt;
+}
+
 vector<string> cnu_decompose(vector<vector<complex<double>>> U, int target_bits, int qubit) {
     vector<vector<complex<double>>> U_dag;
     vector<string> result;
+    vector<string> cu_buff;
     string temp, temp2;
     int n = qubit - 1;
+    result.push_back("--start cnu--\n");
     for(int i = 0; i < qubit; i++){
         assert(n > 0);
         if(i != target_bits){
             //if n = 1;
             if(n == 1){
-                //result.push_back(cu_decompose(i, target_bits, U));
+                cu_buff = cu_decompose(U, target_bits, i);
+                result.insert(result.end(), cu_buff.begin(), cu_buff.end());
                 n--;
                 break;
             }
@@ -94,7 +144,8 @@ vector<string> cnu_decompose(vector<vector<complex<double>>> U, int target_bits,
             U[0][1] = (U[0][1])/t;
             U[1][0] = (U[1][0])/t;
             U[1][1] = (U[1][1] + s)/t;
-            //result.push_back(cu_decompose(i, target_bits, U));
+            cu_buff = cu_decompose(U, target_bits, i);
+            result.insert(result.end(), cu_buff.begin(), cu_buff.end());
 
             //second Cn-1X
             temp = "c" + to_string(n-1) + "x";
@@ -117,7 +168,8 @@ vector<string> cnu_decompose(vector<vector<complex<double>>> U, int target_bits,
             //third CV_dag
             U_dag = transposeMatrix(U);
             conjugateMatrix(U_dag);
-            //result.push_back(cu_decompose(i, target_bits, U));
+            cu_buff = cu_decompose(U, target_bits, i);  // U_dag perhaps?
+            result.insert(result.end(), cu_buff.begin(), cu_buff.end()); 
 
 
             // fourth Cn-1X
@@ -125,9 +177,9 @@ vector<string> cnu_decompose(vector<vector<complex<double>>> U, int target_bits,
             n--;
         }
     }
+    result.push_back("--end cnu--\n");
     return result;
 }
-
     
 vector<vector<complex<double>>> to_2level(vector<vector<complex<double>>>& U, int& i, int& j) {
     complex<double> one;
@@ -166,33 +218,46 @@ string str_q(int b) {
     return "q[" + to_string(b) + "]";
 }
 
-vector<string> vecstr_Ctrl(int b, int n, string U, vector<bool>& i_state) {
+vector<string> vecstr_Ctrl(int b, int n, vector<vector<complex<double>>>& U2, vector<bool>& i_state) {
     vector<string> half_ckt;
-    string cnU = "c" + to_string(n-1) + U + " ";
-    if((n-1) == 1){
-        cnU = "c" + U + " ";
-    }
+    vector<string> cnU;
+    half_ckt.push_back("----add ctrl----\n");
     for (size_t ctrl_b = 0; ctrl_b < n; ++ctrl_b) {
         if (ctrl_b == b) continue;
-
         if (ctrl_b >= i_state.size() || i_state[ctrl_b] == 0) {
             half_ckt.push_back("rx(pi) " + str_q(ctrl_b) + ";\n");
         }
-        cnU += str_q(ctrl_b) + ", ";
     }
-    cnU += str_q(b) + ";\n";
+
+    if (U2.empty()) {   //cnx -- turn x into stringU
+        string cnx = "c" + to_string(n-1) + "x ";
+        if((n-1) == 1) {
+            cnx = "cx ";
+        }
+        for (size_t ctrl_b = 0; ctrl_b < n; ++ctrl_b) {
+            if (ctrl_b == b) continue;
+            cnx += str_q(ctrl_b) + ", ";
+        }
+        cnx += str_q(b) + ";\n";
+        cnU.push_back(cnx);
+    } else {
+        cnU = cnu_decompose(U2, b, n);
+    }
+
     vector<string> full_ckt = half_ckt;
-    full_ckt.push_back(cnU);
+    full_ckt.insert(full_ckt.end(), cnU.begin(), cnU.end());
     reverse(half_ckt.begin(), half_ckt.end());
     full_ckt.insert(full_ckt.end(), half_ckt.begin(), half_ckt.end());
     return full_ckt;
 }
 
-vector<string> gray_code(int i, int j, int n, string U2_name, vector<vector<complex<double>>>& U2){
+vector<string> gray_code(int i, int j, int n, vector<vector<complex<double>>>& U2){
     //cout << i << " " << j << endl;
     assert(i != j);
     vector<string> half_ckt;
     vector<bool> i_state, j_state;
+    vector<vector<complex<double>>> dummy(0); //dummy indicate x
+    half_ckt.push_back("-----------Gray_code-----------\n");
     while (i != 0) {
         i_state.push_back(false);
         if (i % 2) i_state[i_state.size() - 1] = true;
@@ -215,13 +280,13 @@ vector<string> gray_code(int i, int j, int n, string U2_name, vector<vector<comp
                 U_b = b;
                 continue;
             }
-            vector<string> cnx = vecstr_Ctrl(b, n, "x", i_state);
+            vector<string> cnx = vecstr_Ctrl(b, n, dummy, i_state);
             half_ckt.insert(half_ckt.end(), cnx.begin(), cnx.end());
             i_state[b] = !i_state[b];
         }
     }
     assert(U_b != -1);
-    vector<string> cnU = vecstr_Ctrl(U_b, n, U2_name, i_state);
+    vector<string> cnU = vecstr_Ctrl(U_b, n, U2, i_state);
     vector<string> full_ckt = half_ckt;
     full_ckt.insert(full_ckt.end(),cnU.begin(), cnU.end());
     reverse(half_ckt.begin(), half_ckt.end());
@@ -380,22 +445,24 @@ int main(int argc, char *argv[]){
         vector<vector<complex<double>>> U2;
         int i, j;
         U2 = to_2level(two_level_matrices[t], i, j);
-        vector<string> str_U2 = gray_code(i,j,(int(log2(n))),"U"+to_string(t),U2);
+        // vector<string> str_U2 = cu_decompose(U2, i, j);
+
+        vector<string> str_U2 = gray_code(i,j,(int(log2(n))),U2);
         for (int s = 0; s < str_U2.size(); s++) {
             cout << str_U2[s];
         }
     }
     
     //cnu testcase
-    vector<vector<complex<double>>> U(2, vector<complex<double>>(2, 0.0));
-    U[0][1] = 1;
-    U[1][0] = 1;
+    // vector<vector<complex<double>>> U(2, vector<complex<double>>(2, 0.0));
+    // U[0][1] = 1;
+    // U[1][0] = 1;
 
-    int qubit = int(log2(n));
-    //cnu decompose
-    cout<<"\n\n";
-    vector<string> cnu_gateset = cnu_decompose(U, 1, qubit);
-    for(int i = 0; i < cnu_gateset.size(); i++){
-        cout<<cnu_gateset[i];
-    }
+    // int qubit = int(log2(n));
+    // //cnu decompose
+    // cout<<"\n\n";
+    // vector<string> cnu_gateset = cnu_decompose(U, 1, qubit);
+    // for(int i = 0; i < cnu_gateset.size(); i++){
+    //     cout<<cnu_gateset[i];
+    // }
 }
