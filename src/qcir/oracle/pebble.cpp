@@ -11,23 +11,22 @@
 #include <spdlog/spdlog.h>
 
 #include <algorithm>
+#include <optional>
 #include <ranges>
 #include <set>
 #include <sstream>
+#include <tl/to.hpp>
+#include <vector>
 
 #include "util/sat/sat_solver.hpp"
 
 using namespace dvlab::sat;
 using std::vector, std::views::iota;
+using namespace qsyn::qcir;
+using Node   = qsyn::qcir::DepGraphNode;
+using NodeID = qsyn::qcir::DepGrapgNodeID;
 
-namespace {
-
-// dependency graph node
-using Node = struct Node {
-    Node(const size_t id = 0) : id(id) {}
-    size_t id{};
-    std::vector<Node*> dependencies;
-};
+namespace qsyn::qcir {
 
 void create_dependency_graph(std::istream& ifs, std::vector<Node>& graph, std::set<size_t>& output_ids) {
     auto tmp = vector<vector<size_t>>();
@@ -55,35 +54,15 @@ void create_dependency_graph(std::istream& ifs, std::vector<Node>& graph, std::s
 
     graph.resize(tmp.size());
     for (const auto& i : iota(0UL, tmp.size())) {
-        graph[i].id = i;
+        graph[i].id = NodeID(i);
         for (const auto& dep : tmp[i]) {
             graph[i].dependencies.emplace_back(&graph[dep]);
         }
     }
 }
 
-}  // namespace
-
-namespace qsyn::qcir {
-
-void test_pebble(const size_t _P, std::istream& input) {
-    auto solver = CaDiCalSolver();
-    std::vector<Node> graph;
-    std::set<size_t> output_ids;
-    create_dependency_graph(input, graph, output_ids);
-
-    const size_t N        = graph.size();  // number of nodes
-    const size_t max_deps = std::max_element(graph.begin(), graph.end(), [](const Node& a, const Node& b) { return a.dependencies.size() < b.dependencies.size(); })
-                                ->dependencies.size();
-    const size_t P = std::max(std::min(_P, N), max_deps + 1);
-    if (P < _P) {
-        spdlog::warn("P = {} is too large, using P = {} instead", _P, P);
-    }
-    if (P > _P) {
-        spdlog::warn("P = {} is too small, using P = {} instead", _P, P);
-    }
-
-    spdlog::debug("N = {}, P = {}", N, P);
+std::optional<std::vector<std::vector<bool>>> pebble(SatSolver& solver, size_t const P, std::vector<Node> graph, std::set<size_t> output_ids) {
+    size_t const N = graph.size();  // number of nodes
 
     auto make_variables = [](SatSolver& solver, const size_t N, const size_t K) {
         solver.reset();
@@ -118,10 +97,10 @@ void test_pebble(const size_t _P, std::istream& input) {
         for (const size_t i : iota(0UL, K - 1)) {
             for (const auto& node : graph) {
                 for (const auto& dep : node.dependencies) {
-                    auto const a = Literal(p[i][node.id]);
-                    auto const b = Literal(p[i + 1][node.id]);
-                    auto const c = Literal(p[i][dep->id]);
-                    auto const d = Literal(p[i + 1][dep->id]);
+                    auto const a = Literal(p[i][node.id.get()]);
+                    auto const b = Literal(p[i + 1][node.id.get()]);
+                    auto const c = Literal(p[i][dep->id.get()]);
+                    auto const d = Literal(p[i + 1][dep->id.get()]);
                     solver.add_clause({~a, b, c});
                     solver.add_clause({~a, b, d});
                     solver.add_clause({a, ~b, c});
@@ -131,14 +110,9 @@ void test_pebble(const size_t _P, std::istream& input) {
         }
 
         // Cardinality Clauses
-        std::vector<Literal> literals;
         for (const size_t i : iota(0UL, K)) {
-            literals.clear();
-            // sum(p_ij) <= P -> sum(~p_ij) >= N - P
-            for (const size_t j : iota(0UL, N)) {
-                literals.emplace_back(p[i][j], true);
-            }
-            solver.add_gte_constraint(literals, N - P);
+            auto p_i = p[i] | std::views::transform([](const Variable& var) { return Literal(var); }) | tl::to<std::vector>();
+            solver.add_lte_constraint(p_i, P);
         }
 
         return solver.solve() == Result::SAT;
@@ -153,8 +127,7 @@ void test_pebble(const size_t _P, std::istream& input) {
     spdlog::debug("trying K = {}", right);
     p = make_variables(solver, N, right);
     if (!pebble(solver, p, N, right, P)) {
-        fmt::println("no solution for P = {}, consider increasing P", P);
-        return;
+        return {};
     }
 
     while (left < right) {
@@ -170,25 +143,60 @@ void test_pebble(const size_t _P, std::istream& input) {
     }
 
     if (K == 0) {
-        fmt::println("no solution for P = {}, consider increasing P", P);
-        return;
+        return {};
     }
     p = make_variables(solver, N, K);
     pebble(solver, p, N, K, P);
     auto _solution = solver.get_solution();
     if (!_solution.has_value()) {
-        fmt::println("no solution for P = {}, consider increasing P", P);
-        return;
+        return {};
     }
     auto solution = _solution.value();
 
-    fmt::println("solution:");
+    std::vector<std::vector<bool>> schedule(K, std::vector<bool>(N, false));
     for (const size_t i : iota(0UL, K)) {
-        std::string s = "";
         for (const size_t j : iota(0UL, N)) {
-            s += solution[p[i][j]] ? "*" : ".";
+            schedule[i][j] = solution[p[i][j]];
         }
-        fmt::println("time = {:02} : {}", i, s);
+    }
+
+    return schedule;
+}
+
+size_t sanitize_P(size_t const P, size_t const N, size_t const max_deps) {
+    if (P > N) {
+        spdlog::warn("P = {} is too small, using P = {} instead", P, N);
+        return N;
+    }
+    if (P < max_deps + 1) {
+        spdlog::warn("P = {} is too small, using P = {} instead", P, max_deps + 1);
+        return max_deps + 1;
+    }
+    return P;
+}
+
+void test_pebble(const size_t _P, std::istream& input) {
+    auto solver = CaDiCalSolver();
+    std::vector<Node> graph;
+    std::set<size_t> output_ids;
+    create_dependency_graph(input, graph, output_ids);
+
+    const size_t N        = graph.size();  // number of nodes
+    const size_t max_deps = std::ranges::max(graph | std::views::transform([](const Node& node) { return node.dependencies.size(); }));
+    const size_t P        = sanitize_P(_P, N, max_deps);
+
+    spdlog::debug("N = {}, P = {}", N, P);
+
+    auto schedule = pebble(solver, P, graph, output_ids);
+
+    if (!schedule.has_value()) {
+        fmt::println("no solution for P = {}, consider increasing P", P);
+        return;
+    }
+
+    fmt::println("solution:");
+    for (const size_t i : iota(0UL, schedule->size())) {
+        fmt::println("time = {:02} : {}", i, fmt::join((*schedule)[i] | std::views::transform([](bool b) { return b ? "*" : "."; }), ""));
     }
 }
 

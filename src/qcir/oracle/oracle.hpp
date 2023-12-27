@@ -8,6 +8,8 @@
 
 #pragma once
 
+#include <cstddef>
+
 #include "qcir/qcir.hpp"
 
 namespace qsyn::qcir {
@@ -15,11 +17,11 @@ namespace qsyn::qcir {
 /**
  * @brief synthesize a boolean oracle for the given function truth table
  *
- * @param qcir
- * @param n_ancilla
- * @param n_outputs
- * @param truth_table i-th element is the output value when input is i
+ * @param xag_input input stream of the XAG file
+ * @param qcir the QCIR object to be synthesized
+ * @param n_ancilla number of ancilla qubits
+ * @param k maximum cut size for k-LUT partitioning
  */
-void synthesize_boolean_oracle(QCir* qcir, size_t n_ancilla, size_t n_outputs, std::vector<size_t> const& truth_table);
+void synthesize_boolean_oracle(std::istream& xag_input, QCir* /*qcir*/, size_t n_ancilla, size_t k);
 
 }  // namespace qsyn::qcir

@@ -1,3 +1,3 @@
-logger trace
-qcir oracle -i 3 -o 2 3 1 0 1 0 1 1 0
+// logger trace
+qcir oracle --xag ./tests/qcir/oracle/ref/k_lut.xaag -k 3 --n-ancilla 6
 quit -f

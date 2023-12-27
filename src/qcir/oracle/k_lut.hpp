@@ -16,7 +16,9 @@
 
 namespace qsyn::qcir {
 
-std::pair<std::map<XAGNodeID, XAGCut>, std::map<XAGNodeID, size_t>> k_lut_partition();
+std::set<XAGNodeID> get_cone_node_ids(XAG& xag, XAGNodeID const& node_id, XAGCut const& cut);
+
+std::pair<std::map<XAGNodeID, XAGCut>, std::map<XAGNodeID, size_t>> k_lut_partition(XAG& xag, const size_t max_cut_size);
 
 void test_k_lut_partition(size_t const max_cut_size, std::istream& input);
 

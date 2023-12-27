@@ -9,6 +9,7 @@
 
 #include <algorithm>
 #include <ranges>
+#include <tl/to.hpp>
 
 namespace dvlab::sat {
 
@@ -64,6 +65,19 @@ void SatSolver::add_gte_constraint(std::vector<Literal> const& literals, size_t 
     add_clause({true_node});
     add_clause({~false_node});
     add_clause({Literal(bdd[0][0])});
+}
+
+/**
+ * @brief Add pseudo-Boolean constraint x1 + x2 + ... + xn <= k
+ *        ref: https://people.eng.unimelb.edu.au/pstuckey/mddenc/mddenc.pdf
+ *
+ * @param literals Literals in the clause
+ * @param k
+ */
+void SatSolver::add_lte_constraint(std::vector<Literal> const& literals, size_t const& k) {
+    // sum_{i=1}^N x_i <= k -> sum_{i=1}^N ~x_i >= N - k
+    auto negated_literals = literals | std::views::transform([](auto const& lit) { return ~lit; }) | tl::to<std::vector>();
+    add_gte_constraint(negated_literals, literals.size() - k);
 }
 
 }  // namespace dvlab::sat
