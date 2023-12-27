@@ -46,9 +46,7 @@ Command qcir_k_lut_cmd() {
         [](ArgumentParser const& parser) {
             auto const max_cut_size = parser.get<size_t>("-c");
             auto const filepath     = parser.get<std::string>("filepath");
-
             std::ifstream ifs(filepath);
-
             test_k_lut_partition(max_cut_size, ifs);
             return CmdExecResult::done;
         },
@@ -70,7 +68,8 @@ Command qcir_pebble_cmd() {
         [](ArgumentParser const& parser) {
             auto const P        = parser.get<size_t>("-p");
             auto const filepath = parser.get<std::string>("filepath");
-            test_pebble(P, filepath);
+            std::ifstream ifs(filepath);
+            test_pebble(P, ifs);
             return CmdExecResult::done;
         },
     };

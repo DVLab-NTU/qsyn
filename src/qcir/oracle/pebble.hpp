@@ -9,7 +9,7 @@
 #pragma once
 
 #include <cstddef>
-#include <string>
+#include <istream>
 
 namespace qsyn::qcir {
 
@@ -17,8 +17,8 @@ namespace qsyn::qcir {
  * @brief test ancilla qubit scheduling with SAT based reversible pebbling game
  *
  * @param P number of ancilla qubits
- * @param filepath path to the in put dependency graph file
+ * @param input
  */
-void test_pebble(const size_t P, const std::string& filepath);
+void test_pebble(const size_t P, std::istream& input);
 
 }  // namespace qsyn::qcir

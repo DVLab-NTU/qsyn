@@ -30,14 +30,8 @@ using Node = struct Node {
     std::vector<Node*> dependencies;
 };
 
-void parse_input_file(const std::string& filepath, std::vector<Node>& graph, std::set<size_t>& output_ids) {
+void create_dependency_graph(std::istream& ifs, std::vector<Node>& graph, std::set<size_t>& output_ids) {
     auto tmp = vector<vector<size_t>>();
-    std::ifstream ifs(filepath);
-
-    if (!ifs.is_open()) {
-        spdlog::error("cannot open file: {}", filepath);
-        return;
-    }
 
     std::string line;
     size_t id{}, dep{};
@@ -73,11 +67,11 @@ void parse_input_file(const std::string& filepath, std::vector<Node>& graph, std
 
 namespace qsyn::qcir {
 
-void test_pebble(const size_t _P, const std::string& filepath) {
+void test_pebble(const size_t _P, std::istream& input) {
     auto solver = CaDiCalSolver();
     std::vector<Node> graph;
     std::set<size_t> output_ids;
-    parse_input_file(filepath, graph, output_ids);
+    create_dependency_graph(input, graph, output_ids);
 
     const size_t N        = graph.size();  // number of nodes
     const size_t max_deps = std::max_element(graph.begin(), graph.end(), [](const Node& a, const Node& b) { return a.dependencies.size() < b.dependencies.size(); })
