@@ -1,0 +1,3 @@
+logger debug
+qcir k_lut -c 3 ./tests/qcir/oracle/ref/k_lut.xaag
+quit -f 
