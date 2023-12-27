@@ -84,26 +84,6 @@ std::map<XAGNodeID, std::vector<XAGCut>> enumerate_cuts(XAG& xag, const size_t m
     return node_id_to_cuts;
 }
 
-std::set<XAGNodeID> get_cone_node_ids(XAG& xag, XAGNodeID const& node_id, XAGCut const& cut) {
-    std::set<XAGNodeID> cone_node_ids;
-    std::vector<XAGNodeID> stack;
-    stack.push_back(node_id);
-    while (!stack.empty()) {
-        auto const node_id = stack.back();
-        stack.pop_back();
-        for (auto const& fanin_id : xag.get_node(node_id)->fanins) {
-            if (cut.contains(node_id) && !cut.contains(fanin_id)) {
-                continue;
-            }
-            if (!cone_node_ids.contains(fanin_id)) {
-                stack.push_back(fanin_id);
-            }
-        }
-        cone_node_ids.insert(node_id);
-    }
-    return cone_node_ids;
-}
-
 std::vector<bool> calculate_truth_table(XAG& xag, XAGNodeID const& node_id, XAGCut const& cut) {
     auto node_ids_in_cone = get_cone_node_ids(xag, node_id, cut);
     std::vector<bool> truth_table;
@@ -214,6 +194,26 @@ std::map<XAGNodeID, std::vector<size_t>> calculate_cut_costs(XAG& xag, std::map<
 }  // namespace
 
 namespace qsyn::qcir {
+
+std::set<XAGNodeID> get_cone_node_ids(XAG& xag, XAGNodeID const& node_id, XAGCut const& cut) {
+    std::set<XAGNodeID> cone_node_ids;
+    std::vector<XAGNodeID> stack;
+    stack.push_back(node_id);
+    while (!stack.empty()) {
+        auto const node_id = stack.back();
+        stack.pop_back();
+        for (auto const& fanin_id : xag.get_node(node_id)->fanins) {
+            if (cut.contains(node_id) && !cut.contains(fanin_id)) {
+                continue;
+            }
+            if (!cone_node_ids.contains(fanin_id)) {
+                stack.push_back(fanin_id);
+            }
+        }
+        cone_node_ids.insert(node_id);
+    }
+    return cone_node_ids;
+}
 
 std::pair<std::map<XAGNodeID, XAGCut>, std::map<XAGNodeID, size_t>> k_lut_partition(XAG& xag, const size_t max_cut_size) {
     auto id_to_cuts  = enumerate_cuts(xag, max_cut_size);

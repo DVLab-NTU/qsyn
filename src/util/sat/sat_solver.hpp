@@ -90,6 +90,7 @@ public:
     virtual std::optional<Solution> get_solution()              = 0;
 
     void add_gte_constraint(std::vector<Literal> const& literals, size_t const& k);
+    void add_lte_constraint(std::vector<Literal> const& literals, size_t const& k);
     void assume_all(std::vector<Literal> const& literals);
     Variable new_var() { return _next_var++; }
 
