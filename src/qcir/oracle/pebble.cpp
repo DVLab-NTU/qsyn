@@ -11,7 +11,6 @@
 #include <spdlog/spdlog.h>
 
 #include <algorithm>
-#include <fstream>
 #include <ranges>
 #include <set>
 #include <sstream>
