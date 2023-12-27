@@ -148,7 +148,8 @@ vector<string> cnu_decompose(vector<vector<complex<double>>> U, int target_bits,
             result.insert(result.end(), cu_buff.begin(), cu_buff.end());
 
             //second Cn-1X
-            temp = "c" + to_string(n-1) + "x";
+            // temp = "c" + to_string(n-1) + "x";
+            temp = "mcx ";
             for(int j = i+1; j < qubit; j++){
                 if(qubit-1 != target_bits && (j != target_bits && j != qubit-1)){
                     temp = temp + "q[" +to_string(j) + "], ";
@@ -230,7 +231,8 @@ vector<string> vecstr_Ctrl(int b, int n, vector<vector<complex<double>>>& U2, ve
     }
 
     if (U2.empty()) {   //cnx -- turn x into stringU
-        string cnx = "c" + to_string(n-1) + "x ";
+        // string cnx = "c" + to_string(n-1) + "x ";
+        string cnx = "mcx ";
         if((n-1) == 1) {
             cnx = "cx ";
         }
