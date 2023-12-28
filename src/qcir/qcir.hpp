@@ -10,11 +10,10 @@
 #include <algorithm>
 #include <cstddef>
 #include <filesystem>
+#include <map>
 #include <memory>
-#include <ranges>
 #include <span>
 #include <string>
-#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -178,6 +177,11 @@ public:
     void translate(QCir const& qcir, std::string const& gate_set);
 
     QCirGateStatistics get_gate_statistics() const;
+
+    void append(QCir const& other, std::map<QubitIdType, QubitIdType> const& qubit_map = {});
+
+    void update_gate_time() const;
+    void print_zx_form_topological_order();
 
     void adjoint();
 
