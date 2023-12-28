@@ -1,0 +1,14 @@
+extract config --optimize-level 1
+qcir read benchmark/SABRE/large/cm82a_208.qasm
+convert qcir zx
+zx optimize
+convert zx qcir
+qcir optimize
+qcir print
+convert qcir zx
+zx adjoint
+zx list
+zx compose 0
+zx optimize
+zx test --identity 
+quit -f
