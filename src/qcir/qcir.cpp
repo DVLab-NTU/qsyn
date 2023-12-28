@@ -13,6 +13,7 @@
 #include <cassert>
 #include <cstdlib>
 #include <string>
+#include <tl/to.hpp>
 #include <vector>
 
 #include "./qcir_gate.hpp"
@@ -138,7 +139,7 @@ void QCir::add_qubits(size_t num) {
  * @brief Remove Qubit with specific id
  *
  * @param id
- * @return true if succcessfully removed
+ * @return true if successfully removed
  * @return false if not found or the qubit is not empty
  */
 bool QCir::remove_qubit(QubitIdType id) {
@@ -464,6 +465,32 @@ void QCir::print_gate_statistics(bool detail) const {
     fmt::println("└── 2-qubit : {}", fmt_ext::styled_if_ansi_supported(stat.twoqubit, fmt::fg(fmt::terminal_color::red) | fmt::emphasis::bold));
     fmt::println("T-family    : {}", fmt_ext::styled_if_ansi_supported(stat.tfamily, fmt::fg(fmt::terminal_color::red) | fmt::emphasis::bold));
     fmt::println("Others      : {}", fmt_ext::styled_if_ansi_supported(stat.nct, fmt::fg((stat.nct > 0) ? fmt::terminal_color::red : fmt::terminal_color::green) | fmt::emphasis::bold));
+}
+
+void QCir::append(QCir const &other, std::map<QubitIdType, QubitIdType> const &qubit_map) {
+    if (qubit_map.empty() && _qubits.size() != other.get_qubits().size()) {
+        throw std::runtime_error("Qcir::append: you must provide a qubit map if the circuits are of different sizes.");
+        return;
+    }
+
+    auto map_qubit = [&](QubitIdType id) -> QubitIdType {
+        if (qubit_map.empty()) {
+            return id;
+        } else {
+            return qubit_map.at(id);
+        }
+    };
+
+    auto const &other_gates = other.get_topologically_ordered_gates();
+    for (auto const &gate : other_gates) {
+        auto const &qubits = gate->get_qubits();
+        auto const &phase  = gate->get_phase();
+        auto const &type   = gate->get_type_str();
+        auto const &bits   = qubits |
+                           std::views::transform([&](auto const &qb) { return map_qubit(qb._qubit); }) |
+                           tl::to<QubitIdList>();
+        add_gate(type, bits, phase, true);
+    }
 }
 
 }  // namespace qsyn::qcir

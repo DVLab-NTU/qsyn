@@ -9,10 +9,9 @@
 
 #include <cstddef>
 #include <filesystem>
-#include <ranges>
+#include <map>
 #include <span>
 #include <string>
-#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -157,6 +156,8 @@ public:
     void print_gate_statistics(bool detail = false) const;
 
     QCirGateStatistics get_gate_statistics() const;
+
+    void append(QCir const& other, std::map<QubitIdType, QubitIdType> const& qubit_map = {});
 
     void update_gate_time() const;
     void print_zx_form_topological_order();

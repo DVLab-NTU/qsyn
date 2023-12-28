@@ -49,7 +49,7 @@ public:
     friend constexpr Phase operator+(Phase lhs, Phase const& rhs);
     friend constexpr Phase operator-(Phase lhs, Phase const& rhs);
 
-    // Multiplication / Devision w/ unitless constants
+    // Multiplication / Division w/ unitless constants
     constexpr Phase& operator*=(unitless auto const& rhs);
     constexpr Phase& operator/=(unitless auto const& rhs);
     friend constexpr Phase operator*(Phase lhs, unitless auto const& rhs);

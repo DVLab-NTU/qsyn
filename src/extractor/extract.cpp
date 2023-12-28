@@ -8,7 +8,6 @@
 #include "./extract.hpp"
 
 #include <cassert>
-#include <memory>
 #include <ranges>
 #include <tuple>
 
@@ -833,7 +832,7 @@ void Extractor::update_graph_by_matrix(EdgeType et) {
 }
 
 /**
- * @brief Create bi-adjacency matrix fron frontier and neighbors
+ * @brief Create bi-adjacency matrix from frontier and neighbors
  *
  */
 void Extractor::update_matrix() {
