@@ -1,19 +1,21 @@
 #include "bits/stdc++.h"
 using namespace std;
+
 void print_matrix(const vector<vector<complex<double>>>& matrix) {
-    for (int i = 0; i < matrix.size(); ++i) {
-        for (int j = 0; j < matrix[i].size(); ++j) {
+    for (size_t i = 0; i < matrix.size(); ++i) {
+        for (size_t j = 0; j < matrix[i].size(); ++j) {
             cout << matrix[i][j] << " ";
         }
         cout << endl;
     }
 }
+
 bool isUnitaryMatrix(const vector<vector<complex<double>>>& matrix) {
     // 檢查矩陣乘以其共軛轉置是否為單位矩陣
-    for (int i = 0; i < matrix.size(); ++i) {
-        for (int j = 0; j < matrix.size(); ++j) {
+    for (size_t i = 0; i < matrix.size(); ++i) {
+        for (size_t j = 0; j < matrix.size(); ++j) {
             complex<double> sum = 0.0;
-            for (int k = 0; k < matrix.size(); ++k) {
+            for (size_t k = 0; k < matrix.size(); ++k) {
                     
                 sum += matrix[i][k] * conj(matrix[j][k]);
             }
@@ -33,8 +35,8 @@ bool isUnitaryMatrix(const vector<vector<complex<double>>>& matrix) {
 }
 
 void conjugateMatrix(std::vector<std::vector<std::complex<double>>>& matrix) {
-    for (int i = 0; i < matrix.size(); i++) {
-        for (int j = 0; j < matrix[0].size(); j++) {
+    for (size_t i = 0; i < matrix.size(); i++) {
+        for (size_t j = 0; j < matrix[0].size(); j++) {
             matrix[i][j] = conj(matrix[i][j]); // 對每个元素共軛
         }
     }
@@ -43,8 +45,8 @@ void conjugateMatrix(std::vector<std::vector<std::complex<double>>>& matrix) {
 vector<vector<complex<double>>> transposeMatrix(std::vector<std::vector<std::complex<double>>>& matrix) {
     vector<vector<complex<double>>> result(matrix[0].size(), vector<complex<double>>(matrix.size(), 0.0));
 
-    for (int i = 0; i < matrix[0].size(); i++) {
-        for (int j = 0; j < matrix.size(); j++) {
+    for (size_t i = 0; i < matrix[0].size(); i++) {
+        for (size_t j = 0; j < matrix.size(); j++) {
             result[i][j] = matrix[j][i]; // 對每個元素轉置
         }
     }
@@ -107,7 +109,7 @@ vector<double> to_bloch(vector<vector<complex<double>>>& U) {
         cerr << "||U|| != 1" << endl;
         bloch.clear(); // ||U|| != 1
     }
-    double check_angle = get_angle(U[1][0]) + mu - global_phase - M_PI;
+    //double check_angle = get_angle(U[1][0]) + mu - global_phase - M_PI;
     // cout << check_angle << endl;
     // if (abs(sin(check_angle)) > 1e-6 || cos(check_angle) < 1 - 1e-6) {
     //     cerr << "|U| is not e^it" << endl;
@@ -116,6 +118,7 @@ vector<double> to_bloch(vector<vector<complex<double>>>& U) {
 
     return bloch;
 }
+
 vector<string> cu_decompose(vector<vector<complex<double>>>& U, int targit_b, int ctrl_b) {
     vector<string> ckt(7);
     vector<double> U_bloch = to_bloch(U);
@@ -173,19 +176,11 @@ vector<string> cnu_decompose(vector<vector<complex<double>>> U, int target_bits,
             // temp = "c" + to_string(n-1) + "x";
             temp = "mcx ";
             for(int j = i+1; j < qubit; j++){
-                if(qubit-1 != target_bits && (j != target_bits && j != qubit-1)){
+                if(j != target_bits){
                     temp = temp + "q[" +to_string(j) + "], ";
-                }
-                else if(qubit-1 != target_bits && (j != target_bits && j == qubit-1)){
-                    temp = temp + "q[" +to_string(j) + "];\n";
-                }
-                else if(qubit-1 == target_bits && (j != target_bits && j != qubit-2)){
-                    temp = temp + "q[" +to_string(j) + "], ";
-                }
-                else if(qubit-1 == target_bits && (j != target_bits && j == qubit-2)){
-                    temp = temp + "q[" +to_string(j) + "];\n";
                 }
             }
+            temp = temp + "q[" +to_string(target_bits) + "];\n";
             result.push_back(temp);
 
             //third CV_dag
@@ -219,7 +214,7 @@ vector<vector<complex<double>>> to_2level(vector<vector<complex<double>>>& U, in
         cerr << "incorrect matrix" << endl;
         return U2;
     }
-    complex<double> uii = U[i][i];
+    //complex<double> uii = U[i][i];
     j = 0;
     while (j < i){
         if (abs(U[j][i]) > 1e-6) break;
@@ -244,9 +239,9 @@ string str_q(int b) {
 vector<string> vecstr_Ctrl(int b, int n, vector<vector<complex<double>>>& U2, vector<bool>& i_state) {
     vector<string> half_ckt;
     vector<string> cnU;
-    for (size_t ctrl_b = 0; ctrl_b < n; ++ctrl_b) {
+    for (int ctrl_b = 0; ctrl_b < n; ++ctrl_b) {
         if (ctrl_b == b) continue;
-        if (ctrl_b >= i_state.size() || i_state[ctrl_b] == 0) {
+        if (ctrl_b >= int(i_state.size()) || i_state[ctrl_b] == 0) {
             half_ckt.push_back("rx(pi) " + str_q(ctrl_b) + ";\n");
         }
     }
@@ -257,7 +252,7 @@ vector<string> vecstr_Ctrl(int b, int n, vector<vector<complex<double>>>& U2, ve
         if((n-1) == 1) {
             cnx = "cx ";
         }
-        for (size_t ctrl_b = 0; ctrl_b < n; ++ctrl_b) {
+        for (int ctrl_b = 0; ctrl_b < n; ++ctrl_b) {
             if (ctrl_b == b) continue;
             cnx += str_q(ctrl_b) + ", ";
         }
@@ -316,12 +311,12 @@ vector<string> gray_code(int i, int j, int n, vector<vector<complex<double>>>& U
     return full_ckt;
 }
 
-int main(int argc, char *argv[]){
+void decompose(string input, string output){
     //輸入matrix大小
-    ifstream fin(argv[1]);
+    ifstream fin(input);
+    ofstream fout(output);
     int n;
     fin>>n;
-
     //輸入matrix
     vector<vector<complex<double>>> input_matrix(n, vector<complex<double>>(n, 0.0));
     string str;
@@ -459,11 +454,11 @@ int main(int argc, char *argv[]){
         cout<<endl;
     }*/
 
-    cout<<"OPENQASM 2.0;\ninclude \"qelib1.inc\";\nqreg q["<<int(log2(n))<<"];\n\n";
+    fout<<"OPENQASM 2.0;\ninclude \"qelib1.inc\";\nqreg q["<<int(log2(n))<<"];\n\n";
 
     
     //gray-code
-    for (int t = 0; t < two_level_matrices.size(); t++) {
+    for(size_t t = 0; t < two_level_matrices.size(); t++) {
         vector<vector<complex<double>>> U2;
         int i, j;
         U2 = to_2level(two_level_matrices[t], i, j);
@@ -471,21 +466,25 @@ int main(int argc, char *argv[]){
         // print_matrix(U2);
         
         vector<string> str_U2 = gray_code(i,j,(int(log2(n))),U2);
-        for (int s = 0; s < str_U2.size(); s++) {
-            cout << str_U2[s];
+        for (size_t s = 0; s < str_U2.size(); s++) {
+            fout << str_U2[s];
         }
     }
     
-    //cnu testcase
-    // vector<vector<complex<double>>> U(2, vector<complex<double>>(2, 0.0));
-    // U[0][1] = 1;
-    // U[1][0] = 1;
+    /*//cnu testcase
+    vector<vector<complex<double>>> U(2, vector<complex<double>>(2, 0.0));
+    U[0][1] = 1;
+    U[1][0] = 1;
 
-    // int qubit = int(log2(n));
-    // //cnu decompose
-    // cout<<"\n\n";
-    // vector<string> cnu_gateset = cnu_decompose(U, 1, qubit);
-    // for(int i = 0; i < cnu_gateset.size(); i++){
-    //     cout<<cnu_gateset[i];
-    // }
+    int qubit = int(log2(n));
+    //cnu decompose
+    cout<<"\n\n";
+    vector<string> cnu_gateset = cnu_decompose(U, 1, qubit);
+    for(int i = 0; i < cnu_gateset.size(); i++){
+        cout<<cnu_gateset[i];
+    }*/
+}
+
+int main(int argc, char* argv[]){
+    decompose(argv[1], argv[2]);
 }
