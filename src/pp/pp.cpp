@@ -7,7 +7,11 @@
 
 #include "./pp.hpp"
 
+#include <fmt/core.h>
+#include <fmt/ostream.h>
 #include <spdlog/common.h>
+#include <spdlog/logger.h>
+#include <spdlog/spdlog.h>
 
 #include <algorithm>
 #include <cassert>
@@ -20,9 +24,11 @@
 #include "qcir/qcir_qubit.hpp"
 #include "qsyn/qsyn_type.hpp"
 #include "util/boolean_matrix.hpp"
+#include "util/text_format.hpp"
 
 using namespace qsyn::qcir;
 using namespace std;
+using namespace dvlab;
 
 namespace qsyn::pp {
 
@@ -34,12 +40,11 @@ using Row = dvlab::BooleanMatrix::Row;
  * @return Polynomial
  */
 bool Phase_Polynomial::calculate_pp(QCir const& qc) {
-    Phase_Polynomial::count_t_depth(qc);
-
     _qubit_number = qc.get_num_qubits();
 
     Phase_Polynomial::reset();
 
+    qc.update_topological_order();
     std::vector<QCirGate*> gates = qc.get_topologically_ordered_gates();
 
     for (QCirGate* g : gates) {
@@ -106,7 +111,9 @@ void Phase_Polynomial::remove_coeff_0_monomial() {
     for (size_t i = 0; i < _pp_coeff.size(); i++) {
         if (_pp_coeff[i] == dvlab::Phase(0)) coeff_is_0.emplace_back(i);
     }
-    for_each(coeff_is_0.begin(), coeff_is_0.end(), [](size_t i) { std::cout << i << endl; });
+    for_each(coeff_is_0.begin(), coeff_is_0.end(), [](size_t i) {
+        spdlog::debug("{}", i);
+    });
     for (int i = coeff_is_0.size() - 1; i >= 0; i--) {
         _pp_terms.erase_row(coeff_is_0[i]);
         _pp_coeff.erase(_pp_coeff.begin() + coeff_is_0[i]);
@@ -230,7 +237,9 @@ size_t Phase_Polynomial::count_t_depth(qcir::QCir const& qcir) {
         }
     }
     auto it = max_element(depths.begin(), depths.end());
-    spdlog::log(spdlog::level::level_enum::off, "T depth of the circuit is {} and T count is {}.", *it, count);
+    fmt::println("T           : {}", fmt_ext::styled_if_ansi_supported(count, fmt::fg(fmt::terminal_color::green) | fmt::emphasis::bold));
+    fmt::println("T-dept      : {}", fmt_ext::styled_if_ansi_supported(*it, fmt::fg(fmt::terminal_color::green) | fmt::emphasis::bold));
+    // spdlog::log(spdlog::level::level_enum::off, "T count is {}, and T depth of the circuit is {} .", count, *it);
     return *it;
 }
 

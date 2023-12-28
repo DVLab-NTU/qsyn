@@ -5,6 +5,9 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
+#include <fmt/core.h>
+#include <spdlog/spdlog.h>
+
 #include <iostream>  // to delete
 #include <string>
 
@@ -95,9 +98,11 @@ dvlab::Command phase_polynomial_cmd(QCirMgr& qcir_mgr) {
                 if (!qcir_mgr_not_empty(qcir_mgr)) return CmdExecResult::error;
 
                 Phase_Polynomial pp;
+                spdlog::debug(" - before resynthesis:\n");
+                // pp.count_t_depth(*qcir_mgr.get());
                 pp.calculate_pp(*qcir_mgr.get());
 
-                pp.print_phase_poly();
+                // pp.print_phase_poly();
 
                 Partitioning partitioning(pp.get_pp_terms(), pp.get_data_qubit_num(), ancilla);
                 Partitions temp;  // todo: rewrite the dirty code ==
@@ -124,7 +129,9 @@ dvlab::Command phase_polynomial_cmd(QCirMgr& qcir_mgr) {
                 }
 
                 qcir::QCir result = pp.get_result();
-                pp.count_t_depth(result);
+                // spdlog::debug("\n");
+                spdlog::debug(" - after resynthesis:\n");
+                // spdlog::debug(pp.count_t_depth(result));
                 qcir_mgr.add(qcir_mgr.get_next_id(), std::make_unique<qcir::QCir>(result));
 
                 return CmdExecResult::done;
