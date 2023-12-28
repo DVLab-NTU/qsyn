@@ -24,9 +24,9 @@ bool isUnitaryMatrix(const vector<vector<complex<double>>>& matrix) {
             //cout<<i<<" "<<j<<" : "<<sum<<endl;
             //cout.flush();
 
-            if (i == j && abs(sum - 1.0) > 1e-6) {
+            if (i == j && abs(sum - 1.0) > 1e-3) {
                 return false;
-            } else if (i != j && abs(sum) > 1e-6) {
+            } else if (i != j && abs(sum) > 1e-3) {
                 return false;
             }
         }
@@ -105,7 +105,7 @@ vector<double> to_bloch(vector<vector<complex<double>>>& U) {
     // if (global_phase > 1e-6) cerr << "not su" << endl;
 
     vector<double> bloch{theta, lambda, mu};
-    if (abs(pow(abs(U[0][0]),2) + pow(abs(U[0][1]),2) - 1) > 1e-6) {
+    if (abs(pow(abs(U[0][0]),2) + pow(abs(U[0][1]),2) - 1) > 1e-3) {
         cerr << "||U|| != 1" << endl;
         bloch.clear(); // ||U|| != 1
     }
@@ -195,7 +195,7 @@ vector<string> cnu_decompose(vector<vector<complex<double>>> U, int target_bits,
             n--;
         }
     }
-    result.push_back("--end cnu--\n");
+    //result.push_back("--end cnu--\n");
     return result;
 }
     
@@ -207,7 +207,7 @@ vector<vector<complex<double>>> to_2level(vector<vector<complex<double>>>& U, in
     i = U.size() - 1;
     while (i > -1){
         // cout << U[i][i] << endl;
-        if (abs(U[i][i] - one) > 1e-6) break;
+        if (abs(abs(U[i][i]) - one) > 1e-3) break;
         --i;
     }
     if (i == -1) {
@@ -217,7 +217,7 @@ vector<vector<complex<double>>> to_2level(vector<vector<complex<double>>>& U, in
     //complex<double> uii = U[i][i];
     j = 0;
     while (j < i){
-        if (abs(U[j][i]) > 1e-6) break;
+        if (abs(U[j][i]) > 1e-3) break;
         ++j;
     }
     if (j == i) {
@@ -315,6 +315,10 @@ void decompose(string input, string output){
     //輸入matrix大小
     ifstream fin(input);
     ofstream fout(output);
+    if(!fin.good()){
+        cerr<<input<<" not exist\n";
+        return 1;
+    }
     int n;
     fin>>n;
     //輸入matrix
@@ -340,7 +344,7 @@ void decompose(string input, string output){
 
     //check need to be decompose
     for(int i = 0; i < n; i++){
-        if(fabs(abs(input_matrix[i][i]) - 1.0) > 1e-6){//|Mii| != 1
+        if(fabs(abs(input_matrix[i][i]) - 1.0) > 1e-3){//|Mii| != 1
             finish = 0;
         }
     }
@@ -355,10 +359,10 @@ void decompose(string input, string output){
 
         //find Mii^2 + Mij^2 = 1 first
         for(int i = 0; i < n; i++){
-            if(fabs(abs(input_matrix[i][i]) - 1.0) > 1e-6){//|Mii| != 1
+            if(fabs(abs(input_matrix[i][i]) - 1.0) > 1e-3){//|Mii| != 1
                 for(int j = 0; j < n; j++){
                     if(i != j){
-                        if(fabs(sqrt(norm(input_matrix[i][i]) + norm(input_matrix[j][i])) - 1.0) < 1e-6){//Mii^2 + Mij^2 = 1
+                        if(fabs(sqrt(norm(input_matrix[i][i]) + norm(input_matrix[j][i])) - 1.0) < 1e-3){//Mii^2 + Mij^2 = 1
                             improve = 1;
                             //create two level matrix
                             two_level_matrix[i][i] = conj(input_matrix[i][i]);
@@ -396,9 +400,9 @@ void decompose(string input, string output){
 
         if(!improve){
             for(int i = 0; i < n-1; i++){
-                if(fabs(abs(input_matrix[i][i]) - 1.0) > 1e-6){//|Mii| != 1
+                if(fabs(abs(input_matrix[i][i]) - 1.0) > 1e-3){//|Mii| != 1
                     for(int j = 0; j < n; j++){
-                        if((i != j) && fabs(abs(input_matrix[i][j]) - 1.0) > 1e-6){
+                        if((i != j) && fabs(abs(input_matrix[i][j]) - 1.0) > 1e-3){
                             improve = 1;
                             //create two level matrix
                             two_level_matrix[i][i] = conj(input_matrix[i][i])/sqrt(norm(input_matrix[i][i]) + norm(input_matrix[j][i]));
@@ -424,7 +428,7 @@ void decompose(string input, string output){
 
         finish = 1;
         for(int i = 0; i < n; i++){
-            if(fabs(abs(input_matrix[i][i]) - 1.0) > 1e-6){
+            if(fabs(abs(input_matrix[i][i]) - 1.0) > 1e-3){
                 finish = 0;
             }
         }
@@ -445,9 +449,9 @@ void decompose(string input, string output){
     /*//for debug
     for(int i = 0; i < two_level_matrices.size(); i++){
         cout<<"matrix "<<(i+1)<<":"<<endl;
-        for(int j = 0; j < two_level_matrices[i].matrix.size(); j++){
-            for(int k = 0; k < two_level_matrices[i].matrix[j].size(); k++){
-                cout<<two_level_matrices[i].matrix[j][k]<<" ";
+        for(int j = 0; j < two_level_matrices[i].size(); j++){
+            for(int k = 0; k < two_level_matrices[i][j].size(); k++){
+                cout<<two_level_matrices[i][j][k]<<" ";
             }
             cout<<endl;
         }
