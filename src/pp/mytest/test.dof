@@ -1,5 +1,5 @@
 //logger debug
-qcir read src/pp/mytest/mybenchmark/sample_H.qasm
+qcir read src/pp/mytest/mybenchmark/random.qasm
 // qc draw src/pp/mytest/mybenchmark/initial_iter.pdf
 qc2ts
 phase_poly

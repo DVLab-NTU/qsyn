@@ -103,9 +103,35 @@ void Phase_Polynomial::add_H_gate(size_t nth_h) {
  * @return vector<Phase>
  */
 Partition Phase_Polynomial::complete_the_partition(Wires wires, Partition partition) {
-    while (partition.num_rows() < wires.num_rows()) {
-        partition.push_row(wires.get_row(partition.num_rows()));
+    size_t flag = 0;
+
+    auto is_indepentant = [&](Partition p, dvlab::BooleanMatrix::Row r){
+        Partition temp = p;
+        size_t rank = p.gaussian_elimination_skip(p.num_cols(), true, false);
+        p.push_row(r);
+        return (rank != p.gaussian_elimination_skip(p.num_cols(), true, false));
+    };
+
+    while (partition.num_rows() < wires.num_rows()){
+        size_t nth_wire = partition.num_rows();
+        if(is_indepentant(partition, wires.get_row(nth_wire))){
+            partition.push_row(wires.get_row(nth_wire));
+        }else{
+            while(flag < nth_wire){
+                if(is_indepentant(partition, wires.get_row(flag))){
+                    partition.push_row(wires.get_row(flag));
+                    break;
+                }
+                flag++;
+            }
+        }
     }
+    
+    
+    
+    // while (partition.num_rows() < wires.num_rows()) {
+    //     partition.push_row(wires.get_row(partition.num_rows()));
+    // }
     return partition;
 }
 
