@@ -433,8 +433,6 @@ std::pair<std::vector<std::string>, std::string> ArgumentParser::_explode_option
             remainder_token = token.substr(j + 2);
         }
     }
-    fmt::println("single_char_options: {}", fmt::join(single_char_options, ", "));
-    fmt::println("remainder_token: {}", remainder_token);
     return {single_char_options, remainder_token};
 }
 
