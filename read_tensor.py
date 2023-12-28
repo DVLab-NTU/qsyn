@@ -34,3 +34,4 @@ for i in test_case:
     for j in i:
         print(f"({j.real},{j.imag})",end=" ")
     print()
+

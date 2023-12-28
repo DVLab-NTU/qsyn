@@ -1,6 +1,13 @@
 #include "bits/stdc++.h"
 using namespace std;
-
+void print_matrix(const vector<vector<complex<double>>>& matrix) {
+    for (int i = 0; i < matrix.size(); ++i) {
+        for (int j = 0; j < matrix[i].size(); ++j) {
+            cout << matrix[i][j] << " ";
+        }
+        cout << endl;
+    }
+}
 bool isUnitaryMatrix(const vector<vector<complex<double>>>& matrix) {
     // 檢查矩陣乘以其共軛轉置是否為單位矩陣
     for (int i = 0; i < matrix.size(); ++i) {
@@ -76,22 +83,36 @@ double get_angle(complex<double> s) {
     return (s.real() != 0) ? atan(s.imag()/s.real()) : M_PI/2;
 }
 
+complex<double> get_det(vector<vector<complex<double>>>& U) {
+    return U[0][0]*U[1][1] - U[0][1]*U[1][0];
+}
+
 vector<double> to_bloch(vector<vector<complex<double>>>& U) {
     assert(U.size() == 2);
     assert(U[0].size() == 2);
     assert(U[1].size() == 2);
     
     double theta, lambda, mu, global_phase;
+    // print_matrix(U);
+
     theta = acos(abs(U[0][0]));
-    global_phase = (get_angle(U[0][1]) + get_angle(U[1][0]))/2;
+    global_phase = get_angle(get_det(U)) / 2;
     lambda = get_angle(U[0][0]) - global_phase;
     mu = get_angle(U[0][1]) - global_phase;
-
+    // cout << theta << " " << lambda << " " << mu << " " << global_phase << endl;
     // if (global_phase > 1e-6) cerr << "not su" << endl;
 
     vector<double> bloch{theta, lambda, mu};
-    if (abs(pow(abs(U[0][0]),2) + pow(abs(U[0][1]),2) - 1) > 1e-6) bloch.clear(); // ||U|| != 1
-    if (get_angle(U[1][1]) + lambda - global_phase > 1e-6) bloch.clear();   // |U| is not e^it
+    if (abs(pow(abs(U[0][0]),2) + pow(abs(U[0][1]),2) - 1) > 1e-6) {
+        cerr << "||U|| != 1" << endl;
+        bloch.clear(); // ||U|| != 1
+    }
+    double check_angle = get_angle(U[1][0]) + mu - global_phase - M_PI;
+    // cout << check_angle << endl;
+    // if (abs(sin(check_angle)) > 1e-6 || cos(check_angle) < 1 - 1e-6) {
+    //     cerr << "|U| is not e^it" << endl;
+    //     bloch.clear();   // |U| is not e^it
+    // }
 
     return bloch;
 }
@@ -108,13 +129,13 @@ vector<string> cu_decompose(vector<vector<complex<double>>>& U, int targit_b, in
     double lambda = U_bloch[1];
     double mu = U_bloch[2];
 
-    ckt[0] = "rz(" + to_string(-mu) +") q[" + to_string(targit_b) + "];"+ "---start cu" + "\n";
+    ckt[0] = "rz(" + to_string(-mu) +") q[" + to_string(targit_b) + "];"+ "\n";
     ckt[1] = "cx q[" + to_string(ctrl_b) + "], q[" + to_string(targit_b) + "];\n";
     ckt[2] = "rz(" + to_string(-lambda) +") q[" + to_string(targit_b) + "];\n";
     ckt[3] = "ry(" + to_string(-theta) +") q[" + to_string(targit_b) + "];\n";
     ckt[4] = "cx q[" + to_string(ctrl_b) + "], q[" + to_string(targit_b) + "];\n";
     ckt[5] = "ry(" + to_string(theta) +") q[" + to_string(targit_b) + "];\n";
-    ckt[6] = "rz(" + to_string(lambda + mu) +") q[" + to_string(targit_b) + "];" + "---end cu" + "\n";
+    ckt[6] = "rz(" + to_string(lambda + mu) +") q[" + to_string(targit_b) + "];" + "\n";
 
     return ckt;
 }
@@ -125,10 +146,10 @@ vector<string> cnu_decompose(vector<vector<complex<double>>> U, int target_bits,
     vector<string> cu_buff;
     string temp, temp2;
     int n = qubit - 1;
-    result.push_back("--start cnu--\n");
     for(int i = 0; i < qubit; i++){
         assert(n > 0);
         if(i != target_bits){
+            // print_matrix(U);
             //if n = 1;
             if(n == 1){
                 cu_buff = cu_decompose(U, target_bits, i);
@@ -144,6 +165,7 @@ vector<string> cnu_decompose(vector<vector<complex<double>>> U, int target_bits,
             U[0][1] = (U[0][1])/t;
             U[1][0] = (U[1][0])/t;
             U[1][1] = (U[1][1] + s)/t;
+            // print_matrix(U);
             cu_buff = cu_decompose(U, target_bits, i);
             result.insert(result.end(), cu_buff.begin(), cu_buff.end());
 
@@ -222,7 +244,6 @@ string str_q(int b) {
 vector<string> vecstr_Ctrl(int b, int n, vector<vector<complex<double>>>& U2, vector<bool>& i_state) {
     vector<string> half_ckt;
     vector<string> cnU;
-    half_ckt.push_back("----add ctrl----\n");
     for (size_t ctrl_b = 0; ctrl_b < n; ++ctrl_b) {
         if (ctrl_b == b) continue;
         if (ctrl_b >= i_state.size() || i_state[ctrl_b] == 0) {
@@ -259,7 +280,6 @@ vector<string> gray_code(int i, int j, int n, vector<vector<complex<double>>>& U
     vector<string> half_ckt;
     vector<bool> i_state, j_state;
     vector<vector<complex<double>>> dummy(0); //dummy indicate x
-    half_ckt.push_back("-----------Gray_code-----------\n");
     while (i != 0) {
         i_state.push_back(false);
         if (i % 2) i_state[i_state.size() - 1] = true;
@@ -354,15 +374,15 @@ int main(int argc, char *argv[]){
                             //multiply U
                             input_matrix = matrixMultiply(two_level_matrix, input_matrix);
                             
-                            /*for debug
-                            cout<<"2-level\n";
-                            for(int n = 0; n < two_level_matrix.size(); n++){
-                                for(int k = 0; k < two_level_matrix[0].size(); k++){
-                                    cout<<two_level_matrix[n][k]<<" ";
-                                }
-                                cout<<endl;
-                            }
-                            cout<<endl;*/
+                            //for debug
+                            // cout<<"2-level\n";
+                            // for(int n = 0; n < two_level_matrix.size(); n++){
+                            //     for(int k = 0; k < two_level_matrix[0].size(); k++){
+                            //         cout<<two_level_matrix[n][k]<<" ";
+                            //     }
+                            //     cout<<endl;
+                            // }
+                            // cout<<endl;
                             
 
                             //dag and push back
@@ -414,15 +434,15 @@ int main(int argc, char *argv[]){
             }
         }
         
-        /*for debug
-        cout<<"U : "<<endl;
-        for(int j = 0; j < input_matrix.size(); j++){
-            for(int k = 0; k < input_matrix[j].size(); k++){
-                cout<<input_matrix[j][k]<<" ";
-            }
-            cout<<endl;
-        }
-        cout<<endl;*/
+        // for debug
+        // cout<<"U : "<<endl;
+        // for(int j = 0; j < input_matrix.size(); j++){
+        //     for(int k = 0; k < input_matrix[j].size(); k++){
+        //         cout<<input_matrix[j][k]<<" ";
+        //     }
+        //     cout<<endl;
+        // }
+        // cout<<endl;
     }
     
     two_level_matrices[two_level_matrices.size()-1] = matrixMultiply(two_level_matrices[two_level_matrices.size()-1], input_matrix);
@@ -448,7 +468,8 @@ int main(int argc, char *argv[]){
         int i, j;
         U2 = to_2level(two_level_matrices[t], i, j);
         // vector<string> str_U2 = cu_decompose(U2, i, j);
-
+        // print_matrix(U2);
+        
         vector<string> str_U2 = gray_code(i,j,(int(log2(n))),U2);
         for (int s = 0; s < str_U2.size(); s++) {
             cout << str_U2[s];
