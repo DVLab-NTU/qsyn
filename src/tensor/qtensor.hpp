@@ -525,7 +525,7 @@ int graycode(Tensor<U> const& t, int I, int J, int qreq, std::fstream &fout) {
 template <typename U>
 auto get_2level(QTensor<U> t) {
     std::vector<TwoLevelMatrix> two_level_chain;
-    fmt::println("start decomposing...");
+    // fmt::println("start decomposing...");
 
     using namespace std::literals;
     size_t num = 0;
@@ -671,13 +671,13 @@ auto get_2level(QTensor<U> t) {
         
             if (std::abs(t(i, i).real() - 1) < 1e-6 && std::abs(t(i, i).imag()) < 1e-6) {  // maybe use e-6 approx.
                 if (std::abs(t(j, i).real()) < 1e-6 && std::abs(t(j, i).imag()) < 1e-6) {
-                    fmt::println("skip cuz (1,0) {},{}", i, j);
+                    // fmt::println("skip cuz (1,0) {},{}", i, j);
                     continue;
                 }
             }
             if (std::abs(t(i, i).real()) < 1e-6 && std::abs(t(i, i).imag()) < 1e-6) {  // maybe use e-6 approx.
                 if (std::abs(t(j, i).real()) < 1e-6 && std::abs(t(j, i).imag()) < 1e-6) {
-                    fmt::println("skip cuz (0,0) {},{}", i, j);
+                    // fmt::println("skip cuz (0,0) {},{}", i, j);
                     continue;
                 }
             }
@@ -759,10 +759,10 @@ void decompose(QTensor<U>& t, std::string &filepath) {
     fs << fmt::format("qreg q[{}];\n", qreq);
     // qreq = 2;
     int end = two_level_chain.size();
-    for(int i=end-1; i >= 0; i--){
-        fmt::println("{} {}", two_level_chain[i].i, two_level_chain[i].j);
-        fmt::println("{}", two_level_chain[i].given);
-    }
+    // for(int i=end-1; i >= 0; i--){
+    //     fmt::println("{} {}", two_level_chain[i].i, two_level_chain[i].j);
+    //     fmt::println("{}", two_level_chain[i].given);
+    // }
     // for(int i=0 ; i< end; i++){
     //     int i_tmp = 0, j_tmp = 0;
     //     std::cout << two_level_chain[i].i << " " << two_level_chain[i].j <<std::endl;

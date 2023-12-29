@@ -458,7 +458,7 @@ ZYZ decompose_ZYZ(Tensor<U> const& t){
     struct ZYZ output;
 
     // new calculation
-    fmt::println("abs: {}", std::abs(a));
+    // fmt::println("abs: {}", std::abs(a));
     double init_beta;
     if(std::abs(a) > 1){
         init_beta = 0;
@@ -469,7 +469,7 @@ ZYZ decompose_ZYZ(Tensor<U> const& t){
     double beta_candidate[] = {init_beta, PI-init_beta, PI+init_beta, 2.0*PI-init_beta};
     for(int i=0; i<4; i++){
         double beta = beta_candidate[i];
-        fmt::println("beta: {}", beta);
+        // fmt::println("beta: {}", beta);
         output.beta = beta;
         std::complex<double> a1, b1, c1, d1;
         std::complex<double> cos(std::cos(beta)+1e-5, 0), sin(std::sin(beta)+1e-5, 0);
@@ -506,80 +506,6 @@ ZYZ decompose_ZYZ(Tensor<U> const& t){
     }
     fmt::println("no solution");
 
-    // // old case 
-    // if(std::abs(a) < 1e-6){
-    //     output.beta = PI/2.0;
-    //     output.alpha = (std::arg(c/b)-PI)/2.0;
-    //     output.gamma = -output.alpha;
-    //     output.phi = std::arg(minus_one*b*c)/2.0+PI;
-    // }
-    // else if(std::abs(b) < 1e-6){
-    //     output.alpha = std::arg(d/a)/2.0;
-    //     output.gamma = output.alpha;
-    //     output.beta = 0.0;
-    //     std::complex<double> _a(std::cos(output.alpha), std::sin(output.alpha));
-    //     output.phi = std::arg(a*_a);
-    // }
-    // else{
-    //     using namespace std::literals;
-    
-    //     // case 1
-    //     std::complex<double> c_phi = std::sqrt(a*d-b*c);
-    //     // std::cout << "c_phi: "<< c_phi << std::endl;
-    //     if(std::abs(c_phi.real()) < 1e-6){
-    //         c_phi = 0.+1.i;
-    //     }
-    //     output.phi = std::arg(c_phi);
-    //     //phi
-    //     std::complex<double> a1=t(0,0)/c_phi, b1=t(0,1)/c_phi, c1=t(1,0)/c_phi, d1=t(1,1)/c_phi;
-    //     // std::cout << a1 << ", " << b1 << ", " << c1 << ", " << d1 << std::endl;
-    //     output.alpha = (std::arg(minus_one*c1/b1)+std::arg(d1/a1))/2.0;
-    //     output.gamma = (std::arg(d1/a1)-std::arg(minus_one*c1/b1))/2.0;
-    //     std::complex<double> a_r(std::cos((output.alpha+output.gamma)/2), std::sin((output.alpha+output.gamma)/2));
-    //     std::complex<double> _ar(std::cos((output.alpha-output.gamma)/2), std::sin((output.alpha-output.gamma)/2));
-    //     output.beta = std::acos((a1*a_r).real());
-    //     std::complex<double> s1(std::sin(output.beta), 0.0);
-    //     std::complex<double> k1(std::cos(output.beta), 0.0);
-    //     if(std::abs(_ar*s1*c_phi - c) < 1e-3 && std::abs(c_phi*k1/a_r - a) < 1e-3 && std::abs(minus_one*c_phi*s1/_ar - b) < 1e-3 && std::abs(c_phi*k1*_ar - d) < 1e-3){
-    //         return output;
-    //     }
-    //     output.beta = output.beta*(-1.0);
-    //     std::complex<double> s2(std::sin(output.beta), 0.0);
-    //     std::complex<double> k2(std::cos(output.beta), 0.0);
-    //     if(std::abs(_ar*s2*c_phi - c) < 1e-3 && std::abs(c_phi*k2/a_r - a) < 1e-3 && std::abs(minus_one*c_phi*s2/_ar - b) < 1e-3 && std::abs(c_phi*k2*_ar - d) < 1e-3){
-    //         return output;
-    //     }
-    //     c_phi = c_phi*minus_one;
-    //     output.phi = std::arg(c_phi);
-    //     a1=t(0,0)/c_phi;
-    //     b1=t(0,1)/c_phi;
-    //     c1=t(1,0)/c_phi;
-    //     d1=t(1,1)/c_phi;
-    //     output.alpha = (std::arg(minus_one*c1/b1)+std::arg(d1/a1))/2.0;
-    //     output.gamma = (std::arg(d1/a1)-std::arg(minus_one*c1/b1))/2.0;
-    //     std::complex<double> a_r1(std::cos((output.alpha+output.gamma)/2), std::sin((output.alpha+output.gamma)/2));
-    //     std::complex<double> _ar1(std::cos((output.alpha-output.gamma)/2), std::sin((output.alpha-output.gamma)/2));
-    //     output.beta = std::acos((a1*a_r1).real());
-    //     std::complex<double> s3(std::sin(output.beta), 0.0);
-    //     std::complex<double> k3(std::cos(output.beta), 0.0);
-    //     if(std::abs(_ar1*s3*c_phi - c) < 1e-3 && std::abs(c_phi*k3/a_r1 - a) < 1e-3 && std::abs(minus_one*c_phi*s3/_ar1 - b) < 1e-3 && std::abs(c_phi*k3*_ar1 - d) < 1e-3){
-    //         return output;
-    //     }
-    //     output.beta = (-1.0)*output.beta;
-    //     std::complex<double> s4(std::sin(output.beta), 0.0);
-    //     std::complex<double> k4(std::cos(output.beta), 0.0);
-    //     if(std::abs(_ar1*s4*c_phi - c) < 1e-3 && std::abs(c_phi*k4/a_r1 - a) < 1e-3 && std::abs(minus_one*c_phi*s4/_ar1 - b) < 1e-3 && std::abs(c_phi*k4*_ar1 - d) < 1e-3){
-    //         return output;
-    //     }
-        // std::cout << "no solution" << std::endl;
-
-        // old case
-        
-
-    // }
-    
-    
-
     return output;
 }
 
@@ -587,7 +513,7 @@ template <typename U>
 int decompose_CU(Tensor<U> const& t, int ctrl, int targ, std::fstream &fout){
     // fmt::println("in decompose CU function");
     // std::cout << "CU on ctrl: " << ctrl << " targ: " << targ << " sqrt_time: " << sqrt_time << " dag: " << dag << " other: " << t.shape()[0] << std::endl;
-    fmt::println("matrix: {}", t);
+    // fmt::println("matrix: {}", t);
     struct ZYZ angles;
     // if(std::abs(t(0,0)) < 1e-6){
     //     fmt::println("cx q[{}], q[{}];"-ctrl-targ);
@@ -721,7 +647,7 @@ int decompose_CnU(Tensor<U> const& t, int diff_pos, int index, int ctrl_gates, s
 
 template <typename U>
 Tensor<U> tensor_multiply(Tensor<U> const& t1, Tensor<U> const& t2) {
-    fmt::println("in tensor multiply function");
+    // fmt::println("in tensor multiply function");
     return tensordot(t1, t2, {1}, {0});
 }
 
