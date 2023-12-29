@@ -1,0 +1,461 @@
+qcir read cliff+t/Tcircuit0.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit1.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit2.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit3.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit4.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit5.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit6.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit7.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit8.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit9.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit10.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit11.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit12.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit13.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit14.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit15.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit16.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit17.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit18.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit19.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit20.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit21.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit22.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit23.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit24.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit25.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit26.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit27.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit28.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit29.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit30.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit31.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit32.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit33.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit34.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit35.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit36.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit37.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit38.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit39.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit40.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit41.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit42.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit43.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit44.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit45.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit46.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit47.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit48.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit49.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit50.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit51.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit52.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit53.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit54.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit55.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit56.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit57.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit58.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit59.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit60.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit61.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit62.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit63.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit64.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit65.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit66.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit67.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit68.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit69.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit70.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit71.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit72.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit73.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit74.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit75.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit76.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit77.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit78.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit79.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit80.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit81.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit82.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit83.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit84.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit85.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit86.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit87.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit88.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit89.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit90.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+qcir read cliff+t/Tcircuit91.qasm
+qcir print
+convert qcir zx
+zx optimize --full
+zx print
+quit -f

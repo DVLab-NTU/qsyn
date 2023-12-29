@@ -1,0 +1,1108 @@
+qsyn v0.6.2 - Copyright © 2022-2023, DVLab NTUEE.
+Licensed under Apache 2.0 License.
+qsyn> qcir read cliff+t/Tcircuit0.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 37 gates, 12 2-qubits gates, 6 T-gates, 33 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 14 vertices, 18 edges)
+
+qsyn> qcir read cliff+t/Tcircuit1.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 51 gates, 25 2-qubits gates, 2 T-gates, 61 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 12 vertices, 14 edges)
+
+qsyn> qcir read cliff+t/Tcircuit2.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 116 gates, 59 2-qubits gates, 0 T-gates, 138 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 12 vertices, 13 edges)
+
+qsyn> qcir read cliff+t/Tcircuit3.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 139 gates, 55 2-qubits gates, 5 T-gates, 146 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 15 vertices, 26 edges)
+
+qsyn> qcir read cliff+t/Tcircuit4.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 24 gates, 6 2-qubits gates, 1 T-gates, 22 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 13 vertices, 14 edges)
+
+qsyn> qcir read cliff+t/Tcircuit5.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 44 gates, 14 2-qubits gates, 9 T-gates, 38 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 17 vertices, 22 edges)
+
+qsyn> qcir read cliff+t/Tcircuit6.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 23 gates, 9 2-qubits gates, 3 T-gates, 25 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 13 vertices, 16 edges)
+
+qsyn> qcir read cliff+t/Tcircuit7.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 127 gates, 73 2-qubits gates, 12 T-gates, 175 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 21 vertices, 41 edges)
+
+qsyn> qcir read cliff+t/Tcircuit8.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 75 gates, 40 2-qubits gates, 1 T-gates, 93 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 13 vertices, 12 edges)
+
+qsyn> qcir read cliff+t/Tcircuit9.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 19 gates, 11 2-qubits gates, 2 T-gates, 24 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 12 vertices, 14 edges)
+
+qsyn> qcir read cliff+t/Tcircuit10.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 68 gates, 31 2-qubits gates, 2 T-gates, 78 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 14 vertices, 19 edges)
+
+qsyn> qcir read cliff+t/Tcircuit11.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 57 gates, 20 2-qubits gates, 10 T-gates, 55 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 14 vertices, 18 edges)
+
+qsyn> qcir read cliff+t/Tcircuit12.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 87 gates, 36 2-qubits gates, 6 T-gates, 88 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 14 vertices, 21 edges)
+
+qsyn> qcir read cliff+t/Tcircuit13.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 85 gates, 33 2-qubits gates, 11 T-gates, 83 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 19 vertices, 32 edges)
+
+qsyn> qcir read cliff+t/Tcircuit14.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 45 gates, 20 2-qubits gates, 5 T-gates, 50 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 16 vertices, 24 edges)
+
+qsyn> qcir read cliff+t/Tcircuit15.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 135 gates, 62 2-qubits gates, 5 T-gates, 151 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 18 vertices, 29 edges)
+
+qsyn> qcir read cliff+t/Tcircuit16.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 22 gates, 7 2-qubits gates, 7 T-gates, 21 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 13 vertices, 16 edges)
+
+qsyn> qcir read cliff+t/Tcircuit17.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 82 gates, 29 2-qubits gates, 11 T-gates, 78 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 17 vertices, 27 edges)
+
+qsyn> qcir read cliff+t/Tcircuit18.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 110 gates, 56 2-qubits gates, 0 T-gates, 137 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 12 vertices, 14 edges)
+
+qsyn> qcir read cliff+t/Tcircuit19.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 80 gates, 30 2-qubits gates, 8 T-gates, 78 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 13 vertices, 17 edges)
+
+qsyn> qcir read cliff+t/Tcircuit20.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 68 gates, 33 2-qubits gates, 7 T-gates, 81 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 17 vertices, 26 edges)
+
+qsyn> qcir read cliff+t/Tcircuit21.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 89 gates, 45 2-qubits gates, 1 T-gates, 110 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 11 vertices, 11 edges)
+
+qsyn> qcir read cliff+t/Tcircuit22.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 121 gates, 62 2-qubits gates, 0 T-gates, 145 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 12 vertices, 18 edges)
+
+qsyn> qcir read cliff+t/Tcircuit23.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 22 gates, 12 2-qubits gates, 3 T-gates, 26 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 13 vertices, 17 edges)
+
+qsyn> qcir read cliff+t/Tcircuit24.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 146 gates, 70 2-qubits gates, 7 T-gates, 168 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 18 vertices, 24 edges)
+
+qsyn> qcir read cliff+t/Tcircuit25.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 36 gates, 12 2-qubits gates, 5 T-gates, 34 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 12 vertices, 12 edges)
+
+qsyn> qcir read cliff+t/Tcircuit26.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 100 gates, 40 2-qubits gates, 11 T-gates, 104 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 17 vertices, 23 edges)
+
+qsyn> qcir read cliff+t/Tcircuit27.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 17 gates, 6 2-qubits gates, 5 T-gates, 17 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 12 vertices, 12 edges)
+
+qsyn> qcir read cliff+t/Tcircuit28.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 29 gates, 11 2-qubits gates, 4 T-gates, 32 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 13 vertices, 12 edges)
+
+qsyn> qcir read cliff+t/Tcircuit29.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 78 gates, 43 2-qubits gates, 4 T-gates, 102 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 14 vertices, 17 edges)
+
+qsyn> qcir read cliff+t/Tcircuit30.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 17 gates, 6 2-qubits gates, 3 T-gates, 15 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 12 vertices, 14 edges)
+
+qsyn> qcir read cliff+t/Tcircuit31.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 40 gates, 18 2-qubits gates, 8 T-gates, 45 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 16 vertices, 25 edges)
+
+qsyn> qcir read cliff+t/Tcircuit32.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 95 gates, 39 2-qubits gates, 8 T-gates, 94 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 16 vertices, 25 edges)
+
+qsyn> qcir read cliff+t/Tcircuit33.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 62 gates, 30 2-qubits gates, 1 T-gates, 72 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 11 vertices, 13 edges)
+
+qsyn> qcir read cliff+t/Tcircuit34.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 80 gates, 41 2-qubits gates, 5 T-gates, 103 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 16 vertices, 25 edges)
+
+qsyn> qcir read cliff+t/Tcircuit35.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 148 gates, 68 2-qubits gates, 6 T-gates, 171 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 13 vertices, 15 edges)
+
+qsyn> qcir read cliff+t/Tcircuit36.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 29 gates, 11 2-qubits gates, 8 T-gates, 28 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 11 vertices, 13 edges)
+
+qsyn> qcir read cliff+t/Tcircuit37.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 59 gates, 26 2-qubits gates, 3 T-gates, 62 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 14 vertices, 16 edges)
+
+qsyn> qcir read cliff+t/Tcircuit38.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 109 gates, 47 2-qubits gates, 7 T-gates, 116 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 13 vertices, 15 edges)
+
+qsyn> qcir read cliff+t/Tcircuit39.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 140 gates, 77 2-qubits gates, 0 T-gates, 178 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 12 vertices, 16 edges)
+
+qsyn> qcir read cliff+t/Tcircuit40.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 64 gates, 24 2-qubits gates, 4 T-gates, 67 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 14 vertices, 23 edges)
+
+qsyn> qcir read cliff+t/Tcircuit41.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 127 gates, 58 2-qubits gates, 4 T-gates, 145 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 12 vertices, 14 edges)
+
+qsyn> qcir read cliff+t/Tcircuit42.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 84 gates, 40 2-qubits gates, 11 T-gates, 107 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 14 vertices, 23 edges)
+
+qsyn> qcir read cliff+t/Tcircuit43.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 82 gates, 34 2-qubits gates, 9 T-gates, 86 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 19 vertices, 22 edges)
+
+qsyn> qcir read cliff+t/Tcircuit44.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 44 gates, 17 2-qubits gates, 10 T-gates, 49 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 13 vertices, 17 edges)
+
+qsyn> qcir read cliff+t/Tcircuit45.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 18 gates, 8 2-qubits gates, 6 T-gates, 22 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 14 vertices, 18 edges)
+
+qsyn> qcir read cliff+t/Tcircuit46.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 69 gates, 31 2-qubits gates, 14 T-gates, 80 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 15 vertices, 24 edges)
+
+qsyn> qcir read cliff+t/Tcircuit47.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 35 gates, 15 2-qubits gates, 6 T-gates, 43 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 15 vertices, 16 edges)
+
+qsyn> qcir read cliff+t/Tcircuit48.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 21 gates, 5 2-qubits gates, 6 T-gates, 17 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 13 vertices, 16 edges)
+
+qsyn> qcir read cliff+t/Tcircuit49.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 124 gates, 53 2-qubits gates, 13 T-gates, 143 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 18 vertices, 27 edges)
+
+qsyn> qcir read cliff+t/Tcircuit50.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 59 gates, 34 2-qubits gates, 2 T-gates, 78 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 13 vertices, 16 edges)
+
+qsyn> qcir read cliff+t/Tcircuit51.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 79 gates, 46 2-qubits gates, 4 T-gates, 111 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 14 vertices, 19 edges)
+
+qsyn> qcir read cliff+t/Tcircuit52.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 30 gates, 17 2-qubits gates, 3 T-gates, 41 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 13 vertices, 14 edges)
+
+qsyn> qcir read cliff+t/Tcircuit53.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 23 gates, 9 2-qubits gates, 2 T-gates, 26 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 11 vertices, 13 edges)
+
+qsyn> qcir read cliff+t/Tcircuit54.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 19 gates, 7 2-qubits gates, 8 T-gates, 17 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 12 vertices, 11 edges)
+
+qsyn> qcir read cliff+t/Tcircuit55.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 40 gates, 13 2-qubits gates, 1 T-gates, 39 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 13 vertices, 14 edges)
+
+qsyn> qcir read cliff+t/Tcircuit56.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 113 gates, 54 2-qubits gates, 5 T-gates, 132 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 14 vertices, 19 edges)
+
+qsyn> qcir read cliff+t/Tcircuit57.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 51 gates, 32 2-qubits gates, 5 T-gates, 70 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 12 vertices, 12 edges)
+
+qsyn> qcir read cliff+t/Tcircuit58.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 30 gates, 16 2-qubits gates, 3 T-gates, 39 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 12 vertices, 14 edges)
+
+qsyn> qcir read cliff+t/Tcircuit59.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 78 gates, 37 2-qubits gates, 3 T-gates, 92 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 14 vertices, 20 edges)
+
+qsyn> qcir read cliff+t/Tcircuit60.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 73 gates, 31 2-qubits gates, 7 T-gates, 81 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 18 vertices, 25 edges)
+
+qsyn> qcir read cliff+t/Tcircuit61.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 34 gates, 19 2-qubits gates, 0 T-gates, 42 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 12 vertices, 14 edges)
+
+qsyn> qcir read cliff+t/Tcircuit62.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 33 gates, 11 2-qubits gates, 10 T-gates, 33 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 15 vertices, 24 edges)
+
+qsyn> qcir read cliff+t/Tcircuit63.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 54 gates, 22 2-qubits gates, 12 T-gates, 59 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 16 vertices, 20 edges)
+
+qsyn> qcir read cliff+t/Tcircuit64.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 62 gates, 32 2-qubits gates, 4 T-gates, 79 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 12 vertices, 14 edges)
+
+qsyn> qcir read cliff+t/Tcircuit65.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 14 gates, 8 2-qubits gates, 1 T-gates, 18 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 12 vertices, 15 edges)
+
+qsyn> qcir read cliff+t/Tcircuit66.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 36 gates, 13 2-qubits gates, 6 T-gates, 38 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 14 vertices, 18 edges)
+
+qsyn> qcir read cliff+t/Tcircuit67.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 8 gates, 2 2-qubits gates, 1 T-gates, 7 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 11 vertices, 11 edges)
+
+qsyn> qcir read cliff+t/Tcircuit68.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 52 gates, 15 2-qubits gates, 6 T-gates, 42 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 15 vertices, 18 edges)
+
+qsyn> qcir read cliff+t/Tcircuit69.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 124 gates, 51 2-qubits gates, 10 T-gates, 137 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 17 vertices, 24 edges)
+
+qsyn> qcir read cliff+t/Tcircuit70.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 21 gates, 8 2-qubits gates, 2 T-gates, 19 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 13 vertices, 16 edges)
+
+qsyn> qcir read cliff+t/Tcircuit71.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 82 gates, 53 2-qubits gates, 2 T-gates, 114 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 11 vertices, 12 edges)
+
+qsyn> qcir read cliff+t/Tcircuit72.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 66 gates, 27 2-qubits gates, 11 T-gates, 67 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 22 vertices, 37 edges)
+
+qsyn> qcir read cliff+t/Tcircuit73.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 25 gates, 14 2-qubits gates, 4 T-gates, 34 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 15 vertices, 20 edges)
+
+qsyn> qcir read cliff+t/Tcircuit74.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 29 gates, 13 2-qubits gates, 5 T-gates, 32 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 17 vertices, 21 edges)
+
+qsyn> qcir read cliff+t/Tcircuit75.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 31 gates, 13 2-qubits gates, 5 T-gates, 35 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 13 vertices, 18 edges)
+
+qsyn> qcir read cliff+t/Tcircuit76.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 55 gates, 28 2-qubits gates, 2 T-gates, 67 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 12 vertices, 15 edges)
+
+qsyn> qcir read cliff+t/Tcircuit77.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 68 gates, 37 2-qubits gates, 5 T-gates, 83 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 13 vertices, 16 edges)
+
+qsyn> qcir read cliff+t/Tcircuit78.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 55 gates, 24 2-qubits gates, 2 T-gates, 60 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 14 vertices, 18 edges)
+
+qsyn> qcir read cliff+t/Tcircuit79.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 109 gates, 51 2-qubits gates, 5 T-gates, 127 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 12 vertices, 13 edges)
+
+qsyn> qcir read cliff+t/Tcircuit80.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 124 gates, 72 2-qubits gates, 0 T-gates, 166 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 12 vertices, 16 edges)
+
+qsyn> qcir read cliff+t/Tcircuit81.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 109 gates, 52 2-qubits gates, 10 T-gates, 126 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 15 vertices, 24 edges)
+
+qsyn> qcir read cliff+t/Tcircuit82.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 119 gates, 49 2-qubits gates, 11 T-gates, 128 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 15 vertices, 23 edges)
+
+qsyn> qcir read cliff+t/Tcircuit83.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 10 gates, 6 2-qubits gates, 0 T-gates, 14 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 11 vertices, 11 edges)
+
+qsyn> qcir read cliff+t/Tcircuit84.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 120 gates, 62 2-qubits gates, 13 T-gates, 153 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 20 vertices, 32 edges)
+
+qsyn> qcir read cliff+t/Tcircuit85.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 30 gates, 18 2-qubits gates, 3 T-gates, 40 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 15 vertices, 19 edges)
+
+qsyn> qcir read cliff+t/Tcircuit86.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 28 gates, 15 2-qubits gates, 0 T-gates, 37 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 12 vertices, 13 edges)
+
+qsyn> qcir read cliff+t/Tcircuit87.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 129 gates, 68 2-qubits gates, 0 T-gates, 164 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 12 vertices, 13 edges)
+
+qsyn> qcir read cliff+t/Tcircuit88.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 140 gates, 76 2-qubits gates, 0 T-gates, 182 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 11 vertices, 12 edges)
+
+qsyn> qcir read cliff+t/Tcircuit89.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 52 gates, 24 2-qubits gates, 1 T-gates, 60 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 13 vertices, 16 edges)
+
+qsyn> qcir read cliff+t/Tcircuit90.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 82 gates, 36 2-qubits gates, 7 T-gates, 92 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 14 vertices, 24 edges)
+
+qsyn> qcir read cliff+t/Tcircuit91.qasm
+
+qsyn> qcir print
+QCir (3 qubits, 31 gates, 11 2-qubits gates, 7 T-gates, 31 depths)
+
+qsyn> convert qcir zx
+
+qsyn> zx optimize --full
+
+qsyn> zx print
+Graph (3 inputs, 3 outputs, 20 vertices, 33 edges)
+
+qsyn> quit -f
+
