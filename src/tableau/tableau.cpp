@@ -10,67 +10,44 @@
 namespace qsyn::experimental {
 
 std::string StabilizerTableau::to_string() const {
-    std::string result;
+    std::string ret;
     for (size_t i = 0; i < n_qubits(); ++i) {
-        for (size_t j = 0; j < n_qubits(); ++j) {
-            result += fmt::format("{}", z_row(i)[stabilizer_idx(j)] ? "1" : "0");
-        }
-        result += ' ';
-        for (size_t j = 0; j < n_qubits(); ++j) {
-            result += fmt::format("{}", z_row(i)[destabilizer_idx(j)] ? "1" : "0");
-        }
-        result += '\n';
+        ret += fmt::format("S{}  {:+c}\n", i, _rotations[stabilizer_idx(i)]);
     }
-    result += '\n';
+    ret += '\n';
     for (size_t i = 0; i < n_qubits(); ++i) {
-        for (size_t j = 0; j < n_qubits(); ++j) {
-            result += fmt::format("{}", x_row(i)[stabilizer_idx(j)] ? "1" : "0");
-        }
-        result += ' ';
-        for (size_t j = 0; j < n_qubits(); ++j) {
-            result += fmt::format("{}", x_row(i)[destabilizer_idx(j)] ? "1" : "0");
-        }
-        result += '\n';
+        ret += fmt::format("D{}  {:+c}\n", i, _rotations[destabilizer_idx(i)]);
     }
-    result += '\n';
-    for (size_t j = 0; j < n_qubits(); ++j) {
-        result += fmt::format("{}", r_row()[stabilizer_idx(j)] ? "1" : "0");
+    return ret;
+}
+
+std::string StabilizerTableau::to_bit_string() const {
+    std::string ret;
+    for (size_t i = 0; i < n_qubits(); ++i) {
+        ret += fmt::format("S{}  {:b}\n", i, _rotations[stabilizer_idx(i)]);
     }
-    result += ' ';
-    for (size_t j = 0; j < n_qubits(); ++j) {
-        result += fmt::format("{}", r_row()[destabilizer_idx(j)] ? "1" : "0");
+    ret += '\n';
+    for (size_t i = 0; i < n_qubits(); ++i) {
+        ret += fmt::format("D{}  {:b}\n", i, _rotations[destabilizer_idx(i)]);
     }
-    result += '\n';
-    return result;
+    return ret;
 }
 
 StabilizerTableau& StabilizerTableau::h(size_t qubit) {
     if (qubit >= n_qubits()) return *this;
-
-    r_row() ^= (x_row(qubit) & z_row(qubit));
-    std::swap(z_row(qubit), x_row(qubit));
-
+    std::ranges::for_each(_rotations, [qubit](PauliProduct& p) { p.h(qubit); });
     return *this;
 }
 
 StabilizerTableau& StabilizerTableau::s(size_t qubit) {
     if (qubit >= n_qubits()) return *this;
-    // order matters!!
-    r_row() ^= (x_row(qubit) & z_row(qubit));
-    z_row(qubit) ^= x_row(qubit);
-
+    std::ranges::for_each(_rotations, [qubit](PauliProduct& p) { p.s(qubit); });
     return *this;
 }
 
 StabilizerTableau& StabilizerTableau::cx(size_t ctrl, size_t targ) {
-    if (ctrl >= n_qubits() || targ >= n_qubits()) {
-        return *this;
-    }
-    // order matters!!
-    r_row() ^= (x_row(ctrl) & z_row(targ) & (x_row(targ) ^ ~z_row(targ)));
-    x_row(targ) ^= x_row(ctrl);
-    z_row(ctrl) ^= z_row(targ);
-
+    if (ctrl >= n_qubits() || targ >= n_qubits()) return *this;
+    std::ranges::for_each(_rotations, [ctrl, targ](PauliProduct& p) { p.cx(ctrl, targ); });
     return *this;
 }
 }  // namespace qsyn::experimental

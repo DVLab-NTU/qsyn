@@ -12,8 +12,10 @@
 #include "argparse/arg_type.hpp"
 #include "argparse/argument.hpp"
 #include "cli/cli.hpp"
+#include "tableau/pauli_rotation.hpp"
 #include "tableau/tableau_mgr.hpp"
 #include "util/data_structure_manager_common_cmd.hpp"
+#include "util/phase.hpp"
 #include "util/text_format.hpp"
 
 using namespace dvlab::argparse;
@@ -186,9 +188,23 @@ dvlab::Command tableau_print_cmd(TableauMgr& tableau_mgr) {
         "print",
         [&](ArgumentParser& parser) {
             parser.description("Print the tableau");
+
+            auto mutex = parser.add_mutually_exclusive_group().required(false);
+
+            mutex.add_argument<bool>("-b", "--bit")
+                .action(store_true)
+                .help("Print the tableau in bit string format");
+
+            mutex.add_argument<bool>("-c", "--char")
+                .action(store_true)
+                .help("Print the tableau in character format");
         },
-        [&](ArgumentParser const& /*parser*/) {
-            fmt::println("{}", tableau_mgr.get()->to_string());
+        [&](ArgumentParser const& parser) {
+            if (parser.parsed("-b")) {
+                fmt::println("{:b}", *tableau_mgr.get());
+            } else {
+                fmt::println("{:c}", *tableau_mgr.get());
+            }
             return dvlab::CmdExecResult::done;
         }};
 }
@@ -208,8 +224,32 @@ dvlab::Command tableau_cmd(TableauMgr& tableau_mgr) {
     return cmd;
 }
 
+dvlab::Command pauli_rotation_cmd() {
+    return dvlab::Command{
+        "pr",
+        [&](ArgumentParser& parser) {
+            parser.description("Test Pauli rotation");
+        },
+        [&](ArgumentParser const& /*parser*/) {
+            auto p1 = qsyn::experimental::PauliRotation("ZI", dvlab::Phase(1, 2));
+            auto p2 = qsyn::experimental::PauliRotation("-IZ", dvlab::Phase(-1, 2));
+            auto p3 = qsyn::experimental::PauliProduct("+IX");
+            auto p4 = qsyn::experimental::PauliProduct("-IY");
+            fmt::println("p1, p2 is commutative: {}", p1.is_commutative(p2));
+            fmt::println("p1, p2 is commutative: {}", qsyn::experimental::is_commutative(p3, p4));
+            fmt::println("{:+c}", p1.h(0));
+            fmt::println("{: c}", p2.h(0));
+            fmt::println("{:c}", p1.cx(0, 1));
+            fmt::println("{:c}", p2.cx(0, 1));
+            fmt::println("{:b}", p1.s(0));
+            fmt::println("{:b}", p2.v(1));
+
+            return dvlab::CmdExecResult::done;
+        }};
+}
+
 bool add_tableau_command(dvlab::CommandLineInterface& cli, TableauMgr& tableau_mgr) {
-    return cli.add_command(tableau_cmd(tableau_mgr));
+    return cli.add_command(tableau_cmd(tableau_mgr)) && cli.add_command(pauli_rotation_cmd());
 }
 
 }  // namespace qsyn::experimental
