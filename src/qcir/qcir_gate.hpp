@@ -100,6 +100,8 @@ public:
     bool is_cz() const { return _rotation_category == GateRotationCategory::pz && _phase == dvlab::Phase(1) && _qubits.size() == 2; }
     bool is_swap() const { return _rotation_category == GateRotationCategory::swap; }
 
+    void adjoint();
+
 private:
 protected:
     size_t _id;

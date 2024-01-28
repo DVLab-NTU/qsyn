@@ -163,4 +163,24 @@ void QCir::reset() {
     _global_dfs_counter = 1;
 }
 
+void QCir::adjoint() {
+    for (auto& g : _qgates) {
+        g->adjoint();
+        auto qubits = g->get_qubits();
+        for (auto& q : qubits) {
+            std::swap(q._prev, q._next);
+        }
+        g->set_qubits(qubits);
+    }
+
+    for (auto& q : _qubits) {
+        auto first = q->get_first();
+        auto last  = q->get_last();
+        q->set_first(last);
+        q->set_last(first);
+    }
+
+    _dirty = true;
+}
+
 }  // namespace qsyn::qcir

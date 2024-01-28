@@ -46,10 +46,10 @@ std::string type_string(DummyArgType const& /*unused*/) { return "dummy"; }
 template <>
 bool parse_from_string(bool& val, std::string_view token) {
     using namespace std::string_view_literals;
-    if (dvlab::str::is_prefix_of(dvlab::str::tolower_string(token), "true")) {
+    if (dvlab::str::is_prefix_of(dvlab::str::tolower_string(token), "true") || token == "1"sv) {
         val = true;
         return true;
-    } else if (dvlab::str::is_prefix_of(dvlab::str::tolower_string(token), "false")) {
+    } else if (dvlab::str::is_prefix_of(dvlab::str::tolower_string(token), "false") || token == "0"sv) {
         val = false;
         return true;
     }

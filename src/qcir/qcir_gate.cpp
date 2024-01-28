@@ -214,4 +214,10 @@ void QCirGate::_print_single_qubit_or_controlled_gate(std::string gtype, bool sh
         fmt::println("Execute at t= {}", get_time());
 }
 
+void QCirGate::adjoint() {
+    if (!is_fixed_phase_gate(_rotation_category)) {
+        _phase = -_phase;
+    }
+}
+
 }  // namespace qsyn::qcir
