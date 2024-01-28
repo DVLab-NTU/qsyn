@@ -203,8 +203,7 @@ bool Optimizer::parse_gate(QCirGate* gate, bool do_swap, bool minimize_czs) {
  * @param circuit
  */
 QCir Optimizer::_build_from_storage(size_t n_qubits, bool reversed) {
-    QCir circuit;
-    circuit.add_qubits(n_qubits);
+    QCir circuit{n_qubits};
 
     while (any_of(_gates.begin(), _gates.end(), [](auto& p_g) { return p_g.second.size(); })) {
         dvlab::utils::ordered_hashset<size_t> available_id;

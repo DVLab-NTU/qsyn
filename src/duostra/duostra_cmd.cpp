@@ -19,6 +19,7 @@
 #include "duostra/duostra_def.hpp"
 #include "qcir/qcir.hpp"
 #include "qcir/qcir_cmd.hpp"
+#include "util/data_structure_manager_common_cmd.hpp"
 #include "util/text_format.hpp"
 
 using namespace dvlab::argparse;
@@ -221,7 +222,7 @@ Command duostra_cmd(qcir::QCirMgr& qcir_mgr, device::DeviceMgr& device_mgr) {
                        },
 
                        [&](ArgumentParser const& parser) {
-                           if (!qcir_mgr_not_empty(qcir_mgr) || !device_mgr_not_empty(device_mgr)) return CmdExecResult::error;
+                           if (!dvlab::utils::mgr_has_data(qcir_mgr) || !dvlab::utils::mgr_has_data(device_mgr)) return CmdExecResult::error;
 #ifdef __GNUC__
                            char const* const omp_wait_policy = std::getenv("OMP_WAIT_POLICY");
 

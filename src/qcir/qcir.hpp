@@ -87,6 +87,9 @@ class QCir {  // NOLINT(hicpp-special-member-functions, cppcoreguidelines-specia
 public:
     using QubitIdType = qsyn::QubitIdType;
     QCir() {}
+    QCir(size_t n_qubits) {
+        add_qubits(n_qubits);
+    }
     ~QCir() = default;
     QCir(QCir const& other);
     QCir(QCir&& other) noexcept = default;
@@ -157,6 +160,8 @@ public:
 
     void update_gate_time() const;
     void print_zx_form_topological_order();
+
+    void adjoint();
 
     // DFS functions
     template <typename F>

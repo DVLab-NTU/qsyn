@@ -42,10 +42,10 @@ public:
 
     // basic optimization
     struct BasicOptimizationConfig {
-        bool doSwap;
-        bool separateCorrection;
-        size_t maxIter;
-        bool printStatistics;
+        bool doSwap             = true;
+        bool separateCorrection = false;
+        size_t maxIter          = 1000;
+        bool printStatistics    = false;
     };
     std::optional<QCir> basic_optimization(QCir const& qcir, BasicOptimizationConfig const& config);
     QCir parse_forward(QCir const& qcir, bool do_minimize_czs, BasicOptimizationConfig const& config);

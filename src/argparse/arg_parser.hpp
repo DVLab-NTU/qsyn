@@ -221,7 +221,7 @@ template <typename T>
 requires valid_argument_type<T>
 ArgType<T>& MutuallyExclusiveGroup::add_argument(std::string_view name, std::convertible_to<std::string> auto... alias) {
     ArgType<T>& return_ref = _pimpl->_parser->add_argument<T>(name, alias...);
-    _pimpl->_arguments.insert(return_ref._name);
+    _pimpl->_arg_names.emplace_back(name);
     return return_ref;
 }
 

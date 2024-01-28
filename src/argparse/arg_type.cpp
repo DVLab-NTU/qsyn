@@ -9,14 +9,12 @@
 
 #include <filesystem>
 
-#include "util/ordered_hashset.hpp"
 #include "util/trie.hpp"
 
 namespace dvlab::argparse {
 
 static_assert(is_container_type<std::vector<int>> == true);
 static_assert(is_container_type<std::vector<std::string>> == true);
-static_assert(is_container_type<dvlab::utils::ordered_hashset<float>> == true);
 static_assert(is_container_type<std::string> == false);
 static_assert(is_container_type<std::array<int, 3>> == false);
 

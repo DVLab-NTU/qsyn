@@ -26,10 +26,9 @@ std::optional<QCir> Optimizer::trivial_optimization(QCir const& qcir) {
     spdlog::info("Start trivial optimization");
 
     reset(qcir);
-    QCir result;
+    QCir result{qcir.get_num_qubits()};
     result.set_filename(qcir.get_filename());
     result.add_procedures(qcir.get_procedures());
-    result.add_qubits(qcir.get_num_qubits());
 
     auto const gate_list = qcir.get_topologically_ordered_gates();
     for (auto gate : gate_list) {
