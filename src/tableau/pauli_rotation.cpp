@@ -13,18 +13,18 @@ namespace qsyn {
 
 namespace experimental {
 
-uint8_t power_of_i(PauliType a, PauliType b) {
-    if (a == PauliType::X && b == PauliType::Y) return 1;
-    if (a == PauliType::Y && b == PauliType::Z) return 1;
-    if (a == PauliType::Z && b == PauliType::X) return 1;
+uint8_t power_of_i(Pauli a, Pauli b) {
+    if (a == Pauli::X && b == Pauli::Y) return 1;
+    if (a == Pauli::Y && b == Pauli::Z) return 1;
+    if (a == Pauli::Z && b == Pauli::X) return 1;
 
-    if (a == PauliType::X && b == PauliType::Z) return 3;
-    if (a == PauliType::Z && b == PauliType::Y) return 3;
-    if (a == PauliType::Y && b == PauliType::X) return 3;
+    if (a == Pauli::X && b == Pauli::Z) return 3;
+    if (a == Pauli::Z && b == Pauli::Y) return 3;
+    if (a == Pauli::Y && b == Pauli::X) return 3;
     return 0;
 }
 
-PauliProduct::PauliProduct(std::initializer_list<PauliType> const& pauli_list, bool is_neg)
+PauliProduct::PauliProduct(std::initializer_list<Pauli> const& pauli_list, bool is_neg)
     : _bitset(2 * pauli_list.size() + 1, 0) {
     if (is_neg) {
         _bitset.set(2 * pauli_list.size());
@@ -32,16 +32,16 @@ PauliProduct::PauliProduct(std::initializer_list<PauliType> const& pauli_list, b
 
     for (size_t i = 0; i < pauli_list.size(); ++i) {
         switch (pauli_list.begin()[i]) {
-            case PauliType::I:
+            case Pauli::I:
                 break;
-            case PauliType::Z:
+            case Pauli::Z:
                 _bitset.set(z_idx(i));
                 break;
-            case PauliType::Y:
+            case Pauli::Y:
                 _bitset.set(z_idx(i));
                 _bitset.set(x_idx(i));
                 break;
-            case PauliType::X:
+            case Pauli::X:
                 _bitset.set(x_idx(i));
                 break;
         }
@@ -83,7 +83,7 @@ PauliProduct& PauliProduct::operator*=(PauliProduct const& rhs) {
     // calculate the sign
     uint8_t power_of_i = 0;
     for (size_t i = 0; i < n_qubits(); ++i) {
-        power_of_i += qsyn::experimental::power_of_i(pauli_type(i), rhs.pauli_type(i));
+        power_of_i += qsyn::experimental::power_of_i(get_pauli_type(i), rhs.get_pauli_type(i));
     }
     assert(power_of_i % 2 == 0);
     if (power_of_i % 4 == 2) {
@@ -104,17 +104,17 @@ std::string PauliProduct::to_string(char signedness) const {
     }
 
     for (size_t i = 0; i < n_qubits(); ++i) {
-        switch (pauli_type(i)) {
-            case PauliType::I:
+        switch (get_pauli_type(i)) {
+            case Pauli::I:
                 str += 'I';
                 break;
-            case PauliType::X:
+            case Pauli::X:
                 str += 'X';
                 break;
-            case PauliType::Y:
+            case Pauli::Y:
                 str += 'Y';
                 break;
-            case PauliType::Z:
+            case Pauli::Z:
                 str += 'Z';
                 break;
         }
@@ -188,7 +188,7 @@ bool PauliProduct::is_commutative(PauliProduct const& rhs) const {
     return is_commutative;
 }
 
-PauliRotation::PauliRotation(std::initializer_list<PauliType> const& pauli_list, dvlab::Phase const& phase)
+PauliRotation::PauliRotation(std::initializer_list<Pauli> const& pauli_list, dvlab::Phase const& phase)
     : _pauli_product(pauli_list, false), _phase(phase) { normalize(); }
 
 PauliRotation::PauliRotation(std::string_view pauli_str, dvlab::Phase const& phase)

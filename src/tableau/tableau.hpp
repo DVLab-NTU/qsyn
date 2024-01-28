@@ -24,15 +24,15 @@ namespace experimental {
 
 class StabilizerTableau : public PauliProductTrait<StabilizerTableau> {
 public:
-    StabilizerTableau(size_t n_qubits) : _rotations(2 * n_qubits, PauliProduct(std::string(n_qubits, 'I'))) {
+    StabilizerTableau(size_t n_qubits) : _stabilizers(2 * n_qubits, PauliProduct(std::string(n_qubits, 'I'))) {
         for (size_t i = 0; i < n_qubits; ++i) {
-            _rotations[stabilizer_idx(i)].set(i, PauliType::Z);
-            _rotations[destabilizer_idx(i)].set(i, PauliType::X);
+            _stabilizers[stabilizer_idx(i)].set_pauli_type(i, Pauli::Z);
+            _stabilizers[destabilizer_idx(i)].set_pauli_type(i, Pauli::X);
         }
     }
 
     inline size_t n_qubits() const {
-        return _rotations.size() / 2;
+        return _stabilizers.size() / 2;
     }
 
     inline size_t stabilizer_idx(size_t qubit) const {
@@ -52,27 +52,27 @@ public:
     std::string to_bit_string() const;
 
     inline PauliProduct const& stabilizer(size_t qubit) const {
-        return _rotations[stabilizer_idx(qubit)];
+        return _stabilizers[stabilizer_idx(qubit)];
     }
     inline PauliProduct const& destabilizer(size_t qubit) const {
-        return _rotations[destabilizer_idx(qubit)];
+        return _stabilizers[destabilizer_idx(qubit)];
     }
     inline PauliProduct& stabilizer(size_t qubit) {
-        return _rotations[stabilizer_idx(qubit)];
+        return _stabilizers[stabilizer_idx(qubit)];
     }
     inline PauliProduct& destabilizer(size_t qubit) {
-        return _rotations[destabilizer_idx(qubit)];
+        return _stabilizers[destabilizer_idx(qubit)];
     }
 
     bool operator==(StabilizerTableau const& rhs) const {
-        return _rotations == rhs._rotations;
+        return _stabilizers == rhs._stabilizers;
     }
     bool operator!=(StabilizerTableau const& rhs) const {
         return !(*this == rhs);
     }
 
 private:
-    std::vector<PauliProduct> _rotations;
+    std::vector<PauliProduct> _stabilizers;
 };
 
 }  // namespace experimental

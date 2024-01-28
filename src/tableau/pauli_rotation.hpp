@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <bits/iterator_concepts.h>
 #include <fmt/core.h>
 
 #include <csignal>
@@ -21,14 +22,14 @@ namespace qsyn {
 
 namespace experimental {
 
-enum class PauliType {
+enum class Pauli {
     I,
     X,
     Y,
     Z
 };
 
-uint8_t power_of_i(PauliType a, PauliType b);
+uint8_t power_of_i(Pauli a, Pauli b);
 
 /**
  * @brief Traits for Pauli Product-like classes. Such classes should implement the h, s, cx methods.
@@ -52,19 +53,32 @@ public:
     inline T& y(size_t qubit) { return x(qubit).z(qubit); }
     inline T& z(size_t qubit) { return s(qubit).s(qubit); }
     inline T& cz(size_t control, size_t target) { return h(target).cx(control, target).h(target); }
+    inline T& swap(size_t qubit1, size_t qubit2) { return cx(qubit1, qubit2).cx(qubit2, qubit1).cx(qubit1, qubit2); }
 };
 
 class PauliProduct : public PauliProductTrait<PauliProduct> {
 public:
-    PauliProduct(std::initializer_list<PauliType> const& pauli_list, bool is_neg);
+    PauliProduct(std::initializer_list<Pauli> const& pauli_list, bool is_neg);
     PauliProduct(std::string_view pauli_str);
+
+    template <std::input_iterator I, std::sentinel_for<I> S>
+    PauliProduct(I first, S last, bool is_neg) : _bitset(2 * std::ranges::distance(first, last) + 1) {
+        size_t i = 0;
+        for (auto it = first; it != last; ++it) {
+            set_pauli_type(i++, *it);
+        }
+        _bitset[r_idx()] = is_neg;
+    }
+
+    template <std::ranges::range R>
+    PauliProduct(R const& r, bool is_neg) : PauliProduct(std::ranges::begin(r), std::ranges::end(r), is_neg) {}
 
     ~PauliProduct() override = default;
 
     inline size_t n_qubits() const { return (_bitset.size() - 1) / 2; }
-    inline PauliType pauli_type(size_t i) const {
-        return is_z_set(i) ? (is_x_set(i) ? PauliType::Y : PauliType::Z)
-                           : (is_x_set(i) ? PauliType::X : PauliType::I);
+    inline Pauli get_pauli_type(size_t i) const {
+        return is_z_set(i) ? (is_x_set(i) ? Pauli::Y : Pauli::Z)
+                           : (is_x_set(i) ? Pauli::X : Pauli::I);
     }
 
     inline bool is_i(size_t i) const { return !is_z_set(i) && !is_x_set(i); }
@@ -98,26 +112,29 @@ public:
 
     bool is_commutative(PauliProduct const& rhs) const;
 
-    inline void set(size_t i, PauliType type) {
+    inline void set_pauli_type(size_t i, Pauli type) {
         switch (type) {
-            case PauliType::I:
+            case Pauli::I:
                 _bitset[z_idx(i)] = false;
                 _bitset[x_idx(i)] = false;
                 break;
-            case PauliType::X:
+            case Pauli::X:
                 _bitset[z_idx(i)] = false;
                 _bitset[x_idx(i)] = true;
                 break;
-            case PauliType::Y:
+            case Pauli::Y:
                 _bitset[z_idx(i)] = true;
                 _bitset[x_idx(i)] = true;
                 break;
-            case PauliType::Z:
+            case Pauli::Z:
                 _bitset[z_idx(i)] = true;
                 _bitset[x_idx(i)] = false;
                 break;
         }
     }
+
+    inline bool is_z_set(size_t i) const { return _bitset[z_idx(i)] == true; }
+    inline bool is_x_set(size_t i) const { return _bitset[x_idx(i)] == true; }
 
 private:
     sul::dynamic_bitset<> _bitset;
@@ -125,8 +142,6 @@ private:
     inline size_t z_idx(size_t i) const { return i; }
     inline size_t x_idx(size_t i) const { return i + n_qubits(); }
     inline size_t r_idx() const { return n_qubits() * 2; }
-    inline bool is_z_set(size_t i) const { return _bitset[z_idx(i)] == true; }
-    inline bool is_x_set(size_t i) const { return _bitset[x_idx(i)] == true; }
 };
 
 inline bool is_commutative(PauliProduct const& lhs, PauliProduct const& rhs) {
@@ -135,12 +150,21 @@ inline bool is_commutative(PauliProduct const& lhs, PauliProduct const& rhs) {
 
 class PauliRotation : public PauliProductTrait<PauliRotation> {
 public:
-    PauliRotation(std::initializer_list<PauliType> const& pauli_list, dvlab::Phase const& phase);
+    PauliRotation(std::initializer_list<Pauli> const& pauli_list, dvlab::Phase const& phase);
     PauliRotation(std::string_view pauli_str, dvlab::Phase const& phase);
+
+    template <std::input_iterator I, std::sentinel_for<I> S>
+    PauliRotation(I first, S last, dvlab::Phase const& phase) : _pauli_product(first, last, false), _phase(phase) {
+        normalize();
+    }
+
+    template <std::ranges::range R>
+    PauliRotation(R const& r, dvlab::Phase const& phase) : PauliRotation(std::ranges::begin(r), std::ranges::end(r), phase) {}
+
     ~PauliRotation() override = default;
 
     inline size_t n_qubits() const { return _pauli_product.n_qubits(); }
-    inline PauliType pauli_type(size_t i) const { return _pauli_product.pauli_type(i); }
+    inline Pauli get_pauli_type(size_t i) const { return _pauli_product.get_pauli_type(i); }
 
     inline bool is_i(size_t i) const { return _pauli_product.is_i(i); }
     inline bool is_x(size_t i) const { return _pauli_product.is_x(i); }
@@ -170,7 +194,7 @@ private:
     dvlab::Phase _phase;
 
     inline void normalize() {
-        if (_phase.numerator() < 0) {
+        if (_pauli_product.is_neg()) {
             _pauli_product.negate();
             _phase *= -1;
         }
@@ -186,22 +210,22 @@ inline bool is_commutative(PauliRotation const& lhs, PauliRotation const& rhs) {
 }  // namespace qsyn
 
 template <>
-struct fmt::formatter<qsyn::experimental::PauliType> {
+struct fmt::formatter<qsyn::experimental::Pauli> {
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>
-    auto format(qsyn::experimental::PauliType c, FormatContext& ctx) {
+    auto format(qsyn::experimental::Pauli c, FormatContext& ctx) {
         string_view name = "I";
         switch (c) {
-            case qsyn::experimental::PauliType::I:
+            case qsyn::experimental::Pauli::I:
                 name = "I";
                 break;
-            case qsyn::experimental::PauliType::X:
+            case qsyn::experimental::Pauli::X:
                 name = "X";
                 break;
-            case qsyn::experimental::PauliType::Y:
+            case qsyn::experimental::Pauli::Y:
                 name = "Y";
                 break;
-            case qsyn::experimental::PauliType::Z:
+            case qsyn::experimental::Pauli::Z:
                 name = "Z";
                 break;
         }

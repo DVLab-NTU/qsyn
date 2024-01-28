@@ -12,8 +12,13 @@
 #include "argparse/arg_type.hpp"
 #include "argparse/argument.hpp"
 #include "cli/cli.hpp"
+#include "convert/qcir_to_tensor.hpp"
+#include "qcir/qcir.hpp"
 #include "tableau/pauli_rotation.hpp"
+#include "tableau/qcir_to_tableau.hpp"
 #include "tableau/tableau_mgr.hpp"
+#include "tableau/tableau_to_qcir.hpp"
+#include "tensor/qtensor.hpp"
 #include "util/data_structure_manager_common_cmd.hpp"
 #include "util/phase.hpp"
 #include "util/text_format.hpp"
@@ -81,7 +86,7 @@ dvlab::Command tableau_equivalence_cmd(TableauMgr& tableau_mgr) {
         [&](ArgumentParser const& parser) {
             auto const ids = parser.get<std::vector<size_t>>("ids");
 
-            bool is_equiv = std::invoke([&]() {
+            bool const is_equiv = std::invoke([&]() {
                 if (ids.size() == 1) {
                     return *tableau_mgr.get() == *tableau_mgr.find_by_id(ids[0]);
                 } else {
@@ -229,20 +234,40 @@ dvlab::Command pauli_rotation_cmd() {
         "pr",
         [&](ArgumentParser& parser) {
             parser.description("Test Pauli rotation");
+
+            parser.add_argument<std::string>("filepath")
+                .constraint(path_readable)
+                .help("Filepath to the file to be read");
         },
-        [&](ArgumentParser const& /*parser*/) {
-            auto p1 = qsyn::experimental::PauliRotation("ZI", dvlab::Phase(1, 2));
-            auto p2 = qsyn::experimental::PauliRotation("-IZ", dvlab::Phase(-1, 2));
-            auto p3 = qsyn::experimental::PauliProduct("+IX");
-            auto p4 = qsyn::experimental::PauliProduct("-IY");
-            fmt::println("p1, p2 is commutative: {}", p1.is_commutative(p2));
-            fmt::println("p1, p2 is commutative: {}", qsyn::experimental::is_commutative(p3, p4));
-            fmt::println("{:+c}", p1.h(0));
-            fmt::println("{: c}", p2.h(0));
-            fmt::println("{:c}", p1.cx(0, 1));
-            fmt::println("{:c}", p2.cx(0, 1));
-            fmt::println("{:b}", p1.s(0));
-            fmt::println("{:b}", p2.v(1));
+        [&](ArgumentParser const& parser) {
+            auto const filepath = parser.get<std::string>("filepath");
+
+            auto qcir_in = qcir::QCir{};
+
+            if (!qcir_in.read_qcir_file(filepath)) {
+                spdlog::error("Failed to read file {}!!", filepath);
+                return dvlab::CmdExecResult::error;
+            }
+
+            auto const tableau = to_tableau(qcir_in);
+
+            fmt::println("Clifford:");
+            fmt::println("{}", tableau->clifford);
+
+            fmt::println("Pauli rotations:");
+            for (auto const& pauli_rotation : tableau->pauli_rotations) {
+                fmt::println("{}", pauli_rotation);
+            }
+            if (!tableau) {
+                spdlog::error("Failed to convert QCir to Tableau!!");
+                return dvlab::CmdExecResult::error;
+            }
+
+            auto qcir_out = to_qcir(tableau->clifford, tableau->pauli_rotations);
+            qcir_in.draw(QCirDrawerType::text);
+            qcir_out.draw(QCirDrawerType::text);
+
+            fmt::println("The two circuits are {}!!", tensor::is_equivalent(to_tensor(qcir_in).value(), to_tensor(qcir_out).value()) ? "equivalent" : "not equivalent");
 
             return dvlab::CmdExecResult::done;
         }};
