@@ -382,7 +382,7 @@ Command zxgraph_assign_boundary_cmd(ZXGraphMgr& zxgraph_mgr) {
 Command zxgraph_adjoint_cmd(ZXGraphMgr& zxgraph_mgr) {
     return {"adjoint",
             [](ArgumentParser& parser) {
-                parser.description("adjoint ZXGraph");
+                parser.description("transform the ZXGraph to its adjoint; i.e., swap the input/output vertices and replace each vertex with its adjoint");
             },
             [&](ArgumentParser const& /*parser*/) {
                 if (!dvlab::utils::mgr_has_data(zxgraph_mgr)) return CmdExecResult::error;

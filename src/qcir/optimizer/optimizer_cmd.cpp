@@ -15,6 +15,7 @@
 #include "../qcir_mgr.hpp"
 #include "./optimizer.hpp"
 #include "cli/cli.hpp"
+#include "util/data_structure_manager_common_cmd.hpp"
 #include "util/util.hpp"
 
 using namespace dvlab::argparse;
@@ -51,7 +52,7 @@ Command qcir_optimize_cmd(QCirMgr& qcir_mgr) {
                     .help("Only perform trivial optimizations.");
             },
             [&](ArgumentParser const& parser) {
-                if (!qcir_mgr_not_empty(qcir_mgr)) return CmdExecResult::error;
+                if (!dvlab::utils::mgr_has_data(qcir_mgr)) return CmdExecResult::error;
                 Optimizer optimizer;
                 std::optional<QCir> result;
                 std::string procedure_str{};

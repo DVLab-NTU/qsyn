@@ -52,7 +52,7 @@ Command tensor_print_cmd(TensorMgr& tensor_mgr) {
 Command tensor_adjoint_cmd(TensorMgr& tensor_mgr) {
     return {"adjoint",
             [&](ArgumentParser& parser) {
-                parser.description("adjoint the specified tensor");
+                parser.description("transform the tensor to its adjoint");
 
                 parser.add_argument<size_t>("id")
                     .constraint(valid_tensor_id(tensor_mgr))

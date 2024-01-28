@@ -18,8 +18,6 @@ namespace qsyn::qcir {
 
 using QCirMgr = dvlab::utils::DataStructureManager<QCir>;
 
-bool qcir_mgr_not_empty(QCirMgr const& qcir_mgr);
-
 }  // namespace qsyn::qcir
 
 template <>

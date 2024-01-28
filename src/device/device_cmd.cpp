@@ -23,10 +23,6 @@ using dvlab::CmdExecResult;
 
 namespace qsyn::device {
 
-bool device_mgr_not_empty(DeviceMgr const& device_mgr) {
-    return dvlab::utils::expect(!device_mgr.empty(), "Device list is empty now. Please DTRead first.");
-}
-
 std::function<bool(size_t const&)> valid_device_id(qsyn::device::DeviceMgr const& device_mgr) {
     return [&device_mgr](size_t const& id) {
         if (device_mgr.is_id(id)) return true;
@@ -149,7 +145,7 @@ dvlab::Command device_print_cmd(qsyn::device::DeviceMgr& device_mgr) {
                         "print routing paths between q1 and q2");
             },
             [&device_mgr](ArgumentParser const& parser) {
-                if (!qsyn::device::device_mgr_not_empty(device_mgr)) return CmdExecResult::error;
+                if (!dvlab::utils::mgr_has_data(device_mgr)) return CmdExecResult::error;
 
                 if (parser.parsed("--edges")) {
                     device_mgr.get()->print_edges(parser.get<std::vector<size_t>>("--edges"));
