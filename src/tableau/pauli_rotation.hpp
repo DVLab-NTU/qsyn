@@ -171,7 +171,9 @@ public:
     inline bool is_y(size_t i) const { return _pauli_product.is_y(i); }
     inline bool is_z(size_t i) const { return _pauli_product.is_z(i); }
 
+    inline PauliProduct const& pauli_product() const { return _pauli_product; }
     inline dvlab::Phase const& phase() const { return _phase; }
+    inline dvlab::Phase& phase() { return _phase; }
 
     inline bool operator==(PauliRotation const& rhs) const {
         return _pauli_product == rhs._pauli_product && _phase == rhs._phase;

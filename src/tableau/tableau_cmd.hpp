@@ -9,6 +9,7 @@
 
 #include "./tableau_cmd.hpp"
 #include "cli/cli.hpp"
+#include "qcir/qcir_mgr.hpp"
 #include "tableau/tableau_mgr.hpp"
 
 namespace qsyn {
@@ -17,7 +18,7 @@ namespace experimental {
 
 dvlab::Command tableau_cmd();
 
-bool add_tableau_command(dvlab::CommandLineInterface& cli, TableauMgr& tableau_mgr);
+bool add_tableau_command(dvlab::CommandLineInterface& cli, TableauMgr& tableau_mgr, qcir::QCirMgr& qcir_mgr);
 
 }  // namespace experimental
 

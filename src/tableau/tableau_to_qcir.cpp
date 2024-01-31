@@ -7,19 +7,23 @@
 
 #include "./tableau_to_qcir.hpp"
 
+#include <functional>
 #include <gsl/narrow>
 #include <tl/adjacent.hpp>
 #include <tl/to.hpp>
 
 #include "qcir/gate_type.hpp"
+#include "qcir/qcir.hpp"
 #include "tableau/pauli_rotation.hpp"
-#include "tableau/tableau.hpp"
+#include "tableau/stabilizer_tableau.hpp"
 #include "util/phase.hpp"
 
 namespace qsyn::experimental {
+
 /**
  * @brief convert a stabilizer tableau to a QCir.
  *        The current implementation is due to [Phys. Rev. A 70, 052328 (2004) - Improved simulation of stabilizer circuits](https://journals.aps.org/pra/abstract/10.1103/PhysRevA.70.052328)
+ *        and the [Qiskit implementation](https://github.com/Qiskit/qiskit/blob/main/qiskit/synthesis/clifford/clifford_decompose_ag.py)
  *
  * @param clifford - pass by value on purpose
  * @return std::optional<qcir::QCir>
@@ -174,6 +178,12 @@ qcir::QCir to_qcir(StabilizerTableau clifford) {
     return qcir;
 }
 
+/**
+ * @brief convert a Pauli rotation to a QCir. This is a naive implementation.
+ *
+ * @param pauli_rotation
+ * @return qcir::QCir
+ */
 qcir::QCir to_qcir(PauliRotation const& pauli_rotation) {
     qcir::QCir qcir{pauli_rotation.n_qubits()};
 
@@ -196,7 +206,7 @@ qcir::QCir to_qcir(PauliRotation const& pauli_rotation) {
         qcir.add_gate("cx", {gsl::narrow<QubitIdType>(c), gsl::narrow<QubitIdType>(t)}, {}, true);
     }
 
-    qcir.add_gate("pz", {gsl::narrow<QubitIdType>(*(non_I_qubits.end() - 1))}, pauli_rotation.phase(), true);
+    qcir.add_gate("pz", {gsl::narrow<QubitIdType>(non_I_qubits.back())}, pauli_rotation.phase(), true);
 
     for (auto const& [t, c] : tl::views::adjacent<2>(non_I_qubits | std::views::reverse)) {
         qcir.add_gate("cx", {gsl::narrow<QubitIdType>(c), gsl::narrow<QubitIdType>(t)}, {}, true);
@@ -213,6 +223,13 @@ qcir::QCir to_qcir(PauliRotation const& pauli_rotation) {
     return qcir;
 }
 
+/**
+ * @brief convert a stabilizer tableau and a list of Pauli rotations to a QCir.
+ *
+ * @param clifford
+ * @param pauli_rotations
+ * @return qcir::QCir
+ */
 qcir::QCir to_qcir(StabilizerTableau const& clifford, std::vector<PauliRotation> const& pauli_rotations) {
     auto qcir = to_qcir(clifford);
 

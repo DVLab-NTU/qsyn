@@ -7,6 +7,8 @@
 
 #include "pauli_rotation.hpp"
 
+#include <ranges>
+
 #include "util/dvlab_string.hpp"
 
 namespace qsyn {

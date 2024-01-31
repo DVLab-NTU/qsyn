@@ -7,13 +7,15 @@
 
 #include "./tableau_cmd.hpp"
 
-#include "./tableau.hpp"
+#include "./stabilizer_tableau.hpp"
+#include "./tableau_optimization.hpp"
 #include "argparse/arg_parser.hpp"
 #include "argparse/arg_type.hpp"
 #include "argparse/argument.hpp"
 #include "cli/cli.hpp"
 #include "convert/qcir_to_tensor.hpp"
 #include "qcir/qcir.hpp"
+#include "qcir/qcir_mgr.hpp"
 #include "tableau/pauli_rotation.hpp"
 #include "tableau/qcir_to_tableau.hpp"
 #include "tableau/tableau_mgr.hpp"
@@ -229,52 +231,30 @@ dvlab::Command tableau_cmd(TableauMgr& tableau_mgr) {
     return cmd;
 }
 
-dvlab::Command pauli_rotation_cmd() {
+dvlab::Command pauli_rotation_cmd(qcir::QCirMgr& qcir_mgr) {
     return dvlab::Command{
         "pr",
         [&](ArgumentParser& parser) {
             parser.description("Test Pauli rotation");
-
-            parser.add_argument<std::string>("filepath")
-                .constraint(path_readable)
-                .help("Filepath to the file to be read");
         },
-        [&](ArgumentParser const& parser) {
-            auto const filepath = parser.get<std::string>("filepath");
+        [&](ArgumentParser const& /*parser*/) {
+            auto tableau = to_tableau(*qcir_mgr.get());
 
-            auto qcir_in = qcir::QCir{};
-
-            if (!qcir_in.read_qcir_file(filepath)) {
-                spdlog::error("Failed to read file {}!!", filepath);
-                return dvlab::CmdExecResult::error;
-            }
-
-            auto const tableau = to_tableau(qcir_in);
-
-            fmt::println("Clifford:");
-            fmt::println("{}", tableau->clifford);
-
-            fmt::println("Pauli rotations:");
-            for (auto const& pauli_rotation : tableau->pauli_rotations) {
-                fmt::println("{}", pauli_rotation);
-            }
             if (!tableau) {
                 spdlog::error("Failed to convert QCir to Tableau!!");
                 return dvlab::CmdExecResult::error;
             }
 
-            auto qcir_out = to_qcir(tableau->clifford, tableau->pauli_rotations);
-            qcir_in.draw(QCirDrawerType::text);
-            qcir_out.draw(QCirDrawerType::text);
+            merge_rotations(tableau->clifford, tableau->pauli_rotations);
 
-            fmt::println("The two circuits are {}!!", tensor::is_equivalent(to_tensor(qcir_in).value(), to_tensor(qcir_out).value()) ? "equivalent" : "not equivalent");
-
+            qcir_mgr.add(qcir_mgr.get_next_id(), std::make_unique<qcir::QCir>(to_qcir(tableau->clifford, tableau->pauli_rotations)));
+            qcir_mgr.get()->add_procedure("PauliR");
             return dvlab::CmdExecResult::done;
         }};
 }
 
-bool add_tableau_command(dvlab::CommandLineInterface& cli, TableauMgr& tableau_mgr) {
-    return cli.add_command(tableau_cmd(tableau_mgr)) && cli.add_command(pauli_rotation_cmd());
+bool add_tableau_command(dvlab::CommandLineInterface& cli, TableauMgr& tableau_mgr, QCirMgr& qcir_mgr) {
+    return cli.add_command(tableau_cmd(tableau_mgr)) && cli.add_command(pauli_rotation_cmd(qcir_mgr));
 }
 
 }  // namespace qsyn::experimental

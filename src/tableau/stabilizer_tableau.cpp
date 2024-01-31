@@ -5,7 +5,7 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "./tableau.hpp"
+#include "./stabilizer_tableau.hpp"
 
 namespace qsyn::experimental {
 

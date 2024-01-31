@@ -13,7 +13,7 @@
 
 #include "qcir/gate_type.hpp"
 #include "tableau/pauli_rotation.hpp"
-#include "tableau/tableau.hpp"
+#include "tableau/stabilizer_tableau.hpp"
 #include "util/phase.hpp"
 
 namespace qsyn {

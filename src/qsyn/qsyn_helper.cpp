@@ -139,7 +139,7 @@ bool initialize_qsyn(
         !qsyn::tensor::add_tensor_cmds(cli, tensor_mgr) ||
         !qsyn::zx::add_zx_cmds(cli, zxgraph_mgr) ||
         !qsyn::pp::add_pp_cmds(cli, qcir_mgr) ||
-        !qsyn::experimental::add_tableau_command(cli, tableau_mgr)) {
+        !qsyn::experimental::add_tableau_command(cli, tableau_mgr, qcir_mgr)) {
         return false;
     }
     dvlab::utils::Usage::reset();
