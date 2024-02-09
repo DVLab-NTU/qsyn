@@ -95,7 +95,7 @@ void update_tensor_pin(Qubit2TensorPinMap &qubit2pin, std::vector<QubitInfo> con
         }
         // NOTE - Order of axis [ gate out/in/out/in... | main out/in/out/in...]
         new_in = main.get_new_axis_id(gate.dimension() + old_in);
-        spdlog::trace("  - Qubit: {} input : {} -> {} output: {} -> {}", qubit, old_out, new_out, old_in, new_in);
+        spdlog::trace("  - Qubit: {} input : {} -> {} output: {} -> {}", qubit, old_in, new_in, old_out, new_out);
     }
 }
 
@@ -129,7 +129,7 @@ std::optional<QTensor<double>> to_tensor(QCir const &qcir) try {
         auto const qubit_id = qubit->get_id();
         auto const oi_pair  = std::make_pair(2 * qubit_id, 2 * qubit_id + 1);
         qubit_to_pins.emplace(qubit_id, oi_pair);
-        spdlog::trace("  - Add Qubit {} input port: {}", oi_pair.first, oi_pair.second);
+        spdlog::trace("  - Add Qubit: {} input: {} output: {}", qubit_id, oi_pair.second, oi_pair.first);
     }
 
     try {
