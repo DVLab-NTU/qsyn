@@ -9,48 +9,38 @@ qsyn> qc2ts
 [trace]      - Add Qubit 0 input port: 1
 [trace]      - Add Qubit 2 input port: 3
 [debug]    Gate 0 (x)
-[debug]    new:1 info._qubit:0 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 1 input : 2 -> 2 output: 3 -> 3
 [trace]      - Qubit: 0 input : 0 -> 0 output: 1 -> 1
 [debug]    Gate 1 (rz)
-[debug]    new:1 info._qubit:1 old:2
 [trace]    Pin Permutation
 [trace]      - Qubit: 1 input : 2 -> 0 output: 3 -> 3
 [trace]      - Qubit: 0 input : 0 -> 1 output: 1 -> 2
 [debug]    Gate 2 (sx)
-[debug]    new:1 info._qubit:1 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 1 input : 0 -> 0 output: 3 -> 3
 [trace]      - Qubit: 0 input : 1 -> 1 output: 2 -> 2
 [debug]    Gate 3 (rz)
-[debug]    new:1 info._qubit:1 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 1 input : 0 -> 0 output: 3 -> 3
 [trace]      - Qubit: 0 input : 1 -> 1 output: 2 -> 2
 [debug]    Gate 4 (cx)
-[debug]    new:1 info._qubit:0 old:1
-[debug]    new:3 info._qubit:1 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 1 input : 0 -> 1 output: 3 -> 3
 [trace]      - Qubit: 0 input : 1 -> 0 output: 2 -> 2
 [debug]    Gate 5 (x)
-[debug]    new:1 info._qubit:0 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 1 input : 1 -> 1 output: 3 -> 3
 [trace]      - Qubit: 0 input : 0 -> 0 output: 2 -> 2
 [debug]    Gate 6 (rz)
-[debug]    new:1 info._qubit:1 old:1
 [trace]    Pin Permutation
 [trace]      - Qubit: 1 input : 1 -> 0 output: 3 -> 3
 [trace]      - Qubit: 0 input : 0 -> 1 output: 2 -> 2
 [debug]    Gate 7 (sx)
-[debug]    new:1 info._qubit:1 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 1 input : 0 -> 0 output: 3 -> 3
 [trace]      - Qubit: 0 input : 1 -> 1 output: 2 -> 2
 [debug]    Gate 8 (rz)
-[debug]    new:1 info._qubit:1 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 1 input : 0 -> 0 output: 3 -> 3
 [trace]      - Qubit: 0 input : 1 -> 1 output: 2 -> 2
@@ -70,68 +60,54 @@ qsyn> qc2ts
 [trace]      - Add Qubit 0 input port: 1
 [trace]      - Add Qubit 2 input port: 3
 [debug]    Gate 0 (sx)
-[debug]    new:1 info._qubit:0 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 1 input : 2 -> 2 output: 3 -> 3
 [trace]      - Qubit: 0 input : 0 -> 0 output: 1 -> 1
 [debug]    Gate 1 (rz)
-[debug]    new:1 info._qubit:0 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 1 input : 2 -> 2 output: 3 -> 3
 [trace]      - Qubit: 0 input : 0 -> 0 output: 1 -> 1
 [debug]    Gate 2 (sx)
-[debug]    new:1 info._qubit:0 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 1 input : 2 -> 2 output: 3 -> 3
 [trace]      - Qubit: 0 input : 0 -> 0 output: 1 -> 1
 [debug]    Gate 3 (rz)
-[debug]    new:1 info._qubit:1 old:2
 [trace]    Pin Permutation
 [trace]      - Qubit: 1 input : 2 -> 0 output: 3 -> 3
 [trace]      - Qubit: 0 input : 0 -> 1 output: 1 -> 2
 [debug]    Gate 4 (sx)
-[debug]    new:1 info._qubit:1 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 1 input : 0 -> 0 output: 3 -> 3
 [trace]      - Qubit: 0 input : 1 -> 1 output: 2 -> 2
 [debug]    Gate 5 (rz)
-[debug]    new:1 info._qubit:1 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 1 input : 0 -> 0 output: 3 -> 3
 [trace]      - Qubit: 0 input : 1 -> 1 output: 2 -> 2
 [debug]    Gate 6 (cx)
-[debug]    new:1 info._qubit:0 old:1
-[debug]    new:3 info._qubit:1 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 1 input : 0 -> 1 output: 3 -> 3
 [trace]      - Qubit: 0 input : 1 -> 0 output: 2 -> 2
 [debug]    Gate 7 (sx)
-[debug]    new:1 info._qubit:0 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 1 input : 1 -> 1 output: 3 -> 3
 [trace]      - Qubit: 0 input : 0 -> 0 output: 2 -> 2
 [debug]    Gate 8 (rz)
-[debug]    new:1 info._qubit:0 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 1 input : 1 -> 1 output: 3 -> 3
 [trace]      - Qubit: 0 input : 0 -> 0 output: 2 -> 2
 [debug]    Gate 9 (sx)
-[debug]    new:1 info._qubit:0 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 1 input : 1 -> 1 output: 3 -> 3
 [trace]      - Qubit: 0 input : 0 -> 0 output: 2 -> 2
 [debug]    Gate 10 (rz)
-[debug]    new:1 info._qubit:1 old:1
 [trace]    Pin Permutation
 [trace]      - Qubit: 1 input : 1 -> 0 output: 3 -> 3
 [trace]      - Qubit: 0 input : 0 -> 1 output: 2 -> 2
 [debug]    Gate 11 (sx)
-[debug]    new:1 info._qubit:1 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 1 input : 0 -> 0 output: 3 -> 3
 [trace]      - Qubit: 0 input : 1 -> 1 output: 2 -> 2
 [debug]    Gate 12 (rz)
-[debug]    new:1 info._qubit:1 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 1 input : 0 -> 0 output: 3 -> 3
 [trace]      - Qubit: 0 input : 1 -> 1 output: 2 -> 2
@@ -152,97 +128,76 @@ qsyn> qc2ts
 [trace]      - Add Qubit 2 input port: 3
 [trace]      - Add Qubit 4 input port: 5
 [debug]    Gate 0 (h)
-[debug]    new:1 info._qubit:2 old:4
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 4 -> 0 output: 5 -> 5
 [trace]      - Qubit: 1 input : 2 -> 3 output: 3 -> 4
 [trace]      - Qubit: 0 input : 0 -> 1 output: 1 -> 2
 [debug]    Gate 1 (cx)
-[debug]    new:1 info._qubit:1 old:3
-[debug]    new:3 info._qubit:2 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 0 -> 1 output: 5 -> 5
 [trace]      - Qubit: 1 input : 3 -> 0 output: 4 -> 4
 [trace]      - Qubit: 0 input : 1 -> 2 output: 2 -> 3
 [debug]    Gate 2 (tdg)
-[debug]    new:1 info._qubit:2 old:1
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 1 -> 0 output: 5 -> 5
 [trace]      - Qubit: 1 input : 0 -> 1 output: 4 -> 4
 [trace]      - Qubit: 0 input : 2 -> 2 output: 3 -> 3
 [debug]    Gate 3 (cx)
-[debug]    new:1 info._qubit:0 old:2
-[debug]    new:3 info._qubit:2 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 0 -> 1 output: 5 -> 5
 [trace]      - Qubit: 1 input : 1 -> 2 output: 4 -> 4
 [trace]      - Qubit: 0 input : 2 -> 0 output: 3 -> 3
 [debug]    Gate 4 (t)
-[debug]    new:1 info._qubit:2 old:1
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 1 -> 0 output: 5 -> 5
 [trace]      - Qubit: 1 input : 2 -> 2 output: 4 -> 4
 [trace]      - Qubit: 0 input : 0 -> 1 output: 3 -> 3
 [debug]    Gate 5 (cx)
-[debug]    new:1 info._qubit:1 old:2
-[debug]    new:3 info._qubit:2 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 0 -> 1 output: 5 -> 5
 [trace]      - Qubit: 1 input : 2 -> 0 output: 4 -> 4
 [trace]      - Qubit: 0 input : 1 -> 2 output: 3 -> 3
 [debug]    Gate 6 (t)
-[debug]    new:1 info._qubit:1 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 1 -> 1 output: 5 -> 5
 [trace]      - Qubit: 1 input : 0 -> 0 output: 4 -> 4
 [trace]      - Qubit: 0 input : 2 -> 2 output: 3 -> 3
 [debug]    Gate 7 (tdg)
-[debug]    new:1 info._qubit:2 old:1
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 1 -> 0 output: 5 -> 5
 [trace]      - Qubit: 1 input : 0 -> 1 output: 4 -> 4
 [trace]      - Qubit: 0 input : 2 -> 2 output: 3 -> 3
 [debug]    Gate 8 (cx)
-[debug]    new:1 info._qubit:0 old:2
-[debug]    new:3 info._qubit:2 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 0 -> 1 output: 5 -> 5
 [trace]      - Qubit: 1 input : 1 -> 2 output: 4 -> 4
 [trace]      - Qubit: 0 input : 2 -> 0 output: 3 -> 3
 [debug]    Gate 9 (cx)
-[debug]    new:1 info._qubit:0 old:0
-[debug]    new:3 info._qubit:1 old:2
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 1 -> 2 output: 5 -> 5
 [trace]      - Qubit: 1 input : 2 -> 1 output: 4 -> 4
 [trace]      - Qubit: 0 input : 0 -> 0 output: 3 -> 3
 [debug]    Gate 10 (t)
-[debug]    new:1 info._qubit:0 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 2 -> 2 output: 5 -> 5
 [trace]      - Qubit: 1 input : 1 -> 1 output: 4 -> 4
 [trace]      - Qubit: 0 input : 0 -> 0 output: 3 -> 3
 [debug]    Gate 11 (tdg)
-[debug]    new:1 info._qubit:1 old:1
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 2 -> 2 output: 5 -> 5
 [trace]      - Qubit: 1 input : 1 -> 0 output: 4 -> 4
 [trace]      - Qubit: 0 input : 0 -> 1 output: 3 -> 3
 [debug]    Gate 12 (cx)
-[debug]    new:1 info._qubit:0 old:1
-[debug]    new:3 info._qubit:1 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 2 -> 2 output: 5 -> 5
 [trace]      - Qubit: 1 input : 0 -> 1 output: 4 -> 4
 [trace]      - Qubit: 0 input : 1 -> 0 output: 3 -> 3
 [debug]    Gate 13 (t)
-[debug]    new:1 info._qubit:2 old:2
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 2 -> 0 output: 5 -> 5
 [trace]      - Qubit: 1 input : 1 -> 2 output: 4 -> 4
 [trace]      - Qubit: 0 input : 0 -> 1 output: 3 -> 3
 [debug]    Gate 14 (h)
-[debug]    new:1 info._qubit:2 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 0 -> 0 output: 5 -> 5
 [trace]      - Qubit: 1 input : 2 -> 2 output: 4 -> 4
@@ -264,220 +219,176 @@ qsyn> qc2ts
 [trace]      - Add Qubit 2 input port: 3
 [trace]      - Add Qubit 4 input port: 5
 [debug]    Gate 0 (rz)
-[debug]    new:1 info._qubit:0 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 4 -> 4 output: 5 -> 5
 [trace]      - Qubit: 1 input : 2 -> 2 output: 3 -> 3
 [trace]      - Qubit: 0 input : 0 -> 0 output: 1 -> 1
 [debug]    Gate 1 (cx)
-[debug]    new:1 info._qubit:1 old:2
-[debug]    new:3 info._qubit:0 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 4 -> 4 output: 5 -> 5
 [trace]      - Qubit: 1 input : 2 -> 0 output: 3 -> 3
 [trace]      - Qubit: 0 input : 0 -> 1 output: 1 -> 2
 [debug]    Gate 2 (rz)
-[debug]    new:1 info._qubit:0 old:1
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 4 -> 4 output: 5 -> 5
 [trace]      - Qubit: 1 input : 0 -> 1 output: 3 -> 3
 [trace]      - Qubit: 0 input : 1 -> 0 output: 2 -> 2
 [debug]    Gate 3 (cx)
-[debug]    new:1 info._qubit:2 old:4
-[debug]    new:3 info._qubit:0 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 4 -> 0 output: 5 -> 5
 [trace]      - Qubit: 1 input : 1 -> 2 output: 3 -> 4
 [trace]      - Qubit: 0 input : 0 -> 1 output: 2 -> 3
 [debug]    Gate 4 (rz)
-[debug]    new:1 info._qubit:0 old:1
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 0 -> 1 output: 5 -> 5
 [trace]      - Qubit: 1 input : 2 -> 2 output: 4 -> 4
 [trace]      - Qubit: 0 input : 1 -> 0 output: 3 -> 3
 [debug]    Gate 5 (cx)
-[debug]    new:1 info._qubit:1 old:2
-[debug]    new:3 info._qubit:0 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 1 -> 2 output: 5 -> 5
 [trace]      - Qubit: 1 input : 2 -> 0 output: 4 -> 4
 [trace]      - Qubit: 0 input : 0 -> 1 output: 3 -> 3
 [debug]    Gate 7 (rz)
-[debug]    new:1 info._qubit:1 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 2 -> 2 output: 5 -> 5
 [trace]      - Qubit: 1 input : 0 -> 0 output: 4 -> 4
 [trace]      - Qubit: 0 input : 1 -> 1 output: 3 -> 3
 [debug]    Gate 6 (rz)
-[debug]    new:1 info._qubit:0 old:1
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 2 -> 2 output: 5 -> 5
 [trace]      - Qubit: 1 input : 0 -> 1 output: 4 -> 4
 [trace]      - Qubit: 0 input : 1 -> 0 output: 3 -> 3
 [debug]    Gate 8 (cx)
-[debug]    new:1 info._qubit:2 old:2
-[debug]    new:3 info._qubit:0 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 2 -> 0 output: 5 -> 5
 [trace]      - Qubit: 1 input : 1 -> 2 output: 4 -> 4
 [trace]      - Qubit: 0 input : 0 -> 1 output: 3 -> 3
 [debug]    Gate 13 (cx)
-[debug]    new:1 info._qubit:2 old:0
-[debug]    new:3 info._qubit:1 old:2
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 0 -> 0 output: 5 -> 5
 [trace]      - Qubit: 1 input : 2 -> 1 output: 4 -> 4
 [trace]      - Qubit: 0 input : 1 -> 2 output: 3 -> 3
 [debug]    Gate 14 (rz)
-[debug]    new:1 info._qubit:1 old:1
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 0 -> 1 output: 5 -> 5
 [trace]      - Qubit: 1 input : 1 -> 0 output: 4 -> 4
 [trace]      - Qubit: 0 input : 2 -> 2 output: 3 -> 3
 [debug]    Gate 15 (cx)
-[debug]    new:1 info._qubit:2 old:1
-[debug]    new:3 info._qubit:1 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 1 -> 0 output: 5 -> 5
 [trace]      - Qubit: 1 input : 0 -> 1 output: 4 -> 4
 [trace]      - Qubit: 0 input : 2 -> 2 output: 3 -> 3
 [debug]    Gate 22 (rz)
-[debug]    new:1 info._qubit:2 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 0 -> 0 output: 5 -> 5
 [trace]      - Qubit: 1 input : 1 -> 1 output: 4 -> 4
 [trace]      - Qubit: 0 input : 2 -> 2 output: 3 -> 3
 [debug]    Gate 9 (rz)
-[debug]    new:1 info._qubit:0 old:2
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 0 -> 1 output: 5 -> 5
 [trace]      - Qubit: 1 input : 1 -> 2 output: 4 -> 4
 [trace]      - Qubit: 0 input : 2 -> 0 output: 3 -> 3
 [debug]    Gate 10 (sx)
-[debug]    new:1 info._qubit:0 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 1 -> 1 output: 5 -> 5
 [trace]      - Qubit: 1 input : 2 -> 2 output: 4 -> 4
 [trace]      - Qubit: 0 input : 0 -> 0 output: 3 -> 3
 [debug]    Gate 11 (rz)
-[debug]    new:1 info._qubit:0 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 1 -> 1 output: 5 -> 5
 [trace]      - Qubit: 1 input : 2 -> 2 output: 4 -> 4
 [trace]      - Qubit: 0 input : 0 -> 0 output: 3 -> 3
 [debug]    Gate 12 (sx)
-[debug]    new:1 info._qubit:0 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 1 -> 1 output: 5 -> 5
 [trace]      - Qubit: 1 input : 2 -> 2 output: 4 -> 4
 [trace]      - Qubit: 0 input : 0 -> 0 output: 3 -> 3
 [debug]    Gate 16 (cx)
-[debug]    new:1 info._qubit:1 old:2
-[debug]    new:3 info._qubit:0 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 1 -> 2 output: 5 -> 5
 [trace]      - Qubit: 1 input : 2 -> 0 output: 4 -> 4
 [trace]      - Qubit: 0 input : 0 -> 1 output: 3 -> 3
 [debug]    Gate 17 (rz)
-[debug]    new:1 info._qubit:0 old:1
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 2 -> 2 output: 5 -> 5
 [trace]      - Qubit: 1 input : 0 -> 1 output: 4 -> 4
 [trace]      - Qubit: 0 input : 1 -> 0 output: 3 -> 3
 [debug]    Gate 18 (sx)
-[debug]    new:1 info._qubit:0 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 2 -> 2 output: 5 -> 5
 [trace]      - Qubit: 1 input : 1 -> 1 output: 4 -> 4
 [trace]      - Qubit: 0 input : 0 -> 0 output: 3 -> 3
 [debug]    Gate 19 (rz)
-[debug]    new:1 info._qubit:0 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 2 -> 2 output: 5 -> 5
 [trace]      - Qubit: 1 input : 1 -> 1 output: 4 -> 4
 [trace]      - Qubit: 0 input : 0 -> 0 output: 3 -> 3
 [debug]    Gate 20 (sx)
-[debug]    new:1 info._qubit:0 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 2 -> 2 output: 5 -> 5
 [trace]      - Qubit: 1 input : 1 -> 1 output: 4 -> 4
 [trace]      - Qubit: 0 input : 0 -> 0 output: 3 -> 3
 [debug]    Gate 21 (rz)
-[debug]    new:1 info._qubit:0 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 2 -> 2 output: 5 -> 5
 [trace]      - Qubit: 1 input : 1 -> 1 output: 4 -> 4
 [trace]      - Qubit: 0 input : 0 -> 0 output: 3 -> 3
 [debug]    Gate 23 (cx)
-[debug]    new:1 info._qubit:2 old:2
-[debug]    new:3 info._qubit:0 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 2 -> 0 output: 5 -> 5
 [trace]      - Qubit: 1 input : 1 -> 2 output: 4 -> 4
 [trace]      - Qubit: 0 input : 0 -> 1 output: 3 -> 3
 [debug]    Gate 24 (rz)
-[debug]    new:1 info._qubit:0 old:1
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 0 -> 1 output: 5 -> 5
 [trace]      - Qubit: 1 input : 2 -> 2 output: 4 -> 4
 [trace]      - Qubit: 0 input : 1 -> 0 output: 3 -> 3
 [debug]    Gate 25 (sx)
-[debug]    new:1 info._qubit:0 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 1 -> 1 output: 5 -> 5
 [trace]      - Qubit: 1 input : 2 -> 2 output: 4 -> 4
 [trace]      - Qubit: 0 input : 0 -> 0 output: 3 -> 3
 [debug]    Gate 26 (rz)
-[debug]    new:1 info._qubit:0 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 1 -> 1 output: 5 -> 5
 [trace]      - Qubit: 1 input : 2 -> 2 output: 4 -> 4
 [trace]      - Qubit: 0 input : 0 -> 0 output: 3 -> 3
 [debug]    Gate 27 (sx)
-[debug]    new:1 info._qubit:0 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 1 -> 1 output: 5 -> 5
 [trace]      - Qubit: 1 input : 2 -> 2 output: 4 -> 4
 [trace]      - Qubit: 0 input : 0 -> 0 output: 3 -> 3
 [debug]    Gate 28 (rz)
-[debug]    new:1 info._qubit:0 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 1 -> 1 output: 5 -> 5
 [trace]      - Qubit: 1 input : 2 -> 2 output: 4 -> 4
 [trace]      - Qubit: 0 input : 0 -> 0 output: 3 -> 3
 [debug]    Gate 29 (cx)
-[debug]    new:1 info._qubit:1 old:2
-[debug]    new:3 info._qubit:0 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 1 -> 2 output: 5 -> 5
 [trace]      - Qubit: 1 input : 2 -> 0 output: 4 -> 4
 [trace]      - Qubit: 0 input : 0 -> 1 output: 3 -> 3
 [debug]    Gate 30 (rz)
-[debug]    new:1 info._qubit:0 old:1
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 2 -> 2 output: 5 -> 5
 [trace]      - Qubit: 1 input : 0 -> 1 output: 4 -> 4
 [trace]      - Qubit: 0 input : 1 -> 0 output: 3 -> 3
 [debug]    Gate 31 (sx)
-[debug]    new:1 info._qubit:0 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 2 -> 2 output: 5 -> 5
 [trace]      - Qubit: 1 input : 1 -> 1 output: 4 -> 4
 [trace]      - Qubit: 0 input : 0 -> 0 output: 3 -> 3
 [debug]    Gate 32 (rz)
-[debug]    new:1 info._qubit:0 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 2 -> 2 output: 5 -> 5
 [trace]      - Qubit: 1 input : 1 -> 1 output: 4 -> 4
 [trace]      - Qubit: 0 input : 0 -> 0 output: 3 -> 3
 [debug]    Gate 33 (sx)
-[debug]    new:1 info._qubit:0 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 2 -> 2 output: 5 -> 5
 [trace]      - Qubit: 1 input : 1 -> 1 output: 4 -> 4
 [trace]      - Qubit: 0 input : 0 -> 0 output: 3 -> 3
 [debug]    Gate 34 (rz)
-[debug]    new:1 info._qubit:0 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 2 -> 2 output: 5 -> 5
 [trace]      - Qubit: 1 input : 1 -> 1 output: 4 -> 4
@@ -504,234 +415,181 @@ qsyn> qc2ts
 [trace]      - Add Qubit 2 input port: 3
 [trace]      - Add Qubit 4 input port: 5
 [debug]    Gate 0 (x)
-[debug]    new:1 info._qubit:2 old:4
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 4 -> 0 output: 5 -> 5
 [trace]      - Qubit: 1 input : 2 -> 3 output: 3 -> 4
 [trace]      - Qubit: 0 input : 0 -> 1 output: 1 -> 2
 [debug]    Gate 1 (cx)
-[debug]    new:1 info._qubit:0 old:1
-[debug]    new:3 info._qubit:2 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 0 -> 1 output: 5 -> 5
 [trace]      - Qubit: 1 input : 3 -> 3 output: 4 -> 4
 [trace]      - Qubit: 0 input : 1 -> 0 output: 2 -> 2
 [debug]    Gate 3 (h)
-[debug]    new:1 info._qubit:0 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 1 -> 1 output: 5 -> 5
 [trace]      - Qubit: 1 input : 3 -> 3 output: 4 -> 4
 [trace]      - Qubit: 0 input : 0 -> 0 output: 2 -> 2
 [debug]    Gate 6 (t)
-[debug]    new:1 info._qubit:0 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 1 -> 1 output: 5 -> 5
 [trace]      - Qubit: 1 input : 3 -> 3 output: 4 -> 4
 [trace]      - Qubit: 0 input : 0 -> 0 output: 2 -> 2
 [debug]    Gate 2 (cx)
-[debug]    new:1 info._qubit:2 old:1
-[debug]    new:3 info._qubit:1 old:3
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 1 -> 0 output: 5 -> 5
 [trace]      - Qubit: 1 input : 3 -> 1 output: 4 -> 4
 [trace]      - Qubit: 0 input : 0 -> 2 output: 2 -> 3
 [debug]    Gate 5 (t)
-[debug]    new:1 info._qubit:2 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 0 -> 0 output: 5 -> 5
 [trace]      - Qubit: 1 input : 1 -> 1 output: 4 -> 4
 [trace]      - Qubit: 0 input : 2 -> 2 output: 3 -> 3
 [debug]    Gate 4 (t)
-[debug]    new:1 info._qubit:1 old:1
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 0 -> 1 output: 5 -> 5
 [trace]      - Qubit: 1 input : 1 -> 0 output: 4 -> 4
 [trace]      - Qubit: 0 input : 2 -> 2 output: 3 -> 3
 [debug]    Gate 7 (cx)
-[debug]    new:1 info._qubit:2 old:1
-[debug]    new:3 info._qubit:1 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 1 -> 0 output: 5 -> 5
 [trace]      - Qubit: 1 input : 0 -> 1 output: 4 -> 4
 [trace]      - Qubit: 0 input : 2 -> 2 output: 3 -> 3
 [debug]    Gate 8 (cx)
-[debug]    new:1 info._qubit:0 old:2
-[debug]    new:3 info._qubit:2 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 0 -> 1 output: 5 -> 5
 [trace]      - Qubit: 1 input : 1 -> 2 output: 4 -> 4
 [trace]      - Qubit: 0 input : 2 -> 0 output: 3 -> 3
 [debug]    Gate 10 (tdg)
-[debug]    new:1 info._qubit:2 old:1
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 1 -> 0 output: 5 -> 5
 [trace]      - Qubit: 1 input : 2 -> 2 output: 4 -> 4
 [trace]      - Qubit: 0 input : 0 -> 1 output: 3 -> 3
 [debug]    Gate 9 (cx)
-[debug]    new:1 info._qubit:1 old:2
-[debug]    new:3 info._qubit:0 old:1
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 0 -> 2 output: 5 -> 5
 [trace]      - Qubit: 1 input : 2 -> 0 output: 4 -> 4
 [trace]      - Qubit: 0 input : 1 -> 1 output: 3 -> 3
 [debug]    Gate 11 (cx)
-[debug]    new:1 info._qubit:1 old:0
-[debug]    new:3 info._qubit:2 old:2
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 2 -> 1 output: 5 -> 5
 [trace]      - Qubit: 1 input : 0 -> 0 output: 4 -> 4
 [trace]      - Qubit: 0 input : 1 -> 2 output: 3 -> 3
 [debug]    Gate 12 (tdg)
-[debug]    new:1 info._qubit:1 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 1 -> 1 output: 5 -> 5
 [trace]      - Qubit: 1 input : 0 -> 0 output: 4 -> 4
 [trace]      - Qubit: 0 input : 2 -> 2 output: 3 -> 3
 [debug]    Gate 13 (tdg)
-[debug]    new:1 info._qubit:2 old:1
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 1 -> 0 output: 5 -> 5
 [trace]      - Qubit: 1 input : 0 -> 1 output: 4 -> 4
 [trace]      - Qubit: 0 input : 2 -> 2 output: 3 -> 3
 [debug]    Gate 14 (t)
-[debug]    new:1 info._qubit:0 old:2
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 0 -> 1 output: 5 -> 5
 [trace]      - Qubit: 1 input : 1 -> 2 output: 4 -> 4
 [trace]      - Qubit: 0 input : 2 -> 0 output: 3 -> 3
 [debug]    Gate 15 (cx)
-[debug]    new:1 info._qubit:0 old:0
-[debug]    new:3 info._qubit:2 old:1
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 1 -> 1 output: 5 -> 5
 [trace]      - Qubit: 1 input : 2 -> 2 output: 4 -> 4
 [trace]      - Qubit: 0 input : 0 -> 0 output: 3 -> 3
 [debug]    Gate 16 (cx)
-[debug]    new:1 info._qubit:1 old:2
-[debug]    new:3 info._qubit:0 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 1 -> 2 output: 5 -> 5
 [trace]      - Qubit: 1 input : 2 -> 0 output: 4 -> 4
 [trace]      - Qubit: 0 input : 0 -> 1 output: 3 -> 3
 [debug]    Gate 18 (h)
-[debug]    new:1 info._qubit:0 old:1
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 2 -> 2 output: 5 -> 5
 [trace]      - Qubit: 1 input : 0 -> 1 output: 4 -> 4
 [trace]      - Qubit: 0 input : 1 -> 0 output: 3 -> 3
 [debug]    Gate 20 (t)
-[debug]    new:1 info._qubit:0 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 2 -> 2 output: 5 -> 5
 [trace]      - Qubit: 1 input : 1 -> 1 output: 4 -> 4
 [trace]      - Qubit: 0 input : 0 -> 0 output: 3 -> 3
 [debug]    Gate 17 (cx)
-[debug]    new:1 info._qubit:2 old:2
-[debug]    new:3 info._qubit:1 old:1
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 2 -> 0 output: 5 -> 5
 [trace]      - Qubit: 1 input : 1 -> 1 output: 4 -> 4
 [trace]      - Qubit: 0 input : 0 -> 2 output: 3 -> 3
 [debug]    Gate 19 (h)
-[debug]    new:1 info._qubit:2 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 0 -> 0 output: 5 -> 5
 [trace]      - Qubit: 1 input : 1 -> 1 output: 4 -> 4
 [trace]      - Qubit: 0 input : 2 -> 2 output: 3 -> 3
 [debug]    Gate 22 (t)
-[debug]    new:1 info._qubit:2 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 0 -> 0 output: 5 -> 5
 [trace]      - Qubit: 1 input : 1 -> 1 output: 4 -> 4
 [trace]      - Qubit: 0 input : 2 -> 2 output: 3 -> 3
 [debug]    Gate 21 (t)
-[debug]    new:1 info._qubit:1 old:1
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 0 -> 1 output: 5 -> 5
 [trace]      - Qubit: 1 input : 1 -> 0 output: 4 -> 4
 [trace]      - Qubit: 0 input : 2 -> 2 output: 3 -> 3
 [debug]    Gate 23 (cx)
-[debug]    new:1 info._qubit:1 old:0
-[debug]    new:3 info._qubit:0 old:2
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 1 -> 2 output: 5 -> 5
 [trace]      - Qubit: 1 input : 0 -> 0 output: 4 -> 4
 [trace]      - Qubit: 0 input : 2 -> 1 output: 3 -> 3
 [debug]    Gate 24 (cx)
-[debug]    new:1 info._qubit:2 old:2
-[debug]    new:3 info._qubit:1 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 2 -> 0 output: 5 -> 5
 [trace]      - Qubit: 1 input : 0 -> 1 output: 4 -> 4
 [trace]      - Qubit: 0 input : 1 -> 2 output: 3 -> 3
 [debug]    Gate 26 (tdg)
-[debug]    new:1 info._qubit:1 old:1
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 0 -> 1 output: 5 -> 5
 [trace]      - Qubit: 1 input : 1 -> 0 output: 4 -> 4
 [trace]      - Qubit: 0 input : 2 -> 2 output: 3 -> 3
 [debug]    Gate 25 (cx)
-[debug]    new:1 info._qubit:0 old:2
-[debug]    new:3 info._qubit:2 old:1
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 1 -> 1 output: 5 -> 5
 [trace]      - Qubit: 1 input : 0 -> 2 output: 4 -> 4
 [trace]      - Qubit: 0 input : 2 -> 0 output: 3 -> 3
 [debug]    Gate 27 (cx)
-[debug]    new:1 info._qubit:0 old:0
-[debug]    new:3 info._qubit:1 old:2
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 1 -> 2 output: 5 -> 5
 [trace]      - Qubit: 1 input : 2 -> 1 output: 4 -> 4
 [trace]      - Qubit: 0 input : 0 -> 0 output: 3 -> 3
 [debug]    Gate 28 (tdg)
-[debug]    new:1 info._qubit:0 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 2 -> 2 output: 5 -> 5
 [trace]      - Qubit: 1 input : 1 -> 1 output: 4 -> 4
 [trace]      - Qubit: 0 input : 0 -> 0 output: 3 -> 3
 [debug]    Gate 29 (tdg)
-[debug]    new:1 info._qubit:1 old:1
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 2 -> 2 output: 5 -> 5
 [trace]      - Qubit: 1 input : 1 -> 0 output: 4 -> 4
 [trace]      - Qubit: 0 input : 0 -> 1 output: 3 -> 3
 [debug]    Gate 30 (t)
-[debug]    new:1 info._qubit:2 old:2
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 2 -> 0 output: 5 -> 5
 [trace]      - Qubit: 1 input : 0 -> 1 output: 4 -> 4
 [trace]      - Qubit: 0 input : 1 -> 2 output: 3 -> 3
 [debug]    Gate 31 (cx)
-[debug]    new:1 info._qubit:2 old:0
-[debug]    new:3 info._qubit:1 old:1
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 0 -> 0 output: 5 -> 5
 [trace]      - Qubit: 1 input : 1 -> 1 output: 4 -> 4
 [trace]      - Qubit: 0 input : 2 -> 2 output: 3 -> 3
 [debug]    Gate 32 (cx)
-[debug]    new:1 info._qubit:0 old:2
-[debug]    new:3 info._qubit:2 old:0
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 0 -> 1 output: 5 -> 5
 [trace]      - Qubit: 1 input : 1 -> 2 output: 4 -> 4
 [trace]      - Qubit: 0 input : 2 -> 0 output: 3 -> 3
 [debug]    Gate 34 (h)
-[debug]    new:1 info._qubit:2 old:1
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 1 -> 0 output: 5 -> 5
 [trace]      - Qubit: 1 input : 2 -> 2 output: 4 -> 4
 [trace]      - Qubit: 0 input : 0 -> 1 output: 3 -> 3
 [debug]    Gate 33 (cx)
-[debug]    new:1 info._qubit:1 old:2
-[debug]    new:3 info._qubit:0 old:1
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 0 -> 2 output: 5 -> 5
 [trace]      - Qubit: 1 input : 2 -> 0 output: 4 -> 4
 [trace]      - Qubit: 0 input : 1 -> 1 output: 3 -> 3
 [debug]    Gate 35 (cx)
-[debug]    new:1 info._qubit:1 old:0
-[debug]    new:3 info._qubit:2 old:2
 [trace]    Pin Permutation
 [trace]      - Qubit: 2 input : 2 -> 1 output: 5 -> 5
 [trace]      - Qubit: 1 input : 0 -> 0 output: 4 -> 4
