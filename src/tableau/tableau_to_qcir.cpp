@@ -22,158 +22,52 @@ namespace qsyn::experimental {
 
 /**
  * @brief convert a stabilizer tableau to a QCir.
- *        The current implementation is due to [Phys. Rev. A 70, 052328 (2004) - Improved simulation of stabilizer circuits](https://journals.aps.org/pra/abstract/10.1103/PhysRevA.70.052328)
- *        and the [Qiskit implementation](https://github.com/Qiskit/qiskit/blob/main/qiskit/synthesis/clifford/clifford_decompose_ag.py)
  *
  * @param clifford - pass by value on purpose
  * @return std::optional<qcir::QCir>
  */
-qcir::QCir to_qcir(StabilizerTableau clifford) {
+qcir::QCir to_qcir(StabilizerTableau clifford, StabilizerTableauExtractor const& extractor) {
+    auto const clifford_ops = extract_clifford_operators(clifford, extractor);
     qcir::QCir qcir{clifford.n_qubits()};
 
-    // [ Zs | Xs | rs ]
-    // [ Zd | Xd | rd ]
-
-    // fmt::println("Initial Clifford:\n{:b}", clifford);
-
-    auto const add_h = [&clifford, &qcir](size_t qubit) {
-        auto gate =
-            qcir.add_gate("h", {gsl::narrow<int>(qubit)}, {}, true);
-        assert(gate->get_phase() == dvlab::Phase(1));
-        clifford.h(qubit);
-    };
-
-    auto const add_s = [&clifford, &qcir](size_t qubit) {
-        auto gate = qcir.add_gate("s", {gsl::narrow<int>(qubit)}, {}, true);
-        assert(gate->get_phase() == dvlab::Phase(1, 2));
-        clifford.s(qubit);
-    };
-
-    auto const add_cx = [&clifford, &qcir](size_t ctrl, size_t targ) {
-        auto gate = qcir.add_gate("cx", {gsl::narrow<int>(ctrl), gsl::narrow<int>(targ)}, {}, true);
-        assert(gate->get_phase() == dvlab::Phase(1));
-        clifford.cx(ctrl, targ);
-    };
-
-    auto const add_z = [&clifford, &qcir](size_t qubit) {
-        auto gate = qcir.add_gate("z", {gsl::narrow<int>(qubit)}, {}, true);
-        assert(gate->get_phase() == dvlab::Phase(1));
-        clifford.z(qubit);
-    };
-
-    auto const add_x = [&clifford, &qcir](size_t qubit) {
-        auto gate =
-            qcir.add_gate("x", {gsl::narrow<int>(qubit)}, {}, true);
-        assert(gate->get_phase() == dvlab::Phase(1));
-        clifford.x(qubit);
-    };
-
-    auto const make_destab_x_main_diag_1 = [&](size_t qubit) {
-        if (clifford.destabilizer(qubit).is_x_set(qubit)) return;
-
-        auto const search_idx_range =
-            std::views::iota(qubit + 1, clifford.n_qubits());
-        auto const ctrl =
-            std::ranges::find_if(
-                search_idx_range, [&clifford, qubit](size_t t) {
-                    if (clifford.destabilizer(qubit).is_x_set(t)) {
-                        return true;
-                    }
-                    return false;
-                }) -
-            search_idx_range.begin() + qubit + 1;
-
-        if (ctrl < clifford.n_qubits()) {
-            add_cx(ctrl, qubit);
-            return;
-        }
-
-        for (size_t ctrl = qubit; ctrl < clifford.n_qubits(); ++ctrl) {
-            if (clifford.destabilizer(qubit).is_z_set(ctrl)) {
-                add_h(ctrl);
-                if (ctrl != qubit) {
-                    add_cx(ctrl, qubit);
-                }
+    for (auto const& [type, qubits] : clifford_ops) {
+        using COT = CliffordOperatorType;
+        switch (type) {
+            case COT::h:
+                qcir.add_gate("h", {gsl::narrow<QubitIdType>(qubits[0])}, {}, true);
                 break;
-            }
-        }
-    };
-
-    auto const make_destab_x_off_diag_0 = [&](size_t qubit) {
-        for (size_t targ = qubit + 1; targ < clifford.n_qubits(); ++targ) {
-            if (clifford.destabilizer(qubit).is_x_set(targ)) {
-                add_cx(qubit, targ);
-            }
-        }
-
-        bool const some_z_set = std::ranges::any_of(
-            std::views::iota(qubit, clifford.n_qubits()),
-            [&clifford, qubit](size_t t) {
-                return clifford.destabilizer(qubit).is_z_set(t);
-            });
-
-        if (some_z_set) {
-            if (!clifford.destabilizer(qubit).is_z_set(qubit)) {
-                add_s(qubit);
-            }
-
-            for (size_t ctrl = qubit + 1; ctrl < clifford.n_qubits(); ++ctrl) {
-                if (clifford.destabilizer(qubit).is_z_set(ctrl)) {
-                    add_cx(ctrl, qubit);
-                }
-            }
-            add_s(qubit);
-        }
-    };
-
-    auto const make_stab_z_off_diag_0 = [&](size_t qubit) {
-        for (size_t ctrl = qubit + 1; ctrl < clifford.n_qubits(); ++ctrl) {
-            if (clifford.stabilizer(qubit).is_z_set(ctrl)) {
-                add_cx(ctrl, qubit);
-            }
-        }
-
-        bool const some_x_set = std::ranges::any_of(
-            std::views::iota(qubit, clifford.n_qubits()),
-            [&clifford, qubit](size_t t) {
-                return clifford.stabilizer(qubit).is_x_set(t);
-            });
-
-        if (some_x_set) {
-            add_h(qubit);
-
-            for (size_t targ = qubit + 1; targ < clifford.n_qubits(); ++targ) {
-                if (clifford.stabilizer(qubit).is_x_set(targ)) {
-                    add_cx(qubit, targ);
-                }
-            }
-
-            if (clifford.stabilizer(qubit).is_z_set(qubit)) {
-                add_s(qubit);
-            }
-
-            add_h(qubit);
-        }
-    };
-
-    for (size_t qubit = 0; qubit < clifford.n_qubits(); ++qubit) {
-        make_destab_x_main_diag_1(qubit);
-        make_destab_x_off_diag_0(qubit);
-        make_stab_z_off_diag_0(qubit);
-    }
-
-    for (size_t qubit = 0; qubit < clifford.n_qubits(); ++qubit) {
-        if (clifford.stabilizer(qubit).is_neg()) {
-            add_x(qubit);
-        }
-        if (clifford.destabilizer(qubit).is_neg()) {
-            add_z(qubit);
+            case COT::s:
+                qcir.add_gate("s", {gsl::narrow<QubitIdType>(qubits[0])}, {}, true);
+                break;
+            case COT::cx:
+                qcir.add_gate("cx", {gsl::narrow<QubitIdType>(qubits[0]), gsl::narrow<QubitIdType>(qubits[1])}, {}, true);
+                break;
+            case COT::sdg:
+                qcir.add_gate("sdg", {gsl::narrow<QubitIdType>(qubits[0])}, {}, true);
+                break;
+            case COT::v:
+                qcir.add_gate("sx", {gsl::narrow<QubitIdType>(qubits[0])}, {}, true);
+                break;
+            case COT::vdg:
+                qcir.add_gate("sxdg", {gsl::narrow<QubitIdType>(qubits[0])}, {}, true);
+                break;
+            case COT::x:
+                qcir.add_gate("x", {gsl::narrow<QubitIdType>(qubits[0])}, {}, true);
+                break;
+            case COT::y:
+                qcir.add_gate("y", {gsl::narrow<QubitIdType>(qubits[0])}, {}, true);
+                break;
+            case COT::z:
+                qcir.add_gate("z", {gsl::narrow<QubitIdType>(qubits[0])}, {}, true);
+                break;
+            case COT::cz:
+                qcir.add_gate("cz", {gsl::narrow<QubitIdType>(qubits[0]), gsl::narrow<QubitIdType>(qubits[1])}, {}, true);
+                break;
+            case COT::swap:
+                qcir.add_gate("swap", {gsl::narrow<QubitIdType>(qubits[0]), gsl::narrow<QubitIdType>(qubits[1])}, {}, true);
+                break;
         }
     }
-
-    assert(clifford == StabilizerTableau(qcir.get_num_qubits()));
-
-    qcir.adjoint();
 
     return qcir;
 }
@@ -230,8 +124,8 @@ qcir::QCir to_qcir(PauliRotation const& pauli_rotation) {
  * @param pauli_rotations
  * @return qcir::QCir
  */
-qcir::QCir to_qcir(StabilizerTableau const& clifford, std::vector<PauliRotation> const& pauli_rotations) {
-    auto qcir = to_qcir(clifford);
+qcir::QCir to_qcir(StabilizerTableau const& clifford, std::vector<PauliRotation> const& pauli_rotations, StabilizerTableauExtractor const& extractor) {
+    auto qcir = to_qcir(clifford, extractor);
 
     for (auto const& pauli_rotation : pauli_rotations) {
         qcir.compose(to_qcir(pauli_rotation));

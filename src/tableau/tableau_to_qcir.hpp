@@ -15,9 +15,9 @@ namespace qsyn {
 
 namespace experimental {
 
-qcir::QCir to_qcir(StabilizerTableau clifford);
+qcir::QCir to_qcir(StabilizerTableau clifford, StabilizerTableauExtractor const& extractor = AGExtractor{});
 qcir::QCir to_qcir(PauliRotation const& pauli_rotation);
-qcir::QCir to_qcir(StabilizerTableau const& clifford, std::vector<PauliRotation> const& pauli_rotations);
+qcir::QCir to_qcir(StabilizerTableau const& clifford, std::vector<PauliRotation> const& pauli_rotations, StabilizerTableauExtractor const& extractor = AGExtractor{});
 
 }  // namespace experimental
 

@@ -56,6 +56,38 @@ public:
     inline T& swap(size_t qubit1, size_t qubit2) { return cx(qubit1, qubit2).cx(qubit2, qubit1).cx(qubit1, qubit2); }
 };
 
+enum class CliffordOperatorType {
+    h,
+    s,
+    cx,
+    sdg,
+    v,
+    vdg,
+    x,
+    y,
+    z,
+    cz,
+    swap
+};
+
+inline CliffordOperatorType adjoint(CliffordOperatorType const& op) {
+    using COT = CliffordOperatorType;
+    switch (op) {
+        case COT::s:
+            return COT::sdg;
+        case COT::sdg:
+            return COT::s;
+        case COT::v:
+            return COT::vdg;
+        case COT::vdg:
+            return COT::v;
+        default:
+            return op;
+    }
+}
+
+using CliffordOperator = std::pair<CliffordOperatorType, std::array<size_t, 2>>;
+
 class PauliProduct : public PauliProductTrait<PauliProduct> {
 public:
     PauliProduct(std::initializer_list<Pauli> const& pauli_list, bool is_neg);

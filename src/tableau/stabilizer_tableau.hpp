@@ -46,8 +46,6 @@ public:
     StabilizerTableau& s(size_t qubit) override;
     StabilizerTableau& cx(size_t ctrl, size_t targ) override;
 
-    StabilizerTableau& measure_z(size_t qubit);
-
     std::string to_string() const;
     std::string to_bit_string() const;
 
@@ -74,6 +72,38 @@ public:
 private:
     std::vector<PauliProduct> _stabilizers;
 };
+
+class StabilizerTableauExtractor {
+public:
+    virtual ~StabilizerTableauExtractor()                                       = default;
+    virtual std::vector<CliffordOperator> extract(StabilizerTableau copy) const = 0;
+};
+
+/**
+ * @brief An extractor based on the Aaronson-Gottesman method in the paper
+ *        [Improved simulation of stabilizer circuits](https://journals.aps.org/pra/abstract/10.1103/PhysRevA.70.052328)
+ *        and the [Qiskit implementation](https://github.com/Qiskit/qiskit/blob/main/qiskit/synthesis/clifford/clifford_decompose_ag.py).
+ *
+ */
+class AGExtractor : public StabilizerTableauExtractor {
+public:
+    std::vector<CliffordOperator> extract(StabilizerTableau copy) const override;
+};
+
+/**
+ * @brief An extractor based on the paper
+ *        [Optimal Hadamard gate count for Clifford$+T$ synthesis of Pauli rotations sequences](https://arxiv.org/abs/2302.07040)
+ *        by Vandaele, Martiel, Perdrix, and Vuillot.
+ *        This method is guaranteed to produce the optimal number of Hadamard gates by first diagonalizing the stabilizers with
+ *        provably optimal number of Hadamard gates and then applying the Aaronson-Gottesman method to the rest of the tableau.
+ *
+ */
+class HOptExtractor : public StabilizerTableauExtractor {
+public:
+    std::vector<CliffordOperator> extract(StabilizerTableau copy) const override;
+};
+
+std::vector<CliffordOperator> extract_clifford_operators(StabilizerTableau copy, StabilizerTableauExtractor const& extractor = AGExtractor{});
 
 }  // namespace experimental
 

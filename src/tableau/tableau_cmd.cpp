@@ -236,8 +236,13 @@ dvlab::Command pauli_rotation_cmd(qcir::QCirMgr& qcir_mgr) {
         "pr",
         [&](ArgumentParser& parser) {
             parser.description("Test Pauli rotation");
+
+            parser.add_argument<std::string>("strategy")
+                .default_value("HOpt")
+                .choices({"AG", "HOpt"})
+                .help("The strategy to extract Pauli rotations");
         },
-        [&](ArgumentParser const& /*parser*/) {
+        [&](ArgumentParser const& parser) {
             auto tableau = to_tableau(*qcir_mgr.get());
 
             if (!tableau) {
@@ -245,10 +250,25 @@ dvlab::Command pauli_rotation_cmd(qcir::QCirMgr& qcir_mgr) {
                 return dvlab::CmdExecResult::error;
             }
 
+            auto const strategy = parser.get<std::string>("strategy");
+
+            auto extractor = [&]() -> std::unique_ptr<StabilizerTableauExtractor> {
+                if (strategy == "AG") {
+                    return std::make_unique<AGExtractor>();
+                } else if (strategy == "HOpt") {
+                    return std::make_unique<HOptExtractor>();
+                } else {
+                    spdlog::error("Unknown strategy {}", strategy);
+                    return nullptr;
+                }
+            }();
+
+            assert(extractor);
+
             merge_rotations(tableau->clifford, tableau->pauli_rotations);
 
-            qcir_mgr.add(qcir_mgr.get_next_id(), std::make_unique<qcir::QCir>(to_qcir(tableau->clifford, tableau->pauli_rotations)));
-            qcir_mgr.get()->add_procedure("PauliR");
+            qcir_mgr.add(qcir_mgr.get_next_id(), std::make_unique<qcir::QCir>(to_qcir(tableau->clifford, tableau->pauli_rotations, *extractor)));
+            qcir_mgr.get()->add_procedure(fmt::format("PauliR[{}]", strategy));
             return dvlab::CmdExecResult::done;
         }};
 }
