@@ -14,6 +14,7 @@
 #include <tl/enumerate.hpp>
 #include <tl/fold.hpp>
 #include <tl/to.hpp>
+#include <tl/zip.hpp>
 #include <unordered_map>
 
 #include "zx/zx_def.hpp"
@@ -74,6 +75,8 @@ private:
     struct InOutAxisList {
         qsyn::tensor::TensorAxisList inputs;
         qsyn::tensor::TensorAxisList outputs;
+
+        InOutAxisList(size_t num_inputs, size_t num_outputs) : inputs(num_inputs), outputs(num_outputs) {}
     };
     InOutAxisList _get_axis_orders(zx::ZXGraph const& zxgraph);
 };
@@ -116,11 +119,11 @@ std::optional<tensor::QTensor<double>> ZX2TSMapper::map(zx::ZXGraph const& graph
         frontiers(i).emplace(_boundary_edges[i], 0);
     });
 
-    auto const [inputIds, outputIds] = _get_axis_orders(graph);
+    auto const [input_ids, output_ids] = _get_axis_orders(graph);
 
-    spdlog::trace("Input  Axis IDs: {}", fmt::join(inputIds, " "));
-    spdlog::trace("Output Axis IDs: {}", fmt::join(outputIds, " "));
-    result = result.to_matrix(inputIds, outputIds);
+    spdlog::trace("Input  Axis IDs: {}", fmt::join(input_ids, " "));
+    spdlog::trace("Output Axis IDs: {}", fmt::join(output_ids, " "));
+    result = result.to_matrix(output_ids, input_ids);
 
     return result;
 } catch (std::bad_alloc& e) {
@@ -204,11 +207,16 @@ void ZX2TSMapper::_initialize_subgraph(zx::ZXGraph const& graph, zx::ZXVertex* v
  * @return the tensor id
  */
 size_t ZX2TSMapper::get_tensor_id(zx::ZXGraph const& graph, zx::ZXVertex* v) {
-    for (auto nbr : graph.get_neighbors(v)) {
-        if (_is_frontier(nbr)) {
-            return _pins.at(nbr.first);
-        }
+    auto const it = std::ranges::find_if(
+        graph.get_neighbors(v),
+        [this](auto const& neighbor) {
+            return _is_frontier(neighbor);
+        });
+
+    if (it != graph.get_neighbors(v).end()) {
+        return _pins.at(it->first);
     }
+
     return _pins.size();
 }
 
@@ -219,9 +227,7 @@ size_t ZX2TSMapper::get_tensor_id(zx::ZXGraph const& graph, zx::ZXVertex* v) {
  * @return std::pair<TensorAxisList, TensorAxisList> input and output tensor axis lists
  */
 ZX2TSMapper::InOutAxisList ZX2TSMapper::_get_axis_orders(zx::ZXGraph const& zxgraph) {
-    InOutAxisList axis_lists;
-    axis_lists.inputs.resize(zxgraph.get_num_inputs());
-    axis_lists.outputs.resize(zxgraph.get_num_outputs());
+    InOutAxisList axis_lists{zxgraph.get_num_inputs(), zxgraph.get_num_outputs()};
 
     auto const get_table = [](auto vertex_list) -> std::map<int, size_t> {
         vertex_list.sort([](auto const& a, auto const& b) { return a->get_qubit() < b->get_qubit(); });
@@ -236,7 +242,7 @@ ZX2TSMapper::InOutAxisList ZX2TSMapper::_get_axis_orders(zx::ZXGraph const& zxgr
 
     size_t acc_frontier_size = 0;
     for (size_t i = 0; i < _zx2ts_list.size(); ++i) {
-        bool has_boundary2_boundary_edge = false;
+        bool has_boundary_to_boundary_edge = false;
         for (auto& [epair, axid] : frontiers(i)) {
             auto const& [v1, v2]    = epair.first;
             auto const v1_is_input  = zxgraph.get_inputs().contains(v1);
@@ -251,19 +257,19 @@ ZX2TSMapper::InOutAxisList ZX2TSMapper::_get_axis_orders(zx::ZXGraph const& zxgr
             assert(!(v1_is_input && v1_is_output));
             assert(!(v2_is_input && v2_is_output));
 
-            // If seeing boundary-to-boundary edge, decrease one of the axis id by one to avoid id collision
+            // If seeing boundary-to-boundary edge, increase one of the axis id by one to avoid id collision
             if (v1_is_input && (v2_is_input || v2_is_output)) {
                 assert(frontiers(i).size() == 1);
                 axis_lists.inputs[input_table.at(v1->get_qubit())]--;
-                has_boundary2_boundary_edge = true;
+                has_boundary_to_boundary_edge = true;
             }
             if (v1_is_output && (v2_is_input || v2_is_output)) {
                 assert(frontiers(i).size() == 1);
                 axis_lists.outputs[output_table.at(v1->get_qubit())]--;
-                has_boundary2_boundary_edge = true;
+                has_boundary_to_boundary_edge = true;
             }
         }
-        acc_frontier_size += frontiers(i).size() + (has_boundary2_boundary_edge ? 1 : 0);
+        acc_frontier_size += frontiers(i).size() + (has_boundary_to_boundary_edge ? 1 : 0);
     }
 
     return axis_lists;
@@ -307,30 +313,34 @@ tensor::QTensor<double> ZX2TSMapper::_dehadamardize(tensor::QTensor<double> cons
     auto const h_tensor_product = tensor_product_pow(
         tensor::QTensor<double>::hbox(2), info.hadamard_edge_pins.size());
 
-    qsyn::tensor::TensorAxisList connect_pin;
-    for (size_t t = 0; t < info.hadamard_edge_pins.size(); t++)
-        connect_pin.emplace_back(2 * t);
+    qsyn::tensor::TensorAxisList connect_pin =
+        std::views::iota(0ul, info.hadamard_edge_pins.size()) |
+        std::views::transform([](auto i) { return 2 * i; }) |
+        tl::to<std::vector>();
 
-    tensor::QTensor<double> tmp = tensordot(ts, h_tensor_product, info.hadamard_edge_pins, connect_pin);
+    auto tmp = tensordot(ts, h_tensor_product, info.hadamard_edge_pins, connect_pin);
 
     // post-tensordot axis update
-    for (auto& [_, axisId] : _curr_frontiers()) {
-        if (std::find(info.hadamard_edge_pins.begin(), info.hadamard_edge_pins.end(), axisId) == info.hadamard_edge_pins.end()) {
-            axisId = tmp.get_new_axis_id(axisId);
+    for (auto& [_, axis_id] : _curr_frontiers()) {
+        auto const it = std::ranges::find(info.hadamard_edge_pins, axis_id);
+        if (it != info.hadamard_edge_pins.end()) {
+            auto const id = it - info.hadamard_edge_pins.begin();
+            axis_id       = tmp.get_new_axis_id(ts.dimension() + connect_pin[id] + 1);
         } else {
-            auto const id = std::ranges::find(info.hadamard_edge_pins, axisId) - info.hadamard_edge_pins.begin();
-            axisId        = tmp.get_new_axis_id(ts.dimension() + connect_pin[id] + 1);
+            axis_id = tmp.get_new_axis_id(axis_id);
         }
     }
 
-    // update _simplePins and _hadamardPins
-    for (size_t t = 0; t < info.hadamard_edge_pins.size(); t++) {
-        info.hadamard_edge_pins[t] = tmp.get_new_axis_id(ts.dimension() + connect_pin[t] + 1);  // dimension of big tensor + 1,3,5,7,9
+    // update edge pins
+    for (auto&& [h_pin, c_pin] : tl::views::zip(info.hadamard_edge_pins, connect_pin)) {
+        h_pin = tmp.get_new_axis_id(ts.dimension() + c_pin + 1);
     }
-    for (size_t t = 0; t < info.simple_edge_pins.size(); t++)
-        info.simple_edge_pins[t] = tmp.get_new_axis_id(info.simple_edge_pins[t]);
 
-    info.simple_edge_pins = qsyn::tensor::concat_axis_list(info.hadamard_edge_pins, info.simple_edge_pins);
+    for (auto& pin : info.simple_edge_pins) {
+        pin = tmp.get_new_axis_id(pin);
+    }
+
+    info.simple_edge_pins = tensor::concat_axis_list(info.hadamard_edge_pins, info.simple_edge_pins);
     return tmp;
 }
 
@@ -341,6 +351,7 @@ tensor::QTensor<double> ZX2TSMapper::_dehadamardize(tensor::QTensor<double> cons
  */
 void ZX2TSMapper::_tensordot_vertex(zx::ZXGraph const& graph, zx::ZXVertex* v) {
     auto info = calculate_mapping_info(graph, v);
+
     if (v->is_boundary()) {
         spdlog::debug("Mapping vertex {:>4} ({}): Boundary", v->get_id(), v->get_type());
         _curr_tensor() = _dehadamardize(_curr_tensor(), info);
@@ -349,24 +360,24 @@ void ZX2TSMapper::_tensordot_vertex(zx::ZXGraph const& graph, zx::ZXVertex* v) {
 
     spdlog::debug("Mapping vertex {:>4} ({}): Tensordot", v->get_id(), v->get_type());
     auto const dehadamarded = _dehadamardize(_curr_tensor(), info);
+    // we don't care which pins to connect because all vertices correspond to a symmetric tensor
+    auto const vertex_pins_to_connect = std::views::iota(0ul, info.simple_edge_pins.size()) | tl::to<std::vector>();
 
-    _curr_tensor() = tensordot(dehadamarded, get_tensor_form(graph, v), info.simple_edge_pins, std::views::iota(0ul, info.simple_edge_pins.size()) | tl::to<std::vector>());
+    _curr_tensor() = tensordot(dehadamarded, get_tensor_form(graph, v), info.simple_edge_pins, vertex_pins_to_connect);
 
-    // remove dotted frontiers
-    for (auto const& edge : info.frontiers_to_remove)
-        _curr_frontiers().erase(edge);  // Erase old edges
+    for (auto const& edge : info.frontiers_to_remove) {
+        _curr_frontiers().erase(edge);
+    }
 
     // post-tensordot axis id update
-    for (auto& frontier : _curr_frontiers()) {
-        frontier.second = _curr_tensor().get_new_axis_id(frontier.second);
+    for (auto& ax_id : _curr_frontiers() | std::views::values) {
+        ax_id = _curr_tensor().get_new_axis_id(ax_id);
     }
 
     // add new frontiers
-    auto const connect_pin = std::views::iota(info.simple_edge_pins.size(), info.simple_edge_pins.size() + info.frontiers_to_add.size()) | tl::to<std::vector>();
-
-    for (size_t t = 0; t < info.frontiers_to_add.size(); t++) {
-        auto const new_id = _curr_tensor().get_new_axis_id(dehadamarded.dimension() + connect_pin[t]);
-        _curr_frontiers().emplace(info.frontiers_to_add[t], new_id);  // origin pin (neighbot count) + 1,3,5,7,9
+    for (auto&& [t, edge] : tl::views::enumerate(info.frontiers_to_add)) {
+        auto const new_id = _curr_tensor().get_new_axis_id(dehadamarded.dimension() + vertex_pins_to_connect.size() + t);
+        _curr_frontiers().emplace(edge, new_id);
     }
 }
 
