@@ -26,7 +26,6 @@ extern bool stop_requested();
 namespace qsyn {
 
 using Qubit2TensorPinMap = std::unordered_map<QubitIdType, std::pair<size_t, size_t>>;
-using QubitReorderingMap = std::unordered_map<QubitIdType, QubitIdType>;
 
 using qsyn::tensor::QTensor;
 
@@ -94,7 +93,7 @@ void update_tensor_pin(Qubit2TensorPinMap &qubit2pin, std::vector<QubitInfo> con
         } else {
             new_out = main.get_new_axis_id(gate.dimension() + old_out);
         }
-        // NOTE - Order of axis [ Gate ctrl 0 in, Gate ctrl 0 out, .... , Gate targ in, Gate targ out, Tensor 1 in, Tensor 1 out, ...]
+        // NOTE - Order of axis [ gate out/in/out/in... | main out/in/out/in...]
         new_in = main.get_new_axis_id(gate.dimension() + old_in);
         spdlog::trace("  - Qubit: {} input : {} -> {} output: {} -> {}", qubit, old_out, new_out, old_in, new_in);
     }
@@ -125,18 +124,19 @@ std::optional<QTensor<double>> to_tensor(QCir const &qcir) try {
         tensor = tensordot(tensor, QTensor<double>::identity(1));
     }
 
-    Qubit2TensorPinMap qubit_to_pins;
+    Qubit2TensorPinMap qubit_to_pins;  // qubit -> (output, input)
     for (auto const &qubit : qcir.get_qubits()) {
-        auto qubit_id           = qubit->get_id();
-        qubit_to_pins[qubit_id] = std::make_pair(2 * qubit_id, 2 * qubit_id + 1);
-        spdlog::trace("  - Add Qubit {} input port: {}", 2 * qubit_id, 2 * qubit_id + 1);
+        auto const qubit_id = qubit->get_id();
+        auto const oi_pair  = std::make_pair(2 * qubit_id, 2 * qubit_id + 1);
+        qubit_to_pins.emplace(qubit_id, oi_pair);
+        spdlog::trace("  - Add Qubit {} input port: {}", oi_pair.first, oi_pair.second);
     }
 
     try {
         qcir.topological_traverse([&tensor, &qubit_to_pins](QCirGate *gate) {
             if (stop_requested()) return;
             spdlog::debug("Gate {} ({})", gate->get_id(), gate->get_type_str());
-            auto gate_tensor = to_tensor(gate);
+            auto const gate_tensor = to_tensor(gate);
             if (!gate_tensor.has_value()) {
                 throw std::runtime_error(fmt::format("Gate {} ({}) is not supported!!", gate->get_id(), gate->get_type_str()));
             }
@@ -144,8 +144,8 @@ std::optional<QTensor<double>> to_tensor(QCir const &qcir) try {
             std::vector<size_t> gate_tensor_input_pins;
             for (size_t np = 0; np < gate->get_qubits().size(); np++) {
                 gate_tensor_input_pins.emplace_back(2 * np + 1);
-                auto const info = gate->get_qubits()[np];
-                main_tensor_output_pins.emplace_back(qubit_to_pins[info._qubit].first);
+                auto const qubit_id = gate->get_qubits()[np]._qubit;
+                main_tensor_output_pins.emplace_back(qubit_to_pins[qubit_id].first);
             }
             // [tmp]x[tensor]
             tensor = tensordot(*gate_tensor, tensor, gate_tensor_input_pins, main_tensor_output_pins);
@@ -163,9 +163,10 @@ std::optional<QTensor<double>> to_tensor(QCir const &qcir) try {
     }
 
     std::vector<size_t> output_pins, input_pins;
-    for (size_t i = 0; i < qcir.get_qubits().size(); i++) {
-        output_pins.emplace_back(qubit_to_pins[qcir.get_qubits()[i]->get_id()].first);
-        input_pins.emplace_back(qubit_to_pins[qcir.get_qubits()[i]->get_id()].second);
+    for (auto const &qubit : qcir.get_qubits()) {
+        auto const oi_pair = qubit_to_pins[qubit->get_id()];
+        output_pins.emplace_back(oi_pair.first);
+        input_pins.emplace_back(oi_pair.second);
     }
 
     tensor = tensor.to_matrix(output_pins, input_pins);
