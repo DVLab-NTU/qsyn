@@ -94,6 +94,7 @@ std::optional<tensor::QTensor<double>> to_tensor(zx::ZXGraph const& zxgraph) {
  * @return std::optional<QTensor<double>> containing a QTensor<double> if the conversion succeeds
  */
 std::optional<tensor::QTensor<double>> ZX2TSMapper::map(zx::ZXGraph const& graph) try {
+    using namespace std::complex_literals;
     if (graph.is_empty()) {
         spdlog::error("The ZXGraph is empty!!");
         return std::nullopt;
