@@ -31,52 +31,6 @@ using QubitReorderingMap = std::unordered_map<QubitIdType, QubitIdType>;
 using qsyn::tensor::QTensor;
 
 /**
- * @brief Update tensor pin
- *
- * @param qubit2pin map of reordering qubit to pin
- * @param reordering_map qubit reordering
- * @param pins gate pins
- * @param gate new gate
- * @param main main tensor
- */
-void update_tensor_pin(Qubit2TensorPinMap &qubit2pin, QubitReorderingMap &reordering_map, std::vector<QubitInfo> const &pins, QTensor<double> const &gate, QTensor<double> &main) {
-    spdlog::trace("Pin Permutation");
-    for (auto &[qubit, pin] : qubit2pin) {
-        std::string trace = fmt::format("  - Qubit: {} input : {} -> ", qubit, pin.first);
-        bool connected    = false;
-        bool target       = false;
-        size_t ith_ctrl   = 0;
-        for (size_t i = 0; i < pins.size(); i++) {
-            if (pins[i]._qubit == reordering_map[qubit]) {
-                connected = true;
-                if (pins[i]._isTarget)
-                    target = true;
-                else
-                    ith_ctrl = i;
-                break;
-            }
-        }
-        // NOTE - Order of axis [ Gate ctrl 0 in, Gate ctrl 0 out, .... , Gate targ in, Gate targ out, Tensor 1 in, Tensor 1 out, ...]
-        if (connected) {
-            if (target) {
-                // Gate dimension - 1: Output of target; Gate dimension - 2: input of target
-                pin.first = main.get_new_axis_id(gate.dimension() - 2);
-            } else {
-                // Input: 0, 2, 4, 6, ...
-                pin.first = main.get_new_axis_id(2 * ith_ctrl);
-            }
-        } else {
-            // The tensor order is AFTER the gate order
-            pin.first = main.get_new_axis_id(gate.dimension() + pin.first);
-        }
-        trace += fmt::format("{} output: {} -> ", pin.first, pin.second);
-        pin.second = main.get_new_axis_id(gate.dimension() + pin.second);
-        trace += fmt::format("{}", pin.second);
-        spdlog::trace("{}", trace);
-    }
-}
-
-/**
  * @brief Convert gate to tensor
  *
  * @param gate
@@ -114,6 +68,39 @@ std::optional<QTensor<double>> to_tensor(QCirGate *gate) {
             return std::nullopt;
     }
 };
+
+namespace {
+
+/**
+ * @brief Update tensor pin
+ *
+ * @param qubit2pin map of reordering qubit to pin
+ * @param reordering_map qubit reordering
+ * @param pins gate pins
+ * @param gate new gate
+ * @param main main tensor
+ */
+void update_tensor_pin(Qubit2TensorPinMap &qubit2pin, QubitReorderingMap &reordering_map, std::vector<QubitInfo> const &qubit_infos, QTensor<double> const &gate, QTensor<double> &main) {
+    spdlog::trace("Pin Permutation");
+    for (auto &[qubit, pin] : qubit2pin) {
+        auto const [old_out, old_in] = pin;
+        auto &[new_out, new_in]      = pin;
+
+        auto const it = std::ranges::find_if(qubit_infos, [qubit = reordering_map[qubit]](QubitInfo const &info) { return info._qubit == qubit; });
+
+        if (it != qubit_infos.end()) {
+            auto ith_ctrl = std::distance(qubit_infos.begin(), it);
+            new_out       = main.get_new_axis_id(2 * ith_ctrl);
+        } else {
+            new_out = main.get_new_axis_id(gate.dimension() + old_out);
+        }
+        // NOTE - Order of axis [ Gate ctrl 0 in, Gate ctrl 0 out, .... , Gate targ in, Gate targ out, Tensor 1 in, Tensor 1 out, ...]
+        new_in = main.get_new_axis_id(gate.dimension() + old_in);
+        spdlog::trace("  - Qubit: {} input : {} -> {} output: {} -> {}", qubit, old_out, new_out, old_in, new_in);
+    }
+}
+
+}  // namespace
 
 /**
  * @brief Convert QCir to tensor
