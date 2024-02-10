@@ -74,8 +74,7 @@ namespace {
  * @brief Update tensor pin
  *
  * @param qubit2pin map of reordering qubit to pin
- * @param reordering_map qubit reordering
- * @param pins gate pins
+ * @param qubit_infos qubit infos of the new gate
  * @param gate new gate
  * @param main main tensor
  */
@@ -103,6 +102,9 @@ void update_tensor_pin(Qubit2TensorPinMap &qubit2pin, std::vector<QubitInfo> con
 
 /**
  * @brief Convert QCir to tensor
+ *
+ * @param qcir
+ * @return std::optional<QTensor<double>>
  */
 std::optional<QTensor<double>> to_tensor(QCir const &qcir) try {
     if (qcir.get_qubits().empty()) {
