@@ -34,15 +34,6 @@ using dvlab::Command;
 
 namespace qsyn::qcir {
 
-bool qcir_mgr_not_empty(QCirMgr const& qcir_mgr) {
-    if (qcir_mgr.empty()) {
-        spdlog::error("QCir list is empty. Please create a QCir first!!");
-        spdlog::info("Use QCNew/QCBAdd to add a new QCir, or QCCRead to read a QCir from a file.");
-        return false;
-    }
-    return true;
-}
-
 std::function<bool(size_t const&)> valid_qcir_id(QCirMgr const& qcir_mgr) {
     return [&](size_t const& id) {
         if (qcir_mgr.is_id(id)) return true;
@@ -53,7 +44,7 @@ std::function<bool(size_t const&)> valid_qcir_id(QCirMgr const& qcir_mgr) {
 
 std::function<bool(size_t const&)> valid_qcir_gate_id(QCirMgr const& qcir_mgr) {
     return [&](size_t const& id) {
-        if (!qcir_mgr_not_empty(qcir_mgr)) return false;
+        if (!dvlab::utils::mgr_has_data(qcir_mgr)) return false;
         if (qcir_mgr.get()->get_gate(id) != nullptr) return true;
         spdlog::error("Gate ID {} does not exist!!", id);
         return false;
@@ -62,7 +53,7 @@ std::function<bool(size_t const&)> valid_qcir_gate_id(QCirMgr const& qcir_mgr) {
 
 std::function<bool(QubitIdType const&)> valid_qcir_qubit_id(QCirMgr const& qcir_mgr) {
     return [&](QubitIdType const& id) {
-        if (!qcir_mgr_not_empty(qcir_mgr)) return false;
+        if (!dvlab::utils::mgr_has_data(qcir_mgr)) return false;
         if (qcir_mgr.get()->get_qubit(id) != nullptr) return true;
         spdlog::error("Qubit ID {} does not exist!!", id);
         return false;
@@ -79,7 +70,7 @@ dvlab::Command qcir_compose_cmd(QCirMgr& qcir_mgr) {
                     .help("the ID of the circuit to compose with");
             },
             [&](ArgumentParser const& parser) {
-                if (!qcir_mgr_not_empty(qcir_mgr)) return CmdExecResult::error;
+                if (!dvlab::utils::mgr_has_data(qcir_mgr)) return CmdExecResult::error;
                 qcir_mgr.get()->compose(*qcir_mgr.find_by_id(parser.get<size_t>("id")));
                 return CmdExecResult::done;
             }};
@@ -95,7 +86,7 @@ dvlab::Command qcir_tensor_product_cmd(QCirMgr& qcir_mgr) {
                     .help("the ID of the circuit to tensor with");
             },
             [&](ArgumentParser const& parser) {
-                if (!qcir_mgr_not_empty(qcir_mgr)) return CmdExecResult::error;
+                if (!dvlab::utils::mgr_has_data(qcir_mgr)) return CmdExecResult::error;
                 qcir_mgr.get()->tensor_product(*qcir_mgr.find_by_id(parser.get<size_t>("id")));
                 return CmdExecResult::done;
             }};
@@ -214,7 +205,7 @@ dvlab::Command qcir_write_cmd(QCirMgr const& qcir_mgr) {
                     .help("the output format of the QCir. If not specified, the default format is automatically chosen based on the output file extension");
             },
             [&](ArgumentParser const& parser) {
-                if (!qcir_mgr_not_empty(qcir_mgr)) return CmdExecResult::error;
+                if (!dvlab::utils::mgr_has_data(qcir_mgr)) return CmdExecResult::error;
 
                 enum class OutputFormat { qasm,
                                           latex_qcircuit };
@@ -273,7 +264,7 @@ Command qcir_draw_cmd(QCirMgr const& qcir_mgr) {
             },
             [&](ArgumentParser const& parser) {
                 namespace fs = std::filesystem;
-                if (!qcir_mgr_not_empty(qcir_mgr)) return CmdExecResult::error;
+                if (!dvlab::utils::mgr_has_data(qcir_mgr)) return CmdExecResult::error;
 
                 auto output_path = fs::path{parser.get<std::string>("output-path")};
                 auto scale       = parser.get<float>("--scale");
@@ -321,7 +312,7 @@ dvlab::Command qcir_print_cmd(QCirMgr const& qcir_mgr) {
                     .help("print the circuit diagram. If `--verbose` is also specified, print the circuit diagram in the qiskit style");
             },
             [&](ArgumentParser const& parser) {
-                if (!qcir_mgr_not_empty(qcir_mgr)) {
+                if (!dvlab::utils::mgr_has_data(qcir_mgr)) {
                     return CmdExecResult::error;
                 }
 
@@ -433,7 +424,7 @@ dvlab::Command qcir_gate_add_cmd(QCirMgr& qcir_mgr) {
                 .help("the qubits on which the gate applies");
         },
         [=, &qcir_mgr](ArgumentParser const& parser) {
-            if (!qcir_mgr_not_empty(qcir_mgr)) return CmdExecResult::error;
+            if (!dvlab::utils::mgr_has_data(qcir_mgr)) return CmdExecResult::error;
             bool const do_prepend = parser.parsed("--prepend");
 
             auto type = parser.get<std::string>("type");
@@ -508,7 +499,7 @@ dvlab::Command qcir_gate_delete_cmd(QCirMgr& qcir_mgr) {
                     .help("the id to be removed");
             },
             [&](ArgumentParser const& parser) {
-                if (!qcir_mgr_not_empty(qcir_mgr)) return CmdExecResult::error;
+                if (!dvlab::utils::mgr_has_data(qcir_mgr)) return CmdExecResult::error;
                 qcir_mgr.get()->remove_gate(parser.get<size_t>("id"));
                 return CmdExecResult::done;
             }};
@@ -562,7 +553,7 @@ dvlab::Command qcir_qubit_delete_cmd(QCirMgr& qcir_mgr) {
                     .help("the ID of the qubit to be removed");
             },
             [&](ArgumentParser const& parser) {
-                if (!qcir_mgr_not_empty(qcir_mgr)) return CmdExecResult::error;
+                if (!dvlab::utils::mgr_has_data(qcir_mgr)) return CmdExecResult::error;
                 if (!qcir_mgr.get()->remove_qubit(parser.get<QubitIdType>("id")))
                     return CmdExecResult::error;
                 else
@@ -588,6 +579,18 @@ dvlab::Command qcir_qubit_cmd(QCirMgr& qcir_mgr) {
     return cmd;
 }
 
+dvlab::Command qcir_adjoint_cmd(QCirMgr& qcir_mgr) {
+    return {"adjoint",
+            [](ArgumentParser& parser) {
+                parser.description("transform the QCir to its adjoint, i.e., reverse the order of gates and replace each gate with its adjoint version");
+            },
+            [&](ArgumentParser const& /*parser*/) {
+                if (!dvlab::utils::mgr_has_data(qcir_mgr)) return CmdExecResult::error;
+                qcir_mgr.get()->adjoint();
+                return CmdExecResult::done;
+            }};
+}
+
 Command qcir_cmd(QCirMgr& qcir_mgr) {
     auto cmd = dvlab::utils::mgr_root_cmd(qcir_mgr);
 
@@ -603,6 +606,7 @@ Command qcir_cmd(QCirMgr& qcir_mgr) {
     cmd.add_subcommand(qcir_write_cmd(qcir_mgr));
     cmd.add_subcommand(qcir_print_cmd(qcir_mgr));
     cmd.add_subcommand(qcir_draw_cmd(qcir_mgr));
+    cmd.add_subcommand(qcir_adjoint_cmd(qcir_mgr));
     cmd.add_subcommand(qcir_gate_cmd(qcir_mgr));
     cmd.add_subcommand(qcir_qubit_cmd(qcir_mgr));
     cmd.add_subcommand(qcir_optimize_cmd(qcir_mgr));

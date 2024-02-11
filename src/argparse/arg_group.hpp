@@ -13,7 +13,6 @@
 
 #include "./arg_type.hpp"
 #include "argparse/arg_def.hpp"
-#include "util/ordered_hashset.hpp"
 
 namespace dvlab::argparse {
 
@@ -29,7 +28,7 @@ class MutuallyExclusiveGroup {
         MutExGroupImpl(ArgumentParser& parser)
             : _parser{&parser} {}
         ArgumentParser* _parser;
-        dvlab::utils::ordered_hashset<std::string, detail::heterogeneous_string_hash, std::equal_to<>> _arguments;
+        std::vector<std::string> _arg_names;
         bool _required = false;
         bool _parsed   = false;
     };
@@ -42,7 +41,7 @@ public:
     requires valid_argument_type<T>
     ArgType<T>& add_argument(std::string_view name, std::convertible_to<std::string> auto... alias);
 
-    bool contains(std::string_view name) const { return _pimpl->_arguments.contains(name); }
+    bool contains(std::string_view name) const { return std::ranges::find(_pimpl->_arg_names, name) != _pimpl->_arg_names.end(); }
     MutuallyExclusiveGroup required(bool is_req) {
         _pimpl->_required = is_req;
         return *this;
@@ -52,9 +51,9 @@ public:
     bool is_required() const { return _pimpl->_required; }
     bool is_parsed() const { return _pimpl->_parsed; }
 
-    size_t size() const noexcept { return _pimpl->_arguments.size(); }
+    size_t size() const noexcept { return _pimpl->_arg_names.size(); }
 
-    auto const& get_arg_names() const { return _pimpl->_arguments; }
+    auto const& get_arg_names() const { return _pimpl->_arg_names; }
 
 private:
     std::shared_ptr<MutExGroupImpl> _pimpl;

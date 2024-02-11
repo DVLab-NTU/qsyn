@@ -55,8 +55,8 @@ create_multi_control_backbone(ZXGraph& g, std::vector<QubitInfo> const& qubits, 
             g.add_edge(in, v, EdgeType::hadamard);
             g.add_edge(v, out, EdgeType::hadamard);
             if (ax == RotationAxis::y) {
-                g.add_buffer(in, v, EdgeType::hadamard)->set_phase(dvlab::Phase(1, 2));
-                g.add_buffer(out, v, EdgeType::hadamard)->set_phase(dvlab::Phase(-1, 2));
+                g.add_buffer(in, v, EdgeType::hadamard)->set_phase(dvlab::Phase(-1, 2));
+                g.add_buffer(out, v, EdgeType::hadamard)->set_phase(dvlab::Phase(1, 2));
             }
         }
         if (!bitinfo._isTarget)
@@ -372,14 +372,14 @@ ZXGraph create_ry_zx_form(QCirGate* gate, dvlab::Phase ph) {
     auto qubit = gate->get_qubits()[0]._qubit;
 
     ZXVertex* in  = g.add_input(qubit);
-    ZXVertex* s   = g.add_vertex(qubit, VertexType::z, dvlab::Phase(1, 2));
-    ZXVertex* sx  = g.add_vertex(qubit, VertexType::x, ph);
     ZXVertex* sdg = g.add_vertex(qubit, VertexType::z, dvlab::Phase(-1, 2));
+    ZXVertex* rx  = g.add_vertex(qubit, VertexType::x, ph);
+    ZXVertex* s   = g.add_vertex(qubit, VertexType::z, dvlab::Phase(1, 2));
     ZXVertex* out = g.add_output(qubit);
-    g.add_edge(in, s, EdgeType::simple);
-    g.add_edge(s, sx, EdgeType::simple);
-    g.add_edge(sx, sdg, EdgeType::simple);
-    g.add_edge(sdg, out, EdgeType::simple);
+    g.add_edge(in, sdg, EdgeType::simple);
+    g.add_edge(sdg, rx, EdgeType::simple);
+    g.add_edge(rx, s, EdgeType::simple);
+    g.add_edge(s, out, EdgeType::simple);
 
     return g;
 }

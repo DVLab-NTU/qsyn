@@ -102,9 +102,9 @@ public:
     friend Tensor<U> tensor_product_pow(Tensor<U> const& t, size_t n);
 
     template <typename U>
-    friend bool is_partition(Tensor<U> const& t, TensorAxisList const& axin, TensorAxisList const& axout);
+    friend bool is_partition(Tensor<U> const& t, TensorAxisList const& axes1, TensorAxisList const& axes2);
 
-    Tensor<DT> to_matrix(TensorAxisList const& axin, TensorAxisList const& axout);
+    Tensor<DT> to_matrix(TensorAxisList const& row_axes, TensorAxisList const& col_axis);
 
     template <typename U>
     friend Tensor<U> direct_sum(Tensor<U> const& t1, Tensor<U> const& t2);
@@ -237,13 +237,13 @@ size_t Tensor<DT>::get_new_axis_id(size_t const& old_id) {
 
 // Convert the tensor to a matrix, i.e., a 2D tensor according to the two axis lists.
 template <typename DT>
-Tensor<DT> Tensor<DT>::to_matrix(TensorAxisList const& axin, TensorAxisList const& axout) {
+Tensor<DT> Tensor<DT>::to_matrix(TensorAxisList const& row_axes, TensorAxisList const& col_axes) {
     using dvlab::utils::int_pow;
-    if (!is_partition(*this, axin, axout)) {
+    if (!is_partition(*this, row_axes, col_axes)) {
         throw std::invalid_argument("The two axis lists should partition 0~(n-1).");
     }
-    Tensor<DT> t = xt::transpose(this->_tensor, concat_axis_list(axin, axout));
-    t._tensor.reshape({int_pow(2, axin.size()), int_pow(2, axout.size())});
+    Tensor<DT> t = xt::transpose(this->_tensor, concat_axis_list(row_axes, col_axes));
+    t._tensor.reshape({int_pow(2, row_axes.size()), int_pow(2, col_axes.size())});
     return t;
 }
 
@@ -335,9 +335,9 @@ Tensor<U> tensor_product_pow(Tensor<U> const& t, size_t n) {
 
 // Returns true if two axis lists form a partition spanning axis 0 to n-1, where n is the dimension of the tensor.
 template <typename U>
-bool is_partition(Tensor<U> const& t, TensorAxisList const& axin, TensorAxisList const& axout) {
-    if (!is_disjoint(axin, axout)) return false;
-    if (axin.size() + axout.size() != t._tensor.dimension()) return false;
+bool is_partition(Tensor<U> const& t, TensorAxisList const& axes1, TensorAxisList const& axes2) {
+    if (!is_disjoint(axes1, axes2)) return false;
+    if (axes1.size() + axes2.size() != t._tensor.dimension()) return false;
     return true;
 }
 

@@ -18,8 +18,6 @@ namespace qsyn::device {
 
 using DeviceMgr = dvlab::utils::DataStructureManager<Device>;
 
-bool device_mgr_not_empty(DeviceMgr const& device_mgr);
-
 }  // namespace qsyn::device
 
 template <>
