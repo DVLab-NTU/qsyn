@@ -142,7 +142,7 @@ public:
     template <typename U>
     friend int decompose_CU(Tensor<U> const& t, int ctrl, int targ, std::fstream &fout);
     template <typename U>
-    friend int decompose_CnU(Tensor<U> const& t, int diff_pos, int index, int ctrl_gates, std::fstream &fout);
+    friend int decompose_CnU(Tensor<U> const& t, int diff_pos, int index, int ctrl_gates, int qreq, std::fstream &fout);
     template <typename U>
     friend Tensor<U> tensor_multiply(Tensor<U> const& t1, Tensor<U> const& t2);
     // void place_cx(int index, int target, std::fstream &fout);
@@ -574,13 +574,22 @@ int decompose_CU(Tensor<U> const& t, int ctrl, int targ, std::fstream &fout){
 
 
 template <typename U>
-int decompose_CnU(Tensor<U> const& t, int diff_pos, int index, int ctrl_gates, std::fstream &fout) {
+int decompose_CnU(Tensor<U> const& t, int diff_pos, int index, int ctrl_gates, int qreq, std::fstream &fout) {
     // fmt::println("in decompose to decompose CnU function ctrl_gates: {}", t);
-    int qreq = int(log2(t.shape()[0]));
-    qreq = 4;
     int ctrl = diff_pos-1;
     if(diff_pos == 0){
         ctrl = 1;
+    }
+    if(!((index >> ctrl) & 1)){
+        for(int i=0; i<qreq; i++){
+            if((i == diff_pos) || (i == ctrl)){
+                continue;
+            }
+            else if((index >> i) & 1){
+                ctrl = i;
+                break;
+            }
+        }
     }
     if(ctrl_gates == 1){
         decompose_CU(t, ctrl, diff_pos, fout);
@@ -611,13 +620,18 @@ int decompose_CnU(Tensor<U> const& t, int diff_pos, int index, int ctrl_gates, s
         if(count == 1){
             fout << fmt::format("cx q[{}], q[{}];\n", ctrls[0], extract_qubit);
         }
-        else if(count > 1){
+        else if(count == 2){
             fout << "ccx ";
             for(int i=0; i<count; i++){
                 fout << fmt::format("q[{}], ", ctrls[i]);
             }
 
             fout << fmt::format("q[{}];\n", extract_qubit);
+        }
+        else{
+            std::complex<double> zero(0,0), one(1,0);
+            Tensor<U> x({{zero, one},{one, zero}});
+            decompose_CnU(x, extract_qubit, index, ctrl_gates-1, qreq, fout);
         }
         // place_cx(index, extract_qubit, fout);
         // fout << fmt::format("cx q[{}], q[{}];\n", int(log2(index)), extract_qubit);
@@ -627,7 +641,7 @@ int decompose_CnU(Tensor<U> const& t, int diff_pos, int index, int ctrl_gates, s
         if(count == 1){
             fout << fmt::format("cx q[{}], q[{}];\n", ctrls[0], extract_qubit);
         }
-        else if(count > 1){
+        else if(count == 2){
             fout << "ccx ";
             for(int i=0; i<count; i++){
                 fout << fmt::format("q[{}], ", ctrls[i]);
@@ -635,11 +649,16 @@ int decompose_CnU(Tensor<U> const& t, int diff_pos, int index, int ctrl_gates, s
 
             fout << fmt::format("q[{}];\n", extract_qubit);
         }
+        else{
+            std::complex<double> zero(0,0), one(1,0);
+            Tensor<U> x({{zero, one},{one, zero}});
+            decompose_CnU(x, extract_qubit, index, ctrl_gates-1, qreq, fout);
+        }
         // place_cx(index, extract_qubit, fout);
         // fout << fmt::format("cx q[{}], q[{}];\n", int(log2(index)), extract_qubit);
         // std::cout << "cx " << index << " targ: " << extract_qubit << std::endl;
         V.adjoint();
-        decompose_CnU(V, diff_pos, index, ctrl_gates-1, fout);
+        decompose_CnU(V, diff_pos, index, ctrl_gates-1, qreq, fout);
     }
     // std::cout << "ctrl: " << ctrl << std::endl;
     return 0;

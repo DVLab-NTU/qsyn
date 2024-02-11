@@ -513,7 +513,7 @@ int graycode(Tensor<U> const& t, int I, int J, int qreq, std::fstream &fout) {
             ctrl_index += int(pow(2, i));
         }
     }
-    decompose_CnU(t, diff_pos, ctrl_index, qreq - 1, fout);
+    decompose_CnU(t, diff_pos, ctrl_index, qreq - 1, qreq, fout);
 
     // do unpabbing
     for (int i = cnot_length - 1; i >= 0; i--) {
@@ -775,7 +775,20 @@ void decompose(QTensor<U>& t, std::string &filepath) {
     //     std::cout << two_level_chain[i].i << " " << two_level_chain[i].j <<std::endl;
     // }
     for (int i = end-1; i >= 0; i--) {
-        graycode(two_level_chain[i].given, two_level_chain[i].i, two_level_chain[i].j, qreq, fs);
+        int i_idx = 0, j_idx = 0;
+        for(int j=0; j<qreq; j++){
+            i_idx = i_idx*2+(two_level_chain[i].i>>j & 1);
+            j_idx = j_idx*2+(two_level_chain[i].j>>j & 1);
+        }
+        if(i_idx > j_idx){
+            std::swap(i_idx, j_idx);
+            std::swap(two_level_chain[i].given(0,0), two_level_chain[i].given(1,1));
+            std::swap(two_level_chain[i].given(0,1), two_level_chain[i].given(1,0));
+        }
+        // fmt::println("original: {}, {}; after: {}, {}", two_level_chain[i].i, two_level_chain[i].j, i_idx, j_idx);
+
+        graycode(two_level_chain[i].given, i_idx, j_idx, qreq, fs);
+        // graycode(two_level_chain[i].given, two_level_chain[i].i, two_level_chain[i].j, qreq, fs);
     }
 }
 
