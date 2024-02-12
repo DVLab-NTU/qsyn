@@ -5,11 +5,11 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-
 #pragma once
 
 #include <fmt/core.h>
 #include <fmt/ostream.h>
+#include <math.h>
 
 #include <cassert>
 #include <complex>
@@ -21,9 +21,8 @@
 #include <xtensor-blas/xlinalg.hpp>
 #include <xtensor/xadapt.hpp>
 #include <xtensor/xarray.hpp>
-#include <xtensor/xio.hpp>
 #include <xtensor/xcsv.hpp>
-#include <math.h>
+#include <xtensor/xio.hpp>
 
 #include "./tensor_util.hpp"
 #include "util/util.hpp"
@@ -32,10 +31,10 @@
 
 namespace qsyn::tensor {
 
-struct ZYZ{
+struct ZYZ {
     double phi;
     double alpha;
-    double beta; // actual beta/2
+    double beta;  // actual beta/2
     double gamma;
 };
 
@@ -129,7 +128,7 @@ public:
     bool tensor_read(std::string const&);
 
     // decomposition functions
-    
+
     friend struct ZYZ;
     friend struct TwoLevelMatrix;
 
@@ -140,13 +139,12 @@ public:
     template <typename U>
     friend ZYZ decompose_ZYZ(Tensor<U> const& t);
     template <typename U>
-    friend int decompose_CU(Tensor<U> const& t, int ctrl, int targ, std::fstream &fout);
+    friend int decompose_CU(Tensor<U> const& t, int ctrl, int targ, std::fstream& fout);
     template <typename U>
-    friend int decompose_CnU(Tensor<U> const& t, int diff_pos, int index, int ctrl_gates, int qreq, std::fstream &fout);
+    friend int decompose_CnU(Tensor<U> const& t, int diff_pos, int index, int ctrl_gates, int qreq, std::fstream& fout);
     template <typename U>
     friend Tensor<U> tensor_multiply(Tensor<U> const& t1, Tensor<U> const& t2);
     // void place_cx(int index, int target, std::fstream &fout);
-
 
 protected:
     friend struct fmt::formatter<Tensor>;
@@ -315,7 +313,7 @@ void Tensor<DT>::adjoint() {
 }
 
 template <typename DT>
-bool Tensor<DT>::tensor_read(std::string const& filepath){
+bool Tensor<DT>::tensor_read(std::string const& filepath) {
     std::ifstream in_file;
     in_file.open(filepath);
     if (!in_file.is_open()) {
@@ -331,23 +329,23 @@ bool Tensor<DT>::tensor_read(std::string const& filepath){
             std::stringstream ww(word);
 
             double real = 0.0, imag = 0.0;
-            char plus=' ', i=' ';
+            char plus = ' ', i = ' ';
             ww >> real >> plus >> imag >> i;
             // std::cout << "plus" << plus << ", imag " << imag << std::endl;
-            if(plus=='-') imag = -imag;
-            if(plus == 'i'){
+            if (plus == '-') imag = -imag;
+            if (plus == 'i') {
                 imag = real;
                 real = 0;
             }
             data.push_back({real, imag});
         }
     }
-    if(std::floor(std::sqrt(data.size())) != std::sqrt(data.size())){
+    if (std::floor(std::sqrt(data.size())) != std::sqrt(data.size())) {
         std::cout << "Error: the number of elements in the tensor is not a square number" << std::endl;
         return false;
     }
     TensorShape shape = {static_cast<size_t>(std::sqrt(data.size())), static_cast<size_t>(std::sqrt(data.size()))};
-    this->_tensor = xt::adapt(data, shape);
+    this->_tensor     = xt::adapt(data, shape);
     return true;
 }
 
@@ -416,93 +414,82 @@ bool is_partition(Tensor<U> const& t, TensorAxisList const& axin, TensorAxisList
 
 //------------------------------
 // DECOMPOSITION FUNCTIONS:
-// 
+//
 //------------------------------
 
 // Two Level Matrices
 
-struct TwoLevelMatrix
-{
+struct TwoLevelMatrix {
     Tensor<std::complex<double>> given;
-    size_t i, j; // i < j
+    size_t i, j;  // i < j
     TwoLevelMatrix(Tensor<std::complex<double>> U) : given(U) {}
 };
 
 // 2*2matrix sqrt
 template <typename U>
-Tensor<U> sqrt_tensor(Tensor<U> const& t){
-    std::complex<double> a=t(0,0), b=t(0,1), c=t(1,0), d=t(1,1);
-    std::complex<double> tau = a+d, delta = a*d-b*c;
+Tensor<U> sqrt_tensor(Tensor<U> const& t) {
+    std::complex<double> a = t(0, 0), b = t(0, 1), c = t(1, 0), d = t(1, 1);
+    std::complex<double> tau = a + d, delta = a * d - b * c;
     // std::cout << tau << " " << delta << std::endl;
-    std::complex s = std::sqrt(delta);
-    std::complex _t = std::sqrt(tau+s+s);
-    if(std::abs(_t) > 0){
-        Tensor<U> v({{(a+s)/_t, b/_t}, {c/_t, (d+s)/_t}});
+    std::complex s  = std::sqrt(delta);
+    std::complex _t = std::sqrt(tau + s + s);
+    if (std::abs(_t) > 0) {
+        Tensor<U> v({{(a + s) / _t, b / _t}, {c / _t, (d + s) / _t}});
         return v;
-    }
-    else{
+    } else {
         Tensor<U> v({{std::sqrt(a), b}, {c, std::sqrt(d)}});
         return v;
     }
-    
 }
 
-
-
-
 template <typename U>
-ZYZ decompose_ZYZ(Tensor<U> const& t){
+ZYZ decompose_ZYZ(Tensor<U> const& t) {
     // fmt::println("tensor: {}", t);
     // bool bc = 0;
-    std::complex<double> a=t(0,0), b=t(0,1), c=t(1,0), d=t(1,1);
+    std::complex<double> a = t(0, 0), b = t(0, 1), c = t(1, 0), d = t(1, 1);
     struct ZYZ output;
 
     // new calculation
     // fmt::println("abs: {}", std::abs(a));
     double init_beta;
-    if(std::abs(a) > 1){
+    if (std::abs(a) > 1) {
         init_beta = 0;
-    }
-    else{
+    } else {
         init_beta = std::acos(std::abs(a));
     }
-    double beta_candidate[] = {init_beta, PI-init_beta, PI+init_beta, 2.0*PI-init_beta};
-    for(int i=0; i<4; i++){
+    double beta_candidate[] = {init_beta, PI - init_beta, PI + init_beta, 2.0 * PI - init_beta};
+    for (int i = 0; i < 4; i++) {
         double beta = beta_candidate[i];
         // fmt::println("beta: {}", beta);
         output.beta = beta;
         std::complex<double> a1, b1, c1, d1;
-        std::complex<double> cos(std::cos(beta)+1e-5, 0), sin(std::sin(beta)+1e-5, 0);
-        a1 = a/cos;
-        b1 = b/sin;
-        c1 = c/sin;
-        d1 = d/cos;
-        if(std::abs(b) < 1e-4){
-            output.alpha = std::arg(d1/a1)/2.0;
+        std::complex<double> cos(std::cos(beta) + 1e-5, 0), sin(std::sin(beta) + 1e-5, 0);
+        a1 = a / cos;
+        b1 = b / sin;
+        c1 = c / sin;
+        d1 = d / cos;
+        if (std::abs(b) < 1e-4) {
+            output.alpha = std::arg(d1 / a1) / 2.0;
             output.gamma = output.alpha;
+        } else if (std::abs(a) < 1e-4) {
+            output.alpha = std::arg(-c1 / b1) / 2.0;
+            output.gamma = (-1.0) * output.alpha;
+        } else {
+            output.alpha = std::arg(c1 / a1);
+            output.gamma = std::arg(d1 / c1);
         }
-        else if(std::abs(a) < 1e-4){
-            output.alpha = std::arg(-c1/b1)/2.0;
-            output.gamma = (-1.0)*output.alpha;
-        }
-        else{
-            output.alpha = std::arg(c1/a1);
-            output.gamma = std::arg(d1/c1);
-        }
-        std::complex<double> a_r(std::cos((output.alpha+output.gamma)/2), std::sin((output.alpha+output.gamma)/2));
-        std::complex<double> _ar(std::cos((output.alpha-output.gamma)/2), std::sin((output.alpha-output.gamma)/2));
-        if(std::abs(a) < 1e-4){
-            output.phi = std::arg(c1/_ar);
-        }
-        else{
-            output.phi = std::arg(a1*a_r);
+        std::complex<double> a_r(std::cos((output.alpha + output.gamma) / 2), std::sin((output.alpha + output.gamma) / 2));
+        std::complex<double> _ar(std::cos((output.alpha - output.gamma) / 2), std::sin((output.alpha - output.gamma) / 2));
+        if (std::abs(a) < 1e-4) {
+            output.phi = std::arg(c1 / _ar);
+        } else {
+            output.phi = std::arg(a1 * a_r);
         }
         std::complex<double> phi(std::cos(output.phi), std::sin(output.phi));
 
-        if(std::abs(phi*cos/a_r - a) < 1e-3 && std::abs(sin*phi/_ar + b) < 1e-3 && std::abs(phi*_ar*sin - c) < 1e-3 && std::abs(phi*a_r*cos - d) < 1e-3){
+        if (std::abs(phi * cos / a_r - a) < 1e-3 && std::abs(sin * phi / _ar + b) < 1e-3 && std::abs(phi * _ar * sin - c) < 1e-3 && std::abs(phi * a_r * cos - d) < 1e-3) {
             return output;
         }
-
     }
     fmt::println("no solution");
 
@@ -510,7 +497,7 @@ ZYZ decompose_ZYZ(Tensor<U> const& t){
 }
 
 template <typename U>
-int decompose_CU(Tensor<U> const& t, int ctrl, int targ, std::fstream &fout){
+int decompose_CU(Tensor<U> const& t, int ctrl, int targ, std::fstream& fout) {
     // fmt::println("in decompose CU function");
     // std::cout << "CU on ctrl: " << ctrl << " targ: " << targ << " sqrt_time: " << sqrt_time << " dag: " << dag << " other: " << t.shape()[0] << std::endl;
     // fmt::println("matrix: {}", t);
@@ -536,129 +523,118 @@ int decompose_CU(Tensor<U> const& t, int ctrl, int targ, std::fstream &fout){
     // }
     angles = decompose_ZYZ(t);
     // fmt::println("angles: {}, {}, {}, {}", angles.phi, angles.alpha, angles.beta, angles.gamma);
-    
-    if(std::abs((angles.alpha-angles.gamma)/2) > 1e-6){    
-        fout << fmt::format("rz({}) q[{}];\n", ((angles.alpha-angles.gamma)/2)*(-1.0), targ);
+
+    if (std::abs((angles.alpha - angles.gamma) / 2) > 1e-6) {
+        fout << fmt::format("rz({}) q[{}];\n", ((angles.alpha - angles.gamma) / 2) * (-1.0), targ);
     }
-    if(std::abs(angles.beta) > 1e-6){
-        
+    if (std::abs(angles.beta) > 1e-6) {
         fout << fmt::format("cx q[{}], q[{}];\n", ctrl, targ);
-        if(std::abs((angles.alpha+angles.gamma)/2) > 1e-6){
-            fout << fmt::format("rz({}) q[{}];\n", ((angles.alpha+angles.gamma)/2)*(-1.0), targ);
+        if (std::abs((angles.alpha + angles.gamma) / 2) > 1e-6) {
+            fout << fmt::format("rz({}) q[{}];\n", ((angles.alpha + angles.gamma) / 2) * (-1.0), targ);
         }
-        fout << fmt::format("ry({}) q[{}];\n", angles.beta*(-1.0), targ);
+        fout << fmt::format("ry({}) q[{}];\n", angles.beta * (-1.0), targ);
         fout << fmt::format("cx q[{}], q[{}];\n", ctrl, targ);
         fout << fmt::format("ry({}) q[{}];\n", angles.beta, targ);
-        if(std::abs(angles.alpha) > 1e-6){
+        if (std::abs(angles.alpha) > 1e-6) {
+            fout << fmt::format("rz({}) q[{}];\n", angles.alpha, targ);
+        }
+    } else {
+        if (std::abs((angles.alpha + angles.gamma) / 2) > 1e-6) {
+            fout << fmt::format("cx q[{}], q[{}];\n", ctrl, targ);
+            fout << fmt::format("rz({}) q[{}];\n", ((angles.alpha + angles.gamma) / 2) * (-1.0), targ);
+            fout << fmt::format("cx q[{}], q[{}];\n", ctrl, targ);
+        }
+        if (std::abs(angles.alpha) > 1e-6) {
             fout << fmt::format("rz({}) q[{}];\n", angles.alpha, targ);
         }
     }
-    else{
-        if(std::abs((angles.alpha+angles.gamma)/2) > 1e-6){
-            fout << fmt::format("cx q[{}], q[{}];\n", ctrl, targ);
-            fout << fmt::format("rz({}) q[{}];\n", ((angles.alpha+angles.gamma)/2)*(-1.0), targ);
-            fout << fmt::format("cx q[{}], q[{}];\n", ctrl, targ);
-        }
-        if(std::abs(angles.alpha) > 1e-6){
-        fout << fmt::format("rz({}) q[{}];\n", angles.alpha, targ);
-    }
-    }
-    if(std::abs(angles.phi) > 1e-6){
+    if (std::abs(angles.phi) > 1e-6) {
         fout << fmt::format("rz({}) q[{}];\n", angles.phi, ctrl);
     }
-    
-    
+
     return 0;
 }
 
-
-
 template <typename U>
-int decompose_CnU(Tensor<U> const& t, int diff_pos, int index, int ctrl_gates, int qreq, std::fstream &fout) {
+int decompose_CnU(Tensor<U> const& t, int diff_pos, int index, int ctrl_gates, int qreq, std::fstream& fout) {
     // fmt::println("in decompose to decompose CnU function ctrl_gates: {}", t);
-    int ctrl = diff_pos-1;
-    if(diff_pos == 0){
+    int ctrl = diff_pos - 1;
+    if (diff_pos == 0) {
         ctrl = 1;
     }
-    if(!((index >> ctrl) & 1)){
-        for(int i=0; i<qreq; i++){
-            if((i == diff_pos) || (i == ctrl)){
+    if (!((index >> ctrl) & 1)) {
+        for (int i = 0; i < qreq; i++) {
+            if ((i == diff_pos) || (i == ctrl)) {
                 continue;
-            }
-            else if((index >> i) & 1){
+            } else if ((index >> i) & 1) {
                 ctrl = i;
                 break;
             }
         }
     }
-    if(ctrl_gates == 1){
+    if (ctrl_gates == 1) {
         decompose_CU(t, ctrl, diff_pos, fout);
-    }
-    else{
+    } else {
         int extract_qubit = -1;
-        for(int i=0; i < qreq; i++){
-            if(i == ctrl){
+        for (int i = 0; i < qreq; i++) {
+            if (i == ctrl) {
                 continue;
             }
-            if((index >> i) & 1){
+            if ((index >> i) & 1) {
                 extract_qubit = i;
-                index = index - int(pow(2, i));
+                index         = index - int(pow(2, i));
                 break;
             }
         }
-        Tensor<U> V=sqrt_tensor(t);
+        Tensor<U> V = sqrt_tensor(t);
         // std::cout << "extract qubit: " << extract_qubit << std::endl;
         decompose_CU(V, extract_qubit, diff_pos, fout);
-        int max_index = (int(log2(index))+1), count = 0;
+        int max_index = (int(log2(index)) + 1), count = 0;
         std::vector<int> ctrls;
-        for(int i=0; i<max_index; i++){
-            if((index >> i) & 1){
+        for (int i = 0; i < max_index; i++) {
+            if ((index >> i) & 1) {
                 ctrls.emplace_back(i);
                 count++;
             }
         }
-        if(count == 1){
+        if (count == 1) {
             fout << fmt::format("cx q[{}], q[{}];\n", ctrls[0], extract_qubit);
-        }
-        else if(count == 2){
+        } else if (count == 2) {
             fout << "ccx ";
-            for(int i=0; i<count; i++){
+            for (int i = 0; i < count; i++) {
                 fout << fmt::format("q[{}], ", ctrls[i]);
             }
 
             fout << fmt::format("q[{}];\n", extract_qubit);
-        }
-        else{
-            std::complex<double> zero(0,0), one(1,0);
-            Tensor<U> x({{zero, one},{one, zero}});
-            decompose_CnU(x, extract_qubit, index, ctrl_gates-1, qreq, fout);
+        } else {
+            std::complex<double> zero(0, 0), one(1, 0);
+            Tensor<U> x({{zero, one}, {one, zero}});
+            decompose_CnU(x, extract_qubit, index, ctrl_gates - 1, qreq, fout);
         }
         // place_cx(index, extract_qubit, fout);
         // fout << fmt::format("cx q[{}], q[{}];\n", int(log2(index)), extract_qubit);
         // std::cout << "cx " << index << " targ: " << extract_qubit << std::endl;
         V.adjoint();
         decompose_CU(V, extract_qubit, diff_pos, fout);
-        if(count == 1){
+        if (count == 1) {
             fout << fmt::format("cx q[{}], q[{}];\n", ctrls[0], extract_qubit);
-        }
-        else if(count == 2){
+        } else if (count == 2) {
             fout << "ccx ";
-            for(int i=0; i<count; i++){
+            for (int i = 0; i < count; i++) {
                 fout << fmt::format("q[{}], ", ctrls[i]);
             }
 
             fout << fmt::format("q[{}];\n", extract_qubit);
-        }
-        else{
-            std::complex<double> zero(0,0), one(1,0);
-            Tensor<U> x({{zero, one},{one, zero}});
-            decompose_CnU(x, extract_qubit, index, ctrl_gates-1, qreq, fout);
+        } else {
+            std::complex<double> zero(0, 0), one(1, 0);
+            Tensor<U> x({{zero, one}, {one, zero}});
+            decompose_CnU(x, extract_qubit, index, ctrl_gates - 1, qreq, fout);
         }
         // place_cx(index, extract_qubit, fout);
         // fout << fmt::format("cx q[{}], q[{}];\n", int(log2(index)), extract_qubit);
         // std::cout << "cx " << index << " targ: " << extract_qubit << std::endl;
         V.adjoint();
-        decompose_CnU(V, diff_pos, index, ctrl_gates-1, qreq, fout);
+        decompose_CnU(V, diff_pos, index, ctrl_gates - 1, qreq, fout);
     }
     // std::cout << "ctrl: " << ctrl << std::endl;
     return 0;
@@ -670,10 +646,7 @@ Tensor<U> tensor_multiply(Tensor<U> const& t1, Tensor<U> const& t2) {
     return tensordot(t1, t2, {1}, {0});
 }
 
-
 }  // namespace qsyn::tensor
-
-
 
 template <typename DT>
 struct fmt::formatter<qsyn::tensor::Tensor<DT>> : fmt::ostream_formatter {};

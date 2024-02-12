@@ -8,8 +8,8 @@
 
 #include <fmt/core.h>
 #include <fmt/ostream.h>
-#include <fstream>
 
+#include <fstream>
 #include <gsl/narrow>
 
 #include "./tensor.hpp"
@@ -98,7 +98,7 @@ public:
     // friend struct TwoLevelMatrix;
 
     template <typename U>
-    void decompose(QTensor<U>& t, std::string &filename);
+    void decompose(QTensor<U>& t, std::string& filename);
     template <typename U>
     auto get_2level(QTensor<U>& t);
     // template <typename U>
@@ -435,7 +435,7 @@ typename QTensor<T>::DataType QTensor<T>::_nu_pow(int n) {
 
 // decomposition function
 template <typename U>
-int graycode(Tensor<U> const& t, int I, int J, int qreq, std::fstream &fout) {
+int graycode(Tensor<U> const& t, int I, int J, int qreq, std::fstream& fout) {
     // fmt::println("in graycode function");
     // do pabbing
     std::vector<std::string> cnot_list;
@@ -456,31 +456,33 @@ int graycode(Tensor<U> const& t, int I, int J, int qreq, std::fstream &fout) {
     }
     // std::cout << "diff position: " << diff_pos << std::endl;
     bool x_given = 0;
-    
-    if((I+std::pow(2, diff_pos))  != (std::pow(2, qreq)-1)){if (((I >> diff_pos) & 1) == 0) {
-        cnot_list.emplace_back(fmt::format("x q[{}];\n", diff_pos));
-        fout << cnot_list[cnot_length];
-        cnot_length++;
-        x_given = 1;
-    }
-    for (int i = 0; i < qreq; i++) {
-        if (i == diff_pos) {
-            continue;
-        }
-        if (((I >> i) & 1) == 0) {
-            cnot_list.emplace_back(fmt::format("cx q[{}], q[{}];\n", diff_pos, i));
+
+    if ((I + std::pow(2, diff_pos)) != (std::pow(2, qreq) - 1)) {
+        if (((I >> diff_pos) & 1) == 0) {
+            cnot_list.emplace_back(fmt::format("x q[{}];\n", diff_pos));
             fout << cnot_list[cnot_length];
             cnot_length++;
-            // std::cout << "cx on ctrl: " << diff_pos << " targ: " << i << std::endl;
+            x_given = 1;
+        }
+        for (int i = 0; i < qreq; i++) {
+            if (i == diff_pos) {
+                continue;
+            }
+            if (((I >> i) & 1) == 0) {
+                cnot_list.emplace_back(fmt::format("cx q[{}], q[{}];\n", diff_pos, i));
+                fout << cnot_list[cnot_length];
+                cnot_length++;
+                // std::cout << "cx on ctrl: " << diff_pos << " targ: " << i << std::endl;
+            }
+        }
+        if (x_given) {
+            cnot_list.emplace_back(fmt::format("x q[{}];\n", diff_pos));
+            fout << cnot_list[cnot_length];
+            cnot_length++;
+            // std::cout << "x on " << diff_pos << std::endl;
+            x_given = 0;
         }
     }
-    if (x_given) {
-        cnot_list.emplace_back(fmt::format("x q[{}];\n", diff_pos));
-        fout << cnot_list[cnot_length];
-        cnot_length++;
-        // std::cout << "x on " << diff_pos << std::endl;
-        x_given = 0;
-    }}
     if (((J >> diff_pos) & 1) == 0) {
         cnot_list.emplace_back(fmt::format("x q[{}];\n", diff_pos));
         fout << cnot_list[cnot_length];
@@ -548,22 +550,20 @@ auto get_2level(QTensor<U> t) {
     int s = int(t.shape()[0]);
     // fmt::println("shape : {} * {}", s, s);
 
-    
     QTensor<double>
         XU = QTensor<double>::identity((int)round(std::log2(s)));
     // QTensor<double> I = QTensor<double>::identity(1);
     // QTensor<double> U = tensor_product_pow(I, (int)round(std::log2(s)));
     XU.reshape({t.shape()[0], t.shape()[0]});
-    
+
     QTensor<double>
         FU = QTensor<double>::identity(1);
 
-    for (int i = 0; i < s ; i++) {
+    for (int i = 0; i < s; i++) {
         for (int j = i + 1; j < s; j++) {
-            
-            //check 2-level
+            // check 2-level
             bool is_two_level = false;
-            int d = 0, Up = 0, L = 0; 
+            int d = 0, Up = 0, L = 0;
             int d1 = 0, Ui = 0, Li = 0;
             int d2 = 0, Uj = 0, Lj = 0;
             int c_i = 0, c_j = 0;
@@ -571,85 +571,75 @@ auto get_2level(QTensor<U> t) {
 
             for (int x = 0; x < s; x++) {  // check all
                 for (int y = 0; y < s; y++) {
-                    
-                    if(x == y){
-                        if(std::abs(t(y,x)-one) > 1e-6){
+                    if (x == y) {
+                        if (std::abs(t(y, x) - one) > 1e-6) {
                             d++;
-                            if(d == 1){
-                              d1 = x; 
+                            if (d == 1) {
+                                d1 = x;
                             }
-                            if(d == 2){
-                              d2 = x;
+                            if (d == 2) {
+                                d2 = x;
                             }
                         }
-                    }
-                    else if(x>y){
-                        if(std::abs(t(y,x)) > 1e-6){
+                    } else if (x > y) {
+                        if (std::abs(t(y, x)) > 1e-6) {
                             Up++;
                             Ui = y;
                             Uj = x;
                         }
-                    }
-                    else{
-                        if(std::abs(t(y,x)) > 1e-6){
+                    } else {
+                        if (std::abs(t(y, x)) > 1e-6) {
                             L++;
                             Li = y;
                             Lj = x;
                         }
                     }
-                    
                 }
             }
 
-            if((Up == 1 && L == 1)&&(Ui == Lj && Uj == Li)){
-
-                if(d == 2 && d1 == Ui && d2 == Li){
+            if ((Up == 1 && L == 1) && (Ui == Lj && Uj == Li)) {
+                if (d == 2 && d1 == Ui && d2 == Li) {
                     is_two_level = true;
-                    c_i = d1;
-                    c_j = d2;
+                    c_i          = d1;
+                    c_j          = d2;
                 }
-                if(d == 1 && (d1 == Ui||d1 == Uj)){
+                if (d == 1 && (d1 == Ui || d1 == Uj)) {
                     is_two_level = true;
-                    if(d1 != s-1){
+                    if (d1 != s - 1) {
                         c_i = d1;
-                        c_j = d1+1;
-                    }
-                    else{
-                        c_i = d1-1;
+                        c_j = d1 + 1;
+                    } else {
+                        c_i = d1 - 1;
                         c_j = d1;
                     }
                 }
-                if(d == 0){
+                if (d == 0) {
                     is_two_level = true;
-                    c_i = Ui;
-                    c_j = Uj;
+                    c_i          = Ui;
+                    c_j          = Uj;
                 }
+            }
 
-            }   
-
-            if(Up == 0 && L == 0){
-
-                if(d == 2){
+            if (Up == 0 && L == 0) {
+                if (d == 2) {
                     is_two_level = true;
-                    c_i = d1;
-                    c_j = d2;
+                    c_i          = d1;
+                    c_j          = d2;
                 }
-                if(d == 1){
+                if (d == 1) {
                     is_two_level = true;
-                    if(d1 != s-1){
+                    if (d1 != s - 1) {
                         c_i = d1;
-                        c_j = d1+1;
-                    }
-                    else{
-                        c_i = d1-1;
+                        c_j = d1 + 1;
+                    } else {
+                        c_i = d1 - 1;
                         c_j = d1;
+                    }
                 }
-                }
-                if(d == 0){ //identity
+                if (d == 0) {  // identity
                     // fmt::println("U become I, ended");
                     return two_level_chain;
                 }
-            
             }
 
             if (is_two_level == true) {
@@ -667,8 +657,7 @@ auto get_2level(QTensor<U> t) {
 
                 return two_level_chain;
             }
-        
-        
+
             if (std::abs(t(i, i).real() - 1) < 1e-6 && std::abs(t(i, i).imag()) < 1e-6) {  // maybe use e-6 approx.
                 if (std::abs(t(j, i).real()) < 1e-6 && std::abs(t(j, i).imag()) < 1e-6) {
                     // fmt::println("skip cuz (1,0) {},{}", i, j);
@@ -736,16 +725,14 @@ auto get_2level(QTensor<U> t) {
 
             // fmt::println("CU{}", num);
             // fmt::println("{}", two_level_chain[num - 1].given);
-
         }
     }
-    
+
     return two_level_chain;
 }
 
-
 template <typename U>
-void decompose(QTensor<U>& t, std::string &filepath) {
+void decompose(QTensor<U>& t, std::string& filepath) {
     // fmt::println("matrix: {}", t);
     // fmt::println("in decompose function QTensor");
     // fmt::println("in decomposition main function");
@@ -774,16 +761,16 @@ void decompose(QTensor<U>& t, std::string &filepath) {
     //     two_level_chain[i].j = j_tmp ;
     //     std::cout << two_level_chain[i].i << " " << two_level_chain[i].j <<std::endl;
     // }
-    for (int i = end-1; i >= 0; i--) {
+    for (int i = end - 1; i >= 0; i--) {
         int i_idx = 0, j_idx = 0;
-        for(int j=0; j<qreq; j++){
-            i_idx = i_idx*2+(two_level_chain[i].i>>j & 1);
-            j_idx = j_idx*2+(two_level_chain[i].j>>j & 1);
+        for (int j = 0; j < qreq; j++) {
+            i_idx = i_idx * 2 + (two_level_chain[i].i >> j & 1);
+            j_idx = j_idx * 2 + (two_level_chain[i].j >> j & 1);
         }
-        if(i_idx > j_idx){
+        if (i_idx > j_idx) {
             std::swap(i_idx, j_idx);
-            std::swap(two_level_chain[i].given(0,0), two_level_chain[i].given(1,1));
-            std::swap(two_level_chain[i].given(0,1), two_level_chain[i].given(1,0));
+            std::swap(two_level_chain[i].given(0, 0), two_level_chain[i].given(1, 1));
+            std::swap(two_level_chain[i].given(0, 1), two_level_chain[i].given(1, 0));
         }
         // fmt::println("original: {}, {}; after: {}, {}", two_level_chain[i].i, two_level_chain[i].j, i_idx, j_idx);
 
