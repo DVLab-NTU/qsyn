@@ -22,6 +22,7 @@
 #include <xtensor/xadapt.hpp>
 #include <xtensor/xarray.hpp>
 #include <xtensor/xcsv.hpp>
+#include <xtensor/xnpy.hpp>
 #include <xtensor/xio.hpp>
 
 #include "./tensor_util.hpp"
@@ -126,6 +127,7 @@ public:
     void adjoint();
 
     bool tensor_read(std::string const&);
+    bool tensor_write(std::string const&);
 
     // decomposition functions
 
@@ -310,6 +312,32 @@ template <typename DT>
 void Tensor<DT>::adjoint() {
     assert(dimension() == 2);
     _tensor = xt::conj(xt::transpose(_tensor, {1, 0}));
+}
+
+template <typename DT>
+bool Tensor<DT>::tensor_write(std::string const& filepath) {
+    std::ofstream out_file;
+    out_file.open(filepath);
+    if (!out_file.is_open()) {
+        std::cout << "Error opening file" << std::endl;
+        return false;
+    }
+    for(int row=0; row< (int)this->_tensor.shape(0); row++){
+        for(int col=0; col< (int)this->_tensor.shape(1); col++){
+            if(xt::imag(this->_tensor(row, col))>=0){
+                out_file << xt::real(this->_tensor(row, col)) << "+" << abs(xt::imag(this->_tensor(row, col))) << "j";
+            }
+            else{
+                out_file << xt::real(this->_tensor(row, col)) << xt::imag(this->_tensor(row, col)) << "j";
+            }
+            if(col != (int)this->_tensor.shape(1)-1){
+                out_file << ", ";
+            }
+        }
+        out_file << std::endl;
+    }
+    out_file.close();
+    return true;
 }
 
 template <typename DT>
