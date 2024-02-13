@@ -50,6 +50,25 @@ Command tensor_print_cmd(TensorMgr& tensor_mgr) {
             }};
 }
 
+dvlab::Command tensor_write_cmd(TensorMgr& tensor_mgr) {
+    return {"write",
+            [&](ArgumentParser& parser) {
+                parser.description("write the tensor to a csv file");
+
+                parser.add_argument<std::string>("filepath")
+                    .help("the filepath to output file. Supported extension: .qasm.");
+            },
+            [&tensor_mgr](ArgumentParser const& parser) {
+                    auto filepath = parser.get<std::string>("filepath");
+                    QTensor<double> *buffer_q_tensor = tensor_mgr.get();
+                    if (!buffer_q_tensor->tensor_write(filepath)) {
+                        spdlog::error("the format in \"{}\" has something wrong!!", filepath);
+                        return CmdExecResult::error;
+                    }
+                return CmdExecResult::done;
+            }};
+}
+
 Command tensor_read_cmd(TensorMgr& tensor_mgr){
     return {"read",
         [&](ArgumentParser& parser) {
@@ -218,6 +237,7 @@ Command tensor_cmd(TensorMgr& tensor_mgr) {
     cmd.add_subcommand(tensor_equivalence_check_cmd(tensor_mgr));
     cmd.add_subcommand(tensor_decompose_cmd(tensor_mgr));
     cmd.add_subcommand(tensor_read_cmd(tensor_mgr));
+    cmd.add_subcommand(tensor_write_cmd(tensor_mgr));
     // cmd.add_subcommand(tensor_check_cmd(tensor_mgr));
 
     return cmd;
