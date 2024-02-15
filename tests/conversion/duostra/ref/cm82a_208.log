@@ -21,6 +21,8 @@ qsyn> device read benchmark/topology/guadalupe.layout
 qsyn> qcir print --statistics
 QCir (16 qubits, 650 gates)
 Clifford    : 370
+├── H-gate  : 80
+├── S-family: 14
 └── 2-qubit : 283
 T-family    : 280
 Others      : 0
@@ -79,6 +81,8 @@ Total Time:     3633
 qsyn> qcir print --statistics
 QCir (16 qubits, 2000 gates)
 Clifford    : 1720
+├── H-gate  : 80
+├── S-family: 14
 └── 2-qubit : 1633
 T-family    : 280
 Others      : 0
@@ -111,6 +115,8 @@ Total Time:     6753
 qsyn> qcir print --statistics
 QCir (16 qubits, 3560 gates)
 Clifford    : 3280
+├── H-gate  : 80
+├── S-family: 14
 └── 2-qubit : 3193
 T-family    : 280
 Others      : 0
