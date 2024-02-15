@@ -10,6 +10,7 @@
 #include <bits/iterator_concepts.h>
 #include <fmt/core.h>
 
+#include <algorithm>
 #include <csignal>
 #include <initializer_list>
 #include <ranges>
@@ -30,6 +31,64 @@ enum class Pauli {
 };
 
 uint8_t power_of_i(Pauli a, Pauli b);
+
+enum class CliffordOperatorType {
+    h,
+    s,
+    cx,
+    sdg,
+    v,
+    vdg,
+    x,
+    y,
+    z,
+    cz,
+    swap
+};
+
+using CliffordOperator       = std::pair<CliffordOperatorType, std::array<size_t, 2>>;
+using CliffordOperatorString = std::vector<CliffordOperator>;
+
+[[nodiscard]] inline CliffordOperatorType adjoint(CliffordOperatorType const& op) {
+    using COT = CliffordOperatorType;
+    switch (op) {
+        case COT::s:
+            return COT::sdg;
+        case COT::sdg:
+            return COT::s;
+        case COT::v:
+            return COT::vdg;
+        case COT::vdg:
+            return COT::v;
+        default:
+            return op;
+    }
+}
+
+inline void adjoint_inplace(CliffordOperatorType& op) {
+    op = adjoint(op);
+}
+
+[[nodiscard]] inline CliffordOperator adjoint(CliffordOperator const& op) {
+    return {adjoint(op.first), op.second};
+}
+
+inline void adjoint_inplace(CliffordOperator& op) {
+    op.first = adjoint(op.first);
+}
+
+inline void adjoint_inplace(CliffordOperatorString& ops) {
+    std::ranges::reverse(ops);
+    for (auto& op : ops) {
+        adjoint_inplace(op);
+    }
+}
+
+[[nodiscard]] inline CliffordOperatorString adjoint(CliffordOperatorString const& ops) {
+    auto ret = ops;
+    adjoint_inplace(ret);
+    return ret;
+}
 
 /**
  * @brief Traits for Pauli Product-like classes. Such classes should implement the h, s, cx methods.
@@ -54,39 +113,42 @@ public:
     inline T& z(size_t qubit) { return s(qubit).s(qubit); }
     inline T& cz(size_t control, size_t target) { return h(target).cx(control, target).h(target); }
     inline T& swap(size_t qubit1, size_t qubit2) { return cx(qubit1, qubit2).cx(qubit2, qubit1).cx(qubit1, qubit2); }
-};
 
-enum class CliffordOperatorType {
-    h,
-    s,
-    cx,
-    sdg,
-    v,
-    vdg,
-    x,
-    y,
-    z,
-    cz,
-    swap
-};
-
-inline CliffordOperatorType adjoint(CliffordOperatorType const& op) {
-    using COT = CliffordOperatorType;
-    switch (op) {
-        case COT::s:
-            return COT::sdg;
-        case COT::sdg:
-            return COT::s;
-        case COT::v:
-            return COT::vdg;
-        case COT::vdg:
-            return COT::v;
-        default:
-            return op;
+    inline T& apply(CliffordOperator const& op) {
+        auto& [type, qubits] = op;
+        switch (type) {
+            case CliffordOperatorType::h:
+                return h(qubits[0]);
+            case CliffordOperatorType::s:
+                return s(qubits[0]);
+            case CliffordOperatorType::cx:
+                return cx(qubits[0], qubits[1]);
+            case CliffordOperatorType::sdg:
+                return sdg(qubits[0]);
+            case CliffordOperatorType::v:
+                return v(qubits[0]);
+            case CliffordOperatorType::vdg:
+                return vdg(qubits[0]);
+            case CliffordOperatorType::x:
+                return x(qubits[0]);
+            case CliffordOperatorType::y:
+                return y(qubits[0]);
+            case CliffordOperatorType::z:
+                return z(qubits[0]);
+            case CliffordOperatorType::cz:
+                return cz(qubits[0], qubits[1]);
+            case CliffordOperatorType::swap:
+                return swap(qubits[0], qubits[1]);
+        }
     }
-}
 
-using CliffordOperator = std::pair<CliffordOperatorType, std::array<size_t, 2>>;
+    inline T& apply(CliffordOperatorString const& ops) {
+        for (auto const& op : ops) {
+            apply(op);
+        }
+        return *this;
+    }
+};
 
 class PauliProduct : public PauliProductTrait<PauliProduct> {
 public:

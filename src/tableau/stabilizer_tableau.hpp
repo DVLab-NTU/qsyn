@@ -73,10 +73,14 @@ private:
     std::vector<PauliProduct> _stabilizers;
 };
 
+[[nodiscard]] StabilizerTableau adjoint(StabilizerTableau const& tableau);
+
+inline void adjoint_inplace(StabilizerTableau& tableau) { tableau = adjoint(tableau); }
+
 class StabilizerTableauExtractor {
 public:
-    virtual ~StabilizerTableauExtractor()                                       = default;
-    virtual std::vector<CliffordOperator> extract(StabilizerTableau copy) const = 0;
+    virtual ~StabilizerTableauExtractor()                                = default;
+    virtual CliffordOperatorString extract(StabilizerTableau copy) const = 0;
 };
 
 /**
@@ -87,7 +91,7 @@ public:
  */
 class AGExtractor : public StabilizerTableauExtractor {
 public:
-    std::vector<CliffordOperator> extract(StabilizerTableau copy) const override;
+    CliffordOperatorString extract(StabilizerTableau copy) const override;
 };
 
 /**
@@ -100,10 +104,10 @@ public:
  */
 class HOptExtractor : public StabilizerTableauExtractor {
 public:
-    std::vector<CliffordOperator> extract(StabilizerTableau copy) const override;
+    CliffordOperatorString extract(StabilizerTableau copy) const override;
 };
 
-std::vector<CliffordOperator> extract_clifford_operators(StabilizerTableau copy, StabilizerTableauExtractor const& extractor = AGExtractor{});
+CliffordOperatorString extract_clifford_operators(StabilizerTableau copy, StabilizerTableauExtractor const& extractor = AGExtractor{});
 
 }  // namespace experimental
 

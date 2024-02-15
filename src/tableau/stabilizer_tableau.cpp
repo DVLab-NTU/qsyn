@@ -7,9 +7,10 @@
 
 #include "./stabilizer_tableau.hpp"
 
-#include <bits/ranges_algo.h>
-
+#include <ranges>
 #include <tl/to.hpp>
+
+#include "tableau/pauli_rotation.hpp"
 
 namespace qsyn::experimental {
 
@@ -55,12 +56,23 @@ StabilizerTableau& StabilizerTableau::cx(size_t ctrl, size_t targ) {
     return *this;
 }
 
-std::vector<CliffordOperator> extract_clifford_operators(StabilizerTableau copy, StabilizerTableauExtractor const& extractor) {
+StabilizerTableau adjoint(StabilizerTableau const& tableau) {
+    auto ops = extract_clifford_operators(tableau);
+
+    adjoint_inplace(ops);
+
+    StabilizerTableau ret{tableau.n_qubits()};
+    std::ranges::for_each(ops, [&ret](auto const& op) { ret.apply(op); });
+
+    return ret;
+}
+
+CliffordOperatorString extract_clifford_operators(StabilizerTableau copy, StabilizerTableauExtractor const& extractor) {
     return extractor.extract(copy);
 }
 
-std::vector<CliffordOperator> AGExtractor::extract(StabilizerTableau copy) const {
-    std::vector<CliffordOperator> clifford_ops;
+CliffordOperatorString AGExtractor::extract(StabilizerTableau copy) const {
+    CliffordOperatorString clifford_ops;
 
     auto const add_cx = [&](size_t ctrl, size_t targ) {
         copy.cx(ctrl, targ);
@@ -190,17 +202,13 @@ std::vector<CliffordOperator> AGExtractor::extract(StabilizerTableau copy) const
         }
     }
 
-    std::ranges::reverse(clifford_ops);
-
-    for (auto& [type, qubits] : clifford_ops) {
-        type = adjoint(type);
-    }
+    adjoint_inplace(clifford_ops);
 
     return clifford_ops;
 }
 
-std::vector<CliffordOperator> HOptExtractor::extract(StabilizerTableau copy) const {
-    std::vector<CliffordOperator> diag_ops;
+CliffordOperatorString HOptExtractor::extract(StabilizerTableau copy) const {
+    CliffordOperatorString diag_ops;
 
     auto const add_cx = [&](size_t ctrl, size_t targ) {
         copy.cx(ctrl, targ);
@@ -251,11 +259,7 @@ std::vector<CliffordOperator> HOptExtractor::extract(StabilizerTableau copy) con
         return op.first == CliffordOperatorType::h;
     }));
 
-    std::ranges::reverse(diag_ops);
-
-    for (auto& [type, qubits] : diag_ops) {
-        type = adjoint(type);
-    }
+    adjoint_inplace(clifford_ops);
 
     clifford_ops.insert(clifford_ops.end(), diag_ops.begin(), diag_ops.end());
 

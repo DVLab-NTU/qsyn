@@ -216,6 +216,18 @@ dvlab::Command tableau_print_cmd(TableauMgr& tableau_mgr) {
         }};
 }
 
+dvlab::Command tableau_adjoint_cmd(TableauMgr& tableau_mgr) {
+    return dvlab::Command{
+        "adjoint",
+        [&](ArgumentParser& parser) {
+            parser.description("transform the tableau to its adjoint");
+        },
+        [&](ArgumentParser const& /* parser */) {
+            adjoint_inplace(*tableau_mgr.get());
+            return dvlab::CmdExecResult::done;
+        }};
+}
+
 dvlab::Command tableau_cmd(TableauMgr& tableau_mgr) {
     auto cmd = dvlab::utils::mgr_root_cmd(tableau_mgr);
 
@@ -225,6 +237,7 @@ dvlab::Command tableau_cmd(TableauMgr& tableau_mgr) {
     cmd.add_subcommand(dvlab::utils::mgr_checkout_cmd(tableau_mgr));
     cmd.add_subcommand(dvlab::utils::mgr_copy_cmd(tableau_mgr));
     cmd.add_subcommand(tableau_apply_cmd(tableau_mgr));
+    cmd.add_subcommand(tableau_adjoint_cmd(tableau_mgr));
     cmd.add_subcommand(tableau_print_cmd(tableau_mgr));
     cmd.add_subcommand(tableau_equivalence_cmd(tableau_mgr));
 
