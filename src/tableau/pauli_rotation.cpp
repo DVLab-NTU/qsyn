@@ -8,12 +8,56 @@
 #include "pauli_rotation.hpp"
 
 #include <ranges>
+#include <tl/adjacent.hpp>
+#include <tl/to.hpp>
 
 #include "util/dvlab_string.hpp"
 
 namespace qsyn {
 
 namespace experimental {
+
+std::optional<CliffordOperatorType> to_clifford_operator_type(std::string_view str) noexcept {
+    if (str == "h") return CliffordOperatorType::h;
+    if (str == "s") return CliffordOperatorType::s;
+    if (str == "cx") return CliffordOperatorType::cx;
+    if (str == "sdg") return CliffordOperatorType::sdg;
+    if (str == "v") return CliffordOperatorType::v;
+    if (str == "vdg") return CliffordOperatorType::vdg;
+    if (str == "x") return CliffordOperatorType::x;
+    if (str == "y") return CliffordOperatorType::y;
+    if (str == "z") return CliffordOperatorType::z;
+    if (str == "cz") return CliffordOperatorType::cz;
+    if (str == "swap") return CliffordOperatorType::swap;
+    return std::nullopt;
+}
+
+std::string to_string(CliffordOperatorType type) {
+    switch (type) {
+        case CliffordOperatorType::h:
+            return "h";
+        case CliffordOperatorType::s:
+            return "s";
+        case CliffordOperatorType::cx:
+            return "cx";
+        case CliffordOperatorType::sdg:
+            return "sdg";
+        case CliffordOperatorType::v:
+            return "v";
+        case CliffordOperatorType::vdg:
+            return "vdg";
+        case CliffordOperatorType::x:
+            return "x";
+        case CliffordOperatorType::y:
+            return "y";
+        case CliffordOperatorType::z:
+            return "z";
+        case CliffordOperatorType::cz:
+            return "cz";
+        case CliffordOperatorType::swap:
+            return "swap";
+    }
+}
 
 uint8_t power_of_i(Pauli a, Pauli b) {
     if (a == Pauli::X && b == Pauli::Y) return 1;
@@ -87,8 +131,7 @@ PauliProduct& PauliProduct::operator*=(PauliProduct const& rhs) {
     for (size_t i = 0; i < n_qubits(); ++i) {
         power_of_i += qsyn::experimental::power_of_i(get_pauli_type(i), rhs.get_pauli_type(i));
     }
-    assert(power_of_i % 2 == 0);
-    if (power_of_i % 4 == 2) {
+    if ((power_of_i % 4) >> 1 == 1) {
         _bitset.flip(r_idx());
     }
     _bitset ^= rhs._bitset;
@@ -220,6 +263,29 @@ PauliRotation& PauliRotation::cx(size_t control, size_t target) {
     _pauli_product.cx(control, target);
     normalize();
     return *this;
+}
+
+std::pair<CliffordOperatorString, size_t> extract_clifford_operators(PauliRotation pauli_rotation) {
+    using COT = CliffordOperatorType;
+    std::vector<CliffordOperator> clifford_ops;
+    for (size_t i = 0; i < pauli_rotation.n_qubits(); ++i) {
+        if (pauli_rotation.get_pauli_type(i) == Pauli::X) {
+            clifford_ops.emplace_back(COT::h, std::array<size_t, 2>{i});
+        } else if (pauli_rotation.get_pauli_type(i) == Pauli::Y) {
+            clifford_ops.emplace_back(COT::v, std::array<size_t, 2>{i});
+        }
+    }
+    auto const non_I_qubits = std::ranges::views::iota(0ul, pauli_rotation.n_qubits()) |
+                              std::ranges::views::filter([&pauli_rotation](size_t i) {
+                                  return pauli_rotation.get_pauli_type(i) != Pauli::I;
+                              }) |
+                              tl::to<std::vector>();
+
+    for (auto const& [c, t] : tl::views::adjacent<2>(non_I_qubits)) {
+        clifford_ops.emplace_back(COT::cx, std::array<size_t, 2>{c, t});
+    }
+
+    return {clifford_ops, non_I_qubits.back()};
 }
 
 }  // namespace experimental

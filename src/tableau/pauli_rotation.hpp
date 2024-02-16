@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <csignal>
 #include <initializer_list>
+#include <optional>
 #include <ranges>
 #include <sul/dynamic_bitset.hpp>
 #include <tl/zip.hpp>
@@ -45,6 +46,9 @@ enum class CliffordOperatorType {
     cz,
     swap
 };
+
+std::optional<CliffordOperatorType> to_clifford_operator_type(std::string_view str) noexcept;
+std::string to_string(CliffordOperatorType type);
 
 using CliffordOperator       = std::pair<CliffordOperatorType, std::array<size_t, 2>>;
 using CliffordOperatorString = std::vector<CliffordOperator>;
@@ -144,9 +148,9 @@ public:
 
     inline T& apply(CliffordOperatorString const& ops) {
         for (auto const& op : ops) {
-            apply(op);
+            this->apply(op);
         }
-        return *this;
+        return *static_cast<T*>(this);
     }
 };
 
@@ -230,6 +234,14 @@ public:
     inline bool is_z_set(size_t i) const { return _bitset[z_idx(i)] == true; }
     inline bool is_x_set(size_t i) const { return _bitset[x_idx(i)] == true; }
 
+    inline bool is_diagonal() const {
+        return std::ranges::all_of(std::views::iota(0ul, n_qubits()), [this](size_t i) { return is_i(i) || is_z(i); });
+    }
+
+    inline bool is_identity() const {
+        return std::ranges::all_of(std::views::iota(0ul, n_qubits()), [this](size_t i) { return is_i(i); });
+    }
+
 private:
     sul::dynamic_bitset<> _bitset;
 
@@ -246,6 +258,10 @@ class PauliRotation : public PauliProductTrait<PauliRotation> {
 public:
     PauliRotation(std::initializer_list<Pauli> const& pauli_list, dvlab::Phase const& phase);
     PauliRotation(std::string_view pauli_str, dvlab::Phase const& phase);
+
+    PauliRotation(PauliProduct const& pauli_product, dvlab::Phase const& phase) : _pauli_product(pauli_product), _phase(phase) {
+        normalize();
+    }
 
     template <std::input_iterator I, std::sentinel_for<I> S>
     PauliRotation(I first, S last, dvlab::Phase const& phase) : _pauli_product(first, last, false), _phase(phase) {
@@ -285,6 +301,8 @@ public:
         return _pauli_product.is_commutative(rhs._pauli_product);
     }
 
+    inline bool is_diagonal() const { return _pauli_product.is_diagonal(); }
+
 private:
     PauliProduct _pauli_product;
     dvlab::Phase _phase;
@@ -300,6 +318,8 @@ private:
 inline bool is_commutative(PauliRotation const& lhs, PauliRotation const& rhs) {
     return lhs.is_commutative(rhs);
 }
+
+std::pair<CliffordOperatorString, size_t> extract_clifford_operators(PauliRotation pauli_rotation);
 
 }  // namespace experimental
 
@@ -366,7 +386,7 @@ struct fmt::formatter<qsyn::experimental::PauliRotation> {
     }
 
     template <typename FormatContext>
-    auto format(qsyn::experimental::PauliRotation const& c, FormatContext& ctx) {
+    auto format(qsyn::experimental::PauliRotation const& c, FormatContext& ctx) const {
         if (presentation == 'b') {
             return fmt::format_to(ctx.out(), "{}", c.to_bit_string());
         } else {

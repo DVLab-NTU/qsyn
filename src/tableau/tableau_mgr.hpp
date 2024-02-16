@@ -16,16 +16,17 @@
 
 namespace qsyn::experimental {
 
-using TableauMgr = dvlab::utils::DataStructureManager<StabilizerTableau>;
+using TableauMgr = dvlab::utils::DataStructureManager<Tableau>;
 
 }  // namespace qsyn::experimental
 
 template <>
-inline std::string dvlab::utils::data_structure_info_string(qsyn::experimental::StabilizerTableau const& t) {
-    return fmt::format("#qubit: {}", t.n_qubits());
+inline std::string dvlab::utils::data_structure_info_string(qsyn::experimental::Tableau const& t) {
+    return fmt::format("{:<19} {}", t.get_filename().substr(0, 19),
+                       fmt::join(t.get_procedures(), " ➔ "));
 }
 
 template <>
-inline std::string dvlab::utils::data_structure_name(qsyn::experimental::StabilizerTableau const& /*t*/) {
-    return "tableau";
+inline std::string dvlab::utils::data_structure_name(qsyn::experimental::Tableau const& t) {
+    return t.get_filename();
 }

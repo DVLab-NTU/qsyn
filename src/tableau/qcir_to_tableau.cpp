@@ -20,7 +20,7 @@ namespace qsyn {
 
 namespace experimental {
 
-QCir2TableauResultType& QCir2TableauResultType::h(size_t qubit) {
+SubTableau& SubTableau::h(size_t qubit) {
     clifford.h(qubit);
     for (auto& pauli : pauli_rotations) {
         pauli.h(qubit);
@@ -28,7 +28,7 @@ QCir2TableauResultType& QCir2TableauResultType::h(size_t qubit) {
     return *this;
 }
 
-QCir2TableauResultType& QCir2TableauResultType::s(size_t qubit) {
+SubTableau& SubTableau::s(size_t qubit) {
     clifford.s(qubit);
     for (auto& pauli : pauli_rotations) {
         pauli.s(qubit);
@@ -36,7 +36,7 @@ QCir2TableauResultType& QCir2TableauResultType::s(size_t qubit) {
     return *this;
 }
 
-QCir2TableauResultType& QCir2TableauResultType::cx(size_t control, size_t target) {
+SubTableau& SubTableau::cx(size_t control, size_t target) {
     clifford.cx(control, target);
     for (auto& pauli : pauli_rotations) {
         pauli.cx(control, target);
@@ -44,7 +44,7 @@ QCir2TableauResultType& QCir2TableauResultType::cx(size_t control, size_t target
     return *this;
 }
 
-std::optional<QCir2TableauResultType> to_tableau(qcir::QCir const& qcir) {
+std::optional<Tableau> to_tableau(qcir::QCir const& qcir) {
     // check if all gates are Clifford
     auto const is_allowed_clifford = [](qcir::QCirGate const& gate) {
         return gate.get_type_str() == "h" ||
@@ -71,7 +71,7 @@ std::optional<QCir2TableauResultType> to_tableau(qcir::QCir const& qcir) {
         }
     }
 
-    QCir2TableauResultType result{StabilizerTableau(qcir.get_num_qubits()), {}};
+    SubTableau result{StabilizerTableau(qcir.get_num_qubits()), {}};
 
     for (auto const& gate : qcir.get_gates()) {
         if (gate->get_type_str() == "h") {
@@ -109,7 +109,7 @@ std::optional<QCir2TableauResultType> to_tableau(qcir::QCir const& qcir) {
         }
     }
 
-    return result;
+    return Tableau{result};
 }
 
 }  // namespace experimental

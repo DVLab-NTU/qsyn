@@ -64,46 +64,46 @@ dvlab::Command tableau_new_cmd(TableauMgr& tableau_mgr) {
                     spdlog::error("Tableau {} already exists!! Please specify `--replace` to replace if needed", id);
                     return dvlab::CmdExecResult::error;
                 }
-                tableau_mgr.set_by_id(id, std::make_unique<StabilizerTableau>(n_qubits));
+                tableau_mgr.set_by_id(id, std::make_unique<Tableau>(n_qubits));
                 return dvlab::CmdExecResult::done;
             }
 
-            tableau_mgr.add(id, std::make_unique<StabilizerTableau>(n_qubits));
+            tableau_mgr.add(id, std::make_unique<Tableau>(n_qubits));
 
             return dvlab::CmdExecResult::done;
         }};
 }
 
-dvlab::Command tableau_equivalence_cmd(TableauMgr& tableau_mgr) {
-    return {
-        "equiv",
-        [&](ArgumentParser& parser) {
-            parser.description("check the equivalency of two stored tensors");
+// dvlab::Command tableau_equivalence_cmd(TableauMgr& tableau_mgr) {
+//     return {
+//         "equiv",
+//         [&](ArgumentParser& parser) {
+//             parser.description("check the equivalency of two stored tensors");
 
-            parser.add_argument<size_t>("ids")
-                .nargs(1, 2)
-                .constraint(dvlab::utils::valid_mgr_id(tableau_mgr))
-                .help("Compare the two Tableaus. If only one is specified, compare with the Tableau on focus");
-        },
-        [&](ArgumentParser const& parser) {
-            auto const ids = parser.get<std::vector<size_t>>("ids");
+//             parser.add_argument<size_t>("ids")
+//                 .nargs(1, 2)
+//                 .constraint(dvlab::utils::valid_mgr_id(tableau_mgr))
+//                 .help("Compare the two Tableaus. If only one is specified, compare with the Tableau on focus");
+//         },
+//         [&](ArgumentParser const& parser) {
+//             auto const ids = parser.get<std::vector<size_t>>("ids");
 
-            bool const is_equiv = std::invoke([&]() {
-                if (ids.size() == 1) {
-                    return *tableau_mgr.get() == *tableau_mgr.find_by_id(ids[0]);
-                } else {
-                    return *tableau_mgr.find_by_id(ids[0]) == *tableau_mgr.find_by_id(ids[1]);
-                }
-            });
+//             bool const is_equiv = std::invoke([&]() {
+//                 if (ids.size() == 1) {
+//                     return *tableau_mgr.get() == *tableau_mgr.find_by_id(ids[0]);
+//                 } else {
+//                     return *tableau_mgr.find_by_id(ids[0]) == *tableau_mgr.find_by_id(ids[1]);
+//                 }
+//             });
 
-            if (is_equiv) {
-                fmt::println("{}", dvlab::fmt_ext::styled_if_ansi_supported("Equivalent", fmt::fg(fmt::terminal_color::green) | fmt::emphasis::bold));
-            } else {
-                fmt::println("{}", dvlab::fmt_ext::styled_if_ansi_supported("Not Equivalent", fmt::fg(fmt::terminal_color::red) | fmt::emphasis::bold));
-            }
-            return dvlab::CmdExecResult::done;
-        }};
-}
+//             if (is_equiv) {
+//                 fmt::println("{}", dvlab::fmt_ext::styled_if_ansi_supported("Equivalent", fmt::fg(fmt::terminal_color::green) | fmt::emphasis::bold));
+//             } else {
+//                 fmt::println("{}", dvlab::fmt_ext::styled_if_ansi_supported("Not Equivalent", fmt::fg(fmt::terminal_color::red) | fmt::emphasis::bold));
+//             }
+//             return dvlab::CmdExecResult::done;
+//         }};
+// }
 
 dvlab::Command tableau_apply_cmd(TableauMgr& tableau_mgr) {
     return dvlab::Command{
@@ -111,81 +111,48 @@ dvlab::Command tableau_apply_cmd(TableauMgr& tableau_mgr) {
         [&](ArgumentParser& parser) {
             parser.description("Apply a gate to a tableau");
 
-            auto mutex = parser.add_mutually_exclusive_group().required(true);
+            parser.add_argument<std::string>("gate-type")
+                .help("The gate type to be applied");
 
-            mutex.add_argument<size_t>("-H")
-                .metavar("q-id")
+            parser.add_argument<size_t>("qubits")
+                .nargs(1, 2)
                 .constraint(valid_tableau_qubit_id(tableau_mgr))
-                .help("Apply H gate to the qubit");
-
-            mutex.add_argument<size_t>("-s")
-                .metavar("q-id")
-                .constraint(valid_tableau_qubit_id(tableau_mgr))
-                .help("Apply S gate to the qubit");
-
-            mutex.add_argument<size_t>("-sdg")
-                .metavar("q-id")
-                .constraint(valid_tableau_qubit_id(tableau_mgr))
-                .help("Apply S† gate to the qubit");
-
-            mutex.add_argument<size_t>("-cx")
-                .metavar("q-id")
-                .nargs(2)
-                .constraint(valid_tableau_qubit_id(tableau_mgr))
-                .help("Apply CX gate to the qubit");
-
-            mutex.add_argument<size_t>("-cz")
-                .metavar("q-id")
-                .nargs(2)
-                .constraint(valid_tableau_qubit_id(tableau_mgr))
-                .help("Apply CZ gate to the qubit");
-
-            mutex.add_argument<size_t>("-x")
-                .metavar("q-id")
-                .constraint(valid_tableau_qubit_id(tableau_mgr))
-                .help("Apply X gate to the qubit");
-
-            mutex.add_argument<size_t>("-y")
-                .metavar("q-id")
-                .constraint(valid_tableau_qubit_id(tableau_mgr))
-                .help("Apply Y gate to the qubit");
-
-            mutex.add_argument<size_t>("-z")
-                .metavar("q-id")
-                .constraint(valid_tableau_qubit_id(tableau_mgr))
-                .help("Apply Z gate to the qubit");
+                .help("The qubits to apply the gate to");
         },
         [&](ArgumentParser const& parser) {
-            if (parser.parsed("-H")) {
-                tableau_mgr.get()->h(parser.get<size_t>("-H"));
-            } else if (parser.parsed("-s")) {
-                tableau_mgr.get()->s(parser.get<size_t>("-s"));
-            } else if (parser.parsed("-sdg")) {
-                tableau_mgr.get()->sdg(parser.get<size_t>("-sdg"));
-            } else if (parser.parsed("-cx")) {
-                auto const qubits = parser.get<std::vector<size_t>>("-cx");
-                if (qubits[0] == qubits[1]) {
-                    spdlog::error("Control and target qubits cannot be the same!!");
-                    return dvlab::CmdExecResult::error;
-                }
-                tableau_mgr.get()->cx(qubits[0], qubits[1]);
-            } else if (parser.parsed("-cz")) {
-                auto const qubits = parser.get<std::vector<size_t>>("-cz");
-                if (qubits[0] == qubits[1]) {
-                    spdlog::error("Control and target qubits cannot be the same!!");
-                    return dvlab::CmdExecResult::error;
-                }
-                tableau_mgr.get()->cz(qubits[0], qubits[1]);
-            } else if (parser.parsed("-x")) {
-                tableau_mgr.get()->x(parser.get<size_t>("-x"));
-            } else if (parser.parsed("-y")) {
-                tableau_mgr.get()->y(parser.get<size_t>("-y"));
-            } else if (parser.parsed("-z")) {
-                tableau_mgr.get()->z(parser.get<size_t>("-z"));
-            } else {
-                spdlog::error("Illegal gate type!!");
+            auto const type   = to_clifford_operator_type(parser.get<std::string>("gate-type"));
+            auto const qubits = parser.get<std::vector<size_t>>("qubits");
+
+            if (!type) {
+                spdlog::error("Unknown gate type {}!!", parser.get<std::string>("gate-type"));
                 return dvlab::CmdExecResult::error;
             }
+
+            if (type == CliffordOperatorType::cx ||
+                type == CliffordOperatorType::cz ||
+                type == CliffordOperatorType::swap) {
+                if (qubits.size() != 2) {
+                    spdlog::error("The gate {} requires specifying exactly 2 qubit indices!!", to_string(type.value()));
+                    return dvlab::CmdExecResult::error;
+                }
+
+                if (qubits[0] == qubits[1]) {
+                    spdlog::error("The two qubits cannot be the same!!");
+                    return dvlab::CmdExecResult::error;
+                }
+            } else {
+                if (qubits.size() != 1) {
+                    spdlog::error("The gate {} requires specifying exactly 1 qubit index!!", to_string(type.value()));
+                    return dvlab::CmdExecResult::error;
+                }
+            }
+
+            auto qubit_array = std::array<size_t, 2>{};
+
+            std::copy(qubits.begin(), qubits.end(), qubit_array.begin());
+
+            tableau_mgr.get()->apply(CliffordOperator{type.value(), qubit_array});
+
             return dvlab::CmdExecResult::done;
         }};
 }
@@ -239,7 +206,7 @@ dvlab::Command tableau_cmd(TableauMgr& tableau_mgr) {
     cmd.add_subcommand(tableau_apply_cmd(tableau_mgr));
     cmd.add_subcommand(tableau_adjoint_cmd(tableau_mgr));
     cmd.add_subcommand(tableau_print_cmd(tableau_mgr));
-    cmd.add_subcommand(tableau_equivalence_cmd(tableau_mgr));
+    // cmd.add_subcommand(tableau_equivalence_cmd(tableau_mgr));
 
     return cmd;
 }
@@ -252,11 +219,17 @@ dvlab::Command pauli_rotation_cmd(qcir::QCirMgr& qcir_mgr) {
 
             parser.add_argument<std::string>("strategy")
                 .default_value("HOpt")
-                .choices({"AG", "HOpt"})
+                .constraint(choices_allow_prefix({"AG", "HOpt"}))
                 .help("The strategy to extract Pauli rotations");
         },
         [&](ArgumentParser const& parser) {
-            auto tableau = to_tableau(*qcir_mgr.get());
+            if (qcir_mgr.empty()) {
+                spdlog::error("No QCir is loaded!!");
+                return dvlab::CmdExecResult::error;
+            }
+            auto qcir           = qcir_mgr.get();
+            auto const filename = qcir->get_filename();
+            auto tableau        = to_tableau(*qcir_mgr.get());
 
             if (!tableau) {
                 spdlog::error("Failed to convert QCir to Tableau!!");
@@ -278,10 +251,16 @@ dvlab::Command pauli_rotation_cmd(qcir::QCirMgr& qcir_mgr) {
 
             assert(extractor);
 
-            merge_rotations(tableau->clifford, tableau->pauli_rotations);
+            merge_rotations(tableau.value());
+            auto min_h = minimize_internal_hadamards(tableau.value());
+            qcir_mgr.add(qcir_mgr.get_next_id(), std::make_unique<qcir::QCir>(to_qcir(min_h, *extractor)));
 
-            qcir_mgr.add(qcir_mgr.get_next_id(), std::make_unique<qcir::QCir>(to_qcir(tableau->clifford, tableau->pauli_rotations, *extractor)));
-            qcir_mgr.get()->add_procedure(fmt::format("PauliR[{}]", strategy));
+            qcir_mgr.get()->set_filename(filename);
+            qcir_mgr.get()->add_procedure("QC2TB");
+            qcir_mgr.get()->add_procedure("MergeT");
+            qcir_mgr.get()->add_procedure("MinH");
+            qcir_mgr.get()->add_procedure(fmt::format("TB2QC[{}]", strategy));
+
             return dvlab::CmdExecResult::done;
         }};
 }

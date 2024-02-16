@@ -7,13 +7,19 @@
 #pragma once
 
 #include "./stabilizer_tableau.hpp"
+#include "tableau/qcir_to_tableau.hpp"
 
 namespace qsyn {
 
 namespace experimental {
 
+void collapse(Tableau& tableau);
+
 void merge_rotations(std::vector<PauliRotation>& rotation);
-void merge_rotations(StabilizerTableau& clifford, std::vector<PauliRotation>& rotations);
+void merge_rotations(Tableau& tableau);
+
+std::pair<Tableau, StabilizerTableau> minimize_hadamards(Tableau tableau, StabilizerTableau context);
+Tableau minimize_internal_hadamards(Tableau tableau);
 
 }  // namespace experimental
 

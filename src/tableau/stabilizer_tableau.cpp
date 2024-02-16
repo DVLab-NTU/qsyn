@@ -7,6 +7,8 @@
 
 #include "./stabilizer_tableau.hpp"
 
+#include <bits/ranges_algo.h>
+
 #include <ranges>
 #include <tl/to.hpp>
 
@@ -56,15 +58,94 @@ StabilizerTableau& StabilizerTableau::cx(size_t ctrl, size_t targ) {
     return *this;
 }
 
+StabilizerTableau& StabilizerTableau::prepend_h(size_t qubit) {
+    if (qubit >= n_qubits()) return *this;
+    std::swap(stabilizer(qubit), destabilizer(qubit));
+    return *this;
+}
+
+StabilizerTableau& StabilizerTableau::prepend_s(size_t qubit) {
+    if (qubit >= n_qubits()) return *this;
+    destabilizer(qubit) = stabilizer(qubit) * destabilizer(qubit);
+    return *this;
+}
+
+StabilizerTableau& StabilizerTableau::prepend_cx(size_t ctrl, size_t targ) {
+    if (ctrl >= n_qubits() || targ >= n_qubits()) return *this;
+    stabilizer(targ)   = stabilizer(ctrl) * stabilizer(targ);
+    destabilizer(ctrl) = destabilizer(targ) * destabilizer(ctrl);
+    return *this;
+}
+
+StabilizerTableau& StabilizerTableau::prepend_sdg(size_t qubit) {
+    return prepend_s(qubit).prepend_s(qubit).prepend_s(qubit);
+}
+
+StabilizerTableau& StabilizerTableau::prepend_v(size_t qubit) {
+    return prepend_h(qubit).prepend_s(qubit).prepend_h(qubit);
+}
+
+StabilizerTableau& StabilizerTableau::prepend_vdg(size_t qubit) {
+    return prepend_h(qubit).prepend_sdg(qubit).prepend_h(qubit);
+}
+
+StabilizerTableau& StabilizerTableau::prepend_x(size_t qubit) {
+    return prepend_h(qubit).prepend_z(qubit).prepend_h(qubit);
+}
+
+StabilizerTableau& StabilizerTableau::prepend_y(size_t qubit) {
+    return prepend_x(qubit).prepend_z(qubit);
+}
+
+StabilizerTableau& StabilizerTableau::prepend_z(size_t qubit) {
+    return prepend_s(qubit).prepend_s(qubit);
+}
+
+StabilizerTableau& StabilizerTableau::prepend_cz(size_t ctrl, size_t targ) {
+    return prepend_h(targ).prepend_cx(ctrl, targ).prepend_h(targ);
+}
+
+StabilizerTableau& StabilizerTableau::prepend_swap(size_t a, size_t b) {
+    return prepend_cx(a, b).prepend_cx(b, a).prepend_cx(a, b);
+}
+
+StabilizerTableau& StabilizerTableau::prepend(CliffordOperator const& op) {
+    auto const& [type, qubits] = op;
+    switch (type) {
+        case CliffordOperatorType::h:
+            return prepend_h(qubits[0]);
+        case CliffordOperatorType::s:
+            return prepend_s(qubits[0]);
+        case CliffordOperatorType::cx:
+            return prepend_cx(qubits[0], qubits[1]);
+        case CliffordOperatorType::sdg:
+            return prepend_sdg(qubits[0]);
+        case CliffordOperatorType::v:
+            return prepend_v(qubits[0]);
+        case CliffordOperatorType::vdg:
+            return prepend_vdg(qubits[0]);
+        case CliffordOperatorType::x:
+            return prepend_x(qubits[0]);
+        case CliffordOperatorType::y:
+            return prepend_y(qubits[0]);
+        case CliffordOperatorType::z:
+            return prepend_z(qubits[0]);
+        case CliffordOperatorType::cz:
+            return prepend_cz(qubits[0], qubits[1]);
+        case CliffordOperatorType::swap:
+            return prepend_swap(qubits[0], qubits[1]);
+    }
+}
+
+StabilizerTableau& StabilizerTableau::prepend(CliffordOperatorString const& ops) {
+    for (auto const& op : ops) {
+        prepend(op);
+    }
+    return *this;
+}
+
 StabilizerTableau adjoint(StabilizerTableau const& tableau) {
-    auto ops = extract_clifford_operators(tableau);
-
-    adjoint_inplace(ops);
-
-    StabilizerTableau ret{tableau.n_qubits()};
-    std::ranges::for_each(ops, [&ret](auto const& op) { ret.apply(op); });
-
-    return ret;
+    return StabilizerTableau{tableau.n_qubits()}.apply(adjoint(extract_clifford_operators(tableau)));
 }
 
 CliffordOperatorString extract_clifford_operators(StabilizerTableau copy, StabilizerTableauExtractor const& extractor) {
@@ -244,8 +325,8 @@ CliffordOperatorString HOptExtractor::extract(StabilizerTableau copy) const {
             }
         }
 
-        if (copy.stabilizer(i).is_z_set(i)) {
-            add_s(i);
+        if (copy.stabilizer(i).is_z_set(ctrl)) {
+            add_s(ctrl);
         }
 
         add_h(ctrl);
@@ -259,11 +340,39 @@ CliffordOperatorString HOptExtractor::extract(StabilizerTableau copy) const {
         return op.first == CliffordOperatorType::h;
     }));
 
-    adjoint_inplace(clifford_ops);
+    adjoint_inplace(diag_ops);
 
     clifford_ops.insert(clifford_ops.end(), diag_ops.begin(), diag_ops.end());
 
     return clifford_ops;
+}
+
+void adjoint_inplace(SubTableau& subtableau) {
+    adjoint_inplace(subtableau.clifford);
+
+    auto ops = extract_clifford_operators(subtableau.clifford);
+    std::ranges::reverse(subtableau.pauli_rotations);
+    std::ranges::for_each(subtableau.pauli_rotations, [&ops](PauliRotation& rotation) {
+        rotation.phase() *= -1;
+        rotation.apply(ops);
+    });
+}
+
+SubTableau adjoint(SubTableau const& subtableau) {
+    auto adjoint_subtableau = subtableau;
+    adjoint_inplace(adjoint_subtableau);
+    return adjoint_subtableau;
+}
+
+void adjoint_inplace(Tableau& tableau) {
+    std::ranges::reverse(tableau);
+    std::ranges::for_each(tableau, [](SubTableau& subtableau) { adjoint_inplace(subtableau); });
+}
+
+Tableau adjoint(Tableau const& tableau) {
+    auto adjoint_tableau = tableau;
+    adjoint_inplace(adjoint_tableau);
+    return adjoint_tableau;
 }
 
 }  // namespace qsyn::experimental
