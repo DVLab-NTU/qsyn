@@ -18,7 +18,7 @@ namespace experimental {
 
 dvlab::Command tableau_cmd();
 
-bool add_tableau_command(dvlab::CommandLineInterface& cli, TableauMgr& tableau_mgr, qcir::QCirMgr& qcir_mgr);
+bool add_tableau_command(dvlab::CommandLineInterface& cli, TableauMgr& tableau_mgr);
 
 }  // namespace experimental
 

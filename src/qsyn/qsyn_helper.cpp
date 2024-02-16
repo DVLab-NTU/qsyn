@@ -133,13 +133,13 @@ bool initialize_qsyn(
         !qsyn::add_qsyn_cmds(cli) ||
         !qsyn::device::add_device_cmds(cli, device_mgr) ||
         !qsyn::duostra::add_duostra_cmds(cli, qcir_mgr, device_mgr) ||
-        !qsyn::add_conversion_cmds(cli, qcir_mgr, tensor_mgr, zxgraph_mgr) ||
+        !qsyn::add_conversion_cmds(cli, qcir_mgr, tensor_mgr, zxgraph_mgr, tableau_mgr) ||
         !qsyn::extractor::add_extract_cmds(cli, zxgraph_mgr, qcir_mgr) ||
         !qsyn::qcir::add_qcir_cmds(cli, qcir_mgr) ||
         !qsyn::tensor::add_tensor_cmds(cli, tensor_mgr) ||
         !qsyn::zx::add_zx_cmds(cli, zxgraph_mgr) ||
         !qsyn::pp::add_pp_cmds(cli, qcir_mgr) ||
-        !qsyn::experimental::add_tableau_command(cli, tableau_mgr, qcir_mgr)) {
+        !qsyn::experimental::add_tableau_command(cli, tableau_mgr)) {
         return false;
     }
     dvlab::utils::Usage::reset();

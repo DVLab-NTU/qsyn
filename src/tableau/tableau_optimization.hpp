@@ -7,7 +7,6 @@
 #pragma once
 
 #include "./stabilizer_tableau.hpp"
-#include "tableau/qcir_to_tableau.hpp"
 
 namespace qsyn {
 

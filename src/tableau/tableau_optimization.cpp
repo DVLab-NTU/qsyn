@@ -12,9 +12,7 @@
 #include <tl/to.hpp>
 
 #include "tableau/pauli_rotation.hpp"
-#include "tableau/qcir_to_tableau.hpp"
 #include "tableau/stabilizer_tableau.hpp"
-#include "tableau/tableau_to_qcir.hpp"
 
 namespace qsyn {
 
@@ -26,7 +24,7 @@ namespace experimental {
  */
 void collapse(Tableau& tableau) {
     // ensures that all tableaux have the same number of qubits
-    size_t n_qubits = tableau.n_qubits();
+    size_t const n_qubits = tableau.n_qubits();
 
     assert(std::ranges::all_of(tableau, [n_qubits](SubTableau const& sub_tableau) {
         return sub_tableau.clifford.n_qubits() == n_qubits &&
@@ -219,11 +217,7 @@ SubTableau implement_subtableau(StabilizerTableau& context, size_t qubit, dvlab:
         clifford.h(ctrl);
     }
 
-    PauliRotation rotation{stabilizer, phase};
-
-    assert(rotation.is_diagonal());
-
-    return {clifford, {rotation}};
+    return {clifford, {PauliRotation{stabilizer, phase}}};
 }
 
 std::pair<Tableau, StabilizerTableau> minimize_hadamards(Tableau tableau, StabilizerTableau context) {
@@ -312,6 +306,9 @@ Tableau minimize_internal_hadamards(Tableau tableau) {
     out_tableau.push_back({adjoint(final_clifford), {}});
 
     remove_identities(out_tableau);
+
+    out_tableau.set_filename(tableau.get_filename());
+    out_tableau.add_procedures(tableau.get_procedures());
 
     return out_tableau;
 }

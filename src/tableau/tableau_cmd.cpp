@@ -17,11 +17,10 @@
 #include "qcir/qcir.hpp"
 #include "qcir/qcir_mgr.hpp"
 #include "tableau/pauli_rotation.hpp"
-#include "tableau/qcir_to_tableau.hpp"
 #include "tableau/tableau_mgr.hpp"
-#include "tableau/tableau_to_qcir.hpp"
 #include "tensor/qtensor.hpp"
 #include "util/data_structure_manager_common_cmd.hpp"
+#include "util/dvlab_string.hpp"
 #include "util/phase.hpp"
 #include "util/text_format.hpp"
 
@@ -86,6 +85,9 @@ dvlab::Command tableau_new_cmd(TableauMgr& tableau_mgr) {
 //                 .help("Compare the two Tableaus. If only one is specified, compare with the Tableau on focus");
 //         },
 //         [&](ArgumentParser const& parser) {
+//             if (!dvlab::utils::mgr_has_data(tableau_mgr)) {
+//             return dvlab::CmdExecResult::error;
+//             }
 //             auto const ids = parser.get<std::vector<size_t>>("ids");
 
 //             bool const is_equiv = std::invoke([&]() {
@@ -120,6 +122,10 @@ dvlab::Command tableau_apply_cmd(TableauMgr& tableau_mgr) {
                 .help("The qubits to apply the gate to");
         },
         [&](ArgumentParser const& parser) {
+            if (!dvlab::utils::mgr_has_data(tableau_mgr)) {
+                return dvlab::CmdExecResult::error;
+            }
+
             auto const type   = to_clifford_operator_type(parser.get<std::string>("gate-type"));
             auto const qubits = parser.get<std::vector<size_t>>("qubits");
 
@@ -174,6 +180,10 @@ dvlab::Command tableau_print_cmd(TableauMgr& tableau_mgr) {
                 .help("Print the tableau in character format");
         },
         [&](ArgumentParser const& parser) {
+            if (!dvlab::utils::mgr_has_data(tableau_mgr)) {
+                return dvlab::CmdExecResult::error;
+            }
+
             if (parser.parsed("-b")) {
                 fmt::println("{:b}", *tableau_mgr.get());
             } else {
@@ -190,7 +200,67 @@ dvlab::Command tableau_adjoint_cmd(TableauMgr& tableau_mgr) {
             parser.description("transform the tableau to its adjoint");
         },
         [&](ArgumentParser const& /* parser */) {
+            if (!dvlab::utils::mgr_has_data(tableau_mgr)) {
+                return dvlab::CmdExecResult::error;
+            }
             adjoint_inplace(*tableau_mgr.get());
+            return dvlab::CmdExecResult::done;
+        }};
+}
+
+dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr) {
+    return dvlab::Command{
+        "optimize",
+        [&](ArgumentParser& parser) {
+            parser.description("Optimize the tableau");
+
+            parser.add_argument<std::string>("method")
+                .constraint(choices_allow_prefix({"collapse", "merge-t", "internal-h-opt"}))
+                .help("The optimization method to be used");
+        },
+        [&](ArgumentParser const& parser) {
+            if (!dvlab::utils::mgr_has_data(tableau_mgr)) {
+                return dvlab::CmdExecResult::error;
+            }
+
+            enum struct OptimizationMethod {
+                collapse,
+                merge_t,
+                internal_h_opt
+            };
+
+            auto const method_str = parser.get<std::string>("method");
+
+            auto method = std::invoke([&]() -> std::optional<OptimizationMethod> {
+                if (dvlab::str::is_prefix_of(method_str, "collapse")) {
+                    return OptimizationMethod::collapse;
+                } else if (dvlab::str::is_prefix_of(method_str, "merge-t")) {
+                    return OptimizationMethod::merge_t;
+                } else if (dvlab::str::is_prefix_of(method_str, "internal-h-opt")) {
+                    return OptimizationMethod::internal_h_opt;
+                }
+                return std::nullopt;
+            });
+
+            if (!method) {
+                spdlog::error("Unknown optimization method {}!!", method_str);
+                return dvlab::CmdExecResult::error;
+            }
+
+            if (method == OptimizationMethod::collapse) {
+                collapse(*tableau_mgr.get());
+                tableau_mgr.get()->add_procedure("collapse");
+            } else if (method == OptimizationMethod::merge_t) {
+                merge_rotations(*tableau_mgr.get());
+                tableau_mgr.get()->add_procedure("MergeT");
+            } else if (method == OptimizationMethod::internal_h_opt) {
+                *tableau_mgr.get() = minimize_internal_hadamards(*tableau_mgr.get());
+                tableau_mgr.get()->add_procedure("InternalHOpt");
+            } else {
+                spdlog::error("Unknown optimization method {}!!", method_str);
+                return dvlab::CmdExecResult::error;
+            }
+
             return dvlab::CmdExecResult::done;
         }};
 }
@@ -206,67 +276,13 @@ dvlab::Command tableau_cmd(TableauMgr& tableau_mgr) {
     cmd.add_subcommand(tableau_apply_cmd(tableau_mgr));
     cmd.add_subcommand(tableau_adjoint_cmd(tableau_mgr));
     cmd.add_subcommand(tableau_print_cmd(tableau_mgr));
-    // cmd.add_subcommand(tableau_equivalence_cmd(tableau_mgr));
+    cmd.add_subcommand(tableau_optimization_cmd(tableau_mgr));
 
     return cmd;
 }
 
-dvlab::Command pauli_rotation_cmd(qcir::QCirMgr& qcir_mgr) {
-    return dvlab::Command{
-        "pr",
-        [&](ArgumentParser& parser) {
-            parser.description("Test Pauli rotation");
-
-            parser.add_argument<std::string>("strategy")
-                .default_value("HOpt")
-                .constraint(choices_allow_prefix({"AG", "HOpt"}))
-                .help("The strategy to extract Pauli rotations");
-        },
-        [&](ArgumentParser const& parser) {
-            if (qcir_mgr.empty()) {
-                spdlog::error("No QCir is loaded!!");
-                return dvlab::CmdExecResult::error;
-            }
-            auto qcir           = qcir_mgr.get();
-            auto const filename = qcir->get_filename();
-            auto tableau        = to_tableau(*qcir_mgr.get());
-
-            if (!tableau) {
-                spdlog::error("Failed to convert QCir to Tableau!!");
-                return dvlab::CmdExecResult::error;
-            }
-
-            auto const strategy = parser.get<std::string>("strategy");
-
-            auto extractor = [&]() -> std::unique_ptr<StabilizerTableauExtractor> {
-                if (strategy == "AG") {
-                    return std::make_unique<AGExtractor>();
-                } else if (strategy == "HOpt") {
-                    return std::make_unique<HOptExtractor>();
-                } else {
-                    spdlog::error("Unknown strategy {}", strategy);
-                    return nullptr;
-                }
-            }();
-
-            assert(extractor);
-
-            merge_rotations(tableau.value());
-            auto min_h = minimize_internal_hadamards(tableau.value());
-            qcir_mgr.add(qcir_mgr.get_next_id(), std::make_unique<qcir::QCir>(to_qcir(min_h, *extractor)));
-
-            qcir_mgr.get()->set_filename(filename);
-            qcir_mgr.get()->add_procedure("QC2TB");
-            qcir_mgr.get()->add_procedure("MergeT");
-            qcir_mgr.get()->add_procedure("MinH");
-            qcir_mgr.get()->add_procedure(fmt::format("TB2QC[{}]", strategy));
-
-            return dvlab::CmdExecResult::done;
-        }};
-}
-
-bool add_tableau_command(dvlab::CommandLineInterface& cli, TableauMgr& tableau_mgr, QCirMgr& qcir_mgr) {
-    return cli.add_command(tableau_cmd(tableau_mgr)) && cli.add_command(pauli_rotation_cmd(qcir_mgr));
+bool add_tableau_command(dvlab::CommandLineInterface& cli, TableauMgr& tableau_mgr) {
+    return cli.add_command(tableau_cmd(tableau_mgr));
 }
 
 }  // namespace qsyn::experimental

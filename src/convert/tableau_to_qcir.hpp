@@ -9,7 +9,6 @@
 
 #include "qcir/qcir.hpp"
 #include "tableau/pauli_rotation.hpp"
-#include "tableau/qcir_to_tableau.hpp"
 #include "tableau/stabilizer_tableau.hpp"
 
 namespace qsyn {
