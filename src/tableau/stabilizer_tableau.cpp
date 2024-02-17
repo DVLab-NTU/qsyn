@@ -358,6 +358,30 @@ void adjoint_inplace(SubTableau& subtableau) {
     });
 }
 
+SubTableau& SubTableau::h(size_t qubit) {
+    clifford.h(qubit);
+    for (auto& pauli : pauli_rotations) {
+        pauli.h(qubit);
+    }
+    return *this;
+}
+
+SubTableau& SubTableau::s(size_t qubit) {
+    clifford.s(qubit);
+    for (auto& pauli : pauli_rotations) {
+        pauli.s(qubit);
+    }
+    return *this;
+}
+
+SubTableau& SubTableau::cx(size_t control, size_t target) {
+    clifford.cx(control, target);
+    for (auto& pauli : pauli_rotations) {
+        pauli.cx(control, target);
+    }
+    return *this;
+}
+
 SubTableau adjoint(SubTableau const& subtableau) {
     auto adjoint_subtableau = subtableau;
     adjoint_inplace(adjoint_subtableau);

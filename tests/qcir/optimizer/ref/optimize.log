@@ -3,8 +3,7 @@ qsyn> qcir read benchmark/SABRE/large/adr4_197.qasm
 qsyn> qcir print --statistics
 QCir (16 qubits, 3439 gates)
 Clifford    : 1941
-├── H-gate  : 428
-├── S-family: 30
+├── H-gate  : 428 (417 internal)
 └── 2-qubit : 1498
 T-family    : 1498
 Others      : 0
@@ -228,8 +227,7 @@ qsyn> logger warn
 qsyn> qcir print --statistics
 QCir (16 qubits, 3200 gates)
 Clifford    : 1854
-├── H-gate  : 210
-├── S-family: 2
+├── H-gate  : 210 (199 internal)
 └── 2-qubit : 1498
 T-family    : 1486
 Others      : 0
@@ -244,8 +242,7 @@ qsyn> zx2qc
 qsyn> qcir print --statistics
 QCir (16 qubits, 3339 gates)
 Clifford    : 3177
-├── H-gate  : 1210
-├── S-family: 0
+├── H-gate  : 1210 (1174 internal)
 └── 2-qubit : 1433
 T-family    : 692
 Others      : 0
@@ -393,8 +390,7 @@ qsyn> logger warn
 qsyn> qcir print --statistics
 QCir (16 qubits, 2284 gates)
 Clifford    : 1666
-├── H-gate  : 210
-├── S-family: 8
+├── H-gate  : 210 (204 internal)
 └── 2-qubit : 1327
 T-family    : 692
 Others      : 0

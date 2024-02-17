@@ -12,13 +12,18 @@
 #include <algorithm>
 #include <cassert>
 #include <cstdlib>
+#include <iterator>
+#include <queue>
 #include <string>
+#include <unordered_set>
 #include <vector>
 
 #include "./qcir_gate.hpp"
 #include "./qcir_qubit.hpp"
+#include "qcir/gate_type.hpp"
 #include "qsyn/qsyn_type.hpp"
 #include "util/phase.hpp"
+#include "util/scope_guard.hpp"
 #include "util/text_format.hpp"
 #include "util/util.hpp"
 
@@ -278,6 +283,52 @@ bool QCir::remove_gate(size_t id) {
     }
 }
 
+void add_input_cone_to(QCirGate *gate, std::unordered_set<QCirGate *> &input_cone) {
+    if (gate == nullptr) {
+        return;
+    }
+
+    std::queue<QCirGate *> q;
+    q.push(gate);
+    input_cone.insert(gate);
+
+    while (!q.empty()) {
+        QCirGate *curr_gate = q.front();
+        q.pop();
+
+        for (const auto &qubitInfo : curr_gate->get_qubits()) {
+            QCirGate *parent_gate = qubitInfo._prev;
+            if (parent_gate != nullptr && !input_cone.contains(parent_gate)) {
+                input_cone.insert(parent_gate);
+                q.push(parent_gate);
+            }
+        }
+    }
+}
+
+void add_output_cone_to(QCirGate *gate, std::unordered_set<QCirGate *> &output_cone) {
+    if (gate == nullptr) {
+        return;
+    }
+
+    std::queue<QCirGate *> q;
+    q.push(gate);
+    output_cone.insert(gate);
+
+    while (!q.empty()) {
+        QCirGate *curr_gate = q.front();
+        q.pop();
+
+        for (const auto &qubitInfo : curr_gate->get_qubits()) {
+            QCirGate *child_gate = qubitInfo._next;
+            if (child_gate != nullptr && !output_cone.contains(child_gate)) {
+                output_cone.insert(child_gate);
+                q.push(child_gate);
+            }
+        }
+    }
+}
+
 /**
  * @brief Analysis the quantum circuit and estimate the Clifford and T count
  *
@@ -418,6 +469,45 @@ QCirGateStatistics QCir::get_gate_statistics() const {
         }
     }
 
+    auto const is_clifford = [](QCirGate *g) -> bool {
+        using GRC       = GateRotationCategory;
+        auto const type = g->get_rotation_category();
+        switch (type) {
+            case GRC::id:
+            case GRC::h:
+            case GRC::swap:
+                return true;
+            case GRC::pz:
+            case GRC::rz:
+            case GRC::px:
+            case GRC::rx:
+            case GRC::py:
+            case GRC::ry:
+                if (g->get_num_qubits() == 1) {
+                    return g->get_phase().denominator() <= 2;
+                } else if (g->get_num_qubits() == 2) {
+                    return g->get_phase().denominator() == 1;
+                } else {
+                    return false;
+                }
+        }
+    };
+
+    std::unordered_set<QCirGate *> not_final, not_initial;
+
+    for (auto const &g : _qgates) {
+        if (is_clifford(g)) continue;
+        add_input_cone_to(g, not_final);
+        add_output_cone_to(g, not_initial);
+    }
+
+    // the intersection of the two sets is the internal gates
+    for (auto const &g : _qgates) {
+        if (g->get_type_str() == "h" && not_final.contains(g) && not_initial.contains(g)) {
+            stat.h_internal++;
+        }
+    }
+
     return stat;
 }
 void QCir::print_gate_statistics(bool detail) const {
@@ -461,8 +551,7 @@ void QCir::print_gate_statistics(bool detail) const {
     }
 
     fmt::println("Clifford    : {}", fmt_ext::styled_if_ansi_supported(stat.clifford, fmt::fg(fmt::terminal_color::green) | fmt::emphasis::bold));
-    fmt::println("├── H-gate  : {}", fmt_ext::styled_if_ansi_supported(stat.h, fmt::fg(fmt::terminal_color::green) | fmt::emphasis::bold));
-    fmt::println("├── S-family: {}", fmt_ext::styled_if_ansi_supported(single_z + single_x + single_y, fmt::fg(fmt::terminal_color::green) | fmt::emphasis::bold));
+    fmt::println("├── H-gate  : {} ({} internal)", fmt_ext::styled_if_ansi_supported(stat.h, fmt::fg(fmt::terminal_color::green) | fmt::emphasis::bold), stat.h_internal);
     fmt::println("└── 2-qubit : {}", fmt_ext::styled_if_ansi_supported(stat.twoqubit, fmt::fg(fmt::terminal_color::red) | fmt::emphasis::bold));
     fmt::println("T-family    : {}", fmt_ext::styled_if_ansi_supported(stat.tfamily, fmt::fg(fmt::terminal_color::red) | fmt::emphasis::bold));
     fmt::println("Others      : {}", fmt_ext::styled_if_ansi_supported(stat.nct, fmt::fg((stat.nct > 0) ? fmt::terminal_color::red : fmt::terminal_color::green) | fmt::emphasis::bold));

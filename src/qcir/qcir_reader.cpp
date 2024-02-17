@@ -152,6 +152,7 @@ bool QCir::read_qc(std::filesystem::path const& filepath) {
 
     while (getline(qc_file, line)) {
         line = line[line.size() - 1] == '\r' ? line.substr(0, line.size() - 1) : line;
+        line = dvlab::str::trim_spaces(line);
 
         if (line.find('.') == 0)  // find initial statement
         {
@@ -169,9 +170,9 @@ bool QCir::read_qc(std::filesystem::path const& filepath) {
             }
         } else if (line.find('#') == 0 || line == "")
             continue;
-        else if (line.find("BEGIN") == 0) {
+        else if (line.find("BEGIN") == 0 || line.find("begin") == 0) {
             add_qubits(n_qubit);
-        } else if (line.find("END") == 0) {
+        } else if (line.find("END") == 0 || line.find("end") == 0) {
             return true;
         } else  // find a gate
         {
@@ -199,6 +200,8 @@ bool QCir::read_qc(std::filesystem::path const& filepath) {
                     spdlog::error("Toffoli gates with more than 2 controls are not supported!!");
                     return false;
                 }
+            } else if ((type == "Z" || type == "z") && qubit_ids.size() == 3) {
+                add_gate("ccz", qubit_ids, dvlab::Phase(1), true);
             } else
                 add_gate(type, qubit_ids, dvlab::Phase(1), true);
         }

@@ -183,7 +183,6 @@ dvlab::Command tableau_print_cmd(TableauMgr& tableau_mgr) {
             if (!dvlab::utils::mgr_has_data(tableau_mgr)) {
                 return dvlab::CmdExecResult::error;
             }
-
             if (parser.parsed("-b")) {
                 fmt::println("{:b}", *tableau_mgr.get());
             } else {
@@ -247,18 +246,19 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr) {
                 return dvlab::CmdExecResult::error;
             }
 
-            if (method == OptimizationMethod::collapse) {
-                collapse(*tableau_mgr.get());
-                tableau_mgr.get()->add_procedure("collapse");
-            } else if (method == OptimizationMethod::merge_t) {
-                merge_rotations(*tableau_mgr.get());
-                tableau_mgr.get()->add_procedure("MergeT");
-            } else if (method == OptimizationMethod::internal_h_opt) {
-                *tableau_mgr.get() = minimize_internal_hadamards(*tableau_mgr.get());
-                tableau_mgr.get()->add_procedure("InternalHOpt");
-            } else {
-                spdlog::error("Unknown optimization method {}!!", method_str);
-                return dvlab::CmdExecResult::error;
+            switch (method.value()) {
+                case OptimizationMethod::collapse:
+                    collapse(*tableau_mgr.get());
+                    tableau_mgr.get()->add_procedure("collapse");
+                    break;
+                case OptimizationMethod::merge_t:
+                    merge_rotations(*tableau_mgr.get());
+                    tableau_mgr.get()->add_procedure("MergeT");
+                    break;
+                case OptimizationMethod::internal_h_opt:
+                    *tableau_mgr.get() = minimize_internal_hadamards(*tableau_mgr.get());
+                    tableau_mgr.get()->add_procedure("InternalHOpt");
+                    break;
             }
 
             return dvlab::CmdExecResult::done;

@@ -30,7 +30,7 @@ using qcir::QCirGate, qcir::GateRotationCategory, qcir::QubitInfo, qcir::QCir;
 namespace {
 
 dvlab::Phase get_gadget_phase(dvlab::Phase const& phase, size_t n_qubits) {
-    return phase * dvlab::Rational(1, static_cast<int>(pow(2, gsl::narrow<double>(n_qubits) - 1)));
+    return phase * dvlab::Rational(1, static_cast<int>(std::pow(2, gsl::narrow<double>(n_qubits) - 1)));
 }
 
 enum class RotationAxis {

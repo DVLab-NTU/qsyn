@@ -6,6 +6,9 @@
 
 #include "./tableau_optimization.hpp"
 
+#include <bits/ranges_algo.h>
+#include <fmt/core.h>
+
 #include <functional>
 #include <gsl/narrow>
 #include <tl/adjacent.hpp>
@@ -301,6 +304,12 @@ Tableau minimize_internal_hadamards(Tableau tableau) {
 
     auto [_, initial_clifford]         = minimize_hadamards(Tableau{adjoint(tableau.front())}, context);
     auto [out_tableau, final_clifford] = minimize_hadamards(tableau, initial_clifford);
+
+    for (auto const& [clifford, rotations] : out_tableau) {
+        auto h_count = std::ranges::count_if(extract_clifford_operators(clifford), [](CliffordOperator const& op) { return op.first == CliffordOperatorType::h; });
+        assert(h_count <= 1);
+        assert(std::ranges::all_of(rotations, [](PauliRotation const& rotation) { return rotation.is_diagonal(); }));
+    }
 
     out_tableau.insert(out_tableau.begin(), {initial_clifford, {}});
     out_tableau.push_back({adjoint(final_clifford), {}});

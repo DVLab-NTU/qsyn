@@ -132,7 +132,7 @@ public:
     CliffordOperatorString extract(StabilizerTableau copy) const override;
 };
 
-CliffordOperatorString extract_clifford_operators(StabilizerTableau copy, StabilizerTableauExtractor const& extractor = AGExtractor{});
+CliffordOperatorString extract_clifford_operators(StabilizerTableau copy, StabilizerTableauExtractor const& extractor = HOptExtractor{});
 
 struct SubTableau : public PauliProductTrait<SubTableau> {
     SubTableau(StabilizerTableau const& clifford, std::vector<PauliRotation> const& pauli_rotations)
