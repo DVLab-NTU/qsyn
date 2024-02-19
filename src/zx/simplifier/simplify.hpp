@@ -25,7 +25,7 @@ public:
         hadamard_rule_simp();
     }
     ~Simplifier() {
-        _simp_graph->normalize();
+        _simp_graph->adjustVertexCoordinates();
     }
     Simplifier(Simplifier const& other)            = default;
     Simplifier(Simplifier&& other)                 = default;

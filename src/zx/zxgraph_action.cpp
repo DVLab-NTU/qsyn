@@ -234,16 +234,16 @@ std::unordered_map<size_t, ZXVertex*> ZXGraph::create_id_to_vertex_map() const {
 }
 
 /**
- * @brief Rearrange nodes on each qubit so that each node can be seperated in the printed graph.
+ * @brief Rearrange vertices on each qubit so that each vertex can be seperated in the printed graph.
  *
  */
-void ZXGraph::normalize() {
+void ZXGraph::adjustVertexCoordinates() {
     // FIXME - QubitId -> RowId
     std::unordered_map<QubitIdType, std::vector<ZXVertex*>> qubit_id_to_vertices_map;
     std::unordered_set<QubitIdType> visited_qubit_ids;
     std::queue<ZXVertex*> vertex_queue;
     // NOTE - Check Gadgets
-    // FIXME - When replacing RowId with QubitId, add 0.5 on it
+    // FIXME - When replacing QubitId with RowId, add 0.5 on it
     for (auto const& i : _vertices) {
         if (i->get_qubit() == -2 && get_num_neighbors(i) > 1) {
             std::unordered_map<QubitIdType, size_t> num_neighbor_qubits;
