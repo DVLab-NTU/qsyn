@@ -232,7 +232,7 @@ public:
     void add_gadget(Phase p, std::vector<ZXVertex*> const& vertices);
     void remove_gadget(ZXVertex* v);
     std::unordered_map<size_t, ZXVertex*> create_id_to_vertex_map() const;
-    void normalize();
+    void adjustVertexCoordinates();
 
     // Print functions (zxGraphPrint.cpp)
     void print_graph(spdlog::level::level_enum lvl = spdlog::level::level_enum::off) const;
