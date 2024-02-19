@@ -238,9 +238,27 @@ std::unordered_map<size_t, ZXVertex*> ZXGraph::create_id_to_vertex_map() const {
  *
  */
 void ZXGraph::normalize() {
+    // FIXME - QubitId -> RowId
     std::unordered_map<QubitIdType, std::vector<ZXVertex*>> qubit_id_to_vertices_map;
     std::unordered_set<QubitIdType> visited_qubit_ids;
     std::queue<ZXVertex*> vertex_queue;
+    // NOTE - Check Gadgets
+    // FIXME - When replacing RowId with QubitId, add 0.5 on it
+    for (auto const& i : _vertices) {
+        if (i->get_qubit() == -2 && get_num_neighbors(i) > 1) {
+            std::unordered_map<QubitIdType, size_t> num_neighbor_qubits;
+            for (auto const& [nb, _] : get_neighbors(i)) {
+                if (num_neighbor_qubits.contains(nb->get_qubit())) {
+                    num_neighbor_qubits[nb->get_qubit()]++;
+                    fmt::println("add qb: {}", nb->get_qubit());
+                } else
+                    num_neighbor_qubits[nb->get_qubit()] = 1;
+            }
+            fmt::println("move to {}", (*max_element(num_neighbor_qubits.begin(), num_neighbor_qubits.end(), [](const std::pair<QubitIdType, size_t>& p1, const std::pair<QubitIdType, size_t>& p2) { return p1.second < p2.second; })).first);
+            i->set_qubit((*max_element(num_neighbor_qubits.begin(), num_neighbor_qubits.end(), [](const std::pair<QubitIdType, size_t>& p1, const std::pair<QubitIdType, size_t>& p2) { return p1.second < p2.second; })).first);
+        }
+    }
+
     for (auto const& i : _inputs) {
         vertex_queue.push(i);
         visited_qubit_ids.insert(gsl::narrow<QubitIdType>(i->get_id()));
@@ -249,22 +267,22 @@ void ZXGraph::normalize() {
         ZXVertex* v = vertex_queue.front();
         vertex_queue.pop();
         qubit_id_to_vertices_map[v->get_qubit()].emplace_back(v);
-        for (auto const& nb : this->get_neighbors(v) | std::views::keys) {
+        for (auto const& nb : get_neighbors(v) | std::views::keys) {
             if (visited_qubit_ids.find(gsl::narrow<QubitIdType>(nb->get_id())) == visited_qubit_ids.end()) {
                 vertex_queue.push(nb);
                 visited_qubit_ids.insert(gsl::narrow<QubitIdType>(nb->get_id()));
             }
         }
     }
-    int max_col = 0;
+    double max_col = 0.0;
     for (auto& i : qubit_id_to_vertices_map) {
-        int col = 0;
+        double col = i.first < 0 ? 0.5 : 0.0;
         for (auto& v : i.second) {
             v->set_col(col);
             col++;
         }
         col--;
-        max_col = std::max(max_col, col);
+        max_col = std::max(max_col, std::ceil(col));
     }
     for (auto& o : _outputs) o->set_col(max_col);
 }
