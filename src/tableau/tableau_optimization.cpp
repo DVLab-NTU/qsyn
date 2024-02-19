@@ -20,43 +20,6 @@
 namespace qsyn {
 
 namespace experimental {
-/**
- * @brief Pushing all the Clifford operatos to the first sub-tableau and merging all the Pauli rotations.
- *
- * @param tableau
- */
-void collapse(Tableau& tableau) {
-    // ensures that all tableaux have the same number of qubits
-    size_t const n_qubits = tableau.n_qubits();
-
-    assert(std::ranges::all_of(tableau, [n_qubits](SubTableau const& sub_tableau) {
-        return sub_tableau.clifford.n_qubits() == n_qubits &&
-               std::ranges::all_of(sub_tableau.pauli_rotations, [n_qubits](PauliRotation const& rotation) {
-                   return rotation.n_qubits() == n_qubits;
-               });
-    }));
-
-    if (tableau.size() <= 1) return;
-
-    // make all clifford operators to be the identity except the first one
-    for (auto&& [next_tabl, this_tabl] : tl::views::adjacent<2>(tableau | std::views::reverse)) {
-        auto& next_clifford = next_tabl.clifford;
-
-        this_tabl.apply(extract_clifford_operators(next_clifford));
-
-        next_clifford = StabilizerTableau{n_qubits};
-    }
-
-    // merge all rotations into the first tableau
-    for (auto& [_, pauli_rotations] : tableau | std::views::drop(1)) {
-        tableau.front().pauli_rotations.insert(
-            tableau.front().pauli_rotations.end(),
-            pauli_rotations.begin(),
-            pauli_rotations.end());
-    }
-
-    tableau.erase(std::next(tableau.begin()), tableau.end());
-}
 
 namespace {
 /**
@@ -100,8 +63,48 @@ private:
     size_t upto;
 };
 
+}  // namespace
+
 /**
- * @brief remove the Pauli rotations with zero phase
+ * @brief Pushing all the Clifford operatos to the first sub-tableau and merging all the Pauli rotations.
+ *
+ * @param tableau
+ */
+void collapse(Tableau& tableau) {
+    // ensures that all tableaux have the same number of qubits
+    size_t const n_qubits = tableau.n_qubits();
+
+    assert(std::ranges::all_of(tableau, [n_qubits](SubTableau const& sub_tableau) {
+        return sub_tableau.clifford.n_qubits() == n_qubits &&
+               std::ranges::all_of(sub_tableau.pauli_rotations, [n_qubits](PauliRotation const& rotation) {
+                   return rotation.n_qubits() == n_qubits;
+               });
+    }));
+
+    if (tableau.size() <= 1) return;
+
+    // make all clifford operators to be the identity except the first one
+    for (auto&& [next_tabl, this_tabl] : tl::views::adjacent<2>(tableau | std::views::reverse)) {
+        auto& next_clifford = next_tabl.clifford;
+
+        this_tabl.apply(extract_clifford_operators(next_clifford));
+
+        next_clifford = StabilizerTableau{n_qubits};
+    }
+
+    // merge all rotations into the first tableau
+    for (auto& [_, pauli_rotations] : tableau | std::views::drop(1)) {
+        tableau.front().pauli_rotations.insert(
+            tableau.front().pauli_rotations.end(),
+            pauli_rotations.begin(),
+            pauli_rotations.end());
+    }
+
+    tableau.erase(std::next(tableau.begin()), tableau.end());
+}
+
+/**
+ * @brief remove the Pauli rotations that evaluate to identity.
  *
  * @param rotations
  */
@@ -117,7 +120,41 @@ void remove_identities(std::vector<PauliRotation>& rotations) {
         rotations.end());
 }
 
-};  // namespace
+/**
+ * @brief remove the tableau by removing the identity clifford operators and the identity Pauli rotations.
+ *
+ * @param tableau
+ */
+void remove_identities(Tableau& tableau) {
+    // remove redundant pauli rotations
+    std::ranges::for_each(tableau, [](SubTableau& subtableau) {
+        remove_identities(subtableau.pauli_rotations);
+    });
+
+    // remove redundant clifford operators and merge adjacent pauli rotations if possible
+    for (auto const& [this_tabl, next_tabl] : tl::views::adjacent<2>(tableau)) {
+        if (this_tabl.pauli_rotations.empty()) {
+            this_tabl.clifford.apply(extract_clifford_operators(next_tabl.clifford));
+            next_tabl.clifford = StabilizerTableau{this_tabl.clifford.n_qubits()};
+        }
+        if (next_tabl.clifford.is_identity()) {
+            this_tabl.pauli_rotations.insert(
+                this_tabl.pauli_rotations.end(),
+                next_tabl.pauli_rotations.begin(),
+                next_tabl.pauli_rotations.end());
+            next_tabl.pauli_rotations.clear();
+        }
+    }
+
+    tableau.erase(
+        std::remove_if(
+            tableau.begin(),
+            tableau.end(),
+            [](SubTableau const& subtableau) {
+                return subtableau.clifford.is_identity() && subtableau.pauli_rotations.empty();
+            }),
+        tableau.end());
+}
 
 /**
  * @brief merge rotations that are commutative and have the same underlying pauli product.
@@ -257,37 +294,6 @@ std::pair<Tableau, StabilizerTableau> minimize_hadamards(Tableau tableau, Stabil
     }
 
     return {new_tableau, context};
-}
-
-void remove_identities(Tableau& tableau) {
-    // remove redundant pauli rotations
-    std::ranges::for_each(tableau, [](SubTableau& subtableau) {
-        remove_identities(subtableau.pauli_rotations);
-    });
-
-    // remove redundant clifford operators and merge adjacent pauli rotations if possible
-    for (auto const& [this_tabl, next_tabl] : tl::views::adjacent<2>(tableau)) {
-        if (this_tabl.pauli_rotations.empty()) {
-            this_tabl.clifford.apply(extract_clifford_operators(next_tabl.clifford));
-            next_tabl.clifford = StabilizerTableau{this_tabl.clifford.n_qubits()};
-        }
-        if (next_tabl.clifford.is_identity()) {
-            this_tabl.pauli_rotations.insert(
-                this_tabl.pauli_rotations.end(),
-                next_tabl.pauli_rotations.begin(),
-                next_tabl.pauli_rotations.end());
-            next_tabl.pauli_rotations.clear();
-        }
-    }
-
-    tableau.erase(
-        std::remove_if(
-            tableau.begin(),
-            tableau.end(),
-            [](SubTableau const& subtableau) {
-                return subtableau.clifford.is_identity() && subtableau.pauli_rotations.empty();
-            }),
-        tableau.end());
 }
 
 Tableau minimize_internal_hadamards(Tableau tableau) {

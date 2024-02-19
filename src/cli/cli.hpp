@@ -263,9 +263,8 @@ private:
             fmt::println(fmt, std::forward<Args>(args)...);
     }
 
-    void _flush_if_echo() const {
-        if (_echo)
-            fflush(stdout);
+    void _flush_output() const {
+        fflush(stdout);
     }
     // NOTE - This function passes the string by const ref instead of string_view because it uses std::regex
     std::string _replace_variable_keys_with_values(std::string const& str) const;

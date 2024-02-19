@@ -48,11 +48,11 @@ Command conversion_cmd(QCirMgr& qcir_mgr, qsyn::tensor::TensorMgr& tensor_mgr, q
                     .constraint(choices_allow_prefix({"qcir", "zx", "tensor", "tableau"}))
                     // The tensor data structure currently is not supported as the source data structure.
                     // We still allow the user to specify it, but an error will be thrown.
-                    .help("specify the source data structure. Choices: qcir, zx");
+                    .help("specify the source data structure. Choices: qcir, zx, tableau");
 
                 parser.add_argument<std::string>("to")
                     .constraint(choices_allow_prefix({"qcir", "zx", "tensor", "tableau"}))
-                    .help("specify the destination data structure. Choices: qcir, zx, tensor");
+                    .help("specify the destination data structure. Choices: qcir, zx, tensor, tableau");
 
                 parser.add_argument<size_t>("decomp-mode")
                     .default_value(3)
@@ -61,8 +61,8 @@ Command conversion_cmd(QCirMgr& qcir_mgr, qsyn::tensor::TensorMgr& tensor_mgr, q
             },
             [&](ArgumentParser const& parser) {
                 using namespace std::string_view_literals;
-                auto from = parser.get<std::string>("from");
-                auto to   = parser.get<std::string>("to");
+                auto const from = parser.get<std::string>("from");
+                auto const to   = parser.get<std::string>("to");
 
                 if (from == to) {
                     spdlog::error("The source and destination data structure should not be the same!!", from, to);
@@ -90,7 +90,7 @@ Command conversion_cmd(QCirMgr& qcir_mgr, qsyn::tensor::TensorMgr& tensor_mgr, q
                     if (!dvlab::utils::mgr_has_data(qcir_mgr)) return CmdExecResult::error;
                     if (to == "zx") {
                         spdlog::info("Converting to QCir {} to ZXGraph {}...", qcir_mgr.focused_id(), zxgraph_mgr.get_next_id());
-                        auto g = to_zxgraph(*qcir_mgr.get(), parser.get<size_t>("decomp-mode"));
+                        auto const g = to_zxgraph(*qcir_mgr.get(), parser.get<size_t>("decomp-mode"));
 
                         if (g.has_value()) {
                             zxgraph_mgr.add(zxgraph_mgr.get_next_id(), std::make_unique<qsyn::zx::ZXGraph>(std::move(g.value())));
