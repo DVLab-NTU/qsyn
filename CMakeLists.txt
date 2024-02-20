@@ -84,6 +84,13 @@ FetchContent_Declare(
   GIT_TAG add-cmake-fetchcontent-support)
 FetchContent_MakeAvailable(cadical)
 
+FetchContent_Declare(
+  libabc
+  SYSTEM # should use the upstream repo once the PR is merged
+  GIT_REPOSITORY https://github.com/DVLab-NTU/abc.git
+  GIT_TAG add-cmake-fetchcontent-support)
+FetchContent_MakeAvailable(libabc)
+
 file(
   GLOB_RECURSE SOURCES
   RELATIVE ${CMAKE_SOURCE_DIR}
@@ -164,6 +171,7 @@ target_link_libraries_system(
   fmt::fmt
   spdlog::spdlog
   Microsoft.GSL::GSL)
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE libabc)
 target_link_libraries(
   ${CMAKE_PROJECT_NAME} PRIVATE lapack OpenMP::OpenMP_CXX ${BLAS_LIBRARIES}
                                 ${LAPACK_LIBRARIES})
