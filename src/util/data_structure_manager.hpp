@@ -69,7 +69,7 @@ public:
 
     size_t get_next_id() const { return _next_id; }
 
-    T* get() const { return _list.at(_focused_id).get(); }
+    T* get() const { return size() ? _list.at(_focused_id).get() : nullptr; }
 
     void set_by_id(size_t id, std::unique_ptr<T> t) {
         if (_list.contains(id)) {
