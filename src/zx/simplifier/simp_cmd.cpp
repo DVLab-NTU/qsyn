@@ -7,6 +7,8 @@
 
 #include "./simp_cmd.hpp"
 
+#include <fmt/core.h>
+
 #include <cstddef>
 #include <string>
 
@@ -177,4 +179,47 @@ Command zxgraph_rule_cmd(zx::ZXGraphMgr &zxgraph_mgr) {
         }};
 }
 
+Command zxgraph_manual_apply_cmd(zx::ZXGraphMgr &zxgraph_mgr) {
+    return Command{
+        "manual",
+        [&](ArgumentParser &parser) {
+            parser.description("apply simplification rules on specific candidates");
+
+            auto mutex = parser.add_mutually_exclusive_group().required(true);
+            mutex.add_argument<bool>("--pivot")
+                .action(store_true)
+                .help("applies pivot rules to vertex pairs with phase 0 or π");
+            mutex.add_argument<bool>("--pivot-boundary")
+                .action(store_true)
+                .help("applies pivot rules to vertex pairs connected to the boundary");
+            mutex.add_argument<bool>("--pivot-gadget")
+                .action(store_true)
+                .help("unfuses the phase and applies pivot rules to form gadgets");
+
+            parser.add_argument<size_t>("vertices")
+                .nargs(2)
+                .constraint(valid_zxvertex_id(zxgraph_mgr))
+                .help("the vertices on which the rule applies");
+        },
+        [&](ArgumentParser const &parser) {
+            if (!dvlab::utils::mgr_has_data(zxgraph_mgr)) return dvlab::CmdExecResult::error;
+            zx::Simplifier s(zxgraph_mgr.get());
+
+            // if (parser.parsed("--pivot")) {
+            //     s.pivot_simp();
+            // } else if (parser.parsed("--pivot-boundary")) {
+            //     s.pivot_boundary_simp();
+            // } else if (parser.parsed("--pivot-gadget")) {
+            //     s.pivot_gadget_simp();
+            // } else if (parser.parsed("--spider-fusion")) {
+            //     s.spider_fusion_simp();
+            // } else {
+            //     spdlog::error("No rule specified");
+            //     return CmdExecResult::error;
+            // }
+            auto vertices = parser.get<std::vector<size_t>>("vertices");
+            // fmt::println("{} {}", vertices[0], vertices[1]);
+            return CmdExecResult::done;
+        }};
+}
 }  // namespace qsyn::zx
