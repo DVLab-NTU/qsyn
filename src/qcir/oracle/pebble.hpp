@@ -12,6 +12,7 @@
 #include <NamedType/underlying_functionalities.hpp>
 #include <cstddef>
 #include <istream>
+#include <optional>
 #include <set>
 
 #include "util/sat/sat_solver.hpp"
