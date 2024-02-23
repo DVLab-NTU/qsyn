@@ -105,7 +105,7 @@ FetchContent_MakeAvailable(cadical)
 
 FetchContent_Declare(
   libabc
-  SYSTEM # should use the upstream repo once the PR is merged
+  SYSTEM
   GIT_REPOSITORY https://github.com/DVLab-NTU/abc.git
   GIT_TAG add-cmake-fetchcontent-support)
 FetchContent_MakeAvailable(libabc)
@@ -115,6 +115,10 @@ file(
   RELATIVE ${CMAKE_SOURCE_DIR}
   "src/**/*.cpp" "src/**/*.hpp" "src/qsyn/qsynrc.default")
 add_executable(${CMAKE_PROJECT_NAME} ${SOURCES})
+
+target_compile_definitions(
+  ${CMAKE_PROJECT_NAME} PRIVATE ABC_NAMESPACE_HEADER_START=
+                                ABC_NAMESPACE_HEADER_END=)
 
 target_compile_definitions(spdlog PUBLIC SPDLOG_FMT_EXTERNAL=1)
 target_compile_definitions(
@@ -182,6 +186,7 @@ endfunction(target_link_libraries_system)
 target_link_libraries_system(
   ${CMAKE_PROJECT_NAME}
   PRIVATE
+  libabc
   xtl
   xtensor
   xtensor-blas
@@ -191,7 +196,6 @@ target_link_libraries_system(
   Microsoft.GSL::GSL
   sul::dynamic_bitset
   cadical::cadical)
-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE libabc)
 target_link_libraries(
   ${CMAKE_PROJECT_NAME} PRIVATE lapack OpenMP::OpenMP_CXX ${BLAS_LIBRARIES}
                                 ${LAPACK_LIBRARIES})
