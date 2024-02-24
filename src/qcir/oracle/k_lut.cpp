@@ -8,6 +8,7 @@
 
 #include "./k_lut.hpp"
 
+#include <fmt/format.h>
 #include <spdlog/spdlog.h>
 
 #include <cstddef>
@@ -16,6 +17,7 @@
 #include <ranges>
 #include <set>
 #include <tl/enumerate.hpp>
+#include <tl/to.hpp>
 #include <tl/zip.hpp>
 
 #include "qcir/oracle/xag.hpp"
@@ -50,20 +52,19 @@ std::map<XAGNodeID, std::vector<XAGCut>> enumerate_cuts(XAG& xag, const size_t m
     auto topological_order = xag.calculate_topological_order();
     std::map<XAGNodeID, std::vector<XAGCut>> node_id_to_cuts;
     for (auto const id : topological_order) {
-        node_id_to_cuts[id] = {};
-        node_id_to_cuts[id].push_back({id});
+        node_id_to_cuts[id] = {{id}};
         if (xag.get_node(id)->get_type() == XAGNodeType::INPUT) {
             continue;
         }
         auto fanins = xag.get_node(id)->fanins;
-        for (auto const& cut0 : node_id_to_cuts[fanins[0]]) {
-            for (auto const& cut1 : node_id_to_cuts[fanins[1]]) {
-                auto cut = cut0;
-                cut.insert(cut1.begin(), cut1.end());
+        for (auto const& cuts0 : node_id_to_cuts[fanins[0]]) {
+            for (auto const& cuts1 : node_id_to_cuts[fanins[1]]) {
+                auto cuts = cuts0;
+                cuts.insert(cuts1.begin(), cuts1.end());
 
-                if (cut.size() <= max_cut_size) {
-                    if (!std::any_of(node_id_to_cuts[id].begin(), node_id_to_cuts[id].end(), [&cut](auto const& c) { return is_subset_of(c, cut); })) {
-                        node_id_to_cuts[id].push_back(cut);
+                if (cuts.size() <= max_cut_size) {
+                    if (!std::any_of(node_id_to_cuts[id].begin(), node_id_to_cuts[id].end(), [&cuts](auto const& c) { return is_subset_of(c, cuts); })) {
+                        node_id_to_cuts[id].push_back(cuts);
                     }
                 }
             }
@@ -73,7 +74,7 @@ std::map<XAGNodeID, std::vector<XAGCut>> enumerate_cuts(XAG& xag, const size_t m
     std::vector<XAGNodeID> to_remove;
     for (auto& [id, cuts] : node_id_to_cuts) {
         std::erase(cuts, std::set<XAGNodeID>{id});
-        if (cuts.size() == 0) {
+        if (cuts.empty()) {
             to_remove.push_back(id);
         }
     }
@@ -85,7 +86,7 @@ std::map<XAGNodeID, std::vector<XAGCut>> enumerate_cuts(XAG& xag, const size_t m
 }
 
 std::vector<bool> calculate_truth_table(XAG& xag, XAGNodeID const& node_id, XAGCut const& cut) {
-    auto node_ids_in_cone = get_cone_node_ids(xag, node_id, cut);
+    auto node_ids_in_cone = xag.get_cone_node_ids(node_id, cut) | std::views::reverse | tl::to<std::vector>();
     std::vector<bool> truth_table;
 
     for (auto const& _minterm : iota(0UL, 1UL << cut.size())) {
@@ -108,6 +109,7 @@ std::vector<bool> calculate_truth_table(XAG& xag, XAGNodeID const& node_id, XAGC
 
             bool result{};
             if (node->get_type() == XAGNodeType::XOR) {
+                result = false;
                 for (auto const& input : inputs) {
                     result ^= input;
                 }
@@ -165,13 +167,16 @@ std::map<XAGNodeID, std::vector<size_t>> calculate_cut_costs(XAG& xag, std::map<
         costs[id] = {};
         for (auto const& cut : cuts) {
             auto const truth_table = calculate_truth_table(xag, id, cut);
+            fmt::print("{{{}}}: {}\n",
+                       fmt::join(cut | std::views::transform([](auto const& id) { return id.get(); }), ", "),
+                       fmt::join(truth_table | std::views::transform([](bool b) { return b ? "1" : "0"; }), ", "));
             costs[id].emplace_back(caclculate_radamacher_walsh_cost(truth_table));
         }
     }
 
     for (auto const& [id, cuts] : all_cuts) {
         for (auto const& [i, cut] : enumerate(cuts)) {
-            auto const& cone_node_ids = get_cone_node_ids(xag, id, cut);
+            auto const& cone_node_ids = xag.get_cone_node_ids(id, cut);
             bool no_and               = true;
             size_t xor_count          = 0;
             for (auto const& cone_node_id : cone_node_ids) {
@@ -194,26 +199,6 @@ std::map<XAGNodeID, std::vector<size_t>> calculate_cut_costs(XAG& xag, std::map<
 }  // namespace
 
 namespace qsyn::qcir {
-
-std::set<XAGNodeID> get_cone_node_ids(XAG& xag, XAGNodeID const& node_id, XAGCut const& cut) {
-    std::set<XAGNodeID> cone_node_ids;
-    std::vector<XAGNodeID> stack;
-    stack.push_back(node_id);
-    while (!stack.empty()) {
-        auto const node_id = stack.back();
-        stack.pop_back();
-        for (auto const& fanin_id : xag.get_node(node_id)->fanins) {
-            if (cut.contains(node_id) && !cut.contains(fanin_id)) {
-                continue;
-            }
-            if (!cone_node_ids.contains(fanin_id)) {
-                stack.push_back(fanin_id);
-            }
-        }
-        cone_node_ids.insert(node_id);
-    }
-    return cone_node_ids;
-}
 
 std::pair<std::map<XAGNodeID, XAGCut>, std::map<XAGNodeID, size_t>> k_lut_partition(XAG& xag, const size_t max_cut_size) {
     auto id_to_cuts  = enumerate_cuts(xag, max_cut_size);
@@ -265,6 +250,7 @@ std::pair<std::map<XAGNodeID, XAGCut>, std::map<XAGNodeID, size_t>> k_lut_partit
 void test_k_lut_partition(size_t const max_cut_size, std::istream& input) {
     XAG xag                            = from_xaag(input);
     auto [optimal_cuts, optimal_costs] = k_lut_partition(xag, max_cut_size);
+
     fmt::print("optimal cuts:\n");
     for (auto const& [id, cut] : optimal_cuts) {
         auto const cut_ids = cut | std::views::transform([](auto const& id) { return id.get(); });

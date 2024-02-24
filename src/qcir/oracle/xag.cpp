@@ -10,6 +10,7 @@
 #include <spdlog/spdlog.h>
 
 #include <map>
+#include <queue>
 #include <ranges>
 #include <set>
 
@@ -54,6 +55,31 @@ std::vector<XAGNodeID> XAG::calculate_topological_order() {
     }
 
     return order;
+}
+
+/*
+ * @brief returns the node ids in the cone of the in topological order (top-down)
+ */
+std::vector<XAGNodeID> XAG::get_cone_node_ids(XAGNodeID const& node_id, XAGCut const& cut) {
+    std::set<XAGNodeID> cone_node_ids_set;
+    std::vector<XAGNodeID> cone_node_ids;
+    std::queue<XAGNodeID> queue;
+    queue.push(node_id);
+    while (!queue.empty()) {
+        auto const node_id = queue.front();
+        queue.pop();
+        for (auto const& fanin_id : get_node(node_id)->fanins) {
+            if (cut.contains(node_id) && !cut.contains(fanin_id)) {
+                continue;
+            }
+            if (!cone_node_ids_set.contains(fanin_id)) {
+                queue.push(fanin_id);
+            }
+        }
+        cone_node_ids_set.insert(node_id);
+        cone_node_ids.emplace_back(node_id);
+    }
+    return cone_node_ids;
 }
 
 std::string XAGNode::to_string() const {
@@ -130,6 +156,11 @@ XAG from_xaag(std::istream& input) {
     }
 
     return XAG(nodes, inputs_ids, output_ids);
+}
+
+XAG from_abc_ntk(Abc_Ntk_t* /*pNtk*/) {
+    XAG xag = XAG({}, {}, {});
+    return xag;
 }
 
 }  // namespace qsyn::qcir
