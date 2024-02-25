@@ -152,10 +152,11 @@ XAG from_xaag(std::istream& input) {
     for (auto const& i : std::views::iota(0ul, num_outputs)) {
         size_t out{};
         input >> out;
-        size_t const fanin_id = out >> 1;
-        bool is_inverted      = out & 1;
-        size_t const id       = num_nodes - num_outputs + i;
-        nodes[id]             = XAGNode(XAGNodeID(id), {XAGNodeID(fanin_id)}, {is_inverted}, XAGNodeType::OUTPUT);
+        // size_t const fanin_id = out >> 1;
+        auto fanin_id    = XAGNodeID(out >> 1);
+        bool is_inverted = out & 1;
+        auto id          = XAGNodeID(num_nodes - num_outputs + i);
+        nodes[id.get()]  = XAGNode(id, {fanin_id}, {is_inverted}, XAGNodeType::OUTPUT);
         output_ids.emplace_back(id);
     }
     for ([[maybe_unused]] auto const& _ : std::views::iota(0ul, num_ands)) {
@@ -166,7 +167,12 @@ XAG from_xaag(std::istream& input) {
         auto and_gate_id         = XAGNodeID(and_gate >> 1);
         auto fanin1_id           = XAGNodeID(fanin1 >> 1);
         auto fanin2_id           = XAGNodeID(fanin2 >> 1);
-        nodes[and_gate_id.get()] = XAGNode(and_gate_id, {fanin1_id, fanin2_id}, {false, false}, XAGNodeType::AND);
+        bool fanin1_inverted     = fanin1 & 1;
+        bool fanin2_inverted     = fanin2 & 1;
+        nodes[and_gate_id.get()] = XAGNode(and_gate_id,
+                                           {fanin1_id, fanin2_id},
+                                           {fanin1_inverted, fanin2_inverted},
+                                           XAGNodeType::AND);
     }
     for ([[maybe_unused]] auto const& _ : std::views::iota(0ul, num_xors)) {
         size_t xor_gate{};
@@ -176,7 +182,12 @@ XAG from_xaag(std::istream& input) {
         auto xor_gate_id         = XAGNodeID(xor_gate >> 1);
         auto fanin1_id           = XAGNodeID(fanin1 >> 1);
         auto fanin2_id           = XAGNodeID(fanin2 >> 1);
-        nodes[xor_gate_id.get()] = XAGNode(xor_gate_id, {fanin1_id, fanin2_id}, {false, false}, XAGNodeType::XOR);
+        bool fanin1_inverted     = fanin1 & 1;
+        bool fanin2_inverted     = fanin2 & 1;
+        nodes[xor_gate_id.get()] = XAGNode(xor_gate_id,
+                                           {fanin1_id, fanin2_id},
+                                           {fanin1_inverted, fanin2_inverted},
+                                           XAGNodeType::XOR);
     }
 
     return XAG(nodes, inputs_ids, output_ids);
