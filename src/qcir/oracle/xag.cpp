@@ -7,12 +7,20 @@
 
 #include "./xag.hpp"
 
+#include <aig/aig/aig.h>
+#include <base/abc/abc.h>
 #include <spdlog/spdlog.h>
 
 #include <map>
 #include <queue>
 #include <ranges>
 #include <set>
+
+// TODO: move abc related global variables and functions to a separate file
+extern "C" {
+
+Aig_Man_t* Abc_NtkToDar(Abc_Ntk_t* pNtk, int fExors, int fRegisters);
+}
 
 namespace qsyn::qcir {
 
@@ -83,11 +91,22 @@ std::vector<XAGNodeID> XAG::get_cone_node_ids(XAGNodeID const& node_id, XAGCut c
 }
 
 std::string XAGNode::to_string() const {
+    if (_type == XAGNodeType::VOID) {
+        return fmt::format("XAGNode({} = VOID)", _id.get());
+    }
     if (_type == XAGNodeType::INPUT) {
         return fmt::format("XAGNode({} = INPUT)", _id.get());
     }
+    if (_type == XAGNodeType::OUTPUT) {
+        return fmt::format("XAGNode({} = {}{} = OUTPUT)",
+                           _id.get(),
+                           inverted[0] ? "~" : "",
+                           fanins[0].get());
+    }
     return fmt::format("XAGNode({} = {}{} {} {}{})",
-                       _id.get(), inverted[0] ? "~" : "", fanins[0].get(),
+                       _id.get(),
+                       inverted[0] ? "~" : "",
+                       fanins[0].get(),
                        _type == XAGNodeType::XOR ? "^" : "&",
                        inverted[1] ? "~" : "",
                        fanins[1].get());
@@ -95,14 +114,14 @@ std::string XAGNode::to_string() const {
 
 XAG from_xaag(std::istream& input) {
     std::string header;
-    size_t max_id{};
+    size_t num_nodes{};
     size_t num_inputs{};
     size_t num_latches{};
     size_t num_outputs{};
     size_t num_ands{};
     size_t num_xors{};
 
-    input >> header >> max_id >> num_inputs >> num_latches >> num_outputs >> num_ands >> num_xors;
+    input >> header >> num_nodes >> num_inputs >> num_latches >> num_outputs >> num_ands >> num_xors;
     if (header != "xaag") {
         spdlog::error("from_xaag: expected header \"xaag\", but got \"{}\"", header);
         throw std::runtime_error("from_xaag: expected header \"xaag\", but got \"" + header + "\"");
@@ -112,7 +131,7 @@ XAG from_xaag(std::istream& input) {
         throw std::runtime_error("from_xaag: expected 0 latches, but got " + std::to_string(num_latches));
     }
 
-    std::vector<XAGNode> nodes = std::vector<XAGNode>(max_id, XAGNode(XAGNodeID(0), {}, {}, XAGNodeType::INPUT));
+    std::vector<XAGNode> nodes = std::vector<XAGNode>(num_nodes, XAGNode(XAGNodeID(0), {}, {}, XAGNodeType::VOID));
     std::vector<XAGNodeID> inputs_ids;
     std::vector<XAGNodeID> output_ids;
 
@@ -158,8 +177,51 @@ XAG from_xaag(std::istream& input) {
     return XAG(nodes, inputs_ids, output_ids);
 }
 
-XAG from_abc_ntk(Abc_Ntk_t* /*pNtk*/) {
-    XAG xag = XAG({}, {}, {});
+XAG from_abc_ntk(Abc_Ntk_t* pNtk) {
+    int fExors = 1;
+    auto pAig  = Abc_NtkToDar(pNtk, fExors, 0);
+
+    // constant 1 is a node in abc's aig
+    size_t num_nodes           = Aig_ManObjNum(pAig) - 1;
+    std::vector<XAGNode> nodes = std::vector<XAGNode>(num_nodes, XAGNode(XAGNodeID(-1), {}, {}, XAGNodeType::VOID));
+    std::vector<XAGNodeID> inputs_ids;
+    std::vector<XAGNodeID> output_ids;
+
+    size_t max_id = Aig_ManObjNumMax(pAig);
+
+    std::vector<XAGNodeID> obj_id_to_node_id(max_id, XAGNodeID(-1));
+
+    {
+        size_t node_id_counter = 0;
+        int _{};
+        Aig_Obj_t* pObj{};
+        Aig_ManForEachObj(pAig, pObj, _) {
+            obj_id_to_node_id[Aig_ObjId(pObj)] = XAGNodeID(node_id_counter++);
+        }
+    }
+
+    {
+        int _{};
+        Aig_Obj_t* pObj{};
+        Aig_ManForEachObj(pAig, pObj, _) {
+            auto node_id = obj_id_to_node_id[Aig_ObjId(pObj)];
+            if (Aig_ObjIsNode(pObj)) {
+                nodes[node_id.get()] = XAGNode(node_id,
+                                               {obj_id_to_node_id[Aig_ObjFaninId0(pObj)],
+                                                obj_id_to_node_id[Aig_ObjFaninId1(pObj)]},
+                                               {(bool)Aig_ObjFaninC0(pObj),
+                                                (bool)Aig_ObjFaninC1(pObj)},
+                                               Aig_ObjIsAnd(pObj) ? XAGNodeType::AND : XAGNodeType::XOR);
+            } else if (Aig_ObjIsCi(pObj)) {
+                nodes[node_id.get()] = XAGNode(node_id, {}, {}, XAGNodeType::INPUT);
+                inputs_ids.emplace_back(node_id);
+            } else if (Aig_ObjIsCo(pObj)) {
+                output_ids.emplace_back(obj_id_to_node_id[Aig_ObjFaninId0(pObj)]);
+            }
+        }
+    }
+
+    XAG xag = XAG(nodes, inputs_ids, output_ids);
     return xag;
 }
 
