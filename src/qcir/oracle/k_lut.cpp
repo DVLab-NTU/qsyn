@@ -53,10 +53,11 @@ std::map<XAGNodeID, std::vector<XAGCut>> enumerate_cuts(XAG& xag, const size_t m
     std::map<XAGNodeID, std::vector<XAGCut>> node_id_to_cuts;
     for (auto const id : topological_order) {
         node_id_to_cuts[id] = {{id}};
-        if (xag.get_node(id)->get_type() == XAGNodeType::INPUT) {
+        auto const& node    = xag.get_node(id);
+        if (!node->is_gate()) {
             continue;
         }
-        auto fanins = xag.get_node(id)->fanins;
+        auto fanins = node->fanins;
         for (auto const& cuts0 : node_id_to_cuts[fanins[0]]) {
             for (auto const& cuts1 : node_id_to_cuts[fanins[1]]) {
                 auto cuts = cuts0;
@@ -100,7 +101,10 @@ std::vector<bool> calculate_truth_table(XAG& xag, XAGNodeID const& node_id, XAGC
                 continue;
             }
 
-            auto const node = xag.get_node(id);
+            auto const& node = xag.get_node(id);
+            if (!node->is_gate()) {
+                continue;
+            }
 
             std::vector<bool> inputs;
             for (auto const& [fanin_id, inverted] : zip(node->fanins, node->inverted)) {
@@ -108,18 +112,16 @@ std::vector<bool> calculate_truth_table(XAG& xag, XAGNodeID const& node_id, XAGC
             }
 
             bool result{};
-            if (node->get_type() == XAGNodeType::XOR) {
+            if (node->is_xor()) {
                 result = false;
                 for (auto const& input : inputs) {
                     result ^= input;
                 }
-            } else if (node->get_type() == XAGNodeType::AND) {
+            } else if (node->is_and()) {
                 result = true;
                 for (auto const& input : inputs) {
                     result &= input;
                 }
-            } else if (node->get_type() == XAGNodeType::INPUT) {
-                throw std::runtime_error("cannot calculate truth table for inuput node");
             }
             intermediate_results.insert({id.get(), result});
         }
@@ -180,10 +182,10 @@ std::map<XAGNodeID, std::vector<size_t>> calculate_cut_costs(XAG& xag, std::map<
             bool no_and               = true;
             size_t xor_count          = 0;
             for (auto const& cone_node_id : cone_node_ids) {
-                if (xag.get_node(cone_node_id)->get_type() == XAGNodeType::AND) {
+                if (xag.get_node(cone_node_id)->is_and()) {
                     no_and = false;
                     break;
-                } else if (xag.get_node(cone_node_id)->get_type() == XAGNodeType::XOR) {
+                } else if (xag.get_node(cone_node_id)->is_xor()) {
                     xor_count++;
                 }
             }
@@ -208,7 +210,7 @@ std::pair<std::map<XAGNodeID, XAGCut>, std::map<XAGNodeID, size_t>> k_lut_partit
     std::map<XAGNodeID, size_t> optimal_costs;
     auto topological_order = xag.calculate_topological_order();
     for (auto const id : topological_order) {
-        if (xag.get_node(id)->get_type() == XAGNodeType::INPUT) {
+        if (xag.get_node(id)->is_input()) {
             optimal_cuts[id]  = {id};
             optimal_costs[id] = 0;
             continue;

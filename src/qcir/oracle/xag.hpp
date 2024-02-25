@@ -19,12 +19,11 @@ namespace qsyn::qcir {
 
 // TODO: use output node to represent the output of the circuit
 enum class XAGNodeType {
+    CONST_1,
     INPUT,
     OUTPUT,
     XOR,
     AND,
-    // constant 1
-    ONE,
     VOID,
 };
 
@@ -37,6 +36,12 @@ public:
 
     XAGNodeID get_id() const { return _id; }
     XAGNodeType get_type() const { return _type; }
+    bool is_gate() const { return _type == XAGNodeType::AND || _type == XAGNodeType::XOR; }
+    bool is_and() const { return _type == XAGNodeType::AND; }
+    bool is_xor() const { return _type == XAGNodeType::XOR; }
+    bool is_valid() const { return _type != XAGNodeType::VOID; }
+    bool is_input() const { return _type == XAGNodeType::INPUT || _type == XAGNodeType::CONST_1; }
+    bool is_output() const { return _type == XAGNodeType::OUTPUT; }
     std::string to_string() const;
 
     std::vector<XAGNodeID> fanins;

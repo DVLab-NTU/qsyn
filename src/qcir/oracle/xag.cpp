@@ -97,6 +97,9 @@ std::string XAGNode::to_string() const {
     if (_type == XAGNodeType::INPUT) {
         return fmt::format("XAGNode({} = INPUT)", _id.get());
     }
+    if (_type == XAGNodeType::CONST_1) {
+        return fmt::format("XAGNode({} = CONST_1)", _id.get());
+    }
     if (_type == XAGNodeType::OUTPUT) {
         return fmt::format("XAGNode({} = {}{} = OUTPUT)",
                            _id.get(),
@@ -131,14 +134,16 @@ XAG from_xaag(std::istream& input) {
         throw std::runtime_error("from_xaag: expected 0 latches, but got " + std::to_string(num_latches));
     }
 
-    std::vector<XAGNode> nodes = std::vector<XAGNode>(num_nodes, XAGNode(XAGNodeID(0), {}, {}, XAGNodeType::VOID));
+    std::vector<XAGNode> nodes = std::vector<XAGNode>(num_nodes + 1, XAGNode(XAGNodeID(0), {}, {}, XAGNodeType::VOID));
     std::vector<XAGNodeID> inputs_ids;
     std::vector<XAGNodeID> output_ids;
+
+    nodes[0] = XAGNode(XAGNodeID(0), {}, {}, XAGNodeType::CONST_1);
 
     for ([[maybe_unused]] auto const& _ : std::views::iota(0ul, num_inputs)) {
         size_t in{};
         input >> in;
-        size_t const id = (in >> 1) - 1;
+        size_t const id = in >> 1;
         nodes[id]       = XAGNode(XAGNodeID(id), {}, {}, XAGNodeType::INPUT);
         inputs_ids.emplace_back(id);
     }
@@ -150,7 +155,7 @@ XAG from_xaag(std::istream& input) {
             throw std::runtime_error("from_xaag: only supports positive gate result as output, but got " +
                                      std::to_string(out));
         }
-        size_t const id = (out >> 1) - 1;
+        size_t const id = out >> 1;
         output_ids.emplace_back(id);
     }
     for ([[maybe_unused]] auto const& _ : std::views::iota(0ul, num_ands)) {
@@ -158,9 +163,9 @@ XAG from_xaag(std::istream& input) {
         size_t fanin1{};
         size_t fanin2{};
         input >> and_gate >> fanin1 >> fanin2;
-        auto and_gate_id         = XAGNodeID((and_gate >> 1) - 1);
-        auto fanin1_id           = XAGNodeID((fanin1 >> 1) - 1);
-        auto fanin2_id           = XAGNodeID((fanin2 >> 1) - 1);
+        auto and_gate_id         = XAGNodeID(and_gate >> 1);
+        auto fanin1_id           = XAGNodeID(fanin1 >> 1);
+        auto fanin2_id           = XAGNodeID(fanin2 >> 1);
         nodes[and_gate_id.get()] = XAGNode(and_gate_id, {fanin1_id, fanin2_id}, {false, false}, XAGNodeType::AND);
     }
     for ([[maybe_unused]] auto const& _ : std::views::iota(0ul, num_xors)) {
@@ -168,9 +173,9 @@ XAG from_xaag(std::istream& input) {
         size_t fanin1{};
         size_t fanin2{};
         input >> xor_gate >> fanin1 >> fanin2;
-        auto xor_gate_id         = XAGNodeID((xor_gate >> 1) - 1);
-        auto fanin1_id           = XAGNodeID((fanin1 >> 1) - 1);
-        auto fanin2_id           = XAGNodeID((fanin2 >> 1) - 1);
+        auto xor_gate_id         = XAGNodeID(xor_gate >> 1);
+        auto fanin1_id           = XAGNodeID(fanin1 >> 1);
+        auto fanin2_id           = XAGNodeID(fanin2 >> 1);
         nodes[xor_gate_id.get()] = XAGNode(xor_gate_id, {fanin1_id, fanin2_id}, {false, false}, XAGNodeType::XOR);
     }
 
@@ -181,9 +186,8 @@ XAG from_abc_ntk(Abc_Ntk_t* pNtk) {
     int fExors = 1;
     auto pAig  = Abc_NtkToDar(pNtk, fExors, 0);
 
-    // constant 1 is a node in abc's aig
-    size_t num_nodes           = Aig_ManObjNum(pAig) - 1;
-    std::vector<XAGNode> nodes = std::vector<XAGNode>(num_nodes, XAGNode(XAGNodeID(-1), {}, {}, XAGNodeType::VOID));
+    size_t num_nodes           = Aig_ManObjNum(pAig);
+    std::vector<XAGNode> nodes = std::vector<XAGNode>(num_nodes, XAGNode(XAGNodeID(0), {}, {}, XAGNodeType::VOID));
     std::vector<XAGNodeID> inputs_ids;
     std::vector<XAGNodeID> output_ids;
 
@@ -215,8 +219,15 @@ XAG from_abc_ntk(Abc_Ntk_t* pNtk) {
             } else if (Aig_ObjIsCi(pObj)) {
                 nodes[node_id.get()] = XAGNode(node_id, {}, {}, XAGNodeType::INPUT);
                 inputs_ids.emplace_back(node_id);
+            } else if (Aig_ObjIsConst1(pObj)) {
+                nodes[node_id.get()] = XAGNode(node_id, {}, {}, XAGNodeType::CONST_1);
+                inputs_ids.emplace_back(node_id);
             } else if (Aig_ObjIsCo(pObj)) {
-                output_ids.emplace_back(obj_id_to_node_id[Aig_ObjFaninId0(pObj)]);
+                nodes[node_id.get()] = XAGNode(node_id,
+                                               {obj_id_to_node_id[Aig_ObjFaninId0(pObj)]},
+                                               {(bool)Aig_ObjFaninC0(pObj)},
+                                               XAGNodeType::OUTPUT);
+                output_ids.emplace_back(node_id);
             }
         }
     }
