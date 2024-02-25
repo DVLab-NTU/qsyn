@@ -134,7 +134,9 @@ XAG from_xaag(std::istream& input) {
         throw std::runtime_error("from_xaag: expected 0 latches, but got " + std::to_string(num_latches));
     }
 
-    std::vector<XAGNode> nodes = std::vector<XAGNode>(num_nodes + 1, XAGNode(XAGNodeID(0), {}, {}, XAGNodeType::VOID));
+    // output node is not included in the node list
+    // so we need to add 1 for the constant 1 node
+    std::vector<XAGNode> nodes = std::vector<XAGNode>(num_nodes + num_outputs + 1, XAGNode(XAGNodeID(0), {}, {}, XAGNodeType::VOID));
     std::vector<XAGNodeID> inputs_ids;
     std::vector<XAGNodeID> output_ids;
 
@@ -147,15 +149,13 @@ XAG from_xaag(std::istream& input) {
         nodes[id]       = XAGNode(XAGNodeID(id), {}, {}, XAGNodeType::INPUT);
         inputs_ids.emplace_back(id);
     }
-    for ([[maybe_unused]] auto const& _ : std::views::iota(0ul, num_outputs)) {
+    for (auto const& i : std::views::iota(0ul, num_outputs)) {
         size_t out{};
         input >> out;
-        if (out & 1) {
-            spdlog::error("from_xaag: only supports positive gate result as output, but got {}", out);
-            throw std::runtime_error("from_xaag: only supports positive gate result as output, but got " +
-                                     std::to_string(out));
-        }
-        size_t const id = out >> 1;
+        size_t const fanin_id = out >> 1;
+        bool is_inverted      = out & 1;
+        size_t const id       = num_nodes - num_outputs + i;
+        nodes[id]             = XAGNode(XAGNodeID(id), {XAGNodeID(fanin_id)}, {is_inverted}, XAGNodeType::OUTPUT);
         output_ids.emplace_back(id);
     }
     for ([[maybe_unused]] auto const& _ : std::views::iota(0ul, num_ands)) {
