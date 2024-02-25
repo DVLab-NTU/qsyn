@@ -53,6 +53,8 @@ std::optional<QCir> Optimizer::trivial_optimization(QCir const& qcir) {
             _cancel_double_gate(result, previous_gate, gate);
         } else if (is_single_z_rotation(gate) && is_single_z_rotation(previous_gate)) {
             _fuse_z_phase(result, previous_gate, gate);
+        } else if (is_single_x_rotation(gate) && is_single_x_rotation(previous_gate)) {
+            _fuse_x_phase(result, previous_gate, gate);
         } else if (gate->get_rotation_category() == previous_gate->get_rotation_category()) {
             result.remove_gate(previous_gate->get_id());
         } else {
@@ -91,6 +93,30 @@ std::vector<QCirGate*> Optimizer::_get_first_layer_gates(QCir& qcir, bool from_l
     }
 
     return result;
+}
+
+/**
+ * @brief Fuse the incoming XPhase gate with the last layer in circuit
+ * @param QC: the circuit
+ * @param previousGate: previous gate
+ * @param gate: the incoming gate
+ *
+ * @return modified circuit
+ */
+void Optimizer::_fuse_x_phase(QCir& qcir, QCirGate* prev_gate, QCirGate* gate) {
+    auto const phase = prev_gate->get_phase() + gate->get_phase();
+    if (phase == dvlab::Phase(0)) {
+        qcir.remove_gate(prev_gate->get_id());
+        return;
+    }
+    if (prev_gate->get_rotation_category() == GateRotationCategory::px)
+        prev_gate->set_phase(phase);
+    else {
+        QubitIdList qubit_list;
+        qubit_list.emplace_back(prev_gate->get_targets()._qubit);
+        qcir.remove_gate(prev_gate->get_id());
+        qcir.add_gate("px", qubit_list, phase, true);
+    }
 }
 
 /**
