@@ -466,4 +466,7 @@ void QCir::print_gate_statistics(bool detail) const {
     fmt::println("Others      : {}", fmt_ext::styled_if_ansi_supported(stat.nct, fmt::fg((stat.nct > 0) ? fmt::terminal_color::red : fmt::terminal_color::green) | fmt::emphasis::bold));
 }
 
+void QCir::translate(QCir const& qcir, std::string gate_set) {
+}
+
 }  // namespace qsyn::qcir

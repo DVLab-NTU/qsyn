@@ -156,6 +156,8 @@ public:
 
     void print_gate_statistics(bool detail = false) const;
 
+    void translate(QCir const& qcir, std::string gate_set);
+
     QCirGateStatistics get_gate_statistics() const;
 
     void update_gate_time() const;

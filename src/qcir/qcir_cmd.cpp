@@ -591,6 +591,26 @@ dvlab::Command qcir_adjoint_cmd(QCirMgr& qcir_mgr) {
             }};
 }
 
+dvlab::Command qcir_translate_cmd(QCirMgr& qcir_mgr) {
+    return {
+        "translate",
+        [&](ArgumentParser& parser) {
+            parser.description("translate the circuit into a specific gate set");
+            parser.add_argument<std::string>("gate_set")
+                .help("the specific gate set ('sherbrooke', 'kyiv', 'prague')")
+                .choices(std::initializer_list<std::string>{"sherbrooke", "kyiv", "prague"});
+        },
+        [=, &qcir_mgr](ArgumentParser const& parser) {
+            QCir translated_qcir;
+            auto gate_set = parser.get<std::string>("gate_set");
+            translated_qcir.translate(*qcir_mgr.get(), gate_set);
+            std::string filename = qcir_mgr.get()->get_filename();
+            qcir_mgr.set(std::make_unique<QCir>(std::move(translated_qcir)));
+            qcir_mgr.get()->set_filename(filename);
+            return CmdExecResult::done;
+        }};
+}
+
 Command qcir_cmd(QCirMgr& qcir_mgr) {
     auto cmd = dvlab::utils::mgr_root_cmd(qcir_mgr);
 
@@ -610,6 +630,7 @@ Command qcir_cmd(QCirMgr& qcir_mgr) {
     cmd.add_subcommand(qcir_gate_cmd(qcir_mgr));
     cmd.add_subcommand(qcir_qubit_cmd(qcir_mgr));
     cmd.add_subcommand(qcir_optimize_cmd(qcir_mgr));
+    cmd.add_subcommand(qcir_translate_cmd(qcir_mgr));
     return cmd;
 }
 
