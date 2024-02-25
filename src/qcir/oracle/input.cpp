@@ -46,7 +46,11 @@ Abc_Ntk_t* truth_table_to_ntk(std::istream& input, bool hex) {
     Abc_Ntk_t* pNtk = Abc_NtkCreateWithNodes(vSops);
     Vec_PtrFreeFree(vSops);
 
-    Abc_Ntk_t* ntk = Abc_NtkStrash(pNtk, 0, 0, 0);
+    int fAllNodes  = 0;
+    int fCleanup   = 0;
+    int fRecord    = 0;
+    Abc_Ntk_t* ntk = Abc_NtkStrash(pNtk, fAllNodes, fCleanup, fRecord);
+
     Abc_NtkDelete(pNtk);
     ntk = abc_resyn(ntk, true);
     return ntk;

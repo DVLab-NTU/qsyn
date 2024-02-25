@@ -17,10 +17,15 @@
 
 namespace qsyn::qcir {
 
+// TODO: use output node to represent the output of the circuit
 enum class XAGNodeType {
     INPUT,
+    OUTPUT,
     XOR,
     AND,
+    // constant 1
+    ONE,
+    VOID,
 };
 
 using XAGNodeID = fluent::NamedType<size_t, struct XAGNodeIDTag, fluent::Comparable, fluent::Hashable>;
@@ -63,5 +68,7 @@ private:
 };
 
 XAG from_xaag(std::istream& input);
+
+XAG from_abc_ntk(Abc_Ntk_t* pNtk);
 
 }  // namespace qsyn::qcir
