@@ -120,6 +120,7 @@ private:
     void _cancel_double_gate(QCir& qcir, QCirGate* prev_gate, QCirGate* gate);
     void _fuse_z_phase(QCir& qcir, QCirGate* prev_gate, QCirGate* gate);
     void _fuse_x_phase(QCir& qcir, QCirGate* prev_gate, QCirGate* gate);
+    void _partial_zx_optimization(QCir& qcir);
 };
 
 }  // namespace qsyn::qcir
