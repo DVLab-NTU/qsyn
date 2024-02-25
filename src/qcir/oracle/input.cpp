@@ -34,7 +34,7 @@ Abc_Ntk_t* truth_table_to_ntk(std::istream& input, bool hex) {
     std::string input_string(std::istreambuf_iterator<char>(input), {});
     char* input_cstring = input_string.data();
 
-    Vec_Ptr_t* vSops = nullptr;
+    Vec_Ptr_t* vSops{};
     if (hex) {
         vSops = Abc_SopFromTruthsHex(input_cstring);
     } else {
@@ -46,80 +46,78 @@ Abc_Ntk_t* truth_table_to_ntk(std::istream& input, bool hex) {
     Abc_Ntk_t* pNtk = Abc_NtkCreateWithNodes(vSops);
     Vec_PtrFreeFree(vSops);
 
-    Abc_Ntk_t* res = Abc_NtkStrash(pNtk, 0, 0, 0);
+    Abc_Ntk_t* ntk = Abc_NtkStrash(pNtk, 0, 0, 0);
     Abc_NtkDelete(pNtk);
-    abc_resyn(res);
-    abc_resyn2(res);
-    abc_resyn3(res);
-    return res;
+    ntk = abc_resyn(ntk, true);
+    return ntk;
 }
 
-Abc_Ntk_t* abc_resyn(Abc_Ntk_t* pNtk) {
+Abc_Ntk_t* abc_resyn(Abc_Ntk_t* pNtk, bool consider_xor) {
     if (pNtk == nullptr || !Abc_NtkIsStrash(pNtk)) {
         return nullptr;
     }
     // alias resyn       "b; rw; rwz; b; rwz; b"
     Abc_Ntk_t* ntk = pNtk;
-    ntk            = abc_balance(ntk);
+    ntk            = abc_balance(ntk, consider_xor);
     ntk            = abc_rewrite(ntk);
     ntk            = abc_rewrite(ntk, true);
-    ntk            = abc_balance(ntk);
+    ntk            = abc_balance(ntk, consider_xor);
     ntk            = abc_rewrite(ntk, true);
-    ntk            = abc_balance(ntk);
+    ntk            = abc_balance(ntk, consider_xor);
     return ntk;
 }
 
-Abc_Ntk_t* abc_resyn2(Abc_Ntk_t* pNtk) {
+Abc_Ntk_t* abc_resyn2(Abc_Ntk_t* pNtk, bool consider_xor) {
     if (pNtk == nullptr || !Abc_NtkIsStrash(pNtk)) {
         return nullptr;
     }
     // alias resyn2      "b; rw; rf; b; rw; rwz; b; rfz; rwz; b"
     Abc_Ntk_t* ntk = pNtk;
-    ntk            = abc_balance(ntk);
+    ntk            = abc_balance(ntk, consider_xor);
     ntk            = abc_rewrite(ntk);
     ntk            = abc_refactor(ntk);
-    ntk            = abc_balance(ntk);
+    ntk            = abc_balance(ntk, consider_xor);
     ntk            = abc_rewrite(ntk);
     ntk            = abc_rewrite(ntk, true);
-    ntk            = abc_balance(ntk);
+    ntk            = abc_balance(ntk, consider_xor);
     ntk            = abc_refactor(ntk, true);
     ntk            = abc_rewrite(ntk, true);
-    ntk            = abc_balance(ntk);
+    ntk            = abc_balance(ntk, consider_xor);
     return ntk;
 }
 
-Abc_Ntk_t* abc_resyn2a(Abc_Ntk_t* pNtk) {
+Abc_Ntk_t* abc_resyn2a(Abc_Ntk_t* pNtk, bool consider_xor) {
     if (pNtk == nullptr || !Abc_NtkIsStrash(pNtk)) {
         return nullptr;
     }
     // alias resyn2a     "b; rw; b; rw; rwz; b; rwz; b"
     Abc_Ntk_t* ntk = pNtk;
-    ntk            = abc_balance(ntk);
+    ntk            = abc_balance(ntk, consider_xor);
     ntk            = abc_rewrite(ntk);
-    ntk            = abc_balance(ntk);
+    ntk            = abc_balance(ntk, consider_xor);
     ntk            = abc_rewrite(ntk);
     ntk            = abc_rewrite(ntk, true);
-    ntk            = abc_balance(ntk);
+    ntk            = abc_balance(ntk, consider_xor);
     ntk            = abc_rewrite(ntk, true);
-    ntk            = abc_balance(ntk);
+    ntk            = abc_balance(ntk, consider_xor);
     return ntk;
 }
 
-Abc_Ntk_t* abc_resyn3(Abc_Ntk_t* pNtk) {
+Abc_Ntk_t* abc_resyn3(Abc_Ntk_t* pNtk, bool consider_xor) {
     if (pNtk == nullptr || !Abc_NtkIsStrash(pNtk)) {
         return nullptr;
     }
     // alias resyn3      "b; rs; rs -K 6; b; rsz; rsz -K 6; b; rsz -K 5; b"
     Abc_Ntk_t* ntk = pNtk;
-    ntk            = abc_balance(ntk);
+    ntk            = abc_balance(ntk, consider_xor);
     ntk            = abc_resub(ntk);
     ntk            = abc_resub(ntk, false, 6);
-    ntk            = abc_balance(ntk);
+    ntk            = abc_balance(ntk, consider_xor);
     ntk            = abc_resub(ntk, true);
     ntk            = abc_resub(ntk, true, 6);
-    ntk            = abc_balance(ntk);
+    ntk            = abc_balance(ntk, consider_xor);
     ntk            = abc_resub(ntk, true, 5);
-    ntk            = abc_balance(ntk);
+    ntk            = abc_balance(ntk, consider_xor);
     return ntk;
 }
 
@@ -177,11 +175,20 @@ Abc_Ntk_t* abc_refactor(Abc_Ntk_t* pNtk, bool use_zeros) {
     }
 }
 
-Abc_Ntk_t* abc_balance(Abc_Ntk_t* pNtk) {
+Abc_Ntk_t* abc_balance(Abc_Ntk_t* pNtk, bool consider_xor) {
     if (pNtk == nullptr || !Abc_NtkIsStrash(pNtk)) {
         return nullptr;
     }
-    Abc_Ntk_t* pNtkRes = Abc_NtkBalance(pNtk, 0, 0, 1);
+    int fDuplicate     = 0;
+    int fSelective     = 0;
+    int fUpdateLevel   = 1;
+    int fVerbose       = 0;
+    Abc_Ntk_t* pNtkRes = nullptr;
+    if (consider_xor) {
+        pNtkRes = Abc_NtkBalanceExor(pNtk, fUpdateLevel, fVerbose);
+    } else {
+        pNtkRes = Abc_NtkBalance(pNtk, fDuplicate, fSelective, fUpdateLevel);
+    }
     Abc_NtkDelete(pNtk);
     return pNtkRes;
 }
