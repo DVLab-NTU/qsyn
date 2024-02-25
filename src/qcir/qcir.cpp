@@ -465,6 +465,10 @@ QCirGateStatistics QCir::get_gate_statistics() const {
                     analysis_mcr(g);
                 }
                 break;
+            case GateRotationCategory::ecr:
+                stat.ecr++;
+                stat.twoqubit++;
+                break;
             default:
                 DVLAB_ASSERT(false, fmt::format("Gate {} is not supported!!", g->get_type_str()));
         }
@@ -477,6 +481,7 @@ QCirGateStatistics QCir::get_gate_statistics() const {
             case GRC::id:
             case GRC::h:
             case GRC::swap:
+            case GRC::ecr:
                 return true;
             case GRC::pz:
             case GRC::rz:
