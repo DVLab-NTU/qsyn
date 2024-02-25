@@ -81,6 +81,7 @@ struct QCirGateStatistics {
     size_t cx       = 0;
     size_t ccx      = 0;
     size_t mcry     = 0;
+    size_t ecr      = 0;
 };
 
 class QCir {  // NOLINT(hicpp-special-member-functions, cppcoreguidelines-special-member-functions) : copy-swap idiom
