@@ -106,6 +106,7 @@ public:
         std::swap(_dirty, other._dirty);
         std::swap(_global_dfs_counter, other._global_dfs_counter);
         std::swap(_filename, other._filename);
+        std::swap(_gate_set, other._gate_set);
         std::swap(_procedures, other._procedures);
         std::swap(_qgates, other._qgates);
         std::swap(_qubits, other._qubits);
@@ -126,12 +127,14 @@ public:
     QCirQubit* get_qubit(QubitIdType qid) const;
     std::string get_filename() const { return _filename; }
     std::vector<std::string> const& get_procedures() const { return _procedures; }
+    std::string get_gate_set() const { return _gate_set; }
 
     bool is_empty() const { return _qubits.empty() || _qgates.empty(); }
 
     void set_filename(std::string f) { _filename = std::move(f); }
     void add_procedures(std::vector<std::string> const& ps) { _procedures.insert(_procedures.end(), ps.begin(), ps.end()); }
     void add_procedure(std::string const& p) { _procedures.emplace_back(p); }
+    void set_gate_set(std::string g) { _gate_set = std::move(g); }
 
     void reset();
     QCir* compose(QCir const& other);
@@ -157,7 +160,7 @@ public:
 
     void print_gate_statistics(bool detail = false) const;
 
-    void translate(QCir const& qcir, std::string gate_set);
+    void translate(QCir const& qcir, std::string const& gate_set);
 
     QCirGateStatistics get_gate_statistics() const;
 
@@ -202,6 +205,7 @@ private:
     bool mutable _dirty                               = true;
     unsigned mutable _global_dfs_counter              = 0;
     std::string _filename                             = "";
+    std::string _gate_set                             = "";
     std::vector<std::string> _procedures              = {};
     std::vector<QCirGate*> _qgates                    = {};
     std::vector<QCirQubit*> _qubits                   = {};
