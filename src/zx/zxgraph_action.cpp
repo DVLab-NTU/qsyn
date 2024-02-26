@@ -5,6 +5,8 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
+#include <fmt/core.h>
+
 #include <cstddef>
 #include <gsl/narrow>
 #include <queue>
@@ -237,46 +239,65 @@ std::unordered_map<size_t, ZXVertex*> ZXGraph::create_id_to_vertex_map() const {
  * @brief Rearrange vertices on each qubit so that each vertex can be seperated in the printed graph.
  *
  */
-void ZXGraph::adjustVertexCoordinates() {
+void ZXGraph::adjust_vertex_coordinates() {
     // FIXME - QubitId -> RowId
     std::unordered_map<QubitIdType, std::vector<ZXVertex*>> qubit_id_to_vertices_map;
     std::unordered_set<QubitIdType> visited_qubit_ids;
-    std::queue<ZXVertex*> vertex_queue;
+    std::vector<ZXVertex*> vertex_queue;
     // NOTE - Check Gadgets
     // FIXME - When replacing QubitId with RowId, add 0.5 on it
-    for (auto const& i : _vertices) {
-        if (i->get_qubit() == -2 && get_num_neighbors(i) > 1) {
-            std::unordered_map<QubitIdType, size_t> num_neighbor_qubits;
-            for (auto const& [nb, _] : get_neighbors(i)) {
-                if (num_neighbor_qubits.contains(nb->get_qubit())) {
-                    num_neighbor_qubits[nb->get_qubit()]++;
-                    fmt::println("add qb: {}", nb->get_qubit());
-                } else
-                    num_neighbor_qubits[nb->get_qubit()] = 1;
-            }
-            fmt::println("move to {}", (*max_element(num_neighbor_qubits.begin(), num_neighbor_qubits.end(), [](const std::pair<QubitIdType, size_t>& p1, const std::pair<QubitIdType, size_t>& p2) { return p1.second < p2.second; })).first);
-            i->set_qubit((*max_element(num_neighbor_qubits.begin(), num_neighbor_qubits.end(), [](const std::pair<QubitIdType, size_t>& p1, const std::pair<QubitIdType, size_t>& p2) { return p1.second < p2.second; })).first);
-        }
-    }
+
+    // REVIEW - Whether to move the vertex from row -2 when it is no longer a gadget
+    // for (auto const& i : _vertices) {
+    //     if (i->get_qubit() == -2 && get_num_neighbors(i) > 1) {
+    //         std::unordered_map<QubitIdType, size_t> num_neighbor_qubits;
+    //         for (auto const& [nb, _] : get_neighbors(i)) {
+    //             if (num_neighbor_qubits.contains(nb->get_qubit())) {
+    //                 num_neighbor_qubits[nb->get_qubit()]++;
+    //             } else
+    //                 num_neighbor_qubits[nb->get_qubit()] = 1;
+    //         }
+    //         // fmt::println("move to {}", (*max_element(num_neighbor_qubits.begin(), num_neighbor_qubits.end(), [](const std::pair<QubitIdType, size_t>& p1, const std::pair<QubitIdType, size_t>& p2) { return p1.second < p2.second; })).first);
+    //         i->set_qubit((*max_element(num_neighbor_qubits.begin(), num_neighbor_qubits.end(), [](const std::pair<QubitIdType, size_t>& p1, const std::pair<QubitIdType, size_t>& p2) { return p1.second < p2.second; })).first);
+    //     }
+    // }
 
     for (auto const& i : _inputs) {
-        vertex_queue.push(i);
+        vertex_queue.emplace_back(i);
         visited_qubit_ids.insert(gsl::narrow<QubitIdType>(i->get_id()));
     }
     while (!vertex_queue.empty()) {
         ZXVertex* v = vertex_queue.front();
-        vertex_queue.pop();
+        vertex_queue.erase(vertex_queue.begin());
         qubit_id_to_vertices_map[v->get_qubit()].emplace_back(v);
         for (auto const& nb : get_neighbors(v) | std::views::keys) {
             if (visited_qubit_ids.find(gsl::narrow<QubitIdType>(nb->get_id())) == visited_qubit_ids.end()) {
-                vertex_queue.push(nb);
+                vertex_queue.emplace_back(nb);
                 visited_qubit_ids.insert(gsl::narrow<QubitIdType>(nb->get_id()));
             }
         }
     }
+    std::vector<ZXVertex*> gadgets;
+    double non_gadget = 0;
+    for (size_t i = 0; i < qubit_id_to_vertices_map[-2].size(); i++) {
+        if (get_num_neighbors(qubit_id_to_vertices_map[-2][i]) == 1) {  // Not Gadgets
+            gadgets.emplace_back(qubit_id_to_vertices_map[-2][i]);
+        } else
+            non_gadget++;
+    }
+    auto end_it = std::remove_if(
+        qubit_id_to_vertices_map[-2].begin(),
+        qubit_id_to_vertices_map[-2].end(),
+        [this](ZXVertex* v) {
+            return this->get_num_neighbors(v) == 1;
+        });
+    qubit_id_to_vertices_map[-2].erase(end_it, qubit_id_to_vertices_map[-2].end());
+
+    qubit_id_to_vertices_map[-2].insert(qubit_id_to_vertices_map[-2].end(), gadgets.begin(), gadgets.end());
     double max_col = 0.0;
     for (auto& i : qubit_id_to_vertices_map) {
-        double col = i.first < 0 ? 0.5 : 0.0;
+        double col = i.first == -2 ? 0.5 : i.first == -1 ? 0.5 + non_gadget
+                                                         : 0.0;
         for (auto& v : i.second) {
             v->set_col(col);
             col++;

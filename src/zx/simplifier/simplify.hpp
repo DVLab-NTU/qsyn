@@ -25,7 +25,8 @@ public:
         hadamard_rule_simp();
     }
     ~Simplifier() {
-        _simp_graph->adjustVertexCoordinates();
+        // REVIEW - Whether to adjust
+        // _simp_graph->adjust_vertex_coordinates();
     }
     Simplifier(Simplifier const& other)            = default;
     Simplifier(Simplifier&& other)                 = default;
