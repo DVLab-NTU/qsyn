@@ -264,4 +264,224 @@ void test_k_lut_partition(size_t const max_cut_size, std::istream& input) {
     }
 }
 
+size_t LUTEntryHash::operator()(const LUTEntry& entry) const {
+    auto const& [xag, node_id, cut] = entry;
+    auto node                       = xag->get_node(node_id);
+    auto node_type_hash             = std::hash<XAGNodeType>{};
+    auto hash_node                  = [&node_type_hash, &xag = xag](XAGNodeID const& node_id) {
+        return node_type_hash(xag->get_node(node_id)->get_type());
+    };
+
+    size_t hash = hash_node(node_id);
+
+    if (cut.contains(node_id)) {
+        return hash;
+    }
+
+    for (auto const& [id, inverted] : zip(node->fanins, node->inverted)) {
+        if (inverted) {
+            hash ^= (~(operator()({xag, id, cut}) << 1)) * seed;
+        } else {
+            hash ^= operator()({xag, id, cut}) * seed;
+        }
+    }
+
+    return hash;
+}
+
+// only use when the hash is equal
+// in which case the LUTEntry should be equal
+bool LUTEntryEqual::operator()(const LUTEntry& /*lhs*/, const LUTEntry& /*rhs*/) const {
+    return true;
+}
+
+QCir build_qcir_3(
+    XAGNodeType const& top_type,
+    std::pair<bool, bool> const& top_inverted,
+    XAGNodeType const& bottom_type,
+    std::pair<bool, bool> const& bottom_inverted) {
+    auto qcir                                   = QCir(4);
+    auto [top_inverted_1, top_inverted_2]       = top_inverted;
+    auto [bottom_inverted_1, bottom_inverted_2] = bottom_inverted;
+
+    if (bottom_inverted_1) {
+        qcir.add_gate("x", {0}, {}, true);
+    }
+    if (bottom_inverted_2) {
+        qcir.add_gate("x", {1}, {}, true);
+    }
+    if (top_inverted_2) {
+        qcir.add_gate("x", {2}, {}, true);
+    }
+
+    if (top_type == XAGNodeType::XOR && bottom_type == XAGNodeType::XOR) {
+        qcir.add_gate("cx", {0, 3}, {}, true);
+        qcir.add_gate("cx", {1, 3}, {}, true);
+        qcir.add_gate("cx", {2, 3}, {}, true);
+        if (top_inverted_1) {
+            qcir.add_gate("x", {3}, {}, true);
+        }
+    } else if (top_type == XAGNodeType::XOR && bottom_type == XAGNodeType::AND) {
+        qcir.add_gate("ccx", {0, 1, 3}, {}, true);
+        qcir.add_gate("cx", {2, 3}, {}, true);
+        if (top_inverted_1) {
+            qcir.add_gate("x", {3}, {}, true);
+        }
+    } else if (top_type == XAGNodeType::AND && bottom_type == XAGNodeType::XOR) {
+        qcir.add_gate("cx", {0, 1}, {}, true);
+        if (top_inverted_1) {
+            qcir.add_gate("x", {3}, {}, true);
+        }
+        qcir.add_gate("ccx", {1, 2, 3}, {}, true);
+        if (top_inverted_1) {
+            qcir.add_gate("x", {3}, {}, true);
+        }
+        qcir.add_gate("cx", {0, 1}, {}, true);
+    } else if (top_type == XAGNodeType::AND && bottom_type == XAGNodeType::AND) {
+        // from qiskit
+        //
+        //      ┌────────┐
+        // q_0: ┤ P(π/8) ├────■──────────────────■────────────────────■──────────────────────────────■───────────────────────────────────────────────────■─────────────────────────────────────────────────────────────■───────
+        //      ├────────┤  ┌─┴─┐   ┌─────────┐┌─┴─┐                  │                              │                                                   │                                                             │
+        // q_1: ┤ P(π/8) ├──┤ X ├───┤ P(-π/8) ├┤ X ├──■───────────────┼──────────────■───────────────┼────────────────────■──────────────────────────────┼──────────────────────────────■──────────────────────────────┼───────
+        //      ├────────┤  └───┘   └─────────┘└───┘┌─┴─┐┌─────────┐┌─┴─┐┌────────┐┌─┴─┐┌─────────┐┌─┴─┐                  │                              │                              │                              │
+        // q_2: ┤ P(π/8) ├──────────────────────────┤ X ├┤ P(-π/8) ├┤ X ├┤ P(π/8) ├┤ X ├┤ P(-π/8) ├┤ X ├──■───────────────┼──────────────■───────────────┼──────────────■───────────────┼──────────────■───────────────┼───────
+        //      └─┬───┬──┘┌────────┐                └───┘└─────────┘└───┘└────────┘└───┘└─────────┘└───┘┌─┴─┐┌─────────┐┌─┴─┐┌────────┐┌─┴─┐┌─────────┐┌─┴─┐┌────────┐┌─┴─┐┌─────────┐┌─┴─┐┌────────┐┌─┴─┐┌─────────┐┌─┴─┐┌───┐
+        // q_3: ──┤ H ├───┤ P(π/8) ├────────────────────────────────────────────────────────────────────┤ X ├┤ P(-π/8) ├┤ X ├┤ P(π/8) ├┤ X ├┤ P(-π/8) ├┤ X ├┤ P(π/8) ├┤ X ├┤ P(-π/8) ├┤ X ├┤ P(π/8) ├┤ X ├┤ P(-π/8) ├┤ X ├┤ H ├
+        //        └───┘   └────────┘                                                                    └───┘└─────────┘└───┘└────────┘└───┘└─────────┘└───┘└────────┘└───┘└─────────┘└───┘└────────┘└───┘└─────────┘└───┘└───┘
+        qcir.add_gate("t", {0}, {}, true);
+        qcir.add_gate("t", {1}, {}, true);
+        qcir.add_gate("t", {2}, {}, true);
+        qcir.add_gate("h", {3}, {}, true);
+
+        qcir.add_gate("cx", {0, 1}, {}, true);
+        qcir.add_gate("t", {3}, {}, true);
+
+        qcir.add_gate("tdg", {1}, {}, true);
+        qcir.add_gate("cx", {0, 1}, {}, true);
+
+        // ================================
+        qcir.add_gate("cx", {1, 2}, {}, true);
+        qcir.add_gate("tdg", {2}, {}, true);
+        qcir.add_gate("cx", {0, 2}, {}, true);
+
+        qcir.add_gate("t", {2}, {}, true);
+
+        qcir.add_gate("cx", {1, 2}, {}, true);
+        qcir.add_gate("tdg", {2}, {}, true);
+        qcir.add_gate("cx", {0, 2}, {}, true);
+
+        // ================================
+        qcir.add_gate("cx", {2, 3}, {}, true);
+        qcir.add_gate("tdg", {3}, {}, true);
+        qcir.add_gate("cx", {1, 3}, {}, true);
+        qcir.add_gate("t", {3}, {}, true);
+        qcir.add_gate("cx", {2, 3}, {}, true);
+        qcir.add_gate("tdg", {3}, {}, true);
+        qcir.add_gate("cx", {0, 3}, {}, true);
+
+        qcir.add_gate("t", {3}, {}, true);
+
+        qcir.add_gate("cx", {2, 3}, {}, true);
+        qcir.add_gate("tdg", {3}, {}, true);
+        qcir.add_gate("cx", {1, 3}, {}, true);
+        qcir.add_gate("t", {3}, {}, true);
+        qcir.add_gate("cx", {2, 3}, {}, true);
+        qcir.add_gate("tdg", {3}, {}, true);
+        qcir.add_gate("cx", {0, 3}, {}, true);
+
+        // ================================
+        qcir.add_gate("h", {3}, {}, true);
+
+        // !(a & b) & c = (a & b & c) ^ c
+        if (top_inverted_1) {
+            qcir.add_gate("cx", {2, 3}, {}, true);
+        }
+    }
+
+    if (bottom_inverted_1) {
+        qcir.add_gate("x", {0}, {}, true);
+    }
+    if (bottom_inverted_2) {
+        qcir.add_gate("x", {1}, {}, true);
+    }
+    if (top_inverted_2) {
+        qcir.add_gate("x", {2}, {}, true);
+    }
+
+    return qcir;
+}
+
+// (4)
+//  ├───┐
+// (3)  └───┐
+//  ├───┐   │
+// (0) (1) (2)
+LUT build_lut_3() {
+    LUT lut{};
+
+    auto input_nodes = std::vector<XAGNode>{
+        XAGNode{XAGNodeID{0}, {}, {}, XAGNodeType::INPUT},
+        XAGNode{XAGNodeID{1}, {}, {}, XAGNodeType::INPUT},
+        XAGNode{XAGNodeID{2}, {}, {}, XAGNodeType::INPUT},
+    };
+
+    for (size_t const& top_i : iota(0, 8)) {
+        bool top_inverted_1 = (top_i & 1) == 1;
+        bool top_inverted_2 = (top_i & 2) == 2;
+        auto top_type       = top_i & 4 ? XAGNodeType::XOR : XAGNodeType::AND;
+
+        auto top_node = XAGNode{XAGNodeID{4},
+                                {XAGNodeID{3}, XAGNodeID{2}},
+                                {top_inverted_1, top_inverted_2},
+                                top_type};
+
+        for (size_t const& bottom_i : iota(0, 8)) {
+            bool bottom_inverted_1 = (bottom_i & 1) == 1;
+            bool bottom_inverted_2 = (bottom_i & 2) == 2;
+            auto bottom_type       = bottom_i & 4 ? XAGNodeType::XOR : XAGNodeType::AND;
+
+            auto bottom_node = XAGNode{
+                XAGNodeID{3},
+                {XAGNodeID{0}, XAGNodeID{1}},
+                {bottom_inverted_1, bottom_inverted_2},
+                bottom_type};
+
+            auto xag = XAG(
+                {
+                    input_nodes[0],
+                    input_nodes[1],
+                    input_nodes[2],
+                    bottom_node,
+                    top_node,
+                },
+                {XAGNodeID(0), XAGNodeID(1), XAGNodeID(2)},
+                {top_node.get_id()});
+
+            auto qcir = build_qcir_3(top_type,
+                                     {top_inverted_1, top_inverted_2},
+                                     bottom_type,
+                                     {bottom_inverted_1, bottom_inverted_2});
+
+            lut[{
+                &xag,
+                top_node.get_id(),
+                {XAGNodeID(0),
+                 XAGNodeID(1),
+                 XAGNodeID(2)}}] = qcir;
+        };
+    }
+
+    return lut;
+}
+
+LUT build_lut(size_t const k) {
+    switch (k) {
+        case 3:
+            return build_lut_3();
+        default:
+            throw std::runtime_error("k-LUT partitioning not implemented for k=" + std::to_string(k));
+    }
+}
+
 }  // namespace qsyn::qcir

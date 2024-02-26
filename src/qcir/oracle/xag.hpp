@@ -45,6 +45,7 @@ public:
     std::string to_string() const;
 
     std::vector<XAGNodeID> fanins;
+    // fan in inverted
     std::vector<bool> inverted;
     std::vector<XAGNodeID> fanouts;
 
