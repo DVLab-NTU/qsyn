@@ -254,6 +254,7 @@ Command zxgraph_draw_cmd(ZXGraphMgr const& zxgraph_mgr) {
             [&](ArgumentParser const& parser) {
                 if (!dvlab::utils::mgr_has_data(zxgraph_mgr)) return CmdExecResult::error;
                 if (parser.parsed("filepath")) {
+                    zxgraph_mgr.get()->adjust_vertex_coordinates();
                     if (!zxgraph_mgr.get()->write_pdf(parser.get<std::string>("filepath"))) return CmdExecResult::error;
                 }
                 if (parser.parsed("-cli")) {
