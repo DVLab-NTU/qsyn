@@ -7,12 +7,12 @@
 
 #pragma once
 
-#include <bits/iterator_concepts.h>
 #include <fmt/core.h>
 
 #include <algorithm>
 #include <csignal>
 #include <initializer_list>
+#include <iterator>
 #include <optional>
 #include <ranges>
 #include <sul/dynamic_bitset.hpp>
@@ -144,6 +144,7 @@ public:
             case CliffordOperatorType::swap:
                 return swap(qubits[0], qubits[1]);
         }
+        DVLAB_UNREACHABLE("Every Clifford type should be handled in the switch-case");
     }
 
     inline T& apply(CliffordOperatorString const& ops) {

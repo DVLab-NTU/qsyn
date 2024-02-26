@@ -491,6 +491,7 @@ QCirGateStatistics QCir::get_gate_statistics() const {
                     return false;
                 }
         }
+        DVLAB_UNREACHABLE("Every rotation category should be handled in the switch-case");
     };
 
     std::unordered_set<QCirGate *> not_final, not_initial;

@@ -57,6 +57,7 @@ std::string to_string(CliffordOperatorType type) {
         case CliffordOperatorType::swap:
             return "swap";
     }
+    DVLAB_UNREACHABLE("Every Clifford type should be handled in the switch-case");
 }
 
 uint8_t power_of_i(Pauli a, Pauli b) {

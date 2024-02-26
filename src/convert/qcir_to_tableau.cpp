@@ -7,10 +7,9 @@
 
 #include "./qcir_to_tableau.hpp"
 
-#include <bits/iterator_concepts.h>
-#include <bits/ranges_base.h>
-
 #include <gsl/narrow>
+#include <iterator>
+#include <ranges>
 #include <tl/adjacent.hpp>
 #include <tl/to.hpp>
 

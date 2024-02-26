@@ -7,8 +7,6 @@
 
 #include "./stabilizer_tableau.hpp"
 
-#include <bits/ranges_algo.h>
-
 #include <ranges>
 #include <tl/to.hpp>
 
@@ -135,6 +133,7 @@ StabilizerTableau& StabilizerTableau::prepend(CliffordOperator const& op) {
         case CliffordOperatorType::swap:
             return prepend_swap(qubits[0], qubits[1]);
     }
+    DVLAB_UNREACHABLE("Every Clifford type should be handled in the switch-case");
 }
 
 StabilizerTableau& StabilizerTableau::prepend(CliffordOperatorString const& ops) {

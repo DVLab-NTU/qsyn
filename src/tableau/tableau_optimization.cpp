@@ -6,11 +6,11 @@
 
 #include "./tableau_optimization.hpp"
 
-#include <bits/ranges_algo.h>
 #include <fmt/core.h>
 
 #include <functional>
 #include <gsl/narrow>
+#include <ranges>
 #include <tl/adjacent.hpp>
 #include <tl/to.hpp>
 
