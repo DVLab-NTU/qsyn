@@ -154,6 +154,10 @@ bool GFlow::calculate() {
         _levels[level].erase(v);
         _levels.back().insert(v);
     }
+
+    for (auto& lvl : _levels) {
+        lvl.sort([](ZXVertex* a, ZXVertex* b) { return a->get_id() < b->get_id(); });
+    }
     return _valid;
 }
 
