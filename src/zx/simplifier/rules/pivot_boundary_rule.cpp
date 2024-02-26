@@ -6,6 +6,7 @@
 ****************************************************************************/
 
 #include "./zx_rules_template.hpp"
+#include "zx/zxgraph.hpp"
 
 using namespace qsyn::zx;
 
@@ -82,4 +83,39 @@ void PivotBoundaryRule::apply(ZXGraph& graph, std::vector<MatchType> const& matc
     }
 
     PivotRuleInterface::apply(graph, matches);
+}
+
+bool PivotBoundaryRule::is_candidate(ZXGraph& graph, ZXVertex* vb, ZXVertex* vn) {
+    if (!graph.is_graph_like()) {
+        spdlog::error("The graph is not graph like!");
+        return false;
+    }
+    if (!vb->is_z()) {
+        spdlog::error("Vertex {} is not a Z vertex", vb->get_id());
+        return false;
+    }
+    bool has_boundary = false;
+    for (const auto& [nb, etype] : graph.get_neighbors(vb)) {
+        if (nb->is_boundary()) {
+            has_boundary = true;
+            break;
+        }
+    }
+    if (!has_boundary) {
+        spdlog::error("Vertex {} is not connected to a boundary", vb->get_id());
+        return false;
+    }
+    if (!vn->has_n_pi_phase()) {
+        spdlog::error("Vertex {} is not a Z vertex with phase n π", vn->get_id());
+        return false;
+    }
+    if (!graph.is_neighbor(vb, vn)) {
+        spdlog::error("Vertices {} and {} are not connected", vb->get_id(), vn->get_id());
+        return false;
+    }
+    // if (graph.has_dangling_neighbors(vn)) {
+    //     spdlog::error("Vertex {} is the axel of a phase gadget", vn->get_id());
+    //     return false;
+    // }
+    return true;
 }

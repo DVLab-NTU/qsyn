@@ -172,6 +172,7 @@ public:
 
     std::vector<MatchType> find_matches(ZXGraph const& graph) const override;
     void apply(ZXGraph& graph, std::vector<MatchType> const& matches) const override;
+    bool is_candidate(ZXGraph& graph, ZXVertex* v0, ZXVertex* v1);
 };
 
 class SpiderFusionRule : public ZXRuleTemplate<std::pair<ZXVertex*, ZXVertex*>> {
