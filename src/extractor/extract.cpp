@@ -382,6 +382,7 @@ bool Extractor::remove_gadget(bool check) {
         }
         for (auto& [candidate, _] : _graph->get_neighbors(n)) {
             if (_frontier.contains(candidate)) {
+                auto const qubit = candidate->get_qubit();
                 _axels.erase(n);
                 _frontier.erase(candidate);
 
@@ -396,6 +397,8 @@ bool Extractor::remove_gadget(bool check) {
                 PivotBoundaryRule().apply(*_graph, {{candidate, n}});
 
                 assert(target_boundary != nullptr);
+                auto new_frontier = _graph->get_first_neighbor(target_boundary).first;
+                new_frontier->set_qubit(qubit);
                 _frontier.emplace(_graph->get_first_neighbor(target_boundary).first);
                 // REVIEW - qubit_map
                 removed_some_gadgets = true;

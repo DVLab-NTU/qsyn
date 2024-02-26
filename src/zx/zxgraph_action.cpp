@@ -10,6 +10,7 @@
 #include <cstddef>
 #include <gsl/narrow>
 #include <queue>
+#include <tl/zip.hpp>
 
 #include "./zx_def.hpp"
 #include "./zxgraph.hpp"
@@ -52,7 +53,14 @@ void ZXGraph::toggle_vertex(ZXVertex* v) {
  */
 void ZXGraph::lift_qubit(int n) {
     for (auto const& v : _vertices) {
-        v->set_qubit(v->get_qubit() + n);
+        v->set_row(v->get_row() + static_cast<float>(n));
+    }
+
+    for (auto const& i : _inputs) {
+        i->set_qubit(i->get_qubit() + n);
+    }
+    for (auto const& o : _outputs) {
+        o->set_qubit(o->get_qubit() + n);
     }
 
     std::unordered_map<size_t, ZXVertex*> new_input_list, new_output_list;
@@ -205,8 +213,8 @@ void ZXGraph::add_gadget(Phase p, std::vector<ZXVertex*> const& vertices) {
         if (vertices[i]->get_type() == VertexType::boundary || vertices[i]->get_type() == VertexType::h_box) return;
     }
 
-    ZXVertex* axel = add_vertex(-1, VertexType::z, Phase(0));
-    ZXVertex* leaf = add_vertex(-2, VertexType::z, p);
+    ZXVertex* axel = add_vertex(VertexType::z, Phase(0), -1);
+    ZXVertex* leaf = add_vertex(VertexType::z, p, -2);
 
     add_edge(axel, leaf, EdgeType::hadamard);
     for (auto const& v : vertices) add_edge(v, axel, EdgeType::hadamard);
@@ -241,8 +249,8 @@ std::unordered_map<size_t, ZXVertex*> ZXGraph::create_id_to_vertex_map() const {
  */
 void ZXGraph::adjust_vertex_coordinates() {
     // FIXME - QubitId -> RowId
-    std::unordered_map<QubitIdType, std::vector<ZXVertex*>> qubit_id_to_vertices_map;
-    std::unordered_set<QubitIdType> visited_qubit_ids;
+    std::unordered_map<float, std::vector<ZXVertex*>> row_to_vertices_map;
+    std::unordered_set<QubitIdType> visited_rows;
     std::vector<ZXVertex*> vertex_queue;
     // NOTE - Check Gadgets
     // FIXME - When replacing QubitId with RowId, add 0.5 on it
@@ -264,47 +272,51 @@ void ZXGraph::adjust_vertex_coordinates() {
 
     for (auto const& i : _inputs) {
         vertex_queue.emplace_back(i);
-        visited_qubit_ids.insert(gsl::narrow<QubitIdType>(i->get_id()));
+        visited_rows.insert(gsl::narrow<QubitIdType>(i->get_id()));
     }
     while (!vertex_queue.empty()) {
         ZXVertex* v = vertex_queue.front();
         vertex_queue.erase(vertex_queue.begin());
-        qubit_id_to_vertices_map[v->get_qubit()].emplace_back(v);
+        row_to_vertices_map[v->get_row()].emplace_back(v);
         for (auto const& nb : get_neighbors(v) | std::views::keys) {
-            if (visited_qubit_ids.find(gsl::narrow<QubitIdType>(nb->get_id())) == visited_qubit_ids.end()) {
+            if (visited_rows.find(gsl::narrow<QubitIdType>(nb->get_id())) == visited_rows.end()) {
                 vertex_queue.emplace_back(nb);
-                visited_qubit_ids.insert(gsl::narrow<QubitIdType>(nb->get_id()));
+                visited_rows.insert(gsl::narrow<QubitIdType>(nb->get_id()));
             }
         }
     }
     std::vector<ZXVertex*> gadgets;
-    double non_gadget = 0;
-    for (size_t i = 0; i < qubit_id_to_vertices_map[-2].size(); i++) {
-        if (get_num_neighbors(qubit_id_to_vertices_map[-2][i]) == 1) {  // Not Gadgets
-            gadgets.emplace_back(qubit_id_to_vertices_map[-2][i]);
+    float non_gadget = 0;
+    for (size_t i = 0; i < row_to_vertices_map[-2].size(); i++) {
+        if (get_num_neighbors(row_to_vertices_map[-2][i]) == 1) {  // Not Gadgets
+            gadgets.emplace_back(row_to_vertices_map[-2][i]);
         } else
             non_gadget++;
     }
-    auto end_it = std::remove_if(
-        qubit_id_to_vertices_map[-2].begin(),
-        qubit_id_to_vertices_map[-2].end(),
-        [this](ZXVertex* v) {
-            return this->get_num_neighbors(v) == 1;
-        });
-    qubit_id_to_vertices_map[-2].erase(end_it, qubit_id_to_vertices_map[-2].end());
+    std::erase_if(row_to_vertices_map[-2], [this](ZXVertex* v) { return this->get_num_neighbors(v) == 1; });
 
-    qubit_id_to_vertices_map[-2].insert(qubit_id_to_vertices_map[-2].end(), gadgets.begin(), gadgets.end());
-    double max_col = 0.0;
-    for (auto& i : qubit_id_to_vertices_map) {
-        double col = i.first == -2 ? 0.5 : i.first == -1 ? 0.5 + non_gadget
-                                                         : 0.0;
-        for (auto& v : i.second) {
+    row_to_vertices_map[-2].insert(row_to_vertices_map[-2].end(), gadgets.begin(), gadgets.end());
+
+    for (auto const& [qid, vertices] : row_to_vertices_map) {
+        auto col = std::invoke([qid = qid, non_gadget]() -> float {
+            if (qid == -2) return 0.5;
+            if (qid == -1) return 0.5f + non_gadget;
+            return 0.0f;
+        });
+        for (auto const& v : vertices) {
             v->set_col(col);
             col++;
         }
-        col--;
-        max_col = std::max(max_col, std::ceil(col));
     }
+
+    auto const max_col = std::ceil(
+        std::ranges::max(
+            row_to_vertices_map |
+            std::views::values |
+            std::views::transform([](std::vector<ZXVertex*> const& v) {
+                return std::ranges::max(v | std::views::transform([](ZXVertex* v) { return v->get_col(); }));
+            })));
+
     for (auto& o : _outputs) o->set_col(max_col);
 }
 

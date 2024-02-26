@@ -67,7 +67,7 @@ void StateCopyRule::apply(ZXGraph& graph, std::vector<MatchType> const& matches)
         op.vertices_to_remove.emplace_back(a);
         for (auto neighbor : neighbors) {
             if (neighbor->get_type() == VertexType::boundary) {
-                ZXVertex* const new_v     = graph.add_vertex(neighbor->get_qubit(), VertexType::z, npi->get_phase());
+                ZXVertex* const new_v     = graph.add_vertex(VertexType::z, npi->get_phase(), neighbor->get_row(), (neighbor->get_col() + a->get_col()) / 2);
                 auto const is_simple_edge = graph.get_first_neighbor(neighbor).second == EdgeType::simple;
 
                 op.edges_to_remove.emplace_back(std::make_pair(a, neighbor), graph.get_first_neighbor(neighbor).second);
@@ -77,8 +77,6 @@ void StateCopyRule::apply(ZXGraph& graph, std::vector<MatchType> const& matches)
 
                 // a to new
                 op.edges_to_add.emplace_back(std::make_pair(a, new_v), EdgeType::hadamard);
-
-                new_v->set_col((neighbor->get_col() + a->get_col()) / 2);
 
             } else {
                 neighbor->set_phase(npi->get_phase() + neighbor->get_phase());

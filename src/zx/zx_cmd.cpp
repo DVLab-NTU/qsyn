@@ -246,20 +246,12 @@ Command zxgraph_draw_cmd(ZXGraphMgr const& zxgraph_mgr) {
                     .constraint(path_writable)
                     .constraint(allowed_extension({".pdf"}))
                     .help("the output path. Supported extension: .pdf");
-
-                parser.add_argument<bool>("-cli")
-                    .action(store_true)
-                    .help("print to the terminal. Note that only horizontal wires will be printed");
             },
             [&](ArgumentParser const& parser) {
                 if (!dvlab::utils::mgr_has_data(zxgraph_mgr)) return CmdExecResult::error;
                 if (parser.parsed("filepath")) {
                     zxgraph_mgr.get()->adjust_vertex_coordinates();
                     if (!zxgraph_mgr.get()->write_pdf(parser.get<std::string>("filepath"))) return CmdExecResult::error;
-                }
-                if (parser.parsed("-cli")) {
-                    spdlog::warn("This feature is deprecated and will be removed in the future.");
-                    zxgraph_mgr.get()->draw();
                 }
 
                 return CmdExecResult::done;
@@ -481,7 +473,7 @@ Command zxgraph_vertex_add_cmd(ZXGraphMgr& zxgraph_mgr) {
                                         ? Phase(1)
                                         : Phase(0));
 
-                auto v = zxgraph_mgr.get()->add_vertex(qid, vtype.value(), phase);
+                auto v = zxgraph_mgr.get()->add_vertex(vtype.value(), phase, static_cast<float>(qid));
                 spdlog::info("Adding vertex {}...", v->get_id());
 
                 return CmdExecResult::done;

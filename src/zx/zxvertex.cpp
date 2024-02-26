@@ -5,6 +5,8 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
+#include <fmt/core.h>
+
 #include <cstddef>
 #include <exception>
 #include <ranges>
@@ -47,7 +49,7 @@ void ZXVertex::print_vertex(spdlog::level::level_enum lvl) const {
         _id,
         fmt::format("({}, {})", type_str, _phase.get_print_string()),
         11ul + ansi_token_len - 2 * (_type == VertexType::boundary ? 1 : 0),
-        fmt::format("({}, {})", _qubit, _col),
+        is_boundary() ? fmt::format("({}, {})", _qubit, _col) : fmt::format("({}, {})", _row, _col),
         _neighbors.size(),
         fmt::join(storage | std::views::transform([](NeighborPair const& nbp) { return fmt::format("({}, {})", nbp.first->get_id(), nbp.second); }), " "));
 }

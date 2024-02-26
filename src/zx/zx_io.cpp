@@ -113,7 +113,7 @@ bool ZXGraph::write_zx(std::filesystem::path const& filename, bool complete) con
                    : v->is_x() ? "X"
                                : "H",
                    v->get_id(),
-                   v->get_qubit(),
+                   v->get_row(),
                    floor(v->get_col()));
 
         if (!write_neighbors(v)) {
@@ -148,14 +148,14 @@ bool ZXGraph::_build_graph_from_parser_storage(detail::StorageType const& storag
                     return add_input(info.qubit, info.column);
                 if (info.type == 'O')
                     return add_output(info.qubit, info.column);
-                VertexType vtype = VertexType::boundary;
+                auto vtype = VertexType::boundary;
                 if (info.type == 'Z')
                     vtype = VertexType::z;
                 else if (info.type == 'X')
                     vtype = VertexType::x;
                 else
                     vtype = VertexType::h_box;
-                return add_vertex(info.qubit, vtype, info.phase, info.column);
+                return add_vertex(vtype, info.phase, static_cast<float>(info.qubit), info.column);
             });
 
         if (keep_id) v->set_id(id);
@@ -277,7 +277,7 @@ bool ZXGraph::write_tikz(std::ostream& os) const {
     fmt::println(os, "        % vertices");
     // drawing vertices: \node[zspi] (88888)  at (0,1) {{\tiny 88888}};
     for (auto& v : get_vertices()) {
-        fmt::println(os, "        \\node[{0}]({1})  at ({2}, {3}) {{{{\\{4} {1}}}}};", get_attr_string(v), v->get_id(), v->get_col(), v->get_qubit(), font_size);
+        fmt::println(os, "        \\node[{0}]({1})  at ({2}, {3}) {{{{\\{4} {1}}}}};", get_attr_string(v), v->get_id(), v->get_col(), v->get_row(), font_size);
     }  // end for vertices
     fmt::println(os, "");
     fmt::println(os, "        % edges");
@@ -285,7 +285,7 @@ bool ZXGraph::write_tikz(std::ostream& os) const {
     for (auto& v : _vertices) {
         for (auto& [n, e] : this->get_neighbors(v)) {
             if (n->get_id() > v->get_id()) {
-                if (n->get_col() == v->get_col() && n->get_qubit() == v->get_qubit()) {
+                if (n->get_col() == v->get_col() && n->get_row() == v->get_row()) {
                     spdlog::warn("{} and {} are connected but they have same coordinates.", v->get_id(), n->get_id());
                     fmt::println(os, "        % \\draw[{0}] ({1}) -- ({2});", et2s.at(e), v->get_id(), n->get_id());
                 } else {
