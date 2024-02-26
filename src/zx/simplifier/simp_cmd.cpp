@@ -11,6 +11,7 @@
 
 #include <cstddef>
 #include <string>
+#include <vector>
 
 #include "./simplify.hpp"
 #include "argparse/arg_parser.hpp"
@@ -179,6 +180,7 @@ Command zxgraph_rule_cmd(zx::ZXGraphMgr &zxgraph_mgr) {
         }};
 }
 
+// REVIEW - Logic of check function is not completed
 Command zxgraph_manual_apply_cmd(zx::ZXGraphMgr &zxgraph_mgr) {
     return Command{
         "manual",
@@ -203,22 +205,16 @@ Command zxgraph_manual_apply_cmd(zx::ZXGraphMgr &zxgraph_mgr) {
         },
         [&](ArgumentParser const &parser) {
             if (!dvlab::utils::mgr_has_data(zxgraph_mgr)) return dvlab::CmdExecResult::error;
-            zx::Simplifier s(zxgraph_mgr.get());
+            auto vertices   = parser.get<std::vector<size_t>>("vertices");
+            ZXVertex *bound = zxgraph_mgr.get()->find_vertex_by_id(vertices[0]);
+            ZXVertex *vert  = zxgraph_mgr.get()->find_vertex_by_id(vertices[1]);
 
-            // if (parser.parsed("--pivot")) {
-            //     s.pivot_simp();
-            // } else if (parser.parsed("--pivot-boundary")) {
-            //     s.pivot_boundary_simp();
-            // } else if (parser.parsed("--pivot-gadget")) {
-            //     s.pivot_gadget_simp();
-            // } else if (parser.parsed("--spider-fusion")) {
-            //     s.spider_fusion_simp();
-            // } else {
-            //     spdlog::error("No rule specified");
-            //     return CmdExecResult::error;
-            // }
-            auto vertices = parser.get<std::vector<size_t>>("vertices");
-            // fmt::println("{} {}", vertices[0], vertices[1]);
+            const bool is_cand = PivotBoundaryRule().is_candidate(*zxgraph_mgr.get(), bound, vert);
+            if (!is_cand) return CmdExecResult::error;
+
+            std::vector<std::pair<ZXVertex *, ZXVertex *>> match;
+            match.emplace_back(bound, vert);
+            PivotBoundaryRule().apply(*zxgraph_mgr.get(), match);
             return CmdExecResult::done;
         }};
 }
