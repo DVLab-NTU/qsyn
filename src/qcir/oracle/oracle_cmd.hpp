@@ -12,8 +12,10 @@
 
 namespace qsyn::qcir {
 
-dvlab::Command qcir_oracle_cmd(QCirMgr& qcir_mgr);
-dvlab::Command qcir_k_lut_cmd();
-dvlab::Command qcir_pebble_cmd();
+using dvlab::Command;
+
+Command qcir_oracle_cmd(QCirMgr& qcir_mgr);
+Command qcir_k_lut_cmd();
+Command qcir_pebble_cmd();
 
 }  // namespace qsyn::qcir
