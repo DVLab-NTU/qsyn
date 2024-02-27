@@ -164,6 +164,8 @@ public:
 
     void adjoint();
 
+    void concat(QCir const& other, std::map<QubitIdType /* new */, QubitIdType /* orig */> const& qubit_map);
+
     // DFS functions
     template <typename F>
     void topological_traverse(F lambda) const {

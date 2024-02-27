@@ -12,7 +12,7 @@
 #include "qcir/qcir.hpp"
 #include "qcir/qcir_gate.hpp"
 #include "qcir/qcir_qubit.hpp"
-#include "util/util.hpp"
+#include "tl/to.hpp"
 
 namespace qsyn::qcir {
 
@@ -181,6 +181,18 @@ void QCir::adjoint() {
     }
 
     _dirty = true;
+}
+
+void QCir::concat(QCir const& other, std::map<QubitIdType /* new */, QubitIdType /* orig */> const& qubit_map) {
+    other.update_topological_order();
+    for (auto const& new_gate : other.get_topologically_ordered_gates()) {
+        auto qubits = new_gate->get_qubits() |
+                      std::views::transform([&qubit_map](auto const& qubit) {
+                          return qubit_map.at(qubit._qubit);
+                      }) |
+                      tl::to<std::vector>();
+        add_gate(new_gate->get_type_str(), qubits, new_gate->get_phase(), true);
+    }
 }
 
 }  // namespace qsyn::qcir
