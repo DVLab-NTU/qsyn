@@ -26,7 +26,7 @@ namespace qsyn::zx {
 
 std::function<bool(size_t const&)> valid_zxvertex_id(ZXGraphMgr const& zxgraph_mgr) {
     return [&](size_t const& id) {
-        if (zxgraph_mgr.get()->is_v_id(id)) return true;
+        if (zxgraph_mgr.get() && zxgraph_mgr.get()->is_v_id(id)) return true;
         spdlog::error("Cannot find vertex with ID {} in the ZXGraph!!", id);
         return false;
     };
@@ -34,6 +34,10 @@ std::function<bool(size_t const&)> valid_zxvertex_id(ZXGraphMgr const& zxgraph_m
 
 std::function<bool(size_t const&)> zxgraph_id_not_exist(ZXGraphMgr const& zxgraph_mgr) {
     return [&](size_t const& id) {
+        if (!zxgraph_mgr.get()) {
+            spdlog::error("ZXGraphMgr does not exist!!");
+            return true;
+        }
         if (!zxgraph_mgr.is_id(id)) return true;
         spdlog::error("ZXGraph {} already exists!!", id);
         spdlog::info("Use `-Replace` if you want to overwrite it.");
@@ -43,6 +47,10 @@ std::function<bool(size_t const&)> zxgraph_id_not_exist(ZXGraphMgr const& zxgrap
 
 std::function<bool(int const&)> zxgraph_input_qubit_not_exist(ZXGraphMgr const& zxgraph_mgr) {
     return [&](int const& qid) {
+        if (!zxgraph_mgr.get()) {
+            spdlog::error("ZXGraphMgr does not exist!!");
+            return true;
+        }
         if (!zxgraph_mgr.get()->is_input_qubit(qid)) return true;
         spdlog::error("This qubit's input already exists!!");
         return false;
@@ -51,6 +59,10 @@ std::function<bool(int const&)> zxgraph_input_qubit_not_exist(ZXGraphMgr const& 
 
 std::function<bool(int const&)> zxgraph_output_qubit_not_exist(ZXGraphMgr const& zxgraph_mgr) {
     return [&](int const& qid) {
+        if (!zxgraph_mgr.get()) {
+            spdlog::error("ZXGraphMgr does not exist!!");
+            return true;
+        }
         if (!zxgraph_mgr.get()->is_output_qubit(qid)) return true;
         spdlog::error("This qubit's output already exists!!");
         return false;
@@ -242,6 +254,7 @@ Command zxgraph_draw_cmd(ZXGraphMgr const& zxgraph_mgr) {
             [&](ArgumentParser const& parser) {
                 if (!dvlab::utils::mgr_has_data(zxgraph_mgr)) return CmdExecResult::error;
                 if (parser.parsed("filepath")) {
+                    zxgraph_mgr.get()->adjust_vertex_coordinates();
                     if (!zxgraph_mgr.get()->write_pdf(parser.get<std::string>("filepath"))) return CmdExecResult::error;
                 }
                 if (parser.parsed("-cli")) {
@@ -661,6 +674,7 @@ Command zxgraph_cmd(ZXGraphMgr& zxgraph_mgr) {
     cmd.add_subcommand(zxgraph_gflow_cmd(zxgraph_mgr));
     cmd.add_subcommand(zxgraph_optimize_cmd(zxgraph_mgr));
     cmd.add_subcommand(zxgraph_rule_cmd(zxgraph_mgr));
+    cmd.add_subcommand(zxgraph_manual_apply_cmd(zxgraph_mgr));
     cmd.add_subcommand(zxgraph_vertex_cmd(zxgraph_mgr));
     cmd.add_subcommand(zxgraph_edge_cmd(zxgraph_mgr));
     return cmd;

@@ -10,10 +10,12 @@
 #include <fmt/core.h>
 #include <fmt/ostream.h>
 #include <math.h>
+#include <spdlog/spdlog.h>
 
 #include <cassert>
 #include <complex>
 #include <concepts>
+#include <cstddef>
 #include <exception>
 #include <iosfwd>
 #include <unordered_map>
@@ -23,6 +25,7 @@
 #include <xtensor/xarray.hpp>
 #include <xtensor/xcsv.hpp>
 #include <xtensor/xio.hpp>
+#include <xtensor/xnpy.hpp>
 
 #include "./tensor_util.hpp"
 #include "util/util.hpp"
@@ -126,6 +129,7 @@ public:
     void adjoint();
 
     bool tensor_read(std::string const&);
+    bool tensor_write(std::string const&);
 
 protected:
     friend struct fmt::formatter<Tensor>;
@@ -294,11 +298,36 @@ void Tensor<DT>::adjoint() {
 }
 
 template <typename DT>
+bool Tensor<DT>::tensor_write(std::string const& filepath) {
+    std::ofstream out_file;
+    out_file.open(filepath);
+    if (!out_file.is_open()) {
+        spdlog::error("Failed to open file");
+        return false;
+    }
+    for (size_t row = 0; row < _tensor.shape(0); row++) {
+        for (size_t col = 0; col < _tensor.shape(1); col++) {
+            if (xt::imag(this->_tensor(row, col)) >= 0) {
+                fmt::print(out_file, "{}{}+{}j", xt::real(_tensor(row, col)) >= 0 ? " " : "", xt::real(_tensor(row, col)), abs(xt::imag(_tensor(row, col))));
+            } else {
+                fmt::print(out_file, "{}{}{}j", xt::real(_tensor(row, col)) >= 0 ? " " : "", xt::real(_tensor(row, col)), xt::imag(_tensor(row, col)));
+            }
+            if (col != _tensor.shape(1) - 1) {
+                fmt::print(out_file, ", ");
+            }
+        }
+        fmt::println(out_file, "");
+    }
+    out_file.close();
+    return true;
+}
+
+template <typename DT>
 bool Tensor<DT>::tensor_read(std::string const& filepath) {
     std::ifstream in_file;
     in_file.open(filepath);
     if (!in_file.is_open()) {
-        std::cout << "Error opening file" << std::endl;
+        spdlog::error("Failed to open file");
         return false;
     }
     // read csv with complex number
@@ -312,9 +341,8 @@ bool Tensor<DT>::tensor_read(std::string const& filepath) {
             double real = 0.0, imag = 0.0;
             char plus = ' ', i = ' ';
             ww >> real >> plus >> imag >> i;
-            // std::cout << "plus" << plus << ", imag " << imag << std::endl;
             if (plus == '-') imag = -imag;
-            if (plus == 'i') {
+            if (plus == 'j') {
                 imag = real;
                 real = 0;
             }
@@ -322,7 +350,7 @@ bool Tensor<DT>::tensor_read(std::string const& filepath) {
         }
     }
     if (std::floor(std::sqrt(data.size())) != std::sqrt(data.size())) {
-        std::cout << "Error: the number of elements in the tensor is not a square number" << std::endl;
+        spdlog::error("The number of elements in the tensor is not a square number");
         return false;
     }
     TensorShape shape = {static_cast<size_t>(std::sqrt(data.size())), static_cast<size_t>(std::sqrt(data.size()))};
