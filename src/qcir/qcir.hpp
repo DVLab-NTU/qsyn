@@ -185,6 +185,10 @@ public:
 
     void adjoint();
 
+    bool print_topological_order();
+
+    void concat(QCir const& other, std::map<QubitIdType /* new */, QubitIdType /* orig */> const& qubit_map);
+
     // Member functions about circuit reporting
     void print_gates(bool print_neighbors = false, std::span<size_t> gate_ids = {}) const;
     void print_qcir() const;

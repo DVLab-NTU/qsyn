@@ -21,6 +21,7 @@
 #include <tl/zip.hpp>
 
 #include "qcir/oracle/xag.hpp"
+#include "qsyn/qsyn_type.hpp"
 
 namespace {
 
@@ -322,8 +323,8 @@ QCir build_qcir_3(
 // (3)  └───┐
 //  ├───┐   │
 // (0) (1) (2)
-std::map<XAGNodeID, size_t> match_input_3(XAG const& xag, XAGNodeID const& node_id, XAGCut const& cut) {
-    auto input_to_qcir = std::map<XAGNodeID, size_t>{};
+std::map<XAGNodeID, qsyn::QubitIdType> match_input_3(XAG const& xag, XAGNodeID const& node_id, XAGCut const& cut) {
+    auto input_to_qcir = std::map<XAGNodeID, qsyn::QubitIdType>{};
 
     auto top_node    = xag.get_node(node_id);
     auto top_fanin_0 = xag.get_node(top_node.fanins[0]);
@@ -524,7 +525,7 @@ LUT::LUT(size_t const k) : k(k) {
     }
 }
 
-std::map<XAGNodeID, size_t> LUT::match_input(XAG const& xag, XAGNodeID const& node_id, XAGCut const& cut) {
+std::map<XAGNodeID, QubitIdType> LUT::match_input(XAG const& xag, XAGNodeID const& node_id, XAGCut const& cut) const {
     switch (k) {
         case 3: {
             return match_input_3(xag, node_id, cut);

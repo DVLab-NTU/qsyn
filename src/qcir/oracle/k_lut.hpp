@@ -14,6 +14,7 @@
 
 #include "qcir/oracle/xag.hpp"
 #include "qcir/qcir.hpp"
+#include "qsyn/qsyn_type.hpp"
 
 namespace qsyn::qcir {
 
@@ -36,7 +37,7 @@ public:
     QCir& operator[](LUTEntry const& entry) { return table[entry]; }
     QCir const& at(LUTEntry const& entry) const { return table.at(entry); }
 
-    std::map<XAGNodeID, size_t> match_input(XAG const& xag, XAGNodeID const& node_id, XAGCut const& cut);
+    std::map<XAGNodeID, QubitIdType> match_input(XAG const& xag, XAGNodeID const& node_id, XAGCut const& cut) const;
 
 private:
     size_t k;
