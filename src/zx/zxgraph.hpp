@@ -257,7 +257,6 @@ public:
     std::unordered_map<size_t, ZXVertex*> const& get_output_list() const { return _output_list; }
 
     // I/O (in zxIO.cpp)
-    bool read_zx(std::filesystem::path const& filepath, bool keep_id = false);
     bool write_zx(std::filesystem::path const& filename, bool complete = false) const;
     bool write_tikz(std::string const& filename) const;
     bool write_tikz(std::ostream& os) const;
@@ -302,8 +301,6 @@ private:
 
     void _dfs(std::unordered_set<ZXVertex*>& visited_vertices, std::vector<ZXVertex*>& topological_order, ZXVertex* v) const;
     void _bfs(std::unordered_set<ZXVertex*>& visited_vertices, std::vector<ZXVertex*>& topological_order, ZXVertex* v) const;
-
-    bool _build_graph_from_parser_storage(detail::StorageType const& storage, bool keep_id = false);
 
     void _move_vertices_from(ZXGraph& other);
 };

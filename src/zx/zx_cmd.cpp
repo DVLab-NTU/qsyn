@@ -17,6 +17,7 @@
 #include "util/data_structure_manager.hpp"
 #include "util/data_structure_manager_common_cmd.hpp"
 #include "zx/simplifier/simp_cmd.hpp"
+#include "zx/zx_io.hpp"
 
 using namespace dvlab::argparse;
 using dvlab::CmdExecResult;
@@ -278,12 +279,12 @@ Command zxgraph_read_cmd(ZXGraphMgr& zxgraph_mgr) {
                     .help("replace the current ZXGraph");
             },
             [&](ArgumentParser const& parser) {
-                auto filepath   = parser.get<std::string>("filepath");
-                auto do_keep_id = parser.get<bool>("--keep-id");
-                auto do_replace = parser.get<bool>("--replace");
+                auto const filepath   = parser.get<std::string>("filepath");
+                auto const do_keep_id = parser.get<bool>("--keep-id");
+                auto const do_replace = parser.get<bool>("--replace");
 
-                auto buffer_graph = std::make_unique<ZXGraph>();
-                if (!buffer_graph->read_zx(filepath, do_keep_id)) {
+                auto const graph = from_zx(filepath, do_keep_id);
+                if (!graph) {
                     return CmdExecResult::error;
                 }
 
@@ -294,9 +295,9 @@ Command zxgraph_read_cmd(ZXGraphMgr& zxgraph_mgr) {
                     } else {
                         spdlog::info("Original ZXGraph is replaced...");
                     }
-                    zxgraph_mgr.set(std::move(buffer_graph));
+                    zxgraph_mgr.set(std::make_unique<ZXGraph>(std::move(graph.value())));
                 } else {
-                    zxgraph_mgr.add(zxgraph_mgr.get_next_id(), std::move(buffer_graph));
+                    zxgraph_mgr.add(zxgraph_mgr.get_next_id(), std::make_unique<ZXGraph>(std::move(graph.value())));
                 }
                 zxgraph_mgr.get()->set_filename(std::filesystem::path{filepath}.stem());
                 return CmdExecResult::done;
