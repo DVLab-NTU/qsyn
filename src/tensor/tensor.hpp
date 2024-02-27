@@ -327,9 +327,9 @@ bool Tensor<DT>::tensor_write(std::string const& filepath) {
     for (size_t row = 0; row < _tensor.shape(0); row++) {
         for (size_t col = 0; col < _tensor.shape(1); col++) {
             if (xt::imag(this->_tensor(row, col)) >= 0) {
-                fmt::print(out_file, "{}+{}j", xt::real(_tensor(row, col)), abs(xt::imag(_tensor(row, col))));
+                fmt::print(out_file, "{}{}+{}j", xt::real(_tensor(row, col)) >= 0 ? " " : "", xt::real(_tensor(row, col)), abs(xt::imag(_tensor(row, col))));
             } else {
-                fmt::print(out_file, "{}{}j", xt::real(_tensor(row, col)), xt::imag(_tensor(row, col)));
+                fmt::print(out_file, "{}{}{}j", xt::real(_tensor(row, col)) >= 0 ? " " : "", xt::real(_tensor(row, col)), xt::imag(_tensor(row, col)));
             }
             if (col != _tensor.shape(1) - 1) {
                 fmt::print(out_file, ", ");
@@ -361,7 +361,7 @@ bool Tensor<DT>::tensor_read(std::string const& filepath) {
             char plus = ' ', i = ' ';
             ww >> real >> plus >> imag >> i;
             if (plus == '-') imag = -imag;
-            if (plus == 'i') {
+            if (plus == 'j') {
                 imag = real;
                 real = 0;
             }
