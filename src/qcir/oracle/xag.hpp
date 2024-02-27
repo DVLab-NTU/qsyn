@@ -56,6 +56,7 @@ private:
 
 class XAG {
 public:
+    XAG() = default;
     XAG(const std::vector<XAGNode> nodes, const std::vector<XAGNodeID> inputs, const std::vector<XAGNodeID> outputs) : inputs(inputs), outputs(outputs), _nodes(nodes) {
         evaluate_fanouts();
     }

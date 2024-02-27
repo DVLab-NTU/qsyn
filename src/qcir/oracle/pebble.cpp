@@ -13,7 +13,6 @@
 #include <algorithm>
 #include <optional>
 #include <ranges>
-#include <set>
 #include <sstream>
 #include <tl/to.hpp>
 #include <vector>
@@ -24,13 +23,14 @@ using namespace dvlab::sat;
 using std::vector, std::views::iota;
 using namespace qsyn::qcir;
 using Node   = qsyn::qcir::DepGraphNode;
-using NodeID = qsyn::qcir::DepGrapgNodeID;
+using NodeID = qsyn::qcir::DepGraphNodeID;
 
 namespace qsyn::qcir {
 
-void create_dependency_graph(std::istream& ifs, std::vector<Node>& graph, std::set<size_t>& output_ids) {
+DepGraph create_dependency_graph(std::istream& ifs) {
     auto tmp = vector<vector<size_t>>();
 
+    DepGraph graph{};
     std::string line;
     size_t id{}, dep{};
 
@@ -38,7 +38,7 @@ void create_dependency_graph(std::istream& ifs, std::vector<Node>& graph, std::s
 
     std::stringstream ss(line);
     while (ss >> id) {
-        output_ids.emplace(id);
+        graph.add_output(NodeID(id));
     }
 
     while (getline(ifs, line)) {
@@ -52,16 +52,19 @@ void create_dependency_graph(std::istream& ifs, std::vector<Node>& graph, std::s
         }
     }
 
-    graph.resize(tmp.size());
     for (const auto& i : iota(0UL, tmp.size())) {
-        graph[i].id = NodeID(i);
+        auto node = Node(NodeID(i));
         for (const auto& dep : tmp[i]) {
-            graph[i].dependencies.emplace_back(&graph[dep]);
+            node.dependencies.emplace_back(NodeID(dep));
         }
+        node.dependencies.shrink_to_fit();
+        graph.add_node(node);
     }
+
+    return graph;
 }
 
-std::optional<std::vector<std::vector<bool>>> pebble(SatSolver& solver, size_t const P, std::vector<Node> graph, std::set<size_t> output_ids) {
+std::optional<std::vector<std::vector<bool>>> pebble(SatSolver& solver, size_t const P, DepGraph graph) {
     size_t const N = graph.size();  // number of nodes
 
     auto make_variables = [](SatSolver& solver, const size_t N, const size_t K) {
@@ -76,7 +79,7 @@ std::optional<std::vector<std::vector<bool>>> pebble(SatSolver& solver, size_t c
         return p;
     };
 
-    auto pebble = [&output_ids = output_ids, &graph = graph](
+    auto pebble = [&graph = graph](
                       SatSolver& solver,
                       const vector<vector<Variable>>& p,
                       const size_t N,
@@ -87,7 +90,7 @@ std::optional<std::vector<std::vector<bool>>> pebble(SatSolver& solver, size_t c
             // at time 0, no node is pebbled
             solver.add_clause({~Literal(p[0][i])});
             // at time K, all output nodes are pebbled, and all other nodes are not pebbled
-            solver.add_clause({Literal(p[K - 1][i], !output_ids.contains(i))});
+            solver.add_clause({Literal(p[K - 1][i], !graph.is_output(DepGraphNodeID(i)))});
         }
 
         // Move CLauses
@@ -95,12 +98,13 @@ std::optional<std::vector<std::vector<bool>>> pebble(SatSolver& solver, size_t c
         // if a node is not pebbled at time i, then all its dependencies must be pebbled at time i
         // (a xor b) + cd = (~a + b + c) (~a + b + d) (a + ~b + c) (a + ~b + d)
         for (const size_t i : iota(0UL, K - 1)) {
-            for (const auto& node : graph) {
-                for (const auto& dep : node.dependencies) {
+            for (const auto& node : graph.get_graph() | std::views::values) {
+                for (const auto& dep_id : node.dependencies) {
+                    auto dep     = graph.get_node(dep_id);
                     auto const a = Literal(p[i][node.id.get()]);
                     auto const b = Literal(p[i + 1][node.id.get()]);
-                    auto const c = Literal(p[i][dep->id.get()]);
-                    auto const d = Literal(p[i + 1][dep->id.get()]);
+                    auto const c = Literal(p[i][dep.id.get()]);
+                    auto const d = Literal(p[i + 1][dep.id.get()]);
                     solver.add_clause({~a, b, c});
                     solver.add_clause({~a, b, d});
                     solver.add_clause({a, ~b, c});
@@ -177,17 +181,18 @@ size_t sanitize_P(size_t const P, size_t const N, size_t const max_deps) {
 
 void test_pebble(const size_t _P, std::istream& input) {
     auto solver = CaDiCalSolver();
-    std::vector<Node> graph;
-    std::set<size_t> output_ids;
-    create_dependency_graph(input, graph, output_ids);
+
+    auto graph = create_dependency_graph(input);
 
     const size_t N        = graph.size();  // number of nodes
-    const size_t max_deps = std::ranges::max(graph | std::views::transform([](const Node& node) { return node.dependencies.size(); }));
+    const size_t max_deps = std::ranges::max(graph.get_graph() |
+                                             std::views::values |
+                                             std::views::transform([](const Node& node) { return node.dependencies.size(); }));
     const size_t P        = sanitize_P(_P, N, max_deps);
 
     spdlog::debug("N = {}, P = {}", N, P);
 
-    auto schedule = pebble(solver, P, graph, output_ids);
+    auto schedule = pebble(solver, P, graph);
 
     if (!schedule.has_value()) {
         fmt::println("no solution for P = {}, consider increasing P", P);
