@@ -163,25 +163,19 @@ Command conversion_cmd(QCirMgr& qcir_mgr, qsyn::tensor::TensorMgr& tensor_mgr, q
                 if (get_data_type(from) == data_type::tensor && get_data_type(to) == data_type::qcir) {
                     if (!dvlab::utils::mgr_has_data(tensor_mgr)) return CmdExecResult::error;
                     auto ts = tensor_mgr.get();
-                    fmt::println("TS2QC tensor : {}", &ts);
-                    // decomposer::Decomposer dec();
+                    // fmt::println("TS2QC tensor : {}", *ts);
+                    int qreg = int(log2((*ts).shape()[0]));
+                    decomposer::Decomposer  decomp(qreg);
+                    decomp.decompose(*ts);
                     
 
-                    // qcir::QCir* result = ;
-                    // if (result != nullptr) {
-                    //     qcir_mgr.add(qcir_mgr.get_next_id(), std::make_unique<qcir::QCir>(*result));
-                    //     if (extractor::PERMUTE_QUBITS)
-                    //         zxgraph_mgr.remove(next_id);
-                    //     else {
-                    //         spdlog::warn("The extracted circuit is up to a qubit permutation.");
-                    //         spdlog::warn("Remaining permutation information is in ZXGraph id {}.", next_id);
-                    //         tensor_mgr.get()->add_procedure("TS2QC");
-                    //     }
-
-                    //     qcir_mgr.get()->add_procedures(tensor_mgr.get()->get_procedures());
-                    //     qcir_mgr.get()->add_procedure("ZX2QC");
-                    //     qcir_mgr.get()->set_filename(tensor_mgr.get()->get_filename());
-                    // }
+                    qcir::QCir* result = decomp.get_qcir();
+                    if (result != nullptr) {
+                        qcir_mgr.add(qcir_mgr.get_next_id(), std::make_unique<qcir::QCir>(*result));
+                        qcir_mgr.get()->add_procedures(tensor_mgr.get()->get_procedures());
+                        qcir_mgr.get()->add_procedure("TS2QC");
+                        qcir_mgr.get()->set_filename(tensor_mgr.get()->get_filename());
+                    }
 
                     return CmdExecResult::done;
                 }
