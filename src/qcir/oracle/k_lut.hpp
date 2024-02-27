@@ -17,7 +17,7 @@
 
 namespace qsyn::qcir {
 
-using LUTEntry = std::tuple<XAG*, XAGNodeID, XAGCut>;
+using LUTEntry = std::tuple<const XAG*, XAGNodeID const, XAGCut const>;
 
 struct LUTEntryHash {
     size_t seed = 65537;
@@ -28,14 +28,28 @@ struct LUTEntryEqual {
     bool operator()(const LUTEntry& lhs, const LUTEntry& rhs) const;
 };
 
-using LUT = std::unordered_map<LUTEntry, QCir, LUTEntryHash, LUTEntryEqual>;
+class LUT {
+public:
+    LUT(size_t const k);
+    size_t get_k() const { return k; }
+    QCir const& operator[](LUTEntry const& entry) const { return table.at(entry); }
+    QCir& operator[](LUTEntry const& entry) { return table[entry]; }
+    QCir const& at(LUTEntry const& entry) const { return table.at(entry); }
 
-std::set<XAGNodeID> get_cone_node_ids(XAG& xag, XAGNodeID const& node_id, XAGCut const& cut);
+    std::map<XAGNodeID, size_t> match_input(XAG const& xag, XAGNodeID const& node_id, XAGCut const& cut);
+
+private:
+    size_t k;
+    std::unordered_map<LUTEntry, QCir, LUTEntryHash, LUTEntryEqual> table;
+
+    void construct_lut_3();
+};
+
+std::set<XAGNodeID>
+get_cone_node_ids(XAG& xag, XAGNodeID const& node_id, XAGCut const& cut);
 
 std::pair<std::map<XAGNodeID, XAGCut>, std::map<XAGNodeID, size_t>> k_lut_partition(XAG& xag, const size_t max_cut_size);
 
 void test_k_lut_partition(size_t const max_cut_size, std::istream& input);
-
-LUT build_lut(size_t const k);
 
 }  // namespace qsyn::qcir

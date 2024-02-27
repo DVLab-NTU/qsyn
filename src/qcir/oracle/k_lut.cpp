@@ -54,10 +54,10 @@ std::map<XAGNodeID, std::vector<XAGCut>> enumerate_cuts(XAG& xag, const size_t m
     for (auto const id : topological_order) {
         node_id_to_cuts[id] = {{id}};
         auto const& node    = xag.get_node(id);
-        if (!node->is_gate()) {
+        if (!node.is_gate()) {
             continue;
         }
-        auto fanins = node->fanins;
+        auto fanins = node.fanins;
         for (auto const& cuts0 : node_id_to_cuts[fanins[0]]) {
             for (auto const& cuts1 : node_id_to_cuts[fanins[1]]) {
                 auto cuts = cuts0;
@@ -102,22 +102,22 @@ std::vector<bool> calculate_truth_table(XAG& xag, XAGNodeID const& node_id, XAGC
             }
 
             auto const& node = xag.get_node(id);
-            if (!node->is_gate()) {
+            if (!node.is_gate()) {
                 continue;
             }
 
             std::vector<bool> inputs;
-            for (auto const& [fanin_id, inverted] : zip(node->fanins, node->inverted)) {
+            for (auto const& [fanin_id, inverted] : zip(node.fanins, node.inverted)) {
                 inputs.push_back(inverted ^ intermediate_results[fanin_id.get()]);
             }
 
             bool result{};
-            if (node->is_xor()) {
+            if (node.is_xor()) {
                 result = false;
                 for (auto const& input : inputs) {
                     result ^= input;
                 }
-            } else if (node->is_and()) {
+            } else if (node.is_and()) {
                 result = true;
                 for (auto const& input : inputs) {
                     result &= input;
@@ -182,10 +182,10 @@ std::map<XAGNodeID, std::vector<size_t>> calculate_cut_costs(XAG& xag, std::map<
             bool no_and               = true;
             size_t xor_count          = 0;
             for (auto const& cone_node_id : cone_node_ids) {
-                if (xag.get_node(cone_node_id)->is_and()) {
+                if (xag.get_node(cone_node_id).is_and()) {
                     no_and = false;
                     break;
-                } else if (xag.get_node(cone_node_id)->is_xor()) {
+                } else if (xag.get_node(cone_node_id).is_xor()) {
                     xor_count++;
                 }
             }
@@ -198,103 +198,8 @@ std::map<XAGNodeID, std::vector<size_t>> calculate_cut_costs(XAG& xag, std::map<
     return costs;
 }
 
-}  // namespace
-
-namespace qsyn::qcir {
-
-std::pair<std::map<XAGNodeID, XAGCut>, std::map<XAGNodeID, size_t>> k_lut_partition(XAG& xag, const size_t max_cut_size) {
-    auto id_to_cuts  = enumerate_cuts(xag, max_cut_size);
-    auto id_to_costs = calculate_cut_costs(xag, id_to_cuts);
-
-    std::map<XAGNodeID, XAGCut> optimal_cuts;
-    std::map<XAGNodeID, size_t> optimal_costs;
-    auto topological_order = xag.calculate_topological_order();
-    for (auto const id : topological_order) {
-        if (xag.get_node(id)->is_input()) {
-            optimal_cuts[id]  = {id};
-            optimal_costs[id] = 0;
-            continue;
-        }
-
-        optimal_costs[id] = INT_MAX;
-        for (auto const& [cut, cost] : zip(id_to_cuts[id], id_to_costs[id])) {
-            size_t acc_cost = cost + std::accumulate(cut.begin(), cut.end(), 0, [&optimal_costs](size_t x, XAGNodeID y) { return x + optimal_costs[y]; });
-            if (acc_cost < optimal_costs[id]) {
-                optimal_costs[id] = acc_cost;
-                optimal_cuts[id]  = cut;
-            }
-        }
-    }
-
-    std::set<XAGNodeID> necessary_node_ids;
-    auto input_node_ids  = std::set<XAGNodeID>(xag.inputs.begin(), xag.inputs.end());
-    auto output_node_ids = std::set<XAGNodeID>(xag.outputs.begin(), xag.outputs.end());
-    for (auto const id : std::views::reverse(topological_order)) {
-        auto const& cut = optimal_cuts[id];
-        if (input_node_ids.contains(id) || output_node_ids.contains(id)) {
-            necessary_node_ids.insert(id);
-        }
-        if (necessary_node_ids.contains(id)) {
-            necessary_node_ids.insert(cut.begin(), cut.end());
-        }
-    }
-
-    for (auto const& id : topological_order) {
-        if (!necessary_node_ids.contains(id)) {
-            optimal_cuts.erase(id);
-            optimal_costs.erase(id);
-        }
-    }
-
-    return {optimal_cuts, optimal_costs};
-}
-
-void test_k_lut_partition(size_t const max_cut_size, std::istream& input) {
-    XAG xag                            = from_xaag(input);
-    auto [optimal_cuts, optimal_costs] = k_lut_partition(xag, max_cut_size);
-
-    fmt::print("optimal cuts:\n");
-    for (auto const& [id, cut] : optimal_cuts) {
-        auto const cut_ids = cut | std::views::transform([](auto const& id) { return id.get(); });
-        fmt::print("{}: {{{}}}\n", xag.get_node(id)->to_string(), fmt::join(cut_ids, ", "));
-    }
-    fmt::print("optimal costs:\n");
-    for (auto const& [id, cost] : optimal_costs) {
-        fmt::print("{}: {}\n", id.get(), cost);
-    }
-}
-
-size_t LUTEntryHash::operator()(const LUTEntry& entry) const {
-    auto const& [xag, node_id, cut] = entry;
-    auto node                       = xag->get_node(node_id);
-    auto node_type_hash             = std::hash<XAGNodeType>{};
-    auto hash_node                  = [&node_type_hash, &xag = xag](XAGNodeID const& node_id) {
-        return node_type_hash(xag->get_node(node_id)->get_type());
-    };
-
-    size_t hash = hash_node(node_id);
-
-    if (cut.contains(node_id)) {
-        return hash;
-    }
-
-    for (auto const& [id, inverted] : zip(node->fanins, node->inverted)) {
-        if (inverted) {
-            hash ^= (~(operator()({xag, id, cut}) << 1)) * seed;
-        } else {
-            hash ^= operator()({xag, id, cut}) * seed;
-        }
-    }
-
-    return hash;
-}
-
-// only use when the hash is equal
-// in which case the LUTEntry should be equal
-bool LUTEntryEqual::operator()(const LUTEntry& /*lhs*/, const LUTEntry& /*rhs*/) const {
-    return true;
-}
-
+// input: 0, 1, 2
+// output: 3
 QCir build_qcir_3(
     XAGNodeType const& top_type,
     std::pair<bool, bool> const& top_inverted,
@@ -417,9 +322,138 @@ QCir build_qcir_3(
 // (3)  └───┐
 //  ├───┐   │
 // (0) (1) (2)
-LUT build_lut_3() {
-    LUT lut{};
+std::map<XAGNodeID, size_t> match_input_3(XAG const& xag, XAGNodeID const& node_id, XAGCut const& cut) {
+    auto input_to_qcir = std::map<XAGNodeID, size_t>{};
 
+    auto top_node    = xag.get_node(node_id);
+    auto top_fanin_0 = xag.get_node(top_node.fanins[0]);
+    auto top_fanin_1 = xag.get_node(top_node.fanins[1]);
+
+    input_to_qcir[top_node.get_id()] = 3;
+
+    XAGNode bottom_node{};
+    if (cut.contains(top_fanin_0.get_id())) {
+        bottom_node                         = top_fanin_1;
+        input_to_qcir[top_fanin_0.get_id()] = 2;
+    } else {
+        bottom_node                         = top_fanin_0;
+        input_to_qcir[top_fanin_1.get_id()] = 2;
+    }
+
+    if (!bottom_node.inverted[0] && bottom_node.inverted[1]) {
+        input_to_qcir[bottom_node.fanins[0]] = 1;
+        input_to_qcir[bottom_node.fanins[1]] = 0;
+    } else {
+        input_to_qcir[bottom_node.fanins[0]] = 0;
+        input_to_qcir[bottom_node.fanins[1]] = 1;
+    }
+
+    return input_to_qcir;
+}
+
+}  // namespace
+
+namespace qsyn::qcir {
+
+std::pair<std::map<XAGNodeID, XAGCut>, std::map<XAGNodeID, size_t>> k_lut_partition(XAG& xag, const size_t max_cut_size) {
+    auto id_to_cuts  = enumerate_cuts(xag, max_cut_size);
+    auto id_to_costs = calculate_cut_costs(xag, id_to_cuts);
+
+    std::map<XAGNodeID, XAGCut> optimal_cuts;
+    std::map<XAGNodeID, size_t> optimal_costs;
+    auto topological_order = xag.calculate_topological_order();
+    for (auto const id : topological_order) {
+        if (xag.get_node(id).is_input()) {
+            optimal_cuts[id]  = {id};
+            optimal_costs[id] = 0;
+            continue;
+        }
+
+        optimal_costs[id] = INT_MAX;
+        for (auto const& [cut, cost] : zip(id_to_cuts[id], id_to_costs[id])) {
+            size_t acc_cost = cost + std::accumulate(cut.begin(), cut.end(), 0, [&optimal_costs](size_t x, XAGNodeID y) { return x + optimal_costs[y]; });
+            if (acc_cost < optimal_costs[id]) {
+                optimal_costs[id] = acc_cost;
+                optimal_cuts[id]  = cut;
+            }
+        }
+    }
+
+    std::set<XAGNodeID> necessary_node_ids;
+    auto input_node_ids  = std::set<XAGNodeID>(xag.inputs.begin(), xag.inputs.end());
+    auto output_node_ids = std::set<XAGNodeID>(xag.outputs.begin(), xag.outputs.end());
+    for (auto const id : std::views::reverse(topological_order)) {
+        auto const& cut = optimal_cuts[id];
+        if (input_node_ids.contains(id) || output_node_ids.contains(id)) {
+            necessary_node_ids.insert(id);
+        }
+        if (necessary_node_ids.contains(id)) {
+            necessary_node_ids.insert(cut.begin(), cut.end());
+        }
+    }
+
+    for (auto const& id : topological_order) {
+        if (!necessary_node_ids.contains(id)) {
+            optimal_cuts.erase(id);
+            optimal_costs.erase(id);
+        }
+    }
+
+    return {optimal_cuts, optimal_costs};
+}
+
+void test_k_lut_partition(size_t const max_cut_size, std::istream& input) {
+    XAG xag                            = from_xaag(input);
+    auto [optimal_cuts, optimal_costs] = k_lut_partition(xag, max_cut_size);
+
+    fmt::print("optimal cuts:\n");
+    for (auto const& [id, cut] : optimal_cuts) {
+        auto const cut_ids = cut | std::views::transform([](auto const& id) { return id.get(); });
+        fmt::print("{}: {{{}}}\n", xag.get_node(id).to_string(), fmt::join(cut_ids, ", "));
+    }
+    fmt::print("optimal costs:\n");
+    for (auto const& [id, cost] : optimal_costs) {
+        fmt::print("{}: {}\n", id.get(), cost);
+    }
+}
+
+size_t LUTEntryHash::operator()(const LUTEntry& entry) const {
+    auto const& [xag, node_id, cut] = entry;
+    auto node                       = xag->get_node(node_id);
+    auto node_type_hash             = std::hash<XAGNodeType>{};
+    auto hash_node                  = [&node_type_hash, &xag = xag](XAGNodeID const& node_id) {
+        return node_type_hash(xag->get_node(node_id).get_type());
+    };
+
+    size_t hash = hash_node(node_id);
+
+    if (cut.contains(node_id)) {
+        return hash;
+    }
+
+    for (auto const& [id, inverted] : zip(node.fanins, node.inverted)) {
+        if (inverted) {
+            hash ^= (~(operator()({xag, id, cut}) << 1)) * seed;
+        } else {
+            hash ^= operator()({xag, id, cut}) * seed;
+        }
+    }
+
+    return hash;
+}
+
+// only use when the hash is equal
+// in which case the LUTEntry should be equal
+bool LUTEntryEqual::operator()(const LUTEntry& /*lhs*/, const LUTEntry& /*rhs*/) const {
+    return true;
+}
+
+// (4)
+//  ├───┐
+// (3)  └───┐
+//  ├───┐   │
+// (0) (1) (2)
+void LUT::construct_lut_3() {
     auto input_nodes = std::vector<XAGNode>{
         XAGNode{XAGNodeID{0}, {}, {}, XAGNodeType::INPUT},
         XAGNode{XAGNodeID{1}, {}, {}, XAGNodeType::INPUT},
@@ -439,7 +473,12 @@ LUT build_lut_3() {
         for (size_t const& bottom_i : iota(0, 8)) {
             bool bottom_inverted_1 = (bottom_i & 1) == 1;
             bool bottom_inverted_2 = (bottom_i & 2) == 2;
-            auto bottom_type       = bottom_i & 4 ? XAGNodeType::XOR : XAGNodeType::AND;
+            // these two are equivalent
+            if (bottom_inverted_1 != bottom_inverted_2) {
+                bottom_inverted_1 = true;
+                bottom_inverted_2 = false;
+            }
+            auto bottom_type = bottom_i & 4 ? XAGNodeType::XOR : XAGNodeType::AND;
 
             auto bottom_node = XAGNode{
                 XAGNodeID{3},
@@ -463,7 +502,7 @@ LUT build_lut_3() {
                                      bottom_type,
                                      {bottom_inverted_1, bottom_inverted_2});
 
-            lut[{
+            table[{
                 &xag,
                 top_node.get_id(),
                 {XAGNodeID(0),
@@ -471,16 +510,28 @@ LUT build_lut_3() {
                  XAGNodeID(2)}}] = qcir;
         };
     }
-
-    return lut;
 }
 
-LUT build_lut(size_t const k) {
+LUT::LUT(size_t const k) : k(k) {
     switch (k) {
-        case 3:
-            return build_lut_3();
-        default:
-            throw std::runtime_error("k-LUT partitioning not implemented for k=" + std::to_string(k));
+        case 3: {
+            construct_lut_3();
+            break;
+        }
+        default: {
+            throw std::runtime_error(fmt::format("k-LUT partitioning not implemented for k = {}", k));
+        }
+    }
+}
+
+std::map<XAGNodeID, size_t> LUT::match_input(XAG const& xag, XAGNodeID const& node_id, XAGCut const& cut) {
+    switch (k) {
+        case 3: {
+            return match_input_3(xag, node_id, cut);
+        }
+        default: {
+            throw std::runtime_error(fmt::format("k-LUT partitioning not implemented for k = {}", k));
+        }
     }
 }
 

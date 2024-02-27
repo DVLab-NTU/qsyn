@@ -66,36 +66,28 @@ DepGraph from_deps_file(std::istream& ifs) {
     return graph;
 }
 
-DepGraph from_xag_graph(XAG const& xag, std::map<XAGNodeID, XAGCut> const& optimal_cut) {
-    std::map<XAGNodeID, DepGraphNodeID> xag_to_deps;
-    std::map<DepGraphNodeID, XAGNodeID> deps_to_xag;
+DepGraph from_xag_cuts(std::map<XAGNodeID, XAGCut> const& optimal_cut) {
     std::vector<XAGNodeID> optimal_cone_tips = optimal_cut |
                                                views::keys |
                                                tl::to<std::vector>();
-    std::sort(optimal_cone_tips.begin(), optimal_cone_tips.end());
-    std::stringstream dep_graph_ss;
-    for (auto const& [i, node_id] : tl::views::enumerate(optimal_cone_tips)) {
-        xag_to_deps[node_id]           = DepGraphNodeID(i);
-        deps_to_xag[DepGraphNodeID(i)] = node_id;
-    }
-    dep_graph_ss << fmt::format("{}", fmt::join(xag.outputs | views::transform([&](auto& xag_id) { return xag_to_deps.at(xag_id).get(); }), " ")) << '\n';
-    for (auto i : views::iota(0ul, optimal_cone_tips.size())) {
-        auto const dep_id    = DepGraphNodeID(i);
-        auto const xag_id    = deps_to_xag.at(dep_id);
-        auto const& xag_node = xag.get_node(xag_id);
-        dep_graph_ss << fmt::format("{}", i);
-        if (xag_node.get_type() == XAGNodeType::INPUT) {
-            dep_graph_ss << '\n';
-            continue;
-        }
-        for (auto const& deps : optimal_cut.at(xag_id)) {
-            dep_graph_ss << ' ' << fmt::format("{}", xag_to_deps.at(deps).get());
-        }
-        dep_graph_ss << '\n';
+
+    auto dep_graph = DepGraph{};
+
+    std::map<XAGNodeID, DepGraphNodeID> xag_to_dep;
+    for (auto const& [i, xag_id] : tl::views::enumerate(optimal_cone_tips)) {
+        xag_to_dep[xag_id] = DepGraphNodeID(i);
+        dep_graph.add_node(Node(DepGraphNodeID(i), xag_id));
     }
 
-    auto graph = from_deps_file(dep_graph_ss);
-    return graph;
+    for (auto const& xag_id : optimal_cone_tips) {
+        auto const dep_id = xag_to_dep[xag_id];
+        auto node         = Node(dep_id, xag_id);
+        for (auto const& fanin_ids : optimal_cut.at(xag_id)) {
+            node.dependencies.emplace_back(xag_to_dep[fanin_ids]);
+        }
+    }
+
+    return dep_graph;
 }
 
 std::optional<std::vector<std::vector<bool>>> pebble(SatSolver& solver, size_t const P, DepGraph graph) {
@@ -134,11 +126,10 @@ std::optional<std::vector<std::vector<bool>>> pebble(SatSolver& solver, size_t c
         for (const size_t i : iota(0UL, K - 1)) {
             for (const auto& node : graph.get_graph() | std::views::values) {
                 for (const auto& dep_id : node.dependencies) {
-                    auto dep     = graph.get_node(dep_id);
                     auto const a = Literal(p[i][node.id.get()]);
                     auto const b = Literal(p[i + 1][node.id.get()]);
-                    auto const c = Literal(p[i][dep.id.get()]);
-                    auto const d = Literal(p[i + 1][dep.id.get()]);
+                    auto const c = Literal(p[i][dep_id.get()]);
+                    auto const d = Literal(p[i + 1][dep_id.get()]);
                     solver.add_clause({~a, b, c});
                     solver.add_clause({~a, b, d});
                     solver.add_clause({a, ~b, c});

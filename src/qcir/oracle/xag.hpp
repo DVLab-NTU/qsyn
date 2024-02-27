@@ -32,6 +32,7 @@ using XAGCut    = std::set<XAGNodeID>;
 
 class XAGNode {
 public:
+    XAGNode() : _id(0), _type(XAGNodeType::VOID) {}
     XAGNode(const XAGNodeID id, const std::vector<XAGNodeID> fanins, const std::vector<bool> inverted, XAGNodeType type) : fanins(fanins), inverted(inverted), _id(id), _type(type) {}
 
     XAGNodeID get_id() const { return _id; }
