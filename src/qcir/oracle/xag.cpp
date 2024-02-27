@@ -76,7 +76,7 @@ std::vector<XAGNodeID> XAG::get_cone_node_ids(XAGNodeID const& node_id, XAGCut c
     while (!queue.empty()) {
         auto const node_id = queue.front();
         queue.pop();
-        for (auto const& fanin_id : get_node(node_id)->fanins) {
+        for (auto const& fanin_id : get_node(node_id).fanins) {
             if (cut.contains(node_id) && !cut.contains(fanin_id)) {
                 continue;
             }

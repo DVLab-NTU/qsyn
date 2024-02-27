@@ -27,22 +27,25 @@ using DepGraphNodeID = fluent::NamedType<size_t, struct DepGrapgNodeIDParameter,
 // dependency graph node
 class DepGraphNode {
 public:
-    DepGraphNode() : id{} {}
-    DepGraphNode(DepGraphNodeID const& id) : id(id) {}
+    DepGraphNode(DepGraphNodeID const& id, XAGNodeID const& xag_id = XAGNodeID(0)) : id{id}, xag_id{xag_id} {}
+    DepGraphNode(DepGraphNodeID const& id, XAGNodeID const& xag_id, std::vector<DepGraphNodeID> deps)
+        : id(id), xag_id{xag_id}, dependencies(deps) {}
 
     DepGraphNodeID id;
+    XAGNodeID xag_id;
     std::vector<DepGraphNodeID> dependencies;
 };
 
 class DepGraph {
 public:
     DepGraph() = default;
-    void add_node(DepGraphNode const node) { graph[node.id] = node; }
-    void add_output(DepGraphNodeID const& id) {
-        add_node(DepGraphNode(id));
-        output_ids.insert(id);
+    void add_node(DepGraphNode const node) { graph.emplace(node.id, node); }
+    void add_output(DepGraphNode const node) {
+        add_node(node);
+        output_ids.insert(node.id);
     }
     DepGraphNode& get_node(DepGraphNodeID const& id) { return graph.at(id); }
+    DepGraphNode const& get_node(DepGraphNodeID const& id) const { return graph.at(id); }
     bool is_output(DepGraphNodeID const& id) const { return output_ids.contains(id); }
     size_t size() const { return graph.size(); }
     size_t output_size() const { return output_ids.size(); }
@@ -53,11 +56,11 @@ private:
     std::set<DepGraphNodeID> output_ids;
 };
 
-size_t sanitize_P(size_t const P, size_t const N, size_t const max_deps);
+size_t sanitize_n_ancilla(size_t const P, size_t const N, size_t const max_deps);
 
 DepGraph from_deps_file(std::istream& ifs);
 
-DepGraph from_xag_graph(XAG const& xag, std::map<XAGNodeID, XAGCut> const& optimal_cut);
+DepGraph from_xag_cuts(std::map<XAGNodeID, XAGCut> const& optimal_cut);
 
 std::optional<std::vector<std::vector<bool>>> pebble(dvlab::sat::SatSolver& solver, size_t const P, DepGraph graph);
 
