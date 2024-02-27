@@ -137,8 +137,8 @@ public:
     void list_all_commands() const;
     void list_all_aliases() const;
     void list_all_variables() const;
-    void print_history(size_t n_print = SIZE_MAX) const;
-    void write_history(std::filesystem::path const& filepath, size_t n_print = SIZE_MAX, bool append_quit = true) const;
+    void print_history(size_t n_print = SIZE_MAX, bool include_fails = false) const;
+    void write_history(std::filesystem::path const& filepath, size_t n_print = SIZE_MAX, bool append_quit = true, bool include_fails = false) const;
     inline void clear_history() {
         _history.clear();
         _history_idx = 0;
@@ -203,7 +203,7 @@ private:
     void _replace_at_cursor(std::string_view old_str, std::string_view new_str);
     void _reprint_command();
     void _retrieve_history(size_t index);
-    bool _add_to_history(std::string_view input);
+    bool _add_to_history(std::string_view input, CmdExecResult result);
     void _replace_read_buffer_with_history();
 
     template <typename... Args>
@@ -232,7 +232,7 @@ private:
     std::string _read_buffer;
     size_t _cursor_position = 0;
 
-    std::vector<std::string> _history;
+    std::vector<std::pair<std::string, CmdExecResult>> _history;
     size_t _history_idx        = 0;
     size_t _tab_press_count    = 0;
     bool _listening_for_inputs = false;

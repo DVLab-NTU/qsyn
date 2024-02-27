@@ -49,10 +49,6 @@ CmdExecResult dvlab::CommandLineInterface::execute_one_line(std::istream& istr, 
         return CmdExecResult::quit;
     }
 
-    dvlab::utils::scope_exit const history_guard{[this, &input = input]() {
-        _add_to_history(input);
-    }};
-
     if (input.size()) {
         _println_if_echo("");
     }
@@ -74,6 +70,10 @@ CmdExecResult dvlab::CommandLineInterface::execute_one_line(std::istream& istr, 
 
     CmdExecResult exec_result = CmdExecResult::done;
 
+    dvlab::utils::scope_exit const history_guard{[this, &input = input, &result = exec_result]() {
+        _add_to_history(input, result);
+    }};
+
     while (true) {
         stripped           = dvlab::str::trim_leading_spaces(*stripped);
         auto semicolon_pos = stripped->find_first_of(';');
@@ -88,6 +88,8 @@ CmdExecResult dvlab::CommandLineInterface::execute_one_line(std::istream& istr, 
             auto [cmd, option] = _parse_one_command(this_cmd);
             if (cmd != nullptr) {
                 exec_result = _dispatch_command(cmd, option);
+            } else {
+                exec_result = CmdExecResult::no_op;
             }
         }
         if (semicolon_pos == stripped->size()) {

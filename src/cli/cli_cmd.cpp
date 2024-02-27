@@ -220,19 +220,30 @@ Command history_cmd(CommandLineInterface& cli) {
                 parser.add_argument<bool>("--no-append-quit")
                     .action(store_true)
                     .help("don't append the quit command to the output. This argument has no effect if --output is not specified");
+
+                parser.add_argument<bool>("-f", "--include-fails")
+                    .action(store_true)
+                    .help("include failed commands in the history");
+
+                // parser.add_argument<bool>("--expand-aliases")
+                //     .action(store_true)
+                //     .help("expand aliases in the history");
             },
             [&cli](ArgumentParser const& parser) {
-                auto num = parser.get<size_t>("num");
+                auto num            = parser.get<size_t>("num");
+                auto no_append_quit = parser.get<bool>("--no-append-quit");
+                auto include_fails  = parser.get<bool>("--include-fails");
+                // auto expand_aliases = parser.get<bool>("--expand-aliases");
                 if (parser.parsed("--clear")) {
                     cli.clear_history();
                     return CmdExecResult::done;
                 }
                 if (parser.parsed("--output")) {
-                    cli.write_history(parser.get<std::string>("--output"), num, !parser.get<bool>("--no-append-quit"));
+                    cli.write_history(parser.get<std::string>("--output"), num, !no_append_quit, include_fails);
                     return CmdExecResult::done;
                 }
 
-                cli.print_history(num);
+                cli.print_history(num, include_fails);
 
                 return CmdExecResult::done;
             }};
@@ -289,10 +300,10 @@ Command usage_cmd() {
 }
 
 Command logger_cmd() {
+    static auto const log_levels = std::vector<std::string>{"off", "critical", "error", "warning", "info", "debug", "trace"};
     return Command{
         "logger",
         [](ArgumentParser& parser) {
-            static auto const log_levels = std::vector<std::string>{"off", "critical", "error", "warning", "info", "debug", "trace"};
             parser.description("display and set the logger's status");
 
             auto mutex = parser.add_mutually_exclusive_group();
@@ -304,7 +315,7 @@ Command logger_cmd() {
             mutex.add_argument<std::string>("level")
                 .nargs(NArgsOption::optional)
                 .constraint(choices_allow_prefix(log_levels))
-                .help("set log levels. Levels (ascending): off, critical, error, warning, info, debug, trace");
+                .help(fmt::format("set log levels. Levels (ascending): {}", fmt::join(log_levels, ", ")));
         },
         [](ArgumentParser const& parser) {
             if (parser.parsed("level")) {
@@ -314,13 +325,13 @@ Command logger_cmd() {
                 return CmdExecResult::done;
             }
             if (parser.parsed("--test")) {
-                spdlog::log(spdlog::level::level_enum::off, "Regular printing (level `off`)");
-                spdlog::critical("A log message with level `critical`");
-                spdlog::error("A log message with level `error`");
-                spdlog::warn("A log message with level `warning`");
-                spdlog::info("A log message with level `info`");
-                spdlog::debug("A log message with level `debug`");
-                spdlog::trace("A log message with level `trace`");
+                spdlog::log(spdlog::level::level_enum::off, "Regular printing (level `{}`)", log_levels[0]);
+                spdlog::critical("A log message with level `{}`", log_levels[1]);
+                spdlog::error("A log message with level `{}`", log_levels[2]);
+                spdlog::warn("A log message with level `{}`", log_levels[3]);
+                spdlog::info("A log message with level `{}`", log_levels[4]);
+                spdlog::debug("A log message with level `{}`", log_levels[5]);
+                spdlog::trace("A log message with level `{}`", log_levels[6]);
                 return CmdExecResult::done;
             }
 
