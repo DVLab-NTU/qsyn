@@ -4,9 +4,9 @@ qcir print --diagram
 qcir print --gate 0
 qc2ts
 qc2zx
-zx print -q
+zx print -r
 zx optimize --full
-zx print -q
+zx print -r
 zx2ts
 tensor equiv 0 1
 qcir delete --all

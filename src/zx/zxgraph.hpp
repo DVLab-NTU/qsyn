@@ -198,7 +198,9 @@ public:
 
     // Add and Remove
     ZXVertex* add_input(QubitIdType qubit, float col = 0.f);
+    ZXVertex* add_input(QubitIdType qubit, float row, float col);
     ZXVertex* add_output(QubitIdType qubit, float col = 0.f);
+    ZXVertex* add_output(QubitIdType qubit, float row, float col);
     ZXVertex* add_vertex(VertexType vt, Phase phase = Phase(), float row = 0.f, float col = 0.f);
     void add_edge(ZXVertex* vs, ZXVertex* vt, EdgeType et);
 
@@ -243,7 +245,7 @@ public:
     void print_io() const;
     void print_vertices(spdlog::level::level_enum lvl = spdlog::level::level_enum::off) const;
     void print_vertices(std::vector<size_t> cand) const;
-    void print_vertices_by_qubits(spdlog::level::level_enum lvl = spdlog::level::level_enum::off, QubitIdList cand = {}) const;
+    void print_vertices_by_rows(spdlog::level::level_enum lvl = spdlog::level::level_enum::off, std::vector<float> cand = {}) const;
     void print_edges() const;
 
     void print_difference(ZXGraph* other) const;

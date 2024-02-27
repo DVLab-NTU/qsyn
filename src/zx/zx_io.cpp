@@ -22,6 +22,7 @@
 #include "./zxgraph.hpp"
 #include "util/sysdep.hpp"
 #include "util/tmp_files.hpp"
+#include "util/util.hpp"
 
 namespace qsyn::zx {
 
@@ -30,7 +31,8 @@ namespace detail {
 struct VertexInfo {
     char type         = 'Z';
     QubitIdType qubit = 0;
-    float column      = 0.0f;
+    float row         = 0.f;
+    float column      = 0.f;
     std::vector<std::pair<char, size_t>> neighbors;
     Phase phase;
 };
@@ -39,26 +41,22 @@ using StorageType = dvlab::utils::ordered_hashmap<size_t, VertexInfo>;
 
 class ZXFileParser {
 public:
-    ZXFileParser() {}
-
     std::optional<StorageType> parse(std::istream& f);
 
     static constexpr std::string_view supported_vertex_type = "IOZXH";
     static constexpr std::string_view supported_edge_type   = "SH";
 
 private:
-    unsigned _line_no = 1;
+    size_t _line_no = 1;
     std::unordered_set<int> _taken_input_qubits;
     std::unordered_set<int> _taken_output_qubits;
 
     // parsing subroutines
     bool _tokenize(std::string const& line, std::vector<std::string>& tokens);
 
-    std::optional<std::pair<char, unsigned>> _parse_type_and_id(StorageType const& storage, std::string const& token);
-    bool _is_valid_tokens_for_boundary_vertex(std::vector<std::string> const& tokens);
-    bool _is_valid_tokens_for_h_box(std::vector<std::string> const& tokens);
+    std::optional<std::pair<char, size_t>> _parse_type_and_id(StorageType const& storage, std::string const& token);
 
-    bool _parse_qubit(std::string const& token, char const& type, int& qubit);
+    bool _parse_row(std::string const& token, float& row);
     bool _parse_column(std::string const& token, float& column);
 
     bool _parse_neighbors(std::string const& token, std::pair<char, size_t>& neighbor);
@@ -77,12 +75,17 @@ private:
  */
 std::optional<StorageType> ZXFileParser::parse(std::istream& f) {
     // each line should be in the format of
-    // <VertexString> [(<Qubit, Column>)] [NeighborString...] [Phase phase]
+    // <I|O><Vertex id>   [(<Qubit, Column>)] [<<S|H><neighbor id>...] [size_t qubit_id]
+    // <Z|X|H><Vertex id> [(<Qubit, Column>)] [<<S|H><neighbor id>...] [Phase phase]
     auto storage = StorageType{};
     _taken_input_qubits.clear();
     _taken_output_qubits.clear();
     _line_no = 1;
-    for (std::string line; getline(f, line); _line_no++) {
+
+    QubitIdType max_input_qubit_id  = 0;
+    QubitIdType max_output_qubit_id = 0;
+
+    for (std::string line; std::getline(f, line); _line_no++) {
         line = dvlab::str::trim_spaces(dvlab::str::trim_comments(line));
         if (line.empty()) continue;
 
@@ -92,36 +95,67 @@ std::optional<StorageType> ZXFileParser::parse(std::istream& f) {
         VertexInfo info;
 
         auto const type_and_id = _parse_type_and_id(storage, tokens[0]);
-        if (!type_and_id.has_value()) return std::nullopt;
+        if (!type_and_id) return std::nullopt;
 
-        info.type = type_and_id.value().first;
-        auto id   = type_and_id.value().second;
+        info.type = type_and_id->first;
+        auto id   = type_and_id->second;
 
-        if (info.type == 'I' || info.type == 'O') {
-            if (!_is_valid_tokens_for_boundary_vertex(tokens)) return std::nullopt;
+        if (info.type == 'H') info.phase = Phase(1);
+
+        switch (info.type) {
+            case 'I': {
+                if (auto const qubit = dvlab::str::from_string<int>(tokens.back()); qubit.has_value() && tokens.size() > 3) {
+                    tokens.pop_back();
+                    info.qubit         = qubit.value();
+                    max_input_qubit_id = std::max(max_input_qubit_id, info.qubit);
+                } else {
+                    info.qubit = max_input_qubit_id++;
+                }
+                if (_taken_input_qubits.contains(info.qubit)) {
+                    _print_failed_at_line_no();
+                    spdlog::error("duplicated input qubit ID ({})!!", info.qubit);
+                    return std::nullopt;
+                }
+                _taken_input_qubits.insert(info.qubit);
+                info.row = static_cast<float>(info.qubit);
+                break;
+            }
+            case 'O': {
+                if (auto const qubit = dvlab::str::from_string<int>(tokens.back()); qubit.has_value() && tokens.size() > 3) {
+                    tokens.pop_back();
+                    info.qubit          = qubit.value();
+                    max_output_qubit_id = std::max(max_output_qubit_id, info.qubit);
+                } else {
+                    info.qubit = max_output_qubit_id++;
+                }
+                if (_taken_output_qubits.contains(info.qubit)) {
+                    _print_failed_at_line_no();
+                    spdlog::error("duplicated output qubit ID ({})!!", info.qubit);
+                    return std::nullopt;
+                }
+                info.row = static_cast<float>(info.qubit);
+                break;
+            }
+            default: {
+                if (auto const phase = Phase::from_string(tokens.back()); phase.has_value() && tokens.size() > 3) {
+                    tokens.pop_back();
+                    info.phase = phase.value();
+                }
+                info.row = 0;
+                break;
+            }
         }
-        if (info.type == 'H') {
-            if (!_is_valid_tokens_for_h_box(tokens)) return std::nullopt;
-            info.phase = Phase(1);
-        }
 
-        if (!_parse_qubit(tokens[1], info.type, info.qubit)) return std::nullopt;
+        if (!_parse_row(tokens[1], info.row)) return std::nullopt;
         if (!_parse_column(tokens[2], info.column)) return std::nullopt;
 
-        if (tokens.size() > 3) {
-            if (auto phase = Phase::from_string(tokens.back()); phase.has_value()) {
-                tokens.pop_back();
-                info.phase = phase.value();
-            }
-
-            std::pair<char, size_t> neighbor;
-            for (size_t i = 3; i < tokens.size(); ++i) {
-                if (!_parse_neighbors(tokens[i], neighbor)) return std::nullopt;
-                info.neighbors.emplace_back(neighbor);
-            }
+        std::pair<char, size_t> neighbor;
+        for (size_t i = 3; i < tokens.size(); ++i) {
+            if (!_parse_neighbors(tokens[i], neighbor)) return std::nullopt;
+            info.neighbors.emplace_back(neighbor);
         }
 
-        storage[id] = info;
+        storage.emplace(id, info);
     }
 
     return storage;
@@ -154,14 +188,14 @@ bool ZXFileParser::_tokenize(std::string const& line, std::vector<std::string>& 
     auto const left_paren_pos  = line.find_first_of('(', pos);
     auto const right_paren_pos = line.find_first_of(')', left_paren_pos == std::string::npos ? 0 : left_paren_pos);
 
-    auto const parenthesis_case = [&]() -> ParenthesisCase {
+    auto const parenthesis_case = std::invoke([&]() -> ParenthesisCase {
         auto const has_left_parenthesis  = (left_paren_pos != std::string::npos);
         auto const has_right_parenthesis = (right_paren_pos != std::string::npos);
         if (has_left_parenthesis && has_right_parenthesis) return ParenthesisCase::both;
         if (has_left_parenthesis && !has_right_parenthesis) return ParenthesisCase::left;
         if (!has_left_parenthesis && has_right_parenthesis) return ParenthesisCase::right;
         return ParenthesisCase::none;
-    }();
+    });
 
     switch (parenthesis_case) {
         case ParenthesisCase::none:
@@ -230,7 +264,7 @@ bool ZXFileParser::_tokenize(std::string const& line, std::vector<std::string>& 
  * @return true
  * @return false
  */
-std::optional<std::pair<char, unsigned>> ZXFileParser::_parse_type_and_id(StorageType const& storage, std::string const& token) {
+std::optional<std::pair<char, size_t>> ZXFileParser::_parse_type_and_id(StorageType const& storage, std::string const& token) {
     auto type = dvlab::str::toupper(token[0]);
 
     if (type == 'G') {
@@ -253,7 +287,7 @@ std::optional<std::pair<char, unsigned>> ZXFileParser::_parse_type_and_id(Storag
         return std::nullopt;
     }
 
-    auto id = dvlab::str::from_string<unsigned>(id_string);
+    auto id = dvlab::str::from_string<size_t>(id_string);
 
     if (!id) {
         _print_failed_at_line_no();
@@ -267,49 +301,7 @@ std::optional<std::pair<char, unsigned>> ZXFileParser::_parse_type_and_id(Storag
         return std::nullopt;
     }
 
-    return std::make_optional<std::pair<char, unsigned>>({type, id.value()});
-}
-
-/**
- * @brief Check the tokens are valid for boundary vertices
- *
- * @param tokens
- * @return true
- * @return false
- */
-bool ZXFileParser::_is_valid_tokens_for_boundary_vertex(std::vector<std::string> const& tokens) {
-    if (tokens[1] == "-") {
-        _print_failed_at_line_no();
-        spdlog::error("please specify the qubit ID to boundary vertex!!");
-        return false;
-    }
-
-    if (tokens.size() <= 3) return true;
-
-    if (Phase::from_string(tokens.back()).has_value()) {
-        _print_failed_at_line_no();
-        spdlog::error("cannot assign phase to boundary vertex!!");
-        return false;
-    }
-    return true;
-}
-
-/**
- * @brief Check the tokens are valid for H boxes
- *
- * @param tokens
- * @return true
- * @return false
- */
-bool ZXFileParser::_is_valid_tokens_for_h_box(std::vector<std::string> const& tokens) {
-    if (tokens.size() <= 3) return true;
-
-    if (Phase::from_string(tokens.back()).has_value()) {
-        _print_failed_at_line_no();
-        spdlog::error("cannot assign phase to H-box!!");
-        return false;
-    }
-    return true;
+    return std::make_optional<std::pair<char, size_t>>({type, id.value()});
 }
 
 /**
@@ -321,34 +313,15 @@ bool ZXFileParser::_is_valid_tokens_for_h_box(std::vector<std::string> const& to
  * @return true
  * @return false
  */
-bool ZXFileParser::_parse_qubit(std::string const& token, char const& type, int& qubit) {
+bool ZXFileParser::_parse_row(std::string const& token, float& row) {
     if (token == "-") {
-        qubit = 0;
         return true;
     }
 
-    if (!dvlab::str::str_to_i(token, qubit)) {
+    if (!dvlab::str::str_to_f(token, row)) {
         _print_failed_at_line_no();
-        spdlog::error("qubit ID ({}) is not an integer!!", token);
+        spdlog::error("row ({}) is not an floating-point number!!", token);
         return false;
-    }
-
-    if (type == 'I') {
-        if (_taken_input_qubits.contains(qubit)) {
-            _print_failed_at_line_no();
-            spdlog::error("duplicated input qubit ID ({})!!", qubit);
-            return false;
-        }
-        _taken_input_qubits.insert(qubit);
-    }
-
-    if (type == 'O') {
-        if (_taken_output_qubits.contains(qubit)) {
-            _print_failed_at_line_no();
-            spdlog::error("duplicated output qubit ID ({})!!", qubit);
-            return false;
-        }
-        _taken_output_qubits.insert(qubit);
     }
 
     return true;
@@ -370,7 +343,7 @@ bool ZXFileParser::_parse_column(std::string const& token, float& column) {
 
     if (!dvlab::str::str_to_f(token, column)) {
         _print_failed_at_line_no();
-        spdlog::error("column ID ({}) is not an unsigned integer!!", token);
+        spdlog::error("column ({}) is not an floating-point number!!", token);
         return false;
     }
 
@@ -422,15 +395,15 @@ std::optional<ZXGraph> build_graph_from_parser_storage(StorageType const& storag
             [&info = info, &graph]() {
                 switch (info.type) {
                     case 'I':
-                        return graph.add_input(info.qubit, info.column);
+                        return graph.add_input(info.qubit, info.row, info.column);
                     case 'O':
-                        return graph.add_output(info.qubit, info.column);
+                        return graph.add_output(info.qubit, info.row, info.column);
                     case 'Z':
-                        return graph.add_vertex(VertexType::z, info.phase, static_cast<float>(info.qubit), info.column);
+                        return graph.add_vertex(VertexType::z, info.phase, info.row, info.column);
                     case 'X':
-                        return graph.add_vertex(VertexType::x, info.phase, static_cast<float>(info.qubit), info.column);
+                        return graph.add_vertex(VertexType::x, info.phase, info.row, info.column);
                     case 'H':
-                        return graph.add_vertex(VertexType::h_box, info.phase, static_cast<float>(info.qubit), info.column);
+                        return graph.add_vertex(VertexType::h_box, info.phase, info.row, info.column);
                     default:
                         DVLAB_UNREACHABLE("unsupported vertex type");
                 }

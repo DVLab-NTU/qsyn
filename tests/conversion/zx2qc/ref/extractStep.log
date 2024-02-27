@@ -19,7 +19,7 @@ qsyn> qcir
 -> #QCir: 2
 -> Now focused on: QCir 1
 
-qsyn> zx print -q
+qsyn> zx print -r
 
 ID:   15 (Z, π/4)     (Qubit, Col): (-2, 5)        #Neighbors:   1    (16, H)
 ID:   17 (Z, -π/4)    (Qubit, Col): (-2, 15)       #Neighbors:   1    (18, H)
@@ -169,7 +169,7 @@ qsyn> zx compose 0
 
 qsyn> zx optimize --full
 
-qsyn> zx print -q
+qsyn> zx print -r
 
 ID:  102 (Z, π/4)     (Qubit, Col): (-2, 69)       #Neighbors:   1    (103, H)
 ID:  104 (Z, -π/4)    (Qubit, Col): (-2, 79)       #Neighbors:   1    (105, H)

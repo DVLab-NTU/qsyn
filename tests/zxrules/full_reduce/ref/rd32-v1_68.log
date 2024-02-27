@@ -2,7 +2,7 @@ qsyn> qcir read ./benchmark/SABRE/small/rd32-v1_68.qasm
 
 qsyn> qc2zx
 
-qsyn> zx print -q
+qsyn> zx print -r
 
 ID:    0 (●, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (8, -)
 ID:    1 (●, 0)       (Qubit, Col): (0, 37)        #Neighbors:   1    (35, -)
@@ -90,7 +90,7 @@ qsyn> zx optimize --full
 
 qsyn> logger warn
 
-qsyn> zx print -q
+qsyn> zx print -r
 
 ID:   61 (Z, -π/4)    (Qubit, Col): (-2, 6)        #Neighbors:   1    (62, H)
 ID:   67 (Z, -π/4)    (Qubit, Col): (-2, 28)       #Neighbors:   1    (68, H)

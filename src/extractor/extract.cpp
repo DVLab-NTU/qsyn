@@ -81,7 +81,7 @@ void Extractor::initialize(bool from_empty_qcir) {
     }
     print_frontier(spdlog::level::level_enum::trace);
     print_neighbors(spdlog::level::level_enum::trace);
-    _graph->print_vertices_by_qubits(spdlog::level::level_enum::trace);
+    _graph->print_vertices_by_rows(spdlog::level::level_enum::trace);
     _logical_circuit->print_circuit_diagram(spdlog::level::level_enum::trace);
 }
 
@@ -105,12 +105,12 @@ QCir* Extractor::extract() {
 
     spdlog::info("Finished Extracting!");
     _logical_circuit->print_circuit_diagram(spdlog::level::level_enum::trace);
-    _graph->print_vertices_by_qubits(spdlog::level::level_enum::trace);
+    _graph->print_vertices_by_rows(spdlog::level::level_enum::trace);
 
     if (PERMUTE_QUBITS) {
         permute_qubits();
         _logical_circuit->print_circuit_diagram(spdlog::level::level_enum::trace);
-        _graph->print_vertices_by_qubits(spdlog::level::level_enum::trace);
+        _graph->print_vertices_by_rows(spdlog::level::level_enum::trace);
     }
 
     return _logical_circuit;
@@ -133,7 +133,7 @@ bool Extractor::extraction_loop(std::optional<size_t> max_iter) {
         if (remove_gadget()) {
             spdlog::debug("Gadget(s) are removed.");
             print_frontier(spdlog::level::level_enum::trace);
-            _graph->print_vertices_by_qubits(spdlog::level::level_enum::trace);
+            _graph->print_vertices_by_rows(spdlog::level::level_enum::trace);
             _logical_circuit->print_circuit_diagram(spdlog::level::level_enum::trace);
             continue;
         }
@@ -156,7 +156,7 @@ bool Extractor::extraction_loop(std::optional<size_t> max_iter) {
 
         print_frontier(spdlog::level::level_enum::trace);
         print_neighbors(spdlog::level::level_enum::trace);
-        _graph->print_vertices_by_qubits(spdlog::level::level_enum::trace);
+        _graph->print_vertices_by_rows(spdlog::level::level_enum::trace);
         _logical_circuit->print_circuit_diagram(spdlog::level::level_enum::trace);
 
         if (max_iter.has_value()) (*max_iter)--;
@@ -199,7 +199,7 @@ void Extractor::extract_singles() {
         _graph->remove_edge(s, t, EdgeType::hadamard);
     }
     _logical_circuit->print_circuit_diagram(spdlog::level::level_enum::trace);
-    _graph->print_vertices_by_qubits(spdlog::level::level_enum::trace);
+    _graph->print_vertices_by_rows(spdlog::level::level_enum::trace);
 }
 
 /**
@@ -245,7 +245,7 @@ bool Extractor::extract_czs(bool check) {
         prepend_series_gates(ops);
     }
     _logical_circuit->print_circuit_diagram(spdlog::level::level_enum::trace);
-    _graph->print_vertices_by_qubits(spdlog::level::level_enum::trace);
+    _graph->print_vertices_by_rows(spdlog::level::level_enum::trace);
 
     return true;
 }

@@ -14,6 +14,7 @@
 #include <ranges>
 
 #include "./zx_def.hpp"
+#include "qsyn/qsyn_type.hpp"
 #include "tl/enumerate.hpp"
 #include "util/boolean_matrix.hpp"
 
@@ -207,17 +208,14 @@ double ZXGraph::density() {
 /*   class ZXGraph Add functions                     */
 /*****************************************************/
 
-/**
- * @brief Add input to the ZXGraph
- *
- * @param qubit
- * @param col
- * @return ZXVertex*
- */
 ZXVertex* ZXGraph::add_input(QubitIdType qubit, float col) {
+    return add_input(qubit, static_cast<float>(qubit), col);
+}
+
+ZXVertex* ZXGraph::add_input(QubitIdType qubit, float row, float col) {
     assert(!is_input_qubit(qubit));
 
-    auto v = new ZXVertex(_next_v_id, qubit, VertexType::boundary, Phase(), static_cast<float>(qubit), col);
+    auto v = new ZXVertex(_next_v_id, qubit, VertexType::boundary, Phase(), row, col);
     _inputs.emplace(v);
     _input_list.emplace(qubit, v);
     _vertices.emplace(v);
@@ -225,16 +223,14 @@ ZXVertex* ZXGraph::add_input(QubitIdType qubit, float col) {
     return v;
 }
 
-/**
- * @brief Add output to the ZXGraph
- *
- * @param qubit
- * @return ZXVertex*
- */
 ZXVertex* ZXGraph::add_output(QubitIdType qubit, float col) {
+    return add_output(qubit, static_cast<float>(qubit), col);
+}
+
+ZXVertex* ZXGraph::add_output(QubitIdType qubit, float row, float col) {
     assert(!is_output_qubit(qubit));
 
-    auto v = new ZXVertex(_next_v_id, qubit, VertexType::boundary, Phase(), static_cast<float>(qubit), col);
+    auto v = new ZXVertex(_next_v_id, qubit, VertexType::boundary, Phase(), row, col);
     _outputs.emplace(v);
     _output_list.emplace(qubit, v);
     _vertices.emplace(v);
@@ -465,7 +461,7 @@ void ZXGraph::adjoint() {
  * @param phase
  */
 void ZXGraph::assign_vertex_to_boundary(QubitIdType qubit, bool is_input, VertexType vtype, Phase phase) {
-    ZXVertex* v        = add_vertex(vtype, phase, static_cast<float>(qubit));
+    ZXVertex* v        = add_vertex(vtype, phase, gsl::narrow<float>(qubit));
     ZXVertex* boundary = is_input ? _input_list[qubit] : _output_list[qubit];
     for (auto& [nb, etype] : this->get_neighbors(boundary)) {
         add_edge(v, nb, etype);

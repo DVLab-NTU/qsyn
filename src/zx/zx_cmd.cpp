@@ -184,9 +184,9 @@ Command zxgraph_print_cmd(ZXGraphMgr const& zxgraph_mgr) {
                 mutex.add_argument<bool>("-e", "--edges")
                     .action(store_true)
                     .help("print the edges info of ZXGraph");
-                mutex.add_argument<int>("-q", "--qubits")
+                mutex.add_argument<float>("-r", "--rows")
                     .nargs(NArgsOption::zero_or_more)
-                    .help("print the vertices of ZXGraph by their qubits");
+                    .help("print the vertices of ZXGraph row by row");
                 mutex.add_argument<size_t>("-n", "--neighbors")
                     .constraint(valid_zxvertex_id(zxgraph_mgr))
                     .help("print the neighbor info of ZXGraph");
@@ -218,9 +218,9 @@ Command zxgraph_print_cmd(ZXGraphMgr const& zxgraph_mgr) {
                         zxgraph_mgr.get()->print_vertices(vids);
                 } else if (parser.parsed("--edges")) {
                     zxgraph_mgr.get()->print_edges();
-                } else if (parser.parsed("--qubits")) {
-                    auto qids = parser.get<std::vector<int>>("--qubits");
-                    zxgraph_mgr.get()->print_vertices_by_qubits(spdlog::level::level_enum::off, qids);
+                } else if (parser.parsed("--rows")) {
+                    auto qids = parser.get<std::vector<float>>("--rows");
+                    zxgraph_mgr.get()->print_vertices_by_rows(spdlog::level::level_enum::off, qids);
                 } else if (parser.parsed("--neighbors")) {
                     auto v = zxgraph_mgr.get()->find_vertex_by_id(parser.get<size_t>("--neighbors"));
                     v->print_vertex();

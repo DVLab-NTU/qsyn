@@ -98,7 +98,7 @@ ZXGraph& ZXGraph::compose(ZXGraph const& target) {
 
     // Update `_col` of copiedGraph to make them unique to the original graph
     for (auto const& v : copied_graph.get_vertices()) {
-        v->set_col(v->get_col() + max_col + 1);
+        v->set_col(v->get_col() + static_cast<float>(max_col) + 1);
     }
 
     // Sort ori-output and copy-input

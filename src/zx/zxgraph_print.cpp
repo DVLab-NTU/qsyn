@@ -89,7 +89,7 @@ void ZXGraph::print_vertices(std::vector<size_t> cand) const {
  *
  * @param cand
  */
-void ZXGraph::print_vertices_by_qubits(spdlog::level::level_enum lvl, QubitIdList cand) const {
+void ZXGraph::print_vertices_by_rows(spdlog::level::level_enum lvl, std::vector<float> cand) const {
     std::map<float, std::vector<ZXVertex*>> q2_vmap;
     for (auto const& v : _vertices) {
         if (!q2_vmap.contains(v->get_row())) {
