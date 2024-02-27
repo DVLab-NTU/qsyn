@@ -7,7 +7,7 @@ qc2zx
 zx print -v
 zx rule --hadamard-rule
 zx print -v
-zx vertex add hbox 0 0
+zx vertex add hbox 0
 zx edge add 0 4 HADAMARD
 zx edge add 1 4 SIMPLE
 zx edge remove 0 1 ALL
@@ -91,8 +91,8 @@ qcir gate add z 1
 qcir print --gate
 qc2zx
 zx print -v
-zx vertex add hbox 0 0
-zx vertex add hbox 1 0
+zx vertex add hbox 0
+zx vertex add hbox 0
 zx edge add 4 6 HADAMARD
 zx edge add 6 7 SIMPLE
 zx edge add 7 5 HADAMARD

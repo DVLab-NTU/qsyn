@@ -6,7 +6,7 @@ qsyn> zx vertex add o 0
 
 qsyn> zx vertex add o 1
 
-qsyn> zx vertex add z 0 pi/2
+qsyn> zx vertex add z pi/2
 
 qsyn> zx edge add 0 3 SIMPLE
 

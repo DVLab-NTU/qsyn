@@ -403,33 +403,48 @@ Command zxgraph_vertex_add_cmd(ZXGraphMgr& zxgraph_mgr) {
             [](ArgumentParser& parser) {
                 parser.description("add vertices to ZXGraph");
 
-                parser.add_argument<std::string>("vtype")
-                    .constraint(choices_allow_prefix({"input", "output", "zspider", "xspider", "hbox"}))
-                    .help("the type of the vertex. Choices: `input`, `output`, `zspider`, `xspider`, `hbox`");
+                auto subparsers = parser.add_subparsers().required(true);
 
-                parser.add_argument<QubitIdType>("qubit")
+                auto i_parser = subparsers.add_parser("input")
+                                    .description("add input vertex to ZXGraph");
+                auto o_parser = subparsers.add_parser("output")
+                                    .description("add output vertex to ZXGraph");
+                auto z_parser = subparsers.add_parser("zspider")
+                                    .description("add Z-Spider vertex to ZXGraph");
+                auto x_parser = subparsers.add_parser("xspider")
+                                    .description("add X-Spider vertex to ZXGraph");
+                auto h_parser = subparsers.add_parser("hbox")
+                                    .description("add H-Box vertex to ZXGraph");
+
+                i_parser.add_argument<QubitIdType>("qubit")
                     .nargs(NArgsOption::optional)
-                    .help("the qubit ID of the vertex. If adding input or output vertices, this argument must be unique");
+                    .help("specify the unique qubit ID for input or output vertex. if not specified, a new qubit ID will be assigned");
 
-                parser.add_argument<Phase>("phase")
+                o_parser.add_argument<QubitIdType>("qubit")
+                    .nargs(NArgsOption::optional)
+                    .help("specify the unique qubit ID for input or output vertex. if not specified, a new qubit ID will be assigned");
+
+                z_parser.add_argument<Phase>("phase")
                     .nargs(NArgsOption::optional)
                     .help("the phase of the vertex. Default: 0");
+
+                x_parser.add_argument<Phase>("phase")
+                    .nargs(NArgsOption::optional)
+                    .help("the phase of the vertex. Default: 0");
+
+                h_parser.add_argument<Phase>("phase")
+                    .nargs(NArgsOption::optional)
+                    .help("the phase of the vertex. Default: pi");
             },
             [&](ArgumentParser const& parser) {
                 if (!dvlab::utils::mgr_has_data(zxgraph_mgr)) return CmdExecResult::error;
-                auto const vtype_str = parser.get<std::string>("vtype");
-                if (dvlab::str::is_prefix_of(vtype_str, "input")) {
-                    if (!parser.parsed("qubit")) {
-                        spdlog::error("The qubit ID of the input vertex must be specified!!");
-                        return CmdExecResult::error;
-                    }
-                    auto const qid = parser.get<QubitIdType>("qubit");
+
+                if (parser.used_subparser("input")) {
+                    auto const qid = parser.parsed("qubit")
+                                         ? parser.get<QubitIdType>("qubit")
+                                         : gsl::narrow<QubitIdType>(std::ranges::max(zxgraph_mgr.get()->get_input_list() | std::views::keys) + 1);
                     if (zxgraph_mgr.get()->is_input_qubit(qid)) {
                         spdlog::error("Input vertex for qubit {} already exists!!", qid);
-                        return CmdExecResult::error;
-                    }
-                    if (parser.parsed("phase")) {
-                        spdlog::error("Input vertex cannot have phase!!");
                         return CmdExecResult::error;
                     }
 
@@ -440,18 +455,12 @@ Command zxgraph_vertex_add_cmd(ZXGraphMgr& zxgraph_mgr) {
                     return CmdExecResult::done;
                 }
 
-                if (dvlab::str::is_prefix_of(vtype_str, "output")) {
-                    if (!parser.parsed("qubit")) {
-                        spdlog::error("The qubit ID of the output vertex must be specified!!");
-                        return CmdExecResult::error;
-                    }
-                    auto const qid = parser.get<QubitIdType>("qubit");
+                if (parser.used_subparser("output")) {
+                    auto const qid = parser.parsed("qubit")
+                                         ? parser.get<QubitIdType>("qubit")
+                                         : gsl::narrow<QubitIdType>(std::ranges::max(zxgraph_mgr.get()->get_output_list() | std::views::keys) + 1);
                     if (zxgraph_mgr.get()->is_output_qubit(qid)) {
                         spdlog::error("Error: output vertex for qubit {} already exists!!", qid);
-                        return CmdExecResult::error;
-                    }
-                    if (parser.parsed("phase")) {
-                        spdlog::error("Error: output vertex cannot have phase!!");
                         return CmdExecResult::error;
                     }
 
@@ -462,19 +471,21 @@ Command zxgraph_vertex_add_cmd(ZXGraphMgr& zxgraph_mgr) {
                     return CmdExecResult::done;
                 }
 
-                auto const vtype = str_to_vertex_type(vtype_str);
+                auto const vtype = std::invoke([&]() -> std::optional<VertexType> {
+                    if (parser.used_subparser("zspider")) return VertexType::z;
+                    if (parser.used_subparser("xspider")) return VertexType::x;
+                    if (parser.used_subparser("hbox")) return VertexType::h_box;
+                    return std::nullopt;
+                });
                 assert(vtype.has_value());
 
-                auto qid   = parser.parsed("qubit")
-                                 ? parser.get<int>("qubit")
-                                 : 0;
                 auto phase = parser.parsed("phase")
                                  ? parser.get<Phase>("phase")
                                  : ((vtype == VertexType::h_box)
                                         ? Phase(1)
                                         : Phase(0));
 
-                auto v = zxgraph_mgr.get()->add_vertex(vtype.value(), phase, static_cast<float>(qid));
+                auto v = zxgraph_mgr.get()->add_vertex(vtype.value(), phase);
                 spdlog::info("Adding vertex {}...", v->get_id());
 
                 return CmdExecResult::done;
