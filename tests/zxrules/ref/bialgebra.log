@@ -8,17 +8,17 @@ qsyn> zx vertex add i 1
 
 qsyn> zx vertex add o 1
 
-qsyn> zx vertex add x 0
+qsyn> zx vertex add x
 
-qsyn> zx vertex add z 0
+qsyn> zx vertex add z
 
-qsyn> zx vertex add x 1
+qsyn> zx vertex add x
 
-qsyn> zx vertex add x 0
+qsyn> zx vertex add x
 
-qsyn> zx vertex add z 0
+qsyn> zx vertex add z
 
-qsyn> zx vertex add z 1
+qsyn> zx vertex add z
 
 qsyn> zx edge add 5 7 SIMPLE
 
@@ -54,9 +54,9 @@ ID:    1 (●, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (8, -)
 ID:    2 (●, 0)       (Qubit, Col): (1, 0)         #Neighbors:   1    (6, -)
 ID:    3 (●, 0)       (Qubit, Col): (1, 0)         #Neighbors:   1    (9, -)
 ID:    4 (X, 0)       (Qubit, Col): (0, 0)         #Neighbors:   3    (0, -) (8, -) (9, -)
-ID:    6 (X, 0)       (Qubit, Col): (1, 0)         #Neighbors:   3    (2, -) (8, -) (9, -)
+ID:    6 (X, 0)       (Qubit, Col): (0, 0)         #Neighbors:   3    (2, -) (8, -) (9, -)
 ID:    8 (Z, 0)       (Qubit, Col): (0, 0)         #Neighbors:   3    (1, -) (4, -) (6, -)
-ID:    9 (Z, 0)       (Qubit, Col): (1, 0)         #Neighbors:   3    (3, -) (4, -) (6, -)
+ID:    9 (Z, 0)       (Qubit, Col): (0, 0)         #Neighbors:   3    (3, -) (4, -) (6, -)
 Total #Vertices: 8
 
 
@@ -83,29 +83,29 @@ qsyn> zx vertex add i 1
 
 qsyn> zx vertex add o 1
 
-qsyn> zx vertex add x 0
+qsyn> zx vertex add x
 
-qsyn> zx vertex add z 0
+qsyn> zx vertex add z
 
-qsyn> zx vertex add x 1
+qsyn> zx vertex add x
 
-qsyn> zx vertex add x 0
+qsyn> zx vertex add x
 
-qsyn> zx vertex add z 0
+qsyn> zx vertex add z
 
-qsyn> zx vertex add z 1
+qsyn> zx vertex add z
 
-qsyn> zx vertex add x 0
+qsyn> zx vertex add x
 
-qsyn> zx vertex add z 0
+qsyn> zx vertex add z
 
-qsyn> zx vertex add x 1
+qsyn> zx vertex add x
 
-qsyn> zx vertex add x 0
+qsyn> zx vertex add x
 
-qsyn> zx vertex add z 0
+qsyn> zx vertex add z
 
-qsyn> zx vertex add z 0
+qsyn> zx vertex add z
 
 qsyn> zx edge add 0 4 SIMPLE
 
@@ -156,7 +156,7 @@ ID:    1 (●, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (14, -)
 ID:    2 (●, 0)       (Qubit, Col): (1, 0)         #Neighbors:   1    (6, -)
 ID:    3 (●, 0)       (Qubit, Col): (1, 0)         #Neighbors:   1    (15, -)
 ID:    4 (X, 0)       (Qubit, Col): (0, 0)         #Neighbors:   2    (0, -) (15, -)
-ID:    6 (X, 0)       (Qubit, Col): (1, 0)         #Neighbors:   2    (2, -) (15, -)
+ID:    6 (X, 0)       (Qubit, Col): (0, 0)         #Neighbors:   2    (2, -) (15, -)
 ID:   13 (X, 0)       (Qubit, Col): (0, 0)         #Neighbors:   2    (14, -) (15, -)
 ID:   14 (Z, 0)       (Qubit, Col): (0, 0)         #Neighbors:   2    (1, -) (13, -)
 ID:   15 (Z, 0)       (Qubit, Col): (0, 0)         #Neighbors:   4    (3, -) (4, -) (6, -) (13, -)
@@ -186,9 +186,9 @@ qsyn> zx vertex add i 1
 
 qsyn> zx vertex add o 1
 
-qsyn> zx vertex add z 0 0
+qsyn> zx vertex add z 0
 
-qsyn> zx vertex add z 0 0
+qsyn> zx vertex add z 0
 
 qsyn> zx edge add 0 4 SIMPLE
 
@@ -230,29 +230,29 @@ qsyn> zx vertex add i 1
 
 qsyn> zx vertex add o 1
 
-qsyn> zx vertex add x 0
+qsyn> zx vertex add x
 
-qsyn> zx vertex add z 0
+qsyn> zx vertex add z
 
-qsyn> zx vertex add x 1
+qsyn> zx vertex add x
 
-qsyn> zx vertex add x 0
+qsyn> zx vertex add x
 
-qsyn> zx vertex add z 0
+qsyn> zx vertex add z
 
-qsyn> zx vertex add z 1
+qsyn> zx vertex add z
 
-qsyn> zx vertex add x 0
+qsyn> zx vertex add x
 
-qsyn> zx vertex add z 0
+qsyn> zx vertex add z
 
-qsyn> zx vertex add x 1
+qsyn> zx vertex add x
 
-qsyn> zx vertex add x 0
+qsyn> zx vertex add x
 
-qsyn> zx vertex add z 0
+qsyn> zx vertex add z
 
-qsyn> zx vertex add z 0
+qsyn> zx vertex add z
 
 qsyn> zx edge add 0 4 SIMPLE
 
@@ -303,11 +303,11 @@ ID:    2 (●, 0)       (Qubit, Col): (1, 0)         #Neighbors:   1    (6, -)
 ID:    3 (●, 0)       (Qubit, Col): (1, 0)         #Neighbors:   1    (15, -)
 ID:    4 (X, 0)       (Qubit, Col): (0, 0)         #Neighbors:   2    (0, -) (5, -)
 ID:    5 (Z, 0)       (Qubit, Col): (0, 0)         #Neighbors:   3    (4, -) (6, H) (10, -)
-ID:    6 (X, 0)       (Qubit, Col): (1, 0)         #Neighbors:   2    (2, -) (5, H)
+ID:    6 (X, 0)       (Qubit, Col): (0, 0)         #Neighbors:   2    (2, -) (5, H)
 ID:    8 (Z, 0)       (Qubit, Col): (0, 0)         #Neighbors:   2    (10, -) (10, H)
 ID:   10 (X, 0)       (Qubit, Col): (0, 0)         #Neighbors:   4    (5, -) (8, -) (8, H) (11, -)
 ID:   11 (Z, 0)       (Qubit, Col): (0, 0)         #Neighbors:   3    (10, -) (12, H) (13, H)
-ID:   12 (X, 0)       (Qubit, Col): (1, 0)         #Neighbors:   2    (11, H) (15, -)
+ID:   12 (X, 0)       (Qubit, Col): (0, 0)         #Neighbors:   2    (11, H) (15, -)
 ID:   13 (X, 0)       (Qubit, Col): (0, 0)         #Neighbors:   2    (11, H) (14, -)
 ID:   14 (Z, 0)       (Qubit, Col): (0, 0)         #Neighbors:   2    (1, H) (13, -)
 ID:   15 (Z, 0)       (Qubit, Col): (0, 0)         #Neighbors:   2    (3, -) (12, -)

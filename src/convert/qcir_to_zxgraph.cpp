@@ -46,7 +46,7 @@ create_multi_control_backbone(ZXGraph& g, std::vector<QubitInfo> const& qubits, 
     for (auto const& bitinfo : qubits) {
         auto qubit    = bitinfo._qubit;
         ZXVertex* in  = g.add_input(qubit);
-        ZXVertex* v   = g.add_vertex(qubit, VertexType::z);
+        ZXVertex* v   = g.add_vertex(VertexType::z, dvlab::Phase{}, static_cast<float>(qubit));
         ZXVertex* out = g.add_output(qubit);
         if (ax == RotationAxis::z || !bitinfo._isTarget) {
             g.add_edge(in, v, EdgeType::simple);
@@ -164,7 +164,7 @@ ZXGraph create_single_vertex_zx_form(QCirGate* gate, VertexType vt, dvlab::Phase
     auto qubit = gate->get_qubits()[0]._qubit;
 
     ZXVertex* in  = g.add_input(qubit);
-    ZXVertex* v   = g.add_vertex(qubit, vt, ph);
+    ZXVertex* v   = g.add_vertex(vt, ph, static_cast<float>(qubit));
     ZXVertex* out = g.add_output(qubit);
     g.add_edge(in, v, EdgeType::simple);
     g.add_edge(v, out, EdgeType::simple);
@@ -186,8 +186,8 @@ ZXGraph create_cx_zx_form(QCirGate* gate) {
 
     ZXVertex* in_ctrl  = g.add_input(ctrl_qubit);
     ZXVertex* in_targ  = g.add_input(targ_qubit);
-    ZXVertex* ctrl     = g.add_vertex(ctrl_qubit, VertexType::z, dvlab::Phase(0));
-    ZXVertex* targ_x   = g.add_vertex(targ_qubit, VertexType::x, dvlab::Phase(0));
+    ZXVertex* ctrl     = g.add_vertex(VertexType::z, dvlab::Phase(0), static_cast<float>(ctrl_qubit));
+    ZXVertex* targ_x   = g.add_vertex(VertexType::x, dvlab::Phase(0), static_cast<float>(targ_qubit));
     ZXVertex* out_ctrl = g.add_output(ctrl_qubit);
     ZXVertex* out_targ = g.add_output(targ_qubit);
     g.add_edge(in_ctrl, ctrl, EdgeType::simple);
@@ -212,7 +212,7 @@ ZXGraph create_ccx_zx_form(QCirGate* gate, size_t decomposition_mode) {
     auto targ_qubit   = gate->get_qubits()[0]._isTarget ? gate->get_qubits()[0]._qubit : (gate->get_qubits()[1]._isTarget ? gate->get_qubits()[1]._qubit : gate->get_qubits()[2]._qubit);
     std::vector<std::pair<std::pair<VertexType, dvlab::Phase>, QubitIdType>> vertices_info;
     std::vector<std::pair<std::pair<size_t, size_t>, EdgeType>> adj_pair;
-    std::vector<int> vertices_col;
+    std::vector<float> vertices_col;
     std::vector<ZXVertex*> vertices_list = {};
     ZXVertex* in_ctrl_1                  = nullptr;
     ZXVertex* in_ctrl_2                  = nullptr;
@@ -230,11 +230,8 @@ ZXGraph create_ccx_zx_form(QCirGate* gate, size_t decomposition_mode) {
         in_ctrl_2 = g.add_input(ctrl_qubit_2, 0);
         in_targ   = g.add_input(targ_qubit, 0);
         for (size_t i = 0; i < vertices_info.size(); i++) {
-            vertices_list.emplace_back(g.add_vertex(vertices_info[i].second, vertices_info[i].first.first, vertices_info[i].first.second));
+            vertices_list.emplace_back(g.add_vertex(vertices_info[i].first.first, vertices_info[i].first.second, static_cast<float>(vertices_info[i].second), vertices_col[i]));
         };
-        for (size_t i = 0; i < vertices_col.size(); i++) {
-            vertices_list[i]->set_col(vertices_col[i]);
-        }
         out_ctrl_1 = g.add_output(ctrl_qubit_1, 12);
         out_ctrl_2 = g.add_output(ctrl_qubit_2, 12);
         out_targ   = g.add_output(targ_qubit, 12);
@@ -254,11 +251,8 @@ ZXGraph create_ccx_zx_form(QCirGate* gate, size_t decomposition_mode) {
         in_ctrl_2 = g.add_input(ctrl_qubit_2, 0);
         in_targ   = g.add_input(targ_qubit, 0);
         for (size_t i = 0; i < vertices_info.size(); i++) {
-            vertices_list.emplace_back(g.add_vertex(vertices_info[i].second, vertices_info[i].first.first, vertices_info[i].first.second));
+            vertices_list.emplace_back(g.add_vertex(vertices_info[i].first.first, vertices_info[i].first.second, static_cast<float>(vertices_info[i].second), vertices_col[i]));
         };
-        for (size_t i = 0; i < vertices_col.size(); i++) {
-            vertices_list[i]->set_col(vertices_col[i]);
-        }
         out_ctrl_1 = g.add_output(ctrl_qubit_1, 12);
         out_ctrl_2 = g.add_output(ctrl_qubit_2, 12);
         out_targ   = g.add_output(targ_qubit, 12);
@@ -277,11 +271,8 @@ ZXGraph create_ccx_zx_form(QCirGate* gate, size_t decomposition_mode) {
         in_ctrl_2 = g.add_input(ctrl_qubit_2, 0);
         in_targ   = g.add_input(targ_qubit, 0);
         for (size_t i = 0; i < vertices_info.size(); i++) {
-            vertices_list.emplace_back(g.add_vertex(vertices_info[i].second, vertices_info[i].first.first, vertices_info[i].first.second));
+            vertices_list.emplace_back(g.add_vertex(vertices_info[i].first.first, vertices_info[i].first.second, static_cast<float>(vertices_info[i].second), vertices_col[i]));
         };
-        for (size_t i = 0; i < vertices_col.size(); i++) {
-            vertices_list[i]->set_col(vertices_col[i]);
-        }
         out_ctrl_1 = g.add_output(ctrl_qubit_1, 6);
         out_ctrl_2 = g.add_output(ctrl_qubit_2, 6);
         out_targ   = g.add_output(targ_qubit, 6);
@@ -301,14 +292,12 @@ ZXGraph create_ccx_zx_form(QCirGate* gate, size_t decomposition_mode) {
         in_ctrl_2 = g.add_input(ctrl_qubit_2, 0);
         in_targ   = g.add_input(targ_qubit, 0);
         for (size_t i = 0; i < vertices_info.size(); i++) {
-            vertices_list.emplace_back(g.add_vertex(vertices_info[i].second, vertices_info[i].first.first, vertices_info[i].first.second));
+            vertices_list.emplace_back(g.add_vertex(vertices_info[i].first.first, vertices_info[i].first.second, static_cast<float>(vertices_info[i].second), vertices_col[i]));
         };
-        for (size_t i = 0; i < vertices_col.size(); i++) {
-            vertices_list[i]->set_col(vertices_col[i]);
-        }
         out_ctrl_1 = g.add_output(ctrl_qubit_1, 12);
         out_ctrl_2 = g.add_output(ctrl_qubit_2, 12);
         out_targ   = g.add_output(targ_qubit, 12);
+
         g.add_edge(in_ctrl_1, vertices_list[16], EdgeType::simple);
         g.add_edge(in_ctrl_2, vertices_list[10], EdgeType::simple);
         g.add_edge(in_targ, vertices_list[0], EdgeType::hadamard);
@@ -349,8 +338,8 @@ ZXGraph create_cz_zx_form(QCirGate* gate) {
 
     ZXVertex* in_ctrl  = g.add_input(ctrl_qubit);
     ZXVertex* in_targ  = g.add_input(targ_qubit);
-    ZXVertex* ctrl     = g.add_vertex(ctrl_qubit, VertexType::z, dvlab::Phase(0));
-    ZXVertex* targ_z   = g.add_vertex(targ_qubit, VertexType::z, dvlab::Phase(0));
+    ZXVertex* ctrl     = g.add_vertex(VertexType::z, dvlab::Phase(0), static_cast<float>(ctrl_qubit));
+    ZXVertex* targ_z   = g.add_vertex(VertexType::z, dvlab::Phase(0), static_cast<float>(targ_qubit));
     ZXVertex* out_ctrl = g.add_output(ctrl_qubit);
     ZXVertex* out_targ = g.add_output(targ_qubit);
     g.add_edge(in_ctrl, ctrl, EdgeType::simple);
@@ -372,9 +361,9 @@ ZXGraph create_ry_zx_form(QCirGate* gate, dvlab::Phase ph) {
     auto qubit = gate->get_qubits()[0]._qubit;
 
     ZXVertex* in  = g.add_input(qubit);
-    ZXVertex* sdg = g.add_vertex(qubit, VertexType::z, dvlab::Phase(-1, 2));
-    ZXVertex* rx  = g.add_vertex(qubit, VertexType::x, ph);
-    ZXVertex* s   = g.add_vertex(qubit, VertexType::z, dvlab::Phase(1, 2));
+    ZXVertex* sdg = g.add_vertex(VertexType::z, dvlab::Phase(-1, 2), static_cast<float>(qubit));
+    ZXVertex* rx  = g.add_vertex(VertexType::x, ph, static_cast<float>(qubit));
+    ZXVertex* s   = g.add_vertex(VertexType::z, dvlab::Phase(1, 2), static_cast<float>(qubit));
     ZXVertex* out = g.add_output(qubit);
     g.add_edge(in, sdg, EdgeType::simple);
     g.add_edge(sdg, rx, EdgeType::simple);
@@ -454,9 +443,8 @@ std::optional<ZXGraph> to_zxgraph(QCir const& qcir, size_t decomposition_mode) {
     ZXGraph g;
     spdlog::debug("Add boundaries");
     for (size_t i = 0; i < qcir.get_qubits().size(); i++) {
-        ZXVertex* input  = g.add_input(qcir.get_qubits()[i]->get_id());
+        ZXVertex* input  = g.add_input(qcir.get_qubits()[i]->get_id(), 0);
         ZXVertex* output = g.add_output(qcir.get_qubits()[i]->get_id());
-        input->set_col(0);
         g.add_edge(input, output, EdgeType::simple);
     }
 
@@ -468,7 +456,7 @@ std::optional<ZXGraph> to_zxgraph(QCir const& qcir, size_t decomposition_mode) {
         assert(tmp.has_value());
 
         for (auto& v : tmp->get_vertices()) {
-            v->set_col(v->get_col() + static_cast<double>(gate->get_time()));
+            v->set_col(v->get_col() + static_cast<float>(gate->get_time()));
         }
 
         g.concatenate(*tmp);

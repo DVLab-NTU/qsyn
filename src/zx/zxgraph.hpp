@@ -48,23 +48,24 @@ class ZXVertex {
     friend class ZXGraph;
 
 public:
-    using QubitIdType  = qsyn::QubitIdType;
-    using ColumnIdType = double;
+    using QubitIdType = qsyn::QubitIdType;
 
-    ZXVertex(size_t id, QubitIdType qubit, VertexType vt, Phase phase = Phase(), ColumnIdType col = 0)
-        : _id{id}, _type{vt}, _qubit{qubit}, _phase{phase}, _col{col} {}
+    ZXVertex(size_t id, QubitIdType qubit, VertexType vt, Phase phase, float row, float col)
+        : _id{id}, _type{vt}, _qubit{qubit}, _phase{phase}, _row{row}, _col{col} {}
     // Getter and Setter
 
     size_t get_id() const { return _id; }
     QubitIdType get_qubit() const { return _qubit; }
     Phase const& get_phase() const { return _phase; }
     VertexType get_type() const { return _type; }
-    ColumnIdType get_col() const { return _col; }
+    float get_row() const { return _row; }
+    float get_col() const { return _col; }
 
     void set_id(size_t id) { _id = id; }
     void set_qubit(QubitIdType q) { _qubit = q; }
     void set_phase(Phase const& p) { _phase = p; }
-    void set_col(ColumnIdType c) { _col = c; }
+    void set_row(float r) { _row = r; }
+    void set_col(float c) { _col = c; }
     void set_type(VertexType vt) { _type = vt; }
 
     // Print functions
@@ -83,16 +84,17 @@ private:
     friend class ZXGraph;
     size_t _id;
     VertexType _type;
-    QubitIdType _qubit;
+    QubitIdType _qubit;  // for boundary vertices, this is the qubit id; for non-boundary vertices,
+                         // this is a dummy value that may be used to mark temporary information
     Phase _phase;
-    ColumnIdType _col;
+    float _row;
+    float _col;
     Neighbors _neighbors;
 };
 
 class ZXGraph {  // NOLINT(cppcoreguidelines-special-member-functions) : copy-swap idiom
 public:
-    using QubitIdType  = ZXVertex::QubitIdType;
-    using ColumnIdType = ZXVertex::ColumnIdType;
+    using QubitIdType = ZXVertex::QubitIdType;
 
     ZXGraph() {}
 
@@ -195,9 +197,11 @@ public:
     inline size_t non_clifford_t_count() const { return non_clifford_count() - t_count(); }
 
     // Add and Remove
-    ZXVertex* add_input(QubitIdType qubit, ColumnIdType col = 0);
-    ZXVertex* add_output(QubitIdType qubit, ColumnIdType col = 0);
-    ZXVertex* add_vertex(QubitIdType qubit, VertexType vt, Phase phase = Phase(), ColumnIdType col = 0);
+    ZXVertex* add_input(QubitIdType qubit, float col = 0.f);
+    ZXVertex* add_input(QubitIdType qubit, float row, float col);
+    ZXVertex* add_output(QubitIdType qubit, float col = 0.f);
+    ZXVertex* add_output(QubitIdType qubit, float row, float col);
+    ZXVertex* add_vertex(VertexType vt, Phase phase = Phase(), float row = 0.f, float col = 0.f);
     void add_edge(ZXVertex* vs, ZXVertex* vt, EdgeType et);
 
     size_t remove_isolated_vertices();
@@ -241,11 +245,10 @@ public:
     void print_io() const;
     void print_vertices(spdlog::level::level_enum lvl = spdlog::level::level_enum::off) const;
     void print_vertices(std::vector<size_t> cand) const;
-    void print_vertices_by_qubits(spdlog::level::level_enum lvl = spdlog::level::level_enum::off, QubitIdList cand = {}) const;
+    void print_vertices_by_rows(spdlog::level::level_enum lvl = spdlog::level::level_enum::off, std::vector<float> cand = {}) const;
     void print_edges() const;
 
     void print_difference(ZXGraph* other) const;
-    void draw() const;
 
     // For mapping (in zxMapping.cpp)
     ZXVertexList get_non_boundary_vertices();
@@ -256,7 +259,6 @@ public:
     std::unordered_map<size_t, ZXVertex*> const& get_output_list() const { return _output_list; }
 
     // I/O (in zxIO.cpp)
-    bool read_zx(std::filesystem::path const& filepath, bool keep_id = false);
     bool write_zx(std::filesystem::path const& filename, bool complete = false) const;
     bool write_tikz(std::string const& filename) const;
     bool write_tikz(std::ostream& os) const;
@@ -301,8 +303,6 @@ private:
 
     void _dfs(std::unordered_set<ZXVertex*>& visited_vertices, std::vector<ZXVertex*>& topological_order, ZXVertex* v) const;
     void _bfs(std::unordered_set<ZXVertex*>& visited_vertices, std::vector<ZXVertex*>& topological_order, ZXVertex* v) const;
-
-    bool _build_graph_from_parser_storage(detail::StorageType const& storage, bool keep_id = false);
 
     void _move_vertices_from(ZXGraph& other);
 };

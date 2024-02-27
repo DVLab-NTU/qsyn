@@ -14,7 +14,7 @@ qsyn> qc2ts
 
 qsyn> qc2zx
 
-qsyn> zx print -q
+qsyn> zx print -r
 
 ID:    0 (●, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (4, -)
 ID:    1 (●, 0)       (Qubit, Col): (0, 3)         #Neighbors:   1    (4, -)
@@ -28,7 +28,7 @@ ID:    5 (X, 0)       (Qubit, Col): (1, 2)         #Neighbors:   3    (2, -) (3,
 
 qsyn> zx optimize --full
 
-qsyn> zx print -q
+qsyn> zx print -r
 
 ID:    0 (●, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (4, -)
 ID:    1 (●, 0)       (Qubit, Col): (0, 3)         #Neighbors:   1    (4, -)

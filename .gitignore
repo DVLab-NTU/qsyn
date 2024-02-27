@@ -5,6 +5,9 @@ qsyn*
 !src/qsyn*
 !src/qsyn/qsyn*
 
+# for work-in-progress things
+wip/
+
 # vscode configuration files and folders
 .vscode
 
