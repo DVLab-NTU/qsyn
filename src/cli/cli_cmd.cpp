@@ -160,8 +160,7 @@ Command help_cmd(CommandLineInterface& cli) {
                 command = cli.get_first_token(alias_replacement_string.value());
             }
 
-            auto e = cli.get_command(command);
-            if (e) {
+            if (auto e = cli.get_command(command)) {
                 e->print_help();
                 return CmdExecResult::done;
             }
