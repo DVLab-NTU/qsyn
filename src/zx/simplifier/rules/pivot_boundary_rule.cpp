@@ -94,15 +94,18 @@ bool PivotBoundaryRule::is_candidate(ZXGraph& graph, ZXVertex* vb, ZXVertex* vn)
         spdlog::error("Vertex {} is not a Z vertex", vb->get_id());
         return false;
     }
-    bool has_boundary = false;
+    size_t has_boundary = 0;
     for (const auto& [nb, etype] : graph.get_neighbors(vb)) {
         if (nb->is_boundary()) {
-            has_boundary = true;
-            break;
+            has_boundary++;
         }
     }
-    if (!has_boundary) {
+    if (has_boundary == 0) {
         spdlog::error("Vertex {} is not connected to a boundary", vb->get_id());
+        return false;
+    }
+    if (has_boundary > 1) {
+        spdlog::error("Vertex {} is connected to more than one boundaries", vb->get_id());
         return false;
     }
     if (!vn->has_n_pi_phase()) {
