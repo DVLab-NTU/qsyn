@@ -18,12 +18,12 @@
 #include "cli/cli.hpp"
 #include "extractor/extract.hpp"
 #include "qcir/qcir_mgr.hpp"
+#include "tensor/decomposer.hpp"
 #include "tensor/tensor_mgr.hpp"
 #include "util/data_structure_manager_common_cmd.hpp"
 #include "util/dvlab_string.hpp"
 #include "util/util.hpp"
 #include "zx/zx_cmd.hpp"
-#include "tensor/decomposer.hpp"
 
 using namespace dvlab::argparse;
 
@@ -96,7 +96,7 @@ Command conversion_cmd(QCirMgr& qcir_mgr, qsyn::tensor::TensorMgr& tensor_mgr, q
 
                 if (get_data_type(from) == data_type::qcir && get_data_type(to) == data_type::tensor) {
                     if (!dvlab::utils::mgr_has_data(qcir_mgr)) return CmdExecResult::error;
-                    spdlog::info("Converting to QCir {} to tensor {}...", qcir_mgr.focused_id(), tensor_mgr.get_next_id());
+                    spdlog::info("Converting to QCir {} to Tensor {}...", qcir_mgr.focused_id(), tensor_mgr.get_next_id());
                     auto tensor = to_tensor(*qcir_mgr.get());
 
                     if (tensor.has_value()) {
@@ -158,25 +158,23 @@ Command conversion_cmd(QCirMgr& qcir_mgr, qsyn::tensor::TensorMgr& tensor_mgr, q
                     return CmdExecResult::done;
                 }
 
-                    // ts2qc
+                // ts2qc
 
                 if (get_data_type(from) == data_type::tensor && get_data_type(to) == data_type::qcir) {
                     if (!dvlab::utils::mgr_has_data(tensor_mgr)) return CmdExecResult::error;
-                    auto ts = tensor_mgr.get();
-                    // fmt::println("TS2QC tensor : {}", *ts);
-                    int qreg = int(log2((*ts).shape()[0]));
-                    decomposer::Decomposer  decomp(qreg);
-                    decomp.decompose(*ts);
-                    
 
-                    qcir::QCir* result = decomp.get_qcir();
+                    spdlog::info("Converting Tensor {} to QCir {}...", tensor_mgr.focused_id(), qcir_mgr.get_next_id());
+                    auto ts           = tensor_mgr.get();
+                    const size_t qreg = size_t(log2((*ts).shape()[0]));
+                    decomposer::Decomposer decomp(qreg);
+                    qcir::QCir* result = decomp.decompose(*ts);
+
                     if (result != nullptr) {
                         qcir_mgr.add(qcir_mgr.get_next_id(), std::make_unique<qcir::QCir>(*result));
                         qcir_mgr.get()->add_procedures(tensor_mgr.get()->get_procedures());
                         qcir_mgr.get()->add_procedure("TS2QC");
                         qcir_mgr.get()->set_filename(tensor_mgr.get()->get_filename());
                     }
-
                     return CmdExecResult::done;
                 }
 

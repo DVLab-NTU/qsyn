@@ -30,7 +30,7 @@
 #include "./tensor_util.hpp"
 #include "util/util.hpp"
 
-#define PI 3.1415926919
+constexpr double PI = 3.1415926919;
 
 namespace qsyn::tensor {
 
@@ -353,8 +353,8 @@ bool Tensor<DT>::tensor_read(std::string const& filepath) {
         spdlog::error("The number of elements in the tensor is not a square number");
         return false;
     }
-    TensorShape shape = {static_cast<size_t>(std::sqrt(data.size())), static_cast<size_t>(std::sqrt(data.size()))};
-    this->_tensor     = xt::adapt(data, shape);
+    const TensorShape shape = {static_cast<size_t>(std::sqrt(data.size())), static_cast<size_t>(std::sqrt(data.size()))};
+    this->_tensor           = xt::adapt(data, shape);
     return true;
 }
 

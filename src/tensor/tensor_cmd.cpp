@@ -80,8 +80,8 @@ Command tensor_read_cmd(TensorMgr& tensor_mgr) {
             },
             [&tensor_mgr](ArgumentParser const& parser) {
                 auto buffer_q_tensor = new QTensor<double>();
-                auto filepath                    = parser.get<std::string>("filepath");
-                auto replace                     = parser.get<bool>("--replace");
+                auto filepath        = parser.get<std::string>("filepath");
+                auto replace         = parser.get<bool>("--replace");
 
                 if (!buffer_q_tensor->tensor_read(filepath)) {
                     spdlog::error("the format in \"{}\" has something wrong!!", filepath);
@@ -116,7 +116,7 @@ Command tensor_read_cmd(TensorMgr& tensor_mgr) {
 //                 //     QTensor<double>* tensor = tensor_mgr.find_by_id(parser.get<size_t>("id"));
 //                 //     decompose(*tensor);
 //                 // } else {
-//                 //     
+//                 //
 //                 //     decompose(*tensor);
 //                 // }
 //                 return CmdExecResult::done;

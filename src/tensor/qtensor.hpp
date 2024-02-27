@@ -420,7 +420,6 @@ typename QTensor<T>::DataType QTensor<T>::_nu_pow(int n) {
     return std::pow(2., -0.25 * n);
 }
 
-
 }  // namespace qsyn::tensor
 
 template <typename T>
