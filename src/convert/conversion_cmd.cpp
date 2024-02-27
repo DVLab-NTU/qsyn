@@ -23,6 +23,7 @@
 #include "util/dvlab_string.hpp"
 #include "util/util.hpp"
 #include "zx/zx_cmd.hpp"
+#include "tensor/decomposer.hpp"
 
 using namespace dvlab::argparse;
 
@@ -157,6 +158,28 @@ Command conversion_cmd(QCirMgr& qcir_mgr, qsyn::tensor::TensorMgr& tensor_mgr, q
                     return CmdExecResult::done;
                 }
 
+                    // ts2qc
+
+                if (get_data_type(from) == data_type::tensor && get_data_type(to) == data_type::qcir) {
+                    if (!dvlab::utils::mgr_has_data(tensor_mgr)) return CmdExecResult::error;
+                    auto ts = tensor_mgr.get();
+                    // fmt::println("TS2QC tensor : {}", *ts);
+                    int qreg = int(log2((*ts).shape()[0]));
+                    decomposer::Decomposer  decomp(qreg);
+                    decomp.decompose(*ts);
+                    
+
+                    qcir::QCir* result = decomp.get_qcir();
+                    if (result != nullptr) {
+                        qcir_mgr.add(qcir_mgr.get_next_id(), std::make_unique<qcir::QCir>(*result));
+                        qcir_mgr.get()->add_procedures(tensor_mgr.get()->get_procedures());
+                        qcir_mgr.get()->add_procedure("TS2QC");
+                        qcir_mgr.get()->set_filename(tensor_mgr.get()->get_filename());
+                    }
+
+                    return CmdExecResult::done;
+                }
+
                 spdlog::error("Conversion from {} to {} is not yet supported!!", from, to);
 
                 return CmdExecResult::error;
@@ -168,7 +191,8 @@ bool add_conversion_cmds(dvlab::CommandLineInterface& cli, QCirMgr& qcir_mgr, qs
           cli.add_alias("qc2zx", "convert qcir zx") &&
           cli.add_alias("qc2ts", "convert qcir tensor") &&
           cli.add_alias("zx2ts", "convert zx tensor") &&
-          cli.add_alias("zx2qc", "convert zx qcir"))) {
+          cli.add_alias("zx2qc", "convert zx qcir") &&
+          cli.add_alias("ts2qc", "convert tensor qcir"))) {
         fmt::println(stderr, "Registering \"conversion\" commands fails... exiting");
         return false;
     }
