@@ -61,7 +61,7 @@ public:
         evaluate_fanouts();
     }
     size_t size() const { return _nodes.size(); }
-    XAGNode* get_node(XAGNodeID id) { return &_nodes[id.get()]; }
+    XAGNode const& get_node(XAGNodeID id) const { return _nodes[id.get()]; }
     void set_node(size_t id, XAGNode node) { _nodes[id] = node; }
     std::vector<XAGNodeID> get_cone_node_ids(XAGNodeID const& node_id, XAGCut const& cut);
     std::vector<XAGNodeID> calculate_topological_order();

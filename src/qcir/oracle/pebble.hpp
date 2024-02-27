@@ -17,6 +17,7 @@
 #include <set>
 #include <tl/to.hpp>
 
+#include "qcir/oracle/xag.hpp"
 #include "util/sat/sat_solver.hpp"
 
 namespace qsyn::qcir {
@@ -54,7 +55,9 @@ private:
 
 size_t sanitize_P(size_t const P, size_t const N, size_t const max_deps);
 
-DepGraph create_dependency_graph(std::istream& ifs);
+DepGraph from_deps_file(std::istream& ifs);
+
+DepGraph from_xag_graph(XAG const& xag, std::map<XAGNodeID, XAGCut> const& optimal_cut);
 
 std::optional<std::vector<std::vector<bool>>> pebble(dvlab::sat::SatSolver& solver, size_t const P, DepGraph graph);
 

@@ -5,7 +5,7 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "./pebble.hpp"
+#include "qcir/oracle/pebble.hpp"
 
 #include <fmt/core.h>
 #include <spdlog/spdlog.h>
@@ -14,7 +14,7 @@
 #include <optional>
 #include <ranges>
 #include <sstream>
-#include <tl/to.hpp>
+#include <tl/enumerate.hpp>
 #include <vector>
 
 #include "util/sat/sat_solver.hpp"
@@ -25,9 +25,11 @@ using namespace qsyn::qcir;
 using Node   = qsyn::qcir::DepGraphNode;
 using NodeID = qsyn::qcir::DepGraphNodeID;
 
+namespace views = std::views;
+
 namespace qsyn::qcir {
 
-DepGraph create_dependency_graph(std::istream& ifs) {
+DepGraph from_deps_file(std::istream& ifs) {
     auto tmp = vector<vector<size_t>>();
 
     DepGraph graph{};
@@ -61,6 +63,38 @@ DepGraph create_dependency_graph(std::istream& ifs) {
         graph.add_node(node);
     }
 
+    return graph;
+}
+
+DepGraph from_xag_graph(XAG const& xag, std::map<XAGNodeID, XAGCut> const& optimal_cut) {
+    std::map<XAGNodeID, DepGraphNodeID> xag_to_deps;
+    std::map<DepGraphNodeID, XAGNodeID> deps_to_xag;
+    std::vector<XAGNodeID> optimal_cone_tips = optimal_cut |
+                                               views::keys |
+                                               tl::to<std::vector>();
+    std::sort(optimal_cone_tips.begin(), optimal_cone_tips.end());
+    std::stringstream dep_graph_ss;
+    for (auto const& [i, node_id] : tl::views::enumerate(optimal_cone_tips)) {
+        xag_to_deps[node_id]           = DepGraphNodeID(i);
+        deps_to_xag[DepGraphNodeID(i)] = node_id;
+    }
+    dep_graph_ss << fmt::format("{}", fmt::join(xag.outputs | views::transform([&](auto& xag_id) { return xag_to_deps.at(xag_id).get(); }), " ")) << '\n';
+    for (auto i : views::iota(0ul, optimal_cone_tips.size())) {
+        auto const dep_id    = DepGraphNodeID(i);
+        auto const xag_id    = deps_to_xag.at(dep_id);
+        auto const& xag_node = xag.get_node(xag_id);
+        dep_graph_ss << fmt::format("{}", i);
+        if (xag_node.get_type() == XAGNodeType::INPUT) {
+            dep_graph_ss << '\n';
+            continue;
+        }
+        for (auto const& deps : optimal_cut.at(xag_id)) {
+            dep_graph_ss << ' ' << fmt::format("{}", xag_to_deps.at(deps).get());
+        }
+        dep_graph_ss << '\n';
+    }
+
+    auto graph = from_deps_file(dep_graph_ss);
     return graph;
 }
 
@@ -182,12 +216,14 @@ size_t sanitize_P(size_t const P, size_t const N, size_t const max_deps) {
 void test_pebble(const size_t _P, std::istream& input) {
     auto solver = CaDiCalSolver();
 
-    auto graph = create_dependency_graph(input);
+    auto graph = from_deps_file(input);
 
     const size_t N        = graph.size();  // number of nodes
     const size_t max_deps = std::ranges::max(graph.get_graph() |
                                              std::views::values |
-                                             std::views::transform([](const Node& node) { return node.dependencies.size(); }));
+                                             std::views::transform([](const Node& node) {
+                                                 return node.dependencies.size();
+                                             }));
     const size_t P        = sanitize_P(_P, N, max_deps);
 
     spdlog::debug("N = {}, P = {}", N, P);
