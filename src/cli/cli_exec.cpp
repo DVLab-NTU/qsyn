@@ -28,7 +28,7 @@ CmdExecResult CommandLineInterface::start_interactive() {
         status = this->execute_one_line(std::cin, true);
     }
 
-    return status;
+    return get_last_return_code();
 }
 
 /**
@@ -57,7 +57,7 @@ CmdExecResult dvlab::CommandLineInterface::execute_one_line(std::istream& istr, 
 
     if (!stripped.has_value()) {
         spdlog::critical("Unexpected error: dequote failed");
-        return CmdExecResult::no_op;
+        return CmdExecResult::error;
     }
 
     auto first_token = get_first_token(*stripped);
@@ -71,7 +71,10 @@ CmdExecResult dvlab::CommandLineInterface::execute_one_line(std::istream& istr, 
     CmdExecResult exec_result = CmdExecResult::done;
 
     dvlab::utils::scope_exit const history_guard{[this, &input = input, &result = exec_result]() {
-        _add_to_history(input, result);
+        if (input.size()) {
+            _add_to_history({input, result});
+        }
+        _history_idx = _history.size();
     }};
 
     while (true) {
@@ -89,7 +92,7 @@ CmdExecResult dvlab::CommandLineInterface::execute_one_line(std::istream& istr, 
             if (cmd != nullptr) {
                 exec_result = _dispatch_command(cmd, option);
             } else {
-                exec_result = CmdExecResult::no_op;
+                exec_result = CmdExecResult::cmd_not_found;
             }
         }
         if (semicolon_pos == stripped->size()) {
@@ -198,17 +201,18 @@ CmdExecResult CommandLineInterface::_dispatch_command(dvlab::Command* cmd, std::
 
     assert(_command_threads.top().get_stop_token().stop_requested() == false);
 
-    // NOTE - on some platforms, directly popping the thread object from the stack will cause the stop token to be triggered.
-    //        This results in weird CLI behavior. To avoid this, we first join the thread, then pop it from the stack.
+    // wair for the command to finish
     _command_threads.top().join();
+
+    // we must check if the command is interrupted after the thread is joined
+    // but before the thread is popped from the stack
+    bool const interrupted = this->stop_requested();
+
     _command_threads.pop();
 
-    if (this->stop_requested()) {
-        spdlog::warn("Command interrupted");
-        return CmdExecResult::interrupted;
-    }
-
-    return exec_result;
+    return interrupted
+               ? CmdExecResult::interrupted
+               : CmdExecResult{exec_result};  // cast from atomic<CmdExecResult> to CmdExecResult
 }
 
 /**

@@ -71,6 +71,22 @@ Command alias_cmd(CommandLineInterface& cli) {
         }};
 }
 
+Command echo_cmd() {
+    return {
+        "echo",
+        [](ArgumentParser& parser) {
+            parser.description("print the string to the standard output");
+
+            parser.add_argument<std::string>("message")
+                .nargs(NArgsOption::zero_or_more)
+                .help("the message to print");
+        },
+        [](ArgumentParser const& parser) {
+            fmt::println("{}", fmt::join(parser.get<std::vector<std::string>>("message"), " "));
+            return CmdExecResult::done;
+        }};
+}
+
 Command set_variable_cmd(CommandLineInterface& cli) {
     return {
         "set",
@@ -357,6 +373,7 @@ bool add_cli_common_cmds(dvlab::CommandLineInterface& cli) {
           cli.add_alias("unalias", "alias -d") &&
           cli.add_command(set_variable_cmd(cli)) &&
           cli.add_alias("unset", "set -d") &&
+          cli.add_command(echo_cmd()) &&
           cli.add_command(quit_cmd(cli)) &&
           cli.add_command(history_cmd(cli)) &&
           cli.add_command(help_cmd(cli)) &&

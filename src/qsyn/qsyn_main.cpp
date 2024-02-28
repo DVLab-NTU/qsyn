@@ -99,7 +99,7 @@ int main(int argc, char** argv) {
         auto const result = cli.execute_one_line(cmd_stream, !quiet);
 
         if (result == dvlab::CmdExecResult::quit) {
-            return 0;
+            return cli.get_last_return_code();
         }
     }
 
@@ -109,11 +109,9 @@ int main(int argc, char** argv) {
         auto const result = cli.source_dofile(args[0], std::ranges::subrange(args.begin() + 1, args.end()), !quiet);
 
         if (result == dvlab::CmdExecResult::quit) {
-            return 0;
+            return cli.get_last_return_code();
         }
     }
 
-    auto const result = cli.start_interactive();
-
-    return static_cast<std::underlying_type_t<dvlab::CmdExecResult>>(result);
+    return cli.start_interactive();
 }

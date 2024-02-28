@@ -326,9 +326,9 @@ void dvlab::CommandLineInterface::_retrieve_history(size_t index) {
     if (index < _history_idx) {                 // move up
         if (_history_idx == _history.size()) {  // move away from new input
             _temp_command_stored = true;
-            _history.emplace_back(_read_buffer, CmdExecResult::interrupted);
+            _history.emplace_back(_read_buffer, CmdExecResult::done);
         } else if (_temp_command_stored && _history_idx == _history.size() - 1)
-            _history.back().first = _read_buffer;  // => update it
+            _history.back().input = _read_buffer;  // => update it
     } else if (index > _history_idx) {             // move down
         if (_history_idx == _history.size() - _temp_command_stored ? 1 : 0) {
             detail::beep();
@@ -344,17 +344,10 @@ void dvlab::CommandLineInterface::_retrieve_history(size_t index) {
 
 /**
  * @brief Add the command in buffer to _history.
- *        This function trim the comment, leading/trailing whitespace of the entered comments
  *
  */
-bool dvlab::CommandLineInterface::_add_to_history(std::string_view input, CmdExecResult result) {
-    if (input.size()) {
-        _history.emplace_back(input, result);
-    }
-
-    _history_idx = int(_history.size());
-
-    return input.size() > 0;
+void dvlab::CommandLineInterface::_add_to_history(HistoryEntry const& entry) {
+    _history.emplace_back(entry);
 }
 
 /**
@@ -363,9 +356,9 @@ bool dvlab::CommandLineInterface::_add_to_history(std::string_view input, CmdExe
  */
 void dvlab::CommandLineInterface::_replace_read_buffer_with_history() {
     _delete_line();
-    _read_buffer = _history[_history_idx].first;
+    _read_buffer = _history[_history_idx].input;
     _print_if_echo("{}", _read_buffer);
-    _cursor_position = _history[_history_idx].first.size();
+    _cursor_position = _history[_history_idx].input.size();
 }
 
 /**
