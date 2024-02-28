@@ -29,16 +29,17 @@ namespace qsyn {
 
 namespace {
 
-void create_default_qsynrc(dvlab::CommandLineInterface& cli, std::filesystem::path const& qsynrc_path, bool force) {
-    namespace fs = std::filesystem;
-    if (fs::exists(qsynrc_path)) {
-        if (force) {
-            fmt::println("Replacing qsynrc at {}", qsynrc_path);
-        } else {
-            fmt::println("qsynrc already exists at {}. Specify `-r` flag to replace it.", qsynrc_path);
-            return;
-        }
+static std::filesystem::path const default_qsynrc_path = std::invoke([]() {
+    auto const home_dir = dvlab::utils::get_home_directory();
+    if (!home_dir) {
+        spdlog::critical("Cannot find home directory");
+        std::exit(1);
     }
+    return std::filesystem::path{home_dir.value()} / ".config/qsyn/qsynrc";
+});
+
+void create_default_qsynrc(dvlab::CommandLineInterface& cli, std::filesystem::path const& qsynrc_path) {
+    namespace fs = std::filesystem;
 
     if (!fs::is_directory(qsynrc_path.parent_path()) && !fs::create_directories(qsynrc_path.parent_path())) {
         spdlog::critical("Cannot create directory {}", qsynrc_path.parent_path());
@@ -70,8 +71,17 @@ dvlab::Command create_qsynrc_cmd(dvlab::CommandLineInterface& cli) {
                 spdlog::critical("Cannot find home directory");
                 return dvlab::CmdExecResult::error;
             }
-            auto const qsynrc_path = fs::path{home_dir.value()} / ".config/qsynrc";
-            create_default_qsynrc(cli, qsynrc_path, parser.get<bool>("--replace"));
+
+            if (fs::exists(default_qsynrc_path)) {
+                if (parser.get<bool>("--replace")) {
+                    fmt::println("Replacing qsynrc at {}", default_qsynrc_path);
+                } else {
+                    fmt::println("qsynrc already exists at {}. Specify `-r` flag to replace it.", default_qsynrc_path);
+                    return dvlab::CmdExecResult::error;
+                }
+            }
+
+            create_default_qsynrc(cli, default_qsynrc_path);
 
             return dvlab::CmdExecResult::done;
         }};
@@ -91,9 +101,9 @@ bool read_qsynrc_file(dvlab::CommandLineInterface& cli, std::filesystem::path qs
             spdlog::critical("Cannot find home directory");
             return false;
         }
-        qsynrc_path = fs::path{home_dir.value()} / ".config/qsynrc";
+        qsynrc_path = default_qsynrc_path;
         if (!fs::exists(qsynrc_path)) {
-            create_default_qsynrc(cli, qsynrc_path, false);
+            create_default_qsynrc(cli, qsynrc_path);
             cli.clear_history();
             return true;
         }
