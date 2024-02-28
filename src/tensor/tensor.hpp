@@ -4,25 +4,31 @@
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
+
 #pragma once
 
 #include <fmt/core.h>
 #include <fmt/ostream.h>
+#include <math.h>
+#include <spdlog/spdlog.h>
 
 #include <cassert>
 #include <complex>
-#include <concepts>
-#include <exception>
+#include <cstddef>
 #include <iosfwd>
 #include <unordered_map>
 #include <vector>
 #include <xtensor-blas/xlinalg.hpp>
 #include <xtensor/xadapt.hpp>
 #include <xtensor/xarray.hpp>
+#include <xtensor/xcsv.hpp>
 #include <xtensor/xio.hpp>
+#include <xtensor/xnpy.hpp>
 
 #include "./tensor_util.hpp"
 #include "util/util.hpp"
+
+constexpr double PI = 3.1415926919;
 
 namespace qsyn::tensor {
 
@@ -112,6 +118,9 @@ public:
     void reshape(TensorShape const& shape);
     Tensor<DT> transpose(TensorAxisList const& perm) const;
     void adjoint();
+
+    bool tensor_read(std::string const&);
+    bool tensor_write(std::string const&);
 
 protected:
     friend struct fmt::formatter<Tensor>;
@@ -278,6 +287,68 @@ void Tensor<DT>::adjoint() {
     assert(dimension() == 2);
     _tensor = xt::conj(xt::transpose(_tensor, {1, 0}));
 }
+
+template <typename DT>
+bool Tensor<DT>::tensor_write(std::string const& filepath) {
+    std::ofstream out_file;
+    out_file.open(filepath);
+    if (!out_file.is_open()) {
+        spdlog::error("Failed to open file");
+        return false;
+    }
+    for (size_t row = 0; row < _tensor.shape(0); row++) {
+        for (size_t col = 0; col < _tensor.shape(1); col++) {
+            if (xt::imag(this->_tensor(row, col)) >= 0) {
+                fmt::print(out_file, "{}{}+{}j", xt::real(_tensor(row, col)) >= 0 ? " " : "", xt::real(_tensor(row, col)), abs(xt::imag(_tensor(row, col))));
+            } else {
+                fmt::print(out_file, "{}{}{}j", xt::real(_tensor(row, col)) >= 0 ? " " : "", xt::real(_tensor(row, col)), xt::imag(_tensor(row, col)));
+            }
+            if (col != _tensor.shape(1) - 1) {
+                fmt::print(out_file, ", ");
+            }
+        }
+        fmt::println(out_file, "");
+    }
+    out_file.close();
+    return true;
+}
+
+template <typename DT>
+bool Tensor<DT>::tensor_read(std::string const& filepath) {
+    std::ifstream in_file;
+    in_file.open(filepath);
+    if (!in_file.is_open()) {
+        spdlog::error("Failed to open file");
+        return false;
+    }
+    // read csv with complex number
+    std::vector<std::complex<double>> data;
+    std::string line, word;
+    while (std::getline(in_file, line)) {
+        std::stringstream ss(line);
+        while (std::getline(ss, word, ',')) {
+            std::stringstream ww(word);
+
+            double real = 0.0, imag = 0.0;
+            char plus = ' ', i = ' ';
+            ww >> real >> plus >> imag >> i;
+            if (plus == '-') imag = -imag;
+            if (plus == 'j') {
+                imag = real;
+                real = 0;
+            }
+            data.push_back({real, imag});
+        }
+    }
+    if (std::floor(std::sqrt(data.size())) != std::sqrt(data.size())) {
+        spdlog::error("The number of elements in the tensor is not a square number");
+        return false;
+    }
+    const TensorShape shape = {static_cast<size_t>(std::sqrt(data.size())), static_cast<size_t>(std::sqrt(data.size()))};
+    this->_tensor           = xt::adapt(data, shape);
+    return true;
+}
+
 //------------------------------
 // Tensor Manipulations:
 // Friend functions
@@ -339,6 +410,12 @@ bool is_partition(Tensor<U> const& t, TensorAxisList const& axes1, TensorAxisLis
     if (!is_disjoint(axes1, axes2)) return false;
     if (axes1.size() + axes2.size() != t._tensor.dimension()) return false;
     return true;
+}
+
+template <typename U>
+Tensor<U> tensor_multiply(Tensor<U> const& t1, Tensor<U> const& t2) {
+    // fmt::println("in tensor multiply function");
+    return tensordot(t1, t2, {1}, {0});
 }
 
 }  // namespace qsyn::tensor
