@@ -18,7 +18,7 @@ set(FETCHCONTENT_UPDATES_DISCONNECTED TRUE)
 project(
     qsyn
     LANGUAGES CXX
-    VERSION 0.6.2)
+    VERSION 0.6.3)
 
 find_package(OpenMP REQUIRED)
 
@@ -52,6 +52,7 @@ FetchContent_Declare(
     SYSTEM
     GIT_REPOSITORY https://github.com/seleznevae/libfort.git
     GIT_TAG v0.4.2)
+set(FORT_ENABLE_TESTING OFF CACHE INTERNAL "")
 FetchContent_MakeAvailable(libfort)
 
 FetchContent_Declare(
@@ -66,7 +67,13 @@ FetchContent_Declare(
     SYSTEM
     GIT_REPOSITORY https://github.com/gabime/spdlog.git
     GIT_TAG v1.12.0)
+set(SPDLOG_FMT_EXTERNAL ON CACHE INTERNAL "")
 FetchContent_MakeAvailable(spdlog)
+target_compile_definitions(
+    spdlog
+    PRIVATE
+    SPDLOG_SHORT_LEVEL_NAMES={\"[trace]\ \ \ \ \",\"[debug]\ \ \ \ \",\"[info]\ \ \ \ \ \",\"[warn]\ \ \ \ \ \",\"[error]\ \ \ \ \",\"[critical]\ \",\"\"})
+target_link_libraries(spdlog PRIVATE fmt::fmt)
 
 FetchContent_Declare(
     GSL
@@ -81,15 +88,6 @@ file(
     RELATIVE ${CMAKE_SOURCE_DIR}
     "src/**/*.cpp" "src/**/*.hpp" "src/qsyn/qsynrc.default")
 add_executable(${CMAKE_PROJECT_NAME} ${SOURCES})
-
-target_compile_definitions(spdlog PUBLIC SPDLOG_FMT_EXTERNAL=1)
-target_compile_definitions(
-    spdlog
-    PUBLIC
-    SPDLOG_SHORT_LEVEL_NAMES={\"[trace]\ \ \ \ \",\"[debug]\ \ \ \ \",\"[info]\ \ \ \ \ \",\"[warn]\ \ \ \ \ \",\"[error]\ \ \ \ \",\"[critical]\ \",\"\"}
-)
-
-target_link_libraries(spdlog PUBLIC fmt::fmt)
 
 target_compile_definitions(${CMAKE_PROJECT_NAME}
     PRIVATE QSYN_VERSION="v${CMAKE_PROJECT_VERSION}")

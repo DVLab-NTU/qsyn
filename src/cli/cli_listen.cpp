@@ -82,12 +82,12 @@ int get_char(std::istream& istr) {
         // -- Usually starts with ESC key, so we check the "case ESC"
         case esc_key: {
             auto const combo = mygetc(istr);
-            // Note: ARROW_KEY_INT == MOD_KEY_INT, so we only check MOD_KEY_INT
-            if (combo == char(mod_key_int)) {
+            // Note: ARROW_KEY_INT == CTRL_KEY_INT, so we only check CTRL_KEY_INT
+            if (combo == char(ctrl_key_int)) {
                 auto const key = mygetc(istr);
-                if ((key >= char(mod_key_begin)) && (key <= char(mod_key_end))) {
-                    if (mygetc(istr) == mod_key_dummy)
-                        return int(key) + mod_key_flag;
+                if ((key >= char(ctrl_key_begin)) && (key <= char(ctrl_key_end))) {
+                    if (mygetc(istr) == ctrl_key_dummy)
+                        return int(key) + ctrl_key_flag;
                     else
                         return undefined_key;
                 } else if ((key >= char(arrow_key_begin)) &&
@@ -95,6 +95,10 @@ int get_char(std::istream& istr) {
                     return int(key) + arrow_key_flag;
                 else
                     return undefined_key;
+            } else if (combo == 'b') {
+                return prev_word_key;
+            } else if (combo == 'f') {
+                return next_word_key;
             } else {
                 dvlab::detail::beep();
                 return get_char(istr);
@@ -182,11 +186,11 @@ std::pair<CmdExecResult, std::string> dvlab::CommandLineInterface::listen_to_inp
                 if (!config.allow_browse_history || _history_idx == 0) {
                     detail::beep();
                 } else {
-                    _retrieve_history(_history_idx - 1);
+                    _retrieve_history(_prev_matching_history(1));
                 }
                 break;
             case arrow_down_key:
-                (config.allow_browse_history) ? _retrieve_history(_history_idx + 1) : detail::beep();
+                (config.allow_browse_history) ? _retrieve_history(_next_matching_history(1)) : detail::beep();
                 break;
             case arrow_right_key:
                 if (_cursor_position == _read_buffer.size()) {
@@ -199,10 +203,10 @@ std::pair<CmdExecResult, std::string> dvlab::CommandLineInterface::listen_to_inp
                 _move_cursor_to((int)_cursor_position - 1);
                 break;
             case pg_up_key:
-                (config.allow_browse_history) ? _retrieve_history(_history_idx - std::min(page_offset, _history_idx)) : detail::beep();
+                (config.allow_browse_history) ? _retrieve_history(_prev_matching_history(10)) : detail::beep();
                 break;
             case pg_down_key:
-                (config.allow_browse_history) ? _retrieve_history(_history_idx + page_offset) : detail::beep();
+                (config.allow_browse_history) ? _retrieve_history(_next_matching_history(10)) : detail::beep();
                 break;
             case tab_key: {
                 if (config.allow_tab_completion) {
@@ -213,6 +217,12 @@ std::pair<CmdExecResult, std::string> dvlab::CommandLineInterface::listen_to_inp
                 }
                 break;
             }
+            case prev_word_key:
+                _to_prev_word();
+                break;
+            case next_word_key:
+                _to_next_word();
+                break;
             case insert_key:  // not yet supported; fall through to UNDEFINE
             case undefined_key:
                 detail::beep();
@@ -273,6 +283,42 @@ bool dvlab::CommandLineInterface::_delete_char() {
     return true;
 }
 
+constexpr std::string_view word_chars =
+    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_";
+
+bool dvlab::CommandLineInterface::_to_prev_word() {
+    if (_cursor_position == 0) {
+        detail::beep();
+        return false;
+    }
+    auto const prev_word_end = _read_buffer.find_last_of(word_chars, _cursor_position - 1);
+    if (prev_word_end == std::string::npos) {
+        _move_cursor_to(0);
+        return true;
+    }
+    auto const prev_word_begin = _read_buffer.find_last_not_of(word_chars, prev_word_end);
+    if (prev_word_begin == std::string::npos) {
+        _move_cursor_to(0);
+        return true;
+    }
+    _move_cursor_to(prev_word_begin + 1);
+    return true;
+}
+
+bool dvlab::CommandLineInterface::_to_next_word() {
+    auto const next_space = _read_buffer.find_first_not_of(word_chars, _cursor_position);
+    if (next_space == std::string::npos) {
+        _move_cursor_to(_read_buffer.size());
+    }
+    auto const next_word_begin = _read_buffer.find_first_of(word_chars, next_space);
+    if (next_word_begin == std::string::npos) {
+        _move_cursor_to(next_space);
+        return true;
+    }
+    _move_cursor_to(next_word_begin);
+    return true;
+}
+
 /**
  * @brief insert a character at the cursor position
  *
@@ -326,10 +372,10 @@ void dvlab::CommandLineInterface::_retrieve_history(size_t index) {
     if (index < _history_idx) {                 // move up
         if (_history_idx == _history.size()) {  // move away from new input
             _temp_command_stored = true;
-            _history.emplace_back(_read_buffer);
+            _history.emplace_back(_read_buffer, CmdExecResult::done);
         } else if (_temp_command_stored && _history_idx == _history.size() - 1)
-            _history.back() = _read_buffer;  // => update it
-    } else if (index > _history_idx) {       // move down
+            _history.back().input = _read_buffer;  // => update it
+    } else if (index > _history_idx) {             // move down
         if (_history_idx == _history.size() - _temp_command_stored ? 1 : 0) {
             detail::beep();
             return;
@@ -342,19 +388,50 @@ void dvlab::CommandLineInterface::_retrieve_history(size_t index) {
     _replace_read_buffer_with_history();
 }
 
+size_t dvlab::CommandLineInterface::_prev_matching_history(size_t count) {
+    if (count == 0) return _history_idx;
+    auto const prefix = _temp_command_stored ? _history.back().input : _read_buffer;
+    size_t targ_idx   = _history_idx;
+    for (auto i : std::views::iota(0ul, _history_idx) | std::views::reverse) {
+        if (_history[i].input.starts_with(prefix)) {
+            --count;
+            targ_idx = i;
+            if (count == 0) break;
+        }
+    }
+    if (targ_idx == _history_idx)
+        detail::beep();
+
+    return targ_idx;
+}
+
+size_t dvlab::CommandLineInterface::_next_matching_history(size_t count) {
+    if (count == 0) return _history_idx;
+    auto const prefix = _temp_command_stored ? _history.back().input : _read_buffer;
+    size_t targ_idx   = _history_idx;
+    if (_history_idx == _history.size()) {
+        assert(!_temp_command_stored);
+        return _history_idx;
+    }
+    for (auto i : std::views::iota(_history_idx + 1, _history.size())) {
+        if (_history[i].input.starts_with(prefix)) {
+            --count;
+            targ_idx = i;
+            if (count == 0) break;
+        }
+    }
+    if (targ_idx == _history_idx)
+        detail::beep();
+
+    return targ_idx;
+}
+
 /**
  * @brief Add the command in buffer to _history.
- *        This function trim the comment, leading/trailing whitespace of the entered comments
  *
  */
-bool dvlab::CommandLineInterface::_add_to_history(std::string_view input) {
-    if (input.size()) {
-        _history.emplace_back(input);
-    }
-
-    _history_idx = int(_history.size());
-
-    return input.size() > 0;
+void dvlab::CommandLineInterface::_add_to_history(HistoryEntry const& entry) {
+    _history.emplace_back(entry);
 }
 
 /**
@@ -362,14 +439,22 @@ bool dvlab::CommandLineInterface::_add_to_history(std::string_view input) {
  *
  */
 void dvlab::CommandLineInterface::_replace_read_buffer_with_history() {
+    if (_history_idx == _history.size()) {
+        assert(!_temp_command_stored);
+        return;
+    }
     _delete_line();
-    _read_buffer = _history[_history_idx];
+    _read_buffer = _history[_history_idx].input;
     _print_if_echo("{}", _read_buffer);
-    _cursor_position = _history[_history_idx].size();
+    _cursor_position = _history[_history_idx].input.size();
+    if (_temp_command_stored && _history_idx == _history.size() - 1) {
+        _temp_command_stored = false;
+        _history.pop_back();
+    }
 }
 
 /**
- * @brief reset the read buffer
+ * @brief reset the read bufferm
  *
  */
 void dvlab::CommandLineInterface::_clear_read_buffer_and_print_prompt() {
