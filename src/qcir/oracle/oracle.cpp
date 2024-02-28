@@ -48,7 +48,17 @@ std::optional<QCir> synthesize_boolean_oracle(XAG xag, size_t n_ancilla, size_t 
     auto const& [optimal_cut, _] = k_lut_partition(xag, k);
     fmt::print("P = {}, k = {}\n", P, k);
 
-    auto dep_graph = from_xag_cuts(optimal_cut);
+    for (auto const& xag_node : xag.get_nodes()) {
+        fmt::print("{}\n", xag_node.to_string());
+    }
+
+    for (auto const& [id, cut] : optimal_cut) {
+        fmt::print("id = {}, cut = {}\n", id.get(), fmt::join(cut | views::transform([](auto const& id) { return id.get(); }), " "));
+    }
+
+    auto dep_graph = from_xag_cuts(optimal_cut, xag.outputs);
+
+    fmt::print("dep_graph = {}\n", dep_graph.to_string());
 
     const size_t N        = dep_graph.size();  // number of nodes
     const size_t max_deps = std::ranges::max(dep_graph.get_graph() |
@@ -74,7 +84,7 @@ std::optional<QCir> synthesize_boolean_oracle(XAG xag, size_t n_ancilla, size_t 
     auto pebble_result = pebble(solver, P, dep_graph);
 
     if (pebble_result == std::nullopt) {
-        fmt::print("pebble failed\n");
+        spdlog::error("no solution for P = {}, consider increasing P", P);
         return std::nullopt;
     }
 
@@ -115,7 +125,6 @@ std::optional<QCir> build_qcir(
     auto qcir = QCir(n_qubits);
 
     auto pebble_to_qubit = std::vector<qsyn::QubitIdType>(n_qubits, 0);
-    assert(schedule.back().size() == n_ancilla + n_outputs);
     {
         auto qcir_qubit   = gsl::narrow_cast<qsyn::QubitIdType>(n_inputs + n_outputs);
         auto output_qubit = gsl::narrow_cast<qsyn::QubitIdType>(n_inputs);
@@ -138,8 +147,7 @@ std::optional<QCir> build_qcir(
     for (auto const& pebble_states : tl::views::slide(schedule, 2)) {
         auto const& curr_pebble = pebble_states.front();
         auto const& next_pebble = pebble_states.back();
-        assert(curr_pebble.size() == n_ancilla + n_outputs);
-        auto pebble_changed = tl::views::zip(curr_pebble, next_pebble) |
+        auto pebble_changed     = tl::views::zip(curr_pebble, next_pebble) |
                               views::transform([](auto const& p) {
                                   auto [curr, next] = p;
                                   return curr != next;
