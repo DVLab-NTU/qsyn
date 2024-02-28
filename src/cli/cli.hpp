@@ -230,6 +230,8 @@ private:
     size_t _get_last_token_pos(std::string_view str, char token = ' ') const;
 
     bool _move_cursor_to(size_t pos);
+    bool _to_prev_word();
+    bool _to_next_word();
     bool _delete_char();
     void _insert_char(char ch);
     void _delete_line();

@@ -50,23 +50,29 @@ constexpr key_code_type arrow_left_key = 68 + arrow_key_flag;
 constexpr key_code_type arrow_key_begin{arrow_up_key};
 constexpr key_code_type arrow_key_end{arrow_left_key};
 
-//
-// -- MOD keys: 27 -> 91 -> {49-54} -> 126
-//    MOD_KEY = { INSERT, DELETE, HOME, END, PgUp, PgDown }
-//
-constexpr key_code_type mod_key_flag{1 << 9};
-constexpr key_code_type mod_key_int{91};
-constexpr key_code_type home_key{49 + mod_key_flag};
-constexpr key_code_type insert_key{50 + mod_key_flag};
-constexpr key_code_type delete_key{51 + mod_key_flag};
-constexpr key_code_type end_key{52 + mod_key_flag};
-constexpr key_code_type pg_up_key{53 + mod_key_flag};
-constexpr key_code_type pg_down_key{54 + mod_key_flag};
-constexpr key_code_type mod_key_begin{home_key};
-constexpr key_code_type mod_key_end{pg_down_key};
-constexpr key_code_type mod_key_dummy{126};
+// -- CTRL keys: 27 -> 91 -> {49-54} -> 126
+//    CTRL_KEY = { INSERT, DELETE, HOME, END, PgUp, PgDown }
 
-//
+constexpr key_code_type ctrl_key_flag{1 << 9};
+constexpr key_code_type ctrl_key_int = arrow_key_int;
+constexpr key_code_type home_key{49 + ctrl_key_flag};
+constexpr key_code_type insert_key{50 + ctrl_key_flag};
+constexpr key_code_type delete_key{51 + ctrl_key_flag};
+constexpr key_code_type end_key{52 + ctrl_key_flag};
+constexpr key_code_type pg_up_key{53 + ctrl_key_flag};
+constexpr key_code_type pg_down_key{54 + ctrl_key_flag};
+constexpr key_code_type ctrl_key_begin{home_key};
+constexpr key_code_type ctrl_key_end{pg_down_key};
+constexpr key_code_type ctrl_key_dummy{126};
+
+constexpr key_code_type alt_key_flag{1 << 10};
+constexpr key_code_type alt_key_int = arrow_key_int;
+constexpr key_code_type prev_word_key{98 + alt_key_flag};
+constexpr key_code_type next_word_key{102 + alt_key_flag};
+constexpr key_code_type alt_key_begin{prev_word_key};
+constexpr key_code_type alt_key_end{next_word_key};
+constexpr key_code_type alt_key_dummy{126};
+
 // [For undefined keys]
 constexpr key_code_type undefined_key{INT_MAX};
 

@@ -82,12 +82,12 @@ int get_char(std::istream& istr) {
         // -- Usually starts with ESC key, so we check the "case ESC"
         case esc_key: {
             auto const combo = mygetc(istr);
-            // Note: ARROW_KEY_INT == MOD_KEY_INT, so we only check MOD_KEY_INT
-            if (combo == char(mod_key_int)) {
+            // Note: ARROW_KEY_INT == CTRL_KEY_INT, so we only check CTRL_KEY_INT
+            if (combo == char(ctrl_key_int)) {
                 auto const key = mygetc(istr);
-                if ((key >= char(mod_key_begin)) && (key <= char(mod_key_end))) {
-                    if (mygetc(istr) == mod_key_dummy)
-                        return int(key) + mod_key_flag;
+                if ((key >= char(ctrl_key_begin)) && (key <= char(ctrl_key_end))) {
+                    if (mygetc(istr) == ctrl_key_dummy)
+                        return int(key) + ctrl_key_flag;
                     else
                         return undefined_key;
                 } else if ((key >= char(arrow_key_begin)) &&
@@ -95,6 +95,10 @@ int get_char(std::istream& istr) {
                     return int(key) + arrow_key_flag;
                 else
                     return undefined_key;
+            } else if (combo == 'b') {
+                return prev_word_key;
+            } else if (combo == 'f') {
+                return next_word_key;
             } else {
                 dvlab::detail::beep();
                 return get_char(istr);
@@ -213,6 +217,12 @@ std::pair<CmdExecResult, std::string> dvlab::CommandLineInterface::listen_to_inp
                 }
                 break;
             }
+            case prev_word_key:
+                _to_prev_word();
+                break;
+            case next_word_key:
+                _to_next_word();
+                break;
             case insert_key:  // not yet supported; fall through to UNDEFINE
             case undefined_key:
                 detail::beep();
@@ -270,6 +280,42 @@ bool dvlab::CommandLineInterface::_delete_char() {
     auto const idx   = _cursor_position;
     _cursor_position = _read_buffer.size();  // before moving cursor, reflect the change in actual cursor location
     _move_cursor_to(idx);                    // move the cursor back to where it should be
+    return true;
+}
+
+constexpr std::string_view word_chars =
+    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_";
+
+bool dvlab::CommandLineInterface::_to_prev_word() {
+    if (_cursor_position == 0) {
+        detail::beep();
+        return false;
+    }
+    auto const prev_word_end = _read_buffer.find_last_of(word_chars, _cursor_position - 1);
+    if (prev_word_end == std::string::npos) {
+        _move_cursor_to(0);
+        return true;
+    }
+    auto const prev_word_begin = _read_buffer.find_last_not_of(word_chars, prev_word_end);
+    if (prev_word_begin == std::string::npos) {
+        _move_cursor_to(0);
+        return true;
+    }
+    _move_cursor_to(prev_word_begin + 1);
+    return true;
+}
+
+bool dvlab::CommandLineInterface::_to_next_word() {
+    auto const next_space = _read_buffer.find_first_not_of(word_chars, _cursor_position);
+    if (next_space == std::string::npos) {
+        _move_cursor_to(_read_buffer.size());
+    }
+    auto const next_word_begin = _read_buffer.find_first_of(word_chars, next_space);
+    if (next_word_begin == std::string::npos) {
+        _move_cursor_to(next_space);
+        return true;
+    }
+    _move_cursor_to(next_word_begin);
     return true;
 }
 
@@ -362,7 +408,7 @@ void dvlab::CommandLineInterface::_replace_read_buffer_with_history() {
 }
 
 /**
- * @brief reset the read buffer
+ * @brief reset the read bufferm
  *
  */
 void dvlab::CommandLineInterface::_clear_read_buffer_and_print_prompt() {
