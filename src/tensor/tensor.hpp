@@ -14,9 +14,7 @@
 
 #include <cassert>
 #include <complex>
-#include <concepts>
 #include <cstddef>
-#include <exception>
 #include <iosfwd>
 #include <unordered_map>
 #include <vector>
@@ -33,13 +31,6 @@
 constexpr double PI = 3.1415926919;
 
 namespace qsyn::tensor {
-
-struct ZYZ {
-    double phi;
-    double alpha;
-    double beta;  // actual beta/2
-    double gamma;
-};
 
 template <typename DT>
 class Tensor {

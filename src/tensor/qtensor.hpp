@@ -9,7 +9,6 @@
 #include <fmt/core.h>
 #include <fmt/ostream.h>
 
-#include <fstream>
 #include <gsl/narrow>
 
 #include "./tensor.hpp"

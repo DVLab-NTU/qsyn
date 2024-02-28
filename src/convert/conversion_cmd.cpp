@@ -23,7 +23,6 @@
 #include "util/data_structure_manager_common_cmd.hpp"
 #include "util/dvlab_string.hpp"
 #include "util/util.hpp"
-#include "zx/zx_cmd.hpp"
 
 using namespace dvlab::argparse;
 
@@ -166,7 +165,7 @@ Command conversion_cmd(QCirMgr& qcir_mgr, qsyn::tensor::TensorMgr& tensor_mgr, q
                     spdlog::info("Converting Tensor {} to QCir {}...", tensor_mgr.focused_id(), qcir_mgr.get_next_id());
                     auto ts           = tensor_mgr.get();
                     const size_t qreg = size_t(log2((*ts).shape()[0]));
-                    decomposer::Decomposer decomp(qreg);
+                    tensor::Decomposer decomp(qreg);
                     qcir::QCir* result = decomp.decompose(*ts);
 
                     if (result != nullptr) {

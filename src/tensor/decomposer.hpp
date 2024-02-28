@@ -24,7 +24,7 @@ using qcir::QCir;
 using tensor::QTensor;
 using tensor::Tensor;
 
-namespace decomposer {
+namespace tensor {
 
 template <typename T>
 
@@ -39,6 +39,7 @@ struct ZYZ {
     double alpha;
     double beta;  // actual beta/2
     double gamma;
+    bool correct = true;
 };
 
 class Decomposer {
@@ -57,8 +58,6 @@ public:
     QCir* decompose(QTensor<U> const& matrix) {
         auto mat_chain = get_2level(matrix);
 
-        // size_t end = mat_chain.size();
-
         for (auto const& i : std::views::iota(0UL, mat_chain.size()) | std::views::reverse) {
             size_t i_idx = 0, j_idx = 0;
             for (size_t j = 0; j < _qreg; j++) {
@@ -70,27 +69,9 @@ public:
                 std::swap(mat_chain[i].given(0, 0), mat_chain[i].given(1, 1));
                 std::swap(mat_chain[i].given(0, 1), mat_chain[i].given(1, 0));
             }
-            // fmt::println("original: {}, {}; after: {}, {}", two_level_chain[i].i, two_level_chain[i].j, i_idx, j_idx);
 
-            graycode(mat_chain[i].given, i_idx, j_idx);
+            if (!graycode(mat_chain[i].given, i_idx, j_idx)) return nullptr;
         }
-
-        // for (size_t i = end - 1; i >= 0; i--) {
-        //     size_t i_idx = 0, j_idx = 0;
-        //     for (size_t j = 0; j < _qreg; j++) {
-        //         i_idx = i_idx * 2 + (mat_chain[i].i >> j & 1);
-        //         j_idx = j_idx * 2 + (mat_chain[i].j >> j & 1);
-        //     }
-        //     if (i_idx > j_idx) {
-        //         std::swap(i_idx, j_idx);
-        //         std::swap(mat_chain[i].given(0, 0), mat_chain[i].given(1, 1));
-        //         std::swap(mat_chain[i].given(0, 1), mat_chain[i].given(1, 0));
-        //     }
-        //     // fmt::println("original: {}, {}; after: {}, {}", two_level_chain[i].i, two_level_chain[i].j, i_idx, j_idx);
-
-        //     graycode(mat_chain[i].given, i_idx, j_idx);
-        //     // graycode(two_level_chain[i].given, two_level_chain[i].i, two_level_chain[i].j, qreg, fs);
-        // }
         return _quantum_circuit;
     }
 
@@ -262,7 +243,7 @@ public:
     }
 
     template <typename U>
-    size_t graycode(Tensor<U> const& t, int I, int J) {
+    bool graycode(Tensor<U> const& t, int I, int J) {
         // fmt::println("in graycode function");
         // do pabbing
         std::vector<QubitIdList> qubits_list;
@@ -358,21 +339,18 @@ public:
                 ctrl_index += size_t(pow(2, i));
             }
         }
-        decompose_CnU(t, diff_pos, ctrl_index, _qreg - 1);
+        if (!decompose_CnU(t, diff_pos, ctrl_index, _qreg - 1)) return false;
 
         // do unpabbing
         for (auto const& i : std::views::iota(0UL, gates_length) | std::views::reverse) {
             _quantum_circuit->add_gate(gate_list[i], qubits_list[i], {}, true);
         }
-        // for (size_t i = gates_length - 1; i >= 0; i--) {
-        //     _quantum_circuit->add_gate(gate_list[i], qubits_list[i], {}, true);
-        // }
-        return diff_pos;
+        return true;
     }
 
     // REVIEW - ctrl_gates >= 1
     template <typename U>
-    int decompose_CnU(Tensor<U> const& t, size_t diff_pos, size_t index, size_t ctrl_gates) {
+    bool decompose_CnU(Tensor<U> const& t, size_t diff_pos, size_t index, size_t ctrl_gates) {
         // fmt::println("in decompose to decompose CnU function ctrl_gates: {}", t);
         size_t ctrl = (diff_pos == 0) ? 1 : diff_pos - 1;
 
@@ -387,7 +365,7 @@ public:
             }
         }
         if (ctrl_gates == 1) {
-            decompose_CU(t, ctrl, diff_pos);
+            if (!decompose_CU(t, ctrl, diff_pos)) return false;
         } else {
             size_t extract_qubit = -1;
             for (size_t i = 0; i < _qreg; i++) {
@@ -402,7 +380,7 @@ public:
             }
             Tensor<U> V = sqrt_tensor(t);
             // std::cout << "extract qubit: " << extract_qubit << std::endl;
-            decompose_CU(V, extract_qubit, diff_pos);
+            if (!decompose_CU(V, extract_qubit, diff_pos)) return false;
             // size_t max_index = (size_t(log2(index)) + 1);
             size_t count = 0;
             std::vector<size_t> ctrls;
@@ -427,10 +405,11 @@ public:
             } else {
                 std::complex<double> zero(0, 0), one(1, 0);
                 // Tensor<U> x({{zero, one}, {one, zero}});
-                decompose_CnU(Tensor<U>({{zero, one}, {one, zero}}), extract_qubit, index, ctrl_gates - 1);
+                // NOTE - Multi-control toffoli
+                if (!decompose_CnU(Tensor<U>({{zero, one}, {one, zero}}), extract_qubit, index, ctrl_gates - 1)) return false;
             }
             V.adjoint();
-            decompose_CU(V, extract_qubit, diff_pos);
+            if (!decompose_CU(V, extract_qubit, diff_pos)) return false;
             if (count == 1) {
                 QubitIdList target;
                 target.emplace_back(ctrls[0]);
@@ -444,21 +423,21 @@ public:
                 target.emplace_back(extract_qubit);
                 _quantum_circuit->add_gate("ccx", target, {}, true);
             } else {
-                std::complex<double> zero(0, 0), one(1, 0);
-                // Tensor<U> x({{zero, one}, {one, zero}});
-                decompose_CnU(Tensor<U>({{zero, one}, {one, zero}}), extract_qubit, index, ctrl_gates - 1);
+                using float_type = U::value_type;
+                if (!decompose_CnU(QTensor<float_type>::xgate(), extract_qubit, index, ctrl_gates - 1)) return false;
             }
 
             V.adjoint();
-            decompose_CnU(V, diff_pos, index, ctrl_gates - 1);
+            if (!decompose_CnU(V, diff_pos, index, ctrl_gates - 1)) return false;
         }
 
-        return 0;
+        return true;
     }
 
     template <typename U>
-    int decompose_CU(Tensor<U> const& t, size_t ctrl, size_t targ) {
+    bool decompose_CU(Tensor<U> const& t, size_t ctrl, size_t targ) {
         const struct ZYZ angles = decompose_ZYZ(t);
+        if (!angles.correct) return false;
         // fmt::println("angles: {}, {}, {}, {}", angles.phi, angles.alpha, angles.beta, angles.gamma);
         QubitIdList target1, target2;
         target1.emplace_back(targ);
@@ -479,9 +458,6 @@ public:
             _quantum_circuit->add_gate("cx", target2, {}, true);
             _quantum_circuit->add_gate("ry", target1, dvlab::Phase{angles.beta}, true);
 
-            // fout << fmt::format("ry({}) q[{}];\n", angles.beta * (-1.0), targ);
-            // fout << fmt::format("cx q[{}], q[{}];\n", ctrl, targ);
-            // fout << fmt::format("ry({}) q[{}];\n", angles.beta, targ);
             if (std::abs(angles.alpha) > 1e-6) {
                 _quantum_circuit->add_gate("rz", target1, dvlab::Phase{angles.alpha}, true);
                 // fout << fmt::format("rz({}) q[{}];\n", angles.alpha, targ);
@@ -491,23 +467,18 @@ public:
                 _quantum_circuit->add_gate("cx", target2, {}, true);
                 _quantum_circuit->add_gate("rz", target1, dvlab::Phase{((angles.alpha + angles.gamma) / 2) * (-1.0)}, true);
                 _quantum_circuit->add_gate("cx", target2, {}, true);
-                // fout << fmt::format("cx q[{}], q[{}];\n", ctrl, targ);
-                // fout << fmt::format("rz({}) q[{}];\n", ((angles.alpha + angles.gamma) / 2) * (-1.0), targ);
-                // fout << fmt::format("cx q[{}], q[{}];\n", ctrl, targ);
             }
             if (std::abs(angles.alpha) > 1e-6) {
                 _quantum_circuit->add_gate("rz", target1, dvlab::Phase{angles.alpha}, true);
-                // fout << fmt::format("rz({}) q[{}];\n", angles.alpha, targ);
             }
         }
         if (std::abs(angles.phi) > 1e-6) {
             QubitIdList ctrl_list;
             ctrl_list.emplace_back(ctrl);
             _quantum_circuit->add_gate("rz", ctrl_list, dvlab::Phase{angles.phi}, true);
-            // fout << fmt::format("rz({}) q[{}];\n", angles.phi, ctrl);
         }
 
-        return 0;
+        return true;
     }
 
     template <typename U>
@@ -558,8 +529,8 @@ public:
                 return output;
             }
         }
-        // FIXME - Error or not
-        fmt::println("no solution");
+        output.correct = false;
+        spdlog::error("No solution to ZYZ decomposition");
 
         return output;
     }
@@ -586,6 +557,6 @@ private:
     size_t _qreg;
 };
 
-}  // namespace decomposer
+}  // namespace tensor
 
 }  // namespace qsyn
