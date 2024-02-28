@@ -1,7 +1,0 @@
-qcir read cliff+t/Tcircuit32.qasm
-qcir print
-convert qcir zx
-zx optimize --full
-zx print
-quit -f
-

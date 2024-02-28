@@ -1,5 +1,0 @@
-qcir read benchmark/SABRE/small/rx.qasm 
-qcir print
-convert qcir tensor
-tensor print
-quit -f
