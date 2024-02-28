@@ -238,6 +238,8 @@ private:
     void _replace_at_cursor(std::string_view old_str, std::string_view new_str);
     void _reprint_command();
     void _retrieve_history(size_t index);
+    size_t _prev_matching_history(size_t count = 1);
+    size_t _next_matching_history(size_t count = 1);
     void _add_to_history(HistoryEntry const& entry);
     void _replace_read_buffer_with_history();
 

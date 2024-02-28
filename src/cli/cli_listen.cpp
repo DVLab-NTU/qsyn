@@ -186,11 +186,11 @@ std::pair<CmdExecResult, std::string> dvlab::CommandLineInterface::listen_to_inp
                 if (!config.allow_browse_history || _history_idx == 0) {
                     detail::beep();
                 } else {
-                    _retrieve_history(_history_idx - 1);
+                    _retrieve_history(_prev_matching_history(1));
                 }
                 break;
             case arrow_down_key:
-                (config.allow_browse_history) ? _retrieve_history(_history_idx + 1) : detail::beep();
+                (config.allow_browse_history) ? _retrieve_history(_next_matching_history(1)) : detail::beep();
                 break;
             case arrow_right_key:
                 if (_cursor_position == _read_buffer.size()) {
@@ -203,10 +203,10 @@ std::pair<CmdExecResult, std::string> dvlab::CommandLineInterface::listen_to_inp
                 _move_cursor_to((int)_cursor_position - 1);
                 break;
             case pg_up_key:
-                (config.allow_browse_history) ? _retrieve_history(_history_idx - std::min(page_offset, _history_idx)) : detail::beep();
+                (config.allow_browse_history) ? _retrieve_history(_prev_matching_history(10)) : detail::beep();
                 break;
             case pg_down_key:
-                (config.allow_browse_history) ? _retrieve_history(_history_idx + page_offset) : detail::beep();
+                (config.allow_browse_history) ? _retrieve_history(_next_matching_history(10)) : detail::beep();
                 break;
             case tab_key: {
                 if (config.allow_tab_completion) {
@@ -388,6 +388,44 @@ void dvlab::CommandLineInterface::_retrieve_history(size_t index) {
     _replace_read_buffer_with_history();
 }
 
+size_t dvlab::CommandLineInterface::_prev_matching_history(size_t count) {
+    if (count == 0) return _history_idx;
+    auto const prefix = _temp_command_stored ? _history.back().input : _read_buffer;
+    size_t targ_idx   = _history_idx;
+    for (auto i : std::views::iota(0ul, _history_idx) | std::views::reverse) {
+        if (_history[i].input.starts_with(prefix)) {
+            --count;
+            targ_idx = i;
+            if (count == 0) break;
+        }
+    }
+    if (targ_idx == _history_idx)
+        detail::beep();
+
+    return targ_idx;
+}
+
+size_t dvlab::CommandLineInterface::_next_matching_history(size_t count) {
+    if (count == 0) return _history_idx;
+    auto const prefix = _temp_command_stored ? _history.back().input : _read_buffer;
+    size_t targ_idx   = _history_idx;
+    if (_history_idx == _history.size()) {
+        assert(!_temp_command_stored);
+        return _history_idx;
+    }
+    for (auto i : std::views::iota(_history_idx + 1, _history.size())) {
+        if (_history[i].input.starts_with(prefix)) {
+            --count;
+            targ_idx = i;
+            if (count == 0) break;
+        }
+    }
+    if (targ_idx == _history_idx)
+        detail::beep();
+
+    return targ_idx;
+}
+
 /**
  * @brief Add the command in buffer to _history.
  *
@@ -401,10 +439,18 @@ void dvlab::CommandLineInterface::_add_to_history(HistoryEntry const& entry) {
  *
  */
 void dvlab::CommandLineInterface::_replace_read_buffer_with_history() {
+    if (_history_idx == _history.size()) {
+        assert(!_temp_command_stored);
+        return;
+    }
     _delete_line();
     _read_buffer = _history[_history_idx].input;
     _print_if_echo("{}", _read_buffer);
     _cursor_position = _history[_history_idx].input.size();
+    if (_temp_command_stored && _history_idx == _history.size() - 1) {
+        _temp_command_stored = false;
+        _history.pop_back();
+    }
 }
 
 /**
