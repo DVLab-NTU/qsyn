@@ -134,8 +134,16 @@ public:
     void list_all_commands() const;
     void list_all_aliases() const;
     void list_all_variables() const;
-    void print_history(size_t n_print = SIZE_MAX, bool include_fails = false) const;
-    void write_history(std::filesystem::path const& filepath, size_t n_print = SIZE_MAX, bool append_quit = true, bool include_fails = false) const;
+
+    struct HistoryFilter {
+        bool success : 1;
+        bool error : 1;
+        bool unknown : 1;
+        bool interrupted : 1;
+    };
+
+    void print_history(size_t n_print = SIZE_MAX, HistoryFilter filter = {.success = true, .error = true, .unknown = true, .interrupted = true}) const;
+    void write_history(std::filesystem::path const& filepath, size_t n_print = SIZE_MAX, bool append_quit = true, HistoryFilter filter = {.success = true, .error = false, .unknown = false, .interrupted = false}) const;
     inline void clear_history() {
         _history.clear();
         _history_idx = 0;

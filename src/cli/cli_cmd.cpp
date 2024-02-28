@@ -219,6 +219,7 @@ Command history_cmd(CommandLineInterface& cli) {
     return {"history",
             [](ArgumentParser& parser) {
                 parser.description("print command history");
+                parser.option_prefix("+-");
                 parser.add_argument<size_t>("num")
                     .default_value(SIZE_MAX)
                     .help("if specified, print the `num` latest command history");
@@ -236,29 +237,73 @@ Command history_cmd(CommandLineInterface& cli) {
                     .action(store_true)
                     .help("don't append the quit command to the output. This argument has no effect if --output is not specified");
 
-                parser.add_argument<bool>("-f", "--include-fails")
+                auto success_mutex = parser.add_mutually_exclusive_group();
+                success_mutex.add_argument<bool>("+s", "--include-success")
                     .action(store_true)
-                    .help("include failed commands in the history");
+                    .help("include successful commands in the history");
+                success_mutex.add_argument<bool>("-s", "--exclude-success")
+                    .action(store_true)
+                    .help("exclude successful commands in the history");
 
-                // parser.add_argument<bool>("--expand-aliases")
-                //     .action(store_true)
-                //     .help("expand aliases in the history");
+                auto error_mutex = parser.add_mutually_exclusive_group();
+                error_mutex.add_argument<bool>("+e", "--include-errors")
+                    .action(store_true)
+                    .help("include commands returning errors in the history");
+
+                error_mutex.add_argument<bool>("-e", "--exclude-errors")
+                    .action(store_true)
+                    .help("exclude commands returning errors in the history");
+
+                auto unknown_mutex = parser.add_mutually_exclusive_group();
+
+                unknown_mutex.add_argument<bool>("+u", "--include-unknowns")
+                    .action(store_true)
+                    .help("include unknown commands in the history");
+
+                unknown_mutex.add_argument<bool>("-u", "--exclude-unknowns")
+                    .action(store_true)
+                    .help("exclude unknown commands in the history");
+
+                auto interrupt_mutex = parser.add_mutually_exclusive_group();
+
+                interrupt_mutex.add_argument<bool>("+i", "--include-interrupts")
+                    .action(store_true)
+                    .help("include interrupted commands in the history");
+
+                interrupt_mutex.add_argument<bool>("-i", "--exclude-interrupts")
+                    .action(store_true)
+                    .help("exclude interrupted commands in the history");
             },
             [&cli](ArgumentParser const& parser) {
                 auto num            = parser.get<size_t>("num");
                 auto no_append_quit = parser.get<bool>("--no-append-quit");
-                auto include_fails  = parser.get<bool>("--include-fails");
-                // auto expand_aliases = parser.get<bool>("--expand-aliases");
+
+                bool include_successes  = true;
+                bool include_errors     = !parser.parsed("--output");
+                bool include_unknowns   = !parser.parsed("--output");
+                bool include_interrupts = !parser.parsed("--output");
+
+                if (parser.parsed("+s")) include_successes = true;
+                if (parser.parsed("-s")) include_successes = false;
+                if (parser.parsed("+e")) include_errors = true;
+                if (parser.parsed("-e")) include_errors = false;
+                if (parser.parsed("+u")) include_unknowns = true;
+                if (parser.parsed("-u")) include_unknowns = false;
+                if (parser.parsed("+i")) include_interrupts = true;
+                if (parser.parsed("-i")) include_interrupts = false;
+
+                auto filter = CommandLineInterface::HistoryFilter{include_successes, include_errors, include_unknowns, include_interrupts};
+
                 if (parser.parsed("--clear")) {
                     cli.clear_history();
                     return CmdExecResult::done;
                 }
                 if (parser.parsed("--output")) {
-                    cli.write_history(parser.get<std::string>("--output"), num, !no_append_quit, include_fails);
+                    cli.write_history(parser.get<std::string>("--output"), num, !no_append_quit, filter);
                     return CmdExecResult::done;
                 }
 
-                cli.print_history(num, include_fails);
+                cli.print_history(num, filter);
 
                 return CmdExecResult::done;
             }};
