@@ -44,15 +44,17 @@ struct ZYZ {
 };
 
 class Decomposer {
+private:
+    QCir _quantum_circuit;
+    size_t _qreg;
+
 public:
     template <typename U>
     friend struct TwoLevelMatrix;
     friend struct ZYZ;
 
-    Decomposer(size_t reg) : _quantum_circuit(new QCir(reg)), _qreg(reg) {
-    }
+    Decomposer(size_t reg) : _quantum_circuit{reg}, _qreg(reg) {}
 
-    QCir* get_qcir() { return _quantum_circuit; }
     size_t get_qreg() { return _qreg; }
 
     /**
@@ -63,8 +65,8 @@ public:
      * @return QCir*
      */
     template <typename U>
-    QCir* decompose(QTensor<U> const& matrix) {
-        auto mat_chain = get_2level(matrix);
+    std::optional<QCir> decompose(QTensor<U> const& matrix) {
+        auto mat_chain = get_two_level_matrices(matrix);
 
         for (auto const& i : std::views::iota(0UL, mat_chain.size()) | std::views::reverse) {
             size_t i_idx = 0, j_idx = 0;
@@ -78,13 +80,102 @@ public:
                 std::swap(mat_chain[i]._matrix(0, 1), mat_chain[i]._matrix(1, 0));
             }
 
-            if (!graycode(mat_chain[i]._matrix, i_idx, j_idx)) return nullptr;
+            if (!graycode(mat_chain[i]._matrix, i_idx, j_idx)) return std::nullopt;
         }
         return _quantum_circuit;
     }
 
     /**
-     * @brief Get the 2level object
+     * @brief If the input matrix is a two-level matrix, return the indices of the two-level matrix
+     *
+     * @tparam U
+     * @param matrix
+     * @param eps
+     * @return std::optional<std::pair<size_t, size_t>>
+     */
+    template <typename U>
+    std::optional<std::pair<size_t, size_t>> get_two_level_matrix_indices(QTensor<U> const& matrix, double eps) {
+        using namespace std::literals;
+        auto const dimension      = static_cast<size_t>(matrix.shape()[0]);
+        size_t num_found_diagonal = 0, num_upper_triangle_not_zero = 0, num_lower_triangle_not_zero = 0;
+        size_t top_main_diagonal_coords = 0, top_sub_diagonal_row = 0, bottom_sub_diagonal_row = 0;
+        size_t bottom_main_diagonal_coords = 0, top_sub_diagonal_col = 0, bottom_sub_diagonal_col = 0;
+
+        // count the number of non-1 elements in the diagonal
+        // and the non-zero elements in the upper and lower triangles
+        for (size_t x = 0; x < dimension; x++) {
+            for (size_t y = 0; y < dimension; y++) {
+                if (x == y) {
+                    if (std::abs(matrix(y, x) - (1.0 + 0.i)) > eps) {
+                        num_found_diagonal++;
+                        if (num_found_diagonal == 1)
+                            top_main_diagonal_coords = x;
+                        if (num_found_diagonal == 2)
+                            bottom_main_diagonal_coords = x;
+                    }
+                } else if (x > y) {  // Upper diagonal
+                    if (std::abs(matrix(y, x)) > eps) {
+                        num_upper_triangle_not_zero++;
+                        top_sub_diagonal_row = y;
+                        top_sub_diagonal_col = x;
+                    }
+                } else {  // Lower diagonal
+                    if (std::abs(matrix(y, x)) > eps) {
+                        num_lower_triangle_not_zero++;
+                        bottom_sub_diagonal_row = y;
+                        bottom_sub_diagonal_col = x;
+                    }
+                }
+            }
+        }
+
+        // is the matrix a two-level one?
+
+        // case 1: some off-diagonal elements are non-zero
+        if ((num_upper_triangle_not_zero == 1 && num_lower_triangle_not_zero == 1) && (top_sub_diagonal_row == bottom_sub_diagonal_col && top_sub_diagonal_col == bottom_sub_diagonal_row)) {
+            // kernel is [x x]
+            //           [x x]
+            if (num_found_diagonal == 2 && top_main_diagonal_coords == top_sub_diagonal_row && bottom_main_diagonal_coords == bottom_sub_diagonal_row) {
+                return std::make_pair(top_main_diagonal_coords, bottom_main_diagonal_coords);
+            }
+            // REVIEW - why is this condition necessary?
+            if (num_found_diagonal == 1 && (top_main_diagonal_coords == top_sub_diagonal_row || top_main_diagonal_coords == top_sub_diagonal_col)) {
+                if (top_main_diagonal_coords != dimension - 1) {
+                    return std::make_pair(top_main_diagonal_coords, top_main_diagonal_coords + 1);
+                } else {
+                    return std::make_pair(top_main_diagonal_coords - 1, top_main_diagonal_coords);
+                }
+            }
+            // kernel is [0 x]
+            //           [x 0]
+            if (num_found_diagonal == 0) {
+                return std::make_pair(top_sub_diagonal_row, top_sub_diagonal_col);
+            }
+        }
+
+        // case 2: all off-diagonal elements are zero
+        if (num_upper_triangle_not_zero == 0 && num_lower_triangle_not_zero == 0) {
+            if (num_found_diagonal == 2) {
+                return std::make_pair(top_main_diagonal_coords, bottom_main_diagonal_coords);
+            }
+            // REVIEW - why is this condition necessary?
+            if (num_found_diagonal == 1) {
+                if (top_main_diagonal_coords != dimension - 1) {
+                    return std::make_pair(top_main_diagonal_coords, top_main_diagonal_coords + 1);
+                } else {
+                    return std::make_pair(top_main_diagonal_coords - 1, top_main_diagonal_coords);
+                }
+            }
+            return std::make_pair(SIZE_MAX, SIZE_MAX);  // signals identity
+            // if (num_found_diagonal == 0)  // identity
+            //     return two_level_chain;
+        }
+
+        return std::nullopt;
+    }
+
+    /**
+     * @brief Get the two-level matrices associated with the input matrix
      *
      * @tparam U
      * @param matrix
@@ -92,119 +183,49 @@ public:
      * @reference Li, Chi-Kwong, Rebecca Roberts, and Xiaoyan Yin. "Decomposition of unitary matrices and quantum gates." International Journal of Quantum Information 11.01 (2013): 1350015.
      */
     template <typename U>
-    std::vector<TwoLevelMatrix<U>> get_2level(QTensor<U> matrix) {
-        std::vector<TwoLevelMatrix<U>> two_level_chain;
+    std::vector<TwoLevelMatrix<U>> get_two_level_matrices(QTensor<U> matrix /* copy on purpose */) {
         using namespace std::literals;
-        const size_t dimension = size_t(matrix.shape()[0]);
-        QTensor<U>
-            conjugate_matrix_product = QTensor<U>::identity((size_t)round(std::log2(dimension)));
+        constexpr double eps = 1e-6;
+        std::vector<TwoLevelMatrix<U>> two_level_chain;
+        auto const dimension = static_cast<size_t>(matrix.shape()[0]);
+        auto conjugate_matrix_product =
+            QTensor<U>::identity(static_cast<size_t>(std::round(std::log2(dimension))));
         conjugate_matrix_product.reshape({matrix.shape()[0], matrix.shape()[0]});
-
-        QTensor<U>
-            two_level_kernel = QTensor<U>::identity(1);
 
         for (size_t i = 0; i < dimension; i++) {
             for (size_t j = i + 1; j < dimension; j++) {
-                // check 2-level
-                bool is_two_level         = false;
-                size_t num_found_diagonal = 0, num_upper_triangle_not_zero = 0, num_lower_triangle_not_zero = 0;
-                size_t top_main_diagonal_coords = 0, top_sub_diagonal_row = 0, bottom_sub_diagonal_row = 0;
-                size_t bottom_main_diagonal_coords = 0, top_sub_diagonal_col = 0, bottom_sub_diagonal_col = 0;
-                size_t selected_top = 0, selected_bottom = 0;
+                // if `matrix` is the last two-level matrix
+                if (auto const pair = get_two_level_matrix_indices(matrix, eps)) {
+                    auto const& [selected_top, selected_bottom] = *pair;
 
-                for (size_t x = 0; x < dimension; x++) {
-                    for (size_t y = 0; y < dimension; y++) {
-                        if (x == y) {
-                            if (std::abs(matrix(y, x) - std::complex(1.0, 0.)) > 1e-6) {
-                                num_found_diagonal++;
-                                if (num_found_diagonal == 1)
-                                    top_main_diagonal_coords = x;
-                                if (num_found_diagonal == 2)
-                                    bottom_main_diagonal_coords = x;
-                            }
-                        } else if (x > y) {  // Upper diagonal
-                            if (std::abs(matrix(y, x)) > 1e-6) {
-                                num_upper_triangle_not_zero++;
-                                top_sub_diagonal_row = y;
-                                top_sub_diagonal_col = x;
-                            }
-                        } else {  // Lower diagonal
-                            if (std::abs(matrix(y, x)) > 1e-6) {
-                                num_lower_triangle_not_zero++;
-                                bottom_sub_diagonal_row = y;
-                                bottom_sub_diagonal_col = x;
-                            }
-                        }
-                    }
-                }
-
-                if ((num_upper_triangle_not_zero == 1 && num_lower_triangle_not_zero == 1) && (top_sub_diagonal_row == bottom_sub_diagonal_col && top_sub_diagonal_col == bottom_sub_diagonal_row)) {
-                    if (num_found_diagonal == 2 && top_main_diagonal_coords == top_sub_diagonal_row && bottom_main_diagonal_coords == bottom_sub_diagonal_row) {
-                        is_two_level    = true;
-                        selected_top    = top_main_diagonal_coords;
-                        selected_bottom = bottom_main_diagonal_coords;
-                    }
-                    if (num_found_diagonal == 1 && (top_main_diagonal_coords == top_sub_diagonal_row || top_main_diagonal_coords == top_sub_diagonal_col)) {
-                        is_two_level = true;
-                        if (top_main_diagonal_coords != dimension - 1) {
-                            selected_top    = top_main_diagonal_coords;
-                            selected_bottom = top_main_diagonal_coords + 1;
-                        } else {
-                            selected_top    = top_main_diagonal_coords - 1;
-                            selected_bottom = top_main_diagonal_coords;
-                        }
-                    }
-                    if (num_found_diagonal == 0) {
-                        is_two_level    = true;
-                        selected_top    = top_sub_diagonal_row;
-                        selected_bottom = top_sub_diagonal_col;
-                    }
-                }
-
-                if (num_upper_triangle_not_zero == 0 && num_lower_triangle_not_zero == 0) {
-                    if (num_found_diagonal == 2) {
-                        is_two_level    = true;
-                        selected_top    = top_main_diagonal_coords;
-                        selected_bottom = bottom_main_diagonal_coords;
-                    }
-                    if (num_found_diagonal == 1) {
-                        is_two_level = true;
-                        if (top_main_diagonal_coords != dimension - 1) {
-                            selected_top    = top_main_diagonal_coords;
-                            selected_bottom = top_main_diagonal_coords + 1;
-                        } else {
-                            selected_top    = top_main_diagonal_coords - 1;
-                            selected_bottom = top_main_diagonal_coords;
-                        }
-                    }
-                    if (num_found_diagonal == 0)  // identity
+                    // shortcut for identity
+                    if (selected_top == SIZE_MAX && selected_bottom == SIZE_MAX) {
                         return two_level_chain;
-                }
+                    }
+                    auto const two_level_kernel = QTensor<U>{
+                        {matrix(selected_top, selected_top), matrix(selected_top, selected_bottom)},
+                        {matrix(selected_bottom, selected_top), matrix(selected_bottom, selected_bottom)}};
 
-                if (is_two_level == true) {
-                    two_level_kernel(0, 0) = matrix(selected_top, selected_top);
-                    two_level_kernel(0, 1) = matrix(selected_top, selected_bottom);
-                    two_level_kernel(1, 0) = matrix(selected_bottom, selected_top);
-                    two_level_kernel(1, 1) = matrix(selected_bottom, selected_bottom);
                     two_level_chain.emplace_back(TwoLevelMatrix<U>(two_level_kernel, selected_top, selected_bottom));
-
                     return two_level_chain;
                 }
 
-                if (std::abs(matrix(i, i).real() - 1) < 1e-6 && std::abs(matrix(i, i).imag()) < 1e-6) {  // maybe use e-6 approx.
-                    if (std::abs(matrix(j, i).real()) < 1e-6 && std::abs(matrix(j, i).imag()) < 1e-6) {
+                // not a two-level matrix
+
+                // if encounter additional zeros in the off-diagonal elements, skip
+                if (std::abs(matrix(i, i).real() - 1) < eps && std::abs(matrix(i, i).imag()) < eps) {  // maybe use e-6 approx.
+                    if (std::abs(matrix(j, i).real()) < eps && std::abs(matrix(j, i).imag()) < eps) {
                         continue;
                     }
                 }
-                if (std::abs(matrix(i, i).real()) < 1e-6 && std::abs(matrix(i, i).imag()) < 1e-6) {  // maybe use e-6 approx.
-                    if (std::abs(matrix(j, i).real()) < 1e-6 && std::abs(matrix(j, i).imag()) < 1e-6) {
+                if (std::abs(matrix(i, i).real()) < eps && std::abs(matrix(i, i).imag()) < eps) {  // maybe use e-6 approx.
+                    if (std::abs(matrix(j, i).real()) < eps && std::abs(matrix(j, i).imag()) < eps) {
                         continue;
                     }
                 }
 
+                // normalization factor
                 const double u = std::sqrt(std::norm(matrix(i, i)) + std::norm(matrix(j, i)));
-
-                using namespace std::literals;
 
                 for (size_t x = 0; x < dimension; x++) {
                     for (size_t y = 0; y < dimension; y++) {
@@ -227,11 +248,9 @@ public:
                 }
 
                 matrix = tensordot(conjugate_matrix_product, matrix, {1}, {0});
-
-                two_level_kernel(0, 0) = std::conj(conjugate_matrix_product(i, i));
-                two_level_kernel(0, 1) = std::conj(conjugate_matrix_product(j, i));
-                two_level_kernel(1, 0) = std::conj(conjugate_matrix_product(i, j));
-                two_level_kernel(1, 1) = std::conj(conjugate_matrix_product(j, j));
+                auto const two_level_kernel =
+                    QTensor<U>({{std::conj(conjugate_matrix_product(i, i)), std::conj(conjugate_matrix_product(j, i))},
+                                {std::conj(conjugate_matrix_product(i, j)), std::conj(conjugate_matrix_product(j, j))}});
 
                 two_level_chain.emplace_back(TwoLevelMatrix<U>(two_level_kernel, i, j));
             }
@@ -250,7 +269,7 @@ public:
     void encode_control_gate(const QubitIdList target, std::vector<QubitIdList>& qubit_list, std::vector<std::string>& gate_list) {
         qubit_list.emplace_back(target);
         gate_list.emplace_back(target.size() == 2 ? "cx" : "x");
-        _quantum_circuit->add_gate(target.size() == 2 ? "cx" : "x", target, {}, true);
+        _quantum_circuit.add_gate(target.size() == 2 ? "cx" : "x", target, {}, true);
     }
 
     /**
@@ -316,7 +335,7 @@ public:
         // do unpabbing
         DVLAB_ASSERT(gate_list.size() == qubit_list.size(), "Sizes of gate list and qubit list are different");
         for (auto const& i : std::views::iota(0UL, gate_list.size()) | std::views::reverse)
-            _quantum_circuit->add_gate(gate_list[i], qubit_list[i], {}, true);
+            _quantum_circuit.add_gate(gate_list[i], qubit_list[i], {}, true);
 
         return true;
     }
@@ -398,9 +417,9 @@ public:
     template <typename U>
     bool decompose_CnX(const std::vector<size_t>& ctrls, const size_t extract_qubit, const size_t index, const size_t ctrl_gates) {
         if (ctrls.size() == 1) {
-            _quantum_circuit->add_gate("cx", {int(ctrls[0]), int(extract_qubit)}, {}, true);
+            _quantum_circuit.add_gate("cx", {int(ctrls[0]), int(extract_qubit)}, {}, true);
         } else if (ctrls.size() == 2) {
-            _quantum_circuit->add_gate("ccx", {int(ctrls[0]), int(ctrls[1]), int(extract_qubit)}, {}, true);
+            _quantum_circuit.add_gate("ccx", {int(ctrls[0]), int(ctrls[1]), int(extract_qubit)}, {}, true);
         } else {
             using float_type = U::value_type;
             if (!decompose_CnU(QTensor<float_type>::xgate(), extract_qubit, index, ctrl_gates)) return false;
@@ -421,35 +440,36 @@ public:
      */
     template <typename U>
     bool decompose_CU(Tensor<U> const& t, size_t ctrl, size_t targ) {
-        const struct ZYZ angles = decompose_ZYZ(t);
+        constexpr double eps = 1e-6;
+        const ZYZ angles     = decompose_ZYZ(t);
         if (!angles.correct) return false;
 
-        if (std::abs((angles.alpha - angles.gamma) / 2) > 1e-6)
-            _quantum_circuit->add_gate("rz", {int(targ)}, dvlab::Phase{((angles.alpha - angles.gamma) / 2) * (-1.0)}, true);
+        if (std::abs((angles.alpha - angles.gamma) / 2) > eps)
+            _quantum_circuit.add_gate("rz", {int(targ)}, dvlab::Phase{((angles.alpha - angles.gamma) / 2) * (-1.0)}, true);
 
-        if (std::abs(angles.beta) > 1e-6) {
-            _quantum_circuit->add_gate("cx", {int(ctrl), int(targ)}, {}, true);
-            if (std::abs((angles.alpha + angles.gamma) / 2) > 1e-6)
-                _quantum_circuit->add_gate("rz", {int(targ)}, dvlab::Phase{((angles.alpha + angles.gamma) / 2) * (-1.0)}, true);
+        if (std::abs(angles.beta) > eps) {
+            _quantum_circuit.add_gate("cx", {int(ctrl), int(targ)}, {}, true);
+            if (std::abs((angles.alpha + angles.gamma) / 2) > eps)
+                _quantum_circuit.add_gate("rz", {int(targ)}, dvlab::Phase{((angles.alpha + angles.gamma) / 2) * (-1.0)}, true);
 
-            _quantum_circuit->add_gate("ry", {int(targ)}, dvlab::Phase{angles.beta * (-1.0)}, true);
-            _quantum_circuit->add_gate("cx", {int(ctrl), int(targ)}, {}, true);
-            _quantum_circuit->add_gate("ry", {int(targ)}, dvlab::Phase{angles.beta}, true);
+            _quantum_circuit.add_gate("ry", {int(targ)}, dvlab::Phase{angles.beta * (-1.0)}, true);
+            _quantum_circuit.add_gate("cx", {int(ctrl), int(targ)}, {}, true);
+            _quantum_circuit.add_gate("ry", {int(targ)}, dvlab::Phase{angles.beta}, true);
 
-            if (std::abs(angles.alpha) > 1e-6)
-                _quantum_circuit->add_gate("rz", {int(targ)}, dvlab::Phase{angles.alpha}, true);
+            if (std::abs(angles.alpha) > eps)
+                _quantum_circuit.add_gate("rz", {int(targ)}, dvlab::Phase{angles.alpha}, true);
 
         } else {
-            if (std::abs((angles.alpha + angles.gamma) / 2) > 1e-6) {
-                _quantum_circuit->add_gate("cx", {int(ctrl), int(targ)}, {}, true);
-                _quantum_circuit->add_gate("rz", {int(targ)}, dvlab::Phase{((angles.alpha + angles.gamma) / 2) * (-1.0)}, true);
-                _quantum_circuit->add_gate("cx", {int(ctrl), int(targ)}, {}, true);
+            if (std::abs((angles.alpha + angles.gamma) / 2) > eps) {
+                _quantum_circuit.add_gate("cx", {int(ctrl), int(targ)}, {}, true);
+                _quantum_circuit.add_gate("rz", {int(targ)}, dvlab::Phase{((angles.alpha + angles.gamma) / 2) * (-1.0)}, true);
+                _quantum_circuit.add_gate("cx", {int(ctrl), int(targ)}, {}, true);
             }
-            if (std::abs(angles.alpha) > 1e-6)
-                _quantum_circuit->add_gate("rz", {int(targ)}, dvlab::Phase{angles.alpha}, true);
+            if (std::abs(angles.alpha) > eps)
+                _quantum_circuit.add_gate("rz", {int(targ)}, dvlab::Phase{angles.alpha}, true);
         }
-        if (std::abs(angles.phi) > 1e-6)
-            _quantum_circuit->add_gate("rz", {int(ctrl)}, dvlab::Phase{angles.phi}, true);
+        if (std::abs(angles.phi) > eps)
+            _quantum_circuit.add_gate("rz", {int(ctrl)}, dvlab::Phase{angles.phi}, true);
 
         return true;
     }
@@ -472,7 +492,7 @@ public:
         // c =  e^{iφ}e^{ i(α-γ)/2}sin(β/2)
         // d =  e^{iφ}e^{ i(α+γ)/2}cos(β/2)
         const std::complex<double> a = matrix(0, 0), b = matrix(0, 1), c = matrix(1, 0), d = matrix(1, 1);
-        struct ZYZ output = {};
+        ZYZ output = {};
         // NOTE - The beta here is actually half of beta
         double init_beta = 0;
         if (std::abs(a) > 1) {
@@ -550,10 +570,6 @@ public:
             return Tensor<U>({{std::sqrt(a), b}, {c, std::sqrt(d)}});
         }
     }
-
-private:
-    QCir* _quantum_circuit;
-    size_t _qreg;
 };
 
 }  // namespace tensor

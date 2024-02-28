@@ -166,10 +166,10 @@ Command conversion_cmd(QCirMgr& qcir_mgr, qsyn::tensor::TensorMgr& tensor_mgr, q
                     auto ts           = tensor_mgr.get();
                     const size_t qreg = size_t(log2((*ts).shape()[0]));
                     tensor::Decomposer decomp(qreg);
-                    qcir::QCir* result = decomp.decompose(*ts);
+                    auto result = decomp.decompose(*ts);
 
-                    if (result != nullptr) {
-                        qcir_mgr.add(qcir_mgr.get_next_id(), std::make_unique<qcir::QCir>(*result));
+                    if (result) {
+                        qcir_mgr.add(qcir_mgr.get_next_id(), std::make_unique<qcir::QCir>(std::move(*result)));
                         qcir_mgr.get()->add_procedures(tensor_mgr.get()->get_procedures());
                         qcir_mgr.get()->add_procedure("TS2QC");
                         qcir_mgr.get()->set_filename(tensor_mgr.get()->get_filename());
