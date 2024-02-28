@@ -94,14 +94,10 @@ public:
     template <typename U>
     std::vector<TwoLevelMatrix<U>> get_2level(QTensor<U> matrix) {
         std::vector<TwoLevelMatrix<U>> two_level_chain;
-
         using namespace std::literals;
-
         const size_t dimension = size_t(matrix.shape()[0]);
-
         QTensor<U>
             conjugate_matrix_product = QTensor<U>::identity((size_t)round(std::log2(dimension)));
-
         conjugate_matrix_product.reshape({matrix.shape()[0], matrix.shape()[0]});
 
         QTensor<U>
@@ -116,7 +112,7 @@ public:
                 size_t bottom_main_diagonal_coords = 0, top_sub_diagonal_col = 0, bottom_sub_diagonal_col = 0;
                 size_t selected_top = 0, selected_bottom = 0;
 
-                for (size_t x = 0; x < dimension; x++) {  // check all
+                for (size_t x = 0; x < dimension; x++) {
                     for (size_t y = 0; y < dimension; y++) {
                         if (x == y) {
                             if (std::abs(matrix(y, x) - std::complex(1.0, 0.)) > 1e-6) {
@@ -181,9 +177,8 @@ public:
                             selected_bottom = top_main_diagonal_coords;
                         }
                     }
-                    if (num_found_diagonal == 0) {  // identity
+                    if (num_found_diagonal == 0)  // identity
                         return two_level_chain;
-                    }
                 }
 
                 if (is_two_level == true) {
@@ -245,14 +240,58 @@ public:
         return two_level_chain;
     }
 
-    template <typename U>
-    bool graycode(Tensor<U> const& t, int I, int J) {
-        // do pabbing
-        std::vector<QubitIdList> qubits_list;
-        std::vector<std::string> gate_list;
-        size_t gates_length = 0;
+    /**
+     * @brief Append gate and save the encoding gate sequence
+     *
+     * @param target
+     * @param qubit_list
+     * @param gate_list
+     */
+    void encode_control_gate(const QubitIdList target, std::vector<QubitIdList>& qubit_list, std::vector<std::string>& gate_list) {
+        qubit_list.emplace_back(target);
+        gate_list.emplace_back(target.size() == 2 ? "cx" : "x");
+        _quantum_circuit->add_gate(target.size() == 2 ? "cx" : "x", target, {}, true);
+    }
 
-        // size_t get_diff = I ^ J;
+    /**
+     * @brief Gray encoder
+     *
+     * @param origin_pos Origin qubit
+     * @param targ_pos Target qubit
+     * @param qubit_list
+     * @param gate_list
+     */
+    void encode(size_t origin_pos, size_t targ_pos, std::vector<QubitIdList>& qubit_list, std::vector<std::string>& gate_list) {
+        bool x_given = 0;
+        if (((origin_pos >> targ_pos) & 1) == 0) {
+            encode_control_gate({int(targ_pos)}, qubit_list, gate_list);
+            x_given = 1;
+        }
+        for (size_t i = 0; i < _qreg; i++) {
+            if (i == targ_pos) continue;
+            if (((origin_pos >> i) & 1) == 0)
+                encode_control_gate({int(targ_pos), int(i)}, qubit_list, gate_list);
+        }
+        if (x_given)
+            encode_control_gate({int(targ_pos)}, qubit_list, gate_list);
+    }
+
+    /**
+     * @brief Perform Graycode synthesis
+     *
+     * @tparam U
+     * @param matrix
+     * @param I
+     * @param J
+     * @return true
+     * @return false
+     */
+    template <typename U>
+    bool graycode(Tensor<U> const& matrix, size_t I, size_t J) {
+        // do pabbing
+        std::vector<QubitIdList> qubit_list;
+        std::vector<std::string> gate_list;
+
         size_t diff_pos = 0;
         for (size_t i = 0; i < _qreg; i++) {
             if ((((I ^ J) >> i) & 1) && (J >> i & 1)) {
@@ -261,93 +300,42 @@ public:
             }
         }
 
-        bool x_given = 0;
+        if ((I + size_t(std::pow(2, diff_pos))) != size_t(std::pow(2, _qreg) - 1))
+            encode(I, diff_pos, qubit_list, gate_list);
 
-        if ((I + std::pow(2, diff_pos)) != (std::pow(2, _qreg) - 1)) {
-            if (((I >> diff_pos) & 1) == 0) {
-                QubitIdList target;
-                target.emplace_back(diff_pos);
-                qubits_list.emplace_back(target);
-                gate_list.emplace_back("x");
-                gates_length++;
-                _quantum_circuit->add_gate("x", target, {}, true);
-                x_given = 1;
-            }
-            for (size_t i = 0; i < _qreg; i++) {
-                if (i == diff_pos) {
-                    continue;
-                }
-                if (((I >> i) & 1) == 0) {
-                    QubitIdList target;
-                    target.emplace_back(diff_pos);
-                    target.emplace_back(i);
-                    qubits_list.emplace_back(target);
-                    gate_list.emplace_back("cx");
-                    gates_length++;
-                    _quantum_circuit->add_gate("cx", target, {}, true);
-                }
-            }
-            if (x_given) {
-                QubitIdList target;
-                target.emplace_back(diff_pos);
-                qubits_list.emplace_back(target);
-                gate_list.emplace_back("x");
-                gates_length++;
-                _quantum_circuit->add_gate("x", target, {}, true);
-                x_given = 0;
-            }
-        }
-        if (((J >> diff_pos) & 1) == 0) {
-            QubitIdList target;
-            target.emplace_back(diff_pos);
-            qubits_list.emplace_back(target);
-            gate_list.emplace_back("x");
-            gates_length++;
-            _quantum_circuit->add_gate("x", target, {}, true);
-            x_given = 1;
-        }
-        for (size_t i = 0; i < _qreg; i++) {
-            if (i == diff_pos) {
-                continue;
-            }
-            if (((J >> i) & 1) == 0) {
-                QubitIdList target;
-                target.emplace_back(diff_pos);
-                target.emplace_back(i);
-                qubits_list.emplace_back(target);
-                gate_list.emplace_back("cx");
-                gates_length++;
-                _quantum_circuit->add_gate("cx", target, {}, true);
-            }
-        }
-        if (x_given) {
-            QubitIdList target;
-            target.emplace_back(diff_pos);
-            qubits_list.emplace_back(target);
-            gate_list.emplace_back("x");
-            gates_length++;
-            _quantum_circuit->add_gate("x", target, {}, true);
-            x_given = 0;
-        }
+        encode(J, diff_pos, qubit_list, gate_list);
+
         // decompose CnU
-        size_t ctrl_index = 0;
+        size_t ctrl_index = 0;  // q2 q1 q0 = t,c,c -> ctrl_index = 011 = 3
         for (size_t i = 0; i < _qreg; i++) {
-            if (i != diff_pos) {
+            if (i != diff_pos)
                 ctrl_index += size_t(pow(2, i));
-            }
         }
-        if (!decompose_CnU(t, diff_pos, ctrl_index, _qreg - 1)) return false;
+        if (!decompose_CnU(matrix, diff_pos, ctrl_index, _qreg - 1)) return false;
 
         // do unpabbing
-        for (auto const& i : std::views::iota(0UL, gates_length) | std::views::reverse) {
-            _quantum_circuit->add_gate(gate_list[i], qubits_list[i], {}, true);
-        }
+        DVLAB_ASSERT(gate_list.size() == qubit_list.size(), "Sizes of gate list and qubit list are different");
+        for (auto const& i : std::views::iota(0UL, gate_list.size()) | std::views::reverse)
+            _quantum_circuit->add_gate(gate_list[i], qubit_list[i], {}, true);
+
         return true;
     }
 
-    // REVIEW - ctrl_gates >= 1
+    /**
+     * @brief Decompose the CnU gate
+     *
+     * @tparam U
+     * @param t
+     * @param diff_pos
+     * @param index
+     * @param ctrl_gates
+     * @return true
+     * @return false
+     * @reference Nakahara, Mikio, and Tetsuo Ohmi. Quantum computing: from linear algebra to physical realizations. CRC press, 2008.
+     */
     template <typename U>
     bool decompose_CnU(Tensor<U> const& t, size_t diff_pos, size_t index, size_t ctrl_gates) {
+        DVLAB_ASSERT(ctrl_gates >= 1, "The control qubit left in the CnU gate should be at least 1");
         size_t ctrl = (diff_pos == 0) ? 1 : diff_pos - 1;
 
         if (!((index >> ctrl) & 1)) {
@@ -365,9 +353,8 @@ public:
         } else {
             size_t extract_qubit = -1;
             for (size_t i = 0; i < _qreg; i++) {
-                if (i == ctrl) {
-                    continue;
-                }
+                if (i == ctrl) continue;
+
                 if ((index >> i) & 1) {
                     extract_qubit = i;
                     index         = index - size_t(pow(2, i));
@@ -376,49 +363,19 @@ public:
             }
             Tensor<U> V = sqrt_single_qubit_matrix(t);
             if (!decompose_CU(V, extract_qubit, diff_pos)) return false;
-            size_t count = 0;
+
             std::vector<size_t> ctrls;
             for (size_t i = 0; i < size_t(log2(index)) + 1; i++) {
-                if ((index >> i) & 1) {
+                if ((index >> i) & 1)
                     ctrls.emplace_back(i);
-                    count++;
-                }
             }
-            if (count == 1) {
-                QubitIdList target;
-                target.emplace_back(ctrls[0]);
-                target.emplace_back(extract_qubit);
-                _quantum_circuit->add_gate("cx", target, {}, true);
-            } else if (count == 2) {
-                QubitIdList target;
-                for (size_t i = 0; i < count; i++) {
-                    target.emplace_back(ctrls[i]);
-                }
-                target.emplace_back(extract_qubit);
-                _quantum_circuit->add_gate("ccx", target, {}, true);
-            } else {
-                std::complex<double> zero(0, 0), one(1, 0);
-                // NOTE - Multi-control toffoli
-                if (!decompose_CnU(Tensor<U>({{zero, one}, {one, zero}}), extract_qubit, index, ctrl_gates - 1)) return false;
-            }
+
+            decompose_CnX<U>(ctrls, extract_qubit, index, ctrl_gates - 1);
+
             V.adjoint();
             if (!decompose_CU(V, extract_qubit, diff_pos)) return false;
-            if (count == 1) {
-                QubitIdList target;
-                target.emplace_back(ctrls[0]);
-                target.emplace_back(extract_qubit);
-                _quantum_circuit->add_gate("cx", target, {}, true);
-            } else if (count == 2) {
-                QubitIdList target;
-                for (size_t i = 0; i < count; i++) {
-                    target.emplace_back(ctrls[i]);
-                }
-                target.emplace_back(extract_qubit);
-                _quantum_circuit->add_gate("ccx", target, {}, true);
-            } else {
-                using float_type = U::value_type;
-                if (!decompose_CnU(QTensor<float_type>::xgate(), extract_qubit, index, ctrl_gates - 1)) return false;
-            }
+
+            decompose_CnX<U>(ctrls, extract_qubit, index, ctrl_gates - 1);
 
             V.adjoint();
             if (!decompose_CnU(V, diff_pos, index, ctrl_gates - 1)) return false;
@@ -427,46 +384,72 @@ public:
         return true;
     }
 
+    /**
+     * @brief Decompose CnX gate
+     *
+     * @tparam U
+     * @param ctrls
+     * @param extract_qubit
+     * @param index
+     * @param ctrl_gates
+     * @return true
+     * @return false
+     */
+    template <typename U>
+    bool decompose_CnX(const std::vector<size_t>& ctrls, const size_t extract_qubit, const size_t index, const size_t ctrl_gates) {
+        if (ctrls.size() == 1) {
+            _quantum_circuit->add_gate("cx", {int(ctrls[0]), int(extract_qubit)}, {}, true);
+        } else if (ctrls.size() == 2) {
+            _quantum_circuit->add_gate("ccx", {int(ctrls[0]), int(ctrls[1]), int(extract_qubit)}, {}, true);
+        } else {
+            using float_type = U::value_type;
+            if (!decompose_CnU(QTensor<float_type>::xgate(), extract_qubit, index, ctrl_gates)) return false;
+        }
+        return true;
+    }
+
+    /**
+     * @brief Decompose CU gate
+     *
+     * @tparam U
+     * @param t
+     * @param ctrl
+     * @param targ
+     * @return true
+     * @return false
+     * @reference Nakahara, Mikio, and Tetsuo Ohmi. Quantum computing: from linear algebra to physical realizations. CRC press, 2008.
+     */
     template <typename U>
     bool decompose_CU(Tensor<U> const& t, size_t ctrl, size_t targ) {
         const struct ZYZ angles = decompose_ZYZ(t);
         if (!angles.correct) return false;
-        QubitIdList target1, target2;
-        target1.emplace_back(targ);
-        target2.emplace_back(ctrl);
-        target2.emplace_back(targ);
 
-        if (std::abs((angles.alpha - angles.gamma) / 2) > 1e-6) {
-            _quantum_circuit->add_gate("rz", target1, dvlab::Phase{((angles.alpha - angles.gamma) / 2) * (-1.0)}, true);
-        }
+        if (std::abs((angles.alpha - angles.gamma) / 2) > 1e-6)
+            _quantum_circuit->add_gate("rz", {int(targ)}, dvlab::Phase{((angles.alpha - angles.gamma) / 2) * (-1.0)}, true);
+
         if (std::abs(angles.beta) > 1e-6) {
-            _quantum_circuit->add_gate("cx", target2, {}, true);
-            if (std::abs((angles.alpha + angles.gamma) / 2) > 1e-6) {
-                target1.emplace_back(targ);
-                _quantum_circuit->add_gate("rz", target1, dvlab::Phase{((angles.alpha + angles.gamma) / 2) * (-1.0)}, true);
-            }
-            _quantum_circuit->add_gate("ry", target1, dvlab::Phase{angles.beta * (-1.0)}, true);
-            _quantum_circuit->add_gate("cx", target2, {}, true);
-            _quantum_circuit->add_gate("ry", target1, dvlab::Phase{angles.beta}, true);
+            _quantum_circuit->add_gate("cx", {int(ctrl), int(targ)}, {}, true);
+            if (std::abs((angles.alpha + angles.gamma) / 2) > 1e-6)
+                _quantum_circuit->add_gate("rz", {int(targ)}, dvlab::Phase{((angles.alpha + angles.gamma) / 2) * (-1.0)}, true);
 
-            if (std::abs(angles.alpha) > 1e-6) {
-                _quantum_circuit->add_gate("rz", target1, dvlab::Phase{angles.alpha}, true);
-            }
+            _quantum_circuit->add_gate("ry", {int(targ)}, dvlab::Phase{angles.beta * (-1.0)}, true);
+            _quantum_circuit->add_gate("cx", {int(ctrl), int(targ)}, {}, true);
+            _quantum_circuit->add_gate("ry", {int(targ)}, dvlab::Phase{angles.beta}, true);
+
+            if (std::abs(angles.alpha) > 1e-6)
+                _quantum_circuit->add_gate("rz", {int(targ)}, dvlab::Phase{angles.alpha}, true);
+
         } else {
             if (std::abs((angles.alpha + angles.gamma) / 2) > 1e-6) {
-                _quantum_circuit->add_gate("cx", target2, {}, true);
-                _quantum_circuit->add_gate("rz", target1, dvlab::Phase{((angles.alpha + angles.gamma) / 2) * (-1.0)}, true);
-                _quantum_circuit->add_gate("cx", target2, {}, true);
+                _quantum_circuit->add_gate("cx", {int(ctrl), int(targ)}, {}, true);
+                _quantum_circuit->add_gate("rz", {int(targ)}, dvlab::Phase{((angles.alpha + angles.gamma) / 2) * (-1.0)}, true);
+                _quantum_circuit->add_gate("cx", {int(ctrl), int(targ)}, {}, true);
             }
-            if (std::abs(angles.alpha) > 1e-6) {
-                _quantum_circuit->add_gate("rz", target1, dvlab::Phase{angles.alpha}, true);
-            }
+            if (std::abs(angles.alpha) > 1e-6)
+                _quantum_circuit->add_gate("rz", {int(targ)}, dvlab::Phase{angles.alpha}, true);
         }
-        if (std::abs(angles.phi) > 1e-6) {
-            QubitIdList ctrl_list;
-            ctrl_list.emplace_back(ctrl);
-            _quantum_circuit->add_gate("rz", ctrl_list, dvlab::Phase{angles.phi}, true);
-        }
+        if (std::abs(angles.phi) > 1e-6)
+            _quantum_circuit->add_gate("rz", {int(ctrl)}, dvlab::Phase{angles.phi}, true);
 
         return true;
     }
