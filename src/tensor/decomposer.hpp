@@ -17,6 +17,7 @@
 #include "tensor/qtensor.hpp"
 #include "tensor/tensor.hpp"
 #include "util/phase.hpp"
+#include "util/util.hpp"
 
 namespace qsyn {
 
@@ -29,9 +30,9 @@ namespace tensor {
 template <typename T>
 
 struct TwoLevelMatrix {
-    QTensor<T> given;
-    size_t i = 0, j = 0;  // i < j
-    TwoLevelMatrix(QTensor<T> const& _mat) : given(_mat) {}
+    TwoLevelMatrix(QTensor<T> const& m, size_t i, size_t j) : _matrix(m), _i(i), _j(j) {}
+    QTensor<T> _matrix;
+    size_t _i = 0, _j = 0;  // i < j
 };
 
 struct ZYZ {
@@ -54,6 +55,13 @@ public:
     QCir* get_qcir() { return _quantum_circuit; }
     size_t get_qreg() { return _qreg; }
 
+    /**
+     * @brief Convert the matrix into a quantum circuit
+     *
+     * @tparam U
+     * @param matrix
+     * @return QCir*
+     */
     template <typename U>
     QCir* decompose(QTensor<U> const& matrix) {
         auto mat_chain = get_2level(matrix);
@@ -61,181 +69,176 @@ public:
         for (auto const& i : std::views::iota(0UL, mat_chain.size()) | std::views::reverse) {
             size_t i_idx = 0, j_idx = 0;
             for (size_t j = 0; j < _qreg; j++) {
-                i_idx = i_idx * 2 + (mat_chain[i].i >> j & 1);
-                j_idx = j_idx * 2 + (mat_chain[i].j >> j & 1);
+                i_idx = i_idx * 2 + (mat_chain[i]._i >> j & 1);
+                j_idx = j_idx * 2 + (mat_chain[i]._j >> j & 1);
             }
             if (i_idx > j_idx) {
                 std::swap(i_idx, j_idx);
-                std::swap(mat_chain[i].given(0, 0), mat_chain[i].given(1, 1));
-                std::swap(mat_chain[i].given(0, 1), mat_chain[i].given(1, 0));
+                std::swap(mat_chain[i]._matrix(0, 0), mat_chain[i]._matrix(1, 1));
+                std::swap(mat_chain[i]._matrix(0, 1), mat_chain[i]._matrix(1, 0));
             }
 
-            if (!graycode(mat_chain[i].given, i_idx, j_idx)) return nullptr;
+            if (!graycode(mat_chain[i]._matrix, i_idx, j_idx)) return nullptr;
         }
         return _quantum_circuit;
     }
 
+    /**
+     * @brief Get the 2level object
+     *
+     * @tparam U
+     * @param matrix
+     * @return std::vector<TwoLevelMatrix<U>> List of two-level matrix
+     * @reference Li, Chi-Kwong, Rebecca Roberts, and Xiaoyan Yin. "Decomposition of unitary matrices and quantum gates." International Journal of Quantum Information 11.01 (2013): 1350015.
+     */
     template <typename U>
-    auto get_2level(QTensor<U> t) {
+    std::vector<TwoLevelMatrix<U>> get_2level(QTensor<U> matrix) {
         std::vector<TwoLevelMatrix<U>> two_level_chain;
 
         using namespace std::literals;
 
-        const size_t s = size_t(t.shape()[0]);
+        const size_t dimension = size_t(matrix.shape()[0]);
 
         QTensor<U>
-            XU = QTensor<U>::identity((size_t)round(std::log2(s)));
+            conjugate_matrix_product = QTensor<U>::identity((size_t)round(std::log2(dimension)));
 
-        XU.reshape({t.shape()[0], t.shape()[0]});
+        conjugate_matrix_product.reshape({matrix.shape()[0], matrix.shape()[0]});
 
         QTensor<U>
-            FU = QTensor<U>::identity(1);
+            two_level_kernel = QTensor<U>::identity(1);
 
-        for (size_t i = 0; i < s; i++) {
-            for (size_t j = i + 1; j < s; j++) {
+        for (size_t i = 0; i < dimension; i++) {
+            for (size_t j = i + 1; j < dimension; j++) {
                 // check 2-level
-                bool is_two_level = false;
-                size_t d = 0, Up = 0, L = 0;
-                size_t d1 = 0, Ui = 0, Li = 0;
-                size_t d2 = 0, Uj = 0, Lj = 0;
-                size_t c_i = 0, c_j = 0;
-                // std::complex one(1.0, 0.);
+                bool is_two_level         = false;
+                size_t num_found_diagonal = 0, num_upper_triangle_not_zero = 0, num_lower_triangle_not_zero = 0;
+                size_t top_main_diagonal_coords = 0, top_sub_diagonal_row = 0, bottom_sub_diagonal_row = 0;
+                size_t bottom_main_diagonal_coords = 0, top_sub_diagonal_col = 0, bottom_sub_diagonal_col = 0;
+                size_t selected_top = 0, selected_bottom = 0;
 
-                for (size_t x = 0; x < s; x++) {  // check all
-                    for (size_t y = 0; y < s; y++) {
+                for (size_t x = 0; x < dimension; x++) {  // check all
+                    for (size_t y = 0; y < dimension; y++) {
                         if (x == y) {
-                            if (std::abs(t(y, x) - std::complex(1.0, 0.)) > 1e-6) {
-                                d++;
-                                if (d == 1) {
-                                    d1 = x;
-                                }
-                                if (d == 2) {
-                                    d2 = x;
-                                }
+                            if (std::abs(matrix(y, x) - std::complex(1.0, 0.)) > 1e-6) {
+                                num_found_diagonal++;
+                                if (num_found_diagonal == 1)
+                                    top_main_diagonal_coords = x;
+                                if (num_found_diagonal == 2)
+                                    bottom_main_diagonal_coords = x;
                             }
-                        } else if (x > y) {
-                            if (std::abs(t(y, x)) > 1e-6) {
-                                Up++;
-                                Ui = y;
-                                Uj = x;
+                        } else if (x > y) {  // Upper diagonal
+                            if (std::abs(matrix(y, x)) > 1e-6) {
+                                num_upper_triangle_not_zero++;
+                                top_sub_diagonal_row = y;
+                                top_sub_diagonal_col = x;
                             }
-                        } else {
-                            if (std::abs(t(y, x)) > 1e-6) {
-                                L++;
-                                Li = y;
-                                Lj = x;
+                        } else {  // Lower diagonal
+                            if (std::abs(matrix(y, x)) > 1e-6) {
+                                num_lower_triangle_not_zero++;
+                                bottom_sub_diagonal_row = y;
+                                bottom_sub_diagonal_col = x;
                             }
                         }
                     }
                 }
 
-                if ((Up == 1 && L == 1) && (Ui == Lj && Uj == Li)) {
-                    if (d == 2 && d1 == Ui && d2 == Li) {
-                        is_two_level = true;
-                        c_i          = d1;
-                        c_j          = d2;
+                if ((num_upper_triangle_not_zero == 1 && num_lower_triangle_not_zero == 1) && (top_sub_diagonal_row == bottom_sub_diagonal_col && top_sub_diagonal_col == bottom_sub_diagonal_row)) {
+                    if (num_found_diagonal == 2 && top_main_diagonal_coords == top_sub_diagonal_row && bottom_main_diagonal_coords == bottom_sub_diagonal_row) {
+                        is_two_level    = true;
+                        selected_top    = top_main_diagonal_coords;
+                        selected_bottom = bottom_main_diagonal_coords;
                     }
-                    if (d == 1 && (d1 == Ui || d1 == Uj)) {
+                    if (num_found_diagonal == 1 && (top_main_diagonal_coords == top_sub_diagonal_row || top_main_diagonal_coords == top_sub_diagonal_col)) {
                         is_two_level = true;
-                        if (d1 != s - 1) {
-                            c_i = d1;
-                            c_j = d1 + 1;
+                        if (top_main_diagonal_coords != dimension - 1) {
+                            selected_top    = top_main_diagonal_coords;
+                            selected_bottom = top_main_diagonal_coords + 1;
                         } else {
-                            c_i = d1 - 1;
-                            c_j = d1;
+                            selected_top    = top_main_diagonal_coords - 1;
+                            selected_bottom = top_main_diagonal_coords;
                         }
                     }
-                    if (d == 0) {
-                        is_two_level = true;
-                        c_i          = Ui;
-                        c_j          = Uj;
+                    if (num_found_diagonal == 0) {
+                        is_two_level    = true;
+                        selected_top    = top_sub_diagonal_row;
+                        selected_bottom = top_sub_diagonal_col;
                     }
                 }
 
-                if (Up == 0 && L == 0) {
-                    if (d == 2) {
-                        is_two_level = true;
-                        c_i          = d1;
-                        c_j          = d2;
+                if (num_upper_triangle_not_zero == 0 && num_lower_triangle_not_zero == 0) {
+                    if (num_found_diagonal == 2) {
+                        is_two_level    = true;
+                        selected_top    = top_main_diagonal_coords;
+                        selected_bottom = bottom_main_diagonal_coords;
                     }
-                    if (d == 1) {
+                    if (num_found_diagonal == 1) {
                         is_two_level = true;
-                        if (d1 != s - 1) {
-                            c_i = d1;
-                            c_j = d1 + 1;
+                        if (top_main_diagonal_coords != dimension - 1) {
+                            selected_top    = top_main_diagonal_coords;
+                            selected_bottom = top_main_diagonal_coords + 1;
                         } else {
-                            c_i = d1 - 1;
-                            c_j = d1;
+                            selected_top    = top_main_diagonal_coords - 1;
+                            selected_bottom = top_main_diagonal_coords;
                         }
                     }
-                    if (d == 0) {  // identity
-                        // fmt::println("U become I, ended");
+                    if (num_found_diagonal == 0) {  // identity
                         return two_level_chain;
                     }
                 }
 
                 if (is_two_level == true) {
-                    FU(0, 0) = t(c_i, c_i);
-                    FU(0, 1) = t(c_i, c_j);
-                    FU(1, 0) = t(c_j, c_i);
-                    FU(1, 1) = t(c_j, c_j);
-                    TwoLevelMatrix<U> m(FU);
-                    m.i = c_i;
-                    m.j = c_j;
-                    two_level_chain.push_back(m);
+                    two_level_kernel(0, 0) = matrix(selected_top, selected_top);
+                    two_level_kernel(0, 1) = matrix(selected_top, selected_bottom);
+                    two_level_kernel(1, 0) = matrix(selected_bottom, selected_top);
+                    two_level_kernel(1, 1) = matrix(selected_bottom, selected_bottom);
+                    two_level_chain.emplace_back(TwoLevelMatrix<U>(two_level_kernel, selected_top, selected_bottom));
 
                     return two_level_chain;
                 }
 
-                if (std::abs(t(i, i).real() - 1) < 1e-6 && std::abs(t(i, i).imag()) < 1e-6) {  // maybe use e-6 approx.
-                    if (std::abs(t(j, i).real()) < 1e-6 && std::abs(t(j, i).imag()) < 1e-6) {
+                if (std::abs(matrix(i, i).real() - 1) < 1e-6 && std::abs(matrix(i, i).imag()) < 1e-6) {  // maybe use e-6 approx.
+                    if (std::abs(matrix(j, i).real()) < 1e-6 && std::abs(matrix(j, i).imag()) < 1e-6) {
                         continue;
                     }
                 }
-                if (std::abs(t(i, i).real()) < 1e-6 && std::abs(t(i, i).imag()) < 1e-6) {  // maybe use e-6 approx.
-                    if (std::abs(t(j, i).real()) < 1e-6 && std::abs(t(j, i).imag()) < 1e-6) {
+                if (std::abs(matrix(i, i).real()) < 1e-6 && std::abs(matrix(i, i).imag()) < 1e-6) {  // maybe use e-6 approx.
+                    if (std::abs(matrix(j, i).real()) < 1e-6 && std::abs(matrix(j, i).imag()) < 1e-6) {
                         continue;
                     }
                 }
 
-                const double u = std::sqrt(std::norm(t(i, i)) + std::norm(t(j, i)));
+                const double u = std::sqrt(std::norm(matrix(i, i)) + std::norm(matrix(j, i)));
 
                 using namespace std::literals;
 
-                for (size_t x = 0; x < s; x++) {
-                    for (size_t y = 0; y < s; y++) {
+                for (size_t x = 0; x < dimension; x++) {
+                    for (size_t y = 0; y < dimension; y++) {
                         if (x == y) {
                             if (x == i) {
-                                XU(x, y) = (std::conj(t(i, i))) / u;
+                                conjugate_matrix_product(x, y) = (std::conj(matrix(i, i))) / u;
                             } else if (x == j) {
-                                XU(x, y) = t(i, i) / u;
+                                conjugate_matrix_product(x, y) = matrix(i, i) / u;
                             } else {
-                                XU(x, y) = 1.0 + 0.i;
+                                conjugate_matrix_product(x, y) = 1.0 + 0.i;
                             }
                         } else if (x == j && y == i) {
-                            XU(x, y) = (-1. + 0.i) * t(j, i) / u;
+                            conjugate_matrix_product(x, y) = (-1. + 0.i) * matrix(j, i) / u;
                         } else if (x == i && y == j) {
-                            XU(x, y) = (std::conj(t(j, i))) / u;
+                            conjugate_matrix_product(x, y) = (std::conj(matrix(j, i))) / u;
                         } else {
-                            XU(x, y) = 0. + 0.i;
+                            conjugate_matrix_product(x, y) = 0. + 0.i;
                         }
                     }
                 }
 
-                t = tensordot(XU, t, {1}, {0});
+                matrix = tensordot(conjugate_matrix_product, matrix, {1}, {0});
 
-                QTensor<double>
-                    CU = QTensor<double>::identity(1);
+                two_level_kernel(0, 0) = std::conj(conjugate_matrix_product(i, i));
+                two_level_kernel(0, 1) = std::conj(conjugate_matrix_product(j, i));
+                two_level_kernel(1, 0) = std::conj(conjugate_matrix_product(i, j));
+                two_level_kernel(1, 1) = std::conj(conjugate_matrix_product(j, j));
 
-                CU(0, 0) = std::conj(XU(i, i));
-                CU(0, 1) = std::conj(XU(j, i));
-                CU(1, 0) = std::conj(XU(i, j));
-                CU(1, 1) = std::conj(XU(j, j));
-
-                TwoLevelMatrix<U> m(CU);
-                m.i = i;
-                m.j = j;
-                two_level_chain.push_back(m);
+                two_level_chain.emplace_back(TwoLevelMatrix<U>(two_level_kernel, i, j));
             }
         }
 
@@ -244,7 +247,6 @@ public:
 
     template <typename U>
     bool graycode(Tensor<U> const& t, int I, int J) {
-        // fmt::println("in graycode function");
         // do pabbing
         std::vector<QubitIdList> qubits_list;
         std::vector<std::string> gate_list;
@@ -283,7 +285,6 @@ public:
                     gate_list.emplace_back("cx");
                     gates_length++;
                     _quantum_circuit->add_gate("cx", target, {}, true);
-                    // std::cout << "cx on ctrl: " << diff_pos << " targ: " << i << std::endl;
                 }
             }
             if (x_given) {
@@ -293,8 +294,6 @@ public:
                 gate_list.emplace_back("x");
                 gates_length++;
                 _quantum_circuit->add_gate("x", target, {}, true);
-
-                // std::cout << "x on " << diff_pos << std::endl;
                 x_given = 0;
             }
         }
@@ -305,7 +304,6 @@ public:
             gate_list.emplace_back("x");
             gates_length++;
             _quantum_circuit->add_gate("x", target, {}, true);
-            // std::cout << "x on " << diff_pos << std::endl;
             x_given = 1;
         }
         for (size_t i = 0; i < _qreg; i++) {
@@ -329,7 +327,6 @@ public:
             gate_list.emplace_back("x");
             gates_length++;
             _quantum_circuit->add_gate("x", target, {}, true);
-            // std::cout << "x on " << diff_pos << std::endl;
             x_given = 0;
         }
         // decompose CnU
@@ -351,7 +348,6 @@ public:
     // REVIEW - ctrl_gates >= 1
     template <typename U>
     bool decompose_CnU(Tensor<U> const& t, size_t diff_pos, size_t index, size_t ctrl_gates) {
-        // fmt::println("in decompose to decompose CnU function ctrl_gates: {}", t);
         size_t ctrl = (diff_pos == 0) ? 1 : diff_pos - 1;
 
         if (!((index >> ctrl) & 1)) {
@@ -378,10 +374,8 @@ public:
                     break;
                 }
             }
-            Tensor<U> V = sqrt_tensor(t);
-            // std::cout << "extract qubit: " << extract_qubit << std::endl;
+            Tensor<U> V = sqrt_single_qubit_matrix(t);
             if (!decompose_CU(V, extract_qubit, diff_pos)) return false;
-            // size_t max_index = (size_t(log2(index)) + 1);
             size_t count = 0;
             std::vector<size_t> ctrls;
             for (size_t i = 0; i < size_t(log2(index)) + 1; i++) {
@@ -404,7 +398,6 @@ public:
                 _quantum_circuit->add_gate("ccx", target, {}, true);
             } else {
                 std::complex<double> zero(0, 0), one(1, 0);
-                // Tensor<U> x({{zero, one}, {one, zero}});
                 // NOTE - Multi-control toffoli
                 if (!decompose_CnU(Tensor<U>({{zero, one}, {one, zero}}), extract_qubit, index, ctrl_gates - 1)) return false;
             }
@@ -438,7 +431,6 @@ public:
     bool decompose_CU(Tensor<U> const& t, size_t ctrl, size_t targ) {
         const struct ZYZ angles = decompose_ZYZ(t);
         if (!angles.correct) return false;
-        // fmt::println("angles: {}, {}, {}, {}", angles.phi, angles.alpha, angles.beta, angles.gamma);
         QubitIdList target1, target2;
         target1.emplace_back(targ);
         target2.emplace_back(ctrl);
@@ -449,7 +441,6 @@ public:
         }
         if (std::abs(angles.beta) > 1e-6) {
             _quantum_circuit->add_gate("cx", target2, {}, true);
-            // fout << fmt::format("cx q[{}], q[{}];\n", ctrl, targ);
             if (std::abs((angles.alpha + angles.gamma) / 2) > 1e-6) {
                 target1.emplace_back(targ);
                 _quantum_circuit->add_gate("rz", target1, dvlab::Phase{((angles.alpha + angles.gamma) / 2) * (-1.0)}, true);
@@ -460,7 +451,6 @@ public:
 
             if (std::abs(angles.alpha) > 1e-6) {
                 _quantum_circuit->add_gate("rz", target1, dvlab::Phase{angles.alpha}, true);
-                // fout << fmt::format("rz({}) q[{}];\n", angles.alpha, targ);
             }
         } else {
             if (std::abs((angles.alpha + angles.gamma) / 2) > 1e-6) {
@@ -481,27 +471,40 @@ public:
         return true;
     }
 
+    /**
+     * @brief Decompose 2 by 2 matrix into RZ RY RZ gates
+     *
+     * @tparam U
+     * @param matrix
+     * @return ZYZ
+     * @reference Nakahara, Mikio, and Tetsuo Ohmi. Quantum computing: from linear algebra to physical realizations. CRC press, 2008.
+     */
     template <typename U>
-    ZYZ decompose_ZYZ(Tensor<U> const& t) {
-        // fmt::println("tensor: {}", t);
-        // bool bc = 0;
-        const std::complex<double> a = t(0, 0), b = t(0, 1), c = t(1, 0), d = t(1, 1);
+    ZYZ decompose_ZYZ(Tensor<U> const& matrix) {
+        DVLAB_ASSERT(matrix.shape()[0] == 2 && matrix.shape()[1] == 2, "decompose_ZYZ only supports 2x2 matrix");
+        using namespace std::literals;
+        // NOTE - // e^(iφαβγ)
+        // a =  e^{iφ}e^{-i(α+γ)/2}cos(β/2)
+        // b = -e^{iφ}e^{-i(α-γ)/2}sin(β/2)
+        // c =  e^{iφ}e^{ i(α-γ)/2}sin(β/2)
+        // d =  e^{iφ}e^{ i(α+γ)/2}cos(β/2)
+        const std::complex<double> a = matrix(0, 0), b = matrix(0, 1), c = matrix(1, 0), d = matrix(1, 1);
         struct ZYZ output = {};
-
-        // new calculation
-        // fmt::println("abs: {}", std::abs(a));
+        // NOTE - The beta here is actually half of beta
         double init_beta = 0;
         if (std::abs(a) > 1) {
             init_beta = 0;
         } else {
             init_beta = std::acos(std::abs(a));
         }
+
+        // NOTE - Possible betas due to arccosine
         const std::array<double, 4> beta_candidate = {init_beta, PI - init_beta, PI + init_beta, 2.0 * PI - init_beta};
         for (const auto& beta : beta_candidate) {
-            // fmt::println("beta: {}", beta);
             output.beta = beta;
             std::complex<double> a1, b1, c1, d1;
-            const std::complex<double> cos(std::cos(beta) + 1e-5, 0), sin(std::sin(beta) + 1e-5, 0);
+            const std::complex<double> cos(std::cos(beta) + 1e-5, 0);  // cos(β/2)
+            const std::complex<double> sin(std::sin(beta) + 1e-5, 0);  // sin(β/2)
             a1 = a / cos;
             b1 = b / sin;
             c1 = c / sin;
@@ -516,16 +519,21 @@ public:
                 output.alpha = std::arg(c1 / a1);
                 output.gamma = std::arg(d1 / c1);
             }
-            const std::complex<double> a_r(std::cos((output.alpha + output.gamma) / 2), std::sin((output.alpha + output.gamma) / 2));
-            const std::complex<double> _ar(std::cos((output.alpha - output.gamma) / 2), std::sin((output.alpha - output.gamma) / 2));
-            if (std::abs(a) < 1e-4) {
-                output.phi = std::arg(c1 / _ar);
-            } else {
-                output.phi = std::arg(a1 * a_r);
-            }
+
+            auto const alpha_plus_gamma  = std::exp(std::complex<double>((0.5i) * (output.alpha + output.gamma)));
+            auto const alpha_minus_gamma = std::exp(std::complex<double>((0.5i) * (output.alpha - output.gamma)));
+
+            if (std::abs(a) < 1e-4)
+                output.phi = std::arg(c1 / alpha_minus_gamma);
+            else
+                output.phi = std::arg(a1 * alpha_plus_gamma);
+
             const std::complex<double> phi(std::cos(output.phi), std::sin(output.phi));
 
-            if (std::abs(phi * cos / a_r - a) < 1e-3 && std::abs(sin * phi / _ar + b) < 1e-3 && std::abs(phi * _ar * sin - c) < 1e-3 && std::abs(phi * a_r * cos - d) < 1e-3) {
+            if (std::abs(phi * cos / alpha_plus_gamma - a) < 1e-3 &&
+                std::abs(sin * phi / alpha_minus_gamma + b) < 1e-3 &&
+                std::abs(phi * alpha_minus_gamma * sin - c) < 1e-3 &&
+                std::abs(phi * alpha_plus_gamma * cos - d) < 1e-3) {
                 return output;
             }
         }
@@ -535,20 +543,28 @@ public:
         return output;
     }
 
+    /**
+     * @brief Generate the square root of a 2 by 2 matrix
+     *
+     * @tparam U
+     * @param matrix
+     * @return Tensor<U>
+     * @reference https://en.wikipedia.org/wiki/Square_root_of_a_2_by_2_matrix
+     */
     template <typename U>
-    Tensor<U> sqrt_tensor(Tensor<U> const& t) {
-        const std::complex<double> a = t(0, 0), b = t(0, 1), c = t(1, 0), d = t(1, 1);
+    Tensor<U> sqrt_single_qubit_matrix(Tensor<U> const& matrix) {
+        DVLAB_ASSERT(matrix.shape()[0] == 2 && matrix.shape()[1] == 2, "sqrt_single_qubit_matrix only supports 2x2 matrix");
+        // a b
+        // c d
+        const std::complex<double> a = matrix(0, 0), b = matrix(0, 1), c = matrix(1, 0), d = matrix(1, 1);
         const std::complex<double> tau = a + d, delta = a * d - b * c;
-        const std::complex s  = std::sqrt(delta);
-        const std::complex _t = std::sqrt(tau + s + s);
-        if (std::abs(_t) > 0) {
-            // Tensor<U> v({{(a + s) / _t, b / _t}, {c / _t, (d + s) / _t}});
-            return Tensor<U>({{(a + s) / _t, b / _t}, {c / _t, (d + s) / _t}});
-            ;
+        const std::complex s = std::sqrt(delta);
+        const std::complex t = std::sqrt(tau + 2. * s);
+        if (std::abs(t) > 0) {
+            return Tensor<U>({{(a + s) / t, b / t}, {c / t, (d + s) / t}});
         } else {
-            // Tensor<U> v({{std::sqrt(a), b}, {c, std::sqrt(d)}});
+            // Diagonalized matrix
             return Tensor<U>({{std::sqrt(a), b}, {c, std::sqrt(d)}});
-            ;
         }
     }
 
