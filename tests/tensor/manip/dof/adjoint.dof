@@ -2,7 +2,7 @@ zx new
 zx vertex add i 0
 zx vertex add o 0
 zx vertex add o 1
-zx vertex add z 0 pi/2
+zx vertex add z pi/2
 zx edge add 0 3 SIMPLE
 zx edge add 1 3 SIMPLE
 zx edge add 2 3 SIMPLE

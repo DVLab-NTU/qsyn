@@ -14,6 +14,7 @@
 #include <ranges>
 
 #include "./zx_def.hpp"
+#include "qsyn/qsyn_type.hpp"
 #include "tl/enumerate.hpp"
 #include "util/boolean_matrix.hpp"
 
@@ -49,21 +50,22 @@ ZXGraph::ZXGraph(ZXVertexList const& vertices,
 }
 
 ZXGraph::ZXGraph(ZXGraph const& other) : _filename{other._filename}, _procedures{other._procedures} {
-    std::unordered_map<ZXVertex*, ZXVertex*> old_v2new_v_map;
+    std::unordered_map<ZXVertex*, ZXVertex*> old_to_new_vertex_map;
 
     for (auto& v : other._vertices) {
         if (v->is_boundary()) {
-            if (other._inputs.contains(v))
-                old_v2new_v_map[v] = this->add_input(v->get_qubit(), v->get_col());
-            else
-                old_v2new_v_map[v] = this->add_output(v->get_qubit(), v->get_col());
+            if (other._inputs.contains(v)) {
+                old_to_new_vertex_map[v] = this->add_input(v->get_qubit(), v->get_col());
+            } else {
+                old_to_new_vertex_map[v] = this->add_output(v->get_qubit(), v->get_col());
+            }
         } else if (v->is_z() || v->is_x() || v->is_hbox()) {
-            old_v2new_v_map[v] = this->add_vertex(v->get_qubit(), v->get_type(), v->get_phase(), v->get_col());
+            old_to_new_vertex_map[v] = this->add_vertex(v->get_type(), v->get_phase(), v->get_row(), v->get_col());
         }
     }
 
-    other.for_each_edge([&old_v2new_v_map, this](EdgePair const& epair) {
-        this->add_edge(old_v2new_v_map[epair.first.first], old_v2new_v_map[epair.first.second], epair.second);
+    other.for_each_edge([&old_to_new_vertex_map, this](EdgePair const& epair) {
+        this->add_edge(old_to_new_vertex_map[epair.first.first], old_to_new_vertex_map[epair.first.second], epair.second);
     });
 }
 
@@ -206,34 +208,33 @@ double ZXGraph::density() {
 /*   class ZXGraph Add functions                     */
 /*****************************************************/
 
-/**
- * @brief Add input to the ZXGraph
- *
- * @param qubit
- * @param col
- * @return ZXVertex*
- */
-ZXVertex* ZXGraph::add_input(QubitIdType qubit, ColumnIdType col) {
+ZXVertex* ZXGraph::add_input(QubitIdType qubit, float col) {
+    return add_input(qubit, static_cast<float>(qubit), col);
+}
+
+ZXVertex* ZXGraph::add_input(QubitIdType qubit, float row, float col) {
     assert(!is_input_qubit(qubit));
 
-    ZXVertex* v = add_vertex(qubit, VertexType::boundary, Phase(), col);
+    auto v = new ZXVertex(_next_v_id, qubit, VertexType::boundary, Phase(), row, col);
     _inputs.emplace(v);
     _input_list.emplace(qubit, v);
+    _vertices.emplace(v);
+    _next_v_id++;
     return v;
 }
 
-/**
- * @brief Add output to the ZXGraph
- *
- * @param qubit
- * @return ZXVertex*
- */
-ZXVertex* ZXGraph::add_output(QubitIdType qubit, ColumnIdType col) {
+ZXVertex* ZXGraph::add_output(QubitIdType qubit, float col) {
+    return add_output(qubit, static_cast<float>(qubit), col);
+}
+
+ZXVertex* ZXGraph::add_output(QubitIdType qubit, float row, float col) {
     assert(!is_output_qubit(qubit));
 
-    ZXVertex* v = add_vertex(qubit, VertexType::boundary, Phase(), col);
+    auto v = new ZXVertex(_next_v_id, qubit, VertexType::boundary, Phase(), row, col);
     _outputs.emplace(v);
     _output_list.emplace(qubit, v);
+    _vertices.emplace(v);
+    _next_v_id++;
     return v;
 }
 
@@ -245,8 +246,8 @@ ZXVertex* ZXGraph::add_output(QubitIdType qubit, ColumnIdType col) {
  * @param phase the phase
  * @return ZXVertex*
  */
-ZXVertex* ZXGraph::add_vertex(QubitIdType qubit, VertexType vt, Phase phase, ColumnIdType col) {
-    auto v = new ZXVertex(_next_v_id, qubit, vt, phase, col);
+ZXVertex* ZXGraph::add_vertex(VertexType vt, Phase phase, float row, float col) {
+    auto v = new ZXVertex(_next_v_id, 0, vt, phase, row, col);
     _vertices.emplace(v);
     _next_v_id++;
     return v;
@@ -276,9 +277,9 @@ void ZXGraph::add_edge(ZXVertex* vs, ZXVertex* vt, EdgeType et) {
         // and connect the new vertex to both vs and vt
         if (vs->is_hbox() || vt->is_hbox()) {
             ZXVertex* v = add_vertex(
-                (vs->get_qubit() + vt->get_qubit()) / 2,
                 et == EdgeType::hadamard ? VertexType::h_box : VertexType::z,
                 et == EdgeType::hadamard ? Phase(1) : Phase(0),
+                (vs->get_row() + vt->get_row()) / 2,
                 (vs->get_col() + vt->get_col()) / 2);
             vs->_neighbors.emplace(v, EdgeType::simple);
             v->_neighbors.emplace(vs, EdgeType::simple);
@@ -460,7 +461,7 @@ void ZXGraph::adjoint() {
  * @param phase
  */
 void ZXGraph::assign_vertex_to_boundary(QubitIdType qubit, bool is_input, VertexType vtype, Phase phase) {
-    ZXVertex* v        = add_vertex(qubit, vtype, phase);
+    ZXVertex* v        = add_vertex(vtype, phase, gsl::narrow<float>(qubit));
     ZXVertex* boundary = is_input ? _input_list[qubit] : _output_list[qubit];
     for (auto& [nb, etype] : this->get_neighbors(boundary)) {
         add_edge(v, nb, etype);
@@ -477,11 +478,8 @@ void ZXGraph::assign_vertex_to_boundary(QubitIdType qubit, bool is_input, Vertex
  */
 void ZXGraph::gadgetize_phase(ZXVertex* v, Phase const& keep_phase) {
     if (!v->is_z()) return;
-    ZXVertex* leaf   = this->add_vertex(-2, VertexType::z, v->get_phase() - keep_phase);
-    ZXVertex* buffer = this->add_vertex(-1, VertexType::z, Phase(0));
-    // REVIEW - No floating, directly take v
-    leaf->set_col(v->get_col());
-    buffer->set_col(v->get_col());
+    ZXVertex* leaf   = this->add_vertex(VertexType::z, v->get_phase() - keep_phase, -2, v->get_col());
+    ZXVertex* buffer = this->add_vertex(VertexType::z, Phase(0), -1, v->get_col());
     v->set_phase(keep_phase);
 
     this->add_edge(leaf, buffer, EdgeType::hadamard);
@@ -499,13 +497,11 @@ void ZXGraph::gadgetize_phase(ZXVertex* v, Phase const& keep_phase) {
 ZXVertex* ZXGraph::add_buffer(ZXVertex* vertex_to_protect, ZXVertex* vertex_other, EdgeType etype) {
     if (!this->is_neighbor(vertex_to_protect, vertex_other, etype)) return nullptr;
 
-    ZXVertex* buffer_vertex = this->add_vertex(vertex_to_protect->get_qubit(), VertexType::z, Phase(0));
+    ZXVertex* buffer_vertex = this->add_vertex(VertexType::z, Phase(0), vertex_to_protect->get_row(), (vertex_to_protect->get_col() + vertex_other->get_col()) / 2);
 
     this->add_edge(vertex_to_protect, buffer_vertex, toggle_edge(etype));
     this->add_edge(buffer_vertex, vertex_other, EdgeType::hadamard);
     this->remove_edge(vertex_to_protect, vertex_other, etype);
-    // REVIEW - Float version
-    buffer_vertex->set_col((vertex_to_protect->get_col() + vertex_other->get_col()) / 2);
     return buffer_vertex;
 }
 

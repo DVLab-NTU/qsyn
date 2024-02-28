@@ -6,7 +6,7 @@ qsyn> zx2ts
 
 qsyn> zx optimize --full
 
-qsyn> zx print -q
+qsyn> zx print -r
 
 ID:   27 (Z, -π/4)    (Qubit, Col): (-2, 3)        #Neighbors:   1    (28, H)
 ID:   29 (Z, -π/4)    (Qubit, Col): (-2, 7)        #Neighbors:   1    (30, H)
@@ -181,7 +181,7 @@ qsyn> zx compose 0
 
 qsyn> zx optimize --full  
 
-qsyn> zx print -q
+qsyn> zx print -r
 
 ID:    1 (●, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (50, -)
 ID:   50 (●, 0)       (Qubit, Col): (0, 38)        #Neighbors:   1    (1, -)

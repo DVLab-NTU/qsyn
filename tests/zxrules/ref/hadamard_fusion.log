@@ -42,7 +42,7 @@ ID:    1 (●, 0)       (Qubit, Col): (0, 3)         #Neighbors:   1    (0, -)
 Total #Vertices: 2
 
 
-qsyn> zx vertex add hbox 0 0
+qsyn> zx vertex add hbox 0
 [info]     Adding vertex 4...
 
 qsyn> zx edge add 0 4 HADAMARD
@@ -402,10 +402,10 @@ ID:    5 (Z, π)       (Qubit, Col): (1, 1)         #Neighbors:   2    (2, -) (3
 Total #Vertices: 6
 
 
-qsyn> zx vertex add hbox 0 0
+qsyn> zx vertex add hbox 0
 [info]     Adding vertex 6...
 
-qsyn> zx vertex add hbox 1 0
+qsyn> zx vertex add hbox 0
 [info]     Adding vertex 7...
 
 qsyn> zx edge add 4 6 HADAMARD
@@ -426,7 +426,7 @@ ID:    3 (●, 0)       (Qubit, Col): (1, 2)         #Neighbors:   1    (5, -)
 ID:    4 (Z, π)       (Qubit, Col): (0, 1)         #Neighbors:   3    (0, -) (1, -) (6, H)
 ID:    5 (Z, π)       (Qubit, Col): (1, 1)         #Neighbors:   3    (2, -) (3, -) (7, H)
 ID:    6 (H, 0)       (Qubit, Col): (0, 0)         #Neighbors:   2    (4, H) (7, -)
-ID:    7 (H, 0)       (Qubit, Col): (1, 0)         #Neighbors:   2    (5, H) (6, -)
+ID:    7 (H, 0)       (Qubit, Col): (0, 0)         #Neighbors:   2    (5, H) (6, -)
 Total #Vertices: 8
 
 

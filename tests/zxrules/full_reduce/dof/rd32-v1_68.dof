@@ -1,8 +1,8 @@
 qcir read ./benchmark/SABRE/small/rd32-v1_68.qasm
 qc2zx
-zx print -q
+zx print -r
 logger info
 zx optimize --full
 logger warn
-zx print -q
+zx print -r
 quit -f
