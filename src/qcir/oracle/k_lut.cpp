@@ -108,7 +108,7 @@ std::vector<bool> calculate_truth_table(XAG& xag, XAGNodeID const& node_id, XAGC
             }
 
             std::vector<bool> inputs;
-            for (auto const& [fanin_id, inverted] : zip(node.fanins, node.inverted)) {
+            for (auto const& [fanin_id, inverted] : zip(node.fanins, node.fanin_inverted)) {
                 inputs.push_back(inverted ^ intermediate_results[fanin_id.get()]);
             }
 
@@ -341,7 +341,7 @@ std::map<XAGNodeID, qsyn::QubitIdType> match_input_3(XAG const& xag, XAGNodeID c
         input_to_qcir[top_fanin_1.get_id()] = 2;
     }
 
-    if (!bottom_node.inverted[0] && bottom_node.inverted[1]) {
+    if (!bottom_node.fanin_inverted[0] && bottom_node.fanin_inverted[1]) {
         input_to_qcir[bottom_node.fanins[0]] = 1;
         input_to_qcir[bottom_node.fanins[1]] = 0;
     } else {
@@ -432,7 +432,7 @@ size_t LUTEntryHash::operator()(const LUTEntry& entry) const {
         return hash;
     }
 
-    for (auto const& [id, inverted] : zip(node.fanins, node.inverted)) {
+    for (auto const& [id, inverted] : zip(node.fanins, node.fanin_inverted)) {
         if (inverted) {
             hash ^= (~(operator()({xag, id, cut}) << 1)) * seed;
         } else {
@@ -496,7 +496,7 @@ void LUT::construct_lut_3() {
                     top_node,
                 },
                 {XAGNodeID(0), XAGNodeID(1), XAGNodeID(2)},
-                {top_node.get_id()});
+                {top_node.get_id()}, {false});
 
             auto qcir = build_qcir_3(top_type,
                                      {top_inverted_1, top_inverted_2},

@@ -66,7 +66,7 @@ DepGraph from_deps_file(std::istream& ifs) {
     return graph;
 }
 
-DepGraph from_xag_cuts(std::map<XAGNodeID, XAGCut> const& optimal_cut) {
+DepGraph from_xag_cuts(std::map<XAGNodeID, XAGCut> const& optimal_cut, std::vector<XAGNodeID> const& outputs) {
     std::vector<XAGNodeID> optimal_cone_tips = optimal_cut |
                                                views::keys |
                                                tl::to<std::vector>();
@@ -76,15 +76,22 @@ DepGraph from_xag_cuts(std::map<XAGNodeID, XAGCut> const& optimal_cut) {
     std::map<XAGNodeID, DepGraphNodeID> xag_to_dep;
     for (auto const& [i, xag_id] : tl::views::enumerate(optimal_cone_tips)) {
         xag_to_dep[xag_id] = DepGraphNodeID(i);
-        dep_graph.add_node(Node(DepGraphNodeID(i), xag_id));
     }
 
     for (auto const& xag_id : optimal_cone_tips) {
         auto const dep_id = xag_to_dep[xag_id];
         auto node         = Node(dep_id, xag_id);
-        for (auto const& fanin_ids : optimal_cut.at(xag_id)) {
-            node.dependencies.emplace_back(xag_to_dep[fanin_ids]);
+        for (auto const& fanin_id : optimal_cut.at(xag_id)) {
+            if (fanin_id == xag_id) {
+                continue;
+            }
+            node.dependencies.emplace_back(xag_to_dep[fanin_id]);
         }
+        dep_graph.add_node(node);
+    }
+
+    for (auto const& output_id : outputs) {
+        dep_graph.add_output(NodeID(xag_to_dep[output_id]));
     }
 
     return dep_graph;
@@ -105,12 +112,12 @@ std::optional<std::vector<std::vector<bool>>> pebble(SatSolver& solver, size_t c
         return p;
     };
 
-    auto pebble = [&graph = graph](
-                      SatSolver& solver,
-                      const vector<vector<Variable>>& p,
-                      const size_t N,
-                      const size_t K,
-                      const size_t P) {
+    auto pebble_inner = [&graph = graph](
+                            SatSolver& solver,
+                            const vector<vector<Variable>>& p,
+                            const size_t N,
+                            const size_t K,
+                            const size_t P) {
         // Initial and final clauses
         for (const size_t i : iota(0UL, N)) {
             // at time 0, no node is pebbled
@@ -155,15 +162,15 @@ std::optional<std::vector<std::vector<bool>>> pebble(SatSolver& solver, size_t c
 
     spdlog::debug("trying K = {}", right);
     p = make_variables(solver, N, right);
-    if (!pebble(solver, p, N, right, P)) {
-        return {};
+    if (!pebble_inner(solver, p, N, right, P)) {
+        return std::nullopt;
     }
 
     while (left < right) {
         size_t mid = (left + right) / 2;
         spdlog::debug("trying K = {}", mid);
         p = make_variables(solver, N, mid);
-        if (pebble(solver, p, N, mid, P)) {
+        if (pebble_inner(solver, p, N, mid, P)) {
             right = mid;
             K     = mid;
         } else {
@@ -172,13 +179,13 @@ std::optional<std::vector<std::vector<bool>>> pebble(SatSolver& solver, size_t c
     }
 
     if (K == 0) {
-        return {};
+        return std::nullopt;
     }
     p = make_variables(solver, N, K);
-    pebble(solver, p, N, K, P);
+    pebble_inner(solver, p, N, K, P);
     auto _solution = solver.get_solution();
     if (!_solution.has_value()) {
-        return {};
+        return std::nullopt;
     }
     auto solution = _solution.value();
 
@@ -208,6 +215,8 @@ void test_pebble(const size_t _P, std::istream& input) {
     auto solver = CaDiCalSolver();
 
     auto graph = from_deps_file(input);
+
+    spdlog::debug("{}", graph.to_string());
 
     const size_t N        = graph.size();  // number of nodes
     const size_t max_deps = std::ranges::max(graph.get_graph() |
