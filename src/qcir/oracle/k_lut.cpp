@@ -13,6 +13,8 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <kitty/bit_operations.hpp>
+#include <kitty/dynamic_truth_table.hpp>
 #include <map>
 #include <numeric>
 #include <ranges>
@@ -88,52 +90,6 @@ std::map<XAGNodeID, std::vector<XAGCut>> enumerate_cuts(XAG& xag, const size_t m
     return node_id_to_cuts;
 }
 
-std::vector<bool> calculate_truth_table(XAG& xag, XAGNodeID const& node_id, XAGCut const& cut) {
-    auto node_ids_in_cone = xag.get_cone_node_ids(node_id, cut) | std::views::reverse | tl::to<std::vector>();
-    std::vector<bool> truth_table;
-
-    for (auto const& _minterm : iota(0UL, 1UL << cut.size())) {
-        std::map<size_t, bool> intermediate_results;
-        for (auto const& [i, id] : enumerate(cut)) {
-            intermediate_results.insert({id.get(), (_minterm >> i) & 1});
-        }
-
-        for (auto const& id : node_ids_in_cone) {
-            if (cut.contains(id)) {
-                continue;
-            }
-
-            auto const& node = xag.get_node(id);
-            if (!node.is_gate()) {
-                continue;
-            }
-
-            std::vector<bool> inputs;
-            for (auto const& [fanin_id, inverted] : zip(node.fanins, node.fanin_inverted)) {
-                inputs.push_back(inverted ^ intermediate_results[fanin_id.get()]);
-            }
-
-            bool result{};
-            if (node.is_xor()) {
-                result = false;
-                for (auto const& input : inputs) {
-                    result ^= input;
-                }
-            } else if (node.is_and()) {
-                result = true;
-                for (auto const& input : inputs) {
-                    result &= input;
-                }
-            }
-            intermediate_results.insert({id.get(), result});
-        }
-
-        truth_table.emplace_back(intermediate_results[node_id.get()]);
-    }
-
-    return truth_table;
-}
-
 int hadamrad_entry(const size_t& k, const size_t& i, const size_t& j) {
     static std::map<std::tuple<size_t, size_t, size_t>, int> cache;
     if (k == 2) {
@@ -147,12 +103,12 @@ int hadamrad_entry(const size_t& k, const size_t& i, const size_t& j) {
     return cache[{k, i, j}];
 }
 
-size_t caclculate_radamacher_walsh_cost(std::vector<bool> const& truth_table) {
+size_t caclculate_radamacher_walsh_cost(kitty::dynamic_truth_table const& truth_table) {
     size_t cost        = 0;
-    size_t const k     = truth_table.size();
+    size_t const k     = 1 << truth_table.num_vars();
     std::vector<int> F = std::vector<int>(k, 0);
     for (auto const& i : iota(0UL, k)) {
-        F[i] = truth_table[i] ? -1 : 1;
+        F[i] = kitty::get_bit(truth_table, i) ? -1 : 1;
     }
     for (auto const& i : iota(0UL, k)) {
         int row_sum = 0;
@@ -170,7 +126,7 @@ std::map<XAGNodeID, std::vector<size_t>> calculate_cut_costs(XAG& xag, std::map<
     for (auto const& [id, cuts] : all_cuts) {
         costs[id] = {};
         for (auto const& cut : cuts) {
-            auto const truth_table = calculate_truth_table(xag, id, cut);
+            auto const truth_table = xag.calculate_truth_table(id, cut);
             fmt::print("{{{}}}: {}\n",
                        fmt::join(cut | std::views::transform([](auto const& id) { return id.get(); }), ", "),
                        fmt::join(truth_table | std::views::transform([](bool b) { return b ? "1" : "0"; }), ", "));

@@ -12,6 +12,7 @@
 
 #include <NamedType/named_type.hpp>
 #include <NamedType/underlying_functionalities.hpp>
+#include <kitty/dynamic_truth_table.hpp>
 #include <set>
 #include <vector>
 
@@ -71,8 +72,9 @@ public:
     bool is_output(XAGNodeID const& id) const { return std::find(outputs.begin(), outputs.end(), id) != outputs.end(); }
     bool is_input(XAGNodeID const& id) const { return std::find(inputs.begin(), inputs.end(), id) != inputs.end(); }
 
-    std::vector<XAGNodeID> get_cone_node_ids(XAGNodeID const& node_id, XAGCut const& cut);
+    std::vector<XAGNodeID> get_cone_node_ids(XAGNodeID const& node_id, XAGCut const& cut) const;
     std::vector<XAGNodeID> calculate_topological_order();
+    kitty::dynamic_truth_table calculate_truth_table(XAGNodeID const& output_id, XAGCut const& cut);
 
     std::vector<XAGNodeID> inputs;
     std::vector<XAGNodeID> outputs;

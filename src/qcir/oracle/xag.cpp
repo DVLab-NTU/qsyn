@@ -11,16 +11,24 @@
 #include <base/abc/abc.h>
 #include <spdlog/spdlog.h>
 
+#include <kitty/bit_operations.hpp>
 #include <map>
 #include <queue>
 #include <ranges>
 #include <set>
+#include <tl/enumerate.hpp>
+#include <tl/to.hpp>
+#include <tl/zip.hpp>
 
 // TODO: move abc related global variables and functions to a separate file
 extern "C" {
 
 Aig_Man_t* Abc_NtkToDar(Abc_Ntk_t* pNtk, int fExors, int fRegisters);
 }
+
+using std::views::iota;
+using tl::views::enumerate;
+using tl::views::zip;
 
 namespace qsyn::qcir {
 
@@ -68,7 +76,7 @@ std::vector<XAGNodeID> XAG::calculate_topological_order() {
 /*
  * @brief returns the node ids in the cone of the in topological order (top-down)
  */
-std::vector<XAGNodeID> XAG::get_cone_node_ids(XAGNodeID const& node_id, XAGCut const& cut) {
+std::vector<XAGNodeID> XAG::get_cone_node_ids(XAGNodeID const& node_id, XAGCut const& cut) const {
     std::set<XAGNodeID> cone_node_ids_set;
     std::vector<XAGNodeID> cone_node_ids;
     std::queue<XAGNodeID> queue;
@@ -88,6 +96,54 @@ std::vector<XAGNodeID> XAG::get_cone_node_ids(XAGNodeID const& node_id, XAGCut c
         cone_node_ids.emplace_back(node_id);
     }
     return cone_node_ids;
+}
+
+kitty::dynamic_truth_table calculate_truth_table(XAG& xag, XAGNodeID const& output_id, XAGCut const& cut) {
+    auto node_ids_in_cone = xag.get_cone_node_ids(output_id, cut) | std::views::reverse | tl::to<std::vector>();
+    auto truth_table      = kitty::dynamic_truth_table(cut.size());
+
+    for (auto const& minterm : iota(0UL, 1UL << cut.size())) {
+        std::map<size_t, bool> intermediate_results;
+        for (auto const& [i, id] : enumerate(cut)) {
+            intermediate_results.insert({id.get(), (minterm >> i) & 1});
+        }
+
+        for (auto const& id : node_ids_in_cone) {
+            if (cut.contains(id)) {
+                continue;
+            }
+
+            auto const& node = xag.get_node(id);
+            if (!node.is_gate()) {
+                continue;
+            }
+
+            std::vector<bool> inputs;
+            for (auto const& [fanin_id, inverted] : zip(node.fanins, node.fanin_inverted)) {
+                inputs.push_back(inverted ^ intermediate_results[fanin_id.get()]);
+            }
+
+            bool result{};
+            if (node.is_xor()) {
+                result = false;
+                for (auto const& input : inputs) {
+                    result ^= input;
+                }
+            } else if (node.is_and()) {
+                result = true;
+                for (auto const& input : inputs) {
+                    result &= input;
+                }
+            }
+            intermediate_results.insert({id.get(), result});
+        }
+
+        if (intermediate_results[output_id.get()]) {
+            kitty::set_bit(truth_table, minterm);
+        }
+    }
+
+    return truth_table;
 }
 
 std::string XAGNode::to_string() const {
