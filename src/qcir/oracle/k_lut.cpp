@@ -12,6 +12,7 @@
 #include <spdlog/spdlog.h>
 
 #include <cstddef>
+#include <cstdint>
 #include <map>
 #include <numeric>
 #include <ranges>
@@ -199,123 +200,17 @@ std::map<XAGNodeID, std::vector<size_t>> calculate_cut_costs(XAG& xag, std::map<
     return costs;
 }
 
-// input: 0, 1, 2
-// output: 3
-QCir build_qcir_3(
-    XAGNodeType const& top_type,
-    std::pair<bool, bool> const& top_inverted,
-    XAGNodeType const& bottom_type,
-    std::pair<bool, bool> const& bottom_inverted) {
-    auto qcir                                   = QCir(4);
-    auto [top_inverted_1, top_inverted_2]       = top_inverted;
-    auto [bottom_inverted_1, bottom_inverted_2] = bottom_inverted;
-
-    if (bottom_inverted_1) {
-        qcir.add_gate("x", {0}, {}, true);
+std::map<XAGNodeID, qsyn::QubitIdType> match_input_2(XAG const& xag, XAGNodeID const& node_id, XAGCut const& /* cut */) {
+    auto input_to_qcir = std::map<XAGNodeID, qsyn::QubitIdType>{};
+    auto node          = xag.get_node(node_id);
+    if (node.fanin_inverted[1] && !node.fanin_inverted[0]) {
+        input_to_qcir[node.fanins[0]] = 1;
+        input_to_qcir[node.fanins[1]] = 0;
+    } else {
+        input_to_qcir[node.fanins[0]] = 0;
+        input_to_qcir[node.fanins[1]] = 1;
     }
-    if (bottom_inverted_2) {
-        qcir.add_gate("x", {1}, {}, true);
-    }
-    if (top_inverted_2) {
-        qcir.add_gate("x", {2}, {}, true);
-    }
-
-    if (top_type == XAGNodeType::XOR && bottom_type == XAGNodeType::XOR) {
-        qcir.add_gate("cx", {0, 3}, {}, true);
-        qcir.add_gate("cx", {1, 3}, {}, true);
-        qcir.add_gate("cx", {2, 3}, {}, true);
-        if (top_inverted_1) {
-            qcir.add_gate("x", {3}, {}, true);
-        }
-    } else if (top_type == XAGNodeType::XOR && bottom_type == XAGNodeType::AND) {
-        qcir.add_gate("ccx", {0, 1, 3}, {}, true);
-        qcir.add_gate("cx", {2, 3}, {}, true);
-        if (top_inverted_1) {
-            qcir.add_gate("x", {3}, {}, true);
-        }
-    } else if (top_type == XAGNodeType::AND && bottom_type == XAGNodeType::XOR) {
-        qcir.add_gate("cx", {0, 1}, {}, true);
-        if (top_inverted_1) {
-            qcir.add_gate("x", {3}, {}, true);
-        }
-        qcir.add_gate("ccx", {1, 2, 3}, {}, true);
-        if (top_inverted_1) {
-            qcir.add_gate("x", {3}, {}, true);
-        }
-        qcir.add_gate("cx", {0, 1}, {}, true);
-    } else if (top_type == XAGNodeType::AND && bottom_type == XAGNodeType::AND) {
-        // from qiskit
-        //
-        //      ┌────────┐
-        // q_0: ┤ P(π/8) ├────■──────────────────■────────────────────■──────────────────────────────■───────────────────────────────────────────────────■─────────────────────────────────────────────────────────────■───────
-        //      ├────────┤  ┌─┴─┐   ┌─────────┐┌─┴─┐                  │                              │                                                   │                                                             │
-        // q_1: ┤ P(π/8) ├──┤ X ├───┤ P(-π/8) ├┤ X ├──■───────────────┼──────────────■───────────────┼────────────────────■──────────────────────────────┼──────────────────────────────■──────────────────────────────┼───────
-        //      ├────────┤  └───┘   └─────────┘└───┘┌─┴─┐┌─────────┐┌─┴─┐┌────────┐┌─┴─┐┌─────────┐┌─┴─┐                  │                              │                              │                              │
-        // q_2: ┤ P(π/8) ├──────────────────────────┤ X ├┤ P(-π/8) ├┤ X ├┤ P(π/8) ├┤ X ├┤ P(-π/8) ├┤ X ├──■───────────────┼──────────────■───────────────┼──────────────■───────────────┼──────────────■───────────────┼───────
-        //      └─┬───┬──┘┌────────┐                └───┘└─────────┘└───┘└────────┘└───┘└─────────┘└───┘┌─┴─┐┌─────────┐┌─┴─┐┌────────┐┌─┴─┐┌─────────┐┌─┴─┐┌────────┐┌─┴─┐┌─────────┐┌─┴─┐┌────────┐┌─┴─┐┌─────────┐┌─┴─┐┌───┐
-        // q_3: ──┤ H ├───┤ P(π/8) ├────────────────────────────────────────────────────────────────────┤ X ├┤ P(-π/8) ├┤ X ├┤ P(π/8) ├┤ X ├┤ P(-π/8) ├┤ X ├┤ P(π/8) ├┤ X ├┤ P(-π/8) ├┤ X ├┤ P(π/8) ├┤ X ├┤ P(-π/8) ├┤ X ├┤ H ├
-        //        └───┘   └────────┘                                                                    └───┘└─────────┘└───┘└────────┘└───┘└─────────┘└───┘└────────┘└───┘└─────────┘└───┘└────────┘└───┘└─────────┘└───┘└───┘
-        qcir.add_gate("t", {0}, {}, true);
-        qcir.add_gate("t", {1}, {}, true);
-        qcir.add_gate("t", {2}, {}, true);
-        qcir.add_gate("h", {3}, {}, true);
-
-        qcir.add_gate("cx", {0, 1}, {}, true);
-        qcir.add_gate("t", {3}, {}, true);
-
-        qcir.add_gate("tdg", {1}, {}, true);
-        qcir.add_gate("cx", {0, 1}, {}, true);
-
-        // ================================
-        qcir.add_gate("cx", {1, 2}, {}, true);
-        qcir.add_gate("tdg", {2}, {}, true);
-        qcir.add_gate("cx", {0, 2}, {}, true);
-
-        qcir.add_gate("t", {2}, {}, true);
-
-        qcir.add_gate("cx", {1, 2}, {}, true);
-        qcir.add_gate("tdg", {2}, {}, true);
-        qcir.add_gate("cx", {0, 2}, {}, true);
-
-        // ================================
-        qcir.add_gate("cx", {2, 3}, {}, true);
-        qcir.add_gate("tdg", {3}, {}, true);
-        qcir.add_gate("cx", {1, 3}, {}, true);
-        qcir.add_gate("t", {3}, {}, true);
-        qcir.add_gate("cx", {2, 3}, {}, true);
-        qcir.add_gate("tdg", {3}, {}, true);
-        qcir.add_gate("cx", {0, 3}, {}, true);
-
-        qcir.add_gate("t", {3}, {}, true);
-
-        qcir.add_gate("cx", {2, 3}, {}, true);
-        qcir.add_gate("tdg", {3}, {}, true);
-        qcir.add_gate("cx", {1, 3}, {}, true);
-        qcir.add_gate("t", {3}, {}, true);
-        qcir.add_gate("cx", {2, 3}, {}, true);
-        qcir.add_gate("tdg", {3}, {}, true);
-        qcir.add_gate("cx", {0, 3}, {}, true);
-
-        // ================================
-        qcir.add_gate("h", {3}, {}, true);
-
-        // !(a & b) & c = (a & b & c) ^ c
-        if (top_inverted_1) {
-            qcir.add_gate("cx", {2, 3}, {}, true);
-        }
-    }
-
-    if (bottom_inverted_1) {
-        qcir.add_gate("x", {0}, {}, true);
-    }
-    if (bottom_inverted_2) {
-        qcir.add_gate("x", {1}, {}, true);
-    }
-    if (top_inverted_2) {
-        qcir.add_gate("x", {2}, {}, true);
-    }
-
-    return qcir;
+    return input_to_qcir;
 }
 
 // (4)
@@ -418,104 +313,110 @@ void test_k_lut_partition(size_t const max_cut_size, std::istream& input) {
     }
 }
 
-size_t LUTEntryHash::operator()(const LUTEntry& entry) const {
-    auto const& [xag, node_id, cut] = entry;
-    auto node                       = xag->get_node(node_id);
-    auto node_type_hash             = std::hash<XAGNodeType>{};
-    auto hash_node                  = [&node_type_hash, &xag = xag](XAGNodeID const& node_id) {
-        return node_type_hash(xag->get_node(node_id).get_type());
-    };
-
-    size_t hash = hash_node(node_id);
-
-    if (cut.contains(node_id)) {
-        return hash;
-    }
-
-    for (auto const& [id, inverted] : zip(node.fanins, node.fanin_inverted)) {
-        if (inverted) {
-            hash ^= (~(operator()({xag, id, cut}) << 1)) * seed;
-        } else {
-            hash ^= operator()({xag, id, cut}) * seed;
-        }
-    }
-
-    return hash;
-}
-
-// only use when the hash is equal
-// in which case the LUTEntry should be equal
-bool LUTEntryEqual::operator()(const LUTEntry& /*lhs*/, const LUTEntry& /*rhs*/) const {
-    return true;
-}
-
-// (4)
-//  ├───┐
-// (3)  └───┐
-//  ├───┐   │
-// (0) (1) (2)
-void LUT::construct_lut_3() {
-    auto input_nodes = std::vector<XAGNode>{
-        XAGNode{XAGNodeID{0}, {}, {}, XAGNodeType::INPUT},
-        XAGNode{XAGNodeID{1}, {}, {}, XAGNodeType::INPUT},
-        XAGNode{XAGNodeID{2}, {}, {}, XAGNodeType::INPUT},
-    };
-
-    for (size_t const& top_i : iota(0, 8)) {
-        bool top_inverted_1 = (top_i & 1) == 1;
-        bool top_inverted_2 = (top_i & 2) == 2;
-        auto top_type       = top_i & 4 ? XAGNodeType::XOR : XAGNodeType::AND;
-
-        auto top_node = XAGNode{XAGNodeID{4},
-                                {XAGNodeID{3}, XAGNodeID{2}},
-                                {top_inverted_1, top_inverted_2},
-                                top_type};
-
-        for (size_t const& bottom_i : iota(0, 8)) {
-            bool bottom_inverted_1 = (bottom_i & 1) == 1;
-            bool bottom_inverted_2 = (bottom_i & 2) == 2;
-            // these two are equivalent
-            if (bottom_inverted_1 != bottom_inverted_2) {
-                bottom_inverted_1 = true;
-                bottom_inverted_2 = false;
-            }
-            auto bottom_type = bottom_i & 4 ? XAGNodeType::XOR : XAGNodeType::AND;
-
-            auto bottom_node = XAGNode{
-                XAGNodeID{3},
-                {XAGNodeID{0}, XAGNodeID{1}},
-                {bottom_inverted_1, bottom_inverted_2},
-                bottom_type};
-
-            auto xag = XAG(
-                {
-                    input_nodes[0],
-                    input_nodes[1],
-                    input_nodes[2],
-                    bottom_node,
-                    top_node,
-                },
-                {XAGNodeID(0), XAGNodeID(1), XAGNodeID(2)},
-                {top_node.get_id()}, {false});
-
-            auto qcir = build_qcir_3(top_type,
-                                     {top_inverted_1, top_inverted_2},
-                                     bottom_type,
-                                     {bottom_inverted_1, bottom_inverted_2});
-
-            table[{
-                &xag,
-                top_node.get_id(),
-                {XAGNodeID(0),
-                 XAGNodeID(1),
-                 XAGNodeID(2)}}] = qcir;
+void add_gates_2(
+    uint8_t const i,
+    std::function<void(QubitIdType)> x,
+    std::function<void(QubitIdType, QubitIdType)> cx,
+    std::function<void(QubitIdType, QubitIdType, QubitIdType)> ccx) {
+    switch (i) {
+        case 0b0000:
+            break;
+        case 0b0001:
+            x(0), x(1), cx(0, 1), x(0), x(1);
+            break;
+        case 0b0010:
+            x(0), ccx(0, 1, 2), x(0);
+            break;
+        case 0b0011:
+            x(0), cx(0, 2), x(0);
+            break;
+        case 0b0100:
+            x(1), ccx(0, 1, 2), x(1);
+            break;
+        case 0b0101:
+            x(1), cx(1, 2), x(1);
+            break;
+        case 0b0110:
+            cx(0, 2), cx(1, 2);
+            break;
+        case 0b0111:
+            ccx(0, 1, 2), x(2);
+            break;
+        case 0b1000:
+            ccx(0, 1, 2);
+            break;
+        case 0b1001:
+            cx(0, 2), cx(1, 2), x(2);
+            break;
+        case 0b1010:
+            cx(1, 2);
+            break;
+        case 0b1011:
+            x(1), ccx(0, 1, 2), x(1), x(2);
+            break;
+        case 0b1100:
+            cx(0, 2);
+            break;
+        case 0b1101:
+            x(0), ccx(0, 1, 2), x(0), x(2);
+            break;
+        case 0b1110:
+            ccx(0, 1, 2), x(2);
+            break;
+        case 0b1111:
+            x(2);
+            break;
+        default: {
+            throw std::runtime_error(fmt::format("unexpected truth table: {}", i));
         };
+    }
+}
+
+void LUT::construct_lut_2() {
+    for (uint64_t const i : iota(0, 1 << 4)) {
+        auto tt = kitty::dynamic_truth_table(2);
+        kitty::create_from_words(tt, &i, &i + 1);  // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+        auto qcir = QCir(3);
+
+        auto x   = [&qcir](auto const& target) { qcir.add_gate("x", {target}, {}, true); };
+        auto cx  = [&qcir](auto const& control, auto const& target) { qcir.add_gate("cx", {control, target}, {}, true); };
+        auto ccx = [&qcir](auto const& c1, auto const& c2, auto const& target) { qcir.add_gate("ccx", {c1, c2, target}, {}, true); };
+
+        add_gates_2(i, x, cx, ccx);
+    }
+}
+
+void LUT::construct_lut_3() {
+    for (uint64_t const i : iota(0, 1 << 8)) {
+        auto tt = kitty::dynamic_truth_table(3);
+        kitty::create_from_words(tt, &i, &i + 1);  // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+        auto qcir = QCir(4);
+
+        uint8_t i_0 = i & 0b1111;
+        uint8_t i_1 = i >> 4;
+
+        auto x   = [&qcir](auto const& target) { qcir.add_gate("cx", {0, target + 1}, {}, true); };
+        auto cx  = [&qcir](auto const& control, auto const& target) { qcir.add_gate("ccx", {0, control + 1, target + 1}, {}, true); };
+        auto ccx = [&qcir](auto const& c1, auto const& c2, auto const& target) { qcir.add_gate("cccx", {0, c1 + 1, c2 + 1, target + 1}, {}, true); };
+
+        // (a & b) ^ (!a & c)
+        qcir.add_gate("x", {0}, {}, true);
+        add_gates_2(i_0, x, cx, ccx);
+        qcir.add_gate("x", {0}, {}, true);
+        add_gates_2(i_1, x, cx, ccx);
+
+        table[tt] = qcir;
     }
 }
 
 LUT::LUT(size_t const k) : k(k) {
     switch (k) {
+        case 2: {
+            construct_lut_2();
+            break;
+        }
         case 3: {
+            construct_lut_2();
             construct_lut_3();
             break;
         }
@@ -523,10 +424,17 @@ LUT::LUT(size_t const k) : k(k) {
             throw std::runtime_error(fmt::format("k-LUT partitioning not implemented for k = {}", k));
         }
     }
+
+    for (auto const& [entry, qcir] : table) {
+        qcir.print_qcir();
+    }
 }
 
 std::map<XAGNodeID, QubitIdType> LUT::match_input(XAG const& xag, XAGNodeID const& node_id, XAGCut const& cut) const {
-    switch (k) {
+    switch (cut.size()) {
+        case 2: {
+            return match_input_2(xag, node_id, cut);
+        }
         case 3: {
             return match_input_3(xag, node_id, cut);
         }
