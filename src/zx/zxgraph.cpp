@@ -16,7 +16,7 @@
 #include "./zx_def.hpp"
 #include "qsyn/qsyn_type.hpp"
 #include "tl/enumerate.hpp"
-#include "util/boolean_matrix.hpp"
+#include "util/bit_matrix/bit_matrix.hpp"
 
 namespace qsyn::zx {
 
@@ -520,8 +520,8 @@ ZXVertex* ZXGraph::find_vertex_by_id(size_t const& id) const {
     return it == _vertices.end() ? nullptr : *it;
 }
 
-dvlab::BooleanMatrix get_biadjacency_matrix(ZXGraph const& graph, ZXVertexList const& row_vertices, ZXVertexList const& col_vertices) {
-    dvlab::BooleanMatrix matrix(row_vertices.size(), col_vertices.size());
+dvlab::bit_matrix::BitMatrix get_biadjacency_matrix(ZXGraph const& graph, ZXVertexList const& row_vertices, ZXVertexList const& col_vertices) {
+    dvlab::bit_matrix::BitMatrix matrix(row_vertices.size(), col_vertices.size());
     for (auto const& [i, v] : row_vertices | tl::views::enumerate) {
         for (auto const& [j, w] : col_vertices | tl::views::enumerate) {
             if (graph.is_neighbor(v, w)) matrix[i][j] = 1;

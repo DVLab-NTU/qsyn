@@ -25,9 +25,9 @@ template <typename T>
 std::string data_structure_name(T const& t);
 
 template <typename T>
-concept manager_manageable = requires {
-    { data_structure_info_string(std::declval<T>()) } -> std::convertible_to<std::string>;
-    { data_structure_name(std::declval<T>()) } -> std::convertible_to<std::string>;
+concept manager_manageable = requires(T t) {
+    { data_structure_info_string(t) } -> std::convertible_to<std::string>;
+    { data_structure_name(t) } -> std::convertible_to<std::string>;
 };
 
 template <typename T>

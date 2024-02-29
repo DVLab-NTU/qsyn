@@ -19,12 +19,12 @@ namespace qsyn::extractor {
  * @param reversedSearch
  * @return vector<size_t>
  */
-std::vector<size_t> Extractor::find_minimal_sums(dvlab::BooleanMatrix& matrix) {
+std::vector<size_t> Extractor::find_minimal_sums(dvlab::bit_matrix::BitMatrix& matrix) {
     // NOTE - double-check directly extracted candidates and return empty result
     for (size_t i = 0; i < matrix.num_rows(); i++) {
         if (matrix[i].is_one_hot()) return {};
     }
-    std::vector<std::pair<std::vector<size_t>, dvlab::BooleanMatrix::Row>> row_track_pairs, new_row_track_pairs;
+    std::vector<std::pair<std::vector<size_t>, dvlab::bit_matrix::BitMatrix::Row>> row_track_pairs, new_row_track_pairs;
 
     for (size_t i = 0; i < matrix.num_rows(); i++)
         row_track_pairs.emplace_back(std::vector<size_t>{i}, matrix[i]);
@@ -60,14 +60,14 @@ std::vector<size_t> Extractor::find_minimal_sums(dvlab::BooleanMatrix& matrix) {
  * @param matrix
  * @return vector<M2::Oper>
  */
-std::vector<dvlab::BooleanMatrix::RowOperation> Extractor::greedy_reduction(dvlab::BooleanMatrix& m) {
-    dvlab::BooleanMatrix matrix = m;
-    std::vector<dvlab::BooleanMatrix::RowOperation> result;
+std::vector<dvlab::bit_matrix::BitMatrix::RowOperation> Extractor::greedy_reduction(dvlab::bit_matrix::BitMatrix& m) {
+    dvlab::bit_matrix::BitMatrix matrix = m;
+    std::vector<dvlab::bit_matrix::BitMatrix::RowOperation> result;
     std::vector<size_t> indices = Extractor::find_minimal_sums(matrix);
     // Return empty vector if indices do not exist
     if (!indices.size()) return result;
     while (indices.size() > 1) {
-        dvlab::BooleanMatrix::RowOperation best_operation(-1, -1);
+        dvlab::bit_matrix::BitMatrix::RowOperation best_operation(-1, -1);
         long reduction = -1 * static_cast<long>(matrix.num_cols());
 
         for (auto const& i : indices) {
