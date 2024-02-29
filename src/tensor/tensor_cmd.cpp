@@ -170,6 +170,27 @@ Command tensor_equivalence_check_cmd(TensorMgr& tensor_mgr) {
             }};
 }
 
+Command tensor_SK_decompose_cmd(TensorMgr& tensor_mgr) {
+    return {"sk-decompose",
+            [&](ArgumentParser& parser) {
+                parser.description("decompose the tensor by SK-algorithm");
+
+                parser.add_argument<size_t>("id")
+                    .constraint(valid_tensor_id(tensor_mgr))
+                    .nargs(NArgsOption::optional)
+                    .help("the ID of the tensor");
+            },
+            // NOTE - Check the function SK_decompose 
+            [&](ArgumentParser const& parser) {
+                if (parser.parsed("id")) {
+                    tensor_mgr.find_by_id(parser.get<size_t>("id"))->SK_decompose();
+                } else {
+                    tensor_mgr.get()->SK_decompose();
+                }
+                return CmdExecResult::done;
+            }};
+}
+
 Command tensor_cmd(TensorMgr& tensor_mgr) {
     using namespace dvlab::utils;
     auto cmd = mgr_root_cmd(tensor_mgr);
@@ -181,6 +202,7 @@ Command tensor_cmd(TensorMgr& tensor_mgr) {
     cmd.add_subcommand(tensor_equivalence_check_cmd(tensor_mgr));
     cmd.add_subcommand(tensor_read_cmd(tensor_mgr));
     cmd.add_subcommand(tensor_write_cmd(tensor_mgr));
+    cmd.add_subcommand(tensor_SK_decompose_cmd(tensor_mgr));
 
     return cmd;
 }

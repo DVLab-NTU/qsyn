@@ -118,6 +118,7 @@ public:
     void reshape(TensorShape const& shape);
     Tensor<DT> transpose(TensorAxisList const& perm) const;
     void adjoint();
+    void SK_decompose();
 
     bool tensor_read(std::string const&);
     bool tensor_write(std::string const&);
@@ -286,6 +287,13 @@ template <typename DT>
 void Tensor<DT>::adjoint() {
     assert(dimension() == 2);
     _tensor = xt::conj(xt::transpose(_tensor, {1, 0}));
+}
+
+template <typename DT>
+void Tensor<DT>::SK_decompose() {
+    assert(dimension() == 2);
+    // TODO - Move your code here, you may also create new files src/tensor/
+    
 }
 
 template <typename DT>
