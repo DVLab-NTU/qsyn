@@ -1,6 +1,6 @@
 /****************************************************************************
   PackageName  [ util ]
-  Synopsis     [ Define class BitMatrix structure ]
+  Synopsis     [ Define class BooleanMatrix structure ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
@@ -21,9 +21,7 @@
 
 namespace dvlab {
 
-namespace bit_matrix {
-
-class BitMatrix {
+class BooleanMatrix {
 public:
     class Row {
     public:
@@ -44,11 +42,6 @@ public:
 
         void emplace_back(unsigned char i) { _row.emplace_back(i); }
 
-        auto begin() { return _row.begin(); }
-        auto end() { return _row.end(); }
-        auto begin() const { return _row.begin(); }
-        auto end() const { return _row.end(); }
-
         Row& operator+=(Row const& rhs);
         friend Row operator+(Row lhs, Row const& rhs);
 
@@ -64,20 +57,18 @@ public:
     private:
         std::vector<unsigned char> _row;
     };
-    using RowOperation  = std::pair<size_t, size_t>;
-    using RowOperations = std::vector<RowOperation>;
+    using RowOperation = std::pair<size_t, size_t>;
 
-    BitMatrix() {}
-    BitMatrix(std::vector<Row> const& matrix) : _matrix(matrix) {}
-    BitMatrix(std::vector<Row>&& matrix) : _matrix(std::move(matrix)) {}
-    BitMatrix(size_t rows, size_t cols, unsigned char val) : _matrix(rows, Row(cols, val)) {}
-    BitMatrix(size_t rows, size_t cols) : _matrix(rows, Row(cols)) {}
-    BitMatrix(size_t side_length) : _matrix(side_length, Row(side_length)) {}
+    BooleanMatrix() {}
+    BooleanMatrix(std::vector<Row> const& matrix) : _matrix(matrix) {}
+    BooleanMatrix(std::vector<Row>&& matrix) : _matrix(std::move(matrix)) {}
+    BooleanMatrix(size_t rows, size_t cols, unsigned char val) : _matrix(rows, Row(cols, val)) {}
+    BooleanMatrix(size_t rows, size_t cols) : _matrix(rows, Row(cols)) {}
+    BooleanMatrix(size_t side_length) : _matrix(side_length, Row(side_length)) {}
 
     void reset();
     std::vector<Row> const& get_matrix() { return _matrix; }
-    RowOperations const& get_row_operations() const { return _row_operations; }
-    RowOperations& get_row_operations() { return _row_operations; }
+    std::vector<RowOperation> const& get_row_operations() { return _row_operations; }
     Row const& get_row(size_t r) { return _matrix[r]; }
     std::optional<size_t> find_row(Row);
 
@@ -89,11 +80,27 @@ public:
         _row_operations.clear();
     }
 
+    bool row_operation(size_t ctrl, size_t targ, bool track = false);
+    size_t gaussian_elimination_skip(size_t block_size, bool do_fully_reduced, bool track = true);
+    bool gaussian_elimination(bool track = false, bool is_augmented_matrix = false);
+    bool gaussian_elimination_augmented(bool track = false);
+    bool is_solved_form() const;
+    bool is_augmented_solved_form() const;
+    void print_matrix(spdlog::level::level_enum lvl = spdlog::level::level_enum::off) const;
+    void print_trace() const;
+    size_t filter_duplicate_row_operations();
+    size_t row_operation_depth();
+    double dense_ratio();
+    void append_one_hot_column(size_t idx);
     void push_zeros_column();
     void push_zeros_row() { _matrix.emplace_back(std::vector<unsigned char>(_matrix[0].size(), 0)); }
     void push_row(Row const& row) { _matrix.emplace_back(row); }
+<<<<<<< HEAD:src/util/bit_matrix/bit_matrix.hpp
     void push_row(Row&& row) { _matrix.emplace_back(std::move(row)); }
     void erase_row(size_t r) { (_matrix.erase(_matrix.begin() + r)); };
+=======
+    void push_wor(Row&& row) { _matrix.emplace_back(std::move(row)); }
+>>>>>>> ce72fd02 (Revert ":recycle: refactor gaussian elimination strategies as free function templates for static polymorphism"):src/util/boolean_matrix.hpp
 
     Row& operator[](size_t const& i) {
         return _matrix[i];
@@ -102,26 +109,9 @@ public:
         return _matrix[i];
     }
 
-    auto begin() { return _matrix.begin(); }
-    auto end() { return _matrix.end(); }
-    auto begin() const { return _matrix.begin(); }
-    auto end() const { return _matrix.end(); }
-
-    void print_matrix(spdlog::level::level_enum lvl = spdlog::level::level_enum::off) const;
-    // used by extractor
-    size_t filter_duplicate_row_operations();
-
 private:
     std::vector<Row> _matrix;
-    RowOperations _row_operations;
+    std::vector<RowOperation> _row_operations;
 };
-
-void row_operation(BitMatrix& matrix, size_t ctrl, size_t targ);
-
-size_t row_operation_depth(BitMatrix::RowOperations const& row_ops);
-double dense_ratio(BitMatrix::RowOperations const& row_ops);
-void print_row_ops(BitMatrix::RowOperations const& row_ops);
-
-}  // namespace bit_matrix
 
 }  // namespace dvlab

@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <cassert>
 #include <cctype>
+#include <concepts>
 #include <cstddef>
 
 namespace dvlab {

@@ -8,6 +8,7 @@
 #pragma once
 
 #include <charconv>
+#include <concepts>
 #include <exception>
 #include <functional>
 #include <limits>

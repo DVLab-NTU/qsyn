@@ -13,8 +13,7 @@
 #include <cstddef>
 #include <ranges>
 
-#include "util/bit_matrix/bit_matrix.hpp"
-#include "util/bit_matrix/linalg.hpp"
+#include "util/boolean_matrix.hpp"
 #include "util/text_format.hpp"
 #include "zx/simplifier/simplify.hpp"
 #include "zx/zx_def.hpp"
@@ -122,7 +121,7 @@ bool GFlow::calculate() {
 
             auto augmented_matrix = _prepare_matrix(v, i, coefficient_matrix);
 
-            if (gaussian_elimination_augmented(augmented_matrix)) {
+            if (augmented_matrix.gaussian_elimination_augmented(false)) {
                 spdlog::trace("Solved {}, adding to this level", v->get_id());
                 _taken.insert(v);
                 _levels.back().insert(v);
@@ -207,7 +206,7 @@ void GFlow::_update_neighbors_by_frontier() {
  * @param v correction set of whom
  * @param matrix
  */
-void GFlow::_set_correction_set_by_matrix(ZXVertex* v, dvlab::bit_matrix::BitMatrix const& matrix) {
+void GFlow::_set_correction_set_by_matrix(ZXVertex* v, dvlab::BooleanMatrix const& matrix) {
     assert(!_x_correction_sets.contains(v));
     _x_correction_sets[v] = ZXVertexList();
 
@@ -231,8 +230,8 @@ void GFlow::_set_correction_set_by_matrix(ZXVertex* v, dvlab::bit_matrix::BitMat
  * @brief prepare the matrix to solve depending on the measurement plane.
  *
  */
-dvlab::bit_matrix::BitMatrix GFlow::_prepare_matrix(ZXVertex* v, size_t i, dvlab::bit_matrix::BitMatrix const& matrix) {
-    auto augmented_matrix = matrix;
+dvlab::BooleanMatrix GFlow::_prepare_matrix(ZXVertex* v, size_t i, dvlab::BooleanMatrix const& matrix) {
+    dvlab::BooleanMatrix augmented_matrix = matrix;
     augmented_matrix.push_zeros_column();
 
     auto itr = std::begin(_neighbors);

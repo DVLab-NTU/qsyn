@@ -21,7 +21,7 @@
 #include "./zx_def.hpp"
 #include "qsyn/qsyn_type.hpp"
 #include "spdlog/common.h"
-#include "util/bit_matrix/bit_matrix.hpp"
+#include "util/boolean_matrix.hpp"
 #include "util/phase.hpp"
 
 namespace qsyn::zx {
@@ -307,6 +307,6 @@ private:
     void _move_vertices_from(ZXGraph& other);
 };
 
-dvlab::bit_matrix::BitMatrix get_biadjacency_matrix(ZXGraph const& graph, ZXVertexList const& row_vertices, ZXVertexList const& col_vertices);
+dvlab::BooleanMatrix get_biadjacency_matrix(ZXGraph const& graph, ZXVertexList const& row_vertices, ZXVertexList const& col_vertices);
 
 }  // namespace qsyn::zx
