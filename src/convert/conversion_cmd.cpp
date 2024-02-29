@@ -163,10 +163,7 @@ Command conversion_cmd(QCirMgr& qcir_mgr, qsyn::tensor::TensorMgr& tensor_mgr, q
                     if (!dvlab::utils::mgr_has_data(tensor_mgr)) return CmdExecResult::error;
 
                     spdlog::info("Converting Tensor {} to QCir {}...", tensor_mgr.focused_id(), qcir_mgr.get_next_id());
-                    auto ts           = tensor_mgr.get();
-                    const size_t qreg = size_t(log2((*ts).shape()[0]));
-                    tensor::Decomposer decomp(qreg);
-                    auto result = decomp.decompose(*ts);
+                    auto const result = tensor::Decomposer{}.decompose(*tensor_mgr.get());
 
                     if (result) {
                         qcir_mgr.add(qcir_mgr.get_next_id(), std::make_unique<qcir::QCir>(std::move(*result)));
