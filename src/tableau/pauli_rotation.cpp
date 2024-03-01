@@ -11,6 +11,7 @@
 #include <tl/adjacent.hpp>
 #include <tl/to.hpp>
 
+#include "util/boolean_matrix.hpp"
 #include "util/dvlab_string.hpp"
 
 namespace qsyn {
@@ -288,6 +289,22 @@ std::pair<CliffordOperatorString, size_t> extract_clifford_operators(PauliRotati
 
     return {clifford_ops, non_I_qubits.back()};
 }
+
+size_t matrix_rank(std::vector<PauliRotation> const& rotations) {
+    auto const n_qubits    = rotations.front().n_qubits();
+    auto const n_rotations = rotations.size();
+
+    // load the matrix
+    // REVIEW - may be revised if we move to use dynamic_bitset for the BooleanMatrix too
+    auto matrix = dvlab::BooleanMatrix{n_rotations, n_qubits};
+    for (size_t i = 0; i < n_rotations; ++i) {
+        for (size_t j = 0; j < n_qubits; ++j) {
+            matrix[i][j] = rotations[i].pauli_product().is_z_set(j);
+        }
+    }
+
+    return matrix.matrix_rank();
+};
 
 }  // namespace experimental
 

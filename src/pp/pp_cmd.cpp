@@ -95,7 +95,7 @@ dvlab::Command phase_polynomial_cmd(QCirMgr& qcir_mgr) {
                 // TODO and move to other place
                 auto const ancilla = parser.get<int>("--ancilla");
                 // fmt::println("Calculating phase-polynomial {}", parser.get<std::string>("--resynthesis"));
-                if (!qcir_mgr_not_empty(qcir_mgr)) return CmdExecResult::error;
+                if (!dvlab::utils::mgr_has_data(qcir_mgr)) return CmdExecResult::error;
 
                 Phase_Polynomial pp;
                 spdlog::debug(" - before resynthesis:\n");

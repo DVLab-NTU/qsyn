@@ -322,6 +322,8 @@ inline bool is_commutative(PauliRotation const& lhs, PauliRotation const& rhs) {
 
 std::pair<CliffordOperatorString, size_t> extract_clifford_operators(PauliRotation pauli_rotation);
 
+size_t matrix_rank(std::vector<PauliRotation> const& rotations);
+
 }  // namespace experimental
 
 }  // namespace qsyn

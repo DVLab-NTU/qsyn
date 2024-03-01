@@ -169,7 +169,7 @@ Command conversion_cmd(QCirMgr& qcir_mgr, qsyn::tensor::TensorMgr& tensor_mgr, q
 
                 // ts2qc
 
-                if (get_data_type(from) == data_type::tensor && get_data_type(to) == data_type::qcir) {
+                if (is_conversion_type(data_type::tensor, data_type::qcir)) {
                     if (!dvlab::utils::mgr_has_data(tensor_mgr)) return CmdExecResult::error;
 
                     spdlog::info("Converting Tensor {} to QCir {}...", tensor_mgr.focused_id(), qcir_mgr.get_next_id());
@@ -205,7 +205,7 @@ Command conversion_cmd(QCirMgr& qcir_mgr, qsyn::tensor::TensorMgr& tensor_mgr, q
                 if (is_conversion_type(data_type::tableau, data_type::qcir)) {
                     if (!dvlab::utils::mgr_has_data(tableau_mgr)) return CmdExecResult::error;
                     spdlog::info("Converting to Tableau {} to QCir {}...", tableau_mgr.focused_id(), qcir_mgr.get_next_id());
-                    auto qcir = experimental::to_qcir(*tableau_mgr.get());
+                    auto qcir = experimental::to_qcir(*tableau_mgr.get(), experimental::HOptSynthesisStrategy{});
 
                     qcir_mgr.add(qcir_mgr.get_next_id(), std::make_unique<qcir::QCir>(std::move(qcir)));
 

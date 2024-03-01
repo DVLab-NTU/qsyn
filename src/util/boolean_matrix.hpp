@@ -10,10 +10,12 @@
 #include <spdlog/spdlog.h>
 
 #include <cstddef>
+#include <tl/zip.hpp>
 #include <utility>
 #include <vector>
 
 #include "util/ordered_hashset.hpp"
+#include "util/util.hpp"
 
 //------------------------------------------------------------------------
 //   Define classes
@@ -70,7 +72,11 @@ public:
     std::vector<Row> const& get_matrix() { return _matrix; }
     std::vector<RowOperation> const& get_row_operations() { return _row_operations; }
     Row const& get_row(size_t r) { return _matrix[r]; }
-    std::optional<size_t> find_row(Row);
+    std::optional<size_t> find_row(Row const& row) {
+        auto it = std::find(_matrix.begin(), _matrix.end(), row);
+        if (it == _matrix.end()) return std::nullopt;
+        return std::distance(_matrix.begin(), it);
+    }
 
     size_t num_rows() const { return _matrix.size(); }
     size_t num_cols() const { return _matrix[0].size(); }
@@ -82,6 +88,7 @@ public:
 
     bool row_operation(size_t ctrl, size_t targ, bool track = false);
     size_t gaussian_elimination_skip(size_t block_size, bool do_fully_reduced, bool track = true);
+    size_t matrix_rank() const;
     bool gaussian_elimination(bool track = false, bool is_augmented_matrix = false);
     bool gaussian_elimination_augmented(bool track = false);
     bool is_solved_form() const;
@@ -95,12 +102,8 @@ public:
     void push_zeros_column();
     void push_zeros_row() { _matrix.emplace_back(std::vector<unsigned char>(_matrix[0].size(), 0)); }
     void push_row(Row const& row) { _matrix.emplace_back(row); }
-<<<<<<< HEAD:src/util/bit_matrix/bit_matrix.hpp
     void push_row(Row&& row) { _matrix.emplace_back(std::move(row)); }
-    void erase_row(size_t r) { (_matrix.erase(_matrix.begin() + r)); };
-=======
-    void push_wor(Row&& row) { _matrix.emplace_back(std::move(row)); }
->>>>>>> ce72fd02 (Revert ":recycle: refactor gaussian elimination strategies as free function templates for static polymorphism"):src/util/boolean_matrix.hpp
+    void erase_row(size_t r) { _matrix.erase(dvlab::iterator::next(_matrix.begin(), r)); };
 
     Row& operator[](size_t const& i) {
         return _matrix[i];

@@ -19,8 +19,7 @@ using HMAP       = std::vector<std::pair<dvlab::BooleanMatrix, size_t>>;
 
 class Partitioning {
 public:
-    Partitioning(){};
-    Partitioning(dvlab::BooleanMatrix poly, size_t n, size_t a) : _variable(n), _poly(poly) { _qubit_num = n + a; };
+    Partitioning(dvlab::BooleanMatrix poly, size_t n, size_t a) : _variable(n), _qubit_num{n + a}, _poly(poly){};
 
     void initial(dvlab::BooleanMatrix poly, size_t n, size_t a);
     bool independant_oracle(Partition, term);

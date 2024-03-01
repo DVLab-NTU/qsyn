@@ -12,11 +12,10 @@
 #include <ranges>
 #include <tl/adjacent.hpp>
 #include <tl/to.hpp>
+#include <variant>
 
 #include "qcir/gate_type.hpp"
 #include "qcir/qcir_gate.hpp"
-#include "tableau/pauli_rotation.hpp"
-#include "tableau/stabilizer_tableau.hpp"
 #include "util/phase.hpp"
 #include "util/util.hpp"
 
@@ -118,41 +117,53 @@ std::vector<size_t> get_qubit_idx_vec(qcir::QCirGate const& gate) {
     return ret;
 }
 
-void implement_mcrz(SubTableau& subtableau, qcir::QCirGate const& gate, dvlab::Phase const& phase) {
+void implement_mcrz(Tableau& tableau, qcir::QCirGate const& gate, dvlab::Phase const& phase) {
+    if (std::holds_alternative<StabilizerTableau>(tableau.back())) {
+        tableau.push_back(std::vector<PauliRotation>{});
+    }
+    // guaranteed to be a vector of PauliRotation
+    auto& last_rotation_group = std::get<std::vector<PauliRotation>>(tableau.back());
+
     auto const targ = gsl::narrow<size_t>(gate.get_qubits().back()._qubit);
     for (auto const comb_size : std::views::iota(0ul, gate.get_num_qubits())) {
         bool const is_neg  = comb_size % 2;
         auto qubit_idx_vec = get_qubit_idx_vec(gate);
         do {  // NOLINT(cppcoreguidelines-avoid-do-while)
             auto const pauli_range =
-                std::views::iota(0ul, subtableau.clifford.n_qubits()) |
+                std::views::iota(0ul, tableau.n_qubits()) |
                 std::views::transform([&qubit_idx_vec, &comb_size, targ](auto i) -> Pauli {
                     // if i is in qubit_idx_range, return Z, otherwise I
                     return (i == targ) || contains(qubit_idx_vec | std::views::take(comb_size), i) ? Pauli::Z : Pauli::I;
                 }) |
                 tl::to<std::vector>();
-            subtableau.pauli_rotations.push_back(PauliRotation(pauli_range.begin(), pauli_range.end(), is_neg ? -phase : phase));
+            last_rotation_group.push_back(PauliRotation(pauli_range.begin(), pauli_range.end(), is_neg ? -phase : phase));
         } while (next_combination(qubit_idx_vec, comb_size));
     }
 }
 
-void implement_mcpz(SubTableau& subtableau, qcir::QCirGate const& gate, dvlab::Phase const& phase) {
+void implement_mcpz(Tableau& tableau, qcir::QCirGate const& gate, dvlab::Phase const& phase) {
+    if (std::holds_alternative<StabilizerTableau>(tableau.back())) {
+        tableau.push_back(std::vector<PauliRotation>{});
+    }
+    // guaranteed to be a vector of PauliRotation
+    auto& last_rotation_group = std::get<std::vector<PauliRotation>>(tableau.back());
+
     for (auto const comb_size : std::views::iota(1ul, gate.get_num_qubits() + 1)) {
         bool const is_neg  = (comb_size - 1) % 2;
         auto qubit_idx_vec = get_qubit_idx_vec(gate);
         do {  // NOLINT(cppcoreguidelines-avoid-do-while)
             auto const pauli_range =
-                std::views::iota(0ul, subtableau.clifford.n_qubits()) |
+                std::views::iota(0ul, tableau.n_qubits()) |
                 std::views::transform([&qubit_idx_vec, &comb_size](auto i) -> Pauli {
                     return contains(qubit_idx_vec | std::views::take(comb_size), i) ? Pauli::Z : Pauli::I;
                 }) |
                 tl::to<std::vector>();
-            subtableau.pauli_rotations.push_back(PauliRotation(pauli_range.begin(), pauli_range.end(), is_neg ? -phase : phase));
+            last_rotation_group.push_back(PauliRotation(pauli_range.begin(), pauli_range.end(), is_neg ? -phase : phase));
         } while (next_combination(qubit_idx_vec, comb_size));
     }
 }
 
-void implement_rotation_gate(SubTableau& subtableau, qcir::QCirGate const& gate) {
+void implement_rotation_gate(Tableau& tableau, qcir::QCirGate const& gate) {
     if (!is_allowed_rotation(gate)) {
         spdlog::error("Gate {} is not allowed in at the moment!!", gate.get_type_str());
         return;
@@ -163,9 +174,9 @@ void implement_rotation_gate(SubTableau& subtableau, qcir::QCirGate const& gate)
     auto const targ = gsl::narrow<size_t>(gate.get_qubits().back()._qubit);
     // convert rotation plane first
     if (pauli == Pauli::X) {
-        subtableau.h(targ);
+        tableau.h(targ);
     } else if (pauli == Pauli::Y) {
-        subtableau.v(targ);
+        tableau.v(targ);
     }
 
     dvlab::Phase const phase =
@@ -173,16 +184,16 @@ void implement_rotation_gate(SubTableau& subtableau, qcir::QCirGate const& gate)
         dvlab::Rational(1, static_cast<int>(std::pow(2, gsl::narrow<double>(gate.get_num_qubits()) - 1)));
     // implement rotation in Z plane
     if (is_r_type_rotation(gate.get_rotation_category())) {
-        implement_mcrz(subtableau, gate, phase);
+        implement_mcrz(tableau, gate, phase);
     } else {
-        implement_mcpz(subtableau, gate, phase);
+        implement_mcpz(tableau, gate, phase);
     }
 
     // restore rotation plane
     if (pauli == Pauli::X) {
-        subtableau.h(targ);
+        tableau.h(targ);
     } else if (pauli == Pauli::Y) {
-        subtableau.vdg(targ);
+        tableau.vdg(targ);
     }
 }
 
@@ -210,8 +221,7 @@ std::optional<Tableau> to_tableau(qcir::QCir const& qcir) {
             return std::nullopt;
         }
     }
-
-    SubTableau result{StabilizerTableau(qcir.get_num_qubits()), {}};
+    Tableau result{qcir.get_num_qubits()};
 
     for (auto const& gate : qcir.get_gates()) {
         if (gate->get_type_str() == "h") {
@@ -244,7 +254,7 @@ std::optional<Tableau> to_tableau(qcir::QCir const& qcir) {
         }
     }
 
-    return Tableau{result};
+    return result;
 }
 
 }  // namespace experimental

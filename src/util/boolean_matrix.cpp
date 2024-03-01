@@ -263,6 +263,11 @@ size_t BooleanMatrix::gaussian_elimination_skip(size_t block_size, bool do_fully
     return rank;
 }
 
+size_t BooleanMatrix::matrix_rank() const {
+    auto copy = *this;
+    return copy.gaussian_elimination_skip(num_cols(), false, false);
+}
+
 /**
  * @brief A temporary method to filter duplicated operations
  *
@@ -517,6 +522,14 @@ double BooleanMatrix::dense_ratio() {
  */
 void BooleanMatrix::push_zeros_column() {
     for_each(_matrix.begin(), _matrix.end(), [](Row& r) { r.emplace_back(0); });
+}
+
+bool BooleanMatrix::Row::operator==(Row const& rhs) const {
+    if (_row.size() != rhs._row.size()) return false;
+    for (size_t i = 0; i < _row.size(); i++) {
+        if (_row[i] != rhs._row[i]) return false;
+    }
+    return true;
 }
 
 }  // namespace dvlab

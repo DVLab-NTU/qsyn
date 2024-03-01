@@ -147,11 +147,10 @@ StabilizerTableau adjoint(StabilizerTableau const& tableau) {
     return StabilizerTableau{tableau.n_qubits()}.apply(adjoint(extract_clifford_operators(tableau)));
 }
 
-CliffordOperatorString extract_clifford_operators(StabilizerTableau copy, StabilizerTableauExtractor const& extractor) {
-    return extractor.extract(copy);
+CliffordOperatorString extract_clifford_operators(StabilizerTableau copy, StabilizerTableauSynthesisStrategy const& strategy) {
+    return strategy.synthesize(copy);
 }
-
-CliffordOperatorString AGExtractor::extract(StabilizerTableau copy) const {
+CliffordOperatorString AGSynthesisStrategy::synthesize(StabilizerTableau copy) const {
     CliffordOperatorString clifford_ops;
 
     auto const add_cx = [&](size_t ctrl, size_t targ) {
@@ -287,7 +286,7 @@ CliffordOperatorString AGExtractor::extract(StabilizerTableau copy) const {
     return clifford_ops;
 }
 
-CliffordOperatorString HOptExtractor::extract(StabilizerTableau copy) const {
+CliffordOperatorString HOptSynthesisStrategy::synthesize(StabilizerTableau copy) const {
     CliffordOperatorString diag_ops;
 
     auto const add_cx = [&](size_t ctrl, size_t targ) {
@@ -333,7 +332,7 @@ CliffordOperatorString HOptExtractor::extract(StabilizerTableau copy) const {
 
     // synthesize the now diagonal stabilizers with Aaronson-Gottesman method
 
-    auto clifford_ops = extract_clifford_operators(copy, AGExtractor{});
+    auto clifford_ops = extract_clifford_operators(copy, AGSynthesisStrategy{});
 
     assert(std::ranges::none_of(clifford_ops, [](auto const& op) {
         return op.first == CliffordOperatorType::h;
@@ -344,58 +343,6 @@ CliffordOperatorString HOptExtractor::extract(StabilizerTableau copy) const {
     clifford_ops.insert(clifford_ops.end(), diag_ops.begin(), diag_ops.end());
 
     return clifford_ops;
-}
-
-void adjoint_inplace(SubTableau& subtableau) {
-    adjoint_inplace(subtableau.clifford);
-
-    auto ops = extract_clifford_operators(subtableau.clifford);
-    std::ranges::reverse(subtableau.pauli_rotations);
-    std::ranges::for_each(subtableau.pauli_rotations, [&ops](PauliRotation& rotation) {
-        rotation.phase() *= -1;
-        rotation.apply(ops);
-    });
-}
-
-SubTableau& SubTableau::h(size_t qubit) {
-    clifford.h(qubit);
-    for (auto& pauli : pauli_rotations) {
-        pauli.h(qubit);
-    }
-    return *this;
-}
-
-SubTableau& SubTableau::s(size_t qubit) {
-    clifford.s(qubit);
-    for (auto& pauli : pauli_rotations) {
-        pauli.s(qubit);
-    }
-    return *this;
-}
-
-SubTableau& SubTableau::cx(size_t control, size_t target) {
-    clifford.cx(control, target);
-    for (auto& pauli : pauli_rotations) {
-        pauli.cx(control, target);
-    }
-    return *this;
-}
-
-SubTableau adjoint(SubTableau const& subtableau) {
-    auto adjoint_subtableau = subtableau;
-    adjoint_inplace(adjoint_subtableau);
-    return adjoint_subtableau;
-}
-
-void adjoint_inplace(Tableau& tableau) {
-    std::ranges::reverse(tableau);
-    std::ranges::for_each(tableau, [](SubTableau& subtableau) { adjoint_inplace(subtableau); });
-}
-
-Tableau adjoint(Tableau const& tableau) {
-    auto adjoint_tableau = tableau;
-    adjoint_inplace(adjoint_tableau);
-    return adjoint_tableau;
 }
 
 }  // namespace qsyn::experimental

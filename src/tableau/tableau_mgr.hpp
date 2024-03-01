@@ -11,7 +11,7 @@
 #include <vector>
 
 #include "./cli/cli.hpp"
-#include "./stabilizer_tableau.hpp"
+#include "./tableau.hpp"
 #include "util/data_structure_manager.hpp"
 
 namespace qsyn::experimental {

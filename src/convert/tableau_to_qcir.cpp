@@ -14,8 +14,6 @@
 
 #include "qcir/gate_type.hpp"
 #include "qcir/qcir.hpp"
-#include "tableau/pauli_rotation.hpp"
-#include "tableau/stabilizer_tableau.hpp"
 #include "util/phase.hpp"
 
 namespace qsyn::experimental {
@@ -70,7 +68,7 @@ void add_clifford_gate(qcir::QCir& qcir, CliffordOperator const& op) {
  * @param clifford - pass by value on purpose
  * @return std::optional<qcir::QCir>
  */
-qcir::QCir to_qcir(StabilizerTableau clifford, StabilizerTableauExtractor const& extractor) {
+qcir::QCir to_qcir(StabilizerTableau clifford, StabilizerTableauSynthesisStrategy const& extractor) {
     qcir::QCir qcir{clifford.n_qubits()};
     for (auto const& op : extract_clifford_operators(clifford, extractor)) {
         add_clifford_gate(qcir, op);
@@ -85,21 +83,27 @@ qcir::QCir to_qcir(StabilizerTableau clifford, StabilizerTableauExtractor const&
  * @param pauli_rotation
  * @return qcir::QCir
  */
-qcir::QCir to_qcir(PauliRotation const& pauli_rotation) {
-    auto [ops, qubit] = extract_clifford_operators(pauli_rotation);
-
-    qcir::QCir qcir{pauli_rotation.n_qubits()};
-
-    for (auto const& op : ops) {
-        add_clifford_gate(qcir, op);
+qcir::QCir to_qcir(std::vector<PauliRotation> const& pauli_rotations) {
+    if (pauli_rotations.empty()) {
+        return qcir::QCir{0};
     }
 
-    qcir.add_gate("pz", {gsl::narrow<QubitIdType>(qubit)}, pauli_rotation.phase(), true);
+    qcir::QCir qcir{pauli_rotations.front().n_qubits()};
 
-    adjoint_inplace(ops);
+    for (auto const& rotation : pauli_rotations) {
+        auto [ops, qubit] = extract_clifford_operators(rotation);
 
-    for (auto const& op : ops) {
-        add_clifford_gate(qcir, op);
+        for (auto const& op : ops) {
+            add_clifford_gate(qcir, op);
+        }
+
+        qcir.add_gate("pz", {gsl::narrow<QubitIdType>(qubit)}, rotation.phase(), true);
+
+        adjoint_inplace(ops);
+
+        for (auto const& op : ops) {
+            add_clifford_gate(qcir, op);
+        }
     }
 
     return qcir;
@@ -112,14 +116,19 @@ qcir::QCir to_qcir(PauliRotation const& pauli_rotation) {
  * @param pauli_rotations
  * @return qcir::QCir
  */
-qcir::QCir to_qcir(Tableau const& tableau, StabilizerTableauExtractor const& extractor) {
-    qcir::QCir qcir{tableau.front().clifford.n_qubits()};
+qcir::QCir to_qcir(Tableau const& tableau, StabilizerTableauSynthesisStrategy const& extractor) {
+    qcir::QCir qcir{tableau.n_qubits()};
 
     std::ranges::for_each(tableau, [&qcir, &extractor](auto const& sub_tableau) {
-        qcir.compose(to_qcir(sub_tableau.clifford, extractor));
-        for (auto const& pauli_rotation : sub_tableau.pauli_rotations) {
-            qcir.compose(to_qcir(pauli_rotation));
-        }
+        std::visit(
+            dvlab::overloaded{
+                [&qcir, &extractor](StabilizerTableau const& st) {
+                    qcir.compose(to_qcir(st, extractor));
+                },
+                [&qcir](std::vector<PauliRotation> const& pr) {
+                    qcir.compose(to_qcir(pr));
+                }},
+            sub_tableau);
     });
 
     return qcir;
