@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <gsl/narrow>
+#include <kitty/dynamic_truth_table.hpp>
 #include <ranges>
 #include <tl/enumerate.hpp>
 #include <tl/slide.hpp>
@@ -46,19 +47,8 @@ std::optional<QCir> synthesize_boolean_oracle(XAG xag, size_t n_ancilla, size_t 
     size_t num_outputs           = xag.outputs.size();
     size_t P                     = n_ancilla + num_outputs;
     auto const& [optimal_cut, _] = k_lut_partition(xag, k);
-    fmt::print("P = {}, k = {}\n", P, k);
-
-    for (auto const& xag_node : xag.get_nodes()) {
-        fmt::print("{}\n", xag_node.to_string());
-    }
-
-    for (auto const& [id, cut] : optimal_cut) {
-        fmt::print("id = {}, cut = {}\n", id.get(), fmt::join(cut | views::transform([](auto const& id) { return id.get(); }), " "));
-    }
 
     auto dep_graph = from_xag_cuts(optimal_cut, xag.outputs);
-
-    fmt::print("dep_graph = {}\n", dep_graph.to_string());
 
     const size_t N        = dep_graph.size();  // number of nodes
     const size_t max_deps = std::ranges::max(dep_graph.get_graph() |
@@ -137,12 +127,10 @@ std::optional<QCir> build_qcir(
         }
     }
 
-    auto input_to_qubit = std::map<XAGNodeID, qsyn::QubitIdType>();
+    auto current_ancilla_state = std::map<XAGNodeID, qsyn::QubitIdType>();
     for (auto const& [i, input_id] : tl::views::enumerate(xag.inputs)) {
-        input_to_qubit[input_id] = gsl::narrow_cast<qsyn::QubitIdType>(i);
+        current_ancilla_state[input_id] = gsl::narrow_cast<qsyn::QubitIdType>(i);
     }
-
-    auto current_ancilla_state = std::map<DepGraphNodeID, qsyn::QubitIdType>();
 
     for (auto const& pebble_states : tl::views::slide(schedule, 2)) {
         auto const& curr_pebble = pebble_states.front();
@@ -158,32 +146,34 @@ std::optional<QCir> build_qcir(
             auto dep_node     = dep_graph.get_node(DepGraphNodeID(pebble_id));
             auto dependencies = dep_node.dependencies;
 
-            auto xag_cone_tip   = xag.get_node(dep_node.xag_id);
-            auto xag_cut        = optimal_cut.at(dep_node.xag_id);
-            auto qcir_to_concat = lut[{&xag, xag_cone_tip.get_id(), xag_cut}];
+            auto xag_cone_tip         = xag.get_node(dep_node.xag_id);
+            auto xag_cut              = optimal_cut.at(dep_node.xag_id);
+            auto const qcir_to_concat = lut[xag.calculate_truth_table(xag_cone_tip.get_id(), xag_cut)];
 
-            auto concat_qubit_map       = std::map<qsyn::QubitIdType, qsyn::QubitIdType>();
-            auto xag_to_concat_qubit_id = lut.match_input(xag, xag_cone_tip.get_id(), xag_cut);
-
-            for (auto const& dep_id : dependencies) {
-                auto xag_id   = dep_graph.get_node(dep_id).xag_id;
-                auto xag_node = xag.get_node(xag_id);
-                if (xag_node.is_input()) {
-                    auto input_qubit              = input_to_qubit.at(xag_id);
-                    concat_qubit_map[input_qubit] = current_ancilla_state[dep_id];
-                } else if (current_ancilla_state.contains(dep_id)) {
-                    concat_qubit_map[xag_to_concat_qubit_id[xag_id]] = current_ancilla_state[dep_id];
-                }
+            if (xag_cone_tip.is_input()) {
+                continue;
             }
-            concat_qubit_map[xag_to_concat_qubit_id[xag_cone_tip.get_id()]] = target_qubit;
 
-            if (current_ancilla_state.contains(DepGraphNodeID(pebble_id))) {
-                current_ancilla_state.erase(DepGraphNodeID(pebble_id));
-            } else {
-                current_ancilla_state[DepGraphNodeID(pebble_id)] = target_qubit;
+            auto xag_to_new_qubit_id = std::map<XAGNodeID, qsyn::QubitIdType>();
+            for (auto const& [i, xag_id] : tl::views::enumerate(xag_cut)) {
+                auto xag_node               = xag.get_node(xag_id);
+                xag_to_new_qubit_id[xag_id] = gsl::narrow_cast<qsyn::QubitIdType>(i);
             }
+            xag_to_new_qubit_id[xag_cone_tip.get_id()] = gsl::narrow_cast<qsyn::QubitIdType>(xag_cut.size());
+
+            auto concat_qubit_map = std::map<qsyn::QubitIdType, qsyn::QubitIdType>();
+            for (auto const& xag_id : xag_cut) {
+                concat_qubit_map[xag_to_new_qubit_id[xag_id]] = current_ancilla_state[xag_id];
+            }
+            concat_qubit_map[xag_to_new_qubit_id[xag_cone_tip.get_id()]] = target_qubit;
 
             qcir.concat(qcir_to_concat, concat_qubit_map);
+
+            if (current_ancilla_state.contains(dep_node.xag_id)) {
+                current_ancilla_state.erase(dep_node.xag_id);
+            } else {
+                current_ancilla_state[dep_node.xag_id] = target_qubit;
+            }
         }
     }
 

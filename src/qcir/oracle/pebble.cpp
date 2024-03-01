@@ -7,6 +7,7 @@
 
 #include "qcir/oracle/pebble.hpp"
 
+#include <__ranges/filter_view.h>
 #include <fmt/core.h>
 #include <spdlog/spdlog.h>
 
@@ -17,6 +18,7 @@
 #include <tl/enumerate.hpp>
 #include <vector>
 
+#include "qcir/oracle/xag.hpp"
 #include "util/sat/sat_solver.hpp"
 
 using namespace dvlab::sat;
@@ -67,7 +69,12 @@ DepGraph from_deps_file(std::istream& ifs) {
 }
 
 DepGraph from_xag_cuts(std::map<XAGNodeID, XAGCut> const& optimal_cut, std::vector<XAGNodeID> const& outputs) {
+    auto is_input = [&optimal_cut](XAGNodeID const& id) {
+        return optimal_cut.contains(id) && optimal_cut.at(id).contains(id);
+    };
+
     std::vector<XAGNodeID> optimal_cone_tips = optimal_cut |
+                                               views::filter([&is_input](auto const entry) { return !is_input(entry.first); }) |
                                                views::keys |
                                                tl::to<std::vector>();
 
@@ -82,7 +89,7 @@ DepGraph from_xag_cuts(std::map<XAGNodeID, XAGCut> const& optimal_cut, std::vect
         auto const dep_id = xag_to_dep[xag_id];
         auto node         = Node(dep_id, xag_id);
         for (auto const& fanin_id : optimal_cut.at(xag_id)) {
-            if (fanin_id == xag_id) {
+            if (is_input(fanin_id)) {
                 continue;
             }
             node.dependencies.emplace_back(xag_to_dep[fanin_id]);
@@ -105,7 +112,7 @@ std::optional<std::vector<std::vector<bool>>> pebble(SatSolver& solver, size_t c
         auto p = vector<vector<Variable>>(K);
         for (const size_t i : iota(0UL, K)) {
             p[i] = vector<Variable>(N);
-            for (const std::size_t j : iota(0UL, N)) {
+            for (const size_t j : iota(0UL, N)) {
                 p[i][j] = solver.new_var();
             }
         }
@@ -123,7 +130,9 @@ std::optional<std::vector<std::vector<bool>>> pebble(SatSolver& solver, size_t c
             // at time 0, no node is pebbled
             solver.add_clause({~Literal(p[0][i])});
             // at time K, all output nodes are pebbled, and all other nodes are not pebbled
-            solver.add_clause({Literal(p[K - 1][i], !graph.is_output(DepGraphNodeID(i)))});
+            solver.add_clause(
+                {graph.is_output(DepGraphNodeID(i)) ? Literal(p[K - 1][i])
+                                                    : ~Literal(p[K - 1][i])});
         }
 
         // Move CLauses
@@ -148,6 +157,7 @@ std::optional<std::vector<std::vector<bool>>> pebble(SatSolver& solver, size_t c
         // Cardinality Clauses
         for (const size_t i : iota(0UL, K)) {
             auto p_i = p[i] | std::views::transform([](const Variable& var) { return Literal(var); }) | tl::to<std::vector>();
+
             solver.add_lte_constraint(p_i, P);
         }
 
@@ -160,7 +170,6 @@ std::optional<std::vector<std::vector<bool>>> pebble(SatSolver& solver, size_t c
     size_t right = N * N * 2;
     size_t K     = N;
 
-    spdlog::debug("trying K = {}", right);
     p = make_variables(solver, N, right);
     if (!pebble_inner(solver, p, N, right, P)) {
         return std::nullopt;
@@ -168,8 +177,7 @@ std::optional<std::vector<std::vector<bool>>> pebble(SatSolver& solver, size_t c
 
     while (left < right) {
         size_t mid = (left + right) / 2;
-        spdlog::debug("trying K = {}", mid);
-        p = make_variables(solver, N, mid);
+        p          = make_variables(solver, N, mid);
         if (pebble_inner(solver, p, N, mid, P)) {
             right = mid;
             K     = mid;
@@ -181,6 +189,7 @@ std::optional<std::vector<std::vector<bool>>> pebble(SatSolver& solver, size_t c
     if (K == 0) {
         return std::nullopt;
     }
+    spdlog::debug("pebbling: found K = {}", K);
     p = make_variables(solver, N, K);
     pebble_inner(solver, p, N, K, P);
     auto _solution = solver.get_solution();

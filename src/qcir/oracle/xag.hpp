@@ -74,7 +74,7 @@ public:
 
     std::vector<XAGNodeID> get_cone_node_ids(XAGNodeID const& node_id, XAGCut const& cut) const;
     std::vector<XAGNodeID> calculate_topological_order();
-    kitty::dynamic_truth_table calculate_truth_table(XAGNodeID const& output_id, XAGCut const& cut);
+    kitty::dynamic_truth_table calculate_truth_table(XAGNodeID const& output_id, XAGCut const& cut) const;
 
     std::vector<XAGNodeID> inputs;
     std::vector<XAGNodeID> outputs;

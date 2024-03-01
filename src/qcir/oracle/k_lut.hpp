@@ -13,12 +13,12 @@
 #include <istream>
 #include <kitty/dynamic_truth_table.hpp>
 #include <kitty/kitty.hpp>
+#include <kitty/print.hpp>
 #include <unordered_map>
 #include <utility>
 
 #include "qcir/oracle/xag.hpp"
 #include "qcir/qcir.hpp"
-#include "qsyn/qsyn_type.hpp"
 
 namespace qsyn::qcir {
 
@@ -26,15 +26,21 @@ class LUT {
 public:
     LUT(size_t const k);
     size_t get_k() const { return k; }
-    QCir const& get(kitty::dynamic_truth_table const& entry) const { return table.at(entry); }
-    void insert(kitty::dynamic_truth_table const& entry, QCir const& qcir) { table[(entry)] = qcir; }
-
-    std::map<XAGNodeID, QubitIdType> match_input(XAG const& xag, XAGNodeID const& node_id, XAGCut const& cut) const;
+    QCir const& operator[](kitty::dynamic_truth_table const& entry) const {
+        return table.at(entry);
+    }
+    QCir& operator[](kitty::dynamic_truth_table const& entry) { return table[entry]; }
+    void for_each(std::function<void(kitty::dynamic_truth_table const&, QCir const&)> const& fn) const {
+        for (auto const& [entry, qcir] : table) {
+            fn(entry, qcir);
+        }
+    }
 
 private:
     size_t k;
     std::unordered_map<kitty::dynamic_truth_table, QCir, kitty::hash<kitty::dynamic_truth_table>> table;
 
+    void construct_lut_1();
     void construct_lut_2();
     void construct_lut_3();
 };

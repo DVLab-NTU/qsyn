@@ -127,9 +127,6 @@ std::map<XAGNodeID, std::vector<size_t>> calculate_cut_costs(XAG& xag, std::map<
         costs[id] = {};
         for (auto const& cut : cuts) {
             auto const truth_table = xag.calculate_truth_table(id, cut);
-            fmt::print("{{{}}}: {}\n",
-                       fmt::join(cut | std::views::transform([](auto const& id) { return id.get(); }), ", "),
-                       fmt::join(truth_table | std::views::transform([](bool b) { return b ? "1" : "0"; }), ", "));
             costs[id].emplace_back(caclculate_radamacher_walsh_cost(truth_table));
         }
     }
@@ -154,53 +151,6 @@ std::map<XAGNodeID, std::vector<size_t>> calculate_cut_costs(XAG& xag, std::map<
     }
 
     return costs;
-}
-
-std::map<XAGNodeID, qsyn::QubitIdType> match_input_2(XAG const& xag, XAGNodeID const& node_id, XAGCut const& /* cut */) {
-    auto input_to_qcir = std::map<XAGNodeID, qsyn::QubitIdType>{};
-    auto node          = xag.get_node(node_id);
-    if (node.fanin_inverted[1] && !node.fanin_inverted[0]) {
-        input_to_qcir[node.fanins[0]] = 1;
-        input_to_qcir[node.fanins[1]] = 0;
-    } else {
-        input_to_qcir[node.fanins[0]] = 0;
-        input_to_qcir[node.fanins[1]] = 1;
-    }
-    return input_to_qcir;
-}
-
-// (4)
-//  ├───┐
-// (3)  └───┐
-//  ├───┐   │
-// (0) (1) (2)
-std::map<XAGNodeID, qsyn::QubitIdType> match_input_3(XAG const& xag, XAGNodeID const& node_id, XAGCut const& cut) {
-    auto input_to_qcir = std::map<XAGNodeID, qsyn::QubitIdType>{};
-
-    auto top_node    = xag.get_node(node_id);
-    auto top_fanin_0 = xag.get_node(top_node.fanins[0]);
-    auto top_fanin_1 = xag.get_node(top_node.fanins[1]);
-
-    input_to_qcir[top_node.get_id()] = 3;
-
-    XAGNode bottom_node{};
-    if (cut.contains(top_fanin_0.get_id())) {
-        bottom_node                         = top_fanin_1;
-        input_to_qcir[top_fanin_0.get_id()] = 2;
-    } else {
-        bottom_node                         = top_fanin_0;
-        input_to_qcir[top_fanin_1.get_id()] = 2;
-    }
-
-    if (!bottom_node.fanin_inverted[0] && bottom_node.fanin_inverted[1]) {
-        input_to_qcir[bottom_node.fanins[0]] = 1;
-        input_to_qcir[bottom_node.fanins[1]] = 0;
-    } else {
-        input_to_qcir[bottom_node.fanins[0]] = 0;
-        input_to_qcir[bottom_node.fanins[1]] = 1;
-    }
-
-    return input_to_qcir;
 }
 
 }  // namespace
@@ -328,6 +278,27 @@ void add_gates_2(
     }
 }
 
+void LUT::construct_lut_1() {
+    {
+        auto tt = kitty::dynamic_truth_table(1);
+        kitty::set_bit(tt, 0);
+
+        auto qcir = QCir(2);
+        qcir.add_gate("x", {0}, {}, true);
+        qcir.add_gate("cx", {0, 1}, {}, true);
+        qcir.add_gate("x", {0}, {}, true);
+        table[tt] = qcir;
+    }
+    {
+        auto tt = kitty::dynamic_truth_table(1);
+        kitty::set_bit(tt, 1);
+
+        auto qcir = QCir(2);
+        qcir.add_gate("cx", {0, 1}, {}, true);
+        table[tt] = qcir;
+    }
+}
+
 void LUT::construct_lut_2() {
     for (uint64_t const i : iota(0, 1 << 4)) {
         auto tt = kitty::dynamic_truth_table(2);
@@ -339,6 +310,8 @@ void LUT::construct_lut_2() {
         auto ccx = [&qcir](auto const& c1, auto const& c2, auto const& target) { qcir.add_gate("ccx", {c1, c2, target}, {}, true); };
 
         add_gates_2(i, x, cx, ccx);
+
+        table[tt] = qcir;
     }
 }
 
@@ -367,36 +340,15 @@ void LUT::construct_lut_3() {
 
 LUT::LUT(size_t const k) : k(k) {
     switch (k) {
-        case 2: {
-            construct_lut_2();
-            break;
-        }
-        case 3: {
-            construct_lut_2();
+        case 3:
             construct_lut_3();
+        case 2:
+            construct_lut_2();
+        case 1:
+            construct_lut_1();
             break;
-        }
-        default: {
+        default:
             throw std::runtime_error(fmt::format("k-LUT partitioning not implemented for k = {}", k));
-        }
-    }
-
-    for (auto const& [entry, qcir] : table) {
-        qcir.print_qcir();
-    }
-}
-
-std::map<XAGNodeID, QubitIdType> LUT::match_input(XAG const& xag, XAGNodeID const& node_id, XAGCut const& cut) const {
-    switch (cut.size()) {
-        case 2: {
-            return match_input_2(xag, node_id, cut);
-        }
-        case 3: {
-            return match_input_3(xag, node_id, cut);
-        }
-        default: {
-            throw std::runtime_error(fmt::format("k-LUT partitioning not implemented for k = {}", k));
-        }
     }
 }
 
