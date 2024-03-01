@@ -48,7 +48,7 @@ std::optional<Solution> CaDiCalSolver::get_solution() {
         return std::nullopt;
     }
 
-    Solution solution(_next_var.get() - 1);
+    Solution solution(_next_var.get());
     for (auto const& i : std::views::iota(0, (int)solution.size())) {
         auto var = Variable(i + 1);
         solution.set(var, _solver->val(var.get()) > 0);
