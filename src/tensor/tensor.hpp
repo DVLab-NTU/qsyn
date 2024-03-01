@@ -300,23 +300,23 @@ void Tensor<DT>::adjoint() {
 
 template <typename DT>
 std::complex<double> Tensor<DT>::determinant() {
+    // TODO - Check correctness and also check the condition dim=2 is needed;
     assert(dimension() == 2);
-    // TODO -
-    return NULL;
+    return xt::linalg::det(_tensor);
 }
 
 template <typename DT>
 std::complex<double> Tensor<DT>::trace() {
+    // TODO - Check correctness and also check the condition dim=2 is needed;
     assert(dimension() == 2);
-    // TODO -
-    return NULL;
+    return xt::linalg::trace(_tensor);
 }
 
 template <typename DT>
 auto Tensor<DT>::eigen() {
-    // TODO - check the return type, may be std::pair<value, vector>
+    // TODO - Check the return type, may be std::pair<value, vector>
     // TODO -
-    return NULL;
+    return xt::linalg::eig(_tensor);
 }
 
 template <typename DT>
