@@ -16,6 +16,7 @@
 #include <complex>
 #include <cstddef>
 #include <iosfwd>
+#include <tuple>
 #include <unordered_map>
 #include <vector>
 #include <xtensor-blas/xlinalg.hpp>
@@ -101,6 +102,9 @@ public:
     friend double cosine_similarity(Tensor<U> const& t1, Tensor<U> const& t2);
 
     template <typename U>
+    friend double trace_distance(Tensor<U> const& t1, Tensor<U> const& t2);
+
+    template <typename U>
     friend Tensor<U> tensordot(Tensor<U> const& t1, Tensor<U> const& t2,
                                TensorAxisList const& ax1, TensorAxisList const& ax2);
 
@@ -118,6 +122,11 @@ public:
     void reshape(TensorShape const& shape);
     Tensor<DT> transpose(TensorAxisList const& perm) const;
     void adjoint();
+
+    std::complex<double> determinant();
+    std::complex<double> trace();
+    auto eigen();  // TODO - check the return type, may be std::pair<value, vector>
+
     void SK_decompose();
 
     bool tensor_read(std::string const&);
@@ -290,10 +299,30 @@ void Tensor<DT>::adjoint() {
 }
 
 template <typename DT>
+std::complex<double> Tensor<DT>::determinant() {
+    assert(dimension() == 2);
+    // TODO -
+    return NULL;
+}
+
+template <typename DT>
+std::complex<double> Tensor<DT>::trace() {
+    assert(dimension() == 2);
+    // TODO -
+    return NULL;
+}
+
+template <typename DT>
+auto Tensor<DT>::eigen() {
+    // TODO - check the return type, may be std::pair<value, vector>
+    // TODO -
+    return NULL;
+}
+
+template <typename DT>
 void Tensor<DT>::SK_decompose() {
     assert(dimension() == 2);
     // TODO - Move your code here, you may also create new files src/tensor/
-    
 }
 
 template <typename DT>
@@ -374,6 +403,12 @@ double inner_product(Tensor<U> const& t1, Tensor<U> const& t2) {
 template <typename U>
 double cosine_similarity(Tensor<U> const& t1, Tensor<U> const& t2) {
     return inner_product(t1, t2) / std::sqrt(inner_product(t1, t1) * inner_product(t2, t2));
+}
+// Calculate the trace distance of two tensors
+template <typename U>
+double trace_distance(Tensor<U> const& t1, Tensor<U> const& t2) {
+    // TODO
+    return inner_product(t1, t2);
 }
 
 // tensor-dot two tensors
