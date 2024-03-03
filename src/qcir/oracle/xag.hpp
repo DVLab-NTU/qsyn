@@ -43,6 +43,7 @@ public:
     bool is_xor() const { return _type == XAGNodeType::XOR; }
     bool is_valid() const { return _type != XAGNodeType::VOID; }
     bool is_input() const { return _type == XAGNodeType::INPUT || _type == XAGNodeType::CONST_1; }
+    bool is_const_1() const { return _type == XAGNodeType::CONST_1; }
     std::string to_string() const;
 
     std::vector<XAGNodeID> fanins;

@@ -315,6 +315,9 @@ XAG from_abc_ntk(Abc_Ntk_t* pNtk) {
             } else if (Aig_ObjIsConst1(pObj)) {
                 continue;
             } else if (Aig_ObjIsCo(pObj)) {
+                if (Aig_ObjFaninId0(pObj) == abc_const_1_id) {
+                    need_constant_1 = true;
+                }
                 auto fanin_id = obj_id_to_node_id[Aig_ObjFaninId0(pObj)];
                 output_ids.emplace_back(fanin_id);
                 if (Aig_ObjFaninC0(pObj)) {

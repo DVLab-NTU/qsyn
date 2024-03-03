@@ -68,7 +68,13 @@ DepGraph from_deps_file(std::istream& ifs) {
     return graph;
 }
 
-DepGraph from_xag_cuts(std::map<XAGNodeID, XAGCut> const& optimal_cut, std::vector<XAGNodeID> const& outputs) {
+std::optional<DepGraph> from_xag_cuts(XAG const& xag, std::map<XAGNodeID, XAGCut> const& optimal_cut) {
+    for (auto const& node : xag.get_nodes()) {
+        if (node.is_const_1()) {
+            return std::nullopt;
+        }
+    }
+
     auto is_input = [&optimal_cut](XAGNodeID const& id) {
         return optimal_cut.contains(id) && optimal_cut.at(id).contains(id);
     };
@@ -78,7 +84,7 @@ DepGraph from_xag_cuts(std::map<XAGNodeID, XAGCut> const& optimal_cut, std::vect
                                                views::keys |
                                                tl::to<std::vector>();
 
-    auto dep_graph = DepGraph{};
+    auto dep_graph = DepGraph();
 
     std::map<XAGNodeID, DepGraphNodeID> xag_to_dep;
     for (auto const& [i, xag_id] : tl::views::enumerate(optimal_cone_tips)) {
@@ -97,7 +103,10 @@ DepGraph from_xag_cuts(std::map<XAGNodeID, XAGCut> const& optimal_cut, std::vect
         dep_graph.add_node(node);
     }
 
-    for (auto const& output_id : outputs) {
+    for (auto const& output_id : xag.outputs) {
+        if (xag.get_node(output_id).is_input()) {
+            continue;
+        }
         dep_graph.add_output(NodeID(xag_to_dep[output_id]));
     }
 
@@ -168,7 +177,7 @@ std::optional<std::vector<std::vector<bool>>> pebble(SatSolver& solver, size_t c
     vector<vector<Variable>> p;
     size_t left  = 2;
     size_t right = N * N * 2;
-    size_t K     = N;
+    size_t K     = right;
 
     p = make_variables(solver, N, right);
     if (!pebble_inner(solver, p, N, right, P)) {
