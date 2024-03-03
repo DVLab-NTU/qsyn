@@ -30,8 +30,8 @@ class StabilizerTableau : public PauliProductTrait<StabilizerTableau> {
 public:
     StabilizerTableau(size_t n_qubits) : _stabilizers(2 * n_qubits, PauliProduct(std::string(n_qubits, 'I'))) {
         for (size_t i = 0; i < n_qubits; ++i) {
-            _stabilizers[stabilizer_idx(i)].set_pauli_type(i, Pauli::Z);
-            _stabilizers[destabilizer_idx(i)].set_pauli_type(i, Pauli::X);
+            _stabilizers[stabilizer_idx(i)].set_pauli_type(i, Pauli::z);
+            _stabilizers[destabilizer_idx(i)].set_pauli_type(i, Pauli::x);
         }
     }
 

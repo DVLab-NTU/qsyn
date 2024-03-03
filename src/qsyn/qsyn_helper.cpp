@@ -31,7 +31,7 @@ namespace qsyn {
 
 namespace {
 
-static std::filesystem::path const default_qsynrc_path = std::invoke([]() {
+std::filesystem::path const default_qsynrc_path = std::invoke([]() {
     auto const home_dir = dvlab::utils::get_home_directory();
     if (!home_dir) {
         spdlog::critical("Cannot find home directory");

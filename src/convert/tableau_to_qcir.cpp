@@ -68,7 +68,7 @@ void add_clifford_gate(qcir::QCir& qcir, CliffordOperator const& op) {
  * @param clifford - pass by value on purpose
  * @return std::optional<qcir::QCir>
  */
-std::optional<qcir::QCir> to_qcir(StabilizerTableau clifford, StabilizerTableauSynthesisStrategy const& strategy) {
+std::optional<qcir::QCir> to_qcir(StabilizerTableau const& clifford, StabilizerTableauSynthesisStrategy const& strategy) {
     qcir::QCir qcir{clifford.n_qubits()};
     for (auto const& op : extract_clifford_operators(clifford, strategy)) {
         add_clifford_gate(qcir, op);

@@ -29,7 +29,7 @@
 namespace dvlab {
 
 namespace detail {
-struct heterogeneous_string_hash {
+struct HeterogenousStringHash {
     using is_transparent = void;
 
     [[nodiscard]] size_t operator()(std::string_view str) const noexcept { return std::hash<std::string_view>{}(str); }
@@ -99,7 +99,7 @@ class CommandLineInterface {
     static constexpr size_t read_buf_size = 65536;
     static constexpr size_t page_offset   = 10;
 
-    using CmdMap = std::unordered_map<std::string, std::unique_ptr<dvlab::Command>, detail::heterogeneous_string_hash, std::equal_to<>>;
+    using CmdMap = std::unordered_map<std::string, std::unique_ptr<dvlab::Command>, detail::HeterogenousStringHash, std::equal_to<>>;
 
 public:
     /**
@@ -127,7 +127,7 @@ public:
     bool add_variables_from_dofiles(std::filesystem::path const& filepath, std::span<std::string const> arguments);
 
     void sigint_handler(int signum);
-    bool stop_requested() const { return _command_threads.size() && _command_threads.top().get_stop_token().stop_requested(); }
+    bool stop_requested() const { return !_command_threads.empty() && _command_threads.top().get_stop_token().stop_requested(); }
 
     // printing functions
     void list_all_commands() const;
@@ -158,7 +158,7 @@ public:
     constexpr static std::string_view double_quote_special_chars = "\\$";        // The characters that are identified as special characters when parsing inside double quotes
     constexpr static std::string_view special_chars              = "\\$\"\' ;";  // The characters that are identified as special characters when parsing
 
-    enum class parse_state {
+    enum class ParseState {
         normal,
         single_quote,
         double_quote,
@@ -206,8 +206,8 @@ private:
         std::vector<HistoryEntry> _history;
     };
     bool _echo = true;
-    std::unordered_map<std::string, std::string, detail::heterogeneous_string_hash, std::equal_to<>> _aliases;
-    std::unordered_map<std::string, std::string, detail::heterogeneous_string_hash, std::equal_to<>> _variables;  // stores the variables key-value pairs, e.g., $1, $INPUT_FILE, etc...
+    std::unordered_map<std::string, std::string, detail::HeterogenousStringHash, std::equal_to<>> _aliases;
+    std::unordered_map<std::string, std::string, detail::HeterogenousStringHash, std::equal_to<>> _variables;  // stores the variables key-value pairs, e.g., $1, $INPUT_FILE, etc...
 
     std::stack<jthread::jthread> _command_threads;
 
@@ -219,7 +219,7 @@ private:
     std::string _decode(std::string str) const;
     CmdExecResult _dispatch_command(dvlab::Command* cmd, std::vector<argparse::Token> options);
     bool _is_escaped(std::string_view str, size_t pos) const;
-    bool _should_be_escaped(char ch, dvlab::CommandLineInterface::parse_state state) const;
+    bool _should_be_escaped(char ch, dvlab::CommandLineInterface::ParseState state) const;
     // tab-related features features
     void _on_tab_pressed();
     // onTabPressed subroutines
@@ -230,7 +230,7 @@ private:
 
     // helper functions
     std::vector<std::string> _get_file_matches(std::filesystem::path const& filepath) const;
-    bool _autocomplete(std::string prefix_copy, std::vector<std::string> const& strs, parse_state state);
+    bool _autocomplete(std::string prefix_copy, std::vector<std::string> const& strs, ParseState state);
     void _print_as_table(std::vector<std::string> words) const;
 
     size_t _get_first_token_pos(std::string_view str, char token = ' ') const;

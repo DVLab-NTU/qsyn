@@ -172,7 +172,7 @@ public:
     }
 
     bool is_leaf() const { return _children.empty(); }
-    bool can_grow() const { return scheduler().get_available_gates().size(); }
+    bool can_grow() const { return !scheduler().get_available_gates().empty(); }
 
     TreeNode best_child(size_t depth);
     size_t best_cost(size_t depth);

@@ -121,7 +121,6 @@ public:
         if (this->empty()) {
             fmt::println("Note: The {} list is empty now", _type_name);
         }
-        return;
     }
 
     void checkout(size_t id) {

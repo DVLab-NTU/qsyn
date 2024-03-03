@@ -430,7 +430,7 @@ bool Device::read_device(std::string const& filename) {
     std::string str = "", token = "", data = "";
 
     // NOTE - Device name
-    while (str == "") {
+    while (str.empty()) {
         std::getline(topo_file, str);
         str = dvlab::str::trim_spaces(dvlab::str::trim_comments(str));
     }
@@ -441,7 +441,7 @@ bool Device::read_device(std::string const& filename) {
 
     // NOTE - Qubit num
     str = "", token = "", data = "";
-    while (str == "") {
+    while (str.empty()) {
         std::getline(topo_file, str);
         str = dvlab::str::trim_spaces(dvlab::str::trim_comments(str));
     }
@@ -457,7 +457,7 @@ bool Device::read_device(std::string const& filename) {
 
     // NOTE - Gate set
     str = "", token = "", data = "";
-    while (str == "") {
+    while (str.empty()) {
         std::getline(topo_file, str);
         str = dvlab::str::trim_spaces(dvlab::str::trim_comments(str));
     }
@@ -465,7 +465,7 @@ bool Device::read_device(std::string const& filename) {
 
     // NOTE - Coupling map
     str = "", token = "", data = "";
-    while (str == "") {
+    while (str.empty()) {
         std::getline(topo_file, str);
         str = dvlab::str::trim_spaces(dvlab::str::trim_comments(str));
     }
@@ -544,7 +544,7 @@ bool Device::_parse_gate_set(std::string const& gate_set_str) {
 bool Device::_parse_info(std::ifstream& f, std::vector<std::vector<float>>& cx_error, std::vector<std::vector<float>>& cx_delay, std::vector<float>& single_error, std::vector<float>& single_delay) {
     std::string str = "", token = "";
     while (true) {
-        while (str == "") {
+        while (str.empty()) {
             if (f.eof()) break;
             std::getline(f, str);
             str = dvlab::str::trim_spaces(dvlab::str::trim_comments(str));
@@ -705,7 +705,7 @@ void Device::print_edges(std::vector<size_t> candidates) const {
     for (auto const& [idx, info] : _qubit_list) {
         qubits[idx] = info;
     }
-    if (candidates.size() == 0) {
+    if (candidates.empty()) {
         size_t cnt = 0;
         for (size_t i = 0; i < _num_qubit; i++) {
             for (auto& q : qubits[i].get_adjacencies()) {

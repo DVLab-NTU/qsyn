@@ -77,10 +77,10 @@ Command convert_from_qcir_cmd(
             auto to_type = parser.get<std::string>("to-type");
             if (to_type == "zx") {
                 spdlog::info("Converting to QCir {} to ZXGraph {}...", qcir_mgr.focused_id(), zxgraph_mgr.get_next_id());
-                auto const g = to_zxgraph(*qcir_mgr.get(), parser.get<size_t>("decomp-mode"));
+                auto graph = to_zxgraph(*qcir_mgr.get(), parser.get<size_t>("decomp-mode"));
 
-                if (g.has_value()) {
-                    zxgraph_mgr.add(zxgraph_mgr.get_next_id(), std::make_unique<qsyn::zx::ZXGraph>(std::move(g.value())));
+                if (graph.has_value()) {
+                    zxgraph_mgr.add(zxgraph_mgr.get_next_id(), std::make_unique<qsyn::zx::ZXGraph>(std::move(graph.value())));
 
                     zxgraph_mgr.get()->set_filename(qcir_mgr.get()->get_filename());
                     zxgraph_mgr.get()->add_procedures(qcir_mgr.get()->get_procedures());
@@ -201,7 +201,7 @@ Command convert_from_tensor_cmd(tensor::TensorMgr& tensor_mgr, QCirMgr& qcir_mgr
             auto to_type = parser.get<std::string>("to-type");
             if (to_type == "qcir") {
                 spdlog::info("Converting Tensor {} to QCir {}...", tensor_mgr.focused_id(), qcir_mgr.get_next_id());
-                auto const result = tensor::Decomposer{}.decompose(*tensor_mgr.get());
+                auto result = tensor::Decomposer{}.decompose(*tensor_mgr.get());
 
                 if (result) {
                     qcir_mgr.add(qcir_mgr.get_next_id(), std::make_unique<qcir::QCir>(std::move(*result)));
@@ -258,7 +258,7 @@ Command convert_from_tableau_cmd(experimental::TableauMgr& tableau_mgr, qcir::QC
                 });
 
                 spdlog::info("Converting to Tableau {} to QCir {}...", tableau_mgr.focused_id(), qcir_mgr.get_next_id());
-                auto const qcir = experimental::to_qcir(*tableau_mgr.get(), *clifford_strategy, *rotation_strategy);
+                auto qcir = experimental::to_qcir(*tableau_mgr.get(), *clifford_strategy, *rotation_strategy);
 
                 if (qcir.has_value()) {
                     qcir_mgr.add(qcir_mgr.get_next_id(), std::make_unique<qcir::QCir>(std::move(qcir.value())));

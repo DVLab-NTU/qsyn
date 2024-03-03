@@ -60,7 +60,7 @@ public:
 
 private:
     template <typename U>
-    TwoLevelMatrix<U> make_two_level_matrix(QTensor<U> const& matrix, size_t i, size_t j) {
+    TwoLevelMatrix<U> _make_two_level_matrix(QTensor<U> const& matrix, size_t i, size_t j) {
         auto const kernel =
             QTensor<U>({{matrix(i, i), matrix(i, j)},
                         {matrix(j, i), matrix(j, j)}});
@@ -75,35 +75,35 @@ private:
      * @return size_t
      */
     template <typename U>
-    size_t get_dimension(Tensor<U> const& matrix) {
+    size_t _get_dimension(Tensor<U> const& matrix) {
         DVLAB_ASSERT(matrix.shape().size() == 2 && matrix.shape()[0] == matrix.shape()[1], "Matrix is not square");
         return static_cast<size_t>(matrix.shape()[0]);
     }
 
     template <typename U>
-    std::optional<std::pair<size_t, size_t>> get_two_level_matrix_indices(QTensor<U> const& matrix, double eps);
+    std::optional<std::pair<size_t, size_t>> _get_two_level_matrix_indices(QTensor<U> const& matrix, double eps);
     template <typename U>
-    std::vector<TwoLevelMatrix<U>> get_two_level_matrices(QTensor<U> matrix /* copy on purpose */);
+    std::vector<TwoLevelMatrix<U>> _get_two_level_matrices(QTensor<U> matrix /* copy on purpose */);
 
     template <typename U>
-    bool graycode(Tensor<U> const& matrix, size_t i, size_t j);
-    void encode(size_t origin_pos, size_t targ_pos, std::vector<QubitIdList>& qubit_list, std::vector<std::string>& gate_list);
-    void encode_control_gate(QubitIdList const& target, std::vector<QubitIdList>& qubit_list, std::vector<std::string>& gate_list);
+    bool _graycode(Tensor<U> const& matrix, size_t i, size_t j);
+    void _encode(size_t origin_pos, size_t targ_pos, std::vector<QubitIdList>& qubit_list, std::vector<std::string>& gate_list);
+    void _encode_control_gate(QubitIdList const& target, std::vector<QubitIdList>& qubit_list, std::vector<std::string>& gate_list);
 
     template <typename U>
-    bool decompose_CnU(Tensor<U> const& t, size_t diff_pos, size_t index, size_t ctrl_gates);
+    bool _decompose_cnu(Tensor<U> const& t, size_t diff_pos, size_t index, size_t ctrl_gates);
 
     template <typename U>
-    bool decompose_CnX(const std::vector<size_t>& ctrls, const size_t extract_qubit, const size_t index, const size_t ctrl_gates);
+    bool _decompose_cnx(const std::vector<size_t>& ctrls, size_t extract_qubit, size_t index, size_t ctrl_gates);
 
     template <typename U>
-    bool decompose_CU(Tensor<U> const& t, size_t ctrl, size_t targ);
+    bool _decompose_cu(Tensor<U> const& t, size_t ctrl, size_t targ);
 
     template <typename U>
-    ZYZ decompose_ZYZ(Tensor<U> const& matrix);
+    ZYZ _decompose_zyz(Tensor<U> const& matrix);
 
     template <typename U>
-    Tensor<U> sqrt_single_qubit_matrix(Tensor<U> const& matrix);
+    Tensor<U> _sqrt_single_qubit_matrix(Tensor<U> const& matrix);
 };
 
 /**
@@ -115,8 +115,8 @@ private:
  */
 template <typename U>
 std::optional<QCir> Decomposer::decompose(QTensor<U> const& matrix) {
-    _n_qubits      = static_cast<size_t>(std::round(std::log2(get_dimension(matrix))));
-    auto mat_chain = get_two_level_matrices(matrix);
+    _n_qubits      = static_cast<size_t>(std::round(std::log2(_get_dimension(matrix))));
+    auto mat_chain = _get_two_level_matrices(matrix);
 
     _quantum_circuit = QCir(_n_qubits);
 
@@ -132,7 +132,7 @@ std::optional<QCir> Decomposer::decompose(QTensor<U> const& matrix) {
             std::swap(mat_chain[i]._matrix(0, 1), mat_chain[i]._matrix(1, 0));
         }
 
-        if (!graycode(mat_chain[i]._matrix, i_idx, j_idx)) return std::nullopt;
+        if (!_graycode(mat_chain[i]._matrix, i_idx, j_idx)) return std::nullopt;
     }
     return _quantum_circuit;
 }
@@ -146,7 +146,7 @@ std::optional<QCir> Decomposer::decompose(QTensor<U> const& matrix) {
  * @return std::optional<std::pair<size_t, size_t>>
  */
 template <typename U>
-std::optional<std::pair<size_t, size_t>> Decomposer::get_two_level_matrix_indices(QTensor<U> const& matrix, double eps) {
+std::optional<std::pair<size_t, size_t>> Decomposer::_get_two_level_matrix_indices(QTensor<U> const& matrix, double eps) {
     using namespace std::literals;
     auto const dimension      = static_cast<size_t>(matrix.shape()[0]);
     size_t num_found_diagonal = 0, num_upper_triangle_not_zero = 0, num_lower_triangle_not_zero = 0;
@@ -235,7 +235,7 @@ std::optional<std::pair<size_t, size_t>> Decomposer::get_two_level_matrix_indice
  * @reference Li, Chi-Kwong, Rebecca Roberts, and Xiaoyan Yin. "Decomposition of unitary matrices and quantum gates." International Journal of Quantum Information 11.01 (2013): 1350015.
  */
 template <typename U>
-std::vector<TwoLevelMatrix<U>> Decomposer::get_two_level_matrices(QTensor<U> matrix /* copy on purpose */) {
+std::vector<TwoLevelMatrix<U>> Decomposer::_get_two_level_matrices(QTensor<U> matrix /* copy on purpose */) {
     using namespace std::literals;
     constexpr double eps = 1e-6;
     std::vector<TwoLevelMatrix<U>> two_level_chain;
@@ -244,7 +244,7 @@ std::vector<TwoLevelMatrix<U>> Decomposer::get_two_level_matrices(QTensor<U> mat
     for (size_t i = 0; i < dimension; i++) {
         for (size_t j = i + 1; j < dimension; j++) {
             // if `matrix` is the last two-level matrix
-            if (auto const pair = get_two_level_matrix_indices(matrix, eps)) {
+            if (auto const pair = _get_two_level_matrix_indices(matrix, eps)) {
                 auto const& [selected_top, selected_bottom] = *pair;
 
                 // shortcut for identity
@@ -252,7 +252,7 @@ std::vector<TwoLevelMatrix<U>> Decomposer::get_two_level_matrices(QTensor<U> mat
                     return two_level_chain;
                 }
 
-                two_level_chain.emplace_back(make_two_level_matrix(matrix, selected_top, selected_bottom));
+                two_level_chain.emplace_back(_make_two_level_matrix(matrix, selected_top, selected_bottom));
                 return two_level_chain;
             }
 
@@ -273,7 +273,7 @@ std::vector<TwoLevelMatrix<U>> Decomposer::get_two_level_matrices(QTensor<U> mat
             // normalization factor
             const double u = std::sqrt(std::norm(matrix(i, i)) + std::norm(matrix(j, i)));
 
-            auto const n_qubits = static_cast<size_t>(std::round(std::log2(get_dimension(matrix))));
+            auto const n_qubits = static_cast<size_t>(std::round(std::log2(_get_dimension(matrix))));
             QTensor<U> conjugate_matrix_product =
                 QTensor<U>::identity(n_qubits).to_matrix(
                     std::views::iota(0ul, n_qubits) |
@@ -291,7 +291,7 @@ std::vector<TwoLevelMatrix<U>> Decomposer::get_two_level_matrices(QTensor<U> mat
 
             matrix = tensordot(conjugate_matrix_product, matrix, {1}, {0});
 
-            two_level_chain.emplace_back(adjoint(make_two_level_matrix(conjugate_matrix_product, i, j)));
+            two_level_chain.emplace_back(adjoint(_make_two_level_matrix(conjugate_matrix_product, i, j)));
         }
     }
 
@@ -309,36 +309,36 @@ std::vector<TwoLevelMatrix<U>> Decomposer::get_two_level_matrices(QTensor<U> mat
  * @return false
  */
 template <typename U>
-bool Decomposer::Decomposer::graycode(Tensor<U> const& matrix, size_t I, size_t J) {
+bool Decomposer::Decomposer::_graycode(Tensor<U> const& matrix, size_t i, size_t j) {
     // do pabbing
     std::vector<QubitIdList> qubit_list;
     std::vector<std::string> gate_list;
 
     size_t diff_pos = 0;
-    for (size_t i = 0; i < _n_qubits; i++) {
-        if ((((I ^ J) >> i) & 1) && (J >> i & 1)) {
-            diff_pos = i;
+    for (size_t q = 0; q < _n_qubits; q++) {
+        if ((((i ^ j) >> q) & 1) && (j >> q & 1)) {
+            diff_pos = q;
             break;
         }
     }
 
-    if ((I + size_t(std::pow(2, diff_pos))) != size_t(std::pow(2, _n_qubits) - 1))
-        encode(I, diff_pos, qubit_list, gate_list);
+    if ((i + size_t(std::pow(2, diff_pos))) != size_t(std::pow(2, _n_qubits) - 1))
+        _encode(i, diff_pos, qubit_list, gate_list);
 
-    encode(J, diff_pos, qubit_list, gate_list);
+    _encode(j, diff_pos, qubit_list, gate_list);
 
     // decompose CnU
     size_t ctrl_index = 0;  // q2 q1 q0 = t,c,c -> ctrl_index = 011 = 3
-    for (size_t i = 0; i < _n_qubits; i++) {
-        if (i != diff_pos)
-            ctrl_index += size_t(pow(2, i));
+    for (size_t q = 0; q < _n_qubits; q++) {
+        if (q != diff_pos)
+            ctrl_index += size_t(pow(2, q));
     }
-    if (!decompose_CnU(matrix, diff_pos, ctrl_index, _n_qubits - 1)) return false;
+    if (!_decompose_cnu(matrix, diff_pos, ctrl_index, _n_qubits - 1)) return false;
 
     // do unpabbing
     DVLAB_ASSERT(gate_list.size() == qubit_list.size(), "Sizes of gate list and qubit list are different");
-    for (auto const& i : std::views::iota(0UL, gate_list.size()) | std::views::reverse)
-        _quantum_circuit.add_gate(gate_list[i], qubit_list[i], {}, true);
+    for (auto const& q : std::views::iota(0UL, gate_list.size()) | std::views::reverse)
+        _quantum_circuit.add_gate(gate_list[q], qubit_list[q], {}, true);
 
     return true;
 }
@@ -356,7 +356,7 @@ bool Decomposer::Decomposer::graycode(Tensor<U> const& matrix, size_t I, size_t 
  * @reference Nakahara, Mikio, and Tetsuo Ohmi. Quantum computing: from linear algebra to physical realizations. CRC press, 2008.
  */
 template <typename U>
-bool Decomposer::decompose_CnU(Tensor<U> const& t, size_t diff_pos, size_t index, size_t ctrl_gates) {
+bool Decomposer::_decompose_cnu(Tensor<U> const& t, size_t diff_pos, size_t index, size_t ctrl_gates) {
     DVLAB_ASSERT(ctrl_gates >= 1, "The control qubit left in the CnU gate should be at least 1");
     size_t ctrl = (diff_pos == 0) ? 1 : diff_pos - 1;
 
@@ -371,7 +371,7 @@ bool Decomposer::decompose_CnU(Tensor<U> const& t, size_t diff_pos, size_t index
         }
     }
     if (ctrl_gates == 1) {
-        if (!decompose_CU(t, ctrl, diff_pos)) return false;
+        if (!_decompose_cu(t, ctrl, diff_pos)) return false;
     } else {
         size_t extract_qubit = -1;
         for (size_t i = 0; i < _n_qubits; i++) {
@@ -383,8 +383,8 @@ bool Decomposer::decompose_CnU(Tensor<U> const& t, size_t diff_pos, size_t index
                 break;
             }
         }
-        Tensor<U> V = sqrt_single_qubit_matrix(t);
-        if (!decompose_CU(V, extract_qubit, diff_pos)) return false;
+        Tensor<U> v = _sqrt_single_qubit_matrix(t);
+        if (!_decompose_cu(v, extract_qubit, diff_pos)) return false;
 
         std::vector<size_t> ctrls;
         for (size_t i = 0; i < size_t(log2(index)) + 1; i++) {
@@ -392,15 +392,15 @@ bool Decomposer::decompose_CnU(Tensor<U> const& t, size_t diff_pos, size_t index
                 ctrls.emplace_back(i);
         }
 
-        decompose_CnX<U>(ctrls, extract_qubit, index, ctrl_gates - 1);
+        _decompose_cnx<U>(ctrls, extract_qubit, index, ctrl_gates - 1);
 
-        V.adjoint();
-        if (!decompose_CU(V, extract_qubit, diff_pos)) return false;
+        v.adjoint();
+        if (!_decompose_cu(v, extract_qubit, diff_pos)) return false;
 
-        decompose_CnX<U>(ctrls, extract_qubit, index, ctrl_gates - 1);
+        _decompose_cnx<U>(ctrls, extract_qubit, index, ctrl_gates - 1);
 
-        V.adjoint();
-        if (!decompose_CnU(V, diff_pos, index, ctrl_gates - 1)) return false;
+        v.adjoint();
+        if (!_decompose_cnu(v, diff_pos, index, ctrl_gates - 1)) return false;
     }
 
     return true;
@@ -418,14 +418,14 @@ bool Decomposer::decompose_CnU(Tensor<U> const& t, size_t diff_pos, size_t index
  * @return false
  */
 template <typename U>
-bool Decomposer::decompose_CnX(const std::vector<size_t>& ctrls, const size_t extract_qubit, const size_t index, const size_t ctrl_gates) {
+bool Decomposer::_decompose_cnx(const std::vector<size_t>& ctrls, const size_t extract_qubit, const size_t index, const size_t ctrl_gates) {
     if (ctrls.size() == 1) {
         _quantum_circuit.add_gate("cx", {int(ctrls[0]), int(extract_qubit)}, {}, true);
     } else if (ctrls.size() == 2) {
         _quantum_circuit.add_gate("ccx", {int(ctrls[0]), int(ctrls[1]), int(extract_qubit)}, {}, true);
     } else {
         using float_type = U::value_type;
-        if (!decompose_CnU(QTensor<float_type>::xgate(), extract_qubit, index, ctrl_gates)) return false;
+        if (!_decompose_cnu(QTensor<float_type>::xgate(), extract_qubit, index, ctrl_gates)) return false;
     }
     return true;
 }
@@ -442,9 +442,9 @@ bool Decomposer::decompose_CnX(const std::vector<size_t>& ctrls, const size_t ex
  * @reference Nakahara, Mikio, and Tetsuo Ohmi. Quantum computing: from linear algebra to physical realizations. CRC press, 2008.
  */
 template <typename U>
-bool Decomposer::decompose_CU(Tensor<U> const& t, size_t ctrl, size_t targ) {
+bool Decomposer::_decompose_cu(Tensor<U> const& t, size_t ctrl, size_t targ) {
     constexpr double eps = 1e-6;
-    const ZYZ angles     = decompose_ZYZ(t);
+    const ZYZ angles     = _decompose_zyz(t);
     if (!angles.correct) return false;
 
     if (std::abs((angles.alpha - angles.gamma) / 2) > eps)
@@ -486,7 +486,7 @@ bool Decomposer::decompose_CU(Tensor<U> const& t, size_t ctrl, size_t targ) {
  * @reference Nakahara, Mikio, and Tetsuo Ohmi. Quantum computing: from linear algebra to physical realizations. CRC press, 2008.
  */
 template <typename U>
-ZYZ Decomposer::decompose_ZYZ(Tensor<U> const& matrix) {
+ZYZ Decomposer::_decompose_zyz(Tensor<U> const& matrix) {
     DVLAB_ASSERT(matrix.shape()[0] == 2 && matrix.shape()[1] == 2, "decompose_ZYZ only supports 2x2 matrix");
     using namespace std::literals;
     // a =  e^{iφ}e^{-i(α+γ)/2}cos(β/2)
@@ -503,8 +503,9 @@ ZYZ Decomposer::decompose_ZYZ(Tensor<U> const& matrix) {
         init_beta = std::acos(std::abs(a));
     }
 
+    constexpr auto pi = std::numbers::pi_v<double>;
     // NOTE - Possible betas due to arccosine
-    const std::array<double, 4> beta_candidate = {init_beta, PI - init_beta, PI + init_beta, 2.0 * PI - init_beta};
+    const std::array<double, 4> beta_candidate = {init_beta, pi - init_beta, pi + init_beta, 2.0 * pi - init_beta};
     for (const auto& beta : beta_candidate) {
         output.beta = beta;
         std::complex<double> a1, b1, c1, d1;
@@ -557,7 +558,7 @@ ZYZ Decomposer::decompose_ZYZ(Tensor<U> const& matrix) {
  * @reference https://en.wikipedia.org/wiki/Square_root_of_a_2_by_2_matrix
  */
 template <typename U>
-Tensor<U> Decomposer::sqrt_single_qubit_matrix(Tensor<U> const& matrix) {
+Tensor<U> Decomposer::_sqrt_single_qubit_matrix(Tensor<U> const& matrix) {
     DVLAB_ASSERT(matrix.shape()[0] == 2 && matrix.shape()[1] == 2, "sqrt_single_qubit_matrix only supports 2x2 matrix");
     // a b
     // c d

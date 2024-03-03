@@ -37,9 +37,9 @@ std::string trim_spaces(std::string_view str);
  * @return std::string
  */
 inline std::string_view trim_comments(std::string_view line) { return line.substr(0, line.find("//")); }
-std::string remove_brackets(std::string const& str, char const left, char const right);
+std::string remove_brackets(std::string const& str, char left, char right);
 size_t str_get_token(std::string_view str, std::string& tok, size_t pos = 0, std::string const& delim = " \t\n\v\f\r");
-size_t str_get_token(std::string_view str, std::string& tok, size_t pos, char const delim);
+size_t str_get_token(std::string_view str, std::string& tok, size_t pos, char delim);
 
 namespace detail {
 template <class T>

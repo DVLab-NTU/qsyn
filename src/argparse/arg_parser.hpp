@@ -37,7 +37,7 @@ struct ArgumentParserConfig {
 class SubParsers {
 private:
     struct SubParsersImpl;
-    using MapType = dvlab::utils::ordered_hashmap<std::string, ArgumentParser, detail::heterogeneous_string_hash, std::equal_to<>>;
+    using MapType = dvlab::utils::ordered_hashmap<std::string, ArgumentParser, detail::HeterogeneousStringHash, std::equal_to<>>;
     std::shared_ptr<SubParsersImpl> _pimpl;
 
 public:
@@ -180,9 +180,9 @@ private:
     friend std::string detail::styled_parser_name(ArgumentParser const& parser);
     friend std::string detail::styled_parser_name_trace(ArgumentParser const& parser);
     struct ArgumentParserImpl {
-        dvlab::utils::ordered_hashmap<std::string, Argument, detail::heterogeneous_string_hash, std::equal_to<>> arguments;
-        std::unordered_map<std::string, std::string, detail::heterogeneous_string_hash, std::equal_to<>> alias_forward_map;
-        std::unordered_multimap<std::string, std::string, detail::heterogeneous_string_hash, std::equal_to<>> alias_reverse_map;
+        dvlab::utils::ordered_hashmap<std::string, Argument, detail::HeterogeneousStringHash, std::equal_to<>> arguments;
+        std::unordered_map<std::string, std::string, detail::HeterogeneousStringHash, std::equal_to<>> alias_forward_map;
+        std::unordered_multimap<std::string, std::string, detail::HeterogeneousStringHash, std::equal_to<>> alias_reverse_map;
         std::string option_prefixes = "-";
         std::vector<Token> tokens;
         std::unordered_map<std::string, std::string> dests;

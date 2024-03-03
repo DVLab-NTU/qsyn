@@ -311,9 +311,9 @@ void Optimizer::_add_cx(QubitIdType t1, QubitIdType t2, bool do_swap) {
                     _available[t2].clear();
                     _available[t2].emplace_back(cnot);
                     std::swap(_permutation.at(t2), _permutation.at(t1));
-                    Optimizer::_swap_element(_ElementType::h, t1, t2);
-                    Optimizer::_swap_element(_ElementType::x, t1, t2);
-                    Optimizer::_swap_element(_ElementType::z, t1, t2);
+                    Optimizer::_swap_element(ElementType::h, t1, t2);
+                    Optimizer::_swap_element(ElementType::x, t1, t2);
+                    Optimizer::_swap_element(ElementType::z, t1, t2);
                     return;
                 }
             }

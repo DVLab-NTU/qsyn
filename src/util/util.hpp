@@ -115,7 +115,7 @@ Iter prev(Iter iter, DiffT n = 1) {
  * @tparam Ts
  */
 template <class... Ts>
-struct overloaded : Ts... {
+struct overloaded : Ts... {  // NOLINT(readability-identifier-naming)  // mimic library
     using Ts::operator()...;
 };
 // explicit deduction guide (not needed as of C++20)

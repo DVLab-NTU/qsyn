@@ -81,7 +81,7 @@ public:
     void set_target_qubit(QubitIdType qubit);
     void set_control_qubit(QubitIdType qubit) { _qubits[0]._qubit = qubit; }
     // DFS
-    bool is_visited(unsigned global) { return global == _dfs_counter; }
+    bool is_visited(unsigned global) const { return global == _dfs_counter; }
     void set_visited(unsigned global) { _dfs_counter = global; }
     void add_dummy_child(QCirGate* c);
 

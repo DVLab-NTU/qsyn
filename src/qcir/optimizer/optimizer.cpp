@@ -52,15 +52,15 @@ QCir Optimizer::parse_backward(QCir const& qcir, bool do_minimize_czs, BasicOpti
  * @param type 0: _hadamards, 1: _xs, and 2: _zs
  * @param element
  */
-void Optimizer::_toggle_element(Optimizer::_ElementType type, QubitIdType element) {
+void Optimizer::_toggle_element(Optimizer::ElementType type, QubitIdType element) {
     switch (type) {
-        case _ElementType::h:
+        case ElementType::h:
             (_hadamards.contains(element)) ? (void)_hadamards.erase(element) : (void)_hadamards.emplace(element);
             break;
-        case _ElementType::x:
+        case ElementType::x:
             (_xs.contains(element)) ? (void)_xs.erase(element) : (void)_xs.emplace(element);
             break;
-        case _ElementType::z:
+        case ElementType::z:
             (_zs.contains(element)) ? (void)_zs.erase(element) : (void)_zs.emplace(element);
             break;
     }
@@ -72,9 +72,9 @@ void Optimizer::_toggle_element(Optimizer::_ElementType type, QubitIdType elemen
  * @param type 0: _hadamards, 1: _xs, and 2: _zs
  * @param element
  */
-void Optimizer::_swap_element(Optimizer::_ElementType type, QubitIdType e1, QubitIdType e2) {
+void Optimizer::_swap_element(Optimizer::ElementType type, QubitIdType e1, QubitIdType e2) {
     switch (type) {
-        case _ElementType::h:
+        case ElementType::h:
             if (_hadamards.contains(e1) && !_hadamards.contains(e2)) {
                 _hadamards.erase(e1);
                 _hadamards.emplace(e2);
@@ -83,7 +83,7 @@ void Optimizer::_swap_element(Optimizer::_ElementType type, QubitIdType e1, Qubi
                 _hadamards.emplace(e1);
             }
             break;
-        case _ElementType::x:
+        case ElementType::x:
             if (_xs.contains(e1) && !_xs.contains(e2)) {
                 _xs.erase(e1);
                 _xs.emplace(e2);
@@ -92,7 +92,7 @@ void Optimizer::_swap_element(Optimizer::_ElementType type, QubitIdType e1, Qubi
                 _xs.emplace(e1);
             }
             break;
-        case _ElementType::z:
+        case ElementType::z:
             if (_zs.contains(e1) && !_zs.contains(e2)) {
                 _zs.erase(e1);
                 _zs.emplace(e2);

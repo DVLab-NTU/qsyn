@@ -25,10 +25,10 @@ namespace qsyn {
 namespace experimental {
 
 enum class Pauli {
-    I,
-    X,
-    Y,
-    Z
+    i,
+    x,
+    y,
+    z
 };
 
 uint8_t power_of_i(Pauli a, Pauli b);
@@ -166,7 +166,7 @@ public:
         for (auto it = first; it != last; ++it) {
             set_pauli_type(i++, *it);
         }
-        _bitset[r_idx()] = is_neg;
+        _bitset[_r_idx()] = is_neg;
     }
 
     template <std::ranges::range R>
@@ -176,8 +176,8 @@ public:
 
     inline size_t n_qubits() const { return (_bitset.size() - 1) / 2; }
     inline Pauli get_pauli_type(size_t i) const {
-        return is_z_set(i) ? (is_x_set(i) ? Pauli::Y : Pauli::Z)
-                           : (is_x_set(i) ? Pauli::X : Pauli::I);
+        return is_z_set(i) ? (is_x_set(i) ? Pauli::y : Pauli::z)
+                           : (is_x_set(i) ? Pauli::x : Pauli::i);
     }
 
     inline bool is_i(size_t i) const { return !is_z_set(i) && !is_x_set(i); }
@@ -185,7 +185,7 @@ public:
     inline bool is_y(size_t i) const { return is_z_set(i) && is_x_set(i); }
     inline bool is_z(size_t i) const { return is_z_set(i) && !is_x_set(i); }
 
-    inline bool is_neg() const { return _bitset[r_idx()]; }
+    inline bool is_neg() const { return _bitset[_r_idx()]; }
 
     PauliProduct& operator*=(PauliProduct const& rhs);
 
@@ -205,7 +205,7 @@ public:
     PauliProduct& cx(size_t control, size_t target) override;
 
     inline PauliProduct& negate() {
-        _bitset.flip(r_idx());
+        _bitset.flip(_r_idx());
         return *this;
     }
 
@@ -213,27 +213,27 @@ public:
 
     inline void set_pauli_type(size_t i, Pauli type) {
         switch (type) {
-            case Pauli::I:
-                _bitset[z_idx(i)] = false;
-                _bitset[x_idx(i)] = false;
+            case Pauli::i:
+                _bitset[_z_idx(i)] = false;
+                _bitset[_x_idx(i)] = false;
                 break;
-            case Pauli::X:
-                _bitset[z_idx(i)] = false;
-                _bitset[x_idx(i)] = true;
+            case Pauli::x:
+                _bitset[_z_idx(i)] = false;
+                _bitset[_x_idx(i)] = true;
                 break;
-            case Pauli::Y:
-                _bitset[z_idx(i)] = true;
-                _bitset[x_idx(i)] = true;
+            case Pauli::y:
+                _bitset[_z_idx(i)] = true;
+                _bitset[_x_idx(i)] = true;
                 break;
-            case Pauli::Z:
-                _bitset[z_idx(i)] = true;
-                _bitset[x_idx(i)] = false;
+            case Pauli::z:
+                _bitset[_z_idx(i)] = true;
+                _bitset[_x_idx(i)] = false;
                 break;
         }
     }
 
-    inline bool is_z_set(size_t i) const { return _bitset[z_idx(i)] == true; }
-    inline bool is_x_set(size_t i) const { return _bitset[x_idx(i)] == true; }
+    inline bool is_z_set(size_t i) const { return _bitset[_z_idx(i)]; }
+    inline bool is_x_set(size_t i) const { return _bitset[_x_idx(i)]; }
 
     inline bool is_diagonal() const {
         return std::ranges::all_of(std::views::iota(0ul, n_qubits()), [this](size_t i) { return is_i(i) || is_z(i); });
@@ -246,9 +246,9 @@ public:
 private:
     sul::dynamic_bitset<> _bitset;
 
-    inline size_t z_idx(size_t i) const { return i; }
-    inline size_t x_idx(size_t i) const { return i + n_qubits(); }
-    inline size_t r_idx() const { return n_qubits() * 2; }
+    inline size_t _z_idx(size_t i) const { return i; }
+    inline size_t _x_idx(size_t i) const { return i + n_qubits(); }
+    inline size_t _r_idx() const { return n_qubits() * 2; }
 };
 
 inline bool is_commutative(PauliProduct const& lhs, PauliProduct const& rhs) {
@@ -261,12 +261,12 @@ public:
     PauliRotation(std::string_view pauli_str, dvlab::Phase const& phase);
 
     PauliRotation(PauliProduct const& pauli_product, dvlab::Phase const& phase) : _pauli_product(pauli_product), _phase(phase) {
-        normalize();
+        _normalize();
     }
 
     template <std::input_iterator I, std::sentinel_for<I> S>
     PauliRotation(I first, S last, dvlab::Phase const& phase) : _pauli_product(first, last, false), _phase(phase) {
-        normalize();
+        _normalize();
     }
 
     template <std::ranges::range R>
@@ -308,7 +308,7 @@ private:
     PauliProduct _pauli_product;
     dvlab::Phase _phase;
 
-    inline void normalize() {
+    inline void _normalize() {
         if (_pauli_product.is_neg()) {
             _pauli_product.negate();
             _phase *= -1;
@@ -335,16 +335,16 @@ struct fmt::formatter<qsyn::experimental::Pauli> {
     auto format(qsyn::experimental::Pauli c, FormatContext& ctx) {
         string_view name = "I";
         switch (c) {
-            case qsyn::experimental::Pauli::I:
+            case qsyn::experimental::Pauli::i:
                 name = "I";
                 break;
-            case qsyn::experimental::Pauli::X:
+            case qsyn::experimental::Pauli::x:
                 name = "X";
                 break;
-            case qsyn::experimental::Pauli::Y:
+            case qsyn::experimental::Pauli::y:
                 name = "Y";
                 break;
-            case qsyn::experimental::Pauli::Z:
+            case qsyn::experimental::Pauli::z:
                 name = "Z";
                 break;
         }
