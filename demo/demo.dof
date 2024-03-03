@@ -1,0 +1,10 @@
+//logger debug
+qcir read demo/sample_H.qasm
+qcir draw demo/figure/sample_H_before.png
+qc2ts
+phase_poly
+qcir draw demo/figure/sample_H_after.png
+qc2ts
+ts eq 0 1
+
+q -f

@@ -116,7 +116,7 @@ Command tensor_adjoint_cmd(TensorMgr& tensor_mgr) {
                 return CmdExecResult::done;
             }};
 }
-Command tensor_equivalence_check_cmd(TensorMgr& tensor_mgr) {
+Command tensor_equivalence_cmd(TensorMgr& tensor_mgr) {
     return {"equiv",
             [&](ArgumentParser& parser) {
                 parser.description("check the equivalency of two stored tensors");
@@ -173,14 +173,14 @@ Command tensor_equivalence_check_cmd(TensorMgr& tensor_mgr) {
 Command tensor_cmd(TensorMgr& tensor_mgr) {
     using namespace dvlab::utils;
     auto cmd = mgr_root_cmd(tensor_mgr);
-    cmd.add_subcommand(mgr_list_cmd(tensor_mgr));
-    cmd.add_subcommand(tensor_print_cmd(tensor_mgr));
-    cmd.add_subcommand(mgr_checkout_cmd(tensor_mgr));
-    cmd.add_subcommand(mgr_delete_cmd(tensor_mgr));
-    cmd.add_subcommand(tensor_adjoint_cmd(tensor_mgr));
-    cmd.add_subcommand(tensor_equivalence_check_cmd(tensor_mgr));
-    cmd.add_subcommand(tensor_read_cmd(tensor_mgr));
-    cmd.add_subcommand(tensor_write_cmd(tensor_mgr));
+    cmd.add_subcommand("tensor-cmd-group", mgr_list_cmd(tensor_mgr));
+    cmd.add_subcommand("tensor-cmd-group", tensor_print_cmd(tensor_mgr));
+    cmd.add_subcommand("tensor-cmd-group", mgr_checkout_cmd(tensor_mgr));
+    cmd.add_subcommand("tensor-cmd-group", mgr_delete_cmd(tensor_mgr));
+    cmd.add_subcommand("tensor-cmd-group", tensor_adjoint_cmd(tensor_mgr));
+    cmd.add_subcommand("tensor-cmd-group", tensor_equivalence_cmd(tensor_mgr));
+    cmd.add_subcommand("tensor-cmd-group", tensor_read_cmd(tensor_mgr));
+    cmd.add_subcommand("tensor-cmd-group", tensor_write_cmd(tensor_mgr));
 
     return cmd;
 }

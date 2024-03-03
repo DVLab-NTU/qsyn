@@ -257,7 +257,7 @@ Command duostra_cmd(qcir::QCirMgr& qcir_mgr, device::DeviceMgr& device_mgr) {
                            return CmdExecResult::done;
                        }};
 
-    cmd.add_subcommand(duostra_config_cmd());
+    cmd.add_subcommand("duostra-cmd", duostra_config_cmd());
     return cmd;
 }
 

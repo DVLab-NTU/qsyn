@@ -1,19 +1,25 @@
 /****************************************************************************
-  PackageName  [ qsyn ]
-  Synopsis     [ Define conversion among QCir, ZXGraph, and Tensor ]
+  PackageName  [ tableau ]
+  Synopsis     [ Define tableau commands ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
+
 #pragma once
 
+#include "./tableau_cmd.hpp"
 #include "cli/cli.hpp"
 #include "qcir/qcir_mgr.hpp"
 #include "tableau/tableau_mgr.hpp"
-#include "tensor/tensor_mgr.hpp"
-#include "zx/zxgraph_mgr.hpp"
 
 namespace qsyn {
 
-bool add_conversion_cmds(dvlab::CommandLineInterface& cli, qcir::QCirMgr& qcir_mgr, tensor::TensorMgr& tensor_mgr, zx::ZXGraphMgr& zxgraph_mgr, experimental::TableauMgr& tableau_mgr);
+namespace experimental {
 
-}
+dvlab::Command tableau_cmd();
+
+bool add_tableau_command(dvlab::CommandLineInterface& cli, TableauMgr& tableau_mgr);
+
+}  // namespace experimental
+
+}  // namespace qsyn

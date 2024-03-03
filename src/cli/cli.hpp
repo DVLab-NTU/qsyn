@@ -80,8 +80,7 @@ public:
     void print_summary() const { _parser.print_summary(); }
     void print_help() const { _parser.print_help(); }
 
-    void add_subcommand(dvlab::Command const& cmd);
-    void add_subcommands(std::span<dvlab::Command const> cmds);
+    void add_subcommand(std::string const& dest, dvlab::Command const& cmd);
 
 private:
     dvlab::argparse::ArgumentParser _parser;
@@ -263,9 +262,8 @@ private:
             fmt::println(fmt, std::forward<Args>(args)...);
     }
 
-    void _flush_if_echo() const {
-        if (_echo)
-            fflush(stdout);
+    void _flush_output() const {
+        fflush(stdout);
     }
     // NOTE - This function passes the string by const ref instead of string_view because it uses std::regex
     std::string _replace_variable_keys_with_values(std::string const& str) const;
