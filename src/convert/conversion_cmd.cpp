@@ -23,6 +23,7 @@
 #include "extractor/extract.hpp"
 #include "qcir/qcir.hpp"
 #include "qcir/qcir_mgr.hpp"
+#include "tableau/stabilizer_tableau.hpp"
 #include "tableau/tableau_mgr.hpp"
 #include "tensor/decomposer.hpp"
 #include "tensor/tensor_mgr.hpp"
@@ -227,19 +228,45 @@ Command convert_from_tableau_cmd(experimental::TableauMgr& tableau_mgr, qcir::QC
 
             auto to_qcir = subparsers.add_parser("qcir")
                                .description("convert from Tableau to QCir");
+
+            to_qcir.add_argument<std::string>("-c", "--clifford")
+                .constraint(choices_allow_prefix({"HOpt", "AG"}))
+                .default_value("HOpt")
+                .help("specify the Clifford synthesis strategy (default: HOpt).");
+
+            to_qcir.add_argument<std::string>("-r", "--rotation")
+                .constraint(choices_allow_prefix({"Naive", "TPar"}))
+                .default_value("Naive")
+                .help("specify the rotation synthesis strategy (default: Naive).");
         },
         [&](ArgumentParser const& parser) {
             if (!dvlab::utils::mgr_has_data(tableau_mgr)) return CmdExecResult::error;
             auto to_type = parser.get<std::string>("to-type");
             if (to_type == "qcir") {
+                auto const clifford_strategy = std::invoke([&]() -> std::unique_ptr<experimental::StabilizerTableauSynthesisStrategy> {
+                    auto const clifford_strategy_str = parser.get<std::string>("--clifford");
+                    if (dvlab::str::is_prefix_of(dvlab::str::tolower_string(clifford_strategy_str), "hopt")) return std::make_unique<experimental::HOptSynthesisStrategy>();
+                    if (dvlab::str::is_prefix_of(dvlab::str::tolower_string(clifford_strategy_str), "ag")) return std::make_unique<experimental::AGSynthesisStrategy>();
+                    DVLAB_UNREACHABLE("Invalid clifford strategy!!");
+                });
+
+                auto const rotation_strategy = std::invoke([&]() -> std::unique_ptr<experimental::PauliRotationsSynthesisStrategy> {
+                    auto const rotation_strategy_str = parser.get<std::string>("--rotation");
+                    if (dvlab::str::is_prefix_of(dvlab::str::tolower_string(rotation_strategy_str), "naive")) return std::make_unique<experimental::NaivePauliRotationsSynthesisStrategy>();
+                    if (dvlab::str::is_prefix_of(dvlab::str::tolower_string(rotation_strategy_str), "tpar")) return std::make_unique<experimental::TParPauliRotationsSynthesisStrategy>();
+                    DVLAB_UNREACHABLE("Invalid rotation strategy!!");
+                });
+
                 spdlog::info("Converting to Tableau {} to QCir {}...", tableau_mgr.focused_id(), qcir_mgr.get_next_id());
-                auto qcir = experimental::to_qcir(*tableau_mgr.get(), experimental::HOptSynthesisStrategy{});
+                auto const qcir = experimental::to_qcir(*tableau_mgr.get(), *clifford_strategy, *rotation_strategy);
 
-                qcir_mgr.add(qcir_mgr.get_next_id(), std::make_unique<qcir::QCir>(std::move(qcir)));
+                if (qcir.has_value()) {
+                    qcir_mgr.add(qcir_mgr.get_next_id(), std::make_unique<qcir::QCir>(std::move(qcir.value())));
 
-                qcir_mgr.get()->set_filename(tableau_mgr.get()->get_filename());
-                qcir_mgr.get()->add_procedures(tableau_mgr.get()->get_procedures());
-                qcir_mgr.get()->add_procedure("TB2QC");
+                    qcir_mgr.get()->set_filename(tableau_mgr.get()->get_filename());
+                    qcir_mgr.get()->add_procedures(tableau_mgr.get()->get_procedures());
+                    qcir_mgr.get()->add_procedure("TB2QC");
+                }
 
                 return CmdExecResult::done;
             }

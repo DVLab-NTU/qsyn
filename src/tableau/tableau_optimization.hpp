@@ -9,6 +9,7 @@
 #include <concepts>
 
 #include "./tableau.hpp"
+#include "tableau/pauli_rotation.hpp"
 
 namespace qsyn {
 
@@ -35,6 +36,10 @@ struct MatroidPartitionStrategy {
     bool is_independent(Polynomial const& polynomial, size_t num_ancillae) const;
 };
 
+/**
+ * @brief partitions the given polynomial by naively picking terms until the matroid independence condition is violated
+ *
+ */
 struct NaiveMatroidPartitionStrategy : public MatroidPartitionStrategy {
     Partitions partition(Polynomial const& polynomial, size_t num_ancillae) const override;
 };
@@ -44,7 +49,8 @@ inline bool is_phase_polynomial(std::vector<PauliRotation> const& polynomial) no
            std::ranges::all_of(polynomial, [n_qubits = polynomial.front().n_qubits()](PauliRotation const& rotation) { return rotation.n_qubits() == n_qubits; });
 }
 
-std::vector<std::vector<PauliRotation>> matroid_partition(std::vector<PauliRotation> const& polynomial, size_t num_ancillae = 0, MatroidPartitionStrategy const& strategy = NaiveMatroidPartitionStrategy{});
+std::optional<std::vector<std::vector<PauliRotation>>> matroid_partition(std::vector<PauliRotation> const& polynomial, MatroidPartitionStrategy const& strategy, size_t num_ancillae = 0);
+std::optional<Tableau> matroid_partition(Tableau const& tableau, MatroidPartitionStrategy const& strategy, size_t num_ancillae = 0);
 
 }  // namespace experimental
 

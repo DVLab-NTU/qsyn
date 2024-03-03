@@ -16,6 +16,7 @@
 #include <variant>
 #include <vector>
 
+#include "tableau/pauli_rotation.hpp"
 #include "tableau/tableau.hpp"
 
 namespace qsyn {
@@ -376,9 +377,40 @@ Tableau minimize_internal_hadamards(Tableau tableau) {
  * @param polynomial
  * @return std::vector<std::vector<PauliRotation>>
  */
-std::vector<std::vector<PauliRotation>> matroid_partition(std::vector<PauliRotation> const& polynomial, size_t num_ancillae, MatroidPartitionStrategy const& strategy) {
-    DVLAB_ASSERT(is_phase_polynomial(polynomial), "The input pauli rotations a phase polynomial.");
+std::optional<std::vector<std::vector<PauliRotation>>> matroid_partition(std::vector<PauliRotation> const& polynomial, MatroidPartitionStrategy const& strategy, size_t num_ancillae) {
+    if (!is_phase_polynomial(polynomial)) {
+        return std::nullopt;
+    }
+
     return strategy.partition(polynomial, num_ancillae);
+}
+
+/**
+ * @brief split the phase polynomial into matroids. The matroids are represented by a list of PauliRotations, which must be all-diagonal.
+ *
+ * @param polynomial
+ * @param strategy
+ * @param num_ancillae
+ * @return Tableau
+ */
+std::optional<Tableau> matroid_partition(Tableau const& tableau, MatroidPartitionStrategy const& strategy, size_t num_ancillae) {
+    auto new_tableau = Tableau{tableau.n_qubits()};
+
+    for (auto const& subtableau : tableau) {
+        if (auto const pr = std::get_if<std::vector<PauliRotation>>(&subtableau)) {
+            auto partitions = matroid_partition(*pr, strategy, num_ancillae);
+            if (!partitions) {
+                return std::nullopt;
+            }
+            for (auto const& partition : partitions.value()) {
+                new_tableau.push_back(partition);
+            }
+        } else {
+            new_tableau.push_back(subtableau);
+        }
+    }
+
+    return new_tableau;
 }
 
 /**
@@ -392,15 +424,22 @@ std::vector<std::vector<PauliRotation>> matroid_partition(std::vector<PauliRotat
 auto MatroidPartitionStrategy::is_independent(std::vector<PauliRotation> const& polynomial, size_t num_ancillae) const -> bool {
     DVLAB_ASSERT(is_phase_polynomial(polynomial), "The input pauli rotations a phase polynomial.");
 
+    auto const dimV = polynomial.front().n_qubits();
+    auto const n    = dimV + num_ancillae;
     // equivalent to the independence oracle lemma:
     //     dim(V) - rank(S) <= n - |S|
     // in the literature, where n is the number of qubits = polynomial dimension + num_ancillae
     // ref: [Polynomial-time T-depth Optimization of Clifford+T circuits via Matroid Partitioning](https://arxiv.org/pdf/1303.2042.pdf)
-    return polynomial.size() - matrix_rank(polynomial) <= num_ancillae;
+    // Here, we reorganize the inequality to make circumvent unsigned integer overflow
+    return dimV + polynomial.size() <= n + matrix_rank(polynomial);
 };
 
 MatroidPartitionStrategy::Partitions NaiveMatroidPartitionStrategy::partition(MatroidPartitionStrategy::Polynomial const& polynomial, size_t num_ancillae) const {
     auto matroids = std::vector(1, std::vector<PauliRotation>{});  // starts with an empty matroid
+
+    if (polynomial.empty()) {
+        return matroids;
+    }
 
     for (auto const& term : polynomial) {
         matroids.back().push_back(term);

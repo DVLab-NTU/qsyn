@@ -179,30 +179,52 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr) {
         [&](ArgumentParser& parser) {
             parser.description("Optimize the tableau");
 
-            parser.add_argument<std::string>("method")
-                .constraint(choices_allow_prefix({"collapse", "merge-t", "internal-h-opt"}))
-                .help("The optimization method to be used");
+            auto methods = parser.add_subparsers("method").required(true);
+
+            methods.add_parser("collapse")
+                .description("Collapse the tableau into a canonical form");
+
+            methods.add_parser("tmerge")
+                .description("Merge rotations of the same rotation plane");
+
+            methods.add_parser("hopt")
+                .description("Minimize the number of Hadamard gates and internal Hadamard gates in the tableau");
+
+            auto matpar = methods.add_parser("matpar")
+                              .description("partition the Pauli rotations into simultaneously-implementable tableaux. This option requires all Pauli rotations to be diagonal");
+
+            matpar.add_argument<size_t>("-a", "--ancillae")
+                .default_value(0)
+                .help("The number of ancillae to be used in the partitioning");
+
+            matpar.add_argument<std::string>("strategy")
+                .default_value("naive")
+                .constraint(choices_allow_prefix({"naive"}))
+                .help("Matroid partitioning strategy");
         },
         [&](ArgumentParser const& parser) {
             if (!dvlab::utils::mgr_has_data(tableau_mgr)) {
                 return dvlab::CmdExecResult::error;
             }
 
+            auto const method_str = parser.get<std::string>("method");
+
             enum struct OptimizationMethod {
                 collapse,
-                merge_t,
-                internal_h_opt
+                t_merge,
+                internal_h_opt,
+                matroid_partition
             };
-
-            auto const method_str = parser.get<std::string>("method");
 
             auto method = std::invoke([&]() -> std::optional<OptimizationMethod> {
                 if (dvlab::str::is_prefix_of(method_str, "collapse")) {
                     return OptimizationMethod::collapse;
-                } else if (dvlab::str::is_prefix_of(method_str, "merge-t")) {
-                    return OptimizationMethod::merge_t;
-                } else if (dvlab::str::is_prefix_of(method_str, "internal-h-opt")) {
+                } else if (dvlab::str::is_prefix_of(method_str, "tmerge")) {
+                    return OptimizationMethod::t_merge;
+                } else if (dvlab::str::is_prefix_of(method_str, "hopt")) {
                     return OptimizationMethod::internal_h_opt;
+                } else if (dvlab::str::is_prefix_of(method_str, "matpar")) {
+                    return OptimizationMethod::matroid_partition;
                 }
                 return std::nullopt;
             });
@@ -217,13 +239,31 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr) {
                     collapse(*tableau_mgr.get());
                     tableau_mgr.get()->add_procedure("collapse");
                     break;
-                case OptimizationMethod::merge_t:
+                case OptimizationMethod::t_merge:
                     merge_rotations(*tableau_mgr.get());
                     tableau_mgr.get()->add_procedure("MergeT");
                     break;
                 case OptimizationMethod::internal_h_opt:
                     *tableau_mgr.get() = minimize_internal_hadamards(*tableau_mgr.get());
                     tableau_mgr.get()->add_procedure("InternalHOpt");
+                    break;
+                case OptimizationMethod::matroid_partition:
+                    auto const ancillae = parser.get<size_t>("--ancillae");
+                    auto const strategy = parser.get<std::string>("strategy");
+
+                    auto const matpar_strategy = std::invoke([&]() -> std::unique_ptr<MatroidPartitionStrategy> {
+                        if (dvlab::str::is_prefix_of(strategy, "naive")) {
+                            return std::make_unique<NaiveMatroidPartitionStrategy>();
+                        }
+                        return nullptr;
+                    });
+                    auto const matpar_result   = matroid_partition(*tableau_mgr.get(), *matpar_strategy, ancillae);
+                    if (!matpar_result) {
+                        spdlog::error("Matroid partitioning failed!!");
+                        return dvlab::CmdExecResult::error;
+                    }
+                    *tableau_mgr.get() = matpar_result.value();
+                    tableau_mgr.get()->add_procedure("MatroidPartition");
                     break;
             }
 

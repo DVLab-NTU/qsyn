@@ -68,7 +68,7 @@ void add_clifford_gate(qcir::QCir& qcir, CliffordOperator const& op) {
  * @param clifford - pass by value on purpose
  * @return std::optional<qcir::QCir>
  */
-qcir::QCir to_qcir(StabilizerTableau clifford, StabilizerTableauSynthesisStrategy const& strategy) {
+std::optional<qcir::QCir> to_qcir(StabilizerTableau clifford, StabilizerTableauSynthesisStrategy const& strategy) {
     qcir::QCir qcir{clifford.n_qubits()};
     for (auto const& op : extract_clifford_operators(clifford, strategy)) {
         add_clifford_gate(qcir, op);
@@ -77,7 +77,7 @@ qcir::QCir to_qcir(StabilizerTableau clifford, StabilizerTableauSynthesisStrateg
     return qcir;
 }
 
-qcir::QCir NaivePauliRotationsSynthesisStrategy::synthesize(std::vector<PauliRotation> const& rotations) const {
+std::optional<qcir::QCir> NaivePauliRotationsSynthesisStrategy::synthesize(std::vector<PauliRotation> const& rotations) const {
     if (rotations.empty()) {
         return qcir::QCir{0};
     }
@@ -103,13 +103,18 @@ qcir::QCir NaivePauliRotationsSynthesisStrategy::synthesize(std::vector<PauliRot
     return qcir;
 }
 
+std::optional<qcir::QCir> TParPauliRotationsSynthesisStrategy::synthesize(std::vector<PauliRotation> const& /* rotations */) const {
+    spdlog::error("TPar Synthesis Strategy is not implemented yet!!");
+    return std::nullopt;
+}
+
 /**
  * @brief convert a Pauli rotation to a QCir. This is a naive implementation.
  *
  * @param pauli_rotation
  * @return qcir::QCir
  */
-qcir::QCir to_qcir(std::vector<PauliRotation> const& pauli_rotations, PauliRotationsSynthesisStrategy const& strategy) {
+std::optional<qcir::QCir> to_qcir(std::vector<PauliRotation> const& pauli_rotations, PauliRotationsSynthesisStrategy const& strategy) {
     return strategy.synthesize(pauli_rotations);
 }
 
@@ -120,20 +125,21 @@ qcir::QCir to_qcir(std::vector<PauliRotation> const& pauli_rotations, PauliRotat
  * @param pauli_rotations
  * @return qcir::QCir
  */
-qcir::QCir to_qcir(Tableau const& tableau, StabilizerTableauSynthesisStrategy const& st_strategy, PauliRotationsSynthesisStrategy const& pr_strategy) {
+std::optional<qcir::QCir> to_qcir(Tableau const& tableau, StabilizerTableauSynthesisStrategy const& st_strategy, PauliRotationsSynthesisStrategy const& pr_strategy) {
     qcir::QCir qcir{tableau.n_qubits()};
 
-    std::ranges::for_each(tableau, [&](auto const& sub_tableau) {
-        std::visit(
-            dvlab::overloaded{
-                [&qcir, &st_strategy](StabilizerTableau const& st) {
-                    qcir.compose(to_qcir(st, st_strategy));
-                },
-                [&qcir, &pr_strategy](std::vector<PauliRotation> const& pr) {
-                    qcir.compose(to_qcir(pr, pr_strategy));
-                }},
-            sub_tableau);
-    });
+    for (auto const& subtableau : tableau) {
+        auto const qc_fragment =
+            std::visit(
+                dvlab::overloaded{
+                    [&st_strategy](StabilizerTableau const& st) { return to_qcir(st, st_strategy); },
+                    [&pr_strategy](std::vector<PauliRotation> const& pr) { return to_qcir(pr, pr_strategy); }},
+                subtableau);
+        if (!qc_fragment) {
+            return std::nullopt;
+        }
+        qcir.compose(qc_fragment.value());
+    }
 
     return qcir;
 }
