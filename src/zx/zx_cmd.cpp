@@ -283,8 +283,8 @@ Command zxgraph_read_cmd(ZXGraphMgr& zxgraph_mgr) {
                 auto const filepath   = parser.get<std::string>("filepath");
                 auto const do_keep_id = parser.get<bool>("--keep-id");
                 auto const do_replace = parser.get<bool>("--replace");
-
-                auto const graph = from_zx(filepath, do_keep_id);
+                // NOTE - Adding "const" would lead to using copy constructor in std::move
+                auto graph = from_zx(filepath, do_keep_id);
                 if (!graph) {
                     return CmdExecResult::error;
                 }
