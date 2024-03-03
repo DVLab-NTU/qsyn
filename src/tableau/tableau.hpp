@@ -125,7 +125,7 @@ struct fmt::formatter<qsyn::experimental::Tableau> {
     template <typename FormatContext>
     auto format(qsyn::experimental::Tableau const& tableau, FormatContext& ctx) const {
         return presentation == 'c'
-                   ? format_to(ctx.out(), "{:c}", fmt::join(tableau, "\n"))
-                   : format_to(ctx.out(), "{:b}", fmt::join(tableau, "\n"));
+                   ? fmt::format_to(ctx.out(), "{:c}", fmt::join(tableau, "\n"))
+                   : fmt::format_to(ctx.out(), "{:b}", fmt::join(tableau, "\n"));
     }
 };
