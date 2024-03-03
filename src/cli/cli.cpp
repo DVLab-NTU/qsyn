@@ -235,7 +235,7 @@ void dvlab::CommandLineInterface::sigint_handler(int signum) {
 
 std::optional<std::string> CommandLineInterface::_dequote(std::string_view str) const {
     std::string result;
-    using parse_state = CommandLineInterface::parse_state;
+    using parse_state = CommandLineInterface::ParseState;
     parse_state state = parse_state::normal;
     for (auto&& [i, ch] : str | tl::views::enumerate) {
         switch (state) {
@@ -280,8 +280,8 @@ std::optional<std::string> CommandLineInterface::_dequote(std::string_view str) 
  * @return true
  * @return false
  */
-bool CommandLineInterface::_should_be_escaped(char ch, dvlab::CommandLineInterface::parse_state state) const {
-    using parse_state = dvlab::CommandLineInterface::parse_state;
+bool CommandLineInterface::_should_be_escaped(char ch, dvlab::CommandLineInterface::ParseState state) const {
+    using parse_state = dvlab::CommandLineInterface::ParseState;
     switch (state) {
         case parse_state::normal:
             return false;

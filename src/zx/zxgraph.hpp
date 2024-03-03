@@ -99,7 +99,7 @@ public:
     ZXGraph() {}
 
     ~ZXGraph() {
-        for (auto& v : _vertices) {
+        for (auto const& v : _vertices) {
             delete v;
         }
     }
@@ -279,8 +279,8 @@ public:
     }
     template <typename F>
     void for_each_edge(F lambda) const {
-        for (auto& v : _vertices) {
-            for (auto& [nb, etype] : this->get_neighbors(v)) {
+        for (auto const& v : _vertices) {
+            for (auto const& [nb, etype] : this->get_neighbors(v)) {
                 if (nb->get_id() > v->get_id())
                     lambda(make_edge_pair(v, nb, etype));
             }
