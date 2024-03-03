@@ -228,43 +228,43 @@ void add_gates_2(
         case 0b0000:
             break;
         case 0b0001:
-            x(0), x(1), cx(0, 1), x(0), x(1);
+            ccx(0, 1, 2);
             break;
         case 0b0010:
-            x(0), ccx(0, 1, 2), x(0);
-            break;
-        case 0b0011:
-            x(0), cx(0, 2), x(0);
-            break;
-        case 0b0100:
             x(1), ccx(0, 1, 2), x(1);
             break;
+        case 0b0011:
+            cx(0, 2);
+            break;
+        case 0b0100:
+            x(0), ccx(0, 1, 2), x(0);
+            break;
         case 0b0101:
-            x(1), cx(1, 2), x(1);
+            cx(1, 2);
             break;
         case 0b0110:
             cx(0, 2), cx(1, 2);
             break;
         case 0b0111:
-            ccx(0, 1, 2), x(2);
+            x(0), x(1), ccx(0, 1, 2), x(0), x(1), x(2);
             break;
         case 0b1000:
-            ccx(0, 1, 2);
+            x(0), x(1), ccx(0, 1, 2), x(0), x(1);
             break;
         case 0b1001:
             cx(0, 2), cx(1, 2), x(2);
             break;
         case 0b1010:
-            cx(1, 2);
+            x(1), cx(1, 2), x(1);
             break;
         case 0b1011:
-            x(1), ccx(0, 1, 2), x(1), x(2);
+            x(0), ccx(0, 1, 2), x(0), x(2);
             break;
         case 0b1100:
-            cx(0, 2);
+            x(0), cx(0, 2), x(0);
             break;
         case 0b1101:
-            x(0), ccx(0, 1, 2), x(0), x(2);
+            x(1), ccx(0, 1, 2), x(1), x(2);
             break;
         case 0b1110:
             ccx(0, 1, 2), x(2);
@@ -279,6 +279,11 @@ void add_gates_2(
 }
 
 void LUT::construct_lut_1() {
+    {
+        auto tt   = kitty::dynamic_truth_table(1);
+        auto qcir = QCir(2);
+        table[tt] = qcir;
+    }
     {
         auto tt = kitty::dynamic_truth_table(1);
         kitty::set_bit(tt, 0);
@@ -295,6 +300,13 @@ void LUT::construct_lut_1() {
 
         auto qcir = QCir(2);
         qcir.add_gate("cx", {0, 1}, {}, true);
+        table[tt] = qcir;
+    }
+    {
+        auto tt   = kitty::dynamic_truth_table(1);
+        auto qcir = QCir(2);
+        kitty::set_bit(tt, 0);
+        kitty::set_bit(tt, 1);
         table[tt] = qcir;
     }
 }
@@ -315,6 +327,61 @@ void LUT::construct_lut_2() {
     }
 }
 
+void add_cccx_gate(QCir& qcir, QubitIdType const c0, QubitIdType const c1, QubitIdType const c2, QubitIdType const target) {
+    //      ┌────────┐
+    // q_0: ┤ P(π/8) ├────■──────────────────■────────────────────■──────────────────────────────■───────────────────────────────────────────────────■─────────────────────────────────────────────────────────────■───────
+    //      ├────────┤  ┌─┴─┐   ┌─────────┐┌─┴─┐                  │                              │                                                   │                                                             │
+    // q_1: ┤ P(π/8) ├──┤ X ├───┤ P(-π/8) ├┤ X ├──■───────────────┼──────────────■───────────────┼────────────────────■──────────────────────────────┼──────────────────────────────■──────────────────────────────┼───────
+    //      ├────────┤  └───┘   └─────────┘└───┘┌─┴─┐┌─────────┐┌─┴─┐┌────────┐┌─┴─┐┌─────────┐┌─┴─┐                  │                              │                              │                              │
+    // q_2: ┤ P(π/8) ├──────────────────────────┤ X ├┤ P(-π/8) ├┤ X ├┤ P(π/8) ├┤ X ├┤ P(-π/8) ├┤ X ├──■───────────────┼──────────────■───────────────┼──────────────■───────────────┼──────────────■───────────────┼───────
+    //      └─┬───┬──┘┌────────┐                └───┘└─────────┘└───┘└────────┘└───┘└─────────┘└───┘┌─┴─┐┌─────────┐┌─┴─┐┌────────┐┌─┴─┐┌─────────┐┌─┴─┐┌────────┐┌─┴─┐┌─────────┐┌─┴─┐┌────────┐┌─┴─┐┌─────────┐┌─┴─┐┌───┐
+    // q_3: ──┤ H ├───┤ P(π/8) ├────────────────────────────────────────────────────────────────────┤ X ├┤ P(-π/8) ├┤ X ├┤ P(π/8) ├┤ X ├┤ P(-π/8) ├┤ X ├┤ P(π/8) ├┤ X ├┤ P(-π/8) ├┤ X ├┤ P(π/8) ├┤ X ├┤ P(-π/8) ├┤ X ├┤ H ├
+    //        └───┘   └────────┘                                                                    └───┘└─────────┘└───┘└────────┘└───┘└─────────┘└───┘└────────┘└───┘└─────────┘└───┘└────────┘└───┘└─────────┘└───┘└───┘
+    qcir.add_gate("t", {c0}, {}, true);
+    qcir.add_gate("t", {c1}, {}, true);
+    qcir.add_gate("t", {c2}, {}, true);
+    qcir.add_gate("h", {target}, {}, true);
+
+    qcir.add_gate("cx", {c0, c1}, {}, true);
+    qcir.add_gate("t", {target}, {}, true);
+
+    qcir.add_gate("tdg", {c1}, {}, true);
+    qcir.add_gate("cx", {c0, c1}, {}, true);
+
+    // ================================
+    qcir.add_gate("cx", {c1, c2}, {}, true);
+    qcir.add_gate("tdg", {c2}, {}, true);
+    qcir.add_gate("cx", {c0, c2}, {}, true);
+
+    qcir.add_gate("t", {c2}, {}, true);
+
+    qcir.add_gate("cx", {c1, c2}, {}, true);
+    qcir.add_gate("tdg", {c2}, {}, true);
+    qcir.add_gate("cx", {c0, c2}, {}, true);
+
+    // ================================
+    qcir.add_gate("cx", {c2, target}, {}, true);
+    qcir.add_gate("tdg", {target}, {}, true);
+    qcir.add_gate("cx", {c1, target}, {}, true);
+    qcir.add_gate("t", {target}, {}, true);
+    qcir.add_gate("cx", {c2, target}, {}, true);
+    qcir.add_gate("tdg", {target}, {}, true);
+    qcir.add_gate("cx", {c0, target}, {}, true);
+
+    qcir.add_gate("t", {target}, {}, true);
+
+    qcir.add_gate("cx", {c2, target}, {}, true);
+    qcir.add_gate("tdg", {target}, {}, true);
+    qcir.add_gate("cx", {c1, target}, {}, true);
+    qcir.add_gate("t", {target}, {}, true);
+    qcir.add_gate("cx", {c2, target}, {}, true);
+    qcir.add_gate("tdg", {target}, {}, true);
+    qcir.add_gate("cx", {c0, target}, {}, true);
+
+    // ================================
+    qcir.add_gate("h", {target}, {}, true);
+}
+
 void LUT::construct_lut_3() {
     for (uint64_t const i : iota(0, 1 << 8)) {
         auto tt = kitty::dynamic_truth_table(3);
@@ -326,7 +393,9 @@ void LUT::construct_lut_3() {
 
         auto x   = [&qcir](auto const& target) { qcir.add_gate("cx", {0, target + 1}, {}, true); };
         auto cx  = [&qcir](auto const& control, auto const& target) { qcir.add_gate("ccx", {0, control + 1, target + 1}, {}, true); };
-        auto ccx = [&qcir](auto const& c1, auto const& c2, auto const& target) { qcir.add_gate("cccx", {0, c1 + 1, c2 + 1, target + 1}, {}, true); };
+        auto ccx = [&qcir](auto const& c1, auto const& c2, auto const& target) {
+            add_cccx_gate(qcir, 0, c1 + 1, c2 + 1, target + 1);
+        };
 
         // (a & b) ^ (!a & c)
         qcir.add_gate("x", {0}, {}, true);
