@@ -277,17 +277,17 @@ std::pair<CliffordOperatorString, size_t> extract_clifford_operators(PauliRotati
             clifford_ops.emplace_back(COT::v, std::array<size_t, 2>{i});
         }
     }
-    auto const non_I_qubits = std::ranges::views::iota(0ul, pauli_rotation.n_qubits()) |
+    auto const non_i_qubits = std::ranges::views::iota(0ul, pauli_rotation.n_qubits()) |
                               std::ranges::views::filter([&pauli_rotation](size_t i) {
                                   return pauli_rotation.get_pauli_type(i) != Pauli::i;
                               }) |
                               tl::to<std::vector>();
 
-    for (auto const& [c, t] : tl::views::adjacent<2>(non_I_qubits)) {
+    for (auto const& [c, t] : tl::views::adjacent<2>(non_i_qubits)) {
         clifford_ops.emplace_back(COT::cx, std::array<size_t, 2>{c, t});
     }
 
-    return {clifford_ops, non_I_qubits.back()};
+    return {clifford_ops, non_i_qubits.back()};
 }
 
 size_t matrix_rank(std::vector<PauliRotation> const& rotations) {

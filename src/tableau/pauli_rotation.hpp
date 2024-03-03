@@ -197,7 +197,7 @@ public:
     inline bool operator==(PauliProduct const& rhs) const { return _bitset == rhs._bitset; }
     inline bool operator!=(PauliProduct const& rhs) const { return _bitset != rhs._bitset; }
 
-    std::string to_string(char signness = '-') const;
+    std::string to_string(char signedness = '-') const;
     std::string to_bit_string() const;
 
     PauliProduct& h(size_t qubit) override;
@@ -291,7 +291,7 @@ public:
     }
     inline bool operator!=(PauliRotation const& rhs) const { return !(*this == rhs); }
 
-    std::string to_string(char signness = '-') const;
+    std::string to_string(char signedness = '-') const;
     std::string to_bit_string() const;
 
     PauliRotation& h(size_t qubit) override;

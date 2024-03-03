@@ -165,10 +165,10 @@ public:
     [[nodiscard]] SubParsers add_subparsers(std::string_view dest);
 
     bool parse_args(std::vector<std::string> const& tokens);
-    bool parse_args(TokensSpan);
+    bool parse_args(TokensSpan token);
 
     std::pair<bool, std::vector<Token>> parse_known_args(std::vector<std::string> const& tokens);
-    std::pair<bool, std::vector<Token>> parse_known_args(TokensSpan);
+    std::pair<bool, std::vector<Token>> parse_known_args(TokensSpan token);
 
     bool analyze_options() const;
 
@@ -218,7 +218,7 @@ private:
 
     // pretty printing helpers
 
-    std::pair<bool, std::vector<Token>> _parse_known_args_impl(TokensSpan);
+    std::pair<bool, std::vector<Token>> _parse_known_args_impl(TokensSpan token);
 
     void _activate_subparser(std::string_view name) {
         _pimpl->activated_subparser = name;
@@ -241,7 +241,7 @@ private:
     bool _all_required_options_are_parsed() const;
     bool _all_required_mutex_groups_are_parsed() const;
 
-    bool _no_conflict_with_parsed_arguments(Argument const&) const;
+    bool _no_conflict_with_parsed_arguments(Argument const& arg) const;
 
     // parsePositionalArguments subroutine
 

@@ -207,7 +207,7 @@ void Simplifier::symbolic_reduce() {
 
 void Simplifier::_report_simp_result(std::string_view rule_name, std::span<size_t> match_counts) const {
     spdlog::log(
-        match_counts.size() > 0 ? spdlog::level::info : spdlog::level::trace,
+        !match_counts.empty() ? spdlog::level::info : spdlog::level::trace,
         "{:<28} {:>2} iterations, total {:>4} matches",
         rule_name,
         match_counts.size(),

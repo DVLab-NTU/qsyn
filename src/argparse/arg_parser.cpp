@@ -298,7 +298,7 @@ std::pair<bool, std::vector<Token>> ArgumentParser::_parse_known_args_impl(Token
             for (auto const& [name, subparser] : _pimpl->subparsers->get_subparsers()) {
                 if (name.starts_with(token.token)) {
                     auto dest = _pimpl->subparsers->get_dest();
-                    if (dest.size()) {
+                    if (!dest.empty()) {
                         if (_pimpl->arguments.contains(dest)) {
                             fmt::println(stderr, "Error: conflicting argument name: \"{}\" and subparser name: \"{}\"!!", dest, name);
                             return tokens.size();
@@ -404,8 +404,8 @@ bool ArgumentParser::_parse_options(TokensSpan tokens) {
                         return false;
                     }
                 } else {
-                    std::array<Token, 1> tmpToken{Token{remainder_token}};
-                    if (!_parse_one_option(arg, TokensSpan{tmpToken})) {
+                    std::array<Token, 1> tmp_token{Token{remainder_token}};
+                    if (!_parse_one_option(arg, TokensSpan{tmp_token})) {
                         return false;
                     }
                 }
@@ -495,7 +495,7 @@ bool ArgumentParser::_parse_positional_arguments(TokensSpan tokens, std::vector<
 
         if (!arg.take_action(parse_range)) return false;
 
-        if (parse_range.size()) {
+        if (!parse_range.empty()) {
             if (!_no_conflict_with_parsed_arguments(arg)) return false;
             arg.mark_as_parsed();
         }

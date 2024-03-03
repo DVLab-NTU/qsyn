@@ -148,7 +148,7 @@ StabilizerTableau adjoint(StabilizerTableau const& tableau) {
 }
 
 CliffordOperatorString extract_clifford_operators(StabilizerTableau copy, StabilizerTableauSynthesisStrategy const& strategy) {
-    return strategy.synthesize(copy);
+    return strategy.synthesize(std::move(copy));
 }
 CliffordOperatorString AGSynthesisStrategy::synthesize(StabilizerTableau copy) const {
     CliffordOperatorString clifford_ops;
@@ -186,10 +186,7 @@ CliffordOperatorString AGSynthesisStrategy::synthesize(StabilizerTableau copy) c
         auto const ctrl = gsl::narrow<size_t>(
             std::ranges::find_if(
                 search_idx_range, [&, qubit](size_t t) {
-                    if (copy.destabilizer(qubit).is_x_set(t)) {
-                        return true;
-                    }
-                    return false;
+                    return copy.destabilizer(qubit).is_x_set(t);
                 }) -
             search_idx_range.begin() + qubit + 1);
 

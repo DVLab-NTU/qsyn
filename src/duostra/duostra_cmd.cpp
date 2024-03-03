@@ -159,7 +159,7 @@ Command duostra_config_cmd() {
                         fmt::println("APSP Coeff.:       {}", DuostraConfig::APSP_COEFF);
                         fmt::println("2-Qb. Avail. Time: {}", get_minmax_type_str(DuostraConfig::AVAILABLE_TIME_STRATEGY));
                         fmt::println("Cost Selector:     {}", get_minmax_type_str(DuostraConfig::COST_SELECTION_STRATEGY));
-                        fmt::println("Never Cache:       {}", ((DuostraConfig::NEVER_CACHE == true) ? "true" : "false"));
+                        fmt::println("Never Cache:       {}", ((DuostraConfig::NEVER_CACHE) ? "true" : "false"));
                         fmt::println("Single Immed.:     {}", ((DuostraConfig::EXECUTE_SINGLE_QUBIT_GATES_ASAP == 1) ? "true" : "false"));
                     }
                 }

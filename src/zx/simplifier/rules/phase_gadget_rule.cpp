@@ -55,7 +55,7 @@ std::vector<MatchType> PhaseGadgetRule::find_matches(ZXGraph const& graph) const
             if (nb2 != v) group.emplace_back(nb2);
         }
 
-        if (group.size() > 0) {
+        if (!group.empty()) {
             std::ranges::sort(group);
             group2axel.emplace(group, nb);
         }

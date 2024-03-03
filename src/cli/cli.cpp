@@ -171,7 +171,7 @@ bool dvlab::CommandLineInterface::add_variables_from_dofiles(std::filesystem::pa
         return true;
     }
     std::string line{""};
-    while (line == "") {  // skip empty lines
+    while (line.empty()) {  // skip empty lines
         std::getline(dofile, line);
     };
 
@@ -224,7 +224,7 @@ void dvlab::CommandLineInterface::sigint_handler(int signum) {
     if (_listening_for_inputs) {
         _println_if_echo("");
         _clear_read_buffer_and_print_prompt();
-    } else if (_command_threads.size()) {
+    } else if (!_command_threads.empty()) {
         // there is an executing command
         _command_threads.top().request_stop();
     } else {

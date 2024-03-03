@@ -85,12 +85,7 @@ bool BooleanMatrix::Row::is_one_hot() const {
  * @return false
  */
 bool BooleanMatrix::Row::is_zeros() const {
-    for (auto& i : _row) {
-        if (i == 1) {
-            return false;
-        }
-    }
-    return true;
+    return std::ranges::none_of(_row, [](unsigned char const& e) { return e == 1; });
 }
 
 /**
@@ -249,7 +244,7 @@ size_t BooleanMatrix::gaussian_elimination_skip(size_t block_size, bool do_fully
 
         clear_section_duplicates(section_begin, section_end, std::views::iota(0u, pivots.size()) | std::views::reverse);
 
-        while (pivots.size() > 0 && section_begin <= pivots.back() && pivots.back() < section_end) {
+        while (!pivots.empty() && section_begin <= pivots.back() && pivots.back() < section_end) {
             // retrieves the last pivot column. This column is guaranteed to have a 1 in the pivot row
             auto last = pivots.back();
             pivots.pop_back();
@@ -492,7 +487,7 @@ void BooleanMatrix::append_one_hot_column(size_t idx) {
 size_t BooleanMatrix::row_operation_depth() {
     std::vector<size_t> row_depth;
     row_depth.resize(num_rows(), 0);
-    if (_row_operations.size() == 0) {
+    if (_row_operations.empty()) {
         return 0;
     }
     for (auto const& [a, b] : _row_operations) {
@@ -513,7 +508,7 @@ double BooleanMatrix::dense_ratio() {
     if (depth == 0)
         return 0;
     float const ratio = float(depth) / float(_row_operations.size());
-    return round(ratio * 100) / 100;
+    return std::round(ratio * 100) / 100;
 }
 
 /**

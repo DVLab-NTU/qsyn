@@ -156,19 +156,21 @@ bool ZXGraph::is_graph_like() const {
     }
 
     // 4. Boundary vertices only has an edge
-    for (auto const& v : _inputs) {
-        if (this->get_num_neighbors(v) != 1) {
-            spdlog::debug("Note: boundary {} has {} neighbors; expected 1", v->get_id(), this->get_num_neighbors(v));
-            return false;
-        }
-    }
-    for (auto const& v : _outputs) {
-        if (this->get_num_neighbors(v) != 1) {
-            spdlog::debug("Note: boundary {} has {} neighbors; expected 1", v->get_id(), this->get_num_neighbors(v));
-            return false;
-        }
-    }
-    return true;
+
+    return std::ranges::all_of(_inputs, [this](ZXVertex* i) {
+               if (this->get_num_neighbors(i) != 1) {
+                   spdlog::debug("Note: input {} has {} neighbors; expected 1", i->get_id(), this->get_num_neighbors(i));
+                   return false;
+               }
+               return true;
+           }) &&
+           std::ranges::all_of(_outputs, [this](ZXVertex* o) {
+               if (this->get_num_neighbors(o) != 1) {
+                   spdlog::debug("Note: output {} has {} neighbors; expected 1", o->get_id(), this->get_num_neighbors(o));
+                   return false;
+               }
+               return true;
+           });
 }
 
 /**
@@ -304,8 +306,6 @@ void ZXGraph::add_edge(ZXVertex* vs, ZXVertex* vt, EdgeType et) {
 
     vs->_neighbors.emplace(vt, et);
     vt->_neighbors.emplace(vs, et);
-
-    return;
 }
 
 /**
