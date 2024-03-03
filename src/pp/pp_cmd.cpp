@@ -150,8 +150,8 @@ Command pp_cmd(QCirMgr& qcir_mgr) {
     //                        return CmdExecResult::error;
     //                    }};
     auto cmd = phase_polynomial_cmd(qcir_mgr);
-    cmd.add_subcommand(phase_polynomial_print_cmd(qcir_mgr));
-    cmd.add_subcommand(phase_polynomial_t_depth_cmd(qcir_mgr));
+    cmd.add_subcommand("pp-cmd-group", phase_polynomial_print_cmd(qcir_mgr));
+    cmd.add_subcommand("pp-cmd-group", phase_polynomial_t_depth_cmd(qcir_mgr));
 
     return cmd;
 }

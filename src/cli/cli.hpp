@@ -80,8 +80,7 @@ public:
     void print_summary() const { _parser.print_summary(); }
     void print_help() const { _parser.print_help(); }
 
-    void add_subcommand(dvlab::Command const& cmd);
-    void add_subcommands(std::span<dvlab::Command const> cmds);
+    void add_subcommand(std::string const& dest, dvlab::Command const& cmd);
 
 private:
     dvlab::argparse::ArgumentParser _parser;

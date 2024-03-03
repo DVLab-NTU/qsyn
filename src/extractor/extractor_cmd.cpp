@@ -259,15 +259,15 @@ Command extract_cmd(zx::ZXGraphMgr& zxgraph_mgr, qcir::QCirMgr& qcir_mgr) {
     auto cmd = Command{"extract",
                        [](ArgumentParser& parser) {
                            parser.description("extract ZXGraph to QCir");
-                           parser.add_subparsers().required(true);
+                           parser.add_subparsers("extractor-cmd").required(true);
                        },
                        [&](ArgumentParser const& /* unused */) {
                            return CmdExecResult::error;
                        }};
 
-    cmd.add_subcommand(extractor_config_cmd());
-    cmd.add_subcommand(extraction_step_cmd(zxgraph_mgr, qcir_mgr));
-    cmd.add_subcommand(extraction_print_cmd(zxgraph_mgr));
+    cmd.add_subcommand("extractor-cmd", extractor_config_cmd());
+    cmd.add_subcommand("extractor-cmd", extraction_step_cmd(zxgraph_mgr, qcir_mgr));
+    cmd.add_subcommand("extractor-cmd", extraction_print_cmd(zxgraph_mgr));
 
     return cmd;
 }
