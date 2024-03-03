@@ -13,10 +13,10 @@
 
 namespace dvlab::argparse {
 
-static_assert(is_container_type<std::vector<int>> == true);
-static_assert(is_container_type<std::vector<std::string>> == true);
-static_assert(is_container_type<std::string> == false);
-static_assert(is_container_type<std::array<int, 3>> == false);
+static_assert(is_container_type<std::vector<int>>);
+static_assert(is_container_type<std::vector<std::string>>);
+static_assert(!is_container_type<std::string>);
+static_assert(!is_container_type<std::array<int, 3>>);
 
 ArgType<std::string>::ConstraintType choices_allow_prefix(std::vector<std::string> choices) {
     std::ranges::for_each(choices, [](std::string& str) { str = dvlab::str::tolower_string(str); });

@@ -49,7 +49,7 @@ CmdExecResult dvlab::CommandLineInterface::execute_one_line(std::istream& istr, 
         return CmdExecResult::quit;
     }
 
-    if (input.size()) {
+    if (!input.empty()) {
         _println_if_echo("");
     }
 
@@ -71,7 +71,7 @@ CmdExecResult dvlab::CommandLineInterface::execute_one_line(std::istream& istr, 
     CmdExecResult exec_result = CmdExecResult::done;
 
     dvlab::utils::scope_exit const history_guard{[this, &input = input, &result = exec_result]() {
-        if (input.size()) {
+        if (!input.empty()) {
             _add_to_history({input, result});
         }
         _history_idx = _history.size();
@@ -197,7 +197,7 @@ CmdExecResult CommandLineInterface::_dispatch_command(dvlab::Command* cmd, std::
             exec_result = cmd->execute(options);
         });
 
-    assert(_command_threads.size());
+    assert(!_command_threads.empty());
 
     assert(_command_threads.top().get_stop_token().stop_requested() == false);
 

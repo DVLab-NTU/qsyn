@@ -89,7 +89,7 @@ public:
     void print_gate() const;
     void set_rotation_category(GateRotationCategory type);
     void set_phase(dvlab::Phase p);
-    void print_gate_info(bool) const;
+    void print_gate_info(bool show_time) const;
 
     bool is_h() const { return _rotation_category == GateRotationCategory::h; }
     bool is_x() const { return _rotation_category == GateRotationCategory::px && _phase == dvlab::Phase(1) && _qubits.size() == 1; }

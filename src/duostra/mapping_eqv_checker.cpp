@@ -243,7 +243,7 @@ void MappingEquivalenceChecker::check_remaining() {
  * @param info
  * @return QCirGate*
  */
-QCirGate* MappingEquivalenceChecker::get_next(QubitInfo const& info) {
+QCirGate* MappingEquivalenceChecker::get_next(QubitInfo const& info) const {
     if (_reverse)
         return info._prev;
     else

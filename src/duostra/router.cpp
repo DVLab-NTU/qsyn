@@ -240,7 +240,7 @@ std::vector<Router::Operation> Router::duostra_routing(Gate const& gate, std::tu
             }
         }
     }
-    auto const operation_list =
+    auto operation_list =
         _traceback(gate, _device.get_physical_qubit(q0_id), _device.get_physical_qubit(q1_id), t0, t1, swap_ids, swapped);
 
     spdlog::debug("Operation List:");
@@ -440,7 +440,7 @@ std::vector<Router::Operation> Router::assign_gate(Gate const& gate) {
         op.set_id(gate.get_id());
         return std::vector<Operation>(1, op);
     }
-    auto const operation_list =
+    auto operation_list =
         _duostra
             ? duostra_routing(gate, physical_qubits_ids, _tie_breaking_strategy, gate.is_swapped())
             : apsp_routing(gate, physical_qubits_ids, _tie_breaking_strategy, gate.is_swapped());

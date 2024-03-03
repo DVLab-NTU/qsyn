@@ -64,8 +64,8 @@ public:
     bool is_version_action() const { return _pimpl->do_is_version_action(); }
     bool is_constraints_satisfied() const { return _pimpl->do_is_constraints_satisfied(); }
     bool is_parsed() const { return _pimpl->do_is_parsed(); }
-    TokensSpan get_parse_range(TokensSpan) const;
-    bool tokens_enough_to_parse(TokensSpan) const;
+    TokensSpan get_parse_range(TokensSpan tokens) const;
+    bool tokens_enough_to_parse(TokensSpan tokens) const;
 
     template <typename T>
     T get() const;
