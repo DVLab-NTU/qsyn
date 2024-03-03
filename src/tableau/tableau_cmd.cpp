@@ -73,40 +73,6 @@ dvlab::Command tableau_new_cmd(TableauMgr& tableau_mgr) {
         }};
 }
 
-// dvlab::Command tableau_equivalence_cmd(TableauMgr& tableau_mgr) {
-//     return {
-//         "equiv",
-//         [&](ArgumentParser& parser) {
-//             parser.description("check the equivalency of two stored tensors");
-
-//             parser.add_argument<size_t>("ids")
-//                 .nargs(1, 2)
-//                 .constraint(dvlab::utils::valid_mgr_id(tableau_mgr))
-//                 .help("Compare the two Tableaus. If only one is specified, compare with the Tableau on focus");
-//         },
-//         [&](ArgumentParser const& parser) {
-//             if (!dvlab::utils::mgr_has_data(tableau_mgr)) {
-//             return dvlab::CmdExecResult::error;
-//             }
-//             auto const ids = parser.get<std::vector<size_t>>("ids");
-
-//             bool const is_equiv = std::invoke([&]() {
-//                 if (ids.size() == 1) {
-//                     return *tableau_mgr.get() == *tableau_mgr.find_by_id(ids[0]);
-//                 } else {
-//                     return *tableau_mgr.find_by_id(ids[0]) == *tableau_mgr.find_by_id(ids[1]);
-//                 }
-//             });
-
-//             if (is_equiv) {
-//                 fmt::println("{}", dvlab::fmt_ext::styled_if_ansi_supported("Equivalent", fmt::fg(fmt::terminal_color::green) | fmt::emphasis::bold));
-//             } else {
-//                 fmt::println("{}", dvlab::fmt_ext::styled_if_ansi_supported("Not Equivalent", fmt::fg(fmt::terminal_color::red) | fmt::emphasis::bold));
-//             }
-//             return dvlab::CmdExecResult::done;
-//         }};
-// }
-
 dvlab::Command tableau_apply_cmd(TableauMgr& tableau_mgr) {
     return dvlab::Command{
         "apply",
@@ -268,15 +234,15 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr) {
 dvlab::Command tableau_cmd(TableauMgr& tableau_mgr) {
     auto cmd = dvlab::utils::mgr_root_cmd(tableau_mgr);
 
-    cmd.add_subcommand(dvlab::utils::mgr_list_cmd(tableau_mgr));
-    cmd.add_subcommand(tableau_new_cmd(tableau_mgr));
-    cmd.add_subcommand(dvlab::utils::mgr_delete_cmd(tableau_mgr));
-    cmd.add_subcommand(dvlab::utils::mgr_checkout_cmd(tableau_mgr));
-    cmd.add_subcommand(dvlab::utils::mgr_copy_cmd(tableau_mgr));
-    cmd.add_subcommand(tableau_apply_cmd(tableau_mgr));
-    cmd.add_subcommand(tableau_adjoint_cmd(tableau_mgr));
-    cmd.add_subcommand(tableau_print_cmd(tableau_mgr));
-    cmd.add_subcommand(tableau_optimization_cmd(tableau_mgr));
+    cmd.add_subcommand("tableau-cmd-group", dvlab::utils::mgr_list_cmd(tableau_mgr));
+    cmd.add_subcommand("tableau-cmd-group", tableau_new_cmd(tableau_mgr));
+    cmd.add_subcommand("tableau-cmd-group", dvlab::utils::mgr_delete_cmd(tableau_mgr));
+    cmd.add_subcommand("tableau-cmd-group", dvlab::utils::mgr_checkout_cmd(tableau_mgr));
+    cmd.add_subcommand("tableau-cmd-group", dvlab::utils::mgr_copy_cmd(tableau_mgr));
+    cmd.add_subcommand("tableau-cmd-group", tableau_apply_cmd(tableau_mgr));
+    cmd.add_subcommand("tableau-cmd-group", tableau_adjoint_cmd(tableau_mgr));
+    cmd.add_subcommand("tableau-cmd-group", tableau_print_cmd(tableau_mgr));
+    cmd.add_subcommand("tableau-cmd-group", tableau_optimization_cmd(tableau_mgr));
 
     return cmd;
 }

@@ -134,7 +134,9 @@ public:
     CliffordOperatorString synthesize(StabilizerTableau copy) const override;
 };
 
-CliffordOperatorString extract_clifford_operators(StabilizerTableau copy, StabilizerTableauSynthesisStrategy const& strategy = HOptSynthesisStrategy{});
+CliffordOperatorString extract_clifford_operators(
+    StabilizerTableau copy,
+    StabilizerTableauSynthesisStrategy const& strategy = HOptSynthesisStrategy{});
 
 }  // namespace experimental
 

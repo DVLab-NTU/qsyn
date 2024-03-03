@@ -18,6 +18,7 @@
 #include "util/data_structure_manager_common_cmd.hpp"
 #include "zx/simplifier/simp_cmd.hpp"
 #include "zx/zx_io.hpp"
+#include "zx/zxgraph.hpp"
 
 using namespace dvlab::argparse;
 using dvlab::CmdExecResult;
@@ -403,7 +404,7 @@ Command zxgraph_vertex_add_cmd(ZXGraphMgr& zxgraph_mgr) {
             [](ArgumentParser& parser) {
                 parser.description("add vertices to ZXGraph");
 
-                auto subparsers = parser.add_subparsers().required(true);
+                auto subparsers = parser.add_subparsers("vertex-type").required(true);
 
                 auto i_parser = subparsers.add_parser("input")
                                     .description("add input vertex to ZXGraph");
@@ -438,8 +439,8 @@ Command zxgraph_vertex_add_cmd(ZXGraphMgr& zxgraph_mgr) {
             },
             [&](ArgumentParser const& parser) {
                 if (!dvlab::utils::mgr_has_data(zxgraph_mgr)) return CmdExecResult::error;
-
-                if (parser.used_subparser("input")) {
+                auto vertex_type = parser.get<std::string>("vertex-type");
+                if (vertex_type == "input") {
                     auto const qid = parser.parsed("qubit")
                                          ? parser.get<QubitIdType>("qubit")
                                          : gsl::narrow<QubitIdType>(std::ranges::max(zxgraph_mgr.get()->get_input_list() | std::views::keys) + 1);
@@ -455,7 +456,7 @@ Command zxgraph_vertex_add_cmd(ZXGraphMgr& zxgraph_mgr) {
                     return CmdExecResult::done;
                 }
 
-                if (parser.used_subparser("output")) {
+                if (vertex_type == "output") {
                     auto const qid = parser.parsed("qubit")
                                          ? parser.get<QubitIdType>("qubit")
                                          : gsl::narrow<QubitIdType>(std::ranges::max(zxgraph_mgr.get()->get_output_list() | std::views::keys) + 1);
@@ -472,9 +473,9 @@ Command zxgraph_vertex_add_cmd(ZXGraphMgr& zxgraph_mgr) {
                 }
 
                 auto const vtype = std::invoke([&]() -> std::optional<VertexType> {
-                    if (parser.used_subparser("zspider")) return VertexType::z;
-                    if (parser.used_subparser("xspider")) return VertexType::x;
-                    if (parser.used_subparser("hbox")) return VertexType::h_box;
+                    if (vertex_type == "zspider") return VertexType::z;
+                    if (vertex_type == "xspider") return VertexType::x;
+                    if (vertex_type == "hbox") return VertexType::h_box;
                     return std::nullopt;
                 });
                 assert(vtype.has_value());
@@ -534,13 +535,13 @@ Command zxgraph_vertex_cmd(ZXGraphMgr& zxgraph_mgr) {
         [](ArgumentParser& parser) {
             parser.description("add, remove, or edit vertices of ZXGraph");
 
-            parser.add_subparsers().required(true);
+            parser.add_subparsers("vertex-action").required(true);
         },
         [](ArgumentParser const& /*parser*/) {
             return CmdExecResult::done;
         }};
-    cmd.add_subcommand(zxgraph_vertex_add_cmd(zxgraph_mgr));
-    cmd.add_subcommand(zxgraph_vertex_remove_cmd(zxgraph_mgr));
+    cmd.add_subcommand("vertex-action", zxgraph_vertex_add_cmd(zxgraph_mgr));
+    cmd.add_subcommand("vertex-action", zxgraph_vertex_remove_cmd(zxgraph_mgr));
     return cmd;
 }
 
@@ -639,13 +640,13 @@ Command zxgraph_edge_cmd(ZXGraphMgr& zxgraph_mgr) {
         [](ArgumentParser& parser) {
             parser.description("add, remove, or edit edges of ZXGraph");
 
-            parser.add_subparsers().required(true);
+            parser.add_subparsers("edge-action").required(true);
         },
         [](ArgumentParser const& /*parser*/) {
             return CmdExecResult::done;
         }};
-    cmd.add_subcommand(zxgraph_edge_add_cmd(zxgraph_mgr));
-    cmd.add_subcommand(zxgraph_edge_remove_cmd(zxgraph_mgr));
+    cmd.add_subcommand("edge-action", zxgraph_edge_add_cmd(zxgraph_mgr));
+    cmd.add_subcommand("edge-action", zxgraph_edge_remove_cmd(zxgraph_mgr));
     return cmd;
 }
 
@@ -661,26 +662,26 @@ Command zxgraph_cmd(ZXGraphMgr& zxgraph_mgr) {
             zxgraph_mgr.print_manager();
             return CmdExecResult::done;
         }};
-    cmd.add_subcommand(mgr_list_cmd(zxgraph_mgr));
-    cmd.add_subcommand(mgr_checkout_cmd(zxgraph_mgr));
-    cmd.add_subcommand(mgr_new_cmd(zxgraph_mgr));
-    cmd.add_subcommand(mgr_delete_cmd(zxgraph_mgr));
-    cmd.add_subcommand(mgr_copy_cmd(zxgraph_mgr));
-    cmd.add_subcommand(zxgraph_compose_cmd(zxgraph_mgr));
-    cmd.add_subcommand(zxgraph_tensor_product_cmd(zxgraph_mgr));
-    cmd.add_subcommand(zxgraph_print_cmd(zxgraph_mgr));
-    cmd.add_subcommand(zxgraph_read_cmd(zxgraph_mgr));
-    cmd.add_subcommand(zxgraph_write_cmd(zxgraph_mgr));
-    cmd.add_subcommand(zxgraph_draw_cmd(zxgraph_mgr));
-    cmd.add_subcommand(zxgraph_assign_boundary_cmd(zxgraph_mgr));
-    cmd.add_subcommand(zxgraph_adjoint_cmd(zxgraph_mgr));
-    cmd.add_subcommand(zxgraph_test_cmd(zxgraph_mgr));
-    cmd.add_subcommand(zxgraph_gflow_cmd(zxgraph_mgr));
-    cmd.add_subcommand(zxgraph_optimize_cmd(zxgraph_mgr));
-    cmd.add_subcommand(zxgraph_rule_cmd(zxgraph_mgr));
-    cmd.add_subcommand(zxgraph_manual_apply_cmd(zxgraph_mgr));
-    cmd.add_subcommand(zxgraph_vertex_cmd(zxgraph_mgr));
-    cmd.add_subcommand(zxgraph_edge_cmd(zxgraph_mgr));
+    cmd.add_subcommand("zx-cmd-group", mgr_list_cmd(zxgraph_mgr));
+    cmd.add_subcommand("zx-cmd-group", mgr_checkout_cmd(zxgraph_mgr));
+    cmd.add_subcommand("zx-cmd-group", mgr_new_cmd(zxgraph_mgr));
+    cmd.add_subcommand("zx-cmd-group", mgr_delete_cmd(zxgraph_mgr));
+    cmd.add_subcommand("zx-cmd-group", mgr_copy_cmd(zxgraph_mgr));
+    cmd.add_subcommand("zx-cmd-group", zxgraph_compose_cmd(zxgraph_mgr));
+    cmd.add_subcommand("zx-cmd-group", zxgraph_tensor_product_cmd(zxgraph_mgr));
+    cmd.add_subcommand("zx-cmd-group", zxgraph_print_cmd(zxgraph_mgr));
+    cmd.add_subcommand("zx-cmd-group", zxgraph_read_cmd(zxgraph_mgr));
+    cmd.add_subcommand("zx-cmd-group", zxgraph_write_cmd(zxgraph_mgr));
+    cmd.add_subcommand("zx-cmd-group", zxgraph_draw_cmd(zxgraph_mgr));
+    cmd.add_subcommand("zx-cmd-group", zxgraph_assign_boundary_cmd(zxgraph_mgr));
+    cmd.add_subcommand("zx-cmd-group", zxgraph_adjoint_cmd(zxgraph_mgr));
+    cmd.add_subcommand("zx-cmd-group", zxgraph_test_cmd(zxgraph_mgr));
+    cmd.add_subcommand("zx-cmd-group", zxgraph_gflow_cmd(zxgraph_mgr));
+    cmd.add_subcommand("zx-cmd-group", zxgraph_optimize_cmd(zxgraph_mgr));
+    cmd.add_subcommand("zx-cmd-group", zxgraph_rule_cmd(zxgraph_mgr));
+    cmd.add_subcommand("zx-cmd-group", zxgraph_manual_apply_cmd(zxgraph_mgr));
+    cmd.add_subcommand("zx-cmd-group", zxgraph_vertex_cmd(zxgraph_mgr));
+    cmd.add_subcommand("zx-cmd-group", zxgraph_edge_cmd(zxgraph_mgr));
     return cmd;
 }
 

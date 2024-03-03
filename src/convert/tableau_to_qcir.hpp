@@ -26,9 +26,16 @@ struct NaivePauliRotationsSynthesisStrategy : public PauliRotationsSynthesisStra
     qcir::QCir synthesize(std::vector<PauliRotation> const& rotations) const override;
 };
 
-qcir::QCir to_qcir(StabilizerTableau clifford, StabilizerTableauSynthesisStrategy const& extractor = HOptSynthesisStrategy{});
-qcir::QCir to_qcir(std::vector<PauliRotation> const& pauli_rotations);
-qcir::QCir to_qcir(Tableau const& tableau, StabilizerTableauSynthesisStrategy const& extractor = HOptSynthesisStrategy{});
+qcir::QCir to_qcir(
+    StabilizerTableau clifford,
+    StabilizerTableauSynthesisStrategy const& strategy = HOptSynthesisStrategy{});
+qcir::QCir to_qcir(
+    std::vector<PauliRotation> const& rotations,
+    PauliRotationsSynthesisStrategy const& strategy = NaivePauliRotationsSynthesisStrategy{});
+qcir::QCir to_qcir(
+    Tableau const& tableau,
+    StabilizerTableauSynthesisStrategy const& st_strategy = HOptSynthesisStrategy{},
+    PauliRotationsSynthesisStrategy const& pr_strategy    = NaivePauliRotationsSynthesisStrategy{});
 
 }  // namespace experimental
 
