@@ -82,13 +82,13 @@ private:
     } _statistics;
 
     // Utils
-    enum class _ElementType {
+    enum class ElementType {
         h,
         x,
         z
     };
-    void _toggle_element(_ElementType type, QubitIdType element);
-    void _swap_element(_ElementType type, QubitIdType e1, QubitIdType e2);
+    void _toggle_element(ElementType type, QubitIdType element);
+    void _swap_element(ElementType type, QubitIdType e1, QubitIdType e2);
     static std::vector<size_t> _compute_stats(QCir const& circuit);
 
     QCir _parse_once(QCir const& qcir, bool reversed, bool do_minimize_czs, BasicOptimizationConfig const& config);

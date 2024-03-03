@@ -31,7 +31,7 @@ struct TParPauliRotationsSynthesisStrategy : public PauliRotationsSynthesisStrat
 };
 
 std::optional<qcir::QCir> to_qcir(
-    StabilizerTableau clifford,
+    StabilizerTableau const& clifford,
     StabilizerTableauSynthesisStrategy const& strategy);
 std::optional<qcir::QCir> to_qcir(
     std::vector<PauliRotation> const& rotations,

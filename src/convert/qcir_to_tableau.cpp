@@ -41,13 +41,13 @@ Pauli to_pauli(qcir::GateRotationCategory const& category) {
     switch (category) {
         case qcir::GateRotationCategory::rz:
         case qcir::GateRotationCategory::pz:
-            return Pauli::Z;
+            return Pauli::z;
         case qcir::GateRotationCategory::rx:
         case qcir::GateRotationCategory::px:
-            return Pauli::X;
+            return Pauli::x;
         case qcir::GateRotationCategory::ry:
         case qcir::GateRotationCategory::py:
-            return Pauli::Y;
+            return Pauli::y;
         default:
             DVLAB_UNREACHABLE("Invalid rotation category");
     }
@@ -133,7 +133,7 @@ void implement_mcrz(Tableau& tableau, qcir::QCirGate const& gate, dvlab::Phase c
                 std::views::iota(0ul, tableau.n_qubits()) |
                 std::views::transform([&qubit_idx_vec, &comb_size, targ](auto i) -> Pauli {
                     // if i is in qubit_idx_range, return Z, otherwise I
-                    return (i == targ) || contains(qubit_idx_vec | std::views::take(comb_size), i) ? Pauli::Z : Pauli::I;
+                    return (i == targ) || contains(qubit_idx_vec | std::views::take(comb_size), i) ? Pauli::z : Pauli::i;
                 }) |
                 tl::to<std::vector>();
             last_rotation_group.push_back(PauliRotation(pauli_range.begin(), pauli_range.end(), is_neg ? -phase : phase));
@@ -155,7 +155,7 @@ void implement_mcpz(Tableau& tableau, qcir::QCirGate const& gate, dvlab::Phase c
             auto const pauli_range =
                 std::views::iota(0ul, tableau.n_qubits()) |
                 std::views::transform([&qubit_idx_vec, &comb_size](auto i) -> Pauli {
-                    return contains(qubit_idx_vec | std::views::take(comb_size), i) ? Pauli::Z : Pauli::I;
+                    return contains(qubit_idx_vec | std::views::take(comb_size), i) ? Pauli::z : Pauli::i;
                 }) |
                 tl::to<std::vector>();
             last_rotation_group.push_back(PauliRotation(pauli_range.begin(), pauli_range.end(), is_neg ? -phase : phase));
@@ -173,9 +173,9 @@ void implement_rotation_gate(Tableau& tableau, qcir::QCirGate const& gate) {
 
     auto const targ = gsl::narrow<size_t>(gate.get_qubits().back()._qubit);
     // convert rotation plane first
-    if (pauli == Pauli::X) {
+    if (pauli == Pauli::x) {
         tableau.h(targ);
-    } else if (pauli == Pauli::Y) {
+    } else if (pauli == Pauli::y) {
         tableau.v(targ);
     }
 
@@ -190,9 +190,9 @@ void implement_rotation_gate(Tableau& tableau, qcir::QCirGate const& gate) {
     }
 
     // restore rotation plane
-    if (pauli == Pauli::X) {
+    if (pauli == Pauli::x) {
         tableau.h(targ);
-    } else if (pauli == Pauli::Y) {
+    } else if (pauli == Pauli::y) {
         tableau.vdg(targ);
     }
 }

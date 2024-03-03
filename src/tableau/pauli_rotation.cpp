@@ -62,13 +62,13 @@ std::string to_string(CliffordOperatorType type) {
 }
 
 uint8_t power_of_i(Pauli a, Pauli b) {
-    if (a == Pauli::X && b == Pauli::Y) return 1;
-    if (a == Pauli::Y && b == Pauli::Z) return 1;
-    if (a == Pauli::Z && b == Pauli::X) return 1;
+    if (a == Pauli::x && b == Pauli::y) return 1;
+    if (a == Pauli::y && b == Pauli::z) return 1;
+    if (a == Pauli::z && b == Pauli::x) return 1;
 
-    if (a == Pauli::X && b == Pauli::Z) return 3;
-    if (a == Pauli::Z && b == Pauli::Y) return 3;
-    if (a == Pauli::Y && b == Pauli::X) return 3;
+    if (a == Pauli::x && b == Pauli::z) return 3;
+    if (a == Pauli::z && b == Pauli::y) return 3;
+    if (a == Pauli::y && b == Pauli::x) return 3;
     return 0;
 }
 
@@ -80,17 +80,17 @@ PauliProduct::PauliProduct(std::initializer_list<Pauli> const& pauli_list, bool 
 
     for (size_t i = 0; i < pauli_list.size(); ++i) {
         switch (pauli_list.begin()[i]) {
-            case Pauli::I:
+            case Pauli::i:
                 break;
-            case Pauli::Z:
-                _bitset.set(z_idx(i));
+            case Pauli::z:
+                _bitset.set(_z_idx(i));
                 break;
-            case Pauli::Y:
-                _bitset.set(z_idx(i));
-                _bitset.set(x_idx(i));
+            case Pauli::y:
+                _bitset.set(_z_idx(i));
+                _bitset.set(_x_idx(i));
                 break;
-            case Pauli::X:
-                _bitset.set(x_idx(i));
+            case Pauli::x:
+                _bitset.set(_x_idx(i));
                 break;
         }
     }
@@ -113,14 +113,14 @@ PauliProduct::PauliProduct(std::string_view pauli_str) {
             case 'I':
                 break;
             case 'Z':
-                _bitset.set(z_idx(i));
+                _bitset.set(_z_idx(i));
                 break;
             case 'Y':
-                _bitset.set(z_idx(i));
-                _bitset.set(x_idx(i));
+                _bitset.set(_z_idx(i));
+                _bitset.set(_x_idx(i));
                 break;
             case 'X':
-                _bitset.set(x_idx(i));
+                _bitset.set(_x_idx(i));
                 break;
         }
     }
@@ -134,7 +134,7 @@ PauliProduct& PauliProduct::operator*=(PauliProduct const& rhs) {
         power_of_i += qsyn::experimental::power_of_i(get_pauli_type(i), rhs.get_pauli_type(i));
     }
     if ((power_of_i % 4) >> 1 == 1) {
-        _bitset.flip(r_idx());
+        _bitset.flip(_r_idx());
     }
     _bitset ^= rhs._bitset;
     return *this;
@@ -152,16 +152,16 @@ std::string PauliProduct::to_string(char signedness) const {
 
     for (size_t i = 0; i < n_qubits(); ++i) {
         switch (get_pauli_type(i)) {
-            case Pauli::I:
+            case Pauli::i:
                 str += 'I';
                 break;
-            case Pauli::X:
+            case Pauli::x:
                 str += 'X';
                 break;
-            case Pauli::Y:
+            case Pauli::y:
                 str += 'Y';
                 break;
-            case Pauli::Z:
+            case Pauli::z:
                 str += 'Z';
                 break;
         }
@@ -198,18 +198,18 @@ void bitset_swap_two(size_t i, size_t j, sul::dynamic_bitset<>& bitset) {
 PauliProduct& PauliProduct::h(size_t qubit) {
     if (qubit >= n_qubits()) return *this;
     if (is_y(qubit)) {
-        _bitset.flip(r_idx());
+        _bitset.flip(_r_idx());
     }
-    bitset_swap_two(z_idx(qubit), x_idx(qubit), _bitset);
+    bitset_swap_two(_z_idx(qubit), _x_idx(qubit), _bitset);
     return *this;
 }
 
 PauliProduct& PauliProduct::s(size_t qubit) {
     if (qubit >= n_qubits()) return *this;
     if (is_y(qubit)) {
-        _bitset.flip(r_idx());
+        _bitset.flip(_r_idx());
     }
-    _bitset[z_idx(qubit)] ^= _bitset[x_idx(qubit)];
+    _bitset[_z_idx(qubit)] ^= _bitset[_x_idx(qubit)];
     return *this;
 }
 
@@ -217,11 +217,11 @@ PauliProduct& PauliProduct::cx(size_t control, size_t target) {
     if (control >= n_qubits() || target >= n_qubits()) {
         return *this;
     }
-    if (_bitset[x_idx(control)] && _bitset[z_idx(target)] && (_bitset[x_idx(target)] == _bitset[z_idx(control)])) {
-        _bitset.flip(r_idx());
+    if (_bitset[_x_idx(control)] && _bitset[_z_idx(target)] && (_bitset[_x_idx(target)] == _bitset[_z_idx(control)])) {
+        _bitset.flip(_r_idx());
     }
-    _bitset[x_idx(target)] ^= _bitset[x_idx(control)];
-    _bitset[z_idx(control)] ^= _bitset[z_idx(target)];
+    _bitset[_x_idx(target)] ^= _bitset[_x_idx(control)];
+    _bitset[_z_idx(control)] ^= _bitset[_z_idx(target)];
 
     return *this;
 }
@@ -236,10 +236,10 @@ bool PauliProduct::is_commutative(PauliProduct const& rhs) const {
 }
 
 PauliRotation::PauliRotation(std::initializer_list<Pauli> const& pauli_list, dvlab::Phase const& phase)
-    : _pauli_product(pauli_list, false), _phase(phase) { normalize(); }
+    : _pauli_product(pauli_list, false), _phase(phase) { _normalize(); }
 
 PauliRotation::PauliRotation(std::string_view pauli_str, dvlab::Phase const& phase)
-    : _pauli_product(pauli_str), _phase(phase) { normalize(); }
+    : _pauli_product(pauli_str), _phase(phase) { _normalize(); }
 
 std::string PauliRotation::to_string(char signedness) const {
     return fmt::format("exp(i * {} * {})", _phase.get_print_string(), _pauli_product.to_string(signedness));
@@ -251,19 +251,19 @@ std::string PauliRotation::to_bit_string() const {
 
 PauliRotation& PauliRotation::h(size_t qubit) {
     _pauli_product.h(qubit);
-    normalize();
+    _normalize();
     return *this;
 }
 
 PauliRotation& PauliRotation::s(size_t qubit) {
     _pauli_product.s(qubit);
-    normalize();
+    _normalize();
     return *this;
 }
 
 PauliRotation& PauliRotation::cx(size_t control, size_t target) {
     _pauli_product.cx(control, target);
-    normalize();
+    _normalize();
     return *this;
 }
 
@@ -271,15 +271,15 @@ std::pair<CliffordOperatorString, size_t> extract_clifford_operators(PauliRotati
     using COT = CliffordOperatorType;
     std::vector<CliffordOperator> clifford_ops;
     for (size_t i = 0; i < pauli_rotation.n_qubits(); ++i) {
-        if (pauli_rotation.get_pauli_type(i) == Pauli::X) {
+        if (pauli_rotation.get_pauli_type(i) == Pauli::x) {
             clifford_ops.emplace_back(COT::h, std::array<size_t, 2>{i});
-        } else if (pauli_rotation.get_pauli_type(i) == Pauli::Y) {
+        } else if (pauli_rotation.get_pauli_type(i) == Pauli::y) {
             clifford_ops.emplace_back(COT::v, std::array<size_t, 2>{i});
         }
     }
     auto const non_I_qubits = std::ranges::views::iota(0ul, pauli_rotation.n_qubits()) |
                               std::ranges::views::filter([&pauli_rotation](size_t i) {
-                                  return pauli_rotation.get_pauli_type(i) != Pauli::I;
+                                  return pauli_rotation.get_pauli_type(i) != Pauli::i;
                               }) |
                               tl::to<std::vector>();
 

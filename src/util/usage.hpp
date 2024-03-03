@@ -21,13 +21,13 @@ public:
 
 private:
     // for Memory usage (in MB)
-    static double _initial_memory;
-    static double _current_memory;
+    static double INITIAL_MEMORY;
+    static double CURRENT_MEMORY;
 
     // for CPU time usage
-    static double _current_tick;
-    static double _period_used_time;
-    static double _total_used_time;
+    static double CURRENT_TICK;
+    static double PERIOD_USED_TIME;
+    static double TOTAL_USED_TIME;
 
     // private functions
     static double _check_memory();

@@ -20,6 +20,8 @@ Checks: >
   misc-unused-*,
   misc-use-anonymous-namespace,
   readability-*,
+  -readability-implicit-bool-conversion,
+  -readability-redundant-string-init,
   -readability-qualified-auto,
   -readability-function-cognitive-complexity,
   -readability-else-after-return,

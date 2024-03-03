@@ -454,7 +454,7 @@ dvlab::Command qcir_gate_add_cmd(QCirMgr& qcir_mgr) {
 
             if (is_gate_category(single_qubit_gates_no_phase) ||
                 is_gate_category(single_qubit_gates_with_phase)) {
-                if (bits.size() < 1) {
+                if (bits.empty()) {
                     spdlog::error("Too few qubits are supplied for gate {}!!", type);
                     return CmdExecResult::error;
                 } else if (bits.size() > 1) {

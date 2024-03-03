@@ -29,7 +29,7 @@
 namespace dvlab {
 
 namespace detail {
-struct heterogeneous_string_hash {
+struct HeterogenousStringHash {
     using is_transparent = void;
 
     [[nodiscard]] size_t operator()(std::string_view str) const noexcept { return std::hash<std::string_view>{}(str); }
@@ -99,7 +99,7 @@ class CommandLineInterface {
     static constexpr size_t read_buf_size = 65536;
     static constexpr size_t page_offset   = 10;
 
-    using CmdMap = std::unordered_map<std::string, std::unique_ptr<dvlab::Command>, detail::heterogeneous_string_hash, std::equal_to<>>;
+    using CmdMap = std::unordered_map<std::string, std::unique_ptr<dvlab::Command>, detail::HeterogenousStringHash, std::equal_to<>>;
 
 public:
     /**
@@ -206,8 +206,8 @@ private:
         std::vector<HistoryEntry> _history;
     };
     bool _echo = true;
-    std::unordered_map<std::string, std::string, detail::heterogeneous_string_hash, std::equal_to<>> _aliases;
-    std::unordered_map<std::string, std::string, detail::heterogeneous_string_hash, std::equal_to<>> _variables;  // stores the variables key-value pairs, e.g., $1, $INPUT_FILE, etc...
+    std::unordered_map<std::string, std::string, detail::HeterogenousStringHash, std::equal_to<>> _aliases;
+    std::unordered_map<std::string, std::string, detail::HeterogenousStringHash, std::equal_to<>> _variables;  // stores the variables key-value pairs, e.g., $1, $INPUT_FILE, etc...
 
     std::stack<jthread::jthread> _command_threads;
 
