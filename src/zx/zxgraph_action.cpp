@@ -33,7 +33,7 @@ void ZXGraph::sort_io_by_qubit() {
  *
  * @param v
  */
-void ZXGraph::toggle_vertex(ZXVertex* v) {
+void ZXGraph::toggle_vertex(ZXVertex* v) const {
     if (!v->is_z() && !v->is_x()) return;
     Neighbors toggled_neighbors;
     for (auto& [nb, etype] : this->get_neighbors(v)) {

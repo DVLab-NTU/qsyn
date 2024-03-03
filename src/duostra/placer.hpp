@@ -26,7 +26,7 @@ public:
     BasePlacer() {}
     virtual ~BasePlacer() = default;
 
-    std::vector<QubitIdType> place_and_assign(Device&);
+    std::vector<QubitIdType> place_and_assign(Device& device);
 
 protected:
     virtual std::vector<QubitIdType> _place(Device&) const = 0;

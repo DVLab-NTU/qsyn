@@ -161,7 +161,7 @@ dvlab::CommandLineInterface::TabActionResult dvlab::CommandLineInterface::_match
                               std::views::filter([&var_key](std::string_view key) { return key.starts_with(var_key); }) |
                               tl::to<std::vector>();
 
-    if (matching_variables.size() == 0) {
+    if (matching_variables.empty()) {
         return TabActionResult::no_op;
     }
 
@@ -217,7 +217,7 @@ dvlab::CommandLineInterface::TabActionResult dvlab::CommandLineInterface::_match
     std::vector<std::string> files = _get_file_matches(filepath);
 
     // no matched file
-    if (files.size() == 0) {
+    if (files.empty()) {
         return TabActionResult::no_op;
     }
 
@@ -342,7 +342,7 @@ bool dvlab::CommandLineInterface::_autocomplete(std::string prefix_copy, std::ve
         _insert_char(ch);
     }
 
-    return autocomplete_str.size() > 0;
+    return !autocomplete_str.empty();
 }
 
 void dvlab::CommandLineInterface::_print_as_table(std::vector<std::string> words) const {

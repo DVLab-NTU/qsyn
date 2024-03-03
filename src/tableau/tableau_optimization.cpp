@@ -33,36 +33,36 @@ public:
     ConjugationView(
         StabilizerTableau& clifford,
         std::vector<PauliRotation>& rotations,
-        size_t upto) : clifford{clifford}, rotations{rotations}, upto{upto} {}
+        size_t upto) : _clifford{clifford}, _rotations{rotations}, _upto{upto} {}
 
     ConjugationView& h(size_t qubit) override {
-        clifford.get().h(qubit);
-        for (size_t i = 0; i < upto; ++i) {
-            rotations.get()[i].h(qubit);
+        _clifford.get().h(qubit);
+        for (size_t i = 0; i < _upto; ++i) {
+            _rotations.get()[i].h(qubit);
         }
         return *this;
     }
 
     ConjugationView& s(size_t qubit) override {
-        clifford.get().s(qubit);
-        for (size_t i = 0; i < upto; ++i) {
-            rotations.get()[i].s(qubit);
+        _clifford.get().s(qubit);
+        for (size_t i = 0; i < _upto; ++i) {
+            _rotations.get()[i].s(qubit);
         }
         return *this;
     }
 
     ConjugationView& cx(size_t control, size_t target) override {
-        clifford.get().cx(control, target);
-        for (size_t i = 0; i < upto; ++i) {
-            rotations.get()[i].cx(control, target);
+        _clifford.get().cx(control, target);
+        for (size_t i = 0; i < _upto; ++i) {
+            _rotations.get()[i].cx(control, target);
         }
         return *this;
     }
 
 private:
-    std::reference_wrapper<StabilizerTableau> clifford;
-    std::reference_wrapper<std::vector<PauliRotation>> rotations;
-    size_t upto;
+    std::reference_wrapper<StabilizerTableau> _clifford;
+    std::reference_wrapper<std::vector<PauliRotation>> _rotations;
+    size_t _upto;
 };
 
 }  // namespace
@@ -424,14 +424,14 @@ std::optional<Tableau> matroid_partition(Tableau const& tableau, MatroidPartitio
 auto MatroidPartitionStrategy::is_independent(std::vector<PauliRotation> const& polynomial, size_t num_ancillae) const -> bool {
     DVLAB_ASSERT(is_phase_polynomial(polynomial), "The input pauli rotations a phase polynomial.");
 
-    auto const dimV = polynomial.front().n_qubits();
-    auto const n    = dimV + num_ancillae;
+    auto const dim_v = polynomial.front().n_qubits();
+    auto const n     = dim_v + num_ancillae;
     // equivalent to the independence oracle lemma:
     //     dim(V) - rank(S) <= n - |S|
     // in the literature, where n is the number of qubits = polynomial dimension + num_ancillae
     // ref: [Polynomial-time T-depth Optimization of Clifford+T circuits via Matroid Partitioning](https://arxiv.org/pdf/1303.2042.pdf)
     // Here, we reorganize the inequality to make circumvent unsigned integer overflow
-    return dimV + polynomial.size() <= n + matrix_rank(polynomial);
+    return dim_v + polynomial.size() <= n + matrix_rank(polynomial);
 };
 
 MatroidPartitionStrategy::Partitions NaiveMatroidPartitionStrategy::partition(MatroidPartitionStrategy::Polynomial const& polynomial, size_t num_ancillae) const {

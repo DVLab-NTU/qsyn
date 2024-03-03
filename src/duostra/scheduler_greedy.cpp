@@ -77,7 +77,7 @@ GreedyScheduler::Device GreedyScheduler::_assign_gates(std::unique_ptr<Router> r
             return router->get_device();
         }
         auto waitlist = topo_wrap.get_available_gates();
-        assert(waitlist.size() > 0);
+        assert(!waitlist.empty());
 
         auto gate_idx = get_executable_gate(*router);
         if (gate_idx == std::nullopt) {

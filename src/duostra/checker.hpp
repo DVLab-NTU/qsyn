@@ -28,11 +28,11 @@ public:
 
     size_t get_cycle(Operation const& op);
 
-    void apply_gate(Operation const&, PhysicalQubit&);
-    void apply_gate(Operation const&, PhysicalQubit&, PhysicalQubit&);
-    void apply_swap(Operation const&);
-    bool apply_cx(Operation const&, Gate const&);
-    bool apply_single(Operation const&, Gate const&);
+    void apply_gate(Operation const& op, PhysicalQubit& q0);
+    void apply_gate(Operation const& op, PhysicalQubit& q0, PhysicalQubit& q1);
+    void apply_swap(Operation const& op);
+    bool apply_cx(Operation const& op, Gate const& gate);
+    bool apply_single(Operation const& op, Gate const& gate);
 
     bool test_operations();
 

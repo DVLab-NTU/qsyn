@@ -65,7 +65,7 @@ std::vector<dvlab::BooleanMatrix::RowOperation> Extractor::greedy_reduction(dvla
     std::vector<dvlab::BooleanMatrix::RowOperation> result;
     std::vector<size_t> indices = Extractor::find_minimal_sums(matrix);
     // Return empty vector if indices do not exist
-    if (!indices.size()) return result;
+    if (indices.empty()) return result;
     while (indices.size() > 1) {
         dvlab::BooleanMatrix::RowOperation best_operation(-1, -1);
         long reduction = -1 * static_cast<long>(matrix.num_cols());

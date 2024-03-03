@@ -223,7 +223,7 @@ void GFlow::_set_correction_set_by_matrix(ZXVertex* v, dvlab::BooleanMatrix cons
     }
     if (is_x_error(v)) _x_correction_sets[v].insert(v);
 
-    assert(_x_correction_sets[v].size());
+    assert(!_x_correction_sets[v].empty());
 }
 
 /**

@@ -46,7 +46,7 @@ QCir::QCir(QCir const &other) {
 
         new_gate->set_id(gate->get_id());
     }
-    if (other._qgates.size() > 0) {
+    if (!other._qgates.empty()) {
         this->_set_next_gate_id(1 + std::ranges::max(
                                         other._qgates | views::transform(
                                                             [](QCirGate *g) { return g->get_id(); })));
@@ -54,7 +54,7 @@ QCir::QCir(QCir const &other) {
         this->_set_next_gate_id(0);
     }
 
-    if (other._qubits.size() > 0) {
+    if (!other._qubits.empty()) {
         this->_set_next_qubit_id(1 + std::ranges::max(
                                          other._qubits | views::transform(
                                                              [](QCirQubit *qb) { return qb->get_id(); })));
@@ -296,8 +296,8 @@ void add_input_cone_to(QCirGate *gate, std::unordered_set<QCirGate *> &input_con
         QCirGate *curr_gate = q.front();
         q.pop();
 
-        for (const auto &qubitInfo : curr_gate->get_qubits()) {
-            QCirGate *parent_gate = qubitInfo._prev;
+        for (const auto &qubit_info : curr_gate->get_qubits()) {
+            QCirGate *parent_gate = qubit_info._prev;
             if (parent_gate != nullptr && !input_cone.contains(parent_gate)) {
                 input_cone.insert(parent_gate);
                 q.push(parent_gate);
@@ -319,8 +319,8 @@ void add_output_cone_to(QCirGate *gate, std::unordered_set<QCirGate *> &output_c
         QCirGate *curr_gate = q.front();
         q.pop();
 
-        for (const auto &qubitInfo : curr_gate->get_qubits()) {
-            QCirGate *child_gate = qubitInfo._next;
+        for (const auto &qubit_info : curr_gate->get_qubits()) {
+            QCirGate *child_gate = qubit_info._next;
             if (child_gate != nullptr && !output_cone.contains(child_gate)) {
                 output_cone.insert(child_gate);
                 q.push(child_gate);

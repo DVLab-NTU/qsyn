@@ -26,8 +26,6 @@
 using namespace qsyn::zx;
 using namespace qsyn::qcir;
 
-extern bool stop_requested();
-
 namespace qsyn::extractor {
 
 bool SORT_FRONTIER        = false;
@@ -241,7 +239,7 @@ bool Extractor::extract_czs(bool check) {
         _graph->remove_edge(s, t, EdgeType::hadamard);
         ops.emplace_back(GateRotationCategory::pz, dvlab::Phase(1), std::make_tuple(_qubit_map[s->get_qubit()], _qubit_map[t->get_qubit()]), std::make_tuple(0, 0));
     }
-    if (ops.size() > 0) {
+    if (!ops.empty()) {
         prepend_series_gates(ops);
     }
     _logical_circuit->print_circuit_diagram(spdlog::level::level_enum::trace);
@@ -343,7 +341,7 @@ size_t Extractor::extract_hadamards_from_matrix(bool check) {
         _graph->remove_vertex(f);
     }
 
-    if (check && front_neigh_pairs.size() == 0) {
+    if (check && front_neigh_pairs.empty()) {
         spdlog::error("No candidate found!!");
         print_matrix();
     }
@@ -506,7 +504,7 @@ Extractor::Target Extractor::_find_column_swap(Target target) {
                 break;
             }
 
-            if (free_cols.size() == 0) {
+            if (free_cols.empty()) {
                 spdlog::debug("No free column for column optimal swap!!");
                 return {};  // NOTE - Contradiction
             }
@@ -587,12 +585,12 @@ bool Extractor::biadjacency_eliminations(bool check) {
         }
     }
 
-    if (SORT_FRONTIER == true) {
+    if (SORT_FRONTIER) {
         _frontier.sort([](ZXVertex const* a, ZXVertex const* b) {
             return a->get_qubit() < b->get_qubit();
         });
     }
-    if (SORT_NEIGHBORS == true) {
+    if (SORT_NEIGHBORS) {
         // REVIEW - Do not know why sort here would be better
         _neighbors.sort([](ZXVertex const* a, ZXVertex const* b) {
             return a->get_id() < b->get_id();
@@ -930,12 +928,9 @@ bool Extractor::frontier_is_cleaned() {
  * @return false
  */
 bool Extractor::axel_in_neighbors() {
-    for (auto& n : _neighbors) {
-        if (_axels.contains(n)) {
-            return true;
-        }
-    }
-    return false;
+    return std::ranges::any_of(_neighbors, [&](auto& n) {
+        return _axels.contains(n);
+    });
 }
 
 /**
@@ -945,11 +940,9 @@ bool Extractor::axel_in_neighbors() {
  * @return false
  */
 bool Extractor::contains_single_neighbor() {
-    for (auto& f : _frontier) {
-        if (_graph->get_num_neighbors(f) == 2)
-            return true;
-    }
-    return false;
+    return std::ranges::any_of(_frontier, [&](auto& f) {
+        return _graph->get_num_neighbors(f) == 2;
+    });
 }
 
 /**

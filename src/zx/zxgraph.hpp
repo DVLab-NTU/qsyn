@@ -183,9 +183,9 @@ public:
     bool is_input_qubit(QubitIdType qubit) const { return (_input_list.contains(qubit)); }
     bool is_output_qubit(QubitIdType qubit) const { return (_output_list.contains(qubit)); }
 
-    bool is_gadget_leaf(ZXVertex*) const;
-    bool is_gadget_axel(ZXVertex*) const;
-    bool has_dangling_neighbors(ZXVertex*) const;
+    bool is_gadget_leaf(ZXVertex* v) const;
+    bool is_gadget_axel(ZXVertex* v) const;
+    bool has_dangling_neighbors(ZXVertex* v) const;
 
     double density();
     inline size_t t_count() const {
@@ -226,7 +226,7 @@ public:
 
     // Action functions (zxGraphAction.cpp)
     void sort_io_by_qubit();
-    void toggle_vertex(ZXVertex* v);
+    void toggle_vertex(ZXVertex* v) const;
     void lift_qubit(int n);
     void relabel_vertex_ids(size_t id_start) {
         std::ranges::for_each(this->_vertices, [&id_start](ZXVertex* v) { v->set_id(id_start++); });
@@ -245,7 +245,7 @@ public:
     void print_io() const;
     void print_vertices(spdlog::level::level_enum lvl = spdlog::level::level_enum::off) const;
     void print_vertices(std::vector<size_t> cand) const;
-    void print_vertices_by_rows(spdlog::level::level_enum lvl = spdlog::level::level_enum::off, std::vector<float> cand = {}) const;
+    void print_vertices_by_rows(spdlog::level::level_enum lvl = spdlog::level::level_enum::off, std::vector<float> const& cand = {}) const;
     void print_edges() const;
 
     void print_difference(ZXGraph* other) const;

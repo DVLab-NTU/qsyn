@@ -29,16 +29,16 @@ namespace duostra {
 class MappingEquivalenceChecker {
 public:
     using Device = qsyn::device::Device;
-    MappingEquivalenceChecker(qcir::QCir*, qcir::QCir*, Device, std::vector<QubitIdType> = {}, bool = false);
+    MappingEquivalenceChecker(qcir::QCir* phy, qcir::QCir* log, Device dev, std::vector<QubitIdType> init = {}, bool reverse = false);
 
     bool check();
-    bool is_swap(qcir::QCirGate*);
-    bool execute_swap(qcir::QCirGate*, std::unordered_set<qcir::QCirGate*>&);
-    bool execute_single(qcir::QCirGate*);
-    bool execute_double(qcir::QCirGate*);
+    bool is_swap(qcir::QCirGate* candidate);
+    bool execute_swap(qcir::QCirGate* first, std::unordered_set<qcir::QCirGate*>& swaps);
+    bool execute_single(qcir::QCirGate* gate);
+    bool execute_double(qcir::QCirGate* gate);
 
     void check_remaining();
-    qcir::QCirGate* get_next(qcir::QubitInfo const&);
+    qcir::QCirGate* get_next(qcir::QubitInfo const& info) const;
 
 private:
     qcir::QCir* _physical;
