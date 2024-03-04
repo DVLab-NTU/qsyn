@@ -326,6 +326,28 @@ ZXGraph create_swap_zx_form(QCirGate* gate) {
     return g;
 }
 
+ZXGraph create_ecr_zx_form(QCirGate* gate) {
+    ZXGraph g;
+    auto qb0 = gate->get_qubits()[0]._qubit;
+    auto qb1 = gate->get_qubits()[1]._qubit;
+    auto i0  = g.add_input(qb0, 0);
+    auto o0  = g.add_output(qb0, 3);
+    auto i1  = g.add_input(qb1, 0);
+    auto o1  = g.add_output(qb1, 3);
+    auto s0  = g.add_vertex(VertexType::z, dvlab::Phase(1, 2), 0, 1);
+    auto v1  = g.add_vertex(VertexType::x, dvlab::Phase(1, 2), 1, 1);
+    auto x0  = g.add_vertex(VertexType::x, dvlab::Phase(1), 0, 2);
+
+    g.add_edge(i0, s0, EdgeType::simple);
+    g.add_edge(s0, x0, EdgeType::simple);
+    g.add_edge(x0, o0, EdgeType::simple);
+    g.add_edge(i1, v1, EdgeType::simple);
+    g.add_edge(v1, o1, EdgeType::simple);
+    g.add_edge(s0, v1, EdgeType::simple);
+
+    return g;
+}
+
 /**
  * @brief Get ZXGraph of CZ
  *
@@ -401,6 +423,9 @@ std::optional<ZXGraph> to_zxgraph(QCirGate* gate, size_t decomposition_mode) {
         // multi-qubit gates
         case GateRotationCategory::swap:
             return create_swap_zx_form(gate);
+
+        case GateRotationCategory::ecr:
+            return create_ecr_zx_form(gate);
 
         case GateRotationCategory::pz:
             if (gate->get_num_qubits() == 1) {

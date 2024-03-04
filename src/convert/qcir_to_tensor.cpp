@@ -47,8 +47,15 @@ std::optional<QTensor<double>> to_tensor(QCirGate *gate) {
                                           {0.0, 0.0, 1.0, 0.0},
                                           {0.0, 1.0, 0.0, 0.0},
                                           {0.0, 0.0, 0.0, 1.0}};
-            tensor.reshape({2, 2, 2, 2});
-            return tensor;
+            return tensor.to_qtensor();
+        }
+        case GateRotationCategory::ecr: {
+            using namespace std::complex_literals;
+            auto tensor = QTensor<double>{{0.0, 0.0, 1.0 / std::sqrt(2), 1.i / std::sqrt(2)},
+                                          {0.0, 0.0, 1.i / std::sqrt(2), 1.0 / std::sqrt(2)},
+                                          {1.0 / std::sqrt(2), -1.i / std::sqrt(2), 0.0, 0.0},
+                                          {-1.i / std::sqrt(2), 1.0 / std::sqrt(2), 0.0, 0.0}};
+            return tensor.to_qtensor();
         }
         case GateRotationCategory::pz:
             return QTensor<double>::control(QTensor<double>::pzgate(gate->get_phase()), gate->get_num_qubits() - 1);
