@@ -604,7 +604,7 @@ dvlab::Command qcir_translate_cmd(QCirMgr& qcir_mgr) {
             QCir translated_qcir;
             auto gate_set = parser.get<std::string>("gate_set");
             translated_qcir.translate(*qcir_mgr.get(), gate_set);
-            std::string filename = qcir_mgr.get()->get_filename();
+            std::string const filename = qcir_mgr.get()->get_filename();
             qcir_mgr.set(std::make_unique<QCir>(std::move(translated_qcir)));
             qcir_mgr.get()->set_filename(filename);
             return CmdExecResult::done;

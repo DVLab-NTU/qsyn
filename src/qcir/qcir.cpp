@@ -567,10 +567,10 @@ void QCir::print_gate_statistics(bool detail) const {
 void QCir::translate(QCir const &qcir, std::string const &gate_set) {
     qcir.update_topological_order();
     add_qubits(qcir.get_num_qubits());
-    Equivalence equivalence = equivalence_library[gate_set];
+    Equivalence equivalence = EQUIVALENCE_LIBRARY[gate_set];
     for (auto const *cur_gate : qcir.get_topologically_ordered_gates()) {
-        std::string type = cur_gate->get_type_str();
-        auto bit_range   = cur_gate->get_qubits() |
+        std::string const type = cur_gate->get_type_str();
+        auto bit_range         = cur_gate->get_qubits() |
                          std::views::transform([](QubitInfo const &qb) { return qb._qubit; });
 
         if (!equivalence.contains(type)) {
