@@ -64,11 +64,14 @@ public:
     bool is_version_action() const { return _pimpl->do_is_version_action(); }
     bool is_constraints_satisfied() const { return _pimpl->do_is_constraints_satisfied(); }
     bool is_parsed() const { return _pimpl->do_is_parsed(); }
-    TokensSpan get_parse_range(TokensSpan) const;
-    bool tokens_enough_to_parse(TokensSpan) const;
+    TokensSpan get_parse_range(TokensSpan tokens) const;
+    bool tokens_enough_to_parse(TokensSpan tokens) const;
 
     template <typename T>
     T get() const;
+
+    template <typename T>
+    std::optional<T> get_if() const;
 
     // setters
     void set_value_to_default() { _pimpl->do_set_value_to_default(); }
@@ -159,8 +162,17 @@ private:
  */
 template <typename T>
 T Argument::get() const {
+    if (auto ret = this->get_if<T>()) {
+        return *ret;
+    }
+    fmt::println(stderr, "[ArgParse] Error: cannot cast argument \"{}\" to target type!!", get_name());
+    throw std::runtime_error("cannot cast argument to target type");
+}
+
+template <typename T>
+std::optional<T> Argument::get_if() const {
     if constexpr (is_container_type<T>) {
-        using V = typename std::remove_cv<typename T::value_type>::type;
+        using V = typename std::decay_t<typename T::value_type>;
         if (auto ptr = dynamic_cast<Model<ArgType<V>>*>(_pimpl.get())) {
             return ptr->inner.template get<T>();
         }
@@ -169,8 +181,7 @@ T Argument::get() const {
             return ptr->inner.template get<T>();
         }
     }
-    fmt::println(stderr, "[ArgParse] Error: cannot cast argument \"{}\" to target type!!", get_name());
-    throw std::runtime_error("cannot cast argument to target type");
+    return std::nullopt;
 }
 
 template <typename T>

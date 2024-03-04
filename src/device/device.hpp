@@ -92,8 +92,8 @@ public:
 
     // traversal
     auto get_cost() const { return _cost; }
-    auto is_marked() { return _marked; }
-    auto is_taken() { return _taken; }
+    auto is_marked() const { return _marked; }
+    auto is_taken() const { return _taken; }
     auto get_source() const { return _source; }
     auto get_predecessor() const { return _pred; }
     auto get_swap_time() const { return _swap_time; }
@@ -149,7 +149,7 @@ public:
     void floyd_warshall();
     std::vector<PhysicalQubit> get_path(QubitIdType src, QubitIdType dest) const;
 
-    bool read_device(std::string const&);
+    bool read_device(std::string const& filename);
 
     void print_qubits(std::vector<size_t> candidates = {}) const;
     void print_edges(std::vector<size_t> candidates = {}) const;
@@ -183,9 +183,9 @@ private:
 
 class Operation {
 public:
-    friend std::ostream& operator<<(std::ostream&, Operation const&);
+    friend std::ostream& operator<<(std::ostream& os, Operation const& op);
 
-    Operation(qcir::GateRotationCategory, dvlab::Phase, std::tuple<size_t, size_t>, std::tuple<size_t, size_t>);
+    Operation(qcir::GateRotationCategory op, dvlab::Phase ph, std::tuple<size_t, size_t> qubits, std::tuple<size_t, size_t> duration);
 
     qcir::GateRotationCategory get_type() const { return _operation; }
     dvlab::Phase get_phase() const { return _phase; }

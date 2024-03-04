@@ -12,8 +12,10 @@
 #include <iosfwd>
 
 namespace std {
+// NOLINTBEGIN(readability-identifier-naming)
 extern istream cin;
 extern ostream cout;
 extern ostream cerr;
+// NOLINTEND(readability-identifier-naming)
 }  // namespace std
 #endif

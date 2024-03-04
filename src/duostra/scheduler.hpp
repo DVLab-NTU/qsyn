@@ -48,15 +48,15 @@ public:
     size_t get_final_cost() const;
     size_t get_total_time() const;
     size_t get_num_swaps() const;
-    std::optional<size_t> get_executable_gate(Router&) const;
+    std::optional<size_t> get_executable_gate(Router& router) const;
     size_t get_operations_cost() const;
     bool is_sorted() const { return _sorted; }
     std::vector<size_t> const& get_available_gates() const { return _circuit_topology.get_available_gates(); }
     std::vector<Operation> const& get_operations() const { return _operations; }
     std::vector<size_t> const& get_order() const { return _assign_order; }
 
-    Device assign_gates_and_sort(std::unique_ptr<Router>);
-    size_t route_one_gate(Router&, size_t, bool = false);
+    Device assign_gates_and_sort(std::unique_ptr<Router> router);
+    size_t route_one_gate(Router& router, size_t gate_id, bool forget = false);
 
 protected:
     CircuitTopology _circuit_topology;
@@ -64,7 +64,7 @@ protected:
     std::vector<size_t> _assign_order  = {};
     bool _sorted                       = false;
     bool _tqdm                         = true;
-    virtual Device _assign_gates(std::unique_ptr<Router>);
+    virtual Device _assign_gates(std::unique_ptr<Router> router);
     void _sort();
 };
 
@@ -145,13 +145,21 @@ struct TreeNodeConf {
 class TreeNode {  // NOLINT(hicpp-special-member-functions, cppcoreguidelines-special-member-functions) : copy-swap idiom
 
 public:
-    TreeNode(TreeNodeConf, size_t, std::unique_ptr<Router>, std::unique_ptr<BaseScheduler>, size_t);
-    TreeNode(TreeNodeConf, std::vector<size_t>, std::unique_ptr<Router>, std::unique_ptr<BaseScheduler>, size_t);
+    TreeNode(TreeNodeConf conf,
+             size_t gate_id,
+             std::unique_ptr<Router> router,
+             std::unique_ptr<BaseScheduler> scheduler,
+             size_t max_cost);
+    TreeNode(TreeNodeConf conf,
+             std::vector<size_t> gate_ids,
+             std::unique_ptr<Router> router,
+             std::unique_ptr<BaseScheduler> scheduler,
+             size_t max_cost);
 
     ~TreeNode() = default;
 
-    TreeNode(TreeNode const&);
-    TreeNode(TreeNode&&) noexcept = default;
+    TreeNode(TreeNode const& other);
+    TreeNode(TreeNode&& other) noexcept = default;
 
     void swap(TreeNode& other) noexcept {
         std::swap(_conf, other._conf);
@@ -172,7 +180,7 @@ public:
     }
 
     bool is_leaf() const { return _children.empty(); }
-    bool can_grow() const { return scheduler().get_available_gates().size(); }
+    bool can_grow() const { return !scheduler().get_available_gates().empty(); }
 
     TreeNode best_child(size_t depth);
     size_t best_cost(size_t depth);
@@ -209,10 +217,10 @@ class SearchScheduler : public GreedyScheduler {  // NOLINT(hicpp-special-member
 public:
     using Device    = GreedyScheduler::Device;
     using Operation = GreedyScheduler::Operation;
-    SearchScheduler(CircuitTopology const&, bool = true);
+    SearchScheduler(CircuitTopology const& topo, bool tqdm = true);
     ~SearchScheduler() override = default;
-    SearchScheduler(SearchScheduler const&);
-    SearchScheduler(SearchScheduler&&) noexcept;
+    SearchScheduler(SearchScheduler const& other);
+    SearchScheduler(SearchScheduler&& other) noexcept;
 
     SearchScheduler& operator=(SearchScheduler copy) {
         copy.swap(*this);
@@ -239,6 +247,6 @@ protected:
     void _cache_when_necessary();
 };
 
-std::unique_ptr<BaseScheduler> get_scheduler(std::unique_ptr<CircuitTopology>, bool = true);
+std::unique_ptr<BaseScheduler> get_scheduler(std::unique_ptr<CircuitTopology> topo, bool tqdm = true);
 
 }  // namespace qsyn::duostra

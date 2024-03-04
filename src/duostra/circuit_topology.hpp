@@ -43,10 +43,10 @@ public:
     void set_phase(dvlab::Phase p) { _phase = p; }
     void add_prev(size_t prev_gate_id);
     void add_next(size_t next_gate_id);
-    void set_prevs(std::unordered_map<size_t, size_t> const&);
-    void set_nexts(std::unordered_map<size_t, size_t> const&);
+    void set_prevs(std::unordered_map<size_t, size_t> const& map);
+    void set_nexts(std::unordered_map<size_t, size_t> const& map);
 
-    bool is_available(std::unordered_map<size_t, size_t> const&) const;
+    bool is_available(std::unordered_map<size_t, size_t> const& executed_gates) const;
     bool is_swapped() const { return _swap; }
     bool is_first_gate() const { return _prevs.empty(); }
     bool is_last_gate() const { return _nexts.empty(); }
@@ -88,7 +88,7 @@ private:
 
 class CircuitTopology {
 public:
-    CircuitTopology(std::shared_ptr<DependencyGraph> const&);
+    CircuitTopology(std::shared_ptr<DependencyGraph> const& dep);
 
     std::unique_ptr<CircuitTopology> clone() const;
 

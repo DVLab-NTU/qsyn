@@ -182,8 +182,7 @@ std::string gate_type_to_str(GateType const& type) {
 bool is_fixed_phase_gate(GateRotationCategory category) {
     return category == GateRotationCategory::id ||
            category == GateRotationCategory::h ||
-           category == GateRotationCategory::swap ||
-           false;
+           category == GateRotationCategory::swap;
 }
 
 dvlab::Phase get_fixed_phase(GateRotationCategory category) {

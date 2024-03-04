@@ -208,7 +208,7 @@ QCir Optimizer::_build_from_storage(size_t n_qubits, bool reversed) {
     while (any_of(_gates.begin(), _gates.end(), [](auto& p_g) { return p_g.second.size(); })) {
         dvlab::utils::ordered_hashset<size_t> available_id;
         for (auto& [q, gs] : _gates) {
-            while (gs.size()) {
+            while (!gs.empty()) {
                 QCirGate* g = gs[0];
                 if (!g->is_cx() && !g->is_cz()) {
                     Optimizer::_add_gate_to_circuit(circuit, g, reversed);
@@ -224,7 +224,7 @@ QCir Optimizer::_build_from_storage(size_t n_qubits, bool reversed) {
                     continue;
                 }
 
-                auto const type = !(g->is_cz() || g->get_control()._qubit == q);
+                auto const type = !g->is_cz() && g->get_control()._qubit != q;
                 std::vector<size_t> removed;
                 available_id.emplace(g->get_id());
                 for (size_t i = 1; i < gs.size(); i++) {
@@ -283,8 +283,8 @@ void Optimizer::_add_hadamard(QubitIdType target, bool erase) {
 void Optimizer::_add_cx(QubitIdType t1, QubitIdType t2, bool do_swap) {
     bool found_match = false;
 
-    if (_availty[t1] == true) {
-        if (_availty[t2] == false) {
+    if (_availty[t1]) {
+        if (!_availty[t2]) {
             for (QCirGate* gate : _available[t1] | std::views::reverse) {
                 if (gate->is_cx() && gate->get_control()._qubit == t2 && gate->get_targets()._qubit == t1) {
                     found_match = true;
@@ -311,9 +311,9 @@ void Optimizer::_add_cx(QubitIdType t1, QubitIdType t2, bool do_swap) {
                     _available[t2].clear();
                     _available[t2].emplace_back(cnot);
                     std::swap(_permutation.at(t2), _permutation.at(t1));
-                    Optimizer::_swap_element(_ElementType::h, t1, t2);
-                    Optimizer::_swap_element(_ElementType::x, t1, t2);
-                    Optimizer::_swap_element(_ElementType::z, t1, t2);
+                    Optimizer::_swap_element(ElementType::h, t1, t2);
+                    Optimizer::_swap_element(ElementType::x, t1, t2);
+                    Optimizer::_swap_element(ElementType::z, t1, t2);
                     return;
                 }
             }
@@ -321,7 +321,7 @@ void Optimizer::_add_cx(QubitIdType t1, QubitIdType t2, bool do_swap) {
         _available[t1].clear();
         _availty[t1] = false;
     }
-    if (_availty[t2] == false) {
+    if (!_availty[t2]) {
         _available[t2].clear();
         _availty[t2] = true;
     }
@@ -373,7 +373,7 @@ bool Optimizer::_replace_cx_and_cz_with_s_and_cx(QubitIdType t1, QubitIdType t2)
                 _gate_count++;
                 cnot->add_qubit(g->get_control()._qubit, false);
                 cnot->add_qubit(g->get_targets()._qubit, true);
-                if (_availty[targ] == true) {
+                if (_availty[targ]) {
                     if (count_if(_available[targ].begin(), _available[targ].end(), [&](QCirGate* gate_other) { return Optimizer::two_qubit_gate_exists(gate_other, GateRotationCategory::px, ctrl, targ); })) {
                         found_match = true;
                         break;
@@ -403,7 +403,7 @@ bool Optimizer::_replace_cx_and_cz_with_s_and_cx(QubitIdType t1, QubitIdType t2)
     // NOTE - CNOT-CZ = (S* x id)CNOT (S x S)
     _statistics.CRZ_TRACSFORM++;
     spdlog::trace("Transform CNOT-CZ into (S* x id)CNOT(S x S)");
-    if (_availty[targ] == true) {
+    if (_availty[targ]) {
         _available[targ].clear();
     }
     _available[ctrl].erase(--(find_if(_available[ctrl].rbegin(), _available[ctrl].rend(), [&](QCirGate* g) { return Optimizer::two_qubit_gate_exists(g, GateRotationCategory::px, ctrl, targ); })).base());
@@ -420,7 +420,7 @@ bool Optimizer::_replace_cx_and_cz_with_s_and_cx(QubitIdType t1, QubitIdType t2)
     s3->add_qubit(ctrl, true);
     _gate_count++;
 
-    if (_available[targ].size()) {
+    if (!_available[targ].empty()) {
         _gates[targ].insert(dvlab::iterator::prev(_gates[targ].end(), _available[targ].size()), s1);
         _gates[targ].insert(dvlab::iterator::prev(_gates[targ].end(), _available[targ].size()), cnot);
     } else {
@@ -449,11 +449,11 @@ void Optimizer::_add_cz(QubitIdType t1, QubitIdType t2, bool do_minimize_czs) {
         return;
     }
 
-    if (_availty[t1] == true) {
+    if (_availty[t1]) {
         _available[t1].clear();
         _availty[t1] = false;
     }
-    if (_availty[t2] == true) {
+    if (_availty[t2]) {
         _available[t2].clear();
         _availty[t2] = false;
     }

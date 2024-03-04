@@ -116,7 +116,7 @@ Command tensor_adjoint_cmd(TensorMgr& tensor_mgr) {
                 return CmdExecResult::done;
             }};
 }
-Command tensor_equivalence_check_cmd(TensorMgr& tensor_mgr) {
+Command tensor_equivalence_cmd(TensorMgr& tensor_mgr) {
     return {"equiv",
             [&](ArgumentParser& parser) {
                 parser.description("check the equivalency of two stored tensors");
@@ -170,7 +170,7 @@ Command tensor_equivalence_check_cmd(TensorMgr& tensor_mgr) {
             }};
 }
 
-Command tensor_SK_decompose_cmd(TensorMgr& tensor_mgr) {
+Command tensor_sk_decompose_cmd(TensorMgr& tensor_mgr) {
     return {"sk-decompose",
             [&](ArgumentParser& parser) {
                 parser.description("decompose the tensor by SK-algorithm");
@@ -180,12 +180,12 @@ Command tensor_SK_decompose_cmd(TensorMgr& tensor_mgr) {
                     .nargs(NArgsOption::optional)
                     .help("the ID of the tensor");
             },
-            // NOTE - Check the function SK_decompose 
+            // NOTE - Check the function solovay_kitaev_decompose
             [&](ArgumentParser const& parser) {
                 if (parser.parsed("id")) {
-                    tensor_mgr.find_by_id(parser.get<size_t>("id"))->SK_decompose();
+                    tensor_mgr.find_by_id(parser.get<size_t>("id"))->solovay_kitaev_decompose();
                 } else {
-                    tensor_mgr.get()->SK_decompose();
+                    tensor_mgr.get()->solovay_kitaev_decompose();
                 }
                 return CmdExecResult::done;
             }};
@@ -194,15 +194,15 @@ Command tensor_SK_decompose_cmd(TensorMgr& tensor_mgr) {
 Command tensor_cmd(TensorMgr& tensor_mgr) {
     using namespace dvlab::utils;
     auto cmd = mgr_root_cmd(tensor_mgr);
-    cmd.add_subcommand(mgr_list_cmd(tensor_mgr));
-    cmd.add_subcommand(tensor_print_cmd(tensor_mgr));
-    cmd.add_subcommand(mgr_checkout_cmd(tensor_mgr));
-    cmd.add_subcommand(mgr_delete_cmd(tensor_mgr));
-    cmd.add_subcommand(tensor_adjoint_cmd(tensor_mgr));
-    cmd.add_subcommand(tensor_equivalence_check_cmd(tensor_mgr));
-    cmd.add_subcommand(tensor_read_cmd(tensor_mgr));
-    cmd.add_subcommand(tensor_write_cmd(tensor_mgr));
-    cmd.add_subcommand(tensor_SK_decompose_cmd(tensor_mgr));
+    cmd.add_subcommand("tensor-cmd-group", mgr_list_cmd(tensor_mgr));
+    cmd.add_subcommand("tensor-cmd-group", tensor_print_cmd(tensor_mgr));
+    cmd.add_subcommand("tensor-cmd-group", mgr_checkout_cmd(tensor_mgr));
+    cmd.add_subcommand("tensor-cmd-group", mgr_delete_cmd(tensor_mgr));
+    cmd.add_subcommand("tensor-cmd-group", tensor_adjoint_cmd(tensor_mgr));
+    cmd.add_subcommand("tensor-cmd-group", tensor_equivalence_cmd(tensor_mgr));
+    cmd.add_subcommand("tensor-cmd-group", tensor_read_cmd(tensor_mgr));
+    cmd.add_subcommand("tensor-cmd-group", tensor_write_cmd(tensor_mgr));
+    cmd.add_subcommand("tensor-cmd-group", tensor_sk_decompose_cmd(tensor_mgr));
 
     return cmd;
 }

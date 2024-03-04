@@ -48,7 +48,7 @@ std::string trim_spaces(std::string_view str) {
  * @param right }, ], )
  * @return string
  */
-std::string remove_brackets(std::string const& str, char const left, char const right) {
+std::string remove_brackets(std::string const& str, char left, char right) {
     auto const last_found  = str.find_last_of(right);
     auto const first_found = str.find_first_of(left);
     return trim_spaces(str.substr(first_found + 1, last_found - first_found - 1));
@@ -71,7 +71,7 @@ str_get_token(std::string_view str, std::string& tok, size_t pos, std::string co
     return end;
 }
 
-size_t str_get_token(std::string_view str, std::string& tok, size_t pos, char const delim) {
+size_t str_get_token(std::string_view str, std::string& tok, size_t pos, char delim) {
     return str_get_token(str, tok, pos, std::string(1, delim));
 }
 

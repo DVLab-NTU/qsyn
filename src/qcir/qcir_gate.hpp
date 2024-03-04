@@ -81,7 +81,7 @@ public:
     void set_target_qubit(QubitIdType qubit);
     void set_control_qubit(QubitIdType qubit) { _qubits[0]._qubit = qubit; }
     // DFS
-    bool is_visited(unsigned global) { return global == _dfs_counter; }
+    bool is_visited(unsigned global) const { return global == _dfs_counter; }
     void set_visited(unsigned global) { _dfs_counter = global; }
     void add_dummy_child(QCirGate* c);
 
@@ -89,7 +89,7 @@ public:
     void print_gate() const;
     void set_rotation_category(GateRotationCategory type);
     void set_phase(dvlab::Phase p);
-    void print_gate_info(bool) const;
+    void print_gate_info(bool show_time) const;
 
     bool is_h() const { return _rotation_category == GateRotationCategory::h; }
     bool is_x() const { return _rotation_category == GateRotationCategory::px && _phase == dvlab::Phase(1) && _qubits.size() == 1; }

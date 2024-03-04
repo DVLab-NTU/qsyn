@@ -11,7 +11,7 @@ namespace dvlab {
 
 namespace utils {
 
-class scope_exit {
+class scope_exit {  // NOLINT(readability-identifier-naming) // emulate library
 public:
     template <typename Callable>
     inline scope_exit(Callable&& undo_func) try : _undo_func(std::forward<Callable>(undo_func)) {

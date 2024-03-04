@@ -25,10 +25,10 @@ namespace qsyn::qcir {
  * @return true if successfully write
  * @return false if path or file not found
  */
-bool QCir::write_qasm(std::filesystem::path const& filename) {
-    std::ofstream ofs(filename);
+bool QCir::write_qasm(std::filesystem::path const& filepath) const {
+    std::ofstream ofs(filepath);
     if (!ofs) {
-        spdlog::error("Cannot open file {}", filename.string());
+        spdlog::error("Cannot open file {}", filepath.string());
         return false;
     }
     ofs << to_qasm(*this);
@@ -44,7 +44,7 @@ bool QCir::write_qasm(std::filesystem::path const& filename) {
  * @return true if succeeds drawing;
  * @return false if not.
  */
-bool QCir::draw(QCirDrawerType drawer, std::filesystem::path const& output_path, float scale) {
+bool QCir::draw(QCirDrawerType drawer, std::filesystem::path const& output_path, float scale) const {
     namespace dv = dvlab::utils;
     namespace fs = std::filesystem;
 
@@ -70,7 +70,7 @@ bool QCir::draw(QCirDrawerType drawer, std::filesystem::path const& output_path,
     }
 
     // check if output_path is valid
-    if (output_path.string().size()) {
+    if (!output_path.string().empty()) {
         if (!std::ofstream{output_path}) {
             spdlog::error("Cannot open file {}", output_path.string());
             return false;
@@ -86,7 +86,7 @@ bool QCir::draw(QCirDrawerType drawer, std::filesystem::path const& output_path,
 
     auto cmd = fmt::format("python3 {} -input {} -drawer {} -scale {}", path_to_script, tmp_qasm.string(), drawer, scale);
 
-    if (output_path.string().size()) {
+    if (!output_path.string().empty()) {
         cmd += " -output " + output_path.string();
     }
 

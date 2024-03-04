@@ -21,30 +21,28 @@
 #include "./qsyn_helper.hpp"
 #include "argparse/arg_parser.hpp"
 #include "cli/cli.hpp"
-#include "convert/conversion_cmd.hpp"
-#include "device/device_cmd.hpp"
-#include "duostra/duostra_cmd.hpp"
-#include "extractor/extractor_cmd.hpp"
-#include "qcir/qcir_cmd.hpp"
-#include "tensor/tensor_cmd.hpp"
+#include "device/device_mgr.hpp"
+#include "qcir/qcir_mgr.hpp"
+#include "tableau/tableau_mgr.hpp"
+#include "tensor/tensor_mgr.hpp"
 #include "util/sysdep.hpp"
-#include "util/text_format.hpp"
 #include "util/usage.hpp"
 #include "util/util.hpp"
-#include "zx/simplifier/simp_cmd.hpp"
-#include "zx/zx_cmd.hpp"
+#include "zx/zxgraph_mgr.hpp"
 
 #ifndef QSYN_VERSION
 #define QSYN_VERSION "[unknown version]"
 #endif
 
 namespace {
-
+// NOLINTBEGIN(readability-identifier-naming)
 dvlab::CommandLineInterface cli{"qsyn> "};
 qsyn::device::DeviceMgr device_mgr{"Device"};
 qsyn::qcir::QCirMgr qcir_mgr{"QCir"};
 qsyn::tensor::TensorMgr tensor_mgr{"Tensor"};
 qsyn::zx::ZXGraphMgr zxgraph_mgr{"ZXGraph"};
+qsyn::experimental::TableauMgr tableau_mgr{"Tableau"};
+// NOLINTEND(readability-identifier-naming)
 
 std::string const version_str = fmt::format(
     "qsyn {} - Copyright © 2022-{:%Y}, DVLab NTUEE.\n"
@@ -63,7 +61,7 @@ int main(int argc, char** argv) {
         return;
     });
 
-    if (!qsyn::initialize_qsyn(cli, device_mgr, qcir_mgr, tensor_mgr, zxgraph_mgr)) {
+    if (!qsyn::initialize_qsyn(cli, device_mgr, qcir_mgr, tensor_mgr, zxgraph_mgr, tableau_mgr)) {
         return -1;
     }
 

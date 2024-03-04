@@ -30,7 +30,7 @@ std::optional<QCir> Optimizer::trivial_optimization(QCir const& qcir) {
     result.set_filename(qcir.get_filename());
     result.add_procedures(qcir.get_procedures());
 
-    auto const gate_list = qcir.get_topologically_ordered_gates();
+    auto gate_list = qcir.get_topologically_ordered_gates();
     for (auto gate : gate_list) {
         if (stop_requested()) {
             spdlog::warn("optimization interrupted");
@@ -82,7 +82,7 @@ std::vector<QCirGate*> Optimizer::_get_first_layer_gates(QCir& qcir, bool from_l
 
     for (auto gate : gate_list) {
         auto const qubits              = gate->get_qubits();
-        auto const gate_is_not_blocked = all_of(qubits.begin(), qubits.end(), [&](QubitInfo qubit) { return blocked[qubit._qubit] == false; });
+        auto const gate_is_not_blocked = all_of(qubits.begin(), qubits.end(), [&](QubitInfo qubit) { return !blocked[qubit._qubit]; });
         for (auto q : qubits) {
             if (gate_is_not_blocked) result[q._qubit] = gate;
             blocked[q._qubit] = true;
@@ -133,9 +133,8 @@ void Optimizer::_cancel_double_gate(QCir& qcir, QCirGate* prev_gate, QCirGate* g
 
     auto const prev_qubits = prev_gate->get_qubits();
     auto const gate_qubits = gate->get_qubits();
-    if (!(
-            prev_qubits[0]._qubit == gate_qubits[0]._qubit && prev_qubits[1]._qubit == gate_qubits[1]._qubit) &&
-        !(prev_qubits[0]._qubit == gate_qubits[1]._qubit && prev_qubits[1]._qubit == gate_qubits[0]._qubit)) {
+    if ((prev_qubits[0]._qubit != gate_qubits[0]._qubit || prev_qubits[1]._qubit != gate_qubits[1]._qubit) &&
+        (prev_qubits[0]._qubit != gate_qubits[1]._qubit || prev_qubits[1]._qubit != gate_qubits[0]._qubit)) {
         Optimizer::_add_gate_to_circuit(qcir, gate, false);
         return;
     }

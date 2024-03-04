@@ -357,7 +357,7 @@ void dvlab::CommandLineInterface::_reprint_command() {
     auto const idx   = _cursor_position;
     _cursor_position = _read_buffer.size();  // before moving cursor, reflect the change in actual cursor location
     _print_if_echo("\n{}{}", _command_prompt, _read_buffer);
-    _flush_if_echo();
+    _flush_output();
     _move_cursor_to(idx);  // move the cursor back to where it should be
 }
 
@@ -462,7 +462,7 @@ void dvlab::CommandLineInterface::_clear_read_buffer_and_print_prompt() {
     _cursor_position = 0;
     _tab_press_count = 0;
     _print_if_echo("{}", _command_prompt);
-    _flush_if_echo();
+    _flush_output();
 }
 
 void dvlab::CommandLineInterface::_replace_at_cursor(std::string_view old_str, std::string_view new_str) {

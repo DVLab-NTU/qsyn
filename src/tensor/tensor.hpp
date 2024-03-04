@@ -29,8 +29,6 @@
 #include "./tensor_util.hpp"
 #include "util/util.hpp"
 
-constexpr double PI = 3.1415926919;
-
 namespace qsyn::tensor {
 
 template <typename DT>
@@ -114,7 +112,7 @@ public:
     template <typename U>
     friend bool is_partition(Tensor<U> const& t, TensorAxisList const& axes1, TensorAxisList const& axes2);
 
-    Tensor<DT> to_matrix(TensorAxisList const& row_axes, TensorAxisList const& col_axis);
+    Tensor<DT> to_matrix(TensorAxisList const& row_axes, TensorAxisList const& col_axes);
 
     template <typename U>
     friend Tensor<U> direct_sum(Tensor<U> const& t1, Tensor<U> const& t2);
@@ -127,10 +125,10 @@ public:
     std::complex<double> trace();
     auto eigen();  // TODO - check the return type, may be std::pair<value, vector>
 
-    void SK_decompose();
+    void solovay_kitaev_decompose();
 
-    bool tensor_read(std::string const&);
-    bool tensor_write(std::string const&);
+    bool tensor_read(std::string const& filepath);
+    bool tensor_write(std::string const& filepath);
 
 protected:
     friend struct fmt::formatter<Tensor>;
@@ -320,7 +318,7 @@ auto Tensor<DT>::eigen() {
 }
 
 template <typename DT>
-void Tensor<DT>::SK_decompose() {
+void Tensor<DT>::solovay_kitaev_decompose() {
     assert(dimension() == 2);
     // TODO - Move your code here, you may also create new files src/tensor/
 }
