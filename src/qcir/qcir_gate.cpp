@@ -158,9 +158,9 @@ void QCirGate::print_gate() const {
                get_type_str(),
                _time,
                fmt::join(_qubits | std::views::transform([](QubitInfo const& info) { return info._qubit; }), " "));
-
-    if ((get_rotation_category() == GateRotationCategory::pz || get_rotation_category() == GateRotationCategory::rx || get_rotation_category() == GateRotationCategory::ry || get_rotation_category() == GateRotationCategory::rz) &&
-        get_phase().denominator() != 1 && get_phase().denominator() != 2 && get_phase().denominator() != 4) {
+    auto is_special_phase   = get_phase().denominator() == 1 || get_phase().denominator() == 2 || get_phase() == Phase(1, 4) || get_phase() == Phase(-1, 4);
+    auto is_p_type_rotation = get_rotation_category() == GateRotationCategory::py || get_rotation_category() == GateRotationCategory::px || get_rotation_category() == GateRotationCategory::pz;
+    if (!is_special_phase || !is_p_type_rotation) {
         fmt::print("      Phase: {}", get_phase().get_print_string());
     }
     fmt::println("");
