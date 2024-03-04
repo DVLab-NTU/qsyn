@@ -144,24 +144,21 @@ Command convert_from_zx_cmd(zx::ZXGraphMgr& zxgraph_mgr, QCirMgr& qcir_mgr, tens
                     spdlog::error("ZXGraph {} is not extractable because it is not graph-like!!", zxgraph_mgr.focused_id());
                     return CmdExecResult::error;
                 }
-                auto next_id = zxgraph_mgr.get_next_id();
-                zxgraph_mgr.copy(next_id);
-                extractor::Extractor ext(zxgraph_mgr.get(), nullptr, std::nullopt);
-
+                zx::ZXGraph target = *zxgraph_mgr.get();
+                extractor::Extractor ext(&target, nullptr, std::nullopt);
                 qcir::QCir* result = ext.extract();
                 if (result != nullptr) {
                     qcir_mgr.add(qcir_mgr.get_next_id(), std::make_unique<qcir::QCir>(*result));
-                    if (extractor::PERMUTE_QUBITS)
-                        zxgraph_mgr.remove(next_id);
-                    else {
-                        spdlog::warn("The extracted circuit is up to a qubit permutation.");
-                        spdlog::warn("Remaining permutation information is in ZXGraph id {}.", next_id);
-                        zxgraph_mgr.get()->add_procedure("ZX2QC");
-                    }
-
                     qcir_mgr.get()->set_filename(zxgraph_mgr.get()->get_filename());
                     qcir_mgr.get()->add_procedures(zxgraph_mgr.get()->get_procedures());
-                    qcir_mgr.get()->add_procedure("ZX2QC");
+                    if (!extractor::PERMUTE_QUBITS) {
+                        spdlog::warn("The extracted circuit is up to a qubit permutation.");
+                        spdlog::warn("Remaining permutation information is in ZXGraph id {}.", zxgraph_mgr.get_next_id());
+                        zxgraph_mgr.add(zxgraph_mgr.get_next_id(), std::make_unique<zx::ZXGraph>(std::move(target)));
+                        zxgraph_mgr.get()->add_procedure("ZX2QC-Unpermuted");
+                        qcir_mgr.get()->add_procedure("ZX2QC-Unpermuted");
+                    } else
+                        qcir_mgr.get()->add_procedure("ZX2QC");
                 }
                 return CmdExecResult::done;
             }
