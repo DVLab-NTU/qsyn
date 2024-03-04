@@ -19,7 +19,7 @@ qsyn> zx adjoint
 
 qsyn> zx list
   0    cm82a_208           QC2ZX ➔ FR
-★ 2    cm82a_208           QC2ZX ➔ FR ➔ ZX2QC ➔ Optimize ➔ QC2ZX
+★ 1    cm82a_208           QC2ZX ➔ FR ➔ ZX2QC ➔ Optimize ➔ QC2ZX
 
 qsyn> zx compose 0
 

@@ -107,15 +107,17 @@ public:
     }
 
     void remove(size_t id) {
+        // Signal focused id
+        id = id == SIZE_MAX ? _focused_id : id;
         if (!_list.contains(id)) {
             _print_id_does_not_exist_error_msg();
             return;
         }
-
         _list.erase(id);
         spdlog::info("Successfully removed {0} {1}", _type_name, id);
 
         if (this->size() && _focused_id == id) {
+            fmt::println("Note: Focused graph is deleted. Checked out to {} 0", _type_name);
             checkout(0);
         }
         if (this->empty()) {
