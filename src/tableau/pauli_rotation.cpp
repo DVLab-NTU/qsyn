@@ -57,6 +57,8 @@ std::string to_string(CliffordOperatorType type) {
             return "cz";
         case CliffordOperatorType::swap:
             return "swap";
+        case CliffordOperatorType::ecr:
+            return "ecr";
     }
     DVLAB_UNREACHABLE("Every Clifford type should be handled in the switch-case");
 }

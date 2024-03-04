@@ -67,6 +67,7 @@ public:
 
     StabilizerTableau& prepend_cz(size_t ctrl, size_t targ);
     StabilizerTableau& prepend_swap(size_t a, size_t b);
+    StabilizerTableau& prepend_ecr(size_t ctrl, size_t targ);
 
     StabilizerTableau& prepend(CliffordOperator const& op);
     StabilizerTableau& prepend(CliffordOperatorString const& ops);

@@ -363,7 +363,8 @@ dvlab::Command qcir_gate_add_cmd(QCirMgr& qcir_mgr) {
     static dvlab::utils::ordered_hashmap<std::string, std::string> double_qubit_gates_no_phase = {
         {"cx", "CX (CNOT) gate"},
         {"cz", "CZ gate"},
-        {"swap", "SWAP gate"}};
+        {"swap", "SWAP gate"},
+        {"ecr", "Echoed crossed resonance gate"}};
 
     static dvlab::utils::ordered_hashmap<std::string, std::string> three_qubit_gates_no_phase = {
         {"ccx", "CCX (CCNOT, Toffoli) gate"},
