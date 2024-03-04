@@ -59,7 +59,7 @@ inline void clear_terminal() {
 }
 
 inline auto python_package_exists(std::string_view package_name) -> bool {
-    return system(fmt::format("python3 -c 'import importlib; exit(0 if importlib.util.find_spec(\"{}\") is not None else 1)'", package_name).c_str()) == 0;
+    return system(fmt::format("python3 -c 'import importlib.util; exit(0 if importlib.util.find_spec(\"{}\") is not None else 1)'", package_name).c_str()) == 0;
 };
 
 inline auto pdflatex_exists() -> bool {

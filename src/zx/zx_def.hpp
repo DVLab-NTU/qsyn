@@ -93,20 +93,6 @@ struct ZXCutEqual {
 
 using ZXCutSet = dvlab::utils::ordered_hashset<ZXCut, ZXCutHash, ZXCutEqual>;
 
-namespace detail {
-
-struct VertexInfo {
-    char type         = 'Z';
-    QubitIdType qubit = 0;
-    float column      = 0.0f;
-    std::vector<std::pair<char, size_t>> neighbors;
-    Phase phase;
-};
-
-using StorageType = dvlab::utils::ordered_hashmap<size_t, VertexInfo>;
-
-}  // namespace detail
-
 //------------------------------------------------------------------------
 //   Define hashes
 //------------------------------------------------------------------------

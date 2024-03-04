@@ -24,6 +24,14 @@ public:
     Simplifier(ZXGraph* g) : _simp_graph{g} {
         hadamard_rule_simp();
     }
+    ~Simplifier() {
+        // REVIEW - Whether to adjust
+        // _simp_graph->adjust_vertex_coordinates();
+    }
+    Simplifier(Simplifier const& other)            = default;
+    Simplifier(Simplifier&& other)                 = default;
+    Simplifier& operator=(Simplifier const& other) = default;
+    Simplifier& operator=(Simplifier&& other)      = default;
 
     /**
      * @brief apply the rule on the zx graph

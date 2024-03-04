@@ -77,7 +77,7 @@ std::pair<std::vector<ZXGraph*>, std::vector<ZXCut>> ZXGraph::create_subgraphs(s
             std::vector<NeighborPair> neighbors_to_add;
             for (auto const& [neighbor, edgeType] : this->get_neighbors(vertex)) {
                 if (!partition.contains(neighbor)) {
-                    auto boundary = new ZXVertex(next_vertex_id++, next_boundary_qubit_id++, VertexType::boundary);
+                    auto boundary = new ZXVertex(next_vertex_id++, next_boundary_qubit_id++, VertexType::boundary, Phase(), 0, 0);
                     inner_cuts.emplace(vertex, neighbor, edgeType);
                     cut_to_boundary[{vertex, neighbor, edgeType}] = boundary;
 

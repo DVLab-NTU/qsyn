@@ -5,9 +5,12 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
+#include <fmt/core.h>
+
 #include <cstddef>
 #include <gsl/narrow>
 #include <queue>
+#include <tl/zip.hpp>
 
 #include "./zx_def.hpp"
 #include "./zxgraph.hpp"
@@ -30,7 +33,7 @@ void ZXGraph::sort_io_by_qubit() {
  *
  * @param v
  */
-void ZXGraph::toggle_vertex(ZXVertex* v) {
+void ZXGraph::toggle_vertex(ZXVertex* v) const {
     if (!v->is_z() && !v->is_x()) return;
     Neighbors toggled_neighbors;
     for (auto& [nb, etype] : this->get_neighbors(v)) {
@@ -50,7 +53,14 @@ void ZXGraph::toggle_vertex(ZXVertex* v) {
  */
 void ZXGraph::lift_qubit(int n) {
     for (auto const& v : _vertices) {
-        v->set_qubit(v->get_qubit() + n);
+        v->set_row(v->get_row() + static_cast<float>(n));
+    }
+
+    for (auto const& i : _inputs) {
+        i->set_qubit(i->get_qubit() + n);
+    }
+    for (auto const& o : _outputs) {
+        o->set_qubit(o->get_qubit() + n);
     }
 
     std::unordered_map<size_t, ZXVertex*> new_input_list, new_output_list;
@@ -88,7 +98,7 @@ ZXGraph& ZXGraph::compose(ZXGraph const& target) {
 
     // Update `_col` of copiedGraph to make them unique to the original graph
     for (auto const& v : copied_graph.get_vertices()) {
-        v->set_col(v->get_col() + max_col + 1);
+        v->set_col(v->get_col() + static_cast<float>(max_col) + 1);
     }
 
     // Sort ori-output and copy-input
@@ -203,8 +213,8 @@ void ZXGraph::add_gadget(Phase p, std::vector<ZXVertex*> const& vertices) {
         if (vertices[i]->get_type() == VertexType::boundary || vertices[i]->get_type() == VertexType::h_box) return;
     }
 
-    ZXVertex* axel = add_vertex(-1, VertexType::z, Phase(0));
-    ZXVertex* leaf = add_vertex(-2, VertexType::z, p);
+    ZXVertex* axel = add_vertex(VertexType::z, Phase(0), -1);
+    ZXVertex* leaf = add_vertex(VertexType::z, p, -2);
 
     add_edge(axel, leaf, EdgeType::hadamard);
     for (auto const& v : vertices) add_edge(v, axel, EdgeType::hadamard);
@@ -234,38 +244,79 @@ std::unordered_map<size_t, ZXVertex*> ZXGraph::create_id_to_vertex_map() const {
 }
 
 /**
- * @brief Rearrange nodes on each qubit so that each node can be seperated in the printed graph.
+ * @brief Rearrange vertices on each qubit so that each vertex can be seperated in the printed graph.
  *
  */
-void ZXGraph::normalize() {
-    std::unordered_map<QubitIdType, std::vector<ZXVertex*>> qubit_id_to_vertices_map;
-    std::unordered_set<QubitIdType> visited_qubit_ids;
-    std::queue<ZXVertex*> vertex_queue;
+void ZXGraph::adjust_vertex_coordinates() {
+    // FIXME - QubitId -> RowId
+    std::unordered_map<float, std::vector<ZXVertex*>> row_to_vertices_map;
+    std::unordered_set<QubitIdType> visited_rows;
+    std::vector<ZXVertex*> vertex_queue;
+    // NOTE - Check Gadgets
+    // FIXME - When replacing QubitId with RowId, add 0.5 on it
+
+    // REVIEW - Whether to move the vertex from row -2 when it is no longer a gadget
+    // for (auto const& i : _vertices) {
+    //     if (i->get_qubit() == -2 && get_num_neighbors(i) > 1) {
+    //         std::unordered_map<QubitIdType, size_t> num_neighbor_qubits;
+    //         for (auto const& [nb, _] : get_neighbors(i)) {
+    //             if (num_neighbor_qubits.contains(nb->get_qubit())) {
+    //                 num_neighbor_qubits[nb->get_qubit()]++;
+    //             } else
+    //                 num_neighbor_qubits[nb->get_qubit()] = 1;
+    //         }
+    //         // fmt::println("move to {}", (*max_element(num_neighbor_qubits.begin(), num_neighbor_qubits.end(), [](const std::pair<QubitIdType, size_t>& p1, const std::pair<QubitIdType, size_t>& p2) { return p1.second < p2.second; })).first);
+    //         i->set_qubit((*max_element(num_neighbor_qubits.begin(), num_neighbor_qubits.end(), [](const std::pair<QubitIdType, size_t>& p1, const std::pair<QubitIdType, size_t>& p2) { return p1.second < p2.second; })).first);
+    //     }
+    // }
+
     for (auto const& i : _inputs) {
-        vertex_queue.push(i);
-        visited_qubit_ids.insert(gsl::narrow<QubitIdType>(i->get_id()));
+        vertex_queue.emplace_back(i);
+        visited_rows.insert(gsl::narrow<QubitIdType>(i->get_id()));
     }
     while (!vertex_queue.empty()) {
         ZXVertex* v = vertex_queue.front();
-        vertex_queue.pop();
-        qubit_id_to_vertices_map[v->get_qubit()].emplace_back(v);
-        for (auto const& nb : this->get_neighbors(v) | std::views::keys) {
-            if (visited_qubit_ids.find(gsl::narrow<QubitIdType>(nb->get_id())) == visited_qubit_ids.end()) {
-                vertex_queue.push(nb);
-                visited_qubit_ids.insert(gsl::narrow<QubitIdType>(nb->get_id()));
+        vertex_queue.erase(vertex_queue.begin());
+        row_to_vertices_map[v->get_row()].emplace_back(v);
+        for (auto const& nb : get_neighbors(v) | std::views::keys) {
+            if (visited_rows.find(gsl::narrow<QubitIdType>(nb->get_id())) == visited_rows.end()) {
+                vertex_queue.emplace_back(nb);
+                visited_rows.insert(gsl::narrow<QubitIdType>(nb->get_id()));
             }
         }
     }
-    int max_col = 0;
-    for (auto& i : qubit_id_to_vertices_map) {
-        int col = 0;
-        for (auto& v : i.second) {
+    std::vector<ZXVertex*> gadgets;
+    float non_gadget = 0;
+    for (size_t i = 0; i < row_to_vertices_map[-2].size(); i++) {
+        if (get_num_neighbors(row_to_vertices_map[-2][i]) == 1) {  // Not Gadgets
+            gadgets.emplace_back(row_to_vertices_map[-2][i]);
+        } else
+            non_gadget++;
+    }
+    std::erase_if(row_to_vertices_map[-2], [this](ZXVertex* v) { return this->get_num_neighbors(v) == 1; });
+
+    row_to_vertices_map[-2].insert(row_to_vertices_map[-2].end(), gadgets.begin(), gadgets.end());
+
+    for (auto const& [qid, vertices] : row_to_vertices_map) {
+        auto col = std::invoke([qid = qid, non_gadget]() -> float {
+            if (qid == -2) return 0.5;
+            if (qid == -1) return 0.5f + non_gadget;
+            return 0.0f;
+        });
+        for (auto const& v : vertices) {
             v->set_col(col);
             col++;
         }
-        col--;
-        max_col = std::max(max_col, col);
     }
+
+    auto const max_col = std::ceil(
+        std::ranges::max(
+            row_to_vertices_map |
+            std::views::values |
+            std::views::transform([](std::vector<ZXVertex*> const& v) {
+                return std::ranges::max(v | std::views::transform([](ZXVertex* v) { return v->get_col(); }));
+            })));
+
     for (auto& o : _outputs) o->set_col(max_col);
 }
 

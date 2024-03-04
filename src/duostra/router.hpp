@@ -58,14 +58,14 @@ public:
     auto& get_device() { return _device; }
     auto const& get_device() const { return _device; }
 
-    size_t get_gate_cost(Gate const&, MinMaxOptionType min_max, size_t apsp_coeff);
-    bool is_executable(Gate const&);
+    size_t get_gate_cost(Gate const& gate, MinMaxOptionType min_max, size_t apsp_coeff);
+    bool is_executable(Gate const& gate);
 
     // Main Router function
     Operation execute_single(qcir::GateRotationCategory gate, dvlab::Phase phase, QubitIdType q);
     std::vector<Operation> duostra_routing(Gate const& gate, std::tuple<QubitIdType, QubitIdType> qubit_pair, MinMaxOptionType tie_breaking_strategy, bool swapped);
     std::vector<Operation> apsp_routing(Gate const& gate, std::tuple<QubitIdType, QubitIdType> qs, MinMaxOptionType tie_breaking_strategy, bool swapped);
-    std::vector<Operation> assign_gate(Gate const&);
+    std::vector<Operation> assign_gate(Gate const& gate);
 
 private:
     MinMaxOptionType _tie_breaking_strategy;

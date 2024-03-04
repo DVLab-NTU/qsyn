@@ -29,15 +29,15 @@ namespace qsyn::duostra {
 std::unique_ptr<BaseScheduler> get_scheduler(std::unique_ptr<CircuitTopology> topo, bool tqdm) {
     // 0:base 1:static 2:random 3:greedy 4:search
     if (DuostraConfig::SCHEDULER_TYPE == SchedulerType::random) {
-        return std::make_unique<RandomScheduler>(*topo.get(), tqdm);
+        return std::make_unique<RandomScheduler>(*topo, tqdm);
     } else if (DuostraConfig::SCHEDULER_TYPE == SchedulerType::naive) {
-        return std::make_unique<NaiveScheduler>(*topo.get(), tqdm);
+        return std::make_unique<NaiveScheduler>(*topo, tqdm);
     } else if (DuostraConfig::SCHEDULER_TYPE == SchedulerType::greedy) {
-        return std::make_unique<GreedyScheduler>(*topo.get(), tqdm);
+        return std::make_unique<GreedyScheduler>(*topo, tqdm);
     } else if (DuostraConfig::SCHEDULER_TYPE == SchedulerType::search) {
-        return std::make_unique<SearchScheduler>(*topo.get(), tqdm);
+        return std::make_unique<SearchScheduler>(*topo, tqdm);
     } else if (DuostraConfig::SCHEDULER_TYPE == SchedulerType::base) {
-        return std::make_unique<BaseScheduler>(*topo.get(), tqdm);
+        return std::make_unique<BaseScheduler>(*topo, tqdm);
     }
     DVLAB_UNREACHABLE("Scheduler type not found");
 }
@@ -202,7 +202,7 @@ RandomScheduler::Device RandomScheduler::_assign_gates(std::unique_ptr<Router> r
             return router->get_device();
         }
         auto& waitlist = _circuit_topology.get_available_gates();
-        assert(waitlist.size() > 0);
+        assert(!waitlist.empty());
 
         auto const choice = rand() % waitlist.size();
 
@@ -238,7 +238,7 @@ NaiveScheduler::Device NaiveScheduler::_assign_gates(std::unique_ptr<Router> rou
             return router->get_device();
         }
         auto& waitlist = _circuit_topology.get_available_gates();
-        assert(waitlist.size() > 0);
+        assert(!waitlist.empty());
 
         auto gate_idx = get_executable_gate(*router).value_or(waitlist[0]);
 

@@ -177,7 +177,7 @@ size_t TreeNode::best_cost(size_t depth) {
         return best_cost();
 
     assert(depth > 1);
-    assert(_children.size() != 0);
+    assert(!_children.empty());
 
     auto end = _children.end();
     if (_conf._candidates < _children.size()) {

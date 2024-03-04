@@ -71,6 +71,22 @@ Command alias_cmd(CommandLineInterface& cli) {
         }};
 }
 
+Command echo_cmd() {
+    return {
+        "echo",
+        [](ArgumentParser& parser) {
+            parser.description("print the string to the standard output");
+
+            parser.add_argument<std::string>("message")
+                .nargs(NArgsOption::zero_or_more)
+                .help("the message to print");
+        },
+        [](ArgumentParser const& parser) {
+            fmt::println("{}", fmt::join(parser.get<std::vector<std::string>>("message"), " "));
+            return CmdExecResult::done;
+        }};
+}
+
 Command set_variable_cmd(CommandLineInterface& cli) {
     return {
         "set",
@@ -160,8 +176,7 @@ Command help_cmd(CommandLineInterface& cli) {
                 command = cli.get_first_token(alias_replacement_string.value());
             }
 
-            auto e = cli.get_command(command);
-            if (e) {
+            if (auto e = cli.get_command(command)) {
                 e->print_help();
                 return CmdExecResult::done;
             }
@@ -204,6 +219,7 @@ Command history_cmd(CommandLineInterface& cli) {
     return {"history",
             [](ArgumentParser& parser) {
                 parser.description("print command history");
+                parser.option_prefix("+-");
                 parser.add_argument<size_t>("num")
                     .default_value(SIZE_MAX)
                     .help("if specified, print the `num` latest command history");
@@ -220,19 +236,74 @@ Command history_cmd(CommandLineInterface& cli) {
                 parser.add_argument<bool>("--no-append-quit")
                     .action(store_true)
                     .help("don't append the quit command to the output. This argument has no effect if --output is not specified");
+
+                auto success_mutex = parser.add_mutually_exclusive_group();
+                success_mutex.add_argument<bool>("+s", "--include-success")
+                    .action(store_true)
+                    .help("include successful commands in the history");
+                success_mutex.add_argument<bool>("-s", "--exclude-success")
+                    .action(store_true)
+                    .help("exclude successful commands in the history");
+
+                auto error_mutex = parser.add_mutually_exclusive_group();
+                error_mutex.add_argument<bool>("+e", "--include-errors")
+                    .action(store_true)
+                    .help("include commands returning errors in the history");
+
+                error_mutex.add_argument<bool>("-e", "--exclude-errors")
+                    .action(store_true)
+                    .help("exclude commands returning errors in the history");
+
+                auto unknown_mutex = parser.add_mutually_exclusive_group();
+
+                unknown_mutex.add_argument<bool>("+u", "--include-unknowns")
+                    .action(store_true)
+                    .help("include unknown commands in the history");
+
+                unknown_mutex.add_argument<bool>("-u", "--exclude-unknowns")
+                    .action(store_true)
+                    .help("exclude unknown commands in the history");
+
+                auto interrupt_mutex = parser.add_mutually_exclusive_group();
+
+                interrupt_mutex.add_argument<bool>("+i", "--include-interrupts")
+                    .action(store_true)
+                    .help("include interrupted commands in the history");
+
+                interrupt_mutex.add_argument<bool>("-i", "--exclude-interrupts")
+                    .action(store_true)
+                    .help("exclude interrupted commands in the history");
             },
             [&cli](ArgumentParser const& parser) {
-                auto num = parser.get<size_t>("num");
+                auto num            = parser.get<size_t>("num");
+                auto no_append_quit = parser.get<bool>("--no-append-quit");
+
+                bool include_successes  = true;
+                bool include_errors     = !parser.parsed("--output");
+                bool include_unknowns   = !parser.parsed("--output");
+                bool include_interrupts = !parser.parsed("--output");
+
+                if (parser.parsed("+s")) include_successes = true;
+                if (parser.parsed("-s")) include_successes = false;
+                if (parser.parsed("+e")) include_errors = true;
+                if (parser.parsed("-e")) include_errors = false;
+                if (parser.parsed("+u")) include_unknowns = true;
+                if (parser.parsed("-u")) include_unknowns = false;
+                if (parser.parsed("+i")) include_interrupts = true;
+                if (parser.parsed("-i")) include_interrupts = false;
+
+                auto filter = CommandLineInterface::HistoryFilter{include_successes, include_errors, include_unknowns, include_interrupts};
+
                 if (parser.parsed("--clear")) {
                     cli.clear_history();
                     return CmdExecResult::done;
                 }
                 if (parser.parsed("--output")) {
-                    cli.write_history(parser.get<std::string>("--output"), num, !parser.get<bool>("--no-append-quit"));
+                    cli.write_history(parser.get<std::string>("--output"), num, !no_append_quit, filter);
                     return CmdExecResult::done;
                 }
 
-                cli.print_history(num);
+                cli.print_history(num, filter);
 
                 return CmdExecResult::done;
             }};
@@ -289,10 +360,10 @@ Command usage_cmd() {
 }
 
 Command logger_cmd() {
+    static auto const log_levels = std::vector<std::string>{"off", "critical", "error", "warning", "info", "debug", "trace"};
     return Command{
         "logger",
         [](ArgumentParser& parser) {
-            static auto const log_levels = std::vector<std::string>{"off", "critical", "error", "warning", "info", "debug", "trace"};
             parser.description("display and set the logger's status");
 
             auto mutex = parser.add_mutually_exclusive_group();
@@ -304,7 +375,7 @@ Command logger_cmd() {
             mutex.add_argument<std::string>("level")
                 .nargs(NArgsOption::optional)
                 .constraint(choices_allow_prefix(log_levels))
-                .help("set log levels. Levels (ascending): off, critical, error, warning, info, debug, trace");
+                .help(fmt::format("set log levels. Levels (ascending): {}", fmt::join(log_levels, ", ")));
         },
         [](ArgumentParser const& parser) {
             if (parser.parsed("level")) {
@@ -314,13 +385,13 @@ Command logger_cmd() {
                 return CmdExecResult::done;
             }
             if (parser.parsed("--test")) {
-                spdlog::log(spdlog::level::level_enum::off, "Regular printing (level `off`)");
-                spdlog::critical("A log message with level `critical`");
-                spdlog::error("A log message with level `error`");
-                spdlog::warn("A log message with level `warning`");
-                spdlog::info("A log message with level `info`");
-                spdlog::debug("A log message with level `debug`");
-                spdlog::trace("A log message with level `trace`");
+                spdlog::log(spdlog::level::level_enum::off, "Regular printing (level `{}`)", log_levels[0]);
+                spdlog::critical("A log message with level `{}`", log_levels[1]);
+                spdlog::error("A log message with level `{}`", log_levels[2]);
+                spdlog::warn("A log message with level `{}`", log_levels[3]);
+                spdlog::info("A log message with level `{}`", log_levels[4]);
+                spdlog::debug("A log message with level `{}`", log_levels[5]);
+                spdlog::trace("A log message with level `{}`", log_levels[6]);
                 return CmdExecResult::done;
             }
 
@@ -347,6 +418,7 @@ bool add_cli_common_cmds(dvlab::CommandLineInterface& cli) {
           cli.add_alias("unalias", "alias -d") &&
           cli.add_command(set_variable_cmd(cli)) &&
           cli.add_alias("unset", "set -d") &&
+          cli.add_command(echo_cmd()) &&
           cli.add_command(quit_cmd(cli)) &&
           cli.add_command(history_cmd(cli)) &&
           cli.add_command(help_cmd(cli)) &&

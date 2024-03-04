@@ -6,7 +6,9 @@ Checks: >
   -cppcoreguidelines-avoid-magic-numbers,
   -cppcoreguidelines-owning-memory,
   -cppcoreguidelines-non-private-member-variables-in-classes,
-  performance-noexcept-*,
+  bugprone-assert-side-effect,
+  performance-*,
+  performance-move-const-arg,
   modernize-use-auto,
   misc-const-correctness,
   misc-non-copyable-objects,
@@ -17,9 +19,18 @@ Checks: >
   misc-uniqueptr-reset-release,
   misc-unused-*,
   misc-use-anonymous-namespace,
-  bugprone-assert-side-effect,
-  performance-*
-  readability-*
+  readability-*,
+  -readability-implicit-bool-conversion,
+  -readability-redundant-string-init,
+  -readability-qualified-auto,
+  -readability-function-cognitive-complexity,
+  -readability-else-after-return,
+  -readability-convert-member-functions-to-static,
+  -readability-uppercase-literal-suffix,
+  -readability-isolate-declaration,
+  -readability-braces-around-statements,
+  -readability-magic-numbers,
+  -readability-identifier-length,
 WarningsAsErrors: ""
 HeaderFilterRegex: ".*"
 AnalyzeTemporaryDtors: false

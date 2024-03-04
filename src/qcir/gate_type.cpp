@@ -7,6 +7,7 @@
 
 #include "qcir/gate_type.hpp"
 
+#include "qcir/qcir_translate.hpp"
 #include "util/util.hpp"
 
 namespace qsyn::qcir {
@@ -189,8 +190,7 @@ std::string gate_type_to_str(GateType const& type) {
 bool is_fixed_phase_gate(GateRotationCategory category) {
     return category == GateRotationCategory::id ||
            category == GateRotationCategory::h ||
-           category == GateRotationCategory::swap ||
-           false;
+           category == GateRotationCategory::swap;
 }
 
 dvlab::Phase get_fixed_phase(GateRotationCategory category) {
@@ -206,5 +206,58 @@ dvlab::Phase get_fixed_phase(GateRotationCategory category) {
             assert(false);
     }
 }
+
+dvlab::utils::ordered_hashmap<std::string, Equivalence> EQUIVALENCE_LIBRARY = {
+    {"sherbrooke", {{"h", {
+                              {"s", {0}, dvlab::Phase(0)},
+                              {"sx", {0}, dvlab::Phase(0)},
+                              {"s", {0}, dvlab::Phase(0)},
+                          }},
+                    {"cx", {
+                               {"sdg", {0}, dvlab::Phase(0)},
+                               {"z", {1}, dvlab::Phase(0)},
+                               {"sx", {1}, dvlab::Phase(0)},
+                               {"z", {1}, dvlab::Phase(0)},
+                               {"ecr", {0, 1}, dvlab::Phase(0)},
+                               {"x", {0}, dvlab::Phase(0)},
+                           }},
+                    {"cz", {
+                               {"sdg", {0}, dvlab::Phase(0)},
+                               {"sx", {1}, dvlab::Phase(0)},
+                               {"s", {1}, dvlab::Phase(0)},
+                               {"ecr", {0, 1}, dvlab::Phase(0)},
+                               {"x", {0}, dvlab::Phase(0)},
+                               {"s", {1}, dvlab::Phase(0)},
+                               {"sx", {1}, dvlab::Phase(0)},
+                               {"s", {1}, dvlab::Phase(0)},
+                           }}}},
+    {"kyiv", {{"h", {
+                        {"s", {0}, dvlab::Phase(0)},
+                        {"sx", {0}, dvlab::Phase(0)},
+                        {"s", {0}, dvlab::Phase(0)},
+                    }},
+              {"cz", {
+                         {"s", {1}, dvlab::Phase(0)},
+                         {"sx", {1}, dvlab::Phase(0)},
+                         {"s", {1}, dvlab::Phase(0)},
+                         {"cx", {0, 1}, dvlab::Phase(0)},
+                         {"s", {1}, dvlab::Phase(0)},
+                         {"sx", {1}, dvlab::Phase(0)},
+                         {"s", {1}, dvlab::Phase(0)},
+                     }}}},
+    {"prague", {{"h", {
+                          {"s", {0}, dvlab::Phase(0)},
+                          {"sx", {0}, dvlab::Phase(0)},
+                          {"s", {0}, dvlab::Phase(0)},
+                      }},
+                {"cx", {
+                           {"s", {1}, dvlab::Phase(0)},
+                           {"sx", {1}, dvlab::Phase(0)},
+                           {"z", {1}, dvlab::Phase(0)},
+                           {"cz", {0, 1}, dvlab::Phase(0)},
+                           {"sx", {1}, dvlab::Phase(0)},
+                           {"s", {1}, dvlab::Phase(0)},
+                       }}}},
+};
 
 }  // namespace qsyn::qcir

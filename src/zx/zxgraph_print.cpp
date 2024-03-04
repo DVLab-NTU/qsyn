@@ -89,13 +89,13 @@ void ZXGraph::print_vertices(std::vector<size_t> cand) const {
  *
  * @param cand
  */
-void ZXGraph::print_vertices_by_qubits(spdlog::level::level_enum lvl, QubitIdList cand) const {
-    std::map<QubitIdType, std::vector<ZXVertex*>> q2_vmap;
+void ZXGraph::print_vertices_by_rows(spdlog::level::level_enum lvl, std::vector<float> const& cand) const {
+    std::map<float, std::vector<ZXVertex*>> q2_vmap;
     for (auto const& v : _vertices) {
-        if (!q2_vmap.contains(v->get_qubit())) {
-            q2_vmap.emplace(v->get_qubit(), std::vector<ZXVertex*>(1, v));
+        if (!q2_vmap.contains(v->get_row())) {
+            q2_vmap.emplace(v->get_row(), std::vector<ZXVertex*>(1, v));
         } else {
-            q2_vmap[v->get_qubit()].emplace_back(v);
+            q2_vmap[v->get_row()].emplace_back(v);
         }
     }
     if (cand.empty()) {
@@ -143,12 +143,11 @@ void ZXGraph::print_difference(ZXGraph* other) const {
         if (v1 && v2) {
             if (this->get_num_neighbors(v1) != this->get_num_neighbors(v2) ||
                 std::invoke([&v1, &v2, &other, this]() -> bool {
-                    for (auto& [nb1, e1] : this->get_neighbors(v1)) {
-                        ZXVertex* nb2 = other->find_vertex_by_id(nb1->get_id());
-                        if (!nb2) return true;
-                        if (!this->is_neighbor(nb2, v2, e1)) return true;
-                    }
-                    return false;
+                    return std::ranges::any_of(this->get_neighbors(v1), [&v2, &other, this](auto const& pair) {
+                        auto const& [nb1, e1] = pair;
+                        ZXVertex* nb2         = other->find_vertex_by_id(nb1->get_id());
+                        return (!nb2 || !this->is_neighbor(nb2, v2, e1));
+                    });
                 })) {
                 v1s.insert(v1);
                 v2s.insert(v2);
@@ -168,124 +167,6 @@ void ZXGraph::print_difference(ZXGraph* other) const {
         v->print_vertex();
     }
     fmt::println("<<<");
-}
-namespace detail {
-
-/**
- * @brief Print the vertex with color
- *
- * @param v
- * @return string
- */
-std::string get_colored_vertex_string(ZXVertex* v) {
-    using namespace dvlab;
-    if (v->get_type() == VertexType::boundary)
-        return fmt::format("{}", v->get_id());
-    else if (v->get_type() == VertexType::z)
-        return fmt::format("{}", fmt_ext::styled_if_ansi_supported(v->get_id(), fmt::fg(fmt::terminal_color::green) | fmt::emphasis::bold));
-    else if (v->get_type() == VertexType::x)
-        return fmt::format("{}", fmt_ext::styled_if_ansi_supported(v->get_id(), fmt::fg(fmt::terminal_color::red) | fmt::emphasis::bold));
-    else
-        return fmt::format("{}", fmt_ext::styled_if_ansi_supported(v->get_id(), fmt::fg(fmt::terminal_color::yellow) | fmt::emphasis::bold));
-}
-
-}  // namespace detail
-/**
- * @brief Draw ZXGraph in CLI
- *
- */
-[[deprecated("Console output is too limited to draw a graph")]] void ZXGraph::draw() const {
-    fmt::println("");
-    std::unordered_map<QubitIdType, QubitIdType> q_pair;
-    QubitIdList qubit_ids;  // number of qubit
-
-    // maxCol
-
-    auto max_col = gsl::narrow_cast<size_t>(std::ranges::max(this->get_vertices() | std::views::transform([](ZXVertex* v) { return v->get_col(); })));
-
-    QubitIdList qubit_ids_temp;  // number of qubit
-    for (auto& v : get_vertices()) {
-        qubit_ids_temp.emplace_back(v->get_qubit());
-    }
-    std::sort(qubit_ids_temp.begin(), qubit_ids_temp.end());
-    if (qubit_ids_temp.size() == 0) {
-        fmt::println("Empty graph!!");
-        return;
-    }
-    auto offset = qubit_ids_temp[0];
-    qubit_ids.emplace_back(0);
-    for (size_t i = 1; i < qubit_ids_temp.size(); i++) {
-        if (qubit_ids_temp[i - 1] == qubit_ids_temp[i]) {
-            continue;
-        } else {
-            qubit_ids.emplace_back(qubit_ids_temp[i] - offset);
-        }
-    }
-    qubit_ids_temp.clear();
-
-    for (size_t i = 0; i < qubit_ids.size(); i++) {
-        q_pair[gsl::narrow<QubitIdType>(i)] = qubit_ids[gsl::narrow<QubitIdType>(i)];
-    }
-    std::vector<ZXVertex*> tmp;
-    tmp.resize(qubit_ids.size());
-    std::vector<std::vector<ZXVertex*>> col_list(max_col + 1, tmp);
-
-    for (auto& v : get_vertices()) {
-        col_list[gsl::narrow_cast<size_t>(v->get_col())][q_pair[v->get_qubit() - offset]] = v;
-    }
-
-    std::vector<size_t> max_length(max_col + 1, 0);
-    for (size_t i = 0; i < col_list.size(); i++) {
-        for (size_t j = 0; j < col_list[i].size(); j++) {
-            if (col_list[i][j] != nullptr) {
-                if (std::to_string(col_list[i][j]->get_id()).length() > max_length[i]) max_length[i] = std::to_string(col_list[i][j]->get_id()).length();
-            }
-        }
-    }
-    size_t max_length_q = 0;
-    for (size_t i = 0; i < qubit_ids.size(); i++) {
-        auto temp = offset + i;
-        if (std::to_string(temp).length() > max_length_q) max_length_q = std::to_string(temp).length();
-    }
-
-    for (size_t i = 0; i < qubit_ids.size(); i++) {
-        // print qubit
-        auto temp = offset + i;
-        fmt::println("[{:<{}}]", temp, max_length_q);
-
-        // print row
-        for (size_t j = 0; j <= max_col; j++) {
-            if (std::cmp_less(i, -offset)) {
-                if (col_list[j][i] != nullptr) {
-                    fmt::println("({})   ", detail::get_colored_vertex_string(col_list[j][i]));
-                } else {
-                    if (j == max_col) {
-                        fmt::println("");
-                    } else {
-                        fmt::println("   {}", std::string(max_length[j] + 2, ' '));
-                    }
-                }
-            } else if (col_list[j][i] != nullptr) {
-                if (j == max_col) {
-                    fmt::println("({})", detail::get_colored_vertex_string(col_list[j][i]));
-                } else {
-                    fmt::print("({})---", detail::get_colored_vertex_string(col_list[j][i]));
-                }
-                fmt::print("{}", std::string(max_length[j] - std::to_string(col_list[j][i]->get_id()).length(), ' '));
-            } else {
-                fmt::print("---");
-                fmt::print("{}", std::string(max_length[j] + 2, '-'));
-            }
-        }
-        fmt::println("");
-    }
-    for (auto& a : col_list) {
-        a.clear();
-    }
-    col_list.clear();
-
-    max_length.clear();
-    qubit_ids.clear();
 }
 
 }  // namespace zx

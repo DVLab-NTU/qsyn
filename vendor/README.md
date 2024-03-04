@@ -28,3 +28,8 @@ This document lists the third-party dependencies that `qsyn` uses as libraries, 
   - MIT License
 - [`aminnj/cpptqdm`](https://github.com/aminnj/cpptqdm/tree/04c733fd38cdc1763d7bc19f8ff3a8fb6e95e2e9): pretty progress bar printing
   - MIT License
+
+## Miscellaneous
+
+- [pinam45/dynamic_bitset](https://github.com/pinam45/dynamic_bitset): A C++ dynamic bitset implementation
+  - MIT License

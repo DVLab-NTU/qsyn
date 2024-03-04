@@ -36,7 +36,7 @@ namespace qsyn::qcir {
 
 std::function<bool(size_t const&)> valid_qcir_id(QCirMgr const& qcir_mgr) {
     return [&](size_t const& id) {
-        if (qcir_mgr.is_id(id)) return true;
+        if (qcir_mgr.get() && qcir_mgr.is_id(id)) return true;
         spdlog::error("QCir {} does not exist!!", id);
         return false;
     };
@@ -45,7 +45,7 @@ std::function<bool(size_t const&)> valid_qcir_id(QCirMgr const& qcir_mgr) {
 std::function<bool(size_t const&)> valid_qcir_gate_id(QCirMgr const& qcir_mgr) {
     return [&](size_t const& id) {
         if (!dvlab::utils::mgr_has_data(qcir_mgr)) return false;
-        if (qcir_mgr.get()->get_gate(id) != nullptr) return true;
+        if (qcir_mgr.get() && qcir_mgr.get()->get_gate(id) != nullptr) return true;
         spdlog::error("Gate ID {} does not exist!!", id);
         return false;
     };
@@ -54,7 +54,7 @@ std::function<bool(size_t const&)> valid_qcir_gate_id(QCirMgr const& qcir_mgr) {
 std::function<bool(QubitIdType const&)> valid_qcir_qubit_id(QCirMgr const& qcir_mgr) {
     return [&](QubitIdType const& id) {
         if (!dvlab::utils::mgr_has_data(qcir_mgr)) return false;
-        if (qcir_mgr.get()->get_qubit(id) != nullptr) return true;
+        if (qcir_mgr.get() && qcir_mgr.get()->get_qubit(id) != nullptr) return true;
         spdlog::error("Qubit ID {} does not exist!!", id);
         return false;
     };
@@ -363,7 +363,8 @@ dvlab::Command qcir_gate_add_cmd(QCirMgr& qcir_mgr) {
     static dvlab::utils::ordered_hashmap<std::string, std::string> double_qubit_gates_no_phase = {
         {"cx", "CX (CNOT) gate"},
         {"cz", "CZ gate"},
-        {"swap", "SWAP gate"}};
+        {"swap", "SWAP gate"},
+        {"ecr", "Echoed crossed resonance gate"}};
 
     static dvlab::utils::ordered_hashmap<std::string, std::string> three_qubit_gates_no_phase = {
         {"ccx", "CCX (CCNOT, Toffoli) gate"},
@@ -454,7 +455,7 @@ dvlab::Command qcir_gate_add_cmd(QCirMgr& qcir_mgr) {
 
             if (is_gate_category(single_qubit_gates_no_phase) ||
                 is_gate_category(single_qubit_gates_with_phase)) {
-                if (bits.size() < 1) {
+                if (bits.empty()) {
                     spdlog::error("Too few qubits are supplied for gate {}!!", type);
                     return CmdExecResult::error;
                 } else if (bits.size() > 1) {
@@ -511,14 +512,14 @@ dvlab::Command qcir_gate_cmd(QCirMgr& qcir_mgr) {
         [](ArgumentParser& parser) {
             parser.description("gate commands");
 
-            parser.add_subparsers().required(true);
+            parser.add_subparsers("gate-cmd").required(true);
         },
         [](ArgumentParser const& /*parser*/) {
             return CmdExecResult::error;
         }};
 
-    cmd.add_subcommand(qcir_gate_add_cmd(qcir_mgr));
-    cmd.add_subcommand(qcir_gate_delete_cmd(qcir_mgr));
+    cmd.add_subcommand("gate-cmd", qcir_gate_add_cmd(qcir_mgr));
+    cmd.add_subcommand("gate-cmd", qcir_gate_delete_cmd(qcir_mgr));
 
     return cmd;
 }
@@ -567,14 +568,14 @@ dvlab::Command qcir_qubit_cmd(QCirMgr& qcir_mgr) {
         [](ArgumentParser& parser) {
             parser.description("qubit commands");
 
-            parser.add_subparsers().required(true);
+            parser.add_subparsers("qubit-cmd").required(true);
         },
         [](ArgumentParser const& /*parser*/) {
             return CmdExecResult::error;
         }};
 
-    cmd.add_subcommand(qcir_qubit_add_cmd(qcir_mgr));
-    cmd.add_subcommand(qcir_qubit_delete_cmd(qcir_mgr));
+    cmd.add_subcommand("qubit-cmd", qcir_qubit_add_cmd(qcir_mgr));
+    cmd.add_subcommand("qubit-cmd", qcir_qubit_delete_cmd(qcir_mgr));
 
     return cmd;
 }
@@ -604,7 +605,7 @@ dvlab::Command qcir_translate_cmd(QCirMgr& qcir_mgr) {
             QCir translated_qcir;
             auto gate_set = parser.get<std::string>("gate_set");
             translated_qcir.translate(*qcir_mgr.get(), gate_set);
-            std::string filename = qcir_mgr.get()->get_filename();
+            std::string const filename = qcir_mgr.get()->get_filename();
             qcir_mgr.set(std::make_unique<QCir>(std::move(translated_qcir)));
             qcir_mgr.get()->set_filename(filename);
             return CmdExecResult::done;
@@ -614,23 +615,23 @@ dvlab::Command qcir_translate_cmd(QCirMgr& qcir_mgr) {
 Command qcir_cmd(QCirMgr& qcir_mgr) {
     auto cmd = dvlab::utils::mgr_root_cmd(qcir_mgr);
 
-    cmd.add_subcommand(dvlab::utils::mgr_list_cmd(qcir_mgr));
-    cmd.add_subcommand(dvlab::utils::mgr_checkout_cmd(qcir_mgr));
-    cmd.add_subcommand(dvlab::utils::mgr_new_cmd(qcir_mgr));
-    cmd.add_subcommand(dvlab::utils::mgr_delete_cmd(qcir_mgr));
-    cmd.add_subcommand(dvlab::utils::mgr_copy_cmd(qcir_mgr));
-    cmd.add_subcommand(qcir_config_cmd());
-    cmd.add_subcommand(qcir_compose_cmd(qcir_mgr));
-    cmd.add_subcommand(qcir_tensor_product_cmd(qcir_mgr));
-    cmd.add_subcommand(qcir_read_cmd(qcir_mgr));
-    cmd.add_subcommand(qcir_write_cmd(qcir_mgr));
-    cmd.add_subcommand(qcir_print_cmd(qcir_mgr));
-    cmd.add_subcommand(qcir_draw_cmd(qcir_mgr));
-    cmd.add_subcommand(qcir_adjoint_cmd(qcir_mgr));
-    cmd.add_subcommand(qcir_gate_cmd(qcir_mgr));
-    cmd.add_subcommand(qcir_qubit_cmd(qcir_mgr));
-    cmd.add_subcommand(qcir_optimize_cmd(qcir_mgr));
-    cmd.add_subcommand(qcir_translate_cmd(qcir_mgr));
+    cmd.add_subcommand("qcir-cmd-group", dvlab::utils::mgr_list_cmd(qcir_mgr));
+    cmd.add_subcommand("qcir-cmd-group", dvlab::utils::mgr_checkout_cmd(qcir_mgr));
+    cmd.add_subcommand("qcir-cmd-group", dvlab::utils::mgr_new_cmd(qcir_mgr));
+    cmd.add_subcommand("qcir-cmd-group", dvlab::utils::mgr_delete_cmd(qcir_mgr));
+    cmd.add_subcommand("qcir-cmd-group", dvlab::utils::mgr_copy_cmd(qcir_mgr));
+    cmd.add_subcommand("qcir-cmd-group", qcir_config_cmd());
+    cmd.add_subcommand("qcir-cmd-group", qcir_compose_cmd(qcir_mgr));
+    cmd.add_subcommand("qcir-cmd-group", qcir_tensor_product_cmd(qcir_mgr));
+    cmd.add_subcommand("qcir-cmd-group", qcir_read_cmd(qcir_mgr));
+    cmd.add_subcommand("qcir-cmd-group", qcir_write_cmd(qcir_mgr));
+    cmd.add_subcommand("qcir-cmd-group", qcir_print_cmd(qcir_mgr));
+    cmd.add_subcommand("qcir-cmd-group", qcir_draw_cmd(qcir_mgr));
+    cmd.add_subcommand("qcir-cmd-group", qcir_adjoint_cmd(qcir_mgr));
+    cmd.add_subcommand("qcir-cmd-group", qcir_gate_cmd(qcir_mgr));
+    cmd.add_subcommand("qcir-cmd-group", qcir_qubit_cmd(qcir_mgr));
+    cmd.add_subcommand("qcir-cmd-group", qcir_optimize_cmd(qcir_mgr));
+    cmd.add_subcommand("qcir-cmd-group", qcir_translate_cmd(qcir_mgr));
     return cmd;
 }
 

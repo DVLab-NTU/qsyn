@@ -9,25 +9,19 @@
 
 namespace dvlab {
 
-void dvlab::Command::add_subcommand(dvlab::Command const& cmd) {
+void dvlab::Command::add_subcommand(std::string const& dest, dvlab::Command const& cmd) {
     auto old_definition       = this->_parser_definition;
     auto old_on_parse_success = this->_on_parse_success;
-    this->_parser_definition  = [cmd, old_definition](dvlab::argparse::ArgumentParser& parser) {
+    this->_parser_definition  = [dest, cmd, old_definition](dvlab::argparse::ArgumentParser& parser) {
         old_definition(parser);
-        auto subparsers = std::invoke(
-            [&parser]() {
-                if (!parser.has_subparsers()) {
-                    return parser.add_subparsers();
-                }
-                return parser.get_subparsers().value();
-            });
-        auto subparser = subparsers.add_parser(cmd._parser.get_name());
+        auto subparsers = parser.has_subparsers() ? parser.get_subparsers().value() : parser.add_subparsers(dest);
+        auto subparser  = subparsers.add_parser(cmd._parser.get_name());
 
         cmd._parser_definition(subparser);
     };
 
-    this->_on_parse_success = [cmd, old_on_parse_success](dvlab::argparse::ArgumentParser const& parser) {
-        if (parser.used_subparser(cmd._parser.get_name())) {
+    this->_on_parse_success = [dest, cmd, old_on_parse_success](dvlab::argparse::ArgumentParser const& parser) {
+        if (parser.get_if<std::string>(dest) == cmd._parser.get_name()) {
             return cmd._on_parse_success(parser);
         }
 

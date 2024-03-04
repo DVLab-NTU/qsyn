@@ -3,8 +3,8 @@ zx vertex add input 0
 zx vertex add output 0
 zx vertex add input 1
 zx vertex add output 1
-zx vertex add z 0 0
-zx vertex add z 0 pi
+zx vertex add z 0
+zx vertex add z pi
 zx vertex add input 2
 zx vertex add output 2
 zx vertex add input 3
@@ -42,10 +42,10 @@ zx vertex add output 3
 zx vertex add input 4
 zx vertex add output 4
 
-zx vertex add z 0 0
-zx vertex add z 0 0
-zx vertex add z 0 0
-zx vertex add z 0 0
+zx vertex add z 0
+zx vertex add z 0
+zx vertex add z 0
+zx vertex add z 0
 
 zx vertex add input 5
 zx vertex add output 5

@@ -161,11 +161,11 @@ dvlab::CommandLineInterface::TabActionResult dvlab::CommandLineInterface::_match
                               std::views::filter([&var_key](std::string_view key) { return key.starts_with(var_key); }) |
                               tl::to<std::vector>();
 
-    if (matching_variables.size() == 0) {
+    if (matching_variables.empty()) {
         return TabActionResult::no_op;
     }
 
-    if (_autocomplete(var_key, matching_variables, parse_state::normal /* does not matter */)) {
+    if (_autocomplete(var_key, matching_variables, ParseState::normal /* does not matter */)) {
         if (matching_variables.size() == 1 && is_brace) {
             _insert_char('}');
         }
@@ -184,13 +184,13 @@ dvlab::CommandLineInterface::TabActionResult dvlab::CommandLineInterface::_match
 dvlab::CommandLineInterface::TabActionResult dvlab::CommandLineInterface::_match_files(std::string_view str) {
     using namespace std::string_view_literals;
     std::optional<std::string> search_string;
-    parse_state state = parse_state::normal;
+    ParseState state = ParseState::normal;
     if (search_string = _dequote(str); search_string.has_value()) {
-        state = parse_state::normal;
+        state = ParseState::normal;
     } else if (search_string = _dequote(std::string{str} + '\"'); search_string.has_value()) {
-        state = parse_state::double_quote;
+        state = ParseState::double_quote;
     } else if (search_string = _dequote(std::string{str} + '\''); search_string.has_value()) {
-        state = parse_state::single_quote;
+        state = ParseState::single_quote;
     } else {
         spdlog::critical("unexpected dequote result!!");
         return TabActionResult::no_op;
@@ -217,7 +217,7 @@ dvlab::CommandLineInterface::TabActionResult dvlab::CommandLineInterface::_match
     std::vector<std::string> files = _get_file_matches(filepath);
 
     // no matched file
-    if (files.size() == 0) {
+    if (files.empty()) {
         return TabActionResult::no_op;
     }
 
@@ -226,8 +226,8 @@ dvlab::CommandLineInterface::TabActionResult dvlab::CommandLineInterface::_match
             if (fs::is_directory(dirname / files[0])) {
                 _insert_char('/');
             } else {
-                if (state == parse_state::single_quote) _insert_char('\'');
-                if (state == parse_state::double_quote) _insert_char('\"');
+                if (state == ParseState::single_quote) _insert_char('\'');
+                if (state == ParseState::double_quote) _insert_char('\"');
                 _insert_char(' ');
             }
         }
@@ -303,7 +303,7 @@ std::vector<std::string> dvlab::CommandLineInterface::_get_file_matches(fs::path
  * @return true if able to autocomplete
  * @return false if not
  */
-bool dvlab::CommandLineInterface::_autocomplete(std::string prefix_copy, std::vector<std::string> const& strs, parse_state state) {
+bool dvlab::CommandLineInterface::_autocomplete(std::string prefix_copy, std::vector<std::string> const& strs, ParseState state) {
     if (strs.size() == 1 && prefix_copy == strs[0]) return true;  // edge case: completing a file/dir name that is already complete
     bool trailing_backslash = false;
     if (prefix_copy.back() == '\\') {
@@ -342,7 +342,7 @@ bool dvlab::CommandLineInterface::_autocomplete(std::string prefix_copy, std::ve
         _insert_char(ch);
     }
 
-    return autocomplete_str.size() > 0;
+    return !autocomplete_str.empty();
 }
 
 void dvlab::CommandLineInterface::_print_as_table(std::vector<std::string> words) const {

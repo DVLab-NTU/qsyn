@@ -105,6 +105,23 @@ Iter prev(Iter iter, DiffT n = 1) {
 
 }  // namespace iterator
 
+// [std::visit - cppreference.com](https://en.cppreference.com/w/cpp/utility/variant/visit)
+// helper type for the visitor
+
+/**
+ * @brief helps to define a visitor for std::visit. For example,
+          std::visit(overloaded(<lambda function for each variant type>), visitee);
+ *
+ * @tparam Ts
+ */
+template <class... Ts>
+struct overloaded : Ts... {  // NOLINT(readability-identifier-naming)  // mimic library
+    using Ts::operator()...;
+};
+// explicit deduction guide (not needed as of C++20)
+template <class... Ts>
+overloaded(Ts...) -> overloaded<Ts...>;
+
 }  // namespace dvlab
 
 // NOLINTBEGIN(cppcoreguidelines-macro-usage)

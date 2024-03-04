@@ -3,12 +3,12 @@ zx vertex add i 0
 zx vertex add o 0
 zx vertex add i 1
 zx vertex add o 1
-zx vertex add x 0
-zx vertex add z 0
-zx vertex add x 1
-zx vertex add x 0
-zx vertex add z 0
-zx vertex add z 1
+zx vertex add x
+zx vertex add z
+zx vertex add x
+zx vertex add x
+zx vertex add z
+zx vertex add z
 zx edge add 5 7 SIMPLE
 zx edge add 0 4 SIMPLE
 zx edge add 1 8 SIMPLE
@@ -29,18 +29,18 @@ zx vertex add i 0
 zx vertex add o 0
 zx vertex add i 1
 zx vertex add o 1
-zx vertex add x 0
-zx vertex add z 0
-zx vertex add x 1
-zx vertex add x 0
-zx vertex add z 0
-zx vertex add z 1
-zx vertex add x 0
-zx vertex add z 0
-zx vertex add x 1
-zx vertex add x 0
-zx vertex add z 0
-zx vertex add z 0
+zx vertex add x
+zx vertex add z
+zx vertex add x
+zx vertex add x
+zx vertex add z
+zx vertex add z
+zx vertex add x
+zx vertex add z
+zx vertex add x
+zx vertex add x
+zx vertex add z
+zx vertex add z
 zx edge add 0 4 SIMPLE
 zx edge add 1 14 SIMPLE
 zx edge add 2 6 SIMPLE
@@ -68,8 +68,8 @@ zx vertex add i 0
 zx vertex add o 0
 zx vertex add i 1
 zx vertex add o 1
-zx vertex add z 0 0
-zx vertex add z 0 0
+zx vertex add z 0
+zx vertex add z 0
 zx edge add 0 4 SIMPLE
 zx edge add 2 4 SIMPLE
 zx edge add 1 5 SIMPLE
@@ -84,18 +84,18 @@ zx vertex add i 0
 zx vertex add o 0
 zx vertex add i 1
 zx vertex add o 1
-zx vertex add x 0
-zx vertex add z 0
-zx vertex add x 1
-zx vertex add x 0
-zx vertex add z 0
-zx vertex add z 1
-zx vertex add x 0
-zx vertex add z 0
-zx vertex add x 1
-zx vertex add x 0
-zx vertex add z 0
-zx vertex add z 0
+zx vertex add x
+zx vertex add z
+zx vertex add x
+zx vertex add x
+zx vertex add z
+zx vertex add z
+zx vertex add x
+zx vertex add z
+zx vertex add x
+zx vertex add x
+zx vertex add z
+zx vertex add z
 zx edge add 0 4 SIMPLE
 zx edge add 1 14 HADAMARD
 zx edge add 2 6 SIMPLE

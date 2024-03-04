@@ -117,8 +117,8 @@ private:
     std::optional<T> _default_value = std::nullopt;
 
     std::string _name;
-    std::string _help                        = "";
-    std::string _metavar                     = "";
+    std::string _help;
+    std::string _metavar;
     std::optional<std::string> _usage        = std::nullopt;
     ActionCallbackType _action_callback      = nullptr;
     std::vector<ConstraintType> _constraints = {};

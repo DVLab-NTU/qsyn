@@ -85,12 +85,7 @@ bool BooleanMatrix::Row::is_one_hot() const {
  * @return false
  */
 bool BooleanMatrix::Row::is_zeros() const {
-    for (auto& i : _row) {
-        if (i == 1) {
-            return false;
-        }
-    }
-    return true;
+    return std::ranges::none_of(_row, [](unsigned char const& e) { return e == 1; });
 }
 
 /**
@@ -172,20 +167,20 @@ bool BooleanMatrix::row_operation(size_t ctrl, size_t targ, bool track) {
  * @return size_t (rank)
  */
 size_t BooleanMatrix::gaussian_elimination_skip(size_t block_size, bool do_fully_reduced, bool track) {
-    auto get_section_range = [block_size, this](size_t section_idx) {
+    auto const get_section_range = [block_size, this](size_t section_idx) {
         auto section_begin = section_idx * block_size;
         auto section_end   = std::min(num_cols(), (section_idx + 1) * block_size);
         return std::make_pair(section_begin, section_end);
     };
 
-    auto get_sub_vec = [this](size_t row_idx, size_t section_begin, size_t section_end) {
+    auto const get_sub_vec = [this](size_t row_idx, size_t section_begin, size_t section_end) {
         auto row_begin = dvlab::iterator::next(_matrix[row_idx].get_row().begin(), section_begin);
         auto row_end   = dvlab::iterator::next(_matrix[row_idx].get_row().begin(), section_end);
         // NOTE - not all vector, only consider [row_begin, row_end)
         return std::vector<unsigned char>(row_begin, row_end);
     };
 
-    auto clear_section_duplicates = [this, get_sub_vec, track](size_t section_begin, size_t section_end, auto row_range) {
+    auto const clear_section_duplicates = [this, get_sub_vec, track](size_t section_begin, size_t section_end, auto row_range) {
         std::unordered_map<std::vector<unsigned char>, size_t, UCharVectorHash> duplicated;
         for (auto row_idx : row_range) {
             auto sub_vec = get_sub_vec(row_idx, section_begin, section_end);
@@ -200,7 +195,7 @@ size_t BooleanMatrix::gaussian_elimination_skip(size_t block_size, bool do_fully
         }
     };
 
-    auto clear_all_1s_in_column = [this, track](size_t pivot_row_idx, size_t col_idx, auto row_range) {
+    auto const clear_all_1s_in_column = [this, track](size_t pivot_row_idx, size_t col_idx, auto row_range) {
         auto rows_to_clear = row_range | std::views::filter([this, col_idx](size_t row_idx) -> bool {
                                  return _matrix[row_idx][col_idx] == 1;
                              });
@@ -234,7 +229,7 @@ size_t BooleanMatrix::gaussian_elimination_skip(size_t block_size, bool do_fully
             clear_all_1s_in_column(pivots.size(), col_idx, std::views::iota(pivots.size() + 1, num_rows()));
 
             // records the current columns for fully-reduced
-            if (do_fully_reduced) pivots.emplace_back(col_idx);
+            pivots.emplace_back(col_idx);
         }
     }
     auto const rank = pivots.size();
@@ -249,7 +244,7 @@ size_t BooleanMatrix::gaussian_elimination_skip(size_t block_size, bool do_fully
 
         clear_section_duplicates(section_begin, section_end, std::views::iota(0u, pivots.size()) | std::views::reverse);
 
-        while (pivots.size() > 0 && section_begin <= pivots.back() && pivots.back() < section_end) {
+        while (!pivots.empty() && section_begin <= pivots.back() && pivots.back() < section_end) {
             // retrieves the last pivot column. This column is guaranteed to have a 1 in the pivot row
             auto last = pivots.back();
             pivots.pop_back();
@@ -261,6 +256,11 @@ size_t BooleanMatrix::gaussian_elimination_skip(size_t block_size, bool do_fully
     }
 
     return rank;
+}
+
+size_t BooleanMatrix::matrix_rank() const {
+    auto copy = *this;
+    return copy.gaussian_elimination_skip(num_cols(), false, false);
 }
 
 /**
@@ -487,7 +487,7 @@ void BooleanMatrix::append_one_hot_column(size_t idx) {
 size_t BooleanMatrix::row_operation_depth() {
     std::vector<size_t> row_depth;
     row_depth.resize(num_rows(), 0);
-    if (_row_operations.size() == 0) {
+    if (_row_operations.empty()) {
         return 0;
     }
     for (auto const& [a, b] : _row_operations) {
@@ -508,7 +508,7 @@ double BooleanMatrix::dense_ratio() {
     if (depth == 0)
         return 0;
     float const ratio = float(depth) / float(_row_operations.size());
-    return round(ratio * 100) / 100;
+    return std::round(ratio * 100) / 100;
 }
 
 /**
@@ -517,6 +517,14 @@ double BooleanMatrix::dense_ratio() {
  */
 void BooleanMatrix::push_zeros_column() {
     for_each(_matrix.begin(), _matrix.end(), [](Row& r) { r.emplace_back(0); });
+}
+
+bool BooleanMatrix::Row::operator==(Row const& rhs) const {
+    if (_row.size() != rhs._row.size()) return false;
+    for (size_t i = 0; i < _row.size(); i++) {
+        if (_row[i] != rhs._row[i]) return false;
+    }
+    return true;
 }
 
 }  // namespace dvlab
