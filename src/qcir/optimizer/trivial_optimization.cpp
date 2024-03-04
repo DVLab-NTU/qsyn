@@ -183,8 +183,10 @@ void Optimizer::_cancel_double_gate(QCir& qcir, QCirGate* prev_gate, QCirGate* g
         Optimizer::_add_gate_to_circuit(qcir, gate, false);
 }
 
-static size_t _match_gate_sequence(std::vector<std::string> const& type_seq,
-                                   std::vector<std::string> const& target_seq) {
+namespace {
+
+size_t match_gate_sequence(std::vector<std::string> const& type_seq,
+                           std::vector<std::string> const& target_seq) {
     if (type_seq.size() < target_seq.size()) {
         return type_seq.size();
     }
@@ -204,16 +206,16 @@ static size_t _match_gate_sequence(std::vector<std::string> const& type_seq,
     return type_seq.size();
 }
 
-static QCir _replace_gate_sequence(QCir& qcir, QubitIdType qubit, size_t gate_num,
-                                   size_t seq_len, std::vector<std::string> const& seq) {
+QCir replace_gate_sequence(QCir& qcir, QubitIdType qubit, size_t gate_num,
+                           size_t seq_len, std::vector<std::string> const& seq) {
     QCir replaced;
     replaced.add_procedures(qcir.get_procedures());
     replaced.add_qubits(qcir.get_num_qubits());
     replaced.set_gate_set(qcir.get_gate_set());
 
     qcir.update_topological_order();
-    auto const gate_list = qcir.get_topologically_ordered_gates();
-    size_t replace_count = 0;
+    auto const& gate_list = qcir.get_topologically_ordered_gates();
+    size_t replace_count  = 0;
 
     if (gate_num == 0) {
         replace_count = seq_len;
@@ -254,11 +256,11 @@ static QCir _replace_gate_sequence(QCir& qcir, QubitIdType qubit, size_t gate_nu
     return replaced;
 }
 
-static std::vector<std::string> _zx_optimize(std::vector<std::string> partial) {
+std::vector<std::string> zx_optimize(std::vector<std::string> const& partial) {
     QCir qcir;
     qcir.add_qubits(1);
 
-    for (std::string type : partial) {
+    for (std::string const& type : partial) {
         auto gate_type                                 = str_to_gate_type(type);
         auto const& [category, num_qubits, gate_phase] = gate_type.value();
         if (gate_phase.has_value())
@@ -276,6 +278,7 @@ static std::vector<std::string> _zx_optimize(std::vector<std::string> partial) {
     result->update_topological_order();
     auto const gate_list = result->get_topologically_ordered_gates();
     std::vector<std::string> opt_partial;
+    opt_partial.reserve(gate_list.size());
     for (auto gate : gate_list) {
         opt_partial.emplace_back(gate->get_type_str());
     }
@@ -283,22 +286,24 @@ static std::vector<std::string> _zx_optimize(std::vector<std::string> partial) {
     return opt_partial;
 }
 
+}  // namespace
+
 void Optimizer::_partial_zx_optimization(QCir& qcir) {
-    for (size_t i = 0; i < qcir.get_num_qubits(); i++) {
+    for (auto const qubit : std::views::iota(0ul, qcir.get_num_qubits())) {
         qcir.update_topological_order();
         auto const gate_list = qcir.get_topologically_ordered_gates();
         std::vector<std::string> type_seq;
         for (auto gate : gate_list) {
-            if ((size_t)gate->get_targets()._qubit == i || (size_t)gate->get_control()._qubit == i) {
+            if ((size_t)gate->get_targets()._qubit == qubit || (size_t)gate->get_control()._qubit == qubit) {
                 type_seq.emplace_back(gate->get_type_str());
             }
         }
 
         std::vector<std::pair<std::vector<std::string>, std::vector<std::string>>> replace_rules;
-        while (type_seq.size()) {
+        while (!type_seq.empty()) {
             std::vector<std::string> partial;
-            while (type_seq.size()) {
-                std::string type = type_seq[0];
+            while (!type_seq.empty()) {
+                std::string const type = type_seq[0];
                 type_seq.erase(type_seq.begin());
                 if (type == "cx" || type == "cz" || type == "ecr") {
                     break;
@@ -307,9 +312,9 @@ void Optimizer::_partial_zx_optimization(QCir& qcir) {
             }
 
             if (partial.size() >= 3) {
-                auto opt_partial = _zx_optimize(partial);
+                auto opt_partial = zx_optimize(partial);
                 std::vector<std::string> replaced_h_opt_partial;
-                for (auto g : opt_partial) {
+                for (auto const& g : opt_partial) {
                     if (g == "h") {
                         replaced_h_opt_partial.emplace_back("s");
                         replaced_h_opt_partial.emplace_back("sx");
@@ -329,14 +334,13 @@ void Optimizer::_partial_zx_optimization(QCir& qcir) {
             auto const updated_gate_list = qcir.get_topologically_ordered_gates();
             std::vector<std::string> updated_type_seq;
             for (auto gate : updated_gate_list) {
-                if ((size_t)gate->get_targets()._qubit == i || (size_t)gate->get_control()._qubit == i) {
+                if ((size_t)gate->get_targets()._qubit == qubit || (size_t)gate->get_control()._qubit == qubit) {
                     updated_type_seq.emplace_back(gate->get_type_str());
                 }
             }
 
-            size_t g      = _match_gate_sequence(updated_type_seq, lhs);
-            QCir replaced = _replace_gate_sequence(qcir, i, g, lhs.size(), rhs);
-            qcir          = replaced;
+            size_t const g = match_gate_sequence(updated_type_seq, lhs);
+            qcir           = replace_gate_sequence(qcir, gsl::narrow<int>(qubit), g, lhs.size(), rhs);
         }
     }
 }
