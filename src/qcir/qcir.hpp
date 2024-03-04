@@ -122,7 +122,13 @@ public:
     size_t get_num_qubits() const { return _qubits.size(); }
     size_t calculate_depth() const;
     std::vector<QCirQubit*> const& get_qubits() const { return _qubits; }
-    std::vector<QCirGate*> const& get_topologically_ordered_gates() const { return _topological_order; }
+    std::vector<QCirGate*> const& get_topologically_ordered_gates() const {
+        if (_dirty) {
+            update_topological_order();
+            _dirty = false;
+        }
+        return _topological_order;
+    }
     std::vector<QCirGate*> const& get_gates() const { return _qgates; }
     QCirGate* get_gate(size_t gid) const;
     QCirQubit* get_qubit(QubitIdType qid) const;

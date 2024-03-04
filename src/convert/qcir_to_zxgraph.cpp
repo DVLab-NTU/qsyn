@@ -440,30 +440,36 @@ std::optional<ZXGraph> to_zxgraph(QCir const& qcir, size_t decomposition_mode) {
         return std::nullopt;
     }
     qcir.update_gate_time();
-    ZXGraph g;
+    ZXGraph graph;
     spdlog::debug("Add boundaries");
     for (size_t i = 0; i < qcir.get_qubits().size(); i++) {
-        ZXVertex* input  = g.add_input(qcir.get_qubits()[i]->get_id(), 0);
-        ZXVertex* output = g.add_output(qcir.get_qubits()[i]->get_id());
-        g.add_edge(input, output, EdgeType::simple);
+        ZXVertex* input  = graph.add_input(qcir.get_qubits()[i]->get_id(), 0);
+        ZXVertex* output = graph.add_output(qcir.get_qubits()[i]->get_id());
+        graph.add_edge(input, output, EdgeType::simple);
     }
 
-    qcir.topological_traverse([&g, &decomposition_mode](QCirGate* gate) {
-        if (stop_requested()) return;
+    for (auto const& gate : qcir.get_topologically_ordered_gates()) {
+        if (stop_requested()) {
+            spdlog::warn("Conversion interrupted.");
+            return std::nullopt;
+        }
         spdlog::debug("Gate {} ({})", gate->get_id(), gate->get_type_str());
 
         auto tmp = to_zxgraph(gate, decomposition_mode);
-        assert(tmp.has_value());
+        if (!tmp) {
+            spdlog::error("Conversion of Gate {} ({}) to ZXGraph is not supported yet!!", gate->get_id(), gate->get_type_str());
+            return std::nullopt;
+        }
 
         for (auto& v : tmp->get_vertices()) {
             v->set_col(v->get_col() + static_cast<float>(gate->get_time()));
         }
 
-        g.concatenate(*tmp);
-    });
+        graph.concatenate(*tmp);
+    }
 
-    auto max_col = std::ranges::max(g.get_outputs() | std::views::transform([&g](ZXVertex* v) { return g.get_first_neighbor(v).first->get_col(); }));
-    for (auto& v : g.get_outputs()) {
+    auto const max_col = std::ranges::max(graph.get_outputs() | std::views::transform([&graph](ZXVertex* v) { return graph.get_first_neighbor(v).first->get_col(); }));
+    for (auto& v : graph.get_outputs()) {
         v->set_col(max_col + 1);
     }
 
@@ -472,7 +478,7 @@ std::optional<ZXGraph> to_zxgraph(QCir const& qcir, size_t decomposition_mode) {
         return std::nullopt;
     }
 
-    return g;
+    return graph;
 }
 
 }  // namespace qsyn
