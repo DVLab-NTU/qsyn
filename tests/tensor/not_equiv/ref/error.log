@@ -23,9 +23,11 @@ Equivalent
 
 qsyn> tensor equiv 0 1 --eps 1e-8
 Not Equivalent
+- Cosine Similarity: 1
 
 qsyn> tensor equiv 0 1 --eps 1e-10
 Not Equivalent
+- Cosine Similarity: 1
 
 qsyn> quit -f
 

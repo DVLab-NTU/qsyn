@@ -17,6 +17,7 @@
 #include <string>
 #include <type_traits>
 
+#include "qcir/gate_type.hpp"
 #include "qsyn/qsyn_type.hpp"
 #include "util/util.hpp"
 
@@ -160,7 +161,8 @@ void QCirGate::print_gate() const {
                fmt::join(_qubits | std::views::transform([](QubitInfo const& info) { return info._qubit; }), " "));
     auto is_special_phase   = get_phase().denominator() == 1 || get_phase().denominator() == 2 || get_phase() == Phase(1, 4) || get_phase() == Phase(-1, 4);
     auto is_p_type_rotation = get_rotation_category() == GateRotationCategory::py || get_rotation_category() == GateRotationCategory::px || get_rotation_category() == GateRotationCategory::pz;
-    if (!is_special_phase || !is_p_type_rotation) {
+
+    if (!(is_special_phase && is_p_type_rotation) && !is_fixed_phase_gate(get_rotation_category())) {
         fmt::print("      Phase: {}", get_phase().get_print_string());
     }
     fmt::println("");

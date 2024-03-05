@@ -12,9 +12,11 @@ qsyn> tensor list
 
 qsyn> tensor equiv 0 1 
 Not Equivalent
+- Shape Mismatch: [2, 2] vs [4, 4]
 
 qsyn> tensor equiv 0 1 --strict
 Not Equivalent
+- Shape Mismatch: [2, 2] vs [4, 4]
 
 qsyn> quit -f
 

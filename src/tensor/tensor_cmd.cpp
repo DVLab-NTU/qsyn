@@ -165,7 +165,11 @@ Command tensor_equivalence_cmd(TensorMgr& tensor_mgr) {
                     fmt::println("- Global Phase: {}", phase);
                 } else {
                     fmt::println("{}", fmt_ext::styled_if_ansi_supported("Not Equivalent", fmt::fg(fmt::terminal_color::red) | fmt::emphasis::bold));
-                    fmt::println("- Cosine Similarity: {:.6}", cosine_similarity(*tensor1, *tensor2));
+                    if (tensor1->shape() == tensor2->shape()) {
+                        fmt::println("- Cosine Similarity: {:.6}", cosine_similarity(*tensor1, *tensor2));
+                    } else {
+                        fmt::println("- Shape Mismatch: {} vs {}", tensor1->shape(), tensor2->shape());
+                    }
                 }
 
                 return CmdExecResult::done;

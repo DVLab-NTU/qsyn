@@ -106,7 +106,7 @@ std::string to_qasm(QCir const& qcir) {
         auto is_p_type_rotation     = cur_gate->get_rotation_category() == GateRotationCategory::py || cur_gate->get_rotation_category() == GateRotationCategory::px || cur_gate->get_rotation_category() == GateRotationCategory::pz;
         qasm += fmt::format("{}{} {};\n",
                             cur_gate->get_phase() == dvlab::Phase(0) ? "id" : type_str,
-                            (!is_special_phase || !is_p_type_rotation) ? fmt::format("({})", cur_gate->get_phase().get_ascii_string()) : "",
+                            !(is_special_phase && is_p_type_rotation) && !is_fixed_phase_gate(cur_gate->get_rotation_category()) ? fmt::format("({})", cur_gate->get_phase().get_ascii_string()) : "",
                             fmt::join(pins | std::views::transform([](QubitInfo const& pin) { return fmt::format("q[{}]", pin._qubit); }), ", "));
     }
     return qasm;
