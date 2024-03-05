@@ -82,6 +82,7 @@ struct QCirGateStatistics {
     size_t cx         = 0;
     size_t ccx        = 0;
     size_t mcry       = 0;
+    size_t ecr        = 0;
 };
 
 class QCir {  // NOLINT(hicpp-special-member-functions, cppcoreguidelines-special-member-functions) : copy-swap idiom
@@ -106,6 +107,7 @@ public:
         std::swap(_dirty, other._dirty);
         std::swap(_global_dfs_counter, other._global_dfs_counter);
         std::swap(_filename, other._filename);
+        std::swap(_gate_set, other._gate_set);
         std::swap(_procedures, other._procedures);
         std::swap(_qgates, other._qgates);
         std::swap(_qubits, other._qubits);
@@ -120,18 +122,26 @@ public:
     size_t get_num_qubits() const { return _qubits.size(); }
     size_t calculate_depth() const;
     std::vector<QCirQubit*> const& get_qubits() const { return _qubits; }
-    std::vector<QCirGate*> const& get_topologically_ordered_gates() const { return _topological_order; }
+    std::vector<QCirGate*> const& get_topologically_ordered_gates() const {
+        if (_dirty) {
+            update_topological_order();
+            _dirty = false;
+        }
+        return _topological_order;
+    }
     std::vector<QCirGate*> const& get_gates() const { return _qgates; }
     QCirGate* get_gate(size_t gid) const;
     QCirQubit* get_qubit(QubitIdType qid) const;
     std::string get_filename() const { return _filename; }
     std::vector<std::string> const& get_procedures() const { return _procedures; }
+    std::string get_gate_set() const { return _gate_set; }
 
     bool is_empty() const { return _qubits.empty() || _qgates.empty(); }
 
     void set_filename(std::string f) { _filename = std::move(f); }
     void add_procedures(std::vector<std::string> const& ps) { _procedures.insert(_procedures.end(), ps.begin(), ps.end()); }
     void add_procedure(std::string const& p) { _procedures.emplace_back(p); }
+    void set_gate_set(std::string g) { _gate_set = std::move(g); }
 
     void reset();
     QCir* compose(QCir const& other);
@@ -156,6 +166,8 @@ public:
     bool draw(QCirDrawerType drawer, std::filesystem::path const& output_path = "", float scale = 1.0f) const;
 
     void print_gate_statistics(bool detail = false) const;
+
+    void translate(QCir const& qcir, std::string const& gate_set);
 
     QCirGateStatistics get_gate_statistics() const;
 
@@ -200,6 +212,7 @@ private:
     bool mutable _dirty                               = true;
     unsigned mutable _global_dfs_counter              = 0;
     std::string _filename                             = "";
+    std::string _gate_set                             = "";
     std::vector<std::string> _procedures              = {};
     std::vector<QCirGate*> _qgates                    = {};
     std::vector<QCirQubit*> _qubits                   = {};

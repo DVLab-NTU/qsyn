@@ -326,6 +326,28 @@ ZXGraph create_swap_zx_form(QCirGate* gate) {
     return g;
 }
 
+ZXGraph create_ecr_zx_form(QCirGate* gate) {
+    ZXGraph g;
+    auto qb0 = gate->get_qubits()[0]._qubit;
+    auto qb1 = gate->get_qubits()[1]._qubit;
+    auto i0  = g.add_input(qb0, 0);
+    auto o0  = g.add_output(qb0, 3);
+    auto i1  = g.add_input(qb1, 0);
+    auto o1  = g.add_output(qb1, 3);
+    auto s0  = g.add_vertex(VertexType::z, dvlab::Phase(1, 2), 0, 1);
+    auto v1  = g.add_vertex(VertexType::x, dvlab::Phase(1, 2), 1, 1);
+    auto x0  = g.add_vertex(VertexType::x, dvlab::Phase(1), 0, 2);
+
+    g.add_edge(i0, s0, EdgeType::simple);
+    g.add_edge(s0, x0, EdgeType::simple);
+    g.add_edge(x0, o0, EdgeType::simple);
+    g.add_edge(i1, v1, EdgeType::simple);
+    g.add_edge(v1, o1, EdgeType::simple);
+    g.add_edge(s0, v1, EdgeType::simple);
+
+    return g;
+}
+
 /**
  * @brief Get ZXGraph of CZ
  *
@@ -402,6 +424,9 @@ std::optional<ZXGraph> to_zxgraph(QCirGate* gate, size_t decomposition_mode) {
         case GateRotationCategory::swap:
             return create_swap_zx_form(gate);
 
+        case GateRotationCategory::ecr:
+            return create_ecr_zx_form(gate);
+
         case GateRotationCategory::pz:
             if (gate->get_num_qubits() == 1) {
                 return create_single_vertex_zx_form(gate, VertexType::z, gate->get_phase());
@@ -440,30 +465,36 @@ std::optional<ZXGraph> to_zxgraph(QCir const& qcir, size_t decomposition_mode) {
         return std::nullopt;
     }
     qcir.update_gate_time();
-    ZXGraph g;
+    ZXGraph graph;
     spdlog::debug("Add boundaries");
     for (size_t i = 0; i < qcir.get_qubits().size(); i++) {
-        ZXVertex* input  = g.add_input(qcir.get_qubits()[i]->get_id(), 0);
-        ZXVertex* output = g.add_output(qcir.get_qubits()[i]->get_id());
-        g.add_edge(input, output, EdgeType::simple);
+        ZXVertex* input  = graph.add_input(qcir.get_qubits()[i]->get_id(), 0);
+        ZXVertex* output = graph.add_output(qcir.get_qubits()[i]->get_id());
+        graph.add_edge(input, output, EdgeType::simple);
     }
 
-    qcir.topological_traverse([&g, &decomposition_mode](QCirGate* gate) {
-        if (stop_requested()) return;
+    for (auto const& gate : qcir.get_topologically_ordered_gates()) {
+        if (stop_requested()) {
+            spdlog::warn("Conversion interrupted.");
+            return std::nullopt;
+        }
         spdlog::debug("Gate {} ({})", gate->get_id(), gate->get_type_str());
 
         auto tmp = to_zxgraph(gate, decomposition_mode);
-        assert(tmp.has_value());
+        if (!tmp) {
+            spdlog::error("Conversion of Gate {} ({}) to ZXGraph is not supported yet!!", gate->get_id(), gate->get_type_str());
+            return std::nullopt;
+        }
 
         for (auto& v : tmp->get_vertices()) {
             v->set_col(v->get_col() + static_cast<float>(gate->get_time()));
         }
 
-        g.concatenate(*tmp);
-    });
+        graph.concatenate(*tmp);
+    }
 
-    auto max_col = std::ranges::max(g.get_outputs() | std::views::transform([&g](ZXVertex* v) { return g.get_first_neighbor(v).first->get_col(); }));
-    for (auto& v : g.get_outputs()) {
+    auto const max_col = std::ranges::max(graph.get_outputs() | std::views::transform([&graph](ZXVertex* v) { return graph.get_first_neighbor(v).first->get_col(); }));
+    for (auto& v : graph.get_outputs()) {
         v->set_col(max_col + 1);
     }
 
@@ -472,7 +503,7 @@ std::optional<ZXGraph> to_zxgraph(QCir const& qcir, size_t decomposition_mode) {
         return std::nullopt;
     }
 
-    return g;
+    return graph;
 }
 
 }  // namespace qsyn

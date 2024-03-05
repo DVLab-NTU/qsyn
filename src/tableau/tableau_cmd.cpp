@@ -75,9 +75,9 @@ dvlab::Command tableau_new_cmd(TableauMgr& tableau_mgr) {
 
 dvlab::Command tableau_apply_cmd(TableauMgr& tableau_mgr) {
     return dvlab::Command{
-        "apply",
+        "append",
         [&](ArgumentParser& parser) {
-            parser.description("Apply a gate to a tableau");
+            parser.description("Append a gate to a tableau");
 
             parser.add_argument<std::string>("gate-type")
                 .help("The gate type to be applied");
@@ -102,7 +102,8 @@ dvlab::Command tableau_apply_cmd(TableauMgr& tableau_mgr) {
 
             if (type == CliffordOperatorType::cx ||
                 type == CliffordOperatorType::cz ||
-                type == CliffordOperatorType::swap) {
+                type == CliffordOperatorType::swap ||
+                type == CliffordOperatorType::ecr) {
                 if (qubits.size() != 2) {
                     spdlog::error("The gate {} requires specifying exactly 2 qubit indices!!", to_string(type.value()));
                     return dvlab::CmdExecResult::error;

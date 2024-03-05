@@ -44,7 +44,8 @@ enum class CliffordOperatorType {
     y,
     z,
     cz,
-    swap
+    swap,
+    ecr,
 };
 
 std::optional<CliffordOperatorType> to_clifford_operator_type(std::string_view str) noexcept;
@@ -117,6 +118,7 @@ public:
     inline T& z(size_t qubit) { return s(qubit).s(qubit); }
     inline T& cz(size_t control, size_t target) { return h(target).cx(control, target).h(target); }
     inline T& swap(size_t qubit1, size_t qubit2) { return cx(qubit1, qubit2).cx(qubit2, qubit1).cx(qubit1, qubit2); }
+    inline T& ecr(size_t control, size_t target) { return cx(control, target).s(control).x(control).v(target); }
 
     inline T& apply(CliffordOperator const& op) {
         auto& [type, qubits] = op;
@@ -143,6 +145,8 @@ public:
                 return cz(qubits[0], qubits[1]);
             case CliffordOperatorType::swap:
                 return swap(qubits[0], qubits[1]);
+            case CliffordOperatorType::ecr:
+                return ecr(qubits[0], qubits[1]);
         }
         DVLAB_UNREACHABLE("Every Clifford type should be handled in the switch-case");
     }

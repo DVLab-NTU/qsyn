@@ -28,7 +28,8 @@ enum class GateRotationCategory {
     px,
     rx,
     py,
-    ry
+    ry,
+    ecr
 };
 
 using GateType = std::tuple<GateRotationCategory, std::optional<size_t>, std::optional<dvlab::Phase>>;

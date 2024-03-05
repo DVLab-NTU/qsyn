@@ -10,6 +10,7 @@
 #include <fmt/ostream.h>
 
 #include <gsl/narrow>
+#include <tl/to.hpp>
 
 #include "./tensor.hpp"
 #include "util/phase.hpp"
@@ -89,6 +90,9 @@ public:
 
     std::string get_filename() const { return _filename; }
     std::vector<std::string> const& get_procedures() const { return _procedures; }
+
+    QTensor<T> to_matrix();
+    QTensor<T> to_matrix(TensorAxisList const& out, TensorAxisList const& in) { return Tensor<std::complex<T>>::to_matrix(out, in); }
 
 private:
     friend struct fmt::formatter<QTensor>;
@@ -417,6 +421,25 @@ bool is_equivalent(QTensor<U> const& t1, QTensor<U> const& t2, double eps = 1e-6
 template <typename T>
 typename QTensor<T>::DataType QTensor<T>::_nu_pow(int n) {
     return std::pow(2., -0.25 * n);
+}
+
+/**
+ * @brief convert the tensor to a matrix. this function overload assumes that the tensor is an 2^n x 2^n tensor and the pin order is even for input and odd for output
+ *
+ * @tparam T
+ * @return QTensor<T>
+ */
+template <typename T>
+QTensor<T> QTensor<T>::to_matrix() {
+    auto const n_qubits = this->dimension() / 2;
+
+    return this->to_matrix(
+        std::views::iota(0ul, n_qubits) |
+            std::views::transform([](auto i) { return 2 * i + 1; }) |
+            tl::to<std::vector>(),
+        std::views::iota(0ul, n_qubits) |
+            std::views::transform([](auto i) { return 2 * i; }) |
+            tl::to<std::vector>());
 }
 
 }  // namespace qsyn::tensor

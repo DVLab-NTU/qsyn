@@ -212,7 +212,8 @@ std::optional<Tableau> to_tableau(qcir::QCir const& qcir) {
                gate.get_type_str() == "z" ||
                gate.get_type_str() == "cx" ||
                gate.get_type_str() == "cz" ||
-               gate.get_type_str() == "swap";
+               gate.get_type_str() == "swap" ||
+               gate.get_type_str() == "ecr";
     };
 
     for (auto const& gate : qcir.get_gates()) {
@@ -246,6 +247,8 @@ std::optional<Tableau> to_tableau(qcir::QCir const& qcir) {
             result.cz(gate->get_qubits()[0]._qubit, gate->get_qubits()[1]._qubit);
         } else if (gate->get_type_str() == "swap") {
             result.swap(gate->get_qubits()[0]._qubit, gate->get_qubits()[1]._qubit);
+        } else if (gate->get_type_str() == "ecr") {
+            result.ecr(gate->get_qubits()[0]._qubit, gate->get_qubits()[1]._qubit);
         } else if (is_allowed_rotation(*gate)) {
             implement_rotation_gate(result, *gate);
         } else {

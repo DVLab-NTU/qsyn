@@ -30,6 +30,7 @@ std::optional<CliffordOperatorType> to_clifford_operator_type(std::string_view s
     if (str == "z") return CliffordOperatorType::z;
     if (str == "cz") return CliffordOperatorType::cz;
     if (str == "swap") return CliffordOperatorType::swap;
+    if (str == "ecr") return CliffordOperatorType::ecr;
     return std::nullopt;
 }
 
@@ -57,6 +58,8 @@ std::string to_string(CliffordOperatorType type) {
             return "cz";
         case CliffordOperatorType::swap:
             return "swap";
+        case CliffordOperatorType::ecr:
+            return "ecr";
     }
     DVLAB_UNREACHABLE("Every Clifford type should be handled in the switch-case");
 }

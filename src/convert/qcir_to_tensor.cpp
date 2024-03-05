@@ -47,8 +47,15 @@ std::optional<QTensor<double>> to_tensor(QCirGate *gate) {
                                           {0.0, 0.0, 1.0, 0.0},
                                           {0.0, 1.0, 0.0, 0.0},
                                           {0.0, 0.0, 0.0, 1.0}};
-            tensor.reshape({2, 2, 2, 2});
-            return tensor;
+            return tensor.to_qtensor();
+        }
+        case GateRotationCategory::ecr: {
+            using namespace std::complex_literals;
+            auto tensor = QTensor<double>{{0.0, 0.0, 1.0 / std::sqrt(2), 1.i / std::sqrt(2)},
+                                          {0.0, 0.0, 1.i / std::sqrt(2), 1.0 / std::sqrt(2)},
+                                          {1.0 / std::sqrt(2), -1.i / std::sqrt(2), 0.0, 0.0},
+                                          {-1.i / std::sqrt(2), 1.0 / std::sqrt(2), 0.0, 0.0}};
+            return tensor.to_qtensor();
         }
         case GateRotationCategory::pz:
             return QTensor<double>::control(QTensor<double>::pzgate(gate->get_phase()), gate->get_num_qubits() - 1);
@@ -134,29 +141,27 @@ std::optional<QTensor<double>> to_tensor(QCir const &qcir) try {
         spdlog::trace("  - Add Qubit: {} input: {} output: {}", qubit_id, oi_pair.second, oi_pair.first);
     }
 
-    try {
-        qcir.topological_traverse([&tensor, &qubit_to_pins](QCirGate *gate) {
-            if (stop_requested()) return;
-            spdlog::debug("Gate {} ({})", gate->get_id(), gate->get_type_str());
-            auto const gate_tensor = to_tensor(gate);
-            if (!gate_tensor.has_value()) {
-                throw std::runtime_error(fmt::format("Gate {} ({}) is not supported!!", gate->get_id(), gate->get_type_str()));
-            }
-            std::vector<size_t> main_tensor_output_pins;
-            std::vector<size_t> gate_tensor_input_pins;
-            for (size_t np = 0; np < gate->get_qubits().size(); np++) {
-                gate_tensor_input_pins.emplace_back(2 * np + 1);
-                auto const qubit_id = gate->get_qubits()[np]._qubit;
-                main_tensor_output_pins.emplace_back(qubit_to_pins[qubit_id].first);
-            }
-            // [tmp]x[tensor]
-            tensor = tensordot(*gate_tensor, tensor, gate_tensor_input_pins, main_tensor_output_pins);
-            update_tensor_pin(qubit_to_pins, gate->get_qubits(), *gate_tensor, tensor);
-        });
-
-    } catch (std::runtime_error const &e) {
-        spdlog::error("{}", e.what());
-        return std::nullopt;
+    for (auto const &gate : qcir.get_topologically_ordered_gates()) {
+        if (stop_requested()) {
+            spdlog::warn("Conversion interrupted.");
+            return std::nullopt;
+        }
+        spdlog::debug("Gate {} ({})", gate->get_id(), gate->get_type_str());
+        auto const gate_tensor = to_tensor(gate);
+        if (!gate_tensor.has_value()) {
+            spdlog::error("Conversion of Gate {} ({}) to Tensor is not supported yet!!", gate->get_id(), gate->get_type_str());
+            return std::nullopt;
+        }
+        std::vector<size_t> main_tensor_output_pins;
+        std::vector<size_t> gate_tensor_input_pins;
+        for (size_t np = 0; np < gate->get_qubits().size(); np++) {
+            gate_tensor_input_pins.emplace_back(2 * np + 1);
+            auto const qubit_id = gate->get_qubits()[np]._qubit;
+            main_tensor_output_pins.emplace_back(qubit_to_pins[qubit_id].first);
+        }
+        // [tmp]x[tensor]
+        tensor = tensordot(*gate_tensor, tensor, gate_tensor_input_pins, main_tensor_output_pins);
+        update_tensor_pin(qubit_to_pins, gate->get_qubits(), *gate_tensor, tensor);
     }
 
     if (stop_requested()) {

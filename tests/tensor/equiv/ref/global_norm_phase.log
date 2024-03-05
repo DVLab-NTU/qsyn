@@ -63,6 +63,7 @@ Equivalent
 
 qsyn> tensor equiv 0 1 --strict
 Not Equivalent
+- Cosine Similarity: 1
 
 qsyn> quit -f
 

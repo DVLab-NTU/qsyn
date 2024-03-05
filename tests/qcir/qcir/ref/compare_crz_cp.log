@@ -12,7 +12,7 @@ ID:   0 ( cs)      Time:    2     Qubit:   0   1
 
 qsyn> qcir print --gate 1
 Listed by gate ID
-ID:   1 (crz)      Time:    4     Qubit:   0   1 
+ID:   1 (crz)      Time:    4     Qubit:   0   1       Phase: -π/2
 
 qsyn> qcir print --gate 2
 Listed by gate ID
