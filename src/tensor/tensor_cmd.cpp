@@ -10,6 +10,7 @@
 
 #include "./tensor_mgr.hpp"
 #include "cli/cli.hpp"
+#include "tensor/tensor.hpp"
 #include "util/data_structure_manager_common_cmd.hpp"
 #include "util/phase.hpp"
 #include "util/text_format.hpp"
@@ -164,6 +165,7 @@ Command tensor_equivalence_cmd(TensorMgr& tensor_mgr) {
                     fmt::println("- Global Phase: {}", phase);
                 } else {
                     fmt::println("{}", fmt_ext::styled_if_ansi_supported("Not Equivalent", fmt::fg(fmt::terminal_color::red) | fmt::emphasis::bold));
+                    fmt::println("- Cosine Similarity: {:.6}", cosine_similarity(*tensor1, *tensor2));
                 }
 
                 return CmdExecResult::done;
