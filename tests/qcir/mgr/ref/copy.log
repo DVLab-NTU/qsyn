@@ -201,7 +201,7 @@ ID:  10 ( rz)      Time:    1     Qubit:   0       Phase: 112π/285
 
 qsyn> qcir print --verbose --gate 9
 Listed by gate ID
-ID:   9 ( rz)      Time:    2     Qubit:   0 
+ID:   9 ( rz)      Time:    2     Qubit:   0       Phase: 0
 - Predecessors: 10
 - Successors  : 0
 

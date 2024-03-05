@@ -30,6 +30,7 @@ std::optional<CliffordOperatorType> to_clifford_operator_type(std::string_view s
     if (str == "z") return CliffordOperatorType::z;
     if (str == "cz") return CliffordOperatorType::cz;
     if (str == "swap") return CliffordOperatorType::swap;
+    if (str == "ecr") return CliffordOperatorType::ecr;
     return std::nullopt;
 }
 

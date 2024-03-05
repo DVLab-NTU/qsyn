@@ -175,6 +175,7 @@ std::string gate_type_to_str(GateRotationCategory category, std::optional<size_t
             case GateRotationCategory::id:
             case GateRotationCategory::h:
             case GateRotationCategory::swap:
+            case GateRotationCategory::ecr:
             default:
                 DVLAB_UNREACHABLE("Should be unreachable!!");
         }
@@ -190,7 +191,8 @@ std::string gate_type_to_str(GateType const& type) {
 bool is_fixed_phase_gate(GateRotationCategory category) {
     return category == GateRotationCategory::id ||
            category == GateRotationCategory::h ||
-           category == GateRotationCategory::swap;
+           category == GateRotationCategory::swap ||
+           category == GateRotationCategory::ecr;
 }
 
 dvlab::Phase get_fixed_phase(GateRotationCategory category) {
@@ -202,6 +204,8 @@ dvlab::Phase get_fixed_phase(GateRotationCategory category) {
         case GateRotationCategory::h:
         case GateRotationCategory::swap:
             return dvlab::Phase(1);
+        case GateRotationCategory::ecr:
+            return dvlab::Phase(0);
         default:
             assert(false);
     }
