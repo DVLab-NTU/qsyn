@@ -65,8 +65,6 @@ public:
     void update_graph_by_matrix(qsyn::zx::EdgeType et = qsyn::zx::EdgeType::hadamard);
     void update_matrix();
 
-    void prepend_single_qubit_gate(std::string const& type, QubitIdType qubit, dvlab::Phase phase);
-    void prepend_double_qubit_gate(std::string const& type, QubitIdList const& qubits, dvlab::Phase phase);
     void prepend_series_gates(std::vector<Operation> const& logical, std::vector<Operation> const& physical = {});
     void prepend_swap_gate(QubitIdType q0, QubitIdType q1, qcir::QCir* circuit);
     bool frontier_is_cleaned();

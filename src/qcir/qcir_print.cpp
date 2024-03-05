@@ -21,8 +21,7 @@ namespace qsyn::qcir {
  * @brief Print QCir Gates
  */
 void QCir::print_gates(bool print_neighbors, std::span<size_t> gate_ids) const {
-    if (_dirty)
-        update_gate_time();
+    update_gate_time();
     fmt::println("Listed by gate ID");
 
     auto const print_predecessors = [](QCirGate const* const gate) {
@@ -67,14 +66,6 @@ void QCir::print_gates(bool print_neighbors, std::span<size_t> gate_ids) const {
 }
 
 /**
- * @brief Print Depth of QCir
- *
- */
-void QCir::print_depth() const {
-    fmt::println("Depth       : {}", calculate_depth());
-}
-
-/**
  * @brief Print QCir
  */
 void QCir::print_qcir() const {
@@ -85,8 +76,7 @@ void QCir::print_qcir() const {
  * @brief Print Qubits
  */
 void QCir::print_circuit_diagram(spdlog::level::level_enum lvl) const {
-    if (_dirty)
-        update_gate_time();
+    update_gate_time();
 
     for (size_t i = 0; i < _qubits.size(); i++)
         _qubits[i]->print_qubit_line(lvl);
@@ -104,7 +94,7 @@ bool QCir::print_gate_as_diagram(size_t id, bool show_time) const {
         return false;
     }
 
-    if (show_time && _dirty)
+    if (show_time)
         update_gate_time();
     get_gate(id)->print_gate_info(show_time);
     return true;

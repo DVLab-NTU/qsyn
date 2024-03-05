@@ -84,7 +84,6 @@ QCir Optimizer::_parse_once(QCir const& qcir, bool reversed, bool do_minimize_cz
         : spdlog::debug("Start parsing forward");
 
     reset(qcir);
-    qcir.update_topological_order();
     std::vector<QCirGate*> gates = qcir.get_topologically_ordered_gates();
     if (reversed) {
         std::reverse(gates.begin(), gates.end());
@@ -541,7 +540,7 @@ void Optimizer::_add_rotation_gate(QubitIdType target, dvlab::Phase ph, GateRota
 std::vector<size_t> Optimizer::_compute_stats(QCir const& circuit) {
     size_t two_qubit = 0, had = 0, non_pauli = 0;
     std::vector<size_t> stats;
-    for (auto const& g : circuit.update_topological_order()) {
+    for (auto const& g : circuit.get_topologically_ordered_gates()) {
         if (g->is_cx() || g->is_cz()) {
             two_qubit++;
         } else if (g->is_h()) {

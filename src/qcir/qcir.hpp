@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <algorithm>
 #include <cstddef>
 #include <filesystem>
 #include <ranges>
@@ -105,7 +106,6 @@ public:
         std::swap(_gate_id, other._gate_id);
         std::swap(_qubit_id, other._qubit_id);
         std::swap(_dirty, other._dirty);
-        std::swap(_global_dfs_counter, other._global_dfs_counter);
         std::swap(_filename, other._filename);
         std::swap(_gate_set, other._gate_set);
         std::swap(_procedures, other._procedures);
@@ -123,10 +123,7 @@ public:
     size_t calculate_depth() const;
     std::vector<QCirQubit*> const& get_qubits() const { return _qubits; }
     std::vector<QCirGate*> const& get_topologically_ordered_gates() const {
-        if (_dirty) {
-            update_topological_order();
-            _dirty = false;
-        }
+        _update_topological_order();
         return _topological_order;
     }
     std::vector<QCirGate*> const& get_gates() const { return _qgates; }
@@ -152,7 +149,8 @@ public:
     void add_qubits(size_t num);
     bool remove_qubit(QubitIdType qid);
     QCirGate* add_gate(std::string type, QubitIdList bits, dvlab::Phase phase, bool append);
-    QCirGate* add_single_rz(QubitIdType bit, dvlab::Phase phase, bool append);
+    QCirGate* append(QCirGate gate);
+    QCirGate* prepend(QCirGate gate);
     bool remove_gate(size_t id);
 
     bool read_qcir_file(std::filesystem::path const& filepath);
@@ -172,28 +170,18 @@ public:
     QCirGateStatistics get_gate_statistics() const;
 
     void update_gate_time() const;
-    void print_zx_form_topological_order();
 
     void adjoint();
 
     // DFS functions
     template <typename F>
     void topological_traverse(F lambda) const {
-        if (_dirty) {
-            update_topological_order();
-            _dirty = false;
-        }
-        for_each(_topological_order.begin(), _topological_order.end(), lambda);
+        std::ranges::for_each(get_topologically_ordered_gates(), lambda);
     }
 
     bool print_topological_order() const;
 
-    // pass a function F (public functions) into for_each
-    // lambdaFn such as mappingToZX / updateGateTime
-    std::vector<QCirGate*> const& update_topological_order() const;
-
     // Member functions about circuit reporting
-    void print_depth() const;
     void print_gates(bool print_neighbors = false, std::span<size_t> gate_ids = {}) const;
     void print_qcir() const;
     bool print_gate_as_diagram(size_t id, bool show_time) const;
@@ -202,15 +190,11 @@ public:
 
 private:
     void _dfs(QCirGate* curr_gate) const;
-
-    // For Copy
-    void _set_next_gate_id(size_t id) { _gate_id = id; }
-    void _set_next_qubit_id(QubitIdType qid) { _qubit_id = qid; }
+    std::vector<QCirGate*> const& _update_topological_order() const;
 
     size_t _gate_id                                   = 0;
     QubitIdType _qubit_id                             = 0;
     bool mutable _dirty                               = true;
-    unsigned mutable _global_dfs_counter              = 0;
     std::string _filename                             = "";
     std::string _gate_set                             = "";
     std::vector<std::string> _procedures              = {};

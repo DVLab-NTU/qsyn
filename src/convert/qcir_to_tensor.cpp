@@ -118,14 +118,13 @@ std::optional<QTensor<double>> to_tensor(QCir const &qcir) try {
         spdlog::warn("QCir is empty!!");
         return std::nullopt;
     }
-    qcir.update_topological_order();
     spdlog::debug("Add boundary");
 
     QTensor<double> tensor;
 
     // NOTE: Constucting an identity(_qubit.size()) takes much time and memory.
     //       To make this process interruptible by SIGINT (ctrl-C), we grow the qubit size one by one
-    for (size_t i = 0; i < qcir.get_qubits().size(); ++i) {
+    for (size_t i = 0; i < qcir.get_num_qubits(); ++i) {
         if (stop_requested()) {
             spdlog::warn("Conversion interrupted.");
             return std::nullopt;

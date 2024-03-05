@@ -183,12 +183,12 @@ void Extractor::extract_singles() {
     std::vector<std::pair<ZXVertex*, ZXVertex*>> toggle_list;
     for (ZXVertex* o : _graph->get_outputs()) {
         if (_graph->get_first_neighbor(o).second == EdgeType::hadamard) {
-            prepend_single_qubit_gate("h", _qubit_map[o->get_qubit()], dvlab::Phase(0));
+            _logical_circuit->add_gate("h", {_qubit_map[o->get_qubit()]}, dvlab::Phase(0), false);
             toggle_list.emplace_back(o, _graph->get_first_neighbor(o).first);
         }
         auto const ph = _graph->get_first_neighbor(o).first->get_phase();
         if (ph != dvlab::Phase(0)) {
-            prepend_single_qubit_gate("rotate", _qubit_map[o->get_qubit()], ph);
+            _logical_circuit->add_gate("pz", {_qubit_map[o->get_qubit()]}, ph, false);
             _graph->get_first_neighbor(o).first->set_phase(dvlab::Phase(0));
         }
     }
@@ -269,7 +269,7 @@ void Extractor::extract_cxs() {
         auto ctrl = _qubit_map[front_id2_vertex[c]->get_qubit()];
         auto targ = _qubit_map[front_id2_vertex[t]->get_qubit()];
         spdlog::debug("Adding CX: {} {}", ctrl, targ);
-        prepend_double_qubit_gate("cx", {ctrl, targ}, dvlab::Phase(0));
+        _logical_circuit->add_gate("cx", {ctrl, targ}, dvlab::Phase(0), false);
     }
 }
 
@@ -323,7 +323,7 @@ size_t Extractor::extract_hadamards_from_matrix(bool check) {
 
     for (auto& [f, n] : front_neigh_pairs) {
         // NOTE - Add Hadamard according to the v of frontier (row)
-        prepend_single_qubit_gate("h", _qubit_map[f->get_qubit()], dvlab::Phase(0));
+        _logical_circuit->add_gate("h", {_qubit_map[f->get_qubit()]}, dvlab::Phase(0), false);
         // NOTE - Set #qubit and #col according to the old frontier
         n->set_qubit(f->get_qubit());
         n->set_col(f->get_col());
@@ -777,7 +777,7 @@ void Extractor::update_neighbors() {
             for (auto& [b, ep] : _graph->get_neighbors(f)) {
                 if (_graph->get_inputs().contains(b)) {
                     if (ep == EdgeType::hadamard) {
-                        prepend_single_qubit_gate("h", _qubit_map[f->get_qubit()], dvlab::Phase(0));
+                        _logical_circuit->add_gate("h", {_qubit_map[f->get_qubit()]}, dvlab::Phase(0), false);
                     }
                     break;
                 }
@@ -836,33 +836,6 @@ void Extractor::update_graph_by_matrix(EdgeType et) {
  */
 void Extractor::update_matrix() {
     _biadjacency = get_biadjacency_matrix(*_graph, _frontier, _neighbors);
-}
-
-/**
- * @brief Prepend single-qubit gate to circuit. If _device is given, directly map to physical device.
- *
- * @param type
- * @param qubit logical
- * @param phase
- */
-void Extractor::prepend_single_qubit_gate(std::string const& type, QubitIdType qubit, dvlab::Phase phase) {
-    if (type == "rotate") {
-        _logical_circuit->add_single_rz(qubit, phase, false);
-    } else {
-        _logical_circuit->add_gate(type, {qubit}, phase, false);
-    }
-}
-
-/**
- * @brief Prepend double-qubit gate to circuit. If _device is given, directly map to physical device.
- *
- * @param type
- * @param qubits
- * @param phase
- */
-void Extractor::prepend_double_qubit_gate(std::string const& type, QubitIdList const& qubits, dvlab::Phase phase) {
-    assert(qubits.size() == 2);
-    _logical_circuit->add_gate(type, qubits, phase, false);
 }
 
 /**

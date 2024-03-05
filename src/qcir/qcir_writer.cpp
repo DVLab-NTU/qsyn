@@ -94,7 +94,6 @@ bool QCir::draw(QCirDrawerType drawer, std::filesystem::path const& output_path,
 }
 
 std::string to_qasm(QCir const& qcir) {
-    qcir.update_topological_order();
     std::string qasm = "OPENQASM 2.0;\n";
     qasm += "include \"qelib1.inc\";\n";
     qasm += fmt::format("qreg q[{}];\n", qcir.get_num_qubits());

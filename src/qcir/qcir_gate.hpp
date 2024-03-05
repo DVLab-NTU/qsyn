@@ -80,10 +80,6 @@ public:
     void add_qubit(QubitIdType qubit, bool is_target);
     void set_target_qubit(QubitIdType qubit);
     void set_control_qubit(QubitIdType qubit) { _qubits[0]._qubit = qubit; }
-    // DFS
-    bool is_visited(unsigned global) const { return global == _dfs_counter; }
-    void set_visited(unsigned global) { _dfs_counter = global; }
-    void add_dummy_child(QCirGate* c);
 
     // Printing functions
     void print_gate() const;
@@ -107,12 +103,10 @@ protected:
     size_t _id;
     GateRotationCategory _rotation_category;
     size_t _time                   = 0;
-    unsigned _dfs_counter          = 0;
     std::vector<QubitInfo> _qubits = {};
     dvlab::Phase _phase;
 
-    // void _print_single_qubit_gate(std::string const& gtype, bool show_rotation = false, bool show_time = false) const;
-    void _print_single_qubit_or_controlled_gate(std::string gtype, bool show_rotation = false, bool show_time = false) const;
+    void _print_single_qubit_or_controlled_gate(std::string gtype, bool show_rotation = false) const;
 };
 
 }  // namespace qsyn::qcir

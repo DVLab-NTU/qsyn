@@ -39,7 +39,9 @@ void QCirGate::print_gate_info(bool show_time) const {
     auto pos = type_str.find("dg");
     std::for_each(type_str.begin(), pos == std::string::npos ? type_str.end() : dvlab::iterator::next(type_str.begin(), pos), [](char& c) { c = dvlab::str::toupper(c); });
     auto show_phase = type_str[0] == 'P' || type_str[0] == 'R';
-    _print_single_qubit_or_controlled_gate(type_str, show_phase, show_time);
+    _print_single_qubit_or_controlled_gate(type_str, show_phase);
+    if (show_time)
+        fmt::println("Execute at t= {}", get_time());
 }
 
 void QCirGate::set_rotation_category(GateRotationCategory type) {
@@ -127,15 +129,6 @@ void QCirGate::set_parent(QubitIdType qubit, QCirGate* p) {
 }
 
 /**
- * @brief Add dummy child c to gate
- *
- * @param c
- */
-void QCirGate::add_dummy_child(QCirGate* c) {
-    _qubits.push_back({._qubit = 0, ._prev = nullptr, ._next = c, ._isTarget = false});
-}
-
-/**
  * @brief Set child to gate on qubit.
  *
  * @param qubit
@@ -175,7 +168,7 @@ void QCirGate::print_gate() const {
  * @param showRotate
  * @param showTime
  */
-void QCirGate::_print_single_qubit_or_controlled_gate(std::string gtype, bool show_rotation, bool show_time) const {
+void QCirGate::_print_single_qubit_or_controlled_gate(std::string gtype, bool show_rotation) const {
     if (_qubits.size() > 1 && gtype.size() % 2 == 0) {
         gtype = " " + gtype;
     }
@@ -212,8 +205,6 @@ void QCirGate::_print_single_qubit_or_controlled_gate(std::string gtype, bool sh
     }
     if (show_rotation)
         fmt::println("Rotate Phase: {0}", _phase);
-    if (show_time)
-        fmt::println("Execute at t= {}", get_time());
 }
 
 void QCirGate::adjoint() {

@@ -328,7 +328,7 @@ dvlab::Command qcir_print_cmd(QCirMgr const& qcir_mgr) {
                 else if (parser.parsed("--statistics")) {
                     qcir_mgr.get()->print_qcir();
                     qcir_mgr.get()->print_gate_statistics(parser.parsed("--verbose"));
-                    qcir_mgr.get()->print_depth();
+                    fmt::println("Depth       : {}", qcir_mgr.get()->calculate_depth());
                 } else {
                     qcir_mgr.get()->print_qcir_info();
                 }

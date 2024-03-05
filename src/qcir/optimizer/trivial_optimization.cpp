@@ -81,7 +81,7 @@ std::optional<QCir> Optimizer::trivial_optimization(QCir const& qcir) {
  * @return vector<QCirGate*> with size = circuit->getNqubit()
  */
 std::vector<QCirGate*> Optimizer::_get_first_layer_gates(QCir& qcir, bool from_last) {
-    std::vector<QCirGate*> gate_list = qcir.update_topological_order();
+    std::vector<QCirGate*> gate_list = qcir.get_topologically_ordered_gates();
     if (from_last) reverse(gate_list.begin(), gate_list.end());
     std::vector<QCirGate*> result;
     std::vector<bool> blocked;
@@ -213,7 +213,6 @@ QCir replace_gate_sequence(QCir& qcir, QubitIdType qubit, size_t gate_num,
     replaced.add_qubits(qcir.get_num_qubits());
     replaced.set_gate_set(qcir.get_gate_set());
 
-    qcir.update_topological_order();
     auto const& gate_list = qcir.get_topologically_ordered_gates();
     size_t replace_count  = 0;
 
@@ -275,7 +274,6 @@ std::vector<std::string> zx_optimize(std::vector<std::string> const& partial) {
     extractor::Extractor ext(&zx, nullptr, std::nullopt);
     QCir* result = ext.extract();
 
-    result->update_topological_order();
     auto const gate_list = result->get_topologically_ordered_gates();
     std::vector<std::string> opt_partial;
     opt_partial.reserve(gate_list.size());
@@ -290,7 +288,6 @@ std::vector<std::string> zx_optimize(std::vector<std::string> const& partial) {
 
 void Optimizer::_partial_zx_optimization(QCir& qcir) {
     for (auto const qubit : std::views::iota(0ul, qcir.get_num_qubits())) {
-        qcir.update_topological_order();
         auto const gate_list = qcir.get_topologically_ordered_gates();
         std::vector<std::string> type_seq;
         for (auto gate : gate_list) {
@@ -330,7 +327,6 @@ void Optimizer::_partial_zx_optimization(QCir& qcir) {
         }
 
         for (auto const& [lhs, rhs] : replace_rules) {
-            qcir.update_topological_order();
             auto const updated_gate_list = qcir.get_topologically_ordered_gates();
             std::vector<std::string> updated_type_seq;
             for (auto gate : updated_gate_list) {
