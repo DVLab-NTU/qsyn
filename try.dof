@@ -1,0 +1,8 @@
+qc read 4-qubit.qasm
+qc2ts
+usage
+ts2qc
+usage
+qc2ts
+ts equiv 0 1 -e 1e-4
+quit -f
