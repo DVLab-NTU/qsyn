@@ -363,7 +363,7 @@ std::vector<Tensor<DT>>  Tensor<DT>::create_unitaries(const std::vector<Tensor<D
         {
             char bit = bits[j];
             int index = int(bit) - 48; // Convert char to int (assuming ASCII)
-            u *= base[index];
+            u = u * base[index];
         }
         gate_list.push_back(u);
         //std::cout<< u << std::endl;
@@ -503,7 +503,6 @@ void Tensor<DT>::SK_decompose() {
     assert(dimension() == 2);
     // TODO - Move your code here, you may also create new files src/tensor/
    
-    /*
     Tensor<DT> a = to_su2(*this);
     std::cout <<"to_su2 the tensor is" <<a << std::endl;
     std::cout <<"trace of the tensor is"<<this->trace()<<std::endl;
@@ -512,7 +511,15 @@ void Tensor<DT>::SK_decompose() {
     Tensor<DT> vector = std::get<1>(b);
     std::cout <<"eigen value of the tensor is"<<value<<std::endl; //eigen value 
     std::cout <<"eigen vector of the tensor is"<<vector<<std::endl; //eigen vector
-
+    std::complex<double> one(1,0);
+    std::complex<double> img(0,1);
+    //Tensor<DT> u = {{one,img},{img,one}};
+    //u._tensor = {{one,img},{img,one}};
+    //Tensor<DT> v= {{one,img},{img,one}};
+    //v._tensor = {{one,img},{img,one}};
+    //double trace_dist = trace_distance(u,v);
+    //std::cout <<"trace distance of the tensor is"<<trace_dist<<std::endl;
+    
     Tensor<DT> u = random_u(0.46181601443868003, 0.9850727657318968, 0.9477936955481501);
     std::cout << u << std::endl;
     Tensor<DT> v = random_u(0.4149234501309683, 0.15937620575851397, 0.10277865702965872);
@@ -520,8 +527,8 @@ void Tensor<DT>::SK_decompose() {
     std::cout <<"trace distance of u,v is"<<trace_distance(u,v)<<std::endl;
 
     std::vector<std::complex<double>> axis = u_to_bloch(*this);
-    std::cout <<"u_to_bloc of u is" << axis[0] <<axis[1] << axis[2] << axis[3] << std::endl;
-    */
+    std::cout <<"trace distance of u is" << axis[0] <<axis[1] << axis[2] << axis[3] << std::endl;
+    
     std::complex<double> sqrt2(std::sqrt(2),0); 
     std::complex<double> t(0,PI/4); 
     Tensor<DT> H = {{1./sqrt2,1./sqrt2},{1./sqrt2,-1./sqrt2}};
@@ -529,7 +536,19 @@ void Tensor<DT>::SK_decompose() {
     std::vector<Tensor<DT>> base = {to_su2(H), to_su2(T)};
 
     std::cout<< base[0] << base[1] << std::endl;
-    //generate gate list
+    std::complex<double> zero(0,0);
+    Tensor<DT> I = {{one,zero},{zero,one}};
+    
+    std::cout << xt::linalg::dot(base[0]._tensor,I._tensor) << std::endl;
+    std::cout<< base[0] * I << std::endl;
+    
+    int limit;
+    std::cout << "type in number of iterations: " << '\n' ;
+    std::cin >> limit; 
+    
+    //create_unitaries(base,limit);
+    //binary_prod(limit);
+       
     for(int i = 1; i < 16; i++){
         std::vector<Tensor<DT>> unitaries = create_unitaries(base, i);
         save_unitaries(unitaries, "gate_list_" + std::to_string(i) + ".dat");
