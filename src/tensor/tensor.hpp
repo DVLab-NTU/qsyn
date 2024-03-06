@@ -7,10 +7,14 @@
 
 #pragma once
 
+#include <iostream>
 #include <fmt/core.h>
 #include <fmt/ostream.h>
 #include <math.h>
 #include <spdlog/spdlog.h>
+#include <boost/dynamic_bitset.hpp>
+#include <string>
+#include <array>
 
 #include <cassert>
 #include <complex>
@@ -28,6 +32,8 @@
 
 #include "./tensor_util.hpp"
 #include "util/util.hpp"
+
+constexpr double PI = 3.1415926919;
 
 namespace qsyn::tensor {
 
@@ -78,6 +84,8 @@ public:
     virtual Tensor<DT>& operator*=(Tensor<DT> const& rhs);
     virtual Tensor<DT>& operator/=(Tensor<DT> const& rhs);
 
+    virtual Tensor<DT>& operator*(Tensor<DT> const& rhs);
+
     template <typename U>
     friend Tensor<U> operator+(Tensor<U> lhs, Tensor<U> const& rhs);
     template <typename U>
@@ -99,8 +107,8 @@ public:
     template <typename U>
     friend double cosine_similarity(Tensor<U> const& t1, Tensor<U> const& t2);
 
-    template <typename U>
-    friend double trace_distance(Tensor<U> const& t1, Tensor<U> const& t2);
+    //template <typename DT>
+    double trace_distance(Tensor<DT>& t1, Tensor<DT>& t2);
 
     template <typename U>
     friend Tensor<U> tensordot(Tensor<U> const& t1, Tensor<U> const& t2,
@@ -112,7 +120,7 @@ public:
     template <typename U>
     friend bool is_partition(Tensor<U> const& t, TensorAxisList const& axes1, TensorAxisList const& axes2);
 
-    Tensor<DT> to_matrix(TensorAxisList const& row_axes, TensorAxisList const& col_axes);
+    Tensor<DT> to_matrix(TensorAxisList const& row_axes, TensorAxisList const& col_axis);
 
     template <typename U>
     friend Tensor<U> direct_sum(Tensor<U> const& t1, Tensor<U> const& t2);
@@ -120,15 +128,27 @@ public:
     void reshape(TensorShape const& shape);
     Tensor<DT> transpose(TensorAxisList const& perm) const;
     void adjoint();
+    void sqrt();
+
+    std::vector<std::string> binary_prod(int n);
+    std::vector<Tensor<DT>> create_unitaries(const std::vector<Tensor<DT>>  base, int limit);
+    void save_unitaries(const std::vector<Tensor<DT>>& unitaries, const std::string& filename);
+
+    Tensor<DT> random_u(double x,double y, double z);
+    std::vector<std::complex<double>> u_to_bloch(Tensor<DT> u);
 
     std::complex<double> determinant();
     std::complex<double> trace();
     auto eigen();  // TODO - check the return type, may be std::pair<value, vector>
 
-    void solovay_kitaev_decompose();
 
-    bool tensor_read(std::string const& filepath);
-    bool tensor_write(std::string const& filepath);
+    Tensor<DT> to_su2(Tensor<DT> &u);
+   
+
+    void SK_decompose();
+
+    bool tensor_read(std::string const&);
+    bool tensor_write(std::string const&);
 
 protected:
     friend struct fmt::formatter<Tensor>;
@@ -195,6 +215,12 @@ Tensor<DT>& Tensor<DT>::operator*=(Tensor<DT> const& rhs) {
 template <typename DT>
 Tensor<DT>& Tensor<DT>::operator/=(Tensor<DT> const& rhs) {
     _tensor /= rhs._tensor;
+    return *this;
+}
+
+template <typename DT>
+Tensor<DT>& Tensor<DT>::operator*(Tensor<DT> const& rhs) {
+    _tensor = xt::linalg::dot(_tensor,rhs._tensor);
     return *this;
 }
 
@@ -297,6 +323,151 @@ void Tensor<DT>::adjoint() {
 }
 
 template <typename DT>
+void Tensor<DT>::sqrt() {
+    assert(dimension() == 2);
+    _tensor = xt::sqrt(_tensor);
+}
+
+template <typename DT>
+std::vector<std::string> Tensor<DT>::binary_prod(int n){
+  std::vector<std::string> bin_list;
+  for (int i = 1; i <= n; i++)
+  {
+    
+    for (int j = 0;j < pow(2,i); j++)
+    {
+      boost::dynamic_bitset<> B(i, j);
+      std::string B_string;
+      boost::to_string(B,B_string);
+      bin_list.push_back(B_string);
+      //std::cout<< B_string << std::endl;
+    }
+  }
+  return bin_list;
+}
+
+template <typename DT>
+std::vector<Tensor<DT>>  Tensor<DT>::create_unitaries(const std::vector<Tensor<DT>>  base, int limit){
+    std::vector<Tensor<DT>> gate_list;
+    std::vector<std::string> bin_list = binary_prod(limit);
+    int a = bin_list.size();
+    for (int i = 0; i < a; i++)
+    {
+        std::complex<double> one(1,0);
+        std::complex<double> zero(0,0);
+        Tensor<DT> u = {{one,zero},{zero,one}};
+       
+        std::string bits = bin_list[i];
+        int b = bits.length();
+        for (int j = 0; j < b; j++)
+        {
+            char bit = bits[j];
+            int index = int(bit) - 48; // Convert char to int (assuming ASCII)
+            u *= base[index];
+        }
+        gate_list.push_back(u);
+        //std::cout<< u << std::endl;
+
+    }
+
+    return gate_list;
+}
+
+template <typename DT>
+void Tensor<DT>::save_unitaries(const std::vector<Tensor<DT>>& unitaries, const std::string& filename){
+    std::ofstream out_file(filename, std::ios::binary);
+    //out_file.open(filepath);
+    if (!out_file.is_open()) {
+        spdlog::error("Failed to open file");
+        return ;
+    }
+
+    int num_matrices = unitaries.size();
+    out_file.write(reinterpret_cast<const char*>(&num_matrices), sizeof(int));
+    for (auto& u : unitaries){
+         for (size_t row = 0; row < u._tensor.shape(0); row++) {
+        for (size_t col = 0; col <u. _tensor.shape(1); col++) {
+            if (xt::imag(u._tensor(row, col)) >= 0) {
+                fmt::print(out_file, "{}{}+{}j", xt::real(u._tensor(row, col)) >= 0 ? " " : "", xt::real(u._tensor(row, col)), abs(xt::imag(u._tensor(row, col))));
+            } else {
+                fmt::print(out_file, "{}{}{}j", xt::real(u._tensor(row, col)) >= 0 ? " " : "", xt::real(u._tensor(row, col)), xt::imag(u._tensor(row, col)));
+            }
+            if (col !=u. _tensor.shape(1) - 1) {
+                fmt::print(out_file, ", ");
+            }
+        }
+        fmt::println(out_file, "");
+      }
+
+    }
+
+
+    out_file.close();
+
+}
+
+template <typename DT>
+Tensor<DT> Tensor<DT>::random_u(double x,double y, double z){
+  assert(dimension() == 2);
+
+  std::complex<double> img(0, 1);
+  std::complex<double> neg(-1, 0);
+
+  std::complex<double> X(2 * PI * x, 0);
+  std::complex<double> Y(2 * PI * y, 0);
+  std::complex<double> Z(2 * PI * z, 0);
+
+  Tensor<DT> _X = {{cos(X / 2.0), img*sin(X / 2.0)*neg},{img*sin(X / 2.0*neg), cos(X / 2.0)}};
+  Tensor<DT> _Y = {{cos(Y / 2.0), neg*sin(Y / 2.0)},{sin(Y / 2.0), cos(Y / 2.0)}};
+  Tensor<DT> _Z = {{pow(M_E,neg*img*Z/2.0) , 0 },{0 , pow(M_E,img*Z/2.0)}};
+ 
+  return _X*_Y*_Z;
+}
+
+template <typename DT>
+std::vector<std::complex<double>> Tensor<DT>::u_to_bloch(Tensor<DT> u){
+  assert(dimension() == 2);
+  std::vector<std::complex<double>> axis;
+  auto m = u._tensor;
+  double angle = (acos((m(0,0) + m(1,1))/2.0)).real();
+  double Sin = sin(angle);
+  if (Sin < pow(10,-10))
+  {
+    std::complex<double> nx(0,0);
+    std::complex<double> ny(0,0);
+    std::complex<double> nz(1,0);
+    std::complex<double> angle_2(2*angle,0);
+    
+    axis.push_back(nx);
+    axis.push_back(ny);
+    axis.push_back(nz);
+    axis.push_back(angle_2);
+    /*
+    axis[0] = nx;
+    axis[1] = ny;
+    axis[2] = nz;
+    axis[3] = angle_2;
+    */
+  }
+  else
+  {
+    std::complex<double> j_2(0,2); 
+    std::complex<double> nx = (m(0,1) + m(1,0)) / (Sin * j_2);
+    std::complex<double> ny = (m(0,1) - m(1,0)) / (Sin * 2);
+    std::complex<double> nz = (m(0,0) - m(1,1)) / (Sin * j_2);
+    std::complex<double> angle_2(2*angle,0);
+    
+    axis.push_back(nx);
+    axis.push_back(ny);
+    axis.push_back(nz);
+    axis.push_back(angle_2);
+    
+    
+  }
+  return axis;
+}
+
+template <typename DT>
 std::complex<double> Tensor<DT>::determinant() {
     // TODO - Check correctness and also check the condition dim=2 is needed;
     assert(dimension() == 2);
@@ -307,7 +478,8 @@ template <typename DT>
 std::complex<double> Tensor<DT>::trace() {
     // TODO - Check correctness and also check the condition dim=2 is needed;
     assert(dimension() == 2);
-    return xt::linalg::trace(_tensor);
+    return _tensor(0,0) + _tensor(1,1);
+    //return xt::linalg::trace(_tensor);
 }
 
 template <typename DT>
@@ -317,11 +489,55 @@ auto Tensor<DT>::eigen() {
     return xt::linalg::eig(_tensor);
 }
 
+
 template <typename DT>
-void Tensor<DT>::solovay_kitaev_decompose() {
+Tensor<DT>  Tensor<DT>::to_su2(Tensor<DT> &u) {
+    std::complex<double> det = u.determinant();
+    std::complex<double> one(1,0);
+    return (std::sqrt(one / det) * u._tensor);
+}
+
+
+template <typename DT>
+void Tensor<DT>::SK_decompose() {
     assert(dimension() == 2);
     // TODO - Move your code here, you may also create new files src/tensor/
+   
+    /*
+    Tensor<DT> a = to_su2(*this);
+    std::cout <<"to_su2 the tensor is" <<a << std::endl;
+    std::cout <<"trace of the tensor is"<<this->trace()<<std::endl;
+    std::tuple b = this->eigen();
+    Tensor<DT> value = std::get<0>(b);
+    Tensor<DT> vector = std::get<1>(b);
+    std::cout <<"eigen value of the tensor is"<<value<<std::endl; //eigen value 
+    std::cout <<"eigen vector of the tensor is"<<vector<<std::endl; //eigen vector
+
+    Tensor<DT> u = random_u(0.46181601443868003, 0.9850727657318968, 0.9477936955481501);
+    std::cout << u << std::endl;
+    Tensor<DT> v = random_u(0.4149234501309683, 0.15937620575851397, 0.10277865702965872);
+    std::cout << v << std::endl;
+    std::cout <<"trace distance of u,v is"<<trace_distance(u,v)<<std::endl;
+
+    std::vector<std::complex<double>> axis = u_to_bloch(*this);
+    std::cout <<"u_to_bloc of u is" << axis[0] <<axis[1] << axis[2] << axis[3] << std::endl;
+    */
+    std::complex<double> sqrt2(std::sqrt(2),0); 
+    std::complex<double> t(0,PI/4); 
+    Tensor<DT> H = {{1./sqrt2,1./sqrt2},{1./sqrt2,-1./sqrt2}};
+    Tensor<DT> T = {{1,0},{0,pow(M_E,t)}};
+    std::vector<Tensor<DT>> base = {to_su2(H), to_su2(T)};
+
+    std::cout<< base[0] << base[1] << std::endl;
+    //generate gate list
+    for(int i = 1; i < 16; i++){
+        std::vector<Tensor<DT>> unitaries = create_unitaries(base, i);
+        save_unitaries(unitaries, "gate_list_" + std::to_string(i) + ".dat");
+    }
+    
 }
+
+
 
 template <typename DT>
 bool Tensor<DT>::tensor_write(std::string const& filepath) {
@@ -403,10 +619,14 @@ double cosine_similarity(Tensor<U> const& t1, Tensor<U> const& t2) {
     return inner_product(t1, t2) / std::sqrt(inner_product(t1, t1) * inner_product(t2, t2));
 }
 // Calculate the trace distance of two tensors
-template <typename U>
-double trace_distance(Tensor<U> const& t1, Tensor<U> const& t2) {
+template <typename DT>
+double Tensor<DT>::trace_distance(Tensor<DT>& t1, Tensor<DT>& t2) {
     // TODO
-    return inner_product(t1, t2);
+    Tensor<DT> t1_t2 = t1 - t2;
+    t1_t2.adjoint();
+    t1_t2.sqrt();
+    std::complex<double> t(0.5,0);
+    return (0.5 * t1_t2.trace()).real();
 }
 
 // tensor-dot two tensors
