@@ -89,7 +89,7 @@ bool QCir::read_qasm(std::filesystem::path const& filepath) {
     getline(qasm_file, str);
     while (getline(qasm_file, str)) {
         str = dvlab::str::trim_spaces(dvlab::str::trim_comments(str));
-        if (str == "") continue;
+        if (str.empty()) continue;
         std::string type;
         auto const type_end   = str_get_token(str, type);
         std::string phase_str = "0";
@@ -98,14 +98,14 @@ bool QCir::read_qasm(std::filesystem::path const& filepath) {
             str_get_token(str, phase_str, stop + 1, ')');
         } else
             phase_str = "0";
-        if (type == "creg" || type == "qreg" || type == "") {
+        if (type == "creg" || type == "qreg" || type.empty()) {
             continue;
         }
         QubitIdList qubit_ids;
         std::string token;
         std::string qubit_id_str;
         size_t n = str_get_token(str, token, type_end, ',');
-        while (token.size()) {
+        while (!token.empty()) {
             str_get_token(token, qubit_id_str, str_get_token(token, qubit_id_str, 0, '[') + 1, ']');
             auto qubit_id_num = dvlab::str::from_string<unsigned>(qubit_id_str);
             if (!qubit_id_num.has_value() || qubit_id_num >= nqubit) {
@@ -152,6 +152,7 @@ bool QCir::read_qc(std::filesystem::path const& filepath) {
 
     while (getline(qc_file, line)) {
         line = line[line.size() - 1] == '\r' ? line.substr(0, line.size() - 1) : line;
+        line = dvlab::str::trim_spaces(line);
 
         if (line.find('.') == 0)  // find initial statement
         {
@@ -167,11 +168,11 @@ bool QCir::read_qc(std::filesystem::path const& filepath) {
                     n_qubit++;
                 }
             }
-        } else if (line.find('#') == 0 || line == "")
+        } else if (line.find('#') == 0 || line.empty())
             continue;
-        else if (line.find("BEGIN") == 0) {
+        else if (line.find("BEGIN") == 0 || line.find("begin") == 0) {
             add_qubits(n_qubit);
-        } else if (line.find("END") == 0) {
+        } else if (line.find("END") == 0 || line.find("end") == 0) {
             return true;
         } else  // find a gate
         {
@@ -199,6 +200,8 @@ bool QCir::read_qc(std::filesystem::path const& filepath) {
                     spdlog::error("Toffoli gates with more than 2 controls are not supported!!");
                     return false;
                 }
+            } else if ((type == "Z" || type == "z") && qubit_ids.size() == 3) {
+                add_gate("ccz", qubit_ids, dvlab::Phase(1), true);
             } else
                 add_gate(type, qubit_ids, dvlab::Phase(1), true);
         }
@@ -234,7 +237,7 @@ bool QCir::read_qsim(std::filesystem::path const& filepath) {
 
     while (getline(qsim_file, line)) {
         using dvlab::str::str_get_token;
-        if (line == "") continue;
+        if (line.empty()) continue;
         std::string time, type, phase_str, qubit_id;
         QubitIdList qubit_ids;
         size_t pos = 0;

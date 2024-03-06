@@ -25,7 +25,7 @@ class Rational;
 
 template <typename T>
 concept unitless = requires(T t) {
-    std::is_arithmetic_v<T> == true || std::same_as<T, Rational> == true;
+    std::is_arithmetic_v<T> || std::same_as<T, Rational>;
 };
 
 class Phase {

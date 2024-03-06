@@ -223,7 +223,7 @@ bool ZXFileParser::_tokenize(std::string const& line, std::vector<std::string>& 
             }
 
             token = dvlab::str::trim_spaces(token);
-            if (token == "") {
+            if (token.empty()) {
                 _print_failed_at_line_no();
                 spdlog::error("missing argument before comma!!");
                 return false;
@@ -233,7 +233,7 @@ bool ZXFileParser::_tokenize(std::string const& line, std::vector<std::string>& 
             dvlab::str::str_get_token(line, token, pos + 1, ')');
 
             token = dvlab::str::trim_spaces(token);
-            if (token == "") {
+            if (token.empty()) {
                 _print_failed_at_line_no();
                 spdlog::error("missing argument before right parenthesis!!");
                 return false;
@@ -247,7 +247,7 @@ bool ZXFileParser::_tokenize(std::string const& line, std::vector<std::string>& 
     // parse remaining
     pos = dvlab::str::str_get_token(line, token, pos);
 
-    while (token.size()) {
+    while (!token.empty()) {
         tokens.emplace_back(token);
         pos = dvlab::str::str_get_token(line, token, pos);
     }
@@ -503,7 +503,7 @@ bool ZXGraph::write_zx(std::filesystem::path const& filename, bool complete) con
     fmt::println(zx_file, "// inputs");
 
     for (ZXVertex* v : get_inputs()) {
-        fmt::print(zx_file, "I{} ({}, {})", v->get_id(), v->get_qubit(), floor(v->get_col()));
+        fmt::print(zx_file, "I{} ({}, {})", v->get_id(), v->get_qubit(), std::floor(v->get_col()));
         if (!write_neighbors(v)) {
             spdlog::error("failed to write neighbors for vertex {}", v->get_id());
             return false;
@@ -514,7 +514,7 @@ bool ZXGraph::write_zx(std::filesystem::path const& filename, bool complete) con
     fmt::println(zx_file, "// outputs");
 
     for (ZXVertex* v : get_outputs()) {
-        fmt::print(zx_file, "O{} ({}, {})", v->get_id(), v->get_qubit(), floor(v->get_col()));
+        fmt::print(zx_file, "O{} ({}, {})", v->get_id(), v->get_qubit(), std::floor(v->get_col()));
         if (!write_neighbors(v)) {
             spdlog::error("failed to write neighbors for vertex {}", v->get_id());
             return false;
@@ -532,7 +532,7 @@ bool ZXGraph::write_zx(std::filesystem::path const& filename, bool complete) con
                                : "H",
                    v->get_id(),
                    v->get_row(),
-                   floor(v->get_col()));
+                   std::floor(v->get_col()));
 
         if (!write_neighbors(v)) {
             spdlog::error("failed to write neighbors for vertex {}", v->get_id());

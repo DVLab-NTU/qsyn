@@ -43,7 +43,7 @@ public:
     using Device      = duostra::Duostra::Device;
     using Operation   = duostra::Duostra::Operation;
 
-    Extractor(zx::ZXGraph*, qcir::QCir* = nullptr, std::optional<Device> const& = std::nullopt);
+    Extractor(zx::ZXGraph* g, qcir::QCir* c = nullptr, std::optional<Device> const& d = std::nullopt);
 
     bool to_physical() { return _device.has_value(); }
     qcir::QCir* get_logical() { return _logical_circuit; }
@@ -62,13 +62,13 @@ public:
     void permute_qubits();
 
     void update_neighbors();
-    void update_graph_by_matrix(qsyn::zx::EdgeType = qsyn::zx::EdgeType::hadamard);
+    void update_graph_by_matrix(qsyn::zx::EdgeType et = qsyn::zx::EdgeType::hadamard);
     void update_matrix();
 
-    void prepend_single_qubit_gate(std::string const&, QubitIdType qubit, dvlab::Phase);
-    void prepend_double_qubit_gate(std::string const&, QubitIdList const& qubits, dvlab::Phase);
-    void prepend_series_gates(std::vector<Operation> const&, std::vector<Operation> const& = {});
-    void prepend_swap_gate(QubitIdType q0, QubitIdType q1, qcir::QCir*);
+    void prepend_single_qubit_gate(std::string const& type, QubitIdType qubit, dvlab::Phase phase);
+    void prepend_double_qubit_gate(std::string const& type, QubitIdList const& qubits, dvlab::Phase phase);
+    void prepend_series_gates(std::vector<Operation> const& logical, std::vector<Operation> const& physical = {});
+    void prepend_swap_gate(QubitIdType q0, QubitIdType q1, qcir::QCir* circuit);
     bool frontier_is_cleaned();
     bool axel_in_neighbors();
     bool contains_single_neighbor();
@@ -79,7 +79,7 @@ public:
     void print_matrix() const { _biadjacency.print_matrix(); }
 
     std::vector<size_t> find_minimal_sums(dvlab::BooleanMatrix& matrix);
-    std::vector<dvlab::BooleanMatrix::RowOperation> greedy_reduction(dvlab::BooleanMatrix&);
+    std::vector<dvlab::BooleanMatrix::RowOperation> greedy_reduction(dvlab::BooleanMatrix& m);
 
 private:
     size_t _num_cx_iterations = 0;
@@ -102,7 +102,7 @@ private:
     std::vector<Operation> _duostra_assigned;
     std::vector<Operation> _duostra_mapped;
     // NOTE - Use only in column optimal swap
-    Target _find_column_swap(Target);
+    Target _find_column_swap(Target target);
     ConnectInfo _row_info;
     ConnectInfo _col_info;
 

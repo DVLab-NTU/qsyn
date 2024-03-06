@@ -51,25 +51,25 @@ private:
         std::vector<zx::EdgePair> frontiers_to_add;       // New frontiers to be added
     };
 
-    auto& frontiers(size_t id) { return _zx2ts_list.at(id).frontiers; }
-    auto& tensor(size_t id) { return _zx2ts_list.at(id).tensor; }
-    auto const& frontiers(size_t id) const { return _zx2ts_list.at(id).frontiers; }
-    auto const& tensor(size_t id) const { return _zx2ts_list.at(id).tensor; }
+    auto& _frontiers(size_t id) { return _zx2ts_list.at(id).frontiers; }
+    auto& _tensor(size_t id) { return _zx2ts_list.at(id).tensor; }
+    auto const& _frontiers(size_t id) const { return _zx2ts_list.at(id).frontiers; }
+    auto const& _tensor(size_t id) const { return _zx2ts_list.at(id).tensor; }
 
-    auto& _curr_frontiers() { return frontiers(_current_tensor_id); }
-    auto& _curr_tensor() { return tensor(_current_tensor_id); }
-    auto const& _curr_frontiers() const { return frontiers(_current_tensor_id); }
-    auto const& _curr_tensor() const { return tensor(_current_tensor_id); }
+    auto& _curr_frontiers() { return _frontiers(_current_tensor_id); }
+    auto& _curr_tensor() { return _tensor(_current_tensor_id); }
+    auto const& _curr_frontiers() const { return _frontiers(_current_tensor_id); }
+    auto const& _curr_tensor() const { return _tensor(_current_tensor_id); }
 
     void _map_one_vertex(zx::ZXGraph const& graph, zx::ZXVertex* v);
 
     // mapOneVertex Subroutines
     void _initialize_subgraph(zx::ZXGraph const& graph, zx::ZXVertex* v);
-    MappingInfo calculate_mapping_info(zx::ZXGraph const& graph, zx::ZXVertex* v);
+    MappingInfo _calculate_mapping_info(zx::ZXGraph const& graph, zx::ZXVertex* v);
     tensor::QTensor<double> _dehadamardize(tensor::QTensor<double> const& ts, MappingInfo& info);
     void _tensordot_vertex(zx::ZXGraph const& graph, zx::ZXVertex* v);
 
-    size_t get_tensor_id(zx::ZXGraph const& graph, zx::ZXVertex* v);
+    size_t _get_tensor_id(zx::ZXGraph const& graph, zx::ZXVertex* v);
     bool _is_frontier(zx::NeighborPair const& nbr) const { return _pins.contains(nbr.first); }
 
     struct InOutAxisList {
@@ -117,7 +117,7 @@ std::optional<tensor::QTensor<double>> ZX2TSMapper::map(zx::ZXGraph const& graph
 
     std::ranges::for_each(std::views::iota(0ul, _zx2ts_list.size()), [this](auto const i) {
         // We don't care whether key collision happen because _get_axis_orders takes care of such cases
-        frontiers(i).emplace(_boundary_edges[i], 0);
+        _frontiers(i).emplace(_boundary_edges[i], 0);
     });
 
     auto const [input_ids, output_ids] = _get_axis_orders(graph);
@@ -164,7 +164,7 @@ namespace {
  */
 void ZX2TSMapper::_map_one_vertex(zx::ZXGraph const& graph, zx::ZXVertex* v) {
     if (stop_requested()) return;
-    _current_tensor_id = get_tensor_id(graph, v);
+    _current_tensor_id = _get_tensor_id(graph, v);
 
     if (_current_tensor_id == _pins.size() /* is a new subgraph */) {
         _initialize_subgraph(graph, v);
@@ -207,7 +207,7 @@ void ZX2TSMapper::_initialize_subgraph(zx::ZXGraph const& graph, zx::ZXVertex* v
  * @param v vertex
  * @return the tensor id
  */
-size_t ZX2TSMapper::get_tensor_id(zx::ZXGraph const& graph, zx::ZXVertex* v) {
+size_t ZX2TSMapper::_get_tensor_id(zx::ZXGraph const& graph, zx::ZXVertex* v) {
     auto const it = std::ranges::find_if(
         graph.get_neighbors(v),
         [this](auto const& neighbor) {
@@ -244,7 +244,7 @@ ZX2TSMapper::InOutAxisList ZX2TSMapper::_get_axis_orders(zx::ZXGraph const& zxgr
     size_t acc_frontier_size = 0;
     for (size_t i = 0; i < _zx2ts_list.size(); ++i) {
         bool has_boundary_to_boundary_edge = false;
-        for (auto& [epair, axid] : frontiers(i)) {
+        for (auto& [epair, axid] : _frontiers(i)) {
             auto const& [v1, v2]    = epair.first;
             auto const v1_is_input  = zxgraph.get_inputs().contains(v1);
             auto const v2_is_input  = zxgraph.get_inputs().contains(v2);
@@ -260,17 +260,17 @@ ZX2TSMapper::InOutAxisList ZX2TSMapper::_get_axis_orders(zx::ZXGraph const& zxgr
 
             // If seeing boundary-to-boundary edge, increase one of the axis id by one to avoid id collision
             if (v1_is_input && (v2_is_input || v2_is_output)) {
-                assert(frontiers(i).size() == 1);
+                assert(_frontiers(i).size() == 1);
                 axis_lists.inputs[input_table.at(v1->get_qubit())]--;
                 has_boundary_to_boundary_edge = true;
             }
             if (v1_is_output && (v2_is_input || v2_is_output)) {
-                assert(frontiers(i).size() == 1);
+                assert(_frontiers(i).size() == 1);
                 axis_lists.outputs[output_table.at(v1->get_qubit())]--;
                 has_boundary_to_boundary_edge = true;
             }
         }
-        acc_frontier_size += frontiers(i).size() + (has_boundary_to_boundary_edge ? 1 : 0);
+        acc_frontier_size += _frontiers(i).size() + (has_boundary_to_boundary_edge ? 1 : 0);
     }
 
     return axis_lists;
@@ -281,7 +281,7 @@ ZX2TSMapper::InOutAxisList ZX2TSMapper::_get_axis_orders(zx::ZXGraph const& zxgr
  *
  * @param v the current vertex
  */
-ZX2TSMapper::MappingInfo ZX2TSMapper::calculate_mapping_info(zx::ZXGraph const& graph, zx::ZXVertex* v) {
+ZX2TSMapper::MappingInfo ZX2TSMapper::_calculate_mapping_info(zx::ZXGraph const& graph, zx::ZXVertex* v) {
     MappingInfo info;
 
     for (auto& nbr : graph.get_neighbors(v)) {
@@ -351,7 +351,7 @@ tensor::QTensor<double> ZX2TSMapper::_dehadamardize(tensor::QTensor<double> cons
  * @param v current vertex
  */
 void ZX2TSMapper::_tensordot_vertex(zx::ZXGraph const& graph, zx::ZXVertex* v) {
-    auto info = calculate_mapping_info(graph, v);
+    auto info = _calculate_mapping_info(graph, v);
 
     if (v->is_boundary()) {
         spdlog::debug("Mapping vertex {:>4} ({}): Boundary", v->get_id(), v->get_type());

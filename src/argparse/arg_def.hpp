@@ -15,7 +15,7 @@
 namespace dvlab::argparse {
 
 namespace detail {
-struct heterogeneous_string_hash {
+struct HeterogeneousStringHash {
     using is_transparent = void;
     [[nodiscard]] size_t operator()(std::string_view str) const noexcept { return std::hash<std::string_view>{}(str); }
     [[nodiscard]] size_t operator()(std::string const& str) const noexcept { return std::hash<std::string>{}(str); }

@@ -33,8 +33,6 @@
 #include "./tensor_util.hpp"
 #include "util/util.hpp"
 
-constexpr double PI = 3.1415926919;
-
 namespace qsyn::tensor {
 
 template <typename DT>
@@ -118,7 +116,7 @@ public:
     template <typename U>
     friend bool is_partition(Tensor<U> const& t, TensorAxisList const& axes1, TensorAxisList const& axes2);
 
-    Tensor<DT> to_matrix(TensorAxisList const& row_axes, TensorAxisList const& col_axis);
+    Tensor<DT> to_matrix(TensorAxisList const& row_axes, TensorAxisList const& col_axes);
 
     template <typename U>
     friend Tensor<U> direct_sum(Tensor<U> const& t1, Tensor<U> const& t2);

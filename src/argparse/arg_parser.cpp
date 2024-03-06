@@ -24,15 +24,16 @@
 namespace dvlab::argparse {
 
 struct SubParsers::SubParsersImpl {
-    SubParsers::MapType subparsers;
+    SubParsersImpl(ArgumentParser& parent_parser, std::string_view dest) : parent_parser{parent_parser}, dest{dest} {}
+    ArgumentParser parent_parser;
+    std::string dest;
     std::string help;
     bool required = false;
-    ArgumentParser parent_parser;
+    SubParsers::MapType subparsers;
 };
 
-SubParsers::SubParsers(ArgumentParser& parent_parser) : _pimpl{std::make_shared<SubParsersImpl>()} {
+SubParsers::SubParsers(ArgumentParser& parent_parser, std::string_view dest) : _pimpl{std::make_shared<SubParsersImpl>(parent_parser, dest)} {
     assert(parent_parser._pimpl->subparsers == std::nullopt);
-    _pimpl->parent_parser = parent_parser;
 }
 SubParsers SubParsers::required(bool is_req) {
     _pimpl->required = is_req;
@@ -53,6 +54,7 @@ bool SubParsers::is_required() const noexcept {
 
 SubParsers::MapType const& SubParsers::get_subparsers() const { return _pimpl->subparsers; }
 std::string const& SubParsers::get_help() const { return _pimpl->help; }
+std::string const& SubParsers::get_dest() const { return _pimpl->dest; }
 
 ArgumentParser::ArgumentParser(std::string_view n, ArgumentParserConfig config) : ArgumentParser() {
     this->name(n);
@@ -91,10 +93,6 @@ std::optional<ArgumentParser> ArgumentParser::get_activated_subparser() const {
     return _pimpl->subparsers->get_subparsers().at(_pimpl->activated_subparser.value());
 }
 
-bool ArgumentParser::used_subparser(std::string_view name) const {
-    auto activated_subparser = get_activated_subparser();
-    return activated_subparser.has_value() && (activated_subparser->get_name() == name || activated_subparser->used_subparser(name));
-}
 /**
  * @brief Print the tokens and their parse states
  *
@@ -116,11 +114,11 @@ void ArgumentParser::print_arguments() const {
     }
 }
 
-Argument& ArgumentParser::_get_arg(std::string_view name) {
+Argument* ArgumentParser::_get_arg(std::string_view name) {
     return _get_arg_impl(*this, name);
 }
 
-Argument const& ArgumentParser::_get_arg(std::string_view name) const {
+Argument* ArgumentParser::_get_arg(std::string_view name) const {
     return _get_arg_impl(*this, name);
 }
 
@@ -288,6 +286,7 @@ std::pair<bool, std::vector<Token>> ArgumentParser::parse_known_args(TokensSpan 
 std::pair<bool, std::vector<Token>> ArgumentParser::_parse_known_args_impl(TokensSpan tokens) {
     if (!analyze_options()) return {false, {}};
     _pimpl->activated_subparser = std::nullopt;
+    _pimpl->dests.clear();
     for (auto& mutex : _pimpl->mutually_exclusive_groups) {
         mutex.set_parsed(false);
     }
@@ -298,6 +297,14 @@ std::pair<bool, std::vector<Token>> ArgumentParser::_parse_known_args_impl(Token
         for (auto const& [pos, token] : tl::views::enumerate(tokens)) {
             for (auto const& [name, subparser] : _pimpl->subparsers->get_subparsers()) {
                 if (name.starts_with(token.token)) {
+                    auto dest = _pimpl->subparsers->get_dest();
+                    if (!dest.empty()) {
+                        if (_pimpl->arguments.contains(dest)) {
+                            fmt::println(stderr, "Error: conflicting argument name: \"{}\" and subparser name: \"{}\"!!", dest, name);
+                            return tokens.size();
+                        }
+                        _pimpl->dests.emplace(dest, name);
+                    }
                     _activate_subparser(name);
                     return pos;
                 }
@@ -355,7 +362,7 @@ bool ArgumentParser::_parse_options(TokensSpan tokens) {
         // tries to match the token as a prefix to the full option name
         auto match = _match_option(token);
         if (auto p_arg_name = std::get_if<std::string>(&match)) {
-            if (!_parse_one_option(_get_arg(*p_arg_name), tokens.subspan(idx + 1))) {
+            if (!_parse_one_option(*_get_arg(*p_arg_name), tokens.subspan(idx + 1))) {
                 return false;
             }
             parsed = true;
@@ -390,15 +397,15 @@ bool ArgumentParser::_parse_options(TokensSpan tokens) {
         }
 
         for (auto const& [j, option] : tl::views::enumerate(single_char_options)) {
-            auto& arg = _get_arg(option);
+            auto& arg = *_get_arg(option);
             if (j == single_char_options.size() - 1) {
                 if (remainder_token.empty()) {
                     if (!_parse_one_option(arg, tokens.subspan(idx + 1))) {
                         return false;
                     }
                 } else {
-                    std::array<Token, 1> tmpToken{Token{remainder_token}};
-                    if (!_parse_one_option(arg, TokensSpan{tmpToken})) {
+                    std::array<Token, 1> tmp_token{Token{remainder_token}};
+                    if (!_parse_one_option(arg, TokensSpan{tmp_token})) {
                         return false;
                     }
                 }
@@ -423,7 +430,7 @@ std::pair<std::vector<std::string>, std::string> ArgumentParser::_explode_option
         if (auto p_arg_name = std::get_if<std::string>(&match)) {
             single_char_options.push_back(single_char_option);
             // if the option need at least one argument, then the remainder of the token is the argument
-            if (_get_arg(*p_arg_name).get_nargs().lower > 0) {
+            if (_get_arg(*p_arg_name)->get_nargs().lower > 0) {
                 remainder_token = token.substr(j + 2);
                 break;
             }
@@ -488,7 +495,7 @@ bool ArgumentParser::_parse_positional_arguments(TokensSpan tokens, std::vector<
 
         if (!arg.take_action(parse_range)) return false;
 
-        if (parse_range.size()) {
+        if (!parse_range.empty()) {
             if (!_no_conflict_with_parsed_arguments(arg)) return false;
             arg.mark_as_parsed();
         }
@@ -621,12 +628,12 @@ ArgumentParser SubParsers::add_parser(std::string_view name, ArgumentParserConfi
  *
  * @return SubParsers
  */
-[[nodiscard]] SubParsers ArgumentParser::add_subparsers() {
+[[nodiscard]] SubParsers ArgumentParser::add_subparsers(std::string_view dest) {
     if (_pimpl->subparsers.has_value()) {
         fmt::println(stderr, "Error: an ArgumentParser can only have one set of subparsers!!");
         throw std::runtime_error("cannot have multiple subparsers");
     }
-    _pimpl->subparsers = SubParsers{*this};
+    _pimpl->subparsers = SubParsers{*this, dest};
     return _pimpl->subparsers.value();
 }
 

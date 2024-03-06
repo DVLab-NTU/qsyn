@@ -23,7 +23,7 @@ namespace qsyn::qcir {
  * @return QCir*
  */
 QCir* QCir::compose(QCir const& other) {
-    auto const targ_qubits = other.get_qubits();
+    auto targ_qubits = other.get_qubits();
     for (auto& qubit : targ_qubits) {
         if (get_qubit(qubit->get_id()) == nullptr)
             insert_qubit(qubit->get_id());
@@ -47,7 +47,7 @@ QCir* QCir::compose(QCir const& other) {
  */
 QCir* QCir::tensor_product(QCir const& other) {
     std::unordered_map<size_t, QCirQubit*> old_q2_new_q;
-    auto const targ_qubits = other.get_qubits();
+    auto targ_qubits = other.get_qubits();
     for (auto& qubit : targ_qubits) {
         old_q2_new_q[qubit->get_id()] = push_qubit();
     }
@@ -122,7 +122,7 @@ std::vector<QCirGate*> const& QCir::update_topological_order() const {
 /**
  * @brief Print topological order
  */
-bool QCir::print_topological_order() {
+bool QCir::print_topological_order() const {
     auto print_gate_id = [](QCirGate* gate) {
         fmt::println("{}", gate->get_id());
     };

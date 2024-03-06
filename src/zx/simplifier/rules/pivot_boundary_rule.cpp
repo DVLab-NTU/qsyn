@@ -85,35 +85,35 @@ void PivotBoundaryRule::apply(ZXGraph& graph, std::vector<MatchType> const& matc
     PivotRuleInterface::apply(graph, matches);
 }
 
-bool PivotBoundaryRule::is_candidate(ZXGraph& graph, ZXVertex* vb, ZXVertex* vn) {
+bool PivotBoundaryRule::is_candidate(ZXGraph& graph, ZXVertex* v0, ZXVertex* v1) {
     if (!graph.is_graph_like()) {
         spdlog::error("The graph is not graph like!");
         return false;
     }
-    if (!vb->is_z()) {
-        spdlog::error("Vertex {} is not a Z vertex", vb->get_id());
+    if (!v0->is_z()) {
+        spdlog::error("Vertex {} is not a Z vertex", v0->get_id());
         return false;
     }
     size_t has_boundary = 0;
-    for (const auto& [nb, etype] : graph.get_neighbors(vb)) {
+    for (const auto& [nb, etype] : graph.get_neighbors(v0)) {
         if (nb->is_boundary()) {
             has_boundary++;
         }
     }
     if (has_boundary == 0) {
-        spdlog::error("Vertex {} is not connected to a boundary", vb->get_id());
+        spdlog::error("Vertex {} is not connected to a boundary", v0->get_id());
         return false;
     }
     if (has_boundary > 1) {
-        spdlog::error("Vertex {} is connected to more than one boundaries", vb->get_id());
+        spdlog::error("Vertex {} is connected to more than one boundaries", v0->get_id());
         return false;
     }
-    if (!vn->has_n_pi_phase()) {
-        spdlog::error("Vertex {} is not a Z vertex with phase n π", vn->get_id());
+    if (!v1->has_n_pi_phase()) {
+        spdlog::error("Vertex {} is not a Z vertex with phase n π", v1->get_id());
         return false;
     }
-    if (!graph.is_neighbor(vb, vn)) {
-        spdlog::error("Vertices {} and {} are not connected", vb->get_id(), vn->get_id());
+    if (!graph.is_neighbor(v0, v1)) {
+        spdlog::error("Vertices {} and {} are not connected", v0->get_id(), v1->get_id());
         return false;
     }
     // if (graph.has_dangling_neighbors(vn)) {

@@ -83,6 +83,13 @@ FetchContent_Declare(
     GIT_SHALLOW ON)
 FetchContent_MakeAvailable(GSL)
 
+FetchContent_Declare(
+    dynamic_bitset
+    SYSTEM
+    GIT_REPOSITORY https://github.com/pinam45/dynamic_bitset.git
+    GIT_TAG v1.2.1)
+FetchContent_MakeAvailable(dynamic_bitset)
+
 file(
     GLOB_RECURSE SOURCES
     RELATIVE ${CMAKE_SOURCE_DIR}
@@ -152,7 +159,9 @@ target_link_libraries_system(
     libfort::fort
     fmt::fmt
     spdlog::spdlog
-    Microsoft.GSL::GSL)
+    Microsoft.GSL::GSL
+    sul::dynamic_bitset)
+
 target_link_libraries(
     ${CMAKE_PROJECT_NAME} PRIVATE lapack OpenMP::OpenMP_CXX ${BLAS_LIBRARIES}
     ${LAPACK_LIBRARIES})

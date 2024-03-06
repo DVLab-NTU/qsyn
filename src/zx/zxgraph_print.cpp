@@ -89,7 +89,7 @@ void ZXGraph::print_vertices(std::vector<size_t> cand) const {
  *
  * @param cand
  */
-void ZXGraph::print_vertices_by_rows(spdlog::level::level_enum lvl, std::vector<float> cand) const {
+void ZXGraph::print_vertices_by_rows(spdlog::level::level_enum lvl, std::vector<float> const& cand) const {
     std::map<float, std::vector<ZXVertex*>> q2_vmap;
     for (auto const& v : _vertices) {
         if (!q2_vmap.contains(v->get_row())) {
@@ -143,12 +143,11 @@ void ZXGraph::print_difference(ZXGraph* other) const {
         if (v1 && v2) {
             if (this->get_num_neighbors(v1) != this->get_num_neighbors(v2) ||
                 std::invoke([&v1, &v2, &other, this]() -> bool {
-                    for (auto& [nb1, e1] : this->get_neighbors(v1)) {
-                        ZXVertex* nb2 = other->find_vertex_by_id(nb1->get_id());
-                        if (!nb2) return true;
-                        if (!this->is_neighbor(nb2, v2, e1)) return true;
-                    }
-                    return false;
+                    return std::ranges::any_of(this->get_neighbors(v1), [&v2, &other, this](auto const& pair) {
+                        auto const& [nb1, e1] = pair;
+                        ZXVertex* nb2         = other->find_vertex_by_id(nb1->get_id());
+                        return (!nb2 || !this->is_neighbor(nb2, v2, e1));
+                    });
                 })) {
                 v1s.insert(v1);
                 v2s.insert(v2);

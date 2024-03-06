@@ -57,30 +57,31 @@ inline std::optional<QCirDrawerType> str_to_qcir_drawer_type(std::string const& 
 }
 
 struct QCirGateStatistics {
-    size_t clifford = 0;
-    size_t tfamily  = 0;
-    size_t twoqubit = 0;
-    size_t nct      = 0;
-    size_t h        = 0;
-    size_t rz       = 0;
-    size_t z        = 0;
-    size_t s        = 0;
-    size_t sdg      = 0;
-    size_t t        = 0;
-    size_t tdg      = 0;
-    size_t rx       = 0;
-    size_t x        = 0;
-    size_t sx       = 0;
-    size_t ry       = 0;
-    size_t y        = 0;
-    size_t sy       = 0;
-    size_t mcpz     = 0;
-    size_t cz       = 0;
-    size_t ccz      = 0;
-    size_t mcrx     = 0;
-    size_t cx       = 0;
-    size_t ccx      = 0;
-    size_t mcry     = 0;
+    size_t clifford   = 0;
+    size_t tfamily    = 0;
+    size_t twoqubit   = 0;
+    size_t nct        = 0;
+    size_t h          = 0;
+    size_t h_internal = 0;
+    size_t rz         = 0;
+    size_t z          = 0;
+    size_t s          = 0;
+    size_t sdg        = 0;
+    size_t t          = 0;
+    size_t tdg        = 0;
+    size_t rx         = 0;
+    size_t x          = 0;
+    size_t sx         = 0;
+    size_t ry         = 0;
+    size_t y          = 0;
+    size_t sy         = 0;
+    size_t mcpz       = 0;
+    size_t cz         = 0;
+    size_t ccz        = 0;
+    size_t mcrx       = 0;
+    size_t cx         = 0;
+    size_t ccx        = 0;
+    size_t mcry       = 0;
 };
 
 class QCir {  // NOLINT(hicpp-special-member-functions, cppcoreguidelines-special-member-functions) : copy-swap idiom
@@ -150,9 +151,9 @@ public:
     bool read_qsim(std::filesystem::path const& filepath);
     bool read_quipper(std::filesystem::path const& filepath);
 
-    bool write_qasm(std::filesystem::path const& filepath);
+    bool write_qasm(std::filesystem::path const& filepath) const;
 
-    bool draw(QCirDrawerType drawer, std::filesystem::path const& output_path = "", float scale = 1.0f);
+    bool draw(QCirDrawerType drawer, std::filesystem::path const& output_path = "", float scale = 1.0f) const;
 
     void print_gate_statistics(bool detail = false) const;
 
@@ -173,7 +174,7 @@ public:
         for_each(_topological_order.begin(), _topological_order.end(), lambda);
     }
 
-    bool print_topological_order();
+    bool print_topological_order() const;
 
     // pass a function F (public functions) into for_each
     // lambdaFn such as mappingToZX / updateGateTime
@@ -183,7 +184,7 @@ public:
     void print_depth() const;
     void print_gates(bool print_neighbors = false, std::span<size_t> gate_ids = {}) const;
     void print_qcir() const;
-    bool print_gate_as_diagram(size_t, bool) const;
+    bool print_gate_as_diagram(size_t id, bool show_time) const;
     void print_circuit_diagram(spdlog::level::level_enum lvl = spdlog::level::off) const;
     void print_qcir_info() const;
 

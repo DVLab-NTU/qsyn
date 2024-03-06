@@ -131,7 +131,7 @@ std::string get_syntax(ArgumentParser const& parser, Argument const& arg) {
     }
 
     if (arg.is_option()) {
-        ret = styled_arg_name(parser, arg) + (ret.size() ? (" " + ret) : "");
+        ret = styled_arg_name(parser, arg) + (!ret.empty() ? (" " + ret) : "");
     }
 
     return ret;
@@ -275,12 +275,12 @@ void ArgumentParser::print_help() const {
 
     print_usage();
 
-    if (get_description().size()) {
+    if (!get_description().empty()) {
         fmt::println("\n{}", section_header_styled("Description:"));
         fmt::println("  {}", get_description());
     }
 
-    auto get_max_length = [this](std::function<size_t(Argument const&)> const fn) {
+    auto const get_max_length = [this](std::function<size_t(Argument const&)> const& fn) {
         return _pimpl->arguments.empty() ? 0 : std::ranges::max(_pimpl->arguments | std::views::values | std::views::transform(fn));
     };
 
@@ -322,7 +322,7 @@ void ArgumentParser::print_help() const {
         fmt::println("{}  {}", detail::get_syntax(_pimpl->subparsers.value()), detail::wrap_text(_pimpl->subparsers.value().get_help(), max_help_string_width));
         auto table = detail::create_parser_help_table();
         for (auto& [_, parser] : _pimpl->subparsers->get_subparsers()) {
-            if (parser.get_description().size()) {
+            if (!parser.get_description().empty()) {
                 table.write_ln("  " + detail::styled_parser_name(parser), detail::wrap_text(parser.get_description(), max_help_string_width));
             }
         }

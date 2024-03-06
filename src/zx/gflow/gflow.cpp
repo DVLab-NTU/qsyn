@@ -154,6 +154,10 @@ bool GFlow::calculate() {
         _levels[level].erase(v);
         _levels.back().insert(v);
     }
+
+    for (auto& lvl : _levels) {
+        lvl.sort([](ZXVertex* a, ZXVertex* b) { return a->get_id() < b->get_id(); });
+    }
     return _valid;
 }
 
@@ -219,7 +223,7 @@ void GFlow::_set_correction_set_by_matrix(ZXVertex* v, dvlab::BooleanMatrix cons
     }
     if (is_x_error(v)) _x_correction_sets[v].insert(v);
 
-    assert(_x_correction_sets[v].size());
+    assert(!_x_correction_sets[v].empty());
 }
 
 /**
