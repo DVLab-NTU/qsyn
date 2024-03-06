@@ -61,12 +61,14 @@ QCir* QCir::tensor_product(QCir const& other) {
     return this;
 }
 
+namespace {
+
 /**
  * @brief Perform DFS from currentGate
  *
  * @param currentGate the gate to start DFS
  */
-void QCir::_dfs(QCirGate* curr_gate) const {
+void dfs(QCirGate* curr_gate, std::vector<QCirGate*>& topo_order) {
     std::stack<std::pair<bool, QCirGate*>> dfs_stack;
 
     std::unordered_set<QCirGate*> visited;
@@ -78,7 +80,7 @@ void QCir::_dfs(QCirGate* curr_gate) const {
         auto node = dfs_stack.top();
         dfs_stack.pop();
         if (node.first) {
-            _topological_order.emplace_back(node.second);
+            topo_order.emplace_back(node.second);
             continue;
         }
         if (visited.contains(node.second)) {
@@ -96,6 +98,8 @@ void QCir::_dfs(QCirGate* curr_gate) const {
         }
     }
 }
+
+}  // namespace
 
 /**
  * @brief Update topological order
@@ -119,7 +123,7 @@ std::vector<QCirGate*> const& QCir::_update_topological_order() const {
              ._isTarget = false});
     }
     dummy->set_qubits(children);
-    _dfs(dummy);
+    dfs(dummy, _topological_order);
     _topological_order.pop_back();  // pop dummy
     reverse(_topological_order.begin(), _topological_order.end());
     assert(_topological_order.size() == _qgates.size());
@@ -140,24 +144,6 @@ bool QCir::print_topological_order() const {
     return true;
 }
 
-/**
- * @brief Update execution time of gates
- */
-void QCir::update_gate_time() const {
-    auto const lambda = [](QCirGate* curr_gate) {
-        std::vector<QubitInfo> info = curr_gate->get_qubits();
-        size_t max_time             = 0;
-        for (size_t i = 0; i < info.size(); i++) {
-            if (info[i]._prev == nullptr)
-                continue;
-            if (info[i]._prev->get_time() > max_time)
-                max_time = info[i]._prev->get_time();
-        }
-        curr_gate->set_time(max_time + curr_gate->get_delay());
-    };
-
-    std::ranges::for_each(get_topologically_ordered_gates(), lambda);
-}
 /**
  * @brief Reset QCir
  *

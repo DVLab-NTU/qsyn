@@ -95,8 +95,26 @@ QCirQubit *QCir::get_qubit(QubitIdType id) const {
 
 size_t QCir::calculate_depth() const {
     if (is_empty()) return 0;
-    update_gate_time();
-    return std::ranges::max(_qgates | std::views::transform([](QCirGate *qg) { return qg->get_time(); }));
+    return std::ranges::max(calculate_gate_times() | std::views::values);
+}
+
+std::unordered_map<size_t, size_t> QCir::calculate_gate_times() const {
+    auto gate_times   = std::unordered_map<size_t, size_t>{};
+    auto const lambda = [&](QCirGate *curr_gate) {
+        std::vector<QubitInfo> info = curr_gate->get_qubits();
+        size_t max_time             = 0;
+        for (size_t i = 0; i < info.size(); i++) {
+            if (info[i]._prev == nullptr)
+                continue;
+            if (gate_times.at(info[i]._prev->get_id()) > max_time)
+                max_time = gate_times.at(info[i]._prev->get_id());
+        }
+        gate_times.emplace(curr_gate->get_id(), max_time + curr_gate->get_delay());
+    };
+
+    std::ranges::for_each(get_topologically_ordered_gates(), lambda);
+
+    return gate_times;
 }
 
 /**
@@ -202,20 +220,16 @@ QCirGate *QCir::append(QCirGate gate) {
     _qgates.emplace_back(new QCirGate(std::move(gate)));
     auto *g = _qgates.back();
 
-    size_t max_time = 0;
     for (auto const &qb : g->get_qubits() | std::views::transform([](QubitInfo const &qb) { return qb._qubit; })) {
         QCirQubit *target = get_qubit(qb);
         if (target->get_last() != nullptr) {
             g->set_parent(qb, target->get_last());
             target->get_last()->set_child(qb, g);
-            if ((target->get_last()->get_time()) > max_time)
-                max_time = target->get_last()->get_time();
         } else {
             target->set_first(g);
         }
         target->set_last(g);
     }
-    g->set_time(max_time + g->get_delay());
     _dirty = true;
     return g;
 }
@@ -574,7 +588,6 @@ void QCir::translate(QCir const &qcir, std::string const &gate_set) {
         }
     }
     set_gate_set(gate_set);
-    update_gate_time();
 }
 
 }  // namespace qsyn::qcir

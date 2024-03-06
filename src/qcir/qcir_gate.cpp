@@ -32,7 +32,7 @@ std::string QCirGate::get_type_str() const {
     return gate_type_to_str(_rotation_category, get_num_qubits(), _phase);
 }
 
-void QCirGate::print_gate_info(bool show_time) const {
+void QCirGate::print_gate_info() const {
     auto type_str = get_type_str();
     if (type_str.starts_with("mc") || type_str.starts_with("cc")) type_str = type_str.substr(2);
     if (type_str.starts_with("c")) type_str = type_str.substr(1);
@@ -40,8 +40,6 @@ void QCirGate::print_gate_info(bool show_time) const {
     std::for_each(type_str.begin(), pos == std::string::npos ? type_str.end() : dvlab::iterator::next(type_str.begin(), pos), [](char& c) { c = dvlab::str::toupper(c); });
     auto show_phase = type_str[0] == 'P' || type_str[0] == 'R';
     _print_single_qubit_or_controlled_gate(type_str, show_phase);
-    if (show_time)
-        fmt::println("Execute at t= {}", get_time());
 }
 
 void QCirGate::set_rotation_category(GateRotationCategory type) {
@@ -146,12 +144,12 @@ void QCirGate::set_child(QubitIdType qubit, QCirGate* c) {
 /**
  * @brief Print Gate brief information
  */
-void QCirGate::print_gate() const {
-    fmt::print("ID:{:>4} ({:>3})      Time: {:>4}     Qubit: {:>3} ",
-               _id,
-               get_type_str(),
-               _time,
-               fmt::join(_qubits | std::views::transform([](QubitInfo const& info) { return info._qubit; }), " "));
+void QCirGate::print_gate(std::optional<size_t> time) const {
+    fmt::print("ID:{:>4} ({:>3})      ", _id, get_type_str());
+    if (time.has_value())
+        fmt::print("Time: {:>4}     ", time.value());
+
+    fmt::print("Qubit: {:>3} ", fmt::join(_qubits | std::views::transform([](QubitInfo const& info) { return info._qubit; }), " "));
     auto is_special_phase   = get_phase().denominator() == 1 || get_phase().denominator() == 2 || get_phase() == Phase(1, 4) || get_phase() == Phase(-1, 4);
     auto is_p_type_rotation = get_rotation_category() == GateRotationCategory::py || get_rotation_category() == GateRotationCategory::px || get_rotation_category() == GateRotationCategory::pz;
 

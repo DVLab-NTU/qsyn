@@ -121,6 +121,7 @@ public:
     // Access functions
     size_t get_num_qubits() const { return _qubits.size(); }
     size_t calculate_depth() const;
+    std::unordered_map<size_t, size_t> calculate_gate_times() const;
     std::vector<QCirQubit*> const& get_qubits() const { return _qubits; }
     std::vector<QCirGate*> const& get_topologically_ordered_gates() const {
         _update_topological_order();
@@ -169,8 +170,6 @@ public:
 
     QCirGateStatistics get_gate_statistics() const;
 
-    void update_gate_time() const;
-
     void adjoint();
 
     // DFS functions
@@ -189,7 +188,6 @@ public:
     void print_qcir_info() const;
 
 private:
-    void _dfs(QCirGate* curr_gate) const;
     std::vector<QCirGate*> const& _update_topological_order() const;
 
     size_t _gate_id                                   = 0;
