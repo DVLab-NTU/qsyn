@@ -72,9 +72,8 @@ QCir::QCir(QCir const &other) {
  * @return QCirGate*
  */
 QCirGate *QCir::get_gate(size_t id) const {
-    for (size_t i = 0; i < _qgates.size(); i++) {
-        if (_qgates[i]->get_id() == id)
-            return _qgates[i];
+    if (_id_to_gate.contains(id)) {
+        return _id_to_gate.at(id).get();
     }
     return nullptr;
 }
@@ -205,20 +204,22 @@ QCirGate *QCir::add_gate(std::string type, QubitIdList bits, dvlab::Phase phase,
     if (gate_phase.has_value()) {
         phase = gate_phase.value();
     }
-    auto temp = QCirGate(_gate_id++, category, phase);
-
-    for (size_t k = 0; k < bits.size(); k++) {
-        temp.add_qubit(bits[k], k == bits.size() - 1);  // target is the last one
-    }
 
     return append
-               ? this->append(std::move(temp))
-               : this->prepend(std::move(temp));
+               ? this->append(std::make_tuple(category, bits.size(), phase), std::move(bits))
+               : this->prepend(std::make_tuple(category, bits.size(), phase), std::move(bits));
 }
 
-QCirGate *QCir::append(QCirGate gate) {
-    _qgates.emplace_back(new QCirGate(std::move(gate)));
+QCirGate *QCir::append(GateType gate, QubitIdList bits) {
+    _id_to_gate.emplace(_gate_id, std::make_unique<QCirGate>(_gate_id, std::get<0>(gate), *std::get<2>(gate)));
+
+    for (size_t k = 0; k < bits.size(); k++) {
+        _id_to_gate[_gate_id]->add_qubit(bits[k], k == bits.size() - 1);  // target is the last one
+    }
+
+    _qgates.emplace_back(_id_to_gate[_gate_id].get());
     auto *g = _qgates.back();
+    _gate_id++;
 
     for (auto const &qb : g->get_qubits() | std::views::transform([](QubitInfo const &qb) { return qb._qubit; })) {
         QCirQubit *target = get_qubit(qb);
@@ -234,9 +235,16 @@ QCirGate *QCir::append(QCirGate gate) {
     return g;
 }
 
-QCirGate *QCir::prepend(QCirGate gate) {
-    _qgates.emplace_back(new QCirGate(std::move(gate)));
+QCirGate *QCir::prepend(GateType gate, QubitIdList bits) {
+    _id_to_gate.emplace(_gate_id, std::make_unique<QCirGate>(_gate_id, std::get<0>(gate), *std::get<2>(gate)));
+
+    for (size_t k = 0; k < bits.size(); k++) {
+        _id_to_gate[_gate_id]->add_qubit(bits[k], k == bits.size() - 1);  // target is the last one
+    }
+
+    _qgates.emplace_back(_id_to_gate[_gate_id].get());
     auto *g = _qgates.back();
+    _gate_id++;
 
     for (auto const &qb : g->get_qubits() | std::views::transform([](QubitInfo const &qb) { return qb._qubit; })) {
         QCirQubit *target = get_qubit(qb);
@@ -279,6 +287,7 @@ bool QCir::remove_gate(size_t id) {
             info[i]._next = nullptr;
         }
         std::erase(_qgates, target);
+        _id_to_gate.erase(id);
         _dirty = true;
         return true;
     }

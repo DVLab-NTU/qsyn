@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <filesystem>
+#include <memory>
 #include <ranges>
 #include <span>
 #include <string>
@@ -112,6 +113,7 @@ public:
         std::swap(_qgates, other._qgates);
         std::swap(_qubits, other._qubits);
         std::swap(_topological_order, other._topological_order);
+        std::swap(_id_to_gate, other._id_to_gate);
     }
 
     friend void swap(QCir& a, QCir& b) noexcept {
@@ -150,8 +152,8 @@ public:
     void add_qubits(size_t num);
     bool remove_qubit(QubitIdType qid);
     QCirGate* add_gate(std::string type, QubitIdList bits, dvlab::Phase phase, bool append);
-    QCirGate* append(QCirGate gate);
-    QCirGate* prepend(QCirGate gate);
+    QCirGate* append(GateType gate, QubitIdList bits);
+    QCirGate* prepend(GateType gate, QubitIdList bits);
     bool remove_gate(size_t id);
 
     bool read_qcir_file(std::filesystem::path const& filepath);
@@ -188,17 +190,18 @@ public:
     void print_qcir_info() const;
 
 private:
-    std::vector<QCirGate*> const& _update_topological_order() const;
+    size_t _gate_id       = 0;
+    QubitIdType _qubit_id = 0;
+    std::string _filename;
+    std::string _gate_set;
+    std::vector<std::string> _procedures;
+    std::vector<QCirGate*> _qgates;
+    std::vector<QCirQubit*> _qubits;
+    std::unordered_map<size_t, std::unique_ptr<QCirGate>> _id_to_gate;
+    std::vector<QCirGate*> mutable _topological_order;
+    bool mutable _dirty = true;
 
-    size_t _gate_id                                   = 0;
-    QubitIdType _qubit_id                             = 0;
-    bool mutable _dirty                               = true;
-    std::string _filename                             = "";
-    std::string _gate_set                             = "";
-    std::vector<std::string> _procedures              = {};
-    std::vector<QCirGate*> _qgates                    = {};
-    std::vector<QCirQubit*> _qubits                   = {};
-    std::vector<QCirGate*> mutable _topological_order = {};
+    std::vector<QCirGate*> const& _update_topological_order() const;
 };
 
 std::string to_qasm(QCir const& qcir);

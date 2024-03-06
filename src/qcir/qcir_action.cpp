@@ -113,8 +113,8 @@ std::vector<QCirGate*> const& QCir::_update_topological_order() const {
     _topological_order.clear();
     if (_qgates.empty())
         return _topological_order;
-    auto dummy    = new QCirGate(0, GateRotationCategory::id, dvlab::Phase(0));
-    auto children = dummy->get_qubits();
+    auto dummy    = QCirGate(0, GateRotationCategory::id, dvlab::Phase(0));
+    auto children = dummy.get_qubits();
     for (size_t i = 0; i < _qubits.size(); i++) {
         children.push_back(
             {._qubit    = 0,
@@ -122,12 +122,11 @@ std::vector<QCirGate*> const& QCir::_update_topological_order() const {
              ._next     = _qubits[i]->get_first(),
              ._isTarget = false});
     }
-    dummy->set_qubits(children);
-    dfs(dummy, _topological_order);
+    dummy.set_qubits(children);
+    dfs(&dummy, _topological_order);
     _topological_order.pop_back();  // pop dummy
     reverse(_topological_order.begin(), _topological_order.end());
     assert(_topological_order.size() == _qgates.size());
-    delete dummy;
 
     _dirty = false;
     return _topological_order;
