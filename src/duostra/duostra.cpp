@@ -58,7 +58,7 @@ Duostra::Duostra(std::vector<Operation> const& cir, size_t n_qubit, Device dev, 
 void Duostra::make_dependency() {
     spdlog::info("Creating dependency of quantum circuit...");
     std::vector<Gate> all_gates;
-    for (auto const& g : _logical_circuit->get_gates()) {
+    for (auto const& g : _logical_circuit->get_topologically_ordered_gates()) {
         auto rotation_category = g->get_rotation_category();
 
         auto q2          = max_qubit_id;

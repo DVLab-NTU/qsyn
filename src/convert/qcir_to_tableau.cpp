@@ -216,7 +216,7 @@ std::optional<Tableau> to_tableau(qcir::QCir const& qcir) {
                gate.get_type_str() == "ecr";
     };
 
-    for (auto const& gate : qcir.get_gates()) {
+    for (auto const& gate : qcir.get_topologically_ordered_gates()) {
         if (!is_allowed_clifford(*gate) && !is_allowed_rotation(*gate)) {
             spdlog::error("Gate ID {} of type {} is not allowed in at the moment!!", gate->get_id(), gate->get_type_str());
             return std::nullopt;
@@ -224,7 +224,7 @@ std::optional<Tableau> to_tableau(qcir::QCir const& qcir) {
     }
     Tableau result{qcir.get_num_qubits()};
 
-    for (auto const& gate : qcir.get_gates()) {
+    for (auto const& gate : qcir.get_topologically_ordered_gates()) {
         if (gate->get_type_str() == "h") {
             result.h(gate->get_qubits()[0]._qubit);
         } else if (gate->get_type_str() == "s") {
