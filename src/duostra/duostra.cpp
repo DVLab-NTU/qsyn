@@ -58,7 +58,7 @@ Duostra::Duostra(std::vector<Operation> const& cir, size_t n_qubit, Device dev, 
 void Duostra::make_dependency() {
     spdlog::info("Creating dependency of quantum circuit...");
     std::vector<Gate> all_gates;
-    for (auto const& g : _logical_circuit->get_topologically_ordered_gates()) {
+    for (auto const& g : _logical_circuit->get_gates()) {
         auto rotation_category = g->get_rotation_category();
 
         auto q2          = max_qubit_id;
@@ -79,6 +79,7 @@ void Duostra::make_dependency() {
         }
         all_gates.emplace_back(std::move(temp_gate));
     }
+    // REVIEW - is the reordering necessary?
     std::unordered_map<size_t, size_t> reordered_map;
     for (size_t i = 0; i < all_gates.size(); i++) {
         reordered_map[all_gates[i].get_id()] = i;

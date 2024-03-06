@@ -37,7 +37,7 @@ QCir::QCir(QCir const &other) {
         _qubits[i]->set_id(other._qubits[i]->get_id());
     }
 
-    for (auto &gate : other.get_topologically_ordered_gates()) {
+    for (auto &gate : other.get_gates()) {
         auto bit_range = gate->get_qubits() |
                          std::views::transform([](QubitInfo const &qb) { return qb._qubit; });
         auto new_gate = this->add_gate(
@@ -46,10 +46,10 @@ QCir::QCir(QCir const &other) {
 
         new_gate->set_id(gate->get_id());
     }
-    _gate_id = other._qgates.empty()
+    _gate_id = other.get_gates().empty()
                    ? 0
                    : 1 + std::ranges::max(
-                             other._qgates |
+                             other.get_gates() |
                              views::transform(
                                  [](QCirGate *g) { return g->get_id(); }));
 
@@ -72,8 +72,8 @@ QCir::QCir(QCir const &other) {
  * @return QCirGate*
  */
 QCirGate *QCir::get_gate(size_t id) const {
-    if (_id_to_gate.contains(id)) {
-        return _id_to_gate.at(id).get();
+    if (_id_to_gates.contains(id)) {
+        return _id_to_gates.at(id).get();
     }
     return nullptr;
 }
@@ -111,7 +111,7 @@ std::unordered_map<size_t, size_t> QCir::calculate_gate_times() const {
         gate_times.emplace(curr_gate->get_id(), max_time + curr_gate->get_delay());
     };
 
-    std::ranges::for_each(get_topologically_ordered_gates(), lambda);
+    std::ranges::for_each(get_gates(), lambda);
 
     return gate_times;
 }
@@ -211,14 +211,11 @@ QCirGate *QCir::add_gate(std::string type, QubitIdList bits, dvlab::Phase phase,
 }
 
 QCirGate *QCir::append(GateType gate, QubitIdList bits) {
-    _id_to_gate.emplace(_gate_id, std::make_unique<QCirGate>(_gate_id, std::get<0>(gate), *std::get<2>(gate)));
-
+    _id_to_gates.emplace(_gate_id, std::make_unique<QCirGate>(_gate_id, std::get<0>(gate), *std::get<2>(gate)));
+    auto *g = _id_to_gates[_gate_id].get();
     for (size_t k = 0; k < bits.size(); k++) {
-        _id_to_gate[_gate_id]->add_qubit(bits[k], k == bits.size() - 1);  // target is the last one
+        g->add_qubit(bits[k], k == bits.size() - 1);  // target is the last one
     }
-
-    _qgates.emplace_back(_id_to_gate[_gate_id].get());
-    auto *g = _qgates.back();
     _gate_id++;
 
     for (auto const &qb : g->get_qubits() | std::views::transform([](QubitInfo const &qb) { return qb._qubit; })) {
@@ -236,14 +233,11 @@ QCirGate *QCir::append(GateType gate, QubitIdList bits) {
 }
 
 QCirGate *QCir::prepend(GateType gate, QubitIdList bits) {
-    _id_to_gate.emplace(_gate_id, std::make_unique<QCirGate>(_gate_id, std::get<0>(gate), *std::get<2>(gate)));
-
+    _id_to_gates.emplace(_gate_id, std::make_unique<QCirGate>(_gate_id, std::get<0>(gate), *std::get<2>(gate)));
+    auto *g = _id_to_gates[_gate_id].get();
     for (size_t k = 0; k < bits.size(); k++) {
-        _id_to_gate[_gate_id]->add_qubit(bits[k], k == bits.size() - 1);  // target is the last one
+        g->add_qubit(bits[k], k == bits.size() - 1);  // target is the last one
     }
-
-    _qgates.emplace_back(_id_to_gate[_gate_id].get());
-    auto *g = _qgates.back();
     _gate_id++;
 
     for (auto const &qb : g->get_qubits() | std::views::transform([](QubitInfo const &qb) { return qb._qubit; })) {
@@ -286,8 +280,7 @@ bool QCir::remove_gate(size_t id) {
             info[i]._prev = nullptr;
             info[i]._next = nullptr;
         }
-        std::erase(_qgates, target);
-        _id_to_gate.erase(id);
+        _id_to_gates.erase(id);
         _dirty = true;
         return true;
     }
@@ -372,7 +365,7 @@ QCirGateStatistics QCir::get_gate_statistics() const {
             stat.nct++;
     };
 
-    for (auto &g : _qgates) {
+    for (auto g : _id_to_gates | std::views::values | std::views::transform([](auto &p) { return p.get(); })) {
         auto type = g->get_rotation_category();
         switch (type) {
             case GateRotationCategory::h:
@@ -511,14 +504,14 @@ QCirGateStatistics QCir::get_gate_statistics() const {
 
     std::unordered_set<QCirGate *> not_final, not_initial;
 
-    for (auto const &g : _qgates) {
+    for (auto const &g : get_gates()) {
         if (is_clifford(g)) continue;
         add_input_cone_to(g, not_final);
         add_output_cone_to(g, not_initial);
     }
 
     // the intersection of the two sets is the internal gates
-    for (auto const &g : _qgates) {
+    for (auto const &g : get_gates()) {
         if (g->get_type_str() == "h" && not_final.contains(g) && not_initial.contains(g)) {
             stat.h_internal++;
         }
@@ -576,7 +569,7 @@ void QCir::print_gate_statistics(bool detail) const {
 void QCir::translate(QCir const &qcir, std::string const &gate_set) {
     add_qubits(qcir.get_num_qubits());
     Equivalence equivalence = EQUIVALENCE_LIBRARY[gate_set];
-    for (auto const *cur_gate : qcir.get_topologically_ordered_gates()) {
+    for (auto const *cur_gate : qcir.get_gates()) {
         std::string const type = cur_gate->get_type_str();
         auto bit_range         = cur_gate->get_qubits() |
                          std::views::transform([](QubitInfo const &qb) { return qb._qubit; });

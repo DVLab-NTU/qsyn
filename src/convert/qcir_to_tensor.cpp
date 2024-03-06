@@ -140,7 +140,7 @@ std::optional<QTensor<double>> to_tensor(QCir const &qcir) try {
         spdlog::trace("  - Add Qubit: {} input: {} output: {}", qubit_id, oi_pair.second, oi_pair.first);
     }
 
-    for (auto const &gate : qcir.get_topologically_ordered_gates()) {
+    for (auto const &gate : qcir.get_gates()) {
         if (stop_requested()) {
             spdlog::warn("Conversion interrupted.");
             return std::nullopt;

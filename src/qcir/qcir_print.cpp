@@ -44,7 +44,7 @@ void QCir::print_gates(bool print_neighbors, std::span<size_t> gate_ids) const {
     auto const times = calculate_gate_times();
 
     if (gate_ids.empty()) {
-        for (auto const* gate : _qgates) {
+        for (auto const* gate : _id_to_gates | std::views::values | std::views::transform([](auto const& p) { return p.get(); })) {
             gate->print_gate(times.at(gate->get_id()));
             if (print_neighbors) {
                 print_predecessors(gate);
@@ -71,7 +71,7 @@ void QCir::print_gates(bool print_neighbors, std::span<size_t> gate_ids) const {
  * @brief Print QCir
  */
 void QCir::print_qcir() const {
-    fmt::println("QCir ({} qubits, {} gates)", _qubits.size(), _qgates.size());
+    fmt::println("QCir ({} qubits, {} gates)", get_num_qubits(), get_num_gates());
 }
 
 /**
@@ -122,7 +122,7 @@ bool QCir::print_gate_as_diagram(size_t id, bool show_time) const {
 
 void QCir::print_qcir_info() const {
     auto stat = get_gate_statistics();
-    fmt::println("QCir ({} qubits, {} gates, {} 2-qubits gates, {} T-gates, {} depths)", _qubits.size(), _qgates.size(), stat.twoqubit, stat.tfamily, calculate_depth());
+    fmt::println("QCir ({} qubits, {} gates, {} 2-qubits gates, {} T-gates, {} depths)", get_num_qubits(), get_num_gates(), stat.twoqubit, stat.tfamily, calculate_depth());
 }
 
 }  // namespace qsyn::qcir

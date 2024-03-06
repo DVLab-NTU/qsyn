@@ -44,7 +44,7 @@ MappingEquivalenceChecker::MappingEquivalenceChecker(QCir* phy, QCir* log, Devic
  * @return false
  */
 bool MappingEquivalenceChecker::check() {
-    auto execute_order = _physical->get_topologically_ordered_gates();
+    auto execute_order = _physical->get_gates();
     if (_reverse) reverse(execute_order.begin(), execute_order.end());  // NOTE - Now the order starts from back
     // NOTE - Traverse all physical gates, should match dependency of logical gate
     std::unordered_set<QCirGate*> swaps;

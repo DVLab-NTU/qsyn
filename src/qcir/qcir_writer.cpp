@@ -98,7 +98,7 @@ std::string to_qasm(QCir const& qcir) {
     qasm += "include \"qelib1.inc\";\n";
     qasm += fmt::format("qreg q[{}];\n", qcir.get_num_qubits());
 
-    for (auto const* cur_gate : qcir.get_topologically_ordered_gates()) {
+    for (auto const* cur_gate : qcir.get_gates()) {
         auto type_str               = cur_gate->get_type_str();
         std::vector<QubitInfo> pins = cur_gate->get_qubits();
         auto is_special_phase       = cur_gate->get_phase().denominator() == 1 || cur_gate->get_phase().denominator() == 2 || cur_gate->get_phase() == Phase(1, 4) || cur_gate->get_phase() == Phase(-1, 4);

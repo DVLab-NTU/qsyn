@@ -474,7 +474,7 @@ std::optional<ZXGraph> to_zxgraph(QCir const& qcir, size_t decomposition_mode) {
         graph.add_edge(input, output, EdgeType::simple);
     }
 
-    for (auto const& gate : qcir.get_topologically_ordered_gates()) {
+    for (auto const& gate : qcir.get_gates()) {
         if (stop_requested()) {
             spdlog::warn("Conversion interrupted.");
             return std::nullopt;

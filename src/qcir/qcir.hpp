@@ -22,6 +22,7 @@
 #include "qcir/qcir_qubit.hpp"
 #include "qsyn/qsyn_type.hpp"
 #include "spdlog/common.h"
+#include "util/ordered_hashmap.hpp"
 
 namespace dvlab {
 
@@ -110,10 +111,9 @@ public:
         std::swap(_filename, other._filename);
         std::swap(_gate_set, other._gate_set);
         std::swap(_procedures, other._procedures);
-        std::swap(_qgates, other._qgates);
         std::swap(_qubits, other._qubits);
-        std::swap(_topological_order, other._topological_order);
-        std::swap(_id_to_gate, other._id_to_gate);
+        std::swap(_gate_list, other._gate_list);
+        std::swap(_id_to_gates, other._id_to_gates);
     }
 
     friend void swap(QCir& a, QCir& b) noexcept {
@@ -122,21 +122,28 @@ public:
 
     // Access functions
     size_t get_num_qubits() const { return _qubits.size(); }
+    size_t get_num_gates() const { return _id_to_gates.size(); }
     size_t calculate_depth() const;
     std::unordered_map<size_t, size_t> calculate_gate_times() const;
     std::vector<QCirQubit*> const& get_qubits() const { return _qubits; }
-    std::vector<QCirGate*> const& get_topologically_ordered_gates() const {
+
+    /**
+     * @brief Get the gates as a topologically ordered list
+     *
+     * @return std::vector<QCirGate*> const&
+     */
+    std::vector<QCirGate*> const& get_gates() const {
         _update_topological_order();
-        return _topological_order;
+        return _gate_list;
     }
-    std::vector<QCirGate*> const& get_gates() const { return _qgates; }
+
     QCirGate* get_gate(size_t gid) const;
     QCirQubit* get_qubit(QubitIdType qid) const;
     std::string get_filename() const { return _filename; }
     std::vector<std::string> const& get_procedures() const { return _procedures; }
     std::string get_gate_set() const { return _gate_set; }
 
-    bool is_empty() const { return _qubits.empty() || _qgates.empty(); }
+    bool is_empty() const { return _qubits.empty() || _id_to_gates.empty(); }
 
     void set_filename(std::string f) { _filename = std::move(f); }
     void add_procedures(std::vector<std::string> const& ps) { _procedures.insert(_procedures.end(), ps.begin(), ps.end()); }
@@ -174,14 +181,6 @@ public:
 
     void adjoint();
 
-    // DFS functions
-    template <typename F>
-    void topological_traverse(F lambda) const {
-        std::ranges::for_each(get_topologically_ordered_gates(), lambda);
-    }
-
-    bool print_topological_order() const;
-
     // Member functions about circuit reporting
     void print_gates(bool print_neighbors = false, std::span<size_t> gate_ids = {}) const;
     void print_qcir() const;
@@ -195,13 +194,13 @@ private:
     std::string _filename;
     std::string _gate_set;
     std::vector<std::string> _procedures;
-    std::vector<QCirGate*> _qgates;
     std::vector<QCirQubit*> _qubits;
-    std::unordered_map<size_t, std::unique_ptr<QCirGate>> _id_to_gate;
-    std::vector<QCirGate*> mutable _topological_order;
-    bool mutable _dirty = true;
+    dvlab::utils::ordered_hashmap<size_t, std::unique_ptr<QCirGate>> _id_to_gates;
 
-    std::vector<QCirGate*> const& _update_topological_order() const;
+    std::vector<QCirGate*> mutable _gate_list;  // a cache for topologically ordered gates. This member should not be accessed directly. Instead, use get_gates() to ensure the cache is up-to-date.
+    bool mutable _dirty = true;                 // mark if the topological order is dirty
+
+    void _update_topological_order() const;
 };
 
 std::string to_qasm(QCir const& qcir);
