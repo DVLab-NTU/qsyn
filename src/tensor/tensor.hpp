@@ -33,8 +33,6 @@
 #include "./tensor_util.hpp"
 #include "util/util.hpp"
 
-constexpr double PI = 3.1415926919;
-
 namespace qsyn::tensor {
 
 template <typename DT>
@@ -84,8 +82,6 @@ public:
     virtual Tensor<DT>& operator*=(Tensor<DT> const& rhs);
     virtual Tensor<DT>& operator/=(Tensor<DT> const& rhs);
 
-    virtual Tensor<DT>& operator*(Tensor<DT> const& rhs);
-
     template <typename U>
     friend Tensor<U> operator+(Tensor<U> lhs, Tensor<U> const& rhs);
     template <typename U>
@@ -120,7 +116,7 @@ public:
     template <typename U>
     friend bool is_partition(Tensor<U> const& t, TensorAxisList const& axes1, TensorAxisList const& axes2);
 
-    Tensor<DT> to_matrix(TensorAxisList const& row_axes, TensorAxisList const& col_axis);
+    Tensor<DT> to_matrix(TensorAxisList const& row_axes, TensorAxisList const& col_axes);
 
     template <typename U>
     friend Tensor<U> direct_sum(Tensor<U> const& t1, Tensor<U> const& t2);
@@ -143,12 +139,20 @@ public:
 
 
     Tensor<DT> to_su2(Tensor<DT> &u);
-   
+    bool create_gate_list(size_t length);
+    Tensor<DT> diagonalize(Tensor<DT> u);
+
+    Tensor<DT> find_closest_u(const std::vector<Tensor<DT>>& gate_list, Tensor<DT> u);
+
+    std::vector<Tensor<DT>> gc_decomp(Tensor<DT> u);
+
+    Tensor<DT> SK(const std::vector<Tensor<DT>>& gate_list, Tensor<DT> u ,size_t n );
 
     void SK_decompose();
 
     bool tensor_read(std::string const&);
     bool tensor_write(std::string const&);
+    std::vector<Tensor<DT>> read_gate_list(std::string const& ) ;
 
 protected:
     friend struct fmt::formatter<Tensor>;
@@ -215,12 +219,6 @@ Tensor<DT>& Tensor<DT>::operator*=(Tensor<DT> const& rhs) {
 template <typename DT>
 Tensor<DT>& Tensor<DT>::operator/=(Tensor<DT> const& rhs) {
     _tensor /= rhs._tensor;
-    return *this;
-}
-
-template <typename DT>
-Tensor<DT>& Tensor<DT>::operator*(Tensor<DT> const& rhs) {
-    _tensor = xt::linalg::dot(_tensor,rhs._tensor);
     return *this;
 }
 
@@ -318,6 +316,7 @@ Tensor<DT> Tensor<DT>::transpose(TensorAxisList const& perm) const {
 
 template <typename DT>
 void Tensor<DT>::adjoint() {
+    //std::cout << dimension() << std::endl;
     assert(dimension() == 2);
     _tensor = xt::conj(xt::transpose(_tensor, {1, 0}));
 }
@@ -340,7 +339,6 @@ std::vector<std::string> Tensor<DT>::binary_prod(int n){
       std::string B_string;
       boost::to_string(B,B_string);
       bin_list.push_back(B_string);
-      //std::cout<< B_string << std::endl;
     }
   }
   return bin_list;
@@ -363,11 +361,9 @@ std::vector<Tensor<DT>>  Tensor<DT>::create_unitaries(const std::vector<Tensor<D
         {
             char bit = bits[j];
             int index = int(bit) - 48; // Convert char to int (assuming ASCII)
-            u = u * base[index];
+            u = u * base[index] ;
         }
         gate_list.push_back(u);
-        //std::cout<< u << std::endl;
-
     }
 
     return gate_list;
@@ -384,26 +380,50 @@ void Tensor<DT>::save_unitaries(const std::vector<Tensor<DT>>& unitaries, const 
 
     int num_matrices = unitaries.size();
     out_file.write(reinterpret_cast<const char*>(&num_matrices), sizeof(int));
-    for (auto& u : unitaries){
-         for (size_t row = 0; row < u._tensor.shape(0); row++) {
-        for (size_t col = 0; col <u. _tensor.shape(1); col++) {
-            if (xt::imag(u._tensor(row, col)) >= 0) {
-                fmt::print(out_file, "{}{}+{}j", xt::real(u._tensor(row, col)) >= 0 ? " " : "", xt::real(u._tensor(row, col)), abs(xt::imag(u._tensor(row, col))));
-            } else {
-                fmt::print(out_file, "{}{}{}j", xt::real(u._tensor(row, col)) >= 0 ? " " : "", xt::real(u._tensor(row, col)), xt::imag(u._tensor(row, col)));
+    for (const auto& u : unitaries){
+        for (size_t row = 0; row < u._tensor.shape(0); row++) {
+            for (size_t col = 0; col <u._tensor.shape(1); col++) {
+                if (xt::imag(u._tensor(row, col)) >= 0) {
+                    fmt::print(out_file, "{}{}+{}j", xt::real(u._tensor(row, col)) >= 0 ? " " : "", xt::real(u._tensor(row, col)), abs(xt::imag(u._tensor(row, col))));
+                } else {
+                    fmt::print(out_file, "{}{}{}j", xt::real(u._tensor(row, col)) >= 0 ? " " : "", xt::real(u._tensor(row, col)), xt::imag(u._tensor(row, col)));
+                }
+                if (col !=u._tensor.shape(1) - 1) {
+                    fmt::print(out_file, ", ");
+                }
             }
-            if (col !=u. _tensor.shape(1) - 1) {
-                fmt::print(out_file, ", ");
-            }
+            fmt::println(out_file, "");
         }
-        fmt::println(out_file, "");
-      }
 
     }
 
 
+   
     out_file.close();
+    
 
+
+    /*
+    
+    std::ofstream file(filename, std::ios::binary);
+
+    if (!file.is_open())
+    {
+        std::cerr << "Error opening file: " << filename << std::endl;
+        return;
+    }
+
+    int num_matrices = unitaries.size();
+    file.write(reinterpret_cast<const char*>(&num_matrices), sizeof(int));
+
+    for (const auto& u : unitaries)
+    {
+        //file.write(reinterpret_cast<const std::complex<double>>(u._tensor()), sizeof(std::complex<double>) * u._tensor.size());
+        u.tensor_write();
+    }
+
+    file.close();
+    */
 }
 
 template <typename DT>
@@ -413,15 +433,15 @@ Tensor<DT> Tensor<DT>::random_u(double x,double y, double z){
   std::complex<double> img(0, 1);
   std::complex<double> neg(-1, 0);
 
-  std::complex<double> X(2 * PI * x, 0);
-  std::complex<double> Y(2 * PI * y, 0);
-  std::complex<double> Z(2 * PI * z, 0);
+  std::complex<double> X(2 * M_PI * x, 0);
+  std::complex<double> Y(2 * M_PI * y, 0);
+  std::complex<double> Z(2 * M_PI * z, 0);
 
   Tensor<DT> _X = {{cos(X / 2.0), img*sin(X / 2.0)*neg},{img*sin(X / 2.0*neg), cos(X / 2.0)}};
   Tensor<DT> _Y = {{cos(Y / 2.0), neg*sin(Y / 2.0)},{sin(Y / 2.0), cos(Y / 2.0)}};
   Tensor<DT> _Z = {{pow(M_E,neg*img*Z/2.0) , 0 },{0 , pow(M_E,img*Z/2.0)}};
- 
-  return _X*_Y*_Z;
+  Tensor<DT> U = _X*_Y*_Z;
+  return U;
 }
 
 template <typename DT>
@@ -489,6 +509,37 @@ auto Tensor<DT>::eigen() {
     return xt::linalg::eig(_tensor);
 }
 
+template <typename DT>
+Tensor<DT> Tensor<DT>::diagonalize(Tensor<DT> u) {
+    // Check if the matrix is 2x2
+    std::complex<double> neg(-1, 0);
+    std::tuple b = u.eigen();
+    Tensor<DT> value = std::get<0>(b);
+    Tensor<DT> vector = std::get<1>(b);
+    return vector;
+    /*
+    auto eigenvectors = vector._tensor;
+
+    if (abs(eigenvectors(0,0).real())< abs(eigenvectors(0,1).real()))
+    {
+      eigenvectors(0,0) = eigenvectors(0,1) ;
+      eigenvectors(1,0) = eigenvectors(1,1) ;
+       
+    }
+    if (eigenvectors(0,0).real() < 0)
+    {
+        eigenvectors(0,0) = eigenvectors(0,0) * neg;
+        eigenvectors(1,0) = eigenvectors(1,0) * neg;
+    }
+    eigenvectors(1,1) = eigenvectors(0,0);
+    std::complex<double> temp((eigenvectors(1,0).real()) * -1,eigenvectors(1,0).imag()) ;
+    eigenvectors(0,1) = temp;
+
+    vector._tensor = eigenvectors;
+    return vector;
+    */
+}
+
 
 template <typename DT>
 Tensor<DT>  Tensor<DT>::to_su2(Tensor<DT> &u) {
@@ -497,42 +548,218 @@ Tensor<DT>  Tensor<DT>::to_su2(Tensor<DT> &u) {
     return (std::sqrt(one / det) * u._tensor);
 }
 
+template <typename DT>
+bool Tensor<DT>::create_gate_list(size_t length) {
+    std::complex<double> sqrt2(std::sqrt(2),0); 
+    std::complex<double> t(0,M_PI/4); 
+    Tensor<DT> H = {{1./sqrt2,1./sqrt2},{1./sqrt2,-1./sqrt2}};
+    Tensor<DT> T = {{1,0},{0,pow(M_E,t)}};
+    std::vector<Tensor<DT>> base = {to_su2(H), to_su2(T)};
+
+    std::vector<Tensor<DT>> gate_list;
+    std::vector<std::string> bin_list = binary_prod(length);
+    int a = bin_list.size();
+    for (int i = 0; i < a; i++)
+    {
+        std::complex<double> one(1,0);
+        std::complex<double> zero(0,0);
+        Tensor<DT> u = {{one,zero},{zero,one}};
+       
+        std::string bits = bin_list[i];
+        int b = bits.length();
+        for (int j = 0; j < b; j++)
+        {
+            char bit = bits[j];
+            int index = int(bit) - 48; // Convert char to int (assuming ASCII)
+            Tensor<DT> temp = base[index];
+            u = tensor_multiply(u , temp);
+        }
+        gate_list.push_back(u);
+        //std::cout<< u << std::endl;
+
+    }
+    std::ofstream out_file;
+    out_file.open("gate_list_" + std::to_string(length) + ".csv");
+    if (!out_file.is_open()) {
+        spdlog::error("Failed to open file");
+        return false;
+    }
+    
+    int num_matrices = gate_list.size();
+    out_file.write(reinterpret_cast<const char*>(&num_matrices), sizeof(int));
+    for (const auto& u : gate_list){
+        for (size_t row = 0; row < u._tensor.shape(0); row++) {
+            for (size_t col = 0; col <u._tensor.shape(1); col++) {
+                if (xt::imag(u._tensor(row, col)) >= 0) {
+                    fmt::print(out_file, "{}{}+{}j", xt::real(u._tensor(row, col)) >= 0 ? " " : "", xt::real(u._tensor(row, col)), abs(xt::imag(u._tensor(row, col))));
+                } else {
+                    fmt::print(out_file, "{}{}{}j", xt::real(u._tensor(row, col)) >= 0 ? " " : "", xt::real(u._tensor(row, col)), xt::imag(u._tensor(row, col)));
+                }
+                if (col != u._tensor.shape(1) - 1) {
+                    fmt::print(out_file, ", ");
+                }
+            }
+            fmt::println(out_file, "");
+        }
+
+    }
+    out_file.close();
+    return true;
+}
+
+
+template <typename DT>
+std::vector<Tensor<DT>> Tensor<DT>::read_gate_list(std::string const& filepath) {
+    std::ifstream in_file;
+    in_file.open(filepath);
+    if (!in_file.is_open()) {
+        spdlog::error("Failed to open file");
+        return {};
+    }
+    // read csv with complex number
+    const TensorShape shape = {static_cast<size_t>(2), static_cast<size_t>(2)};
+    std::vector<Tensor<DT>> gate_list;
+    std::vector<std::complex<double>> data(4, {0,0});
+    std::string line, word;
+    int count = 0;
+    while (std::getline(in_file, line)) {
+        std::stringstream ss(line);
+        while (std::getline(ss, word, ',')) {
+            std::stringstream ww(word);
+
+            double real = 0.0, imag = 0.0;
+            char plus = ' ', i = ' ';
+            ww >> real >> plus >> imag >> i;
+            if (plus == '-') imag = -imag;
+            if (plus == 'j') {
+                imag = real;
+                real = 0;
+            }
+            data[count] = {real, imag};
+            count ++ ;
+            if(count == 4) {
+                count = 0;
+                Tensor<DT> input_gate = xt::adapt(data, shape);
+                gate_list.push_back(input_gate);
+            }
+        }
+    }
+    // if (std::floor(std::sqrt(data.size())) != std::sqrt(data.size())) {
+    //     spdlog::error("The number of elements in the tensor is not a square number");
+    //     return {};
+    // }
+    return gate_list;
+}
+
+template <typename DT>
+Tensor<DT> Tensor<DT>::find_closest_u(const std::vector<Tensor<DT>>& gate_list, Tensor<DT> u){
+    double min_dist = 10;
+   
+    std::complex<double> one(1,0);
+    std::complex<double> zero(0,0);
+    Tensor<DT> min_u = {{one,zero},{zero,one}};
+
+    int s = gate_list.size();
+    for (int i = 0; i<s; i++)
+    {
+        Tensor<DT> temp = gate_list[i];
+        double tr_dist = (trace_distance(temp,u));
+        if (min_dist - tr_dist > pow(10,-12))
+        {
+            min_dist = tr_dist;
+            min_u = temp;
+        }
+    }
+    return min_u;
+}
+
+template <typename DT>
+std::vector<Tensor<DT>> Tensor<DT>::gc_decomp(Tensor<DT> u){
+    assert(dimension() == 2);
+    std::vector<std::complex<double>> axis = u_to_bloch(u);
+    std::complex<double> result(0, 1);
+    std::complex<double> neg(-1, 0);
+    // The angle phi calculation
+    std::complex<double> phi = 2.0 * asin(std::sqrt(std::sqrt(0.5 - 0.5 * cos(axis[3] / 2.0))));
+    Tensor<DT> v = {{  cos(phi / 2.0),neg*result*sin(phi / 2.0)  }, { neg*result*sin(phi / 2.0), cos(phi / 2.0)}} ;
+    std::complex<double> zero(0, 0);
+    Tensor<DT> w = {{  zero,zero  }, { zero,zero }} ;
+    if(axis[2].real() > 0){
+        w = {{cos((2 * M_PI - phi) / 2.0), neg*sin( (2 * M_PI - phi) / 2.0)} , {sin( (2 * M_PI - phi) / 2.0), cos( (2 * M_PI - phi) / 2.0)}};
+    }
+    else{
+        w = {{cos(phi / 2.0), neg*sin(phi / 2.0)} , {sin(phi / 2.0), cos(phi / 2.0)}};
+    }
+    Tensor<DT> ud = (diagonalize(u));
+    v.adjoint();
+    //std::cout<<"v.adjoint()" <<std::endl;
+    w.adjoint();
+    //std::cout<<"w.adjoint()" <<std::endl;
+    Tensor<DT> vwvdwd = (diagonalize(tensor_multiply(v ,tensor_multiply(w, tensor_multiply(v, w)))));
+    vwvdwd.adjoint();
+    //std::cout<<"vwvdwd.adjoint()" <<std::endl;
+    
+    Tensor<DT> s = tensor_multiply(ud, vwvdwd);
+
+    //std::cout<<"S = " << s <<std::endl;
+    //std::cout<<"ud = " << ud <<std::endl;
+    //std::cout<<"vwvdwd = " << vwvdwd <<std::endl;
+
+    s.adjoint();
+   // std::cout<<"s.adjoint()" <<std::endl;
+    Tensor<DT> v_hat = tensor_multiply(s,tensor_multiply(v, s));
+    Tensor<DT> w_hat = tensor_multiply(s, tensor_multiply(w, s));
+    std::vector<Tensor<DT>> vw = {v_hat,w_hat};
+
+    return vw;
+}
+
+template <typename DT>
+Tensor<DT> Tensor<DT>::SK(const std::vector<Tensor<DT>>& gate_list, Tensor<DT> u, size_t n) 
+{
+    if(n == 0){
+      Tensor<DT> re = find_closest_u(gate_list, u);
+      std::cout << "distance of recurrsion" << n << " : " << trace_distance(re, u)  << std::endl;
+      return re;
+    }
+    else{
+      Tensor<DT> u_p = SK(gate_list, u , n-1);  
+      u_p.adjoint();
+      //std::cout<<"u_p.adjoint()" <<std::endl;
+      std::vector<Tensor<DT>> vw = gc_decomp(tensor_multiply(u,u_p));
+      Tensor<DT> v = vw[0];
+      Tensor<DT> w = vw[1];
+      Tensor<DT> v_p = SK(gate_list ,v , n-1);
+      Tensor<DT> w_p = SK(gate_list ,w , n-1);
+      v_p.adjoint();
+      //std::cout<<"v_p.adjoint()" <<std::endl;
+      w_p.adjoint();
+      //std::cout<<"w_p.adjoint()" <<std::endl;
+      Tensor<DT> re =tensor_multiply(v_p,tensor_multiply(w_p,  tensor_multiply(v_p, tensor_multiply(w_p,u_p)) ));
+      std::cout << "distance of recurrsion" << n << " : " << trace_distance(re, u)  << std::endl;
+      return re;}
+}
+
 
 template <typename DT>
 void Tensor<DT>::SK_decompose() {
     assert(dimension() == 2);
     // TODO - Move your code here, you may also create new files src/tensor/
-   /*
-    Tensor<DT> a = to_su2(*this);
-    std::cout <<"to_su2 the tensor is" <<a << std::endl;
-    std::cout <<"trace of the tensor is"<<this->trace()<<std::endl;
-    std::tuple b = this->eigen();
-    Tensor<DT> value = std::get<0>(b);
-    Tensor<DT> vector = std::get<1>(b);
-    std::cout <<"eigen value of the tensor is"<<value<<std::endl; //eigen value 
-    std::cout <<"eigen vector of the tensor is"<<vector<<std::endl; //eigen vector
-    Tensor<DT> u = random_u(0.46181601443868003, 0.9850727657318968, 0.9477936955481501);
-    std::cout << u << std::endl;
-    Tensor<DT> v = random_u(0.4149234501309683, 0.15937620575851397, 0.10277865702965872);
-    std::cout << v << std::endl;
-    std::cout <<"trace distance of u,v is"<<trace_distance(u,v)<<std::endl;
-    std::vector<std::complex<double>> axis = u_to_bloch(*this);
-    std::cout <<"u_to_bloc of u is" << axis[0] <<axis[1] << axis[2] << axis[3] << std::endl;
-    */
-    std::complex<double> sqrt2(std::sqrt(2),0); 
-    std::complex<double> t(0,PI/4); 
-    Tensor<DT> H = {{1./sqrt2,1./sqrt2},{1./sqrt2,-1./sqrt2}};
-    Tensor<DT> T = {{1,0},{0,pow(M_E,t)}};
-    std::vector<Tensor<DT>> base = {to_su2(H), to_su2(T)};
-
-    std::cout<< base[0] << base[1] << std::endl;
-    //generate gate list
-    for(int i = 1; i < 16; i++){
-        std::vector<Tensor<DT>> unitaries = create_unitaries(base, i);
-        save_unitaries(unitaries, "gate_list_" + std::to_string(i) + ".dat");
-    }
     
+    //Tensor<DT> a = to_su2(*this);
+    Tensor<DT> a =*this;
+    std::cout <<create_gate_list(7) << std::endl;
+    std::cout <<"read_gate_list" << std::endl ;
+    std::vector<Tensor<DT>> gate_list =  read_gate_list("gate_list_7.csv");
+    //for(int i = 0; i<10 ; i++ ){std::cout << gate_list[i] << std::endl;}
+    std::cout <<"SKing" << std::endl ;
+    Tensor<DT> re = SK(gate_list , a , 8);
+    double tr_dist = (trace_distance(a , re));
+
+    std::cout <<"distance : " << tr_dist << std::endl ;
 }
+
+
 
 
 
