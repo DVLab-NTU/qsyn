@@ -23,7 +23,7 @@ namespace qsyn::qcir {
  * @param other
  * @return QCir*
  */
-QCir* QCir::compose(QCir const& other) {
+QCir& QCir::compose(QCir const& other) {
     auto targ_qubits = other.get_qubits();
     for (auto& qubit : targ_qubits) {
         if (get_qubit(qubit->get_id()) == nullptr)
@@ -36,7 +36,7 @@ QCir* QCir::compose(QCir const& other) {
         }
         add_gate(targ_gate->get_type_str(), qubits, targ_gate->get_phase(), true);
     }
-    return this;
+    return *this;
 }
 
 /**
@@ -45,7 +45,7 @@ QCir* QCir::compose(QCir const& other) {
  * @param other
  * @return QCir*
  */
-QCir* QCir::tensor_product(QCir const& other) {
+QCir& QCir::tensor_product(QCir const& other) {
     std::unordered_map<size_t, QCirQubit*> old_q2_new_q;
     auto targ_qubits = other.get_qubits();
     for (auto& qubit : targ_qubits) {
@@ -58,7 +58,7 @@ QCir* QCir::tensor_product(QCir const& other) {
         }
         add_gate(targ_gate->get_type_str(), qubits, targ_gate->get_phase(), true);
     }
-    return this;
+    return *this;
 }
 
 namespace {

@@ -151,8 +151,8 @@ public:
     void set_gate_set(std::string g) { _gate_set = std::move(g); }
 
     void reset();
-    QCir* compose(QCir const& other);
-    QCir* tensor_product(QCir const& other);
+    QCir& compose(QCir const& other);
+    QCir& tensor_product(QCir const& other);
     // Member functions about circuit construction
     QCirQubit* push_qubit();
     QCirQubit* insert_qubit(QubitIdType id);
