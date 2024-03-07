@@ -189,7 +189,7 @@ bool ZXGraph::is_identity() const {
 
 size_t ZXGraph::get_num_gadgets() const {
     return std::ranges::count_if(_vertices, [this](ZXVertex* v) {
-        return !v->is_boundary() && this->get_num_neighbors(v) == 1;
+        return this->is_gadget_leaf(v);
     });
 }
 
