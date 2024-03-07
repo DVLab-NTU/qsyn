@@ -464,7 +464,8 @@ std::optional<ZXGraph> to_zxgraph(QCir const& qcir, size_t decomposition_mode) {
         spdlog::error("QCir is empty!!");
         return std::nullopt;
     }
-    qcir.update_gate_time();
+    auto const times = qcir.calculate_gate_times();
+
     ZXGraph graph;
     spdlog::debug("Add boundaries");
     for (size_t i = 0; i < qcir.get_qubits().size(); i++) {
@@ -473,7 +474,7 @@ std::optional<ZXGraph> to_zxgraph(QCir const& qcir, size_t decomposition_mode) {
         graph.add_edge(input, output, EdgeType::simple);
     }
 
-    for (auto const& gate : qcir.get_topologically_ordered_gates()) {
+    for (auto const& gate : qcir.get_gates()) {
         if (stop_requested()) {
             spdlog::warn("Conversion interrupted.");
             return std::nullopt;
@@ -487,7 +488,7 @@ std::optional<ZXGraph> to_zxgraph(QCir const& qcir, size_t decomposition_mode) {
         }
 
         for (auto& v : tmp->get_vertices()) {
-            v->set_col(v->get_col() + static_cast<float>(gate->get_time()));
+            v->set_col(v->get_col() + static_cast<float>(times.at(gate->get_id())));
         }
 
         graph.concatenate(*tmp);

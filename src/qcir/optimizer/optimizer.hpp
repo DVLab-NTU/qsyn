@@ -11,6 +11,7 @@
 #include <set>
 #include <unordered_map>
 
+#include "qcir/qcir_gate.hpp"
 #include "qsyn/qsyn_type.hpp"
 #include "util/ordered_hashset.hpp"
 
@@ -23,7 +24,6 @@ class Phase;
 namespace qsyn::qcir {
 
 class QCir;
-class QCirGate;
 enum class GateRotationCategory;
 using Qubit2Gates = std::unordered_map<QubitIdType, std::vector<QCirGate*>>;
 
@@ -57,6 +57,7 @@ public:
 
 private:
     size_t _iter = 0;
+    std::vector<std::unique_ptr<QCirGate>> _storage;
     Qubit2Gates _gates;
     Qubit2Gates _available;
     std::vector<bool> _availty;
@@ -66,8 +67,6 @@ private:
     dvlab::utils::ordered_hashset<QubitIdType> _xs;
     dvlab::utils::ordered_hashset<QubitIdType> _zs;
     std::vector<std::pair<QubitIdType, QubitIdType>> _swaps;
-
-    size_t _gate_count = 0;
 
     struct Statistics {
         size_t FUSE_PHASE    = 0;
@@ -121,6 +120,50 @@ private:
     void _fuse_z_phase(QCir& qcir, QCirGate* prev_gate, QCirGate* gate);
     void _fuse_x_phase(QCir& qcir, QCirGate* prev_gate, QCirGate* gate);
     void _partial_zx_optimization(QCir& qcir);
+
+    inline QCirGate* _store_x(QubitIdType qubit) {
+        _storage.emplace_back(std::make_unique<QCirGate>(_storage.size(), GateRotationCategory::px, dvlab::Phase(1)));
+        _storage.back()->add_qubit(qubit, true);
+        return _storage.back().get();
+    }
+
+    inline QCirGate* _store_h(QubitIdType qubit) {
+        _storage.emplace_back(std::make_unique<QCirGate>(_storage.size(), GateRotationCategory::h, dvlab::Phase(1)));
+        _storage.back()->add_qubit(qubit, true);
+        return _storage.back().get();
+    }
+
+    inline QCirGate* _store_s(QubitIdType qubit) {
+        _storage.emplace_back(std::make_unique<QCirGate>(_storage.size(), GateRotationCategory::pz, dvlab::Phase(1, 2)));
+        _storage.back()->add_qubit(qubit, true);
+        return _storage.back().get();
+    }
+
+    inline QCirGate* _store_sdg(QubitIdType qubit) {
+        _storage.emplace_back(std::make_unique<QCirGate>(_storage.size(), GateRotationCategory::pz, dvlab::Phase(-1, 2)));
+        _storage.back()->add_qubit(qubit, true);
+        return _storage.back().get();
+    }
+
+    inline QCirGate* _store_cx(QubitIdType ctrl, QubitIdType targ) {
+        _storage.emplace_back(std::make_unique<QCirGate>(_storage.size(), GateRotationCategory::px, dvlab::Phase(1)));
+        _storage.back()->add_qubit(ctrl, false);
+        _storage.back()->add_qubit(targ, true);
+        return _storage.back().get();
+    }
+
+    inline QCirGate* _store_cz(QubitIdType ctrl, QubitIdType targ) {
+        _storage.emplace_back(std::make_unique<QCirGate>(_storage.size(), GateRotationCategory::pz, dvlab::Phase(1)));
+        _storage.back()->add_qubit(ctrl, false);
+        _storage.back()->add_qubit(targ, true);
+        return _storage.back().get();
+    }
+
+    inline QCirGate* _store_rotation_gate(QubitIdType target, dvlab::Phase ph, GateRotationCategory const& rotation_category) {
+        _storage.emplace_back(std::make_unique<QCirGate>(_storage.size(), rotation_category, ph));
+        _storage.back()->add_qubit(target, true);
+        return _storage.back().get();
+    }
 };
 
 }  // namespace qsyn::qcir

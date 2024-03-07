@@ -94,12 +94,11 @@ bool QCir::draw(QCirDrawerType drawer, std::filesystem::path const& output_path,
 }
 
 std::string to_qasm(QCir const& qcir) {
-    qcir.update_topological_order();
     std::string qasm = "OPENQASM 2.0;\n";
     qasm += "include \"qelib1.inc\";\n";
     qasm += fmt::format("qreg q[{}];\n", qcir.get_num_qubits());
 
-    for (auto const* cur_gate : qcir.get_topologically_ordered_gates()) {
+    for (auto const* cur_gate : qcir.get_gates()) {
         auto type_str               = cur_gate->get_type_str();
         std::vector<QubitInfo> pins = cur_gate->get_qubits();
         auto is_special_phase       = cur_gate->get_phase().denominator() == 1 || cur_gate->get_phase().denominator() == 2 || cur_gate->get_phase() == Phase(1, 4) || cur_gate->get_phase() == Phase(-1, 4);

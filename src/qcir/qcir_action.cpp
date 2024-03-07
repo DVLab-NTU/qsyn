@@ -8,6 +8,7 @@
 #include <cassert>
 #include <cstddef>
 #include <stack>
+#include <unordered_set>
 
 #include "qcir/qcir.hpp"
 #include "qcir/qcir_gate.hpp"
@@ -28,8 +29,7 @@ QCir* QCir::compose(QCir const& other) {
         if (get_qubit(qubit->get_id()) == nullptr)
             insert_qubit(qubit->get_id());
     }
-    other.update_topological_order();
-    for (auto& targ_gate : other.get_topologically_ordered_gates()) {
+    for (auto& targ_gate : other.get_gates()) {
         QubitIdList qubits;
         for (auto const& b : targ_gate->get_qubits()) {
             qubits.emplace_back(b._qubit);
@@ -51,8 +51,7 @@ QCir* QCir::tensor_product(QCir const& other) {
     for (auto& qubit : targ_qubits) {
         old_q2_new_q[qubit->get_id()] = push_qubit();
     }
-    other.update_topological_order();
-    for (auto& targ_gate : other.get_topologically_ordered_gates()) {
+    for (auto& targ_gate : other.get_gates()) {
         QubitIdList qubits;
         for (auto const& b : targ_gate->get_qubits()) {
             qubits.emplace_back(old_q2_new_q[b._qubit]->get_id());
@@ -62,109 +61,92 @@ QCir* QCir::tensor_product(QCir const& other) {
     return this;
 }
 
+namespace {
+
 /**
  * @brief Perform DFS from currentGate
  *
  * @param currentGate the gate to start DFS
  */
-void QCir::_dfs(QCirGate* curr_gate) const {
-    std::stack<std::pair<bool, QCirGate*>> dfs;
+void dfs(QCirGate* curr_gate, std::vector<QCirGate*>& topo_order) {
+    std::stack<std::pair<bool, QCirGate*>> dfs_stack;
 
-    if (!curr_gate->is_visited(_global_dfs_counter)) {
-        dfs.emplace(false, curr_gate);
+    std::unordered_set<QCirGate*> visited;
+
+    if (!visited.contains(curr_gate)) {
+        dfs_stack.emplace(false, curr_gate);
     }
-    while (!dfs.empty()) {
-        auto node = dfs.top();
-        dfs.pop();
+    while (!dfs_stack.empty()) {
+        auto node = dfs_stack.top();
+        dfs_stack.pop();
         if (node.first) {
-            _topological_order.emplace_back(node.second);
+            topo_order.emplace_back(node.second);
             continue;
         }
-        if (node.second->is_visited(_global_dfs_counter)) {
+        if (visited.contains(node.second)) {
             continue;
         }
-        node.second->set_visited(_global_dfs_counter);
-        dfs.emplace(true, node.second);
+        visited.insert(node.second);
+        dfs_stack.emplace(true, node.second);
 
         for (auto const& info : node.second->get_qubits()) {
             if (info._next != nullptr) {
-                if (!(info._next->is_visited(_global_dfs_counter))) {
-                    dfs.emplace(false, info._next);
+                if (!visited.contains(info._next)) {
+                    dfs_stack.emplace(false, info._next);
                 }
             }
         }
     }
 }
 
+}  // namespace
+
 /**
  * @brief Update topological order
  *
  * @return const vector<QCirGate*>&
  */
-std::vector<QCirGate*> const& QCir::update_topological_order() const {
-    _topological_order.clear();
-    if (_qgates.empty())
-        return _topological_order;
-    _global_dfs_counter++;
-    auto dummy = new QCirGate(0, GateRotationCategory::id, dvlab::Phase(0));
+void QCir::_update_topological_order() const {
+    if (!_dirty)
+        return;
+
+    _gate_list.clear();
+    if (_id_to_gates.empty())
+        return;
+
+    auto dummy    = QCirGate(0, GateRotationCategory::id, dvlab::Phase(0));
+    auto children = dummy.get_qubits();
     for (size_t i = 0; i < _qubits.size(); i++) {
-        dummy->add_dummy_child(_qubits[i]->get_first());
+        children.push_back(
+            {._qubit    = 0,
+             ._prev     = nullptr,
+             ._next     = _qubits[i]->get_first(),
+             ._isTarget = false});
     }
-    _dfs(dummy);
-    _topological_order.pop_back();  // pop dummy
-    reverse(_topological_order.begin(), _topological_order.end());
-    assert(_topological_order.size() == _qgates.size());
-    delete dummy;
+    dummy.set_qubits(children);
+    dfs(&dummy, _gate_list);
+    _gate_list.pop_back();  // pop dummy
+    reverse(_gate_list.begin(), _gate_list.end());
+    assert(_gate_list.size() == get_num_gates());
 
-    return _topological_order;
+    _dirty = false;
 }
 
-/**
- * @brief Print topological order
- */
-bool QCir::print_topological_order() const {
-    auto print_gate_id = [](QCirGate* gate) {
-        fmt::println("{}", gate->get_id());
-    };
-    topological_traverse(print_gate_id);
-    return true;
-}
-
-/**
- * @brief Update execution time of gates
- */
-void QCir::update_gate_time() const {
-    update_topological_order();
-    auto lambda = [](QCirGate* curr_gate) {
-        std::vector<QubitInfo> info = curr_gate->get_qubits();
-        size_t max_time             = 0;
-        for (size_t i = 0; i < info.size(); i++) {
-            if (info[i]._prev == nullptr)
-                continue;
-            if (info[i]._prev->get_time() > max_time)
-                max_time = info[i]._prev->get_time();
-        }
-        curr_gate->set_time(max_time + curr_gate->get_delay());
-    };
-    topological_traverse(lambda);
-}
 /**
  * @brief Reset QCir
  *
  */
 void QCir::reset() {
-    _qgates.clear();
     _qubits.clear();
-    _topological_order.clear();
+    _gate_list.clear();
 
-    _gate_id            = 0;
-    _qubit_id           = 0;
-    _dirty              = true;
-    _global_dfs_counter = 1;
+    _gate_id  = 0;
+    _qubit_id = 0;
+    _dirty    = true;
 }
 
 void QCir::adjoint() {
-    for (auto& g : _qgates) {
+    for (auto& g : _gate_list) {
         g->adjoint();
         auto qubits = g->get_qubits();
         for (auto& q : qubits) {

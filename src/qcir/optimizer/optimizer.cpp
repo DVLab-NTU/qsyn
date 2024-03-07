@@ -29,7 +29,6 @@ void Optimizer::reset(QCir const& qcir) {
     _xs.clear();
     _zs.clear();
     _swaps.clear();
-    _gate_count = 0;
     _statistics = {};
     for (int i = 0; i < gsl::narrow<QubitIdType>(qcir.get_qubits().size()); i++) {
         _availty.emplace_back(false);

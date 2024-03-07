@@ -32,7 +32,6 @@ MappingEquivalenceChecker::MappingEquivalenceChecker(QCir* phy, QCir* log, Devic
         init        = placer->place_and_assign(_device);
     } else
         _device.place(init);
-    _physical->update_topological_order();
     for (auto const& qubit : _logical->get_qubits()) {
         _dependency[qubit->get_id()] = _reverse ? qubit->get_last() : qubit->get_first();
     }
@@ -45,7 +44,7 @@ MappingEquivalenceChecker::MappingEquivalenceChecker(QCir* phy, QCir* log, Devic
  * @return false
  */
 bool MappingEquivalenceChecker::check() {
-    auto execute_order = _physical->get_topologically_ordered_gates();
+    auto execute_order = _physical->get_gates();
     if (_reverse) reverse(execute_order.begin(), execute_order.end());  // NOTE - Now the order starts from back
     // NOTE - Traverse all physical gates, should match dependency of logical gate
     std::unordered_set<QCirGate*> swaps;

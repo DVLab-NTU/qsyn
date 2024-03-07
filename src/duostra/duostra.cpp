@@ -79,6 +79,7 @@ void Duostra::make_dependency() {
         }
         all_gates.emplace_back(std::move(temp_gate));
     }
+    // REVIEW - is the reordering necessary?
     std::unordered_map<size_t, size_t> reordered_map;
     for (size_t i = 0; i < all_gates.size(); i++) {
         reordered_map[all_gates[i].get_id()] = i;

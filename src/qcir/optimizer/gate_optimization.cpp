@@ -50,9 +50,9 @@ void Optimizer::_match_hadamards(QCirGate* gate) {
         if (g2->get_phase().denominator() == 2) {
             _statistics.HS_EXCHANGE++;
             spdlog::trace("Transform H-S-H into Sdg-H-Sdg");
-            auto zp = new QCirGate(_gate_count, GateRotationCategory::pz, -1 * g2->get_phase());
-            zp->add_qubit(qubit, true);
-            _gate_count++;
+            auto zp = (g2->get_phase() == Phase(1, 2))
+                          ? _store_sdg(qubit)
+                          : _store_s(qubit);
             g2->set_phase(zp->get_phase());  // NOTE - S to Sdg
             _gates[qubit].insert(_gates[qubit].end() - 2, zp);
             return;

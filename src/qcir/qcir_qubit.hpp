@@ -33,8 +33,6 @@ public:
     QubitIdType get_id() const { return _id; }
     QCirGate* get_last() const { return _bit_last; }
     QCirGate* get_first() const { return _bit_first; }
-    // Printing functions
-    void print_qubit_line(spdlog::level::level_enum lvl = spdlog::level::off) const;
 
 private:
     QubitIdType _id;
