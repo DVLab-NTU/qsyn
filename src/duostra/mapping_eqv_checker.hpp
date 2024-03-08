@@ -38,7 +38,7 @@ public:
     bool execute_double(qcir::QCirGate* gate);
 
     void check_remaining();
-    qcir::QCirGate* get_next(qcir::QubitInfo const& info) const;
+    qcir::QCirGate* get_next(qcir::QCir const& qcir, size_t gate_id, size_t pin) const;
 
 private:
     qcir::QCir* _physical;

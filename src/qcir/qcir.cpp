@@ -15,6 +15,7 @@
 #include <iterator>
 #include <queue>
 #include <string>
+#include <tl/enumerate.hpp>
 #include <unordered_set>
 #include <vector>
 
@@ -43,11 +44,10 @@ QCir::QCir(QCir const &other) {
         auto *new_gate = _id_to_gates.at(gate->get_id()).get();
         new_gate->set_operands(gate->get_operands());
 
-        for (auto const &qb : new_gate->get_operands()) {
+        for (auto const qb : new_gate->get_operands()) {
             QCirQubit *target = get_qubit(qb);
             if (target->get_last() != nullptr) {
-                new_gate->set_parent(qb, target->get_last());
-                target->get_last()->set_child(qb, new_gate);
+                _connect(target->get_last()->get_id(), new_gate->get_id(), qb);
             } else {
                 target->set_first(new_gate);
             }
@@ -86,6 +86,77 @@ QCirGate *QCir::get_gate(size_t id) const {
     return nullptr;
 }
 
+QCirGate *QCir::get_predecessor(size_t gate_id, size_t pin) const {
+    if (get_gate(gate_id) == nullptr) {
+        return nullptr;
+    }
+    if (pin >= get_gate(gate_id)->get_num_qubits()) {
+        return nullptr;
+    }
+    return get_gate(gate_id)->get_qubits()[pin]._prev;
+}
+
+QCirGate *QCir::get_successor(size_t gate_id, size_t pin) const {
+    if (get_gate(gate_id) == nullptr) {
+        return nullptr;
+    }
+    if (pin >= get_gate(gate_id)->get_num_qubits()) {
+        return nullptr;
+    }
+    return get_gate(gate_id)->get_qubits()[pin]._next;
+}
+
+std::vector<QCirGate *> QCir::get_predecessors(size_t gate_id) const {
+    if (get_gate(gate_id) == nullptr) {
+        return {};
+    }
+    return get_gate(gate_id)->get_qubits() | std::views::transform([](auto const &q) { return q._prev; }) | tl::to<std::vector>();
+}
+
+std::vector<QCirGate *> QCir::get_successors(size_t gate_id) const {
+    if (get_gate(gate_id) == nullptr) {
+        return {};
+    }
+    return get_gate(gate_id)->get_qubits() | std::views::transform([](auto const &q) { return q._next; }) | tl::to<std::vector>();
+}
+
+void QCir::_set_predecessor(size_t gate_id, size_t pin, QCirGate *pred) {
+    if (get_gate(gate_id) == nullptr) return;
+    if (pin >= get_gate(gate_id)->get_num_qubits()) return;
+    get_gate(gate_id)->get_qubits()[pin]._prev = pred;
+}
+
+void QCir::_set_successor(size_t gate_id, size_t pin, QCirGate *succ) {
+    if (get_gate(gate_id) == nullptr) return;
+    if (pin >= get_gate(gate_id)->get_num_qubits()) return;
+    get_gate(gate_id)->get_qubits()[pin]._next = succ;
+}
+
+void QCir::_set_predecessors(size_t gate_id, std::vector<QCirGate *> const &preds) {
+    if (get_gate(gate_id) == nullptr) return;
+    if (preds.size() != get_gate(gate_id)->get_num_qubits()) return;
+    for (size_t i = 0; i < preds.size(); i++) {
+        get_gate(gate_id)->get_qubits()[i]._prev = preds[i];
+    }
+}
+
+void QCir::_set_successors(size_t gate_id, std::vector<QCirGate *> const &succs) {
+    if (get_gate(gate_id) == nullptr) return;
+    if (succs.size() != get_gate(gate_id)->get_num_qubits()) return;
+    for (size_t i = 0; i < succs.size(); i++) {
+        get_gate(gate_id)->get_qubits()[i]._next = succs[i];
+    }
+}
+
+void QCir::_connect(size_t gid1, size_t gid2, QubitIdType qubit) {
+    if (get_gate(gid1) == nullptr || get_gate(gid2) == nullptr) return;
+    auto pin1 = get_gate(gid1)->get_operand_idx(qubit);
+    auto pin2 = get_gate(gid2)->get_operand_idx(qubit);
+    if (pin1 == std::nullopt || pin2 == std::nullopt) return;
+
+    _set_successor(gid1, *pin1, get_gate(gid2));
+    _set_predecessor(gid2, *pin2, get_gate(gid1));
+}
 /**
  * @brief Get Qubit.
  *
@@ -108,14 +179,13 @@ size_t QCir::calculate_depth() const {
 std::unordered_map<size_t, size_t> QCir::calculate_gate_times() const {
     auto gate_times   = std::unordered_map<size_t, size_t>{};
     auto const lambda = [&](QCirGate *curr_gate) {
-        std::vector<QubitInfo> info = curr_gate->get_qubits();
-        size_t max_time             = 0;
-        for (size_t i = 0; i < info.size(); i++) {
-            if (info[i]._prev == nullptr)
-                continue;
-            if (gate_times.at(info[i]._prev->get_id()) > max_time)
-                max_time = gate_times.at(info[i]._prev->get_id());
-        }
+        size_t const max_time = std::ranges::max(
+            get_predecessors(curr_gate->get_id()) |
+            std::views::transform(
+                [&](QCirGate *predecessor) {
+                    return predecessor ? gate_times.at(predecessor->get_id()) : 0;
+                }));
+
         gate_times.emplace(curr_gate->get_id(), max_time + curr_gate->get_delay());
     };
 
@@ -227,8 +297,7 @@ QCirGate *QCir::append(GateType gate, QubitIdList const &bits) {
     for (auto const &qb : g->get_operands()) {
         QCirQubit *target = get_qubit(qb);
         if (target->get_last() != nullptr) {
-            g->set_parent(qb, target->get_last());
-            target->get_last()->set_child(qb, g);
+            _connect(target->get_last()->get_id(), g->get_id(), qb);
         } else {
             target->set_first(g);
         }
@@ -247,8 +316,7 @@ QCirGate *QCir::prepend(GateType gate, QubitIdList const &bits) {
     for (auto const &qb : g->get_operands()) {
         QCirQubit *target = get_qubit(qb);
         if (target->get_first() != nullptr) {
-            g->set_child(qb, target->get_first());
-            target->get_first()->set_parent(qb, g);
+            _connect(g->get_id(), target->get_first()->get_id(), qb);
         } else {
             target->set_last(g);
         }
@@ -271,66 +339,66 @@ bool QCir::remove_gate(size_t id) {
         spdlog::error("Gate ID {} not found!!", id);
         return false;
     } else {
-        std::vector<QubitInfo> info = target->get_qubits();
-        for (size_t i = 0; i < info.size(); i++) {
-            if (info[i]._prev != nullptr)
-                info[i]._prev->set_child(target->get_operand(i), info[i]._next);
-            else
-                get_qubit(target->get_operand(i))->set_first(info[i]._next);
-            if (info[i]._next != nullptr)
-                info[i]._next->set_parent(target->get_operand(i), info[i]._prev);
-            else
-                get_qubit(target->get_operand(i))->set_last(info[i]._prev);
-            info[i]._prev = nullptr;
-            info[i]._next = nullptr;
+        for (size_t i = 0; i < target->get_num_qubits(); i++) {
+            auto predecessor = get_predecessor(target->get_id(), i);
+            auto successor   = get_successor(target->get_id(), i);
+            if (predecessor) {
+                _set_successor(predecessor->get_id(), *predecessor->get_operand_idx(target->get_operand(i)), successor);
+            } else {
+                get_qubit(target->get_operand(i))->set_first(successor);
+            }
+            if (successor) {
+                _set_predecessor(successor->get_id(), *successor->get_operand_idx(target->get_operand(i)), predecessor);
+            } else {
+                get_qubit(target->get_operand(i))->set_last(predecessor);
+            }
         }
+
         _id_to_gates.erase(id);
         _dirty = true;
         return true;
     }
 }
 
-void add_input_cone_to(QCirGate *gate, std::unordered_set<QCirGate *> &input_cone) {
+void add_input_cone_to(QCir const &qcir, QCirGate *gate, std::unordered_set<QCirGate *> &input_cone) {
     if (gate == nullptr) {
         return;
     }
 
-    std::queue<QCirGate *> q;
-    q.push(gate);
+    std::queue<QCirGate *> queue;
+    queue.push(gate);
     input_cone.insert(gate);
 
-    while (!q.empty()) {
-        QCirGate *curr_gate = q.front();
-        q.pop();
+    while (!queue.empty()) {
+        QCirGate *curr_gate = queue.front();
+        queue.pop();
 
-        for (const auto &qubit_info : curr_gate->get_qubits()) {
-            QCirGate *parent_gate = qubit_info._prev;
-            if (parent_gate != nullptr && !input_cone.contains(parent_gate)) {
-                input_cone.insert(parent_gate);
-                q.push(parent_gate);
+        for (auto *predecessor : qcir.get_predecessors(curr_gate->get_id())) {
+            if (predecessor != nullptr && !input_cone.contains(predecessor)) {
+                input_cone.insert(predecessor);
+                queue.push(predecessor);
             }
         }
     }
 }
 
-void add_output_cone_to(QCirGate *gate, std::unordered_set<QCirGate *> &output_cone) {
+void add_output_cone_to(QCir const &qcir, QCirGate *gate, std::unordered_set<QCirGate *> &output_cone) {
     if (gate == nullptr) {
         return;
     }
 
-    std::queue<QCirGate *> q;
-    q.push(gate);
+    std::queue<QCirGate *> queue;
+    queue.push(gate);
     output_cone.insert(gate);
 
-    while (!q.empty()) {
-        QCirGate *curr_gate = q.front();
-        q.pop();
+    while (!queue.empty()) {
+        QCirGate *curr_gate = queue.front();
+        queue.pop();
 
-        for (const auto &qubit_info : curr_gate->get_qubits()) {
-            QCirGate *child_gate = qubit_info._next;
-            if (child_gate != nullptr && !output_cone.contains(child_gate)) {
-                output_cone.insert(child_gate);
-                q.push(child_gate);
+        for (auto *successor : qcir.get_successors(curr_gate->get_id())) {
+            if (successor && !output_cone.contains(successor)) {
+                output_cone.insert(successor);
+                queue.push(successor);
             }
         }
     }
@@ -510,8 +578,8 @@ QCirGateStatistics QCir::get_gate_statistics() const {
 
     for (auto const &g : get_gates()) {
         if (is_clifford(g)) continue;
-        add_input_cone_to(g, not_final);
-        add_output_cone_to(g, not_initial);
+        add_input_cone_to(*this, g, not_final);
+        add_output_cone_to(*this, g, not_initial);
     }
 
     // the intersection of the two sets is the internal gates

@@ -64,10 +64,14 @@ public:
     size_t get_delay() const;
     dvlab::Phase get_phase() const { return _phase; }
     std::vector<QubitInfo> const& get_qubits() const { return _qubits; }
-    void set_qubits(std::vector<QubitInfo> const& qubits) { _qubits = qubits; }
-    QubitInfo get_qubit(QubitIdType qubit) const;
+    std::vector<QubitInfo>& get_qubits() { return _qubits; }
     QubitIdType get_operand(size_t pin_id) const { return _operands[pin_id]; }
     QubitIdList get_operands() const { return _operands; }
+    std::optional<size_t> get_operand_idx(QubitIdType qubit) const {
+        auto it = std::find(_operands.begin(), _operands.end(), qubit);
+        if (it == _operands.end()) return std::nullopt;
+        return std::distance(_operands.begin(), it);
+    }
     void set_operands(QubitIdList const& operands) {
         _operands = operands;
         _qubits   = std::vector<QubitInfo>(operands.size(), {nullptr, nullptr});
@@ -75,14 +79,11 @@ public:
 
     size_t get_num_qubits() const { return _qubits.size(); }
 
-    void set_child(QubitIdType qubit, QCirGate* c);
-    void set_parent(QubitIdType qubit, QCirGate* p);
-
     // Printing functions
     void print_gate(std::optional<size_t> time) const;
     void set_rotation_category(GateRotationCategory type);
     void set_phase(dvlab::Phase p);
-    void print_gate_info() const;
+    // void print_gate_info() const;
 
     bool is_h() const { return _rotation_category == GateRotationCategory::h; }
     bool is_x() const { return _rotation_category == GateRotationCategory::px && _phase == dvlab::Phase(1) && _qubits.size() == 1; }
@@ -103,7 +104,7 @@ protected:
     std::vector<QubitIdType> _operands;
     dvlab::Phase _phase;
 
-    void _print_single_qubit_or_controlled_gate(std::string gtype, bool show_rotation = false) const;
+    // void _print_single_qubit_or_controlled_gate(std::string gtype, bool show_rotation = false) const;
 };
 
 }  // namespace qsyn::qcir

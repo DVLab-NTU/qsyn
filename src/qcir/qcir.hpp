@@ -184,28 +184,14 @@ public:
     // Member functions about circuit reporting
     void print_gates(bool print_neighbors = false, std::span<size_t> gate_ids = {}) const;
     void print_qcir() const;
-    bool print_gate_as_diagram(size_t id, bool show_time) const;
+    // bool print_gate_as_diagram(size_t id, bool show_time) const;
     void print_circuit_diagram(spdlog::level::level_enum lvl = spdlog::level::off) const;
     void print_qcir_info() const;
 
-    QCirGate* get_predecessor(size_t gate_id, size_t pin) const {
-        if (pin >= get_gate(gate_id)->get_num_qubits()) {
-            return nullptr;
-        }
-        return get_gate(gate_id)->get_qubits()[pin]._prev;
-    }
-    QCirGate* get_successor(size_t gate_id, size_t pin) const {
-        if (pin >= get_gate(gate_id)->get_num_qubits()) {
-            return nullptr;
-        }
-        return get_gate(gate_id)->get_qubits()[pin]._next;
-    }
-    std::vector<QCirGate*> get_predecessors(size_t gate_id) const {
-        return get_gate(gate_id)->get_qubits() | std::views::transform([](auto const& q) { return q._prev; }) | tl::to<std::vector>();
-    }
-    std::vector<QCirGate*> get_successors(size_t gate_id) const {
-        return get_gate(gate_id)->get_qubits() | std::views::transform([](auto const& q) { return q._next; }) | tl::to<std::vector>();
-    }
+    QCirGate* get_predecessor(size_t gate_id, size_t pin) const;
+    QCirGate* get_successor(size_t gate_id, size_t pin) const;
+    std::vector<QCirGate*> get_predecessors(size_t gate_id) const;
+    std::vector<QCirGate*> get_successors(size_t gate_id) const;
 
 private:
     size_t _gate_id       = 0;
@@ -220,6 +206,12 @@ private:
     bool mutable _dirty = true;                 // mark if the topological order is dirty
 
     void _update_topological_order() const;
+
+    void _set_predecessor(size_t gate_id, size_t pin, QCirGate* pred);
+    void _set_successor(size_t gate_id, size_t pin, QCirGate* succ);
+    void _set_predecessors(size_t gate_id, std::vector<QCirGate*> const& preds);
+    void _set_successors(size_t gate_id, std::vector<QCirGate*> const& succs);
+    void _connect(size_t gid1, size_t gid2, QubitIdType qubit);
 };
 
 std::string to_qasm(QCir const& qcir);
