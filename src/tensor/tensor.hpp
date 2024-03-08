@@ -768,8 +768,7 @@ void Tensor<DT>::solovay_kitaev_decompose() {
     // TODO - Move your code here, you may also create new files src/tensor/
 
     std::cout << "gate list depth : " << std::endl;
-    int depth;
-    std::cin >> depth;
+    int depth = 10;
     std::vector<std::vector<bool>> bin_list;
     std::cout <<create_gate_list(depth) << std::endl;
     for (int i = 1; i <= depth; i++) {
