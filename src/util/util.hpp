@@ -122,6 +122,10 @@ struct overloaded : Ts... {  // NOLINT(readability-identifier-naming)  // mimic 
 template <class... Ts>
 overloaded(Ts...) -> overloaded<Ts...>;
 
+auto contains(std::ranges::range auto r, auto const& value) -> bool {
+    return std::find(r, value) != r.end();
+}
+
 }  // namespace dvlab
 
 // NOLINTBEGIN(cppcoreguidelines-macro-usage)

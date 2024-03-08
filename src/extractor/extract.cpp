@@ -7,10 +7,12 @@
 
 #include "./extract.hpp"
 
+#include <algorithm>
 #include <cassert>
 #include <memory>
 #include <ranges>
 #include <tuple>
+#include <random>
 
 #include "duostra/duostra.hpp"
 #include "duostra/mapping_eqv_checker.hpp"
@@ -373,16 +375,64 @@ bool Extractor::remove_gadget(bool check) {
     print_frontier(spdlog::level::level_enum::debug);
     print_axels(spdlog::level::level_enum::debug);
 
+    std::vector<ZXVertex*> shuffle_neighbors;
+    for(const auto& v: _neighbors) {
+        shuffle_neighbors.push_back(v);
+    }
+    std::random_device rd1;
+    std::mt19937 g1(rd1());
+    std::shuffle(std::begin(shuffle_neighbors), std::end(shuffle_neighbors), g1);
+
+    // std::vector<ZXVertex*> shuffle_frontier;
+    // for(const auto& v: _frontier) {
+    //     shuffle_frontier.push_back(v);
+    // }
+    // std::random_device rd2;
+    // std::mt19937 g2(rd2());
+    // std::shuffle(std::begin(shuffle_frontier), std::end(shuffle_frontier), g2);
+
     bool removed_some_gadgets = false;
-    for (auto& n : _neighbors) {
+    // for (auto& n : _neighbors) {
+    //     if (!_axels.contains(n)) {
+    //         continue;
+    //     }
+    //     for (auto& [candidate, _] : _graph->get_neighbors(n)) {
+    //         if (_frontier.contains(candidate)) {
+    //             auto const qubit = candidate->get_qubit();
+    //             _axels.erase(n);
+    //             _frontier.erase(candidate);
+
+    //             ZXVertex* target_boundary = nullptr;
+    //             for (auto& [boundary, _] : _graph->get_neighbors(candidate)) {
+    //                 if (boundary->is_boundary()) {
+    //                     target_boundary = boundary;
+    //                     break;
+    //                 }
+    //             }
+
+    //             PivotBoundaryRule().apply(*_graph, {{candidate, n}});
+
+    //             assert(target_boundary != nullptr);
+    //             auto new_frontier = _graph->get_first_neighbor(target_boundary).first;
+    //             new_frontier->set_qubit(qubit);
+    //             _frontier.emplace(_graph->get_first_neighbor(target_boundary).first);
+    //             // REVIEW - qubit_map
+    //             removed_some_gadgets = true;
+    //             break;
+    //         }
+    //     }
+    // }
+    for (auto& n : shuffle_neighbors) {
         if (!_axels.contains(n)) {
             continue;
         }
         for (auto& [candidate, _] : _graph->get_neighbors(n)) {
             if (_frontier.contains(candidate)) {
+            // if (std::find(shuffle_frontier.begin(), shuffle_frontier.end(), candidate) != shuffle_frontier.end()) {
                 auto const qubit = candidate->get_qubit();
                 _axels.erase(n);
                 _frontier.erase(candidate);
+                // std::remove(shuffle_frontier.begin(),shuffle_frontier.end(),candidate);
 
                 ZXVertex* target_boundary = nullptr;
                 for (auto& [boundary, _] : _graph->get_neighbors(candidate)) {
@@ -398,12 +448,14 @@ bool Extractor::remove_gadget(bool check) {
                 auto new_frontier = _graph->get_first_neighbor(target_boundary).first;
                 new_frontier->set_qubit(qubit);
                 _frontier.emplace(_graph->get_first_neighbor(target_boundary).first);
+                // shuffle_frontier.push_back(_graph->get_first_neighbor(target_boundary).first);
                 // REVIEW - qubit_map
                 removed_some_gadgets = true;
                 break;
             }
         }
     }
+
     _graph->print_vertices(spdlog::level::level_enum::trace);
     print_frontier(spdlog::level::level_enum::debug);
     print_axels(spdlog::level::level_enum::debug);
