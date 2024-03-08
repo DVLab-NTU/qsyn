@@ -126,7 +126,7 @@ public:
     void adjoint();
     void sqrt();
 
-    std::vector<std::string> binary_prod(int n);
+
     std::vector<Tensor<DT>> create_unitaries(const std::vector<Tensor<DT>>  base, int limit);
     void save_unitaries(const std::vector<Tensor<DT>>& unitaries, const std::string& filename);
 
@@ -139,16 +139,16 @@ public:
 
 
     Tensor<DT> to_su2(Tensor<DT> &u);
-    bool create_gate_list(size_t length);
+    bool create_gate_list(int length);
     Tensor<DT> diagonalize(Tensor<DT> u);
 
-    Tensor<DT> find_closest_u(const std::vector<Tensor<DT>>& gate_list, Tensor<DT> u);
+    Tensor<DT> find_closest_u(const std::vector<Tensor<DT>>& gate_list, std::vector<std::vector<bool>> &bin_list,  Tensor<DT> u,  std::vector<bool> &output_gate) ;
 
     std::vector<Tensor<DT>> gc_decomp(Tensor<DT> u);
 
-    Tensor<DT> SK(const std::vector<Tensor<DT>>& gate_list, Tensor<DT> u ,size_t n );
+    Tensor<DT> SK(const std::vector<Tensor<DT>>& gate_list, std::vector<std::vector<bool>> &bin_list,  Tensor<DT> u, size_t n, std::vector<bool> &output_gate) ;
 
-    void solovay_kitaev_decompose();
+    void SK_decompose();
 
     bool tensor_read(std::string const&);
     bool tensor_write(std::string const&);
@@ -327,27 +327,21 @@ void Tensor<DT>::sqrt() {
     _tensor = xt::sqrt(_tensor);
 }
 
-template <typename DT>
-std::vector<std::string> Tensor<DT>::binary_prod(int n){
-  std::vector<std::string> bin_list;
-  for (int i = 1; i <= n; i++)
-  {
-    
-    for (int j = 0;j < pow(2,i); j++)
-    {
-      boost::dynamic_bitset<> B(i, j);
-      std::string B_string;
-      boost::to_string(B,B_string);
-      bin_list.push_back(B_string);
-    }
-  }
-  return bin_list;
-}
 
 template <typename DT>
 std::vector<Tensor<DT>>  Tensor<DT>::create_unitaries(const std::vector<Tensor<DT>>  base, int limit){
     std::vector<Tensor<DT>> gate_list;
-    std::vector<std::string> bin_list = binary_prod(limit);
+    std::vector<std::vector<bool>> bin_list;
+    for (int i = 1; i <= limit; i++) {
+        for (int j = 0; j < std::pow(2, i); j++) {
+            boost::dynamic_bitset<> B(i, j);
+            std::vector<bool> bit_vector;
+            for (int k = 0; k < i; ++k) {
+                bit_vector.push_back(B[k]);
+            }
+            bin_list.push_back(bit_vector);
+        }
+    }
     int a = bin_list.size();
     for (int i = 0; i < a; i++)
     {
@@ -355,13 +349,12 @@ std::vector<Tensor<DT>>  Tensor<DT>::create_unitaries(const std::vector<Tensor<D
         std::complex<double> zero(0,0);
         Tensor<DT> u = {{one,zero},{zero,one}};
        
-        std::string bits = bin_list[i];
-        int b = bits.length();
+        std::vector<bool> bits = bin_list[i];
+        int b = bits.size();
         for (int j = 0; j < b; j++)
         {
-            char bit = bits[j];
-            int index = int(bit) - 48; // Convert char to int (assuming ASCII)
-            u = u * base[index] ;
+            bool bit = bits[j];
+            u = (bit)? u * base[1] :  u * base[0];
         }
         gate_list.push_back(u);
     }
@@ -512,10 +505,10 @@ auto Tensor<DT>::eigen() {
 template <typename DT>
 Tensor<DT> Tensor<DT>::diagonalize(Tensor<DT> u) {
     // Check if the matrix is 2x2
-    std::complex<double> neg(-1, 0);
     std::tuple b = u.eigen();
     Tensor<DT> value = std::get<0>(b);
     Tensor<DT> vector = std::get<1>(b);
+    //std::cout<< vector << std::endl;    
     return vector;
     /*
     auto eigenvectors = vector._tensor;
@@ -549,7 +542,7 @@ Tensor<DT>  Tensor<DT>::to_su2(Tensor<DT> &u) {
 }
 
 template <typename DT>
-bool Tensor<DT>::create_gate_list(size_t length) {
+bool Tensor<DT>::create_gate_list(int length) {
     std::complex<double> sqrt2(std::sqrt(2),0); 
     std::complex<double> t(0,M_PI/4); 
     Tensor<DT> H = {{1./sqrt2,1./sqrt2},{1./sqrt2,-1./sqrt2}};
@@ -557,7 +550,17 @@ bool Tensor<DT>::create_gate_list(size_t length) {
     std::vector<Tensor<DT>> base = {to_su2(H), to_su2(T)};
 
     std::vector<Tensor<DT>> gate_list;
-    std::vector<std::string> bin_list = binary_prod(length);
+    std::vector<std::vector<bool>> bin_list;
+    for (int i = 1; i <= length; i++) {
+        for (int j = 0; j < std::pow(2, i); j++) {
+            boost::dynamic_bitset<> B(i, j);
+            std::vector<bool> bit_vector;
+            for (int k = 0; k < i; ++k) {
+                bit_vector.push_back(B[k]);
+            }
+            bin_list.push_back(bit_vector);
+        }
+    }
     int a = bin_list.size();
     for (int i = 0; i < a; i++)
     {
@@ -565,19 +568,16 @@ bool Tensor<DT>::create_gate_list(size_t length) {
         std::complex<double> zero(0,0);
         Tensor<DT> u = {{one,zero},{zero,one}};
        
-        std::string bits = bin_list[i];
-        int b = bits.length();
+        std::vector<bool> bits = bin_list[i];
+        int b = bits.size();
         for (int j = 0; j < b; j++)
         {
-            char bit = bits[j];
-            int index = int(bit) - 48; // Convert char to int (assuming ASCII)
-            Tensor<DT> temp = base[index];
-            u = tensor_multiply(u , temp);
+            bool bit = bits[j];
+            u = (bit)? u * base[1] :  u * base[0];
         }
         gate_list.push_back(u);
-        //std::cout<< u << std::endl;
-
     }
+
     std::ofstream out_file;
     out_file.open("gate_list_" + std::to_string(length) + ".csv");
     if (!out_file.is_open()) {
@@ -652,7 +652,8 @@ std::vector<Tensor<DT>> Tensor<DT>::read_gate_list(std::string const& filepath) 
 }
 
 template <typename DT>
-Tensor<DT> Tensor<DT>::find_closest_u(const std::vector<Tensor<DT>>& gate_list, Tensor<DT> u){
+Tensor<DT> Tensor<DT>::find_closest_u(const std::vector<Tensor<DT>>& gate_list, std::vector<std::vector<bool>> &bin_list,  Tensor<DT> u,  std::vector<bool> &output_gate) 
+{
     double min_dist = 10;
    
     std::complex<double> one(1,0);
@@ -660,6 +661,7 @@ Tensor<DT> Tensor<DT>::find_closest_u(const std::vector<Tensor<DT>>& gate_list, 
     Tensor<DT> min_u = {{one,zero},{zero,one}};
 
     int s = gate_list.size();
+    int min = 0;
     for (int i = 0; i<s; i++)
     {
         Tensor<DT> temp = gate_list[i];
@@ -668,8 +670,10 @@ Tensor<DT> Tensor<DT>::find_closest_u(const std::vector<Tensor<DT>>& gate_list, 
         {
             min_dist = tr_dist;
             min_u = temp;
+            min = i;
         }
     }
+    output_gate.insert(output_gate.end(), bin_list[min].begin(), bin_list[min].end());
     return min_u;
 }
 
@@ -681,82 +685,125 @@ std::vector<Tensor<DT>> Tensor<DT>::gc_decomp(Tensor<DT> u){
     std::complex<double> neg(-1, 0);
     // The angle phi calculation
     std::complex<double> phi = 2.0 * asin(std::sqrt(std::sqrt(0.5 - 0.5 * cos(axis[3] / 2.0))));
-    Tensor<DT> v = {{  cos(phi / 2.0),neg*result*sin(phi / 2.0)  }, { neg*result*sin(phi / 2.0), cos(phi / 2.0)}} ;
+    Tensor<DT> v = {{ cos(phi / 2.0),neg*result*sin(phi / 2.0)  }, { neg*result*sin(phi / 2.0), cos(phi / 2.0)}} ;
     std::complex<double> zero(0, 0);
     Tensor<DT> w = {{  zero,zero  }, { zero,zero }} ;
     if(axis[2].real() > 0){
         w = {{cos((2 * M_PI - phi) / 2.0), neg*sin( (2 * M_PI - phi) / 2.0)} , {sin( (2 * M_PI - phi) / 2.0), cos( (2 * M_PI - phi) / 2.0)}};
+        //w = {{cos((2 * M_PI - phi) / 2.0), sin( (2 * M_PI - phi) / 2.0)} , {neg*sin( (2 * M_PI - phi) / 2.0), cos( (2 * M_PI - phi) / 2.0)}};
     }
     else{
         w = {{cos(phi / 2.0), neg*sin(phi / 2.0)} , {sin(phi / 2.0), cos(phi / 2.0)}};
+        //w = {{cos(phi / 2.0), sin(phi / 2.0)} , {neg*sin(phi / 2.0), cos(phi / 2.0)}};
+
     }
     Tensor<DT> ud = (diagonalize(u));
-    v.adjoint();
-    //std::cout<<"v.adjoint()" <<std::endl;
-    w.adjoint();
-    //std::cout<<"w.adjoint()" <<std::endl;
-    Tensor<DT> vwvdwd = (diagonalize(tensor_multiply(v ,tensor_multiply(w, tensor_multiply(v, w)))));
+    Tensor<DT> adjoint_v = v;
+    Tensor<DT> adjoint_w = w;
+    adjoint_v.adjoint();
+    adjoint_w.adjoint();
+    Tensor<DT> vwvdwd = (diagonalize(tensor_multiply(v ,tensor_multiply(w, tensor_multiply(adjoint_v, adjoint_w)))));
     vwvdwd.adjoint();
-    //std::cout<<"vwvdwd.adjoint()" <<std::endl;
-    
+    // std::cout << "distance " << trace_distance(vwvdwd, u)  << std::endl;
+
+    // std::cout<< v <<std::endl;
+    // std::cout<< adjoint_v <<std::endl;
+    // std::cout<< w <<std::endl;
+    // std::cout<< adjoint_w <<std::endl;
+    // std::cout<< "====================================================" <<std::endl;
+
+    //std::cout << "distance of recurrsion" << n << " : " << trace_distance(vwvdwd, u)  << std::endl;
+
     Tensor<DT> s = tensor_multiply(ud, vwvdwd);
 
     //std::cout<<"S = " << s <<std::endl;
     //std::cout<<"ud = " << ud <<std::endl;
     //std::cout<<"vwvdwd = " << vwvdwd <<std::endl;
-
-    s.adjoint();
+    Tensor<DT> adjoint_s = s;
+    adjoint_s.adjoint();
    // std::cout<<"s.adjoint()" <<std::endl;
-    Tensor<DT> v_hat = tensor_multiply(s,tensor_multiply(v, s));
-    Tensor<DT> w_hat = tensor_multiply(s, tensor_multiply(w, s));
+    Tensor<DT> v_hat = tensor_multiply(s,tensor_multiply(v, adjoint_s));
+    Tensor<DT> w_hat = tensor_multiply(s, tensor_multiply(w, adjoint_s));
     std::vector<Tensor<DT>> vw = {v_hat,w_hat};
 
     return vw;
 }
 
 template <typename DT>
-Tensor<DT> Tensor<DT>::SK(const std::vector<Tensor<DT>>& gate_list, Tensor<DT> u, size_t n) 
+
+Tensor<DT> Tensor<DT>::SK(const std::vector<Tensor<DT>>& gate_list,std::vector<std::vector<bool>> &bin_list,  Tensor<DT> u, size_t n,     std::vector<bool> &output_gate) 
 {
     if(n == 0){
-      Tensor<DT> re = find_closest_u(gate_list, u);
-      std::cout << "distance of recurrsion" << n << " : " << trace_distance(re, u)  << std::endl;
+      Tensor<DT> re = find_closest_u(gate_list,bin_list, u,output_gate);
+    //   std::cout << "distance of recurrsion" << n << " : " << trace_distance(re, u)  << std::endl;
       return re;
     }
     else{
-      Tensor<DT> u_p = SK(gate_list, u , n-1);  
-      u_p.adjoint();
+      Tensor<DT> u_p = SK(gate_list ,bin_list, u , n-1, output_gate); 
+      Tensor<DT> u_p_adjoint = u_p;
+      u_p_adjoint.adjoint();
       //std::cout<<"u_p.adjoint()" <<std::endl;
-      std::vector<Tensor<DT>> vw = gc_decomp(tensor_multiply(u,u_p));
+      std::vector<Tensor<DT>> vw = gc_decomp(tensor_multiply(u,u_p_adjoint));
       Tensor<DT> v = vw[0];
       Tensor<DT> w = vw[1];
-      Tensor<DT> v_p = SK(gate_list ,v , n-1);
-      Tensor<DT> w_p = SK(gate_list ,w , n-1);
-      v_p.adjoint();
+      Tensor<DT> v_p = SK(gate_list ,bin_list, v , n-1, output_gate); 
+      Tensor<DT> w_p = SK(gate_list ,bin_list, w , n-1, output_gate); 
+      Tensor<DT> v_p_adjoint = v_p;
+      Tensor<DT> w_p_adjoint = w_p;
+      v_p_adjoint.adjoint();
       //std::cout<<"v_p.adjoint()" <<std::endl;
-      w_p.adjoint();
+      w_p_adjoint.adjoint();
       //std::cout<<"w_p.adjoint()" <<std::endl;
-      Tensor<DT> re =tensor_multiply(v_p,tensor_multiply(w_p,  tensor_multiply(v_p, tensor_multiply(w_p,u_p)) ));
-      std::cout << "distance of recurrsion" << n << " : " << trace_distance(re, u)  << std::endl;
+      Tensor<DT> re =tensor_multiply(v_p,tensor_multiply(w_p,  tensor_multiply(v_p_adjoint, tensor_multiply(w_p_adjoint,u_p)) ));
+    //   std::cout << "distance of recurrsion" << n << " : " << trace_distance(re, u)  << std::endl;
       return re;}
 }
 
 
+
+
 template <typename DT>
-void Tensor<DT>::solovay_kitaev_decompose() {
+void Tensor<DT>::SK_decompose() {
     assert(dimension() == 2);
     // TODO - Move your code here, you may also create new files src/tensor/
-    
-    //Tensor<DT> a = to_su2(*this);
+
+    std::cout << "gate list depth : " << std::endl;
+    int depth;
+    std::cin >> depth;
+    std::vector<std::vector<bool>> bin_list;
+    std::cout <<create_gate_list(depth) << std::endl;
+    for (int i = 1; i <= depth; i++) {
+        for (int j = 0; j < std::pow(2, i); j++) {
+            boost::dynamic_bitset<> B(i, j);
+            std::vector<bool> bit_vector;
+            for (int k = 0; k < i; ++k) {
+                bit_vector.push_back(B[k]);
+            }
+            bin_list.push_back(bit_vector);
+        }
+    }    //Tensor<DT> a = to_su2(*this);
     Tensor<DT> a =*this;
-    std::cout <<create_gate_list(7) << std::endl;
     std::cout <<"read_gate_list" << std::endl ;
     std::vector<Tensor<DT>> gate_list =  read_gate_list("gate_list_7.csv");
     //for(int i = 0; i<10 ; i++ ){std::cout << gate_list[i] << std::endl;}
     std::cout <<"SKing" << std::endl ;
-    Tensor<DT> re = SK(gate_list , a , 8);
+    std::vector<bool> output_gate;
+    Tensor<DT> re = SK(gate_list ,bin_list, a , 8, output_gate);
     double tr_dist = (trace_distance(a , re));
-
+    
     std::cout <<"distance : " << tr_dist << std::endl ;
+    for (const auto& i : output_gate){std::cout <<i;}
+
+
+    std::string filePath = "SK_result_depth" + std::to_string(depth) +".txt";
+    std::ofstream outputFile(filePath);
+    if (!outputFile.is_open()) {std::cerr << "Error: Unable to open the file." << std::endl;}
+    for (const auto& i : output_gate) {
+        outputFile << i ;
+        std::cout <<i;
+    }
+    outputFile.close();
+    std::cout << "Binary vector saved successfully at '" << filePath << "'" << std::endl;
 }
 
 
