@@ -148,7 +148,7 @@ public:
 
     Tensor<DT> SK(const std::vector<Tensor<DT>>& gate_list, Tensor<DT> u ,size_t n );
 
-    void SK_decompose();
+    void solovay_kitaev_decompose();
 
     bool tensor_read(std::string const&);
     bool tensor_write(std::string const&);
@@ -316,6 +316,7 @@ Tensor<DT> Tensor<DT>::transpose(TensorAxisList const& perm) const {
 
 template <typename DT>
 void Tensor<DT>::adjoint() {
+    //std::cout << dimension() << std::endl;
     assert(dimension() == 2);
     _tensor = xt::conj(xt::transpose(_tensor, {1, 0}));
 }
@@ -432,9 +433,9 @@ Tensor<DT> Tensor<DT>::random_u(double x,double y, double z){
   std::complex<double> img(0, 1);
   std::complex<double> neg(-1, 0);
 
-  std::complex<double> X(2 * PI * x, 0);
-  std::complex<double> Y(2 * PI * y, 0);
-  std::complex<double> Z(2 * PI * z, 0);
+  std::complex<double> X(2 * M_PI * x, 0);
+  std::complex<double> Y(2 * M_PI * y, 0);
+  std::complex<double> Z(2 * M_PI * z, 0);
 
   Tensor<DT> _X = {{cos(X / 2.0), img*sin(X / 2.0)*neg},{img*sin(X / 2.0*neg), cos(X / 2.0)}};
   Tensor<DT> _Y = {{cos(Y / 2.0), neg*sin(Y / 2.0)},{sin(Y / 2.0), cos(Y / 2.0)}};
@@ -509,12 +510,14 @@ auto Tensor<DT>::eigen() {
 }
 
 template <typename DT>
-Tensor<DT> Tensor<DT>::diagonalize(const Tensor<DT> u) {
+Tensor<DT> Tensor<DT>::diagonalize(Tensor<DT> u) {
     // Check if the matrix is 2x2
     std::complex<double> neg(-1, 0);
-    std::tuple b = u->eigen();
+    std::tuple b = u.eigen();
     Tensor<DT> value = std::get<0>(b);
     Tensor<DT> vector = std::get<1>(b);
+    return vector;
+    /*
     auto eigenvectors = vector._tensor;
 
     if (abs(eigenvectors(0,0).real())< abs(eigenvectors(0,1).real()))
@@ -534,6 +537,7 @@ Tensor<DT> Tensor<DT>::diagonalize(const Tensor<DT> u) {
 
     vector._tensor = eigenvectors;
     return vector;
+    */
 }
 
 
@@ -547,7 +551,7 @@ Tensor<DT>  Tensor<DT>::to_su2(Tensor<DT> &u) {
 template <typename DT>
 bool Tensor<DT>::create_gate_list(size_t length) {
     std::complex<double> sqrt2(std::sqrt(2),0); 
-    std::complex<double> t(0,PI/4); 
+    std::complex<double> t(0,M_PI/4); 
     Tensor<DT> H = {{1./sqrt2,1./sqrt2},{1./sqrt2,-1./sqrt2}};
     Tensor<DT> T = {{1,0},{0,pow(M_E,t)}};
     std::vector<Tensor<DT>> base = {to_su2(H), to_su2(T)};
@@ -567,7 +571,8 @@ bool Tensor<DT>::create_gate_list(size_t length) {
         {
             char bit = bits[j];
             int index = int(bit) - 48; // Convert char to int (assuming ASCII)
-            u = tensordot(u , base[index]);
+            Tensor<DT> temp = base[index];
+            u = tensor_multiply(u , temp);
         }
         gate_list.push_back(u);
         //std::cout<< u << std::endl;
@@ -648,16 +653,21 @@ std::vector<Tensor<DT>> Tensor<DT>::read_gate_list(std::string const& filepath) 
 
 template <typename DT>
 Tensor<DT> Tensor<DT>::find_closest_u(const std::vector<Tensor<DT>>& gate_list, Tensor<DT> u){
-    
     double min_dist = 10;
-    Tensor<DT> min_u = {{1,0},{0,1}};
-    for (int i = 0; i<gate_list.size(); i++)
+   
+    std::complex<double> one(1,0);
+    std::complex<double> zero(0,0);
+    Tensor<DT> min_u = {{one,zero},{zero,one}};
+
+    int s = gate_list.size();
+    for (int i = 0; i<s; i++)
     {
-        double tr_dist = (trace_distance(gate_list[i],u));
+        Tensor<DT> temp = gate_list[i];
+        double tr_dist = (trace_distance(temp,u));
         if (min_dist - tr_dist > pow(10,-12))
         {
             min_dist = tr_dist;
-            min_u = gate_list[i];
+            min_u = temp;
         }
     }
     return min_u;
@@ -665,24 +675,40 @@ Tensor<DT> Tensor<DT>::find_closest_u(const std::vector<Tensor<DT>>& gate_list, 
 
 template <typename DT>
 std::vector<Tensor<DT>> Tensor<DT>::gc_decomp(Tensor<DT> u){
+    assert(dimension() == 2);
     std::vector<std::complex<double>> axis = u_to_bloch(u);
     std::complex<double> result(0, 1);
     std::complex<double> neg(-1, 0);
     // The angle phi calculation
     std::complex<double> phi = 2.0 * asin(std::sqrt(std::sqrt(0.5 - 0.5 * cos(axis[3] / 2.0))));
     Tensor<DT> v = {{  cos(phi / 2.0),neg*result*sin(phi / 2.0)  }, { neg*result*sin(phi / 2.0), cos(phi / 2.0)}} ;
-    Tensor<DT> w = {{  0.,0.  }, { 0.,0. }} ;
+    std::complex<double> zero(0, 0);
+    Tensor<DT> w = {{  zero,zero  }, { zero,zero }} ;
     if(axis[2].real() > 0){
-        w = {{cos((2 * PI - phi) / 2.0), neg*sin( (2 * PI - phi) / 2.0)} , {sin( (2 * PI - phi) / 2.0), cos( (2 * PI - phi) / 2.0)}};
+        w = {{cos((2 * M_PI - phi) / 2.0), neg*sin( (2 * M_PI - phi) / 2.0)} , {sin( (2 * M_PI - phi) / 2.0), cos( (2 * M_PI - phi) / 2.0)}};
     }
     else{
         w = {{cos(phi / 2.0), neg*sin(phi / 2.0)} , {sin(phi / 2.0), cos(phi / 2.0)}};
     }
     Tensor<DT> ud = (diagonalize(u));
-    Tensor<DT> vwvdwd = (diagonalize(tensordot(v ,tensordot(w, tensordot(v._tensor->adjoint(), w._tensor->adjoint() )))));
-    Tensor<DT> s = tensordot(ud, vwvdwd._tensor->adjoint());
-    Tensor<DT> v_hat = tensordot(s, tensordot(v, s._tensor->adjoint()));
-    Tensor<DT> w_hat = tensordot(s, tensordot(w, s._tensor->adjoint()));
+    v.adjoint();
+    //std::cout<<"v.adjoint()" <<std::endl;
+    w.adjoint();
+    //std::cout<<"w.adjoint()" <<std::endl;
+    Tensor<DT> vwvdwd = (diagonalize(tensor_multiply(v ,tensor_multiply(w, tensor_multiply(v, w)))));
+    vwvdwd.adjoint();
+    //std::cout<<"vwvdwd.adjoint()" <<std::endl;
+    
+    Tensor<DT> s = tensor_multiply(ud, vwvdwd);
+
+    //std::cout<<"S = " << s <<std::endl;
+    //std::cout<<"ud = " << ud <<std::endl;
+    //std::cout<<"vwvdwd = " << vwvdwd <<std::endl;
+
+    s.adjoint();
+   // std::cout<<"s.adjoint()" <<std::endl;
+    Tensor<DT> v_hat = tensor_multiply(s,tensor_multiply(v, s));
+    Tensor<DT> w_hat = tensor_multiply(s, tensor_multiply(w, s));
     std::vector<Tensor<DT>> vw = {v_hat,w_hat};
 
     return vw;
@@ -693,36 +719,44 @@ Tensor<DT> Tensor<DT>::SK(const std::vector<Tensor<DT>>& gate_list, Tensor<DT> u
 {
     if(n == 0){
       Tensor<DT> re = find_closest_u(gate_list, u);
+      std::cout << "distance of recurrsion" << n << " : " << trace_distance(re, u)  << std::endl;
       return re;
     }
     else{
       Tensor<DT> u_p = SK(gate_list, u , n-1);  
-      std::vector<Tensor<DT>> vw = gc_decomp( tensordot(u,u_p._tensor->adjoint()));
+      u_p.adjoint();
+      //std::cout<<"u_p.adjoint()" <<std::endl;
+      std::vector<Tensor<DT>> vw = gc_decomp(tensor_multiply(u,u_p));
       Tensor<DT> v = vw[0];
       Tensor<DT> w = vw[1];
-      Tensor<DT> v_p = sk_algo(gate_list ,v , n-1);
-      Tensor<DT> w_p = sk_algo(gate_list ,w , n-1);
-      Tensor<DT> re = tensordot(v_p, tensordot(w_p,  tensordot(v_p._tensor->adjoint(), tensordot(w_p._tensor->adjoint(),u_p)) ));
+      Tensor<DT> v_p = SK(gate_list ,v , n-1);
+      Tensor<DT> w_p = SK(gate_list ,w , n-1);
+      v_p.adjoint();
+      //std::cout<<"v_p.adjoint()" <<std::endl;
+      w_p.adjoint();
+      //std::cout<<"w_p.adjoint()" <<std::endl;
+      Tensor<DT> re =tensor_multiply(v_p,tensor_multiply(w_p,  tensor_multiply(v_p, tensor_multiply(w_p,u_p)) ));
+      std::cout << "distance of recurrsion" << n << " : " << trace_distance(re, u)  << std::endl;
       return re;}
 }
 
 
 template <typename DT>
-void Tensor<DT>::SK_decompose() {
+void Tensor<DT>::solovay_kitaev_decompose() {
     assert(dimension() == 2);
     // TODO - Move your code here, you may also create new files src/tensor/
-   
-    Tensor<DT> a = to_su2(*this);
     
-    std::cout <<create_gate_list(14) << std::endl;
-   
-    std::vector<Tensor<DT>> gate_list =  read_gate_list("gate_list_14.csv");
+    //Tensor<DT> a = to_su2(*this);
+    Tensor<DT> a =*this;
+    std::cout <<create_gate_list(7) << std::endl;
+    std::cout <<"read_gate_list" << std::endl ;
+    std::vector<Tensor<DT>> gate_list =  read_gate_list("gate_list_7.csv");
     //for(int i = 0; i<10 ; i++ ){std::cout << gate_list[i] << std::endl;}
+    std::cout <<"SKing" << std::endl ;
+    Tensor<DT> re = SK(gate_list , a , 8);
+    double tr_dist = (trace_distance(a , re));
 
-    // Tensor<DT> re = SK(gate_list , a , 8);
-    // double tr_dist = (trace_distance(a , re));
-
-    // std::cout <<"distance : " << tr_dist << std::endl ;
+    std::cout <<"distance : " << tr_dist << std::endl ;
 }
 
 
@@ -813,8 +847,8 @@ template <typename DT>
 double Tensor<DT>::trace_distance(Tensor<DT>& t1, Tensor<DT>& t2) {
     // TODO
     Tensor<DT> t1_t2 = t1 - t2;
-    t1_t2._tensor->adjoint();
-    t1_t2._tensor->sqrt();
+    t1_t2.adjoint();
+    t1_t2.sqrt();
     std::complex<double> t(0.5,0);
     return (0.5 * t1_t2.trace()).real();
 }
