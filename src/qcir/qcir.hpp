@@ -158,9 +158,9 @@ public:
     QCirQubit* insert_qubit(QubitIdType id);
     void add_qubits(size_t num);
     bool remove_qubit(QubitIdType qid);
-    QCirGate* add_gate(std::string type, QubitIdList bits, dvlab::Phase phase, bool append);
-    QCirGate* append(GateType gate, QubitIdList bits);
-    QCirGate* prepend(GateType gate, QubitIdList bits);
+    QCirGate* add_gate(std::string type, QubitIdList const& bits, dvlab::Phase phase, bool append);
+    QCirGate* append(GateType gate, QubitIdList const& bits);
+    QCirGate* prepend(GateType gate, QubitIdList const& bits);
     bool remove_gate(size_t id);
 
     bool read_qcir_file(std::filesystem::path const& filepath);

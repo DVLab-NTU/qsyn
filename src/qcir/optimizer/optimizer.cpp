@@ -151,14 +151,4 @@ QCirGate* Optimizer::get_available_z_rotation(QubitIdType target) {
     return nullptr;
 }
 
-/**
- * @brief Add a gate (copy) to the circuit.
- *
- * @param QCir* circuit to add
- * @param QCirGate* The gate to be add
- */
-void Optimizer::_add_gate_to_circuit(QCir& circuit, QCirGate* gate, bool prepend) {
-    circuit.add_gate(gate->get_type_str(), gate->get_operands(), gate->get_phase(), !prepend);
-}
-
 }  // namespace qsyn::qcir

@@ -88,24 +88,6 @@ QubitInfo QCirGate::get_qubit(QubitIdType qubit) const {
 }
 
 /**
- * @brief Add qubit to a gate
- *
- * @param qubit
- * @param isTarget
- */
-void QCirGate::add_qubit(QubitIdType qubit, bool is_target) {
-    auto const temp = QubitInfo{._prev = nullptr, ._next = nullptr};
-    // _qubits.emplace_back(temp);
-    if (is_target) {
-        _qubits.emplace_back(temp);
-        _operands.emplace_back(qubit);
-    } else {
-        _qubits.emplace(_qubits.begin(), temp);
-        _operands.emplace(_operands.begin(), qubit);
-    }
-}
-
-/**
  * @brief Set parent to the gate on qubit.
  *
  * @param qubit

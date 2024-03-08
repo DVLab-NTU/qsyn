@@ -124,7 +124,7 @@ std::optional<QTensor<double>> to_tensor(QCir const &qcir) try {
 
     QTensor<double> tensor;
 
-    // Constucting an identity(_qubit.size()) takes much time and memory.
+    // Constucting an identity with large number of qubits takes much time and memory.
     // To make this process interruptible by SIGINT (ctrl-C), we grow the qubit size one by one
     for (size_t i = 0; i < qcir.get_num_qubits(); ++i) {
         if (stop_requested()) {

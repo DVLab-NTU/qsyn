@@ -68,17 +68,16 @@ public:
     QubitInfo get_qubit(QubitIdType qubit) const;
     QubitIdType get_operand(size_t pin_id) const { return _operands[pin_id]; }
     QubitIdList get_operands() const { return _operands; }
-    void set_operands(QubitIdList const& operands) { _operands = operands; }
+    void set_operands(QubitIdList const& operands) {
+        _operands = operands;
+        _qubits   = std::vector<QubitInfo>(operands.size(), {nullptr, nullptr});
+    }
 
     size_t get_num_qubits() const { return _qubits.size(); }
-    QubitInfo get_targets() const { return _qubits[_qubits.size() - 1]; }
-    QubitInfo get_control() const { return _qubits[0]; }
 
     void set_id(size_t id) { _id = id; }
     void set_child(QubitIdType qubit, QCirGate* c);
     void set_parent(QubitIdType qubit, QCirGate* p);
-
-    void add_qubit(QubitIdType qubit, bool is_target);
 
     // Printing functions
     void print_gate(std::optional<size_t> time) const;
@@ -96,12 +95,6 @@ public:
     bool is_swap() const { return _rotation_category == GateRotationCategory::swap; }
 
     void adjoint();
-
-    // temporary interface for refactoring
-    QubitIdType get_control_operand() const { return _operands[0]; }
-    QubitIdType get_target_operand() const { return _operands[_qubits.size() - 1]; }
-    void set_target_qubit(QubitIdType qubit) { _operands[_qubits.size() - 1] = qubit; }
-    void set_control_qubit(QubitIdType qubit) { _operands[0] = qubit; }
 
 private:
 protected:

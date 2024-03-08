@@ -187,7 +187,7 @@ bool QCir::remove_qubit(QubitIdType id) {
  *
  * @return QCirGate*
  */
-QCirGate *QCir::add_gate(std::string type, QubitIdList bits, dvlab::Phase phase, bool append) {
+QCirGate *QCir::add_gate(std::string type, QubitIdList const &bits, dvlab::Phase phase, bool append) {
     type           = dvlab::str::tolower_string(type);
     auto gate_type = str_to_gate_type(type);
     if (!gate_type.has_value()) {
@@ -204,16 +204,14 @@ QCirGate *QCir::add_gate(std::string type, QubitIdList bits, dvlab::Phase phase,
     }
 
     return append
-               ? this->append(std::make_tuple(category, bits.size(), phase), std::move(bits))
-               : this->prepend(std::make_tuple(category, bits.size(), phase), std::move(bits));
+               ? this->append(std::make_tuple(category, bits.size(), phase), bits)
+               : this->prepend(std::make_tuple(category, bits.size(), phase), bits);
 }
 
-QCirGate *QCir::append(GateType gate, QubitIdList bits) {
+QCirGate *QCir::append(GateType gate, QubitIdList const &bits) {
     _id_to_gates.emplace(_gate_id, std::make_unique<QCirGate>(_gate_id, std::get<0>(gate), *std::get<2>(gate)));
     auto *g = _id_to_gates[_gate_id].get();
-    for (size_t k = 0; k < bits.size(); k++) {
-        g->add_qubit(bits[k], k == bits.size() - 1);  // target is the last one
-    }
+    g->set_operands(bits);
     _gate_id++;
 
     for (auto const &qb : g->get_operands()) {
@@ -230,12 +228,11 @@ QCirGate *QCir::append(GateType gate, QubitIdList bits) {
     return g;
 }
 
-QCirGate *QCir::prepend(GateType gate, QubitIdList bits) {
+QCirGate *QCir::prepend(GateType gate, QubitIdList const &bits) {
     _id_to_gates.emplace(_gate_id, std::make_unique<QCirGate>(_gate_id, std::get<0>(gate), *std::get<2>(gate)));
     auto *g = _id_to_gates[_gate_id].get();
-    for (size_t k = 0; k < bits.size(); k++) {
-        g->add_qubit(bits[k], k == bits.size() - 1);  // target is the last one
-    }
+    g->set_operands(bits);
+
     _gate_id++;
 
     for (auto const &qb : g->get_operands()) {
