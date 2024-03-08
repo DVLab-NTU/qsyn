@@ -148,7 +148,7 @@ public:
 
     Tensor<DT> SK(const std::vector<Tensor<DT>>& gate_list, std::vector<std::vector<bool>> &bin_list,  Tensor<DT> u, size_t n, std::vector<bool> &output_gate) ;
 
-    void SK_decompose();
+    void solovay_kitaev_decompose();
 
     bool tensor_read(std::string const&);
     bool tensor_write(std::string const&);
@@ -763,7 +763,7 @@ Tensor<DT> Tensor<DT>::SK(const std::vector<Tensor<DT>>& gate_list,std::vector<s
 
 
 template <typename DT>
-void Tensor<DT>::SK_decompose() {
+void Tensor<DT>::solovay_kitaev_decompose() {
     assert(dimension() == 2);
     // TODO - Move your code here, you may also create new files src/tensor/
 
