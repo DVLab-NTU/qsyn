@@ -803,7 +803,7 @@ void Tensor<DT>::SK_decompose() {
         std::cout <<i;
     }
     outputFile.close();
-    std::cout << "Binary vector saved successfully at '" << filePath << "'" << std::endl;
+    std::cout <<  std::endl << "Binary vector saved successfully at '" << filePath << "', 0 represent H gate, 1 represent T gate." << std::endl;
 }
 
 
