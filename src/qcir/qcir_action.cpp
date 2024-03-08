@@ -31,8 +31,8 @@ QCir& QCir::compose(QCir const& other) {
     }
     for (auto& targ_gate : other.get_gates()) {
         QubitIdList qubits;
-        for (auto const& b : targ_gate->get_qubits()) {
-            qubits.emplace_back(b._qubit);
+        for (auto i : std::views::iota(0ul, targ_gate->get_num_qubits())) {
+            qubits.emplace_back(targ_gate->get_operand(i));
         }
         add_gate(targ_gate->get_type_str(), qubits, targ_gate->get_phase(), true);
     }
@@ -46,15 +46,16 @@ QCir& QCir::compose(QCir const& other) {
  * @return QCir*
  */
 QCir& QCir::tensor_product(QCir const& other) {
-    std::unordered_map<size_t, QCirQubit*> old_q2_new_q;
+    std::unordered_map<QubitIdType, QubitIdType> old_to_new_qubit;
     auto targ_qubits = other.get_qubits();
     for (auto& qubit : targ_qubits) {
-        old_q2_new_q[qubit->get_id()] = push_qubit();
+        auto q                            = push_qubit();
+        old_to_new_qubit[qubit->get_id()] = q->get_id();
     }
     for (auto& targ_gate : other.get_gates()) {
         QubitIdList qubits;
-        for (auto const& b : targ_gate->get_qubits()) {
-            qubits.emplace_back(old_q2_new_q[b._qubit]->get_id());
+        for (auto i : std::views::iota(0ul, targ_gate->get_num_qubits())) {
+            qubits.emplace_back(old_to_new_qubit[targ_gate->get_operand(i)]);
         }
         add_gate(targ_gate->get_type_str(), qubits, targ_gate->get_phase(), true);
     }

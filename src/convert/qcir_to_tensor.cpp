@@ -85,22 +85,24 @@ namespace {
  * @param gate new gate
  * @param main main tensor
  */
-void update_tensor_pin(Qubit2TensorPinMap &qubit2pin, std::vector<QubitInfo> const &qubit_infos, QTensor<double> const &gate, QTensor<double> &main) {
+void update_tensor_pin(Qubit2TensorPinMap &qubit2pin, QCirGate const &gate, QTensor<double> const &gate_tensor, QTensor<double> &main) {
     spdlog::trace("Pin Permutation");
     for (auto &[qubit, pin] : qubit2pin) {
         auto const [old_out, old_in] = pin;
         auto &[new_out, new_in]      = pin;
 
-        auto const it = std::ranges::find_if(qubit_infos, [qubit = qubit](QubitInfo const &info) { return info._qubit == qubit; });
+        auto operands = gate.get_operands();
 
-        if (it != qubit_infos.end()) {
-            auto ith_ctrl = std::distance(qubit_infos.begin(), it);
+        auto const it = std::ranges::find_if(operands, [qubit = qubit](auto qb) { return qb == qubit; });
+
+        if (it != operands.end()) {
+            auto ith_ctrl = std::distance(operands.begin(), it);
             new_out       = main.get_new_axis_id(2 * ith_ctrl);
         } else {
-            new_out = main.get_new_axis_id(gate.dimension() + old_out);
+            new_out = main.get_new_axis_id(gate_tensor.dimension() + old_out);
         }
         // NOTE - Order of axis [ gate out/in/out/in... | main out/in/out/in...]
-        new_in = main.get_new_axis_id(gate.dimension() + old_in);
+        new_in = main.get_new_axis_id(gate_tensor.dimension() + old_in);
         spdlog::trace("  - Qubit: {} input : {} -> {} output: {} -> {}", qubit, old_in, new_in, old_out, new_out);
     }
 }
@@ -155,12 +157,12 @@ std::optional<QTensor<double>> to_tensor(QCir const &qcir) try {
         std::vector<size_t> gate_tensor_input_pins;
         for (size_t np = 0; np < gate->get_qubits().size(); np++) {
             gate_tensor_input_pins.emplace_back(2 * np + 1);
-            auto const qubit_id = gate->get_qubits()[np]._qubit;
+            auto const qubit_id = gate->get_operand(np);
             main_tensor_output_pins.emplace_back(qubit_to_pins[qubit_id].first);
         }
         // [tmp]x[tensor]
         tensor = tensordot(*gate_tensor, tensor, gate_tensor_input_pins, main_tensor_output_pins);
-        update_tensor_pin(qubit_to_pins, gate->get_qubits(), *gate_tensor, tensor);
+        update_tensor_pin(qubit_to_pins, *gate, *gate_tensor, tensor);
     }
 
     if (stop_requested()) {

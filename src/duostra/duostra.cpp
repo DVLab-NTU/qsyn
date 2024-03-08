@@ -66,10 +66,10 @@ void Duostra::make_dependency() {
         auto second      = QubitInfo{};
         if (g->get_qubits().size() > 1) {
             second = g->get_qubits()[1];
-            q2     = second._qubit;
+            q2     = g->get_operand(1);
         }
 
-        auto const temp = std::make_tuple(first._qubit, q2);
+        auto const temp = std::make_tuple(g->get_operand(0), q2);
         Gate temp_gate{g->get_id(), rotation_category, g->get_phase(), temp};
         if (first._prev != nullptr) temp_gate.add_prev(first._prev->get_id());
         if (first._next != nullptr) temp_gate.add_next(first._next->get_id());

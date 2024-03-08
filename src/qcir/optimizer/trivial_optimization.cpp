@@ -8,6 +8,7 @@
 #include <spdlog/spdlog.h>
 
 #include <cassert>
+#include <tl/to.hpp>
 
 #include "../../convert/qcir_to_zxgraph.hpp"
 #include "../qcir.hpp"
@@ -40,14 +41,14 @@ std::optional<QCir> Optimizer::trivial_optimization(QCir const& qcir) {
             return std::nullopt;
         }
         auto const last_layer = _get_first_layer_gates(result, true);
-        auto const qubit      = gate->get_targets()._qubit;
+        auto const qubit      = gate->get_target_operand();
         if (last_layer[qubit] == nullptr) {
             Optimizer::_add_gate_to_circuit(result, gate, false);
             continue;
         }
         QCirGate* previous_gate = last_layer[qubit];
         if (is_double_qubit_gate(gate)) {
-            auto const q2 = gate->get_targets()._qubit;
+            auto const q2 = gate->get_target_operand();
             if (previous_gate->get_id() != last_layer[q2]->get_id()) {
                 // 2-qubit gate do not match up
                 Optimizer::_add_gate_to_circuit(result, gate, false);
@@ -91,11 +92,11 @@ std::vector<QCirGate*> Optimizer::_get_first_layer_gates(QCir& qcir, bool from_l
     }
 
     for (auto gate : gate_list) {
-        auto const qubits              = gate->get_qubits();
-        auto const gate_is_not_blocked = all_of(qubits.begin(), qubits.end(), [&](QubitInfo qubit) { return !blocked[qubit._qubit]; });
-        for (auto q : qubits) {
-            if (gate_is_not_blocked) result[q._qubit] = gate;
-            blocked[q._qubit] = true;
+        auto const operands            = gate->get_operands();
+        auto const gate_is_not_blocked = std::ranges::all_of(operands, [&](auto operand) { return !blocked[operand]; });
+        for (auto operand : operands) {
+            if (gate_is_not_blocked) result[operand] = gate;
+            blocked[operand] = true;
         }
         if (all_of(blocked.begin(), blocked.end(), [](bool block) { return block; })) break;
     }
@@ -121,7 +122,7 @@ void Optimizer::_fuse_x_phase(QCir& qcir, QCirGate* prev_gate, QCirGate* gate) {
         prev_gate->set_phase(phase);
     else {
         QubitIdList qubit_list;
-        qubit_list.emplace_back(prev_gate->get_targets()._qubit);
+        qubit_list.emplace_back(prev_gate->get_target_operand());
         qcir.remove_gate(prev_gate->get_id());
         qcir.add_gate("px", qubit_list, phase, true);
     }
@@ -145,7 +146,7 @@ void Optimizer::_fuse_z_phase(QCir& qcir, QCirGate* prev_gate, QCirGate* gate) {
         prev_gate->set_phase(phase);
     else {
         QubitIdList qubit_list;
-        qubit_list.emplace_back(prev_gate->get_targets()._qubit);
+        qubit_list.emplace_back(prev_gate->get_target_operand());
         qcir.remove_gate(prev_gate->get_id());
         qcir.add_gate("p", qubit_list, phase, true);
     }
@@ -165,10 +166,8 @@ void Optimizer::_cancel_double_gate(QCir& qcir, QCirGate* prev_gate, QCirGate* g
         return;
     }
 
-    auto const prev_qubits = prev_gate->get_qubits();
-    auto const gate_qubits = gate->get_qubits();
-    if ((prev_qubits[0]._qubit != gate_qubits[0]._qubit || prev_qubits[1]._qubit != gate_qubits[1]._qubit) &&
-        (prev_qubits[0]._qubit != gate_qubits[1]._qubit || prev_qubits[1]._qubit != gate_qubits[0]._qubit)) {
+    if ((prev_gate->get_operand(0) != gate->get_operand(0) || prev_gate->get_operand(1) != gate->get_operand(1)) &&
+        (prev_gate->get_operand(0) != gate->get_operand(1) || prev_gate->get_operand(1) != gate->get_operand(0))) {
         Optimizer::_add_gate_to_circuit(qcir, gate, false);
         return;
     }
@@ -177,7 +176,7 @@ void Optimizer::_cancel_double_gate(QCir& qcir, QCirGate* prev_gate, QCirGate* g
         Optimizer::_add_gate_to_circuit(qcir, gate, false);
         return;
     }
-    if (prev_gate->is_cz() || prev_gate->get_control()._qubit == gate->get_control()._qubit)
+    if (prev_gate->is_cz() || prev_gate->get_control_operand() == gate->get_control_operand())
         qcir.remove_gate(prev_gate->get_id());
     else
         Optimizer::_add_gate_to_circuit(qcir, gate, false);
@@ -221,15 +220,13 @@ QCir replace_gate_sequence(QCir& qcir, QubitIdType qubit, size_t gate_num,
     }
 
     for (auto gate : gate_list) {
-        auto bit_range = gate->get_qubits() |
-                         std::views::transform([](QubitInfo const& qb) { return qb._qubit; });
-        if (gate->get_targets()._qubit != qubit) {
-            replaced.add_gate(gate->get_type_str(), {bit_range.begin(), bit_range.end()}, gate->get_phase(), true);
+        if (gate->get_target_operand() != qubit) {
+            replaced.add_gate(gate->get_type_str(), gate->get_operands(), gate->get_phase(), true);
             continue;
         }
 
         if (gate_num != 0) {
-            replaced.add_gate(gate->get_type_str(), {bit_range.begin(), bit_range.end()}, gate->get_phase(), true);
+            replaced.add_gate(gate->get_type_str(), gate->get_operands(), gate->get_phase(), true);
             gate_num--;
             if (gate_num == 0) {
                 replace_count = seq_len;
@@ -238,13 +235,13 @@ QCir replace_gate_sequence(QCir& qcir, QubitIdType qubit, size_t gate_num,
         }
 
         if (replace_count == 0) {
-            replaced.add_gate(gate->get_type_str(), {bit_range.begin(), bit_range.end()}, gate->get_phase(), true);
+            replaced.add_gate(gate->get_type_str(), gate->get_operands(), gate->get_phase(), true);
             continue;
         }
 
         if (replace_count == seq_len) {
             for (auto& type : seq) {
-                replaced.add_gate(type, {bit_range.begin(), bit_range.end()}, dvlab::Phase(0), true);
+                replaced.add_gate(type, gate->get_operands(), dvlab::Phase(0), true);
             }
             replace_count--;
             continue;
@@ -291,7 +288,7 @@ void Optimizer::_partial_zx_optimization(QCir& qcir) {
         auto const gate_list = qcir.get_gates();
         std::vector<std::string> type_seq;
         for (auto gate : gate_list) {
-            if ((size_t)gate->get_targets()._qubit == qubit || (size_t)gate->get_control()._qubit == qubit) {
+            if ((size_t)gate->get_target_operand() == qubit || (size_t)gate->get_control_operand() == qubit) {
                 type_seq.emplace_back(gate->get_type_str());
             }
         }
@@ -330,7 +327,7 @@ void Optimizer::_partial_zx_optimization(QCir& qcir) {
             auto const updated_gate_list = qcir.get_gates();
             std::vector<std::string> updated_type_seq;
             for (auto gate : updated_gate_list) {
-                if ((size_t)gate->get_targets()._qubit == qubit || (size_t)gate->get_control()._qubit == qubit) {
+                if ((size_t)gate->get_target_operand() == qubit || (size_t)gate->get_control_operand() == qubit) {
                     updated_type_seq.emplace_back(gate->get_type_str());
                 }
             }

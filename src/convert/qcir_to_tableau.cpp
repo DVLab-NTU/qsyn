@@ -106,11 +106,7 @@ auto next_combination(R& r, size_t const comb_size) {
 }
 
 std::vector<size_t> get_qubit_idx_vec(qcir::QCirGate const& gate) {
-    auto ret = gate.get_qubits() |
-               std::views::transform([](auto const& qubit) {
-                   return gsl::narrow<size_t>(qubit._qubit);
-               }) |
-               tl::to<std::vector>();
+    auto ret = gate.get_operands() | tl::to<std::vector<size_t>>();
 
     std::ranges::sort(ret);
 
@@ -124,7 +120,7 @@ void implement_mcrz(Tableau& tableau, qcir::QCirGate const& gate, dvlab::Phase c
     // guaranteed to be a vector of PauliRotation
     auto& last_rotation_group = std::get<std::vector<PauliRotation>>(tableau.back());
 
-    auto const targ = gsl::narrow<size_t>(gate.get_qubits().back()._qubit);
+    auto const targ = gsl::narrow<size_t>(gate.get_operand(gate.get_num_qubits() - 1));
     for (auto const comb_size : std::views::iota(0ul, gate.get_num_qubits())) {
         bool const is_neg  = comb_size % 2;
         auto qubit_idx_vec = get_qubit_idx_vec(gate);
@@ -171,7 +167,7 @@ void implement_rotation_gate(Tableau& tableau, qcir::QCirGate const& gate) {
 
     auto const pauli = to_pauli(gate.get_rotation_category());
 
-    auto const targ = gsl::narrow<size_t>(gate.get_qubits().back()._qubit);
+    auto const targ = gsl::narrow<size_t>(gate.get_operand(gate.get_num_qubits() - 1));
     // convert rotation plane first
     if (pauli == Pauli::x) {
         tableau.h(targ);
@@ -226,29 +222,29 @@ std::optional<Tableau> to_tableau(qcir::QCir const& qcir) {
 
     for (auto const& gate : qcir.get_gates()) {
         if (gate->get_type_str() == "h") {
-            result.h(gate->get_qubits()[0]._qubit);
+            result.h(gate->get_operand(0));
         } else if (gate->get_type_str() == "s") {
-            result.s(gate->get_qubits()[0]._qubit);
+            result.s(gate->get_operand(0));
         } else if (gate->get_type_str() == "sdg") {
-            result.sdg(gate->get_qubits()[0]._qubit);
+            result.sdg(gate->get_operand(0));
         } else if (gate->get_type_str() == "v") {
-            result.v(gate->get_qubits()[0]._qubit);
+            result.v(gate->get_operand(0));
         } else if (gate->get_type_str() == "vdg") {
-            result.vdg(gate->get_qubits()[0]._qubit);
+            result.vdg(gate->get_operand(0));
         } else if (gate->get_type_str() == "x") {
-            result.x(gate->get_qubits()[0]._qubit);
+            result.x(gate->get_operand(0));
         } else if (gate->get_type_str() == "y") {
-            result.y(gate->get_qubits()[0]._qubit);
+            result.y(gate->get_operand(0));
         } else if (gate->get_type_str() == "z") {
-            result.z(gate->get_qubits()[0]._qubit);
+            result.z(gate->get_operand(0));
         } else if (gate->get_type_str() == "cx") {
-            result.cx(gate->get_qubits()[0]._qubit, gate->get_qubits()[1]._qubit);
+            result.cx(gate->get_operand(0), gate->get_operand(1));
         } else if (gate->get_type_str() == "cz") {
-            result.cz(gate->get_qubits()[0]._qubit, gate->get_qubits()[1]._qubit);
+            result.cz(gate->get_operand(0), gate->get_operand(1));
         } else if (gate->get_type_str() == "swap") {
-            result.swap(gate->get_qubits()[0]._qubit, gate->get_qubits()[1]._qubit);
+            result.swap(gate->get_operand(0), gate->get_operand(1));
         } else if (gate->get_type_str() == "ecr") {
-            result.ecr(gate->get_qubits()[0]._qubit, gate->get_qubits()[1]._qubit);
+            result.ecr(gate->get_operand(0), gate->get_operand(1));
         } else if (is_allowed_rotation(*gate)) {
             implement_rotation_gate(result, *gate);
         } else {

@@ -158,10 +158,7 @@ QCirGate* Optimizer::get_available_z_rotation(QubitIdType target) {
  * @param QCirGate* The gate to be add
  */
 void Optimizer::_add_gate_to_circuit(QCir& circuit, QCirGate* gate, bool prepend) {
-    auto bit_range = gate->get_qubits() |
-                     std::views::transform([](QubitInfo const& qb) { return qb._qubit; });
-
-    circuit.add_gate(gate->get_type_str(), {bit_range.begin(), bit_range.end()}, gate->get_phase(), !prepend);
+    circuit.add_gate(gate->get_type_str(), gate->get_operands(), gate->get_phase(), !prepend);
 }
 
 }  // namespace qsyn::qcir

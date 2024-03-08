@@ -9,6 +9,7 @@
 
 #include <cstddef>
 #include <string>
+#include <tl/to.hpp>
 #include <unordered_map>
 
 #include "qcir/gate_type.hpp"
@@ -67,6 +68,16 @@ public:
     std::vector<QubitInfo> const& get_qubits() const { return _qubits; }
     void set_qubits(std::vector<QubitInfo> const& qubits) { _qubits = qubits; }
     QubitInfo get_qubit(QubitIdType qubit) const;
+    QubitIdType get_operand(size_t pin_id) const { return _qubits[pin_id]._qubit; }
+    QubitIdList get_operands() const {
+        return _qubits | std::views::transform([](auto const& q) { return q._qubit; }) | tl::to<QubitIdList>();
+    }
+    void set_operands(QubitIdList const& operands) {
+        for (auto i : std::views::iota(0ul, _qubits.size())) {
+            _qubits[i]._qubit = operands[i];
+        }
+    }
+
     size_t get_num_qubits() const { return _qubits.size(); }
     QubitInfo get_targets() const { return _qubits[_qubits.size() - 1]; }
     QubitInfo get_control() const { return _qubits[0]; }
@@ -95,6 +106,10 @@ public:
     bool is_swap() const { return _rotation_category == GateRotationCategory::swap; }
 
     void adjoint();
+
+    // temporary interface for refactoring
+    QubitIdType get_control_operand() const { return _qubits[0]._qubit; }
+    QubitIdType get_target_operand() const { return _qubits[_qubits.size() - 1]._qubit; }
 
 private:
 protected:
