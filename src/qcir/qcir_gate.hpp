@@ -49,7 +49,6 @@ class QCirGate;
 struct QubitInfo {
     QCirGate* _prev;
     QCirGate* _next;
-    bool _isTarget;
 };
 
 class QCirGate {

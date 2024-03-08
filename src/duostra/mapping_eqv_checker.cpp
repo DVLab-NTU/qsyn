@@ -142,7 +142,6 @@ bool MappingEquivalenceChecker::execute_swap(QCirGate* first, std::unordered_set
  * @return false
  */
 bool MappingEquivalenceChecker::execute_single(QCirGate* gate) {
-    assert(gate->get_qubits()[0]._isTarget == true);
     auto const& logical_qubit = _device.get_physical_qubit(gate->get_operand(0)).get_logical_qubit();
 
     assert(logical_qubit.has_value());
@@ -178,8 +177,6 @@ bool MappingEquivalenceChecker::execute_single(QCirGate* gate) {
  * @return false
  */
 bool MappingEquivalenceChecker::execute_double(QCirGate* gate) {
-    assert(gate->get_qubits()[0]._isTarget == false);
-    assert(gate->get_qubits()[1]._isTarget == true);
     auto logical_ctrl_id = _device.get_physical_qubit(gate->get_operand(0)).get_logical_qubit();
     auto logical_targ_id = _device.get_physical_qubit(gate->get_operand(1)).get_logical_qubit();
 

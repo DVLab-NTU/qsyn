@@ -119,9 +119,8 @@ void QCir::_update_topological_order() const {
     auto children = dummy.get_qubits();
     for (size_t i = 0; i < _qubits.size(); i++) {
         children.push_back(
-            {._prev     = nullptr,
-             ._next     = _qubits[i]->get_first(),
-             ._isTarget = false});
+            {._prev = nullptr,
+             ._next = _qubits[i]->get_first()});
     }
     dummy.set_qubits(children);
     dfs(&dummy, _gate_list);

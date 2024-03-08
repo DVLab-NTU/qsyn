@@ -94,7 +94,7 @@ QubitInfo QCirGate::get_qubit(QubitIdType qubit) const {
  * @param isTarget
  */
 void QCirGate::add_qubit(QubitIdType qubit, bool is_target) {
-    auto const temp = QubitInfo{._prev = nullptr, ._next = nullptr, ._isTarget = is_target};
+    auto const temp = QubitInfo{._prev = nullptr, ._next = nullptr};
     // _qubits.emplace_back(temp);
     if (is_target) {
         _qubits.emplace_back(temp);
@@ -186,7 +186,7 @@ void QCirGate::_print_single_qubit_or_controlled_gate(std::string gtype, bool sh
         qubit_info += std::to_string(operand);
         auto const prev_info = (info._prev == nullptr) ? "Start" : ("G" + std::to_string(info._prev->get_id()));
         auto const next_info = (info._next == nullptr) ? "End" : ("G" + std::to_string(info._next->get_id()));
-        if (info._isTarget) {
+        if (i == _qubits.size() - 1) {
             fmt::println("{0: ^{1}} ┌─{2:─^{3}}─┐ ", "", max_qubit.size() + max_prev.size() + 3, _qubits.size() > 1 ? "┴" : "", gtype.size());
             fmt::println("{0} {1:<{4}} ─┤ {3} ├─ {2}", qubit_info, prev_info, next_info, gtype, max_prev.size());
             fmt::println("{0: ^{1}} └─{0:─^{2}}─┘ ", "", max_qubit.size() + max_prev.size() + 3, gtype.size());
