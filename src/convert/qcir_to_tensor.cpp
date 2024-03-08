@@ -155,7 +155,7 @@ std::optional<QTensor<double>> to_tensor(QCir const &qcir) try {
         }
         std::vector<size_t> main_tensor_output_pins;
         std::vector<size_t> gate_tensor_input_pins;
-        for (size_t np = 0; np < gate->get_qubits().size(); np++) {
+        for (size_t np = 0; np < gate->get_num_qubits(); np++) {
             gate_tensor_input_pins.emplace_back(2 * np + 1);
             auto const qubit_id = gate->get_operand(np);
             main_tensor_output_pins.emplace_back(qubit_to_pins[qubit_id].first);
