@@ -94,21 +94,15 @@ QubitInfo QCirGate::get_qubit(QubitIdType qubit) const {
  * @param isTarget
  */
 void QCirGate::add_qubit(QubitIdType qubit, bool is_target) {
-    auto const temp = QubitInfo{._qubit = qubit, ._prev = nullptr, ._next = nullptr, ._isTarget = is_target};
+    auto const temp = QubitInfo{._prev = nullptr, ._next = nullptr, ._isTarget = is_target};
     // _qubits.emplace_back(temp);
-    if (is_target)
+    if (is_target) {
         _qubits.emplace_back(temp);
-    else
+        _operands.emplace_back(qubit);
+    } else {
         _qubits.emplace(_qubits.begin(), temp);
-}
-
-/**
- * @brief Set the bit of target
- *
- * @param qubit
- */
-void QCirGate::set_target_qubit(QubitIdType qubit) {
-    _qubits[_qubits.size() - 1]._qubit = qubit;
+        _operands.emplace(_operands.begin(), qubit);
+    }
 }
 
 /**

@@ -47,7 +47,6 @@ class QCirGate;
 //   Define classes
 //------------------------------------------------------------------------
 struct QubitInfo {
-    qsyn::QubitIdType _qubit;
     QCirGate* _prev;
     QCirGate* _next;
     bool _isTarget;
@@ -68,15 +67,9 @@ public:
     std::vector<QubitInfo> const& get_qubits() const { return _qubits; }
     void set_qubits(std::vector<QubitInfo> const& qubits) { _qubits = qubits; }
     QubitInfo get_qubit(QubitIdType qubit) const;
-    QubitIdType get_operand(size_t pin_id) const { return _qubits[pin_id]._qubit; }
-    QubitIdList get_operands() const {
-        return _qubits | std::views::transform([](auto const& q) { return q._qubit; }) | tl::to<QubitIdList>();
-    }
-    void set_operands(QubitIdList const& operands) {
-        for (auto i : std::views::iota(0ul, _qubits.size())) {
-            _qubits[i]._qubit = operands[i];
-        }
-    }
+    QubitIdType get_operand(size_t pin_id) const { return _operands[pin_id]; }
+    QubitIdList get_operands() const { return _operands; }
+    void set_operands(QubitIdList const& operands) { _operands = operands; }
 
     size_t get_num_qubits() const { return _qubits.size(); }
     QubitInfo get_targets() const { return _qubits[_qubits.size() - 1]; }
@@ -87,8 +80,6 @@ public:
     void set_parent(QubitIdType qubit, QCirGate* p);
 
     void add_qubit(QubitIdType qubit, bool is_target);
-    void set_target_qubit(QubitIdType qubit);
-    void set_control_qubit(QubitIdType qubit) { _qubits[0]._qubit = qubit; }
 
     // Printing functions
     void print_gate(std::optional<size_t> time) const;
@@ -108,14 +99,17 @@ public:
     void adjoint();
 
     // temporary interface for refactoring
-    QubitIdType get_control_operand() const { return _qubits[0]._qubit; }
-    QubitIdType get_target_operand() const { return _qubits[_qubits.size() - 1]._qubit; }
+    QubitIdType get_control_operand() const { return _operands[0]; }
+    QubitIdType get_target_operand() const { return _operands[_qubits.size() - 1]; }
+    void set_target_qubit(QubitIdType qubit) { _operands[_qubits.size() - 1] = qubit; }
+    void set_control_qubit(QubitIdType qubit) { _operands[0] = qubit; }
 
 private:
 protected:
     size_t _id;
     GateRotationCategory _rotation_category;
     std::vector<QubitInfo> _qubits = {};
+    std::vector<QubitIdType> _operands;
     dvlab::Phase _phase;
 
     void _print_single_qubit_or_controlled_gate(std::string gtype, bool show_rotation = false) const;

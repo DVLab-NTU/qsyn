@@ -119,8 +119,7 @@ void QCir::_update_topological_order() const {
     auto children = dummy.get_qubits();
     for (size_t i = 0; i < _qubits.size(); i++) {
         children.push_back(
-            {._qubit    = 0,
-             ._prev     = nullptr,
+            {._prev     = nullptr,
              ._next     = _qubits[i]->get_first(),
              ._isTarget = false});
     }
