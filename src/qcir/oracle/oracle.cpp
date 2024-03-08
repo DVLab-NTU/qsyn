@@ -25,6 +25,7 @@
 #include "qcir/oracle/k_lut.hpp"
 #include "qcir/oracle/pebble.hpp"
 #include "qcir/oracle/xag.hpp"
+#include "qcir/qcir_gate.hpp"
 #include "qsyn/qsyn_type.hpp"
 #include "util/sat/sat_solver.hpp"
 
@@ -127,6 +128,25 @@ std::optional<QCir> synthesize_boolean_oracle(XAG xag, size_t n_ancilla, size_t 
 
 namespace {
 
+void rewire_qcir(QCir& qcir, std::map<qsyn::QubitIdType, qsyn::QubitIdType> const& qubit_map) {
+    for (auto& gate : qcir.get_gates()) {
+        auto new_qubits = gate->get_qubits() | views::transform([&qubit_map](auto const& qubit) {
+                              if (qubit_map.contains(qubit._qubit)) {
+                                  return QubitInfo{
+                                      ._qubit    = qubit_map.at(qubit._qubit),
+                                      ._prev     = qubit._prev,
+                                      ._next     = qubit._next,
+                                      ._isTarget = qubit._isTarget,
+
+                                  };
+                              }
+                              return qubit;
+                          }) |
+                          tl::to<std::vector>();
+        gate->set_qubits(new_qubits);
+    }
+}
+
 std::optional<QCir> build_qcir(
     XAG const& xag,
     std::map<XAGNodeID, XAGCut> const& optimal_cut,
@@ -220,8 +240,17 @@ std::optional<QCir> build_qcir(
         }
     }
 
+    auto current_output_qubit = current_qubit_state[xag.outputs.front()];
+    auto target_output_qubit  = gsl::narrow_cast<qsyn::QubitIdType>(n_inputs);
+    if (current_output_qubit != target_output_qubit) {
+        auto rewire_map                  = std::map<qsyn::QubitIdType, qsyn::QubitIdType>();
+        rewire_map[current_output_qubit] = target_output_qubit;
+        rewire_map[target_output_qubit]  = current_output_qubit;
+        rewire_qcir(qcir, rewire_map);
+    }
+
     if (xag.outputs_inverted.front()) {
-        qcir.add_gate("x", {gsl::narrow_cast<qsyn::QubitIdType>(n_inputs)}, {}, true);
+        qcir.add_gate("x", {target_output_qubit}, {}, true);
     }
 
     return qcir;
