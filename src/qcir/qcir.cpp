@@ -38,11 +38,21 @@ QCir::QCir(QCir const &other) {
     }
 
     for (auto &gate : other.get_gates()) {
-        auto new_gate = this->add_gate(
-            gate->get_type_str(), gate->get_operands(),
-            gate->get_phase(), true);
+        // We do not call add_gate here because we want to keep the original gate id
+        _id_to_gates.emplace(gate->get_id(), std::make_unique<QCirGate>(gate->get_id(), gate->get_rotation_category(), gate->get_phase()));
+        auto *new_gate = _id_to_gates.at(gate->get_id()).get();
+        new_gate->set_operands(gate->get_operands());
 
-        new_gate->set_id(gate->get_id());
+        for (auto const &qb : new_gate->get_operands()) {
+            QCirQubit *target = get_qubit(qb);
+            if (target->get_last() != nullptr) {
+                new_gate->set_parent(qb, target->get_last());
+                target->get_last()->set_child(qb, new_gate);
+            } else {
+                target->set_first(new_gate);
+            }
+            target->set_last(new_gate);
+        }
     }
     _gate_id = other.get_gates().empty()
                    ? 0
@@ -232,7 +242,6 @@ QCirGate *QCir::prepend(GateType gate, QubitIdList const &bits) {
     _id_to_gates.emplace(_gate_id, std::make_unique<QCirGate>(_gate_id, std::get<0>(gate), *std::get<2>(gate)));
     auto *g = _id_to_gates[_gate_id].get();
     g->set_operands(bits);
-
     _gate_id++;
 
     for (auto const &qb : g->get_operands()) {

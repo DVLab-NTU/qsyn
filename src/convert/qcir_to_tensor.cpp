@@ -135,9 +135,8 @@ std::optional<QTensor<double>> to_tensor(QCir const &qcir) try {
     }
 
     Qubit2TensorPinMap qubit_to_pins;  // qubit -> (output, input)
-    for (auto const &qubit : qcir.get_qubits()) {
-        auto const qubit_id = qubit->get_id();
-        auto const oi_pair  = std::make_pair(2 * qubit_id, 2 * qubit_id + 1);
+    for (auto const &qubit_id : qcir.get_qubits() | std::views::transform([](auto const &qubit) { return qubit->get_id(); })) {
+        auto const oi_pair = std::make_pair(2 * qubit_id, 2 * qubit_id + 1);
         qubit_to_pins.emplace(qubit_id, oi_pair);
         spdlog::trace("  - Add Qubit: {} input: {} output: {}", qubit_id, oi_pair.second, oi_pair.first);
     }
@@ -171,10 +170,9 @@ std::optional<QTensor<double>> to_tensor(QCir const &qcir) try {
     }
 
     std::vector<size_t> output_pins, input_pins;
-    for (auto const &qubit : qcir.get_qubits()) {
-        auto const oi_pair = qubit_to_pins[qubit->get_id()];
-        output_pins.emplace_back(oi_pair.first);
-        input_pins.emplace_back(oi_pair.second);
+    for (auto const &[output, input] : qcir.get_qubits() | std::views::transform([&](auto const &qubit) { return qubit_to_pins[qubit->get_id()]; })) {
+        output_pins.emplace_back(output);
+        input_pins.emplace_back(input);
     }
 
     tensor = tensor.to_matrix(output_pins, input_pins);

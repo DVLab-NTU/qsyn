@@ -188,6 +188,25 @@ public:
     void print_circuit_diagram(spdlog::level::level_enum lvl = spdlog::level::off) const;
     void print_qcir_info() const;
 
+    QCirGate* get_predecessor(size_t gate_id, size_t pin) const {
+        if (pin >= get_gate(gate_id)->get_num_qubits()) {
+            return nullptr;
+        }
+        return get_gate(gate_id)->get_qubits()[pin]._prev;
+    }
+    QCirGate* get_successor(size_t gate_id, size_t pin) const {
+        if (pin >= get_gate(gate_id)->get_num_qubits()) {
+            return nullptr;
+        }
+        return get_gate(gate_id)->get_qubits()[pin]._next;
+    }
+    std::vector<QCirGate*> get_predecessors(size_t gate_id) const {
+        return get_gate(gate_id)->get_qubits() | std::views::transform([](auto const& q) { return q._prev; }) | tl::to<std::vector>();
+    }
+    std::vector<QCirGate*> get_successors(size_t gate_id) const {
+        return get_gate(gate_id)->get_qubits() | std::views::transform([](auto const& q) { return q._next; }) | tl::to<std::vector>();
+    }
+
 private:
     size_t _gate_id       = 0;
     QubitIdType _qubit_id = 0;

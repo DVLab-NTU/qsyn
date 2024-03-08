@@ -115,7 +115,7 @@ void QCir::_update_topological_order() const {
     if (_id_to_gates.empty())
         return;
 
-    auto dummy    = QCirGate(0, GateRotationCategory::id, dvlab::Phase(0));
+    auto dummy    = QCirGate{0, GateRotationCategory::id, dvlab::Phase(0)};
     auto children = dummy.get_qubits();
     for (size_t i = 0; i < _qubits.size(); i++) {
         children.push_back(

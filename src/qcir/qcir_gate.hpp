@@ -75,7 +75,6 @@ public:
 
     size_t get_num_qubits() const { return _qubits.size(); }
 
-    void set_id(size_t id) { _id = id; }
     void set_child(QubitIdType qubit, QCirGate* c);
     void set_parent(QubitIdType qubit, QCirGate* p);
 

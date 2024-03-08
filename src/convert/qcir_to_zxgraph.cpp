@@ -469,9 +469,9 @@ std::optional<ZXGraph> to_zxgraph(QCir const& qcir, size_t decomposition_mode) {
 
     ZXGraph graph;
     spdlog::debug("Add boundaries");
-    for (size_t i = 0; i < qcir.get_qubits().size(); i++) {
-        ZXVertex* input  = graph.add_input(qcir.get_qubits()[i]->get_id(), 0);
-        ZXVertex* output = graph.add_output(qcir.get_qubits()[i]->get_id());
+    for (auto* qubit : qcir.get_qubits()) {
+        ZXVertex* input  = graph.add_input(qubit->get_id());
+        ZXVertex* output = graph.add_output(qubit->get_id());
         graph.add_edge(input, output, EdgeType::simple);
     }
 
