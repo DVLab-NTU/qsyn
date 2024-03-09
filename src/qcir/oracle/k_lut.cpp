@@ -229,46 +229,46 @@ void add_gates_2(
         case 0b0000:
             break;
         case 0b0001:
-            ccx(0, 1, 2);
+            x(0), x(1), ccx(0, 1, 2), x(0), x(1);
             break;
         case 0b0010:
             x(1), ccx(0, 1, 2), x(1);
             break;
         case 0b0011:
-            cx(0, 2);
+            x(1), cx(1, 2), x(1);
             break;
         case 0b0100:
             x(0), ccx(0, 1, 2), x(0);
             break;
         case 0b0101:
-            cx(1, 2);
+            x(0), cx(0, 2), x(0);
             break;
         case 0b0110:
             cx(0, 2), cx(1, 2);
             break;
         case 0b0111:
-            x(0), x(1), ccx(0, 1, 2), x(0), x(1), x(2);
+            ccx(0, 1, 2), x(2);
             break;
         case 0b1000:
-            x(0), x(1), ccx(0, 1, 2), x(0), x(1);
+            ccx(0, 1, 2);
             break;
         case 0b1001:
             cx(0, 2), cx(1, 2), x(2);
             break;
         case 0b1010:
-            x(1), cx(1, 2), x(1);
+            x(0), cx(0, 2), x(0), x(2);
             break;
         case 0b1011:
             x(0), ccx(0, 1, 2), x(0), x(2);
             break;
         case 0b1100:
-            x(0), cx(0, 2), x(0);
+            cx(1, 2);
             break;
         case 0b1101:
             x(1), ccx(0, 1, 2), x(1), x(2);
             break;
         case 0b1110:
-            ccx(0, 1, 2), x(2);
+            x(0), x(1), ccx(0, 1, 2), x(0), x(1), x(2);
             break;
         case 0b1111:
             x(2);
@@ -306,6 +306,7 @@ void LUT::construct_lut_1() {
         kitty::set_bit(tt, 0);
         kitty::set_bit(tt, 1);
         auto qcir = QCir(2);
+        qcir.add_gate("x", {1}, {}, true);
         table[tt] = qcir;
     }
 }
@@ -332,9 +333,6 @@ void LUT::construct_lut_3() {
         kitty::create_from_words(tt, &i, &i + 1);  // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
         auto qcir = QCir(4);
 
-        uint8_t i_01 = i & 0b1111;
-        uint8_t i_00 = i >> 4;
-
         auto x   = [&qcir](auto const& target) { qcir.add_gate("cx", {0, target + 1}, {}, true); };
         auto cx  = [&qcir](auto const& control, auto const& target) { qcir.add_gate("ccx", {0, control + 1, target + 1}, {}, true); };
         auto ccx = [&qcir](auto const& c1, auto const& c2, auto const& target) {
@@ -342,10 +340,29 @@ void LUT::construct_lut_3() {
         };
 
         // (a & b) ^ (!a & c)
-        add_gates_2(i_01, x, cx, ccx);
+
+        uint64_t i_00 = 0;
+        uint64_t i_01 = 0;
+
+        for (uint64_t j = 0; j < 8; j++) {
+            if (i & 1 << j) {
+                if (j & 1) {
+                    i_01 |= 1 << (j >> 1);
+                } else {
+                    i_00 |= 1 << (j >> 1);
+                }
+            }
+        }
+
+        // TODO: this is somehow not working
+        if (i == 0b01110010) {
+            fmt::print("i: {:08b}, i_00: {:04b}, i_01: {:04b}\n", i, i_00, i_01);
+        }
+
         qcir.add_gate("x", {0}, {}, true);
         add_gates_2(i_00, x, cx, ccx);
         qcir.add_gate("x", {0}, {}, true);
+        add_gates_2(i_01, x, cx, ccx);
 
         table[tt] = qcir;
     }

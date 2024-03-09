@@ -12,6 +12,7 @@
 #include <cstddef>
 #include <gsl/narrow>
 #include <gsl/util>
+#include <kitty/bit_operations.hpp>
 #include <kitty/dynamic_truth_table.hpp>
 #include <queue>
 #include <ranges>
@@ -25,7 +26,6 @@
 #include "qcir/oracle/k_lut.hpp"
 #include "qcir/oracle/pebble.hpp"
 #include "qcir/oracle/xag.hpp"
-#include "qcir/qcir_gate.hpp"
 #include "qsyn/qsyn_type.hpp"
 #include "util/sat/sat_solver.hpp"
 
@@ -157,7 +157,6 @@ std::optional<QCir> build_qcir(
 
     auto get_free_ancilla_qubit = [&free_ancilla_qubits]() {
         if (free_ancilla_qubits.empty()) {
-            // TODO: check for uncompute and compute at the same time
             throw std::runtime_error("no free ancilla qubits");
         }
         auto qubit = free_ancilla_qubits.front();
@@ -172,16 +171,16 @@ std::optional<QCir> build_qcir(
             return;
         }
 
-        auto xag_cut              = optimal_cut.at(xag_id);
-        auto const qcir_to_concat = lut[xag.calculate_truth_table(xag_cone_tip.get_id(), xag_cut)];
+        auto xag_cut     = optimal_cut.at(xag_id);
+        auto truth_table = xag.calculate_truth_table(xag_cone_tip.get_id(), xag_cut);
+        fmt::print("truth_table: {}\n", kitty::to_binary(truth_table));
+        auto const qcir_to_concat = lut[truth_table];
 
         qsyn::QubitIdType target_qubit{};
         if (current_qubit_state.contains(xag_id)) {
             target_qubit = current_qubit_state[xag_id];
-            fmt::print("compupte: xag_id: {}, qubit_id: {}\n", xag_id.get(), current_qubit_state[xag_id]);
         } else {
             target_qubit = get_free_ancilla_qubit();
-            fmt::print("uncompupte: xag_id: {}, qubit_id: {}\n", xag_id.get(), target_qubit);
         }
 
         auto xag_to_new_qubit_id = std::map<XAGNodeID, qsyn::QubitIdType>();
@@ -207,6 +206,7 @@ std::optional<QCir> build_qcir(
         }
     };
 
+    size_t i = 0;
     for (auto const& pebble_states : tl::views::slide(schedule, 2)) {
         auto const& curr_pebble = pebble_states.front();
         auto const& next_pebble = pebble_states.back();
@@ -227,18 +227,27 @@ std::optional<QCir> build_qcir(
             if (!is_changed) {
                 continue;
             }
+            auto xag_id   = dep_graph.get_node(DepGraphNodeID(pebble_id)).xag_id;
+            auto xag_node = xag.get_node(xag_id);
+            fmt::print("uncompute: {}\n", xag_node.to_string());
             build_one(pebble_id);
         }
         for (auto const& [pebble_id, is_changed] : tl::views::enumerate(pebble_computed)) {
             if (!is_changed) {
                 continue;
             }
+            auto xag_id   = dep_graph.get_node(DepGraphNodeID(pebble_id)).xag_id;
+            auto xag_node = xag.get_node(xag_id);
+            fmt::print("compute: {}\n", xag_node.to_string());
             build_one(pebble_id);
+        }
+        if (i++ >= 2) {
+            break;
         }
     }
 
-    auto current_output_qubit = current_qubit_state[xag.outputs.front()];
     auto target_output_qubit  = gsl::narrow_cast<qsyn::QubitIdType>(n_inputs);
+    auto current_output_qubit = current_qubit_state[xag.outputs.front()];
     if (current_output_qubit != target_output_qubit) {
         qcir.add_gate("swap", {current_output_qubit, target_output_qubit}, {}, true);
     }
