@@ -8,6 +8,8 @@
 
 #include "qcir/oracle/oracle.hpp"
 
+#include <spdlog/spdlog.h>
+
 #include <algorithm>
 #include <cstddef>
 #include <gsl/narrow>
@@ -50,23 +52,23 @@ std::optional<QCir> synthesize_boolean_oracle(XAG xag, size_t n_ancilla, size_t 
     size_t num_outputs           = xag.outputs.size();
     auto const& [optimal_cut, _] = k_lut_partition(xag, k);
 
-    fmt::print("xag:\n");
+    spdlog::debug("xag:");
     for (auto const& xag_node : xag.get_nodes()) {
         if (xag_node.is_valid()) {
-            fmt::print("    {}\n", xag_node.to_string());
+            spdlog::debug("    {}", xag_node.to_string());
         }
     }
-    fmt::print("xag.outputs: [{}]\n", fmt::join(xag.outputs |
-                                                    views::transform([](auto const& id) { return id.get(); }),
-                                                ", "));
-    fmt::print("xag.output_inverted: [{}]\n", fmt::join(xag.outputs_inverted, ", "));
-    fmt::print("optimal cut:\n");
+    spdlog::debug("xag.outputs: [{}]", fmt::join(xag.outputs |
+                                                     views::transform([](auto const& id) { return id.get(); }),
+                                                 ", "));
+    spdlog::debug("xag.output_inverted: [{}]", fmt::join(xag.outputs_inverted, ", "));
+    spdlog::debug("optimal cut:");
     for (auto const& [xag_id, xag_cut] : optimal_cut) {
-        fmt::print("{}: ", xag_id.get());
+        std::string log = fmt::format("{}: ", xag_id.get());
         for (auto const& id : xag_cut) {
-            fmt::print("{}, ", id.get());
+            log += fmt::format("{}, ", id.get());
         }
-        fmt::print("\n");
+        spdlog::debug(log);
     }
 
     if (xag.get_node(xag.outputs.front()).is_const_1()) {
@@ -81,7 +83,7 @@ std::optional<QCir> synthesize_boolean_oracle(XAG xag, size_t n_ancilla, size_t 
         return std::nullopt;
     }
     auto dep_graph = *_dep_graph;
-    fmt::print("dependency graph: {}\n", dep_graph.to_string());
+    spdlog::debug("dependency graph: {}", dep_graph.to_string());
 
     const size_t N        = dep_graph.size();  // number of nodes
     const size_t max_deps = std::ranges::max(dep_graph.get_graph() |
@@ -111,9 +113,9 @@ std::optional<QCir> synthesize_boolean_oracle(XAG xag, size_t n_ancilla, size_t 
     }
 
     auto schedule = *pebble_result;
-    fmt::println("solution:");
+    spdlog::debug("solution:");
     for (const size_t i : views::iota(0UL, schedule.size())) {
-        fmt::println("time = {:02} : {}", i, fmt::join((*pebble_result)[i] | views::transform([](bool b) { return b ? "*" : "."; }), ""));
+        spdlog::debug("time = {:02} : {}", i, fmt::join((*pebble_result)[i] | views::transform([](bool b) { return b ? "*" : "."; }), ""));
     }
 
     return build_qcir(xag,
@@ -147,7 +149,6 @@ std::optional<QCir> build_qcir(
     auto current_qubit_state = std::map<XAGNodeID, qsyn::QubitIdType>();
     for (auto const& [i, input_id] : tl::views::enumerate(xag.inputs)) {
         current_qubit_state[input_id] = gsl::narrow_cast<qsyn::QubitIdType>(i);
-        fmt::print("input_id: {}, qubit_id: {}\n", input_id.get(), i);
     }
 
     auto free_ancilla_qubits = std::queue<qsyn::QubitIdType>();
@@ -171,9 +172,8 @@ std::optional<QCir> build_qcir(
             return;
         }
 
-        auto xag_cut     = optimal_cut.at(xag_id);
-        auto truth_table = xag.calculate_truth_table(xag_cone_tip.get_id(), xag_cut);
-        fmt::print("truth_table: {}\n", kitty::to_binary(truth_table));
+        auto xag_cut              = optimal_cut.at(xag_id);
+        auto truth_table          = xag.calculate_truth_table(xag_cone_tip.get_id(), xag_cut);
         auto const qcir_to_concat = lut[truth_table];
 
         qsyn::QubitIdType target_qubit{};
@@ -228,7 +228,6 @@ std::optional<QCir> build_qcir(
             }
             auto xag_id   = dep_graph.get_node(DepGraphNodeID(pebble_id)).xag_id;
             auto xag_node = xag.get_node(xag_id);
-            fmt::print("uncompute: {}\n", xag_node.to_string());
             build_one(pebble_id);
         }
         for (auto const& [pebble_id, is_changed] : tl::views::enumerate(pebble_computed)) {
@@ -237,7 +236,6 @@ std::optional<QCir> build_qcir(
             }
             auto xag_id   = dep_graph.get_node(DepGraphNodeID(pebble_id)).xag_id;
             auto xag_node = xag.get_node(xag_id);
-            fmt::print("compute: {}\n", xag_node.to_string());
             build_one(pebble_id);
         }
     }
