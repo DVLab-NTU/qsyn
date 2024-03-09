@@ -96,8 +96,8 @@ std::vector<QCirGate*> dfs(QCir const& qcir) {
         assert(qcir.get_successors(node->get_id()).size() == node->get_num_qubits());
 
         for (auto const& succ : qcir.get_successors(node->get_id())) {
-            if (succ != nullptr && !visited.contains(succ)) {
-                dfs_stack.emplace(false, succ);
+            if (succ.has_value() && !visited.contains(qcir.get_gate(succ))) {
+                dfs_stack.emplace(false, qcir.get_gate(succ));
             }
         }
     }

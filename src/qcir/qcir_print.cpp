@@ -24,15 +24,15 @@ void QCir::print_gates(bool print_neighbors, std::span<size_t> gate_ids) const {
     fmt::println("Listed by gate ID");
 
     auto const print_predecessors = [this](QCirGate const* const gate) {
-        auto const get_predecessor_gate_id = [](QCirGate* pred) -> std::string {
-            return pred ? fmt::format("{}", pred->get_id()) : "Start";
+        auto const get_predecessor_gate_id = [](std::optional<size_t> pred) -> std::string {
+            return pred.has_value() ? fmt::format("{}", *pred) : "Start";
         };
         fmt::println("- Predecessors: {}", fmt::join(get_predecessors(gate->get_id()) | std::views::transform(get_predecessor_gate_id), ", "));
     };
 
     auto const print_successors = [this](QCirGate const* const gate) {
-        auto const get_successor_gate_id = [](QCirGate* succ) -> std::string {
-            return succ ? fmt::format("{}", succ->get_id()) : "End";
+        auto const get_successor_gate_id = [](std::optional<size_t> succ) -> std::string {
+            return succ.has_value() ? fmt::format("{}", *succ) : "End";
         };
         fmt::println("- Successors  : {}", fmt::join(get_successors(gate->get_id()) | std::views::transform(get_successor_gate_id), ", "));
     };
@@ -92,7 +92,7 @@ void QCir::print_circuit_diagram(spdlog::level::level_enum lvl) const {
 
             for (size_t i = 0; i < current->get_num_qubits(); ++i) {
                 if (current->get_operand(i) == qubit->get_id()) {
-                    current = get_successor(current->get_id(), i);
+                    current = get_gate(get_successor(current->get_id(), i));
                     break;
                 }
             }

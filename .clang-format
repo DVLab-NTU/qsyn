@@ -13,6 +13,7 @@ AccessModifierOffset: -4
 
 PackConstructorInitializers: BinPack
 # QualifierAlignment: Right # disabled because it breaks the code in some cases
+DerivePointerAlignment: false
 PointerAlignment: Left
 ReferenceAlignment: Left
 AlignConsecutiveAssignments: Consecutive

@@ -69,8 +69,8 @@ void Duostra::make_dependency() {
             {g->get_operand(0), g->get_qubits().size() > 1 ? g->get_operand(1) : max_qubit_id}};
 
         for (auto i : std::views::iota(0ul, g->get_num_qubits())) {
-            if (prevs[i]) temp_gate.add_prev(prevs[i]->get_id());
-            if (nexts[i]) temp_gate.add_next(nexts[i]->get_id());
+            if (prevs[i].has_value()) temp_gate.add_prev(*prevs[i]);
+            if (nexts[i].has_value()) temp_gate.add_next(*nexts[i]);
         }
 
         all_gates.emplace_back(std::move(temp_gate));

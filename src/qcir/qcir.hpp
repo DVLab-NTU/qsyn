@@ -137,7 +137,7 @@ public:
         return _gate_list;
     }
 
-    QCirGate* get_gate(size_t gid) const;
+    QCirGate* get_gate(std::optional<size_t> gid) const;
     QCirQubit* get_qubit(QubitIdType qid) const;
     std::string get_filename() const { return _filename; }
     std::vector<std::string> const& get_procedures() const { return _procedures; }
@@ -188,10 +188,10 @@ public:
     void print_circuit_diagram(spdlog::level::level_enum lvl = spdlog::level::off) const;
     void print_qcir_info() const;
 
-    QCirGate* get_predecessor(size_t gate_id, size_t pin) const;
-    QCirGate* get_successor(size_t gate_id, size_t pin) const;
-    std::vector<QCirGate*> get_predecessors(size_t gate_id) const;
-    std::vector<QCirGate*> get_successors(size_t gate_id) const;
+    std::optional<size_t> get_predecessor(std::optional<size_t> gate_id, size_t pin) const;
+    std::optional<size_t> get_successor(std::optional<size_t> gate_id, size_t pin) const;
+    std::vector<std::optional<size_t>> get_predecessors(std::optional<size_t> gate_id) const;
+    std::vector<std::optional<size_t>> get_successors(std::optional<size_t> gate_id) const;
 
 private:
     size_t _gate_id       = 0;
@@ -207,10 +207,10 @@ private:
 
     void _update_topological_order() const;
 
-    void _set_predecessor(size_t gate_id, size_t pin, QCirGate* pred);
-    void _set_successor(size_t gate_id, size_t pin, QCirGate* succ);
-    void _set_predecessors(size_t gate_id, std::vector<QCirGate*> const& preds);
-    void _set_successors(size_t gate_id, std::vector<QCirGate*> const& succs);
+    void _set_predecessor(size_t gate_id, size_t pin, std::optional<size_t> pred = std::nullopt) const;
+    void _set_successor(size_t gate_id, size_t pin, std::optional<size_t> succ = std::nullopt) const;
+    void _set_predecessors(size_t gate_id, std::vector<std::optional<size_t>> const& preds) const;
+    void _set_successors(size_t gate_id, std::vector<std::optional<size_t>> const& succs) const;
     void _connect(size_t gid1, size_t gid2, QubitIdType qubit);
 };
 

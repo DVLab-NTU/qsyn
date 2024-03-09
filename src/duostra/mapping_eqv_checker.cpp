@@ -238,7 +238,7 @@ void MappingEquivalenceChecker::check_remaining() {
  * @return QCirGate*
  */
 QCirGate* MappingEquivalenceChecker::get_next(qcir::QCir const& qcir, size_t gate_id, size_t pin) const {
-    return _reverse ? qcir.get_predecessor(gate_id, pin) : qcir.get_successor(gate_id, pin);
+    return qcir.get_gate(_reverse ? qcir.get_predecessor(gate_id, pin) : qcir.get_successor(gate_id, pin));
 }
 
 }  // namespace qsyn::duostra
