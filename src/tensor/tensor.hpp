@@ -573,7 +573,7 @@ bool Tensor<DT>::create_gate_list(int length) {
         for (int j = 0; j < b; j++)
         {
             bool bit = bits[j];
-            u = (bit)? u * base[1] :  u * base[0];
+            u = (bit)? tensor_multiply(u ,base[1]) : tensor_multiply(u ,base[0]);
         }
         gate_list.push_back(u);
     }
@@ -894,9 +894,11 @@ double Tensor<DT>::trace_distance(Tensor<DT>& t1, Tensor<DT>& t2) {
     // TODO
     Tensor<DT> t1_t2 = t1 - t2;
     t1_t2.adjoint();
-    t1_t2.sqrt();
+    Tensor<DT> t1_t2_sqrt = tensor_multiply(t1_t2, (t1 - t2));
+    t1_t2_sqrt.sqrt();
+
     std::complex<double> t(0.5,0);
-    return (0.5 * t1_t2.trace()).real();
+    return (0.5 * t1_t2_sqrt.trace()).real();
 }
 
 // tensor-dot two tensors
