@@ -59,24 +59,20 @@ void Duostra::make_dependency() {
     spdlog::info("Creating dependency of quantum circuit...");
     std::vector<Gate> all_gates;
     for (auto const& g : _logical_circuit->get_gates()) {
-        auto rotation_category = g->get_rotation_category();
+        auto const prevs = _logical_circuit->get_predecessors(g->get_id());
+        auto const nexts = _logical_circuit->get_successors(g->get_id());
 
-        auto q2          = max_qubit_id;
-        auto const first = g->get_qubits()[0];
-        auto second      = QubitInfo{};
-        if (g->get_qubits().size() > 1) {
-            second = g->get_qubits()[1];
-            q2     = second._qubit;
+        Gate temp_gate{
+            g->get_id(),
+            g->get_rotation_category(),
+            g->get_phase(),
+            {g->get_qubit(0), g->legacy_get_qubits().size() > 1 ? g->get_qubit(1) : max_qubit_id}};
+
+        for (auto i : std::views::iota(0ul, g->get_num_qubits())) {
+            if (prevs[i].has_value()) temp_gate.add_prev(*prevs[i]);
+            if (nexts[i].has_value()) temp_gate.add_next(*nexts[i]);
         }
 
-        auto const temp = std::make_tuple(first._qubit, q2);
-        Gate temp_gate{g->get_id(), rotation_category, g->get_phase(), temp};
-        if (first._prev != nullptr) temp_gate.add_prev(first._prev->get_id());
-        if (first._next != nullptr) temp_gate.add_next(first._next->get_id());
-        if (g->get_qubits().size() > 1) {
-            if (second._prev != nullptr) temp_gate.add_prev(second._prev->get_id());
-            if (second._next != nullptr) temp_gate.add_next(second._next->get_id());
-        }
         all_gates.emplace_back(std::move(temp_gate));
     }
     // REVIEW - is the reordering necessary?

@@ -111,7 +111,6 @@ private:
     QCir _build_from_storage(size_t n_qubits, bool reversed);
 
     std::vector<std::pair<QubitIdType, QubitIdType>> _get_swap_path();
-    void _add_gate_to_circuit(QCir& circuit, QCirGate* gate, bool prepend);
 
     // trivial optimization subroutines
 
@@ -123,45 +122,43 @@ private:
 
     inline QCirGate* _store_x(QubitIdType qubit) {
         _storage.emplace_back(std::make_unique<QCirGate>(_storage.size(), GateRotationCategory::px, dvlab::Phase(1)));
-        _storage.back()->add_qubit(qubit, true);
+        _storage.back()->set_qubits({qubit});
         return _storage.back().get();
     }
 
     inline QCirGate* _store_h(QubitIdType qubit) {
         _storage.emplace_back(std::make_unique<QCirGate>(_storage.size(), GateRotationCategory::h, dvlab::Phase(1)));
-        _storage.back()->add_qubit(qubit, true);
+        _storage.back()->set_qubits({qubit});
         return _storage.back().get();
     }
 
     inline QCirGate* _store_s(QubitIdType qubit) {
         _storage.emplace_back(std::make_unique<QCirGate>(_storage.size(), GateRotationCategory::pz, dvlab::Phase(1, 2)));
-        _storage.back()->add_qubit(qubit, true);
+        _storage.back()->set_qubits({qubit});
         return _storage.back().get();
     }
 
     inline QCirGate* _store_sdg(QubitIdType qubit) {
         _storage.emplace_back(std::make_unique<QCirGate>(_storage.size(), GateRotationCategory::pz, dvlab::Phase(-1, 2)));
-        _storage.back()->add_qubit(qubit, true);
+        _storage.back()->set_qubits({qubit});
         return _storage.back().get();
     }
 
     inline QCirGate* _store_cx(QubitIdType ctrl, QubitIdType targ) {
         _storage.emplace_back(std::make_unique<QCirGate>(_storage.size(), GateRotationCategory::px, dvlab::Phase(1)));
-        _storage.back()->add_qubit(ctrl, false);
-        _storage.back()->add_qubit(targ, true);
+        _storage.back()->set_qubits({ctrl, targ});
         return _storage.back().get();
     }
 
     inline QCirGate* _store_cz(QubitIdType ctrl, QubitIdType targ) {
         _storage.emplace_back(std::make_unique<QCirGate>(_storage.size(), GateRotationCategory::pz, dvlab::Phase(1)));
-        _storage.back()->add_qubit(ctrl, false);
-        _storage.back()->add_qubit(targ, true);
+        _storage.back()->set_qubits({ctrl, targ});
         return _storage.back().get();
     }
 
     inline QCirGate* _store_rotation_gate(QubitIdType target, dvlab::Phase ph, GateRotationCategory const& rotation_category) {
         _storage.emplace_back(std::make_unique<QCirGate>(_storage.size(), rotation_category, ph));
-        _storage.back()->add_qubit(target, true);
+        _storage.back()->set_qubits({target});
         return _storage.back().get();
     }
 };

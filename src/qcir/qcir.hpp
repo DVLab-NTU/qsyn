@@ -137,7 +137,7 @@ public:
         return _gate_list;
     }
 
-    QCirGate* get_gate(size_t gid) const;
+    QCirGate* get_gate(std::optional<size_t> gid) const;
     QCirQubit* get_qubit(QubitIdType qid) const;
     std::string get_filename() const { return _filename; }
     std::vector<std::string> const& get_procedures() const { return _procedures; }
@@ -151,16 +151,16 @@ public:
     void set_gate_set(std::string g) { _gate_set = std::move(g); }
 
     void reset();
-    QCir* compose(QCir const& other);
-    QCir* tensor_product(QCir const& other);
+    QCir& compose(QCir const& other);
+    QCir& tensor_product(QCir const& other);
     // Member functions about circuit construction
     QCirQubit* push_qubit();
     QCirQubit* insert_qubit(QubitIdType id);
     void add_qubits(size_t num);
     bool remove_qubit(QubitIdType qid);
-    QCirGate* add_gate(std::string type, QubitIdList bits, dvlab::Phase phase, bool append);
-    QCirGate* append(GateType gate, QubitIdList bits);
-    QCirGate* prepend(GateType gate, QubitIdList bits);
+    QCirGate* add_gate(std::string type, QubitIdList const& bits, dvlab::Phase phase, bool append);
+    QCirGate* append(GateType gate, QubitIdList const& bits);
+    QCirGate* prepend(GateType gate, QubitIdList const& bits);
     bool remove_gate(size_t id);
 
     bool read_qcir_file(std::filesystem::path const& filepath);
@@ -184,9 +184,14 @@ public:
     // Member functions about circuit reporting
     void print_gates(bool print_neighbors = false, std::span<size_t> gate_ids = {}) const;
     void print_qcir() const;
-    bool print_gate_as_diagram(size_t id, bool show_time) const;
+    // bool print_gate_as_diagram(size_t id, bool show_time) const;
     void print_circuit_diagram(spdlog::level::level_enum lvl = spdlog::level::off) const;
     void print_qcir_info() const;
+
+    std::optional<size_t> get_predecessor(std::optional<size_t> gate_id, size_t pin) const;
+    std::optional<size_t> get_successor(std::optional<size_t> gate_id, size_t pin) const;
+    std::vector<std::optional<size_t>> get_predecessors(std::optional<size_t> gate_id) const;
+    std::vector<std::optional<size_t>> get_successors(std::optional<size_t> gate_id) const;
 
 private:
     size_t _gate_id       = 0;
@@ -201,6 +206,12 @@ private:
     bool mutable _dirty = true;                 // mark if the topological order is dirty
 
     void _update_topological_order() const;
+
+    void _set_predecessor(size_t gate_id, size_t pin, std::optional<size_t> pred = std::nullopt) const;
+    void _set_successor(size_t gate_id, size_t pin, std::optional<size_t> succ = std::nullopt) const;
+    void _set_predecessors(size_t gate_id, std::vector<std::optional<size_t>> const& preds) const;
+    void _set_successors(size_t gate_id, std::vector<std::optional<size_t>> const& succs) const;
+    void _connect(size_t gid1, size_t gid2, QubitIdType qubit);
 };
 
 std::string to_qasm(QCir const& qcir);

@@ -9,6 +9,7 @@
 
 #include <cstddef>
 #include <string>
+#include <tl/to.hpp>
 #include <unordered_map>
 
 #include "qcir/gate_type.hpp"
@@ -46,10 +47,8 @@ class QCirGate;
 //   Define classes
 //------------------------------------------------------------------------
 struct QubitInfo {
-    qsyn::QubitIdType _qubit;
     QCirGate* _prev;
     QCirGate* _next;
-    bool _isTarget;
 };
 
 class QCirGate {
@@ -59,32 +58,38 @@ public:
 
     // Basic access method
     std::string get_type_str() const;
-    GateType get_type() const { return std::make_tuple(_rotation_category, _qubits.size(), _phase); }
-    GateRotationCategory get_rotation_category() const { return _rotation_category; }
     size_t get_id() const { return _id; }
     size_t get_delay() const;
-    dvlab::Phase get_phase() const { return _phase; }
-    std::vector<QubitInfo> const& get_qubits() const { return _qubits; }
-    void set_qubits(std::vector<QubitInfo> const& qubits) { _qubits = qubits; }
-    QubitInfo get_qubit(QubitIdType qubit) const;
+    QubitIdType get_qubit(size_t pin_id) const { return _operands[pin_id]; }
+    QubitIdList get_qubits() const { return _operands; }
+    std::optional<size_t> get_pin_by_qubit(QubitIdType qubit) const {
+        auto it = std::find(_operands.begin(), _operands.end(), qubit);
+        if (it == _operands.end()) return std::nullopt;
+        return std::distance(_operands.begin(), it);
+    }
+    void set_qubits(QubitIdList const& operands) {
+        _operands = operands;
+        _qubits   = std::vector<QubitInfo>(operands.size(), {nullptr, nullptr});
+    }
+
     size_t get_num_qubits() const { return _qubits.size(); }
-    QubitInfo get_targets() const { return _qubits[_qubits.size() - 1]; }
-    QubitInfo get_control() const { return _qubits[0]; }
-
-    void set_id(size_t id) { _id = id; }
-    void set_child(QubitIdType qubit, QCirGate* c);
-    void set_parent(QubitIdType qubit, QCirGate* p);
-
-    void add_qubit(QubitIdType qubit, bool is_target);
-    void set_target_qubit(QubitIdType qubit);
-    void set_control_qubit(QubitIdType qubit) { _qubits[0]._qubit = qubit; }
 
     // Printing functions
     void print_gate(std::optional<size_t> time) const;
-    void set_rotation_category(GateRotationCategory type);
-    void set_phase(dvlab::Phase p);
-    void print_gate_info() const;
+    // void print_gate_info() const;
 
+    void adjoint();
+
+    /* to be removed in the future */
+    std::vector<QubitInfo> const& legacy_get_qubits() const { return _qubits; }
+    std::vector<QubitInfo>& legacy_get_qubits() { return _qubits; }
+
+    GateRotationCategory get_rotation_category() const { return _rotation_category; }
+    void set_rotation_category(GateRotationCategory type);
+    dvlab::Phase get_phase() const { return _phase; }
+    void set_phase(dvlab::Phase p);
+
+    GateType get_type() const { return std::make_tuple(_rotation_category, _qubits.size(), _phase); }
     bool is_h() const { return _rotation_category == GateRotationCategory::h; }
     bool is_x() const { return _rotation_category == GateRotationCategory::px && _phase == dvlab::Phase(1) && _qubits.size() == 1; }
     bool is_y() const { return _rotation_category == GateRotationCategory::py && _phase == dvlab::Phase(1) && _qubits.size() == 1; }
@@ -94,16 +99,15 @@ public:
     bool is_cz() const { return _rotation_category == GateRotationCategory::pz && _phase == dvlab::Phase(1) && _qubits.size() == 2; }
     bool is_swap() const { return _rotation_category == GateRotationCategory::swap; }
 
-    void adjoint();
-
 private:
 protected:
     size_t _id;
     GateRotationCategory _rotation_category;
     std::vector<QubitInfo> _qubits = {};
+    std::vector<QubitIdType> _operands;
     dvlab::Phase _phase;
 
-    void _print_single_qubit_or_controlled_gate(std::string gtype, bool show_rotation = false) const;
+    // void _print_single_qubit_or_controlled_gate(std::string gtype, bool show_rotation = false) const;
 };
 
 }  // namespace qsyn::qcir

@@ -6,6 +6,7 @@
 ****************************************************************************/
 #pragma once
 
+#include <algorithm>
 #include <concepts>
 #include <gsl/narrow>
 #include <iterator>
@@ -121,6 +122,10 @@ struct overloaded : Ts... {  // NOLINT(readability-identifier-naming)  // mimic 
 // explicit deduction guide (not needed as of C++20)
 template <class... Ts>
 overloaded(Ts...) -> overloaded<Ts...>;
+
+auto contains(std::ranges::range auto r, auto const& value) -> bool {
+    return std::ranges::find(r, value) != r.end();
+}
 
 }  // namespace dvlab
 
