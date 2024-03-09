@@ -767,8 +767,10 @@ void Tensor<DT>::solovay_kitaev_decompose() {
     assert(dimension() == 2);
     // TODO - Move your code here, you may also create new files src/tensor/
 
-    std::cout << "gate list depth : " << std::endl;
-    int depth = 10;
+    int depth = 8;
+    size_t recursion_time = 8;
+    std::cout << "gate list depth : " << depth << " , number of recurtions : "<< recursion_time << std::endl;
+
     std::vector<std::vector<bool>> bin_list;
     std::cout <<create_gate_list(depth) << std::endl;
     for (int i = 1; i <= depth; i++) {
@@ -783,11 +785,11 @@ void Tensor<DT>::solovay_kitaev_decompose() {
     }    //Tensor<DT> a = to_su2(*this);
     Tensor<DT> a =*this;
     std::cout <<"read_gate_list" << std::endl ;
-    std::vector<Tensor<DT>> gate_list =  read_gate_list("gate_list_7.csv");
+    std::vector<Tensor<DT>> gate_list =  read_gate_list("gate_list_" + std::to_string(depth) + ".csv");
     //for(int i = 0; i<10 ; i++ ){std::cout << gate_list[i] << std::endl;}
     std::cout <<"SKing" << std::endl ;
     std::vector<bool> output_gate;
-    Tensor<DT> re = SK(gate_list ,bin_list, a , 8, output_gate);
+    Tensor<DT> re = SK(gate_list ,bin_list, a , recursion_time, output_gate);
     double tr_dist = (trace_distance(a , re));
     
     std::cout <<"distance : " << tr_dist << std::endl ;
