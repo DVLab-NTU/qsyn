@@ -206,7 +206,6 @@ std::optional<QCir> build_qcir(
         }
     };
 
-    size_t i = 0;
     for (auto const& pebble_states : tl::views::slide(schedule, 2)) {
         auto const& curr_pebble = pebble_states.front();
         auto const& next_pebble = pebble_states.back();
@@ -240,9 +239,6 @@ std::optional<QCir> build_qcir(
             auto xag_node = xag.get_node(xag_id);
             fmt::print("compute: {}\n", xag_node.to_string());
             build_one(pebble_id);
-        }
-        if (i++ >= 2) {
-            break;
         }
     }
 

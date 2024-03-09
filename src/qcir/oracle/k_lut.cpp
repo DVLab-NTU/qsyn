@@ -354,11 +354,6 @@ void LUT::construct_lut_3() {
             }
         }
 
-        // TODO: this is somehow not working
-        if (i == 0b01110010) {
-            fmt::print("i: {:08b}, i_00: {:04b}, i_01: {:04b}\n", i, i_00, i_01);
-        }
-
         qcir.add_gate("x", {0}, {}, true);
         add_gates_2(i_00, x, cx, ccx);
         qcir.add_gate("x", {0}, {}, true);
