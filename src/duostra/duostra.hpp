@@ -46,8 +46,6 @@ public:
     void make_dependency(std::vector<Operation> const& ops, size_t n_qubits);
     bool map(bool use_device_as_placement = false);
     void store_order_info(std::vector<size_t> const& order);
-    // REVIEW - deprecated? useless in qsyn since we already have QCir::write_qasm
-    // void print_assembly() const;
     void build_circuit_by_result();
 
 private:

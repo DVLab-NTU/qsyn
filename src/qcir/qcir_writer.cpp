@@ -100,7 +100,7 @@ std::string to_qasm(QCir const& qcir) {
 
     for (auto const* cur_gate : qcir.get_gates()) {
         auto type_str           = cur_gate->get_type_str();
-        auto operand            = cur_gate->get_operands();
+        auto operand            = cur_gate->get_qubits();
         auto is_special_phase   = cur_gate->get_phase().denominator() == 1 || cur_gate->get_phase().denominator() == 2 || cur_gate->get_phase() == Phase(1, 4) || cur_gate->get_phase() == Phase(-1, 4);
         auto is_p_type_rotation = cur_gate->get_rotation_category() == GateRotationCategory::py || cur_gate->get_rotation_category() == GateRotationCategory::px || cur_gate->get_rotation_category() == GateRotationCategory::pz;
         qasm += fmt::format("{}{} {};\n",

@@ -80,7 +80,7 @@ void QCirGate::print_gate(std::optional<size_t> time) const {
     if (time.has_value())
         fmt::print("Time: {:>4}     ", time.value());
 
-    fmt::print("Qubit: {:>3} ", fmt::join(get_operands(), " "));
+    fmt::print("Qubit: {:>3} ", fmt::join(get_qubits(), " "));
     auto is_special_phase   = get_phase().denominator() == 1 || get_phase().denominator() == 2 || get_phase() == Phase(1, 4) || get_phase() == Phase(-1, 4);
     auto is_p_type_rotation = get_rotation_category() == GateRotationCategory::py || get_rotation_category() == GateRotationCategory::px || get_rotation_category() == GateRotationCategory::pz;
 

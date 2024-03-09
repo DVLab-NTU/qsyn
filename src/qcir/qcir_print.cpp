@@ -23,28 +23,28 @@ namespace qsyn::qcir {
 void QCir::print_gates(bool print_neighbors, std::span<size_t> gate_ids) const {
     fmt::println("Listed by gate ID");
 
-    auto const print_predecessors = [this](QCirGate const* const gate) {
+    auto const print_predecessors = [this](size_t gate_id) {
         auto const get_predecessor_gate_id = [](std::optional<size_t> pred) -> std::string {
             return pred.has_value() ? fmt::format("{}", *pred) : "Start";
         };
-        fmt::println("- Predecessors: {}", fmt::join(get_predecessors(gate->get_id()) | std::views::transform(get_predecessor_gate_id), ", "));
+        fmt::println("- Predecessors: {}", fmt::join(get_predecessors(gate_id) | std::views::transform(get_predecessor_gate_id), ", "));
     };
 
-    auto const print_successors = [this](QCirGate const* const gate) {
+    auto const print_successors = [this](size_t gate_id) {
         auto const get_successor_gate_id = [](std::optional<size_t> succ) -> std::string {
             return succ.has_value() ? fmt::format("{}", *succ) : "End";
         };
-        fmt::println("- Successors  : {}", fmt::join(get_successors(gate->get_id()) | std::views::transform(get_successor_gate_id), ", "));
+        fmt::println("- Successors  : {}", fmt::join(get_successors(gate_id) | std::views::transform(get_successor_gate_id), ", "));
     };
 
     auto const times = calculate_gate_times();
 
     if (gate_ids.empty()) {
-        for (auto const* gate : _id_to_gates | std::views::values | std::views::transform([](auto const& p) { return p.get(); })) {
-            gate->print_gate(times.at(gate->get_id()));
+        for (auto const& [id, gate] : _id_to_gates) {
+            gate->print_gate(times.at(id));
             if (print_neighbors) {
-                print_predecessors(gate);
-                print_successors(gate);
+                print_predecessors(id);
+                print_successors(id);
             }
         }
     } else {
@@ -54,10 +54,10 @@ void QCir::print_gates(bool print_neighbors, std::span<size_t> gate_ids) const {
                 spdlog::error("Gate ID {} not found!!", id);
                 continue;
             }
-            gate->print_gate(times.at(gate->get_id()));
+            gate->print_gate(times.at(id));
             if (print_neighbors) {
-                print_predecessors(get_gate(id));
-                print_successors(get_gate(id));
+                print_predecessors(id);
+                print_successors(id);
             }
         }
     }
@@ -91,7 +91,7 @@ void QCir::print_circuit_diagram(spdlog::level::level_enum lvl) const {
             last_time = times.at(current->get_id()) + 1;
 
             for (size_t i = 0; i < current->get_num_qubits(); ++i) {
-                if (current->get_operand(i) == qubit->get_id()) {
+                if (current->get_qubit(i) == qubit->get_id()) {
                     current = get_gate(get_successor(current->get_id(), i));
                     break;
                 }

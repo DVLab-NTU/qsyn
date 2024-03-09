@@ -58,21 +58,16 @@ public:
 
     // Basic access method
     std::string get_type_str() const;
-    GateType get_type() const { return std::make_tuple(_rotation_category, _qubits.size(), _phase); }
-    GateRotationCategory get_rotation_category() const { return _rotation_category; }
     size_t get_id() const { return _id; }
     size_t get_delay() const;
-    dvlab::Phase get_phase() const { return _phase; }
-    std::vector<QubitInfo> const& get_qubits() const { return _qubits; }
-    std::vector<QubitInfo>& get_qubits() { return _qubits; }
-    QubitIdType get_operand(size_t pin_id) const { return _operands[pin_id]; }
-    QubitIdList get_operands() const { return _operands; }
-    std::optional<size_t> get_operand_idx(QubitIdType qubit) const {
+    QubitIdType get_qubit(size_t pin_id) const { return _operands[pin_id]; }
+    QubitIdList get_qubits() const { return _operands; }
+    std::optional<size_t> get_pin_by_qubit(QubitIdType qubit) const {
         auto it = std::find(_operands.begin(), _operands.end(), qubit);
         if (it == _operands.end()) return std::nullopt;
         return std::distance(_operands.begin(), it);
     }
-    void set_operands(QubitIdList const& operands) {
+    void set_qubits(QubitIdList const& operands) {
         _operands = operands;
         _qubits   = std::vector<QubitInfo>(operands.size(), {nullptr, nullptr});
     }
@@ -81,10 +76,20 @@ public:
 
     // Printing functions
     void print_gate(std::optional<size_t> time) const;
-    void set_rotation_category(GateRotationCategory type);
-    void set_phase(dvlab::Phase p);
     // void print_gate_info() const;
 
+    void adjoint();
+
+    /* to be removed in the future */
+    std::vector<QubitInfo> const& legacy_get_qubits() const { return _qubits; }
+    std::vector<QubitInfo>& legacy_get_qubits() { return _qubits; }
+
+    GateRotationCategory get_rotation_category() const { return _rotation_category; }
+    void set_rotation_category(GateRotationCategory type);
+    dvlab::Phase get_phase() const { return _phase; }
+    void set_phase(dvlab::Phase p);
+
+    GateType get_type() const { return std::make_tuple(_rotation_category, _qubits.size(), _phase); }
     bool is_h() const { return _rotation_category == GateRotationCategory::h; }
     bool is_x() const { return _rotation_category == GateRotationCategory::px && _phase == dvlab::Phase(1) && _qubits.size() == 1; }
     bool is_y() const { return _rotation_category == GateRotationCategory::py && _phase == dvlab::Phase(1) && _qubits.size() == 1; }
@@ -93,8 +98,6 @@ public:
     bool is_cy() const { return _rotation_category == GateRotationCategory::py && _phase == dvlab::Phase(1) && _qubits.size() == 2; }
     bool is_cz() const { return _rotation_category == GateRotationCategory::pz && _phase == dvlab::Phase(1) && _qubits.size() == 2; }
     bool is_swap() const { return _rotation_category == GateRotationCategory::swap; }
-
-    void adjoint();
 
 private:
 protected:

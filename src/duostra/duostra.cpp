@@ -66,7 +66,7 @@ void Duostra::make_dependency() {
             g->get_id(),
             g->get_rotation_category(),
             g->get_phase(),
-            {g->get_operand(0), g->get_qubits().size() > 1 ? g->get_operand(1) : max_qubit_id}};
+            {g->get_qubit(0), g->legacy_get_qubits().size() > 1 ? g->get_qubit(1) : max_qubit_id}};
 
         for (auto i : std::views::iota(0ul, g->get_num_qubits())) {
             if (prevs[i].has_value()) temp_gate.add_prev(*prevs[i]);

@@ -91,7 +91,7 @@ void update_tensor_pin(Qubit2TensorPinMap& qubit2pin, QCirGate const& gate, QTen
         auto const [old_out, old_in] = pin;
         auto& [new_out, new_in]      = pin;
 
-        auto operands = gate.get_operands();
+        auto operands = gate.get_qubits();
 
         auto const it = std::ranges::find_if(operands, [qubit = qubit](auto qb) { return qb == qubit; });
 
@@ -156,7 +156,7 @@ std::optional<QTensor<double>> to_tensor(QCir const& qcir) try {
         std::vector<size_t> gate_tensor_input_pins;
         for (size_t np = 0; np < gate->get_num_qubits(); np++) {
             gate_tensor_input_pins.emplace_back(2 * np + 1);
-            auto const qubit_id = gate->get_operand(np);
+            auto const qubit_id = gate->get_qubit(np);
             main_tensor_output_pins.emplace_back(qubit_to_pins[qubit_id].first);
         }
         // [tmp]x[tensor]
