@@ -176,6 +176,7 @@ std::optional<QCir> build_qcir(
 
     auto get_free_ancilla_qubit = [&free_ancilla_qubits]() {
         if (free_ancilla_qubits.empty()) {
+            // TODO: check for uncompute and compute at the same time
             throw std::runtime_error("no free ancilla qubits");
         }
         auto qubit = free_ancilla_qubits.front();
@@ -183,60 +184,75 @@ std::optional<QCir> build_qcir(
         return qubit;
     };
 
-    size_t time = 1;
+    auto build_one = [&](size_t pebble_id) {
+        auto xag_id       = dep_graph.get_node(DepGraphNodeID(pebble_id)).xag_id;
+        auto xag_cone_tip = xag.get_node(xag_id);
+        if (xag_cone_tip.is_input()) {
+            return;
+        }
+
+        auto xag_cut              = optimal_cut.at(xag_id);
+        auto const qcir_to_concat = lut[xag.calculate_truth_table(xag_cone_tip.get_id(), xag_cut)];
+
+        qsyn::QubitIdType target_qubit{};
+        if (current_qubit_state.contains(xag_id)) {
+            target_qubit = current_qubit_state[xag_id];
+            fmt::print("compupte: xag_id: {}, qubit_id: {}\n", xag_id.get(), current_qubit_state[xag_id]);
+        } else {
+            target_qubit = get_free_ancilla_qubit();
+            fmt::print("uncompupte: xag_id: {}, qubit_id: {}\n", xag_id.get(), target_qubit);
+        }
+
+        auto xag_to_new_qubit_id = std::map<XAGNodeID, qsyn::QubitIdType>();
+        for (auto const& [i, xag_id] : tl::views::enumerate(xag_cut)) {
+            auto xag_node               = xag.get_node(xag_id);
+            xag_to_new_qubit_id[xag_id] = gsl::narrow_cast<qsyn::QubitIdType>(i);
+        }
+        xag_to_new_qubit_id[xag_cone_tip.get_id()] = gsl::narrow_cast<qsyn::QubitIdType>(xag_cut.size());
+
+        auto concat_qubit_map = std::map<qsyn::QubitIdType, qsyn::QubitIdType>();
+        for (auto const& xag_id : xag_cut) {
+            concat_qubit_map[xag_to_new_qubit_id[xag_id]] = current_qubit_state[xag_id];
+        }
+        concat_qubit_map[xag_to_new_qubit_id[xag_cone_tip.get_id()]] = target_qubit;
+
+        qcir.concat(qcir_to_concat, concat_qubit_map);
+
+        if (current_qubit_state.contains(xag_id)) {
+            current_qubit_state.erase(xag_id);
+            free_ancilla_qubits.push(target_qubit);
+        } else {
+            current_qubit_state[xag_id] = target_qubit;
+        }
+    };
 
     for (auto const& pebble_states : tl::views::slide(schedule, 2)) {
         auto const& curr_pebble = pebble_states.front();
         auto const& next_pebble = pebble_states.back();
-        auto pebble_changed     = tl::views::zip(curr_pebble, next_pebble) |
-                              views::transform([](auto const& p) {
-                                  auto [curr, next] = p;
-                                  return curr != next;
-                              }) |
-                              tl::to<std::vector>();
-        fmt::print("========================================\n");
-        fmt::print("time = {:02} : {}\n", time++, fmt::join(pebble_changed, ", "));
-        for (auto const& [pebble_id, is_changed] : tl::views::enumerate(pebble_changed)) {
+        auto pebble_uncomputed  = tl::views::zip(curr_pebble, next_pebble) |
+                                 views::transform([](auto const& p) {
+                                     auto [curr, next] = p;
+                                     return curr && !next;
+                                 }) |
+                                 tl::to<std::vector>();
+        auto pebble_computed = tl::views::zip(curr_pebble, next_pebble) |
+                               views::transform([](auto const& p) {
+                                   auto [curr, next] = p;
+                                   return !curr && next;
+                               }) |
+                               tl::to<std::vector>();
+
+        for (auto const& [pebble_id, is_changed] : tl::views::enumerate(pebble_uncomputed)) {
             if (!is_changed) {
                 continue;
             }
-            auto xag_id       = dep_graph.get_node(DepGraphNodeID(pebble_id)).xag_id;
-            auto xag_cone_tip = xag.get_node(xag_id);
-            if (xag_cone_tip.is_input()) {
+            build_one(pebble_id);
+        }
+        for (auto const& [pebble_id, is_changed] : tl::views::enumerate(pebble_computed)) {
+            if (!is_changed) {
                 continue;
             }
-
-            auto xag_cut              = optimal_cut.at(xag_id);
-            auto const qcir_to_concat = lut[xag.calculate_truth_table(xag_cone_tip.get_id(), xag_cut)];
-
-            qsyn::QubitIdType target_qubit{};
-            if (current_qubit_state.contains(xag_id)) {
-                target_qubit = current_qubit_state[xag_id];
-            } else {
-                target_qubit = get_free_ancilla_qubit();
-            }
-
-            auto xag_to_new_qubit_id = std::map<XAGNodeID, qsyn::QubitIdType>();
-            for (auto const& [i, xag_id] : tl::views::enumerate(xag_cut)) {
-                auto xag_node               = xag.get_node(xag_id);
-                xag_to_new_qubit_id[xag_id] = gsl::narrow_cast<qsyn::QubitIdType>(i);
-            }
-            xag_to_new_qubit_id[xag_cone_tip.get_id()] = gsl::narrow_cast<qsyn::QubitIdType>(xag_cut.size());
-
-            auto concat_qubit_map = std::map<qsyn::QubitIdType, qsyn::QubitIdType>();
-            for (auto const& xag_id : xag_cut) {
-                concat_qubit_map[xag_to_new_qubit_id[xag_id]] = current_qubit_state[xag_id];
-            }
-            concat_qubit_map[xag_to_new_qubit_id[xag_cone_tip.get_id()]] = target_qubit;
-
-            qcir.concat(qcir_to_concat, concat_qubit_map);
-
-            if (current_qubit_state.contains(xag_id)) {
-                current_qubit_state.erase(xag_id);
-                free_ancilla_qubits.push(target_qubit);
-            } else {
-                current_qubit_state[xag_id] = target_qubit;
-            }
+            build_one(pebble_id);
         }
     }
 
