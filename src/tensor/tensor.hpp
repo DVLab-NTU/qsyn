@@ -793,8 +793,21 @@ void Tensor<DT>::solovay_kitaev_decompose() {
     double tr_dist = (trace_distance(a , re));
     
     std::cout <<"distance : " << tr_dist << std::endl ;
-    for (const auto& i : output_gate){std::cout <<i;}
 
+    int i = 0;
+    while (i < int(output_gate.size() - 1)) {
+        if (output_gate[i] == false && output_gate[i + 1] == false) {
+            output_gate.erase(output_gate.begin() + i, output_gate.begin() + i + 2);
+            if(i < 8){i = 0;}
+            else {i-=8;}
+        }
+        else if(output_gate[i] && output_gate[i+1] && output_gate[i+2] && output_gate[i+3] && output_gate[i+4] && output_gate[i+5] &&output_gate[i+6] &&output_gate[i+7] ){
+            output_gate.erase(output_gate.begin() + i, output_gate.begin() + i + 8);
+        } 
+        else {
+            i++;
+        }
+    }
 
     std::string filePath = "SK_result_depth" + std::to_string(depth) +".txt";
     std::ofstream outputFile(filePath);
