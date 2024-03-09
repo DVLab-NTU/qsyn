@@ -25,6 +25,7 @@
 
 #include "qcir/oracle/xag.hpp"
 #include "qsyn/qsyn_type.hpp"
+#include "util/phase.hpp"
 
 namespace {
 
@@ -325,15 +326,6 @@ void LUT::construct_lut_2() {
     }
 }
 
-void add_cccx_gate(QCir& qcir, QubitIdType const c0, QubitIdType const c1, QubitIdType const c2, QubitIdType const target) {
-    qcir.add_gate("csx", {c2, target}, {}, true);
-    qcir.add_gate("ccx", {c0, c1, c2}, {}, true);
-    qcir.add_gate("cx", {c2, target}, {}, true);
-    qcir.add_gate("csx", {c2, target}, {}, true);
-    qcir.add_gate("ccx", {c0, c1, c2}, {}, true);
-    qcir.add_gate("csx", {c2, target}, {}, true);
-}
-
 void LUT::construct_lut_3() {
     for (uint64_t const i : iota(0, 1 << 8)) {
         auto tt = kitty::dynamic_truth_table(3);
@@ -346,7 +338,7 @@ void LUT::construct_lut_3() {
         auto x   = [&qcir](auto const& target) { qcir.add_gate("cx", {0, target + 1}, {}, true); };
         auto cx  = [&qcir](auto const& control, auto const& target) { qcir.add_gate("ccx", {0, control + 1, target + 1}, {}, true); };
         auto ccx = [&qcir](auto const& c1, auto const& c2, auto const& target) {
-            add_cccx_gate(qcir, 0, c1 + 1, c2 + 1, target + 1);
+            qcir.add_gate("mcpx", {0, c1 + 1, c2 + 1, target + 1}, Phase(1), true);
         };
 
         // (a & b) ^ (!a & c)
