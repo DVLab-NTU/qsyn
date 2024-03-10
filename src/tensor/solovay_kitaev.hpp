@@ -8,6 +8,7 @@
 #pragma once
 
 #include <fmt/core.h>
+#include <spdlog/spdlog.h>
 
 #include <cstddef>
 #include <tl/to.hpp>
@@ -92,7 +93,7 @@ void SolovayKitaev::_remove_redundant_gates(std::vector<bool>& gate_sequence) {
 template <typename U>
 std::vector<QTensor<U>> SolovayKitaev::create_gate_list() {
     std::vector<QTensor<U>> base = {QTensor<U>::hgate().to_su2(),
-                                   QTensor<U>::pxgate(Phase(1 / 4)).to_su2()};
+                                   QTensor<U>::pzgate(Phase(1, 4)).to_su2()};
     std::vector<QTensor<U>> gate_list;
     // REVIEW - may need refactors
     BinaryList bin_list = _init_binary_list();
@@ -249,31 +250,7 @@ std::vector<std::complex<double>> SolovayKitaev::u_to_bloch(QTensor<U> unitary) 
 
 template <typename U>
 QTensor<U> SolovayKitaev::diagonalize(QTensor<U> u) {
-    std::tuple b = u.eigen();
-    QTensor<U> value  = std::get<0>(b);
-    QTensor<U> vector = std::get<1>(b);
     return std::get<1>(u.eigen());
-    /*
-    auto eigenvectors = vector._tensor;
-
-    if (abs(eigenvectors(0,0).real())< abs(eigenvectors(0,1).real()))
-    {
-      eigenvectors(0,0) = eigenvectors(0,1) ;
-      eigenvectors(1,0) = eigenvectors(1,1) ;
-
-    }
-    if (eigenvectors(0,0).real() < 0)
-    {
-        eigenvectors(0,0) = eigenvectors(0,0) * neg;
-        eigenvectors(1,0) = eigenvectors(1,0) * neg;
-    }
-    eigenvectors(1,1) = eigenvectors(0,0);
-    std::complex<double> temp((eigenvectors(1,0).real()) * -1,eigenvectors(1,0).imag()) ;
-    eigenvectors(0,1) = temp;
-
-    vector._tensor = eigenvectors;
-    return vector;
-    */
 }
 
 }  // namespace tensor
