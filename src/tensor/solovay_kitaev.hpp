@@ -93,7 +93,7 @@ void SolovayKitaev::_remove_redundant_gates(std::vector<bool>& gate_sequence) {
 template <typename U>
 std::vector<QTensor<U>> SolovayKitaev::create_gate_list() {
     std::vector<QTensor<U>> base = {QTensor<U>::hgate().to_su2(),
-                                   QTensor<U>::pzgate(Phase(1, 4)).to_su2()};
+                                    QTensor<U>::pzgate(Phase(1, 4)).to_su2()};
     std::vector<QTensor<U>> gate_list;
     // REVIEW - may need refactors
     BinaryList bin_list = _init_binary_list();
@@ -126,6 +126,7 @@ void SolovayKitaev::solovay_kitaev_decompose(QTensor<U> const& matrix) {
     fmt::println("Trace distance: {}", tr_dist);
 
     _remove_redundant_gates(output_gate);
+    spdlog::info("0 represent H gate, 1 represent T gate.");
 }
 
 template <typename U>
@@ -137,7 +138,7 @@ QTensor<U> SolovayKitaev::solovay_kitaev_loop(const std::vector<QTensor<U>>& gat
         QTensor<U> u_p         = solovay_kitaev_loop(gate_list, bin_list, u, recursion - 1, output_gate);
         QTensor<U> u_p_adjoint = u_p;
         u_p_adjoint.adjoint();
-        QTensor<U> u_mult = tensor_multiply(u, u_p_adjoint);
+        QTensor<U> u_mult          = tensor_multiply(u, u_p_adjoint);
         std::vector<QTensor<U>> vw = gc_decomp(u_mult);
         QTensor<U> v               = vw[0];
         QTensor<U> w               = vw[1];
@@ -157,12 +158,12 @@ QTensor<U> SolovayKitaev::solovay_kitaev_loop(const std::vector<QTensor<U>>& gat
 template <typename U>
 QTensor<U> SolovayKitaev::find_closest_u(const std::vector<QTensor<U>>& gate_list, BinaryList& bin_list, QTensor<U> u, std::vector<bool>& output_gate) {
     double min_dist  = 10;
-    QTensor<U> min_u  = QTensor<U>::identity(1);
+    QTensor<U> min_u = QTensor<U>::identity(1);
 
     size_t min_index = 0;
     for (size_t i = 0; i < gate_list.size(); i++) {
         QTensor<U> temp = gate_list[i];
-        double tr_dist = (trace_distance(temp, u));
+        double tr_dist  = (trace_distance(temp, u));
         if (min_dist - tr_dist > pow(10, -12)) {
             min_dist  = tr_dist;
             min_u     = temp;
@@ -176,30 +177,27 @@ QTensor<U> SolovayKitaev::find_closest_u(const std::vector<QTensor<U>>& gate_lis
 template <typename U>
 std::vector<QTensor<U>> SolovayKitaev::gc_decomp(QTensor<U> unitary) {
     assert(unitary.dimension() == 2);
+    using namespace std::literals;
     std::vector<std::complex<double>> axis = u_to_bloch(unitary);
-    std::complex<double> result(0, 1);
-    std::complex<double> neg(-1, 0);
     // The angle phi calculation
     std::complex<double> phi = 2.0 * asin(std::sqrt(std::sqrt(0.5 - 0.5 * cos(axis[3] / 2.0))));
-    QTensor<U> v              = {{cos(phi / 2.0), neg * result * sin(phi / 2.0)}, {neg * result * sin(phi / 2.0), cos(phi / 2.0)}};
-    QTensor<U> w              = QTensor<U>::identity(1);
+    QTensor<U> v             = {{cos(phi / 2.0), -1.i * sin(phi / 2.0)}, {-1.i * sin(phi / 2.0), cos(phi / 2.0)}};
+    QTensor<U> w             = QTensor<U>::identity(1);
 
-    // FIXME - Replace M_PI
+    constexpr auto pi = std::numbers::pi_v<double>;
     if (axis[2].real() > 0) {
-        w = {{cos((2 * M_PI - phi) / 2.0), neg * sin((2 * M_PI - phi) / 2.0)},
-             {sin((2 * M_PI - phi) / 2.0), cos((2 * M_PI - phi) / 2.0)}};
-        // w = {{cos((2 * M_PI - phi) / 2.0), sin( (2 * M_PI - phi) / 2.0)} , {neg*sin( (2 * M_PI - phi) / 2.0), cos( (2 * M_PI - phi) / 2.0)}};
+        w = {{cos((2 * pi - phi) / 2.0), -1. * sin((2 * pi - phi) / 2.0)},
+             {sin((2 * pi - phi) / 2.0), cos((2 * pi - phi) / 2.0)}};
     } else {
-        w = {{cos(phi / 2.0), neg * sin(phi / 2.0)},
+        w = {{cos(phi / 2.0), -1. * sin(phi / 2.0)},
              {sin(phi / 2.0), cos(phi / 2.0)}};
-        // w = {{cos(phi / 2.0), sin(phi / 2.0)} , {neg*sin(phi / 2.0), cos(phi / 2.0)}};
     }
     QTensor<U> ud        = (diagonalize(unitary));
     QTensor<U> adjoint_v = v;
     QTensor<U> adjoint_w = w;
     adjoint_v.adjoint();
     adjoint_w.adjoint();
-    QTensor<U> mult = tensor_multiply(v, tensor_multiply(w, tensor_multiply(adjoint_v, adjoint_w)));
+    QTensor<U> mult   = tensor_multiply(v, tensor_multiply(w, tensor_multiply(adjoint_v, adjoint_w)));
     QTensor<U> vwvdwd = diagonalize(mult);
     vwvdwd.adjoint();
 
