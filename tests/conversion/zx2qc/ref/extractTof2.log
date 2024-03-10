@@ -39,8 +39,6 @@ qsyn> logger debug
 [info]     Setting logger level to "debug"
 
 qsyn> zx2qc
-[info]     Successfully copied ZXGraph 0 to ZXGraph 1
-[info]     Checked out to ZXGraph 1
 [debug]    Initializing extractor
 [debug]    Cleaning frontier
 [debug]    Extracting single qubit gates
@@ -168,8 +166,6 @@ qsyn> zx2qc
 [info]     Finished Extracting!
 [debug]    Permuting qubits
 [info]     Successfully created and checked out to QCir 0
-[info]     Successfully removed ZXGraph 1
-[info]     Checked out to ZXGraph 0
 
 qsyn> logger warn
 

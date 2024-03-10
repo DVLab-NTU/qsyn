@@ -107,6 +107,10 @@ StabilizerTableau& StabilizerTableau::prepend_swap(size_t a, size_t b) {
     return prepend_cx(a, b).prepend_cx(b, a).prepend_cx(a, b);
 }
 
+StabilizerTableau& StabilizerTableau::prepend_ecr(size_t ctrl, size_t targ) {
+    return prepend_x(ctrl).prepend_s(ctrl).prepend_v(targ).prepend_cx(ctrl, targ);
+}
+
 StabilizerTableau& StabilizerTableau::prepend(CliffordOperator const& op) {
     auto const& [type, qubits] = op;
     switch (type) {
@@ -132,6 +136,8 @@ StabilizerTableau& StabilizerTableau::prepend(CliffordOperator const& op) {
             return prepend_cz(qubits[0], qubits[1]);
         case CliffordOperatorType::swap:
             return prepend_swap(qubits[0], qubits[1]);
+        case CliffordOperatorType::ecr:
+            return prepend_ecr(qubits[0], qubits[1]);
     }
     DVLAB_UNREACHABLE("Every Clifford type should be handled in the switch-case");
 }

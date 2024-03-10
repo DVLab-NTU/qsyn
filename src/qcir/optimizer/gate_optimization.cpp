@@ -16,23 +16,14 @@
 namespace qsyn::qcir {
 
 void Optimizer::_permute_gates(QCirGate* gate) {
-    auto qubits = gate->get_qubits();
-
-    for (size_t i = 0; i < qubits.size(); i++) {
-        for (auto& [j, k] : _permutation) {
-            if (k == qubits[i]._qubit) {
-                qubits[i]._qubit = j;
-                break;
-            }
-        }
-    }
-
-    gate->set_qubits(qubits);
+    auto const reverse_map = _permutation | std::views::transform([](auto const& p) { return std::pair(p.second, p.first); }) | tl::to<std::unordered_map>();
+    auto const qubits      = gate->get_qubits();
+    gate->set_qubits(qubits | std::views::transform([&reverse_map](auto const& operand) { return reverse_map.at(operand); }) | tl::to<QubitIdList>());
 }
 
 void Optimizer::_match_hadamards(QCirGate* gate) {
     assert(gate->is_h());
-    auto qubit = gate->get_targets()._qubit;
+    auto qubit = gate->get_qubit(0);
 
     if (_xs.contains(qubit) && !_zs.contains(qubit)) {
         spdlog::trace("Transform X gate into Z gate");
@@ -50,9 +41,9 @@ void Optimizer::_match_hadamards(QCirGate* gate) {
         if (g2->get_phase().denominator() == 2) {
             _statistics.HS_EXCHANGE++;
             spdlog::trace("Transform H-S-H into Sdg-H-Sdg");
-            auto zp = new QCirGate(_gate_count, GateRotationCategory::pz, -1 * g2->get_phase());
-            zp->add_qubit(qubit, true);
-            _gate_count++;
+            auto zp = (g2->get_phase() == Phase(1, 2))
+                          ? _store_sdg(qubit)
+                          : _store_s(qubit);
             g2->set_phase(zp->get_phase());  // NOTE - S to Sdg
             _gates[qubit].insert(_gates[qubit].end() - 2, zp);
             return;
@@ -63,7 +54,7 @@ void Optimizer::_match_hadamards(QCirGate* gate) {
 
 void Optimizer::_match_xs(QCirGate* gate) {
     assert(gate->is_x());
-    auto qubit = gate->get_targets()._qubit;
+    auto const qubit = gate->get_qubit(0);
     if (_xs.contains(qubit)) {
         spdlog::trace("Cancel X-X into Id");
         _statistics.X_CANCEL++;
@@ -73,7 +64,7 @@ void Optimizer::_match_xs(QCirGate* gate) {
 
 void Optimizer::_match_z_rotations(QCirGate* gate) {
     assert(is_single_z_rotation(gate));
-    auto qubit = gate->get_targets()._qubit;
+    auto const qubit = gate->get_qubit(0);
     if (_zs.contains(qubit)) {
         _statistics.FUSE_PHASE++;
         _zs.erase(qubit);
@@ -119,12 +110,10 @@ void Optimizer::_match_z_rotations(QCirGate* gate) {
 
 void Optimizer::_match_czs(QCirGate* gate, bool do_swap, bool do_minimize_czs) {
     assert(gate->is_cz());
-    auto control_qubit = gate->get_control()._qubit;
-    auto target_qubit  = gate->get_targets()._qubit;
+    auto control_qubit = gate->get_qubit(0);
+    auto target_qubit  = gate->get_qubit(1);
     if (control_qubit > target_qubit) {  // NOTE - Symmetric, let ctrl smaller than targ
-        auto tmp = control_qubit;
-        gate->set_target_qubit(target_qubit);
-        gate->set_control_qubit(tmp);
+        gate->set_qubits({target_qubit, control_qubit});
     }
     // NOTE - Push NOT gates trough the CZ
     // REVIEW - Seems strange
@@ -149,8 +138,8 @@ void Optimizer::_match_czs(QCirGate* gate, bool do_swap, bool do_minimize_czs) {
 
 void Optimizer::_match_cxs(QCirGate* gate, bool do_swap, bool do_minimize_czs) {
     assert(gate->is_cx());
-    auto control_qubit = gate->get_control()._qubit;
-    auto target_qubit  = gate->get_targets()._qubit;
+    auto control_qubit = gate->get_qubit(0);
+    auto target_qubit  = gate->get_qubit(1);
 
     if (_xs.contains(control_qubit))
         _toggle_element(ElementType::x, target_qubit);

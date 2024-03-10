@@ -328,7 +328,7 @@ dvlab::Command qcir_print_cmd(QCirMgr const& qcir_mgr) {
                 else if (parser.parsed("--statistics")) {
                     qcir_mgr.get()->print_qcir();
                     qcir_mgr.get()->print_gate_statistics(parser.parsed("--verbose"));
-                    qcir_mgr.get()->print_depth();
+                    fmt::println("Depth       : {}", qcir_mgr.get()->calculate_depth());
                 } else {
                     qcir_mgr.get()->print_qcir_info();
                 }
@@ -363,7 +363,8 @@ dvlab::Command qcir_gate_add_cmd(QCirMgr& qcir_mgr) {
     static dvlab::utils::ordered_hashmap<std::string, std::string> double_qubit_gates_no_phase = {
         {"cx", "CX (CNOT) gate"},
         {"cz", "CZ gate"},
-        {"swap", "SWAP gate"}};
+        {"swap", "SWAP gate"},
+        {"ecr", "Echoed crossed resonance gate"}};
 
     static dvlab::utils::ordered_hashmap<std::string, std::string> three_qubit_gates_no_phase = {
         {"ccx", "CCX (CCNOT, Toffoli) gate"},
@@ -591,33 +592,24 @@ dvlab::Command qcir_adjoint_cmd(QCirMgr& qcir_mgr) {
             }};
 }
 
-dvlab::Command qcir_phase_polynomial_cmd(QCirMgr& qcir_mgr) {
-    return {"phase_polynomial",
-            [](ArgumentParser& parser) {
-                parser.description("perform phase polynomial optimizer");
-
-                // a=-1: unlimited ancilla
-                parser.add_argument<int>("-a", "--ancilla")
-                    .nargs(NArgsOption::optional)
-                    .default_value(-1)
-                    .help("the number of ancilla to be added (default=-1)");
-
-                parser.add_argument<std::string>("-resyn", "--resynthesis")
-                    .constraint(choices_allow_prefix({"C", "G"}))
-                    .default_value("G")
-                    .help("the resynethesis method chosen(C/G). If not specified, the default method i\ns gaussian elimination(G).");
-            },
-            [&](ArgumentParser const& parser) {
-                if (qcir_mgr.empty()) {
-                    spdlog::info("QCir list is empty now. Create a new one.");
-                    qcir_mgr.add(qcir_mgr.get_next_id());
-                }
-
-                // TODO
-                fmt::println("phase-polynomial {}", parser.get<std::string>("--resynthesis"));
-
-                return CmdExecResult::done;
-            }};
+dvlab::Command qcir_translate_cmd(QCirMgr& qcir_mgr) {
+    return {
+        "translate",
+        [&](ArgumentParser& parser) {
+            parser.description("translate the circuit into a specific gate set");
+            parser.add_argument<std::string>("gate_set")
+                .help("the specific gate set ('sherbrooke', 'kyiv', 'prague')")
+                .choices(std::initializer_list<std::string>{"sherbrooke", "kyiv", "prague"});
+        },
+        [=, &qcir_mgr](ArgumentParser const& parser) {
+            QCir translated_qcir;
+            auto gate_set = parser.get<std::string>("gate_set");
+            translated_qcir.translate(*qcir_mgr.get(), gate_set);
+            std::string const filename = qcir_mgr.get()->get_filename();
+            qcir_mgr.set(std::make_unique<QCir>(std::move(translated_qcir)));
+            qcir_mgr.get()->set_filename(filename);
+            return CmdExecResult::done;
+        }};
 }
 
 Command qcir_cmd(QCirMgr& qcir_mgr) {
@@ -639,6 +631,7 @@ Command qcir_cmd(QCirMgr& qcir_mgr) {
     cmd.add_subcommand("qcir-cmd-group", qcir_gate_cmd(qcir_mgr));
     cmd.add_subcommand("qcir-cmd-group", qcir_qubit_cmd(qcir_mgr));
     cmd.add_subcommand("qcir-cmd-group", qcir_optimize_cmd(qcir_mgr));
+    cmd.add_subcommand("qcir-cmd-group", qcir_translate_cmd(qcir_mgr));
     return cmd;
 }
 

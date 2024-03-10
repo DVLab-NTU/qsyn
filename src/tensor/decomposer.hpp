@@ -218,7 +218,8 @@ std::optional<std::pair<size_t, size_t>> Decomposer::_get_two_level_matrix_indic
                 return std::make_pair(top_main_diagonal_coords - 1, top_main_diagonal_coords);
             }
         }
-        return std::make_pair(SIZE_MAX, SIZE_MAX);  // signals identity
+        if (num_found_diagonal == 0)
+            return std::make_pair(SIZE_MAX, SIZE_MAX);  // signals identity
         // if (num_found_diagonal == 0)  // identity
         //     return two_level_chain;
     }

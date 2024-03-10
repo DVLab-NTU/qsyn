@@ -12,4 +12,11 @@ convert tensor qcir
 convert qcir tensor
 tensor list
 tensor equiv 2 3
+qcir read benchmark/SABRE/small/4mod5-v1_24.qasm
+convert qcir tensor
+tensor list
+convert tensor qcir
+convert qcir tensor
+tensor list
+tensor equiv 4 5
 quit -f

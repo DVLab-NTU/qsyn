@@ -58,6 +58,9 @@ void add_clifford_gate(qcir::QCir& qcir, CliffordOperator const& op) {
         case COT::swap:
             qcir.add_gate("swap", {gsl::narrow<QubitIdType>(qubits[0]), gsl::narrow<QubitIdType>(qubits[1])}, {}, true);
             break;
+        case COT::ecr:
+            qcir.add_gate("ecr", {gsl::narrow<QubitIdType>(qubits[0]), gsl::narrow<QubitIdType>(qubits[1])}, {}, true);
+            break;
     }
 }
 }  // namespace

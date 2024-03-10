@@ -56,7 +56,7 @@ Command qcir_optimize_cmd(QCirMgr& qcir_mgr) {
                 Optimizer optimizer;
                 std::optional<QCir> result;
                 std::string procedure_str{};
-                if (parser.get<bool>("--trivial")) {
+                if (parser.get<bool>("--trivial") || !qcir_mgr.get()->get_gate_set().empty()) {
                     result        = optimizer.trivial_optimization(*qcir_mgr.get());
                     procedure_str = "Trivial Optimize";
                 } else {

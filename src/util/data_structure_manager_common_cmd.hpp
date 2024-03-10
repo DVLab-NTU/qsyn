@@ -140,9 +140,10 @@ Command mgr_delete_cmd(DataStructureManager<T>& mgr) {
 
                 if (parser.parsed("--all")) {
                     mgr.clear();
-                } else {
+                } else if (!parser.parsed("id")) {
+                    mgr.remove(SIZE_MAX);
+                } else
                     mgr.remove(parser.get<size_t>("id"));
-                }
 
                 return CmdExecResult::done;
             }};
