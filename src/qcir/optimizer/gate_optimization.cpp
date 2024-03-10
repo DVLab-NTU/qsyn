@@ -17,7 +17,8 @@ namespace qsyn::qcir {
 
 void Optimizer::_permute_gates(QCirGate* gate) {
     auto const reverse_map = _permutation | std::views::transform([](auto const& p) { return std::pair(p.second, p.first); }) | tl::to<std::unordered_map>();
-    gate->set_qubits(gate->get_qubits() | std::views::transform([&reverse_map](auto const& operand) { return reverse_map.at(operand); }) | tl::to<QubitIdList>());
+    auto const qubits      = gate->get_qubits();
+    gate->set_qubits(qubits | std::views::transform([&reverse_map](auto const& operand) { return reverse_map.at(operand); }) | tl::to<QubitIdList>());
 }
 
 void Optimizer::_match_hadamards(QCirGate* gate) {

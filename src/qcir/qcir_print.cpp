@@ -27,14 +27,16 @@ void QCir::print_gates(bool print_neighbors, std::span<size_t> gate_ids) const {
         auto const get_predecessor_gate_id = [](std::optional<size_t> pred) -> std::string {
             return pred.has_value() ? fmt::format("{}", *pred) : "Start";
         };
-        fmt::println("- Predecessors: {}", fmt::join(get_predecessors(gate_id) | std::views::transform(get_predecessor_gate_id), ", "));
+        auto const predecessors = get_predecessors(gate_id);
+        fmt::println("- Predecessors: {}", fmt::join(predecessors | std::views::transform(get_predecessor_gate_id), ", "));
     };
 
     auto const print_successors = [this](size_t gate_id) {
         auto const get_successor_gate_id = [](std::optional<size_t> succ) -> std::string {
             return succ.has_value() ? fmt::format("{}", *succ) : "End";
         };
-        fmt::println("- Successors  : {}", fmt::join(get_successors(gate_id) | std::views::transform(get_successor_gate_id), ", "));
+        auto const successors = get_successors(gate_id);
+        fmt::println("- Successors  : {}", fmt::join(successors | std::views::transform(get_successor_gate_id), ", "));
     };
 
     auto const times = calculate_gate_times();

@@ -210,14 +210,16 @@ QCirQubit* QCir::get_qubit(QubitIdType id) const {
 
 size_t QCir::calculate_depth() const {
     if (is_empty()) return 0;
-    return std::ranges::max(calculate_gate_times() | std::views::values);
+    auto const times = calculate_gate_times();
+    return std::ranges::max(times | std::views::values);
 }
 
 std::unordered_map<size_t, size_t> QCir::calculate_gate_times() const {
     auto gate_times   = std::unordered_map<size_t, size_t>{};
     auto const lambda = [&](QCirGate* curr_gate) {
-        size_t const max_time = std::ranges::max(
-            get_predecessors(curr_gate->get_id()) |
+        auto const predecessors = get_predecessors(curr_gate->get_id());
+        size_t const max_time   = std::ranges::max(
+            predecessors |
             std::views::transform(
                 [&](std::optional<size_t> predecessor) {
                     return predecessor ? gate_times.at(*predecessor) : 0;
