@@ -250,8 +250,8 @@ std::vector<std::complex<double>> SolovayKitaev::u_to_bloch(QTensor<U> unitary) 
 template <typename U>
 QTensor<U> SolovayKitaev::diagonalize(QTensor<U> u) {
     std::tuple b = u.eigen();
-    Tensor<U> value  = std::get<0>(b);
-    Tensor<U> vector = std::get<1>(b);
+    QTensor<U> value  = std::get<0>(b);
+    QTensor<U> vector = std::get<1>(b);
     return std::get<1>(u.eigen());
     /*
     auto eigenvectors = vector._tensor;
