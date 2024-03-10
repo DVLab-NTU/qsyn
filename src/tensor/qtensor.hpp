@@ -59,6 +59,10 @@ public:
         using namespace std::literals;
         return {{1. + 0.i, 0. + 0.i}, {0. + 0.i, -1. + 0.i}};
     }
+    static QTensor<T> hgate() {
+        using namespace std::literals;
+        return {{1./sqrt(2) + 0.i, 1./sqrt(2) + 0.i}, {1./sqrt(2) + 0.i, -1./sqrt(2) + 0.i}};
+    }
     static QTensor<T> rxgate(dvlab::Phase const& phase = dvlab::Phase(0));
     static QTensor<T> rygate(dvlab::Phase const& phase = dvlab::Phase(0));
     static QTensor<T> rzgate(dvlab::Phase const& phase = dvlab::Phase(0));
@@ -70,6 +74,8 @@ public:
     QTensor<T> self_tensor_dot(TensorAxisList const& ax1 = {}, TensorAxisList const& ax2 = {});
 
     QTensor<T> to_qtensor() const;
+    
+    QTensor<T> to_su2() const;
 
     template <typename U>
     friend std::complex<U> global_scalar_factor(QTensor<U> const& t1, QTensor<U> const& t2);
@@ -319,6 +325,13 @@ QTensor<T> QTensor<T>::to_qtensor() const {
     result.reshape(TensorAxisList(dim, 2));
 
     return result.transpose(ax);
+}
+
+template <typename T>
+QTensor<T> QTensor<T>::to_su2() const {
+    // std::complex<double> det = u.determinant();
+    // std::complex<double> one(1, 0);
+    return std::sqrt(1.0 / this->determinant()) * this->_tensor;
 }
 
 /**

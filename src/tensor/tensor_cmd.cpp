@@ -10,6 +10,7 @@
 
 #include "./tensor_mgr.hpp"
 #include "cli/cli.hpp"
+#include "tensor/solovay_kitaev.hpp"
 #include "util/data_structure_manager_common_cmd.hpp"
 #include "util/phase.hpp"
 #include "util/text_format.hpp"
@@ -179,13 +180,23 @@ Command tensor_sk_decompose_cmd(TensorMgr& tensor_mgr) {
                     .constraint(valid_tensor_id(tensor_mgr))
                     .nargs(NArgsOption::optional)
                     .help("the ID of the tensor");
+
+                parser.add_argument<size_t>("-d", "--depth")
+                    .required(true)
+                    .help("the depth of the gate list");
+
+                parser.add_argument<size_t>("-r", "--recursion")
+                    .required(true)
+                    .help("the recursion times of Solovay-Kitaev algorithm");
             },
             // NOTE - Check the function solovay_kitaev_decompose
             [&](ArgumentParser const& parser) {
+                tensor::SolovayKitaev decomposer(parser.get<size_t>("--depth"), parser.get<size_t>("--recursion"));
                 if (parser.parsed("id")) {
                     tensor_mgr.find_by_id(parser.get<size_t>("id"))->solovay_kitaev_decompose();
                 } else {
-                    tensor_mgr.get()->solovay_kitaev_decompose();
+                    // tensor_mgr.get()->solovay_kitaev_decompose();
+                    decomposer.solovay_kitaev_decompose(*tensor_mgr.get());
                 }
                 return CmdExecResult::done;
             }};
