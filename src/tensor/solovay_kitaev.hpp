@@ -17,8 +17,6 @@
 #include "qsyn/qsyn_type.hpp"
 #include "tensor/qtensor.hpp"
 #include "tensor/tensor.hpp"
-#include "util/phase.hpp"
-#include "util/util.hpp"
 
 namespace qsyn {
 

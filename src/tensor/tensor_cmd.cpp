@@ -199,9 +199,8 @@ Command tensor_sk_decompose_cmd(TensorMgr& tensor_mgr) {
             [&](ArgumentParser const& parser) {
                 tensor::SolovayKitaev decomposer(parser.get<size_t>("--depth"), parser.get<size_t>("--recursion"));
                 if (parser.parsed("id")) {
-                    tensor_mgr.find_by_id(parser.get<size_t>("id"))->solovay_kitaev_decompose();
+                    decomposer.solovay_kitaev_decompose(*tensor_mgr.find_by_id(parser.get<size_t>("id")));
                 } else {
-                    // tensor_mgr.get()->solovay_kitaev_decompose();
                     decomposer.solovay_kitaev_decompose(*tensor_mgr.get());
                 }
                 return CmdExecResult::done;
