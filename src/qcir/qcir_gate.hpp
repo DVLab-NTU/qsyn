@@ -85,7 +85,6 @@ public:
     std::vector<QubitInfo>& legacy_get_qubits() { return _qubits; }
 
     GateRotationCategory get_rotation_category() const { return _rotation_category; }
-    void set_rotation_category(GateRotationCategory type);
     dvlab::Phase get_phase() const { return _phase; }
     void set_phase(dvlab::Phase p);
 

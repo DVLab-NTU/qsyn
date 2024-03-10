@@ -27,16 +27,6 @@ namespace {
 
 #include <algorithm>
 
-bool is_allowed_rotation(qcir::QCirGate const& gate) {
-    return (
-        gate.get_rotation_category() == qcir::GateRotationCategory::rz ||
-        gate.get_rotation_category() == qcir::GateRotationCategory::pz ||
-        gate.get_rotation_category() == qcir::GateRotationCategory::rx ||
-        gate.get_rotation_category() == qcir::GateRotationCategory::px ||
-        gate.get_rotation_category() == qcir::GateRotationCategory::ry ||
-        gate.get_rotation_category() == qcir::GateRotationCategory::py);
-};
-
 Pauli to_pauli(qcir::GateRotationCategory const& category) {
     switch (category) {
         case qcir::GateRotationCategory::rz:
@@ -160,11 +150,6 @@ void implement_mcpz(Tableau& tableau, qcir::QCirGate const& gate, dvlab::Phase c
 }
 
 void implement_rotation_gate(Tableau& tableau, qcir::QCirGate const& gate) {
-    if (!is_allowed_rotation(gate)) {
-        spdlog::error("Gate {} is not allowed in at the moment!!", gate.get_type_str());
-        return;
-    }
-
     auto const pauli = to_pauli(gate.get_rotation_category());
 
     auto const targ = gsl::narrow<size_t>(gate.get_qubit(gate.get_num_qubits() - 1));
@@ -213,7 +198,7 @@ std::optional<Tableau> to_tableau(qcir::QCir const& qcir) {
     };
 
     for (auto const& gate : qcir.get_gates()) {
-        if (!is_allowed_clifford(*gate) && !is_allowed_rotation(*gate)) {
+        if (!is_allowed_clifford(*gate)) {
             spdlog::error("Gate ID {} of type {} is not allowed in at the moment!!", gate->get_id(), gate->get_type_str());
             return std::nullopt;
         }
@@ -245,11 +230,8 @@ std::optional<Tableau> to_tableau(qcir::QCir const& qcir) {
             result.swap(gate->get_qubit(0), gate->get_qubit(1));
         } else if (gate->get_type_str() == "ecr") {
             result.ecr(gate->get_qubit(0), gate->get_qubit(1));
-        } else if (is_allowed_rotation(*gate)) {
-            implement_rotation_gate(result, *gate);
         } else {
-            spdlog::error("Gate {} is not allowed in at the moment!!", gate->get_type_str());
-            return std::nullopt;
+            implement_rotation_gate(result, *gate);
         }
     }
 

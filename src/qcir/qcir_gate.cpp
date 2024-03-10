@@ -42,12 +42,6 @@ std::string QCirGate::get_type_str() const {
 //     _print_single_qubit_or_controlled_gate(type_str, show_phase);
 // }
 
-void QCirGate::set_rotation_category(GateRotationCategory type) {
-    _rotation_category = type;
-    if (is_fixed_phase_gate(type)) {
-        _phase = get_fixed_phase(type);
-    }
-}
 void QCirGate::set_phase(dvlab::Phase p) {
     if (is_fixed_phase_gate(_rotation_category) && p != get_fixed_phase(_rotation_category)) {
         spdlog::error("Gate type {} cannot be set with phase {}!", get_type_str(), p);
