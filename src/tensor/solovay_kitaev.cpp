@@ -6,6 +6,7 @@
 ****************************************************************************/
 
 #include "./solovay_kitaev.hpp"
+
 #include <sul/dynamic_bitset.hpp>
 
 namespace qsyn::tensor {
