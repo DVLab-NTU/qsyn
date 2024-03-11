@@ -94,7 +94,7 @@ std::vector<QTensor<U>> SolovayKitaev::create_gate_list() {
                                     QTensor<U>::pzgate(Phase(1, 4)).to_su2()};
     std::vector<QTensor<U>> gate_list;
     // REVIEW - may need refactors
-    BinaryList bin_list = _init_binary_list();
+    const BinaryList bin_list = _init_binary_list();
 
     for (const auto& bits : bin_list) {
         QTensor<U> u = QTensor<U>::identity(1);
@@ -114,7 +114,7 @@ void SolovayKitaev::solovay_kitaev_decompose(QTensor<U> const& matrix) {
     spdlog::info("#Recursions: {}", _recursion);
 
     spdlog::info("Creating gate list");
-    std::vector<QTensor<U>> gate_list = create_gate_list<U>();
+    const std::vector<QTensor<U>> gate_list = create_gate_list<U>();
 
     spdlog::info("Performing SK algorithm");
     std::vector<bool> output_gate;
@@ -130,26 +130,23 @@ void SolovayKitaev::solovay_kitaev_decompose(QTensor<U> const& matrix) {
 template <typename U>
 QTensor<U> SolovayKitaev::solovay_kitaev_loop(const std::vector<QTensor<U>>& gate_list, BinaryList& bin_list, QTensor<U> u, size_t recursion, std::vector<bool>& output_gate) {
     if (recursion == 0) {
-        QTensor<U> re = find_closest_u(gate_list, bin_list, u, output_gate);
-        return re;
+        return find_closest_u(gate_list, bin_list, u, output_gate);
     } else {
-        QTensor<U> u_p         = solovay_kitaev_loop(gate_list, bin_list, u, recursion - 1, output_gate);
+        const QTensor<U> u_p   = solovay_kitaev_loop(gate_list, bin_list, u, recursion - 1, output_gate);
         QTensor<U> u_p_adjoint = u_p;
         u_p_adjoint.adjoint();
-        QTensor<U> u_mult          = tensor_multiply(u, u_p_adjoint);
+        const QTensor<U> u_mult    = tensor_multiply(u, u_p_adjoint);
         std::vector<QTensor<U>> vw = gc_decomp(u_mult);
-        QTensor<U> v               = vw[0];
-        QTensor<U> w               = vw[1];
-        QTensor<U> v_p             = solovay_kitaev_loop(gate_list, bin_list, v, recursion - 1, output_gate);
-        QTensor<U> w_p             = solovay_kitaev_loop(gate_list, bin_list, w, recursion - 1, output_gate);
+        const QTensor<U> v         = vw[0];
+        const QTensor<U> w         = vw[1];
+        const QTensor<U> v_p       = solovay_kitaev_loop(gate_list, bin_list, v, recursion - 1, output_gate);
+        const QTensor<U> w_p       = solovay_kitaev_loop(gate_list, bin_list, w, recursion - 1, output_gate);
 
         QTensor<U> v_p_adjoint = v_p;
         QTensor<U> w_p_adjoint = w_p;
         v_p_adjoint.adjoint();
         w_p_adjoint.adjoint();
-
-        QTensor<U> re = tensor_multiply(v_p, tensor_multiply(w_p, tensor_multiply(v_p_adjoint, tensor_multiply(w_p_adjoint, u_p))));
-        return re;
+        return tensor_multiply(v_p, tensor_multiply(w_p, tensor_multiply(v_p_adjoint, tensor_multiply(w_p_adjoint, u_p))));
     }
 }
 
@@ -160,11 +157,10 @@ QTensor<U> SolovayKitaev::find_closest_u(const std::vector<QTensor<U>>& gate_lis
 
     size_t min_index = 0;
     for (size_t i = 0; i < gate_list.size(); i++) {
-        QTensor<U> temp = gate_list[i];
-        double tr_dist  = (trace_distance(temp, u));
+        const double tr_dist = trace_distance(gate_list[i], u);
         if (min_dist - tr_dist > pow(10, -12)) {
             min_dist  = tr_dist;
-            min_u     = temp;
+            min_u     = gate_list[i];
             min_index = i;
         }
     }
@@ -178,9 +174,9 @@ std::vector<QTensor<U>> SolovayKitaev::gc_decomp(QTensor<U> unitary) {
     using namespace std::literals;
     std::vector<std::complex<double>> axis = u_to_bloch(unitary);
     // The angle phi calculation
-    std::complex<double> phi = 2.0 * asin(std::sqrt(std::sqrt(0.5 - 0.5 * cos(axis[3] / 2.0))));
-    QTensor<U> v             = {{cos(phi / 2.0), -1.i * sin(phi / 2.0)}, {-1.i * sin(phi / 2.0), cos(phi / 2.0)}};
-    QTensor<U> w             = QTensor<U>::identity(1);
+    const std::complex<double> phi = 2.0 * asin(std::sqrt(std::sqrt(0.5 - 0.5 * cos(axis[3] / 2.0))));
+    const QTensor<U> v             = {{cos(phi / 2.0), -1.i * sin(phi / 2.0)}, {-1.i * sin(phi / 2.0), cos(phi / 2.0)}};
+    QTensor<U> w                   = QTensor<U>::identity(1);
 
     constexpr auto pi = std::numbers::pi_v<double>;
     if (axis[2].real() > 0) {
@@ -190,56 +186,45 @@ std::vector<QTensor<U>> SolovayKitaev::gc_decomp(QTensor<U> unitary) {
         w = {{cos(phi / 2.0), -1. * sin(phi / 2.0)},
              {sin(phi / 2.0), cos(phi / 2.0)}};
     }
-    QTensor<U> ud        = (diagonalize(unitary));
+    // QTensor<U> ud        = (diagonalize(unitary));
     QTensor<U> adjoint_v = v;
     QTensor<U> adjoint_w = w;
     adjoint_v.adjoint();
     adjoint_w.adjoint();
-    QTensor<U> mult   = tensor_multiply(v, tensor_multiply(w, tensor_multiply(adjoint_v, adjoint_w)));
-    QTensor<U> vwvdwd = diagonalize(mult);
+    // NOTE - Cannot infer if merging into one line
+    const QTensor<U> mult = tensor_multiply(v, tensor_multiply(w, tensor_multiply(adjoint_v, adjoint_w)));
+    QTensor<U> vwvdwd     = diagonalize(mult);
     vwvdwd.adjoint();
 
-    QTensor<U> s = tensor_multiply(ud, vwvdwd);
+    const QTensor<U> s = tensor_multiply(diagonalize(unitary), vwvdwd);
 
     QTensor<U> adjoint_s = s;
     adjoint_s.adjoint();
 
-    QTensor<U> v_hat           = tensor_multiply(s, tensor_multiply(v, adjoint_s));
-    QTensor<U> w_hat           = tensor_multiply(s, tensor_multiply(w, adjoint_s));
-    std::vector<QTensor<U>> vw = {v_hat, w_hat};
-
-    return vw;
+    // return v_hat w_hat
+    return {tensor_multiply(s, tensor_multiply(v, adjoint_s)), tensor_multiply(s, tensor_multiply(w, adjoint_s))};
 }
 
 template <typename U>
 std::vector<std::complex<double>> SolovayKitaev::u_to_bloch(QTensor<U> unitary) {
     assert(unitary.dimension() == 2);
+    using namespace std::literals;
     std::vector<std::complex<double>> axis;
-    auto matrix        = unitary;
-    const double angle = (acos((matrix(0, 0) + matrix(1, 1)) / 2.0)).real();
+    const double angle = (acos((unitary(0, 0) + unitary(1, 1)) / 2.0)).real();
     const double sine  = sin(angle);
     if (sine < pow(10, -10)) {
-        std::complex<double> nx(0, 0);
-        std::complex<double> ny(0, 0);
-        std::complex<double> nz(1, 0);
-        std::complex<double> angle_2(2 * angle, 0);
-
-        axis.push_back(nx);
-        axis.push_back(ny);
-        axis.push_back(nz);
-        axis.push_back(angle_2);
+        // nx, ny, nz, angle
+        axis.emplace_back(0);
+        axis.emplace_back(0);
+        axis.emplace_back(1);
+        axis.emplace_back(2 * angle);
 
     } else {
-        std::complex<double> j_2(0, 2);
-        std::complex<double> nx = (matrix(0, 1) + matrix(1, 0)) / (sine * j_2);
-        std::complex<double> ny = (matrix(0, 1) - matrix(1, 0)) / (sine * 2);
-        std::complex<double> nz = (matrix(0, 0) - matrix(1, 1)) / (sine * j_2);
-        std::complex<double> angle_2(2 * angle, 0);
-
-        axis.push_back(nx);
-        axis.push_back(ny);
-        axis.push_back(nz);
-        axis.push_back(angle_2);
+        // nx, ny, nz, angle
+        axis.emplace_back((unitary(0, 1) + unitary(1, 0)) / (sine * 2.i));
+        axis.emplace_back((unitary(0, 1) - unitary(1, 0)) / (sine * 2));
+        axis.emplace_back((unitary(0, 0) - unitary(1, 1)) / (sine * 2.i));
+        axis.emplace_back(2 * angle);
     }
     return axis;
 }

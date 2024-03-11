@@ -62,7 +62,7 @@ public:
     }
     static QTensor<T> hgate() {
         using namespace std::literals;
-        return {{1./sqrt(2) + 0.i, 1./sqrt(2) + 0.i}, {1./sqrt(2) + 0.i, -1./sqrt(2) + 0.i}};
+        return {{1. / sqrt(2) + 0.i, 1. / sqrt(2) + 0.i}, {1. / sqrt(2) + 0.i, -1. / sqrt(2) + 0.i}};
     }
     static QTensor<T> rxgate(dvlab::Phase const& phase = dvlab::Phase(0));
     static QTensor<T> rygate(dvlab::Phase const& phase = dvlab::Phase(0));
@@ -75,7 +75,7 @@ public:
     QTensor<T> self_tensor_dot(TensorAxisList const& ax1 = {}, TensorAxisList const& ax2 = {});
 
     QTensor<T> to_qtensor() const;
-    
+
     QTensor<T> to_su2() const;
 
     template <typename U>
