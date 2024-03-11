@@ -27,6 +27,9 @@ using tensor::Tensor;
 using BinaryList = std::vector<std::vector<bool>>;
 
 namespace tensor {
+
+
+
 class SolovayKitaev {
 public:
     SolovayKitaev(size_t d, size_t r) : _depth(d), _recursion(r){};
@@ -56,9 +59,12 @@ private:
     template <typename U>
     std::vector<std::complex<double>> _to_bloch(QTensor<U> u);
 
+    
+
     BinaryList _init_binary_list() const;
     void _remove_redundant_gates(std::vector<bool>& gate_sequence);
     void _save_gates(const std::vector<bool>& gate_sequence);
+
 };
 
 /**
@@ -81,18 +87,33 @@ std::optional<QCir> SolovayKitaev::solovay_kitaev_decompose(QTensor<U> const& ma
 
     spdlog::debug("Performing SK algorithm");
     std::vector<bool> output_gates;
+
     BinaryList bin_list = _init_binary_list();
 
     const double tr_dist = trace_distance(matrix, _solovay_kitaev_iteration(gate_list, bin_list, matrix, _recursion, output_gates));
+
     fmt::println("\nTrace distance: {:.{}f}\n", tr_dist, 6);
 
-    // _remove_redundant_gates(output_gates);
+    std::vector<QTensor<U>> base = {QTensor<U>::hgate().to_su2(),
+                                    QTensor<U>::pzgate(Phase(1, 4)).to_su2()};
+    QTensor<U> u = QTensor<U>::identity(1);
+
+    for (const auto& bit : output_gates) {
+        u = (bit) ? tensor_multiply(u, base[1]) : tensor_multiply(u, base[0]);
+    }
+    auto b = trace_distance(matrix, u);
+    spdlog::error("Trace distance from calculation: {}", b);
+
+    _remove_redundant_gates(output_gates);
+
     _save_gates(output_gates);
     spdlog::error("{}", to_tensor(_quantum_circuit).value());
     auto a = trace_distance(to_tensor(_quantum_circuit).value(), matrix);
     spdlog::error("Trace distance from Quantum Circuit: {}", a);
     return _quantum_circuit;
 }
+
+
 
 /**
  * @brief
@@ -110,22 +131,113 @@ std::optional<QCir> SolovayKitaev::solovay_kitaev_decompose(QTensor<U> const& ma
 template <typename U>
 QTensor<U> SolovayKitaev::_solovay_kitaev_iteration(const std::vector<QTensor<U>>& gate_list, BinaryList& bin_list, QTensor<U> u, size_t recursion, std::vector<bool>& output_gate) {
     if (recursion == 0) {
-        return _find_and_insert_closest_u(gate_list, bin_list, u, output_gate);
+        return _find_and_insert_closest_u(gate_list, bin_list, u, output_gate );
     } else {
-        const QTensor<U> u_p   = _solovay_kitaev_iteration(gate_list, bin_list, u, recursion - 1, output_gate);
+        std::vector<bool> output_gate_u_p;
+        const QTensor<U> u_p   = _solovay_kitaev_iteration(gate_list, bin_list, u, recursion - 1, output_gate_u_p);
         QTensor<U> u_p_adjoint = u_p;
         u_p_adjoint.adjoint();
         const QTensor<U> u_mult    = tensor_multiply(u, u_p_adjoint);
         std::vector<QTensor<U>> vw = _gc_decompose(u_mult);
         const QTensor<U> v         = vw[0];
         const QTensor<U> w         = vw[1];
-        const QTensor<U> v_p       = _solovay_kitaev_iteration(gate_list, bin_list, v, recursion - 1, output_gate);
-        const QTensor<U> w_p       = _solovay_kitaev_iteration(gate_list, bin_list, w, recursion - 1, output_gate);
+        std::vector<bool> output_gate_v_p;
+        std::vector<bool> output_gate_w_p;
+        const QTensor<U> v_p       = _solovay_kitaev_iteration(gate_list, bin_list, v, recursion - 1, output_gate_v_p);
+        const QTensor<U> w_p       = _solovay_kitaev_iteration(gate_list, bin_list, w, recursion - 1, output_gate_w_p);
+        
+        // std::vector<bool> output_gate_v_p_adjoint = _bin_adjoint(output_gate_v_p);
+        // std::vector<bool> output_gate_w_p_adjoint = _bin_adjoint(output_gate_w_p);
+
+
+        std::vector<bool> output_gate_v_p_adjoint;
+        bool neg = false;
+        for (size_t i = 0; i < output_gate_v_p.size(); i++){
+            size_t len = output_gate_v_p.size() -1;
+            if(output_gate_v_p[len-i] == 0){
+                if(output_gate_v_p_adjoint.size() == 0){
+                    output_gate_v_p_adjoint.emplace_back(false);
+                    neg = !neg;
+                }
+                else if(output_gate_v_p_adjoint[output_gate_v_p_adjoint.back()] == 0){
+                    output_gate_v_p_adjoint.pop_back();
+                }
+                else{
+                    output_gate_v_p_adjoint.emplace_back(false);
+                    neg = !neg;
+                }
+            }
+            else{
+                if(output_gate_v_p_adjoint.size() == 0){
+                    output_gate_v_p_adjoint.emplace_back(true);
+                    neg = !neg;
+                }
+                else if(output_gate_v_p_adjoint[output_gate_v_p_adjoint.back()] == 1){
+                    output_gate_v_p_adjoint.pop_back();
+                }
+                else{
+                    for(int j = 0; j < 7; j++){
+                        output_gate_v_p_adjoint.emplace_back(true);
+                    }
+                    neg = !neg;
+                }
+            }
+        } 
+        if(neg){
+            output_gate_v_p_adjoint.emplace_back(false);
+            output_gate_v_p_adjoint.emplace_back(false);
+        }
+        
+        std::vector<bool> output_gate_w_p_adjoint;
+        neg = false;
+        for (size_t i = 0; i < output_gate_w_p.size(); i++){
+            size_t len = output_gate_w_p.size() -1;
+            if(output_gate_w_p[len-i] == 0){
+                if(output_gate_w_p_adjoint.size() == 0){
+                    output_gate_w_p_adjoint.emplace_back(false);
+                    neg = !neg;
+                }
+                else if(output_gate_w_p_adjoint[output_gate_w_p_adjoint.back()] == 0){
+                    output_gate_w_p_adjoint.pop_back();
+                }
+                else{
+                    output_gate_w_p_adjoint.emplace_back(false);
+                    neg = !neg;
+                }
+            }
+            else{
+                if(output_gate_w_p_adjoint.size() == 0){
+                    output_gate_w_p_adjoint.emplace_back(true);
+                    neg = !neg;
+                }
+                else if(output_gate_w_p_adjoint[output_gate_w_p_adjoint.back()] == 1){
+                    output_gate_w_p_adjoint.pop_back();
+                }
+                else{
+                    for(int j = 0; j < 7; j++){
+                        output_gate_w_p_adjoint.emplace_back(true);
+                    }
+                    neg = !neg;
+                }
+            }
+        } 
+        if(neg){
+            output_gate_w_p_adjoint.emplace_back(false);
+            output_gate_w_p_adjoint.emplace_back(false);
+        }
+
+
+        output_gate.insert(output_gate.end(), output_gate_v_p.begin(), output_gate_v_p.end());
+        output_gate.insert(output_gate.end(), output_gate_w_p.begin(), output_gate_w_p.end());
+        output_gate.insert(output_gate.end(), output_gate_v_p_adjoint.begin(), output_gate_v_p_adjoint.end());
+        output_gate.insert(output_gate.end(), output_gate_w_p_adjoint.begin(), output_gate_w_p_adjoint.end());
+        output_gate.insert(output_gate.end(), output_gate_u_p.begin(), output_gate_u_p.end());
 
         QTensor<U> v_p_adjoint = v_p;
         QTensor<U> w_p_adjoint = w_p;
         v_p_adjoint.adjoint();
         w_p_adjoint.adjoint();
+
         return tensor_multiply(v_p, tensor_multiply(w_p, tensor_multiply(v_p_adjoint, tensor_multiply(w_p_adjoint, u_p))));
     }
 }
@@ -154,7 +266,7 @@ QTensor<U> SolovayKitaev::_find_and_insert_closest_u(const std::vector<QTensor<U
             min_index = i;
         }
     }
-    output_gate.insert(output_gate.end(), bin_list[min_index].begin(), bin_list[min_index].end());
+    output_gate = bin_list[min_index];
     return min_u;
 }
 
@@ -261,6 +373,8 @@ std::vector<QTensor<U>> SolovayKitaev::_create_gate_list() {
     }
     return gate_list;
 }
+
+
 
 }  // namespace tensor
 
