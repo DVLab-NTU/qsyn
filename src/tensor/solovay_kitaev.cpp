@@ -6,6 +6,7 @@
 ****************************************************************************/
 
 #include "./solovay_kitaev.hpp"
+#include <sul/dynamic_bitset.hpp>
 
 namespace qsyn::tensor {
 
@@ -18,7 +19,7 @@ BinaryList SolovayKitaev::_init_binary_list() const {
     BinaryList bin_list;
     for (size_t i = 1; i <= _depth; i++) {
         for (size_t j = 0; j < gsl::narrow<size_t>(std::pow(2, i)); j++) {
-            boost::dynamic_bitset<> bitset(i, j);
+            sul::dynamic_bitset<> bitset(i, j);
             std::vector<bool> bit_vector;
             for (size_t k = 0; k < i; ++k)
                 bit_vector.emplace_back(bitset[k]);

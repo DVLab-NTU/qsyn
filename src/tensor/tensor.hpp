@@ -12,7 +12,6 @@
 #include <math.h>
 #include <spdlog/spdlog.h>
 
-#include <boost/dynamic_bitset.hpp>
 #include <cassert>
 #include <complex>
 #include <cstddef>
