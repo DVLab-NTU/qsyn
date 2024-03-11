@@ -311,15 +311,11 @@ std::complex<double> Tensor<DT>::determinant() const {
 template <typename DT>
 std::complex<double> Tensor<DT>::trace() {
     assert(dimension() == 2);
-    return _tensor(0, 0) + _tensor(1, 1);
-    // TODO - Change to xt
-    // return xt::linalg::trace(_tensor).at(0);
+    return xt::sum(xt::diagonal(_tensor))();
 }
 
 template <typename DT>
 auto Tensor<DT>::eigen() {
-    // TODO - Check the return type, may be std::pair<value, vector>
-    // TODO -
     return xt::linalg::eig(_tensor);
 }
 
