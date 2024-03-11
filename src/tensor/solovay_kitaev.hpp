@@ -49,7 +49,7 @@ private:
     QTensor<U> _find_and_insert_closest_u(const std::vector<QTensor<U>>& gate_list, BinaryList& bin_list, QTensor<U> u, std::vector<int>& output_gate);
 
     template <typename U>
-    std::vector<QTensor<U>> _gc_decompose(QTensor<U> u);
+    std::vector<QTensor<U>> _group_commutator_decompose(QTensor<U> u);
 
     template <typename U>
     QTensor<U> _solovay_kitaev_iteration(const std::vector<QTensor<U>>& gate_list, BinaryList& bin_list, QTensor<U> u, size_t n, std::vector<int>& output_gate);
@@ -118,7 +118,7 @@ QTensor<U> SolovayKitaev::_solovay_kitaev_iteration(const std::vector<QTensor<U>
         QTensor<U> u_prev_adjoint = u_prev;
         u_prev_adjoint.adjoint();
         const QTensor<U> u_mult    = tensor_multiply(u, u_prev_adjoint);
-        std::vector<QTensor<U>> vw = _gc_decompose(u_mult);
+        std::vector<QTensor<U>> vw = _group_commutator_decompose(u_mult);
         const QTensor<U> v         = vw[0];
         const QTensor<U> w         = vw[1];
         std::vector<int> output_gate_v_prev;
@@ -179,15 +179,16 @@ QTensor<U> SolovayKitaev::_find_and_insert_closest_u(const std::vector<QTensor<U
 }
 
 /**
- * @brief Perform GC decomposition
+ * @brief Perform Group Commutator decomposition
  *
  * @tparam U
  * @param unitary
  * @return std::vector<QTensor<U>>
+ * @reference Dawson, Christopher M., and Michael A. Nielsen. "The solovay-kitaev algorithm." arXiv preprint quant-ph/0505030 (2005).
  * @reference https://github.com/qcc4cp/qcc/blob/main/src/solovay_kitaev.py
  */
 template <typename U>
-std::vector<QTensor<U>> SolovayKitaev::_gc_decompose(QTensor<U> unitary) {
+std::vector<QTensor<U>> SolovayKitaev::_group_commutator_decompose(QTensor<U> unitary) {
     assert(unitary.dimension() == 2);
     using namespace std::literals;
     std::vector<std::complex<double>> axis = _to_bloch(unitary);
@@ -204,7 +205,7 @@ std::vector<QTensor<U>> SolovayKitaev::_gc_decompose(QTensor<U> unitary) {
         w = {{cos(phi / 2.0), -1. * sin(phi / 2.0)},
              {sin(phi / 2.0), cos(phi / 2.0)}};
     }
-    // QTensor<U> ud        = (diagonalize(unitary));
+
     QTensor<U> adjoint_v = v;
     QTensor<U> adjoint_w = w;
     adjoint_v.adjoint();
@@ -266,6 +267,12 @@ QTensor<U> SolovayKitaev::_diagonalize(QTensor<U> u) {
     return std::get<1>(u.eigen());
 }
 
+/**
+ * @brief Create the basic gate list by concatenating Hs and Ts
+ *
+ * @tparam U
+ * @return std::vector<QTensor<U>>
+ */
 template <typename U>
 std::vector<QTensor<U>> SolovayKitaev::_create_gate_list() {
     std::vector<QTensor<U>> base = {QTensor<U>::hgate().to_su2(),
