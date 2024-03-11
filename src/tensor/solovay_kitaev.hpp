@@ -12,8 +12,8 @@
 
 #include <cstddef>
 #include <tl/to.hpp>
+#include <vector>
 
-#include "convert/qcir_to_tensor.hpp"
 #include "qcir/qcir.hpp"
 #include "qsyn/qsyn_type.hpp"
 #include "tensor/qtensor.hpp"
@@ -27,8 +27,6 @@ using tensor::Tensor;
 using BinaryList = std::vector<std::vector<bool>>;
 
 namespace tensor {
-
-
 
 class SolovayKitaev {
 public:
@@ -48,23 +46,21 @@ private:
     QTensor<U> _diagonalize(QTensor<U> u);
 
     template <typename U>
-    QTensor<U> _find_and_insert_closest_u(const std::vector<QTensor<U>>& gate_list, BinaryList& bin_list, QTensor<U> u, std::vector<bool>& output_gate);
+    QTensor<U> _find_and_insert_closest_u(const std::vector<QTensor<U>>& gate_list, BinaryList& bin_list, QTensor<U> u, std::vector<int>& output_gate);
 
     template <typename U>
     std::vector<QTensor<U>> _gc_decompose(QTensor<U> u);
 
     template <typename U>
-    QTensor<U> _solovay_kitaev_iteration(const std::vector<QTensor<U>>& gate_list, BinaryList& bin_list, QTensor<U> u, size_t n, std::vector<bool>& output_gate);
+    QTensor<U> _solovay_kitaev_iteration(const std::vector<QTensor<U>>& gate_list, BinaryList& bin_list, QTensor<U> u, size_t n, std::vector<int>& output_gate);
 
     template <typename U>
     std::vector<std::complex<double>> _to_bloch(QTensor<U> u);
 
-    
-
     BinaryList _init_binary_list() const;
-    void _remove_redundant_gates(std::vector<bool>& gate_sequence);
-    void _save_gates(const std::vector<bool>& gate_sequence);
-
+    void _dagger_matrices(std::vector<int>& sequence);
+    // void _remove_redundant_gates(std::vector<int>& gate_sequence);
+    void _save_gates(const std::vector<int>& gate_sequence);
 };
 
 /**
@@ -78,7 +74,6 @@ private:
 template <typename U>
 std::optional<QCir> SolovayKitaev::solovay_kitaev_decompose(QTensor<U> const& matrix) {
     assert(matrix.dimension() == 2);
-    // TODO - Move your code here, you may also create new files src/tensor/
 
     spdlog::info("Gate list depth: {0}, #Recursions: {1}", _depth, _recursion);
 
@@ -86,7 +81,7 @@ std::optional<QCir> SolovayKitaev::solovay_kitaev_decompose(QTensor<U> const& ma
     const std::vector<QTensor<U>> gate_list = _create_gate_list<U>();
 
     spdlog::debug("Performing SK algorithm");
-    std::vector<bool> output_gates;
+    std::vector<int> output_gates;
 
     BinaryList bin_list = _init_binary_list();
 
@@ -94,26 +89,11 @@ std::optional<QCir> SolovayKitaev::solovay_kitaev_decompose(QTensor<U> const& ma
 
     fmt::println("\nTrace distance: {:.{}f}\n", tr_dist, 6);
 
-    std::vector<QTensor<U>> base = {QTensor<U>::hgate().to_su2(),
-                                    QTensor<U>::pzgate(Phase(1, 4)).to_su2()};
-    QTensor<U> u = QTensor<U>::identity(1);
-
-    for (const auto& bit : output_gates) {
-        u = (bit) ? tensor_multiply(u, base[1]) : tensor_multiply(u, base[0]);
-    }
-    auto b = trace_distance(matrix, u);
-    spdlog::error("Trace distance from calculation: {}", b);
-
-    _remove_redundant_gates(output_gates);
+    // _remove_redundant_gates(output_gates);
 
     _save_gates(output_gates);
-    spdlog::error("{}", to_tensor(_quantum_circuit).value());
-    auto a = trace_distance(to_tensor(_quantum_circuit).value(), matrix);
-    spdlog::error("Trace distance from Quantum Circuit: {}", a);
     return _quantum_circuit;
 }
-
-
 
 /**
  * @brief
@@ -123,122 +103,48 @@ std::optional<QCir> SolovayKitaev::solovay_kitaev_decompose(QTensor<U> const& ma
  * @param bin_list
  * @param u
  * @param recursion number of recursions
- * @param output_gate
+ * @param output_gate 1: T, -1: TDG, 0: H
  * @return QTensor<U>
  * @reference Dawson, Christopher M., and Michael A. Nielsen. "The solovay-kitaev algorithm." arXiv preprint quant-ph/0505030 (2005).
  * @reference https://github.com/qcc4cp/qcc/blob/main/src/solovay_kitaev.py
  */
 template <typename U>
-QTensor<U> SolovayKitaev::_solovay_kitaev_iteration(const std::vector<QTensor<U>>& gate_list, BinaryList& bin_list, QTensor<U> u, size_t recursion, std::vector<bool>& output_gate) {
+QTensor<U> SolovayKitaev::_solovay_kitaev_iteration(const std::vector<QTensor<U>>& gate_list, BinaryList& bin_list, QTensor<U> u, size_t recursion, std::vector<int>& output_gate) {
     if (recursion == 0) {
-        return _find_and_insert_closest_u(gate_list, bin_list, u, output_gate );
+        return _find_and_insert_closest_u(gate_list, bin_list, u, output_gate);
     } else {
-        std::vector<bool> output_gate_u_p;
-        const QTensor<U> u_p   = _solovay_kitaev_iteration(gate_list, bin_list, u, recursion - 1, output_gate_u_p);
-        QTensor<U> u_p_adjoint = u_p;
-        u_p_adjoint.adjoint();
-        const QTensor<U> u_mult    = tensor_multiply(u, u_p_adjoint);
+        std::vector<int> output_gate_u_prev;
+        const QTensor<U> u_prev   = _solovay_kitaev_iteration(gate_list, bin_list, u, recursion - 1, output_gate_u_prev);
+        QTensor<U> u_prev_adjoint = u_prev;
+        u_prev_adjoint.adjoint();
+        const QTensor<U> u_mult    = tensor_multiply(u, u_prev_adjoint);
         std::vector<QTensor<U>> vw = _gc_decompose(u_mult);
         const QTensor<U> v         = vw[0];
         const QTensor<U> w         = vw[1];
-        std::vector<bool> output_gate_v_p;
-        std::vector<bool> output_gate_w_p;
-        const QTensor<U> v_p       = _solovay_kitaev_iteration(gate_list, bin_list, v, recursion - 1, output_gate_v_p);
-        const QTensor<U> w_p       = _solovay_kitaev_iteration(gate_list, bin_list, w, recursion - 1, output_gate_w_p);
-        
-        // std::vector<bool> output_gate_v_p_adjoint = _bin_adjoint(output_gate_v_p);
-        // std::vector<bool> output_gate_w_p_adjoint = _bin_adjoint(output_gate_w_p);
+        std::vector<int> output_gate_v_prev;
+        std::vector<int> output_gate_w_prev;
+        const QTensor<U> v_prev = _solovay_kitaev_iteration(gate_list, bin_list, v, recursion - 1, output_gate_v_prev);
+        const QTensor<U> w_prev = _solovay_kitaev_iteration(gate_list, bin_list, w, recursion - 1, output_gate_w_prev);
 
+        QTensor<U> v_prev_adjoint = v_prev;
+        QTensor<U> w_prev_adjoint = w_prev;
+        v_prev_adjoint.adjoint();
+        w_prev_adjoint.adjoint();
 
-        std::vector<bool> output_gate_v_p_adjoint;
-        bool neg = false;
-        for (size_t i = 0; i < output_gate_v_p.size(); i++){
-            size_t len = output_gate_v_p.size() -1;
-            if(output_gate_v_p[len-i] == 0){
-                if(output_gate_v_p_adjoint.size() == 0){
-                    output_gate_v_p_adjoint.emplace_back(false);
-                    neg = !neg;
-                }
-                else if(output_gate_v_p_adjoint[output_gate_v_p_adjoint.back()] == 0){
-                    output_gate_v_p_adjoint.pop_back();
-                }
-                else{
-                    output_gate_v_p_adjoint.emplace_back(false);
-                    neg = !neg;
-                }
-            }
-            else{
-                if(output_gate_v_p_adjoint.size() == 0){
-                    output_gate_v_p_adjoint.emplace_back(true);
-                    neg = !neg;
-                }
-                else if(output_gate_v_p_adjoint[output_gate_v_p_adjoint.back()] == 1){
-                    output_gate_v_p_adjoint.pop_back();
-                }
-                else{
-                    for(int j = 0; j < 7; j++){
-                        output_gate_v_p_adjoint.emplace_back(true);
-                    }
-                    neg = !neg;
-                }
-            }
-        } 
-        if(neg){
-            output_gate_v_p_adjoint.emplace_back(false);
-            output_gate_v_p_adjoint.emplace_back(false);
-        }
-        
-        std::vector<bool> output_gate_w_p_adjoint;
-        neg = false;
-        for (size_t i = 0; i < output_gate_w_p.size(); i++){
-            size_t len = output_gate_w_p.size() -1;
-            if(output_gate_w_p[len-i] == 0){
-                if(output_gate_w_p_adjoint.size() == 0){
-                    output_gate_w_p_adjoint.emplace_back(false);
-                    neg = !neg;
-                }
-                else if(output_gate_w_p_adjoint[output_gate_w_p_adjoint.back()] == 0){
-                    output_gate_w_p_adjoint.pop_back();
-                }
-                else{
-                    output_gate_w_p_adjoint.emplace_back(false);
-                    neg = !neg;
-                }
-            }
-            else{
-                if(output_gate_w_p_adjoint.size() == 0){
-                    output_gate_w_p_adjoint.emplace_back(true);
-                    neg = !neg;
-                }
-                else if(output_gate_w_p_adjoint[output_gate_w_p_adjoint.back()] == 1){
-                    output_gate_w_p_adjoint.pop_back();
-                }
-                else{
-                    for(int j = 0; j < 7; j++){
-                        output_gate_w_p_adjoint.emplace_back(true);
-                    }
-                    neg = !neg;
-                }
-            }
-        } 
-        if(neg){
-            output_gate_w_p_adjoint.emplace_back(false);
-            output_gate_w_p_adjoint.emplace_back(false);
-        }
+        std::vector<int> output_gate_v_prev_adjoint = output_gate_v_prev;
+        std::vector<int> output_gate_w_prev_adjoint = output_gate_w_prev;
+        _dagger_matrices(output_gate_v_prev_adjoint);
+        _dagger_matrices(output_gate_w_prev_adjoint);
 
+        output_gate.clear();
+        // NOTE - U_n = V_{n-1} W_{n-1} V_{n-1}^\dagger W_{n-1}^\dagger U_{n-1}
+        output_gate.insert(output_gate.end(), output_gate_v_prev.begin(), output_gate_v_prev.end());
+        output_gate.insert(output_gate.end(), output_gate_w_prev.begin(), output_gate_w_prev.end());
+        output_gate.insert(output_gate.end(), output_gate_v_prev_adjoint.begin(), output_gate_v_prev_adjoint.end());
+        output_gate.insert(output_gate.end(), output_gate_w_prev_adjoint.begin(), output_gate_w_prev_adjoint.end());
+        output_gate.insert(output_gate.end(), output_gate_u_prev.begin(), output_gate_u_prev.end());
 
-        output_gate.insert(output_gate.end(), output_gate_v_p.begin(), output_gate_v_p.end());
-        output_gate.insert(output_gate.end(), output_gate_w_p.begin(), output_gate_w_p.end());
-        output_gate.insert(output_gate.end(), output_gate_v_p_adjoint.begin(), output_gate_v_p_adjoint.end());
-        output_gate.insert(output_gate.end(), output_gate_w_p_adjoint.begin(), output_gate_w_p_adjoint.end());
-        output_gate.insert(output_gate.end(), output_gate_u_p.begin(), output_gate_u_p.end());
-
-        QTensor<U> v_p_adjoint = v_p;
-        QTensor<U> w_p_adjoint = w_p;
-        v_p_adjoint.adjoint();
-        w_p_adjoint.adjoint();
-
-        return tensor_multiply(v_p, tensor_multiply(w_p, tensor_multiply(v_p_adjoint, tensor_multiply(w_p_adjoint, u_p))));
+        return tensor_multiply(v_prev, tensor_multiply(w_prev, tensor_multiply(v_prev_adjoint, tensor_multiply(w_prev_adjoint, u_prev))));
     }
 }
 
@@ -253,7 +159,7 @@ QTensor<U> SolovayKitaev::_solovay_kitaev_iteration(const std::vector<QTensor<U>
  * @return QTensor<U>
  */
 template <typename U>
-QTensor<U> SolovayKitaev::_find_and_insert_closest_u(const std::vector<QTensor<U>>& gate_list, BinaryList& bin_list, QTensor<U> u, std::vector<bool>& output_gate) {
+QTensor<U> SolovayKitaev::_find_and_insert_closest_u(const std::vector<QTensor<U>>& gate_list, BinaryList& bin_list, QTensor<U> u, std::vector<int>& output_gate) {
     double min_dist  = 10;
     QTensor<U> min_u = QTensor<U>::identity(1);
 
@@ -266,7 +172,9 @@ QTensor<U> SolovayKitaev::_find_and_insert_closest_u(const std::vector<QTensor<U
             min_index = i;
         }
     }
-    output_gate = bin_list[min_index];
+    for (const auto& bit : bin_list[min_index])
+        output_gate.emplace_back(bit);
+
     return min_u;
 }
 
@@ -373,8 +281,6 @@ std::vector<QTensor<U>> SolovayKitaev::_create_gate_list() {
     }
     return gate_list;
 }
-
-
 
 }  // namespace tensor
 

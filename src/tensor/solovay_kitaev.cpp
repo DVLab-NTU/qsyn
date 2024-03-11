@@ -31,39 +31,48 @@ BinaryList SolovayKitaev::_init_binary_list() const {
 }
 
 /**
- * @brief Remove redundant gates, e.g. HH = I and TTTTTTTT = I
+ * @brief Dagger the sequence
+ *
+ * @param sequence
+ */
+void SolovayKitaev::_dagger_matrices(std::vector<int>& sequence) {
+    std::reverse(sequence.begin(), sequence.end());
+    std::transform(sequence.cbegin(), sequence.cend(), sequence.begin(), std::negate<int>());
+}
+
+// /**
+//  * @brief Remove redundant gates, e.g. HH = I and TTTTTTTT = I (Outdated)
+//  *
+//  * @param gate_sequence
+//  */
+// void SolovayKitaev::_remove_redundant_gates(std::vector<int>& gate_sequence) {
+//     size_t counter = 0;
+//     while (counter < gate_sequence.size() - 1) {
+//         if (!gate_sequence[counter] && !gate_sequence[counter + 1]) {
+//             gate_sequence.erase(gate_sequence.begin() + gsl::narrow<int>(counter), gate_sequence.begin() + gsl::narrow<int>(counter) + 2);
+//             if (counter < 8)
+//                 counter = 0;
+//             else
+//                 counter -= 8;
+//         } else if (gate_sequence[counter] && gate_sequence[counter + 1] && gate_sequence[counter + 2] && gate_sequence[counter + 3] && gate_sequence[counter + 4] && gate_sequence[counter + 5] && gate_sequence[counter + 6] && gate_sequence[counter + 7]) {
+//             gate_sequence.erase(gate_sequence.begin() + gsl::narrow<int>(counter), gate_sequence.begin() + gsl::narrow<int>(counter) + 8);
+//         } else
+//             counter++;
+//     }
+// }
+
+/**
+ * @brief Save gates in sequence into QCir
  *
  * @param gate_sequence
  */
-void SolovayKitaev::_remove_redundant_gates(std::vector<bool>& gate_sequence) {
-    size_t counter = 0;
-    while (counter < gate_sequence.size() - 1) {
-        if (!gate_sequence[counter] && !gate_sequence[counter + 1]) {
-            gate_sequence.erase(gate_sequence.begin() + gsl::narrow<int>(counter), gate_sequence.begin() + gsl::narrow<int>(counter) + 2);
-            if (counter < 8)
-                counter = 0;
-            else
-                counter -= 8;
-        } else if (gate_sequence[counter] && gate_sequence[counter + 1] && gate_sequence[counter + 2] && gate_sequence[counter + 3] && gate_sequence[counter + 4] && gate_sequence[counter + 5] && gate_sequence[counter + 6] && gate_sequence[counter + 7]) {
-            gate_sequence.erase(gate_sequence.begin() + gsl::narrow<int>(counter), gate_sequence.begin() + gsl::narrow<int>(counter) + 8);
-        } else
-            counter++;
-    }
-}
-
-void SolovayKitaev::_save_gates(const std::vector<bool>& gate_sequence) {
-    fmt::println("Gate sequence");
-    for (const auto& a : gate_sequence) {
-        fmt::print("{} ", size_t(a));
-    }
-    fmt::println("");
+void SolovayKitaev::_save_gates(const std::vector<int>& gate_sequence) {
     _quantum_circuit.add_qubits(1);
-    for (const bool& bit : gate_sequence)
-        _quantum_circuit.add_gate((bit ? "T" : "H"), {0}, {}, true);
-    _quantum_circuit.print_circuit_diagram();
+    for (const int& bit : gate_sequence)
+        _quantum_circuit.add_gate((bit == 1 ? "T" : bit == 0 ? "H"
+                                                             : "TDG"),
+                                  {0}, {}, false);
     spdlog::info("Decompose tensor into {} gates.", _quantum_circuit.get_num_gates());
 }
-
-
 
 }  // namespace qsyn::tensor
