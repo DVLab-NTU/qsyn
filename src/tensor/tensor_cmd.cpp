@@ -10,7 +10,6 @@
 
 #include "./tensor_mgr.hpp"
 #include "cli/cli.hpp"
-#include "tensor/solovay_kitaev.hpp"
 #include "tensor/tensor.hpp"
 #include "util/data_structure_manager_common_cmd.hpp"
 #include "util/phase.hpp"
@@ -177,36 +176,6 @@ Command tensor_equivalence_cmd(TensorMgr& tensor_mgr) {
             }};
 }
 
-Command tensor_sk_decompose_cmd(TensorMgr& tensor_mgr) {
-    return {"sk-decompose",
-            [&](ArgumentParser& parser) {
-                parser.description("decompose the tensor by SK-algorithm");
-
-                parser.add_argument<size_t>("id")
-                    .constraint(valid_tensor_id(tensor_mgr))
-                    .nargs(NArgsOption::optional)
-                    .help("the ID of the tensor");
-
-                parser.add_argument<size_t>("-d", "--depth")
-                    .required(true)
-                    .help("the depth of the gate list");
-
-                parser.add_argument<size_t>("-r", "--recursion")
-                    .required(true)
-                    .help("the recursion times of Solovay-Kitaev algorithm");
-            },
-            // NOTE - Check the function solovay_kitaev_decompose
-            [&](ArgumentParser const& parser) {
-                tensor::SolovayKitaev decomposer(parser.get<size_t>("--depth"), parser.get<size_t>("--recursion"));
-                if (parser.parsed("id")) {
-                    decomposer.solovay_kitaev_decompose(*tensor_mgr.find_by_id(parser.get<size_t>("id")));
-                } else {
-                    decomposer.solovay_kitaev_decompose(*tensor_mgr.get());
-                }
-                return CmdExecResult::done;
-            }};
-}
-
 Command tensor_cmd(TensorMgr& tensor_mgr) {
     using namespace dvlab::utils;
     auto cmd = mgr_root_cmd(tensor_mgr);
@@ -218,8 +187,6 @@ Command tensor_cmd(TensorMgr& tensor_mgr) {
     cmd.add_subcommand("tensor-cmd-group", tensor_equivalence_cmd(tensor_mgr));
     cmd.add_subcommand("tensor-cmd-group", tensor_read_cmd(tensor_mgr));
     cmd.add_subcommand("tensor-cmd-group", tensor_write_cmd(tensor_mgr));
-    cmd.add_subcommand("tensor-cmd-group", tensor_sk_decompose_cmd(tensor_mgr));
-
     return cmd;
 }
 

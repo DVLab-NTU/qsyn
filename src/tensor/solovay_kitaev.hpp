@@ -13,6 +13,7 @@
 #include <cstddef>
 #include <tl/to.hpp>
 
+#include "convert/qcir_to_tensor.hpp"
 #include "qcir/qcir.hpp"
 #include "qsyn/qsyn_type.hpp"
 #include "tensor/qtensor.hpp"
@@ -31,12 +32,13 @@ public:
     SolovayKitaev(size_t d, size_t r) : _depth(d), _recursion(r){};
 
     template <typename U>
-    void solovay_kitaev_decompose(QTensor<U> const& matrix);
+    std::optional<QCir> solovay_kitaev_decompose(QTensor<U> const& matrix);
 
 private:
     size_t _depth;
     size_t _recursion;
 
+    QCir _quantum_circuit;
     template <typename U>
     std::vector<QTensor<U>> _create_gate_list();
     template <typename U>
@@ -56,6 +58,7 @@ private:
 
     BinaryList _init_binary_list() const;
     void _remove_redundant_gates(std::vector<bool>& gate_sequence);
+    void _save_gates(const std::vector<bool>& gate_sequence);
 };
 
 /**
@@ -64,27 +67,31 @@ private:
  * @tparam U
  * @param matrix
  * @reference Dawson, Christopher M., and Michael A. Nielsen. "The solovay-kitaev algorithm." arXiv preprint quant-ph/0505030 (2005).
+ * @reference https://github.com/qcc4cp/qcc/blob/main/src/solovay_kitaev.py
  */
 template <typename U>
-void SolovayKitaev::solovay_kitaev_decompose(QTensor<U> const& matrix) {
+std::optional<QCir> SolovayKitaev::solovay_kitaev_decompose(QTensor<U> const& matrix) {
     assert(matrix.dimension() == 2);
     // TODO - Move your code here, you may also create new files src/tensor/
 
-    spdlog::info("Gate list depth: {}", _depth);
-    spdlog::info("#Recursions: {}", _recursion);
+    spdlog::info("Gate list depth: {0}, #Recursions: {1}", _depth, _recursion);
 
-    spdlog::info("Creating gate list");
+    spdlog::debug("Creating gate list");
     const std::vector<QTensor<U>> gate_list = _create_gate_list<U>();
 
-    spdlog::info("Performing SK algorithm");
-    std::vector<bool> output_gate;
+    spdlog::debug("Performing SK algorithm");
+    std::vector<bool> output_gates;
     BinaryList bin_list = _init_binary_list();
 
-    const double tr_dist = trace_distance(matrix, _solovay_kitaev_iteration(gate_list, bin_list, matrix, _recursion, output_gate));
-    fmt::println("Trace distance: {}", tr_dist);
+    const double tr_dist = trace_distance(matrix, _solovay_kitaev_iteration(gate_list, bin_list, matrix, _recursion, output_gates));
+    fmt::println("\nTrace distance: {:.{}f}\n", tr_dist, 6);
 
-    _remove_redundant_gates(output_gate);
-    spdlog::info("0 represent H gate, 1 represent T gate.");
+    // _remove_redundant_gates(output_gates);
+    _save_gates(output_gates);
+    spdlog::error("{}", to_tensor(_quantum_circuit).value());
+    auto a = trace_distance(to_tensor(_quantum_circuit).value(), matrix);
+    spdlog::error("Trace distance from Quantum Circuit: {}", a);
+    return _quantum_circuit;
 }
 
 /**
@@ -98,6 +105,7 @@ void SolovayKitaev::solovay_kitaev_decompose(QTensor<U> const& matrix) {
  * @param output_gate
  * @return QTensor<U>
  * @reference Dawson, Christopher M., and Michael A. Nielsen. "The solovay-kitaev algorithm." arXiv preprint quant-ph/0505030 (2005).
+ * @reference https://github.com/qcc4cp/qcc/blob/main/src/solovay_kitaev.py
  */
 template <typename U>
 QTensor<U> SolovayKitaev::_solovay_kitaev_iteration(const std::vector<QTensor<U>>& gate_list, BinaryList& bin_list, QTensor<U> u, size_t recursion, std::vector<bool>& output_gate) {
@@ -156,7 +164,7 @@ QTensor<U> SolovayKitaev::_find_and_insert_closest_u(const std::vector<QTensor<U
  * @tparam U
  * @param unitary
  * @return std::vector<QTensor<U>>
- * @reference
+ * @reference https://github.com/qcc4cp/qcc/blob/main/src/solovay_kitaev.py
  */
 template <typename U>
 std::vector<QTensor<U>> SolovayKitaev::_gc_decompose(QTensor<U> unitary) {
@@ -243,7 +251,6 @@ std::vector<QTensor<U>> SolovayKitaev::_create_gate_list() {
     std::vector<QTensor<U>> base = {QTensor<U>::hgate().to_su2(),
                                     QTensor<U>::pzgate(Phase(1, 4)).to_su2()};
     std::vector<QTensor<U>> gate_list;
-    // REVIEW - may need refactors
     const BinaryList bin_list = _init_binary_list();
 
     for (const auto& bits : bin_list) {

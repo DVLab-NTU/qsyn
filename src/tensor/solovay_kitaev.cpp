@@ -51,4 +51,16 @@ void SolovayKitaev::_remove_redundant_gates(std::vector<bool>& gate_sequence) {
     }
 }
 
+void SolovayKitaev::_save_gates(const std::vector<bool>& gate_sequence) {
+    fmt::println("Gate sequence");
+    for (const auto& a : gate_sequence) {
+        fmt::print("{} ", size_t(a));
+    }
+    fmt::println("");
+    _quantum_circuit.add_qubits(1);
+    for (const bool& bit : gate_sequence)
+        _quantum_circuit.add_gate((bit ? "T" : "H"), {0}, {}, true);
+    _quantum_circuit.print_circuit_diagram();
+    spdlog::info("Decompose tensor into {} gates.", _quantum_circuit.get_num_gates());
+}
 }  // namespace qsyn::tensor
