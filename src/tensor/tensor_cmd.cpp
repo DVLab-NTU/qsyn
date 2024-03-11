@@ -187,7 +187,6 @@ Command tensor_cmd(TensorMgr& tensor_mgr) {
     cmd.add_subcommand("tensor-cmd-group", tensor_equivalence_cmd(tensor_mgr));
     cmd.add_subcommand("tensor-cmd-group", tensor_read_cmd(tensor_mgr));
     cmd.add_subcommand("tensor-cmd-group", tensor_write_cmd(tensor_mgr));
-
     return cmd;
 }
 

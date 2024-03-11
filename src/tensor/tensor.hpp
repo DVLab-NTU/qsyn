@@ -16,6 +16,8 @@
 #include <complex>
 #include <cstddef>
 #include <iosfwd>
+#include <iostream>
+#include <string>
 #include <unordered_map>
 #include <vector>
 #include <xtensor-blas/xlinalg.hpp>
@@ -99,6 +101,9 @@ public:
     friend double cosine_similarity(Tensor<U> const& t1, Tensor<U> const& t2);
 
     template <typename U>
+    friend double trace_distance(Tensor<U> const& t1, Tensor<U> const& t2);
+
+    template <typename U>
     friend Tensor<U> tensordot(Tensor<U> const& t1, Tensor<U> const& t2,
                                TensorAxisList const& ax1, TensorAxisList const& ax2);
 
@@ -116,9 +121,14 @@ public:
     void reshape(TensorShape const& shape);
     Tensor<DT> transpose(TensorAxisList const& perm) const;
     void adjoint();
+    void sqrt();
+    std::complex<double> determinant() const;
+    std::complex<double> trace();
+    auto eigen();
 
     bool tensor_read(std::string const& filepath);
     bool tensor_write(std::string const& filepath);
+    std::vector<Tensor<DT>> read_gate_list(std::string const&);
 
 protected:
     friend struct fmt::formatter<Tensor>;
@@ -287,6 +297,29 @@ void Tensor<DT>::adjoint() {
 }
 
 template <typename DT>
+void Tensor<DT>::sqrt() {
+    assert(dimension() == 2);
+    _tensor = xt::sqrt(_tensor);
+}
+
+template <typename DT>
+std::complex<double> Tensor<DT>::determinant() const {
+    assert(dimension() == 2);
+    return xt::linalg::det(_tensor);
+}
+
+template <typename DT>
+std::complex<double> Tensor<DT>::trace() {
+    assert(dimension() == 2);
+    return xt::sum(xt::diagonal(_tensor))();
+}
+
+template <typename DT>
+auto Tensor<DT>::eigen() {
+    return xt::linalg::eig(_tensor);
+}
+
+template <typename DT>
 bool Tensor<DT>::tensor_write(std::string const& filepath) {
     std::ofstream out_file;
     out_file.open(filepath);
@@ -364,6 +397,16 @@ double inner_product(Tensor<U> const& t1, Tensor<U> const& t2) {
 template <typename U>
 double cosine_similarity(Tensor<U> const& t1, Tensor<U> const& t2) {
     return inner_product(t1, t2) / std::sqrt(inner_product(t1, t1) * inner_product(t2, t2));
+}
+// Calculate the trace distance of two tensors
+template <typename U>
+double trace_distance(Tensor<U> const& t1, Tensor<U> const& t2) {
+    // TODO
+    Tensor<U> t1_t2 = t1 - t2;
+    t1_t2.adjoint();
+    Tensor<U> t1_t2_sqrt = tensor_multiply(t1_t2, (t1 - t2));
+    t1_t2_sqrt.sqrt();
+    return (0.5 * t1_t2_sqrt.trace()).real();
 }
 
 // tensor-dot two tensors

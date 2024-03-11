@@ -26,6 +26,7 @@
 #include "tableau/stabilizer_tableau.hpp"
 #include "tableau/tableau_mgr.hpp"
 #include "tensor/decomposer.hpp"
+#include "tensor/solovay_kitaev.hpp"
 #include "tensor/tensor_mgr.hpp"
 #include "util/data_structure_manager_common_cmd.hpp"
 #include "util/dvlab_string.hpp"
@@ -294,8 +295,38 @@ Command conversion_cmd(QCirMgr& qcir_mgr, qsyn::tensor::TensorMgr& tensor_mgr, q
     return cmd;
 }
 
+Command sk_decompose_cmd(qsyn::tensor::TensorMgr& tensor_mgr, QCirMgr& qcir_mgr) {
+    return {"sk-decompose",
+            [&](ArgumentParser& parser) {
+                parser.description("decompose the tensor by SK-algorithm");
+                parser.add_argument<size_t>("-d", "--depth")
+                    .required(true)
+                    .help("the depth of the gate list");
+
+                parser.add_argument<size_t>("-r", "--recursion")
+                    .required(true)
+                    .help("the recursion times of Solovay-Kitaev algorithm");
+            },
+            // NOTE - Check the function solovay_kitaev_decompose
+            [&](ArgumentParser const& parser) {
+                tensor::SolovayKitaev decomposer(parser.get<size_t>("--depth"), parser.get<size_t>("--recursion"));
+                spdlog::info("Decomposing Tensor {} to QCir {} by Solovay-Kitaev algorithm...", tensor_mgr.focused_id(), qcir_mgr.get_next_id());
+                auto result = decomposer.solovay_kitaev_decompose(*tensor_mgr.get());
+
+                if (result) {
+                    qcir_mgr.add(qcir_mgr.get_next_id(), std::make_unique<qcir::QCir>(std::move(*result)));
+                    qcir_mgr.get()->add_procedures(tensor_mgr.get()->get_procedures());
+                    qcir_mgr.get()->add_procedure("Solovay-Kitaev");
+                    qcir_mgr.get()->set_filename(tensor_mgr.get()->get_filename());
+                }
+
+                return CmdExecResult::done;
+            }};
+}
+
 bool add_conversion_cmds(dvlab::CommandLineInterface& cli, QCirMgr& qcir_mgr, qsyn::tensor::TensorMgr& tensor_mgr, qsyn::zx::ZXGraphMgr& zxgraph_mgr, experimental::TableauMgr& tableau_mgr) {
     if (!(cli.add_command(conversion_cmd(qcir_mgr, tensor_mgr, zxgraph_mgr, tableau_mgr)) &&
+          cli.add_command(sk_decompose_cmd(tensor_mgr, qcir_mgr)) &&
           cli.add_alias("qc2zx", "convert qcir zx") &&
           cli.add_alias("qc2ts", "convert qcir tensor") &&
           cli.add_alias("zx2ts", "convert zx tensor") &&
