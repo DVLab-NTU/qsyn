@@ -1,6 +1,6 @@
 /****************************************************************************
   PackageName  [ tensor ]
-  Synopsis     [ Define tensor decomposer structure ]
+  Synopsis     [ Define tensor Solovay-Kitaev algorithm structure ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
@@ -27,84 +27,44 @@ using BinaryList = std::vector<std::vector<bool>>;
 
 namespace tensor {
 class SolovayKitaev {
-private:
-    size_t _depth;
-    size_t _recursion;
-    BinaryList _init_binary_list() const;
-    void _remove_redundant_gates(std::vector<bool>& gate_sequence);
-
 public:
     SolovayKitaev(size_t d, size_t r) : _depth(d), _recursion(r){};
-    template <typename U>
-    std::vector<std::complex<double>> u_to_bloch(QTensor<U> u);
-    // template <typename U>
-    // QTensor<U> to_su2(QTensor<U> const & u);
-
-    template <typename U>
-    std::vector<QTensor<U>> create_gate_list();
-    template <typename U>
-    QTensor<U> diagonalize(QTensor<U> u);
-
-    template <typename U>
-    QTensor<U> find_closest_u(const std::vector<QTensor<U>>& gate_list, BinaryList& bin_list, QTensor<U> u, std::vector<bool>& output_gate);
-
-    template <typename U>
-    std::vector<QTensor<U>> gc_decomp(QTensor<U> u);
-
-    template <typename U>
-    QTensor<U> solovay_kitaev_loop(const std::vector<QTensor<U>>& gate_list, BinaryList& bin_list, QTensor<U> u, size_t n, std::vector<bool>& output_gate);
 
     template <typename U>
     void solovay_kitaev_decompose(QTensor<U> const& matrix);
+
+private:
+    size_t _depth;
+    size_t _recursion;
+
+    template <typename U>
+    std::vector<QTensor<U>> _create_gate_list();
+    template <typename U>
+    QTensor<U> _diagonalize(QTensor<U> u);
+
+    template <typename U>
+    QTensor<U> _find_and_insert_closest_u(const std::vector<QTensor<U>>& gate_list, BinaryList& bin_list, QTensor<U> u, std::vector<bool>& output_gate);
+
+    template <typename U>
+    std::vector<QTensor<U>> _gc_decompose(QTensor<U> u);
+
+    template <typename U>
+    QTensor<U> _solovay_kitaev_iteration(const std::vector<QTensor<U>>& gate_list, BinaryList& bin_list, QTensor<U> u, size_t n, std::vector<bool>& output_gate);
+
+    template <typename U>
+    std::vector<std::complex<double>> _to_bloch(QTensor<U> u);
+
+    BinaryList _init_binary_list() const;
+    void _remove_redundant_gates(std::vector<bool>& gate_sequence);
 };
 
-BinaryList SolovayKitaev::_init_binary_list() const {
-    BinaryList bin_list;
-    for (size_t i = 1; i <= _depth; i++) {
-        for (size_t j = 0; j < gsl::narrow<size_t>(std::pow(2, i)); j++) {
-            boost::dynamic_bitset<> bitset(i, j);
-            std::vector<bool> bit_vector;
-            for (size_t k = 0; k < i; ++k)
-                bit_vector.emplace_back(bitset[k]);
-            bin_list.emplace_back(bit_vector);
-        }
-    }
-    return bin_list;
-}
-
-void SolovayKitaev::_remove_redundant_gates(std::vector<bool>& gate_sequence) {
-    size_t counter = 0;
-    while (counter < gate_sequence.size() - 1) {
-        if (!gate_sequence[counter] && !gate_sequence[counter + 1]) {
-            gate_sequence.erase(gate_sequence.begin() + gsl::narrow<int>(counter), gate_sequence.begin() + gsl::narrow<int>(counter) + 2);
-            if (counter < 8)
-                counter = 0;
-            else
-                counter -= 8;
-        } else if (gate_sequence[counter] && gate_sequence[counter + 1] && gate_sequence[counter + 2] && gate_sequence[counter + 3] && gate_sequence[counter + 4] && gate_sequence[counter + 5] && gate_sequence[counter + 6] && gate_sequence[counter + 7]) {
-            gate_sequence.erase(gate_sequence.begin() + gsl::narrow<int>(counter), gate_sequence.begin() + gsl::narrow<int>(counter) + 8);
-        } else
-            counter++;
-    }
-}
-
-template <typename U>
-std::vector<QTensor<U>> SolovayKitaev::create_gate_list() {
-    std::vector<QTensor<U>> base = {QTensor<U>::hgate().to_su2(),
-                                    QTensor<U>::pzgate(Phase(1, 4)).to_su2()};
-    std::vector<QTensor<U>> gate_list;
-    // REVIEW - may need refactors
-    const BinaryList bin_list = _init_binary_list();
-
-    for (const auto& bits : bin_list) {
-        QTensor<U> u = QTensor<U>::identity(1);
-        for (const auto& bit : bits)
-            u = (bit) ? tensor_multiply(u, base[1]) : tensor_multiply(u, base[0]);
-        gate_list.emplace_back(u);
-    }
-    return gate_list;
-}
-
+/**
+ * @brief Perform Solovay-Kitaev decomposition
+ *
+ * @tparam U
+ * @param matrix
+ * @reference Dawson, Christopher M., and Michael A. Nielsen. "The solovay-kitaev algorithm." arXiv preprint quant-ph/0505030 (2005).
+ */
 template <typename U>
 void SolovayKitaev::solovay_kitaev_decompose(QTensor<U> const& matrix) {
     assert(matrix.dimension() == 2);
@@ -114,33 +74,45 @@ void SolovayKitaev::solovay_kitaev_decompose(QTensor<U> const& matrix) {
     spdlog::info("#Recursions: {}", _recursion);
 
     spdlog::info("Creating gate list");
-    const std::vector<QTensor<U>> gate_list = create_gate_list<U>();
+    const std::vector<QTensor<U>> gate_list = _create_gate_list<U>();
 
     spdlog::info("Performing SK algorithm");
     std::vector<bool> output_gate;
     BinaryList bin_list = _init_binary_list();
 
-    const double tr_dist = trace_distance(matrix, solovay_kitaev_loop(gate_list, bin_list, matrix, _recursion, output_gate));
+    const double tr_dist = trace_distance(matrix, _solovay_kitaev_iteration(gate_list, bin_list, matrix, _recursion, output_gate));
     fmt::println("Trace distance: {}", tr_dist);
 
     _remove_redundant_gates(output_gate);
     spdlog::info("0 represent H gate, 1 represent T gate.");
 }
 
+/**
+ * @brief
+ *
+ * @tparam U
+ * @param gate_list usable gates
+ * @param bin_list
+ * @param u
+ * @param recursion number of recursions
+ * @param output_gate
+ * @return QTensor<U>
+ * @reference Dawson, Christopher M., and Michael A. Nielsen. "The solovay-kitaev algorithm." arXiv preprint quant-ph/0505030 (2005).
+ */
 template <typename U>
-QTensor<U> SolovayKitaev::solovay_kitaev_loop(const std::vector<QTensor<U>>& gate_list, BinaryList& bin_list, QTensor<U> u, size_t recursion, std::vector<bool>& output_gate) {
+QTensor<U> SolovayKitaev::_solovay_kitaev_iteration(const std::vector<QTensor<U>>& gate_list, BinaryList& bin_list, QTensor<U> u, size_t recursion, std::vector<bool>& output_gate) {
     if (recursion == 0) {
-        return find_closest_u(gate_list, bin_list, u, output_gate);
+        return _find_and_insert_closest_u(gate_list, bin_list, u, output_gate);
     } else {
-        const QTensor<U> u_p   = solovay_kitaev_loop(gate_list, bin_list, u, recursion - 1, output_gate);
+        const QTensor<U> u_p   = _solovay_kitaev_iteration(gate_list, bin_list, u, recursion - 1, output_gate);
         QTensor<U> u_p_adjoint = u_p;
         u_p_adjoint.adjoint();
         const QTensor<U> u_mult    = tensor_multiply(u, u_p_adjoint);
-        std::vector<QTensor<U>> vw = gc_decomp(u_mult);
+        std::vector<QTensor<U>> vw = _gc_decompose(u_mult);
         const QTensor<U> v         = vw[0];
         const QTensor<U> w         = vw[1];
-        const QTensor<U> v_p       = solovay_kitaev_loop(gate_list, bin_list, v, recursion - 1, output_gate);
-        const QTensor<U> w_p       = solovay_kitaev_loop(gate_list, bin_list, w, recursion - 1, output_gate);
+        const QTensor<U> v_p       = _solovay_kitaev_iteration(gate_list, bin_list, v, recursion - 1, output_gate);
+        const QTensor<U> w_p       = _solovay_kitaev_iteration(gate_list, bin_list, w, recursion - 1, output_gate);
 
         QTensor<U> v_p_adjoint = v_p;
         QTensor<U> w_p_adjoint = w_p;
@@ -150,8 +122,18 @@ QTensor<U> SolovayKitaev::solovay_kitaev_loop(const std::vector<QTensor<U>>& gat
     }
 }
 
+/**
+ * @brief Find and insert the closest unitary
+ *
+ * @tparam U
+ * @param gate_list
+ * @param bin_list
+ * @param u
+ * @param output_gate
+ * @return QTensor<U>
+ */
 template <typename U>
-QTensor<U> SolovayKitaev::find_closest_u(const std::vector<QTensor<U>>& gate_list, BinaryList& bin_list, QTensor<U> u, std::vector<bool>& output_gate) {
+QTensor<U> SolovayKitaev::_find_and_insert_closest_u(const std::vector<QTensor<U>>& gate_list, BinaryList& bin_list, QTensor<U> u, std::vector<bool>& output_gate) {
     double min_dist  = 10;
     QTensor<U> min_u = QTensor<U>::identity(1);
 
@@ -168,11 +150,19 @@ QTensor<U> SolovayKitaev::find_closest_u(const std::vector<QTensor<U>>& gate_lis
     return min_u;
 }
 
+/**
+ * @brief Perform GC decomposition
+ *
+ * @tparam U
+ * @param unitary
+ * @return std::vector<QTensor<U>>
+ * @reference
+ */
 template <typename U>
-std::vector<QTensor<U>> SolovayKitaev::gc_decomp(QTensor<U> unitary) {
+std::vector<QTensor<U>> SolovayKitaev::_gc_decompose(QTensor<U> unitary) {
     assert(unitary.dimension() == 2);
     using namespace std::literals;
-    std::vector<std::complex<double>> axis = u_to_bloch(unitary);
+    std::vector<std::complex<double>> axis = _to_bloch(unitary);
     // The angle phi calculation
     const std::complex<double> phi = 2.0 * asin(std::sqrt(std::sqrt(0.5 - 0.5 * cos(axis[3] / 2.0))));
     const QTensor<U> v             = {{cos(phi / 2.0), -1.i * sin(phi / 2.0)}, {-1.i * sin(phi / 2.0), cos(phi / 2.0)}};
@@ -193,10 +183,10 @@ std::vector<QTensor<U>> SolovayKitaev::gc_decomp(QTensor<U> unitary) {
     adjoint_w.adjoint();
     // NOTE - Cannot infer if merging into one line
     const QTensor<U> mult = tensor_multiply(v, tensor_multiply(w, tensor_multiply(adjoint_v, adjoint_w)));
-    QTensor<U> vwvdwd     = diagonalize(mult);
+    QTensor<U> vwvdwd     = _diagonalize(mult);
     vwvdwd.adjoint();
 
-    const QTensor<U> s = tensor_multiply(diagonalize(unitary), vwvdwd);
+    const QTensor<U> s = tensor_multiply(_diagonalize(unitary), vwvdwd);
 
     QTensor<U> adjoint_s = s;
     adjoint_s.adjoint();
@@ -205,8 +195,15 @@ std::vector<QTensor<U>> SolovayKitaev::gc_decomp(QTensor<U> unitary) {
     return {tensor_multiply(s, tensor_multiply(v, adjoint_s)), tensor_multiply(s, tensor_multiply(w, adjoint_s))};
 }
 
+/**
+ * @brief To bloch sphere
+ *
+ * @tparam U
+ * @param unitary
+ * @return std::vector<std::complex<double>> [nx, ny, nz, angle]
+ */
 template <typename U>
-std::vector<std::complex<double>> SolovayKitaev::u_to_bloch(QTensor<U> unitary) {
+std::vector<std::complex<double>> SolovayKitaev::_to_bloch(QTensor<U> unitary) {
     assert(unitary.dimension() == 2);
     using namespace std::literals;
     std::vector<std::complex<double>> axis;
@@ -229,9 +226,33 @@ std::vector<std::complex<double>> SolovayKitaev::u_to_bloch(QTensor<U> unitary) 
     return axis;
 }
 
+/**
+ * @brief Diagonalize the unitary
+ *
+ * @tparam U
+ * @param u
+ * @return QTensor<U>
+ */
 template <typename U>
-QTensor<U> SolovayKitaev::diagonalize(QTensor<U> u) {
+QTensor<U> SolovayKitaev::_diagonalize(QTensor<U> u) {
     return std::get<1>(u.eigen());
+}
+
+template <typename U>
+std::vector<QTensor<U>> SolovayKitaev::_create_gate_list() {
+    std::vector<QTensor<U>> base = {QTensor<U>::hgate().to_su2(),
+                                    QTensor<U>::pzgate(Phase(1, 4)).to_su2()};
+    std::vector<QTensor<U>> gate_list;
+    // REVIEW - may need refactors
+    const BinaryList bin_list = _init_binary_list();
+
+    for (const auto& bits : bin_list) {
+        QTensor<U> u = QTensor<U>::identity(1);
+        for (const auto& bit : bits)
+            u = (bit) ? tensor_multiply(u, base[1]) : tensor_multiply(u, base[0]);
+        gate_list.emplace_back(u);
+    }
+    return gate_list;
 }
 
 }  // namespace tensor
