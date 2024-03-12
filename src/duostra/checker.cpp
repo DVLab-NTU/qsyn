@@ -30,7 +30,7 @@ namespace qsyn::duostra {
  */
 Checker::Checker(CircuitTopology& topo,
                  Checker::Device& device,
-                 std::span<Checker::Operation const> ops,
+                 std::span<device::Operation const> ops,
                  std::vector<QubitIdType> const& assign, bool tqdm)
     : _topo(&topo), _device(&device), _ops(ops), _tqdm(tqdm) {
     _device->place(assign);
@@ -42,7 +42,7 @@ Checker::Checker(CircuitTopology& topo,
  * @param type
  * @return size_t
  */
-size_t Checker::get_cycle(Operation const& op) {
+size_t Checker::get_cycle(device::Operation const& op) {
     if (op.is_swap()) {
         return SWAP_DELAY;
     } else if (op.is_cx() || op.is_cz()) {
@@ -58,9 +58,9 @@ size_t Checker::get_cycle(Operation const& op) {
  * @param op
  * @param q0
  */
-void Checker::apply_gate(Checker::Operation const& op, Checker::PhysicalQubit& q0) {
-    auto const start = get<0>(op.get_time_range());
-    auto const end   = get<1>(op.get_time_range());
+void Checker::apply_gate(device::Operation const& op, Checker::PhysicalQubit& q0) {
+    auto const start = op.get_time_begin();
+    auto const end   = op.get_time_end();
 
     DVLAB_ASSERT(
         start >= q0.get_occupied_time(),
@@ -80,11 +80,11 @@ void Checker::apply_gate(Checker::Operation const& op, Checker::PhysicalQubit& q
  * @param q0
  * @param q1
  */
-void Checker::apply_gate(Checker::Operation const& op,
+void Checker::apply_gate(device::Operation const& op,
                          Checker::PhysicalQubit& q0,
                          Checker::PhysicalQubit& q1) {
-    auto const start = get<0>(op.get_time_range());
-    auto const end   = get<1>(op.get_time_range());
+    auto const start = op.get_time_begin();
+    auto const end   = op.get_time_end();
 
     DVLAB_ASSERT(
         start >= q0.get_occupied_time(),
@@ -103,7 +103,7 @@ void Checker::apply_gate(Checker::Operation const& op,
  *
  * @param op
  */
-void Checker::apply_swap(Checker::Operation const& op) {
+void Checker::apply_swap(device::Operation const& op) {
     DVLAB_ASSERT(op.is_swap(), fmt::format("Gate type {} in apply_swap is not allowed!!", op.get_type_str()));
 
     auto q0_idx = get<0>(op.get_qubits());
@@ -126,7 +126,7 @@ void Checker::apply_swap(Checker::Operation const& op) {
  * @return true
  * @return false
  */
-bool Checker::apply_cx(Operation const& op, qcir::QCirGate const& gate) {
+bool Checker::apply_cx(device::Operation const& op, qcir::QCirGate const& gate) {
     DVLAB_ASSERT(op.is_cx() || op.is_cz(), fmt::format("Gate type {} in apply_cx is not allowed!!", op.get_type_str()));
     auto q0_idx = get<0>(op.get_qubits());
     auto q1_idx = get<1>(op.get_qubits());
@@ -157,7 +157,7 @@ bool Checker::apply_cx(Operation const& op, qcir::QCirGate const& gate) {
  * @return true
  * @return false
  */
-bool Checker::apply_single(Operation const& op, qcir::QCirGate const& gate) {
+bool Checker::apply_single(device::Operation const& op, qcir::QCirGate const& gate) {
     DVLAB_ASSERT(
         !op.is_swap() && !op.is_cx() && !op.is_cz(),
         fmt::format("Gate type {} in apply_single is not allowed!!", op.get_type_str()));

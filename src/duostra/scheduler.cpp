@@ -58,7 +58,7 @@ std::unique_ptr<BaseScheduler> BaseScheduler::clone() const {
  *
  */
 void BaseScheduler::_sort() {
-    std::sort(_operations.begin(), _operations.end(), [](Operation const& a, Operation const& b) -> bool {
+    std::sort(_operations.begin(), _operations.end(), [](device::Operation const& a, device::Operation const& b) -> bool {
         return a.get_time_begin() < b.get_time_begin();
     });
     _sorted = true;
@@ -81,7 +81,7 @@ size_t BaseScheduler::get_final_cost() const {
  */
 size_t BaseScheduler::get_total_time() const {
     assert(_sorted);
-    auto durations_range = _operations | std::views::transform([](Operation const& op) -> size_t {
+    auto durations_range = _operations | std::views::transform([](device::Operation const& op) -> size_t {
                                return op.get_duration();
                            });
     return std::reduce(durations_range.begin(), durations_range.end(), 0, std::plus<>{});
@@ -93,7 +93,7 @@ size_t BaseScheduler::get_total_time() const {
  * @return size_t
  */
 size_t BaseScheduler::get_num_swaps() const {
-    return std::ranges::count_if(_operations, [](Operation const& op) {
+    return std::ranges::count_if(_operations, [](device::Operation const& op) {
         return op.get_type() == qcir::GateRotationCategory::swap;
     });
 }
@@ -120,7 +120,7 @@ std::optional<size_t> BaseScheduler::get_executable_gate(Router& router) const {
  */
 size_t BaseScheduler::get_operations_cost() const {
     return max_element(_operations.begin(), _operations.end(),
-                       [](Operation const& a, Operation const& b) {
+                       [](device::Operation const& a, device::Operation const& b) {
                            return a.get_time_end() < b.get_time_end();
                        })
         ->get_time_end();

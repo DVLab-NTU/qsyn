@@ -156,13 +156,13 @@ bool Router::is_executable(qcir::QCirGate const& gate) {
  * @param q
  * @return Operation
  */
-Router::Operation Router::execute_single(GateRotationCategory gate, dvlab::Phase phase, QubitIdType q) {
+device::Operation Router::execute_single(GateRotationCategory gate, dvlab::Phase phase, QubitIdType q) {
     auto& qubit           = _device.get_physical_qubit(q);
     auto const start_time = qubit.get_occupied_time();
     auto const end_time   = start_time + SINGLE_DELAY;
     qubit.set_occupied_time(end_time);
     qubit.reset();
-    Operation op{gate, phase, std::make_tuple(q, max_qubit_id), std::make_tuple(start_time, end_time)};
+    device::Operation op{gate, phase, std::make_tuple(q, max_qubit_id), std::make_tuple(start_time, end_time)};
     spdlog::debug("execute_single: {}", op);
     return op;
 }
@@ -177,7 +177,7 @@ Router::Operation Router::execute_single(GateRotationCategory gate, dvlab::Phase
  * @param swapped if the qubits of gate are swapped when added into Duostra
  * @return vector<Operation>
  */
-std::vector<Router::Operation> Router::duostra_routing(qcir::QCirGate const& gate, std::tuple<QubitIdType, QubitIdType> qubit_pair, MinMaxOptionType tie_breaking_strategy) {
+std::vector<device::Operation> Router::duostra_routing(qcir::QCirGate const& gate, std::tuple<QubitIdType, QubitIdType> qubit_pair, MinMaxOptionType tie_breaking_strategy) {
     assert(gate.get_operation() == CXGate{} || gate.get_operation() == CZGate{});
     auto q0_id    = get<0>(qubit_pair);  // source 0
     auto q1_id    = get<1>(qubit_pair);  // source 1
@@ -265,8 +265,8 @@ std::vector<Router::Operation> Router::duostra_routing(qcir::QCirGate const& gat
  * @param swapped if the qubits of gate are swapped when added into Duostra
  * @return vector<Operation>
  */
-std::vector<Router::Operation> Router::apsp_routing(qcir::QCirGate const& gate, std::tuple<QubitIdType, QubitIdType> qs, MinMaxOptionType tie_breaking_strategy) {
-    std::vector<Operation> operation_list;
+std::vector<device::Operation> Router::apsp_routing(qcir::QCirGate const& gate, std::tuple<QubitIdType, QubitIdType> qs, MinMaxOptionType tie_breaking_strategy) {
+    std::vector<device::Operation> operation_list;
     auto s0_id = get<0>(qs);
     auto s1_id = get<1>(qs);
     auto q0_id = s0_id;
@@ -284,14 +284,14 @@ std::vector<Router::Operation> Router::apsp_routing(qcir::QCirGate const& gate, 
         if ((q0_cost < q1_cost) || ((q0_cost == q1_cost) && (tie_breaking_strategy == MinMaxOptionType::min) &&
                                     _device.get_physical_qubit(q0_id).get_logical_qubit() <
                                         _device.get_physical_qubit(q1_id).get_logical_qubit())) {
-            Operation oper(GateRotationCategory::swap, dvlab::Phase(0), std::make_tuple(q0_id, q0_next),
-                           std::make_tuple(q0_cost, q0_cost + SWAP_DELAY));
+            device::Operation oper(GateRotationCategory::swap, dvlab::Phase(0), std::make_tuple(q0_id, q0_next),
+                                   std::make_tuple(q0_cost, q0_cost + SWAP_DELAY));
             _device.apply_gate(oper);
             operation_list.emplace_back(std::move(oper));
             q0_id = q0_next;
         } else {
-            Operation oper(GateRotationCategory::swap, dvlab::Phase(0), std::make_tuple(q1_id, q1_next),
-                           std::make_tuple(q0_cost, q0_cost + SWAP_DELAY));
+            device::Operation oper(GateRotationCategory::swap, dvlab::Phase(0), std::make_tuple(q1_id, q1_next),
+                                   std::make_tuple(q0_cost, q0_cost + SWAP_DELAY));
             _device.apply_gate(oper);
             operation_list.emplace_back(std::move(oper));
             q1_id = q1_next;
@@ -303,8 +303,8 @@ std::vector<Router::Operation> Router::apsp_routing(qcir::QCirGate const& gate, 
                                     _device.get_physical_qubit(q1_id).get_occupied_time());
 
     assert(gate.get_operation() == CXGate{} || gate.get_operation() == CZGate{});
-    Operation cx_gate(gate.get_rotation_category(), gate.get_phase(), std::make_tuple(q0_id, q1_id),
-                      std::make_tuple(gate_cost, gate_cost + DOUBLE_DELAY));
+    device::Operation cx_gate(gate.get_rotation_category(), gate.get_phase(), std::make_tuple(q0_id, q1_id),
+                              std::make_tuple(gate_cost, gate_cost + DOUBLE_DELAY));
     _device.apply_gate(cx_gate);
     cx_gate.set_id(gate.get_id());
     operation_list.emplace_back(cx_gate);
@@ -360,12 +360,12 @@ std::tuple<bool, QubitIdType> Router::_touch_adjacency(PhysicalQubit& qubit, Pri
  * @param swapped if the qubits of gate are swapped when added into Duostra
  * @return vector<Operation>
  */
-std::vector<Router::Operation> Router::_traceback(qcir::QCirGate const& gate, PhysicalQubit& q0, PhysicalQubit& q1, PhysicalQubit& t0, PhysicalQubit& t1, bool swap_ids) {
+std::vector<device::Operation> Router::_traceback(qcir::QCirGate const& gate, PhysicalQubit& q0, PhysicalQubit& q1, PhysicalQubit& t0, PhysicalQubit& t1, bool swap_ids) {
     assert(t0.get_id() == t0.get_predecessor());
     assert(t1.get_id() == t1.get_predecessor());
 
     assert(q0.is_adjacency(q1));
-    std::vector<Operation> operation_list;
+    std::vector<device::Operation> operation_list;
 
     auto const operation_time = std::max(q0.get_cost(), q1.get_cost());
 
@@ -374,7 +374,7 @@ std::vector<Router::Operation> Router::_traceback(qcir::QCirGate const& gate, Ph
     // NOTE - Order of qubits in CX matters
     std::tuple<size_t, size_t> const qids = swap_ids ? std::make_tuple(q1.get_id(), q0.get_id()) : std::make_tuple(q0.get_id(), q1.get_id());
 
-    Operation cx_gate(gate.get_rotation_category(), gate.get_phase(), qids, std::make_tuple(operation_time, operation_time + DOUBLE_DELAY));
+    device::Operation cx_gate(gate.get_rotation_category(), gate.get_phase(), qids, std::make_tuple(operation_time, operation_time + DOUBLE_DELAY));
     cx_gate.set_id(gate.get_id());
     operation_list.emplace_back(cx_gate);
 
@@ -411,7 +411,7 @@ std::vector<Router::Operation> Router::_traceback(qcir::QCirGate const& gate, Ph
         trace1 = trace_pred1;
     }
     // REVIEW - Check time, now the start time
-    sort(operation_list.begin(), operation_list.end(), [](Operation const& a, Operation const& b) -> bool {
+    sort(operation_list.begin(), operation_list.end(), [](device::Operation const& a, device::Operation const& b) -> bool {
         return a.get_time_begin() < b.get_time_begin();
     });
 
@@ -428,14 +428,14 @@ std::vector<Router::Operation> Router::_traceback(qcir::QCirGate const& gate, Ph
  * @param gate
  * @return vector<Operation>
  */
-std::vector<Router::Operation> Router::assign_gate(qcir::QCirGate const& gate) {
+std::vector<device::Operation> Router::assign_gate(qcir::QCirGate const& gate) {
     auto physical_qubits_ids = _get_physical_qubits(gate);
 
     if (!(gate.get_operation() == CXGate{} || gate.get_operation() == CZGate{})) {
         assert(get<1>(physical_qubits_ids) == max_qubit_id);
-        Operation op = execute_single(gate.get_rotation_category(), gate.get_phase(), get<0>(physical_qubits_ids));
+        device::Operation op = execute_single(gate.get_rotation_category(), gate.get_phase(), get<0>(physical_qubits_ids));
         op.set_id(gate.get_id());
-        return std::vector<Operation>(1, op);
+        return std::vector<device::Operation>(1, op);
     }
     auto operation_list =
         _duostra

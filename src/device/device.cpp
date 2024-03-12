@@ -817,17 +817,6 @@ void Device::print_status() const {
 // SECTION - Class Operation Member Functions
 
 /**
- * @brief Print overloading
- *
- * @param os
- * @param op
- * @return ostream&
- */
-std::ostream& operator<<(std::ostream& os, Operation const& op) {
-    return os << fmt::format("{}", op);
-}
-
-/**
  * @brief Construct a new Operation:: Operation object
  *
  * @param oper

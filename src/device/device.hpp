@@ -21,6 +21,10 @@
 #include "util/ordered_hashset.hpp"
 #include "util/phase.hpp"
 
+namespace qsyn::qcir {
+class QCirGate;
+}
+
 namespace qsyn::device {
 
 class Device;
@@ -183,8 +187,6 @@ private:
 
 class Operation {
 public:
-    friend std::ostream& operator<<(std::ostream& os, Operation const& op);
-
     Operation(qcir::GateRotationCategory op, dvlab::Phase ph, std::tuple<size_t, size_t> qubits, std::tuple<size_t, size_t> duration);
 
     qcir::GateRotationCategory get_type() const { return _operation; }

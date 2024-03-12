@@ -26,19 +26,18 @@ namespace duostra {
 
 class Duostra {
 public:
-    using Device    = qsyn::device::Device;
-    using Operation = qsyn::device::Operation;
+    using Device = qsyn::device::Device;
     struct DuostraExecutionOptions {
         bool verify_result = false;
         bool silent        = false;
         bool use_tqdm      = true;
     };
     Duostra(qcir::QCir* qcir, Device dev, DuostraExecutionOptions const& config = {.verify_result = false, .silent = false, .use_tqdm = true});
-    Duostra(std::vector<Operation> const& cir, size_t n_qubit, Device dev, DuostraExecutionOptions const& config = {.verify_result = false, .silent = false, .use_tqdm = true});
+    // Duostra(std::vector<device::Operation> const& cir, size_t n_qubit, Device dev, DuostraExecutionOptions const& config = {.verify_result = false, .silent = false, .use_tqdm = true});
 
     std::unique_ptr<qcir::QCir> const& get_physical_circuit() const { return _physical_circuit; }
     std::unique_ptr<qcir::QCir>&& get_physical_circuit() { return std::move(_physical_circuit); }
-    std::vector<Operation> const& get_result() const { return _result; }
+    std::vector<device::Operation> const& get_result() const { return _result; }
     auto const& get_order() const { return _order; }
     Device get_device() const { return _device; }
 
@@ -49,15 +48,14 @@ public:
     void build_circuit_by_result();
 
 private:
-    // qcir::QCir* _logical_circuit;
     std::unique_ptr<qcir::QCir> _physical_circuit = std::make_unique<qcir::QCir>();
     Device _device;
     bool _check;
     bool _tqdm;
     bool _silent;
     std::unique_ptr<BaseScheduler> _scheduler;
-    std::shared_ptr<qcir::QCir> _dependency;
-    std::vector<Operation> _result;
+    std::shared_ptr<qcir::QCir> _logical_circuit;
+    std::vector<device::Operation> _result;
     std::vector<qcir::QCirGate> _order;
 };
 

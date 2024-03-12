@@ -23,8 +23,7 @@ namespace qsyn::duostra {
 
 class BaseScheduler {
 public:
-    using Device    = qsyn::device::Device;
-    using Operation = qsyn::device::Operation;
+    using Device = qsyn::device::Device;
     BaseScheduler(CircuitTopology topo, bool tqdm)
         : _circuit_topology(std::move(topo)), _tqdm(tqdm) {}
     virtual ~BaseScheduler() = default;
@@ -52,7 +51,7 @@ public:
     size_t get_operations_cost() const;
     bool is_sorted() const { return _sorted; }
     std::vector<size_t> const& get_available_gates() const { return _circuit_topology.get_available_gates(); }
-    std::vector<Operation> const& get_operations() const { return _operations; }
+    std::vector<device::Operation> const& get_operations() const { return _operations; }
     std::vector<size_t> const& get_order() const { return _assign_order; }
 
     Device assign_gates_and_sort(std::unique_ptr<Router> router);
@@ -60,18 +59,17 @@ public:
 
 protected:
     CircuitTopology _circuit_topology;
-    std::vector<Operation> _operations = {};
-    std::vector<size_t> _assign_order  = {};
-    bool _sorted                       = false;
-    bool _tqdm                         = true;
+    std::vector<device::Operation> _operations = {};
+    std::vector<size_t> _assign_order          = {};
+    bool _sorted                               = false;
+    bool _tqdm                                 = true;
     virtual Device _assign_gates(std::unique_ptr<Router> router);
     void _sort();
 };
 
 class RandomScheduler : public BaseScheduler {
 public:
-    using Device    = BaseScheduler::Device;
-    using Operation = BaseScheduler::Operation;
+    using Device = BaseScheduler::Device;
     RandomScheduler(CircuitTopology const& topo, bool tqdm) : BaseScheduler(topo, tqdm) {}
 
     std::unique_ptr<BaseScheduler> clone() const override;
@@ -82,8 +80,7 @@ protected:
 
 class NaiveScheduler : public BaseScheduler {
 public:
-    using Device    = BaseScheduler::Device;
-    using Operation = BaseScheduler::Operation;
+    using Device = BaseScheduler::Device;
     NaiveScheduler(CircuitTopology const& topo, bool tqdm) : BaseScheduler(topo, tqdm) {}
 
     std::unique_ptr<BaseScheduler> clone() const override;
@@ -103,8 +100,7 @@ struct GreedyConf {
 
 class GreedyScheduler : public BaseScheduler {  // NOLINT(hicpp-special-member-functions, cppcoreguidelines-special-member-functions) : copy-swap idiom
 public:
-    using Device    = BaseScheduler::Device;
-    using Operation = BaseScheduler::Operation;
+    using Device = BaseScheduler::Device;
     GreedyScheduler(CircuitTopology const& topo, bool tqdm) : BaseScheduler(topo, tqdm) {}
     ~GreedyScheduler() override = default;
     GreedyScheduler(GreedyScheduler const& other) : BaseScheduler(other), _conf(other._conf) {}
@@ -215,8 +211,7 @@ private:
 
 class SearchScheduler : public GreedyScheduler {  // NOLINT(hicpp-special-member-functions, cppcoreguidelines-special-member-functions) : copy-swap idiom
 public:
-    using Device    = GreedyScheduler::Device;
-    using Operation = GreedyScheduler::Operation;
+    using Device = GreedyScheduler::Device;
     SearchScheduler(CircuitTopology const& topo, bool tqdm = true);
     ~SearchScheduler() override = default;
     SearchScheduler(SearchScheduler const& other);

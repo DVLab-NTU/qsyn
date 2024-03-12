@@ -32,7 +32,7 @@ namespace qsyn::duostra {
  */
 Duostra::Duostra(QCir* cir, Device dev, DuostraExecutionOptions const& config)
     : _device(std::move(dev)), _check(config.verify_result),
-      _tqdm{!config.silent && config.use_tqdm}, _silent{config.silent}, _dependency{std::make_shared<qcir::QCir>(*cir)} {}
+      _tqdm{!config.silent && config.use_tqdm}, _silent{config.silent}, _logical_circuit{std::make_shared<qcir::QCir>(*cir)} {}
 
 /**
  * @brief Main flow of Duostra mapper
@@ -41,7 +41,7 @@ Duostra::Duostra(QCir* cir, Device dev, DuostraExecutionOptions const& config)
  */
 bool Duostra::map(bool use_device_as_placement) {
     std::unique_ptr<CircuitTopology> topo;
-    topo            = make_unique<CircuitTopology>(_dependency);
+    topo            = make_unique<CircuitTopology>(_logical_circuit);
     auto check_topo = topo->clone();
     auto check_device(_device);
 
@@ -100,7 +100,7 @@ bool Duostra::map(bool use_device_as_placement) {
         fmt::println("");
     }
     assert(scheduler->is_sorted());
-    assert(scheduler->get_order().size() == _dependency->get_gates().size());
+    assert(scheduler->get_order().size() == _logical_circuit->get_gates().size());
     _result = scheduler->get_operations();
     store_order_info(scheduler->get_order());
     build_circuit_by_result();
@@ -115,10 +115,7 @@ bool Duostra::map(bool use_device_as_placement) {
  */
 void Duostra::store_order_info(std::vector<size_t> const& order) {
     for (auto const& gate_id : order) {
-        auto const& g = _dependency->get_gate(gate_id);
-        // std::tuple<size_t, size_t> qubits = g.get_qubits();
-        // Operation op(g.get_type(), g.get_phase(), qubits, {});
-        // op.set_id(g.get_id());
+        auto const& g = _logical_circuit->get_gate(gate_id);
         _order.emplace_back(*g);
     }
 }
