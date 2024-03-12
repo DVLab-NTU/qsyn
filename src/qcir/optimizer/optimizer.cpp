@@ -108,7 +108,13 @@ void Optimizer::_swap_element(Optimizer::ElementType type, QubitIdType e1, Qubit
  * @return false
  */
 bool Optimizer::is_single_z_rotation(QCirGate* g) {
-    return g->get_num_qubits() == 1 && (g->get_rotation_category() == GateRotationCategory::pz || g->get_rotation_category() == GateRotationCategory::rz);
+    return g->get_type_str() == "rz" ||
+           g->get_type_str() == "p" ||
+           g->get_type_str() == "z" ||
+           g->get_type_str() == "s" ||
+           g->get_type_str() == "sdg" ||
+           g->get_type_str() == "t" ||
+           g->get_type_str() == "tdg";
 }
 
 /**
@@ -119,7 +125,13 @@ bool Optimizer::is_single_z_rotation(QCirGate* g) {
  * @return false
  */
 bool Optimizer::is_single_x_rotation(QCirGate* g) {
-    return g->get_num_qubits() == 1 && (g->get_rotation_category() == GateRotationCategory::px || g->get_rotation_category() == GateRotationCategory::rx);
+    return g->get_type_str() == "rx" ||
+           g->get_type_str() == "px" ||
+           g->get_type_str() == "x" ||
+           g->get_type_str() == "sx" ||
+           g->get_type_str() == "sxdg" ||
+           g->get_type_str() == "tx" ||
+           g->get_type_str() == "txdg";
 }
 
 /**
@@ -129,7 +141,7 @@ bool Optimizer::is_single_x_rotation(QCirGate* g) {
  * @return true
  * @return false
  */
-bool Optimizer::is_double_qubit_gate(QCirGate* g) {
+bool Optimizer::is_cx_or_cz_gate(QCirGate* g) {
     return g->get_num_qubits() == 2 && (g->get_operation() == CXGate{} || g->get_operation() == CZGate{});
 }
 

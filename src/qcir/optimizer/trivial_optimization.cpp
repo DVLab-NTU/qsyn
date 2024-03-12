@@ -9,12 +9,14 @@
 
 #include <cassert>
 #include <tl/to.hpp>
+#include <tuple>
 
 #include "../../convert/qcir_to_zxgraph.hpp"
 #include "../qcir.hpp"
 #include "../qcir_gate.hpp"
 #include "./optimizer.hpp"
 #include "extractor/extract.hpp"
+#include "qcir/gate_type.hpp"
 
 extern bool stop_requested();
 
@@ -43,26 +45,24 @@ std::optional<QCir> Optimizer::trivial_optimization(QCir const& qcir) {
         auto const last_layer = _get_first_layer_gates(result, true);
         auto const qubit      = gate->get_qubit(gate->get_num_qubits() - 1);
         if (last_layer[qubit] == nullptr) {
-            result.add_gate(gate->get_type_str(), gate->get_qubits(), gate->get_phase(), true);
+            result.append(gate->get_operation(), gate->get_qubits());
             continue;
         }
         QCirGate* previous_gate = last_layer[qubit];
-        if (is_double_qubit_gate(gate)) {
+        if (is_cx_or_cz_gate(gate)) {
             auto const q2 = gate->get_qubit(gate->get_num_qubits() - 1);
             if (previous_gate->get_id() != last_layer[q2]->get_id()) {
                 // 2-qubit gate do not match up
-                result.add_gate(gate->get_type_str(), gate->get_qubits(), gate->get_phase(), true);
+                result.append(previous_gate->get_operation(), previous_gate->get_qubits());
                 continue;
             }
-            _cancel_double_gate(result, previous_gate, gate);
+            _cancel_cx_or_cz(result, previous_gate, gate);
         } else if (is_single_z_rotation(gate) && is_single_z_rotation(previous_gate)) {
             _fuse_z_phase(result, previous_gate, gate);
         } else if (is_single_x_rotation(gate) && is_single_x_rotation(previous_gate)) {
             _fuse_x_phase(result, previous_gate, gate);
-        } else if (gate->get_rotation_category() == previous_gate->get_rotation_category()) {
-            result.remove_gate(previous_gate->get_id());
         } else {
-            result.add_gate(gate->get_type_str(), gate->get_qubits(), gate->get_phase(), true);
+            result.append(gate->get_operation(), gate->get_qubits());
         }
     }
 
@@ -117,7 +117,7 @@ void Optimizer::_fuse_x_phase(QCir& qcir, QCirGate* prev_gate, QCirGate* gate) {
         qcir.remove_gate(prev_gate->get_id());
         return;
     }
-    if (prev_gate->get_rotation_category() == GateRotationCategory::px)
+    if (is_single_x_rotation(prev_gate))
         prev_gate->set_operation(LegacyGateType{std::make_tuple(GateRotationCategory::px, 1, phase)});
     else {
         QubitIdList qubit_list;
@@ -141,7 +141,7 @@ void Optimizer::_fuse_z_phase(QCir& qcir, QCirGate* prev_gate, QCirGate* gate) {
         qcir.remove_gate(prev_gate->get_id());
         return;
     }
-    if (prev_gate->get_rotation_category() == GateRotationCategory::pz)
+    if (is_single_z_rotation(prev_gate))
         prev_gate->set_operation(LegacyGateType{std::make_tuple(GateRotationCategory::pz, 1, phase)});
     else {
         QubitIdList qubit_list;
@@ -159,26 +159,26 @@ void Optimizer::_fuse_z_phase(QCir& qcir, QCirGate* prev_gate, QCirGate* gate) {
  *
  * @return modified circuit
  */
-void Optimizer::_cancel_double_gate(QCir& qcir, QCirGate* prev_gate, QCirGate* gate) {
-    if (!is_double_qubit_gate(prev_gate) || !is_double_qubit_gate(gate)) {
-        qcir.add_gate(gate->get_type_str(), gate->get_qubits(), gate->get_phase(), true);
-        return;
-    }
-
-    if ((prev_gate->get_qubit(0) != gate->get_qubit(0) || prev_gate->get_qubit(1) != gate->get_qubit(1)) &&
-        (prev_gate->get_qubit(0) != gate->get_qubit(1) || prev_gate->get_qubit(1) != gate->get_qubit(0))) {
-        qcir.add_gate(gate->get_type_str(), gate->get_qubits(), gate->get_phase(), true);
-        return;
-    }
-
-    if (prev_gate->get_rotation_category() != gate->get_rotation_category()) {
-        qcir.add_gate(gate->get_type_str(), gate->get_qubits(), gate->get_phase(), true);
-        return;
-    }
-    if (prev_gate->get_operation() == CZGate{} || prev_gate->get_qubit(0) == gate->get_qubit(1))
+void Optimizer::_cancel_cx_or_cz(QCir& qcir, QCirGate* prev_gate, QCirGate* gate) {
+    if (prev_gate->get_operation() == CXGate{} &&
+        gate->get_operation() == CXGate{} &&
+        prev_gate->get_qubits() == gate->get_qubits()) {
         qcir.remove_gate(prev_gate->get_id());
-    else
-        qcir.add_gate(gate->get_type_str(), gate->get_qubits(), gate->get_phase(), true);
+        return;
+    } else if (prev_gate->get_operation() == CZGate{} &&
+               gate->get_operation() == CZGate{}) {
+        if ((prev_gate->get_qubit(0) == gate->get_qubit(0) &&
+             prev_gate->get_qubit(1) == gate->get_qubit(1)) ||
+            (prev_gate->get_qubit(0) == gate->get_qubit(1) &&
+             prev_gate->get_qubit(1) == gate->get_qubit(0))) {
+            qcir.remove_gate(prev_gate->get_id());
+            return;
+        } else {
+            qcir.append(gate->get_operation(), gate->get_qubits());
+        }
+    }
+
+    qcir.append(gate->get_operation(), gate->get_qubits());
 }
 
 namespace {
@@ -220,12 +220,12 @@ QCir replace_single_qubit_gate_sequence(QCir& qcir, QubitIdType qubit, size_t ga
 
     for (auto gate : gate_list) {
         if (gate->get_qubit(0) != qubit) {
-            replaced.add_gate(gate->get_type_str(), gate->get_qubits(), gate->get_phase(), true);
+            replaced.append(gate->get_operation(), gate->get_qubits());
             continue;
         }
 
         if (gate_num != 0) {
-            replaced.add_gate(gate->get_type_str(), gate->get_qubits(), gate->get_phase(), true);
+            replaced.append(gate->get_operation(), gate->get_qubits());
             gate_num--;
             if (gate_num == 0) {
                 replace_count = seq_len;
@@ -234,7 +234,7 @@ QCir replace_single_qubit_gate_sequence(QCir& qcir, QubitIdType qubit, size_t ga
         }
 
         if (replace_count == 0) {
-            replaced.add_gate(gate->get_type_str(), gate->get_qubits(), gate->get_phase(), true);
+            replaced.append(gate->get_operation(), gate->get_qubits());
             continue;
         }
 
@@ -252,8 +252,7 @@ QCir replace_single_qubit_gate_sequence(QCir& qcir, QubitIdType qubit, size_t ga
 }
 
 std::vector<std::string> zx_optimize(std::vector<std::string> const& partial) {
-    QCir qcir;
-    qcir.add_qubits(1);
+    QCir qcir(1);
 
     for (std::string const& type : partial) {
         auto gate_type                                 = str_to_gate_type(type);

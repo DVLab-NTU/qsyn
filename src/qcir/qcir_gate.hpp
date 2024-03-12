@@ -55,13 +55,14 @@ struct QubitInfo {
 class QCirGate {
 public:
     using QubitIdType = qsyn::QubitIdType;
-    QCirGate(size_t id, GateRotationCategory type, QubitIdList qubits, dvlab::Phase ph)
+
+    QCirGate(size_t id, Operation const& op, QubitIdList qubits)
         : _id(id),
-          _operation{LegacyGateType{std::make_tuple(type, qubits.size(), ph)}},
-          _rotation_category{type},
+          _operation{op},
+          _rotation_category{op.get_underlying<LegacyGateType>().get_rotation_category()},
           _qubits{std::vector<QubitInfo>(qubits.size(), {nullptr, nullptr})},
           _operands{std::move(qubits)},
-          _phase{ph} {}
+          _phase{op.get_underlying<LegacyGateType>().get_phase()} {}
 
     // Basic access method
     std::string get_type_str() const { return get_operation().get_type(); }

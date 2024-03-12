@@ -228,7 +228,7 @@ void Duostra::build_circuit_by_result() {
             _physical_circuit->add_gate("CX", qu, dvlab::Phase(1), true);
             _physical_circuit->add_gate("CX", qu_reverse, dvlab::Phase(1), true);
             _physical_circuit->add_gate("CX", qu, dvlab::Phase(1), true);
-        } else if (operation.get_phase() != dvlab::Phase(0)) {
+        } else {
             _physical_circuit->add_gate(operation.get_type_str(), qu, operation.get_phase(), true);
         }
     }

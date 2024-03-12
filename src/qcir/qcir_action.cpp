@@ -34,7 +34,7 @@ QCir& QCir::compose(QCir const& other) {
         for (auto i : std::views::iota(0ul, targ_gate->get_num_qubits())) {
             qubits.emplace_back(targ_gate->get_qubit(i));
         }
-        add_gate(targ_gate->get_type_str(), qubits, targ_gate->get_phase(), true);
+        append(targ_gate->get_operation(), qubits);
     }
     return *this;
 }
@@ -57,7 +57,7 @@ QCir& QCir::tensor_product(QCir const& other) {
         for (auto i : std::views::iota(0ul, targ_gate->get_num_qubits())) {
             qubits.emplace_back(old_to_new_qubit[targ_gate->get_qubit(i)]);
         }
-        add_gate(targ_gate->get_type_str(), qubits, targ_gate->get_phase(), true);
+        append(targ_gate->get_operation(), qubits);
     }
     return *this;
 }

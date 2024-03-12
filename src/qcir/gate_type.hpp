@@ -138,6 +138,7 @@ public:
 
     GateRotationCategory get_rotation_category() const { return std::get<0>(_type); }
     dvlab::Phase get_phase() const { return std::get<2>(_type).value_or(dvlab::Phase(0, 1)); }
+    void set_phase(dvlab::Phase phase) { std::get<2>(_type) = phase; }
 
 private:
     GateType _type;

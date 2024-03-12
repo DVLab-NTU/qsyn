@@ -74,9 +74,11 @@ void Optimizer::_match_z_rotations(QCirGate* gate) {
     if (_zs.contains(qubit)) {
         _statistics.FUSE_PHASE++;
         _zs.erase(qubit);
-        gate->set_operation(LegacyGateType{std::make_tuple(gate->get_rotation_category(), gate->get_num_qubits(), gate->get_phase() + dvlab::Phase(1))});
+        auto op = gate->get_operation().get_underlying<LegacyGateType>();
+        op.set_phase(op.get_phase() + dvlab::Phase(1));
+        gate->set_operation(op);
     }
-    if (gate->get_phase() == dvlab::Phase(0)) {
+    if (gate->get_type_str() == "id") {
         spdlog::trace("Cancel with previous RZ");
         return;
     }
@@ -84,7 +86,7 @@ void Optimizer::_match_z_rotations(QCirGate* gate) {
     if (_xs.contains(qubit)) {
         gate->set_operation(LegacyGateType{std::make_tuple(GateRotationCategory::px, 1, -1 * gate->get_phase())});
     }
-    if (gate->get_phase() == dvlab::Phase(1)) {
+    if (gate->get_type_str() == "z") {
         _toggle_element(ElementType::z, qubit);
         return;
     }
