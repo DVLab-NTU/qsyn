@@ -36,20 +36,20 @@ Duostra::Duostra(QCir* cir, Device dev, DuostraExecutionOptions const& config)
     make_dependency();
 }
 
-/**
- * @brief Construct a new Duostra Mapper object
- *
- * @param cir
- * @param dev
- * @param check
- * @param tqdm
- * @param silent
- */
-Duostra::Duostra(std::vector<Operation> const& cir, size_t n_qubit, Device dev, DuostraExecutionOptions const& config)
-    : _logical_circuit(nullptr), _device(std::move(dev)), _check(config.verify_result),
-      _tqdm{!config.silent && config.use_tqdm}, _silent{config.silent} {
-    make_dependency(cir, n_qubit);
-}
+// /**
+//  * @brief Construct a new Duostra Mapper object
+//  *
+//  * @param cir
+//  * @param dev
+//  * @param check
+//  * @param tqdm
+//  * @param silent
+//  */
+// Duostra::Duostra(std::vector<Operation> const& cir, size_t n_qubit, Device dev, DuostraExecutionOptions const& config)
+//     : _logical_circuit(nullptr), _device(std::move(dev)), _check(config.verify_result),
+//       _tqdm{!config.silent && config.use_tqdm}, _silent{config.silent} {
+//     make_dependency(cir, n_qubit);
+// }
 
 /**
  * @brief Make dependency graph from QCir*
@@ -88,33 +88,33 @@ void Duostra::make_dependency() {
     _dependency = make_shared<DependencyGraph>(_logical_circuit->get_num_qubits(), std::move(all_gates));
 }
 
-/**
- * @brief Make dependency graph from vector<Operation>
- *
- * @param oper in topological order
- */
-void Duostra::make_dependency(std::vector<Operation> const& ops, size_t n_qubits) {
-    std::vector<size_t> last_gate;  // idx:qubit value: Gate id
-    std::vector<Gate> all_gates;
-    last_gate.resize(n_qubits, SIZE_MAX);
-    for (size_t i = 0; i < ops.size(); i++) {
-        Gate temp_gate{i, ops[i].get_type(), ops[i].get_phase(), ops[i].get_qubits()};
-        auto const q0_gate = last_gate[get<0>(ops[i].get_qubits())];
-        auto const q1_gate = last_gate[get<1>(ops[i].get_qubits())];
-        temp_gate.add_prev(q0_gate);
-        if (q0_gate != q1_gate)
-            temp_gate.add_prev(q1_gate);
-        if (q0_gate != SIZE_MAX)
-            all_gates[q0_gate].add_next(i);
-        if (q1_gate != SIZE_MAX && q1_gate != q0_gate) {
-            all_gates[q1_gate].add_next(i);
-        }
-        last_gate[get<0>(ops[i].get_qubits())] = i;
-        last_gate[get<1>(ops[i].get_qubits())] = i;
-        all_gates.emplace_back(std::move(temp_gate));
-    }
-    _dependency = make_shared<DependencyGraph>(n_qubits, std::move(all_gates));
-}
+// /**
+//  * @brief Make dependency graph from vector<Operation>
+//  *
+//  * @param oper in topological order
+//  */
+// void Duostra::make_dependency(std::vector<Operation> const& ops, size_t n_qubits) {
+//     std::vector<size_t> last_gate;  // idx:qubit value: Gate id
+//     std::vector<Gate> all_gates;
+//     last_gate.resize(n_qubits, SIZE_MAX);
+//     for (size_t i = 0; i < ops.size(); i++) {
+//         Gate temp_gate{i, ops[i].get_type(), ops[i].get_phase(), ops[i].get_qubits()};
+//         auto const q0_gate = last_gate[get<0>(ops[i].get_qubits())];
+//         auto const q1_gate = last_gate[get<1>(ops[i].get_qubits())];
+//         temp_gate.add_prev(q0_gate);
+//         if (q0_gate != q1_gate)
+//             temp_gate.add_prev(q1_gate);
+//         if (q0_gate != SIZE_MAX)
+//             all_gates[q0_gate].add_next(i);
+//         if (q1_gate != SIZE_MAX && q1_gate != q0_gate) {
+//             all_gates[q1_gate].add_next(i);
+//         }
+//         last_gate[get<0>(ops[i].get_qubits())] = i;
+//         last_gate[get<1>(ops[i].get_qubits())] = i;
+//         all_gates.emplace_back(std::move(temp_gate));
+//     }
+//     _dependency = make_shared<DependencyGraph>(n_qubits, std::move(all_gates));
+// }
 
 /**
  * @brief Main flow of Duostra mapper

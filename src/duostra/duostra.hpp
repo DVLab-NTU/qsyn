@@ -43,7 +43,7 @@ public:
     Device get_device() const { return _device; }
 
     void make_dependency();
-    void make_dependency(std::vector<Operation> const& ops, size_t n_qubits);
+    // void make_dependency(std::vector<Operation> const& ops, size_t n_qubits);
     bool map(bool use_device_as_placement = false);
     void store_order_info(std::vector<size_t> const& order);
     void build_circuit_by_result();
