@@ -130,7 +130,7 @@ bool Optimizer::is_single_x_rotation(QCirGate* g) {
  * @return false
  */
 bool Optimizer::is_double_qubit_gate(QCirGate* g) {
-    return g->get_num_qubits() == 2 && (g->is_cx() || g->is_cz());
+    return g->get_num_qubits() == 2 && (g->get_operation() == CXGate{} || g->get_operation() == CZGate{});
 }
 
 /**

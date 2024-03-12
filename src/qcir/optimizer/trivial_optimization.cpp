@@ -118,7 +118,7 @@ void Optimizer::_fuse_x_phase(QCir& qcir, QCirGate* prev_gate, QCirGate* gate) {
         return;
     }
     if (prev_gate->get_rotation_category() == GateRotationCategory::px)
-        prev_gate->set_phase(phase);
+        prev_gate->set_operation(LegacyGateType{std::make_tuple(GateRotationCategory::px, 1, phase)});
     else {
         QubitIdList qubit_list;
         qubit_list.emplace_back(prev_gate->get_qubit(0));
@@ -142,7 +142,7 @@ void Optimizer::_fuse_z_phase(QCir& qcir, QCirGate* prev_gate, QCirGate* gate) {
         return;
     }
     if (prev_gate->get_rotation_category() == GateRotationCategory::pz)
-        prev_gate->set_phase(phase);
+        prev_gate->set_operation(LegacyGateType{std::make_tuple(GateRotationCategory::pz, 1, phase)});
     else {
         QubitIdList qubit_list;
         qubit_list.emplace_back(prev_gate->get_qubit(0));
@@ -175,7 +175,7 @@ void Optimizer::_cancel_double_gate(QCir& qcir, QCirGate* prev_gate, QCirGate* g
         qcir.add_gate(gate->get_type_str(), gate->get_qubits(), gate->get_phase(), true);
         return;
     }
-    if (prev_gate->is_cz() || prev_gate->get_qubit(0) == gate->get_qubit(1))
+    if (prev_gate->get_operation() == CZGate{} || prev_gate->get_qubit(0) == gate->get_qubit(1))
         qcir.remove_gate(prev_gate->get_id());
     else
         qcir.add_gate(gate->get_type_str(), gate->get_qubits(), gate->get_phase(), true);

@@ -28,10 +28,6 @@ size_t DOUBLE_DELAY   = 2;
 size_t SWAP_DELAY     = 6;
 size_t MULTIPLE_DELAY = 5;
 
-std::string QCirGate::get_type_str() const {
-    return gate_type_to_str(_rotation_category, get_num_qubits(), _phase);
-}
-
 // void QCirGate::print_gate_info() const {
 //     auto type_str = get_type_str();
 //     if (type_str.starts_with("mc") || type_str.starts_with("cc")) type_str = type_str.substr(2);
@@ -42,12 +38,27 @@ std::string QCirGate::get_type_str() const {
 //     _print_single_qubit_or_controlled_gate(type_str, show_phase);
 // }
 
-void QCirGate::set_phase(dvlab::Phase p) {
-    if (is_fixed_phase_gate(_rotation_category) && p != get_fixed_phase(_rotation_category)) {
-        spdlog::error("Gate type {} cannot be set with phase {}!", get_type_str(), p);
+void QCirGate::set_operation(Operation const& op) {
+    if (op.get_num_qubits() != _operands.size()) {
+        spdlog::error("Operation {} cannot be set with {} qubits!", op.get_type(), _operands.size());
         return;
     }
-    _phase = p;
+    /* temporary : a bunch of case-by-case handling of syncing _operation and legacy members */
+    // if (op.get_type() == "s") {
+    //     _rotation_category = GateRotationCategory::pz;
+    //     _phase             = Phase(1, 2);
+    // }
+    // if (op.get_type() == "sdg") {
+    //     _rotation_category = GateRotationCategory::pz;
+    //     _phase             = Phase(-1, 2);
+    // }
+
+    // should be legacy gate type
+    auto legacy        = op.get_underlying<LegacyGateType>();
+    _rotation_category = legacy.get_rotation_category();
+    _phase             = legacy.get_phase();
+
+    _operation = op;
 }
 
 /**
@@ -56,7 +67,7 @@ void QCirGate::set_phase(dvlab::Phase p) {
  * @return size_t
  */
 size_t QCirGate::get_delay() const {
-    if (is_swap())
+    if (get_operation() == SwapGate{})
         return SWAP_DELAY;
     if (_qubits.size() == 1)
         return SINGLE_DELAY;
@@ -130,9 +141,7 @@ void QCirGate::print_gate(std::optional<size_t> time) const {
 // }
 
 void QCirGate::adjoint() {
-    if (!is_fixed_phase_gate(_rotation_category)) {
-        _phase = -_phase;
-    }
+    _operation = qsyn::qcir::adjoint(_operation);
 }
 
 }  // namespace qsyn::qcir

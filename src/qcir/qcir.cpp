@@ -40,9 +40,8 @@ QCir::QCir(QCir const& other) {
 
     for (auto& gate : other.get_gates()) {
         // We do not call add_gate here because we want to keep the original gate id
-        _id_to_gates.emplace(gate->get_id(), std::make_unique<QCirGate>(gate->get_id(), gate->get_rotation_category(), gate->get_phase()));
+        _id_to_gates.emplace(gate->get_id(), std::make_unique<QCirGate>(gate->get_id(), gate->get_rotation_category(), gate->get_qubits(), gate->get_phase()));
         auto* new_gate = _id_to_gates.at(gate->get_id()).get();
-        new_gate->set_qubits(gate->get_qubits());
 
         for (auto const qb : new_gate->get_qubits()) {
             QCirQubit* target = get_qubit(qb);
@@ -328,9 +327,8 @@ QCirGate* QCir::add_gate(std::string type, QubitIdList const& bits, dvlab::Phase
 }
 
 QCirGate* QCir::append(GateType gate, QubitIdList const& bits) {
-    _id_to_gates.emplace(_gate_id, std::make_unique<QCirGate>(_gate_id, std::get<0>(gate), *std::get<2>(gate)));
+    _id_to_gates.emplace(_gate_id, std::make_unique<QCirGate>(_gate_id, std::get<0>(gate), bits, *std::get<2>(gate)));
     auto* g = _id_to_gates[_gate_id].get();
-    g->set_qubits(bits);
     _gate_id++;
 
     for (auto const& qb : g->get_qubits()) {
@@ -347,9 +345,8 @@ QCirGate* QCir::append(GateType gate, QubitIdList const& bits) {
 }
 
 QCirGate* QCir::prepend(GateType gate, QubitIdList const& bits) {
-    _id_to_gates.emplace(_gate_id, std::make_unique<QCirGate>(_gate_id, std::get<0>(gate), *std::get<2>(gate)));
+    _id_to_gates.emplace(_gate_id, std::make_unique<QCirGate>(_gate_id, std::get<0>(gate), bits, *std::get<2>(gate)));
     auto* g = _id_to_gates[_gate_id].get();
-    g->set_qubits(bits);
     _gate_id++;
 
     for (auto const& qb : g->get_qubits()) {
