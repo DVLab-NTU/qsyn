@@ -39,7 +39,7 @@ public:
     std::unique_ptr<qcir::QCir> const& get_physical_circuit() const { return _physical_circuit; }
     std::unique_ptr<qcir::QCir>&& get_physical_circuit() { return std::move(_physical_circuit); }
     std::vector<Operation> const& get_result() const { return _result; }
-    std::vector<Operation> const& get_order() const { return _order; }
+    auto const& get_order() const { return _order; }
     Device get_device() const { return _device; }
 
     void make_dependency();
@@ -49,16 +49,16 @@ public:
     void build_circuit_by_result();
 
 private:
-    qcir::QCir* _logical_circuit;
+    // qcir::QCir* _logical_circuit;
     std::unique_ptr<qcir::QCir> _physical_circuit = std::make_unique<qcir::QCir>();
     Device _device;
     bool _check;
     bool _tqdm;
     bool _silent;
     std::unique_ptr<BaseScheduler> _scheduler;
-    std::shared_ptr<DependencyGraph> _dependency;
+    std::shared_ptr<qcir::QCir> _dependency;
     std::vector<Operation> _result;
-    std::vector<Operation> _order;
+    std::vector<qcir::QCirGate> _order;
 };
 
 }  // namespace duostra

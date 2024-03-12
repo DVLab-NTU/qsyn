@@ -9,12 +9,12 @@
 #pragma once
 
 #include "device/device.hpp"
+#include "qcir/qcir_gate.hpp"
 #include "qsyn/qsyn_type.hpp"
 
 namespace qsyn::duostra {
 
 class CircuitTopology;
-class Gate;
 
 class Checker {
 public:
@@ -31,8 +31,8 @@ public:
     void apply_gate(Operation const& op, PhysicalQubit& q0);
     void apply_gate(Operation const& op, PhysicalQubit& q0, PhysicalQubit& q1);
     void apply_swap(Operation const& op);
-    bool apply_cx(Operation const& op, Gate const& gate);
-    bool apply_single(Operation const& op, Gate const& gate);
+    bool apply_cx(Operation const& op, qcir::QCirGate const& gate);
+    bool apply_single(Operation const& op, qcir::QCirGate const& gate);
 
     bool test_operations();
 

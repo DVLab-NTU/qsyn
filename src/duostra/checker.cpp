@@ -126,7 +126,7 @@ void Checker::apply_swap(Checker::Operation const& op) {
  * @return true
  * @return false
  */
-bool Checker::apply_cx(Operation const& op, Gate const& gate) {
+bool Checker::apply_cx(Operation const& op, qcir::QCirGate const& gate) {
     DVLAB_ASSERT(op.is_cx() || op.is_cz(), fmt::format("Gate type {} in apply_cx is not allowed!!", op.get_type_str()));
     auto q0_idx = get<0>(op.get_qubits());
     auto q1_idx = get<1>(op.get_qubits());
@@ -140,8 +140,8 @@ bool Checker::apply_cx(Operation const& op, Gate const& gate) {
     DVLAB_ASSERT(topo_1.has_value(), "topo_1 does not have value");
     DVLAB_ASSERT(topo_0 != topo_1, "topo_0 should not be equal to topo_1");
 
-    if (topo_0 != std::get<0>(gate.get_qubits()) ||
-        topo_1 != std::get<1>(gate.get_qubits())) {
+    if (topo_0 != gate.get_qubit(0) ||
+        topo_1 != gate.get_qubit(1)) {
         return false;
     }
 
@@ -157,7 +157,7 @@ bool Checker::apply_cx(Operation const& op, Gate const& gate) {
  * @return true
  * @return false
  */
-bool Checker::apply_single(Operation const& op, Gate const& gate) {
+bool Checker::apply_single(Operation const& op, qcir::QCirGate const& gate) {
     DVLAB_ASSERT(
         !op.is_swap() && !op.is_cx() && !op.is_cz(),
         fmt::format("Gate type {} in apply_single is not allowed!!", op.get_type_str()));
@@ -174,7 +174,7 @@ bool Checker::apply_single(Operation const& op, Gate const& gate) {
 
     DVLAB_ASSERT(topo_0.has_value(), "topo_0 does not have value");
 
-    if (topo_0 != get<0>(gate.get_qubits())) {
+    if (topo_0 != gate.get_qubit(0)) {
         return false;
     }
 
