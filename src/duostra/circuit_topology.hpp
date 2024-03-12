@@ -47,7 +47,6 @@ public:
     void set_nexts(std::unordered_map<size_t, size_t> const& map);
 
     bool is_available(std::unordered_map<size_t, size_t> const& executed_gates) const;
-    bool is_swapped() const { return _swap; }
     bool is_first_gate() const { return _prevs.empty(); }
     bool is_last_gate() const { return _nexts.empty(); }
 
@@ -59,7 +58,6 @@ private:
     size_t _id;
     qcir::GateRotationCategory _type;
     dvlab::Phase _phase;  // For saving phase information
-    bool _swap = false;   // qubits is swapped for duostra
     std::tuple<QubitIdType, QubitIdType> _qubits;
     std::vector<size_t> _prevs = {};
     std::vector<size_t> _nexts = {};

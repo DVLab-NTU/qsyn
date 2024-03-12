@@ -27,12 +27,7 @@ namespace qsyn::duostra {
  * @param qs
  */
 Gate::Gate(size_t id, GateRotationCategory type, dvlab::Phase ph, std::tuple<size_t, size_t> qs)
-    : _id(id), _type(type), _phase(ph), _qubits(qs) {
-    if (std::get<0>(_qubits) > std::get<1>(_qubits)) {
-        _qubits = std::make_tuple(std::get<1>(_qubits), std::get<0>(_qubits));
-        _swap   = true;
-    }
-}
+    : _id(id), _type(type), _phase(ph), _qubits(qs) {}
 
 /**
  * @brief Add previous gate

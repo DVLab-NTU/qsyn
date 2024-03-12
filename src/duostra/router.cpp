@@ -178,7 +178,7 @@ Router::Operation Router::execute_single(GateRotationCategory gate, dvlab::Phase
  * @param swapped if the qubits of gate are swapped when added into Duostra
  * @return vector<Operation>
  */
-std::vector<Router::Operation> Router::duostra_routing(Gate const& gate, std::tuple<QubitIdType, QubitIdType> qubit_pair, MinMaxOptionType tie_breaking_strategy, bool swapped) {
+std::vector<Router::Operation> Router::duostra_routing(Gate const& gate, std::tuple<QubitIdType, QubitIdType> qubit_pair, MinMaxOptionType tie_breaking_strategy) {
     assert(gate.is_cx() || gate.is_cz());
     auto q0_id    = get<0>(qubit_pair);  // source 0
     auto q1_id    = get<1>(qubit_pair);  // source 1
@@ -241,7 +241,7 @@ std::vector<Router::Operation> Router::duostra_routing(Gate const& gate, std::tu
         }
     }
     auto operation_list =
-        _traceback(gate, _device.get_physical_qubit(q0_id), _device.get_physical_qubit(q1_id), t0, t1, swap_ids, swapped);
+        _traceback(gate, _device.get_physical_qubit(q0_id), _device.get_physical_qubit(q1_id), t0, t1, swap_ids);
 
     spdlog::debug("Operation List:");
     for (auto const& op : operation_list) {
@@ -266,7 +266,7 @@ std::vector<Router::Operation> Router::duostra_routing(Gate const& gate, std::tu
  * @param swapped if the qubits of gate are swapped when added into Duostra
  * @return vector<Operation>
  */
-std::vector<Router::Operation> Router::apsp_routing(Gate const& gate, std::tuple<QubitIdType, QubitIdType> qs, MinMaxOptionType tie_breaking_strategy, bool swapped) {
+std::vector<Router::Operation> Router::apsp_routing(Gate const& gate, std::tuple<QubitIdType, QubitIdType> qs, MinMaxOptionType tie_breaking_strategy) {
     std::vector<Operation> operation_list;
     auto s0_id = get<0>(qs);
     auto s1_id = get<1>(qs);
@@ -304,7 +304,7 @@ std::vector<Router::Operation> Router::apsp_routing(Gate const& gate, std::tuple
                                     _device.get_physical_qubit(q1_id).get_occupied_time());
 
     assert(gate.is_cx() || gate.is_cz());
-    Operation cx_gate(gate.get_type(), gate.get_phase(), swapped ? std::make_tuple(q1_id, q0_id) : std::make_tuple(q0_id, q1_id),
+    Operation cx_gate(gate.get_type(), gate.get_phase(), std::make_tuple(q0_id, q1_id),
                       std::make_tuple(gate_cost, gate_cost + DOUBLE_DELAY));
     _device.apply_gate(cx_gate);
     cx_gate.set_id(gate.get_id());
@@ -361,7 +361,7 @@ std::tuple<bool, QubitIdType> Router::_touch_adjacency(PhysicalQubit& qubit, Pri
  * @param swapped if the qubits of gate are swapped when added into Duostra
  * @return vector<Operation>
  */
-std::vector<Router::Operation> Router::_traceback(Gate const& gate, PhysicalQubit& q0, PhysicalQubit& q1, PhysicalQubit& t0, PhysicalQubit& t1, bool swap_ids, bool swapped) {
+std::vector<Router::Operation> Router::_traceback(Gate const& gate, PhysicalQubit& q0, PhysicalQubit& q1, PhysicalQubit& t0, PhysicalQubit& t1, bool swap_ids) {
     assert(t0.get_id() == t0.get_predecessor());
     assert(t1.get_id() == t1.get_predecessor());
 
@@ -374,9 +374,9 @@ std::vector<Router::Operation> Router::_traceback(Gate const& gate, PhysicalQubi
 
     // NOTE - Order of qubits in CX matters
     std::tuple<size_t, size_t> qids = swap_ids ? std::make_tuple(q1.get_id(), q0.get_id()) : std::make_tuple(q0.get_id(), q1.get_id());
-    if (swapped) {
-        qids = std::make_tuple(get<1>(qids), get<0>(qids));
-    }
+    // if (swapped) {
+    //     qids = std::make_tuple(get<1>(qids), get<0>(qids));
+    // }
     Operation cx_gate(gate.get_type(), gate.get_phase(), qids, std::make_tuple(operation_time, operation_time + DOUBLE_DELAY));
     cx_gate.set_id(gate.get_id());
     operation_list.emplace_back(cx_gate);
@@ -442,8 +442,8 @@ std::vector<Router::Operation> Router::assign_gate(Gate const& gate) {
     }
     auto operation_list =
         _duostra
-            ? duostra_routing(gate, physical_qubits_ids, _tie_breaking_strategy, gate.is_swapped())
-            : apsp_routing(gate, physical_qubits_ids, _tie_breaking_strategy, gate.is_swapped());
+            ? duostra_routing(gate, physical_qubits_ids, _tie_breaking_strategy)
+            : apsp_routing(gate, physical_qubits_ids, _tie_breaking_strategy);
     auto const change_list = _device.mapping();
 
     // i is the idx of device qubit

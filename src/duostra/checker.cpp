@@ -140,9 +140,6 @@ bool Checker::apply_cx(Operation const& op, Gate const& gate) {
     DVLAB_ASSERT(topo_1.has_value(), "topo_1 does not have value");
     DVLAB_ASSERT(topo_0 != topo_1, "topo_0 should not be equal to topo_1");
 
-    if (topo_0 > topo_1) {
-        std::swap(topo_0, topo_1);
-    }
     if (topo_0 != std::get<0>(gate.get_qubits()) ||
         topo_1 != std::get<1>(gate.get_qubits())) {
         return false;

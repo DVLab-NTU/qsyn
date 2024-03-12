@@ -199,8 +199,6 @@ void Duostra::store_order_info(std::vector<size_t> const& order) {
     for (auto const& gate_id : order) {
         Gate const& g                     = _dependency->get_gate(gate_id);
         std::tuple<size_t, size_t> qubits = g.get_qubits();
-        if (g.is_swapped())
-            qubits = std::make_tuple(get<1>(qubits), get<0>(qubits));
         Operation op(g.get_type(), g.get_phase(), qubits, {});
         op.set_id(g.get_id());
         _order.emplace_back(op);
