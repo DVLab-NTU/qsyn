@@ -49,7 +49,7 @@ private:
     QTensor<U> _find_and_insert_closest_u(const std::vector<QTensor<U>>& gate_list, BinaryList& bin_list, QTensor<U> u, std::vector<int>& output_gate);
 
     template <typename U>
-    std::vector<QTensor<U>> _group_commutator_decompose(QTensor<U> u);
+    std::pair<QTensor<U>, QTensor<U>> _group_commutator_decompose(QTensor<U> u);
 
     template <typename U>
     QTensor<U> _solovay_kitaev_iteration(const std::vector<QTensor<U>>& gate_list, BinaryList& bin_list, QTensor<U> u, size_t n, std::vector<int>& output_gate);
@@ -113,16 +113,12 @@ QTensor<U> SolovayKitaev::_solovay_kitaev_iteration(const std::vector<QTensor<U>
     if (recursion == 0) {
         return _find_and_insert_closest_u(gate_list, bin_list, u, output_gate);
     } else {
-        std::vector<int> output_gate_u_prev;
+        std::vector<int> output_gate_u_prev, output_gate_v_prev, output_gate_w_prev;
         const QTensor<U> u_prev   = _solovay_kitaev_iteration(gate_list, bin_list, u, recursion - 1, output_gate_u_prev);
         QTensor<U> u_prev_adjoint = u_prev;
         u_prev_adjoint.adjoint();
-        const QTensor<U> u_mult    = tensor_multiply(u, u_prev_adjoint);
-        std::vector<QTensor<U>> vw = _group_commutator_decompose(u_mult);
-        const QTensor<U> v         = vw[0];
-        const QTensor<U> w         = vw[1];
-        std::vector<int> output_gate_v_prev;
-        std::vector<int> output_gate_w_prev;
+        const QTensor<U> u_mult = tensor_multiply(u, u_prev_adjoint);
+        const auto& [v, w]      = _group_commutator_decompose(u_mult);
         const QTensor<U> v_prev = _solovay_kitaev_iteration(gate_list, bin_list, v, recursion - 1, output_gate_v_prev);
         const QTensor<U> w_prev = _solovay_kitaev_iteration(gate_list, bin_list, w, recursion - 1, output_gate_w_prev);
 
@@ -188,7 +184,7 @@ QTensor<U> SolovayKitaev::_find_and_insert_closest_u(const std::vector<QTensor<U
  * @reference https://github.com/qcc4cp/qcc/blob/main/src/solovay_kitaev.py
  */
 template <typename U>
-std::vector<QTensor<U>> SolovayKitaev::_group_commutator_decompose(QTensor<U> unitary) {
+std::pair<QTensor<U>, QTensor<U>> SolovayKitaev::_group_commutator_decompose(QTensor<U> unitary) {
     assert(unitary.dimension() == 2);
     using namespace std::literals;
     std::vector<std::complex<double>> axis = _to_bloch(unitary);
@@ -212,10 +208,10 @@ std::vector<QTensor<U>> SolovayKitaev::_group_commutator_decompose(QTensor<U> un
     adjoint_w.adjoint();
     // NOTE - Cannot infer if merging into one line
     const QTensor<U> mult = tensor_multiply(v, tensor_multiply(w, tensor_multiply(adjoint_v, adjoint_w)));
-    QTensor<U> vwvdwd     = _diagonalize(mult);
-    vwvdwd.adjoint();
+    QTensor<U> v_w_vd_wd  = _diagonalize(mult);
+    v_w_vd_wd.adjoint();
 
-    const QTensor<U> s = tensor_multiply(_diagonalize(unitary), vwvdwd);
+    const QTensor<U> s = tensor_multiply(_diagonalize(unitary), v_w_vd_wd);
 
     QTensor<U> adjoint_s = s;
     adjoint_s.adjoint();
@@ -238,19 +234,14 @@ std::vector<std::complex<double>> SolovayKitaev::_to_bloch(QTensor<U> unitary) {
     std::vector<std::complex<double>> axis;
     const double angle = (acos((unitary(0, 0) + unitary(1, 1)) / 2.0)).real();
     const double sine  = sin(angle);
+    // axis = [nx, ny, nz, angle]
     if (sine < pow(10, -10)) {
-        // nx, ny, nz, angle
-        axis.emplace_back(0);
-        axis.emplace_back(0);
-        axis.emplace_back(1);
-        axis.emplace_back(2 * angle);
-
+        axis = {0, 0, 1, 2 * angle};
     } else {
-        // nx, ny, nz, angle
-        axis.emplace_back((unitary(0, 1) + unitary(1, 0)) / (sine * 2.i));
-        axis.emplace_back((unitary(0, 1) - unitary(1, 0)) / (sine * 2));
-        axis.emplace_back((unitary(0, 0) - unitary(1, 1)) / (sine * 2.i));
-        axis.emplace_back(2 * angle);
+        axis = {(unitary(0, 1) + unitary(1, 0)) / (sine * 2.i),
+                (unitary(0, 1) - unitary(1, 0)) / (sine * 2),
+                (unitary(0, 0) - unitary(1, 1)) / (sine * 2.i),
+                2 * angle};
     }
     return axis;
 }
