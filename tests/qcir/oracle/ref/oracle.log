@@ -1,1 +1,181 @@
-environment: line 10: /app/build/qsyn: No such file or directory
+qsyn> logger trace
+[info]     Setting logger level to "trace"
+
+qsyn> qcir oracle -a 1 0010
+[debug]    xag:
+[debug]        XAGNode(1 = INPUT)
+[debug]        XAGNode(2 = INPUT)
+[debug]        XAGNode(3 = 1 & ~2)
+[debug]    xag.outputs: [3]
+[debug]    xag.output_inverted: [false]
+[debug]    optimal cut:
+[debug]    1: 1, 
+[debug]    2: 2, 
+[debug]    3: 1, 2, 
+[debug]    dependency graph: DepGraph(size: 1, output: [0],
+graph:
+DepGraphNode(id: 0, xag_id: 3, deps: [])
+)
+[warn]     n_ancilla = 1 is too large, using n_ancilla = 0 instead
+[debug]    pebbling: found K = 2
+[debug]    solution:
+[debug]    time = 00 : .
+[debug]    time = 01 : *
+[info]     Successfully created and checked out to QCir 0
+
+qsyn> qcir print -g
+Listed by gate ID
+ID:   0 (  x)      Time:    1     Qubit:   1 
+ID:   1 (ccx)      Time:    6     Qubit:   0   1   2 
+ID:   2 (  x)      Time:    7     Qubit:   1 
+
+qsyn> qcir oracle -a 2 11010001
+[debug]    xag:
+[debug]        XAGNode(1 = INPUT)
+[debug]        XAGNode(2 = INPUT)
+[debug]        XAGNode(3 = INPUT)
+[debug]        XAGNode(4 = 1 & 2)
+[debug]        XAGNode(5 = 1 & ~4)
+[debug]        XAGNode(6 = 3 & ~5)
+[debug]        XAGNode(7 = ~1 & ~2)
+[debug]        XAGNode(8 = ~3 & 7)
+[debug]        XAGNode(9 = ~6 & ~8)
+[debug]    xag.outputs: [9]
+[debug]    xag.output_inverted: [true]
+[debug]    optimal cut:
+[debug]    1: 1, 
+[debug]    2: 2, 
+[debug]    3: 3, 
+[debug]    9: 1, 2, 3, 
+[debug]    dependency graph: DepGraph(size: 1, output: [0],
+graph:
+DepGraphNode(id: 0, xag_id: 9, deps: [])
+)
+[warn]     n_ancilla = 2 is too large, using n_ancilla = 0 instead
+[debug]    pebbling: found K = 2
+[debug]    solution:
+[debug]    time = 00 : .
+[debug]    time = 01 : *
+[info]     Successfully created and checked out to QCir 1
+
+qsyn> qcir print -g
+Listed by gate ID
+ID:   0 (  x)      Time:    1     Qubit:   0 
+ID:   1 ( cx)      Time:    3     Qubit:   0   2 
+ID:   2 (cccx)      Time:    8     Qubit:   0   1   2   3 
+ID:   3 ( cx)      Time:   10     Qubit:   0   2 
+ID:   4 (  x)      Time:   11     Qubit:   0 
+ID:   5 (cccx)      Time:   16     Qubit:   0   1   2   3 
+ID:   6 ( cx)      Time:   18     Qubit:   0   3 
+ID:   7 (  x)      Time:   19     Qubit:   3 
+
+qsyn> qcir oracle -a 3 0011000101011101
+[debug]    xag:
+[debug]        XAGNode(1 = INPUT)
+[debug]        XAGNode(2 = INPUT)
+[debug]        XAGNode(3 = INPUT)
+[debug]        XAGNode(4 = INPUT)
+[debug]        XAGNode(5 = 3 & 4)
+[debug]        XAGNode(6 = 2 & ~3)
+[debug]        XAGNode(7 = ~1 & ~6)
+[debug]        XAGNode(8 = ~5 & 7)
+[debug]        XAGNode(9 = ~4 & 6)
+[debug]        XAGNode(10 = ~2 & 5)
+[debug]        XAGNode(11 = ~9 & ~10)
+[debug]        XAGNode(12 = ~8 & 11)
+[debug]    xag.outputs: [12]
+[debug]    xag.output_inverted: [true]
+[debug]    optimal cut:
+[debug]    1: 1, 
+[debug]    2: 2, 
+[debug]    3: 3, 
+[debug]    4: 4, 
+[debug]    5: 3, 4, 
+[debug]    6: 2, 3, 
+[debug]    7: 1, 6, 
+[debug]    8: 5, 7, 
+[debug]    11: 2, 3, 4, 
+[debug]    12: 8, 11, 
+[debug]    dependency graph: DepGraph(size: 6, output: [5],
+graph:
+DepGraphNode(id: 0, xag_id: 5, deps: []),
+DepGraphNode(id: 1, xag_id: 6, deps: []),
+DepGraphNode(id: 2, xag_id: 7, deps: [1]),
+DepGraphNode(id: 3, xag_id: 8, deps: [0, 2]),
+DepGraphNode(id: 4, xag_id: 11, deps: []),
+DepGraphNode(id: 5, xag_id: 12, deps: [3, 4])
+)
+[debug]    pebbling: found K = 9
+[debug]    solution:
+[debug]    time = 00 : ......
+[debug]    time = 01 : **....
+[debug]    time = 02 : ***...
+[debug]    time = 03 : *.***.
+[debug]    time = 04 : ..****
+[debug]    time = 05 : *.**.*
+[debug]    time = 06 : ***..*
+[debug]    time = 07 : **...*
+[debug]    time = 08 : .....*
+[info]     Successfully created and checked out to QCir 2
+
+qsyn> qcir print -g
+Listed by gate ID
+ID:   0 (ccx)      Time:    5     Qubit:   2   3   4 
+ID:   1 (  x)      Time:    6     Qubit:   2 
+ID:   2 (ccx)      Time:   11     Qubit:   1   2   5 
+ID:   3 (  x)      Time:   12     Qubit:   2 
+ID:   4 (  x)      Time:    1     Qubit:   0 
+ID:   5 (  x)      Time:   12     Qubit:   5 
+ID:   6 (ccx)      Time:   17     Qubit:   0   5   6 
+ID:   7 (  x)      Time:   18     Qubit:   0 
+ID:   8 (  x)      Time:   18     Qubit:   5 
+ID:   9 (  x)      Time:   13     Qubit:   2 
+ID:  10 (ccx)      Time:   23     Qubit:   1   2   5 
+ID:  11 (  x)      Time:   24     Qubit:   2 
+ID:  12 (  x)      Time:    6     Qubit:   4 
+ID:  13 (ccx)      Time:   22     Qubit:   4   6   7 
+ID:  14 (  x)      Time:   23     Qubit:   4 
+ID:  15 (  x)      Time:   24     Qubit:   1 
+ID:  16 (cccx)      Time:   29     Qubit:   1   2   3   5 
+ID:  17 ( cx)      Time:   31     Qubit:   1   5 
+ID:  18 (  x)      Time:   32     Qubit:   1 
+ID:  19 ( cx)      Time:   34     Qubit:   1   2 
+ID:  20 ( cx)      Time:   36     Qubit:   1   3 
+ID:  21 (cccx)      Time:   41     Qubit:   1   2   3   5 
+ID:  22 ( cx)      Time:   43     Qubit:   1   2 
+ID:  23 ( cx)      Time:   45     Qubit:   1   3 
+ID:  24 ( cx)      Time:   47     Qubit:   1   5 
+ID:  25 (ccx)      Time:   50     Qubit:   2   3   4 
+ID:  26 (  x)      Time:   23     Qubit:   7 
+ID:  27 (ccx)      Time:   55     Qubit:   7   5   4 
+ID:  28 (  x)      Time:   56     Qubit:   7 
+ID:  29 (  x)      Time:   48     Qubit:   1 
+ID:  30 (cccx)      Time:   60     Qubit:   1   2   3   5 
+ID:  31 ( cx)      Time:   62     Qubit:   1   5 
+ID:  32 (  x)      Time:   63     Qubit:   1 
+ID:  33 ( cx)      Time:   65     Qubit:   1   2 
+ID:  34 ( cx)      Time:   67     Qubit:   1   3 
+ID:  35 (cccx)      Time:   72     Qubit:   1   2   3   5 
+ID:  36 ( cx)      Time:   74     Qubit:   1   2 
+ID:  37 ( cx)      Time:   76     Qubit:   1   3 
+ID:  38 ( cx)      Time:   78     Qubit:   1   5 
+ID:  39 (ccx)      Time:   83     Qubit:   2   3   5 
+ID:  40 (  x)      Time:   84     Qubit:   5 
+ID:  41 (ccx)      Time:   89     Qubit:   5   6   7 
+ID:  42 (  x)      Time:   90     Qubit:   5 
+ID:  43 (  x)      Time:   84     Qubit:   2 
+ID:  44 (ccx)      Time:   94     Qubit:   1   2   7 
+ID:  45 (  x)      Time:   95     Qubit:   2 
+ID:  46 (  x)      Time:   19     Qubit:   0 
+ID:  47 (  x)      Time:   95     Qubit:   7 
+ID:  48 (ccx)      Time:  100     Qubit:   0   7   6 
+ID:  49 (  x)      Time:  101     Qubit:   0 
+ID:  50 (  x)      Time:  101     Qubit:   7 
+ID:  51 (ccx)      Time:  100     Qubit:   2   3   5 
+ID:  52 (  x)      Time:  101     Qubit:   2 
+ID:  53 (ccx)      Time:  106     Qubit:   1   2   7 
+ID:  54 (  x)      Time:  107     Qubit:   2 
+ID:  55 (  x)      Time:   56     Qubit:   4 
+
+qsyn> quit -f
+
