@@ -717,12 +717,10 @@ void QCir::append(QCir const& other, std::map<QubitIdType, QubitIdType> const& q
     auto const& other_gates = other.get_gates();
     for (auto const& gate : other_gates) {
         auto const& qubits = gate->get_qubits();
-        auto const& phase  = gate->get_phase();
-        auto const& type   = gate->get_type_str();
         auto const& bits   = qubits |
                            std::views::transform([&](auto const& qb) { return map_qubit(qb); }) |
                            tl::to<QubitIdList>();
-        add_gate(type, bits, phase, true);
+        append(gate->get_operation(), bits);
     }
 }
 

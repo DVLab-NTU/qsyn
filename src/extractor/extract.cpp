@@ -847,10 +847,7 @@ void Extractor::update_matrix() {
 //  */
 void Extractor::prepend_series_gates(std::vector<qcir::QCirGate> const& logical /*, std::vector<Operation> const& physical*/) {
     for (auto const& gate : logical) {
-        auto qubits = gate.get_qubits();
-        if (gate.get_phase() != dvlab::Phase(0)) {
-            _logical_circuit->prepend(gate.get_operation(), gate.get_qubits());
-        }
+        _logical_circuit->prepend(gate.get_operation(), gate.get_qubits());
     }
 
     // for (auto const& gates : physical) {

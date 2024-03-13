@@ -12,6 +12,7 @@
 
 #include "./placer.hpp"
 #include "duostra/mapping_eqv_checker.hpp"
+#include "qcir/gate_type.hpp"
 #include "qcir/qcir.hpp"
 #include "qsyn/qsyn_type.hpp"
 
@@ -141,11 +142,11 @@ void Duostra::build_circuit_by_result() {
             QubitIdList qu_reverse;
             qu_reverse.emplace_back(qubits[1]);
             qu_reverse.emplace_back(qubits[0]);
-            _physical_circuit->add_gate("CX", qu, dvlab::Phase(1), true);
-            _physical_circuit->add_gate("CX", qu_reverse, dvlab::Phase(1), true);
-            _physical_circuit->add_gate("CX", qu, dvlab::Phase(1), true);
+            _physical_circuit->append(LegacyGateType(std::make_tuple(GateRotationCategory::px, 2, Phase(1))), qu);
+            _physical_circuit->append(LegacyGateType(std::make_tuple(GateRotationCategory::px, 2, Phase(1))), qu_reverse);
+            _physical_circuit->append(LegacyGateType(std::make_tuple(GateRotationCategory::px, 2, Phase(1))), qu);
         } else {
-            _physical_circuit->add_gate(operation.get_type_str(), qu, operation.get_phase(), true);
+            _physical_circuit->append(operation.get_operation(), qu);
         }
     }
 }
