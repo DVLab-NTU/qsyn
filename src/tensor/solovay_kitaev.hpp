@@ -59,7 +59,7 @@ private:
 
     BinaryList _init_binary_list() const;
     void _dagger_matrices(std::vector<int>& sequence);
-    // void _remove_redundant_gates(std::vector<int>& gate_sequence);
+    void _remove_redundant_gates(std::vector<int>& gate_sequence);
     void _save_gates(const std::vector<int>& gate_sequence);
 };
 
@@ -103,7 +103,7 @@ std::optional<QCir> SolovayKitaev::solovay_kitaev_decompose(QTensor<U> const& ma
  * @param bin_list
  * @param u
  * @param recursion number of recursions
- * @param output_gate 1: T, -1: TDG, 0: H
+ * @param output_gate 1: T, -1: TDG, 0: H, 2:S, -2:SDG, 4:Z, -4:X
  * @return QTensor<U>
  * @reference Dawson, Christopher M., and Michael A. Nielsen. "The solovay-kitaev algorithm." arXiv preprint quant-ph/0505030 (2005).
  * @reference https://github.com/qcc4cp/qcc/blob/main/src/solovay_kitaev.py
