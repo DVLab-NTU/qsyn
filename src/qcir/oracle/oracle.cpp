@@ -49,7 +49,7 @@ std::optional<QCir> build_qcir(
 namespace qsyn::qcir {
 
 std::optional<QCir> synthesize_boolean_oracle(XAG xag, size_t n_ancilla, size_t k) {
-    size_t num_outputs           = xag.outputs.size();
+    size_t const num_outputs     = xag.outputs.size();
     auto const& [optimal_cut, _] = k_lut_partition(xag, k);
 
     spdlog::debug("xag:");
@@ -77,25 +77,24 @@ std::optional<QCir> synthesize_boolean_oracle(XAG xag, size_t n_ancilla, size_t 
         return std::nullopt;
     }
 
-    auto _dep_graph = from_xag_cuts(xag, optimal_cut);
-    if (_dep_graph == std::nullopt) {
+    auto dep_graph = from_xag_cuts(xag, optimal_cut);
+    if (dep_graph == std::nullopt) {
         spdlog::error("failed to build dependency graph");
         return std::nullopt;
     }
-    auto dep_graph = *_dep_graph;
-    spdlog::debug("dependency graph: {}", dep_graph.to_string());
+    spdlog::debug("dependency graph: {}", dep_graph->to_string());
 
-    const size_t N        = dep_graph.size();  // number of nodes
-    const size_t max_deps = std::ranges::max(dep_graph.get_graph() |
-                                             views::values |
-                                             views::transform([](DepGraphNode const& node) {
+    const size_t num_nodes = dep_graph->size();  // number of nodes
+    const size_t max_deps  = std::ranges::max(dep_graph->get_graph() |
+                                              views::values |
+                                              views::transform([](DepGraphNode const& node) {
                                                  return node.dependencies.size();
                                              }));
-    if (n_ancilla > N - num_outputs) {
+    if (n_ancilla > num_nodes - num_outputs) {
         spdlog::warn("n_ancilla = {} is too large, using n_ancilla = {} instead",
                      n_ancilla,
-                     N - num_outputs);
-        n_ancilla = N - num_outputs;
+                     num_nodes - num_outputs);
+        n_ancilla = num_nodes - num_outputs;
     }
     if (n_ancilla < max_deps + 1 - num_outputs) {
         spdlog::warn("n_ancilla = {} is too small, using n_ancilla = {} instead",
@@ -105,7 +104,7 @@ std::optional<QCir> synthesize_boolean_oracle(XAG xag, size_t n_ancilla, size_t 
     }
 
     dvlab::sat::CaDiCalSolver solver{};
-    auto pebble_result = pebble(solver, n_ancilla + num_outputs, dep_graph);
+    auto pebble_result = pebble(solver, n_ancilla + num_outputs, *dep_graph);
 
     if (pebble_result == std::nullopt) {
         spdlog::error("no solution for n_ancilla = {}", n_ancilla);
@@ -120,7 +119,7 @@ std::optional<QCir> synthesize_boolean_oracle(XAG xag, size_t n_ancilla, size_t 
 
     return build_qcir(xag,
                       optimal_cut,
-                      dep_graph,
+                      *dep_graph,
                       schedule,
                       LUT(k),
                       n_ancilla);
@@ -137,9 +136,9 @@ std::optional<QCir> build_qcir(
     std::vector<std::vector<bool>> const& schedule,
     LUT const& lut,
     size_t n_ancilla) {
-    size_t n_inputs  = xag.inputs.size();
-    size_t n_outputs = xag.outputs.size();
-    size_t n_qubits  = n_inputs + n_outputs + n_ancilla;
+    size_t const n_inputs  = xag.inputs.size();
+    size_t const n_outputs = xag.outputs.size();
+    size_t const n_qubits  = n_inputs + n_outputs + n_ancilla;
 
     // 0                    ... n_inputs - 1             : inputs
     // n_inputs             ... n_inputs + n_outputs - 1 : outputs
@@ -166,15 +165,15 @@ std::optional<QCir> build_qcir(
     };
 
     auto build_one = [&](size_t pebble_id) {
-        auto xag_id       = dep_graph.get_node(DepGraphNodeID(pebble_id)).xag_id;
-        auto xag_cone_tip = xag.get_node(xag_id);
+        auto xag_id              = dep_graph.get_node(DepGraphNodeID(pebble_id)).xag_id;
+        auto const& xag_cone_tip = xag.get_node(xag_id);
         if (xag_cone_tip.is_input()) {
             return;
         }
 
-        auto xag_cut              = optimal_cut.at(xag_id);
-        auto truth_table          = xag.calculate_truth_table(xag_cone_tip.get_id(), xag_cut);
-        auto const qcir_to_concat = lut[truth_table];
+        auto xag_cut               = optimal_cut.at(xag_id);
+        auto truth_table           = xag.calculate_truth_table(xag_cone_tip.get_id(), xag_cut);
+        auto const& qcir_to_concat = lut[truth_table];
 
         qsyn::QubitIdType target_qubit{};
         if (current_qubit_state.contains(xag_id)) {
@@ -185,7 +184,6 @@ std::optional<QCir> build_qcir(
 
         auto xag_to_new_qubit_id = std::map<XAGNodeID, qsyn::QubitIdType>();
         for (auto const& [i, xag_id] : tl::views::enumerate(xag_cut)) {
-            auto xag_node               = xag.get_node(xag_id);
             xag_to_new_qubit_id[xag_id] = gsl::narrow_cast<qsyn::QubitIdType>(i);
         }
         xag_to_new_qubit_id[xag_cone_tip.get_id()] = gsl::narrow_cast<qsyn::QubitIdType>(xag_cut.size());
@@ -226,16 +224,12 @@ std::optional<QCir> build_qcir(
             if (!is_changed) {
                 continue;
             }
-            auto xag_id   = dep_graph.get_node(DepGraphNodeID(pebble_id)).xag_id;
-            auto xag_node = xag.get_node(xag_id);
             build_one(pebble_id);
         }
         for (auto const& [pebble_id, is_changed] : tl::views::enumerate(pebble_computed)) {
             if (!is_changed) {
                 continue;
             }
-            auto xag_id   = dep_graph.get_node(DepGraphNodeID(pebble_id)).xag_id;
-            auto xag_node = xag.get_node(xag_id);
             build_one(pebble_id);
         }
     }

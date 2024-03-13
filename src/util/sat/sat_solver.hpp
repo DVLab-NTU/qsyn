@@ -12,6 +12,7 @@
 #include <NamedType/named_type.hpp>
 #include <NamedType/underlying_functionalities.hpp>
 #include <cadical/cadical.hpp>
+#include <memory>
 #include <optional>
 #include <vector>
 
@@ -59,9 +60,9 @@ public:
 };
 
 enum class Result {
-    SAT,
-    UNSAT,
-    UNKNOWN
+    sat,
+    unsat,
+    unknown
 };
 
 class Solution {
@@ -102,7 +103,6 @@ protected:
 class CaDiCalSolver : public SatSolver {
 public:
     CaDiCalSolver() {}
-    ~CaDiCalSolver() override;
     void reset() override;
     void add_clause(std::vector<Literal> const& clause) override;
     void assume(Literal lit) override;
@@ -110,7 +110,7 @@ public:
     std::optional<Solution> get_solution() override;
 
 private:
-    CaDiCaL::Solver* _solver = new CaDiCaL::Solver();
+    std::unique_ptr<CaDiCaL::Solver> _solver = std::make_unique<CaDiCaL::Solver>();
 };
 
 }  // namespace dvlab::sat

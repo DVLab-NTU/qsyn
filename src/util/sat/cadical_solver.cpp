@@ -12,11 +12,8 @@
 
 namespace dvlab::sat {
 
-CaDiCalSolver::~CaDiCalSolver() { delete _solver; }
-
 void CaDiCalSolver::reset() {
-    delete _solver;
-    _solver   = new CaDiCaL::Solver();
+    _solver   = std::make_unique<CaDiCaL::Solver>();
     _next_var = Variable(1);
 }
 
@@ -34,12 +31,12 @@ void CaDiCalSolver::assume(Literal lit) {
 Result CaDiCalSolver::solve() {
     switch (_solver->solve()) {
         case 10:
-            return Result::SAT;
+            return Result::sat;
         case 20:
-            return Result::UNSAT;
+            return Result::unsat;
         case 0:
         default:
-            return Result::UNKNOWN;
+            return Result::unknown;
     }
 }
 

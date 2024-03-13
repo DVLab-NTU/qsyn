@@ -41,11 +41,8 @@ bool is_subset_of(const std::set<T>& a, const std::set<T>& b) {
         return false;
 
     auto const not_found = b.end();
-    for (auto const& element : a)
-        if (b.find(element) == not_found)
-            return false;
 
-    return true;
+    return std::ranges::all_of(a, [&b, not_found](auto const& element) { return b.find(element) != not_found; });
 }
 
 /*
@@ -91,30 +88,30 @@ std::map<XAGNodeID, std::vector<XAGCut>> enumerate_cuts(XAG& xag, const size_t m
     return node_id_to_cuts;
 }
 
-int hadamrad_entry(const size_t& k, const size_t& i, const size_t& j) {
+int hadamard_entry(const size_t& k, const size_t& i, const size_t& j) {
     static std::map<std::tuple<size_t, size_t, size_t>, int> cache;
     if (k == 2) {
         return (i == 1 && j == 1) ? -1 : 1;
     }
     if (!cache.contains({k, i, j})) {
         const size_t k_half = k / 2;
-        int sign            = (i >= k_half && j >= k_half) ? -1 : 1;
-        cache[{k, i, j}]    = sign * hadamrad_entry(k_half, i % k_half, j % k_half);
+        int const sign      = (i >= k_half && j >= k_half) ? -1 : 1;
+        cache[{k, i, j}]    = sign * hadamard_entry(k_half, i % k_half, j % k_half);
     }
     return cache[{k, i, j}];
 }
 
 size_t caclculate_radamacher_walsh_cost(kitty::dynamic_truth_table const& truth_table) {
-    size_t cost        = 0;
-    size_t const k     = 1 << truth_table.num_vars();
-    std::vector<int> F = std::vector<int>(k, 0);
+    size_t cost               = 0;
+    size_t const k            = 1 << truth_table.num_vars();
+    std::vector<int> spectrum = std::vector<int>(k, 0);
     for (auto const& i : iota(0UL, k)) {
-        F[i] = kitty::get_bit(truth_table, i) ? -1 : 1;
+        spectrum[i] = kitty::get_bit(truth_table, i) ? -1 : 1;
     }
     for (auto const& i : iota(0UL, k)) {
         int row_sum = 0;
         for (auto const& j : iota(0UL, k)) {
-            row_sum += hadamrad_entry(k, i, j) * F[j];
+            row_sum += hadamard_entry(k, i, j) * spectrum[j];
         }
         cost += row_sum != 0 ? 1 : 0;
     }
@@ -174,7 +171,7 @@ std::pair<std::map<XAGNodeID, XAGCut>, std::map<XAGNodeID, size_t>> k_lut_partit
 
         optimal_costs[id] = INT_MAX;
         for (auto const& [cut, cost] : zip(id_to_cuts[id], id_to_costs[id])) {
-            size_t acc_cost = cost + std::accumulate(cut.begin(), cut.end(), 0, [&optimal_costs](size_t x, XAGNodeID y) { return x + optimal_costs[y]; });
+            size_t const acc_cost = cost + std::accumulate(cut.begin(), cut.end(), 0, [&optimal_costs](size_t x, XAGNodeID y) { return x + optimal_costs[y]; });
             if (acc_cost < optimal_costs[id]) {
                 optimal_costs[id] = acc_cost;
                 optimal_cuts[id]  = cut;
@@ -222,9 +219,9 @@ void test_k_lut_partition(size_t const max_cut_size, std::istream& input) {
 
 void add_gates_2(
     uint8_t const i,
-    std::function<void(QubitIdType)> x,
-    std::function<void(QubitIdType, QubitIdType)> cx,
-    std::function<void(QubitIdType, QubitIdType, QubitIdType)> ccx) {
+    std::function<void(QubitIdType)> const& x,
+    std::function<void(QubitIdType, QubitIdType)> const& cx,
+    std::function<void(QubitIdType, QubitIdType, QubitIdType)> const& ccx) {
     switch (i) {
         case 0b0000:
             break;
@@ -279,11 +276,11 @@ void add_gates_2(
     }
 }
 
-void LUT::construct_lut_1() {
+void LUT::_construct_lut_1() {
     {
-        auto tt   = kitty::dynamic_truth_table(1);
-        auto qcir = QCir(2);
-        table[tt] = qcir;
+        auto tt    = kitty::dynamic_truth_table(1);
+        auto qcir  = QCir(2);
+        _table[tt] = qcir;
     }
     {
         auto tt = kitty::dynamic_truth_table(1);
@@ -292,14 +289,14 @@ void LUT::construct_lut_1() {
         qcir.add_gate("x", {0}, {}, true);
         qcir.add_gate("cx", {0, 1}, {}, true);
         qcir.add_gate("x", {0}, {}, true);
-        table[tt] = qcir;
+        _table[tt] = qcir;
     }
     {
         auto tt = kitty::dynamic_truth_table(1);
         kitty::set_bit(tt, 1);
         auto qcir = QCir(2);
         qcir.add_gate("cx", {0, 1}, {}, true);
-        table[tt] = qcir;
+        _table[tt] = qcir;
     }
     {
         auto tt = kitty::dynamic_truth_table(1);
@@ -307,11 +304,11 @@ void LUT::construct_lut_1() {
         kitty::set_bit(tt, 1);
         auto qcir = QCir(2);
         qcir.add_gate("x", {1}, {}, true);
-        table[tt] = qcir;
+        _table[tt] = qcir;
     }
 }
 
-void LUT::construct_lut_2() {
+void LUT::_construct_lut_2() {
     for (uint64_t const i : iota(0, 1 << 4)) {
         auto tt = kitty::dynamic_truth_table(2);
         kitty::create_from_words(tt, &i, &i + 1);  // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
@@ -323,11 +320,11 @@ void LUT::construct_lut_2() {
 
         add_gates_2(i, x, cx, ccx);
 
-        table[tt] = qcir;
+        _table[tt] = qcir;
     }
 }
 
-void LUT::construct_lut_3() {
+void LUT::_construct_lut_3() {
     for (uint64_t const i : iota(0, 1 << 8)) {
         auto tt = kitty::dynamic_truth_table(3);
         kitty::create_from_words(tt, &i, &i + 1);  // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
@@ -359,20 +356,20 @@ void LUT::construct_lut_3() {
         qcir.add_gate("x", {0}, {}, true);
         add_gates_2(i_01, x, cx, ccx);
 
-        table[tt] = qcir;
+        _table[tt] = qcir;
     }
 }
 
-LUT::LUT(size_t const k) : k(k) {
+LUT::LUT(size_t const k) : _k(k) {
     switch (k) {
         case 3:
-            construct_lut_3();
+            _construct_lut_3();
             [[fallthrough]];
         case 2:
-            construct_lut_2();
+            _construct_lut_2();
             [[fallthrough]];
         case 1:
-            construct_lut_1();
+            _construct_lut_1();
             break;
         default:
             throw std::runtime_error(fmt::format("k-LUT partitioning not implemented for k = {}", k));

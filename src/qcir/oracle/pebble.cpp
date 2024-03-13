@@ -112,15 +112,15 @@ std::optional<DepGraph> from_xag_cuts(XAG const& xag, std::map<XAGNodeID, XAGCut
     return dep_graph;
 }
 
-std::optional<std::vector<std::vector<bool>>> pebble(SatSolver& solver, size_t const P, DepGraph graph) {
-    size_t const N = graph.size();  // number of nodes
+std::optional<std::vector<std::vector<bool>>> pebble(SatSolver& solver, size_t const num_pebbles, DepGraph graph) {
+    size_t const num_nodes = graph.size();  // number of nodes
 
-    auto make_variables = [](SatSolver& solver, const size_t N, const size_t K) {
+    auto make_variables = [](SatSolver& solver, const size_t num_nodes, const size_t k) {
         solver.reset();
-        auto p = vector<vector<Variable>>(K);
-        for (const size_t i : iota(0UL, K)) {
-            p[i] = vector<Variable>(N);
-            for (const size_t j : iota(0UL, N)) {
+        auto p = vector<vector<Variable>>(k);
+        for (const size_t i : iota(0UL, k)) {
+            p[i] = vector<Variable>(num_nodes);
+            for (const size_t j : iota(0UL, num_nodes)) {
                 p[i][j] = solver.new_var();
             }
         }
@@ -130,24 +130,24 @@ std::optional<std::vector<std::vector<bool>>> pebble(SatSolver& solver, size_t c
     auto pebble_inner = [&graph = graph](
                             SatSolver& solver,
                             const vector<vector<Variable>>& p,
-                            const size_t N,
-                            const size_t K,
-                            const size_t P) {
+                            const size_t num_nodes,
+                            const size_t k,
+                            const size_t num_pebbles) {
         // Initial and final clauses
-        for (const size_t i : iota(0UL, N)) {
+        for (const size_t i : iota(0UL, num_nodes)) {
             // at time 0, no node is pebbled
             solver.add_clause({~Literal(p[0][i])});
             // at time K, all output nodes are pebbled, and all other nodes are not pebbled
             solver.add_clause(
-                {graph.is_output(DepGraphNodeID(i)) ? Literal(p[K - 1][i])
-                                                    : ~Literal(p[K - 1][i])});
+                {graph.is_output(DepGraphNodeID(i)) ? Literal(p[k - 1][i])
+                                                    : ~Literal(p[k - 1][i])});
         }
 
-        // Move CLauses
+        // Move Clauses
         // if a node is pebbled at time i, then all its dependencies must be pebbled at time i + 1
         // if a node is not pebbled at time i, then all its dependencies must be pebbled at time i
         // (a xor b) + cd = (~a + b + c) (~a + b + d) (a + ~b + c) (a + ~b + d)
-        for (const size_t i : iota(0UL, K - 1)) {
+        for (const size_t i : iota(0UL, k - 1)) {
             for (const auto& node : graph.get_graph() | std::views::values) {
                 for (const auto& dep_id : node.dependencies) {
                     auto const a = Literal(p[i][node.id.get()]);
@@ -163,92 +163,91 @@ std::optional<std::vector<std::vector<bool>>> pebble(SatSolver& solver, size_t c
         }
 
         // Cardinality Clauses
-        for (const size_t i : iota(0UL, K)) {
+        for (const size_t i : iota(0UL, k)) {
             auto p_i = p[i] | std::views::transform([](const Variable& var) { return Literal(var); }) | tl::to<std::vector>();
 
-            solver.add_lte_constraint(p_i, P);
+            solver.add_lte_constraint(p_i, num_pebbles);
         }
 
-        return solver.solve() == Result::SAT;
+        return solver.solve() == Result::sat;
     };
 
     // binary search to find the minimum K
     vector<vector<Variable>> p;
     size_t left  = 2;
-    size_t right = N * N * 2;
-    size_t K     = right;
+    size_t right = num_nodes * num_nodes * 2;
+    size_t k     = right;
 
-    p = make_variables(solver, N, right);
-    if (!pebble_inner(solver, p, N, right, P)) {
+    p = make_variables(solver, num_nodes, right);
+    if (!pebble_inner(solver, p, num_nodes, right, num_pebbles)) {
         return std::nullopt;
     }
 
     while (left < right) {
-        size_t mid = (left + right) / 2;
-        p          = make_variables(solver, N, mid);
-        if (pebble_inner(solver, p, N, mid, P)) {
+        size_t const mid = (left + right) / 2;
+        p                = make_variables(solver, num_nodes, mid);
+        if (pebble_inner(solver, p, num_nodes, mid, num_pebbles)) {
             right = mid;
-            K     = mid;
+            k     = mid;
         } else {
             left = mid + 1;
         }
     }
 
-    if (K == 0) {
+    if (k == 0) {
         return std::nullopt;
     }
-    spdlog::debug("pebbling: found K = {}", K);
-    p = make_variables(solver, N, K);
-    pebble_inner(solver, p, N, K, P);
-    auto _solution = solver.get_solution();
-    if (!_solution.has_value()) {
+    spdlog::debug("pebbling: found K = {}", k);
+    p = make_variables(solver, num_nodes, k);
+    pebble_inner(solver, p, num_nodes, k, num_pebbles);
+    auto solution = solver.get_solution();
+    if (!solution.has_value()) {
         return std::nullopt;
     }
-    auto solution = _solution.value();
 
-    std::vector<std::vector<bool>> schedule(K, std::vector<bool>(N, false));
-    for (const size_t i : iota(0UL, K)) {
-        for (const size_t j : iota(0UL, N)) {
-            schedule[i][j] = solution[p[i][j]];
+    std::vector<std::vector<bool>> schedule(k, std::vector<bool>(num_nodes, false));
+    for (const size_t i : iota(0UL, k)) {
+        for (const size_t j : iota(0UL, num_nodes)) {
+            schedule[i][j] = (*solution)[p[i][j]];
         }
     }
 
     return schedule;
 }
 
-size_t sanitize_P(size_t const P, size_t const N, size_t const max_deps) {
-    if (P > N) {
-        spdlog::warn("P = {} is too small, using P = {} instead", P, N);
-        return N;
+size_t sanitize_num_pebbles(size_t const num_pebbles, size_t const num_nodes, size_t const max_deps) {
+    if (num_pebbles > num_nodes) {
+        spdlog::warn("P = {} is too small, using P = {} instead", num_pebbles, num_nodes);
+        return num_nodes;
     }
-    if (P < max_deps + 1) {
-        spdlog::warn("P = {} is too small, using P = {} instead", P, max_deps + 1);
+    if (num_pebbles < max_deps + 1) {
+        spdlog::warn("P = {} is too small, using P = {} instead", num_pebbles, max_deps + 1);
         return max_deps + 1;
     }
-    return P;
+    return num_pebbles;
 }
 
-void test_pebble(const size_t _P, std::istream& input) {
+void test_pebble(const size_t num_pebbles, std::istream& input) {
     auto solver = CaDiCalSolver();
 
     auto graph = from_deps_file(input);
 
     spdlog::debug("{}", graph.to_string());
 
-    const size_t N        = graph.size();  // number of nodes
-    const size_t max_deps = std::ranges::max(graph.get_graph() |
-                                             std::views::values |
-                                             std::views::transform([](const Node& node) {
+    const size_t num_nodes        = graph.size();  // number of nodes
+    const size_t max_deps         = std::ranges::max(graph.get_graph() |
+                                                     std::views::values |
+                                                     std::views::transform([](const Node& node) {
                                                  return node.dependencies.size();
                                              }));
-    const size_t P        = sanitize_P(_P, N, max_deps);
+    const size_t real_num_pebbles = sanitize_num_pebbles(num_pebbles, num_nodes, max_deps);
 
-    spdlog::debug("N = {}, P = {}", N, P);
+    spdlog::debug("N = {}, P = {}", num_nodes, real_num_pebbles);
 
-    auto schedule = pebble(solver, P, graph);
+    auto schedule = pebble(solver, real_num_pebbles, graph);
 
     if (!schedule.has_value()) {
-        fmt::println("no solution for P = {}, consider increasing P", P);
+        fmt::println("no solution for P = {}, consider increasing P", real_num_pebbles);
         return;
     }
 
