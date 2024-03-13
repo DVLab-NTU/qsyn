@@ -492,7 +492,7 @@ ZYZ Decomposer::_decompose_zyz(Tensor<U> const& matrix) {
     // b = -e^{iφ}e^{-i(α-γ)/2}sin(β/2)
     // c =  e^{iφ}e^{ i(α-γ)/2}sin(β/2)
     // d =  e^{iφ}e^{ i(α+γ)/2}cos(β/2)
-    const std::complex<double> a = matrix(0, 0), b = matrix(0, 1), c = matrix(1, 0), d = matrix(1, 1);
+    const U a = matrix(0, 0), b = matrix(0, 1), c = matrix(1, 0), d = matrix(1, 1);
     ZYZ output = {};
     // NOTE - The beta here is actually half of beta
     double init_beta = 0;
@@ -507,9 +507,9 @@ ZYZ Decomposer::_decompose_zyz(Tensor<U> const& matrix) {
     const std::array<double, 4> beta_candidate = {init_beta, pi - init_beta, pi + init_beta, 2.0 * pi - init_beta};
     for (const auto& beta : beta_candidate) {
         output.beta = beta;
-        std::complex<double> a1, b1, c1, d1;
-        const std::complex<double> cos(std::cos(beta) + 1e-5, 0);  // cos(β/2)
-        const std::complex<double> sin(std::sin(beta) + 1e-5, 0);  // sin(β/2)
+        U a1, b1, c1, d1;
+        const U cos(std::cos(beta) + 1e-5, 0);  // cos(β/2)
+        const U sin(std::sin(beta) + 1e-5, 0);  // sin(β/2)
         a1 = a / cos;
         b1 = b / sin;
         c1 = c / sin;
@@ -525,15 +525,15 @@ ZYZ Decomposer::_decompose_zyz(Tensor<U> const& matrix) {
             output.gamma = std::arg(d1 / c1);
         }
 
-        auto const alpha_plus_gamma  = std::exp(std::complex<double>((0.5i) * (output.alpha + output.gamma)));
-        auto const alpha_minus_gamma = std::exp(std::complex<double>((0.5i) * (output.alpha - output.gamma)));
+        auto const alpha_plus_gamma  = std::exp(U((0.5i) * (output.alpha + output.gamma)));
+        auto const alpha_minus_gamma = std::exp(U((0.5i) * (output.alpha - output.gamma)));
 
         if (std::abs(a) < 1e-4)
             output.phi = std::arg(c1 / alpha_minus_gamma);
         else
             output.phi = std::arg(a1 * alpha_plus_gamma);
 
-        const std::complex<double> phi(std::cos(output.phi), std::sin(output.phi));
+        const U phi(std::cos(output.phi), std::sin(output.phi));
 
         if (std::abs(phi * cos / alpha_plus_gamma - a) < 1e-3 &&
             std::abs(sin * phi / alpha_minus_gamma + b) < 1e-3 &&
@@ -561,8 +561,8 @@ Tensor<U> Decomposer::_sqrt_single_qubit_matrix(Tensor<U> const& matrix) {
     DVLAB_ASSERT(matrix.shape()[0] == 2 && matrix.shape()[1] == 2, "sqrt_single_qubit_matrix only supports 2x2 matrix");
     // a b
     // c d
-    const std::complex<double> a = matrix(0, 0), b = matrix(0, 1), c = matrix(1, 0), d = matrix(1, 1);
-    const std::complex<double> tau = a + d, delta = a * d - b * c;
+    const U a = matrix(0, 0), b = matrix(0, 1), c = matrix(1, 0), d = matrix(1, 1);
+    const U tau = a + d, delta = a * d - b * c;
     const std::complex s = std::sqrt(delta);
     const std::complex t = std::sqrt(tau + 2. * s);
     if (std::abs(t) > 0) {

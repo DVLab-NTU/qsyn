@@ -333,8 +333,6 @@ QTensor<T> QTensor<T>::to_qtensor() const {
 
 template <typename T>
 QTensor<T> QTensor<T>::to_su2() const {
-    // std::complex<double> det = u.determinant();
-    // std::complex<double> one(1, 0);
     return std::sqrt(1.0 / this->determinant()) * this->_tensor;
 }
 

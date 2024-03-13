@@ -55,7 +55,7 @@ private:
     QTensor<U> _solovay_kitaev_iteration(const std::vector<QTensor<U>>& gate_list, BinaryList& bin_list, QTensor<U> u, size_t n, std::vector<int>& output_gate);
 
     template <typename U>
-    std::vector<std::complex<double>> _to_bloch(QTensor<U> u);
+    std::vector<std::complex<U>> _to_bloch(QTensor<U> u);
 
     BinaryList _init_binary_list() const;
     std::vector<int> _adjoint_gate_sequence(std::vector<int> sequence);
@@ -179,10 +179,10 @@ template <typename U>
 std::pair<QTensor<U>, QTensor<U>> SolovayKitaev::_group_commutator_decompose(QTensor<U> unitary) {
     assert(unitary.dimension() == 2);
     using namespace std::literals;
-    std::vector<std::complex<double>> axis = _to_bloch(unitary);
+    std::vector<std::complex<U>> axis = _to_bloch(unitary);
     //  The angle phi comes from eq 10 in 'The Solovay-Kitaev Algorithm' by Dawson, Nielsen.
-    const std::complex<double> phi = 2.0 * asin(std::sqrt(std::sqrt(0.5 - 0.5 * cos(axis[3] / 2.0))));
-    const QTensor<U> v             = {{cos(phi / 2.0), -1.i * sin(phi / 2.0)}, {-1.i * sin(phi / 2.0), cos(phi / 2.0)}};
+    const std::complex<U> phi = 2.0 * asin(std::sqrt(std::sqrt(0.5 - 0.5 * cos(axis[3] / 2.0))));
+    const QTensor<U> v        = {{cos(phi / 2.0), -1.i * sin(phi / 2.0)}, {-1.i * sin(phi / 2.0), cos(phi / 2.0)}};
 
     constexpr auto pi = std::numbers::pi_v<double>;
     QTensor<U> w      = QTensor<U>::identity(1);
@@ -208,13 +208,13 @@ std::pair<QTensor<U>, QTensor<U>> SolovayKitaev::_group_commutator_decompose(QTe
  *
  * @tparam U
  * @param unitary
- * @return std::vector<std::complex<double>> [nx, ny, nz, angle]
+ * @return std::vector<std::complex<U>> [nx, ny, nz, angle]
  */
 template <typename U>
-std::vector<std::complex<double>> SolovayKitaev::_to_bloch(QTensor<U> unitary) {
+std::vector<std::complex<U>> SolovayKitaev::_to_bloch(QTensor<U> unitary) {
     assert(unitary.dimension() == 2);
     using namespace std::literals;
-    std::vector<std::complex<double>> axis;
+    std::vector<std::complex<U>> axis;
     const double angle = (acos((unitary(0, 0) + unitary(1, 1)) / 2.0)).real();
     const double sine  = sin(angle);
     // axis = [nx, ny, nz, angle]
