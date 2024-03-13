@@ -46,49 +46,51 @@ void SolovayKitaev::_dagger_matrices(std::vector<int>& sequence) {
 //  * @param gate_sequence
 //  */
 void SolovayKitaev::_remove_redundant_gates(std::vector<int>& gate_sequence) {
-    std::vector<int> result;
+   
     size_t s = gate_sequence.size();
     size_t counter = 0;
      while (counter < gate_sequence.size() - 1) {
         if (gate_sequence[counter] == 1 && gate_sequence[counter + 1] == -1 && counter + 1 < s) {
-            counter++;
+            gate_sequence.erase(gate_sequence.begin() + gsl::narrow<int>(counter), gate_sequence.begin() + gsl::narrow<int>(counter) + 2);
+    
          } 
         else if (gate_sequence[counter] == 0 && gate_sequence[counter + 1] == 0 && counter + 1 < s) {
-            counter++;
+            gate_sequence.erase(gate_sequence.begin() + gsl::narrow<int>(counter), gate_sequence.begin() + gsl::narrow<int>(counter) + 2);
          }
          else if (gate_sequence[counter] == 2 && gate_sequence[counter + 1] == -2 && counter + 1 < s) {
-            counter++;
+            gate_sequence.erase(gate_sequence.begin() + gsl::narrow<int>(counter), gate_sequence.begin() + gsl::narrow<int>(counter) + 2);
          }
          else if (gate_sequence[counter] == 1 && gate_sequence[counter + 1] == 1 && 
                   gate_sequence[counter + 2] == 1 && gate_sequence[counter + 3] == 1 && 
                   gate_sequence[counter + 4] == 1 && gate_sequence[counter + 5] == 1 && 
                   gate_sequence[counter + 6] == 1 && gate_sequence[counter + 7] && counter + 7 < s) {
-             counter++;
+             gate_sequence.erase(gate_sequence.begin() + gsl::narrow<int>(counter), gate_sequence.begin() + gsl::narrow<int>(counter) + 8);
         } 
         else if (gate_sequence[counter] == -1 && gate_sequence[counter + 1] == -1 && 
                   gate_sequence[counter + 2] == -1 && gate_sequence[counter + 3] == -1 && 
                   gate_sequence[counter + 4] == -1 && gate_sequence[counter + 5] == -1 && 
                   gate_sequence[counter + 6] == -1 && gate_sequence[counter + 7] && counter + 7 < s) {
-             counter++;
+            gate_sequence.erase(gate_sequence.begin() + gsl::narrow<int>(counter), gate_sequence.begin() + gsl::narrow<int>(counter) + 8);
         }
         else if (gate_sequence[counter] == -1 && gate_sequence[counter + 1] == -1 && counter + 1 < s) {
-             result.push_back(-2);
+             
+             gate_sequence.insert(gate_sequence.begin() + gsl::narrow<int>(counter) -1, -2);
              counter++;
         } 
         else if (gate_sequence[counter] == 1 && gate_sequence[counter + 1] == 1 && counter + 1 < s) {
-             result.push_back(2);
+             gate_sequence.insert(gate_sequence.begin() + gsl::narrow<int>(counter) -1, 2);
              counter++;
         }
         else if (gate_sequence[counter] == 1 && gate_sequence[counter + 1] == 1 && 
                  gate_sequence[counter + 2] == 1 && gate_sequence[counter + 3] == 1 
                  && counter + 3 < s) {
-             result.push_back(4);
-             counter++;
+             gate_sequence.insert(gate_sequence.begin() + gsl::narrow<int>(counter) -1, 4);
+             counter++;;
         }
         else if (gate_sequence[counter] == 0 && gate_sequence[counter + 1] == 2 && 
                  gate_sequence[counter + 2] == 2 && gate_sequence[counter + 3] == 0 
                  && counter + 3 < s) {
-             result.push_back(-4);
+             gate_sequence.insert(gate_sequence.begin() + gsl::narrow<int>(counter) -1, -4);
              counter++;
         }    
         else
@@ -96,7 +98,7 @@ void SolovayKitaev::_remove_redundant_gates(std::vector<int>& gate_sequence) {
             counter++;
         }
     }
-    gate_sequence = result;
+   
 }
 
 /**
@@ -105,6 +107,7 @@ void SolovayKitaev::_remove_redundant_gates(std::vector<int>& gate_sequence) {
  * @param gate_sequence
  */
 void SolovayKitaev::_save_gates(const std::vector<int>& gate_sequence) {
+    
     _quantum_circuit.add_qubits(1);
     for (const int& bit : gate_sequence)
         _quantum_circuit.add_gate((bit == 1 ? "T" : bit == 0 ? "H"

@@ -89,7 +89,7 @@ std::optional<QCir> SolovayKitaev::solovay_kitaev_decompose(QTensor<U> const& ma
 
     fmt::println("\nTrace distance: {:.{}f}\n", tr_dist, 6);
 
-    // _remove_redundant_gates(output_gates);
+     _remove_redundant_gates(output_gates);
 
     _save_gates(output_gates);
     return _quantum_circuit;
