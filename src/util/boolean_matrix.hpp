@@ -14,7 +14,6 @@
 #include <utility>
 #include <vector>
 
-#include "util/ordered_hashset.hpp"
 #include "util/util.hpp"
 
 //------------------------------------------------------------------------

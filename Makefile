@@ -7,7 +7,7 @@ build:
 # force macos to use the clang++ installed by brew instead of the default one
 # which is outdated
 build-clang++:
-	cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=1 $(shell which clang++)
+	cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -DCMAKE_CXX_COMPILER=$(shell which clang++)
 	$(MAKE) -C build
 
 # build the current source code in the docker container

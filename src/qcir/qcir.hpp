@@ -10,11 +10,10 @@
 #include <algorithm>
 #include <cstddef>
 #include <filesystem>
+#include <map>
 #include <memory>
-#include <ranges>
 #include <span>
 #include <string>
-#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -179,7 +178,16 @@ public:
 
     QCirGateStatistics get_gate_statistics() const;
 
+    void append(QCir const& other, std::map<QubitIdType, QubitIdType> const& qubit_map = {});
+
+    void update_gate_time() const;
+    void print_zx_form_topological_order();
+
     void adjoint();
+
+    bool print_topological_order();
+
+    void concat(QCir const& other, std::map<QubitIdType /* new */, QubitIdType /* orig */> const& qubit_map);
 
     // Member functions about circuit reporting
     void print_gates(bool print_neighbors = false, std::span<size_t> gate_ids = {}) const;

@@ -12,10 +12,10 @@
 #include <algorithm>
 #include <cassert>
 #include <cstdlib>
-#include <iterator>
 #include <queue>
 #include <string>
 #include <tl/enumerate.hpp>
+#include <tl/to.hpp>
 #include <unordered_set>
 #include <vector>
 
@@ -276,7 +276,7 @@ void QCir::add_qubits(size_t num) {
  * @brief Remove Qubit with specific id
  *
  * @param id
- * @return true if succcessfully removed
+ * @return true if successfully removed
  * @return false if not found or the qubit is not empty
  */
 bool QCir::remove_qubit(QubitIdType id) {
@@ -700,6 +700,32 @@ void QCir::translate(QCir const& qcir, std::string const& gate_set) {
         }
     }
     set_gate_set(gate_set);
+}
+
+void QCir::append(QCir const& other, std::map<QubitIdType, QubitIdType> const& qubit_map) {
+    if (qubit_map.empty() && _qubits.size() != other.get_qubits().size()) {
+        throw std::runtime_error("Qcir::append: you must provide a qubit map if the circuits are of different sizes.");
+        return;
+    }
+
+    auto map_qubit = [&](QubitIdType id) -> QubitIdType {
+        if (qubit_map.empty()) {
+            return id;
+        } else {
+            return qubit_map.at(id);
+        }
+    };
+
+    auto const& other_gates = other.get_gates();
+    for (auto const& gate : other_gates) {
+        auto const& qubits = gate->get_qubits();
+        auto const& phase  = gate->get_phase();
+        auto const& type   = gate->get_type_str();
+        auto const& bits   = qubits |
+                           std::views::transform([&](auto const& qb) { return map_qubit(qb); }) |
+                           tl::to<QubitIdList>();
+        add_gate(type, bits, phase, true);
+    }
 }
 
 }  // namespace qsyn::qcir

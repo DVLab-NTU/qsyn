@@ -12,10 +12,10 @@
 
 #include <cstddef>
 #include <filesystem>
-#include <ostream>
 #include <string>
 
 #include "./optimizer/optimizer_cmd.hpp"
+#include "./oracle/oracle_cmd.hpp"
 #include "./qcir_gate.hpp"
 #include "argparse/arg_parser.hpp"
 #include "argparse/arg_type.hpp"
@@ -632,6 +632,7 @@ Command qcir_cmd(QCirMgr& qcir_mgr) {
     cmd.add_subcommand("qcir-cmd-group", qcir_qubit_cmd(qcir_mgr));
     cmd.add_subcommand("qcir-cmd-group", qcir_optimize_cmd(qcir_mgr));
     cmd.add_subcommand("qcir-cmd-group", qcir_translate_cmd(qcir_mgr));
+    cmd.add_subcommand("qcir-cmd-group", qcir_oracle_cmd(qcir_mgr));
     return cmd;
 }
 
