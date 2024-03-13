@@ -120,7 +120,13 @@ public:
 
     void reshape(TensorShape const& shape);
     Tensor<DT> transpose(TensorAxisList const& perm) const;
-    void adjoint();
+
+    void adjoint_inplace();
+    [[nodiscard]] inline friend Tensor<DT> adjoint(Tensor<DT> const& t) {
+        assert(t.dimension() == 2);
+        return xt::conj(xt::transpose(t._tensor, {1, 0}));
+    }
+
     void sqrt();
     std::complex<double> determinant() const;
     std::complex<double> trace();
@@ -291,7 +297,7 @@ Tensor<DT> Tensor<DT>::transpose(TensorAxisList const& perm) const {
 }
 
 template <typename DT>
-void Tensor<DT>::adjoint() {
+void Tensor<DT>::adjoint_inplace() {
     assert(dimension() == 2);
     _tensor = xt::conj(xt::transpose(_tensor, {1, 0}));
 }
@@ -401,10 +407,9 @@ double cosine_similarity(Tensor<U> const& t1, Tensor<U> const& t2) {
 // Calculate the trace distance of two tensors
 template <typename U>
 double trace_distance(Tensor<U> const& t1, Tensor<U> const& t2) {
-    // TODO
-    Tensor<U> t1_t2 = t1 - t2;
-    t1_t2.adjoint();
-    Tensor<U> t1_t2_sqrt = tensor_multiply(t1_t2, (t1 - t2));
+    Tensor<U> diff_adjoint = t1 - t2;
+    diff_adjoint.adjoint_inplace();
+    Tensor<U> t1_t2_sqrt = tensor_multiply(diff_adjoint, (t1 - t2));
     t1_t2_sqrt.sqrt();
     return (0.5 * t1_t2_sqrt.trace()).real();
 }

@@ -37,7 +37,7 @@ struct TwoLevelMatrix {
 
 template <typename T>
 TwoLevelMatrix<T> adjoint(TwoLevelMatrix<T> m /* copy on purpose */) {
-    m._matrix.adjoint();
+    m._matrix = adjoint(m._matrix);
     return m;
 }
 
@@ -384,7 +384,7 @@ bool Decomposer::_decompose_cnu(Tensor<U> const& t, size_t diff_pos, size_t inde
                 break;
             }
         }
-        Tensor<U> v = _sqrt_single_qubit_matrix(t);
+        const Tensor<U> v = _sqrt_single_qubit_matrix(t);
         if (!_decompose_cu(v, extract_qubit, diff_pos)) return false;
 
         std::vector<size_t> ctrls;
@@ -395,12 +395,10 @@ bool Decomposer::_decompose_cnu(Tensor<U> const& t, size_t diff_pos, size_t inde
 
         _decompose_cnx<U>(ctrls, extract_qubit, index, ctrl_gates - 1);
 
-        v.adjoint();
-        if (!_decompose_cu(v, extract_qubit, diff_pos)) return false;
+        if (!_decompose_cu(adjoint(v), extract_qubit, diff_pos)) return false;
 
         _decompose_cnx<U>(ctrls, extract_qubit, index, ctrl_gates - 1);
 
-        v.adjoint();
         if (!_decompose_cnu(v, diff_pos, index, ctrl_gates - 1)) return false;
     }
 
