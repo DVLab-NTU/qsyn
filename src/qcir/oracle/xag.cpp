@@ -23,7 +23,7 @@
 // TODO: move abc related global variables and functions to a separate file
 extern "C" {
 
-Aig_Man_t* Abc_NtkToDar(Abc_Ntk_t* pNtk, int fExors, int fRegisters);
+Aig_Man_t* Abc_NtkToDar(Abc_Ntk_t* pNtk, int fExors, int fRegisters);  // NOLINT(readability-identifier-naming)  // identifier naming is from ABC
 }
 
 using std::views::iota;
@@ -32,7 +32,7 @@ using tl::views::zip;
 
 namespace qsyn::qcir {
 
-void XAG::evaluate_fanouts() {
+void XAG::_evaluate_fanouts() {
     for (auto& node : _nodes) {
         for (auto& fanin : node.fanins) {
             _nodes[fanin.get()].fanouts.emplace_back(node.get_id());
@@ -263,17 +263,17 @@ XAG from_xaag(std::istream& input) {
     return XAG(nodes, input_ids, output_ids, output_inverted);
 }
 
-XAG from_abc_ntk(Abc_Ntk_t* pNtk) {
-    int fExors = 1;
-    auto pAig  = Abc_NtkToDar(pNtk, fExors, 0);
+XAG from_abc_ntk(Abc_Ntk_t* p_ntk) {
+    int const f_exors = 1;
+    auto p_aig        = Abc_NtkToDar(p_ntk, f_exors, 0);
 
-    size_t num_nodes           = Aig_ManObjNum(pAig);
+    size_t const num_nodes     = Aig_ManObjNum(p_aig);
     std::vector<XAGNode> nodes = std::vector<XAGNode>(num_nodes, XAGNode(XAGNodeID(0), {}, {}, XAGNodeType::VOID));
     std::vector<XAGNodeID> input_ids;
     std::vector<XAGNodeID> output_ids;
     std::vector<bool> output_inverted;
 
-    size_t max_id = Aig_ManObjNumMax(pAig);
+    size_t const max_id = Aig_ManObjNumMax(p_aig);
 
     std::vector<XAGNodeID> obj_id_to_node_id(max_id, XAGNodeID(-1));
 
@@ -281,47 +281,47 @@ XAG from_abc_ntk(Abc_Ntk_t* pNtk) {
     {
         size_t node_id_counter = 0;
         int _{};
-        Aig_Obj_t* pObj{};
-        Aig_ManForEachObj(pAig, pObj, _) {
-            if (Aig_ObjIsCo(pObj)) {
+        Aig_Obj_t* p_obj{};
+        Aig_ManForEachObj(p_aig, p_obj, _) {
+            if (Aig_ObjIsCo(p_obj)) {
                 continue;
-            } else if (Aig_ObjIsConst1(pObj)) {
-                abc_const_1_id = Aig_ObjId(pObj);
+            } else if (Aig_ObjIsConst1(p_obj)) {
+                abc_const_1_id = Aig_ObjId(p_obj);
             }
-            obj_id_to_node_id[Aig_ObjId(pObj)] = XAGNodeID(node_id_counter++);
+            obj_id_to_node_id[Aig_ObjId(p_obj)] = XAGNodeID(node_id_counter++);
         }
     }
 
     bool need_constant_1 = false;
     {
         int _{};
-        Aig_Obj_t* pObj{};
-        Aig_ManForEachObj(pAig, pObj, _) {
-            auto node_id = obj_id_to_node_id[Aig_ObjId(pObj)];
-            if (Aig_ObjIsNode(pObj)) {
-                auto fanin0_id = Aig_ObjFaninId0(pObj);
-                auto fanin1_id = Aig_ObjFaninId1(pObj);
+        Aig_Obj_t* p_obj{};
+        Aig_ManForEachObj(p_aig, p_obj, _) {
+            auto node_id = obj_id_to_node_id[Aig_ObjId(p_obj)];
+            if (Aig_ObjIsNode(p_obj)) {
+                auto fanin0_id = Aig_ObjFaninId0(p_obj);
+                auto fanin1_id = Aig_ObjFaninId1(p_obj);
                 if (fanin0_id == abc_const_1_id || fanin1_id == abc_const_1_id) {
                     need_constant_1 = true;
                 }
                 nodes[node_id.get()] = XAGNode(node_id,
                                                {obj_id_to_node_id[fanin0_id],
                                                 obj_id_to_node_id[fanin1_id]},
-                                               {(bool)Aig_ObjFaninC0(pObj),
-                                                (bool)Aig_ObjFaninC1(pObj)},
-                                               Aig_ObjIsAnd(pObj) ? XAGNodeType::AND : XAGNodeType::XOR);
-            } else if (Aig_ObjIsCi(pObj)) {
+                                               {(bool)Aig_ObjFaninC0(p_obj),
+                                                (bool)Aig_ObjFaninC1(p_obj)},
+                                               Aig_ObjIsAnd(p_obj) ? XAGNodeType::AND : XAGNodeType::XOR);
+            } else if (Aig_ObjIsCi(p_obj)) {
                 nodes[node_id.get()] = XAGNode(node_id, {}, {}, XAGNodeType::INPUT);
                 input_ids.emplace_back(node_id);
-            } else if (Aig_ObjIsConst1(pObj)) {
+            } else if (Aig_ObjIsConst1(p_obj)) {
                 continue;
-            } else if (Aig_ObjIsCo(pObj)) {
-                if (Aig_ObjFaninId0(pObj) == abc_const_1_id) {
+            } else if (Aig_ObjIsCo(p_obj)) {
+                if (Aig_ObjFaninId0(p_obj) == abc_const_1_id) {
                     need_constant_1 = true;
                 }
-                auto fanin_id = obj_id_to_node_id[Aig_ObjFaninId0(pObj)];
+                auto fanin_id = obj_id_to_node_id[Aig_ObjFaninId0(p_obj)];
                 output_ids.emplace_back(fanin_id);
-                if (Aig_ObjFaninC0(pObj)) {
+                if (Aig_ObjFaninC0(p_obj)) {
                     output_inverted.emplace_back(true);
                 } else {
                     output_inverted.emplace_back(false);

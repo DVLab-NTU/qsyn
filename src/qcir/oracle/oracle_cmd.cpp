@@ -73,9 +73,9 @@ Command qcir_oracle_cmd(QCirMgr& qcir_mgr) {
                 xag = from_xaag(ifs);
             } else if (parser.parsed("--tt")) {
                 std::ifstream ifs(parser.get<std::string>("--tt"));
-                bool hex = parser.get<bool>("-x");
-                auto ntk = truth_table_to_ntk(ifs, hex);
-                xag      = from_abc_ntk(ntk);
+                bool const hex = parser.get<bool>("-x");
+                auto ntk       = truth_table_to_ntk(ifs, hex);
+                xag            = from_abc_ntk(ntk);
             } else if (parser.parsed("truth_table")) {
                 auto input_string = parser.get<std::string>("truth_table");
                 std::istringstream input_stream(input_string);
