@@ -364,8 +364,8 @@ bool Tensor<DT>::tensor_read(std::string const& filepath) {
         std::stringstream ss(line);
         while (std::getline(ss, word, ',')) {
             std::stringstream ww(word);
-
-            double real = 0.0, imag = 0.0;
+            using float_type = typename DT::value_type;
+            float_type real = 0.0, imag = 0.0;
             char plus = ' ', i = ' ';
             ww >> real >> plus >> imag >> i;
             if (plus == '-') imag = -imag;

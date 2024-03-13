@@ -86,7 +86,7 @@ std::optional<QCir> SolovayKitaev::solovay_kitaev_decompose(QTensor<U> const& ma
 
     spdlog::debug("Performing SK algorithm");
     std::vector<int> output_gates;
-    const double tr_dist = trace_distance(matrix, _solovay_kitaev_iteration(gate_list, matrix, _recursion, output_gates));
+    const U tr_dist = trace_distance(matrix, _solovay_kitaev_iteration(gate_list, matrix, _recursion, output_gates));
 
     fmt::println("\nTrace distance: {:.{}f}\n", tr_dist, 6);
 
@@ -147,12 +147,12 @@ QTensor<U> SolovayKitaev::_solovay_kitaev_iteration(const std::vector<QTensor<U>
  */
 template <typename U>
 QTensor<U> SolovayKitaev::_find_and_insert_closest_u(const std::vector<QTensor<U>>& gate_list, QTensor<U> u, std::vector<int>& output_gate) {
-    double min_dist  = 10;
+    U min_dist       = 10;
     QTensor<U> min_u = QTensor<U>::identity(1);
 
     size_t min_index = 0;
     for (size_t i = 0; i < gate_list.size(); i++) {
-        const double tr_dist = trace_distance(gate_list[i], u);
+        const U tr_dist = trace_distance(gate_list[i], u);
         if (min_dist - tr_dist > pow(10, -12)) {
             min_dist  = tr_dist;
             min_u     = gate_list[i];
@@ -209,8 +209,8 @@ std::vector<std::complex<U>> SolovayKitaev::_to_bloch(QTensor<U> unitary) {
     assert(unitary.dimension() == 2);
     using namespace std::literals;
     std::vector<std::complex<U>> axis;
-    const double angle = (acos((unitary(0, 0) + unitary(1, 1)) / 2.0)).real();
-    const double sine  = sin(angle);
+    const U angle = (acos((unitary(0, 0) + unitary(1, 1)) / 2.0)).real();
+    const U sine  = sin(angle);
     // axis = [nx, ny, nz, angle]
     if (sine < pow(10, -10)) {
         axis = {0, 0, 1, 2 * angle};
