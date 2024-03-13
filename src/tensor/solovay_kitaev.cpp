@@ -45,63 +45,98 @@ void SolovayKitaev::_dagger_matrices(std::vector<int>& sequence) {
 //  *
 //  * @param gate_sequence
 //  */
+
 void SolovayKitaev::_remove_redundant_gates(std::vector<int>& gate_sequence) {
-   
-    //size_t s = gate_sequence.size();
+    std::vector<int> result;
     size_t counter = 0;
      while (counter < gate_sequence.size() - 1) {
-        if (gate_sequence[counter] == 1 && gate_sequence[counter + 1] == -1 && counter + 1 < gate_sequence.size()) {
-            gate_sequence.erase(gate_sequence.begin() + gsl::narrow<int>(counter), gate_sequence.begin() + gsl::narrow<int>(counter) + 2);
-    
-         } 
-        else if (gate_sequence[counter] == 0 && gate_sequence[counter + 1] == 0 && counter + 1 < gate_sequence.size()) {
-            gate_sequence.erase(gate_sequence.begin() + gsl::narrow<int>(counter), gate_sequence.begin() + gsl::narrow<int>(counter) + 2);
-         }
-         else if (gate_sequence[counter] == 2 && gate_sequence[counter + 1] == -2 && counter + 1 < gate_sequence.size()) {
-            gate_sequence.erase(gate_sequence.begin() + gsl::narrow<int>(counter), gate_sequence.begin() + gsl::narrow<int>(counter) + 2);
-         }
-         else if (gate_sequence[counter] == 1 && gate_sequence[counter + 1] == 1 && 
-                  gate_sequence[counter + 2] == 1 && gate_sequence[counter + 3] == 1 && 
-                  gate_sequence[counter + 4] == 1 && gate_sequence[counter + 5] == 1 && 
-                  gate_sequence[counter + 6] == 1 && gate_sequence[counter + 7] && counter + 7 < gate_sequence.size()) {
-             gate_sequence.erase(gate_sequence.begin() + gsl::narrow<int>(counter), gate_sequence.begin() + gsl::narrow<int>(counter) + 8);
-        } 
+        // T T T T T T T T         
+        if (gate_sequence[counter] == 1 && gate_sequence[counter + 1] == 1 && 
+                gate_sequence[counter + 2] == 1 && gate_sequence[counter + 3] == 1 && 
+                gate_sequence[counter + 4] == 1 && gate_sequence[counter + 5] == 1 && 
+                gate_sequence[counter + 6] == 1 && gate_sequence[counter + 7] == 1 && counter + 7 < gate_sequence.size()) {
+            for(int i = 0; i < 8; i++){
+                gate_sequence.erase(gate_sequence.begin() + counter);
+            }
+            //counter--;
+        }
+        // Td Td Td Td Td Td Td Td
         else if (gate_sequence[counter] == -1 && gate_sequence[counter + 1] == -1 && 
-                  gate_sequence[counter + 2] == -1 && gate_sequence[counter + 3] == -1 && 
-                  gate_sequence[counter + 4] == -1 && gate_sequence[counter + 5] == -1 && 
-                  gate_sequence[counter + 6] == -1 && gate_sequence[counter + 7] && counter + 7 < gate_sequence.size()) {
-            gate_sequence.erase(gate_sequence.begin() + gsl::narrow<int>(counter), gate_sequence.begin() + gsl::narrow<int>(counter) + 8);
-        }
-        else if (gate_sequence[counter] == -1 && gate_sequence[counter + 1] == -1 && counter + 1 < gate_sequence.size()) {
-             gate_sequence.erase(gate_sequence.begin() + gsl::narrow<int>(counter), gate_sequence.begin() + gsl::narrow<int>(counter) + 2);
-             gate_sequence.insert(gate_sequence.begin() + gsl::narrow<int>(counter) -1, -2);
-             counter++;
+                gate_sequence[counter + 2] == -1 && gate_sequence[counter + 3] == -1 && 
+                gate_sequence[counter + 4] == -1 && gate_sequence[counter + 5] == -1 && 
+                gate_sequence[counter + 6] == -1 && gate_sequence[counter + 7] == -1 && counter + 7 < gate_sequence.size()) {
+            for(int i = 0; i < 8; i++){
+                gate_sequence.erase(gate_sequence.begin() + counter);
+            }
+            //counter--;
         } 
-        else if (gate_sequence[counter] == 1 && gate_sequence[counter + 1] == 1 && counter + 1 < gate_sequence.size()) {
-            gate_sequence.erase(gate_sequence.begin() + gsl::narrow<int>(counter), gate_sequence.begin() + gsl::narrow<int>(counter) + 2);
-             gate_sequence.insert(gate_sequence.begin() + gsl::narrow<int>(counter) -1, 2);
-             counter++;
-        }
+        // TTTT = Z
         else if (gate_sequence[counter] == 1 && gate_sequence[counter + 1] == 1 && 
                  gate_sequence[counter + 2] == 1 && gate_sequence[counter + 3] == 1 
                  && counter + 3 < gate_sequence.size()) {
-             gate_sequence.erase(gate_sequence.begin() + gsl::narrow<int>(counter), gate_sequence.begin() + gsl::narrow<int>(counter) + 4);
-             gate_sequence.insert(gate_sequence.begin() + gsl::narrow<int>(counter) -1, 4);
-             counter++;;
+            for(int i = 0; i < 3; i++){
+                gate_sequence.erase(gate_sequence.begin() + counter);
+            }
+            gate_sequence[counter] = 4;
+            //counter--;
         }
+        // HSSH = HZH = X
         else if (gate_sequence[counter] == 0 && gate_sequence[counter + 1] == 2 && 
-                 gate_sequence[counter + 2] == 2 && gate_sequence[counter + 3] == 0 
-                 && counter + 3 < gate_sequence.size()) {
-             gate_sequence.erase(gate_sequence.begin() + gsl::narrow<int>(counter), gate_sequence.begin() + gsl::narrow<int>(counter) + 4);
-             gate_sequence.insert(gate_sequence.begin() + gsl::narrow<int>(counter) -1, -4);
-             counter++;
-        }    
+                gate_sequence[counter + 2] == 2 && gate_sequence[counter + 3] == 0 
+                && counter + 3 < gate_sequence.size()) {
+            for(int i = 0; i < 3; i++){
+                gate_sequence.erase(gate_sequence.begin() + counter);
+            }
+            gate_sequence[counter] = -4;
+            //counter--;
+        }
+        // T Td
+        if (gate_sequence[counter] == 1 && gate_sequence[counter + 1] == -1 && counter + 1 < gate_sequence.size()) {
+            gate_sequence.erase(gate_sequence.begin() + counter);
+            gate_sequence.erase(gate_sequence.begin() + counter);
+            //counter--;
+        } 
+        // Td T
+        else if (gate_sequence[counter] == -1 && gate_sequence[counter + 1] == 1 && counter + 1 < gate_sequence.size()) {
+            gate_sequence.erase(gate_sequence.begin() + counter);
+            gate_sequence.erase(gate_sequence.begin() + counter);
+            //counter--;
+        } 
+        // H H
+        else if (gate_sequence[counter] == 0 && gate_sequence[counter + 1] == 0 && counter + 1 < gate_sequence.size()) {
+            gate_sequence.erase(gate_sequence.begin() + counter);
+            gate_sequence.erase(gate_sequence.begin() + counter);
+            //counter--;
+        }
+        // S Sd
+        else if (gate_sequence[counter] == 2 && gate_sequence[counter + 1] == -2 && counter + 1 < gate_sequence.size()) {
+            gate_sequence.erase(gate_sequence.begin() + counter);
+            gate_sequence.erase(gate_sequence.begin() + counter);
+            //counter--;
+        }
+        // Sd S 
+        else if (gate_sequence[counter] == -2 && gate_sequence[counter + 1] == 2 && counter + 1 < gate_sequence.size()) {
+            gate_sequence.erase(gate_sequence.begin() + counter);
+            gate_sequence.erase(gate_sequence.begin() + counter);
+            //counter--;
+        }
+        // Td Td = Sd
+        else if (gate_sequence[counter] == -1 && gate_sequence[counter + 1] == -1 && counter + 1 < gate_sequence.size()) {
+            gate_sequence.erase(gate_sequence.begin() + counter);
+            gate_sequence[counter] = -2;
+            //counter--;
+        } 
+        // T T = S
+        else if (gate_sequence[counter] == 1 && gate_sequence[counter + 1] == 1 && counter + 1 < gate_sequence.size()) {
+            gate_sequence.erase(gate_sequence.begin() + counter);
+            gate_sequence[counter] = 2;
+            //counter--;
+        }   
         else
         {
             counter++;
         }
     }
-   
 }
 
 /**
