@@ -31,13 +31,14 @@ BinaryList SolovayKitaev::_init_binary_list() const {
 }
 
 /**
- * @brief Dagger the sequence
+ * @brief Adjoint the gate sequence
  *
  * @param sequence
  */
-void SolovayKitaev::_dagger_matrices(std::vector<int>& sequence) {
+std::vector<int> SolovayKitaev::_adjoint_gate_sequence(std::vector<int> sequence) {
     std::reverse(sequence.begin(), sequence.end());
     std::transform(sequence.cbegin(), sequence.cend(), sequence.begin(), std::negate<int>());
+    return sequence;
 }
 
 // /**

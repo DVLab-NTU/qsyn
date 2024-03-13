@@ -110,9 +110,9 @@ Command tensor_adjoint_cmd(TensorMgr& tensor_mgr) {
             },
             [&](ArgumentParser const& parser) {
                 if (parser.parsed("id")) {
-                    tensor_mgr.find_by_id(parser.get<size_t>("id"))->adjoint();
+                    tensor_mgr.find_by_id(parser.get<size_t>("id"))->adjoint_inplace();
                 } else {
-                    tensor_mgr.get()->adjoint();
+                    tensor_mgr.get()->adjoint_inplace();
                 }
                 return CmdExecResult::done;
             }};
