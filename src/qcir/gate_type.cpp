@@ -91,7 +91,6 @@ std::optional<GateType> str_to_gate_type(std::string_view str) {
     return std::nullopt;
 }
 std::string gate_type_to_str(GateRotationCategory category, std::optional<size_t> num_qubits, std::optional<dvlab::Phase> phase) {
-    DVLAB_ASSERT(num_qubits > 0, "a gate should have at least one qubit");
     if (category == GateRotationCategory::id)
         return "id";
     if (category == GateRotationCategory::h)

@@ -30,8 +30,8 @@ public:
     void apply_gate(device::Operation const& op, PhysicalQubit& q0);
     void apply_gate(device::Operation const& op, PhysicalQubit& q0, PhysicalQubit& q1);
     void apply_swap(device::Operation const& op);
-    bool apply_cx(device::Operation const& op, qcir::QCirGate const& gate);
-    bool apply_single(device::Operation const& op, qcir::QCirGate const& gate);
+    bool try_apply_two_qubit_gate(device::Operation const& op, qcir::QCirGate const& gate);
+    bool try_apply_one_qubit_gate(device::Operation const& op, qcir::QCirGate const& gate);
 
     bool test_operations();
 

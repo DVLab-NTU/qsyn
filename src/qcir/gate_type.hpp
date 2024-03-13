@@ -133,7 +133,11 @@ class LegacyGateType {
 public:
     LegacyGateType(GateType type) : _type(type) {}
     std::string get_type() const { return gate_type_to_str(_type); }
-    std::string get_repr() const { return get_type() + ((get_type().find_first_of("pr") != std::string::npos) ? fmt::format("({})", std::get<2>(_type)->get_ascii_string()) : ""); }
+    std::string get_repr() const {
+        if (is_fixed_phase_gate(std::get<0>(_type)))
+            return get_type();
+        return get_type() + ((get_type().find_first_of("pr") != std::string::npos) ? fmt::format("({})", std::get<2>(_type)->get_ascii_string()) : "");
+    }
     size_t get_num_qubits() const { return std::get<1>(_type).value_or(0); }
 
     GateRotationCategory get_rotation_category() const { return std::get<0>(_type); }

@@ -92,7 +92,7 @@ void Checker::apply_gate(device::Operation const& op,
     DVLAB_ASSERT(
         start >= q1.get_occupied_time(),
         fmt::format("The starting time of Operation {} is less than Qubit {}'s occupied time of ({}) !!", op.get_id(), q1.get_id(), q1.get_occupied_time()));
-    DVLAB_ASSERT(end == start + get_cycle(op), fmt::format("The ending time of Operation {} is not equal to start time + cycle!!", op.get_id()));
+    DVLAB_ASSERT(end == start + get_cycle(op), fmt::format("The ending time of Operation {} ({}, <{}, {}>, {}) is not equal to start time + {}!! Actual cycle: {}", op.get_id(), op.get_type(), std::get<0>(op.get_qubits()), std::get<1>(op.get_qubits()), op.get_phase(), get_cycle(op), end - start));
 
     q0.set_occupied_time(end);
     q1.set_occupied_time(end);
@@ -126,8 +126,8 @@ void Checker::apply_swap(device::Operation const& op) {
  * @return true
  * @return false
  */
-bool Checker::apply_cx(device::Operation const& op, qcir::QCirGate const& gate) {
-    DVLAB_ASSERT(op.is_cx() || op.is_cz(), fmt::format("Gate type {} in apply_cx is not allowed!!", op.get_type_str()));
+bool Checker::try_apply_two_qubit_gate(device::Operation const& op, qcir::QCirGate const& gate) {
+    DVLAB_ASSERT(op.is_double_qubit_gate(), fmt::format("Gate type {} in apply_cx is not allowed!!", op.get_type_str()));
     auto q0_idx = get<0>(op.get_qubits());
     auto q1_idx = get<1>(op.get_qubits());
     auto& q0    = _device->get_physical_qubit(q0_idx);
@@ -157,7 +157,7 @@ bool Checker::apply_cx(device::Operation const& op, qcir::QCirGate const& gate) 
  * @return true
  * @return false
  */
-bool Checker::apply_single(device::Operation const& op, qcir::QCirGate const& gate) {
+bool Checker::try_apply_one_qubit_gate(device::Operation const& op, qcir::QCirGate const& gate) {
     DVLAB_ASSERT(
         !op.is_swap() && !op.is_cx() && !op.is_cz(),
         fmt::format("Gate type {} in apply_single is not allowed!!", op.get_type_str()));
@@ -190,37 +190,41 @@ bool Checker::test_operations() {
     std::vector<size_t> finished_gates;
     for (dvlab::TqdmWrapper bar{_ops.size(), _tqdm}; !bar.done(); ++bar) {
         auto& op = _ops[bar.idx()];
-        if (op.is_swap()) {
-            apply_swap(op);
+        // if (op.is_swap()) {
+        //     apply_swap(op);
+        // } else {
+        // }
+        auto& available_gates = _topo->get_available_gates();
+        bool pass_condition   = false;
+        if (op.is_double_qubit_gate()) {
+            for (auto gate : available_gates) {
+                if (try_apply_two_qubit_gate(op, _topo->get_gate(gate))) {
+                    pass_condition = true;
+                    _topo->update_available_gates(gate);
+                    finished_gates.emplace_back(gate);
+                    break;
+                }
+            }
         } else {
-            auto& available_gates = _topo->get_available_gates();
-            bool pass_condition   = false;
-            if (op.is_cx() || op.is_cz()) {
-                for (auto gate : available_gates) {
-                    if (apply_cx(op, _topo->get_gate(gate))) {
-                        pass_condition = true;
-                        _topo->update_available_gates(gate);
-                        finished_gates.emplace_back(gate);
-                        break;
-                    }
-                }
-            } else {
-                for (auto gate : available_gates) {
-                    if (apply_single(op, _topo->get_gate(gate))) {
-                        pass_condition = true;
-                        _topo->update_available_gates(gate);
-                        finished_gates.emplace_back(gate);
-                        break;
-                    }
+            for (auto gate : available_gates) {
+                if (try_apply_one_qubit_gate(op, _topo->get_gate(gate))) {
+                    pass_condition = true;
+                    _topo->update_available_gates(gate);
+                    finished_gates.emplace_back(gate);
+                    break;
                 }
             }
-            if (!pass_condition) {
-                spdlog::error("Could not match operation {} to any logical gates!!", op.get_id());
-                spdlog::error("  Executed gates:   {}", fmt::join(finished_gates, " "));
-                spdlog::error("  Available gates:  {}", fmt::join(available_gates, " "));
-                spdlog::error("  Failed Operation: {}, type: ", op.get_id(), op.get_type_str());
-                return false;
+        }
+        if (!pass_condition) {
+            if (op.is_swap()) {
+                apply_swap(op);
+                continue;
             }
+            spdlog::error("Could not match operation {} to any logical gates!!", op.get_id());
+            spdlog::error("  Executed gates:   {}", fmt::join(finished_gates, " "));
+            spdlog::error("  Available gates:  {}", fmt::join(available_gates, " "));
+            spdlog::error("  Failed Operation: {}, type: {}", op.get_id(), op.get_type_str());
+            return false;
         }
     }
     spdlog::info("");

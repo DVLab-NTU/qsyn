@@ -62,7 +62,7 @@ public:
     bool is_executable(qcir::QCirGate const& gate);
 
     // Main Router function
-    device::Operation execute_single(qcir::GateRotationCategory gate, dvlab::Phase phase, QubitIdType q);
+    device::Operation execute_single(qcir::QCirGate const& gate, QubitIdType q);
     std::vector<device::Operation> duostra_routing(qcir::QCirGate const& gate, std::tuple<QubitIdType, QubitIdType> qubit_pair, MinMaxOptionType tie_breaking_strategy);
     std::vector<device::Operation> apsp_routing(qcir::QCirGate const& gate, std::tuple<QubitIdType, QubitIdType> qs, MinMaxOptionType tie_breaking_strategy);
     std::vector<device::Operation> assign_gate(qcir::QCirGate const& gate);

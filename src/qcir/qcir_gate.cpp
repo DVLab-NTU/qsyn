@@ -71,10 +71,9 @@ size_t QCirGate::get_delay() const {
         return SWAP_DELAY;
     if (_qubits.size() == 1)
         return SINGLE_DELAY;
-    else if (_qubits.size() == 2)
+    if (_qubits.size() == 2)
         return DOUBLE_DELAY;
-    else
-        return MULTIPLE_DELAY;
+    return MULTIPLE_DELAY;
 }
 
 /**
