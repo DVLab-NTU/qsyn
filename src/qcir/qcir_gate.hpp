@@ -10,6 +10,7 @@
 #include <cstddef>
 #include <string>
 #include <tl/to.hpp>
+#include <tuple>
 #include <unordered_map>
 
 #include "qcir/gate_type.hpp"
@@ -54,10 +55,19 @@ struct QubitInfo {
 class QCirGate {
 public:
     using QubitIdType = qsyn::QubitIdType;
-    QCirGate(size_t id, GateRotationCategory type, dvlab::Phase ph) : _id(id), _rotation_category{type}, _phase{ph} {}
+
+    QCirGate(size_t id, Operation const& op, QubitIdList qubits)
+        : _id(id),
+          _operation{op},
+          _rotation_category{op.get_underlying<LegacyGateType>().get_rotation_category()},
+          _qubits{std::vector<QubitInfo>(qubits.size(), {nullptr, nullptr})},
+          _operands{std::move(qubits)},
+          _phase{op.get_underlying<LegacyGateType>().get_phase()} {}
 
     // Basic access method
-    std::string get_type_str() const;
+    std::string get_type_str() const { return get_operation().get_type(); }
+    Operation const& get_operation() const { return _operation; }
+    void set_operation(Operation const& op);
     size_t get_id() const { return _id; }
     size_t get_delay() const;
     QubitIdType get_qubit(size_t pin_id) const { return _operands[pin_id]; }
@@ -85,23 +95,12 @@ public:
     std::vector<QubitInfo>& legacy_get_qubits() { return _qubits; }
 
     GateRotationCategory get_rotation_category() const { return _rotation_category; }
-    void set_rotation_category(GateRotationCategory type);
     dvlab::Phase get_phase() const { return _phase; }
-    void set_phase(dvlab::Phase p);
-
-    GateType get_type() const { return std::make_tuple(_rotation_category, _qubits.size(), _phase); }
-    bool is_h() const { return _rotation_category == GateRotationCategory::h; }
-    bool is_x() const { return _rotation_category == GateRotationCategory::px && _phase == dvlab::Phase(1) && _qubits.size() == 1; }
-    bool is_y() const { return _rotation_category == GateRotationCategory::py && _phase == dvlab::Phase(1) && _qubits.size() == 1; }
-    bool is_z() const { return _rotation_category == GateRotationCategory::pz && _phase == dvlab::Phase(1) && _qubits.size() == 1; }
-    bool is_cx() const { return _rotation_category == GateRotationCategory::px && _phase == dvlab::Phase(1) && _qubits.size() == 2; }
-    bool is_cy() const { return _rotation_category == GateRotationCategory::py && _phase == dvlab::Phase(1) && _qubits.size() == 2; }
-    bool is_cz() const { return _rotation_category == GateRotationCategory::pz && _phase == dvlab::Phase(1) && _qubits.size() == 2; }
-    bool is_swap() const { return _rotation_category == GateRotationCategory::swap; }
 
 private:
 protected:
     size_t _id;
+    Operation _operation;
     GateRotationCategory _rotation_category;
     std::vector<QubitInfo> _qubits = {};
     std::vector<QubitIdType> _operands;

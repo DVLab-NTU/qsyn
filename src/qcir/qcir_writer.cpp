@@ -98,15 +98,11 @@ std::string to_qasm(QCir const& qcir) {
     qasm += "include \"qelib1.inc\";\n";
     qasm += fmt::format("qreg q[{}];\n", qcir.get_num_qubits());
 
-    for (auto const* cur_gate : qcir.get_gates()) {
-        auto type_str           = cur_gate->get_type_str();
-        auto operand            = cur_gate->get_qubits();
-        auto is_special_phase   = cur_gate->get_phase().denominator() == 1 || cur_gate->get_phase().denominator() == 2 || cur_gate->get_phase() == Phase(1, 4) || cur_gate->get_phase() == Phase(-1, 4);
-        auto is_p_type_rotation = cur_gate->get_rotation_category() == GateRotationCategory::py || cur_gate->get_rotation_category() == GateRotationCategory::px || cur_gate->get_rotation_category() == GateRotationCategory::pz;
-        qasm += fmt::format("{}{} {};\n",
-                            cur_gate->get_phase() == dvlab::Phase(0) ? "id" : type_str,
-                            !(is_special_phase && is_p_type_rotation) && !is_fixed_phase_gate(cur_gate->get_rotation_category()) ? fmt::format("({})", cur_gate->get_phase().get_ascii_string()) : "",
-                            fmt::join(operand | std::views::transform([](auto pin) { return fmt::format("q[{}]", pin); }), ", "));
+    for (auto const* gate : qcir.get_gates()) {
+        auto const qubits = gate->get_qubits();
+        qasm += fmt::format("{} {};\n",
+                            gate->get_operation().get_repr(),
+                            fmt::join(qubits | std::views::transform([](auto pin) { return fmt::format("q[{}]", pin); }), ", "));
     }
     return qasm;
 }

@@ -13,6 +13,7 @@
 
 #include "duostra/duostra.hpp"
 #include "duostra/mapping_eqv_checker.hpp"
+#include "qcir/gate_type.hpp"
 #include "qcir/qcir.hpp"
 #include "spdlog/common.h"
 #include "spdlog/spdlog.h"
@@ -41,7 +42,7 @@ size_t OPTIMIZE_LEVEL     = 2;
  * @param c
  * @param d
  */
-Extractor::Extractor(ZXGraph* g, QCir* c, std::optional<Device> const& d) : _graph(g), _logical_circuit{c ? c : new QCir()}, _physical_circuit{to_physical() ? new QCir() : nullptr}, _device(d), _device_backup(d) {
+Extractor::Extractor(ZXGraph* g, QCir* c /*, std::optional<Device> const& d*/) : _graph(g), _logical_circuit{c ? c : new QCir()} /* ,_physical_circuit{to_physical() ? new QCir() : nullptr}, _device(d), _device_backup(d) */ {
     initialize(c == nullptr);
 }
 
@@ -233,13 +234,14 @@ bool Extractor::extract_czs(bool check) {
             }
         }
     }
-    std::vector<Operation> ops;
+    std::vector<qcir::QCirGate> gates;
     for (auto const& [s, t] : remove_list) {
         _graph->remove_edge(s, t, EdgeType::hadamard);
-        ops.emplace_back(GateRotationCategory::pz, dvlab::Phase(1), std::make_tuple(_qubit_map[s->get_qubit()], _qubit_map[t->get_qubit()]), std::make_tuple(0, 0));
+        gates.emplace_back(0, LegacyGateType{std::make_tuple(GateRotationCategory::pz, 2, dvlab::Phase(1))}, QubitIdList{_qubit_map[s->get_qubit()], _qubit_map[t->get_qubit()]});
+        // ops.emplace_back(GateRotationCategory::pz, dvlab::Phase(1), std::make_tuple(_qubit_map[s->get_qubit()], _qubit_map[t->get_qubit()]), std::make_tuple(0, 0));
     }
-    if (!ops.empty()) {
-        prepend_series_gates(ops);
+    if (!gates.empty()) {
+        prepend_series_gates(gates);
     }
     _logical_circuit->print_circuit_diagram(spdlog::level::level_enum::trace);
     _graph->print_vertices_by_rows(spdlog::level::level_enum::trace);
@@ -674,37 +676,37 @@ void Extractor::_block_elimination(dvlab::BooleanMatrix& best_matrix, size_t& mi
     }
 }
 
-void Extractor::_block_elimination(size_t& best_block, dvlab::BooleanMatrix& best_matrix, size_t& min_cost, size_t block_size) {
-    dvlab::BooleanMatrix copied_matrix = _biadjacency;
-    copied_matrix.gaussian_elimination_skip(block_size, true, true);
-    if (FILTER_DUPLICATE_CXS) _filter_duplicate_cxs();
+// void Extractor::_block_elimination(size_t& best_block, dvlab::BooleanMatrix& best_matrix, size_t& min_cost, size_t block_size) {
+//     dvlab::BooleanMatrix copied_matrix = _biadjacency;
+//     copied_matrix.gaussian_elimination_skip(block_size, true, true);
+//     if (FILTER_DUPLICATE_CXS) _filter_duplicate_cxs();
 
-    // NOTE - Construct Duostra Input
-    std::unordered_map<size_t, ZXVertex*> front_id2_vertex;
-    size_t cnt = 0;
-    for (auto& f : _frontier) {
-        front_id2_vertex[cnt] = f;
-        cnt++;
-    }
-    std::vector<Operation> ops;
-    for (auto& [t, c] : copied_matrix.get_row_operations()) {
-        // NOTE - targ and ctrl are opposite here
-        size_t ctrl = _qubit_map[front_id2_vertex[c]->get_qubit()];
-        size_t targ = _qubit_map[front_id2_vertex[t]->get_qubit()];
-        spdlog::debug("Adding CX: {} {}", ctrl, targ);
-        ops.emplace_back(GateRotationCategory::px, dvlab::Phase(0), std::make_tuple(ctrl, targ), std::make_tuple(0, 0));
-    }
+//     // NOTE - Construct Duostra Input
+//     std::unordered_map<size_t, ZXVertex*> front_id2_vertex;
+//     size_t cnt = 0;
+//     for (auto& f : _frontier) {
+//         front_id2_vertex[cnt] = f;
+//         cnt++;
+//     }
+//     std::vector<Operation> ops;
+//     for (auto& [t, c] : copied_matrix.get_row_operations()) {
+//         // NOTE - targ and ctrl are opposite here
+//         size_t ctrl = _qubit_map[front_id2_vertex[c]->get_qubit()];
+//         size_t targ = _qubit_map[front_id2_vertex[t]->get_qubit()];
+//         spdlog::debug("Adding CX: {} {}", ctrl, targ);
+//         ops.emplace_back(GateRotationCategory::px, dvlab::Phase(0), std::make_tuple(ctrl, targ), std::make_tuple(0, 0));
+//     }
 
-    // NOTE - Get Mapping result, Device is passed by copy
-    qsyn::duostra::Duostra duo(ops, _graph->get_num_outputs(), _device.value(), {.verify_result = false, .silent = true, .use_tqdm = false});
-    size_t depth = duo.map(true);
-    spdlog::debug("Block size: {}, depth: {}, #cx: {}", block_size, depth, ops.size());
-    if (depth < min_cost) {
-        min_cost    = depth;
-        best_matrix = copied_matrix;
-        best_block  = block_size;
-    }
-}
+//     // NOTE - Get Mapping result, Device is passed by copy
+//     qsyn::duostra::Duostra duo(ops, _graph->get_num_outputs(), _device.value(), {.verify_result = false, .silent = true, .use_tqdm = false});
+//     size_t depth = duo.map(true);
+//     spdlog::debug("Block size: {}, depth: {}, #cx: {}", block_size, depth, ops.size());
+//     if (depth < min_cost) {
+//         min_cost    = depth;
+//         best_matrix = copied_matrix;
+//         best_block  = block_size;
+//     }
+// }
 
 /**
  * @brief Permute qubit if input and output are not match
@@ -837,29 +839,29 @@ void Extractor::update_matrix() {
     _biadjacency = get_biadjacency_matrix(*_graph, _frontier, _neighbors);
 }
 
-/**
- * @brief Prepend series of gates.
- *
- * @param logical
- * @param physical
- */
-void Extractor::prepend_series_gates(std::vector<Operation> const& logical, std::vector<Operation> const& physical) {
-    for (auto const& gates : logical) {
-        auto qubits = gates.get_qubits();
-        if (gates.get_phase() != dvlab::Phase(0)) {
-            _logical_circuit->add_gate(gates.get_type_str(), {get<0>(qubits), get<1>(qubits)}, gates.get_phase(), false);
+// /**
+//  * @brief Prepend series of gates.
+//  *
+//  * @param logical
+//  * @param physical
+//  */
+void Extractor::prepend_series_gates(std::vector<qcir::QCirGate> const& logical /*, std::vector<Operation> const& physical*/) {
+    for (auto const& gate : logical) {
+        auto qubits = gate.get_qubits();
+        if (gate.get_phase() != dvlab::Phase(0)) {
+            _logical_circuit->prepend(gate.get_operation(), gate.get_qubits());
         }
     }
 
-    for (auto const& gates : physical) {
-        auto qubits = gates.get_qubits();
-        if (gates.is_swap()) {
-            prepend_swap_gate(get<0>(qubits), get<1>(qubits), _physical_circuit);
-            _num_swaps++;
-        } else if (gates.get_phase() != dvlab::Phase(0)) {
-            _physical_circuit->add_gate(gates.get_type_str(), {get<0>(qubits), get<1>(qubits)}, gates.get_phase(), false);
-        }
-    }
+    // for (auto const& gates : physical) {
+    //     auto qubits = gates.get_qubits();
+    //     if (gates.is_swap()) {
+    //         prepend_swap_gate(get<0>(qubits), get<1>(qubits), _physical_circuit);
+    //         _num_swaps++;
+    //     } else if (gates.get_phase() != dvlab::Phase(0)) {
+    //         _physical_circuit->add_gate(gates.get_type_str(), {get<0>(qubits), get<1>(qubits)}, gates.get_phase(), false);
+    //     }
+    // }
 }
 
 /**

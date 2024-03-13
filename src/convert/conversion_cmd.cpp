@@ -146,7 +146,7 @@ Command convert_from_zx_cmd(zx::ZXGraphMgr& zxgraph_mgr, QCirMgr& qcir_mgr, tens
                     return CmdExecResult::error;
                 }
                 zx::ZXGraph target = *zxgraph_mgr.get();
-                extractor::Extractor ext(&target, nullptr, std::nullopt);
+                extractor::Extractor ext(&target, nullptr /*, std::nullopt*/);
                 qcir::QCir* result = ext.extract();
                 if (result != nullptr) {
                     qcir_mgr.add(qcir_mgr.get_next_id(), std::make_unique<qcir::QCir>(*result));

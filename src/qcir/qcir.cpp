@@ -40,9 +40,8 @@ QCir::QCir(QCir const& other) {
 
     for (auto& gate : other.get_gates()) {
         // We do not call add_gate here because we want to keep the original gate id
-        _id_to_gates.emplace(gate->get_id(), std::make_unique<QCirGate>(gate->get_id(), gate->get_rotation_category(), gate->get_phase()));
+        _id_to_gates.emplace(gate->get_id(), std::make_unique<QCirGate>(gate->get_id(), gate->get_operation(), gate->get_qubits()));
         auto* new_gate = _id_to_gates.at(gate->get_id()).get();
-        new_gate->set_qubits(gate->get_qubits());
 
         for (auto const qb : new_gate->get_qubits()) {
             QCirQubit* target = get_qubit(qb);
@@ -323,14 +322,14 @@ QCirGate* QCir::add_gate(std::string type, QubitIdList const& bits, dvlab::Phase
     }
 
     return append
-               ? this->append(std::make_tuple(category, bits.size(), phase), bits)
-               : this->prepend(std::make_tuple(category, bits.size(), phase), bits);
+               ? this->append(LegacyGateType(std::make_tuple(category, bits.size(), phase)), bits)
+               : this->prepend(LegacyGateType(std::make_tuple(category, bits.size(), phase)), bits);
 }
 
-QCirGate* QCir::append(GateType gate, QubitIdList const& bits) {
-    _id_to_gates.emplace(_gate_id, std::make_unique<QCirGate>(_gate_id, std::get<0>(gate), *std::get<2>(gate)));
+QCirGate* QCir::append(Operation const& op, QubitIdList const& bits) {
+    /* for now, assumes that op is always a legacy gate type */
+    _id_to_gates.emplace(_gate_id, std::make_unique<QCirGate>(_gate_id, op, bits));
     auto* g = _id_to_gates[_gate_id].get();
-    g->set_qubits(bits);
     _gate_id++;
 
     for (auto const& qb : g->get_qubits()) {
@@ -346,10 +345,10 @@ QCirGate* QCir::append(GateType gate, QubitIdList const& bits) {
     return g;
 }
 
-QCirGate* QCir::prepend(GateType gate, QubitIdList const& bits) {
-    _id_to_gates.emplace(_gate_id, std::make_unique<QCirGate>(_gate_id, std::get<0>(gate), *std::get<2>(gate)));
+QCirGate* QCir::prepend(Operation const& op, QubitIdList const& bits) {
+    /* for now, assumes that op is always a legacy gate type */
+    _id_to_gates.emplace(_gate_id, std::make_unique<QCirGate>(_gate_id, op, bits));
     auto* g = _id_to_gates[_gate_id].get();
-    g->set_qubits(bits);
     _gate_id++;
 
     for (auto const& qb : g->get_qubits()) {
@@ -686,8 +685,7 @@ void QCir::translate(QCir const& qcir, std::string const& gate_set) {
         std::string const type = cur_gate->get_type_str();
 
         if (!equivalence.contains(type)) {
-            this->add_gate(type, cur_gate->get_qubits(),
-                           cur_gate->get_phase(), true);
+            this->append(cur_gate->get_operation(), cur_gate->get_qubits());
             continue;
         }
 
