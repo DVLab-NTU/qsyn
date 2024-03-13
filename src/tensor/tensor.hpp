@@ -13,7 +13,6 @@
 #include <spdlog/spdlog.h>
 
 #include <cassert>
-#include <complex>
 #include <cstddef>
 #include <iosfwd>
 #include <iostream>
