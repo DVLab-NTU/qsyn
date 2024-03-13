@@ -7,7 +7,6 @@
 
 #include "qcir/oracle/pebble.hpp"
 
-#include <__ranges/filter_view.h>
 #include <fmt/core.h>
 #include <spdlog/spdlog.h>
 

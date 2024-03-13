@@ -367,8 +367,10 @@ LUT::LUT(size_t const k) : k(k) {
     switch (k) {
         case 3:
             construct_lut_3();
+            [[fallthrough]];
         case 2:
             construct_lut_2();
+            [[fallthrough]];
         case 1:
             construct_lut_1();
             break;

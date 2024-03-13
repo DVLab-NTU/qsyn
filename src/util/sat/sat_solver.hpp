@@ -12,6 +12,7 @@
 #include <NamedType/named_type.hpp>
 #include <NamedType/underlying_functionalities.hpp>
 #include <cadical/cadical.hpp>
+#include <optional>
 #include <vector>
 
 namespace dvlab::sat {

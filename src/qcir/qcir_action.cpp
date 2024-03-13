@@ -159,7 +159,8 @@ void QCir::adjoint() {
 void QCir::concat(QCir const& other, std::map<QubitIdType /* new */, QubitIdType /* orig */> const& qubit_map) {
     other._update_topological_order();
     for (auto const& new_gate : other.get_gates()) {
-        auto qubits = new_gate->get_qubits() |
+        auto const tmp = new_gate->get_qubits();  // circumvent g++ 11.4 compilation bug
+        auto qubits    = tmp |
                       std::views::transform([&qubit_map](auto const& qubit) {
                           return qubit_map.at(qubit);
                       }) |

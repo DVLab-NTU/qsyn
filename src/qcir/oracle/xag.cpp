@@ -100,7 +100,8 @@ std::vector<XAGNodeID> XAG::get_cone_node_ids(XAGNodeID const& node_id, XAGCut c
 
 kitty::dynamic_truth_table XAG::calculate_truth_table(XAGNodeID const& output_id, XAGCut const& cut) const {
     auto const& xag       = *this;
-    auto node_ids_in_cone = xag.get_cone_node_ids(output_id, cut) | std::views::reverse | tl::to<std::vector>();
+    auto const tmp        = xag.get_cone_node_ids(output_id, cut);  // circumvents g++ 11.4 compilation bug
+    auto node_ids_in_cone = tmp | std::views::reverse | tl::to<std::vector>();
     auto truth_table      = kitty::dynamic_truth_table(cut.size());
 
     for (auto const& minterm : iota(0UL, 1UL << cut.size())) {
