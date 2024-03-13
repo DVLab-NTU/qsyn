@@ -58,8 +58,11 @@ void SolovayKitaev::_remove_redundant_gates(std::vector<int>& gate_sequence) {
             for(int i = 0; i < 8; i++){
                 gate_sequence.erase(gate_sequence.begin() + counter);
             }
-            //counter--;
-        }
+            if(counter > 0)
+            {
+                counter--;
+            }
+            
         // Td Td Td Td Td Td Td Td
         else if (gate_sequence[counter] == -1 && gate_sequence[counter + 1] == -1 && 
                 gate_sequence[counter + 2] == -1 && gate_sequence[counter + 3] == -1 && 
@@ -68,7 +71,11 @@ void SolovayKitaev::_remove_redundant_gates(std::vector<int>& gate_sequence) {
             for(int i = 0; i < 8; i++){
                 gate_sequence.erase(gate_sequence.begin() + counter);
             }
-            //counter--;
+            
+            if(counter > 0)
+            {
+                counter--;
+            }
         } 
         // TTTT = Z
         else if (gate_sequence[counter] == 1 && gate_sequence[counter + 1] == 1 && 
@@ -78,7 +85,11 @@ void SolovayKitaev::_remove_redundant_gates(std::vector<int>& gate_sequence) {
                 gate_sequence.erase(gate_sequence.begin() + counter);
             }
             gate_sequence[counter] = 4;
-            //counter--;
+            if(counter > 0)
+            {
+                counter--;
+            }
+            
         }
         // HSSH = HZH = X
         else if (gate_sequence[counter] == 0 && gate_sequence[counter + 1] == 2 && 
@@ -88,49 +99,81 @@ void SolovayKitaev::_remove_redundant_gates(std::vector<int>& gate_sequence) {
                 gate_sequence.erase(gate_sequence.begin() + counter);
             }
             gate_sequence[counter] = -4;
-            //counter--;
+            if(counter > 0)
+            {
+                counter--;
+            }
+            
         }
         // T Td
         if (gate_sequence[counter] == 1 && gate_sequence[counter + 1] == -1 && counter + 1 < gate_sequence.size()) {
             gate_sequence.erase(gate_sequence.begin() + counter);
             gate_sequence.erase(gate_sequence.begin() + counter);
-            //counter--;
+            if(counter > 0)
+            {
+                counter--;
+            }
+            
         } 
         // Td T
         else if (gate_sequence[counter] == -1 && gate_sequence[counter + 1] == 1 && counter + 1 < gate_sequence.size()) {
             gate_sequence.erase(gate_sequence.begin() + counter);
             gate_sequence.erase(gate_sequence.begin() + counter);
-            //counter--;
+            if(counter > 0)
+            {
+                counter--;
+            }
+            
         } 
         // H H
         else if (gate_sequence[counter] == 0 && gate_sequence[counter + 1] == 0 && counter + 1 < gate_sequence.size()) {
             gate_sequence.erase(gate_sequence.begin() + counter);
             gate_sequence.erase(gate_sequence.begin() + counter);
-            //counter--;
+            if(counter > 0)
+            {
+                counter--;
+            }
+            
         }
         // S Sd
         else if (gate_sequence[counter] == 2 && gate_sequence[counter + 1] == -2 && counter + 1 < gate_sequence.size()) {
             gate_sequence.erase(gate_sequence.begin() + counter);
             gate_sequence.erase(gate_sequence.begin() + counter);
-            //counter--;
+            if(counter > 0)
+            {
+                counter--;
+            }
+            
         }
         // Sd S 
         else if (gate_sequence[counter] == -2 && gate_sequence[counter + 1] == 2 && counter + 1 < gate_sequence.size()) {
             gate_sequence.erase(gate_sequence.begin() + counter);
             gate_sequence.erase(gate_sequence.begin() + counter);
-            //counter--;
+            if(counter > 0)
+            {
+                counter--;
+            }
+            
         }
         // Td Td = Sd
         else if (gate_sequence[counter] == -1 && gate_sequence[counter + 1] == -1 && counter + 1 < gate_sequence.size()) {
             gate_sequence.erase(gate_sequence.begin() + counter);
             gate_sequence[counter] = -2;
-            //counter--;
+            if(counter > 0)
+            {
+                counter--;
+            }
+            
         } 
         // T T = S
         else if (gate_sequence[counter] == 1 && gate_sequence[counter + 1] == 1 && counter + 1 < gate_sequence.size()) {
             gate_sequence.erase(gate_sequence.begin() + counter);
             gate_sequence[counter] = 2;
-            //counter--;
+            if(counter > 0)
+            {
+                counter--;
+            }
+            
         }   
         else
         {
