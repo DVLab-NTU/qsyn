@@ -13,7 +13,6 @@
 #include <spdlog/spdlog.h>
 
 #include <cassert>
-#include <complex>
 #include <cstddef>
 #include <iosfwd>
 #include <iostream>
@@ -128,8 +127,8 @@ public:
     }
 
     void sqrt();
-    std::complex<double> determinant() const;
-    std::complex<double> trace();
+    DT determinant() const;
+    DT trace();
     auto eigen();
 
     bool tensor_read(std::string const& filepath);
@@ -309,13 +308,13 @@ void Tensor<DT>::sqrt() {
 }
 
 template <typename DT>
-std::complex<double> Tensor<DT>::determinant() const {
+DT Tensor<DT>::determinant() const {
     assert(dimension() == 2);
     return xt::linalg::det(_tensor);
 }
 
 template <typename DT>
-std::complex<double> Tensor<DT>::trace() {
+DT Tensor<DT>::trace() {
     assert(dimension() == 2);
     return xt::sum(xt::diagonal(_tensor))();
 }
@@ -359,14 +358,14 @@ bool Tensor<DT>::tensor_read(std::string const& filepath) {
         return false;
     }
     // read csv with complex number
-    std::vector<std::complex<double>> data;
+    std::vector<DT> data;
     std::string line, word;
     while (std::getline(in_file, line)) {
         std::stringstream ss(line);
         while (std::getline(ss, word, ',')) {
             std::stringstream ww(word);
-
-            double real = 0.0, imag = 0.0;
+            using float_type = typename DT::value_type;
+            float_type real = 0.0, imag = 0.0;
             char plus = ' ', i = ' ';
             ww >> real >> plus >> imag >> i;
             if (plus == '-') imag = -imag;

@@ -14,26 +14,18 @@ namespace qsyn::tensor {
 /**
  * @brief Initialize binary list
  *
- * @return BinaryList
  */
-BinaryList SolovayKitaev::_init_binary_list() const {
-    BinaryList bin_list;
-    for (size_t i = 1; i <= _depth; i++) {
-        for (size_t j = 0; j < gsl::narrow<size_t>(std::pow(2, i)); j++) {
-            sul::dynamic_bitset<> bitset(i, j);
-            std::vector<bool> bit_vector;
-            for (size_t k = 0; k < i; ++k)
-                bit_vector.emplace_back(bitset[k]);
-            bin_list.emplace_back(bit_vector);
-        }
-    }
-    return bin_list;
+void SolovayKitaev::_init_binary_list() {
+    for (size_t i = 1; i <= _depth; i++)
+        for (size_t j = 0; j < gsl::narrow<size_t>(std::pow(2, i)); j++)
+            _binary_list.emplace_back(sul::dynamic_bitset<>(i, j));
 }
 
 /**
  * @brief Adjoint the gate sequence
  *
  * @param sequence
+ * @return std::vector<int>
  */
 std::vector<int> SolovayKitaev::_adjoint_gate_sequence(std::vector<int> sequence) {
     std::reverse(sequence.begin(), sequence.end());
