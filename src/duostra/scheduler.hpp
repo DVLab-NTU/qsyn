@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include <cstddef>
 #include <functional>
 #include <memory>
 #include <unordered_map>
@@ -32,6 +33,7 @@ public:
         std::swap(_circuit_topology, other._circuit_topology);
         std::swap(_operations, other._operations);
         std::swap(_assign_order, other._assign_order);
+        std::swap(_gate_id_to_time, other._gate_id_to_time);
         std::swap(_tqdm, other._tqdm);
     }
 
@@ -61,6 +63,7 @@ protected:
     CircuitTopology _circuit_topology;
     std::vector<device::Operation> _operations = {};
     std::vector<size_t> _assign_order          = {};
+    GateIdToTime _gate_id_to_time              = {};
     bool _sorted                               = false;
     bool _tqdm                                 = true;
     virtual Device _assign_gates(std::unique_ptr<Router> router);

@@ -142,7 +142,7 @@ public:
     void add_adjacency(QubitIdType a, QubitIdType b);
 
     // NOTE - Duostra
-    void apply_gate(Operation const& op);
+    void apply_gate(Operation const& op, size_t time_begin);
     void apply_single_qubit_gate(QubitIdType physical_id);
     void apply_swap_check(QubitIdType qid0, QubitIdType qid1);
     std::vector<std::optional<size_t>> mapping() const;
@@ -187,14 +187,10 @@ private:
 
 class Operation {
 public:
-    Operation(qcir::GateRotationCategory op, dvlab::Phase ph, std::tuple<size_t, size_t> qubits, std::tuple<size_t, size_t> duration);
+    Operation(qcir::GateRotationCategory op, dvlab::Phase ph, std::tuple<size_t, size_t> qubits);
 
     qcir::GateRotationCategory get_type() const { return _operation; }
     dvlab::Phase get_phase() const { return _phase; }
-    size_t get_time_end() const { return std::get<1>(_duration); }
-    size_t get_time_begin() const { return std::get<0>(_duration); }
-    std::tuple<size_t, size_t> get_time_range() const { return _duration; }
-    size_t get_duration() const { return std::get<1>(_duration) - std::get<0>(_duration); }
     std::tuple<QubitIdType, QubitIdType> get_qubits() const { return _qubits; }
 
     size_t get_id() const { return _id; }
@@ -212,7 +208,6 @@ private:
     qcir::GateRotationCategory _operation;
     dvlab::Phase _phase;
     std::tuple<QubitIdType, QubitIdType> _qubits;
-    std::tuple<size_t, size_t> _duration;  // <from, to>
 };
 
 }  // namespace qsyn::device
@@ -234,9 +229,9 @@ struct fmt::formatter<qsyn::device::Operation> {
     template <typename FormatContext>
     auto format(qsyn::device::Operation const& op, FormatContext& ctx) {
         if (op.is_double_qubit_gate()) {
-            return fmt::format_to(ctx.out(), "Operation: {}  Q{} Q{}  duration: {} -- {}", op.get_type_str(), std::get<0>(op.get_qubits()), std::get<1>(op.get_qubits()), op.get_time_begin(), op.get_time_end());
+            return fmt::format_to(ctx.out(), "Operation: {}  Q{} Q{}", op.get_type_str(), std::get<0>(op.get_qubits()), std::get<1>(op.get_qubits()));
         } else {
-            return fmt::format_to(ctx.out(), "Operation: {}  Q{}  duration: {} -- {}", op.get_type_str(), std::get<0>(op.get_qubits()), op.get_time_begin(), op.get_time_end());
+            return fmt::format_to(ctx.out(), "Operation: {}  Q{}", op.get_type_str(), std::get<0>(op.get_qubits()));
         }
     }
 };
