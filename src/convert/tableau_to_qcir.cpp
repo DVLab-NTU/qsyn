@@ -114,7 +114,6 @@ std::optional<qcir::QCir> TParPauliRotationsSynthesisStrategy::synthesize(std::v
     if (rotations.empty()) {
         return qcir::QCir{0};
     }
-    // spdlog::log(spdlog::level::level_enum::off,"Rotatios not empty.");
 
     qcir::QCir qcir{rotations.front().n_qubits()};
     
@@ -170,7 +169,7 @@ std::optional<qcir::QCir> TParPauliRotationsSynthesisStrategy::synthesize(std::v
         add_cx(permutation_map[c], permutation_map[t]);
     }
 
-    // todo: translate to a function
+    // synthesis process
     for (auto const& op : clifford_ops) {
             add_clifford_gate(qcir, op);
     }
