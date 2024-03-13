@@ -10,8 +10,8 @@
 
 #include <spdlog/spdlog.h>
 
-#include "./checker.hpp"
 #include "./placer.hpp"
+#include "duostra/mapping_eqv_checker.hpp"
 #include "qcir/qcir.hpp"
 #include "qsyn/qsyn_type.hpp"
 
@@ -78,15 +78,23 @@ bool Duostra::map(bool use_device_as_placement) {
         return false;
     }
 
+    assert(scheduler->is_sorted());
+    assert(scheduler->get_order().size() == _logical_circuit->get_gates().size());
+    _result = scheduler->get_operations();
+    store_order_info(scheduler->get_order());
+    build_circuit_by_result();
+
     if (_check) {
         if (!_silent) {
             fmt::println("Checking...");
+            fmt::println("");
         }
-        Checker checker(*check_topo, check_device, scheduler->get_operations(), assign, _tqdm);
-        if (!checker.test_operations()) {
+        auto checker = MappingEquivalenceChecker(_physical_circuit.get(), _logical_circuit.get(), check_device);
+        if (!checker.check()) {
             return false;
         }
     }
+
     if (!_silent) {
         fmt::println("Duostra Result: ");
         fmt::println("");
@@ -99,11 +107,6 @@ bool Duostra::map(bool use_device_as_placement) {
         fmt::println("#SWAP:          {}", scheduler->get_num_swaps());
         fmt::println("");
     }
-    assert(scheduler->is_sorted());
-    assert(scheduler->get_order().size() == _logical_circuit->get_gates().size());
-    _result = scheduler->get_operations();
-    store_order_info(scheduler->get_order());
-    build_circuit_by_result();
 
     return true;
 }
