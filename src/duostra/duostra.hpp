@@ -37,7 +37,7 @@ public:
 
     std::unique_ptr<qcir::QCir> const& get_physical_circuit() const { return _physical_circuit; }
     std::unique_ptr<qcir::QCir>&& get_physical_circuit() { return std::move(_physical_circuit); }
-    std::vector<device::Operation> const& get_result() const { return _result; }
+    std::vector<qcir::QCirGate> const& get_result() const { return _result; }
     auto const& get_order() const { return _order; }
     Device get_device() const { return _device; }
 
@@ -55,7 +55,7 @@ private:
     bool _silent;
     std::unique_ptr<BaseScheduler> _scheduler;
     std::shared_ptr<qcir::QCir> _logical_circuit;
-    std::vector<device::Operation> _result;
+    std::vector<qcir::QCirGate> _result;
     std::vector<qcir::QCirGate> _order;
 };
 

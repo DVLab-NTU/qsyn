@@ -223,23 +223,20 @@ void Device::add_adjacency(QubitIdType a, QubitIdType b) {
  *
  * @param op
  */
-void Device::apply_gate(Operation const& op, size_t time_begin) {
+void Device::apply_gate(qcir::QCirGate const& op, size_t time_begin) {
     auto qubits = op.get_qubits();
-    auto& q0    = get_physical_qubit(std::get<0>(qubits));
-    auto& q1    = get_physical_qubit(std::get<1>(qubits));
+    auto& q0    = get_physical_qubit(qubits[0]);
+    auto& q1    = get_physical_qubit(qubits[1]);
 
-    if (op.is_swap()) {
+    if (op.get_operation() == SwapGate{}) {
         auto temp = q0.get_logical_qubit();
         q0.set_logical_qubit(q1.get_logical_qubit());
         q1.set_logical_qubit(temp);
-        q0.set_occupied_time(time_begin + SWAP_DELAY);
-        q1.set_occupied_time(time_begin + SWAP_DELAY);
-    } else if (op.is_cx()) {
-        q0.set_occupied_time(time_begin + DOUBLE_DELAY);
-        q1.set_occupied_time(time_begin + DOUBLE_DELAY);
-    } else if (op.is_cz()) {
-        q0.set_occupied_time(time_begin + DOUBLE_DELAY);
-        q1.set_occupied_time(time_begin + DOUBLE_DELAY);
+        q0.set_occupied_time(time_begin + op.get_delay());
+        q1.set_occupied_time(time_begin + op.get_delay());
+    } else if (op.get_num_qubits() == 2) {
+        q0.set_occupied_time(time_begin + op.get_delay());
+        q1.set_occupied_time(time_begin + op.get_delay());
     } else {
         DVLAB_ASSERT(false, fmt::format("Unknown gate type ({}) at apply_gate()!!", op.get_type_str()));
     }
@@ -811,21 +808,6 @@ void Device::print_status() const {
         fmt::println("{}", qubits[i]);
     }
     fmt::println("");
-}
-
-// SECTION - Class Operation Member Functions
-
-/**
- * @brief Construct a new Operation:: Operation object
- *
- * @param oper
- * @param ph
- * @param qs
- * @param du
- */
-Operation::Operation(GateRotationCategory op, dvlab::Phase ph, std::tuple<size_t, size_t> qubits)
-    : _operation(op), _phase(ph), _qubits(qubits) {
-    assert(std::get<0>(qubits) != std::get<1>(qubits));
 }
 
 }  // namespace qsyn::device

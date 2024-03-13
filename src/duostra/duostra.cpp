@@ -132,15 +132,15 @@ void Duostra::build_circuit_by_result() {
     for (auto const& operation : _result) {
         auto qubits = operation.get_qubits();
         QubitIdList qu;
-        qu.emplace_back(get<0>(qubits));
-        if (get<1>(qubits) != max_qubit_id) {
-            qu.emplace_back(get<1>(qubits));
+        qu.emplace_back(qubits[0]);
+        if (qubits[1] != max_qubit_id) {
+            qu.emplace_back(qubits[1]);
         }
-        if (operation.is_swap()) {
+        if (operation.get_operation() == SwapGate{}) {
             // NOTE - Decompose SWAP into three CX
             QubitIdList qu_reverse;
-            qu_reverse.emplace_back(get<1>(qubits));
-            qu_reverse.emplace_back(get<0>(qubits));
+            qu_reverse.emplace_back(qubits[1]);
+            qu_reverse.emplace_back(qubits[0]);
             _physical_circuit->add_gate("CX", qu, dvlab::Phase(1), true);
             _physical_circuit->add_gate("CX", qu_reverse, dvlab::Phase(1), true);
             _physical_circuit->add_gate("CX", qu, dvlab::Phase(1), true);

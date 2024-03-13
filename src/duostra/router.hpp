@@ -62,10 +62,10 @@ public:
     bool is_executable(qcir::QCirGate const& gate);
 
     // Main Router function
-    device::Operation execute_single(qcir::QCirGate const& gate, GateIdToTime& gate_id_to_time, QubitIdType q);
-    std::vector<device::Operation> duostra_routing(qcir::QCirGate const& gate, GateIdToTime& gate_id_to_time, std::tuple<QubitIdType, QubitIdType> qubit_pair, MinMaxOptionType tie_breaking_strategy);
-    std::vector<device::Operation> apsp_routing(qcir::QCirGate const& gate, GateIdToTime& gate_id_to_time, std::tuple<QubitIdType, QubitIdType> qs, MinMaxOptionType tie_breaking_strategy);
-    std::vector<device::Operation> assign_gate(qcir::QCirGate const& gate, GateIdToTime& gate_id_to_time);
+    qcir::QCirGate execute_single(qcir::QCirGate const& gate, GateIdToTime& gate_id_to_time, QubitIdType q);
+    std::vector<qcir::QCirGate> duostra_routing(qcir::QCirGate const& gate, GateIdToTime& gate_id_to_time, std::tuple<QubitIdType, QubitIdType> qubit_pair, MinMaxOptionType tie_breaking_strategy);
+    std::vector<qcir::QCirGate> apsp_routing(qcir::QCirGate const& gate, GateIdToTime& gate_id_to_time, std::tuple<QubitIdType, QubitIdType> qs, MinMaxOptionType tie_breaking_strategy);
+    std::vector<qcir::QCirGate> assign_gate(qcir::QCirGate const& gate, GateIdToTime& gate_id_to_time);
 
 private:
     MinMaxOptionType _tie_breaking_strategy;
@@ -79,7 +79,7 @@ private:
     std::tuple<QubitIdType, QubitIdType> _get_physical_qubits(qcir::QCirGate const& gate) const;
 
     std::tuple<bool, QubitIdType> _touch_adjacency(PhysicalQubit& qubit, PriorityQueue& pq, bool source);  // return <if touch target, target id>, swtch: false q0 propagate, true q1 propagate
-    std::vector<device::Operation> _traceback(qcir::QCirGate const& gate, GateIdToTime& gate_id_to_time, PhysicalQubit& q0, PhysicalQubit& q1, PhysicalQubit& t0, PhysicalQubit& t1, bool swap_ids);
+    std::vector<qcir::QCirGate> _traceback(qcir::QCirGate const& gate, GateIdToTime& gate_id_to_time, PhysicalQubit& q0, PhysicalQubit& q1, PhysicalQubit& t0, PhysicalQubit& t1, bool swap_ids);
 };
 
 }  // namespace qsyn::duostra
