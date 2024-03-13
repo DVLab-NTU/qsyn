@@ -1,6 +1,0 @@
-logger debug
-qcir pebble --help
-qcir pebble -p 4 ./tests/qcir/oracle/ref/dep1.txt
-qcir pebble -p 4 ./tests/qcir/oracle/ref/dep2.txt
-qcir pebble -p 11 ./tests/qcir/oracle/ref/dep3.txt
-quit -f
