@@ -39,8 +39,8 @@ size_t MULTIPLE_DELAY = 5;
 // }
 
 void QCirGate::set_operation(Operation const& op) {
-    if (op.get_num_qubits() != _operands.size()) {
-        spdlog::error("Operation {} cannot be set with {} qubits!", op.get_type(), _operands.size());
+    if (op.get_num_qubits() != _qubits.size()) {
+        spdlog::error("Operation {} cannot be set with {} qubits!", op.get_type(), _qubits.size());
         return;
     }
     /* temporary : a bunch of case-by-case handling of syncing _operation and legacy members */

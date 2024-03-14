@@ -44,14 +44,6 @@ class QCirGate;
 // │  T, TDG             SWAP                                               │
 // └────────────────────────────────────────────────────────────────────────┘
 
-//------------------------------------------------------------------------
-//   Define classes
-//------------------------------------------------------------------------
-struct QubitInfo {
-    QCirGate* _prev;
-    QCirGate* _next;
-};
-
 class QCirGate {
 public:
     using QubitIdType = qsyn::QubitIdType;
@@ -60,8 +52,7 @@ public:
         : _id(id),
           _operation{op},
           _rotation_category{op.get_underlying<LegacyGateType>().get_rotation_category()},
-          _qubits{std::vector<QubitInfo>(qubits.size(), {nullptr, nullptr})},
-          _operands{std::move(qubits)},
+          _qubits{std::move(qubits)},
           _phase{op.get_underlying<LegacyGateType>().get_phase()} {}
 
     // Basic access method
@@ -70,17 +61,14 @@ public:
     void set_operation(Operation const& op);
     size_t get_id() const { return _id; }
     size_t get_delay() const;
-    QubitIdType get_qubit(size_t pin_id) const { return _operands[pin_id]; }
-    QubitIdList get_qubits() const { return _operands; }
+    QubitIdType get_qubit(size_t pin_id) const { return _qubits[pin_id]; }
+    QubitIdList get_qubits() const { return _qubits; }
     std::optional<size_t> get_pin_by_qubit(QubitIdType qubit) const {
-        auto it = std::find(_operands.begin(), _operands.end(), qubit);
-        if (it == _operands.end()) return std::nullopt;
-        return std::distance(_operands.begin(), it);
+        auto it = std::find(_qubits.begin(), _qubits.end(), qubit);
+        if (it == _qubits.end()) return std::nullopt;
+        return std::distance(_qubits.begin(), it);
     }
-    void set_qubits(QubitIdList const& operands) {
-        _operands = operands;
-        _qubits   = std::vector<QubitInfo>(operands.size(), {nullptr, nullptr});
-    }
+    void set_qubits(QubitIdList const& operands) { _qubits = operands; }
 
     size_t get_num_qubits() const { return _qubits.size(); }
 
@@ -90,10 +78,6 @@ public:
 
     void adjoint();
 
-    /* to be removed in the future */
-    std::vector<QubitInfo> const& legacy_get_qubits() const { return _qubits; }
-    std::vector<QubitInfo>& legacy_get_qubits() { return _qubits; }
-
     GateRotationCategory get_rotation_category() const { return _rotation_category; }
     dvlab::Phase get_phase() const { return _phase; }
 
@@ -102,8 +86,7 @@ protected:
     size_t _id;
     Operation _operation;
     GateRotationCategory _rotation_category;
-    std::vector<QubitInfo> _qubits = {};
-    std::vector<QubitIdType> _operands;
+    std::vector<QubitIdType> _qubits;
     dvlab::Phase _phase;
 
     // void _print_single_qubit_or_controlled_gate(std::string gtype, bool show_rotation = false) const;

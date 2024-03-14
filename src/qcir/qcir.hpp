@@ -14,6 +14,7 @@
 #include <memory>
 #include <span>
 #include <string>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -113,6 +114,8 @@ public:
         std::swap(_qubits, other._qubits);
         std::swap(_gate_list, other._gate_list);
         std::swap(_id_to_gates, other._id_to_gates);
+        std::swap(_predecessors, other._predecessors);
+        std::swap(_successors, other._successors);
     }
 
     friend void swap(QCir& a, QCir& b) noexcept {
@@ -209,16 +212,18 @@ private:
     std::vector<std::string> _procedures;
     std::vector<QCirQubit*> _qubits;
     dvlab::utils::ordered_hashmap<size_t, std::unique_ptr<QCirGate>> _id_to_gates;
+    std::unordered_map<size_t, std::vector<std::optional<size_t>>> _predecessors;
+    std::unordered_map<size_t, std::vector<std::optional<size_t>>> _successors;
 
     std::vector<QCirGate*> mutable _gate_list;  // a cache for topologically ordered gates. This member should not be accessed directly. Instead, use get_gates() to ensure the cache is up-to-date.
     bool mutable _dirty = true;                 // mark if the topological order is dirty
 
     void _update_topological_order() const;
 
-    void _set_predecessor(size_t gate_id, size_t pin, std::optional<size_t> pred = std::nullopt) const;
-    void _set_successor(size_t gate_id, size_t pin, std::optional<size_t> succ = std::nullopt) const;
-    void _set_predecessors(size_t gate_id, std::vector<std::optional<size_t>> const& preds) const;
-    void _set_successors(size_t gate_id, std::vector<std::optional<size_t>> const& succs) const;
+    void _set_predecessor(size_t gate_id, size_t pin, std::optional<size_t> pred = std::nullopt);
+    void _set_successor(size_t gate_id, size_t pin, std::optional<size_t> succ = std::nullopt);
+    void _set_predecessors(size_t gate_id, std::vector<std::optional<size_t>> const& preds);
+    void _set_successors(size_t gate_id, std::vector<std::optional<size_t>> const& succs);
     void _connect(size_t gid1, size_t gid2, QubitIdType qubit);
 };
 

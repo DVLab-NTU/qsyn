@@ -41,6 +41,8 @@ QCir::QCir(QCir const& other) {
     for (auto& gate : other.get_gates()) {
         // We do not call add_gate here because we want to keep the original gate id
         _id_to_gates.emplace(gate->get_id(), std::make_unique<QCirGate>(gate->get_id(), gate->get_operation(), gate->get_qubits()));
+        _predecessors.emplace(gate->get_id(), std::vector<std::optional<size_t>>(gate->get_num_qubits(), std::nullopt));
+        _successors.emplace(gate->get_id(), std::vector<std::optional<size_t>>(gate->get_num_qubits(), std::nullopt));
         auto* new_gate = _id_to_gates.at(gate->get_id()).get();
 
         for (auto const qb : new_gate->get_qubits()) {
@@ -95,14 +97,14 @@ QCirGate* QCir::get_gate(std::optional<size_t> id) const {
  */
 std::optional<size_t> QCir::get_predecessor(std::optional<size_t> gate_id, size_t pin) const {
     if (!gate_id.has_value()) return std::nullopt;
-    if (get_gate(gate_id) == nullptr) {
+    if (!_id_to_gates.contains(*gate_id)) {
         return std::nullopt;
     }
     if (pin >= get_gate(gate_id)->get_num_qubits()) {
         return std::nullopt;
     }
-    auto prev = get_gate(gate_id)->legacy_get_qubits()[pin]._prev;
-    return prev ? std::make_optional(prev->get_id()) : std::nullopt;
+    assert(_predecessors.contains(*gate_id));
+    return _predecessors.at(*gate_id)[pin];
 }
 
 /**
@@ -114,78 +116,64 @@ std::optional<size_t> QCir::get_predecessor(std::optional<size_t> gate_id, size_
  */
 std::optional<size_t> QCir::get_successor(std::optional<size_t> gate_id, size_t pin) const {
     if (!gate_id.has_value()) return std::nullopt;
-    if (get_gate(gate_id) == nullptr) {
+    if (!_id_to_gates.contains(*gate_id)) {
         return std::nullopt;
     }
     if (pin >= get_gate(gate_id)->get_num_qubits()) {
         return std::nullopt;
     }
-    auto next = get_gate(gate_id)->legacy_get_qubits()[pin]._next;
-    return next ? std::make_optional(next->get_id()) : std::nullopt;
+    assert(_successors.contains(*gate_id));
+    return _successors.at(*gate_id)[pin];
 }
 
 std::vector<std::optional<size_t>> QCir::get_predecessors(std::optional<size_t> gate_id) const {
     if (!gate_id.has_value()) return {};
-    if (get_gate(gate_id) == nullptr) {
+    if (!_id_to_gates.contains(*gate_id)) {
         return {};
     }
-    return get_gate(gate_id)->legacy_get_qubits() |
-           std::views::transform([](auto const& q) {
-               return q._prev ? std::make_optional(q._prev->get_id()) : std::nullopt;
-           }) |
-           tl::to<std::vector>();
+    assert(_predecessors.contains(*gate_id));
+    return _predecessors.at(*gate_id);
 }
 
 std::vector<std::optional<size_t>> QCir::get_successors(std::optional<size_t> gate_id) const {
     if (!gate_id.has_value()) return {};
-    if (get_gate(gate_id) == nullptr) {
+    if (!_id_to_gates.contains(*gate_id)) {
         return {};
     }
-    return get_gate(gate_id)->legacy_get_qubits() |
-           std::views::transform([](auto const& q) {
-               return q._next ? std::make_optional(q._next->get_id()) : std::nullopt;
-           }) |
-           tl::to<std::vector>();
+    assert(_successors.contains(*gate_id));
+    return _successors.at(*gate_id);
 }
 
-void QCir::_set_predecessor(size_t gate_id, size_t pin, std::optional<size_t> pred) const {
-    if (get_gate(gate_id) == nullptr) return;
+void QCir::_set_predecessor(size_t gate_id, size_t pin, std::optional<size_t> pred) {
+    if (!_id_to_gates.contains(gate_id)) return;
     if (pin >= get_gate(gate_id)->get_num_qubits()) return;
-    if (!pred.has_value()) {
-        get_gate(gate_id)->legacy_get_qubits()[pin]._prev = nullptr;
-        return;
-    }
-    get_gate(gate_id)->legacy_get_qubits()[pin]._prev = get_gate(pred);
+    assert(_predecessors.contains(gate_id));
+    _predecessors.at(gate_id)[pin] = pred;
 }
 
-void QCir::_set_successor(size_t gate_id, size_t pin, std::optional<size_t> succ) const {
-    if (get_gate(gate_id) == nullptr) return;
+void QCir::_set_successor(size_t gate_id, size_t pin, std::optional<size_t> succ) {
+    if (!_id_to_gates.contains(gate_id)) return;
     if (pin >= get_gate(gate_id)->get_num_qubits()) return;
-    if (!succ.has_value()) {
-        get_gate(gate_id)->legacy_get_qubits()[pin]._next = nullptr;
-        return;
-    }
-    get_gate(gate_id)->legacy_get_qubits()[pin]._next = get_gate(succ);
+    assert(_successors.contains(gate_id));
+    _successors.at(gate_id)[pin] = succ;
 }
 
-void QCir::_set_predecessors(size_t gate_id, std::vector<std::optional<size_t>> const& preds) const {
-    if (get_gate(gate_id) == nullptr) return;
+void QCir::_set_predecessors(size_t gate_id, std::vector<std::optional<size_t>> const& preds) {
+    if (!_id_to_gates.contains(gate_id)) return;
     if (preds.size() != get_gate(gate_id)->get_num_qubits()) return;
-    for (size_t i = 0; i < preds.size(); i++) {
-        get_gate(gate_id)->legacy_get_qubits()[i]._prev = preds[i].has_value() ? get_gate(preds[i]) : nullptr;
-    }
+    assert(_predecessors.contains(gate_id));
+    _predecessors.at(gate_id) = preds;
 }
 
-void QCir::_set_successors(size_t gate_id, std::vector<std::optional<size_t>> const& succs) const {
-    if (get_gate(gate_id) == nullptr) return;
+void QCir::_set_successors(size_t gate_id, std::vector<std::optional<size_t>> const& succs) {
+    if (!_id_to_gates.contains(gate_id)) return;
     if (succs.size() != get_gate(gate_id)->get_num_qubits()) return;
-    for (size_t i = 0; i < succs.size(); i++) {
-        get_gate(gate_id)->legacy_get_qubits()[i]._next = succs[i].has_value() ? get_gate(succs[i]) : nullptr;
-    }
+    assert(_successors.contains(gate_id));
+    _successors.at(gate_id) = succs;
 }
 
 void QCir::_connect(size_t gid1, size_t gid2, QubitIdType qubit) {
-    if (get_gate(gid1) == nullptr || get_gate(gid2) == nullptr) return;
+    if (!_id_to_gates.contains(gid1) || !_id_to_gates.contains(gid2)) return;
     auto pin1 = get_gate(gid1)->get_pin_by_qubit(qubit);
     auto pin2 = get_gate(gid2)->get_pin_by_qubit(qubit);
     if (pin1 == std::nullopt || pin2 == std::nullopt) return;
@@ -329,6 +317,11 @@ QCirGate* QCir::add_gate(std::string type, QubitIdList const& bits, dvlab::Phase
 QCirGate* QCir::append(Operation const& op, QubitIdList const& bits) {
     /* for now, assumes that op is always a legacy gate type */
     _id_to_gates.emplace(_gate_id, std::make_unique<QCirGate>(_gate_id, op, bits));
+    _predecessors.emplace(_gate_id, std::vector<std::optional<size_t>>(bits.size(), std::nullopt));
+    _successors.emplace(_gate_id, std::vector<std::optional<size_t>>(bits.size(), std::nullopt));
+    assert(_id_to_gates.contains(_gate_id));
+    assert(_predecessors.contains(_gate_id));
+    assert(_successors.contains(_gate_id));
     auto* g = _id_to_gates[_gate_id].get();
     _gate_id++;
 
@@ -348,6 +341,11 @@ QCirGate* QCir::append(Operation const& op, QubitIdList const& bits) {
 QCirGate* QCir::prepend(Operation const& op, QubitIdList const& bits) {
     /* for now, assumes that op is always a legacy gate type */
     _id_to_gates.emplace(_gate_id, std::make_unique<QCirGate>(_gate_id, op, bits));
+    _predecessors.emplace(_gate_id, std::vector<std::optional<size_t>>(bits.size(), std::nullopt));
+    _successors.emplace(_gate_id, std::vector<std::optional<size_t>>(bits.size(), std::nullopt));
+    assert(_id_to_gates.contains(_gate_id));
+    assert(_predecessors.contains(_gate_id));
+    assert(_successors.contains(_gate_id));
     auto* g = _id_to_gates[_gate_id].get();
     _gate_id++;
 
@@ -455,7 +453,7 @@ QCirGateStatistics QCir::get_gate_statistics() const {
     if (is_empty()) return stat;
 
     auto analysis_mcr = [&stat](QCirGate* g) -> void {
-        if (g->legacy_get_qubits().size() == 2) {
+        if (g->get_num_qubits() == 2) {
             if (g->get_phase().denominator() == 1) {
                 stat.clifford++;
                 if (g->get_rotation_category() != GateRotationCategory::px || g->get_rotation_category() != GateRotationCategory::rx) stat.clifford += 2;
@@ -466,7 +464,7 @@ QCirGateStatistics QCir::get_gate_statistics() const {
                 stat.tfamily += 3;
             } else
                 stat.nct++;
-        } else if (g->legacy_get_qubits().size() == 1) {
+        } else if (g->get_num_qubits() == 1) {
             if (g->get_phase().denominator() <= 2)
                 stat.clifford++;
             else if (g->get_phase().denominator() == 4)
