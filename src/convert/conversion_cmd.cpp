@@ -61,11 +61,6 @@ Command convert_from_qcir_cmd(
             auto to_zxgraph =
                 subparsers.add_parser("zx")
                     .description("convert from QCir to ZXGraph");
-
-            to_zxgraph.add_argument<size_t>("decomp-mode")
-                .default_value(3)
-                .constraint(valid_decomposition_mode)
-                .help("specify the decomposition mode (default: 3). The higher the number, the more aggressive the decomposition is.");
             auto to_tensor =
                 subparsers.add_parser("tensor")
                     .description("convert from QCir to Tensor");
@@ -78,7 +73,7 @@ Command convert_from_qcir_cmd(
             auto to_type = parser.get<std::string>("to-type");
             if (to_type == "zx") {
                 spdlog::info("Converting to QCir {} to ZXGraph {}...", qcir_mgr.focused_id(), zxgraph_mgr.get_next_id());
-                auto graph = to_zxgraph(*qcir_mgr.get(), parser.get<size_t>("decomp-mode"));
+                auto graph = to_zxgraph(*qcir_mgr.get());
 
                 if (graph.has_value()) {
                     zxgraph_mgr.add(zxgraph_mgr.get_next_id(), std::make_unique<qsyn::zx::ZXGraph>(std::move(graph.value())));

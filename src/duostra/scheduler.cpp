@@ -12,6 +12,7 @@
 #include <cassert>
 
 #include "./duostra.hpp"
+#include "qcir/gate_type.hpp"
 #include "util/util.hpp"
 
 extern bool stop_requested();
@@ -94,7 +95,7 @@ size_t BaseScheduler::get_total_time() const {
  */
 size_t BaseScheduler::get_num_swaps() const {
     return std::ranges::count_if(_operations, [](qcir::QCirGate const& op) {
-        return op.get_rotation_category() == qcir::GateRotationCategory::swap;
+        return op.get_operation() == qcir::SwapGate{};
     });
 }
 

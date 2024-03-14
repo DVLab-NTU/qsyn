@@ -29,15 +29,9 @@ using Qubit2TensorPinMap = std::unordered_map<QubitIdType, std::pair<size_t, siz
 
 using qsyn::tensor::QTensor;
 
-/**
- * @brief Convert gate to tensor
- *
- * @param gate
- * @return std::optional<QTensor<double>>
- */
-std::optional<QTensor<double>> to_tensor(QCirGate* gate) {
-    switch (gate->get_rotation_category()) {
-        // single-qubit gates
+template <>
+std::optional<QTensor<double>> to_tensor(LegacyGateType const& op) {
+    switch (op.get_rotation_category()) {
         case GateRotationCategory::id:
             return QTensor<double>::identity(1);
         case GateRotationCategory::h:
@@ -58,21 +52,31 @@ std::optional<QTensor<double>> to_tensor(QCirGate* gate) {
             return tensor.to_qtensor();
         }
         case GateRotationCategory::pz:
-            return QTensor<double>::control(QTensor<double>::pzgate(gate->get_phase()), gate->get_num_qubits() - 1);
+            return QTensor<double>::control(QTensor<double>::pzgate(op.get_phase()), op.get_num_qubits() - 1);
         case GateRotationCategory::rz:
-            return QTensor<double>::control(QTensor<double>::rzgate(gate->get_phase()), gate->get_num_qubits() - 1);
+            return QTensor<double>::control(QTensor<double>::rzgate(op.get_phase()), op.get_num_qubits() - 1);
         case GateRotationCategory::px:
-            return QTensor<double>::control(QTensor<double>::pxgate(gate->get_phase()), gate->get_num_qubits() - 1);
+            return QTensor<double>::control(QTensor<double>::pxgate(op.get_phase()), op.get_num_qubits() - 1);
         case GateRotationCategory::rx:
-            return QTensor<double>::control(QTensor<double>::rxgate(gate->get_phase()), gate->get_num_qubits() - 1);
+            return QTensor<double>::control(QTensor<double>::rxgate(op.get_phase()), op.get_num_qubits() - 1);
         case GateRotationCategory::py:
-            return QTensor<double>::control(QTensor<double>::pygate(gate->get_phase()), gate->get_num_qubits() - 1);
+            return QTensor<double>::control(QTensor<double>::pygate(op.get_phase()), op.get_num_qubits() - 1);
         case GateRotationCategory::ry:
-            return QTensor<double>::control(QTensor<double>::rygate(gate->get_phase()), gate->get_num_qubits() - 1);
+            return QTensor<double>::control(QTensor<double>::rygate(op.get_phase()), op.get_num_qubits() - 1);
 
         default:
             return std::nullopt;
     }
+}
+
+/**
+ * @brief Convert gate to tensor
+ *
+ * @param gate
+ * @return std::optional<QTensor<double>>
+ */
+std::optional<QTensor<double>> to_tensor(QCirGate const& gate) {
+    return to_tensor(gate.get_operation());
 };
 
 namespace {
@@ -147,7 +151,7 @@ std::optional<QTensor<double>> to_tensor(QCir const& qcir) try {
             return std::nullopt;
         }
         spdlog::debug("Gate {} ({})", gate->get_id(), gate->get_type_str());
-        auto const gate_tensor = to_tensor(gate);
+        auto const gate_tensor = to_tensor(*gate);
         if (!gate_tensor.has_value()) {
             spdlog::error("Conversion of Gate {} ({}) to Tensor is not supported yet!!", gate->get_id(), gate->get_type_str());
             return std::nullopt;

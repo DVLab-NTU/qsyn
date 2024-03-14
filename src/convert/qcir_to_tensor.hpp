@@ -15,7 +15,7 @@ using namespace qsyn::qcir;
 
 namespace qsyn {
 
-std::optional<qsyn::tensor::QTensor<double>> to_tensor(QCirGate* gate);
+std::optional<qsyn::tensor::QTensor<double>> to_tensor(QCirGate const& gate);
 std::optional<qsyn::tensor::QTensor<double>> to_tensor(QCir const& qcir);
 
 }  // namespace qsyn

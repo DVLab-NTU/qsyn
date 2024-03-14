@@ -13,7 +13,7 @@
 
 namespace qsyn {
 
-std::optional<zx::ZXGraph> to_zxgraph(qcir::QCirGate* gate, size_t decomposition_mode = 3);
-std::optional<zx::ZXGraph> to_zxgraph(qcir::QCir const& qcir, size_t decomposition_mode = 3);
+std::optional<zx::ZXGraph> to_zxgraph(qcir::QCirGate const& gate);
+std::optional<zx::ZXGraph> to_zxgraph(qcir::QCir const& qcir);
 
 }  // namespace qsyn

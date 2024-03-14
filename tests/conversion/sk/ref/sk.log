@@ -11,7 +11,7 @@ Q 0  -rx( 0)--ry( 1)--rz( 2)-
 
 qsyn> qcir print --gate 0
 Listed by gate ID
-ID:   0 ( rx)      Time:    1     Qubit:   0       Phase: 601π/651
+0 (t=1): rx(601π/651)   q[0]
 
 qsyn> convert qcir tensor
 

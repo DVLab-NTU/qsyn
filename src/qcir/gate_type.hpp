@@ -19,7 +19,21 @@
 #include <type_traits>
 #include <utility>
 
+#include "qsyn/qsyn_type.hpp"
+#include "tableau/tableau.hpp"
+#include "tensor/qtensor.hpp"
 #include "util/phase.hpp"
+#include "zx/zxgraph.hpp"
+
+namespace qsyn {
+template <typename T>
+std::optional<zx::ZXGraph> to_zxgraph(T const& /* op */) { return std::nullopt; }
+template <typename T>
+std::optional<tensor::QTensor<double>> to_tensor(T const& /* op */) { return std::nullopt; }
+template <typename T>
+bool append_to_tableau(T const& /* op */, experimental::Tableau& /* tableau */, QubitIdList const& /* qubits */) { return false; }
+
+}  // namespace qsyn
 
 namespace qsyn::qcir {
 
@@ -60,6 +74,7 @@ public:
 class Operation;
 
 Operation adjoint(Operation const& op);
+bool is_clifford(Operation const& op);
 
 /**
  * @brief A type-erased interface for a quantum gate.
@@ -88,6 +103,17 @@ public:
     size_t get_num_qubits() const { return _pimpl->do_get_num_qubits(); }
 
     friend Operation adjoint(Operation const& op) { return op._pimpl->do_adjoint(); }
+    friend bool is_clifford(Operation const& op) { return op._pimpl->do_is_clifford(); }
+
+    friend std::optional<zx::ZXGraph> to_zxgraph(Operation const& op) {
+        return op._pimpl->do_to_zxgraph();
+    }
+    friend std::optional<tensor::QTensor<double>> to_tensor(Operation const& op) {
+        return op._pimpl->do_to_tensor();
+    }
+    friend bool append_to_tableau(Operation const& op, experimental::Tableau& tableau, QubitIdList const& qubits) {
+        return op._pimpl->do_append_to_tableau(tableau, qubits);
+    }
 
     bool operator==(Operation const& rhs) const { return get_repr() == rhs.get_repr() && get_num_qubits() == rhs.get_num_qubits(); }
     bool operator!=(Operation const& rhs) const { return !(*this == rhs); }
@@ -110,6 +136,11 @@ private:
         virtual size_t do_get_num_qubits() const = 0;
 
         virtual Operation do_adjoint() const = 0;
+        virtual bool do_is_clifford() const  = 0;
+
+        virtual std::optional<zx::ZXGraph> do_to_zxgraph() const                                           = 0;
+        virtual std::optional<tensor::QTensor<double>> do_to_tensor() const                                = 0;
+        virtual bool do_append_to_tableau(experimental::Tableau& tableau, QubitIdList const& qubits) const = 0;
     };
 
     template <typename T>
@@ -122,6 +153,11 @@ private:
         size_t do_get_num_qubits() const override { return value.get_num_qubits(); }
 
         Operation do_adjoint() const override { return adjoint(value); }
+        bool do_is_clifford() const override { return is_clifford(value); }
+
+        std::optional<zx::ZXGraph> do_to_zxgraph() const override { return qsyn::to_zxgraph(value); }
+        std::optional<tensor::QTensor<double>> do_to_tensor() const override { return qsyn::to_tensor(value); }
+        bool do_append_to_tableau(experimental::Tableau& tableau, QubitIdList const& qubits) const override { return qsyn::append_to_tableau(value, tableau, qubits); }
 
         T value;
     };
@@ -136,7 +172,7 @@ public:
     std::string get_repr() const {
         if (is_fixed_phase_gate(std::get<0>(_type)))
             return get_type();
-        return get_type() + ((get_type().find_first_of("pr") != std::string::npos) ? fmt::format("({})", std::get<2>(_type)->get_ascii_string()) : "");
+        return get_type() + ((get_type().find_first_of("pr") != std::string::npos) ? fmt::format("({})", std::get<2>(_type)->get_print_string()) : "");
     }
     size_t get_num_qubits() const { return std::get<1>(_type).value_or(0); }
 
@@ -149,6 +185,7 @@ private:
 };
 
 Operation adjoint(LegacyGateType const& op);
+bool is_clifford(LegacyGateType const& op);
 
 class HGate {
 public:
@@ -159,6 +196,7 @@ public:
 };
 
 inline Operation adjoint(HGate const& op) { return op; }
+inline bool is_clifford(HGate const& /* op */) { return true; }
 
 class XGate {
 public:
@@ -169,6 +207,7 @@ public:
 };
 
 inline Operation adjoint(XGate const& op) { return op; }
+inline bool is_clifford(XGate const& /* op */) { return true; }
 
 class YGate {
 public:
@@ -179,6 +218,7 @@ public:
 };
 
 inline Operation adjoint(YGate const& op) { return op; }
+inline bool is_clifford(YGate const& /* op */) { return true; }
 
 class ZGate {
 public:
@@ -189,6 +229,7 @@ public:
 };
 
 inline Operation adjoint(ZGate const& op) { return op; }
+inline bool is_clifford(ZGate const& /* op */) { return true; }
 
 class CXGate {
 public:
@@ -199,6 +240,7 @@ public:
 };
 
 inline Operation adjoint(CXGate const& op) { return op; }
+inline bool is_clifford(CXGate const& /* op */) { return true; }
 
 class CYGate {
 public:
@@ -209,6 +251,7 @@ public:
 };
 
 inline Operation adjoint(CYGate const& op) { return op; }
+inline bool is_clifford(CYGate const& /* op */) { return true; }
 
 class CZGate {
 public:
@@ -219,6 +262,7 @@ public:
 };
 
 inline Operation adjoint(CZGate const& op) { return op; }
+inline bool is_clifford(CZGate const& /* op */) { return true; }
 
 class SwapGate {
 public:
@@ -229,6 +273,7 @@ public:
 };
 
 inline Operation adjoint(SwapGate const& op) { return op; }
+inline bool is_clifford(SwapGate const& /* op */) { return true; }
 
 class SGate {
 public:
@@ -248,24 +293,19 @@ public:
 
 inline Operation adjoint(SGate const& /* op */) { return SdgGate{}; }
 inline Operation adjoint(SdgGate const& /* op */) { return SGate{}; }
-
-// class PZGate {
-// public:
-//     PZGate(dvlab::Phase phase) : _phase(phase) {}
-//     std::string get_type() const {
-//         return "pz";
-//     }
-
-//     std::string get_repr() const { return fmt::format("p({})", _phase.get_ascii_string()); }
-//     size_t get_num_qubits() const { return 1; }
-
-//     dvlab::Phase get_phase() const { return _phase; }
-
-// private:
-//     dvlab::Phase _phase;
-// };
+inline bool is_clifford(SGate const& /* op */) { return true; }
+inline bool is_clifford(SdgGate const& /* op */) { return true; }
 
 }  // namespace qsyn::qcir
+
+namespace qsyn {
+template <>
+std::optional<zx::ZXGraph> to_zxgraph(qcir::LegacyGateType const& op);
+template <>
+std::optional<tensor::QTensor<double>> to_tensor(qcir::LegacyGateType const& op);
+template <>
+bool append_to_tableau(qcir::LegacyGateType const& op, experimental::Tableau& tableau, QubitIdList const& qubits);
+}  // namespace qsyn
 
 template <>
 struct fmt::formatter<qsyn::qcir::GateRotationCategory> {

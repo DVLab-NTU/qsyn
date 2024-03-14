@@ -14,6 +14,7 @@
 #include <memory>
 #include <span>
 #include <string>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -58,35 +59,6 @@ inline std::optional<QCirDrawerType> str_to_qcir_drawer_type(std::string const& 
     return std::nullopt;
 }
 
-struct QCirGateStatistics {
-    size_t clifford   = 0;
-    size_t tfamily    = 0;
-    size_t twoqubit   = 0;
-    size_t nct        = 0;
-    size_t h          = 0;
-    size_t h_internal = 0;
-    size_t rz         = 0;
-    size_t z          = 0;
-    size_t s          = 0;
-    size_t sdg        = 0;
-    size_t t          = 0;
-    size_t tdg        = 0;
-    size_t rx         = 0;
-    size_t x          = 0;
-    size_t sx         = 0;
-    size_t ry         = 0;
-    size_t y          = 0;
-    size_t sy         = 0;
-    size_t mcpz       = 0;
-    size_t cz         = 0;
-    size_t ccz        = 0;
-    size_t mcrx       = 0;
-    size_t cx         = 0;
-    size_t ccx        = 0;
-    size_t mcry       = 0;
-    size_t ecr        = 0;
-};
-
 class QCir {  // NOLINT(hicpp-special-member-functions, cppcoreguidelines-special-member-functions) : copy-swap idiom
 public:
     using QubitIdType = qsyn::QubitIdType;
@@ -113,6 +85,8 @@ public:
         std::swap(_qubits, other._qubits);
         std::swap(_gate_list, other._gate_list);
         std::swap(_id_to_gates, other._id_to_gates);
+        std::swap(_predecessors, other._predecessors);
+        std::swap(_successors, other._successors);
     }
 
     friend void swap(QCir& a, QCir& b) noexcept {
@@ -158,8 +132,8 @@ public:
     void add_qubits(size_t num);
     bool remove_qubit(QubitIdType qid);
     QCirGate* add_gate(std::string type, QubitIdList const& bits, dvlab::Phase phase, bool append);
-    QCirGate* append(Operation const& op, QubitIdList const& bits);
-    QCirGate* prepend(Operation const& op, QubitIdList const& bits);
+    size_t append(Operation const& op, QubitIdList const& bits);
+    size_t prepend(Operation const& op, QubitIdList const& bits);
     bool remove_gate(size_t id);
 
     bool read_qcir_file(std::filesystem::path const& filepath);
@@ -175,8 +149,6 @@ public:
     void print_gate_statistics(bool detail = false) const;
 
     void translate(QCir const& qcir, std::string const& gate_set);
-
-    QCirGateStatistics get_gate_statistics() const;
 
     void append(QCir const& other, std::map<QubitIdType, QubitIdType> const& qubit_map = {});
 
@@ -209,20 +181,23 @@ private:
     std::vector<std::string> _procedures;
     std::vector<QCirQubit*> _qubits;
     dvlab::utils::ordered_hashmap<size_t, std::unique_ptr<QCirGate>> _id_to_gates;
+    std::unordered_map<size_t, std::vector<std::optional<size_t>>> _predecessors;
+    std::unordered_map<size_t, std::vector<std::optional<size_t>>> _successors;
 
     std::vector<QCirGate*> mutable _gate_list;  // a cache for topologically ordered gates. This member should not be accessed directly. Instead, use get_gates() to ensure the cache is up-to-date.
     bool mutable _dirty = true;                 // mark if the topological order is dirty
 
     void _update_topological_order() const;
 
-    void _set_predecessor(size_t gate_id, size_t pin, std::optional<size_t> pred = std::nullopt) const;
-    void _set_successor(size_t gate_id, size_t pin, std::optional<size_t> succ = std::nullopt) const;
-    void _set_predecessors(size_t gate_id, std::vector<std::optional<size_t>> const& preds) const;
-    void _set_successors(size_t gate_id, std::vector<std::optional<size_t>> const& succs) const;
+    void _set_predecessor(size_t gate_id, size_t pin, std::optional<size_t> pred = std::nullopt);
+    void _set_successor(size_t gate_id, size_t pin, std::optional<size_t> succ = std::nullopt);
+    void _set_predecessors(size_t gate_id, std::vector<std::optional<size_t>> const& preds);
+    void _set_successors(size_t gate_id, std::vector<std::optional<size_t>> const& succs);
     void _connect(size_t gid1, size_t gid2, QubitIdType qubit);
 };
 
 std::string to_qasm(QCir const& qcir);
+std::unordered_map<std::string, size_t> get_gate_statistics(qcir::QCir const& qcir);
 
 }  // namespace qsyn::qcir
 

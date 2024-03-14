@@ -20,6 +20,25 @@ Operation adjoint(LegacyGateType const& op) {
     return LegacyGateType(std::make_tuple(op.get_rotation_category(), op.get_num_qubits(), -op.get_phase()));
 }
 
+bool is_clifford(LegacyGateType const& op) {
+    switch (op.get_rotation_category()) {
+        case GateRotationCategory::id:
+        case GateRotationCategory::h:
+        case GateRotationCategory::swap:
+        case GateRotationCategory::ecr:
+            return true;
+        case GateRotationCategory::pz:
+        case GateRotationCategory::px:
+        case GateRotationCategory::py:
+        case GateRotationCategory::rz:
+        case GateRotationCategory::rx:
+        case GateRotationCategory::ry:
+            return (op.get_num_qubits() == 1 && op.get_phase().denominator() <= 2) || (op.get_num_qubits() == 2 && op.get_phase().denominator() == 1);
+        default:
+            DVLAB_UNREACHABLE("Invalid rotation category");
+    }
+}
+
 std::optional<GateType> str_to_gate_type(std::string_view str) {
     // Misc
     if (str == "id")

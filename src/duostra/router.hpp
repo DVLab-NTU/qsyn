@@ -73,7 +73,6 @@ private:
     std::vector<QubitIdType> _logical_to_physical;
     bool _apsp : 1;
     bool _duostra : 1;
-    bool _greedy_type : 1;
 
     void _initialize();
     std::tuple<QubitIdType, QubitIdType> _get_physical_qubits(qcir::QCirGate const& gate) const;

@@ -263,7 +263,7 @@ std::vector<std::string> zx_optimize(std::vector<std::string> const& partial) {
             qcir.add_gate(type, QubitIdList{0}, dvlab::Phase(0), true);
     }
 
-    auto zx = to_zxgraph(qcir, 3).value();
+    auto zx = to_zxgraph(qcir).value();
     zx.add_procedure("QC2ZX");
 
     extractor::Extractor ext(&zx, nullptr /*, std::nullopt */);

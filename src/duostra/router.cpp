@@ -52,8 +52,7 @@ Router::Router(Device device, Router::CostStrategyType cost_strategy, MinMaxOpti
       _device(std::move(device)),
       _logical_to_physical({}),
       _apsp(DuostraConfig::ROUTER_TYPE == RouterType::shortest_path || cost_strategy == CostStrategyType::end),
-      _duostra(DuostraConfig::ROUTER_TYPE == RouterType::duostra),
-      _greedy_type(cost_strategy == CostStrategyType::start) {
+      _duostra(DuostraConfig::ROUTER_TYPE == RouterType::duostra) {
     _initialize();
 }
 

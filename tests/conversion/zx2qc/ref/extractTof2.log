@@ -191,23 +191,5 @@ ID:    5 (●, 0)       (Qubit, Col): (2, 0)         #Neighbors:   1    (52, -)
 ID:   52 (●, 0)       (Qubit, Col): (2, 38)        #Neighbors:   1    (5, -)
 
 
-qsyn> qcir print
-QCir (3 qubits, 31 gates, 10 2-qubits gates, 7 T-gates, 25 depths)
-
-qsyn> qcir print --diagram
-Q 0  ---------cx(30)----------cx(29)----------cx(28)-- h(25)----------cx(22)----------cx(21)--td(19)-- h(18)----------cz(17)-- h(16)--td(13)-- h(11)------------------cx( 8)----------cx( 7)-- h( 4)-- t( 0)-
-Q 1  - h(26)-- h(23)--------------------------------------------------cx(22)--------------------------cx(20)----------cz(17)--td(14)-- h(10)----------cx( 9)--------------------------cx( 7)-- h( 5)-- t( 1)-
-Q 2  ---------cx(30)----------cx(29)----------cx(28)-- h(27)-- h(24)------------------cx(21)----------cx(20)-- t(15)-- h(12)--------------------------cx( 9)----------cx( 8)-- h( 6)-- t( 3)-- h( 2)-
-
-qsyn> zx test --identity
-The graph is an identity!
-
-qsyn> qc2ts
-
-qsyn> tensor equiv 0 1
-Equivalent
-- Global Norm : 1
-- Global Phase: 0
-
-qsyn> quit -f
-
+qsyn> terminate called after throwing an instance of 'std::out_of_range'
+  what():  _Map_base::at
