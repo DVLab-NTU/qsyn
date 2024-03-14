@@ -34,7 +34,7 @@ std::vector<int> SolovayKitaev::_adjoint_gate_sequence(std::vector<int> sequence
 }
 
 /**
- * @brief Remove redundant gates, e.g. HH = I and TTTTTTTT = I (Outdated)
+ * @brief Remove redundant gates
  *
  * @param gate_sequence
  */
