@@ -35,9 +35,8 @@ void QCirGate::set_operation(Operation const& op) {
     }
 
     // should be legacy gate type
-    auto legacy        = op.get_underlying<LegacyGateType>();
-    _rotation_category = legacy.get_rotation_category();
-    _phase             = legacy.get_phase();
+    auto legacy = op.get_underlying<LegacyGateType>();
+    _phase      = legacy.get_phase();
 
     _operation = op;
 }

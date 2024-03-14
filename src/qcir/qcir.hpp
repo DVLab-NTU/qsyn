@@ -59,35 +59,6 @@ inline std::optional<QCirDrawerType> str_to_qcir_drawer_type(std::string const& 
     return std::nullopt;
 }
 
-struct QCirGateStatistics {
-    size_t clifford   = 0;
-    size_t tfamily    = 0;
-    size_t twoqubit   = 0;
-    size_t nct        = 0;
-    size_t h          = 0;
-    size_t h_internal = 0;
-    size_t rz         = 0;
-    size_t z          = 0;
-    size_t s          = 0;
-    size_t sdg        = 0;
-    size_t t          = 0;
-    size_t tdg        = 0;
-    size_t rx         = 0;
-    size_t x          = 0;
-    size_t sx         = 0;
-    size_t ry         = 0;
-    size_t y          = 0;
-    size_t sy         = 0;
-    size_t mcpz       = 0;
-    size_t cz         = 0;
-    size_t ccz        = 0;
-    size_t mcrx       = 0;
-    size_t cx         = 0;
-    size_t ccx        = 0;
-    size_t mcry       = 0;
-    size_t ecr        = 0;
-};
-
 class QCir {  // NOLINT(hicpp-special-member-functions, cppcoreguidelines-special-member-functions) : copy-swap idiom
 public:
     using QubitIdType = qsyn::QubitIdType;
@@ -179,8 +150,6 @@ public:
 
     void translate(QCir const& qcir, std::string const& gate_set);
 
-    QCirGateStatistics get_gate_statistics() const;
-
     void append(QCir const& other, std::map<QubitIdType, QubitIdType> const& qubit_map = {});
 
     void update_gate_time() const;
@@ -228,6 +197,7 @@ private:
 };
 
 std::string to_qasm(QCir const& qcir);
+std::unordered_map<std::string, size_t> get_gate_statistics(qcir::QCir const& qcir);
 
 }  // namespace qsyn::qcir
 

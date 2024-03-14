@@ -51,7 +51,6 @@ public:
     QCirGate(size_t id, Operation const& op, QubitIdList qubits)
         : _id(id),
           _operation{op},
-          _rotation_category{op.get_underlying<LegacyGateType>().get_rotation_category()},
           _qubits{std::move(qubits)},
           _phase{op.get_underlying<LegacyGateType>().get_phase()} {}
 
@@ -76,14 +75,12 @@ public:
 
     void adjoint();
 
-    GateRotationCategory get_rotation_category() const { return _rotation_category; }
     dvlab::Phase get_phase() const { return _phase; }
 
 private:
 protected:
     size_t _id;
     Operation _operation;
-    GateRotationCategory _rotation_category;
     std::vector<QubitIdType> _qubits;
     dvlab::Phase _phase;
 
