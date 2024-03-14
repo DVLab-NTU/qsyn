@@ -503,7 +503,7 @@ std::vector<size_t> Optimizer::_compute_stats(QCir const& circuit) {
             two_qubit++;
         } else if (g->get_operation() == HGate{}) {
             had++;
-        } else if (g->get_phase() != dvlab::Phase(1)) {
+        } else if (g->get_operation() != XGate{} && g->get_operation() != ZGate{} && g->get_operation() != YGate{}) {
             non_pauli++;
         }
     }

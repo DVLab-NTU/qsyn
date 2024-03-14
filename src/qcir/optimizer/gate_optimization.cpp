@@ -84,7 +84,8 @@ void Optimizer::_match_z_rotations(QCirGate* gate) {
     }
 
     if (_xs.contains(qubit)) {
-        gate->set_operation(LegacyGateType{std::make_tuple(GateRotationCategory::px, 1, -1 * gate->get_phase())});
+        // since we know that the gate is a single-qubit z-rotation, commuting it with an x gate is equivalent to taking the adjoint of the z-rotation
+        gate->set_operation(adjoint(gate->get_operation()));
     }
     if (gate->get_type_str() == "z") {
         _toggle_element(ElementType::z, qubit);
@@ -94,11 +95,13 @@ void Optimizer::_match_z_rotations(QCirGate* gate) {
     if (_hadamards.contains(qubit)) {
         _add_hadamard(qubit, true);
     }
+    auto const gate_op  = gate->get_operation().get_underlying<LegacyGateType>();
     QCirGate* available = get_available_z_rotation(qubit);
     if (!_availty[qubit] && available) {
         std::erase(_available[qubit], available);
         std::erase(_gates[qubit], available);
-        auto const phase = available->get_phase() + gate->get_phase();
+        auto const available_op = available->get_operation().get_underlying<LegacyGateType>();
+        auto const phase        = available_op.get_phase() + gate_op.get_phase();
         _statistics.FUSE_PHASE++;
         if (phase == dvlab::Phase(1)) {
             _toggle_element(ElementType::z, qubit);
@@ -112,7 +115,7 @@ void Optimizer::_match_z_rotations(QCirGate* gate) {
             _availty[qubit] = false;
             _available[qubit].clear();
         }
-        _add_rotation_gate(qubit, gate->get_phase(), GateRotationCategory::pz);
+        _add_rotation_gate(qubit, gate_op.get_phase(), GateRotationCategory::pz);
     }
 }
 

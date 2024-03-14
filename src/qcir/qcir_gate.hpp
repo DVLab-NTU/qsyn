@@ -51,8 +51,7 @@ public:
     QCirGate(size_t id, Operation const& op, QubitIdList qubits)
         : _id(id),
           _operation{op},
-          _qubits{std::move(qubits)},
-          _phase{op.get_underlying<LegacyGateType>().get_phase()} {}
+          _qubits{std::move(qubits)} {}
 
     // Basic access method
     std::string get_type_str() const { return get_operation().get_type(); }
@@ -75,16 +74,11 @@ public:
 
     void adjoint();
 
-    dvlab::Phase get_phase() const { return _phase; }
-
 private:
 protected:
     size_t _id;
     Operation _operation;
     std::vector<QubitIdType> _qubits;
-    dvlab::Phase _phase;
-
-    // void _print_single_qubit_or_controlled_gate(std::string gtype, bool show_rotation = false) const;
 };
 
 }  // namespace qsyn::qcir

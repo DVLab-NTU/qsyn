@@ -112,19 +112,15 @@ std::vector<QCirGate*> Optimizer::_get_first_layer_gates(QCir& qcir, bool from_l
  * @return modified circuit
  */
 void Optimizer::_fuse_x_phase(QCir& qcir, QCirGate* prev_gate, QCirGate* gate) {
-    auto const phase = prev_gate->get_phase() + gate->get_phase();
+    auto prev_op     = prev_gate->get_operation().get_underlying<LegacyGateType>();
+    auto op          = gate->get_operation().get_underlying<LegacyGateType>();
+    auto const phase = prev_op.get_phase() + op.get_phase();
     if (phase == dvlab::Phase(0)) {
         qcir.remove_gate(prev_gate->get_id());
         return;
     }
-    if (is_single_x_rotation(prev_gate))
-        prev_gate->set_operation(LegacyGateType{std::make_tuple(GateRotationCategory::px, 1, phase)});
-    else {
-        QubitIdList qubit_list;
-        qubit_list.emplace_back(prev_gate->get_qubit(0));
-        qcir.remove_gate(prev_gate->get_id());
-        qcir.add_gate("px", qubit_list, phase, true);
-    }
+
+    prev_gate->set_operation(LegacyGateType{std::make_tuple(GateRotationCategory::px, 1, phase)});
 }
 
 /**
@@ -136,19 +132,14 @@ void Optimizer::_fuse_x_phase(QCir& qcir, QCirGate* prev_gate, QCirGate* gate) {
  * @return modified circuit
  */
 void Optimizer::_fuse_z_phase(QCir& qcir, QCirGate* prev_gate, QCirGate* gate) {
-    auto const phase = prev_gate->get_phase() + gate->get_phase();
+    auto prev_op     = prev_gate->get_operation().get_underlying<LegacyGateType>();
+    auto op          = gate->get_operation().get_underlying<LegacyGateType>();
+    auto const phase = prev_op.get_phase() + op.get_phase();
     if (phase == dvlab::Phase(0)) {
         qcir.remove_gate(prev_gate->get_id());
         return;
     }
-    if (is_single_z_rotation(prev_gate))
-        prev_gate->set_operation(LegacyGateType{std::make_tuple(GateRotationCategory::pz, 1, phase)});
-    else {
-        QubitIdList qubit_list;
-        qubit_list.emplace_back(prev_gate->get_qubit(0));
-        qcir.remove_gate(prev_gate->get_id());
-        qcir.add_gate("p", qubit_list, phase, true);
-    }
+    prev_gate->set_operation(LegacyGateType{std::make_tuple(GateRotationCategory::pz, 1, phase)});
 }
 
 /**
