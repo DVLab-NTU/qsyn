@@ -20,6 +20,13 @@
 #include <utility>
 
 #include "util/phase.hpp"
+#include "zx/zxgraph.hpp"
+
+namespace qsyn {
+template <typename T>
+std::optional<zx::ZXGraph> to_zxgraph(T const& /* op */) { return std::nullopt; }
+
+}  // namespace qsyn
 
 namespace qsyn::qcir {
 
@@ -88,6 +95,7 @@ public:
     size_t get_num_qubits() const { return _pimpl->do_get_num_qubits(); }
 
     friend Operation adjoint(Operation const& op) { return op._pimpl->do_adjoint(); }
+    friend std::optional<zx::ZXGraph> to_zxgraph(Operation const& op) { return op._pimpl->do_to_zxgraph(); }
 
     bool operator==(Operation const& rhs) const { return get_repr() == rhs.get_repr() && get_num_qubits() == rhs.get_num_qubits(); }
     bool operator!=(Operation const& rhs) const { return !(*this == rhs); }
@@ -109,7 +117,8 @@ private:
         virtual std::string do_get_repr() const  = 0;
         virtual size_t do_get_num_qubits() const = 0;
 
-        virtual Operation do_adjoint() const = 0;
+        virtual Operation do_adjoint() const                     = 0;
+        virtual std::optional<zx::ZXGraph> do_to_zxgraph() const = 0;
     };
 
     template <typename T>
@@ -122,6 +131,8 @@ private:
         size_t do_get_num_qubits() const override { return value.get_num_qubits(); }
 
         Operation do_adjoint() const override { return adjoint(value); }
+
+        std::optional<zx::ZXGraph> do_to_zxgraph() const override { return qsyn::to_zxgraph(value); }
 
         T value;
     };
@@ -249,23 +260,12 @@ public:
 inline Operation adjoint(SGate const& /* op */) { return SdgGate{}; }
 inline Operation adjoint(SdgGate const& /* op */) { return SGate{}; }
 
-// class PZGate {
-// public:
-//     PZGate(dvlab::Phase phase) : _phase(phase) {}
-//     std::string get_type() const {
-//         return "pz";
-//     }
-
-//     std::string get_repr() const { return fmt::format("p({})", _phase.get_ascii_string()); }
-//     size_t get_num_qubits() const { return 1; }
-
-//     dvlab::Phase get_phase() const { return _phase; }
-
-// private:
-//     dvlab::Phase _phase;
-// };
-
 }  // namespace qsyn::qcir
+
+namespace qsyn {
+template <>
+std::optional<zx::ZXGraph> to_zxgraph(qcir::LegacyGateType const& op);
+}
 
 template <>
 struct fmt::formatter<qsyn::qcir::GateRotationCategory> {
