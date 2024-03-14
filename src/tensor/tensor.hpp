@@ -100,7 +100,7 @@ public:
     friend double cosine_similarity(Tensor<U> const& t1, Tensor<U> const& t2);
 
     template <typename U>
-    friend double trace_distance(Tensor<U> const& t1, Tensor<U> const& t2);
+    friend typename U::value_type trace_distance(Tensor<U> const& t1, Tensor<U> const& t2);
 
     template <typename U>
     friend Tensor<U> tensordot(Tensor<U> const& t1, Tensor<U> const& t2,
@@ -126,10 +126,14 @@ public:
         return xt::conj(xt::transpose(t._tensor, {1, 0}));
     }
 
-    void sqrt();
+    [[nodiscard]] inline friend Tensor<DT> sqrt(Tensor<DT> const& t) {
+        assert(t.dimension() == 2);
+        return xt::sqrt(t._tensor);
+    }
+
     DT determinant() const;
-    DT trace();
-    auto eigen();
+    DT trace() const;
+    auto eigen() const;
 
     bool tensor_read(std::string const& filepath);
     bool tensor_write(std::string const& filepath);
@@ -264,7 +268,7 @@ Tensor<DT> Tensor<DT>::to_matrix(TensorAxisList const& row_axes, TensorAxisList 
     if (!is_partition(*this, row_axes, col_axes)) {
         throw std::invalid_argument("The two axis lists should partition 0~(n-1).");
     }
-    Tensor<DT> t = xt::transpose(this->_tensor, concat_axis_list(row_axes, col_axes));
+    Tensor<DT> t = xt::transpose(_tensor, concat_axis_list(row_axes, col_axes));
     t._tensor.reshape({int_pow(2, row_axes.size()), int_pow(2, col_axes.size())});
     return t;
 }
@@ -286,7 +290,7 @@ Tensor<U> direct_sum(Tensor<U> const& t1, Tensor<U> const& t2) {
 // Rearrange the element of the tensor to a new shape
 template <typename DT>
 void Tensor<DT>::reshape(TensorShape const& shape) {
-    this->_tensor = this->_tensor.reshape(shape);
+    _tensor = _tensor.reshape(shape);
 }
 
 // Rearrange the order of axes
@@ -302,25 +306,19 @@ void Tensor<DT>::adjoint_inplace() {
 }
 
 template <typename DT>
-void Tensor<DT>::sqrt() {
-    assert(dimension() == 2);
-    _tensor = xt::sqrt(_tensor);
-}
-
-template <typename DT>
 DT Tensor<DT>::determinant() const {
     assert(dimension() == 2);
     return xt::linalg::det(_tensor);
 }
 
 template <typename DT>
-DT Tensor<DT>::trace() {
+DT Tensor<DT>::trace() const {
     assert(dimension() == 2);
     return xt::sum(xt::diagonal(_tensor))();
 }
 
 template <typename DT>
-auto Tensor<DT>::eigen() {
+auto Tensor<DT>::eigen() const {
     return xt::linalg::eig(_tensor);
 }
 
@@ -334,7 +332,7 @@ bool Tensor<DT>::tensor_write(std::string const& filepath) {
     }
     for (size_t row = 0; row < _tensor.shape(0); row++) {
         for (size_t col = 0; col < _tensor.shape(1); col++) {
-            if (xt::imag(this->_tensor(row, col)) >= 0) {
+            if (xt::imag(_tensor(row, col)) >= 0) {
                 fmt::print(out_file, "{}{}+{}j", xt::real(_tensor(row, col)) >= 0 ? " " : "", xt::real(_tensor(row, col)), abs(xt::imag(_tensor(row, col))));
             } else {
                 fmt::print(out_file, "{}{}{}j", xt::real(_tensor(row, col)) >= 0 ? " " : "", xt::real(_tensor(row, col)), xt::imag(_tensor(row, col)));
@@ -366,7 +364,7 @@ bool Tensor<DT>::tensor_read(std::string const& filepath) {
             std::stringstream ww(word);
             using float_type = typename DT::value_type;
             float_type real = 0.0, imag = 0.0;
-            char plus = ' ', i = ' ';
+            char plus{}, i{};
             ww >> real >> plus >> imag >> i;
             if (plus == '-') imag = -imag;
             if (plus == 'j') {
@@ -381,7 +379,7 @@ bool Tensor<DT>::tensor_read(std::string const& filepath) {
         return false;
     }
     const TensorShape shape = {static_cast<size_t>(std::sqrt(data.size())), static_cast<size_t>(std::sqrt(data.size()))};
-    this->_tensor           = xt::adapt(data, shape);
+    _tensor                 = xt::adapt(data, shape);
     return true;
 }
 
@@ -405,12 +403,8 @@ double cosine_similarity(Tensor<U> const& t1, Tensor<U> const& t2) {
 }
 // Calculate the trace distance of two tensors
 template <typename U>
-double trace_distance(Tensor<U> const& t1, Tensor<U> const& t2) {
-    Tensor<U> diff_adjoint = t1 - t2;
-    diff_adjoint.adjoint_inplace();
-    Tensor<U> t1_t2_sqrt = tensor_multiply(diff_adjoint, (t1 - t2));
-    t1_t2_sqrt.sqrt();
-    return (0.5 * t1_t2_sqrt.trace()).real();
+typename U::value_type trace_distance(Tensor<U> const& t1, Tensor<U> const& t2) {
+    return (0.5 * sqrt(tensor_multiply(adjoint(t1 - t2), (t1 - t2))).trace()).real();
 }
 
 // tensor-dot two tensors

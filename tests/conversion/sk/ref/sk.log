@@ -28,7 +28,8 @@ qsyn> sk-decompose -d 8 -r 4
 
 Trace distance: 0.018421
 
-[info]     Decompose tensor into 3014 gates.
+[info]     Remove 1975 redundant gates
+[info]     Decompose tensor into 1039 gates.
 [info]     Successfully created and checked out to QCir 1
 
 qsyn> qcir list

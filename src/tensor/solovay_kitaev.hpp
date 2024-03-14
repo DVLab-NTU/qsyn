@@ -40,28 +40,28 @@ private:
     size_t _depth;
     size_t _recursion;
     BinaryList _binary_list;
-
     QCir _quantum_circuit;
-    template <typename U>
-    std::vector<QTensor<U>> _create_gate_list();
-    template <typename U>
-    QTensor<U> _diagonalize(QTensor<U> u);
 
     template <typename U>
-    QTensor<U> _find_and_insert_closest_u(const std::vector<QTensor<U>>& gate_list, QTensor<U> u, std::vector<int>& output_gate);
+    std::vector<QTensor<U>> _create_gate_list() const;
+    template <typename U>
+    QTensor<U> _diagonalize(const QTensor<U>& u) const;
 
     template <typename U>
-    std::pair<QTensor<U>, QTensor<U>> _group_commutator_decompose(QTensor<U> u);
+    QTensor<U> _find_and_insert_closest_u(const std::vector<QTensor<U>>& gate_list, const QTensor<U>& u, std::vector<int>& output_gate) const;
 
     template <typename U>
-    QTensor<U> _solovay_kitaev_iteration(const std::vector<QTensor<U>>& gate_list, QTensor<U> u, size_t n, std::vector<int>& output_gate);
+    std::pair<QTensor<U>, QTensor<U>> _group_commutator_decompose(const QTensor<U>& u) const;
 
     template <typename U>
-    std::vector<std::complex<U>> _to_bloch(QTensor<U> u);
+    QTensor<U> _solovay_kitaev_iteration(const std::vector<QTensor<U>>& gate_list, const QTensor<U>& u, size_t n, std::vector<int>& output_gate) const;
+
+    template <typename U>
+    std::vector<std::complex<U>> _to_bloch(const QTensor<U>& u) const;
 
     void _init_binary_list();
-    std::vector<int> _adjoint_gate_sequence(std::vector<int> sequence);
-    // void _remove_redundant_gates(std::vector<int>& gate_sequence);
+    std::vector<int> _adjoint_gate_sequence(std::vector<int> sequence) const;
+    void _remove_redundant_gates(std::vector<int>& gate_sequence) const;
     void _save_gates(const std::vector<int>& gate_sequence);
 };
 
@@ -90,7 +90,7 @@ std::optional<QCir> SolovayKitaev::solovay_kitaev_decompose(QTensor<U> const& ma
 
     fmt::println("\nTrace distance: {:.{}f}\n", tr_dist, 6);
 
-    // _remove_redundant_gates(output_gates);
+    _remove_redundant_gates(output_gates);
 
     _save_gates(output_gates);
     return _quantum_circuit;
@@ -109,14 +109,14 @@ std::optional<QCir> SolovayKitaev::solovay_kitaev_decompose(QTensor<U> const& ma
  * @reference https://github.com/qcc4cp/qcc/blob/main/src/solovay_kitaev.py
  */
 template <typename U>
-QTensor<U> SolovayKitaev::_solovay_kitaev_iteration(const std::vector<QTensor<U>>& gate_list, QTensor<U> u, size_t recursion, std::vector<int>& output_gate) {
+QTensor<U> SolovayKitaev::_solovay_kitaev_iteration(const std::vector<QTensor<U>>& gate_list, const QTensor<U>& u, size_t recursion, std::vector<int>& output_gate) const {
     if (recursion == 0) {
         return _find_and_insert_closest_u(gate_list, u, output_gate);
     } else {
         std::vector<int> output_gate_u_prev, output_gate_v_prev, output_gate_w_prev;
         const QTensor<U> u_prev = _solovay_kitaev_iteration(gate_list, u, recursion - 1, output_gate_u_prev);
         const QTensor<U> u_mult = tensor_multiply(u, adjoint(u_prev));
-        const auto& [v, w]      = _group_commutator_decompose(u_mult);
+        auto const& [v, w]      = _group_commutator_decompose(u_mult);
         const QTensor<U> v_prev = _solovay_kitaev_iteration(gate_list, v, recursion - 1, output_gate_v_prev);
         const QTensor<U> w_prev = _solovay_kitaev_iteration(gate_list, w, recursion - 1, output_gate_w_prev);
 
@@ -146,7 +146,7 @@ QTensor<U> SolovayKitaev::_solovay_kitaev_iteration(const std::vector<QTensor<U>
  * @return QTensor<U>
  */
 template <typename U>
-QTensor<U> SolovayKitaev::_find_and_insert_closest_u(const std::vector<QTensor<U>>& gate_list, QTensor<U> u, std::vector<int>& output_gate) {
+QTensor<U> SolovayKitaev::_find_and_insert_closest_u(const std::vector<QTensor<U>>& gate_list, const QTensor<U>& u, std::vector<int>& output_gate) const {
     U min_dist       = 10;
     QTensor<U> min_u = QTensor<U>::identity(1);
 
@@ -174,10 +174,10 @@ QTensor<U> SolovayKitaev::_find_and_insert_closest_u(const std::vector<QTensor<U
  * @reference https://github.com/qcc4cp/qcc/blob/main/src/solovay_kitaev.py
  */
 template <typename U>
-std::pair<QTensor<U>, QTensor<U>> SolovayKitaev::_group_commutator_decompose(QTensor<U> unitary) {
+std::pair<QTensor<U>, QTensor<U>> SolovayKitaev::_group_commutator_decompose(const QTensor<U>& unitary) const {
     assert(unitary.dimension() == 2);
     using namespace std::literals;
-    const auto axis = _to_bloch(unitary);
+    auto const axis = _to_bloch(unitary);
     //  The angle phi comes from eq 10 in 'The Solovay-Kitaev Algorithm' by Dawson, Nielsen.
     const std::complex<U> phi = 2.0 * asin(std::sqrt(std::sqrt(0.5 - 0.5 * cos(axis[3] / 2.0))));
     const QTensor<U> v        = {{cos(phi / 2.0), -1.i * sin(phi / 2.0)}, {-1.i * sin(phi / 2.0), cos(phi / 2.0)}};
@@ -205,7 +205,7 @@ std::pair<QTensor<U>, QTensor<U>> SolovayKitaev::_group_commutator_decompose(QTe
  * @return std::vector<std::complex<U>> [nx, ny, nz, angle]
  */
 template <typename U>
-std::vector<std::complex<U>> SolovayKitaev::_to_bloch(QTensor<U> unitary) {
+std::vector<std::complex<U>> SolovayKitaev::_to_bloch(const QTensor<U>& unitary) const {
     assert(unitary.dimension() == 2);
     using namespace std::literals;
     std::vector<std::complex<U>> axis;
@@ -231,7 +231,7 @@ std::vector<std::complex<U>> SolovayKitaev::_to_bloch(QTensor<U> unitary) {
  * @return QTensor<U>
  */
 template <typename U>
-QTensor<U> SolovayKitaev::_diagonalize(QTensor<U> u) {
+QTensor<U> SolovayKitaev::_diagonalize(const QTensor<U>& u) const {
     return std::get<1>(u.eigen());
 }
 
@@ -242,7 +242,7 @@ QTensor<U> SolovayKitaev::_diagonalize(QTensor<U> u) {
  * @return std::vector<QTensor<U>>
  */
 template <typename U>
-std::vector<QTensor<U>> SolovayKitaev::_create_gate_list() {
+std::vector<QTensor<U>> SolovayKitaev::_create_gate_list() const {
     std::vector<QTensor<U>> gate_list;
     for (const auto& bits : _binary_list) {
         QTensor<U> u = QTensor<U>::identity(1);
