@@ -68,7 +68,7 @@ public:
         if (it == _qubits.end()) return std::nullopt;
         return std::distance(_qubits.begin(), it);
     }
-    void set_qubits(QubitIdList const& operands) { _qubits = operands; }
+    void set_qubits(QubitIdList const& qubits) { _qubits = qubits; }
 
     size_t get_num_qubits() const { return _qubits.size(); }
 
