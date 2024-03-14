@@ -41,22 +41,50 @@ void QCir::print_gates(bool print_neighbors, std::span<size_t> gate_ids) const {
 
     auto const times = calculate_gate_times();
 
+    auto const id_print_width =
+        std::to_string(std::ranges::max(_id_to_gates | std::views::keys)).size();
+    auto const repr_print_width =
+        std::ranges::max(_id_to_gates | std::views::values | std::views::transform([](auto const& gate) { return gate->get_operation().get_repr().size(); }));
+
+    auto const time_print_width =
+        std::to_string(std::ranges::max(times | std::views::values)).size();
+    auto const print_one_gate([&](size_t id) {
+        auto const gate   = get_gate(id);
+        auto const qubits = gate->get_qubits();
+        fmt::println(
+            "{0:>{1}} (t={2:>{3}}): {4:<{5}} {6:>5}",
+            id, id_print_width,
+            times.at(id), time_print_width,
+            gate->get_operation().get_repr(), repr_print_width,
+            fmt::join(qubits |
+                          std::views::transform([](QubitIdType qid) {
+                              return fmt::format("q[{}]", qid);
+                          }),
+                      ", "));
+        // gate->print_gate(times.at(id));
+        if (print_neighbors) {
+            print_predecessors(id);
+            print_successors(id);
+        }
+    });
+
     if (gate_ids.empty()) {
         for (auto const& [id, gate] : _id_to_gates) {
-            gate->print_gate(times.at(id));
+            auto const qubits = gate->get_qubits();
+            print_one_gate(id);
             if (print_neighbors) {
                 print_predecessors(id);
                 print_successors(id);
             }
         }
     } else {
-        for (auto id : gate_ids) {
+        for (auto const id : gate_ids) {
             auto const gate = get_gate(id);
             if (gate == nullptr) {
                 spdlog::error("Gate ID {} not found!!", id);
                 continue;
             }
-            gate->print_gate(times.at(id));
+            print_one_gate(id);
             if (print_neighbors) {
                 print_predecessors(id);
                 print_successors(id);

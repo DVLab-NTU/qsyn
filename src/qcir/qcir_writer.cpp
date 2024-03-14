@@ -11,6 +11,7 @@
 #include <fstream>
 #include <string>
 
+#include "qcir/gate_type.hpp"
 #include "qcir/qcir.hpp"
 #include "qcir/qcir_gate.hpp"
 #include "util/sysdep.hpp"
@@ -99,9 +100,17 @@ std::string to_qasm(QCir const& qcir) {
     qasm += fmt::format("qreg q[{}];\n", qcir.get_num_qubits());
 
     for (auto const* gate : qcir.get_gates()) {
+        using namespace std::literals;
         auto const qubits = gate->get_qubits();
+        auto repr         = gate->get_operation().get_repr();
+        // if encountering "π", replace it with "pi"
+        size_t pos = 0;
+        while ((pos = repr.find("π"s, pos)) != std::string::npos) {
+            repr.replace(pos, "π"s.size(), "pi");
+        }
+
         qasm += fmt::format("{} {};\n",
-                            gate->get_operation().get_repr(),
+                            repr,
                             fmt::join(qubits | std::views::transform([](auto pin) { return fmt::format("q[{}]", pin); }), ", "));
     }
     return qasm;

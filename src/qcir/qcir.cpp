@@ -309,12 +309,13 @@ QCirGate* QCir::add_gate(std::string type, QubitIdList const& bits, dvlab::Phase
         phase = gate_phase.value();
     }
 
-    return append
-               ? this->append(LegacyGateType(std::make_tuple(category, bits.size(), phase)), bits)
-               : this->prepend(LegacyGateType(std::make_tuple(category, bits.size(), phase)), bits);
+    return get_gate(
+        append
+            ? this->append(LegacyGateType(std::make_tuple(category, bits.size(), phase)), bits)
+            : this->prepend(LegacyGateType(std::make_tuple(category, bits.size(), phase)), bits));
 }
 
-QCirGate* QCir::append(Operation const& op, QubitIdList const& bits) {
+size_t QCir::append(Operation const& op, QubitIdList const& bits) {
     /* for now, assumes that op is always a legacy gate type */
     _id_to_gates.emplace(_gate_id, std::make_unique<QCirGate>(_gate_id, op, bits));
     _predecessors.emplace(_gate_id, std::vector<std::optional<size_t>>(bits.size(), std::nullopt));
@@ -335,10 +336,10 @@ QCirGate* QCir::append(Operation const& op, QubitIdList const& bits) {
         target->set_last(g);
     }
     _dirty = true;
-    return g;
+    return g->get_id();
 }
 
-QCirGate* QCir::prepend(Operation const& op, QubitIdList const& bits) {
+size_t QCir::prepend(Operation const& op, QubitIdList const& bits) {
     /* for now, assumes that op is always a legacy gate type */
     _id_to_gates.emplace(_gate_id, std::make_unique<QCirGate>(_gate_id, op, bits));
     _predecessors.emplace(_gate_id, std::vector<std::optional<size_t>>(bits.size(), std::nullopt));
@@ -359,7 +360,7 @@ QCirGate* QCir::prepend(Operation const& op, QubitIdList const& bits) {
         target->set_first(g);
     }
     _dirty = true;
-    return g;
+    return g->get_id();
 }
 
 /**

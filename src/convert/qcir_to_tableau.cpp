@@ -218,22 +218,6 @@ bool append_to_tableau(qcir::LegacyGateType const& op, experimental::Tableau& ta
 namespace experimental {
 
 std::optional<Tableau> to_tableau(qcir::QCir const& qcir) {
-    // // check if all gates are Clifford
-    // auto const is_allowed_clifford = [](qcir::QCirGate const& gate) {
-    //     return gate.get_type_str() == "h" ||
-    //            gate.get_type_str() == "s" ||
-    //            gate.get_type_str() == "sdg" ||
-    //            gate.get_type_str() == "v" ||
-    //            gate.get_type_str() == "vdg" ||
-    //            gate.get_type_str() == "x" ||
-    //            gate.get_type_str() == "y" ||
-    //            gate.get_type_str() == "z" ||
-    //            gate.get_type_str() == "cx" ||
-    //            gate.get_type_str() == "cz" ||
-    //            gate.get_type_str() == "swap" ||
-    //            gate.get_type_str() == "ecr";
-    // };
-
     Tableau result{qcir.get_num_qubits()};
 
     for (auto const& gate : qcir.get_gates()) {

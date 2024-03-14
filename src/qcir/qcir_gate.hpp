@@ -73,8 +73,6 @@ public:
     size_t get_num_qubits() const { return _qubits.size(); }
 
     // Printing functions
-    void print_gate(std::optional<size_t> time) const;
-    // void print_gate_info() const;
 
     void adjoint();
 

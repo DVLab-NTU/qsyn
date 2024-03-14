@@ -75,8 +75,8 @@ std::optional<QTensor<double>> to_tensor(LegacyGateType const& op) {
  * @param gate
  * @return std::optional<QTensor<double>>
  */
-std::optional<QTensor<double>> to_tensor(QCirGate* gate) {
-    return to_tensor(gate->get_operation());
+std::optional<QTensor<double>> to_tensor(QCirGate const& gate) {
+    return to_tensor(gate.get_operation());
 };
 
 namespace {
@@ -151,7 +151,7 @@ std::optional<QTensor<double>> to_tensor(QCir const& qcir) try {
             return std::nullopt;
         }
         spdlog::debug("Gate {} ({})", gate->get_id(), gate->get_type_str());
-        auto const gate_tensor = to_tensor(gate);
+        auto const gate_tensor = to_tensor(*gate);
         if (!gate_tensor.has_value()) {
             spdlog::error("Conversion of Gate {} ({}) to Tensor is not supported yet!!", gate->get_id(), gate->get_type_str());
             return std::nullopt;
