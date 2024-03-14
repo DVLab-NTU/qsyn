@@ -19,6 +19,8 @@
 #include <type_traits>
 #include <utility>
 
+#include "qsyn/qsyn_type.hpp"
+#include "tableau/tableau.hpp"
 #include "tensor/qtensor.hpp"
 #include "util/phase.hpp"
 #include "zx/zxgraph.hpp"
@@ -28,6 +30,8 @@ template <typename T>
 std::optional<zx::ZXGraph> to_zxgraph(T const& /* op */) { return std::nullopt; }
 template <typename T>
 std::optional<tensor::QTensor<double>> to_tensor(T const& /* op */) { return std::nullopt; }
+template <typename T>
+bool append_to_tableau(T const& /* op */, experimental::Tableau& /* tableau */, QubitIdList const& /* qubits */) { return false; }
 
 }  // namespace qsyn
 
@@ -100,6 +104,9 @@ public:
     friend Operation adjoint(Operation const& op) { return op._pimpl->do_adjoint(); }
     friend std::optional<zx::ZXGraph> to_zxgraph(Operation const& op) { return op._pimpl->do_to_zxgraph(); }
     friend std::optional<tensor::QTensor<double>> to_tensor(Operation const& op) { return op._pimpl->do_to_tensor(); }
+    friend bool append_to_tableau(Operation const& op, experimental::Tableau& tableau, QubitIdList const& qubits) {
+        return op._pimpl->do_append_to_tableau(tableau, qubits);
+    }
 
     bool operator==(Operation const& rhs) const { return get_repr() == rhs.get_repr() && get_num_qubits() == rhs.get_num_qubits(); }
     bool operator!=(Operation const& rhs) const { return !(*this == rhs); }
@@ -121,9 +128,10 @@ private:
         virtual std::string do_get_repr() const  = 0;
         virtual size_t do_get_num_qubits() const = 0;
 
-        virtual Operation do_adjoint() const                                = 0;
-        virtual std::optional<zx::ZXGraph> do_to_zxgraph() const            = 0;
-        virtual std::optional<tensor::QTensor<double>> do_to_tensor() const = 0;
+        virtual Operation do_adjoint() const                                                               = 0;
+        virtual std::optional<zx::ZXGraph> do_to_zxgraph() const                                           = 0;
+        virtual std::optional<tensor::QTensor<double>> do_to_tensor() const                                = 0;
+        virtual bool do_append_to_tableau(experimental::Tableau& tableau, QubitIdList const& qubits) const = 0;
     };
 
     template <typename T>
@@ -139,6 +147,7 @@ private:
 
         std::optional<zx::ZXGraph> do_to_zxgraph() const override { return qsyn::to_zxgraph(value); }
         std::optional<tensor::QTensor<double>> do_to_tensor() const override { return qsyn::to_tensor(value); }
+        bool do_append_to_tableau(experimental::Tableau& tableau, QubitIdList const& qubits) const override { return qsyn::append_to_tableau(value, tableau, qubits); }
 
         T value;
     };
@@ -273,6 +282,8 @@ template <>
 std::optional<zx::ZXGraph> to_zxgraph(qcir::LegacyGateType const& op);
 template <>
 std::optional<tensor::QTensor<double>> to_tensor(qcir::LegacyGateType const& op);
+template <>
+bool append_to_tableau(qcir::LegacyGateType const& op, experimental::Tableau& tableau, QubitIdList const& qubits);
 }  // namespace qsyn
 
 template <>
