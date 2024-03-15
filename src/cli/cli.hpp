@@ -40,7 +40,7 @@ struct HeterogenousStringHash {
 
 class CommandLineInterface;
 
-// intentially not using enum class because it is used as the return value of main
+// intentionally not using enum class because it is used as the return value of main
 enum CmdExecResult : int {
     done          = EXIT_SUCCESS,
     error         = EXIT_FAILURE,
@@ -200,7 +200,7 @@ private:
     // retiring the use of _cli_level in favor of environment
     size_t _cli_level = 0;
     // CLI environment variables
-    // the following are the variables that may be overriden by in scripts
+    // the following are the variables that may be overridden by in scripts
     dvlab::utils::Trie _identifiers;
     struct Environment {
         std::vector<HistoryEntry> _history;

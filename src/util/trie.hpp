@@ -52,20 +52,20 @@ public:
 };
 
 template <typename It>
-concept string_retrivable = requires {
+concept string_retrievable = requires {
     requires std::input_iterator<It>;
     requires std::convertible_to<typename std::iterator_traits<It>::value_type, std::string>;
 };
 
-static_assert(string_retrivable<std::vector<std::string>::iterator>);
-static_assert(string_retrivable<std::vector<std::string>::const_iterator>);
+static_assert(string_retrievable<std::vector<std::string>::iterator>);
+static_assert(string_retrievable<std::vector<std::string>::const_iterator>);
 
 class Trie {  // NOLINT(hicpp-special-member-functions, cppcoreguidelines-special-member-functions) : copy-swap idiom
 public:
     Trie() : _root(std::make_unique<TrieNode>()) {}
 
     template <typename InputIt>
-    requires string_retrivable<InputIt>
+    requires string_retrievable<InputIt>
     Trie(InputIt first, InputIt last) : _root(std::make_unique<TrieNode>()) {
         for (; first != last; ++first) {
             insert(*first);

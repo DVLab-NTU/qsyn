@@ -29,7 +29,7 @@ namespace qsyn::zx {
 
 bool valid_partition_reduce_partitions(size_t const& n_parts) {
     if (n_parts > 0) return true;
-    spdlog::error("The paritions parameter in partition reduce should be greater than 0");
+    spdlog::error("The partitions parameter in partition reduce should be greater than 0");
     return false;
 };
 

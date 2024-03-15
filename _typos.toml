@@ -1,0 +1,10 @@
+[default]
+extend-ignore-identifiers-re = []
+
+[default.extend-identifiers]
+
+[default.extend-words]
+# ket represents a quantum state in quantum computing
+ket = "ket"
+# tabl always represents a tableau in qsyn
+tabl = "tabl"
