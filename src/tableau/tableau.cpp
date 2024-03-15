@@ -22,7 +22,7 @@ auto Tableau::n_qubits() const -> size_t {
         _subtableaux.front());
 }
 
-Tableau& Tableau::h(size_t qubit) {
+Tableau& Tableau::h(size_t qubit) noexcept {
     for (auto& subtableau : _subtableaux | std::views::reverse) {
         std::visit(
             dvlab::overloaded(
@@ -37,7 +37,7 @@ Tableau& Tableau::h(size_t qubit) {
     return *this;
 }
 
-Tableau& Tableau::s(size_t qubit) {
+Tableau& Tableau::s(size_t qubit) noexcept {
     for (auto& subtableau : _subtableaux | std::views::reverse) {
         std::visit(
             dvlab::overloaded(
@@ -52,7 +52,7 @@ Tableau& Tableau::s(size_t qubit) {
     return *this;
 }
 
-Tableau& Tableau::cx(size_t control, size_t target) {
+Tableau& Tableau::cx(size_t control, size_t target) noexcept {
     for (auto& subtableau : _subtableaux | std::views::reverse) {
         std::visit(
             dvlab::overloaded(

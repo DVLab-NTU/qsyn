@@ -10,12 +10,9 @@
 #include <cstddef>
 #include <string>
 #include <tl/to.hpp>
-#include <tuple>
-#include <unordered_map>
 
 #include "qcir/gate_type.hpp"
 #include "qsyn/qsyn_type.hpp"
-#include "util/phase.hpp"
 
 namespace qsyn::qcir {
 

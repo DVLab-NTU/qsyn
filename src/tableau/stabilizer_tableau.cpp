@@ -38,19 +38,19 @@ std::string StabilizerTableau::to_bit_string() const {
     return ret;
 }
 
-StabilizerTableau& StabilizerTableau::h(size_t qubit) {
+StabilizerTableau& StabilizerTableau::h(size_t qubit) noexcept {
     if (qubit >= n_qubits()) return *this;
     std::ranges::for_each(_stabilizers, [qubit](PauliProduct& p) { p.h(qubit); });
     return *this;
 }
 
-StabilizerTableau& StabilizerTableau::s(size_t qubit) {
+StabilizerTableau& StabilizerTableau::s(size_t qubit) noexcept {
     if (qubit >= n_qubits()) return *this;
     std::ranges::for_each(_stabilizers, [qubit](PauliProduct& p) { p.s(qubit); });
     return *this;
 }
 
-StabilizerTableau& StabilizerTableau::cx(size_t ctrl, size_t targ) {
+StabilizerTableau& StabilizerTableau::cx(size_t ctrl, size_t targ) noexcept {
     if (ctrl >= n_qubits() || targ >= n_qubits()) return *this;
     std::ranges::for_each(_stabilizers, [ctrl, targ](PauliProduct& p) { p.cx(ctrl, targ); });
     return *this;

@@ -9,14 +9,10 @@
 
 #include <fmt/core.h>
 
-#include <cstdint>
-#include <functional>
 #include <gsl/narrow>
-#include <iosfwd>
 #include <memory>
 #include <optional>
 #include <string>
-#include <type_traits>
 #include <utility>
 
 #include "qsyn/qsyn_type.hpp"
@@ -139,7 +135,7 @@ private:
 
     template <typename T>
     struct Model : Concept {
-        Model(T&& value) : value(std::forward<T>(value)) {}
+        Model(T value) : value(std::forward<T>(value)) {}
         std::unique_ptr<Concept> clone() override { return std::make_unique<Model>(*this); }
 
         std::string do_get_type() const override { return value.get_type(); }
