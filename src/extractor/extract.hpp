@@ -44,7 +44,7 @@ public:
     // using Device      = duostra::Duostra::Device;
     // using Operation   = duostra::Duostra::Operation;
 
-    Extractor(zx::ZXGraph* g, qcir::QCir* c = nullptr /*, std::optional<Device> const& d = std::nullopt */);
+    Extractor(zx::ZXGraph* g, bool r, qcir::QCir* c = nullptr /*, std::optional<Device> const& d = std::nullopt */);
 
     // bool to_physical() { return _device.has_value(); }
     qcir::QCir* get_logical() { return _logical_circuit; }
@@ -83,7 +83,9 @@ public:
 private:
     size_t _num_cx_iterations = 0;
     zx::ZXGraph* _graph;
+    bool _random;
     qcir::QCir* _logical_circuit;
+
     // qcir::QCir* _physical_circuit;
     // std::optional<Device> _device;
     // std::optional<Device> _device_backup;

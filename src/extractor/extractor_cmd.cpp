@@ -176,7 +176,7 @@ dvlab::Command extraction_print_cmd(ZXGraphMgr& zxgraph_mgr) {
                     spdlog::error("ZXGraph {} is not extractable because it is not graph-like!!", zxgraph_mgr.focused_id());
                     return CmdExecResult::error;
                 }
-                Extractor ext(zxgraph_mgr.get());
+                Extractor ext(zxgraph_mgr.get(), false);
                 if (parser.parsed("--frontier")) {
                     ext.print_frontier();
                 } else if (parser.parsed("--neighbors")) {

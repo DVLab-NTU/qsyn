@@ -44,7 +44,8 @@ size_t OPTIMIZE_LEVEL     = 2;
  * @param c
  * @param d
  */
-Extractor::Extractor(ZXGraph* g, QCir* c /*, std::optional<Device> const& d*/) : _graph(g), _logical_circuit{c ? c : new QCir()} /* ,_physical_circuit{to_physical() ? new QCir() : nullptr}, _device(d), _device_backup(d) */ {
+Extractor::Extractor(ZXGraph* g, bool r, QCir* c /*, std::optional<Device> const& d*/) : _graph(g), _random(r), _logical_circuit{c ? c : new QCir()} /* ,_physical_circuit{to_physical() ? new QCir() : nullptr}, _device(d), _device_backup(d) */ {
+    spdlog::error("Random: {}", r);
     initialize(c == nullptr);
 }
 
@@ -380,9 +381,12 @@ bool Extractor::remove_gadget(bool check) {
     for(const auto& v: _neighbors) {
         shuffle_neighbors.push_back(v);
     }
-    std::random_device rd1;
-    std::mt19937 g1(rd1());
-    std::shuffle(std::begin(shuffle_neighbors), std::end(shuffle_neighbors), g1);
+
+    if(_random){
+        std::random_device rd1;
+        std::mt19937 g1(rd1());
+        std::shuffle(std::begin(shuffle_neighbors), std::end(shuffle_neighbors), g1);
+    }
 
     // std::vector<ZXVertex*> shuffle_frontier;
     // for(const auto& v: _frontier) {

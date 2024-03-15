@@ -266,7 +266,7 @@ std::vector<std::string> zx_optimize(std::vector<std::string> const& partial) {
     auto zx = to_zxgraph(qcir).value();
     zx.add_procedure("QC2ZX");
 
-    extractor::Extractor ext(&zx, nullptr /*, std::nullopt */);
+    extractor::Extractor ext(&zx, false, nullptr /*, std::nullopt */);
     QCir* result = ext.extract();
 
     auto const gate_list = result->get_gates();
