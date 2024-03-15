@@ -321,11 +321,33 @@ ZXGraph create_ry_zx_form(dvlab::Phase const& ph) {
 }  // namespace
 
 template <>
+std::optional<ZXGraph> to_zxgraph(qcir::IdGate const& /* op */) {
+    ZXGraph g;
+    ZXVertex* in  = g.add_input(0);
+    ZXVertex* out = g.add_output(0);
+    g.add_edge(in, out, EdgeType::simple);
+    return g;
+}
+
+template <>
+std::optional<ZXGraph> to_zxgraph(qcir::HGate const& /* op */) {
+    return create_single_vertex_zx_form(VertexType::h_box, dvlab::Phase(1));
+}
+
+template <>
+std::optional<ZXGraph> to_zxgraph(qcir::SwapGate const& /* op */) {
+    return create_swap_zx_form();
+}
+
+template <>
+std::optional<ZXGraph> to_zxgraph(qcir::ECRGate const& /* op */) {
+    return create_ecr_zx_form();
+}
+
+template <>
 std::optional<ZXGraph> to_zxgraph(qcir::LegacyGateType const& op) {
     switch (op.get_rotation_category()) {
         // single-qubit gates
-        case GateRotationCategory::h:
-            return create_single_vertex_zx_form(VertexType::h_box, op.get_phase());
         case GateRotationCategory::rz:
             if (op.get_num_qubits() == 1) {
                 return create_single_vertex_zx_form(VertexType::z, op.get_phase());
@@ -344,13 +366,6 @@ std::optional<ZXGraph> to_zxgraph(qcir::LegacyGateType const& op) {
             } else {
                 return create_mcr_zx_form(op.get_num_qubits(), op.get_phase(), RotationAxis::y);
             }
-        // multi-qubit gates
-        case GateRotationCategory::swap:
-            return create_swap_zx_form();
-
-        case GateRotationCategory::ecr:
-            return create_ecr_zx_form();
-
         case GateRotationCategory::pz:
             if (op.get_num_qubits() == 1) {
                 return create_single_vertex_zx_form(VertexType::z, op.get_phase());

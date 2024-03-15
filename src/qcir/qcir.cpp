@@ -490,7 +490,7 @@ std::unordered_map<std::string, size_t> get_gate_statistics(QCir const& qcir) {
     auto internal_h_count = std::ranges::count_if(
         qcir.get_gates(),
         [&](QCirGate* g) {
-            return g->get_type_str() == "h" && not_final.contains(g) && not_initial.contains(g);
+            return g->get_operation() == HGate() && not_final.contains(g) && not_initial.contains(g);
         });
     if (internal_h_count > 0) {
         gate_counts["h-internal"] = internal_h_count;

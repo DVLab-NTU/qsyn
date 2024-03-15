@@ -125,7 +125,7 @@ private:
     }
 
     inline QCirGate* _store_h(QubitIdType qubit) {
-        _storage.emplace_back(std::make_unique<QCirGate>(_storage.size(), LegacyGateType(std::make_tuple(GateRotationCategory::h, 1, dvlab::Phase(1))), QubitIdList{qubit}));
+        _storage.emplace_back(std::make_unique<QCirGate>(_storage.size(), HGate(), QubitIdList{qubit}));
         return _storage.back().get();
     }
 

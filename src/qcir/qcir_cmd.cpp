@@ -20,6 +20,7 @@
 #include "argparse/arg_parser.hpp"
 #include "argparse/arg_type.hpp"
 #include "cli/cli.hpp"
+#include "qcir/gate_type.hpp"
 #include "qcir/qcir.hpp"
 #include "qcir/qcir_mgr.hpp"
 #include "util/cin_cout_cerr.hpp"
@@ -405,8 +406,7 @@ dvlab::Command qcir_gate_add_cmd(QCirMgr& qcir_mgr) {
                 }
             }
             parser.add_argument<std::string>("type")
-                .help(type_help)
-                .constraint(choices_allow_prefix(type_choices));
+                .help(type_help);
 
             auto append_or_prepend = parser.add_mutually_exclusive_group().required(false);
             append_or_prepend.add_argument<bool>("--append")
@@ -430,6 +430,28 @@ dvlab::Command qcir_gate_add_cmd(QCirMgr& qcir_mgr) {
 
             auto type = parser.get<std::string>("type");
             type      = dvlab::str::tolower_string(type);
+            auto bits = parser.get<QubitIdList>("qubits");
+
+            if (!parser.parsed("--phase")) {
+                auto op = str_to_operation(type);
+                if (op.has_value()) {
+                    // if (bits.size() != op->get_num_qubits()) {
+                    //     spdlog::error("{} gate must be applied on exactly {} qubits!!", op->get_type(), op->get_num_qubits());
+                    //     return CmdExecResult::error;
+                    // }
+                    if (bits.size() < op->get_num_qubits()) {
+                        spdlog::error("Too few qubits are supplied for gate {}!!", type);
+                        return CmdExecResult::error;
+                    } else if (bits.size() > op->get_num_qubits()) {
+                        spdlog::error("Too many qubits are supplied for gate {}!!", type);
+                        return CmdExecResult::error;
+                    }
+                    do_prepend
+                        ? qcir_mgr.get()->prepend(*op, bits)
+                        : qcir_mgr.get()->append(*op, bits);
+                    return CmdExecResult::done;
+                }
+            }
 
             auto is_gate_category = [&](auto& category) {
                 return any_of(category.begin(), category.end(),
@@ -450,8 +472,6 @@ dvlab::Command qcir_gate_add_cmd(QCirMgr& qcir_mgr) {
                 spdlog::error("Phase is incompatible with gate type {}!!", type);
                 return CmdExecResult::error;
             }
-
-            auto bits = parser.get<QubitIdList>("qubits");
 
             if (is_gate_category(single_qubit_gates_no_phase) ||
                 is_gate_category(single_qubit_gates_with_phase)) {

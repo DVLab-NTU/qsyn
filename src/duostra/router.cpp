@@ -278,13 +278,13 @@ std::vector<qcir::QCirGate> Router::apsp_routing(qcir::QCirGate const& gate, Gat
         if ((q0_cost < q1_cost) || ((q0_cost == q1_cost) && (tie_breaking_strategy == MinMaxOptionType::min) &&
                                     _device.get_physical_qubit(q0_id).get_logical_qubit() <
                                         _device.get_physical_qubit(q1_id).get_logical_qubit())) {
-            auto op = qcir::QCirGate(gate_id_to_time.size(), LegacyGateType{std::make_tuple(GateRotationCategory::swap, 2, dvlab::Phase(0))}, QubitIdList{q0_id, q0_next});
+            auto op = qcir::QCirGate(gate_id_to_time.size(), SwapGate{}, QubitIdList{q0_id, q0_next});
             gate_id_to_time.emplace(op.get_id(), std::make_pair(q0_cost, q0_cost + SWAP_DELAY));
             operation_list.emplace_back(std::move(op));
             _device.apply_gate(op, q0_cost);
             q0_id = q0_next;
         } else {
-            auto op = qcir::QCirGate(gate_id_to_time.size(), LegacyGateType{std::make_tuple(GateRotationCategory::swap, 2, dvlab::Phase(0))}, QubitIdList{q1_id, q1_next});
+            auto op = qcir::QCirGate(gate_id_to_time.size(), SwapGate{}, QubitIdList{q1_id, q1_next});
             gate_id_to_time.emplace(op.get_id(), std::make_pair(q0_cost, q0_cost + SWAP_DELAY));
             _device.apply_gate(op, q0_cost);
             operation_list.emplace_back(std::move(op));
@@ -380,7 +380,7 @@ std::vector<qcir::QCirGate> Router::_traceback(qcir::QCirGate const& gate, GateI
         auto const trace_pred0 = q_trace0.get_predecessor();
 
         auto const swap_time = q_trace0.get_swap_time();
-        auto op              = qcir::QCirGate(gate_id_to_time.size(), LegacyGateType(std::make_tuple(GateRotationCategory::swap, 2, Phase(0))), QubitIdList{trace0, trace_pred0});
+        auto op              = qcir::QCirGate(gate_id_to_time.size(), SwapGate{}, QubitIdList{trace0, trace_pred0});
         gate_id_to_time.emplace(op.get_id(), std::make_pair(swap_time, swap_time + SWAP_DELAY));
         operation_list.emplace_back(std::move(op));
         trace0 = trace_pred0;
@@ -391,7 +391,7 @@ std::vector<qcir::QCirGate> Router::_traceback(qcir::QCirGate const& gate, GateI
         auto const trace_pred1 = q_trace1.get_predecessor();
 
         auto const swap_time = q_trace1.get_swap_time();
-        auto op              = qcir::QCirGate(gate_id_to_time.size(), LegacyGateType(std::make_tuple(GateRotationCategory::swap, 2, Phase(0))), QubitIdList{trace1, trace_pred1});
+        auto op              = qcir::QCirGate(gate_id_to_time.size(), SwapGate{}, QubitIdList{trace1, trace_pred1});
         gate_id_to_time.emplace(op.get_id(), std::make_pair(swap_time, swap_time + SWAP_DELAY));
         operation_list.emplace_back(std::move(op));
         trace1 = trace_pred1;

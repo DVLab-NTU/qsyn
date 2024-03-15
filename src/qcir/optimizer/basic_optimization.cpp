@@ -167,7 +167,7 @@ QCir Optimizer::_parse_once(QCir const& qcir, bool reversed, bool do_minimize_cz
 bool Optimizer::parse_gate(QCirGate* gate, bool do_swap, bool minimize_czs) {
     _permute_gates(gate);
 
-    if (gate->get_operation() == HGate{}) {
+    if (gate->get_operation() == HGate()) {
         _match_hadamards(gate);
         return true;
     }
@@ -501,9 +501,9 @@ std::vector<size_t> Optimizer::_compute_stats(QCir const& circuit) {
     for (auto const& g : circuit.get_gates()) {
         if (g->get_operation() == CXGate{} || g->get_operation() == CZGate{}) {
             two_qubit++;
-        } else if (g->get_operation() == HGate{}) {
+        } else if (g->get_operation() == HGate()) {
             had++;
-        } else if (g->get_operation() != XGate{} && g->get_operation() != ZGate{} && g->get_operation() != YGate{}) {
+        } else if (g->get_operation() != XGate{} && g->get_operation() != ZGate() && g->get_operation() != YGate{}) {
             non_pauli++;
         }
     }

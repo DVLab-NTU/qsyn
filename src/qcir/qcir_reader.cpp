@@ -12,6 +12,7 @@
 #include <fstream>
 #include <string>
 
+#include "qcir/gate_type.hpp"
 #include "qcir/qcir.hpp"
 #include "util/dvlab_string.hpp"
 #include "util/phase.hpp"
@@ -114,6 +115,11 @@ bool QCir::read_qasm(std::filesystem::path const& filepath) {
             }
             qubit_ids.emplace_back(qubit_id_num.value());
             n = str_get_token(str, token, n, ',');
+        }
+
+        if (auto op = str_to_operation(type); op.has_value()) {
+            append(*op, qubit_ids);
+            continue;
         }
 
         auto phase = dvlab::Phase::from_string(phase_str);
@@ -265,6 +271,10 @@ bool QCir::read_qsim(std::filesystem::path const& filepath) {
             str_get_token(line, qubit_id, pos);
             qubit_ids.emplace_back(stoul(qubit_id));
             // FIXME - pass in the correct phase
+            if (auto op = str_to_operation(type); op.has_value()) {
+                append(*op, qubit_ids);
+                continue;
+            }
             add_gate(type, qubit_ids, dvlab::Phase(0), true);
         } else {
             spdlog::error("Gate type {} is not supported!!", type);

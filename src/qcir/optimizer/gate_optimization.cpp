@@ -22,7 +22,7 @@ void Optimizer::_permute_gates(QCirGate* gate) {
 }
 
 void Optimizer::_match_hadamards(QCirGate* gate) {
-    assert(gate->get_operation() == HGate{});
+    assert(gate->get_operation() == HGate());
     auto qubit = gate->get_qubit(0);
 
     if (_xs.contains(qubit) && !_zs.contains(qubit)) {
@@ -37,16 +37,16 @@ void Optimizer::_match_hadamards(QCirGate* gate) {
     }
     // NOTE - H-S-H to Sdg-H-Sdg
     if (_gates[qubit].size() > 1 &&
-        _gates[qubit][_gates[qubit].size() - 2]->get_operation() == HGate{}) {
+        _gates[qubit][_gates[qubit].size() - 2]->get_operation() == HGate()) {
         auto g2 = _gates[qubit].back();
-        if (g2->get_operation() == SGate{}) {
+        if (g2->get_operation() == SGate()) {
             _statistics.HS_EXCHANGE++;
             spdlog::trace("Transform H-S-H into Sdg-H-Sdg");
             auto zp = _store_sdg(qubit);
             g2->set_operation(LegacyGateType(std::make_tuple(GateRotationCategory::pz, 1, Phase(-1, 2))));  // NOTE - S to Sdg
             _gates[qubit].insert(_gates[qubit].end() - 2, zp);
             return;
-        } else if (g2->get_operation() == SdgGate{}) {
+        } else if (g2->get_operation() == SdgGate()) {
             _statistics.HS_EXCHANGE++;
             spdlog::trace("Transform H-S-H into Sdg-H-Sdg");
             auto zp = _store_s(qubit);

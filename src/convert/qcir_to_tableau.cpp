@@ -17,6 +17,7 @@
 #include "qcir/gate_type.hpp"
 #include "qcir/qcir_gate.hpp"
 #include "qsyn/qsyn_type.hpp"
+#include "tableau/tableau.hpp"
 #include "util/phase.hpp"
 #include "util/util.hpp"
 
@@ -184,10 +185,31 @@ void implement_rotation_gate(Tableau& tableau, qcir::LegacyGateType const& gate,
 }  // namespace experimental
 
 template <>
+bool append_to_tableau(qcir::IdGate const& /* op*/, experimental::Tableau& /* tableau */, QubitIdList const& /* qubits */) {
+    return true;
+}
+
+template <>
+bool append_to_tableau(qcir::HGate const& /* op */, experimental::Tableau& tableau, QubitIdList const& qubits) {
+    tableau.h(qubits[0]);
+    return true;
+}
+
+template <>
+bool append_to_tableau(qcir::SwapGate const& /* op */, experimental::Tableau& tableau, QubitIdList const& qubits) {
+    tableau.swap(qubits[0], qubits[1]);
+    return true;
+}
+
+template <>
+bool append_to_tableau(qcir::ECRGate const& /* op */, experimental::Tableau& tableau, QubitIdList const& qubits) {
+    tableau.ecr(qubits[0], qubits[1]);
+    return true;
+}
+
+template <>
 bool append_to_tableau(qcir::LegacyGateType const& op, experimental::Tableau& tableau, QubitIdList const& qubits) {
-    if (op.get_type() == "h") {
-        tableau.h(qubits[0]);
-    } else if (op.get_type() == "s") {
+    if (op.get_type() == "s") {
         tableau.s(qubits[0]);
     } else if (op.get_type() == "sdg") {
         tableau.sdg(qubits[0]);
@@ -205,10 +227,6 @@ bool append_to_tableau(qcir::LegacyGateType const& op, experimental::Tableau& ta
         tableau.cx(qubits[0], qubits[1]);
     } else if (op.get_type() == "cz") {
         tableau.cz(qubits[0], qubits[1]);
-    } else if (op.get_type() == "swap") {
-        tableau.swap(qubits[0], qubits[1]);
-    } else if (op.get_type() == "ecr") {
-        tableau.ecr(qubits[0], qubits[1]);
     } else {
         experimental::implement_rotation_gate(tableau, op, qubits);
     }

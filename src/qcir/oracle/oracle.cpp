@@ -237,7 +237,7 @@ std::optional<QCir> build_qcir(
     auto target_output_qubit  = gsl::narrow_cast<qsyn::QubitIdType>(n_inputs);
     auto current_output_qubit = current_qubit_state[xag.outputs.front()];
     if (current_output_qubit != target_output_qubit) {
-        qcir.add_gate("swap", {current_output_qubit, target_output_qubit}, {}, true);
+        qcir.append(SwapGate(), {current_output_qubit, target_output_qubit});
     }
 
     if (xag.outputs_inverted.front()) {

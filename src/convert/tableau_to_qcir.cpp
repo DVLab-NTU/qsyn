@@ -26,7 +26,7 @@ void add_clifford_gate(qcir::QCir& qcir, CliffordOperator const& op) {
 
     switch (type) {
         case COT::h:
-            qcir.add_gate("h", {gsl::narrow<QubitIdType>(qubits[0])}, {}, true);
+            qcir.append(qcir::HGate(), {gsl::narrow<QubitIdType>(qubits[0])});
             break;
         case COT::s:
             qcir.add_gate("s", {gsl::narrow<QubitIdType>(qubits[0])}, {}, true);
@@ -56,10 +56,10 @@ void add_clifford_gate(qcir::QCir& qcir, CliffordOperator const& op) {
             qcir.add_gate("cz", {gsl::narrow<QubitIdType>(qubits[0]), gsl::narrow<QubitIdType>(qubits[1])}, {}, true);
             break;
         case COT::swap:
-            qcir.add_gate("swap", {gsl::narrow<QubitIdType>(qubits[0]), gsl::narrow<QubitIdType>(qubits[1])}, {}, true);
+            qcir.append(qcir::SwapGate(), {gsl::narrow<QubitIdType>(qubits[0]), gsl::narrow<QubitIdType>(qubits[1])});
             break;
         case COT::ecr:
-            qcir.add_gate("ecr", {gsl::narrow<QubitIdType>(qubits[0]), gsl::narrow<QubitIdType>(qubits[1])}, {}, true);
+            qcir.append(qcir::ECRGate(), {gsl::narrow<QubitIdType>(qubits[0]), gsl::narrow<QubitIdType>(qubits[1])});
             break;
     }
 }

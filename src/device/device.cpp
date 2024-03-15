@@ -514,13 +514,18 @@ bool Device::_parse_gate_set(std::string const& gate_set_str) {
     auto gate_set_view =
         dvlab::str::views::tokenize(data, ',') |
         std::views::transform([](auto const& str) { return dvlab::str::tolower_string(str); }) |
-        std::views::transform([&](auto const& str) {
+        std::views::transform([&](auto const& str) -> std::optional<std::string> {
+            if (auto op = qcir::str_to_operation(str); op.has_value()) {
+                _topology->add_gate_type(op->get_type());
+                return std::make_optional(op->get_type());
+            }
             auto gate_type = str_to_gate_type(str);
             if (!gate_type.has_value()) {
                 spdlog::error("unsupported gate type \"{}\"!!", str);
+                return std::nullopt;
             };
-            _topology->add_gate_type(gate_type.value());
-            return gate_type;
+            _topology->add_gate_type(gate_type_to_str(*gate_type));
+            return std::make_optional(gate_type_to_str(*gate_type));
         });
 
     return std::ranges::all_of(gate_set_view, [](auto const& gate_type) { return gate_type.has_value(); });
@@ -729,7 +734,8 @@ void Device::print_edges(std::vector<size_t> candidates) const {
  */
 void Device::print_topology() const {
     fmt::println("Topology: {} ({} qubits, {} edges)", get_name(), _qubit_list.size(), _topology->get_num_adjacencies());
-    fmt::println("Gate Set: {}", fmt::join(_topology->get_gate_set() | std::views::transform([](GateType gtype) { return dvlab::str::toupper_string(gate_type_to_str(gtype)); }), ", "));
+    auto const tmp = _topology->get_gate_set();  // circumvents g++ 11.4 compiler bug
+    fmt::println("Gate Set: {}", fmt::join(tmp | std::views::transform([](std::string const& gtype) { return dvlab::str::toupper_string(gtype); }), ", "));
 }
 
 /**
