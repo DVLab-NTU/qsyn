@@ -513,7 +513,7 @@ std::vector<size_t> Optimizer::_compute_stats(QCir const& circuit) {
 }
 
 /**
- * @brief Get the swap path from intial permutaion to _permutation now
+ * @brief Get the swap path from initial permutation to _permutation now
  *
  * @return vector<pair<size_t, size_t>> swap_path
  */

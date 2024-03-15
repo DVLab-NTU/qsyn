@@ -31,8 +31,8 @@ public:
     using FloatingPointType = double;
 
     constexpr Rational() {}
-    constexpr Rational(IntegralType n) : _numer(n) {}
-    constexpr Rational(IntegralType n, IntegralType d) : _numer(n), _denom(d) {
+    constexpr Rational(IntegralType n) : _numerator(n) {}
+    constexpr Rational(IntegralType n, IntegralType d) : _numerator(n), _denominator(d) {
         assert(d != 0);
         reduce();
     }
@@ -69,8 +69,8 @@ public:
     // Operations for Rational Numbers
     constexpr void reduce();
     //                                      vvv won't lose precision if the following static_assert is satisfied
-    constexpr IntegralType numerator() const { return static_cast<IntegralType>(_numer); }
-    constexpr IntegralType denominator() const { return static_cast<IntegralType>(_denom); }
+    constexpr IntegralType numerator() const { return static_cast<IntegralType>(_numerator); }
+    constexpr IntegralType denominator() const { return static_cast<IntegralType>(_denominator); }
 
     static_assert(
         std::numeric_limits<IntegralType>::digits <= std::numeric_limits<FloatingPointType>::digits,
@@ -78,7 +78,7 @@ public:
 
     template <class T>
     requires std::floating_point<T>
-    constexpr static T rational_to_floating_point(Rational const& q) { return ((T)q._numer) / q._denom; }
+    constexpr static T rational_to_floating_point(Rational const& q) { return ((T)q._numerator) / q._denominator; }
 
     constexpr static float rational_to_f(Rational const& q) { return rational_to_floating_point<float>(q); }
     constexpr static double rational_to_d(Rational const& q) { return rational_to_floating_point<double>(q); }
@@ -89,8 +89,8 @@ public:
     static Rational to_rational(T f, T eps = 1e-4);
 
 private:
-    double _numer = 0;
-    double _denom = 1;
+    double _numerator   = 0;
+    double _denominator = 1;
     static Rational _mediant(Rational const& lhs, Rational const& rhs);
 };
 
@@ -128,13 +128,13 @@ Rational Rational::to_rational(T f, T eps) {
 }
 
 constexpr void Rational::reduce() {
-    if (_denom < 0) {
-        _numer = -_numer;
-        _denom = -_denom;
+    if (_denominator < 0) {
+        _numerator   = -_numerator;
+        _denominator = -_denominator;
     }
-    IntegralType const gcd = std::gcd(static_cast<IntegralType>(_numer), static_cast<IntegralType>(_denom));
-    _numer /= gcd;
-    _denom /= gcd;
+    IntegralType const gcd = std::gcd(static_cast<IntegralType>(_numerator), static_cast<IntegralType>(_denominator));
+    _numerator /= gcd;
+    _denominator /= gcd;
 }
 
 //----------------------------------------
@@ -142,42 +142,42 @@ constexpr void Rational::reduce() {
 //----------------------------------------
 
 constexpr Rational Rational::operator+() const {
-    return Rational(static_cast<Rational::IntegralType>(_numer), static_cast<Rational::IntegralType>(_denom));
+    return Rational(static_cast<Rational::IntegralType>(_numerator), static_cast<Rational::IntegralType>(_denominator));
 }
 constexpr Rational Rational::operator-() const {
-    return Rational(-static_cast<Rational::IntegralType>(_numer), static_cast<Rational::IntegralType>(_denom));
+    return Rational(-static_cast<Rational::IntegralType>(_numerator), static_cast<Rational::IntegralType>(_denominator));
 }
 
 // a/b + c/d  = (ad + bc) / bd
 // We adopt for this more complex expression (instead of (ad + bc / bd)) so as to minimize the risk of overflow when multiplying numbers
 constexpr Rational& Rational::operator+=(Rational const& rhs) {
-    _numer = _numer * rhs._denom + _denom * rhs._numer;
-    _denom = _denom * rhs._denom;
-    assert(_denom != 0);
+    _numerator   = _numerator * rhs._denominator + _denominator * rhs._numerator;
+    _denominator = _denominator * rhs._denominator;
+    assert(_denominator != 0);
     reduce();
     return *this;
 }
 constexpr Rational& Rational::operator-=(Rational const& rhs) {
-    _numer = _numer * rhs._denom - _denom * rhs._numer;
-    _denom = _denom * rhs._denom;
-    assert(_denom != 0);
+    _numerator   = _numerator * rhs._denominator - _denominator * rhs._numerator;
+    _denominator = _denominator * rhs._denominator;
+    assert(_denominator != 0);
     reduce();
     return *this;
 }
 constexpr Rational& Rational::operator*=(Rational const& rhs) {
-    _numer *= rhs._numer;
-    _denom *= rhs._denom;
-    assert(_denom != 0);
+    _numerator *= rhs._numerator;
+    _denominator *= rhs._denominator;
+    assert(_denominator != 0);
     reduce();
     return *this;
 }
 constexpr Rational& Rational::operator/=(Rational const& rhs) {
-    if (rhs._numer == 0) {
+    if (rhs._numerator == 0) {
         throw std::overflow_error("Attempting to divide by 0");
     }
-    _numer *= rhs._denom;
-    _denom *= rhs._numer;
-    assert(_denom != 0);
+    _numerator *= rhs._denominator;
+    _denominator *= rhs._numerator;
+    assert(_denominator != 0);
     reduce();
     return *this;
 }
@@ -199,13 +199,13 @@ constexpr Rational operator/(Rational lhs, Rational const& rhs) {
 }
 
 constexpr bool Rational::operator==(Rational const& rhs) const {
-    return (_numer == rhs._numer) && (_denom == rhs._denom);
+    return (_numerator == rhs._numerator) && (_denominator == rhs._denominator);
 }
 constexpr bool Rational::operator!=(Rational const& rhs) const {
     return !(*this == rhs);
 }
 constexpr bool Rational::operator<(Rational const& rhs) const {
-    return (_numer * rhs._denom) < (_denom * rhs._numer);
+    return (_numerator * rhs._denominator) < (_denominator * rhs._numerator);
 }
 constexpr bool Rational::operator<=(Rational const& rhs) const {
     return (*this == rhs) || (*this < rhs);

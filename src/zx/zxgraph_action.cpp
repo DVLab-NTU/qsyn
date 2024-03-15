@@ -244,7 +244,7 @@ std::unordered_map<size_t, ZXVertex*> ZXGraph::create_id_to_vertex_map() const {
 }
 
 /**
- * @brief Rearrange vertices on each qubit so that each vertex can be seperated in the printed graph.
+ * @brief Rearrange vertices on each qubit so that each vertex can be separated in the printed graph.
  *
  */
 void ZXGraph::adjust_vertex_coordinates() {

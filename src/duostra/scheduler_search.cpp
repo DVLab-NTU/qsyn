@@ -81,7 +81,7 @@ TreeNode::TreeNode(TreeNode const& other)
       _scheduler{other._scheduler->clone()} {}
 
 /**
- * @brief Grow by adding availalble gates to children.
+ * @brief Grow by adding available gates to children.
  *
  */
 void TreeNode::_grow() {

@@ -158,7 +158,7 @@ tensor::QTensor<double> get_tensor_form(zx::ZXGraph const& graph, zx::ZXVertex* 
 namespace {
 
 /**
- * @brief Consturct tensor of a single vertex
+ * @brief Construct tensor of a single vertex
  *
  * @param v the tensor of whom
  */
