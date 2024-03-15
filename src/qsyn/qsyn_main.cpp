@@ -16,7 +16,6 @@
 #include <filesystem>
 #include <string>
 #include <tl/enumerate.hpp>
-#include <type_traits>
 
 #include "./qsyn_helper.hpp"
 #include "argparse/arg_parser.hpp"
@@ -25,9 +24,6 @@
 #include "qcir/qcir_mgr.hpp"
 #include "tableau/tableau_mgr.hpp"
 #include "tensor/tensor_mgr.hpp"
-#include "util/sysdep.hpp"
-#include "util/usage.hpp"
-#include "util/util.hpp"
 #include "zx/zxgraph_mgr.hpp"
 
 #ifndef QSYN_VERSION
@@ -48,7 +44,6 @@ std::string const version_str = fmt::format(
     "qsyn {} - Copyright © 2022-{:%Y}, DVLab NTUEE.\n"
     "Licensed under Apache 2.0 License.",
     QSYN_VERSION, std::chrono::system_clock::now());
-
 }  // namespace
 
 bool stop_requested() { return cli.stop_requested(); }

@@ -21,12 +21,15 @@
 #include "util/ordered_hashset.hpp"
 #include "util/phase.hpp"
 
+namespace qsyn::qcir {
+class QCirGate;
+}
+
 namespace qsyn::device {
 
 class Device;
 class Topology;
 class PhysicalQubit;
-class Operation;
 struct DeviceInfo;
 
 struct DeviceInfo {
@@ -138,7 +141,7 @@ public:
     void add_adjacency(QubitIdType a, QubitIdType b);
 
     // NOTE - Duostra
-    void apply_gate(Operation const& op);
+    void apply_gate(qcir::QCirGate const& op, size_t time_begin);
     void apply_single_qubit_gate(QubitIdType physical_id);
     void apply_swap_check(QubitIdType qid0, QubitIdType qid1);
     std::vector<std::optional<size_t>> mapping() const;
@@ -181,38 +184,6 @@ private:
     void _set_weight();
 };
 
-class Operation {
-public:
-    friend std::ostream& operator<<(std::ostream& os, Operation const& op);
-
-    Operation(qcir::GateRotationCategory op, dvlab::Phase ph, std::tuple<size_t, size_t> qubits, std::tuple<size_t, size_t> duration);
-
-    qcir::GateRotationCategory get_type() const { return _operation; }
-    dvlab::Phase get_phase() const { return _phase; }
-    size_t get_time_end() const { return std::get<1>(_duration); }
-    size_t get_time_begin() const { return std::get<0>(_duration); }
-    std::tuple<size_t, size_t> get_time_range() const { return _duration; }
-    size_t get_duration() const { return std::get<1>(_duration) - std::get<0>(_duration); }
-    std::tuple<QubitIdType, QubitIdType> get_qubits() const { return _qubits; }
-
-    size_t get_id() const { return _id; }
-    void set_id(size_t id) { _id = id; }
-
-    std::string get_type_str() const { return qcir::gate_type_to_str(_operation, is_double_qubit_gate() ? 2 : 1, _phase); }
-    bool is_double_qubit_gate() const { return std::get<1>(_qubits) != max_qubit_id; }
-
-    bool is_swap() const { return _operation == qcir::GateRotationCategory::swap; }
-    bool is_cx() const { return _operation == qcir::GateRotationCategory::px && _phase == dvlab::Phase(1) && is_double_qubit_gate(); }
-    bool is_cz() const { return _operation == qcir::GateRotationCategory::pz && _phase == dvlab::Phase(1) && is_double_qubit_gate(); }
-
-private:
-    size_t _id = SIZE_MAX;
-    qcir::GateRotationCategory _operation;
-    dvlab::Phase _phase;
-    std::tuple<QubitIdType, QubitIdType> _qubits;
-    std::tuple<size_t, size_t> _duration;  // <from, to>
-};
-
 }  // namespace qsyn::device
 
 template <>
@@ -222,19 +193,5 @@ struct fmt::formatter<qsyn::device::DeviceInfo> {
     template <typename FormatContext>
     auto format(qsyn::device::DeviceInfo const& info, FormatContext& ctx) {
         return fmt::format_to(ctx.out(), "Delay: {:>7.3}    Error: {:7.3}    ", info._time, info._error);
-    }
-};
-
-template <>
-struct fmt::formatter<qsyn::device::Operation> {
-    constexpr auto parse(format_parse_context& ctx) { return ctx.begin(); }
-
-    template <typename FormatContext>
-    auto format(qsyn::device::Operation const& op, FormatContext& ctx) {
-        if (op.is_double_qubit_gate()) {
-            return fmt::format_to(ctx.out(), "Operation: {}  Q{} Q{}  duration: {} -- {}", op.get_type_str(), std::get<0>(op.get_qubits()), std::get<1>(op.get_qubits()), op.get_time_begin(), op.get_time_end());
-        } else {
-            return fmt::format_to(ctx.out(), "Operation: {}  Q{}  duration: {} -- {}", op.get_type_str(), std::get<0>(op.get_qubits()), op.get_time_begin(), op.get_time_end());
-        }
     }
 };

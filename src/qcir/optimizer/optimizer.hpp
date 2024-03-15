@@ -8,9 +8,10 @@
 #pragma once
 
 #include <cstddef>
-#include <set>
 #include <unordered_map>
 
+#include "qcir/gate_type.hpp"
+#include "qcir/qcir_gate.hpp"
 #include "qsyn/qsyn_type.hpp"
 #include "util/ordered_hashset.hpp"
 
@@ -23,7 +24,6 @@ class Phase;
 namespace qsyn::qcir {
 
 class QCir;
-class QCirGate;
 enum class GateRotationCategory;
 using Qubit2Gates = std::unordered_map<QubitIdType, std::vector<QCirGate*>>;
 
@@ -34,10 +34,9 @@ public:
     void reset(QCir const& qcir);
 
     // Predicate function && Utils
-    bool two_qubit_gate_exists(QCirGate* g, GateRotationCategory gt, QubitIdType ctrl, QubitIdType targ);
     bool is_single_z_rotation(QCirGate* g);
     bool is_single_x_rotation(QCirGate* g);
-    bool is_double_qubit_gate(QCirGate* g);
+    bool is_cx_or_cz_gate(QCirGate* g);
     QCirGate* get_available_z_rotation(QubitIdType t);
 
     // basic optimization
@@ -57,6 +56,7 @@ public:
 
 private:
     size_t _iter = 0;
+    std::vector<std::unique_ptr<QCirGate>> _storage;
     Qubit2Gates _gates;
     Qubit2Gates _available;
     std::vector<bool> _availty;
@@ -66,8 +66,6 @@ private:
     dvlab::utils::ordered_hashset<QubitIdType> _xs;
     dvlab::utils::ordered_hashset<QubitIdType> _zs;
     std::vector<std::pair<QubitIdType, QubitIdType>> _swaps;
-
-    size_t _gate_count = 0;
 
     struct Statistics {
         size_t FUSE_PHASE    = 0;
@@ -112,15 +110,49 @@ private:
     QCir _build_from_storage(size_t n_qubits, bool reversed);
 
     std::vector<std::pair<QubitIdType, QubitIdType>> _get_swap_path();
-    void _add_gate_to_circuit(QCir& circuit, QCirGate* gate, bool prepend);
 
     // trivial optimization subroutines
 
     std::vector<QCirGate*> _get_first_layer_gates(QCir& qcir, bool from_last = false);
-    void _cancel_double_gate(QCir& qcir, QCirGate* prev_gate, QCirGate* gate);
+    void _cancel_cx_or_cz(QCir& qcir, QCirGate* prev_gate, QCirGate* gate);
     void _fuse_z_phase(QCir& qcir, QCirGate* prev_gate, QCirGate* gate);
     void _fuse_x_phase(QCir& qcir, QCirGate* prev_gate, QCirGate* gate);
     void _partial_zx_optimization(QCir& qcir);
+
+    inline QCirGate* _store_x(QubitIdType qubit) {
+        _storage.emplace_back(std::make_unique<QCirGate>(_storage.size(), LegacyGateType(std::make_tuple(GateRotationCategory::px, 1, dvlab::Phase(1))), QubitIdList{qubit}));
+        return _storage.back().get();
+    }
+
+    inline QCirGate* _store_h(QubitIdType qubit) {
+        _storage.emplace_back(std::make_unique<QCirGate>(_storage.size(), LegacyGateType(std::make_tuple(GateRotationCategory::h, 1, dvlab::Phase(1))), QubitIdList{qubit}));
+        return _storage.back().get();
+    }
+
+    inline QCirGate* _store_s(QubitIdType qubit) {
+        _storage.emplace_back(std::make_unique<QCirGate>(_storage.size(), LegacyGateType(std::make_tuple(GateRotationCategory::pz, 1, dvlab::Phase(1, 2))), QubitIdList{qubit}));
+        return _storage.back().get();
+    }
+
+    inline QCirGate* _store_sdg(QubitIdType qubit) {
+        _storage.emplace_back(std::make_unique<QCirGate>(_storage.size(), LegacyGateType(std::make_tuple(GateRotationCategory::pz, 1, dvlab::Phase(-1, 2))), QubitIdList{qubit}));
+        return _storage.back().get();
+    }
+
+    inline QCirGate* _store_cx(QubitIdType ctrl, QubitIdType targ) {
+        _storage.emplace_back(std::make_unique<QCirGate>(_storage.size(), LegacyGateType(std::make_tuple(GateRotationCategory::px, 2, dvlab::Phase(1))), QubitIdList{ctrl, targ}));
+        return _storage.back().get();
+    }
+
+    inline QCirGate* _store_cz(QubitIdType ctrl, QubitIdType targ) {
+        _storage.emplace_back(std::make_unique<QCirGate>(_storage.size(), LegacyGateType(std::make_tuple(GateRotationCategory::pz, 2, dvlab::Phase(1))), QubitIdList{ctrl, targ}));
+        return _storage.back().get();
+    }
+
+    inline QCirGate* _store_rotation_gate(QubitIdType target, dvlab::Phase ph, GateRotationCategory const& rotation_category) {
+        _storage.emplace_back(std::make_unique<QCirGate>(_storage.size(), LegacyGateType(std::make_tuple(rotation_category, 1, ph)), QubitIdList{target}));
+        return _storage.back().get();
+    }
 };
 
 }  // namespace qsyn::qcir

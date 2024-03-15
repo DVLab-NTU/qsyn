@@ -1,0 +1,8 @@
+logger trace
+qcir oracle -a 1 0010
+qcir print -g
+qcir oracle -a 2 11010001
+qcir print -g
+qcir oracle -a 3 0011000101011101
+qcir print -g
+quit -f

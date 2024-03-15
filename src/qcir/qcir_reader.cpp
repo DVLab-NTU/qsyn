@@ -123,7 +123,6 @@ bool QCir::read_qasm(std::filesystem::path const& filepath) {
         }
         add_gate(type, qubit_ids, phase.value(), true);
     }
-    update_gate_time();
     return true;
 }
 

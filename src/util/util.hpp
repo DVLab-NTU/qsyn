@@ -6,6 +6,7 @@
 ****************************************************************************/
 #pragma once
 
+#include <algorithm>
 #include <concepts>
 #include <gsl/narrow>
 #include <iterator>
@@ -123,7 +124,7 @@ template <class... Ts>
 overloaded(Ts...) -> overloaded<Ts...>;
 
 auto contains(std::ranges::range auto r, auto const& value) -> bool {
-    return std::find(r, value) != r.end();
+    return std::ranges::find(r, value) != r.end();
 }
 
 }  // namespace dvlab

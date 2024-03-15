@@ -37,15 +37,16 @@ struct TwoLevelMatrix {
 
 template <typename T>
 TwoLevelMatrix<T> adjoint(TwoLevelMatrix<T> m /* copy on purpose */) {
-    m._matrix.adjoint();
+    m._matrix = adjoint(m._matrix);
     return m;
 }
 
+template <typename T>
 struct ZYZ {
-    double phi;
-    double alpha;
-    double beta;  // actual beta/2
-    double gamma;
+    T phi;
+    T alpha;
+    T beta;  // actual beta/2
+    T gamma;
     bool correct = true;
 };
 
@@ -81,7 +82,7 @@ private:
     }
 
     template <typename U>
-    std::optional<std::pair<size_t, size_t>> _get_two_level_matrix_indices(QTensor<U> const& matrix, double eps);
+    std::optional<std::pair<size_t, size_t>> _get_two_level_matrix_indices(QTensor<U> const& matrix, U eps);
     template <typename U>
     std::vector<TwoLevelMatrix<U>> _get_two_level_matrices(QTensor<U> matrix /* copy on purpose */);
 
@@ -100,7 +101,7 @@ private:
     bool _decompose_cu(Tensor<U> const& t, size_t ctrl, size_t targ);
 
     template <typename U>
-    ZYZ _decompose_zyz(Tensor<U> const& matrix);
+    ZYZ<typename U::value_type> _decompose_zyz(Tensor<U> const& matrix);
 
     template <typename U>
     Tensor<U> _sqrt_single_qubit_matrix(Tensor<U> const& matrix);
@@ -146,7 +147,7 @@ std::optional<QCir> Decomposer::decompose(QTensor<U> const& matrix) {
  * @return std::optional<std::pair<size_t, size_t>>
  */
 template <typename U>
-std::optional<std::pair<size_t, size_t>> Decomposer::_get_two_level_matrix_indices(QTensor<U> const& matrix, double eps) {
+std::optional<std::pair<size_t, size_t>> Decomposer::_get_two_level_matrix_indices(QTensor<U> const& matrix, U eps) {
     using namespace std::literals;
     auto const dimension      = static_cast<size_t>(matrix.shape()[0]);
     size_t num_found_diagonal = 0, num_upper_triangle_not_zero = 0, num_lower_triangle_not_zero = 0;
@@ -218,7 +219,8 @@ std::optional<std::pair<size_t, size_t>> Decomposer::_get_two_level_matrix_indic
                 return std::make_pair(top_main_diagonal_coords - 1, top_main_diagonal_coords);
             }
         }
-        return std::make_pair(SIZE_MAX, SIZE_MAX);  // signals identity
+        if (num_found_diagonal == 0)
+            return std::make_pair(SIZE_MAX, SIZE_MAX);  // signals identity
         // if (num_found_diagonal == 0)  // identity
         //     return two_level_chain;
     }
@@ -237,7 +239,7 @@ std::optional<std::pair<size_t, size_t>> Decomposer::_get_two_level_matrix_indic
 template <typename U>
 std::vector<TwoLevelMatrix<U>> Decomposer::_get_two_level_matrices(QTensor<U> matrix /* copy on purpose */) {
     using namespace std::literals;
-    constexpr double eps = 1e-6;
+    constexpr U eps = 1e-6;
     std::vector<TwoLevelMatrix<U>> two_level_chain;
     auto const dimension = static_cast<size_t>(matrix.shape()[0]);
 
@@ -271,7 +273,7 @@ std::vector<TwoLevelMatrix<U>> Decomposer::_get_two_level_matrices(QTensor<U> ma
             }
 
             // normalization factor
-            const double u = std::sqrt(std::norm(matrix(i, i)) + std::norm(matrix(j, i)));
+            const U u = std::sqrt(std::norm(matrix(i, i)) + std::norm(matrix(j, i)));
 
             auto const n_qubits = static_cast<size_t>(std::round(std::log2(_get_dimension(matrix))));
             QTensor<U> conjugate_matrix_product =
@@ -383,7 +385,7 @@ bool Decomposer::_decompose_cnu(Tensor<U> const& t, size_t diff_pos, size_t inde
                 break;
             }
         }
-        Tensor<U> v = _sqrt_single_qubit_matrix(t);
+        const Tensor<U> v = _sqrt_single_qubit_matrix(t);
         if (!_decompose_cu(v, extract_qubit, diff_pos)) return false;
 
         std::vector<size_t> ctrls;
@@ -394,12 +396,10 @@ bool Decomposer::_decompose_cnu(Tensor<U> const& t, size_t diff_pos, size_t inde
 
         _decompose_cnx<U>(ctrls, extract_qubit, index, ctrl_gates - 1);
 
-        v.adjoint();
-        if (!_decompose_cu(v, extract_qubit, diff_pos)) return false;
+        if (!_decompose_cu(adjoint(v), extract_qubit, diff_pos)) return false;
 
         _decompose_cnx<U>(ctrls, extract_qubit, index, ctrl_gates - 1);
 
-        v.adjoint();
         if (!_decompose_cnu(v, diff_pos, index, ctrl_gates - 1)) return false;
     }
 
@@ -443,8 +443,9 @@ bool Decomposer::_decompose_cnx(const std::vector<size_t>& ctrls, const size_t e
  */
 template <typename U>
 bool Decomposer::_decompose_cu(Tensor<U> const& t, size_t ctrl, size_t targ) {
-    constexpr double eps = 1e-6;
-    const ZYZ angles     = _decompose_zyz(t);
+    using float_type             = typename U::value_type;
+    constexpr float_type eps     = 1e-6;
+    const ZYZ<float_type> angles = _decompose_zyz(t);
     if (!angles.correct) return false;
 
     if (std::abs((angles.alpha - angles.gamma) / 2) > eps)
@@ -486,31 +487,32 @@ bool Decomposer::_decompose_cu(Tensor<U> const& t, size_t ctrl, size_t targ) {
  * @reference Nakahara, Mikio, and Tetsuo Ohmi. Quantum computing: from linear algebra to physical realizations. CRC press, 2008.
  */
 template <typename U>
-ZYZ Decomposer::_decompose_zyz(Tensor<U> const& matrix) {
+ZYZ<typename U::value_type> Decomposer::_decompose_zyz(Tensor<U> const& matrix) {
     DVLAB_ASSERT(matrix.shape()[0] == 2 && matrix.shape()[1] == 2, "decompose_ZYZ only supports 2x2 matrix");
     using namespace std::literals;
+    using float_type = typename U::value_type;
     // a =  e^{iφ}e^{-i(α+γ)/2}cos(β/2)
     // b = -e^{iφ}e^{-i(α-γ)/2}sin(β/2)
     // c =  e^{iφ}e^{ i(α-γ)/2}sin(β/2)
     // d =  e^{iφ}e^{ i(α+γ)/2}cos(β/2)
-    const std::complex<double> a = matrix(0, 0), b = matrix(0, 1), c = matrix(1, 0), d = matrix(1, 1);
-    ZYZ output = {};
+    const U a = matrix(0, 0), b = matrix(0, 1), c = matrix(1, 0), d = matrix(1, 1);
+    ZYZ<float_type> output = {};
     // NOTE - The beta here is actually half of beta
-    double init_beta = 0;
+    float_type init_beta = 0;
     if (std::abs(a) > 1) {
         init_beta = 0;
     } else {
         init_beta = std::acos(std::abs(a));
     }
 
-    constexpr auto pi = std::numbers::pi_v<double>;
+    constexpr auto pi = std::numbers::pi_v<float_type>;
     // NOTE - Possible betas due to arccosine
-    const std::array<double, 4> beta_candidate = {init_beta, pi - init_beta, pi + init_beta, 2.0 * pi - init_beta};
+    const std::array<float_type, 4> beta_candidate = {init_beta, pi - init_beta, pi + init_beta, 2.0 * pi - init_beta};
     for (const auto& beta : beta_candidate) {
         output.beta = beta;
-        std::complex<double> a1, b1, c1, d1;
-        const std::complex<double> cos(std::cos(beta) + 1e-5, 0);  // cos(β/2)
-        const std::complex<double> sin(std::sin(beta) + 1e-5, 0);  // sin(β/2)
+        U a1, b1, c1, d1;
+        const U cos(std::cos(beta) + 1e-5, 0);  // cos(β/2)
+        const U sin(std::sin(beta) + 1e-5, 0);  // sin(β/2)
         a1 = a / cos;
         b1 = b / sin;
         c1 = c / sin;
@@ -526,15 +528,15 @@ ZYZ Decomposer::_decompose_zyz(Tensor<U> const& matrix) {
             output.gamma = std::arg(d1 / c1);
         }
 
-        auto const alpha_plus_gamma  = std::exp(std::complex<double>((0.5i) * (output.alpha + output.gamma)));
-        auto const alpha_minus_gamma = std::exp(std::complex<double>((0.5i) * (output.alpha - output.gamma)));
+        auto const alpha_plus_gamma  = std::exp(U((0.5i) * (output.alpha + output.gamma)));
+        auto const alpha_minus_gamma = std::exp(U((0.5i) * (output.alpha - output.gamma)));
 
         if (std::abs(a) < 1e-4)
             output.phi = std::arg(c1 / alpha_minus_gamma);
         else
             output.phi = std::arg(a1 * alpha_plus_gamma);
 
-        const std::complex<double> phi(std::cos(output.phi), std::sin(output.phi));
+        const U phi(std::cos(output.phi), std::sin(output.phi));
 
         if (std::abs(phi * cos / alpha_plus_gamma - a) < 1e-3 &&
             std::abs(sin * phi / alpha_minus_gamma + b) < 1e-3 &&
@@ -562,8 +564,8 @@ Tensor<U> Decomposer::_sqrt_single_qubit_matrix(Tensor<U> const& matrix) {
     DVLAB_ASSERT(matrix.shape()[0] == 2 && matrix.shape()[1] == 2, "sqrt_single_qubit_matrix only supports 2x2 matrix");
     // a b
     // c d
-    const std::complex<double> a = matrix(0, 0), b = matrix(0, 1), c = matrix(1, 0), d = matrix(1, 1);
-    const std::complex<double> tau = a + d, delta = a * d - b * c;
+    const U a = matrix(0, 0), b = matrix(0, 1), c = matrix(1, 0), d = matrix(1, 1);
+    const U tau = a + d, delta = a * d - b * c;
     const std::complex s = std::sqrt(delta);
     const std::complex t = std::sqrt(tau + 2. * s);
     if (std::abs(t) > 0) {

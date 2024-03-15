@@ -12,6 +12,33 @@
 
 namespace qsyn::qcir {
 
+Operation adjoint(LegacyGateType const& op) {
+    if (is_fixed_phase_gate(op.get_rotation_category())) {
+        return op;
+    }
+
+    return LegacyGateType(std::make_tuple(op.get_rotation_category(), op.get_num_qubits(), -op.get_phase()));
+}
+
+bool is_clifford(LegacyGateType const& op) {
+    switch (op.get_rotation_category()) {
+        case GateRotationCategory::id:
+        case GateRotationCategory::h:
+        case GateRotationCategory::swap:
+        case GateRotationCategory::ecr:
+            return true;
+        case GateRotationCategory::pz:
+        case GateRotationCategory::px:
+        case GateRotationCategory::py:
+        case GateRotationCategory::rz:
+        case GateRotationCategory::rx:
+        case GateRotationCategory::ry:
+            return (op.get_num_qubits() == 1 && op.get_phase().denominator() <= 2) || (op.get_num_qubits() == 2 && op.get_phase().denominator() == 1);
+        default:
+            DVLAB_UNREACHABLE("Invalid rotation category");
+    }
+}
+
 std::optional<GateType> str_to_gate_type(std::string_view str) {
     // Misc
     if (str == "id")
@@ -83,7 +110,6 @@ std::optional<GateType> str_to_gate_type(std::string_view str) {
     return std::nullopt;
 }
 std::string gate_type_to_str(GateRotationCategory category, std::optional<size_t> num_qubits, std::optional<dvlab::Phase> phase) {
-    DVLAB_ASSERT(num_qubits > 0, "a gate should have at least one qubit");
     if (category == GateRotationCategory::id)
         return "id";
     if (category == GateRotationCategory::h)

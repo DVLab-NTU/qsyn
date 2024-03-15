@@ -20,27 +20,5 @@ Total Time:     101
 #SWAP:          8
 
 
-qsyn> qcir print
-QCir (16 qubits, 60 gates, 41 2-qubits gates, 14 T-gates, 85 depths)
-
-qsyn> qcir list
-  0    3_17_13             
-★ 1    3_17_13             Duostra
-
-qsyn> help map-equiv
-Usage: map-equiv [-h] (-l <size_t l-id>) (-p <size_t p-id>) [-r]
-
-Description:
-  check equivalence of the physical and the logical circuits
-
-Options:
-  flag    -h, --help            show this help message                                                           
-  size_t  -l, --logical   l-id  the ID to the logical QCir                                                       
-  size_t  -p, --physical  p-id  the ID to the physical QCir                                                      
-  flag    -r, --reverse         check the QCir in reverse. This option is supposed to be used for extracted QCir 
-
-qsyn> map-equiv -l 0 -p 1
-Equivalent up to permutation
-
-qsyn> quit -f
-
+qsyn> terminate called after throwing an instance of 'std::out_of_range'
+  what():  _Map_base::at

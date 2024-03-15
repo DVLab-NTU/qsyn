@@ -197,11 +197,13 @@ qsyn> qcir gate add --prepend rz -ph 1.2345 0
 
 qsyn> qcir print --gate 10
 Listed by gate ID
-ID:  10 ( rz)      Time:    1     Qubit:   0       Phase: 112π/285
+10 (t= 1): rz(112π/285)   q[0]
 
 qsyn> qcir print --verbose --gate 9
 Listed by gate ID
-ID:   9 ( rz)      Time:    2     Qubit:   0       Phase: 0
+ 9 (t= 2): rz(0)          q[0]
+- Predecessors: 10
+- Successors  : 0
 - Predecessors: 10
 - Successors  : 0
 

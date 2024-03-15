@@ -12,6 +12,7 @@
 #include <cassert>
 
 #include "./duostra.hpp"
+#include "qcir/gate_type.hpp"
 #include "util/util.hpp"
 
 extern bool stop_requested();
@@ -58,8 +59,8 @@ std::unique_ptr<BaseScheduler> BaseScheduler::clone() const {
  *
  */
 void BaseScheduler::_sort() {
-    std::sort(_operations.begin(), _operations.end(), [](Operation const& a, Operation const& b) -> bool {
-        return a.get_time_begin() < b.get_time_begin();
+    std::ranges::sort(_operations, [this](qcir::QCirGate const& a, qcir::QCirGate const& b) -> bool {
+        return _gate_id_to_time.at(a.get_id()).first < _gate_id_to_time.at(b.get_id()).first;
     });
     _sorted = true;
 }
@@ -71,7 +72,7 @@ void BaseScheduler::_sort() {
  */
 size_t BaseScheduler::get_final_cost() const {
     assert(_sorted);
-    return _operations.at(_operations.size() - 1).get_time_end();
+    return _gate_id_to_time.at(_operations.back().get_id()).second;
 }
 
 /**
@@ -81,8 +82,8 @@ size_t BaseScheduler::get_final_cost() const {
  */
 size_t BaseScheduler::get_total_time() const {
     assert(_sorted);
-    auto durations_range = _operations | std::views::transform([](Operation const& op) -> size_t {
-                               return op.get_duration();
+    auto durations_range = _operations | std::views::transform([this](qcir::QCirGate const& op) -> size_t {
+                               return _gate_id_to_time.at(op.get_id()).second - _gate_id_to_time.at(op.get_id()).first;
                            });
     return std::reduce(durations_range.begin(), durations_range.end(), 0, std::plus<>{});
 }
@@ -93,8 +94,8 @@ size_t BaseScheduler::get_total_time() const {
  * @return size_t
  */
 size_t BaseScheduler::get_num_swaps() const {
-    return std::ranges::count_if(_operations, [](Operation const& op) {
-        return op.get_type() == qcir::GateRotationCategory::swap;
+    return std::ranges::count_if(_operations, [](qcir::QCirGate const& op) {
+        return op.get_operation() == qcir::SwapGate{};
     });
 }
 
@@ -119,11 +120,7 @@ std::optional<size_t> BaseScheduler::get_executable_gate(Router& router) const {
  * @return size_t
  */
 size_t BaseScheduler::get_operations_cost() const {
-    return max_element(_operations.begin(), _operations.end(),
-                       [](Operation const& a, Operation const& b) {
-                           return a.get_time_end() < b.get_time_end();
-                       })
-        ->get_time_end();
+    return std::ranges::max(_gate_id_to_time | std::views::values | std::views::transform([](auto const& p) { return p.second; }));
 }
 
 /**
@@ -164,11 +161,11 @@ BaseScheduler::Device BaseScheduler::_assign_gates(std::unique_ptr<Router> route
  */
 size_t BaseScheduler::route_one_gate(Router& router, size_t gate_id, bool forget) {
     auto const& gate = _circuit_topology.get_gate(gate_id);
-    auto ops{router.assign_gate(gate)};
+    auto ops{router.assign_gate(gate, _gate_id_to_time)};
     size_t max_cost = 0;
     for (auto const& op : ops) {
-        if (op.get_time_end() > max_cost)
-            max_cost = op.get_time_end();
+        if (_gate_id_to_time.at(op.get_id()).second > max_cost)
+            max_cost = _gate_id_to_time.at(op.get_id()).second;
     }
     if (!forget)
         _operations.insert(_operations.end(), ops.begin(), ops.end());

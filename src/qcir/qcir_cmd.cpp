@@ -12,10 +12,10 @@
 
 #include <cstddef>
 #include <filesystem>
-#include <ostream>
 #include <string>
 
 #include "./optimizer/optimizer_cmd.hpp"
+#include "./oracle/oracle_cmd.hpp"
 #include "./qcir_gate.hpp"
 #include "argparse/arg_parser.hpp"
 #include "argparse/arg_type.hpp"
@@ -328,7 +328,7 @@ dvlab::Command qcir_print_cmd(QCirMgr const& qcir_mgr) {
                 else if (parser.parsed("--statistics")) {
                     qcir_mgr.get()->print_qcir();
                     qcir_mgr.get()->print_gate_statistics(parser.parsed("--verbose"));
-                    qcir_mgr.get()->print_depth();
+                    fmt::println("Depth       : {}", qcir_mgr.get()->calculate_depth());
                 } else {
                     qcir_mgr.get()->print_qcir_info();
                 }
@@ -632,6 +632,7 @@ Command qcir_cmd(QCirMgr& qcir_mgr) {
     cmd.add_subcommand("qcir-cmd-group", qcir_qubit_cmd(qcir_mgr));
     cmd.add_subcommand("qcir-cmd-group", qcir_optimize_cmd(qcir_mgr));
     cmd.add_subcommand("qcir-cmd-group", qcir_translate_cmd(qcir_mgr));
+    cmd.add_subcommand("qcir-cmd-group", qcir_oracle_cmd(qcir_mgr));
     return cmd;
 }
 

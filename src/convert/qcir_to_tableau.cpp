@@ -16,6 +16,7 @@
 
 #include "qcir/gate_type.hpp"
 #include "qcir/qcir_gate.hpp"
+#include "qsyn/qsyn_type.hpp"
 #include "util/phase.hpp"
 #include "util/util.hpp"
 
@@ -26,16 +27,6 @@ namespace experimental {
 namespace {
 
 #include <algorithm>
-
-bool is_allowed_rotation(qcir::QCirGate const& gate) {
-    return (
-        gate.get_rotation_category() == qcir::GateRotationCategory::rz ||
-        gate.get_rotation_category() == qcir::GateRotationCategory::pz ||
-        gate.get_rotation_category() == qcir::GateRotationCategory::rx ||
-        gate.get_rotation_category() == qcir::GateRotationCategory::px ||
-        gate.get_rotation_category() == qcir::GateRotationCategory::ry ||
-        gate.get_rotation_category() == qcir::GateRotationCategory::py);
-};
 
 Pauli to_pauli(qcir::GateRotationCategory const& category) {
     switch (category) {
@@ -105,29 +96,25 @@ auto next_combination(R& r, size_t const comb_size) {
     return next_combination(r.begin(), dvlab::iterator::next(r.begin(), comb_size), r.end());
 }
 
-std::vector<size_t> get_qubit_idx_vec(qcir::QCirGate const& gate) {
-    auto ret = gate.get_qubits() |
-               std::views::transform([](auto const& qubit) {
-                   return gsl::narrow<size_t>(qubit._qubit);
-               }) |
-               tl::to<std::vector>();
+std::vector<size_t> get_qubit_idx_vec(QubitIdList const& qubits) {
+    auto ret = qubits | tl::to<std::vector<size_t>>();
 
     std::ranges::sort(ret);
 
     return ret;
 }
 
-void implement_mcrz(Tableau& tableau, qcir::QCirGate const& gate, dvlab::Phase const& phase) {
+void implement_mcrz(Tableau& tableau, qcir::LegacyGateType const& gate, QubitIdList const& qubits, dvlab::Phase const& phase) {
     if (std::holds_alternative<StabilizerTableau>(tableau.back())) {
         tableau.push_back(std::vector<PauliRotation>{});
     }
     // guaranteed to be a vector of PauliRotation
     auto& last_rotation_group = std::get<std::vector<PauliRotation>>(tableau.back());
 
-    auto const targ = gsl::narrow<size_t>(gate.get_qubits().back()._qubit);
+    auto const targ = gsl::narrow<size_t>(qubits.back());
     for (auto const comb_size : std::views::iota(0ul, gate.get_num_qubits())) {
         bool const is_neg  = comb_size % 2;
-        auto qubit_idx_vec = get_qubit_idx_vec(gate);
+        auto qubit_idx_vec = get_qubit_idx_vec(qubits);
         do {  // NOLINT(cppcoreguidelines-avoid-do-while)
             auto const pauli_range =
                 std::views::iota(0ul, tableau.n_qubits()) |
@@ -141,7 +128,7 @@ void implement_mcrz(Tableau& tableau, qcir::QCirGate const& gate, dvlab::Phase c
     }
 }
 
-void implement_mcpz(Tableau& tableau, qcir::QCirGate const& gate, dvlab::Phase const& phase) {
+void implement_mcpz(Tableau& tableau, qcir::LegacyGateType const& gate, QubitIdList const& qubits, dvlab::Phase const& phase) {
     if (std::holds_alternative<StabilizerTableau>(tableau.back())) {
         tableau.push_back(std::vector<PauliRotation>{});
     }
@@ -150,7 +137,7 @@ void implement_mcpz(Tableau& tableau, qcir::QCirGate const& gate, dvlab::Phase c
 
     for (auto const comb_size : std::views::iota(1ul, gate.get_num_qubits() + 1)) {
         bool const is_neg  = (comb_size - 1) % 2;
-        auto qubit_idx_vec = get_qubit_idx_vec(gate);
+        auto qubit_idx_vec = get_qubit_idx_vec(qubits);
         do {  // NOLINT(cppcoreguidelines-avoid-do-while)
             auto const pauli_range =
                 std::views::iota(0ul, tableau.n_qubits()) |
@@ -163,15 +150,10 @@ void implement_mcpz(Tableau& tableau, qcir::QCirGate const& gate, dvlab::Phase c
     }
 }
 
-void implement_rotation_gate(Tableau& tableau, qcir::QCirGate const& gate) {
-    if (!is_allowed_rotation(gate)) {
-        spdlog::error("Gate {} is not allowed in at the moment!!", gate.get_type_str());
-        return;
-    }
-
+void implement_rotation_gate(Tableau& tableau, qcir::LegacyGateType const& gate, QubitIdList const& qubits) {
     auto const pauli = to_pauli(gate.get_rotation_category());
 
-    auto const targ = gsl::narrow<size_t>(gate.get_qubits().back()._qubit);
+    auto const targ = gsl::narrow<size_t>(qubits.back());
     // convert rotation plane first
     if (pauli == Pauli::x) {
         tableau.h(targ);
@@ -184,9 +166,9 @@ void implement_rotation_gate(Tableau& tableau, qcir::QCirGate const& gate) {
         dvlab::Rational(1, static_cast<int>(std::pow(2, gsl::narrow<double>(gate.get_num_qubits()) - 1)));
     // implement rotation in Z plane
     if (is_r_type_rotation(gate.get_rotation_category())) {
-        implement_mcrz(tableau, gate, phase);
+        implement_mcrz(tableau, gate, qubits, phase);
     } else {
-        implement_mcpz(tableau, gate, phase);
+        implement_mcpz(tableau, gate, qubits, phase);
     }
 
     // restore rotation plane
@@ -199,60 +181,48 @@ void implement_rotation_gate(Tableau& tableau, qcir::QCirGate const& gate) {
 
 }  // namespace
 
-std::optional<Tableau> to_tableau(qcir::QCir const& qcir) {
-    // check if all gates are Clifford
-    auto const is_allowed_clifford = [](qcir::QCirGate const& gate) {
-        return gate.get_type_str() == "h" ||
-               gate.get_type_str() == "s" ||
-               gate.get_type_str() == "sdg" ||
-               gate.get_type_str() == "v" ||
-               gate.get_type_str() == "vdg" ||
-               gate.get_type_str() == "x" ||
-               gate.get_type_str() == "y" ||
-               gate.get_type_str() == "z" ||
-               gate.get_type_str() == "cx" ||
-               gate.get_type_str() == "cz" ||
-               gate.get_type_str() == "swap" ||
-               gate.get_type_str() == "ecr";
-    };
+}  // namespace experimental
 
-    for (auto const& gate : qcir.get_gates()) {
-        if (!is_allowed_clifford(*gate) && !is_allowed_rotation(*gate)) {
-            spdlog::error("Gate ID {} of type {} is not allowed in at the moment!!", gate->get_id(), gate->get_type_str());
-            return std::nullopt;
-        }
+template <>
+bool append_to_tableau(qcir::LegacyGateType const& op, experimental::Tableau& tableau, QubitIdList const& qubits) {
+    if (op.get_type() == "h") {
+        tableau.h(qubits[0]);
+    } else if (op.get_type() == "s") {
+        tableau.s(qubits[0]);
+    } else if (op.get_type() == "sdg") {
+        tableau.sdg(qubits[0]);
+    } else if (op.get_type() == "v") {
+        tableau.v(qubits[0]);
+    } else if (op.get_type() == "vdg") {
+        tableau.vdg(qubits[0]);
+    } else if (op.get_type() == "x") {
+        tableau.x(qubits[0]);
+    } else if (op.get_type() == "y") {
+        tableau.y(qubits[0]);
+    } else if (op.get_type() == "z") {
+        tableau.z(qubits[0]);
+    } else if (op.get_type() == "cx") {
+        tableau.cx(qubits[0], qubits[1]);
+    } else if (op.get_type() == "cz") {
+        tableau.cz(qubits[0], qubits[1]);
+    } else if (op.get_type() == "swap") {
+        tableau.swap(qubits[0], qubits[1]);
+    } else if (op.get_type() == "ecr") {
+        tableau.ecr(qubits[0], qubits[1]);
+    } else {
+        experimental::implement_rotation_gate(tableau, op, qubits);
     }
+    return true;
+}
+
+namespace experimental {
+
+std::optional<Tableau> to_tableau(qcir::QCir const& qcir) {
     Tableau result{qcir.get_num_qubits()};
 
     for (auto const& gate : qcir.get_gates()) {
-        if (gate->get_type_str() == "h") {
-            result.h(gate->get_qubits()[0]._qubit);
-        } else if (gate->get_type_str() == "s") {
-            result.s(gate->get_qubits()[0]._qubit);
-        } else if (gate->get_type_str() == "sdg") {
-            result.sdg(gate->get_qubits()[0]._qubit);
-        } else if (gate->get_type_str() == "v") {
-            result.v(gate->get_qubits()[0]._qubit);
-        } else if (gate->get_type_str() == "vdg") {
-            result.vdg(gate->get_qubits()[0]._qubit);
-        } else if (gate->get_type_str() == "x") {
-            result.x(gate->get_qubits()[0]._qubit);
-        } else if (gate->get_type_str() == "y") {
-            result.y(gate->get_qubits()[0]._qubit);
-        } else if (gate->get_type_str() == "z") {
-            result.z(gate->get_qubits()[0]._qubit);
-        } else if (gate->get_type_str() == "cx") {
-            result.cx(gate->get_qubits()[0]._qubit, gate->get_qubits()[1]._qubit);
-        } else if (gate->get_type_str() == "cz") {
-            result.cz(gate->get_qubits()[0]._qubit, gate->get_qubits()[1]._qubit);
-        } else if (gate->get_type_str() == "swap") {
-            result.swap(gate->get_qubits()[0]._qubit, gate->get_qubits()[1]._qubit);
-        } else if (gate->get_type_str() == "ecr") {
-            result.ecr(gate->get_qubits()[0]._qubit, gate->get_qubits()[1]._qubit);
-        } else if (is_allowed_rotation(*gate)) {
-            implement_rotation_gate(result, *gate);
-        } else {
-            spdlog::error("Gate {} is not allowed in at the moment!!", gate->get_type_str());
+        if (!append_to_tableau(gate->get_operation(), result, gate->get_qubits())) {
+            spdlog::error("Gate type {} is not supported!!", gate->get_operation().get_type());
             return std::nullopt;
         }
     }
