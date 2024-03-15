@@ -105,7 +105,7 @@ private:
     bool _replace_cx_and_cz_with_s_and_cx(QubitIdType t1, QubitIdType t2);
     void _add_cz(QubitIdType t1, QubitIdType t2, bool do_minimize_czs);
     void _add_cx(QubitIdType t1, QubitIdType t2, bool do_swap);
-    void _add_rotation_gate(QubitIdType target, dvlab::Phase ph, GateRotationCategory const& rotation_category);
+    void _add_single_z_rotation_gate(QubitIdType target, dvlab::Phase ph);
 
     QCir _build_from_storage(size_t n_qubits, bool reversed);
 
@@ -130,12 +130,12 @@ private:
     }
 
     inline QCirGate* _store_s(QubitIdType qubit) {
-        _storage.emplace_back(std::make_unique<QCirGate>(_storage.size(), LegacyGateType(std::make_tuple(GateRotationCategory::pz, 1, dvlab::Phase(1, 2))), QubitIdList{qubit}));
+        _storage.emplace_back(std::make_unique<QCirGate>(_storage.size(), SGate(), QubitIdList{qubit}));
         return _storage.back().get();
     }
 
     inline QCirGate* _store_sdg(QubitIdType qubit) {
-        _storage.emplace_back(std::make_unique<QCirGate>(_storage.size(), LegacyGateType(std::make_tuple(GateRotationCategory::pz, 1, dvlab::Phase(-1, 2))), QubitIdList{qubit}));
+        _storage.emplace_back(std::make_unique<QCirGate>(_storage.size(), SdgGate(), QubitIdList{qubit}));
         return _storage.back().get();
     }
 
@@ -149,8 +149,8 @@ private:
         return _storage.back().get();
     }
 
-    inline QCirGate* _store_rotation_gate(QubitIdType target, dvlab::Phase ph, GateRotationCategory const& rotation_category) {
-        _storage.emplace_back(std::make_unique<QCirGate>(_storage.size(), LegacyGateType(std::make_tuple(rotation_category, 1, ph)), QubitIdList{target}));
+    inline QCirGate* _store_single_z_rotation_gate(QubitIdType target, dvlab::Phase ph) {
+        _storage.emplace_back(std::make_unique<QCirGate>(_storage.size(), PZGate(ph), QubitIdList{target}));
         return _storage.back().get();
     }
 };

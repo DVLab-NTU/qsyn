@@ -345,6 +345,11 @@ std::optional<ZXGraph> to_zxgraph(qcir::ECRGate const& /* op */) {
 }
 
 template <>
+std::optional<ZXGraph> to_zxgraph(qcir::PZGate const& op) {
+    return create_single_vertex_zx_form(VertexType::z, op.get_phase());
+}
+
+template <>
 std::optional<ZXGraph> to_zxgraph(qcir::LegacyGateType const& op) {
     switch (op.get_rotation_category()) {
         // single-qubit gates
@@ -367,9 +372,8 @@ std::optional<ZXGraph> to_zxgraph(qcir::LegacyGateType const& op) {
                 return create_mcr_zx_form(op.get_num_qubits(), op.get_phase(), RotationAxis::y);
             }
         case GateRotationCategory::pz:
-            if (op.get_num_qubits() == 1) {
-                return create_single_vertex_zx_form(VertexType::z, op.get_phase());
-            } else if (op.get_num_qubits() == 2 && op.get_phase() == Phase(1)) {
+            assert(op.get_num_qubits() != 1);
+            if (op.get_num_qubits() == 2 && op.get_phase() == Phase(1)) {
                 return create_cz_zx_form();
             } else {
                 return create_mcp_zx_form(op.get_num_qubits(), op.get_phase(), RotationAxis::z);
@@ -433,12 +437,12 @@ std::optional<ZXGraph> to_zxgraph(QCir const& qcir) {
             spdlog::warn("Conversion interrupted.");
             return std::nullopt;
         }
-        spdlog::debug("Gate {} ({})", gate->get_id(), gate->get_type_str());
+        spdlog::debug("Gate {} ({})", gate->get_id(), gate->get_operation().get_repr());
 
         auto tmp = to_zxgraph(*gate);
 
         if (!tmp) {
-            spdlog::error("Conversion of Gate {} ({}) to ZXGraph is not supported yet!!", gate->get_id(), gate->get_type_str());
+            spdlog::error("Conversion of Gate {} ({}) to ZXGraph is not supported yet!!", gate->get_id(), gate->get_operation().get_repr());
             return std::nullopt;
         }
 

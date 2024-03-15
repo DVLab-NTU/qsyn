@@ -188,7 +188,7 @@ void Extractor::extract_singles() {
         }
         auto const ph = _graph->get_first_neighbor(o).first->get_phase();
         if (ph != dvlab::Phase(0)) {
-            _logical_circuit->add_gate("pz", {_qubit_map[o->get_qubit()]}, ph, false);
+            _logical_circuit->prepend(PZGate(ph), {_qubit_map[o->get_qubit()]});
             _graph->get_first_neighbor(o).first->set_phase(dvlab::Phase(0));
         }
     }
@@ -238,7 +238,6 @@ bool Extractor::extract_czs(bool check) {
     for (auto const& [s, t] : remove_list) {
         _graph->remove_edge(s, t, EdgeType::hadamard);
         gates.emplace_back(0, LegacyGateType{std::make_tuple(GateRotationCategory::pz, 2, dvlab::Phase(1))}, QubitIdList{_qubit_map[s->get_qubit()], _qubit_map[t->get_qubit()]});
-        // ops.emplace_back(GateRotationCategory::pz, dvlab::Phase(1), std::make_tuple(_qubit_map[s->get_qubit()], _qubit_map[t->get_qubit()]), std::make_tuple(0, 0));
     }
     if (!gates.empty()) {
         prepend_series_gates(gates);

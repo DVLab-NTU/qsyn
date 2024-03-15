@@ -12,11 +12,21 @@
 
 namespace qsyn::qcir {
 
-std::optional<Operation> str_to_operation(std::string const& str) {
-    if (str == "id") return IdGate();
-    if (str == "h") return HGate();
-    if (str == "swap") return SwapGate();
-    if (str == "ecr") return ECRGate();
+std::optional<Operation> str_to_operation(std::string const& str, std::vector<dvlab::Phase> const& params) {
+    if (params.empty()) {
+        if (str == "id") return IdGate();
+        if (str == "h") return HGate();
+        if (str == "swap") return SwapGate();
+        if (str == "ecr") return ECRGate();
+        if (str == "z") return ZGate();
+        if (str == "s") return SGate();
+        if (str == "sdg") return SdgGate();
+        if (str == "t") return TGate();
+        if (str == "tdg") return TdgGate();
+    }
+    if (params.size() == 1) {
+        if (str == "p" || str == "pz") return PZGate(params[0]);
+    }
 
     return std::nullopt;
 }
@@ -26,17 +36,7 @@ Operation adjoint(LegacyGateType const& op) {
 }
 
 bool is_clifford(LegacyGateType const& op) {
-    switch (op.get_rotation_category()) {
-        case GateRotationCategory::pz:
-        case GateRotationCategory::px:
-        case GateRotationCategory::py:
-        case GateRotationCategory::rz:
-        case GateRotationCategory::rx:
-        case GateRotationCategory::ry:
-            return (op.get_num_qubits() == 1 && op.get_phase().denominator() <= 2) || (op.get_num_qubits() == 2 && op.get_phase().denominator() == 1);
-        default:
-            DVLAB_UNREACHABLE("Invalid rotation category");
-    }
+    return (op.get_num_qubits() == 1 && op.get_phase().denominator() <= 2) || (op.get_num_qubits() == 2 && op.get_phase().denominator() == 1);
 }
 
 std::optional<GateType> str_to_gate_type(std::string_view str) {
@@ -59,11 +59,11 @@ std::optional<GateType> str_to_gate_type(std::string_view str) {
         return GateType{GateRotationCategory::pz, num_qubits, dvlab::Phase(1)};
     if (str == "s")
         return GateType{GateRotationCategory::pz, num_qubits, dvlab::Phase(1, 2)};
-    if (str == "s*" || str == "sdg" || str == "sd")
+    if (str == "sdg")
         return GateType{GateRotationCategory::pz, num_qubits, dvlab::Phase(-1, 2)};
     if (str == "t")
         return GateType{GateRotationCategory::pz, num_qubits, dvlab::Phase(1, 4)};
-    if (str == "t*" || str == "tdg" || str == "td")
+    if (str == "tdg")
         return GateType{GateRotationCategory::pz, num_qubits, dvlab::Phase(-1, 4)};
 
     // single-qubit X-rotation gates
@@ -79,7 +79,7 @@ std::optional<GateType> str_to_gate_type(std::string_view str) {
     if (str == "sx" || str == "x_1_2")
         return GateType{GateRotationCategory::px, num_qubits, dvlab::Phase(1, 2)};
 
-    if (str == "sx*" || str == "sxdg" || str == "sxd")
+    if (str == "sxdg")
         return GateType{GateRotationCategory::px, num_qubits, dvlab::Phase(-1, 2)};
 
     // single-qubit Y-rotation gates
@@ -91,7 +91,7 @@ std::optional<GateType> str_to_gate_type(std::string_view str) {
         return GateType{GateRotationCategory::py, num_qubits, dvlab::Phase(1)};
     if (str == "sy" || str == "y_1_2")
         return GateType{GateRotationCategory::py, num_qubits, dvlab::Phase(1, 2)};
-    if (str == "sy*" || str == "sydg" || str == "syd")
+    if (str == "sydg")
         return GateType{GateRotationCategory::py, num_qubits, dvlab::Phase(-1, 2)};
 
     return std::nullopt;

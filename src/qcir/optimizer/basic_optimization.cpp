@@ -99,7 +99,7 @@ QCir Optimizer::_parse_once(QCir const& qcir, bool reversed, bool do_minimize_cz
     }
 
     for (auto& t : _zs) {
-        _add_rotation_gate(t, dvlab::Phase(1), GateRotationCategory::pz);
+        _add_single_z_rotation_gate(t, dvlab::Phase(1));
     }
 
     QCir result = _build_from_storage(qcir.get_num_qubits(), reversed);
@@ -484,9 +484,8 @@ void Optimizer::_add_cz(QubitIdType t1, QubitIdType t2, bool do_minimize_czs) {
  * @param ph Phase of the gate
  * @param type 0: Z-axis, 1: X-axis, 2: Y-axis
  */
-void Optimizer::_add_rotation_gate(QubitIdType target, dvlab::Phase ph, GateRotationCategory const& rotation_category) {
-    assert(rotation_category == GateRotationCategory::pz || rotation_category == GateRotationCategory::px || rotation_category == GateRotationCategory::py);
-    auto rotate = _store_rotation_gate(target, ph, rotation_category);
+void Optimizer::_add_single_z_rotation_gate(QubitIdType target, dvlab::Phase ph) {
+    auto rotate = _store_single_z_rotation_gate(target, ph);
     _gates[target].emplace_back(rotate);
     _available[target].emplace_back(rotate);
 }

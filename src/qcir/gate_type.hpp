@@ -67,7 +67,7 @@ class Operation;
 Operation adjoint(Operation const& op);
 bool is_clifford(Operation const& op);
 
-std::optional<Operation> str_to_operation(std::string const& str);
+std::optional<Operation> str_to_operation(std::string const& str, std::vector<dvlab::Phase> const& params = {});
 
 /**
  * @brief A type-erased interface for a quantum gate.
@@ -116,6 +116,7 @@ public:
         if (auto* model = dynamic_cast<Model<T>*>(_pimpl.get())) {
             return model->value;
         }
+        spdlog::error("Operation type is {}, but expected {}", this->get_type(), typeid(T).name());
         throw std::bad_cast();
     }
 
@@ -359,6 +360,13 @@ template <>
 std::optional<tensor::QTensor<double>> to_tensor(qcir::ECRGate const& op);
 template <>
 bool append_to_tableau(qcir::ECRGate const& op, experimental::Tableau& tableau, QubitIdList const& qubits);
+
+template <>
+std::optional<zx::ZXGraph> to_zxgraph(qcir::PZGate const& op);
+template <>
+std::optional<tensor::QTensor<double>> to_tensor(qcir::PZGate const& op);
+template <>
+bool append_to_tableau(qcir::PZGate const& op, experimental::Tableau& tableau, QubitIdList const& qubits);
 }  // namespace qsyn
 
 template <>

@@ -238,7 +238,7 @@ void Device::apply_gate(qcir::QCirGate const& op, size_t time_begin) {
         q0.set_occupied_time(time_begin + op.get_delay());
         q1.set_occupied_time(time_begin + op.get_delay());
     } else {
-        DVLAB_ASSERT(false, fmt::format("Unknown gate type ({}) at apply_gate()!!", op.get_type_str()));
+        DVLAB_ASSERT(false, fmt::format("Unknown gate type ({}) at apply_gate()!!", op.get_operation().get_repr()));
     }
 }
 

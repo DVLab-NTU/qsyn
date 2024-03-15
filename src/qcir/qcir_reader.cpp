@@ -127,6 +127,11 @@ bool QCir::read_qasm(std::filesystem::path const& filepath) {
             spdlog::error("invalid phase on line {}!!", str);
             return false;
         }
+
+        if (auto op = str_to_operation(type, {*phase}); op.has_value()) {
+            append(*op, qubit_ids);
+            continue;
+        }
         add_gate(type, qubit_ids, phase.value(), true);
     }
     return true;

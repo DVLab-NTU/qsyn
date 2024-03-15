@@ -59,6 +59,11 @@ std::optional<QTensor<double>> to_tensor(ECRGate const& /* op */) {
 }
 
 template <>
+std::optional<QTensor<double>> to_tensor(PZGate const& op) {
+    return QTensor<double>::pzgate(op.get_phase());
+}
+
+template <>
 std::optional<QTensor<double>> to_tensor(LegacyGateType const& op) {
     switch (op.get_rotation_category()) {
         case GateRotationCategory::pz:
@@ -160,10 +165,10 @@ std::optional<QTensor<double>> to_tensor(QCir const& qcir) try {
             spdlog::warn("Conversion interrupted.");
             return std::nullopt;
         }
-        spdlog::debug("Gate {} ({})", gate->get_id(), gate->get_type_str());
+        spdlog::debug("Gate {} ({})", gate->get_id(), gate->get_operation().get_repr());
         auto const gate_tensor = to_tensor(*gate);
         if (!gate_tensor.has_value()) {
-            spdlog::error("Conversion of Gate {} ({}) to Tensor is not supported yet!!", gate->get_id(), gate->get_type_str());
+            spdlog::error("Conversion of Gate {} ({}) to Tensor is not supported yet!!", gate->get_id(), gate->get_operation().get_repr());
             return std::nullopt;
         }
         std::vector<size_t> main_tensor_output_pins;

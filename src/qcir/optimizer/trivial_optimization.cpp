@@ -132,14 +132,14 @@ void Optimizer::_fuse_x_phase(QCir& qcir, QCirGate* prev_gate, QCirGate* gate) {
  * @return modified circuit
  */
 void Optimizer::_fuse_z_phase(QCir& qcir, QCirGate* prev_gate, QCirGate* gate) {
-    auto prev_op     = prev_gate->get_operation().get_underlying<LegacyGateType>();
-    auto op          = gate->get_operation().get_underlying<LegacyGateType>();
+    auto prev_op     = prev_gate->get_operation().get_underlying<PZGate>();
+    auto op          = gate->get_operation().get_underlying<PZGate>();
     auto const phase = prev_op.get_phase() + op.get_phase();
     if (phase == dvlab::Phase(0)) {
         qcir.remove_gate(prev_gate->get_id());
         return;
     }
-    prev_gate->set_operation(LegacyGateType{std::make_tuple(GateRotationCategory::pz, 1, phase)});
+    prev_gate->set_operation(PZGate(phase));
 }
 
 /**
