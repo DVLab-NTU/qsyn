@@ -11,7 +11,7 @@ RUN apt install -y \
     libopenblas-dev \
     liblapack-dev \
     libreadline-dev \
-    libomp-dev
+    libomp-16-dev
 
 RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-11 100
 RUN update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-11 100
