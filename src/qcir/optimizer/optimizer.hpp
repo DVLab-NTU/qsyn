@@ -120,7 +120,7 @@ private:
     void _partial_zx_optimization(QCir& qcir);
 
     inline QCirGate* _store_x(QubitIdType qubit) {
-        _storage.emplace_back(std::make_unique<QCirGate>(_storage.size(), LegacyGateType(std::make_tuple(GateRotationCategory::px, 1, dvlab::Phase(1))), QubitIdList{qubit}));
+        _storage.emplace_back(std::make_unique<QCirGate>(_storage.size(), XGate(), QubitIdList{qubit}));
         return _storage.back().get();
     }
 

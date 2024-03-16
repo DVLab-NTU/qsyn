@@ -23,9 +23,24 @@ std::optional<Operation> str_to_operation(std::string const& str, std::vector<dv
         if (str == "sdg") return SdgGate();
         if (str == "t") return TGate();
         if (str == "tdg") return TdgGate();
+        if (str == "x") return XGate();
+        if (str == "sx" || str == "x_1_2") return SXGate();
+        if (str == "sxdg") return SXdgGate();
+        if (str == "tx") return TXGate();
+        if (str == "txdg") return TXdgGate();
+        if (str == "y") return YGate();
+        if (str == "sy" || str == "y_1_2") return SYGate();
+        if (str == "sydg") return SYdgGate();
+        if (str == "ty") return TYGate();
+        if (str == "tydg") return TYdgGate();
     }
     if (params.size() == 1) {
         if (str == "p" || str == "pz") return PZGate(params[0]);
+        if (str == "px") return PXGate(params[0]);
+        if (str == "py") return PYGate(params[0]);
+        if (str == "rz") return RZGate(params[0]);
+        if (str == "rx") return RXGate(params[0]);
+        if (str == "ry") return RYGate(params[0]);
     }
 
     return std::nullopt;

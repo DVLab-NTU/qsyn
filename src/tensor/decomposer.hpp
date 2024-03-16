@@ -13,6 +13,7 @@
 #include <ranges>
 #include <tl/to.hpp>
 
+#include "qcir/gate_type.hpp"
 #include "qcir/qcir.hpp"
 #include "qsyn/qsyn_type.hpp"
 #include "tensor/qtensor.hpp"
@@ -443,37 +444,43 @@ bool Decomposer::_decompose_cnx(const std::vector<size_t>& ctrls, const size_t e
  */
 template <typename U>
 bool Decomposer::_decompose_cu(Tensor<U> const& t, size_t ctrl, size_t targ) {
-    using float_type             = typename U::value_type;
-    constexpr float_type eps     = 1e-6;
-    const ZYZ<float_type> angles = _decompose_zyz(t);
+    using dvlab::Phase;
+    using float_type         = typename U::value_type;
+    constexpr float_type eps = 1e-6;
+    auto const angles        = _decompose_zyz<float_type>(t);
     if (!angles.correct) return false;
 
-    if (std::abs((angles.alpha - angles.gamma) / 2) > eps)
-        _quantum_circuit.add_gate("rz", {int(targ)}, dvlab::Phase{((angles.alpha - angles.gamma) / 2) * (-1.0)}, true);
+    if (std::abs((angles.alpha - angles.gamma) / 2) > eps) {
+        _quantum_circuit.append(qcir::RZGate(Phase{((angles.alpha - angles.gamma) / 2) * (-1.0)}), {gsl::narrow<QubitIdType>(targ)});
+    }
 
     if (std::abs(angles.beta) > eps) {
         _quantum_circuit.add_gate("cx", {int(ctrl), int(targ)}, {}, true);
-        if (std::abs((angles.alpha + angles.gamma) / 2) > eps)
-            _quantum_circuit.add_gate("rz", {int(targ)}, dvlab::Phase{((angles.alpha + angles.gamma) / 2) * (-1.0)}, true);
+        if (std::abs((angles.alpha + angles.gamma) / 2) > eps) {
+            _quantum_circuit.append(qcir::RZGate(Phase{((angles.alpha + angles.gamma) / 2) * (-1.0)}), {gsl::narrow<QubitIdType>(targ)});
+        }
 
-        _quantum_circuit.add_gate("ry", {int(targ)}, dvlab::Phase{angles.beta * (-1.0)}, true);
+        _quantum_circuit.append(qcir::RYGate(Phase{angles.beta * (-1.0)}), {gsl::narrow<QubitIdType>(targ)});
         _quantum_circuit.add_gate("cx", {int(ctrl), int(targ)}, {}, true);
-        _quantum_circuit.add_gate("ry", {int(targ)}, dvlab::Phase{angles.beta}, true);
+        _quantum_circuit.append(qcir::RYGate(Phase{angles.beta}), {gsl::narrow<QubitIdType>(targ)});
 
-        if (std::abs(angles.alpha) > eps)
-            _quantum_circuit.add_gate("rz", {int(targ)}, dvlab::Phase{angles.alpha}, true);
+        if (std::abs(angles.alpha) > eps) {
+            _quantum_circuit.append(qcir::RZGate(Phase(angles.alpha)), {gsl::narrow<QubitIdType>(targ)});
+        }
 
     } else {
         if (std::abs((angles.alpha + angles.gamma) / 2) > eps) {
             _quantum_circuit.add_gate("cx", {int(ctrl), int(targ)}, {}, true);
-            _quantum_circuit.add_gate("rz", {int(targ)}, dvlab::Phase{((angles.alpha + angles.gamma) / 2) * (-1.0)}, true);
+            _quantum_circuit.append(qcir::RZGate(Phase{((angles.alpha + angles.gamma) / 2) * (-1.0)}), {gsl::narrow<QubitIdType>(targ)});
             _quantum_circuit.add_gate("cx", {int(ctrl), int(targ)}, {}, true);
         }
-        if (std::abs(angles.alpha) > eps)
-            _quantum_circuit.add_gate("rz", {int(targ)}, dvlab::Phase{angles.alpha}, true);
+        if (std::abs(angles.alpha) > eps) {
+            _quantum_circuit.append(qcir::RZGate(Phase(angles.alpha)), {gsl::narrow<QubitIdType>(targ)});
+        }
     }
-    if (std::abs(angles.phi) > eps)
-        _quantum_circuit.add_gate("rz", {int(ctrl)}, dvlab::Phase{angles.phi}, true);
+    if (std::abs(angles.phi) > eps) {
+        _quantum_circuit.append(qcir::RZGate(Phase(angles.phi)), {gsl::narrow<QubitIdType>(ctrl)});
+    }
 
     return true;
 }

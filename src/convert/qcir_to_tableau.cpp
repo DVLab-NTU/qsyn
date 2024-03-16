@@ -8,7 +8,6 @@
 #include "./qcir_to_tableau.hpp"
 
 #include <gsl/narrow>
-#include <iterator>
 #include <ranges>
 #include <tl/adjacent.hpp>
 #include <tl/to.hpp>
@@ -217,30 +216,94 @@ bool append_to_tableau(qcir::PZGate const& op, experimental::Tableau& tableau, Q
         tableau.sdg(qubits[0]);
     } else {
         experimental::implement_rotation_gate(tableau, qcir::GateRotationCategory::pz, op.get_phase(), qubits);
-        spdlog::error("PZGate with phase {} is not supported!!", op.get_phase());
-        return false;
     }
 
     return true;
 }
 
 template <>
-bool append_to_tableau(qcir::LegacyGateType const& op, experimental::Tableau& tableau, QubitIdList const& qubits) {
-    if (op.get_type() == "s") {
-        tableau.s(qubits[0]);
-    } else if (op.get_type() == "sdg") {
-        tableau.sdg(qubits[0]);
-    } else if (op.get_type() == "v") {
-        tableau.v(qubits[0]);
-    } else if (op.get_type() == "vdg") {
-        tableau.vdg(qubits[0]);
-    } else if (op.get_type() == "x") {
+bool append_to_tableau(qcir::PXGate const& op, experimental::Tableau& tableau, QubitIdList const& qubits) {
+    if (op.get_phase() == dvlab::Phase(1)) {
         tableau.x(qubits[0]);
-    } else if (op.get_type() == "y") {
+    } else if (op.get_phase() == dvlab::Phase(1, 2)) {
+        tableau.v(qubits[0]);
+    } else if (op.get_phase() == dvlab::Phase(-1, 2)) {
+        tableau.vdg(qubits[0]);
+    } else {
+        experimental::implement_rotation_gate(tableau, qcir::GateRotationCategory::px, op.get_phase(), qubits);
+    }
+
+    return true;
+}
+
+template <>
+bool append_to_tableau(qcir::PYGate const& op, experimental::Tableau& tableau, QubitIdList const& qubits) {
+    if (op.get_phase() == dvlab::Phase(1)) {
         tableau.y(qubits[0]);
-    } else if (op.get_type() == "z") {
+    } else if (op.get_phase() == dvlab::Phase(1, 2)) {
+        tableau.sdg(qubits[0]);
+        tableau.v(qubits[0]);
+        tableau.s(qubits[0]);
+    } else if (op.get_phase() == dvlab::Phase(-1, 2)) {
+        tableau.sdg(qubits[0]);
+        tableau.vdg(qubits[0]);
+        tableau.s(qubits[0]);
+    } else {
+        experimental::implement_rotation_gate(tableau, qcir::GateRotationCategory::py, op.get_phase(), qubits);
+    }
+
+    return true;
+}
+
+template <>
+bool append_to_tableau(qcir::RZGate const& op, experimental::Tableau& tableau, QubitIdList const& qubits) {
+    if (op.get_phase() == dvlab::Phase(1)) {
         tableau.z(qubits[0]);
-    } else if (op.get_type() == "cx") {
+    } else if (op.get_phase() == dvlab::Phase(1, 2)) {
+        tableau.s(qubits[0]);
+    } else if (op.get_phase() == dvlab::Phase(-1, 2)) {
+        tableau.sdg(qubits[0]);
+    } else {
+        experimental::implement_rotation_gate(tableau, qcir::GateRotationCategory::rz, op.get_phase(), qubits);
+    }
+    return true;
+}
+
+template <>
+bool append_to_tableau(qcir::RXGate const& op, experimental::Tableau& tableau, QubitIdList const& qubits) {
+    if (op.get_phase() == dvlab::Phase(1)) {
+        tableau.x(qubits[0]);
+    } else if (op.get_phase() == dvlab::Phase(1, 2)) {
+        tableau.v(qubits[0]);
+    } else if (op.get_phase() == dvlab::Phase(-1, 2)) {
+        tableau.vdg(qubits[0]);
+    } else {
+        experimental::implement_rotation_gate(tableau, qcir::GateRotationCategory::rx, op.get_phase(), qubits);
+    }
+    return true;
+}
+
+template <>
+bool append_to_tableau(qcir::RYGate const& op, experimental::Tableau& tableau, QubitIdList const& qubits) {
+    if (op.get_phase() == dvlab::Phase(1)) {
+        tableau.y(qubits[0]);
+    } else if (op.get_phase() == dvlab::Phase(1, 2)) {
+        tableau.sdg(qubits[0]);
+        tableau.v(qubits[0]);
+        tableau.s(qubits[0]);
+    } else if (op.get_phase() == dvlab::Phase(-1, 2)) {
+        tableau.sdg(qubits[0]);
+        tableau.vdg(qubits[0]);
+        tableau.s(qubits[0]);
+    } else {
+        experimental::implement_rotation_gate(tableau, qcir::GateRotationCategory::ry, op.get_phase(), qubits);
+    }
+    return true;
+}
+
+template <>
+bool append_to_tableau(qcir::LegacyGateType const& op, experimental::Tableau& tableau, QubitIdList const& qubits) {
+    if (op.get_type() == "cx") {
         tableau.cx(qubits[0], qubits[1]);
     } else if (op.get_type() == "cz") {
         tableau.cz(qubits[0], qubits[1]);

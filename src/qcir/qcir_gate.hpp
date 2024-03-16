@@ -21,26 +21,6 @@ extern size_t DOUBLE_DELAY;
 extern size_t SWAP_DELAY;
 extern size_t MULTIPLE_DELAY;
 
-class QCirGate;
-
-// ┌────────────────────────────────────────────────────────────────────────┐
-// │                                                                        │
-// │                        Hierarchy of QCirGates                          │
-// │                                                                        │
-// │                                   QCirGate                             │
-// │         ┌──────────────────┬─────────┴─────────┬──────────────────┐    │
-// │       Z-axis             X-axis              Y-axis               H    │
-// │    ┌────┴────┐        ┌────┴────┐         ┌────┴────┐                  │
-// │   MCP      MCRZ      MCPX     MCRX       MCPY     MCRY                 │
-// │  ╌╌╌╌╌╌   ╌╌╌╌╌╌    ╌╌╌╌╌╌   ╌╌╌╌╌╌     ╌╌╌╌╌╌   ╌╌╌╌╌╌                │
-// │  CCZ (2)            CCX (2)             (CCY)                          │
-// │  CZ  (1)            CX  (1)             (CY)                           │
-// │  P        RZ        PX       RX         PY       RY                    │
-// │  Z                  X                   Y                              │
-// │  S, SDG             SX                  SY                             │
-// │  T, TDG             SWAP                                               │
-// └────────────────────────────────────────────────────────────────────────┘
-
 class QCirGate {
 public:
     using QubitIdType = qsyn::QubitIdType;

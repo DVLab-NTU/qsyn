@@ -7,7 +7,6 @@
 
 #include <spdlog/spdlog.h>
 
-#include <cassert>
 #include <tl/to.hpp>
 #include <tuple>
 
@@ -112,15 +111,26 @@ std::vector<QCirGate*> Optimizer::_get_first_layer_gates(QCir& qcir, bool from_l
  * @return modified circuit
  */
 void Optimizer::_fuse_x_phase(QCir& qcir, QCirGate* prev_gate, QCirGate* gate) {
-    auto prev_op     = prev_gate->get_operation().get_underlying<LegacyGateType>();
-    auto op          = gate->get_operation().get_underlying<LegacyGateType>();
-    auto const phase = prev_op.get_phase() + op.get_phase();
+    auto const get_underlying_phase = [](QCirGate const& gate) {
+        if (gate.get_operation().is<PXGate>()) {
+            return gate.get_operation().get_underlying<PXGate>().get_phase();
+        }
+        if (gate.get_operation().is<RXGate>()) {
+            return gate.get_operation().get_underlying<RXGate>().get_phase();
+        }
+        if (gate.get_operation().is<LegacyGateType>()) {
+            return gate.get_operation().get_underlying<LegacyGateType>().get_phase();
+        }
+        throw std::runtime_error("Invalid gate type");
+    };
+
+    auto const phase = get_underlying_phase(*prev_gate) + get_underlying_phase(*gate);
     if (phase == dvlab::Phase(0)) {
         qcir.remove_gate(prev_gate->get_id());
         return;
     }
 
-    prev_gate->set_operation(LegacyGateType{std::make_tuple(GateRotationCategory::px, 1, phase)});
+    prev_gate->set_operation(PXGate(phase));
 }
 
 /**
@@ -132,9 +142,20 @@ void Optimizer::_fuse_x_phase(QCir& qcir, QCirGate* prev_gate, QCirGate* gate) {
  * @return modified circuit
  */
 void Optimizer::_fuse_z_phase(QCir& qcir, QCirGate* prev_gate, QCirGate* gate) {
-    auto prev_op     = prev_gate->get_operation().get_underlying<PZGate>();
-    auto op          = gate->get_operation().get_underlying<PZGate>();
-    auto const phase = prev_op.get_phase() + op.get_phase();
+    auto const get_underlying_phase = [](QCirGate const& gate) {
+        if (gate.get_operation().is<PZGate>()) {
+            return gate.get_operation().get_underlying<PZGate>().get_phase();
+        }
+        if (gate.get_operation().is<RZGate>()) {
+            return gate.get_operation().get_underlying<RZGate>().get_phase();
+        }
+        if (gate.get_operation().is<LegacyGateType>()) {
+            return gate.get_operation().get_underlying<LegacyGateType>().get_phase();
+        }
+        throw std::runtime_error("Invalid gate type");
+    };
+
+    auto const phase = get_underlying_phase(*prev_gate) + get_underlying_phase(*gate);
     if (phase == dvlab::Phase(0)) {
         qcir.remove_gate(prev_gate->get_id());
         return;

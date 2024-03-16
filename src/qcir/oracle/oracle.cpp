@@ -241,7 +241,7 @@ std::optional<QCir> build_qcir(
     }
 
     if (xag.outputs_inverted.front()) {
-        qcir.add_gate("x", {target_output_qubit}, {}, true);
+        qcir.append(XGate(), {target_output_qubit});
     }
 
     return qcir;

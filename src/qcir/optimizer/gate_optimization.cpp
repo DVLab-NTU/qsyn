@@ -59,7 +59,7 @@ void Optimizer::_match_hadamards(QCirGate* gate) {
 }
 
 void Optimizer::_match_xs(QCirGate* gate) {
-    assert(gate->get_operation() == XGate{});
+    assert(gate->get_operation() == XGate());
     auto const qubit = gate->get_qubit(0);
     if (_xs.contains(qubit)) {
         spdlog::trace("Cancel X-X into Id");

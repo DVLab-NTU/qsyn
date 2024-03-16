@@ -200,9 +200,9 @@ bool QCir::read_qc(std::filesystem::path const& filepath) {
                 }
             }
             if (type == "Tof" || type == "tof") {
-                if (qubit_ids.size() == 1)
-                    add_gate("x", qubit_ids, dvlab::Phase(1), true);
-                else if (qubit_ids.size() == 2)
+                if (qubit_ids.size() == 1) {
+                    append(XGate(), qubit_ids);
+                } else if (qubit_ids.size() == 2)
                     add_gate("cx", qubit_ids, dvlab::Phase(1), true);
                 else if (qubit_ids.size() == 3)
                     add_gate("ccx", qubit_ids, dvlab::Phase(1), true);
@@ -212,8 +212,14 @@ bool QCir::read_qc(std::filesystem::path const& filepath) {
                 }
             } else if ((type == "Z" || type == "z") && qubit_ids.size() == 3) {
                 add_gate("ccz", qubit_ids, dvlab::Phase(1), true);
-            } else
+            } else {
+                auto op = str_to_operation(type);
+                if (op.has_value()) {
+                    append(*op, qubit_ids);
+                    continue;
+                }
                 add_gate(type, qubit_ids, dvlab::Phase(1), true);
+            }
         }
     }
     return true;
@@ -270,6 +276,11 @@ bool QCir::read_qsim(std::filesystem::path const& filepath) {
                 spdlog::error("invalid phase on line {}!!", line);
                 return false;
             }
+            if (auto op = str_to_operation(type, {*phase}); op.has_value()) {
+                append(*op, qubit_ids);
+                continue;
+            }
+
             add_gate(type, qubit_ids, phase.value(), true);
         } else if (count(single_gate_list.begin(), single_gate_list.end(), type)) {
             // add single qubit gate

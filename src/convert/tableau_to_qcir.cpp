@@ -7,7 +7,6 @@
 
 #include "./tableau_to_qcir.hpp"
 
-#include <functional>
 #include <gsl/narrow>
 #include <tl/adjacent.hpp>
 #include <tl/to.hpp>
@@ -38,16 +37,16 @@ void add_clifford_gate(qcir::QCir& qcir, CliffordOperator const& op) {
             qcir.append(qcir::SdgGate(), {gsl::narrow<QubitIdType>(qubits[0])});
             break;
         case COT::v:
-            qcir.add_gate("sx", {gsl::narrow<QubitIdType>(qubits[0])}, {}, true);
+            qcir.append(qcir::SXGate(), {gsl::narrow<QubitIdType>(qubits[0])});
             break;
         case COT::vdg:
-            qcir.add_gate("sxdg", {gsl::narrow<QubitIdType>(qubits[0])}, {}, true);
+            qcir.append(qcir::SXdgGate(), {gsl::narrow<QubitIdType>(qubits[0])});
             break;
         case COT::x:
-            qcir.add_gate("x", {gsl::narrow<QubitIdType>(qubits[0])}, {}, true);
+            qcir.append(qcir::XGate(), {gsl::narrow<QubitIdType>(qubits[0])});
             break;
         case COT::y:
-            qcir.add_gate("y", {gsl::narrow<QubitIdType>(qubits[0])}, {}, true);
+            qcir.append(qcir::YGate(), {gsl::narrow<QubitIdType>(qubits[0])});
             break;
         case COT::z:
             qcir.append(qcir::ZGate(), {gsl::narrow<QubitIdType>(qubits[0])});

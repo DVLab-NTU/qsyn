@@ -286,9 +286,9 @@ void LUT::_construct_lut_1() {
         auto tt = kitty::dynamic_truth_table(1);
         kitty::set_bit(tt, 0);
         auto qcir = QCir(2);
-        qcir.add_gate("x", {0}, {}, true);
+        qcir.append(qcir::XGate(), {0});
         qcir.add_gate("cx", {0, 1}, {}, true);
-        qcir.add_gate("x", {0}, {}, true);
+        qcir.append(qcir::XGate(), {0});
         _table[tt] = qcir;
     }
     {
@@ -303,7 +303,7 @@ void LUT::_construct_lut_1() {
         kitty::set_bit(tt, 0);
         kitty::set_bit(tt, 1);
         auto qcir = QCir(2);
-        qcir.add_gate("x", {1}, {}, true);
+        qcir.append(qcir::XGate(), {1});
         _table[tt] = qcir;
     }
 }
@@ -314,7 +314,7 @@ void LUT::_construct_lut_2() {
         kitty::create_from_words(tt, &i, &i + 1);  // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
         auto qcir = QCir(3);
 
-        auto x   = [&qcir](auto const& target) { qcir.add_gate("x", {target}, {}, true); };
+        auto x   = [&qcir](auto const& target) { qcir.append(XGate(), {target}); };
         auto cx  = [&qcir](auto const& control, auto const& target) { qcir.add_gate("cx", {control, target}, {}, true); };
         auto ccx = [&qcir](auto const& c1, auto const& c2, auto const& target) { qcir.add_gate("ccx", {c1, c2, target}, {}, true); };
 
@@ -350,10 +350,9 @@ void LUT::_construct_lut_3() {
                 }
             }
         }
-
-        qcir.add_gate("x", {0}, {}, true);
+        qcir.append(qcir::XGate(), {0});
         add_gates_2(i_00, x, cx, ccx);
-        qcir.add_gate("x", {0}, {}, true);
+        qcir.append(qcir::XGate(), {0});
         add_gates_2(i_01, x, cx, ccx);
 
         _table[tt] = qcir;

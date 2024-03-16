@@ -116,6 +116,19 @@ public:
         throw std::bad_cast();
     }
 
+    template <typename T>
+    bool is() const {
+        return dynamic_cast<Model<T>*>(_pimpl.get()) != nullptr;
+    }
+
+    template <typename T>
+    std::optional<T> get_underlying_if() const {
+        if (auto* model = dynamic_cast<Model<T>*>(_pimpl.get())) {
+            return model->value;
+        }
+        return std::nullopt;
+    }
+
 private:
     struct Concept {
         virtual ~Concept()                       = default;
@@ -197,28 +210,6 @@ public:
 inline Operation adjoint(HGate const& op) { return op; }
 inline bool is_clifford(HGate const& /* op */) { return true; }
 
-class XGate {
-public:
-    XGate() = default;
-    std::string get_type() const { return "x"; }
-    std::string get_repr() const { return "x"; }
-    size_t get_num_qubits() const { return 1; }
-};
-
-inline Operation adjoint(XGate const& op) { return op; }
-inline bool is_clifford(XGate const& /* op */) { return true; }
-
-class YGate {
-public:
-    YGate() = default;
-    std::string get_type() const { return "y"; }
-    std::string get_repr() const { return "y"; }
-    size_t get_num_qubits() const { return 1; }
-};
-
-inline Operation adjoint(YGate const& op) { return op; }
-inline bool is_clifford(YGate const& /* op */) { return true; }
-
 class CXGate {
 public:
     CXGate() = default;
@@ -279,9 +270,6 @@ public:
     PZGate(dvlab::Phase phase) : _phase(phase) {}
     std::string get_type() const { return "p"; }
     inline std::string get_repr() const {
-        if (_phase == dvlab::Phase(0)) {
-            return "id";
-        }
         if (_phase == dvlab::Phase(1)) {
             return "z";
         }
@@ -308,16 +296,147 @@ private:
     dvlab::Phase _phase;
 };
 
+class PXGate {
+public:
+    PXGate(dvlab::Phase phase) : _phase(phase) {}
+    std::string get_type() const { return "px"; }
+    std::string get_repr() const {
+        if (_phase == dvlab::Phase(1)) {
+            return "x";
+        }
+        if (_phase == dvlab::Phase(1, 2)) {
+            return "sx";
+        }
+        if (_phase == dvlab::Phase(-1, 2)) {
+            return "sxdg";
+        }
+        if (_phase == dvlab::Phase(1, 4)) {
+            return "tx";
+        }
+        if (_phase == dvlab::Phase(-1, 4)) {
+            return "txdg";
+        }
+        return fmt::format("px({})", _phase.get_print_string());
+    }
+    size_t get_num_qubits() const { return 1; }
+
+    auto get_phase() const { return _phase; }
+    void set_phase(dvlab::Phase phase) { _phase = phase; }
+
+private:
+    dvlab::Phase _phase;
+};
+
+class PYGate {
+public:
+    PYGate(dvlab::Phase phase) : _phase(phase) {}
+    std::string get_type() const { return "py"; }
+    std::string get_repr() const {
+        if (_phase == dvlab::Phase(1)) {
+            return "y";
+        }
+        if (_phase == dvlab::Phase(1, 2)) {
+            return "sy";
+        }
+        if (_phase == dvlab::Phase(-1, 2)) {
+            return "sydg";
+        }
+        if (_phase == dvlab::Phase(1, 4)) {
+            return "ty";
+        }
+        if (_phase == dvlab::Phase(-1, 4)) {
+            return "tydg";
+        }
+        return fmt::format("py({})", _phase.get_print_string());
+    }
+    size_t get_num_qubits() const { return 1; }
+
+    auto get_phase() const { return _phase; }
+    void set_phase(dvlab::Phase phase) { _phase = phase; }
+
+private:
+    dvlab::Phase _phase;
+};
+
 // NOLINTBEGIN(readability-identifier-naming)  // pseudo classes
 inline PZGate ZGate() { return PZGate(dvlab::Phase(1)); }
 inline PZGate SGate() { return PZGate(dvlab::Phase(1, 2)); }
 inline PZGate SdgGate() { return PZGate(dvlab::Phase(-1, 2)); }
 inline PZGate TGate() { return PZGate(dvlab::Phase(1, 4)); }
 inline PZGate TdgGate() { return PZGate(dvlab::Phase(-1, 4)); }
+inline PXGate XGate() { return PXGate(dvlab::Phase(1)); }
+inline PXGate SXGate() { return PXGate(dvlab::Phase(1, 2)); }
+inline PXGate SXdgGate() { return PXGate(dvlab::Phase(-1, 2)); }
+inline PXGate TXGate() { return PXGate(dvlab::Phase(1, 4)); }
+inline PXGate TXdgGate() { return PXGate(dvlab::Phase(-1, 4)); }
+inline PYGate YGate() { return PYGate(dvlab::Phase(1)); }
+inline PYGate SYGate() { return PYGate(dvlab::Phase(1, 2)); }
+inline PYGate SYdgGate() { return PYGate(dvlab::Phase(-1, 2)); }
+inline PYGate TYGate() { return PYGate(dvlab::Phase(1, 4)); }
+inline PYGate TYdgGate() { return PYGate(dvlab::Phase(-1, 4)); }
 // NOLINTEND(readability-identifier-naming)
 
 inline Operation adjoint(PZGate const& op) { return PZGate(-op.get_phase()); }
 inline bool is_clifford(PZGate const& op) { return op.get_phase().denominator() <= 2; }
+inline Operation adjoint(PXGate const& op) { return PXGate(-op.get_phase()); }
+inline bool is_clifford(PXGate const& op) { return op.get_phase().denominator() <= 2; }
+inline Operation adjoint(PYGate const& op) { return PYGate(-op.get_phase()); }
+inline bool is_clifford(PYGate const& op) { return op.get_phase().denominator() <= 2; }
+
+class RZGate {
+public:
+    RZGate(dvlab::Phase phase) : _phase(phase) {}
+    std::string get_type() const { return "rz"; }
+    std::string get_repr() const {
+        return fmt::format("rz({})", _phase.get_print_string());
+    }
+    size_t get_num_qubits() const { return 1; }
+
+    auto get_phase() const { return _phase; }
+    void set_phase(dvlab::Phase phase) { _phase = phase; }
+
+private:
+    dvlab::Phase _phase;
+};
+
+class RXGate {
+public:
+    RXGate(dvlab::Phase phase) : _phase(phase) {}
+    std::string get_type() const { return "rx"; }
+    std::string get_repr() const {
+        return fmt::format("rx({})", _phase.get_print_string());
+    }
+    size_t get_num_qubits() const { return 1; }
+
+    auto get_phase() const { return _phase; }
+    void set_phase(dvlab::Phase phase) { _phase = phase; }
+
+private:
+    dvlab::Phase _phase;
+};
+
+class RYGate {
+public:
+    RYGate(dvlab::Phase phase) : _phase(phase) {}
+    std::string get_type() const { return "ry"; }
+    std::string get_repr() const {
+        return fmt::format("ry({})", _phase.get_print_string());
+    }
+    size_t get_num_qubits() const { return 1; }
+
+    auto get_phase() const { return _phase; }
+    void set_phase(dvlab::Phase phase) { _phase = phase; }
+
+private:
+    dvlab::Phase _phase;
+};
+
+inline Operation adjoint(RZGate const& op) { return RZGate(-op.get_phase()); }
+inline bool is_clifford(RZGate const& op) { return op.get_phase().denominator() <= 2; }
+inline Operation adjoint(RXGate const& op) { return RXGate(-op.get_phase()); }
+inline bool is_clifford(RXGate const& op) { return op.get_phase().denominator() <= 2; }
+inline Operation adjoint(RYGate const& op) { return RYGate(-op.get_phase()); }
+inline bool is_clifford(RYGate const& op) { return op.get_phase().denominator() <= 2; }
 
 }  // namespace qsyn::qcir
 
@@ -363,6 +482,41 @@ template <>
 std::optional<tensor::QTensor<double>> to_tensor(qcir::PZGate const& op);
 template <>
 bool append_to_tableau(qcir::PZGate const& op, experimental::Tableau& tableau, QubitIdList const& qubits);
+
+template <>
+std::optional<zx::ZXGraph> to_zxgraph(qcir::PXGate const& op);
+template <>
+std::optional<tensor::QTensor<double>> to_tensor(qcir::PXGate const& op);
+template <>
+bool append_to_tableau(qcir::PXGate const& op, experimental::Tableau& tableau, QubitIdList const& qubits);
+
+template <>
+std::optional<zx::ZXGraph> to_zxgraph(qcir::PYGate const& op);
+template <>
+std::optional<tensor::QTensor<double>> to_tensor(qcir::PYGate const& op);
+template <>
+bool append_to_tableau(qcir::PYGate const& op, experimental::Tableau& tableau, QubitIdList const& qubits);
+
+template <>
+std::optional<zx::ZXGraph> to_zxgraph(qcir::RZGate const& op);
+template <>
+std::optional<tensor::QTensor<double>> to_tensor(qcir::RZGate const& op);
+template <>
+bool append_to_tableau(qcir::RZGate const& op, experimental::Tableau& tableau, QubitIdList const& qubits);
+
+template <>
+std::optional<zx::ZXGraph> to_zxgraph(qcir::RXGate const& op);
+template <>
+std::optional<tensor::QTensor<double>> to_tensor(qcir::RXGate const& op);
+template <>
+bool append_to_tableau(qcir::RXGate const& op, experimental::Tableau& tableau, QubitIdList const& qubits);
+
+template <>
+std::optional<zx::ZXGraph> to_zxgraph(qcir::RYGate const& op);
+template <>
+std::optional<tensor::QTensor<double>> to_tensor(qcir::RYGate const& op);
+template <>
+bool append_to_tableau(qcir::RYGate const& op, experimental::Tableau& tableau, QubitIdList const& qubits);
 }  // namespace qsyn
 
 template <>

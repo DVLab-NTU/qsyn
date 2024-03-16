@@ -11,10 +11,7 @@
 
 #include <cstddef>
 #include <gsl/narrow>
-#include <stdexcept>
-#include <thread>
 
-#include "fmt/core.h"
 #include "qcir/gate_type.hpp"
 #include "qcir/qcir.hpp"
 #include "qcir/qcir_qubit.hpp"
@@ -61,6 +58,31 @@ std::optional<QTensor<double>> to_tensor(ECRGate const& /* op */) {
 template <>
 std::optional<QTensor<double>> to_tensor(PZGate const& op) {
     return QTensor<double>::pzgate(op.get_phase());
+}
+
+template <>
+std::optional<QTensor<double>> to_tensor(PXGate const& op) {
+    return QTensor<double>::pxgate(op.get_phase());
+}
+
+template <>
+std::optional<QTensor<double>> to_tensor(PYGate const& op) {
+    return QTensor<double>::pygate(op.get_phase());
+}
+
+template <>
+std::optional<QTensor<double>> to_tensor(RZGate const& op) {
+    return QTensor<double>::rzgate(op.get_phase());
+}
+
+template <>
+std::optional<QTensor<double>> to_tensor(RXGate const& op) {
+    return QTensor<double>::rxgate(op.get_phase());
+}
+
+template <>
+std::optional<QTensor<double>> to_tensor(RYGate const& op) {
+    return QTensor<double>::rygate(op.get_phase());
 }
 
 template <>

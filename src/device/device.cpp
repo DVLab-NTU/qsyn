@@ -11,13 +11,9 @@
 #include <fmt/std.h>
 #include <spdlog/spdlog.h>
 
+#include <algorithm>
 #include <cassert>
-#include <cmath>
-#include <cstdint>
-#include <cstdlib>
-#include <fstream>
 #include <gsl/narrow>
-#include <limits>
 #include <ranges>
 #include <string>
 #include <tl/to.hpp>
@@ -516,7 +512,7 @@ bool Device::_parse_gate_set(std::string const& gate_set_str) {
         std::views::transform([](auto const& str) { return dvlab::str::tolower_string(str); }) |
         std::views::transform([&](auto const& str) -> std::optional<std::string> {
             if (auto op = qcir::str_to_operation(str); op.has_value()) {
-                _topology->add_gate_type(op->get_type());
+                _topology->add_gate_type(op->get_repr().substr(0, op->get_repr().find_first_of('(')));
                 return std::make_optional(op->get_type());
             }
             auto gate_type = str_to_gate_type(str);

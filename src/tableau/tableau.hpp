@@ -8,6 +8,8 @@
 
 #pragma once
 
+#include <variant>
+
 #include "./stabilizer_tableau.hpp"
 
 namespace qsyn {
