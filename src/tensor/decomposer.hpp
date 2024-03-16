@@ -445,9 +445,9 @@ bool Decomposer::_decompose_cnx(const std::vector<size_t>& ctrls, const size_t e
 template <typename U>
 bool Decomposer::_decompose_cu(Tensor<U> const& t, size_t ctrl, size_t targ) {
     using dvlab::Phase;
-    using float_type         = typename U::value_type;
-    constexpr float_type eps = 1e-6;
-    auto const angles        = _decompose_zyz<float_type>(t);
+    using float_type             = typename U::value_type;
+    constexpr float_type eps     = 1e-6;
+    ZYZ<float_type> const angles = _decompose_zyz(t);
     if (!angles.correct) return false;
 
     if (std::abs((angles.alpha - angles.gamma) / 2) > eps) {
