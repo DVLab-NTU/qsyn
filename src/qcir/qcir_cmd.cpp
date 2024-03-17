@@ -339,7 +339,7 @@ dvlab::Command qcir_print_cmd(QCirMgr const& qcir_mgr) {
 }
 
 dvlab::Command qcir_gate_add_cmd(QCirMgr& qcir_mgr) {
-    static dvlab::utils::ordered_hashmap<std::string, std::string> single_qubit_gates_no_phase = {
+    static dvlab::utils::ordered_hashmap<std::string, std::string> const single_qubit_gates_no_phase = {
         {"h", "Hadamard gate"},
         {"x", "Pauli-X gate"},
         {"y", "Pauli-Y gate"},
@@ -351,7 +351,7 @@ dvlab::Command qcir_gate_add_cmd(QCirMgr& qcir_mgr) {
         {"sx", "√X gate"},
         {"sy", "√Y gate"}};
 
-    static dvlab::utils::ordered_hashmap<std::string, std::string> single_qubit_gates_with_phase = {
+    static dvlab::utils::ordered_hashmap<std::string, std::string> const single_qubit_gates_with_phase = {
         {"rz", "Rz(θ) gate"},
         {"ry", "Rx(θ) gate"},
         {"rx", "Ry(θ) gate"},
@@ -361,18 +361,18 @@ dvlab::Command qcir_gate_add_cmd(QCirMgr& qcir_mgr) {
         {"py", "Py = (e^iθ/2)Ry gate"}  //
     };
 
-    static dvlab::utils::ordered_hashmap<std::string, std::string> double_qubit_gates_no_phase = {
+    static dvlab::utils::ordered_hashmap<std::string, std::string> const double_qubit_gates_no_phase = {
         {"cx", "CX (CNOT) gate"},
         {"cz", "CZ gate"},
         {"swap", "SWAP gate"},
         {"ecr", "Echoed crossed resonance gate"}};
 
-    static dvlab::utils::ordered_hashmap<std::string, std::string> three_qubit_gates_no_phase = {
+    static dvlab::utils::ordered_hashmap<std::string, std::string> const three_qubit_gates_no_phase = {
         {"ccx", "CCX (CCNOT, Toffoli) gate"},
         {"ccz", "CCZ gate"}  //
     };
 
-    static dvlab::utils::ordered_hashmap<std::string, std::string> multi_qubit_gates_with_phase = {
+    static dvlab::utils::ordered_hashmap<std::string, std::string> const multi_qubit_gates_with_phase = {
         {"mcrz", "Multi-Controlled Rz(θ) gate"},
         {"mcrx", "Multi-Controlled Rx(θ) gate"},
         {"mcry", "Multi-Controlled Ry(θ) gate"},
