@@ -172,13 +172,13 @@ void Optimizer::_fuse_z_phase(QCir& qcir, QCirGate* prev_gate, QCirGate* gate) {
  * @return modified circuit
  */
 void Optimizer::_cancel_cx_or_cz(QCir& qcir, QCirGate* prev_gate, QCirGate* gate) {
-    if (prev_gate->get_operation() == CXGate{} &&
-        gate->get_operation() == CXGate{} &&
+    if (prev_gate->get_operation() == CXGate() &&
+        gate->get_operation() == CXGate() &&
         prev_gate->get_qubits() == gate->get_qubits()) {
         qcir.remove_gate(prev_gate->get_id());
         return;
-    } else if (prev_gate->get_operation() == CZGate{} &&
-               gate->get_operation() == CZGate{}) {
+    } else if (prev_gate->get_operation() == CZGate() &&
+               gate->get_operation() == CZGate()) {
         if ((prev_gate->get_qubit(0) == gate->get_qubit(0) &&
              prev_gate->get_qubit(1) == gate->get_qubit(1)) ||
             (prev_gate->get_qubit(0) == gate->get_qubit(1) &&
@@ -252,7 +252,10 @@ QCir replace_single_qubit_gate_sequence(QCir& qcir, QubitIdType qubit, size_t ga
 
         if (replace_count == seq_len) {
             for (auto& type : seq) {
-                replaced.add_gate(type, gate->get_qubits(), dvlab::Phase(0), true);
+                auto const op = str_to_operation(type);
+                if (op.has_value()) {
+                    replaced.append(*op, gate->get_qubits());
+                }
             }
             replace_count--;
             continue;
@@ -269,10 +272,15 @@ std::vector<std::string> zx_optimize(std::vector<std::string> const& partial) {
     for (std::string const& type : partial) {
         auto gate_type                                 = str_to_gate_type(type);
         auto const& [category, num_qubits, gate_phase] = gate_type.value();
-        if (gate_phase.has_value())
-            qcir.add_gate(type, QubitIdList{0}, gate_phase.value(), true);
-        else
-            qcir.add_gate(type, QubitIdList{0}, dvlab::Phase(0), true);
+        if (gate_phase.has_value()) {
+            if (auto op = str_to_operation(type, {*gate_phase}); op.has_value()) {
+                qcir.append(op.value(), {0});
+            }
+        } else {
+            if (auto op = str_to_operation(type); op.has_value()) {
+                qcir.append(op.value(), {0});
+            }
+        }
     }
 
     auto zx = to_zxgraph(qcir).value();

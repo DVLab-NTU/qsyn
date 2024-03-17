@@ -302,15 +302,57 @@ bool append_to_tableau(qcir::RYGate const& op, experimental::Tableau& tableau, Q
 }
 
 template <>
-bool append_to_tableau(qcir::LegacyGateType const& op, experimental::Tableau& tableau, QubitIdList const& qubits) {
-    if (op.get_type() == "cx") {
-        tableau.cx(qubits[0], qubits[1]);
-    } else if (op.get_type() == "cz") {
-        tableau.cz(qubits[0], qubits[1]);
-    } else {
-        experimental::implement_rotation_gate(tableau, op.get_rotation_category(), op.get_phase(), qubits);
+bool append_to_tableau(qcir::ControlGate const& op, experimental::Tableau& tableau, QubitIdList const& qubits) {
+    if (auto target_op = op.get_target_operation().get_underlying_if<qcir::PXGate>()) {
+        if (op.get_num_qubits() == 2 && target_op->get_phase() == dvlab::Phase(1)) {
+            tableau.cx(qubits[0], qubits[1]);
+        } else {
+            experimental::implement_rotation_gate(tableau, qcir::GateRotationCategory::px, target_op->get_phase(), qubits);
+        }
+        return true;
     }
-    return true;
+
+    if (auto target_op = op.get_target_operation().get_underlying_if<qcir::PYGate>()) {
+        if (op.get_num_qubits() == 2 && target_op->get_phase() == dvlab::Phase(1)) {
+            tableau.sdg(qubits[1]);
+            tableau.cx(qubits[0], qubits[1]);
+            tableau.s(qubits[1]);
+        } else {
+            experimental::implement_rotation_gate(tableau, qcir::GateRotationCategory::py, target_op->get_phase(), qubits);
+        }
+        return true;
+    }
+
+    if (auto target_op = op.get_target_operation().get_underlying_if<qcir::PZGate>()) {
+        if (op.get_num_qubits() == 2 && target_op->get_phase() == dvlab::Phase(1)) {
+            tableau.cz(qubits[0], qubits[1]);
+        } else {
+            experimental::implement_rotation_gate(tableau, qcir::GateRotationCategory::pz, target_op->get_phase(), qubits);
+        }
+        return true;
+    }
+
+    if (auto target_op = op.get_target_operation().get_underlying_if<qcir::RXGate>()) {
+        experimental::implement_rotation_gate(tableau, qcir::GateRotationCategory::rx, target_op->get_phase(), qubits);
+        return true;
+    }
+
+    if (auto target_op = op.get_target_operation().get_underlying_if<qcir::RYGate>()) {
+        experimental::implement_rotation_gate(tableau, qcir::GateRotationCategory::ry, target_op->get_phase(), qubits);
+        return true;
+    }
+
+    if (auto target_op = op.get_target_operation().get_underlying_if<qcir::RZGate>()) {
+        experimental::implement_rotation_gate(tableau, qcir::GateRotationCategory::rz, target_op->get_phase(), qubits);
+        return true;
+    }
+
+    return false;
+}
+
+template <>
+bool append_to_tableau(qcir::LegacyGateType const& /* op */, experimental::Tableau& /* tableau */, QubitIdList const& /* qubits*/) {
+    return false;
 }
 
 namespace experimental {

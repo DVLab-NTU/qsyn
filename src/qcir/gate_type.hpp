@@ -19,6 +19,7 @@
 #include "tableau/tableau.hpp"
 #include "tensor/qtensor.hpp"
 #include "util/phase.hpp"
+#include "util/util.hpp"
 #include "zx/zxgraph.hpp"
 
 namespace qsyn {
@@ -63,7 +64,7 @@ class Operation;
 Operation adjoint(Operation const& op);
 bool is_clifford(Operation const& op);
 
-std::optional<Operation> str_to_operation(std::string const& str, std::vector<dvlab::Phase> const& params = {});
+std::optional<Operation> str_to_operation(std::string str, std::vector<dvlab::Phase> const& params = {});
 
 /**
  * @brief A type-erased interface for a quantum gate.
@@ -209,39 +210,6 @@ public:
 
 inline Operation adjoint(HGate const& op) { return op; }
 inline bool is_clifford(HGate const& /* op */) { return true; }
-
-class CXGate {
-public:
-    CXGate() = default;
-    std::string get_type() const { return "cx"; }
-    std::string get_repr() const { return "cx"; }
-    size_t get_num_qubits() const { return 2; }
-};
-
-inline Operation adjoint(CXGate const& op) { return op; }
-inline bool is_clifford(CXGate const& /* op */) { return true; }
-
-class CYGate {
-public:
-    CYGate() = default;
-    std::string get_type() const { return "cy"; }
-    std::string get_repr() const { return "cy"; }
-    size_t get_num_qubits() const { return 2; }
-};
-
-inline Operation adjoint(CYGate const& op) { return op; }
-inline bool is_clifford(CYGate const& /* op */) { return true; }
-
-class CZGate {
-public:
-    CZGate() = default;
-    std::string get_type() const { return "cz"; }
-    std::string get_repr() const { return "cz"; }
-    size_t get_num_qubits() const { return 2; }
-};
-
-inline Operation adjoint(CZGate const& op) { return op; }
-inline bool is_clifford(CZGate const& /* op */) { return true; }
 
 class SwapGate {
 public:
@@ -438,6 +406,35 @@ inline bool is_clifford(RXGate const& op) { return op.get_phase().denominator() 
 inline Operation adjoint(RYGate const& op) { return RYGate(-op.get_phase()); }
 inline bool is_clifford(RYGate const& op) { return op.get_phase().denominator() <= 2; }
 
+class ControlGate {
+public:
+    ControlGate(Operation op, size_t n_ctrls = 1) : _op(std::move(op)), _n_ctrls(n_ctrls) { DVLAB_ASSERT(n_ctrls > 0, "Cannot instantiate a control gate with zero controls"); }
+    std::string get_type() const { return std::string(_n_ctrls, 'c') + _op.get_type(); }
+    std::string get_repr() const { return std::string(_n_ctrls, 'c') + _op.get_repr(); }
+    size_t get_num_qubits() const { return _op.get_num_qubits() + _n_ctrls; }
+
+    Operation get_target_operation() const { return _op; }
+    void set_target_operation(Operation op) { _op = std::move(op); }
+
+    size_t get_num_ctrls() const { return _n_ctrls; }
+
+private:
+    Operation _op;
+    size_t _n_ctrls;
+};
+
+inline Operation adjoint(ControlGate const& op) { return ControlGate(adjoint(op.get_target_operation()), op.get_num_ctrls()); }
+inline bool is_clifford(ControlGate const& op) { return op.get_target_operation() == XGate() || op.get_target_operation() == YGate() || op.get_target_operation() == ZGate(); }
+
+// NOLINTBEGIN(readability-identifier-naming)  // pseudo classes
+inline ControlGate CXGate() { return ControlGate(XGate()); }
+inline ControlGate CYGate() { return ControlGate(YGate()); }
+inline ControlGate CZGate() { return ControlGate(ZGate()); }
+inline ControlGate CCXGate() { return ControlGate(XGate(), 2); }
+inline ControlGate CCYGate() { return ControlGate(YGate(), 2); }
+inline ControlGate CCZGate() { return ControlGate(ZGate(), 2); }
+// NOLINTEND(readability-identifier-naming)
+
 }  // namespace qsyn::qcir
 
 namespace qsyn {
@@ -517,6 +514,13 @@ template <>
 std::optional<tensor::QTensor<double>> to_tensor(qcir::RYGate const& op);
 template <>
 bool append_to_tableau(qcir::RYGate const& op, experimental::Tableau& tableau, QubitIdList const& qubits);
+
+template <>
+std::optional<zx::ZXGraph> to_zxgraph(qcir::ControlGate const& op);
+template <>
+std::optional<tensor::QTensor<double>> to_tensor(qcir::ControlGate const& op);
+template <>
+bool append_to_tableau(qcir::ControlGate const& op, experimental::Tableau& tableau, QubitIdList const& qubits);
 }  // namespace qsyn
 
 template <>

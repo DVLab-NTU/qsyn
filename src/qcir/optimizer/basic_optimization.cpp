@@ -182,11 +182,11 @@ bool Optimizer::parse_gate(QCirGate* gate, bool do_swap, bool minimize_czs) {
         return true;
     }
 
-    if (gate->get_operation() == CZGate{}) {
+    if (gate->get_operation() == CZGate()) {
         _match_czs(gate, do_swap, minimize_czs);
     }
 
-    if (gate->get_operation() == CXGate{}) {
+    if (gate->get_operation() == CXGate()) {
         _match_cxs(gate, do_swap, minimize_czs);
     }
     return false;
@@ -205,7 +205,7 @@ QCir Optimizer::_build_from_storage(size_t n_qubits, bool reversed) {
         for (auto& [qubit, gate_list] : _gates) {
             while (!gate_list.empty()) {
                 QCirGate* g = gate_list[0];
-                if (g->get_operation() != CXGate{} && g->get_operation() != CZGate{}) {
+                if (g->get_operation() != CXGate() && g->get_operation() != CZGate()) {
                     reversed
                         ? circuit.prepend(g->get_operation(), g->get_qubits())
                         : circuit.append(g->get_operation(), g->get_qubits());
@@ -223,7 +223,7 @@ QCir Optimizer::_build_from_storage(size_t n_qubits, bool reversed) {
                     continue;
                 }
 
-                auto const type = g->get_operation() != CZGate{} && g->get_qubit(0) != qubit;
+                auto const type = g->get_operation() != CZGate() && g->get_qubit(0) != qubit;
                 std::vector<size_t> removed;
                 available_ids.emplace(g->get_id());
                 for (size_t i = 1; i < gate_list.size(); i++) {
@@ -233,10 +233,10 @@ QCir Optimizer::_build_from_storage(size_t n_qubits, bool reversed) {
                             ? circuit.prepend(g2->get_operation(), g2->get_qubits())
                             : circuit.append(g2->get_operation(), g2->get_qubits());
                         removed.emplace(removed.begin(), i);
-                    } else if (g2->get_operation() != CXGate{} && g2->get_operation() != CZGate{}) {
+                    } else if (g2->get_operation() != CXGate() && g2->get_operation() != CZGate()) {
                         break;
-                    } else if ((!type && (g2->get_operation() == CZGate{} || g2->get_qubit(0) == qubit)) ||
-                               (type && (g2->get_operation() == CXGate{} && g2->get_qubit(1) == qubit))) {
+                    } else if ((!type && (g2->get_operation() == CZGate() || g2->get_qubit(0) == qubit)) ||
+                               (type && (g2->get_operation() == CXGate() && g2->get_qubit(1) == qubit))) {
                         if (available_ids.contains(g2->get_id())) {
                             available_ids.erase(g2->get_id());
                             auto q2 = qubit == g2->get_qubit(0) ? g2->get_qubit(1) : g2->get_qubit(0);
@@ -287,19 +287,19 @@ void Optimizer::_add_cx(QubitIdType t1, QubitIdType t2, bool do_swap) {
     if (_availty[t1]) {
         if (!_availty[t2]) {
             for (QCirGate* gate : _available[t1] | std::views::reverse) {
-                if (gate->get_operation() == CXGate{} && gate->get_qubit(0) == t2 && gate->get_qubit(1) == t1) {
+                if (gate->get_operation() == CXGate() && gate->get_qubit(0) == t2 && gate->get_qubit(1) == t1) {
                     found_match = true;
                     break;
                 }
             }
             if (found_match && do_swap) {
                 // NOTE -  -  do the CNOT(t,c)CNOT(c,t) = CNOT(c,t)SWAP(c,t) commutation
-                if (count_if(_available[t2].begin(), _available[t2].end(), [&](QCirGate* g) { return g->get_operation() == CXGate{} && g->get_qubits() == QubitIdList{t2, t1}; })) {
+                if (count_if(_available[t2].begin(), _available[t2].end(), [&](QCirGate* g) { return g->get_operation() == CXGate() && g->get_qubits() == QubitIdList{t2, t1}; })) {
                     _statistics.DO_SWAP++;
                     spdlog::trace("Apply a do_swap commutation");
                     auto cnot = _store_cx(t1, t2);
-                    _gates[t1].erase(--(find_if(_gates[t1].rbegin(), _gates[t1].rend(), [&](QCirGate* g) { return g->get_operation() == CXGate{} && g->get_qubits() == QubitIdList{t2, t1}; })).base());
-                    _gates[t2].erase(--(find_if(_gates[t2].rbegin(), _gates[t2].rend(), [&](QCirGate* g) { return g->get_operation() == CXGate{} && g->get_qubits() == QubitIdList{t2, t1}; })).base());
+                    _gates[t1].erase(--(find_if(_gates[t1].rbegin(), _gates[t1].rend(), [&](QCirGate* g) { return g->get_operation() == CXGate() && g->get_qubits() == QubitIdList{t2, t1}; })).base());
+                    _gates[t2].erase(--(find_if(_gates[t2].rbegin(), _gates[t2].rend(), [&](QCirGate* g) { return g->get_operation() == CXGate() && g->get_qubits() == QubitIdList{t2, t1}; })).base());
                     _availty[t1] = false;
                     _availty[t2] = true;
                     _gates[t1].emplace_back(cnot);
@@ -326,20 +326,20 @@ void Optimizer::_add_cx(QubitIdType t1, QubitIdType t2, bool do_swap) {
     found_match = false;
 
     for (QCirGate* gate : _available[t1] | std::views::reverse) {
-        if (gate->get_operation() == CXGate{} && gate->get_qubit(0) == t1 && gate->get_qubit(1) == t2) {
+        if (gate->get_operation() == CXGate() && gate->get_qubit(0) == t1 && gate->get_qubit(1) == t2) {
             found_match = true;
             break;
         }
     }
     // NOTE - do CNOT(c,t)CNOT(c,t) = id
     if (found_match) {
-        if (count_if(_available[t2].begin(), _available[t2].end(), [&](QCirGate* g) { return g->get_operation() == CXGate{} && g->get_qubits() == QubitIdList{t1, t2}; })) {
+        if (count_if(_available[t2].begin(), _available[t2].end(), [&](QCirGate* g) { return g->get_operation() == CXGate() && g->get_qubits() == QubitIdList{t1, t2}; })) {
             _statistics.CNOT_CANCEL++;
             spdlog::trace("Cancel with previous CX");
-            _available[t1].erase(--(find_if(_available[t1].rbegin(), _available[t1].rend(), [&](QCirGate* g) { return g->get_operation() == CXGate{} && g->get_qubits() == QubitIdList{t1, t2}; })).base());
-            _available[t2].erase(--(find_if(_available[t2].rbegin(), _available[t2].rend(), [&](QCirGate* g) { return g->get_operation() == CXGate{} && g->get_qubits() == QubitIdList{t1, t2}; })).base());
-            _gates[t1].erase(--(find_if(_gates[t1].rbegin(), _gates[t1].rend(), [&](QCirGate* g) { return g->get_operation() == CXGate{} && g->get_qubits() == QubitIdList{t1, t2}; })).base());
-            _gates[t2].erase(--(find_if(_gates[t2].rbegin(), _gates[t2].rend(), [&](QCirGate* g) { return g->get_operation() == CXGate{} && g->get_qubits() == QubitIdList{t1, t2}; })).base());
+            _available[t1].erase(--(find_if(_available[t1].rbegin(), _available[t1].rend(), [&](QCirGate* g) { return g->get_operation() == CXGate() && g->get_qubits() == QubitIdList{t1, t2}; })).base());
+            _available[t2].erase(--(find_if(_available[t2].rbegin(), _available[t2].rend(), [&](QCirGate* g) { return g->get_operation() == CXGate() && g->get_qubits() == QubitIdList{t1, t2}; })).base());
+            _gates[t1].erase(--(find_if(_gates[t1].rbegin(), _gates[t1].rend(), [&](QCirGate* g) { return g->get_operation() == CXGate() && g->get_qubits() == QubitIdList{t1, t2}; })).base());
+            _gates[t2].erase(--(find_if(_gates[t2].rbegin(), _gates[t2].rend(), [&](QCirGate* g) { return g->get_operation() == CXGate() && g->get_qubits() == QubitIdList{t1, t2}; })).base());
         } else {
             found_match = false;
         }
@@ -360,7 +360,7 @@ bool Optimizer::_replace_cx_and_cz_with_s_and_cx(QubitIdType t1, QubitIdType t2)
             if (std::ranges::none_of(
                     _available[ctrl],
                     [&ctrl = ctrl, &targ = targ](QCirGate* g) {
-                        return g->get_operation() == CXGate{} && g->get_qubit(0) == ctrl && g->get_qubit(1) == targ;
+                        return g->get_operation() == CXGate() && g->get_qubit(0) == ctrl && g->get_qubit(1) == targ;
                     })) {
                 continue;
             }
@@ -369,7 +369,7 @@ bool Optimizer::_replace_cx_and_cz_with_s_and_cx(QubitIdType t1, QubitIdType t2)
                 if (std::ranges::any_of(
                         _available[targ],
                         [&ctrl = ctrl, &targ = targ](QCirGate* gate_other) {
-                            return gate_other->get_operation() == CXGate{} && gate_other->get_qubits() == QubitIdList{ctrl, targ};
+                            return gate_other->get_operation() == CXGate() && gate_other->get_qubits() == QubitIdList{ctrl, targ};
                         })) {
                     return std::make_pair(ctrl, targ);
                 }
@@ -380,7 +380,7 @@ bool Optimizer::_replace_cx_and_cz_with_s_and_cx(QubitIdType t1, QubitIdType t2)
             //        Then we can commute the CZ gate next to the CNOT and hence use it."
             // NOTE - looking at the gates behind the Z-like gates
             for (QCirGate* gate : _gates[targ] | std::views::take(_gates[targ].size() - _available[targ].size()) | std::views::reverse) {
-                if (gate->get_operation() != CXGate{})
+                if (gate->get_operation() != CXGate())
                     break;
                 if (gate->get_qubit(1) != targ)
                     break;
@@ -406,9 +406,9 @@ bool Optimizer::_replace_cx_and_cz_with_s_and_cx(QubitIdType t1, QubitIdType t2)
     if (_availty[targ]) {
         _available[targ].clear();
     }
-    _available[ctrl].erase(--(find_if(_available[ctrl].rbegin(), _available[ctrl].rend(), [&ctrl = ctrl, &targ = targ](QCirGate* g) { return g->get_operation() == CXGate{} && g->get_qubits() == QubitIdList{ctrl, targ}; })).base());
-    _gates[ctrl].erase(--(find_if(_gates[ctrl].rbegin(), _gates[ctrl].rend(), [&ctrl = ctrl, &targ = targ](QCirGate* g) { return g->get_operation() == CXGate{} && g->get_qubits() == QubitIdList{ctrl, targ}; })).base());
-    _gates[targ].erase(--(find_if(_gates[targ].rbegin(), _gates[targ].rend(), [&ctrl = ctrl, &targ = targ](QCirGate* g) { return g->get_operation() == CXGate{} && g->get_qubits() == QubitIdList{ctrl, targ}; })).base());
+    _available[ctrl].erase(--(find_if(_available[ctrl].rbegin(), _available[ctrl].rend(), [&ctrl = ctrl, &targ = targ](QCirGate* g) { return g->get_operation() == CXGate() && g->get_qubits() == QubitIdList{ctrl, targ}; })).base());
+    _gates[ctrl].erase(--(find_if(_gates[ctrl].rbegin(), _gates[ctrl].rend(), [&ctrl = ctrl, &targ = targ](QCirGate* g) { return g->get_operation() == CXGate() && g->get_qubits() == QubitIdList{ctrl, targ}; })).base());
+    _gates[targ].erase(--(find_if(_gates[targ].rbegin(), _gates[targ].rend(), [&ctrl = ctrl, &targ = targ](QCirGate* g) { return g->get_operation() == CXGate() && g->get_qubits() == QubitIdList{ctrl, targ}; })).base());
 
     auto s1 = _store_sdg(targ);
     auto s2 = _store_s(targ);
@@ -450,7 +450,7 @@ void Optimizer::_add_cz(QubitIdType t1, QubitIdType t2, bool do_minimize_czs) {
     }
 
     // NOTE - Try to cancel CZ
-    for (auto& targ_cz : _available[t1] | std::views::filter([](QCirGate* g) { return g->get_operation() == CZGate{}; })) {
+    for (auto& targ_cz : _available[t1] | std::views::filter([](QCirGate* g) { return g->get_operation() == CZGate(); })) {
         if (std::ranges::all_of(
                 QubitIdList{t1, t2}, [&](auto const& q) {
                     return dvlab::contains(targ_cz->get_qubits(), q);
@@ -498,7 +498,7 @@ std::vector<size_t> Optimizer::_compute_stats(QCir const& circuit) {
     size_t two_qubit = 0, had = 0, non_pauli = 0;
     std::vector<size_t> stats;
     for (auto const& g : circuit.get_gates()) {
-        if (g->get_operation() == CXGate{} || g->get_operation() == CZGate{}) {
+        if (g->get_operation() == CXGate() || g->get_operation() == CZGate()) {
             two_qubit++;
         } else if (g->get_operation() == HGate()) {
             had++;

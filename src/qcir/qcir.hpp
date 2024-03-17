@@ -139,8 +139,6 @@ public:
     bool read_qcir_file(std::filesystem::path const& filepath);
     bool read_qc(std::filesystem::path const& filepath);
     bool read_qasm(std::filesystem::path const& filepath);
-    bool read_qsim(std::filesystem::path const& filepath);
-    bool read_quipper(std::filesystem::path const& filepath);
 
     bool write_qasm(std::filesystem::path const& filepath) const;
 

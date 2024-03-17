@@ -26,7 +26,7 @@ namespace qsyn {
 
 using zx::ZXVertex, zx::ZXGraph, zx::VertexType, zx::EdgeType;
 
-using qcir::GateRotationCategory, qcir::QCir;
+using qcir::QCir;
 
 namespace {
 
@@ -375,33 +375,46 @@ std::optional<ZXGraph> to_zxgraph(qcir::RYGate const& op) {
 }
 
 template <>
-std::optional<ZXGraph> to_zxgraph(qcir::LegacyGateType const& op) {
-    assert(op.get_num_qubits() != 1);
-    switch (op.get_rotation_category()) {
-        case GateRotationCategory::rz:
-            return create_mcr_zx_form(op.get_num_qubits(), op.get_phase(), RotationAxis::z);
-        case GateRotationCategory::rx:
-            return create_mcr_zx_form(op.get_num_qubits(), op.get_phase(), RotationAxis::x);
-        case GateRotationCategory::ry:
-            return create_mcr_zx_form(op.get_num_qubits(), op.get_phase(), RotationAxis::y);
+std::optional<ZXGraph> to_zxgraph(qcir::ControlGate const& op) {
+    auto const& target_op = op.get_target_operation();
 
-        case GateRotationCategory::pz:
-            if (op.get_num_qubits() == 2 && op.get_phase() == Phase(1)) {
-                return create_cz_zx_form();
-            } else {
-                return create_mcp_zx_form(op.get_num_qubits(), op.get_phase(), RotationAxis::z);
-            }
-        case GateRotationCategory::px:
-            if (op.get_num_qubits() == 2 && op.get_phase() == Phase(1)) {
-                return create_cx_zx_form();
-            } else {
-                return create_mcp_zx_form(op.get_num_qubits(), op.get_phase(), RotationAxis::x);
-            }
-        case GateRotationCategory::py:
-            return create_mcp_zx_form(op.get_num_qubits(), op.get_phase(), RotationAxis::y);
-        default:
-            return std::nullopt;
+    if (auto const px = target_op.get_underlying_if<qcir::PXGate>()) {
+        if (op.get_num_qubits() == 2 && px->get_phase() == Phase(1)) {
+            return create_cx_zx_form();
+        }
+        return create_mcp_zx_form(op.get_num_qubits(), px->get_phase(), RotationAxis::x);
     }
+
+    if (auto const py = target_op.get_underlying_if<qcir::PYGate>()) {
+        return create_mcp_zx_form(op.get_num_qubits(), py->get_phase(), RotationAxis::y);
+    }
+
+    if (auto const pz = target_op.get_underlying_if<qcir::PZGate>()) {
+        if (op.get_num_qubits() == 2 && pz->get_phase() == Phase(1)) {
+            return create_cz_zx_form();
+        }
+
+        return create_mcp_zx_form(op.get_num_qubits(), pz->get_phase(), RotationAxis::z);
+    }
+
+    if (auto const rx = target_op.get_underlying_if<qcir::RXGate>()) {
+        return create_mcr_zx_form(op.get_num_qubits(), rx->get_phase(), RotationAxis::x);
+    }
+
+    if (auto const ry = target_op.get_underlying_if<qcir::RYGate>()) {
+        return create_mcr_zx_form(op.get_num_qubits(), ry->get_phase(), RotationAxis::y);
+    }
+
+    if (auto const rz = target_op.get_underlying_if<qcir::RZGate>()) {
+        return create_mcr_zx_form(op.get_num_qubits(), rz->get_phase(), RotationAxis::z);
+    }
+
+    return std::nullopt;
+}
+
+template <>
+std::optional<ZXGraph> to_zxgraph(qcir::LegacyGateType const& /* op */) {
+    return std::nullopt;
 }
 
 std::optional<ZXGraph> to_zxgraph(qcir::QCirGate const& gate) {
