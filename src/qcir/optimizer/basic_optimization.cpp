@@ -99,7 +99,7 @@ QCir Optimizer::_parse_once(QCir const& qcir, bool reversed, bool do_minimize_cz
     }
 
     for (auto& t : _zs) {
-        _add_rotation_gate(t, dvlab::Phase(1), GateRotationCategory::pz);
+        _add_single_z_rotation_gate(t, dvlab::Phase(1));
     }
 
     QCir result = _build_from_storage(qcir.get_num_qubits(), reversed);
@@ -167,12 +167,12 @@ QCir Optimizer::_parse_once(QCir const& qcir, bool reversed, bool do_minimize_cz
 bool Optimizer::parse_gate(QCirGate* gate, bool do_swap, bool minimize_czs) {
     _permute_gates(gate);
 
-    if (gate->get_operation() == HGate{}) {
+    if (gate->get_operation() == HGate()) {
         _match_hadamards(gate);
         return true;
     }
 
-    if (gate->get_operation() == XGate{}) {
+    if (gate->get_operation() == XGate()) {
         _match_xs(gate);
         return true;
     }
@@ -484,9 +484,8 @@ void Optimizer::_add_cz(QubitIdType t1, QubitIdType t2, bool do_minimize_czs) {
  * @param ph Phase of the gate
  * @param type 0: Z-axis, 1: X-axis, 2: Y-axis
  */
-void Optimizer::_add_rotation_gate(QubitIdType target, dvlab::Phase ph, GateRotationCategory const& rotation_category) {
-    assert(rotation_category == GateRotationCategory::pz || rotation_category == GateRotationCategory::px || rotation_category == GateRotationCategory::py);
-    auto rotate = _store_rotation_gate(target, ph, rotation_category);
+void Optimizer::_add_single_z_rotation_gate(QubitIdType target, dvlab::Phase ph) {
+    auto rotate = _store_single_z_rotation_gate(target, ph);
     _gates[target].emplace_back(rotate);
     _available[target].emplace_back(rotate);
 }
@@ -501,9 +500,9 @@ std::vector<size_t> Optimizer::_compute_stats(QCir const& circuit) {
     for (auto const& g : circuit.get_gates()) {
         if (g->get_operation() == CXGate{} || g->get_operation() == CZGate{}) {
             two_qubit++;
-        } else if (g->get_operation() == HGate{}) {
+        } else if (g->get_operation() == HGate()) {
             had++;
-        } else if (g->get_phase() != dvlab::Phase(1)) {
+        } else if (g->get_operation() != XGate() && g->get_operation() != ZGate() && g->get_operation() != YGate()) {
             non_pauli++;
         }
     }

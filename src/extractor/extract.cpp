@@ -183,12 +183,12 @@ void Extractor::extract_singles() {
     std::vector<std::pair<ZXVertex*, ZXVertex*>> toggle_list;
     for (ZXVertex* o : _graph->get_outputs()) {
         if (_graph->get_first_neighbor(o).second == EdgeType::hadamard) {
-            _logical_circuit->add_gate("h", {_qubit_map[o->get_qubit()]}, dvlab::Phase(0), false);
+            _logical_circuit->prepend(HGate(), {_qubit_map[o->get_qubit()]});
             toggle_list.emplace_back(o, _graph->get_first_neighbor(o).first);
         }
         auto const ph = _graph->get_first_neighbor(o).first->get_phase();
         if (ph != dvlab::Phase(0)) {
-            _logical_circuit->add_gate("pz", {_qubit_map[o->get_qubit()]}, ph, false);
+            _logical_circuit->prepend(PZGate(ph), {_qubit_map[o->get_qubit()]});
             _graph->get_first_neighbor(o).first->set_phase(dvlab::Phase(0));
         }
     }
@@ -238,7 +238,6 @@ bool Extractor::extract_czs(bool check) {
     for (auto const& [s, t] : remove_list) {
         _graph->remove_edge(s, t, EdgeType::hadamard);
         gates.emplace_back(0, LegacyGateType{std::make_tuple(GateRotationCategory::pz, 2, dvlab::Phase(1))}, QubitIdList{_qubit_map[s->get_qubit()], _qubit_map[t->get_qubit()]});
-        // ops.emplace_back(GateRotationCategory::pz, dvlab::Phase(1), std::make_tuple(_qubit_map[s->get_qubit()], _qubit_map[t->get_qubit()]), std::make_tuple(0, 0));
     }
     if (!gates.empty()) {
         prepend_series_gates(gates);
@@ -324,7 +323,7 @@ size_t Extractor::extract_hadamards_from_matrix(bool check) {
 
     for (auto& [f, n] : front_neigh_pairs) {
         // NOTE - Add Hadamard according to the v of frontier (row)
-        _logical_circuit->add_gate("h", {_qubit_map[f->get_qubit()]}, dvlab::Phase(0), false);
+        _logical_circuit->prepend(HGate(), {_qubit_map[f->get_qubit()]});
         // NOTE - Set #qubit and #col according to the old frontier
         n->set_qubit(f->get_qubit());
         n->set_col(f->get_col());
@@ -778,7 +777,7 @@ void Extractor::update_neighbors() {
             for (auto& [b, ep] : _graph->get_neighbors(f)) {
                 if (_graph->get_inputs().contains(b)) {
                     if (ep == EdgeType::hadamard) {
-                        _logical_circuit->add_gate("h", {_qubit_map[f->get_qubit()]}, dvlab::Phase(0), false);
+                        _logical_circuit->prepend(HGate(), {_qubit_map[f->get_qubit()]});
                     }
                     break;
                 }

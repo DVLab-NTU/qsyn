@@ -108,13 +108,7 @@ void Optimizer::_swap_element(Optimizer::ElementType type, QubitIdType e1, Qubit
  * @return false
  */
 bool Optimizer::is_single_z_rotation(QCirGate* g) {
-    return g->get_type_str() == "rz" ||
-           g->get_type_str() == "p" ||
-           g->get_type_str() == "z" ||
-           g->get_type_str() == "s" ||
-           g->get_type_str() == "sdg" ||
-           g->get_type_str() == "t" ||
-           g->get_type_str() == "tdg";
+    return g->get_operation().is<PZGate>() || g->get_operation().is<RZGate>();
 }
 
 /**

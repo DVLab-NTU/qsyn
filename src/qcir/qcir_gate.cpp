@@ -34,10 +34,6 @@ void QCirGate::set_operation(Operation const& op) {
         return;
     }
 
-    // should be legacy gate type
-    auto legacy = op.get_underlying<LegacyGateType>();
-    _phase      = legacy.get_phase();
-
     _operation = op;
 }
 

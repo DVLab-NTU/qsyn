@@ -12,6 +12,7 @@
 #include <fstream>
 #include <string>
 
+#include "qcir/gate_type.hpp"
 #include "qcir/qcir.hpp"
 #include "util/dvlab_string.hpp"
 #include "util/phase.hpp"
@@ -116,10 +117,20 @@ bool QCir::read_qasm(std::filesystem::path const& filepath) {
             n = str_get_token(str, token, n, ',');
         }
 
+        if (auto op = str_to_operation(type); op.has_value()) {
+            append(*op, qubit_ids);
+            continue;
+        }
+
         auto phase = dvlab::Phase::from_string(phase_str);
         if (!phase.has_value()) {
             spdlog::error("invalid phase on line {}!!", str);
             return false;
+        }
+
+        if (auto op = str_to_operation(type, {*phase}); op.has_value()) {
+            append(*op, qubit_ids);
+            continue;
         }
         add_gate(type, qubit_ids, phase.value(), true);
     }
@@ -189,9 +200,9 @@ bool QCir::read_qc(std::filesystem::path const& filepath) {
                 }
             }
             if (type == "Tof" || type == "tof") {
-                if (qubit_ids.size() == 1)
-                    add_gate("x", qubit_ids, dvlab::Phase(1), true);
-                else if (qubit_ids.size() == 2)
+                if (qubit_ids.size() == 1) {
+                    append(XGate(), qubit_ids);
+                } else if (qubit_ids.size() == 2)
                     add_gate("cx", qubit_ids, dvlab::Phase(1), true);
                 else if (qubit_ids.size() == 3)
                     add_gate("ccx", qubit_ids, dvlab::Phase(1), true);
@@ -201,8 +212,14 @@ bool QCir::read_qc(std::filesystem::path const& filepath) {
                 }
             } else if ((type == "Z" || type == "z") && qubit_ids.size() == 3) {
                 add_gate("ccz", qubit_ids, dvlab::Phase(1), true);
-            } else
+            } else {
+                auto op = str_to_operation(type);
+                if (op.has_value()) {
+                    append(*op, qubit_ids);
+                    continue;
+                }
                 add_gate(type, qubit_ids, dvlab::Phase(1), true);
+            }
         }
     }
     return true;
@@ -259,12 +276,21 @@ bool QCir::read_qsim(std::filesystem::path const& filepath) {
                 spdlog::error("invalid phase on line {}!!", line);
                 return false;
             }
+            if (auto op = str_to_operation(type, {*phase}); op.has_value()) {
+                append(*op, qubit_ids);
+                continue;
+            }
+
             add_gate(type, qubit_ids, phase.value(), true);
         } else if (count(single_gate_list.begin(), single_gate_list.end(), type)) {
             // add single qubit gate
             str_get_token(line, qubit_id, pos);
             qubit_ids.emplace_back(stoul(qubit_id));
             // FIXME - pass in the correct phase
+            if (auto op = str_to_operation(type); op.has_value()) {
+                append(*op, qubit_ids);
+                continue;
+            }
             add_gate(type, qubit_ids, dvlab::Phase(0), true);
         } else {
             spdlog::error("Gate type {} is not supported!!", type);

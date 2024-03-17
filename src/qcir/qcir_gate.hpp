@@ -10,12 +10,9 @@
 #include <cstddef>
 #include <string>
 #include <tl/to.hpp>
-#include <tuple>
-#include <unordered_map>
 
 #include "qcir/gate_type.hpp"
 #include "qsyn/qsyn_type.hpp"
-#include "util/phase.hpp"
 
 namespace qsyn::qcir {
 
@@ -24,26 +21,6 @@ extern size_t DOUBLE_DELAY;
 extern size_t SWAP_DELAY;
 extern size_t MULTIPLE_DELAY;
 
-class QCirGate;
-
-// ┌────────────────────────────────────────────────────────────────────────┐
-// │                                                                        │
-// │                        Hierarchy of QCirGates                          │
-// │                                                                        │
-// │                                   QCirGate                             │
-// │         ┌──────────────────┬─────────┴─────────┬──────────────────┐    │
-// │       Z-axis             X-axis              Y-axis               H    │
-// │    ┌────┴────┐        ┌────┴────┐         ┌────┴────┐                  │
-// │   MCP      MCRZ      MCPX     MCRX       MCPY     MCRY                 │
-// │  ╌╌╌╌╌╌   ╌╌╌╌╌╌    ╌╌╌╌╌╌   ╌╌╌╌╌╌     ╌╌╌╌╌╌   ╌╌╌╌╌╌                │
-// │  CCZ (2)            CCX (2)             (CCY)                          │
-// │  CZ  (1)            CX  (1)             (CY)                           │
-// │  P        RZ        PX       RX         PY       RY                    │
-// │  Z                  X                   Y                              │
-// │  S, SDG             SX                  SY                             │
-// │  T, TDG             SWAP                                               │
-// └────────────────────────────────────────────────────────────────────────┘
-
 class QCirGate {
 public:
     using QubitIdType = qsyn::QubitIdType;
@@ -51,8 +28,7 @@ public:
     QCirGate(size_t id, Operation const& op, QubitIdList qubits)
         : _id(id),
           _operation{op},
-          _qubits{std::move(qubits)},
-          _phase{op.get_underlying<LegacyGateType>().get_phase()} {}
+          _qubits{std::move(qubits)} {}
 
     // Basic access method
     std::string get_type_str() const { return get_operation().get_type(); }
@@ -75,16 +51,11 @@ public:
 
     void adjoint();
 
-    dvlab::Phase get_phase() const { return _phase; }
-
 private:
 protected:
     size_t _id;
     Operation _operation;
     std::vector<QubitIdType> _qubits;
-    dvlab::Phase _phase;
-
-    // void _print_single_qubit_or_controlled_gate(std::string gtype, bool show_rotation = false) const;
 };
 
 }  // namespace qsyn::qcir

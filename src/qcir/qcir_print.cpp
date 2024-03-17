@@ -112,10 +112,18 @@ void QCir::print_circuit_diagram(spdlog::level::level_enum lvl) const {
         std::string line  = fmt::format("Q{:>2}  ", qubit->get_id());
         while (current != nullptr) {
             DVLAB_ASSERT(last_time <= times.at(current->get_id()), "Gate time should not be smaller than last time!!");
+            auto repr = current->get_operation().get_repr();
+            auto pos  = repr.find_first_of('(');
+            if (pos != std::string::npos) {
+                repr = repr.substr(0, pos);
+            }
+            if (repr.size() > 2) {
+                repr = repr.substr(0, 2);
+            }
             line += fmt::format(
                 "{}-{:>2}({:>2})-",
                 std::string(8 * (times.at(current->get_id()) - last_time), '-'),
-                current->get_type_str().substr(0, 2),
+                repr,
                 current->get_id());
 
             last_time = times.at(current->get_id()) + 1;
@@ -154,7 +162,7 @@ void QCir::print_circuit_diagram(spdlog::level::level_enum lvl) const {
 
 void QCir::print_qcir_info() const {
     auto stat = get_gate_statistics(*this);
-    fmt::println("QCir ({} qubits, {} gates, {} 2-qubits gates, {} T-gates, {} depths)", get_num_qubits(), get_num_gates(), stat.at("two-qubit"), stat.at("t-family"), calculate_depth());
+    fmt::println("QCir ({} qubits, {} gates, {} 2-qubits gates, {} T-gates, {} depths)", get_num_qubits(), get_num_gates(), stat.at("2-qubit"), stat.at("t-family"), calculate_depth());
 }
 
 }  // namespace qsyn::qcir

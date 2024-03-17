@@ -11,10 +11,7 @@
 
 #include <cstddef>
 #include <gsl/narrow>
-#include <stdexcept>
-#include <thread>
 
-#include "fmt/core.h"
 #include "qcir/gate_type.hpp"
 #include "qcir/qcir.hpp"
 #include "qcir/qcir_qubit.hpp"
@@ -30,27 +27,67 @@ using Qubit2TensorPinMap = std::unordered_map<QubitIdType, std::pair<size_t, siz
 using qsyn::tensor::QTensor;
 
 template <>
+std::optional<QTensor<double>> to_tensor(HGate const& /* op */) {
+    return QTensor<double>::hbox(2);
+}
+
+template <>
+std::optional<QTensor<double>> to_tensor(IdGate const& /* op */) {
+    return QTensor<double>::identity(1);
+}
+
+template <>
+std::optional<QTensor<double>> to_tensor(SwapGate const& /* op */) {
+    auto tensor = QTensor<double>{{1.0, 0.0, 0.0, 0.0},
+                                  {0.0, 0.0, 1.0, 0.0},
+                                  {0.0, 1.0, 0.0, 0.0},
+                                  {0.0, 0.0, 0.0, 1.0}};
+    return tensor.to_qtensor();
+}
+
+template <>
+std::optional<QTensor<double>> to_tensor(ECRGate const& /* op */) {
+    using namespace std::complex_literals;
+    auto tensor = QTensor<double>{{0.0, 0.0, 1.0 / std::sqrt(2), 1.i / std::sqrt(2)},
+                                  {0.0, 0.0, 1.i / std::sqrt(2), 1.0 / std::sqrt(2)},
+                                  {1.0 / std::sqrt(2), -1.i / std::sqrt(2), 0.0, 0.0},
+                                  {-1.i / std::sqrt(2), 1.0 / std::sqrt(2), 0.0, 0.0}};
+    return tensor.to_qtensor();
+}
+
+template <>
+std::optional<QTensor<double>> to_tensor(PZGate const& op) {
+    return QTensor<double>::pzgate(op.get_phase());
+}
+
+template <>
+std::optional<QTensor<double>> to_tensor(PXGate const& op) {
+    return QTensor<double>::pxgate(op.get_phase());
+}
+
+template <>
+std::optional<QTensor<double>> to_tensor(PYGate const& op) {
+    return QTensor<double>::pygate(op.get_phase());
+}
+
+template <>
+std::optional<QTensor<double>> to_tensor(RZGate const& op) {
+    return QTensor<double>::rzgate(op.get_phase());
+}
+
+template <>
+std::optional<QTensor<double>> to_tensor(RXGate const& op) {
+    return QTensor<double>::rxgate(op.get_phase());
+}
+
+template <>
+std::optional<QTensor<double>> to_tensor(RYGate const& op) {
+    return QTensor<double>::rygate(op.get_phase());
+}
+
+template <>
 std::optional<QTensor<double>> to_tensor(LegacyGateType const& op) {
     switch (op.get_rotation_category()) {
-        case GateRotationCategory::id:
-            return QTensor<double>::identity(1);
-        case GateRotationCategory::h:
-            return QTensor<double>::hbox(2);
-        case GateRotationCategory::swap: {
-            auto tensor = QTensor<double>{{1.0, 0.0, 0.0, 0.0},
-                                          {0.0, 0.0, 1.0, 0.0},
-                                          {0.0, 1.0, 0.0, 0.0},
-                                          {0.0, 0.0, 0.0, 1.0}};
-            return tensor.to_qtensor();
-        }
-        case GateRotationCategory::ecr: {
-            using namespace std::complex_literals;
-            auto tensor = QTensor<double>{{0.0, 0.0, 1.0 / std::sqrt(2), 1.i / std::sqrt(2)},
-                                          {0.0, 0.0, 1.i / std::sqrt(2), 1.0 / std::sqrt(2)},
-                                          {1.0 / std::sqrt(2), -1.i / std::sqrt(2), 0.0, 0.0},
-                                          {-1.i / std::sqrt(2), 1.0 / std::sqrt(2), 0.0, 0.0}};
-            return tensor.to_qtensor();
-        }
         case GateRotationCategory::pz:
             return QTensor<double>::control(QTensor<double>::pzgate(op.get_phase()), op.get_num_qubits() - 1);
         case GateRotationCategory::rz:
@@ -150,10 +187,10 @@ std::optional<QTensor<double>> to_tensor(QCir const& qcir) try {
             spdlog::warn("Conversion interrupted.");
             return std::nullopt;
         }
-        spdlog::debug("Gate {} ({})", gate->get_id(), gate->get_type_str());
+        spdlog::debug("Gate {} ({})", gate->get_id(), gate->get_operation().get_repr());
         auto const gate_tensor = to_tensor(*gate);
         if (!gate_tensor.has_value()) {
-            spdlog::error("Conversion of Gate {} ({}) to Tensor is not supported yet!!", gate->get_id(), gate->get_type_str());
+            spdlog::error("Conversion of Gate {} ({}) to Tensor is not supported yet!!", gate->get_id(), gate->get_operation().get_repr());
             return std::nullopt;
         }
         std::vector<size_t> main_tensor_output_pins;

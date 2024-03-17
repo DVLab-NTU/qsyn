@@ -301,7 +301,7 @@ QCirGate* QCir::add_gate(std::string type, QubitIdList const& bits, dvlab::Phase
         spdlog::error("Gate type {} is not supported!!", type);
         return nullptr;
     }
-    auto const& [category, num_qubits, gate_phase] = gate_type.value();
+    auto const& [category, num_qubits, gate_phase] = *gate_type;
     if (num_qubits.has_value() && num_qubits.value() != bits.size()) {
         spdlog::error("Gate {} requires {} qubits, but {} qubits are given.", type, num_qubits.value(), bits.size());
         return nullptr;
@@ -463,7 +463,12 @@ std::unordered_map<std::string, size_t> get_gate_statistics(QCir const& qcir) {
     gate_counts.emplace("t-family", 0);
 
     for (auto g : qcir.get_gates()) {
-        auto const type = g->get_type_str();
+        auto type = g->get_operation().get_repr();
+        // strip params
+        if (type.find('(') != std::string::npos) {
+            auto pos = type.find('(');
+            type     = type.substr(0, pos);
+        }
         if (gate_counts.contains(type)) {
             gate_counts[type]++;
         } else {
@@ -490,7 +495,7 @@ std::unordered_map<std::string, size_t> get_gate_statistics(QCir const& qcir) {
     auto internal_h_count = std::ranges::count_if(
         qcir.get_gates(),
         [&](QCirGate* g) {
-            return g->get_type_str() == "h" && not_final.contains(g) && not_initial.contains(g);
+            return g->get_operation() == HGate() && not_final.contains(g) && not_initial.contains(g);
         });
     if (internal_h_count > 0) {
         gate_counts["h-internal"] = internal_h_count;

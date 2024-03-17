@@ -9,6 +9,8 @@
 
 #include <sul/dynamic_bitset.hpp>
 
+#include "qcir/gate_type.hpp"
+
 namespace qsyn::tensor {
 
 /**
@@ -82,8 +84,13 @@ void SolovayKitaev::_remove_redundant_gates(std::vector<int>& gate_sequence) con
  */
 void SolovayKitaev::_save_gates(const std::vector<int>& gate_sequence) {
     _quantum_circuit.add_qubits(1);
-    for (const int& bit : gate_sequence)
-        _quantum_circuit.add_gate((bit == 0 ? "H" : "P"), {0}, Phase(bit, 4), false);
+    for (const int& bit : gate_sequence) {
+        if (bit == 0) {
+            _quantum_circuit.prepend(qcir::HGate(), {0});
+        } else {
+            _quantum_circuit.prepend(qcir::PZGate(Phase(bit, 4)), {0});
+        }
+    }
     spdlog::info("Decompose tensor into {} gates.", _quantum_circuit.get_num_gates());
 }
 

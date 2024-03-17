@@ -198,7 +198,7 @@ void bitset_swap_two(size_t i, size_t j, sul::dynamic_bitset<>& bitset) {
 
 }  // namespace
 
-PauliProduct& PauliProduct::h(size_t qubit) {
+PauliProduct& PauliProduct::h(size_t qubit) noexcept {
     if (qubit >= n_qubits()) return *this;
     if (is_y(qubit)) {
         _bitset.flip(_r_idx());
@@ -207,7 +207,7 @@ PauliProduct& PauliProduct::h(size_t qubit) {
     return *this;
 }
 
-PauliProduct& PauliProduct::s(size_t qubit) {
+PauliProduct& PauliProduct::s(size_t qubit) noexcept {
     if (qubit >= n_qubits()) return *this;
     if (is_y(qubit)) {
         _bitset.flip(_r_idx());
@@ -216,7 +216,7 @@ PauliProduct& PauliProduct::s(size_t qubit) {
     return *this;
 }
 
-PauliProduct& PauliProduct::cx(size_t control, size_t target) {
+PauliProduct& PauliProduct::cx(size_t control, size_t target) noexcept {
     if (control >= n_qubits() || target >= n_qubits()) {
         return *this;
     }
@@ -252,19 +252,19 @@ std::string PauliRotation::to_bit_string() const {
     return fmt::format("{} {}", _pauli_product.to_bit_string().substr(0, 2 * n_qubits() + 1), _phase.get_print_string());
 }
 
-PauliRotation& PauliRotation::h(size_t qubit) {
+PauliRotation& PauliRotation::h(size_t qubit) noexcept {
     _pauli_product.h(qubit);
     _normalize();
     return *this;
 }
 
-PauliRotation& PauliRotation::s(size_t qubit) {
+PauliRotation& PauliRotation::s(size_t qubit) noexcept {
     _pauli_product.s(qubit);
     _normalize();
     return *this;
 }
 
-PauliRotation& PauliRotation::cx(size_t control, size_t target) {
+PauliRotation& PauliRotation::cx(size_t control, size_t target) noexcept {
     _pauli_product.cx(control, target);
     _normalize();
     return *this;
