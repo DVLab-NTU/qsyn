@@ -422,8 +422,6 @@ void add_output_cone_to(QCir const& qcir, QCirGate* gate, std::unordered_set<QCi
  */
 // FIXME - Analysis qasm is correct since no MC in it. Would fix MC in future.
 std::unordered_map<std::string, size_t> get_gate_statistics(QCir const& qcir) {
-    if (qcir.is_empty()) return {};
-
     std::unordered_map<std::string, size_t> gate_counts;
 
     // default types
@@ -432,6 +430,9 @@ std::unordered_map<std::string, size_t> get_gate_statistics(QCir const& qcir) {
     gate_counts.emplace("1-qubit", 0);
     gate_counts.emplace("2-qubit", 0);
     gate_counts.emplace("t-family", 0);
+
+    if (qcir.is_empty())
+        return gate_counts;
 
     for (auto g : qcir.get_gates()) {
         auto type = g->get_operation().get_repr();
@@ -450,6 +451,14 @@ std::unordered_map<std::string, size_t> get_gate_statistics(QCir const& qcir) {
         }
         if (g->get_num_qubits() == 2) {
             gate_counts["2-qubit"]++;
+        }
+        if (g->get_operation() == TGate() ||
+            g->get_operation() == TXGate() ||
+            g->get_operation() == TYGate() ||
+            g->get_operation() == TdgGate() ||
+            g->get_operation() == TXdgGate() ||
+            g->get_operation() == TYdgGate()) {
+            gate_counts["t-family"]++;
         }
     }
 
@@ -483,13 +492,7 @@ void QCir::print_gate_statistics(bool detail) const {
     auto const two_qubit  = stat.contains("2-qubit") ? stat.at("2-qubit") : 0;
     auto const h          = stat.contains("h") ? stat.at("h") : 0;
     auto const h_internal = stat.contains("h-internal") ? stat.at("h-internal") : 0;
-    auto const t_family =
-        (stat.contains("t") ? stat.at("t") : 0) +
-        (stat.contains("tdg") ? stat.at("tdg") : 0) +
-        (stat.contains("tx") ? stat.at("tx") : 0) +
-        (stat.contains("txdg") ? stat.at("txdg") : 0) +
-        (stat.contains("ty") ? stat.at("ty") : 0) +
-        (stat.contains("tydg") ? stat.at("tydg") : 0);
+    auto const t_family   = stat.contains("t-family") ? stat.at("t-family") : 0;
 
     auto const other = tl::fold_left(stat | std::views::values, 0, std::plus<>()) - clifford - t_family;
 
