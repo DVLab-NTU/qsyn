@@ -94,11 +94,6 @@ std::optional<QTensor<double>> to_tensor(ControlGate const& op) {
     }
 }
 
-template <>
-std::optional<QTensor<double>> to_tensor(LegacyGateType const& /* op */) {
-    return std::nullopt;
-}
-
 /**
  * @brief Convert gate to tensor
  *

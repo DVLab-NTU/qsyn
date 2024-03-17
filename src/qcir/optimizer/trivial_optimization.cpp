@@ -118,9 +118,6 @@ void Optimizer::_fuse_x_phase(QCir& qcir, QCirGate* prev_gate, QCirGate* gate) {
         if (gate.get_operation().is<RXGate>()) {
             return gate.get_operation().get_underlying<RXGate>().get_phase();
         }
-        if (gate.get_operation().is<LegacyGateType>()) {
-            return gate.get_operation().get_underlying<LegacyGateType>().get_phase();
-        }
         throw std::runtime_error("Invalid gate type");
     };
 
@@ -148,9 +145,6 @@ void Optimizer::_fuse_z_phase(QCir& qcir, QCirGate* prev_gate, QCirGate* gate) {
         }
         if (gate.get_operation().is<RZGate>()) {
             return gate.get_operation().get_underlying<RZGate>().get_phase();
-        }
-        if (gate.get_operation().is<LegacyGateType>()) {
-            return gate.get_operation().get_underlying<LegacyGateType>().get_phase();
         }
         throw std::runtime_error("Invalid gate type");
     };
@@ -270,16 +264,8 @@ std::vector<std::string> zx_optimize(std::vector<std::string> const& partial) {
     QCir qcir(1);
 
     for (std::string const& type : partial) {
-        auto gate_type                                 = str_to_gate_type(type);
-        auto const& [category, num_qubits, gate_phase] = gate_type.value();
-        if (gate_phase.has_value()) {
-            if (auto op = str_to_operation(type, {*gate_phase}); op.has_value()) {
-                qcir.append(op.value(), {0});
-            }
-        } else {
-            if (auto op = str_to_operation(type); op.has_value()) {
-                qcir.append(op.value(), {0});
-            }
+        if (auto const op = str_to_operation(type); op.has_value()) {
+            qcir.append(op.value(), {0});
         }
     }
 

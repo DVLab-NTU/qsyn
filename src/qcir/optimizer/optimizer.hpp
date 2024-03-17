@@ -24,7 +24,6 @@ class Phase;
 namespace qsyn::qcir {
 
 class QCir;
-enum class GateRotationCategory;
 using Qubit2Gates = std::unordered_map<QubitIdType, std::vector<QCirGate*>>;
 
 class Optimizer {

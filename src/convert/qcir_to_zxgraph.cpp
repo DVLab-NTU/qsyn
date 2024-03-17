@@ -412,11 +412,6 @@ std::optional<ZXGraph> to_zxgraph(qcir::ControlGate const& op) {
     return std::nullopt;
 }
 
-template <>
-std::optional<ZXGraph> to_zxgraph(qcir::LegacyGateType const& /* op */) {
-    return std::nullopt;
-}
-
 std::optional<ZXGraph> to_zxgraph(qcir::QCirGate const& gate) {
     auto ret = to_zxgraph(gate.get_operation());
 

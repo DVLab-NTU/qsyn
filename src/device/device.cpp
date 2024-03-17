@@ -515,13 +515,11 @@ bool Device::_parse_gate_set(std::string const& gate_set_str) {
                 _topology->add_gate_type(op->get_repr().substr(0, op->get_repr().find_first_of('(')));
                 return std::make_optional(op->get_type());
             }
-            auto gate_type = str_to_gate_type(str);
-            if (!gate_type.has_value()) {
-                spdlog::error("unsupported gate type \"{}\"!!", str);
-                return std::nullopt;
-            };
-            _topology->add_gate_type(gate_type_to_str(*gate_type));
-            return std::make_optional(gate_type_to_str(*gate_type));
+            if (auto op = qcir::str_to_operation(str, {dvlab::Phase()}); op.has_value()) {
+                _topology->add_gate_type(op->get_repr().substr(0, op->get_repr().find_first_of('(')));
+                return std::make_optional(op->get_type());
+            }
+            return std::nullopt;
         });
 
     return std::ranges::all_of(gate_set_view, [](auto const& gate_type) { return gate_type.has_value(); });

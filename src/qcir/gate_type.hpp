@@ -33,21 +33,6 @@ bool append_to_tableau(T const& /* op */, experimental::Tableau& /* tableau */, 
 
 namespace qsyn::qcir {
 
-enum class GateRotationCategory {
-    pz,
-    rz,
-    px,
-    rx,
-    py,
-    ry,
-};
-
-using GateType = std::tuple<GateRotationCategory, std::optional<size_t>, std::optional<dvlab::Phase>>;
-
-std::optional<GateType> str_to_gate_type(std::string_view str);
-std::string gate_type_to_str(GateRotationCategory category, std::optional<size_t> num_qubits = std::nullopt, std::optional<dvlab::Phase> phase = std::nullopt);
-std::string gate_type_to_str(GateType const& type);
-
 namespace detail {
 
 class DummyOperationType {
@@ -168,26 +153,6 @@ private:
 
     std::unique_ptr<Concept> _pimpl;
 };
-
-class LegacyGateType {
-public:
-    LegacyGateType(GateType type) : _type(type) {}
-    std::string get_type() const { return gate_type_to_str(_type); }
-    std::string get_repr() const {
-        return get_type() + ((get_type().find_first_of("pr") != std::string::npos) ? fmt::format("({})", std::get<2>(_type)->get_print_string()) : "");
-    }
-    size_t get_num_qubits() const { return std::get<1>(_type).value_or(0); }
-
-    GateRotationCategory get_rotation_category() const { return std::get<0>(_type); }
-    dvlab::Phase get_phase() const { return std::get<2>(_type).value_or(dvlab::Phase(0, 1)); }
-    void set_phase(dvlab::Phase phase) { std::get<2>(_type) = phase; }
-
-private:
-    GateType _type;
-};
-
-Operation adjoint(LegacyGateType const& op);
-bool is_clifford(LegacyGateType const& op);
 
 class IdGate {
 public:
@@ -438,12 +403,6 @@ inline ControlGate CCZGate() { return ControlGate(ZGate(), 2); }
 }  // namespace qsyn::qcir
 
 namespace qsyn {
-template <>
-std::optional<zx::ZXGraph> to_zxgraph(qcir::LegacyGateType const& op);
-template <>
-std::optional<tensor::QTensor<double>> to_tensor(qcir::LegacyGateType const& op);
-template <>
-bool append_to_tableau(qcir::LegacyGateType const& op, experimental::Tableau& tableau, QubitIdList const& qubits);
 
 template <>
 std::optional<zx::ZXGraph> to_zxgraph(qcir::IdGate const& op);
@@ -522,13 +481,3 @@ std::optional<tensor::QTensor<double>> to_tensor(qcir::ControlGate const& op);
 template <>
 bool append_to_tableau(qcir::ControlGate const& op, experimental::Tableau& tableau, QubitIdList const& qubits);
 }  // namespace qsyn
-
-template <>
-struct fmt::formatter<qsyn::qcir::GateRotationCategory> {
-    constexpr auto parse(format_parse_context& ctx) { return ctx.begin(); }
-
-    template <typename FormatContext>
-    auto format(qsyn::qcir::GateRotationCategory const& type, FormatContext& ctx) {
-        return fmt::format_to(ctx.out(), "{}", qsyn::qcir::gate_type_to_str(type));
-    }
-};

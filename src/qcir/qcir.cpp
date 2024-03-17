@@ -25,7 +25,6 @@
 #include "./qcir_qubit.hpp"
 #include "./qcir_translate.hpp"
 #include "qsyn/qsyn_type.hpp"
-#include "util/phase.hpp"
 #include "util/scope_guard.hpp"
 #include "util/text_format.hpp"
 #include "util/util.hpp"
@@ -282,38 +281,6 @@ bool QCir::remove_qubit(QubitIdType id) {
             return true;
         }
     }
-}
-
-/**
- * @brief Add Gate
- *
- * @param type
- * @param bits
- * @param phase
- * @param append if true, append the gate, else prepend
- *
- * @return QCirGate*
- */
-QCirGate* QCir::add_gate(std::string type, QubitIdList const& bits, dvlab::Phase phase, bool append) {
-    type           = dvlab::str::tolower_string(type);
-    auto gate_type = str_to_gate_type(type);
-    if (!gate_type.has_value()) {
-        spdlog::error("Gate type {} is not supported!!", type);
-        return nullptr;
-    }
-    auto const& [category, num_qubits, gate_phase] = *gate_type;
-    if (num_qubits.has_value() && num_qubits.value() != bits.size()) {
-        spdlog::error("Gate {} requires {} qubits, but {} qubits are given.", type, num_qubits.value(), bits.size());
-        return nullptr;
-    }
-    if (gate_phase.has_value()) {
-        phase = gate_phase.value();
-    }
-
-    return get_gate(
-        append
-            ? this->append(LegacyGateType(std::make_tuple(category, bits.size(), phase)), bits)
-            : this->prepend(LegacyGateType(std::make_tuple(category, bits.size(), phase)), bits));
 }
 
 size_t QCir::append(Operation const& op, QubitIdList const& bits) {
