@@ -24,7 +24,6 @@ class Phase;
 namespace qsyn::qcir {
 
 class QCir;
-enum class GateRotationCategory;
 using Qubit2Gates = std::unordered_map<QubitIdType, std::vector<QCirGate*>>;
 
 class Optimizer {
@@ -140,12 +139,12 @@ private:
     }
 
     inline QCirGate* _store_cx(QubitIdType ctrl, QubitIdType targ) {
-        _storage.emplace_back(std::make_unique<QCirGate>(_storage.size(), LegacyGateType(std::make_tuple(GateRotationCategory::px, 2, dvlab::Phase(1))), QubitIdList{ctrl, targ}));
+        _storage.emplace_back(std::make_unique<QCirGate>(_storage.size(), CXGate(), QubitIdList{ctrl, targ}));
         return _storage.back().get();
     }
 
     inline QCirGate* _store_cz(QubitIdType ctrl, QubitIdType targ) {
-        _storage.emplace_back(std::make_unique<QCirGate>(_storage.size(), LegacyGateType(std::make_tuple(GateRotationCategory::pz, 2, dvlab::Phase(1))), QubitIdList{ctrl, targ}));
+        _storage.emplace_back(std::make_unique<QCirGate>(_storage.size(), CZGate(), QubitIdList{ctrl, targ}));
         return _storage.back().get();
     }
 

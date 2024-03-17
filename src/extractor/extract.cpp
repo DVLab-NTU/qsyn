@@ -9,7 +9,6 @@
 
 #include <cassert>
 #include <ranges>
-#include <tuple>
 
 #include "duostra/duostra.hpp"
 #include "duostra/mapping_eqv_checker.hpp"
@@ -237,7 +236,7 @@ bool Extractor::extract_czs(bool check) {
     std::vector<qcir::QCirGate> gates;
     for (auto const& [s, t] : remove_list) {
         _graph->remove_edge(s, t, EdgeType::hadamard);
-        gates.emplace_back(0, LegacyGateType{std::make_tuple(GateRotationCategory::pz, 2, dvlab::Phase(1))}, QubitIdList{_qubit_map[s->get_qubit()], _qubit_map[t->get_qubit()]});
+        gates.emplace_back(0, CZGate(), QubitIdList{_qubit_map[s->get_qubit()], _qubit_map[t->get_qubit()]});
     }
     if (!gates.empty()) {
         prepend_series_gates(gates);
@@ -269,7 +268,7 @@ void Extractor::extract_cxs() {
         auto ctrl = _qubit_map[front_id2_vertex[c]->get_qubit()];
         auto targ = _qubit_map[front_id2_vertex[t]->get_qubit()];
         spdlog::debug("Adding CX: {} {}", ctrl, targ);
-        _logical_circuit->add_gate("cx", {ctrl, targ}, dvlab::Phase(0), false);
+        _logical_circuit->prepend(CXGate(), {ctrl, targ});
     }
 }
 
@@ -675,38 +674,6 @@ void Extractor::_block_elimination(dvlab::BooleanMatrix& best_matrix, size_t& mi
     }
 }
 
-// void Extractor::_block_elimination(size_t& best_block, dvlab::BooleanMatrix& best_matrix, size_t& min_cost, size_t block_size) {
-//     dvlab::BooleanMatrix copied_matrix = _biadjacency;
-//     copied_matrix.gaussian_elimination_skip(block_size, true, true);
-//     if (FILTER_DUPLICATE_CXS) _filter_duplicate_cxs();
-
-//     // NOTE - Construct Duostra Input
-//     std::unordered_map<size_t, ZXVertex*> front_id2_vertex;
-//     size_t cnt = 0;
-//     for (auto& f : _frontier) {
-//         front_id2_vertex[cnt] = f;
-//         cnt++;
-//     }
-//     std::vector<Operation> ops;
-//     for (auto& [t, c] : copied_matrix.get_row_operations()) {
-//         // NOTE - targ and ctrl are opposite here
-//         size_t ctrl = _qubit_map[front_id2_vertex[c]->get_qubit()];
-//         size_t targ = _qubit_map[front_id2_vertex[t]->get_qubit()];
-//         spdlog::debug("Adding CX: {} {}", ctrl, targ);
-//         ops.emplace_back(GateRotationCategory::px, dvlab::Phase(0), std::make_tuple(ctrl, targ), std::make_tuple(0, 0));
-//     }
-
-//     // NOTE - Get Mapping result, Device is passed by copy
-//     qsyn::duostra::Duostra duo(ops, _graph->get_num_outputs(), _device.value(), {.verify_result = false, .silent = true, .use_tqdm = false});
-//     size_t depth = duo.map(true);
-//     spdlog::debug("Block size: {}, depth: {}, #cx: {}", block_size, depth, ops.size());
-//     if (depth < min_cost) {
-//         min_cost    = depth;
-//         best_matrix = copied_matrix;
-//         best_block  = block_size;
-//     }
-// }
-
 /**
  * @brief Permute qubit if input and output are not match
  *
@@ -848,16 +815,6 @@ void Extractor::prepend_series_gates(std::vector<qcir::QCirGate> const& logical 
     for (auto const& gate : logical) {
         _logical_circuit->prepend(gate.get_operation(), gate.get_qubits());
     }
-
-    // for (auto const& gates : physical) {
-    //     auto qubits = gates.get_qubits();
-    //     if (gates.is_swap()) {
-    //         prepend_swap_gate(get<0>(qubits), get<1>(qubits), _physical_circuit);
-    //         _num_swaps++;
-    //     } else if (gates.get_phase() != dvlab::Phase(0)) {
-    //         _physical_circuit->add_gate(gates.get_type_str(), {get<0>(qubits), get<1>(qubits)}, gates.get_phase(), false);
-    //     }
-    // }
 }
 
 /**
@@ -869,9 +826,9 @@ void Extractor::prepend_series_gates(std::vector<qcir::QCirGate> const& logical 
  */
 void Extractor::prepend_swap_gate(QubitIdType q0, QubitIdType q1, QCir* circuit) {
     // NOTE - No qubit permutation in Physical Circuit
-    circuit->add_gate("cx", {q0, q1}, dvlab::Phase(1), false);
-    circuit->add_gate("cx", {q1, q0}, dvlab::Phase(1), false);
-    circuit->add_gate("cx", {q0, q1}, dvlab::Phase(1), false);
+    circuit->prepend(CXGate(), {q0, q1});
+    circuit->prepend(CXGate(), {q1, q0});
+    circuit->prepend(CXGate(), {q0, q1});
 }
 
 /**

@@ -340,8 +340,11 @@ bool Decomposer::Decomposer::_graycode(Tensor<U> const& matrix, size_t i, size_t
 
     // do unpabbing
     DVLAB_ASSERT(gate_list.size() == qubit_list.size(), "Sizes of gate list and qubit list are different");
-    for (auto const& q : std::views::iota(0UL, gate_list.size()) | std::views::reverse)
-        _quantum_circuit.add_gate(gate_list[q], qubit_list[q], {}, true);
+    for (auto const& q : std::views::iota(0UL, gate_list.size()) | std::views::reverse) {
+        if (auto const op = qcir::str_to_operation(gate_list[q], {}); op.has_value()) {
+            _quantum_circuit.append(*op, qubit_list[q]);
+        }
+    }
 
     return true;
 }
@@ -421,9 +424,9 @@ bool Decomposer::_decompose_cnu(Tensor<U> const& t, size_t diff_pos, size_t inde
 template <typename U>
 bool Decomposer::_decompose_cnx(const std::vector<size_t>& ctrls, const size_t extract_qubit, const size_t index, const size_t ctrl_gates) {
     if (ctrls.size() == 1) {
-        _quantum_circuit.add_gate("cx", {int(ctrls[0]), int(extract_qubit)}, {}, true);
+        _quantum_circuit.append(qcir::CXGate(), {gsl::narrow<QubitIdType>(ctrls[0]), gsl::narrow<QubitIdType>(extract_qubit)});
     } else if (ctrls.size() == 2) {
-        _quantum_circuit.add_gate("ccx", {int(ctrls[0]), int(ctrls[1]), int(extract_qubit)}, {}, true);
+        _quantum_circuit.append(qcir::CCXGate(), {gsl::narrow<QubitIdType>(ctrls[0]), gsl::narrow<QubitIdType>(ctrls[1]), gsl::narrow<QubitIdType>(extract_qubit)});
     } else {
         using float_type = U::value_type;
         if (!_decompose_cnu(QTensor<float_type>::xgate(), extract_qubit, index, ctrl_gates)) return false;
@@ -455,13 +458,13 @@ bool Decomposer::_decompose_cu(Tensor<U> const& t, size_t ctrl, size_t targ) {
     }
 
     if (std::abs(angles.beta) > eps) {
-        _quantum_circuit.add_gate("cx", {int(ctrl), int(targ)}, {}, true);
+        _quantum_circuit.append(qcir::CXGate(), {gsl::narrow<QubitIdType>(ctrl), gsl::narrow<QubitIdType>(targ)});
         if (std::abs((angles.alpha + angles.gamma) / 2) > eps) {
             _quantum_circuit.append(qcir::RZGate(Phase{((angles.alpha + angles.gamma) / 2) * (-1.0)}), {gsl::narrow<QubitIdType>(targ)});
         }
 
         _quantum_circuit.append(qcir::RYGate(Phase{angles.beta * (-1.0)}), {gsl::narrow<QubitIdType>(targ)});
-        _quantum_circuit.add_gate("cx", {int(ctrl), int(targ)}, {}, true);
+        _quantum_circuit.append(qcir::CXGate(), {gsl::narrow<QubitIdType>(ctrl), gsl::narrow<QubitIdType>(targ)});
         _quantum_circuit.append(qcir::RYGate(Phase{angles.beta}), {gsl::narrow<QubitIdType>(targ)});
 
         if (std::abs(angles.alpha) > eps) {
@@ -470,9 +473,9 @@ bool Decomposer::_decompose_cu(Tensor<U> const& t, size_t ctrl, size_t targ) {
 
     } else {
         if (std::abs((angles.alpha + angles.gamma) / 2) > eps) {
-            _quantum_circuit.add_gate("cx", {int(ctrl), int(targ)}, {}, true);
+            _quantum_circuit.append(qcir::CXGate(), {gsl::narrow<QubitIdType>(ctrl), gsl::narrow<QubitIdType>(targ)});
             _quantum_circuit.append(qcir::RZGate(Phase{((angles.alpha + angles.gamma) / 2) * (-1.0)}), {gsl::narrow<QubitIdType>(targ)});
-            _quantum_circuit.add_gate("cx", {int(ctrl), int(targ)}, {}, true);
+            _quantum_circuit.append(qcir::CXGate(), {gsl::narrow<QubitIdType>(ctrl), gsl::narrow<QubitIdType>(targ)});
         }
         if (std::abs(angles.alpha) > eps) {
             _quantum_circuit.append(qcir::RZGate(Phase(angles.alpha)), {gsl::narrow<QubitIdType>(targ)});

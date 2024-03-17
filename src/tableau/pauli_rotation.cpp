@@ -82,7 +82,7 @@ PauliProduct::PauliProduct(std::initializer_list<Pauli> const& pauli_list, bool 
     }
 
     for (size_t i = 0; i < pauli_list.size(); ++i) {
-        switch (pauli_list.begin()[i]) {
+        switch (pauli_list.begin()[i]) {  //  NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
             case Pauli::i:
                 break;
             case Pauli::z:

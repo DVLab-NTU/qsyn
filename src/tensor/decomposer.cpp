@@ -18,8 +18,13 @@ namespace qsyn::tensor {
  */
 void Decomposer::_encode_control_gate(QubitIdList const& target, std::vector<QubitIdList>& qubit_list, std::vector<std::string>& gate_list) {
     qubit_list.emplace_back(target);
-    gate_list.emplace_back(target.size() == 2 ? "cx" : "x");
-    _quantum_circuit.add_gate(target.size() == 2 ? "cx" : "x", target, {}, true);
+    if (target.size() == 2) {
+        gate_list.emplace_back("cx");
+        _quantum_circuit.append(qcir::CXGate(), target);
+    } else {
+        gate_list.emplace_back("x");
+        _quantum_circuit.append(qcir::XGate(), target);
+    }
 }
 
 /**

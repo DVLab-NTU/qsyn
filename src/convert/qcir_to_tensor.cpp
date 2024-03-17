@@ -86,23 +86,11 @@ std::optional<QTensor<double>> to_tensor(RYGate const& op) {
 }
 
 template <>
-std::optional<QTensor<double>> to_tensor(LegacyGateType const& op) {
-    switch (op.get_rotation_category()) {
-        case GateRotationCategory::pz:
-            return QTensor<double>::control(QTensor<double>::pzgate(op.get_phase()), op.get_num_qubits() - 1);
-        case GateRotationCategory::rz:
-            return QTensor<double>::control(QTensor<double>::rzgate(op.get_phase()), op.get_num_qubits() - 1);
-        case GateRotationCategory::px:
-            return QTensor<double>::control(QTensor<double>::pxgate(op.get_phase()), op.get_num_qubits() - 1);
-        case GateRotationCategory::rx:
-            return QTensor<double>::control(QTensor<double>::rxgate(op.get_phase()), op.get_num_qubits() - 1);
-        case GateRotationCategory::py:
-            return QTensor<double>::control(QTensor<double>::pygate(op.get_phase()), op.get_num_qubits() - 1);
-        case GateRotationCategory::ry:
-            return QTensor<double>::control(QTensor<double>::rygate(op.get_phase()), op.get_num_qubits() - 1);
-
-        default:
-            return std::nullopt;
+std::optional<QTensor<double>> to_tensor(ControlGate const& op) {
+    if (auto target_tensor = to_tensor(op.get_target_operation())) {
+        return QTensor<double>::control(*target_tensor, op.get_num_qubits() - op.get_target_operation().get_num_qubits());
+    } else {
+        return std::nullopt;
     }
 }
 

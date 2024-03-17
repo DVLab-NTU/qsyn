@@ -53,7 +53,7 @@ bool MappingEquivalenceChecker::check() {
         if (swaps.contains(phys_gate)) {
             continue;
         }
-        if (phys_gate->get_operation() == CXGate{} || phys_gate->get_operation() == CZGate{}) {
+        if (phys_gate->get_num_qubits() == 2) {
             if (is_swap(phys_gate)) {
                 if (!execute_swap(phys_gate, swaps)) return false;
             } else {
@@ -78,12 +78,12 @@ bool MappingEquivalenceChecker::check() {
  * @return false
  */
 bool MappingEquivalenceChecker::is_swap(QCirGate* candidate) {
-    if (candidate->get_operation() != CXGate{}) return false;
+    if (candidate->get_operation() != CXGate()) return false;
     QCirGate* q0_gate = get_next(*_physical, candidate->get_id(), 0);
     QCirGate* q1_gate = get_next(*_physical, candidate->get_id(), 1);
 
     if (q0_gate != q1_gate || q0_gate == nullptr || q1_gate == nullptr) return false;
-    if (q0_gate->get_operation() != CXGate{}) return false;
+    if (q0_gate->get_operation() != CXGate()) return false;
     // q1gate == q0 gate
     if (candidate->get_qubit(0) != q1_gate->get_qubit(1) ||
         candidate->get_qubit(1) != q0_gate->get_qubit(0)) return false;
@@ -93,7 +93,7 @@ bool MappingEquivalenceChecker::is_swap(QCirGate* candidate) {
     q1_gate   = get_next(*_physical, candidate->get_id(), 1);
 
     if (q0_gate != q1_gate || q0_gate == nullptr || q1_gate == nullptr) return false;
-    if (q0_gate->get_operation() != CXGate{}) return false;
+    if (q0_gate->get_operation() != CXGate()) return false;
     // q1 gate == q0 gate
     if (candidate->get_qubit(0) != q1_gate->get_qubit(1) ||
         candidate->get_qubit(1) != q0_gate->get_qubit(0)) return false;
@@ -108,7 +108,7 @@ bool MappingEquivalenceChecker::is_swap(QCirGate* candidate) {
     QCirGate* log_gate0 = _dependency[logical_gate_ctrl_id.value()];
     QCirGate* log_gate1 = _dependency[logical_gate_targ_id.value()];
 
-    return log_gate0 != log_gate1 || log_gate0 == nullptr || log_gate0->get_operation() != CXGate{};
+    return log_gate0 != log_gate1 || log_gate0 == nullptr || log_gate0->get_operation() != CXGate();
 }
 
 /**

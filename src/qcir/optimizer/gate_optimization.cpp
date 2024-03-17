@@ -120,7 +120,7 @@ void Optimizer::_match_z_rotations(QCirGate* gate) {
 }
 
 void Optimizer::_match_czs(QCirGate* gate, bool do_swap, bool do_minimize_czs) {
-    assert(gate->get_operation() == CZGate{});
+    assert(gate->get_operation() == CZGate());
     auto control_qubit = gate->get_qubit(0);
     auto target_qubit  = gate->get_qubit(1);
     if (control_qubit > target_qubit) {  // NOTE - Symmetric, let ctrl smaller than targ
@@ -148,7 +148,7 @@ void Optimizer::_match_czs(QCirGate* gate, bool do_swap, bool do_minimize_czs) {
 }
 
 void Optimizer::_match_cxs(QCirGate* gate, bool do_swap, bool do_minimize_czs) {
-    assert(gate->get_operation() == CXGate{});
+    assert(gate->get_operation() == CXGate());
     auto control_qubit = gate->get_qubit(0);
     auto target_qubit  = gate->get_qubit(1);
 

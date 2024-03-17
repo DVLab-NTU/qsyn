@@ -25,7 +25,6 @@
 #include "./qcir_qubit.hpp"
 #include "./qcir_translate.hpp"
 #include "qsyn/qsyn_type.hpp"
-#include "util/phase.hpp"
 #include "util/scope_guard.hpp"
 #include "util/text_format.hpp"
 #include "util/util.hpp"
@@ -40,7 +39,7 @@ QCir::QCir(QCir const& other) {
     }
 
     for (auto& gate : other.get_gates()) {
-        // We do not call add_gate here because we want to keep the original gate id
+        // We do not call append here because we want to keep the original gate id
         _id_to_gates.emplace(gate->get_id(), std::make_unique<QCirGate>(gate->get_id(), gate->get_operation(), gate->get_qubits()));
         _predecessors.emplace(gate->get_id(), std::vector<std::optional<size_t>>(gate->get_num_qubits(), std::nullopt));
         _successors.emplace(gate->get_id(), std::vector<std::optional<size_t>>(gate->get_num_qubits(), std::nullopt));
@@ -284,40 +283,10 @@ bool QCir::remove_qubit(QubitIdType id) {
     }
 }
 
-/**
- * @brief Add Gate
- *
- * @param type
- * @param bits
- * @param phase
- * @param append if true, append the gate, else prepend
- *
- * @return QCirGate*
- */
-QCirGate* QCir::add_gate(std::string type, QubitIdList const& bits, dvlab::Phase phase, bool append) {
-    type           = dvlab::str::tolower_string(type);
-    auto gate_type = str_to_gate_type(type);
-    if (!gate_type.has_value()) {
-        spdlog::error("Gate type {} is not supported!!", type);
-        return nullptr;
-    }
-    auto const& [category, num_qubits, gate_phase] = *gate_type;
-    if (num_qubits.has_value() && num_qubits.value() != bits.size()) {
-        spdlog::error("Gate {} requires {} qubits, but {} qubits are given.", type, num_qubits.value(), bits.size());
-        return nullptr;
-    }
-    if (gate_phase.has_value()) {
-        phase = gate_phase.value();
-    }
-
-    return get_gate(
-        append
-            ? this->append(LegacyGateType(std::make_tuple(category, bits.size(), phase)), bits)
-            : this->prepend(LegacyGateType(std::make_tuple(category, bits.size(), phase)), bits));
-}
-
 size_t QCir::append(Operation const& op, QubitIdList const& bits) {
-    /* for now, assumes that op is always a legacy gate type */
+    DVLAB_ASSERT(
+        op.get_num_qubits() == bits.size(),
+        fmt::format("Operation {} requires {} qubits, but {} qubits are given.", op.get_repr(), op.get_num_qubits(), bits.size()));
     _id_to_gates.emplace(_gate_id, std::make_unique<QCirGate>(_gate_id, op, bits));
     _predecessors.emplace(_gate_id, std::vector<std::optional<size_t>>(bits.size(), std::nullopt));
     _successors.emplace(_gate_id, std::vector<std::optional<size_t>>(bits.size(), std::nullopt));
@@ -341,7 +310,9 @@ size_t QCir::append(Operation const& op, QubitIdList const& bits) {
 }
 
 size_t QCir::prepend(Operation const& op, QubitIdList const& bits) {
-    /* for now, assumes that op is always a legacy gate type */
+    DVLAB_ASSERT(
+        op.get_num_qubits() == bits.size(),
+        fmt::format("Operation {} requires {} qubits, but {} qubits are given.", op.get_repr(), op.get_num_qubits(), bits.size()));
     _id_to_gates.emplace(_gate_id, std::make_unique<QCirGate>(_gate_id, op, bits));
     _predecessors.emplace(_gate_id, std::vector<std::optional<size_t>>(bits.size(), std::nullopt));
     _successors.emplace(_gate_id, std::vector<std::optional<size_t>>(bits.size(), std::nullopt));
@@ -554,7 +525,8 @@ void QCir::translate(QCir const& qcir, std::string const& gate_set) {
             for (auto qubit_num : gate_qubit_list) {
                 gate_qubit_id_list.emplace_back(cur_gate->get_qubit(qubit_num));
             }
-            this->add_gate(gate_type, gate_qubit_id_list, gate_phase, true);
+            if (auto op = str_to_operation(gate_type); op.has_value())
+                this->append(*op, gate_qubit_id_list);
         }
     }
     set_gate_set(gate_set);

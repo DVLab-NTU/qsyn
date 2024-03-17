@@ -339,7 +339,7 @@ dvlab::Command qcir_print_cmd(QCirMgr const& qcir_mgr) {
 }
 
 dvlab::Command qcir_gate_add_cmd(QCirMgr& qcir_mgr) {
-    static dvlab::utils::ordered_hashmap<std::string, std::string> single_qubit_gates_no_phase = {
+    static dvlab::utils::ordered_hashmap<std::string, std::string> const single_qubit_gates_no_phase = {
         {"h", "Hadamard gate"},
         {"x", "Pauli-X gate"},
         {"y", "Pauli-Y gate"},
@@ -351,7 +351,7 @@ dvlab::Command qcir_gate_add_cmd(QCirMgr& qcir_mgr) {
         {"sx", "√X gate"},
         {"sy", "√Y gate"}};
 
-    static dvlab::utils::ordered_hashmap<std::string, std::string> single_qubit_gates_with_phase = {
+    static dvlab::utils::ordered_hashmap<std::string, std::string> const single_qubit_gates_with_phase = {
         {"rz", "Rz(θ) gate"},
         {"ry", "Rx(θ) gate"},
         {"rx", "Ry(θ) gate"},
@@ -361,18 +361,18 @@ dvlab::Command qcir_gate_add_cmd(QCirMgr& qcir_mgr) {
         {"py", "Py = (e^iθ/2)Ry gate"}  //
     };
 
-    static dvlab::utils::ordered_hashmap<std::string, std::string> double_qubit_gates_no_phase = {
+    static dvlab::utils::ordered_hashmap<std::string, std::string> const double_qubit_gates_no_phase = {
         {"cx", "CX (CNOT) gate"},
         {"cz", "CZ gate"},
         {"swap", "SWAP gate"},
         {"ecr", "Echoed crossed resonance gate"}};
 
-    static dvlab::utils::ordered_hashmap<std::string, std::string> three_qubit_gates_no_phase = {
+    static dvlab::utils::ordered_hashmap<std::string, std::string> const three_qubit_gates_no_phase = {
         {"ccx", "CCX (CCNOT, Toffoli) gate"},
         {"ccz", "CCZ gate"}  //
     };
 
-    static dvlab::utils::ordered_hashmap<std::string, std::string> multi_qubit_gates_with_phase = {
+    static dvlab::utils::ordered_hashmap<std::string, std::string> const multi_qubit_gates_with_phase = {
         {"mcrz", "Multi-Controlled Rz(θ) gate"},
         {"mcrx", "Multi-Controlled Rx(θ) gate"},
         {"mcry", "Multi-Controlled Ry(θ) gate"},
@@ -432,11 +432,32 @@ dvlab::Command qcir_gate_add_cmd(QCirMgr& qcir_mgr) {
             type      = dvlab::str::tolower_string(type);
             auto bits = parser.get<QubitIdList>("qubits");
 
-            auto op = str_to_operation(type, parser.get<std::vector<dvlab::Phase>>("--phase"));
-            if (!op.has_value() && bits.size() == 1 && type.starts_with("mc")) {
-                op = str_to_operation(type.substr(2), parser.get<std::vector<dvlab::Phase>>("--phase"));
-            }
-            if (op.has_value()) {
+            if (type.starts_with("mc")) {
+                auto op = str_to_operation(type.substr(2), parser.get<std::vector<dvlab::Phase>>("--phase"));
+                if (!op.has_value()) {
+                    spdlog::error("Invalid gate type {}!!", type);
+                    return CmdExecResult::error;
+                }
+                if (bits.size() < op->get_num_qubits()) {
+                    spdlog::error("Too few qubits are supplied for gate {}!!", type);
+                    return CmdExecResult::error;
+                }
+                auto const n_ctrls = bits.size() - op->get_num_qubits();
+                if (n_ctrls > 0) {
+                    do_prepend
+                        ? qcir_mgr.get()->prepend(ControlGate(*op, n_ctrls), bits)
+                        : qcir_mgr.get()->append(ControlGate(*op, n_ctrls), bits);
+                } else {
+                    do_prepend
+                        ? qcir_mgr.get()->prepend(*op, bits)
+                        : qcir_mgr.get()->append(*op, bits);
+                }
+            } else {
+                auto op = str_to_operation(type, parser.get<std::vector<dvlab::Phase>>("--phase"));
+                if (!op.has_value()) {
+                    spdlog::error("Invalid gate type {}!!", type);
+                    return CmdExecResult::error;
+                }
                 if (bits.size() < op->get_num_qubits()) {
                     spdlog::error("Too few qubits are supplied for gate {}!!", type);
                     return CmdExecResult::error;
@@ -447,61 +468,7 @@ dvlab::Command qcir_gate_add_cmd(QCirMgr& qcir_mgr) {
                 do_prepend
                     ? qcir_mgr.get()->prepend(*op, bits)
                     : qcir_mgr.get()->append(*op, bits);
-                return CmdExecResult::done;
             }
-
-            auto is_gate_category = [&](auto& category) {
-                return any_of(category.begin(), category.end(),
-                              [&](auto& name_help) {
-                                  return type == name_help.first;
-                              });
-            };
-
-            dvlab::Phase phase{1};
-            if (is_gate_category(single_qubit_gates_with_phase) ||
-                is_gate_category(multi_qubit_gates_with_phase)) {
-                if (!parser.parsed("--phase")) {
-                    spdlog::error("Phase must be specified for gate type {}!!", type);
-                    return CmdExecResult::error;
-                }
-                phase = parser.get<dvlab::Phase>("--phase");
-            } else if (parser.parsed("--phase")) {
-                spdlog::error("Phase is incompatible with gate type {}!!", type);
-                return CmdExecResult::error;
-            }
-
-            if (is_gate_category(single_qubit_gates_no_phase) ||
-                is_gate_category(single_qubit_gates_with_phase)) {
-                if (bits.empty()) {
-                    spdlog::error("Too few qubits are supplied for gate {}!!", type);
-                    return CmdExecResult::error;
-                } else if (bits.size() > 1) {
-                    spdlog::error("Too many qubits are supplied for gate {}!!", type);
-                    return CmdExecResult::error;
-                }
-            }
-
-            if (is_gate_category(double_qubit_gates_no_phase)) {
-                if (bits.size() < 2) {
-                    spdlog::error("Too few qubits are supplied for gate {}!!", type);
-                    return CmdExecResult::error;
-                } else if (bits.size() > 2) {
-                    spdlog::error("Too many qubits are supplied for gate {}!!", type);
-                    return CmdExecResult::error;
-                }
-            }
-
-            if (is_gate_category(three_qubit_gates_no_phase)) {
-                if (bits.size() < 3) {
-                    spdlog::error("Too few qubits are supplied for gate {}!!", type);
-                    return CmdExecResult::error;
-                } else if (bits.size() > 3) {
-                    spdlog::error("Too many qubits are supplied for gate {}!!", type);
-                    return CmdExecResult::error;
-                }
-            }
-
-            qcir_mgr.get()->add_gate(type, bits, phase, !do_prepend);
 
             return CmdExecResult::done;
         }};
