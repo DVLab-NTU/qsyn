@@ -77,7 +77,6 @@ public:
 
     void swap(QCir& other) noexcept {
         std::swap(_gate_id, other._gate_id);
-        std::swap(_qubit_id, other._qubit_id);
         std::swap(_dirty, other._dirty);
         std::swap(_filename, other._filename);
         std::swap(_gate_set, other._gate_set);
@@ -171,8 +170,7 @@ public:
     std::vector<std::optional<size_t>> get_successors(std::optional<size_t> gate_id) const;
 
 private:
-    size_t _gate_id       = 0;
-    QubitIdType _qubit_id = 0;
+    size_t _gate_id = 0;
     std::string _filename;
     std::string _gate_set;
     std::vector<std::string> _procedures;

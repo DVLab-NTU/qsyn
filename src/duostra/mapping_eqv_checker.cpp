@@ -7,6 +7,8 @@
 
 #include "./mapping_eqv_checker.hpp"
 
+#include <tl/enumerate.hpp>
+
 #include "./placer.hpp"
 #include "qcir/gate_type.hpp"
 #include "qcir/qcir.hpp"
@@ -33,8 +35,8 @@ MappingEquivalenceChecker::MappingEquivalenceChecker(QCir* phy, QCir* log, Devic
         init        = placer->place_and_assign(_device);
     } else
         _device.place(init);
-    for (auto const& qubit : _logical->get_qubits()) {
-        _dependency[qubit->get_id()] = _reverse ? qubit->get_last() : qubit->get_first();
+    for (auto const& [i, qubit] : tl::views::enumerate(_logical->get_qubits())) {
+        _dependency[gsl::narrow<QubitIdType>(i)] = _reverse ? qubit->get_last() : qubit->get_first();
     }
 }
 

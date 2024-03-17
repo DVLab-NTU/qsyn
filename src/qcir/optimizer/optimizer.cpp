@@ -31,7 +31,7 @@ void Optimizer::reset(QCir const& qcir) {
         _availty.emplace_back(false);
         _available.emplace(i, std::vector<QCirGate*>{});
         _gates.emplace(i, std::vector<QCirGate*>{});
-        _permutation[i] = qcir.get_qubits()[i]->get_id();
+        _permutation[i] = i;
     }
 }
 

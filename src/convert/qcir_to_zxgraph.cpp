@@ -11,6 +11,7 @@
 
 #include <cstddef>
 #include <gsl/narrow>
+#include <tl/enumerate.hpp>
 
 #include "qcir/gate_type.hpp"
 #include "qcir/qcir.hpp"
@@ -441,9 +442,9 @@ std::optional<ZXGraph> to_zxgraph(QCir const& qcir) {
 
     ZXGraph graph;
     spdlog::debug("Add boundaries");
-    for (auto* qubit : qcir.get_qubits()) {
-        ZXVertex* input  = graph.add_input(qubit->get_id());
-        ZXVertex* output = graph.add_output(qubit->get_id());
+    for (auto const& [i, qubit] : tl::views::enumerate(qcir.get_qubits())) {
+        ZXVertex* input  = graph.add_input(gsl::narrow<QubitIdType>(i));
+        ZXVertex* output = graph.add_output(gsl::narrow<QubitIdType>(i));
         graph.add_edge(input, output, EdgeType::simple);
     }
 
