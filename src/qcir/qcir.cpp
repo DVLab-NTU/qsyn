@@ -34,6 +34,7 @@
 #include "util/util.hpp"
 
 namespace qsyn {
+// these definitions are here to enable qcir::QCir as an Operation
 template <>
 std::optional<zx::ZXGraph> to_zxgraph(qcir::QCir const& qcir);
 template <>
