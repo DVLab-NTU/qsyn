@@ -15,7 +15,7 @@
 #include "../qcir_gate.hpp"
 #include "./optimizer.hpp"
 #include "extractor/extract.hpp"
-#include "qcir/gate_type.hpp"
+#include "qcir/basic_gate_type.hpp"
 
 extern bool stop_requested();
 

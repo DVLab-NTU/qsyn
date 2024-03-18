@@ -7,11 +7,9 @@
 
 #include <spdlog/spdlog.h>
 
-#include <cassert>
-#include <functional>
 #include <ranges>
 
-#include "../gate_type.hpp"
+#include "../basic_gate_type.hpp"
 #include "../qcir.hpp"
 #include "../qcir_gate.hpp"
 #include "./optimizer.hpp"

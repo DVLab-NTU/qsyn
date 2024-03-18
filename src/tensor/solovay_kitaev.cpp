@@ -9,7 +9,7 @@
 
 #include <sul/dynamic_bitset.hpp>
 
-#include "qcir/gate_type.hpp"
+#include "qcir/basic_gate_type.hpp"
 
 namespace qsyn::tensor {
 

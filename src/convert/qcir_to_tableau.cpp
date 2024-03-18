@@ -11,9 +11,10 @@
 #include <ranges>
 #include <tl/adjacent.hpp>
 #include <tl/to.hpp>
+#include <unordered_map>
 #include <variant>
 
-#include "qcir/gate_type.hpp"
+#include "qcir/basic_gate_type.hpp"
 #include "qcir/qcir_gate.hpp"
 #include "qsyn/qsyn_type.hpp"
 #include "tableau/tableau.hpp"
@@ -349,5 +350,24 @@ std::optional<Tableau> to_tableau(qcir::QCir const& qcir) {
 }
 
 }  // namespace experimental
+
+template <>
+bool append_to_tableau(qcir::QCir const& qcir, experimental::Tableau& tableau, QubitIdList const& qubits) {
+    auto qubit_map = std::unordered_map<QubitIdType, QubitIdType>();
+
+    for (size_t i = 0; i < qcir.get_num_qubits(); ++i) {
+        qubit_map[gsl::narrow<QubitIdType>(i)] = qubits[i];
+    }
+
+    for (auto const& gate : qcir.get_gates()) {
+        auto const gate_qubits = gate->get_qubits();
+        if (!append_to_tableau(gate->get_operation(), tableau, gate_qubits | std::views::transform([&qubit_map](auto q) { return qubit_map[q]; }) | tl::to<QubitIdList>())) {
+            spdlog::error("Gate type {} is not supported!!", gate->get_operation().get_type());
+            return false;
+        }
+    }
+
+    return true;
+}
 
 }  // namespace qsyn

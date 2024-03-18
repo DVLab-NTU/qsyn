@@ -23,7 +23,7 @@
 #include <tl/to.hpp>
 #include <tl/zip.hpp>
 
-#include "qcir/gate_type.hpp"
+#include "qcir/basic_gate_type.hpp"
 #include "qcir/oracle/xag.hpp"
 #include "qsyn/qsyn_type.hpp"
 

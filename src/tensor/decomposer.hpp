@@ -13,7 +13,7 @@
 #include <ranges>
 #include <tl/to.hpp>
 
-#include "qcir/gate_type.hpp"
+#include "qcir/basic_gate_type.hpp"
 #include "qcir/qcir.hpp"
 #include "qsyn/qsyn_type.hpp"
 #include "tensor/qtensor.hpp"

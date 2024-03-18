@@ -11,7 +11,7 @@
 #include <fstream>
 #include <string>
 
-#include "qcir/gate_type.hpp"
+#include "qcir/operation.hpp"
 #include "qcir/qcir.hpp"
 #include "qcir/qcir_gate.hpp"
 #include "util/sysdep.hpp"

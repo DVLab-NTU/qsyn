@@ -25,6 +25,7 @@
 #include <vector>
 
 #include "./pebble.hpp"
+#include "qcir/basic_gate_type.hpp"
 #include "qcir/oracle/k_lut.hpp"
 #include "qcir/oracle/pebble.hpp"
 #include "qcir/oracle/xag.hpp"

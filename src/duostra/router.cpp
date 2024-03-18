@@ -13,14 +13,11 @@
 #include <gsl/narrow>
 #include <gsl/util>
 
-#include "./circuit_topology.hpp"
-#include "./duostra.hpp"
 #include "device/device.hpp"
 #include "duostra/duostra_def.hpp"
-#include "qcir/gate_type.hpp"
+#include "qcir/basic_gate_type.hpp"
 #include "qcir/qcir_gate.hpp"
 #include "qsyn/qsyn_type.hpp"
-#include "util/util.hpp"
 
 using namespace qsyn::qcir;
 

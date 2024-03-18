@@ -9,7 +9,7 @@
 
 #include <cassert>
 
-#include "../gate_type.hpp"
+#include "../basic_gate_type.hpp"
 #include "../qcir_gate.hpp"
 #include "./optimizer.hpp"
 

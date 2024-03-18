@@ -10,16 +10,13 @@
 #include <fmt/core.h>
 
 #include <cstddef>
-#include <cstdint>
 #include <memory>
 #include <string>
 #include <unordered_map>
 
-#include "qcir/gate_type.hpp"
 #include "qsyn/qsyn_type.hpp"
 #include "util/ordered_hashmap.hpp"
 #include "util/ordered_hashset.hpp"
-#include "util/phase.hpp"
 
 namespace qsyn::qcir {
 class QCirGate;

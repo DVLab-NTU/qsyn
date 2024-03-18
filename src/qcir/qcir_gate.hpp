@@ -11,9 +11,8 @@
 #include <string>
 #include <tl/to.hpp>
 
-#include "qcir/gate_type.hpp"
+#include "qcir/operation.hpp"
 #include "qsyn/qsyn_type.hpp"
-
 namespace qsyn::qcir {
 
 extern size_t SINGLE_DELAY;
@@ -23,12 +22,7 @@ extern size_t MULTIPLE_DELAY;
 
 class QCirGate {
 public:
-    using QubitIdType = qsyn::QubitIdType;
-
-    QCirGate(size_t id, Operation const& op, QubitIdList qubits)
-        : _id(id),
-          _operation{op},
-          _qubits{std::move(qubits)} {}
+    QCirGate(size_t id, Operation const& op, QubitIdList qubits);
 
     // Basic access method
     std::string get_type_str() const { return get_operation().get_type(); }
@@ -36,26 +30,20 @@ public:
     void set_operation(Operation const& op);
     size_t get_id() const { return _id; }
     size_t get_delay() const;
-    QubitIdType get_qubit(size_t pin_id) const { return _qubits[pin_id]; }
     QubitIdList get_qubits() const { return _qubits; }
-    std::optional<size_t> get_pin_by_qubit(QubitIdType qubit) const {
-        auto it = std::find(_qubits.begin(), _qubits.end(), qubit);
-        if (it == _qubits.end()) return std::nullopt;
-        return std::distance(_qubits.begin(), it);
-    }
-    void set_qubits(QubitIdList const& qubits) { _qubits = qubits; }
+    QubitIdType get_qubit(size_t pin_id) const { return _qubits[pin_id]; }
+    void set_qubits(QubitIdList qubits);
+    std::optional<size_t> get_pin_by_qubit(QubitIdType qubit) const;
 
     size_t get_num_qubits() const { return _qubits.size(); }
-
-    // Printing functions
-
-    void adjoint();
 
 private:
 protected:
     size_t _id;
     Operation _operation;
     std::vector<QubitIdType> _qubits;
+
+    static bool _qubit_id_is_unique(QubitIdList const& qubits);
 };
 
 }  // namespace qsyn::qcir

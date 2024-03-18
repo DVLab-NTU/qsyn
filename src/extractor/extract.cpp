@@ -12,7 +12,7 @@
 
 #include "duostra/duostra.hpp"
 #include "duostra/mapping_eqv_checker.hpp"
-#include "qcir/gate_type.hpp"
+#include "qcir/basic_gate_type.hpp"
 #include "qcir/qcir.hpp"
 #include "spdlog/common.h"
 #include "spdlog/spdlog.h"

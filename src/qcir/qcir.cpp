@@ -18,16 +18,27 @@
 #include <tl/fold.hpp>
 #include <tl/to.hpp>
 #include <unordered_set>
+#include <variant>
 #include <vector>
 
-#include "./gate_type.hpp"
+#include "./basic_gate_type.hpp"
 #include "./qcir_gate.hpp"
 #include "./qcir_qubit.hpp"
 #include "./qcir_translate.hpp"
+#include "convert/qcir_to_tableau.hpp"
 #include "qsyn/qsyn_type.hpp"
+#include "tableau/stabilizer_tableau.hpp"
+#include "tableau/tableau_optimization.hpp"
 #include "util/scope_guard.hpp"
 #include "util/text_format.hpp"
 #include "util/util.hpp"
+
+namespace qsyn {
+template <>
+std::optional<zx::ZXGraph> to_zxgraph(qcir::QCir const& qcir);
+template <>
+std::optional<qsyn::tensor::QTensor<double>> to_tensor(qcir::QCir const& qcir);
+}  // namespace qsyn
 
 namespace qsyn::qcir {
 
@@ -44,12 +55,12 @@ QCir::QCir(QCir const& other) {
 
         for (auto const qb : new_gate->get_qubits()) {
             QCirQubit* target = get_qubit(qb);
-            if (target->get_last() != nullptr) {
-                _connect(target->get_last()->get_id(), new_gate->get_id(), qb);
+            if (target->get_last_gate() != nullptr) {
+                _connect(target->get_last_gate()->get_id(), new_gate->get_id(), qb);
             } else {
-                target->set_first(new_gate);
+                target->set_first_gate(new_gate);
             }
-            target->set_last(new_gate);
+            target->set_last_gate(new_gate);
         }
     }
     _gate_id = other.get_gates().empty()
@@ -268,7 +279,7 @@ bool QCir::remove_qubit(QubitIdType id) {
         spdlog::error("Qubit ID {} not found!!", id);
         return false;
     }
-    if (target->get_last() != nullptr || target->get_first() != nullptr) {
+    if (target->get_last_gate() != nullptr || target->get_first_gate() != nullptr) {
         spdlog::error("Qubit ID {} is not empty!!", id);
         return false;
     }
@@ -305,12 +316,12 @@ size_t QCir::append(Operation const& op, QubitIdList const& bits) {
 
     for (auto const& qb : g->get_qubits()) {
         QCirQubit* target = get_qubit(qb);
-        if (target->get_last() != nullptr) {
-            _connect(target->get_last()->get_id(), g->get_id(), qb);
+        if (target->get_last_gate() != nullptr) {
+            _connect(target->get_last_gate()->get_id(), g->get_id(), qb);
         } else {
-            target->set_first(g);
+            target->set_first_gate(g);
         }
-        target->set_last(g);
+        target->set_last_gate(g);
     }
     _dirty = true;
     return g->get_id();
@@ -331,12 +342,12 @@ size_t QCir::prepend(Operation const& op, QubitIdList const& bits) {
 
     for (auto const& qb : g->get_qubits()) {
         QCirQubit* target = get_qubit(qb);
-        if (target->get_first() != nullptr) {
-            _connect(g->get_id(), target->get_first()->get_id(), qb);
+        if (target->get_first_gate() != nullptr) {
+            _connect(g->get_id(), target->get_first_gate()->get_id(), qb);
         } else {
-            target->set_last(g);
+            target->set_last_gate(g);
         }
-        target->set_first(g);
+        target->set_first_gate(g);
     }
     _dirty = true;
     return g->get_id();
@@ -363,12 +374,12 @@ bool QCir::remove_gate(size_t id) {
             if (pred) {
                 _set_successor(pred->get_id(), *pred->get_pin_by_qubit(target->get_qubit(i)), succ ? std::make_optional(succ->get_id()) : std::nullopt);
             } else {
-                get_qubit(target->get_qubit(i))->set_first(succ);
+                get_qubit(target->get_qubit(i))->set_first_gate(succ);
             }
             if (succ) {
                 _set_predecessor(succ->get_id(), *succ->get_pin_by_qubit(target->get_qubit(i)), pred ? std::make_optional(pred->get_id()) : std::nullopt);
             } else {
-                get_qubit(target->get_qubit(i))->set_last(pred);
+                get_qubit(target->get_qubit(i))->set_last_gate(pred);
             }
         }
 
@@ -564,6 +575,22 @@ void QCir::append(QCir const& other, std::map<QubitIdType, QubitIdType> const& q
                            tl::to<QubitIdList>();
         append(gate->get_operation(), bits);
     }
+}
+
+bool is_clifford(qcir::QCir const& qcir) {
+    auto tabl = experimental::to_tableau(qcir);
+    if (!tabl.has_value()) {
+        return false;
+    }
+    experimental::collapse(*tabl);
+
+    return (tabl->size() == 1) && std::holds_alternative<experimental::StabilizerTableau>(tabl->front());
+}
+
+Operation adjoint(qcir::QCir const& qcir) {
+    auto copy = qcir;
+    copy.adjoint_inplace();
+    return copy;
 }
 
 }  // namespace qsyn::qcir

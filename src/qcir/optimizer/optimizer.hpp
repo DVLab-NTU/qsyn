@@ -10,7 +10,7 @@
 #include <cstddef>
 #include <unordered_map>
 
-#include "qcir/gate_type.hpp"
+#include "qcir/basic_gate_type.hpp"
 #include "qcir/qcir_gate.hpp"
 #include "qsyn/qsyn_type.hpp"
 #include "util/ordered_hashset.hpp"

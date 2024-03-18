@@ -6,12 +6,8 @@
 ****************************************************************************/
 
 #include "./qcir.hpp"
-#include "./qcir_gate.hpp"
-#include "./qcir_qubit.hpp"
 #include "qsyn/qsyn_type.hpp"
-#include "util/data_structure_manager_common_cmd.hpp"
 #include "util/phase.hpp"
-#include "util/util.hpp"
 
 namespace qsyn::qcir {
 

@@ -19,7 +19,7 @@
 #include <tl/to.hpp>
 #include <utility>
 
-#include "qcir/gate_type.hpp"
+#include "qcir/basic_gate_type.hpp"
 #include "qcir/qcir_gate.hpp"
 #include "qsyn/qsyn_type.hpp"
 #include "util/dvlab_string.hpp"

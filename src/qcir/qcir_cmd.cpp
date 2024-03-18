@@ -20,7 +20,7 @@
 #include "argparse/arg_parser.hpp"
 #include "argparse/arg_type.hpp"
 #include "cli/cli.hpp"
-#include "qcir/gate_type.hpp"
+#include "qcir/basic_gate_type.hpp"
 #include "qcir/qcir.hpp"
 #include "qcir/qcir_mgr.hpp"
 #include "util/cin_cout_cerr.hpp"
@@ -37,25 +37,32 @@ namespace qsyn::qcir {
 
 std::function<bool(size_t const&)> valid_qcir_id(QCirMgr const& qcir_mgr) {
     return [&](size_t const& id) {
-        if (qcir_mgr.get() && qcir_mgr.is_id(id)) return true;
+        if (qcir_mgr.get() && qcir_mgr.is_id(id))
+            return true;
         spdlog::error("QCir {} does not exist!!", id);
         return false;
     };
 }
 
-std::function<bool(size_t const&)> valid_qcir_gate_id(QCirMgr const& qcir_mgr) {
+std::function<bool(size_t const&)>
+valid_qcir_gate_id(QCirMgr const& qcir_mgr) {
     return [&](size_t const& id) {
-        if (!dvlab::utils::mgr_has_data(qcir_mgr)) return false;
-        if (qcir_mgr.get() && qcir_mgr.get()->get_gate(id) != nullptr) return true;
+        if (!dvlab::utils::mgr_has_data(qcir_mgr))
+            return false;
+        if (qcir_mgr.get() && qcir_mgr.get()->get_gate(id) != nullptr)
+            return true;
         spdlog::error("Gate ID {} does not exist!!", id);
         return false;
     };
 }
 
-std::function<bool(QubitIdType const&)> valid_qcir_qubit_id(QCirMgr const& qcir_mgr) {
+std::function<bool(QubitIdType const&)>
+valid_qcir_qubit_id(QCirMgr const& qcir_mgr) {
     return [&](QubitIdType const& id) {
-        if (!dvlab::utils::mgr_has_data(qcir_mgr)) return false;
-        if (qcir_mgr.get() && qcir_mgr.get()->get_qubit(id) != nullptr) return true;
+        if (!dvlab::utils::mgr_has_data(qcir_mgr))
+            return false;
+        if (qcir_mgr.get() && qcir_mgr.get()->get_qubit(id) != nullptr)
+            return true;
         spdlog::error("Qubit ID {} does not exist!!", id);
         return false;
     };
@@ -71,8 +78,10 @@ dvlab::Command qcir_compose_cmd(QCirMgr& qcir_mgr) {
                     .help("the ID of the circuit to compose with");
             },
             [&](ArgumentParser const& parser) {
-                if (!dvlab::utils::mgr_has_data(qcir_mgr)) return CmdExecResult::error;
-                qcir_mgr.get()->compose(*qcir_mgr.find_by_id(parser.get<size_t>("id")));
+                if (!dvlab::utils::mgr_has_data(qcir_mgr))
+                    return CmdExecResult::error;
+                qcir_mgr.get()->compose(
+                    *qcir_mgr.find_by_id(parser.get<size_t>("id")));
                 return CmdExecResult::done;
             }};
 }
@@ -87,300 +96,345 @@ dvlab::Command qcir_tensor_product_cmd(QCirMgr& qcir_mgr) {
                     .help("the ID of the circuit to tensor with");
             },
             [&](ArgumentParser const& parser) {
-                if (!dvlab::utils::mgr_has_data(qcir_mgr)) return CmdExecResult::error;
-                qcir_mgr.get()->tensor_product(*qcir_mgr.find_by_id(parser.get<size_t>("id")));
+                if (!dvlab::utils::mgr_has_data(qcir_mgr))
+                    return CmdExecResult::error;
+                qcir_mgr.get()->tensor_product(
+                    *qcir_mgr.find_by_id(parser.get<size_t>("id")));
                 return CmdExecResult::done;
             }};
 }
 
 dvlab::Command qcir_config_cmd() {
-    return {"config",
-            [](ArgumentParser& parser) {
-                parser.description("set QCir parameters");
+    return {
+        "config",
+        [](ArgumentParser& parser) {
+            parser.description("set QCir parameters");
 
-                parser.add_argument<size_t>("--single-delay")
-                    .help("delay of single-qubit gate");
-                parser.add_argument<size_t>("--double-delay")
-                    .help("delay of double-qubit gate, SWAP excluded");
-                parser.add_argument<size_t>("--swap-delay")
-                    .help("delay of SWAP gate, used to be 3x double-qubit gate");
-                parser.add_argument<size_t>("--multiple-delay")
-                    .help("delay of multiple-qubit gate");
-            },
-            [](ArgumentParser const& parser) {
-                auto printing_config = true;
-                if (parser.parsed("--single-delay")) {
-                    auto single_delay = parser.get<size_t>("--single-delay");
-                    if (single_delay == 0) {
-                        fmt::println("Error: single delay value should > 0, skipping this option!!");
-                    } else {
-                        SINGLE_DELAY = single_delay;
-                    }
-                    printing_config = false;
+            parser.add_argument<size_t>("--single-delay")
+                .help("delay of single-qubit gate");
+            parser.add_argument<size_t>("--double-delay")
+                .help("delay of double-qubit gate, SWAP excluded");
+            parser.add_argument<size_t>("--swap-delay")
+                .help("delay of SWAP gate, used to be 3x double-qubit gate");
+            parser.add_argument<size_t>("--multiple-delay")
+                .help("delay of multiple-qubit gate");
+        },
+        [](ArgumentParser const& parser) {
+            auto printing_config = true;
+            if (parser.parsed("--single-delay")) {
+                auto single_delay = parser.get<size_t>("--single-delay");
+                if (single_delay == 0) {
+                    fmt::println(
+                        "Error: single delay value should > 0, skipping this option!!");
+                } else {
+                    SINGLE_DELAY = single_delay;
                 }
-                if (parser.parsed("--double-delay")) {
-                    auto double_delay = parser.get<size_t>("--double-delay");
-                    if (double_delay == 0) {
-                        fmt::println("Error: double delay value should > 0, skipping this option!!");
-                    } else {
-                        DOUBLE_DELAY = double_delay;
-                    }
-                    printing_config = false;
+                printing_config = false;
+            }
+            if (parser.parsed("--double-delay")) {
+                auto double_delay = parser.get<size_t>("--double-delay");
+                if (double_delay == 0) {
+                    fmt::println(
+                        "Error: double delay value should > 0, skipping this option!!");
+                } else {
+                    DOUBLE_DELAY = double_delay;
                 }
-                if (parser.parsed("--swap-delay")) {
-                    auto swap_delay = parser.get<size_t>("--swap-delay");
-                    if (swap_delay == 0) {
-                        fmt::println("Error: swap delay value should > 0, skipping this option!!");
-                    } else {
-                        SWAP_DELAY = swap_delay;
-                    }
-                    printing_config = false;
+                printing_config = false;
+            }
+            if (parser.parsed("--swap-delay")) {
+                auto swap_delay = parser.get<size_t>("--swap-delay");
+                if (swap_delay == 0) {
+                    fmt::println(
+                        "Error: swap delay value should > 0, skipping this option!!");
+                } else {
+                    SWAP_DELAY = swap_delay;
                 }
-                if (parser.parsed("--multiple-delay")) {
-                    auto multi_delay = parser.get<size_t>("--multiple-delay");
-                    if (multi_delay == 0) {
-                        fmt::println("Error: multiple delay value should > 0, skipping this option!!");
-                    } else {
-                        MULTIPLE_DELAY = multi_delay;
-                    }
-                    printing_config = false;
+                printing_config = false;
+            }
+            if (parser.parsed("--multiple-delay")) {
+                auto multi_delay = parser.get<size_t>("--multiple-delay");
+                if (multi_delay == 0) {
+                    fmt::println(
+                        "Error: multiple delay value should > 0, skipping "
+                        "this option!!");
+                } else {
+                    MULTIPLE_DELAY = multi_delay;
                 }
+                printing_config = false;
+            }
 
-                if (printing_config) {
-                    fmt::println("");
-                    fmt::println("Delay of Single-qubit gate :     {}", SINGLE_DELAY);
-                    fmt::println("Delay of Double-qubit gate :     {}", DOUBLE_DELAY);
-                    fmt::println("Delay of SWAP gate :             {} {}", SWAP_DELAY, (SWAP_DELAY == 3 * DOUBLE_DELAY) ? "(3 CXs)" : "");
-                    fmt::println("Delay of Multiple-qubit gate :   {}", MULTIPLE_DELAY);
-                }
+            if (printing_config) {
+                fmt::println("");
+                fmt::println("Delay of Single-qubit gate :     {}", SINGLE_DELAY);
+                fmt::println("Delay of Double-qubit gate :     {}", DOUBLE_DELAY);
+                fmt::println("Delay of SWAP gate :             {} {}", SWAP_DELAY,
+                             (SWAP_DELAY == 3 * DOUBLE_DELAY) ? "(3 CXs)" : "");
+                fmt::println("Delay of Multiple-qubit gate :   {}", MULTIPLE_DELAY);
+            }
 
-                return CmdExecResult::done;
-            }};
+            return CmdExecResult::done;
+        }};
 }
 
 dvlab::Command qcir_read_cmd(QCirMgr& qcir_mgr) {
-    return {"read",
-            [](ArgumentParser& parser) {
-                parser.description("read a circuit and construct the corresponding netlist");
+    return {
+        "read",
+        [](ArgumentParser& parser) {
+            parser.description(
+                "read a circuit and construct the corresponding netlist");
 
-                parser.add_argument<std::string>("filepath")
-                    .constraint(path_readable)
-                    .constraint(allowed_extension({".qasm", ".qc", ".qsim", ".quipper", ""}))
-                    .help("the filepath to quantum circuit file. Supported extension: .qasm, .qc, .qsim, .quipper");
+            parser.add_argument<std::string>("filepath")
+                .constraint(path_readable)
+                .constraint(
+                    allowed_extension({".qasm", ".qc", ".qsim", ".quipper", ""}))
+                .help(
+                    "the filepath to quantum circuit file. Supported extension: "
+                    ".qasm, .qc, .qsim, .quipper");
 
-                parser.add_argument<bool>("-r", "--replace")
-                    .action(store_true)
-                    .help("if specified, replace the current circuit; otherwise store to a new one");
-            },
-            [&](ArgumentParser const& parser) {
-                QCir buffer_q_cir;
-                auto filepath = parser.get<std::string>("filepath");
-                auto replace  = parser.get<bool>("--replace");
-                if (!buffer_q_cir.read_qcir_file(filepath)) {
-                    fmt::println("Error: the format in \"{}\" has something wrong!!", filepath);
-                    return CmdExecResult::error;
-                }
-                if (qcir_mgr.empty() || !replace) {
-                    qcir_mgr.add(qcir_mgr.get_next_id(), std::make_unique<QCir>(std::move(buffer_q_cir)));
-                } else {
-                    qcir_mgr.set(std::make_unique<QCir>(std::move(buffer_q_cir)));
-                }
-                qcir_mgr.get()->set_filename(std::filesystem::path{filepath}.stem());
-                return CmdExecResult::done;
-            }};
+            parser.add_argument<bool>("-r", "--replace")
+                .action(store_true)
+                .help(
+                    "if specified, replace the current circuit; otherwise store "
+                    "to a new one");
+        },
+        [&](ArgumentParser const& parser) {
+            QCir buffer_q_cir;
+            auto filepath = parser.get<std::string>("filepath");
+            auto replace  = parser.get<bool>("--replace");
+            if (!buffer_q_cir.read_qcir_file(filepath)) {
+                fmt::println("Error: the format in \"{}\" has something wrong!!",
+                             filepath);
+                return CmdExecResult::error;
+            }
+            if (qcir_mgr.empty() || !replace) {
+                qcir_mgr.add(qcir_mgr.get_next_id(),
+                             std::make_unique<QCir>(std::move(buffer_q_cir)));
+            } else {
+                qcir_mgr.set(std::make_unique<QCir>(std::move(buffer_q_cir)));
+            }
+            qcir_mgr.get()->set_filename(std::filesystem::path{filepath}.stem());
+            return CmdExecResult::done;
+        }};
 }
 
 dvlab::Command qcir_write_cmd(QCirMgr const& qcir_mgr) {
-    return {"write",
-            [](ArgumentParser& parser) {
-                parser.description("write QCir to a QASM file");
+    return {
+        "write",
+        [](ArgumentParser& parser) {
+            parser.description("write QCir to a QASM file");
 
-                parser.add_argument<std::string>("output_path")
-                    .nargs(NArgsOption::optional)
-                    .constraint(path_writable)
-                    .constraint(allowed_extension({".qasm"}))
-                    .help("the filepath to output file. Supported extension: .qasm. If not specified, the result will be dumped to the terminal");
+            parser.add_argument<std::string>("output_path")
+                .nargs(NArgsOption::optional)
+                .constraint(path_writable)
+                .constraint(allowed_extension({".qasm"}))
+                .help(
+                    "the filepath to output file. Supported extension: .qasm. If "
+                    "not specified, the result will be dumped to the terminal");
 
-                parser.add_argument<std::string>("-f", "--format")
-                    .constraint(choices_allow_prefix({"qasm", "latex-qcircuit"}))
-                    .help("the output format of the QCir. If not specified, the default format is automatically chosen based on the output file extension");
-            },
-            [&](ArgumentParser const& parser) {
-                if (!dvlab::utils::mgr_has_data(qcir_mgr)) return CmdExecResult::error;
+            parser.add_argument<std::string>("-f", "--format")
+                .constraint(choices_allow_prefix({"qasm", "latex-qcircuit"}))
+                .help(
+                    "the output format of the QCir. If not specified, the "
+                    "default format is automatically chosen based on the output "
+                    "file extension");
+        },
+        [&](ArgumentParser const& parser) {
+            if (!dvlab::utils::mgr_has_data(qcir_mgr))
+                return CmdExecResult::error;
 
-                enum class OutputFormat { qasm,
-                                          latex_qcircuit };
-                auto output_type = std::invoke([&]() -> OutputFormat {
-                    if (parser.parsed("--format")) {
-                        if (dvlab::str::is_prefix_of(parser.get<std::string>("--format"), "qasm")) return OutputFormat::qasm;
-                        if (dvlab::str::is_prefix_of(parser.get<std::string>("--format"), "latex-qcircuit")) return OutputFormat::latex_qcircuit;
-                        // if (dvlab::str::is_prefix_of(parser.get<std::string>("--format"), "latex-yquant")) return OutputFormat::latex_yquant;
-                        DVLAB_UNREACHABLE("Invalid output format!!");
-                    }
-
-                    auto extension = std::filesystem::path{parser.get<std::string>("output_path")}.extension().string();
-                    if (extension == ".qasm") return OutputFormat::qasm;
-                    if (extension == ".tex") return OutputFormat::latex_qcircuit;
-                    return OutputFormat::qasm;
-                });
-
-                switch (output_type) {
-                    case OutputFormat::qasm:
-                        if (parser.parsed("output_path")) {
-                            std::ofstream file{parser.get<std::string>("output_path")};
-                            if (!file) {
-                                spdlog::error("Path {} not found!!", parser.get<std::string>("output_path"));
-                                return CmdExecResult::error;
-                            }
-                            fmt::print(file, "{}", to_qasm(*qcir_mgr.get()));
-                        } else {
-                            fmt::print("{}", to_qasm(*qcir_mgr.get()));
-                        }
-                        break;
-                    case OutputFormat::latex_qcircuit:
-                        qcir_mgr.get()->draw(QCirDrawerType::latex_source);
-                        break;
-                    default:
-                        DVLAB_UNREACHABLE("Invalid output format!!");
+            enum class OutputFormat { qasm,
+                                      latex_qcircuit };
+            auto output_type = std::invoke([&]() -> OutputFormat {
+                if (parser.parsed("--format")) {
+                    if (dvlab::str::is_prefix_of(parser.get<std::string>("--format"),
+                                                 "qasm"))
+                        return OutputFormat::qasm;
+                    if (dvlab::str::is_prefix_of(parser.get<std::string>("--format"),
+                                                 "latex-qcircuit"))
+                        return OutputFormat::latex_qcircuit;
+                    // if (dvlab::str::is_prefix_of(parser.get<std::string>("--format"),
+                    // "latex-yquant")) return OutputFormat::latex_yquant;
+                    DVLAB_UNREACHABLE("Invalid output format!!");
                 }
-                return CmdExecResult::done;
-            }};
+
+                auto extension =
+                    std::filesystem::path{parser.get<std::string>("output_path")}
+                        .extension()
+                        .string();
+                if (extension == ".qasm")
+                    return OutputFormat::qasm;
+                if (extension == ".tex")
+                    return OutputFormat::latex_qcircuit;
+                return OutputFormat::qasm;
+            });
+
+            switch (output_type) {
+                case OutputFormat::qasm:
+                    if (parser.parsed("output_path")) {
+                        std::ofstream file{parser.get<std::string>("output_path")};
+                        if (!file) {
+                            spdlog::error("Path {} not found!!",
+                                          parser.get<std::string>("output_path"));
+                            return CmdExecResult::error;
+                        }
+                        fmt::print(file, "{}", to_qasm(*qcir_mgr.get()));
+                    } else {
+                        fmt::print("{}", to_qasm(*qcir_mgr.get()));
+                    }
+                    break;
+                case OutputFormat::latex_qcircuit:
+                    qcir_mgr.get()->draw(QCirDrawerType::latex_source);
+                    break;
+                default:
+                    DVLAB_UNREACHABLE("Invalid output format!!");
+            }
+            return CmdExecResult::done;
+        }};
 }
 
 Command qcir_draw_cmd(QCirMgr const& qcir_mgr) {
-    return {"draw",
-            [](ArgumentParser& parser) {
-                parser.description("draw a QCir. This command relies on qiskit and pdflatex to be present in the system");
+    return {
+        "draw",
+        [](ArgumentParser& parser) {
+            parser.description(
+                "draw a QCir. This command relies on qiskit and "
+                "pdflatex to be present in the system");
 
-                parser.add_argument<std::string>("output-path")
-                    .constraint(path_writable)
-                    .help("the output destination of the drawing");
-                parser.add_argument<std::string>("-d", "--drawer")
-                    .choices(std::initializer_list<std::string>{"text", "mpl", "latex"})
-                    .default_value("text")
-                    .help("the backend for drawing quantum circuit. If not specified, the default backend is automatically chosen based on the output file extension");
-                parser.add_argument<float>("-s", "--scale")
-                    .default_value(1.0f)
-                    .help("if specified, scale the resulting drawing by this factor");
-            },
-            [&](ArgumentParser const& parser) {
-                namespace fs = std::filesystem;
-                if (!dvlab::utils::mgr_has_data(qcir_mgr)) return CmdExecResult::error;
+            parser.add_argument<std::string>("output-path")
+                .constraint(path_writable)
+                .help("the output destination of the drawing");
+            parser.add_argument<std::string>("-d", "--drawer")
+                .choices(std::initializer_list<std::string>{"text", "mpl", "latex"})
+                .default_value("text")
+                .help(
+                    "the backend for drawing quantum circuit. If not specified, "
+                    "the default backend is automatically chosen based on the "
+                    "output file extension");
+            parser.add_argument<float>("-s", "--scale")
+                .default_value(1.0f)
+                .help("if specified, scale the resulting drawing by this factor");
+        },
+        [&](ArgumentParser const& parser) {
+            namespace fs = std::filesystem;
+            if (!dvlab::utils::mgr_has_data(qcir_mgr))
+                return CmdExecResult::error;
 
-                auto output_path = fs::path{parser.get<std::string>("output-path")};
-                auto scale       = parser.get<float>("--scale");
-                auto drawer      = std::invoke([&]() -> QCirDrawerType {
-                    if (parser.parsed("--drawer")) return *qcir::str_to_qcir_drawer_type(parser.get<std::string>("--drawer"));
+            auto output_path = fs::path{parser.get<std::string>("output-path")};
+            auto scale       = parser.get<float>("--scale");
+            auto drawer      = std::invoke([&]() -> QCirDrawerType {
+                if (parser.parsed("--drawer"))
+                    return *qcir::str_to_qcir_drawer_type(
+                        parser.get<std::string>("--drawer"));
 
-                    auto extension = output_path.extension().string();
-                    if (extension == ".pdf" || extension == ".png" || extension == ".jpg" || extension == ".ps" || extension == ".eps" || extension == ".svg") return QCirDrawerType::latex;
-                    return QCirDrawerType::text;
-                });
+                auto extension = output_path.extension().string();
+                if (extension == ".pdf" || extension == ".png" ||
+                    extension == ".jpg" || extension == ".ps" ||
+                    extension == ".eps" || extension == ".svg")
+                    return QCirDrawerType::latex;
+                return QCirDrawerType::text;
+            });
 
-                if (drawer == QCirDrawerType::text && parser.parsed("--scale")) {
-                    spdlog::error("Cannot set scale for \'text\' drawer!!");
-                    return CmdExecResult::error;
-                }
+            if (drawer == QCirDrawerType::text && parser.parsed("--scale")) {
+                spdlog::error("Cannot set scale for \'text\' drawer!!");
+                return CmdExecResult::error;
+            }
 
-                if (!qcir_mgr.get()->draw(drawer, output_path, scale)) {
-                    spdlog::error("Could not draw the QCir successfully!!");
-                    return CmdExecResult::error;
-                }
+            if (!qcir_mgr.get()->draw(drawer, output_path, scale)) {
+                spdlog::error("Could not draw the QCir successfully!!");
+                return CmdExecResult::error;
+            }
 
-                return CmdExecResult::done;
-            }};
+            return CmdExecResult::done;
+        }};
 }
 
 dvlab::Command qcir_print_cmd(QCirMgr const& qcir_mgr) {
-    return {"print",
-            [](ArgumentParser& parser) {
-                parser.description("print info of QCir");
+    return {
+        "print",
+        [](ArgumentParser& parser) {
+            parser.description("print info of QCir");
 
-                parser.add_argument<bool>("-v", "--verbose")
-                    .action(store_true)
-                    .help("display more information");
+            parser.add_argument<bool>("-v", "--verbose")
+                .action(store_true)
+                .help("display more information");
 
-                auto mutex = parser.add_mutually_exclusive_group();
+            auto mutex = parser.add_mutually_exclusive_group();
 
-                mutex.add_argument<bool>("-s", "--statistics")
-                    .action(store_true)
-                    .help("print gate statistics of the circuit. When `--verbose` is also specified, print more detailed gate counts");
-                mutex.add_argument<size_t>("-g", "--gate")
-                    .nargs(NArgsOption::zero_or_more)
-                    .help("print information for the gates with the specified IDs. If the ID is not specified, print all gates. When `--verbose` is also specified, print the gates' predecessor and successor gates");
-                mutex.add_argument<bool>("-d", "--diagram")
-                    .action(store_true)
-                    .help("print the circuit diagram. If `--verbose` is also specified, print the circuit diagram in the qiskit style");
-            },
-            [&](ArgumentParser const& parser) {
-                if (!dvlab::utils::mgr_has_data(qcir_mgr)) {
-                    return CmdExecResult::error;
-                }
+            mutex.add_argument<bool>("-s", "--statistics")
+                .action(store_true)
+                .help(
+                    "print gate statistics of the circuit. When `--verbose` is "
+                    "also specified, print more detailed gate counts");
+            mutex.add_argument<size_t>("-g", "--gate")
+                .nargs(NArgsOption::zero_or_more)
+                .help(
+                    "print information for the gates with the specified IDs. If "
+                    "the ID is not specified, print all gates. When `--verbose` "
+                    "is also specified, print the gates' predecessor and "
+                    "successor gates");
+            mutex.add_argument<bool>("-d", "--diagram")
+                .action(store_true)
+                .help(
+                    "print the circuit diagram. If `--verbose` is also "
+                    "specified, print the circuit diagram in the qiskit style");
+        },
+        [&](ArgumentParser const& parser) {
+            if (!dvlab::utils::mgr_has_data(qcir_mgr)) {
+                return CmdExecResult::error;
+            }
 
-                if (parser.parsed("--gate")) {
-                    auto gate_ids = parser.get<std::vector<size_t>>("--gate");
-                    qcir_mgr.get()->print_gates(parser.parsed("--verbose"), gate_ids);
-                } else if (parser.parsed("--diagram"))
-                    if (parser.parsed("--verbose")) {
-                        qcir_mgr.get()->draw(QCirDrawerType::text);
-                    } else {
-                        qcir_mgr.get()->print_circuit_diagram();
-                    }
-                else if (parser.parsed("--statistics")) {
-                    qcir_mgr.get()->print_qcir();
-                    qcir_mgr.get()->print_gate_statistics(parser.parsed("--verbose"));
-                    fmt::println("Depth       : {}", qcir_mgr.get()->calculate_depth());
+            if (parser.parsed("--gate")) {
+                auto gate_ids = parser.get<std::vector<size_t>>("--gate");
+                qcir_mgr.get()->print_gates(parser.parsed("--verbose"), gate_ids);
+            } else if (parser.parsed("--diagram"))
+                if (parser.parsed("--verbose")) {
+                    qcir_mgr.get()->draw(QCirDrawerType::text);
                 } else {
-                    qcir_mgr.get()->print_qcir_info();
+                    qcir_mgr.get()->print_circuit_diagram();
                 }
+            else if (parser.parsed("--statistics")) {
+                qcir_mgr.get()->print_qcir();
+                qcir_mgr.get()->print_gate_statistics(parser.parsed("--verbose"));
+                fmt::println("Depth       : {}", qcir_mgr.get()->calculate_depth());
+            } else {
+                qcir_mgr.get()->print_qcir_info();
+            }
 
-                return CmdExecResult::done;
-            }};
+            return CmdExecResult::done;
+        }};
 }
 
 dvlab::Command qcir_gate_add_cmd(QCirMgr& qcir_mgr) {
-    static dvlab::utils::ordered_hashmap<std::string, std::string> const single_qubit_gates_no_phase = {
-        {"h", "Hadamard gate"},
-        {"x", "Pauli-X gate"},
-        {"y", "Pauli-Y gate"},
-        {"z", "Pauli-Z gate"},
-        {"t", "T gate"},
-        {"tdg", "T† gate"},
-        {"s", "S gate"},
-        {"sdg", "S† gate"},
-        {"sx", "√X gate"},
-        {"sy", "√Y gate"}};
+    static dvlab::utils::ordered_hashmap<std::string, std::string> const
+        single_qubit_gates_no_phase = {
+            {"h", "Hadamard gate"}, {"x", "Pauli-X gate"}, {"y", "Pauli-Y gate"}, {"z", "Pauli-Z gate"}, {"t", "T gate"}, {"tdg", "T† gate"}, {"s", "S gate"}, {"sdg", "S† gate"}, {"sx", "√X gate"}, {"sy", "√Y gate"}};
 
-    static dvlab::utils::ordered_hashmap<std::string, std::string> const single_qubit_gates_with_phase = {
-        {"rz", "Rz(θ) gate"},
-        {"ry", "Rx(θ) gate"},
-        {"rx", "Ry(θ) gate"},
-        {"p", "P = (e^iθ/2)Rz gate"},
-        {"pz", "Pz = (e^iθ/2)Rz gate"},
-        {"px", "Px = (e^iθ/2)Rx gate"},
-        {"py", "Py = (e^iθ/2)Ry gate"}  //
-    };
+    static dvlab::utils::ordered_hashmap<std::string, std::string> const
+        single_qubit_gates_with_phase = {
+            {"rz", "Rz(θ) gate"}, {"ry", "Rx(θ) gate"}, {"rx", "Ry(θ) gate"}, {"p", "P = (e^iθ/2)Rz gate"}, {"pz", "Pz = (e^iθ/2)Rz gate"}, {"px", "Px = (e^iθ/2)Rx gate"}, {"py", "Py = (e^iθ/2)Ry gate"}  //
+        };
 
-    static dvlab::utils::ordered_hashmap<std::string, std::string> const double_qubit_gates_no_phase = {
-        {"cx", "CX (CNOT) gate"},
-        {"cz", "CZ gate"},
-        {"swap", "SWAP gate"},
-        {"ecr", "Echoed crossed resonance gate"}};
+    static dvlab::utils::ordered_hashmap<std::string, std::string> const
+        double_qubit_gates_no_phase = {{"cx", "CX (CNOT) gate"},
+                                       {"cz", "CZ gate"},
+                                       {"swap", "SWAP gate"},
+                                       {"ecr", "Echoed crossed resonance gate"}};
 
-    static dvlab::utils::ordered_hashmap<std::string, std::string> const three_qubit_gates_no_phase = {
-        {"ccx", "CCX (CCNOT, Toffoli) gate"},
-        {"ccz", "CCZ gate"}  //
-    };
+    static dvlab::utils::ordered_hashmap<std::string, std::string> const
+        three_qubit_gates_no_phase = {
+            {"ccx", "CCX (CCNOT, Toffoli) gate"}, {"ccz", "CCZ gate"}  //
+        };
 
-    static dvlab::utils::ordered_hashmap<std::string, std::string> const multi_qubit_gates_with_phase = {
-        {"mcrz", "Multi-Controlled Rz(θ) gate"},
-        {"mcrx", "Multi-Controlled Rx(θ) gate"},
-        {"mcry", "Multi-Controlled Ry(θ) gate"},
-        {"mcp", "Multi-Controlled P(θ) gate"},
-        {"mcpz", "Multi-Controlled Pz(θ) gate"},
-        {"mcpx", "Multi-Controlled Px(θ) gate"},
-        {"mcpy", "Multi-Controlled Py(θ) gate"}  //
-    };
+    static dvlab::utils::ordered_hashmap<std::string, std::string> const
+        multi_qubit_gates_with_phase = {
+            {"mcrz", "Multi-Controlled Rz(θ) gate"},
+            {"mcrx", "Multi-Controlled Rx(θ) gate"},
+            {"mcry", "Multi-Controlled Ry(θ) gate"},
+            {"mcp", "Multi-Controlled P(θ) gate"},
+            {"mcpz", "Multi-Controlled Pz(θ) gate"},
+            {"mcpx", "Multi-Controlled Px(θ) gate"},
+            {"mcpy", "Multi-Controlled Py(θ) gate"}  //
+        };
 
     return {
         "add",
@@ -390,25 +444,25 @@ dvlab::Command qcir_gate_add_cmd(QCirMgr& qcir_mgr) {
             std::vector<std::string> type_choices;
             std::string type_help =
                 "the quantum gate type.\n"
-                "For control gates, the control qubits comes before the target qubits.";
+                "For control gates, the control qubits comes "
+                "before the target qubits.";
 
-            for (auto& category : {
-                     single_qubit_gates_no_phase,
-                     single_qubit_gates_with_phase,
-                     double_qubit_gates_no_phase,
-                     three_qubit_gates_no_phase,
-                     multi_qubit_gates_with_phase}) {
+            for (auto& category :
+                 {single_qubit_gates_no_phase, single_qubit_gates_with_phase,
+                  double_qubit_gates_no_phase, three_qubit_gates_no_phase,
+                  multi_qubit_gates_with_phase}) {
                 for (auto& [name, help] : category) {
                     type_choices.emplace_back(name);
                     type_help += '\n' + name + ": ";
-                    if (name.size() < 4) type_help += std::string(4 - name.size(), ' ');
+                    if (name.size() < 4)
+                        type_help += std::string(4 - name.size(), ' ');
                     type_help += help;
                 }
             }
-            parser.add_argument<std::string>("type")
-                .help(type_help);
+            parser.add_argument<std::string>("type").help(type_help);
 
-            auto append_or_prepend = parser.add_mutually_exclusive_group().required(false);
+            auto append_or_prepend =
+                parser.add_mutually_exclusive_group().required(false);
             append_or_prepend.add_argument<bool>("--append")
                 .help("append the gate at the end of QCir")
                 .action(store_true);
@@ -417,7 +471,9 @@ dvlab::Command qcir_gate_add_cmd(QCirMgr& qcir_mgr) {
                 .action(store_true);
 
             parser.add_argument<dvlab::Phase>("-ph", "--phase")
-                .help("The rotation angle θ. This option must be specified if and only if the gate type takes a phase parameter.");
+                .help(
+                    "The rotation angle θ. This option must be specified if and "
+                    "only if the gate type takes a phase parameter.");
 
             parser.add_argument<QubitIdType>("qubits")
                 .nargs(NArgsOption::zero_or_more)
@@ -425,7 +481,8 @@ dvlab::Command qcir_gate_add_cmd(QCirMgr& qcir_mgr) {
                 .help("the qubits on which the gate applies");
         },
         [=, &qcir_mgr](ArgumentParser const& parser) {
-            if (!dvlab::utils::mgr_has_data(qcir_mgr)) return CmdExecResult::error;
+            if (!dvlab::utils::mgr_has_data(qcir_mgr))
+                return CmdExecResult::error;
             bool const do_prepend = parser.parsed("--prepend");
 
             auto type = parser.get<std::string>("type");
@@ -433,7 +490,8 @@ dvlab::Command qcir_gate_add_cmd(QCirMgr& qcir_mgr) {
             auto bits = parser.get<QubitIdList>("qubits");
 
             if (type.starts_with("mc")) {
-                auto op = str_to_operation(type.substr(2), parser.get<std::vector<dvlab::Phase>>("--phase"));
+                auto op = str_to_operation(
+                    type.substr(2), parser.get<std::vector<dvlab::Phase>>("--phase"));
                 if (!op.has_value()) {
                     spdlog::error("Invalid gate type {}!!", type);
                     return CmdExecResult::error;
@@ -448,12 +506,12 @@ dvlab::Command qcir_gate_add_cmd(QCirMgr& qcir_mgr) {
                         ? qcir_mgr.get()->prepend(ControlGate(*op, n_ctrls), bits)
                         : qcir_mgr.get()->append(ControlGate(*op, n_ctrls), bits);
                 } else {
-                    do_prepend
-                        ? qcir_mgr.get()->prepend(*op, bits)
-                        : qcir_mgr.get()->append(*op, bits);
+                    do_prepend ? qcir_mgr.get()->prepend(*op, bits)
+                               : qcir_mgr.get()->append(*op, bits);
                 }
             } else {
-                auto op = str_to_operation(type, parser.get<std::vector<dvlab::Phase>>("--phase"));
+                auto op = str_to_operation(
+                    type, parser.get<std::vector<dvlab::Phase>>("--phase"));
                 if (!op.has_value()) {
                     spdlog::error("Invalid gate type {}!!", type);
                     return CmdExecResult::error;
@@ -465,9 +523,8 @@ dvlab::Command qcir_gate_add_cmd(QCirMgr& qcir_mgr) {
                     spdlog::error("Too many qubits are supplied for gate {}!!", type);
                     return CmdExecResult::error;
                 }
-                do_prepend
-                    ? qcir_mgr.get()->prepend(*op, bits)
-                    : qcir_mgr.get()->append(*op, bits);
+                do_prepend ? qcir_mgr.get()->prepend(*op, bits)
+                           : qcir_mgr.get()->append(*op, bits);
             }
 
             return CmdExecResult::done;
@@ -484,7 +541,8 @@ dvlab::Command qcir_gate_delete_cmd(QCirMgr& qcir_mgr) {
                     .help("the id to be removed");
             },
             [&](ArgumentParser const& parser) {
-                if (!dvlab::utils::mgr_has_data(qcir_mgr)) return CmdExecResult::error;
+                if (!dvlab::utils::mgr_has_data(qcir_mgr))
+                    return CmdExecResult::error;
                 qcir_mgr.get()->remove_gate(parser.get<size_t>("id"));
                 return CmdExecResult::done;
             }};
@@ -498,9 +556,7 @@ dvlab::Command qcir_gate_cmd(QCirMgr& qcir_mgr) {
 
             parser.add_subparsers("gate-cmd").required(true);
         },
-        [](ArgumentParser const& /*parser*/) {
-            return CmdExecResult::error;
-        }};
+        [](ArgumentParser const& /*parser*/) { return CmdExecResult::error; }};
 
     cmd.add_subcommand("gate-cmd", qcir_gate_add_cmd(qcir_mgr));
     cmd.add_subcommand("gate-cmd", qcir_gate_delete_cmd(qcir_mgr));
@@ -523,7 +579,8 @@ dvlab::Command qcir_qubit_add_cmd(QCirMgr& qcir_mgr) {
                     qcir_mgr.add(qcir_mgr.get_next_id());
                 }
 
-                qcir_mgr.get()->add_qubits(parser.parsed("n") ? parser.get<size_t>("n") : 1);
+                qcir_mgr.get()->add_qubits(
+                    parser.parsed("n") ? parser.get<size_t>("n") : 1);
                 return CmdExecResult::done;
             }};
 }
@@ -538,7 +595,8 @@ dvlab::Command qcir_qubit_delete_cmd(QCirMgr& qcir_mgr) {
                     .help("the ID of the qubit to be removed");
             },
             [&](ArgumentParser const& parser) {
-                if (!dvlab::utils::mgr_has_data(qcir_mgr)) return CmdExecResult::error;
+                if (!dvlab::utils::mgr_has_data(qcir_mgr))
+                    return CmdExecResult::error;
                 if (!qcir_mgr.get()->remove_qubit(parser.get<QubitIdType>("id")))
                     return CmdExecResult::error;
                 else
@@ -554,9 +612,7 @@ dvlab::Command qcir_qubit_cmd(QCirMgr& qcir_mgr) {
 
             parser.add_subparsers("qubit-cmd").required(true);
         },
-        [](ArgumentParser const& /*parser*/) {
-            return CmdExecResult::error;
-        }};
+        [](ArgumentParser const& /*parser*/) { return CmdExecResult::error; }};
 
     cmd.add_subcommand("qubit-cmd", qcir_qubit_add_cmd(qcir_mgr));
     cmd.add_subcommand("qubit-cmd", qcir_qubit_delete_cmd(qcir_mgr));
@@ -567,40 +623,45 @@ dvlab::Command qcir_qubit_cmd(QCirMgr& qcir_mgr) {
 dvlab::Command qcir_adjoint_cmd(QCirMgr& qcir_mgr) {
     return {"adjoint",
             [](ArgumentParser& parser) {
-                parser.description("transform the QCir to its adjoint, i.e., reverse the order of gates and replace each gate with its adjoint version");
+                parser.description(
+                    "transform the QCir to its adjoint, i.e., reverse the order of "
+                    "gates and replace each gate with its adjoint version");
             },
             [&](ArgumentParser const& /*parser*/) {
-                if (!dvlab::utils::mgr_has_data(qcir_mgr)) return CmdExecResult::error;
-                qcir_mgr.get()->adjoint();
+                if (!dvlab::utils::mgr_has_data(qcir_mgr))
+                    return CmdExecResult::error;
+                qcir_mgr.get()->adjoint_inplace();
                 return CmdExecResult::done;
             }};
 }
 
 dvlab::Command qcir_translate_cmd(QCirMgr& qcir_mgr) {
-    return {
-        "translate",
-        [&](ArgumentParser& parser) {
-            parser.description("translate the circuit into a specific gate set");
-            parser.add_argument<std::string>("gate_set")
-                .help("the specific gate set ('sherbrooke', 'kyiv', 'prague')")
-                .choices(std::initializer_list<std::string>{"sherbrooke", "kyiv", "prague"});
-        },
-        [=, &qcir_mgr](ArgumentParser const& parser) {
-            QCir translated_qcir;
-            auto gate_set = parser.get<std::string>("gate_set");
-            translated_qcir.translate(*qcir_mgr.get(), gate_set);
-            std::string const filename = qcir_mgr.get()->get_filename();
-            qcir_mgr.set(std::make_unique<QCir>(std::move(translated_qcir)));
-            qcir_mgr.get()->set_filename(filename);
-            return CmdExecResult::done;
-        }};
+    return {"translate",
+            [&](ArgumentParser& parser) {
+                parser.description(
+                    "translate the circuit into a specific gate set");
+                parser.add_argument<std::string>("gate_set")
+                    .help("the specific gate set ('sherbrooke', 'kyiv', 'prague')")
+                    .choices(std::initializer_list<std::string>{"sherbrooke",
+                                                                "kyiv", "prague"});
+            },
+            [=, &qcir_mgr](ArgumentParser const& parser) {
+                QCir translated_qcir;
+                auto gate_set = parser.get<std::string>("gate_set");
+                translated_qcir.translate(*qcir_mgr.get(), gate_set);
+                std::string const filename = qcir_mgr.get()->get_filename();
+                qcir_mgr.set(std::make_unique<QCir>(std::move(translated_qcir)));
+                qcir_mgr.get()->set_filename(filename);
+                return CmdExecResult::done;
+            }};
 }
 
 Command qcir_cmd(QCirMgr& qcir_mgr) {
     auto cmd = dvlab::utils::mgr_root_cmd(qcir_mgr);
 
     cmd.add_subcommand("qcir-cmd-group", dvlab::utils::mgr_list_cmd(qcir_mgr));
-    cmd.add_subcommand("qcir-cmd-group", dvlab::utils::mgr_checkout_cmd(qcir_mgr));
+    cmd.add_subcommand("qcir-cmd-group",
+                       dvlab::utils::mgr_checkout_cmd(qcir_mgr));
     cmd.add_subcommand("qcir-cmd-group", dvlab::utils::mgr_new_cmd(qcir_mgr));
     cmd.add_subcommand("qcir-cmd-group", dvlab::utils::mgr_delete_cmd(qcir_mgr));
     cmd.add_subcommand("qcir-cmd-group", dvlab::utils::mgr_copy_cmd(qcir_mgr));

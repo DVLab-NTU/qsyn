@@ -13,7 +13,7 @@
 #include <gsl/narrow>
 #include <tl/enumerate.hpp>
 
-#include "qcir/gate_type.hpp"
+#include "qcir/basic_gate_type.hpp"
 #include "qcir/qcir.hpp"
 #include "qcir/qcir_gate.hpp"
 #include "util/phase.hpp"
@@ -433,6 +433,7 @@ std::optional<ZXGraph> to_zxgraph(qcir::QCirGate const& gate) {
 /**
  * @brief Mapping QCir to ZXGraph
  */
+template <>
 std::optional<ZXGraph> to_zxgraph(QCir const& qcir) {
     if (qcir.is_empty()) {
         spdlog::error("QCir is empty!!");

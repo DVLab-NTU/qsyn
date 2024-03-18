@@ -10,16 +10,9 @@
 #include <fmt/core.h>
 #include <spdlog/spdlog.h>
 
-#include <algorithm>
-#include <cassert>
-#include <iomanip>
-#include <ranges>
-#include <string>
-#include <type_traits>
+#include <set>
 
-#include "qcir/gate_type.hpp"
-#include "qsyn/qsyn_type.hpp"
-#include "util/util.hpp"
+#include "./basic_gate_type.hpp"
 
 namespace qsyn::qcir {
 
@@ -27,6 +20,13 @@ size_t SINGLE_DELAY   = 1;
 size_t DOUBLE_DELAY   = 2;
 size_t SWAP_DELAY     = 6;
 size_t MULTIPLE_DELAY = 5;
+
+QCirGate::QCirGate(size_t id, Operation const& op, QubitIdList qubits)
+    : _id(id),
+      _operation{op},
+      _qubits{std::move(qubits)} {
+    DVLAB_ASSERT(_qubit_id_is_unique(_qubits), "Qubits must be unique!");
+}
 
 void QCirGate::set_operation(Operation const& op) {
     if (op.get_num_qubits() != _qubits.size()) {
@@ -52,8 +52,27 @@ size_t QCirGate::get_delay() const {
     return MULTIPLE_DELAY;
 }
 
-void QCirGate::adjoint() {
-    _operation = qsyn::qcir::adjoint(_operation);
+std::optional<size_t> QCirGate::get_pin_by_qubit(QubitIdType qubit) const {
+    auto it = std::find(_qubits.begin(), _qubits.end(), qubit);
+    if (it == _qubits.end()) return std::nullopt;
+    return std::distance(_qubits.begin(), it);
+}
+
+void QCirGate::set_qubits(QubitIdList qubits) {
+    if (qubits.size() != _qubits.size()) {
+        spdlog::error("Qubits cannot be set with different size!");
+        return;
+    }
+    if (!_qubit_id_is_unique(qubits)) {
+        spdlog::error("Qubits cannot be set with duplicate qubits!");
+        return;
+    }
+
+    _qubits = std::move(qubits);
+}
+
+bool QCirGate::_qubit_id_is_unique(QubitIdList const& qubits) {
+    return std::set(qubits.begin(), qubits.end()).size() == qubits.size();
 }
 
 }  // namespace qsyn::qcir

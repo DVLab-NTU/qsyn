@@ -5,8 +5,8 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "qcir/gate_type.hpp"
-
+#include "qcir/basic_gate_type.hpp"
+#include "qcir/operation.hpp"
 #include "qcir/qcir_translate.hpp"
 #include "util/dvlab_string.hpp"
 

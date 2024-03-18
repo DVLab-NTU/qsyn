@@ -12,7 +12,7 @@
 #include <fstream>
 #include <string>
 
-#include "qcir/gate_type.hpp"
+#include "qcir/basic_gate_type.hpp"
 #include "qcir/qcir.hpp"
 #include "util/dvlab_string.hpp"
 #include "util/phase.hpp"

@@ -10,7 +10,7 @@
 #include <tl/enumerate.hpp>
 
 #include "./placer.hpp"
-#include "qcir/gate_type.hpp"
+#include "qcir/basic_gate_type.hpp"
 #include "qcir/qcir.hpp"
 #include "qcir/qcir_gate.hpp"
 #include "qcir/qcir_qubit.hpp"
@@ -36,7 +36,7 @@ MappingEquivalenceChecker::MappingEquivalenceChecker(QCir* phy, QCir* log, Devic
     } else
         _device.place(init);
     for (auto const& [i, qubit] : tl::views::enumerate(_logical->get_qubits())) {
-        _dependency[gsl::narrow<QubitIdType>(i)] = _reverse ? qubit->get_last() : qubit->get_first();
+        _dependency[gsl::narrow<QubitIdType>(i)] = _reverse ? qubit->get_last_gate() : qubit->get_first_gate();
     }
 }
 

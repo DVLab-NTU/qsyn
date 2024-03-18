@@ -12,9 +12,8 @@
 #include <cstddef>
 #include <gsl/narrow>
 
-#include "qcir/gate_type.hpp"
+#include "qcir/basic_gate_type.hpp"
 #include "qcir/qcir.hpp"
-#include "qcir/qcir_qubit.hpp"
 #include "qsyn/qsyn_type.hpp"
 #include "tensor/qtensor.hpp"
 
@@ -144,6 +143,7 @@ void update_tensor_pin(Qubit2TensorPinMap& qubit2pin, QCirGate const& gate, QTen
  * @param qcir
  * @return std::optional<QTensor<double>>
  */
+template <>
 std::optional<QTensor<double>> to_tensor(QCir const& qcir) try {
     if (qcir.get_qubits().empty()) {
         spdlog::warn("QCir is empty!!");
@@ -205,6 +205,7 @@ std::optional<QTensor<double>> to_tensor(QCir const& qcir) try {
     }
 
     tensor = tensor.to_matrix(output_pins, input_pins);
+    tensor = tensor.to_qtensor();
 
     return tensor;
 } catch (std::bad_alloc const& e) {

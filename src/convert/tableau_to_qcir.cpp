@@ -11,7 +11,7 @@
 #include <tl/adjacent.hpp>
 #include <tl/to.hpp>
 
-#include "qcir/gate_type.hpp"
+#include "qcir/basic_gate_type.hpp"
 #include "qcir/qcir.hpp"
 #include "util/phase.hpp"
 
