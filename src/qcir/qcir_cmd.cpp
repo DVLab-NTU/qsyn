@@ -61,7 +61,7 @@ valid_qcir_qubit_id(QCirMgr const& qcir_mgr) {
     return [&](QubitIdType const& id) {
         if (!dvlab::utils::mgr_has_data(qcir_mgr))
             return false;
-        if (qcir_mgr.get() && qcir_mgr.get()->get_qubit(id) != nullptr)
+        if (qcir_mgr.get() && gsl::narrow<size_t>(id) < qcir_mgr.get()->get_num_qubits())
             return true;
         spdlog::error("Qubit ID {} does not exist!!", id);
         return false;

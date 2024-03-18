@@ -145,7 +145,7 @@ void update_tensor_pin(Qubit2TensorPinMap& qubit2pin, QCirGate const& gate, QTen
  */
 template <>
 std::optional<QTensor<double>> to_tensor(QCir const& qcir) try {
-    if (qcir.get_qubits().empty()) {
+    if (qcir.get_num_qubits() == 0) {
         spdlog::warn("QCir is empty!!");
         return std::nullopt;
     }

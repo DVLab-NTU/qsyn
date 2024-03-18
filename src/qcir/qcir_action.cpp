@@ -68,7 +68,7 @@ std::vector<QCirGate*> dfs(QCir const& qcir) {
 
     for (auto const& gate :
          qcir.get_qubits() | std::views::transform([](auto const& q) {
-             return q->get_first_gate();
+             return q.get_first_gate();
          })) {
         if (gate != nullptr) {
             dfs_stack.emplace(false, gate);
@@ -142,10 +142,10 @@ void QCir::adjoint_inplace() {
     }
 
     for (auto& q : _qubits) {
-        auto first = q->get_first_gate();
-        auto last  = q->get_last_gate();
-        q->set_first_gate(last);
-        q->set_last_gate(first);
+        auto first = q.get_first_gate();
+        auto last  = q.get_last_gate();
+        q.set_first_gate(last);
+        q.set_last_gate(first);
     }
 
     _dirty = true;

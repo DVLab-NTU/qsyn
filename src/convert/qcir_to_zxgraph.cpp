@@ -443,7 +443,7 @@ std::optional<ZXGraph> to_zxgraph(QCir const& qcir) {
 
     ZXGraph graph;
     spdlog::debug("Add boundaries");
-    for (auto const& [i, qubit] : tl::views::enumerate(qcir.get_qubits())) {
+    for (auto i : std::views::iota(0ul, qcir.get_num_qubits())) {
         ZXVertex* input  = graph.add_input(gsl::narrow<QubitIdType>(i));
         ZXVertex* output = graph.add_output(gsl::narrow<QubitIdType>(i));
         graph.add_edge(input, output, EdgeType::simple);

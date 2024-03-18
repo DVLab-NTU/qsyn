@@ -55,13 +55,13 @@ QCir::QCir(QCir const& other) {
         auto* new_gate = _id_to_gates.at(gate->get_id()).get();
 
         for (auto const qb : new_gate->get_qubits()) {
-            QCirQubit* target = get_qubit(qb);
-            if (target->get_last_gate() != nullptr) {
-                _connect(target->get_last_gate()->get_id(), new_gate->get_id(), qb);
+            DVLAB_ASSERT(gsl::narrow<size_t>(qb) < get_num_qubits(), fmt::format("Qubit {} not found!!", qb));
+            if (_qubits[qb].get_last_gate() != nullptr) {
+                _connect(_qubits[qb].get_last_gate()->get_id(), new_gate->get_id(), qb);
             } else {
-                target->set_first_gate(new_gate);
+                _qubits[qb].set_first_gate(new_gate);
             }
-            target->set_last_gate(new_gate);
+            _qubits[qb].set_last_gate(new_gate);
         }
     }
     _gate_id = other.get_gates().empty()
@@ -181,18 +181,6 @@ void QCir::_connect(size_t gid1, size_t gid2, QubitIdType qubit) {
     _set_successor(gid1, *pin1, gid2);
     _set_predecessor(gid2, *pin2, gid1);
 }
-/**
- * @brief Get Qubit.
- *
- * @param id
- * @return QCirQubit
- */
-QCirQubit* QCir::get_qubit(QubitIdType id) const {
-    if (gsl::narrow<size_t>(id) < _qubits.size()) {
-        return _qubits[gsl::narrow<size_t>(id)];
-    }
-    return nullptr;
-}
 
 size_t QCir::calculate_depth() const {
     if (is_empty()) return 0;
@@ -220,28 +208,17 @@ std::unordered_map<size_t, size_t> QCir::calculate_gate_times() const {
 }
 
 /**
- * @brief Add single Qubit.
- *
- * @return QCirQubit*
- */
-QCirQubit* QCir::push_qubit() {
-    auto temp = new QCirQubit;
-    _qubits.emplace_back(temp);
-    return temp;
-}
-
-/**
  * @brief Insert single Qubit.
  *
  * @param id
  * @return QCirQubit*
  */
-QCirQubit* QCir::insert_qubit(QubitIdType id) {
+void QCir::insert_qubit(QubitIdType id) {
     if (gsl::narrow<size_t>(id) > _qubits.size()) {
         spdlog::error("Qubit ID {} is out of range!!", id);
-        return nullptr;
+        return;
     }
-    _qubits.insert(_qubits.begin() + id, new QCirQubit);
+    _qubits.insert(_qubits.begin() + id, QCirQubit{});
 
     for (auto& gate : get_gates()) {
         auto new_qubits = gate->get_qubits();
@@ -252,7 +229,6 @@ QCirQubit* QCir::insert_qubit(QubitIdType id) {
         }
         gate->set_qubits(new_qubits);
     }
-    return _qubits.at(id);
 }
 
 /**
@@ -262,7 +238,7 @@ QCirQubit* QCir::insert_qubit(QubitIdType id) {
  */
 void QCir::add_qubits(size_t num) {
     for (size_t i = 0; i < num; i++) {
-        _qubits.emplace_back(new QCirQubit);
+        _qubits.emplace_back();
     }
 }
 
@@ -275,17 +251,16 @@ void QCir::add_qubits(size_t num) {
  */
 bool QCir::remove_qubit(QubitIdType id) {
     // Delete the ancilla only if whole line is empty
-    QCirQubit* target = get_qubit(id);
-    if (target == nullptr) {
+    if (gsl::narrow<size_t>(id) >= _qubits.size()) {
         spdlog::error("Qubit ID {} not found!!", id);
         return false;
     }
-    if (target->get_last_gate() != nullptr || target->get_first_gate() != nullptr) {
+    if (_qubits[id].get_last_gate() != nullptr || _qubits[id].get_first_gate() != nullptr) {
         spdlog::error("Qubit ID {} is not empty!!", id);
         return false;
     }
 
-    std::erase(_qubits, target);
+    _qubits.erase(_qubits.begin() + id);
 
     for (auto& gate : get_gates()) {
         auto new_qubits = gate->get_qubits();
@@ -316,13 +291,13 @@ size_t QCir::append(Operation const& op, QubitIdList const& bits) {
     _gate_id++;
 
     for (auto const& qb : g->get_qubits()) {
-        QCirQubit* target = get_qubit(qb);
-        if (target->get_last_gate() != nullptr) {
-            _connect(target->get_last_gate()->get_id(), g->get_id(), qb);
+        DVLAB_ASSERT(gsl::narrow<size_t>(qb) < _qubits.size(), fmt::format("Qubit {} not found!!", qb));
+        if (_qubits[qb].get_last_gate() != nullptr) {
+            _connect(_qubits[qb].get_last_gate()->get_id(), g->get_id(), qb);
         } else {
-            target->set_first_gate(g);
+            _qubits[qb].set_first_gate(g);
         }
-        target->set_last_gate(g);
+        _qubits[qb].set_last_gate(g);
     }
     _dirty = true;
     return g->get_id();
@@ -342,13 +317,13 @@ size_t QCir::prepend(Operation const& op, QubitIdList const& bits) {
     _gate_id++;
 
     for (auto const& qb : g->get_qubits()) {
-        QCirQubit* target = get_qubit(qb);
-        if (target->get_first_gate() != nullptr) {
-            _connect(g->get_id(), target->get_first_gate()->get_id(), qb);
+        DVLAB_ASSERT(gsl::narrow<size_t>(qb) < _qubits.size(), fmt::format("Qubit {} not found!!", qb));
+        if (_qubits[qb].get_first_gate() != nullptr) {
+            _connect(g->get_id(), _qubits[qb].get_first_gate()->get_id(), qb);
         } else {
-            target->set_last_gate(g);
+            _qubits[qb].set_last_gate(g);
         }
-        target->set_first_gate(g);
+        _qubits[qb].set_first_gate(g);
     }
     _dirty = true;
     return g->get_id();
@@ -375,12 +350,12 @@ bool QCir::remove_gate(size_t id) {
             if (pred) {
                 _set_successor(pred->get_id(), *pred->get_pin_by_qubit(target->get_qubit(i)), succ ? std::make_optional(succ->get_id()) : std::nullopt);
             } else {
-                get_qubit(target->get_qubit(i))->set_first_gate(succ);
+                _qubits[target->get_qubit(i)].set_first_gate(succ);
             }
             if (succ) {
                 _set_predecessor(succ->get_id(), *succ->get_pin_by_qubit(target->get_qubit(i)), pred ? std::make_optional(pred->get_id()) : std::nullopt);
             } else {
-                get_qubit(target->get_qubit(i))->set_last_gate(pred);
+                _qubits[target->get_qubit(i)].set_last_gate(pred);
             }
         }
 
@@ -552,30 +527,6 @@ void QCir::translate(QCir const& qcir, std::string const& gate_set) {
         }
     }
     set_gate_set(gate_set);
-}
-
-void QCir::append(QCir const& other, std::map<QubitIdType, QubitIdType> const& qubit_map) {
-    if (qubit_map.empty() && _qubits.size() != other.get_qubits().size()) {
-        throw std::runtime_error("Qcir::append: you must provide a qubit map if the circuits are of different sizes.");
-        return;
-    }
-
-    auto map_qubit = [&](QubitIdType id) -> QubitIdType {
-        if (qubit_map.empty()) {
-            return id;
-        } else {
-            return qubit_map.at(id);
-        }
-    };
-
-    auto const& other_gates = other.get_gates();
-    for (auto const& gate : other_gates) {
-        auto const& qubits = gate->get_qubits();
-        auto const& bits   = qubits |
-                           std::views::transform([&](auto const& qb) { return map_qubit(qb); }) |
-                           tl::to<QubitIdList>();
-        append(gate->get_operation(), bits);
-    }
 }
 
 bool is_clifford(qcir::QCir const& qcir) {

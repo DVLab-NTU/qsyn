@@ -96,7 +96,7 @@ public:
     size_t get_num_gates() const { return _id_to_gates.size(); }
     size_t calculate_depth() const;
     std::unordered_map<size_t, size_t> calculate_gate_times() const;
-    std::vector<QCirQubit*> const& get_qubits() const { return _qubits; }
+    std::vector<QCirQubit> const& get_qubits() const { return _qubits; }
 
     /**
      * @brief Get the gates as a topologically ordered list
@@ -109,7 +109,6 @@ public:
     }
 
     QCirGate* get_gate(std::optional<size_t> gid) const;
-    QCirQubit* get_qubit(QubitIdType qid) const;
     std::string get_filename() const { return _filename; }
     std::vector<std::string> const& get_procedures() const { return _procedures; }
     std::string get_gate_set() const { return _gate_set; }
@@ -127,8 +126,8 @@ public:
     QCir& compose(QCir const& other);
     QCir& tensor_product(QCir const& other);
     // Member functions about circuit construction
-    QCirQubit* push_qubit();
-    QCirQubit* insert_qubit(QubitIdType id);
+    void push_qubit() { _qubits.emplace_back(); }
+    void insert_qubit(QubitIdType id);
     void add_qubits(size_t num);
     bool remove_qubit(QubitIdType qid);
     size_t append(Operation const& op, QubitIdList const& bits);
@@ -148,9 +147,6 @@ public:
     void print_gate_statistics(bool detail = false) const;
 
     void translate(QCir const& qcir, std::string const& gate_set);
-
-    void append(QCir const& other,
-                std::map<QubitIdType, QubitIdType> const& qubit_map = {});
 
     void update_gate_time() const;
     void print_zx_form_topological_order();
@@ -190,7 +186,7 @@ private:
     std::string _filename;
     std::string _gate_set;
     std::vector<std::string> _procedures;
-    std::vector<QCirQubit*> _qubits;
+    std::vector<QCirQubit> _qubits;
     dvlab::utils::ordered_hashmap<size_t, std::unique_ptr<QCirGate>> _id_to_gates;
     std::unordered_map<size_t, std::vector<std::optional<size_t>>> _predecessors;
     std::unordered_map<size_t, std::vector<std::optional<size_t>>> _successors;

@@ -36,7 +36,7 @@ MappingEquivalenceChecker::MappingEquivalenceChecker(QCir* phy, QCir* log, Devic
     } else
         _device.place(init);
     for (auto const& [i, qubit] : tl::views::enumerate(_logical->get_qubits())) {
-        _dependency[gsl::narrow<QubitIdType>(i)] = _reverse ? qubit->get_last_gate() : qubit->get_first_gate();
+        _dependency[gsl::narrow<QubitIdType>(i)] = _reverse ? qubit.get_last_gate() : qubit.get_first_gate();
     }
 }
 

@@ -114,7 +114,7 @@ void QCir::print_circuit_diagram(spdlog::level::level_enum lvl) const {
     auto const times = calculate_gate_times();
 
     for (auto const& [i, qubit] : tl::views::enumerate(_qubits)) {
-        QCirGate* current = qubit->get_first_gate();
+        QCirGate* current = qubit.get_first_gate();
         size_t last_time  = 1;
         std::string line  = fmt::format("Q{:>2}  ", i);
         while (current != nullptr) {
