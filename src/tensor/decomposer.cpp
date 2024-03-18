@@ -38,16 +38,16 @@ void Decomposer::_encode_control_gate(QubitIdList const& target, std::vector<Qub
 void Decomposer::_encode(size_t origin_pos, size_t targ_pos, std::vector<QubitIdList>& qubit_list, std::vector<std::string>& gate_list) {
     bool x_given = false;
     if (((origin_pos >> targ_pos) & 1) == 0) {
-        _encode_control_gate({int(targ_pos)}, qubit_list, gate_list);
+        _encode_control_gate({targ_pos}, qubit_list, gate_list);
         x_given = true;
     }
     for (size_t i = 0; i < _n_qubits; i++) {
         if (i == targ_pos) continue;
         if (((origin_pos >> i) & 1) == 0)
-            _encode_control_gate({int(targ_pos), int(i)}, qubit_list, gate_list);
+            _encode_control_gate({targ_pos, i}, qubit_list, gate_list);
     }
     if (x_given)
-        _encode_control_gate({int(targ_pos)}, qubit_list, gate_list);
+        _encode_control_gate({targ_pos}, qubit_list, gate_list);
 }
 
 }  // namespace qsyn::tensor

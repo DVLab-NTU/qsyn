@@ -136,7 +136,7 @@ void QCir::print_circuit_diagram(spdlog::level::level_enum lvl) const {
             last_time = times.at(current->get_id()) + 1;
 
             auto const next_pin =
-                current->get_pin_by_qubit(gsl::narrow<QubitIdType>(i));
+                current->get_pin_by_qubit(i);
 
             current = next_pin.has_value()
                           ? get_gate(get_successor(current->get_id(), *next_pin))

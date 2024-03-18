@@ -169,7 +169,7 @@ std::pair<std::map<XAGNodeID, XAGCut>, std::map<XAGNodeID, size_t>> k_lut_partit
             continue;
         }
 
-        optimal_costs[id] = INT_MAX;
+        optimal_costs[id] = SIZE_MAX;
         for (auto const& [cut, cost] : zip(id_to_cuts[id], id_to_costs[id])) {
             size_t const acc_cost = cost + std::accumulate(cut.begin(), cut.end(), 0, [&optimal_costs](size_t x, XAGNodeID y) { return x + optimal_costs[y]; });
             if (acc_cost < optimal_costs[id]) {

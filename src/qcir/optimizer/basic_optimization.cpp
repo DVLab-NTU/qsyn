@@ -522,7 +522,7 @@ std::vector<std::pair<QubitIdType, QubitIdType>> Optimizer::_get_swap_path() {
         inv_permutation.emplace(j, i);
     }
 
-    for (QubitIdType i = 0; i < gsl::narrow<QubitIdType>(_permutation.size()); i++) {
+    for (QubitIdType i = 0; i < _permutation.size(); i++) {
         if (_permutation[i] == i) continue;
         auto q1 = _permutation[i];
         auto q2 = inv_permutation[i];

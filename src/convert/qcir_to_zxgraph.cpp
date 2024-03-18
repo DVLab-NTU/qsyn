@@ -47,9 +47,9 @@ create_multi_control_backbone(ZXGraph& g, size_t num_qubits, RotationAxis ax) {
     ZXVertex* target  = nullptr;
     auto target_qubit = num_qubits - 1;
     for (auto qubit : std::views::iota(0ul, num_qubits)) {
-        ZXVertex* in  = g.add_input(gsl::narrow<QubitIdType>(qubit));
+        ZXVertex* in  = g.add_input(qubit);
         ZXVertex* v   = g.add_vertex(VertexType::z, dvlab::Phase{}, static_cast<float>(qubit));
-        ZXVertex* out = g.add_output(gsl::narrow<QubitIdType>(qubit));
+        ZXVertex* out = g.add_output(qubit);
         if (ax == RotationAxis::z || qubit != target_qubit) {
             g.add_edge(in, v, EdgeType::simple);
             g.add_edge(v, out, EdgeType::simple);
@@ -444,8 +444,8 @@ std::optional<ZXGraph> to_zxgraph(QCir const& qcir) {
     ZXGraph graph;
     spdlog::debug("Add boundaries");
     for (auto i : std::views::iota(0ul, qcir.get_num_qubits())) {
-        ZXVertex* input  = graph.add_input(gsl::narrow<QubitIdType>(i));
-        ZXVertex* output = graph.add_output(gsl::narrow<QubitIdType>(i));
+        ZXVertex* input  = graph.add_input(i);
+        ZXVertex* output = graph.add_output(i);
         graph.add_edge(input, output, EdgeType::simple);
     }
 

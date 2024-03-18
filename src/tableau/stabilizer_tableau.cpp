@@ -318,7 +318,7 @@ CliffordOperatorString HOptSynthesisStrategy::synthesize(StabilizerTableau copy)
 
         if (qubit_it == qubit_range.end()) continue;
 
-        auto const ctrl = gsl::narrow<size_t>(qubit_it - qubit_range.begin());
+        auto const ctrl = std::ranges::distance(qubit_range.begin(), qubit_it);
 
         for (size_t targ = ctrl + 1; targ < copy.n_qubits(); ++targ) {
             if (copy.stabilizer(i).is_x_set(targ)) {

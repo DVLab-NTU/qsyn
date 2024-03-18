@@ -301,7 +301,7 @@ void Optimizer::_partial_zx_optimization(QCir& qcir) {
         };
 
         std::vector<std::string> type_seq =
-            get_type_sequence(qcir.get_gates(), gsl::narrow<QubitIdType>(qubit));
+            get_type_sequence(qcir.get_gates(), qubit);
 
         std::vector<std::pair<std::vector<std::string>, std::vector<std::string>>> replacements;
         while (!type_seq.empty()) {
@@ -336,10 +336,10 @@ void Optimizer::_partial_zx_optimization(QCir& qcir) {
 
         for (auto const& [lhs, rhs] : replacements) {
             std::vector<std::string> const updated_type_seq =
-                get_type_sequence(qcir.get_gates(), gsl::narrow<QubitIdType>(qubit));
+                get_type_sequence(qcir.get_gates(), qubit);
 
             size_t const g = match_gate_sequence(updated_type_seq, lhs);
-            qcir           = replace_single_qubit_gate_sequence(qcir, gsl::narrow<QubitIdType>(qubit), g, lhs.size(), rhs);
+            qcir           = replace_single_qubit_gate_sequence(qcir, qubit, g, lhs.size(), rhs);
         }
     }
 }

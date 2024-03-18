@@ -12,7 +12,6 @@
 #include <cstddef>
 #include <filesystem>
 #include <iterator>
-#include <limits>
 #include <span>
 #include <string>
 #include <unordered_map>
@@ -22,7 +21,6 @@
 #include "qsyn/qsyn_type.hpp"
 #include "spdlog/common.h"
 #include "util/boolean_matrix.hpp"
-#include "util/phase.hpp"
 
 namespace qsyn::zx {
 
@@ -48,8 +46,6 @@ class ZXVertex {
     friend class ZXGraph;
 
 public:
-    using QubitIdType = qsyn::QubitIdType;
-
     ZXVertex(size_t id, QubitIdType qubit, VertexType vt, Phase phase, float row, float col)
         : _id{id}, _type{vt}, _qubit{qubit}, _phase{phase}, _row{row}, _col{col} {}
     // Getter and Setter
@@ -94,8 +90,6 @@ private:
 
 class ZXGraph {  // NOLINT(cppcoreguidelines-special-member-functions) : copy-swap idiom
 public:
-    using QubitIdType = ZXVertex::QubitIdType;
-
     ZXGraph() {}
 
     ~ZXGraph() {
@@ -227,7 +221,7 @@ public:
     // Action functions (zxGraphAction.cpp)
     void sort_io_by_qubit();
     void toggle_vertex(ZXVertex* v) const;
-    void lift_qubit(int n);
+    void lift_qubit(ssize_t n);
     void relabel_vertex_ids(size_t id_start) {
         std::ranges::for_each(this->_vertices, [&id_start](ZXVertex* v) { v->set_id(id_start++); });
     }

@@ -76,9 +76,9 @@ void Router::_initialize() {
     auto const num_qubits = _device.get_num_qubits();
     _logical_to_physical.resize(num_qubits);
     for (size_t i = 0; i < num_qubits; ++i) {
-        auto const& qubit = _device.get_physical_qubit(gsl::narrow<QubitIdType>(i)).get_logical_qubit();
+        auto const& qubit = _device.get_physical_qubit(i).get_logical_qubit();
         assert(qubit.has_value());
-        _logical_to_physical[qubit.value()] = gsl::narrow<QubitIdType>(i);
+        _logical_to_physical[qubit.value()] = i;
     }
 }
 
@@ -239,7 +239,7 @@ std::vector<qcir::QCirGate> Router::duostra_routing(qcir::QCirGate const& gate, 
         _traceback(gate, gate_id_to_time, _device.get_physical_qubit(q0_id), _device.get_physical_qubit(q1_id), t0, t1, swap_ids);
 
     for (size_t i = 0; i < _device.get_num_qubits(); ++i) {
-        auto& qubit = _device.get_physical_qubit(gsl::narrow<QubitIdType>(i));
+        auto& qubit = _device.get_physical_qubit(i);
         qubit.reset();
         assert(qubit.get_logical_qubit() < _device.get_num_qubits());
     }
@@ -431,7 +431,7 @@ std::vector<qcir::QCirGate> Router::assign_gate(qcir::QCirGate const& gate, Gate
         if (logical_qubit_id == std::nullopt) {
             continue;
         }
-        _logical_to_physical[logical_qubit_id.value()] = gsl::narrow<QubitIdType>(i);
+        _logical_to_physical[logical_qubit_id.value()] = i;
     }
     return operation_list;
 }

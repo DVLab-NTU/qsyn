@@ -55,7 +55,7 @@ QCir::QCir(QCir const& other) {
         auto* new_gate = _id_to_gates.at(gate->get_id()).get();
 
         for (auto const qb : new_gate->get_qubits()) {
-            DVLAB_ASSERT(gsl::narrow<size_t>(qb) < get_num_qubits(), fmt::format("Qubit {} not found!!", qb));
+            DVLAB_ASSERT(qb < get_num_qubits(), fmt::format("Qubit {} not found!!", qb));
             if (_qubits[qb].get_last_gate() != nullptr) {
                 _connect(_qubits[qb].get_last_gate()->get_id(), new_gate->get_id(), qb);
             } else {
@@ -214,11 +214,11 @@ std::unordered_map<size_t, size_t> QCir::calculate_gate_times() const {
  * @return QCirQubit*
  */
 void QCir::insert_qubit(QubitIdType id) {
-    if (gsl::narrow<size_t>(id) > _qubits.size()) {
+    if (id > _qubits.size()) {
         spdlog::error("Qubit ID {} is out of range!!", id);
         return;
     }
-    _qubits.insert(_qubits.begin() + id, QCirQubit{});
+    _qubits.insert(dvlab::iterator::next(_qubits.begin(), id), QCirQubit{});
 
     for (auto& gate : get_gates()) {
         auto new_qubits = gate->get_qubits();
@@ -251,7 +251,7 @@ void QCir::add_qubits(size_t num) {
  */
 bool QCir::remove_qubit(QubitIdType id) {
     // Delete the ancilla only if whole line is empty
-    if (gsl::narrow<size_t>(id) >= _qubits.size()) {
+    if (id >= _qubits.size()) {
         spdlog::error("Qubit ID {} not found!!", id);
         return false;
     }
@@ -260,7 +260,7 @@ bool QCir::remove_qubit(QubitIdType id) {
         return false;
     }
 
-    _qubits.erase(_qubits.begin() + id);
+    _qubits.erase(dvlab::iterator::next(_qubits.begin(), id));
 
     for (auto& gate : get_gates()) {
         auto new_qubits = gate->get_qubits();
@@ -291,7 +291,7 @@ size_t QCir::append(Operation const& op, QubitIdList const& bits) {
     _gate_id++;
 
     for (auto const& qb : g->get_qubits()) {
-        DVLAB_ASSERT(gsl::narrow<size_t>(qb) < _qubits.size(), fmt::format("Qubit {} not found!!", qb));
+        DVLAB_ASSERT(qb < _qubits.size(), fmt::format("Qubit {} not found!!", qb));
         if (_qubits[qb].get_last_gate() != nullptr) {
             _connect(_qubits[qb].get_last_gate()->get_id(), g->get_id(), qb);
         } else {
@@ -317,7 +317,7 @@ size_t QCir::prepend(Operation const& op, QubitIdList const& bits) {
     _gate_id++;
 
     for (auto const& qb : g->get_qubits()) {
-        DVLAB_ASSERT(gsl::narrow<size_t>(qb) < _qubits.size(), fmt::format("Qubit {} not found!!", qb));
+        DVLAB_ASSERT(qb < _qubits.size(), fmt::format("Qubit {} not found!!", qb));
         if (_qubits[qb].get_first_gate() != nullptr) {
             _connect(g->get_id(), _qubits[qb].get_first_gate()->get_id(), qb);
         } else {

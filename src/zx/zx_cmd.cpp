@@ -442,7 +442,7 @@ Command zxgraph_vertex_add_cmd(ZXGraphMgr& zxgraph_mgr) {
                 if (vertex_type == "input") {
                     auto const qid = parser.parsed("qubit")
                                          ? parser.get<QubitIdType>("qubit")
-                                         : gsl::narrow<QubitIdType>(std::ranges::max(zxgraph_mgr.get()->get_input_list() | std::views::keys) + 1);
+                                         : std::ranges::max(zxgraph_mgr.get()->get_input_list() | std::views::keys) + 1;
                     if (zxgraph_mgr.get()->is_input_qubit(qid)) {
                         spdlog::error("Input vertex for qubit {} already exists!!", qid);
                         return CmdExecResult::error;
@@ -458,7 +458,7 @@ Command zxgraph_vertex_add_cmd(ZXGraphMgr& zxgraph_mgr) {
                 if (vertex_type == "output") {
                     auto const qid = parser.parsed("qubit")
                                          ? parser.get<QubitIdType>("qubit")
-                                         : gsl::narrow<QubitIdType>(std::ranges::max(zxgraph_mgr.get()->get_output_list() | std::views::keys) + 1);
+                                         : std::ranges::max(zxgraph_mgr.get()->get_output_list() | std::views::keys) + 1;
                     if (zxgraph_mgr.get()->is_output_qubit(qid)) {
                         spdlog::error("Error: output vertex for qubit {} already exists!!", qid);
                         return CmdExecResult::error;

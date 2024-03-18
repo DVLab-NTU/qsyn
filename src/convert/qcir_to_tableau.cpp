@@ -91,7 +91,7 @@ void implement_mcr(Tableau& tableau, QubitIdList const& qubits, dvlab::Phase con
         ph *
         dvlab::Rational(1, static_cast<int>(std::pow(2, gsl::narrow<double>(qubits.size()) - 1)));
 
-    auto const targ = gsl::narrow<size_t>(qubits.back());
+    auto const targ = qubits.back();
     // convert rotation plane first
     if (pauli == Pauli::x) {
         tableau.h(targ);
@@ -132,7 +132,7 @@ void implement_mcp(Tableau& tableau, QubitIdList const& qubits, dvlab::Phase con
         ph *
         dvlab::Rational(1, static_cast<int>(std::pow(2, gsl::narrow<double>(qubits.size()) - 1)));
 
-    auto const targ = gsl::narrow<size_t>(qubits.back());
+    auto const targ = qubits.back();
     // convert rotation plane first
     if (pauli == Pauli::x) {
         tableau.h(targ);
@@ -356,7 +356,7 @@ bool append_to_tableau(qcir::QCir const& qcir, experimental::Tableau& tableau, Q
     auto qubit_map = std::unordered_map<QubitIdType, QubitIdType>();
 
     for (size_t i = 0; i < qcir.get_num_qubits(); ++i) {
-        qubit_map[gsl::narrow<QubitIdType>(i)] = qubits[i];
+        qubit_map[i] = qubits[i];
     }
 
     for (auto const& gate : qcir.get_gates()) {
