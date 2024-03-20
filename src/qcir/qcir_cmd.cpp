@@ -14,15 +14,16 @@
 #include <filesystem>
 #include <string>
 
+#include "./basic_gate_type.hpp"
 #include "./optimizer/optimizer_cmd.hpp"
 #include "./oracle/oracle_cmd.hpp"
+#include "./qcir.hpp"
 #include "./qcir_gate.hpp"
+#include "./qcir_io.hpp"
+#include "./qcir_mgr.hpp"
 #include "argparse/arg_parser.hpp"
 #include "argparse/arg_type.hpp"
 #include "cli/cli.hpp"
-#include "qcir/basic_gate_type.hpp"
-#include "qcir/qcir.hpp"
-#include "qcir/qcir_mgr.hpp"
 #include "util/cin_cout_cerr.hpp"
 #include "util/data_structure_manager_common_cmd.hpp"
 #include "util/dvlab_string.hpp"
@@ -186,10 +187,10 @@ dvlab::Command qcir_read_cmd(QCirMgr& qcir_mgr) {
             parser.add_argument<std::string>("filepath")
                 .constraint(path_readable)
                 .constraint(
-                    allowed_extension({".qasm", ".qc", ".qsim", ".quipper", ""}))
+                    allowed_extension({".qasm", ".qc"}))
                 .help(
                     "the filepath to quantum circuit file. Supported extension: "
-                    ".qasm, .qc, .qsim, .quipper");
+                    ".qasm, .qc");
 
             parser.add_argument<bool>("-r", "--replace")
                 .action(store_true)
@@ -198,19 +199,19 @@ dvlab::Command qcir_read_cmd(QCirMgr& qcir_mgr) {
                     "to a new one");
         },
         [&](ArgumentParser const& parser) {
-            QCir buffer_q_cir;
-            auto filepath = parser.get<std::string>("filepath");
-            auto replace  = parser.get<bool>("--replace");
-            if (!buffer_q_cir.read_qcir_file(filepath)) {
+            auto const filepath = parser.get<std::string>("filepath");
+            auto replace        = parser.get<bool>("--replace");
+            auto qcir           = from_file(filepath);
+            if (!qcir) {
                 fmt::println("Error: the format in \"{}\" has something wrong!!",
                              filepath);
                 return CmdExecResult::error;
             }
             if (qcir_mgr.empty() || !replace) {
                 qcir_mgr.add(qcir_mgr.get_next_id(),
-                             std::make_unique<QCir>(std::move(buffer_q_cir)));
+                             std::make_unique<QCir>(std::move(*qcir)));
             } else {
-                qcir_mgr.set(std::make_unique<QCir>(std::move(buffer_q_cir)));
+                qcir_mgr.set(std::make_unique<QCir>(std::move(*qcir)));
             }
             qcir_mgr.get()->set_filename(std::filesystem::path{filepath}.stem());
             return CmdExecResult::done;

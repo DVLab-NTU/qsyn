@@ -134,10 +134,6 @@ public:
     size_t prepend(Operation const& op, QubitIdList const& bits);
     bool remove_gate(size_t id);
 
-    bool read_qcir_file(std::filesystem::path const& filepath);
-    bool read_qc(std::filesystem::path const& filepath);
-    bool read_qasm(std::filesystem::path const& filepath);
-
     bool write_qasm(std::filesystem::path const& filepath) const;
 
     bool draw(QCirDrawerType drawer,
@@ -212,7 +208,6 @@ private:
     void _connect(size_t gid1, size_t gid2, QubitIdType qubit);
 };
 
-std::string to_qasm(QCir const& qcir);
 std::unordered_map<std::string, size_t>
 get_gate_statistics(qcir::QCir const& qcir);
 

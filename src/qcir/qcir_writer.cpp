@@ -11,9 +11,10 @@
 #include <fstream>
 #include <string>
 
-#include "qcir/operation.hpp"
-#include "qcir/qcir.hpp"
-#include "qcir/qcir_gate.hpp"
+#include "./operation.hpp"
+#include "./qcir.hpp"
+#include "./qcir_gate.hpp"
+#include "./qcir_io.hpp"
 #include "util/sysdep.hpp"
 #include "util/tmp_files.hpp"
 

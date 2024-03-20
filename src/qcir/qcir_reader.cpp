@@ -10,10 +10,12 @@
 
 #include <cstddef>
 #include <fstream>
+#include <optional>
 #include <string>
 
-#include "qcir/basic_gate_type.hpp"
-#include "qcir/qcir.hpp"
+#include "./basic_gate_type.hpp"
+#include "./qcir.hpp"
+#include "./qcir_io.hpp"
 #include "util/dvlab_string.hpp"
 #include "util/phase.hpp"
 
@@ -23,19 +25,17 @@ namespace qsyn::qcir {
  * @brief Read QCir file
  *
  * @param filename
- * @return true if successfully read
- * @return false if error in file or not found
  */
-bool QCir::read_qcir_file(std::filesystem::path const& filepath) {
+std::optional<QCir> from_file(std::filesystem::path const& filepath) {
     auto const extension = filepath.extension();
 
     if (extension == ".qasm")
-        return read_qasm(filepath);
+        return qcir::from_qasm(filepath);
     else if (extension == ".qc")
-        return read_qc(filepath);
+        return qcir::from_qc(filepath);
     else {
         spdlog::error("File format \"{}\" is not supported!!", extension);
-        return false;
+        return std::nullopt;
     }
 }
 
@@ -43,17 +43,15 @@ bool QCir::read_qcir_file(std::filesystem::path const& filepath) {
  * @brief Read QASM
  *
  * @param filename
- * @return true if successfully read
- * @return false if error in file or not found
  */
-bool QCir::read_qasm(std::filesystem::path const& filepath) {
+std::optional<QCir> from_qasm(std::filesystem::path const& filepath) {
     using dvlab::str::str_get_token;
+
     // read file and open
-    _procedures.clear();
     std::fstream qasm_file{filepath};
     if (!qasm_file.is_open()) {
         spdlog::error("Cannot open the QASM file \"{}\"!!", filepath);
-        return false;
+        return std::nullopt;
     }
     std::string str;
     for (int i = 0; i < 6; i++) {
@@ -64,7 +62,9 @@ bool QCir::read_qasm(std::filesystem::path const& filepath) {
     }
 
     auto const nqubit = stoul(str.substr(str.find('[') + 1, str.size() - str.find('[') - 3));
-    add_qubits(nqubit);
+
+    QCir qcir{nqubit};
+
     getline(qasm_file, str);
     while (getline(qasm_file, str)) {
         str = dvlab::str::trim_spaces(dvlab::str::trim_comments(str));
@@ -89,45 +89,43 @@ bool QCir::read_qasm(std::filesystem::path const& filepath) {
             auto qubit_id_num = dvlab::str::from_string<unsigned>(qubit_id_str);
             if (!qubit_id_num.has_value() || qubit_id_num >= nqubit) {
                 spdlog::error("invalid qubit id on line {}!!", str);
-                return false;
+                return std::nullopt;
             }
             qubit_ids.emplace_back(qubit_id_num.value());
             n = str_get_token(str, token, n, ',');
         }
 
         if (auto op = str_to_operation(type); op.has_value()) {
-            append(*op, qubit_ids);
+            qcir.append(*op, qubit_ids);
             continue;
         }
 
         auto phase = dvlab::Phase::from_string(phase_str);
         if (!phase.has_value()) {
             spdlog::error("invalid phase on line {}!!", str);
-            return false;
+            return std::nullopt;
         }
 
         if (auto op = str_to_operation(type, {*phase}); op.has_value()) {
-            append(*op, qubit_ids);
+            qcir.append(*op, qubit_ids);
             continue;
         }
     }
-    return true;
+    return qcir;
 }
 
 /**
  * @brief Read QC
  *
  * @param filename
- * @return true if successfully read
- * @return false if error in file or not found
  */
-bool QCir::read_qc(std::filesystem::path const& filepath) {
+std::optional<QCir> from_qc(std::filesystem::path const& filepath) {
     using dvlab::str::str_get_token;
     // read file and open
     std::fstream qc_file{filepath};
     if (!qc_file.is_open()) {
         spdlog::error("Cannot open the QC file \"{}\"!!", filepath);
-        return false;
+        return std::nullopt;
     }
 
     // ex: qubit_labels = {A,B,C,1,2,3,result}
@@ -136,6 +134,8 @@ bool QCir::read_qc(std::filesystem::path const& filepath) {
     qubit_labels.clear();
     std::string line;
     size_t n_qubit = 0;
+
+    QCir qcir;
 
     while (getline(qc_file, line)) {
         line = line[line.size() - 1] == '\r' ? line.substr(0, line.size() - 1) : line;
@@ -158,9 +158,9 @@ bool QCir::read_qc(std::filesystem::path const& filepath) {
         } else if (line.find('#') == 0 || line.empty())
             continue;
         else if (line.find("BEGIN") == 0 || line.find("begin") == 0) {
-            add_qubits(n_qubit);
+            qcir.add_qubits(n_qubit);
         } else if (line.find("END") == 0 || line.find("end") == 0) {
-            return true;
+            return qcir;
         } else  // find a gate
         {
             std::string type, qubit_label;
@@ -173,31 +173,31 @@ bool QCir::read_qc(std::filesystem::path const& filepath) {
                     qubit_ids.emplace_back(qubit_id);
                 } else {
                     spdlog::error("encountered a undefined qubit ({})!!", qubit_label);
-                    return false;
+                    return std::nullopt;
                 }
             }
             if (type == "Tof" || type == "tof") {
                 if (qubit_ids.size() == 1) {
-                    append(XGate(), qubit_ids);
+                    qcir.append(XGate(), qubit_ids);
                 } else if (qubit_ids.size() == 2) {
-                    append(CXGate(), qubit_ids);
+                    qcir.append(CXGate(), qubit_ids);
                 } else if (qubit_ids.size() == 3) {
-                    append(CCXGate(), qubit_ids);
+                    qcir.append(CCXGate(), qubit_ids);
                 } else {
                     spdlog::error("Toffoli gates with more than 2 controls are not supported!!");
-                    return false;
+                    return std::nullopt;
                 }
             } else if ((type == "Z" || type == "z") && qubit_ids.size() == 3) {
-                append(CCZGate(), qubit_ids);
+                qcir.append(CCZGate(), qubit_ids);
             } else {
                 auto op = str_to_operation(type);
                 if (op.has_value()) {
-                    append(*op, qubit_ids);
+                    qcir.append(*op, qubit_ids);
                 }
             }
         }
     }
-    return true;
+    return qcir;
 }
 
 }  // namespace qsyn::qcir
