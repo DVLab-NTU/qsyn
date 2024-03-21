@@ -6,7 +6,7 @@ Clifford   : 1941
 └── H-gate : 428 (417 internal)
 2-qubit    : 1498
 T-family   : 1498
-Others     : 5354
+Others     : 0
 Depth       : 3088
 
 qsyn> logger trace
@@ -229,8 +229,8 @@ QCir (16 qubits, 3200 gates)
 Clifford   : 1714
 └── H-gate : 210 (199 internal)
 2-qubit    : 1498
-T-family   : 1472
-Others     : 4897
+T-family   : 1486
+Others     : 0
 Depth       : 3195
 
 qsyn> qc2zx
@@ -244,8 +244,8 @@ QCir (16 qubits, 3339 gates)
 Clifford   : 2647
 └── H-gate : 1210 (1174 internal)
 2-qubit    : 1433
-T-family   : 599
-Others     : 5946
+T-family   : 692
+Others     : 0
 Depth       : 3966
 
 qsyn> logger info
@@ -392,8 +392,8 @@ QCir (16 qubits, 2284 gates)
 Clifford   : 1592
 └── H-gate : 210 (204 internal)
 2-qubit    : 1327
-T-family   : 503
-Others     : 3815
+T-family   : 692
+Others     : 0
 Depth       : 2980
 
 qsyn> quit -f

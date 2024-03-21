@@ -24,7 +24,7 @@ Clifford   : 370
 └── H-gate : 80 (75 internal)
 2-qubit    : 283
 T-family   : 280
-Others     : 1008
+Others     : 0
 Depth       : 571
 
 qsyn> duostra config --verbose
@@ -83,7 +83,7 @@ Clifford   : 1720
 └── H-gate : 80 (76 internal)
 2-qubit    : 1633
 T-family   : 280
-Others     : 3709
+Others     : 0
 Depth       : 1603
 
 qsyn> duostra config --scheduler greedy
@@ -116,7 +116,7 @@ Clifford   : 3280
 └── H-gate : 80 (76 internal)
 2-qubit    : 3193
 T-family   : 280
-Others     : 6829
+Others     : 0
 Depth       : 2441
 
 qsyn> quit -f

@@ -443,15 +443,28 @@ std::unordered_map<std::string, size_t> get_gate_statistics(QCir const& qcir) {
         if (is_clifford(g->get_operation())) {
             gate_counts["clifford"]++;
         }
+        if (g->get_num_qubits() == 1) {
+            gate_counts["1-qubit"]++;
+        }
         if (g->get_num_qubits() == 2) {
             gate_counts["2-qubit"]++;
         }
-        if (g->get_operation() == TGate() ||
-            g->get_operation() == TXGate() ||
-            g->get_operation() == TYGate() ||
-            g->get_operation() == TdgGate() ||
-            g->get_operation() == TXdgGate() ||
-            g->get_operation() == TYdgGate()) {
+        if (auto inner = g->get_operation().get_underlying_if<PXGate>(); inner && inner->get_phase().denominator() == 4) {
+            gate_counts["t-family"]++;
+        }
+        if (auto inner = g->get_operation().get_underlying_if<PYGate>(); inner && inner->get_phase().denominator() == 4) {
+            gate_counts["t-family"]++;
+        }
+        if (auto inner = g->get_operation().get_underlying_if<PZGate>(); inner && inner->get_phase().denominator() == 4) {
+            gate_counts["t-family"]++;
+        }
+        if (auto inner = g->get_operation().get_underlying_if<RXGate>(); inner && inner->get_phase().denominator() == 4) {
+            gate_counts["t-family"]++;
+        }
+        if (auto inner = g->get_operation().get_underlying_if<RYGate>(); inner && inner->get_phase().denominator() == 4) {
+            gate_counts["t-family"]++;
+        }
+        if (auto inner = g->get_operation().get_underlying_if<RZGate>(); inner && inner->get_phase().denominator() == 4) {
             gate_counts["t-family"]++;
         }
     }
@@ -488,7 +501,7 @@ void QCir::print_gate_statistics(bool detail) const {
     auto const h_internal = stat.contains("h-internal") ? stat.at("h-internal") : 0;
     auto const t_family   = stat.contains("t-family") ? stat.at("t-family") : 0;
 
-    auto const other = tl::fold_left(stat | std::views::values, 0, std::plus<>()) - clifford - t_family;
+    auto const other = get_num_gates() - clifford - t_family;
 
     if (detail) {
         auto const type_width  = std::ranges::max(stat | std::views::keys | std::views::transform([](std::string const& s) { return s.size(); }));
