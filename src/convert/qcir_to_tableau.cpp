@@ -9,7 +9,9 @@
 
 #include <gsl/narrow>
 #include <ranges>
+#include <span>
 #include <tl/adjacent.hpp>
+#include <tl/generator.hpp>
 #include <tl/to.hpp>
 #include <unordered_map>
 #include <variant>
@@ -28,51 +30,6 @@ namespace experimental {
 namespace {
 
 #include <algorithm>
-
-template <std::ranges::range R, typename T>
-bool contains(R const& r, T const& value) {
-    return std::ranges::find(r, value) != r.end();
-}
-
-template <std::bidirectional_iterator InputIt>
-bool next_combination(const InputIt first, InputIt k, const InputIt last) {
-    /* Credits: Mark Nelson http://marknelson.us */
-    if ((first == last) || (first == k) || (last == k))
-        return false;
-    InputIt i1 = first;
-    InputIt i2 = last;
-    ++i1;
-    if (last == i1)
-        return false;
-    i1 = last;
-    --i1;
-    i1 = k;
-    --i2;
-    while (first != i1) {
-        if (*--i1 < *i2) {
-            InputIt j = k;
-            while (!(*i1 < *j)) ++j;
-            std::iter_swap(i1, j);
-            ++i1;
-            ++j;
-            i2 = k;
-            std::rotate(i1, j, last);
-            while (last != j) {
-                ++j;
-                ++i2;
-            }
-            std::rotate(k, i2, last);
-            return true;
-        }
-    }
-    std::rotate(first, k, last);
-    return false;
-}
-
-template <std::ranges::bidirectional_range R>
-auto next_combination(R& r, size_t const comb_size) {
-    return next_combination(r.begin(), dvlab::iterator::next(r.begin(), comb_size), r.end());
-}
 
 std::vector<size_t> get_qubit_idx_vec(QubitIdList const& qubits) {
     auto ret = qubits | tl::to<std::vector<size_t>>();
@@ -104,16 +61,16 @@ void implement_mcr(Tableau& tableau, QubitIdList const& qubits, dvlab::Phase con
     for (auto const comb_size : std::views::iota(0ul, qubits.size())) {
         bool const is_neg  = comb_size % 2;
         auto qubit_idx_vec = get_qubit_idx_vec(qubits);
-        do {  // NOLINT(cppcoreguidelines-avoid-do-while)
+        for (auto qubit_idx_vec : dvlab::combinations(get_qubit_idx_vec(qubits), comb_size)) {
             auto const pauli_range =
                 std::views::iota(0ul, tableau.n_qubits()) |
-                std::views::transform([&qubit_idx_vec, &comb_size, targ](auto i) -> Pauli {
+                std::views::transform([&qubit_idx_vec, targ](auto i) -> Pauli {
                     // if i is in qubit_idx_range, return Z, otherwise I
-                    return (i == targ) || contains(qubit_idx_vec | std::views::take(comb_size), i) ? Pauli::z : Pauli::i;
+                    return (i == targ) || dvlab::contains(qubit_idx_vec, i) ? Pauli::z : Pauli::i;
                 }) |
                 tl::to<std::vector>();
             last_rotation_group.push_back(PauliRotation(pauli_range.begin(), pauli_range.end(), is_neg ? -phase : phase));
-        } while (next_combination(qubit_idx_vec, comb_size));
+        }
     }
     // restore rotation plane
     if (pauli == Pauli::x) {
@@ -145,15 +102,15 @@ void implement_mcp(Tableau& tableau, QubitIdList const& qubits, dvlab::Phase con
     for (auto const comb_size : std::views::iota(1ul, qubits.size() + 1)) {
         bool const is_neg  = (comb_size - 1) % 2;
         auto qubit_idx_vec = get_qubit_idx_vec(qubits);
-        do {  // NOLINT(cppcoreguidelines-avoid-do-while)
+        for (auto qubit_idx_vec : dvlab::combinations(get_qubit_idx_vec(qubits), comb_size)) {
             auto const pauli_range =
                 std::views::iota(0ul, tableau.n_qubits()) |
-                std::views::transform([&qubit_idx_vec, &comb_size](auto i) -> Pauli {
-                    return contains(qubit_idx_vec | std::views::take(comb_size), i) ? Pauli::z : Pauli::i;
+                std::views::transform([&qubit_idx_vec](auto i) -> Pauli {
+                    return dvlab::contains(qubit_idx_vec, i) ? Pauli::z : Pauli::i;
                 }) |
                 tl::to<std::vector>();
             last_rotation_group.push_back(PauliRotation(pauli_range.begin(), pauli_range.end(), is_neg ? -phase : phase));
-        } while (next_combination(qubit_idx_vec, comb_size));
+        }
     }
     // restore rotation plane
     if (pauli == Pauli::x) {
