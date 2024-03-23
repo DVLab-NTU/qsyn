@@ -48,8 +48,8 @@ public:
 
 private:
     size_t _line_no = 1;
-    std::unordered_set<int> _taken_input_qubits;
-    std::unordered_set<int> _taken_output_qubits;
+    std::unordered_set<QubitIdType> _taken_input_qubits;
+    std::unordered_set<QubitIdType> _taken_output_qubits;
 
     // parsing subroutines
     bool _tokenize(std::string const& line, std::vector<std::string>& tokens);
