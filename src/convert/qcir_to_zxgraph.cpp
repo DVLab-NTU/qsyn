@@ -11,6 +11,7 @@
 
 #include <cstddef>
 #include <gsl/narrow>
+#include <ranges>
 #include <tl/enumerate.hpp>
 
 #include "qcir/basic_gate_type.hpp"
@@ -18,6 +19,7 @@
 #include "qcir/qcir_gate.hpp"
 #include "util/phase.hpp"
 #include "util/rational.hpp"
+#include "util/util.hpp"
 #include "zx/zx_def.hpp"
 #include "zx/zxgraph.hpp"
 
@@ -72,47 +74,10 @@ create_multi_control_backbone(ZXGraph& g, size_t num_qubits, RotationAxis ax) {
     return {controls, target};
 }
 
-/**
- * @brief Make combination of `k` from `verVec`.
- *        Function that will be called in `makeCombi`
- *
- * @param comb
- * @param tmp
- * @param verVec
- * @param left
- * @param k
- */
-void make_combinations_helper(std::vector<std::vector<ZXVertex*>>& comb, std::vector<ZXVertex*>& tmp, std::vector<ZXVertex*> const& vertices, size_t left, size_t k) {
-    if (k == 0) {
-        comb.emplace_back(tmp);
-        return;
-    }
-    for (size_t i = left; i < vertices.size(); ++i) {
-        tmp.emplace_back(vertices[i]);
-        make_combinations_helper(comb, tmp, vertices, i + 1, k - 1);
-        tmp.pop_back();
-    }
-}
-
-/**
- * @brief Make combination of `k` from `verVec`
- *
- * @param verVec
- * @param k
- * @return vector<vector<ZXVertex* > >
- */
-std::vector<std::vector<ZXVertex*>> make_combinations(std::vector<ZXVertex*> const& vertices, size_t k) {
-    std::vector<std::vector<ZXVertex*>> comb;
-    std::vector<ZXVertex*> tmp;
-    make_combinations_helper(comb, tmp, vertices, 0, k);
-    return comb;
-}
-
 void create_multi_control_r_gate_gadgets(ZXGraph& g, std::vector<ZXVertex*> const& controls, ZXVertex* target, dvlab::Phase const& phase) {
     target->set_phase(phase);
     for (size_t k = 1; k <= controls.size(); k++) {
-        std::vector<std::vector<ZXVertex*>> combinations = make_combinations(controls, k);
-        for (auto& combination : combinations) {
+        for (auto& combination : dvlab::combinations(controls, k)) {
             combination.emplace_back(target);
             g.add_gadget((combination.size() % 2) ? phase : -phase, combination);
         }
@@ -124,8 +89,7 @@ void create_multi_control_p_gate_gadgets(ZXGraph& g, std::vector<ZXVertex*> cons
         v->set_phase(phase);
     }
     for (size_t k = 2; k <= vertices.size(); k++) {
-        auto const combinations = make_combinations(vertices, k);
-        for (auto& combination : combinations) {
+        for (auto& combination : dvlab::combinations(vertices, k)) {
             g.add_gadget((combination.size() % 2) ? phase : -phase, combination);
         }
     }
