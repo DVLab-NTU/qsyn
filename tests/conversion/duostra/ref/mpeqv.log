@@ -21,7 +21,7 @@ Total Time:     101
 
 
 qsyn> qcir print
-QCir (16 qubits, 60 gates, 41 2-qubits gates, 0 T-gates, 85 depths)
+QCir (16 qubits, 60 gates, 41 2-qubits gates, 14 T-gates, 85 depths)
 
 qsyn> qcir list
   0    3_17_13             

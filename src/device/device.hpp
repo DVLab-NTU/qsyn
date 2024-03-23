@@ -10,16 +10,13 @@
 #include <fmt/core.h>
 
 #include <cstddef>
-#include <cstdint>
 #include <memory>
 #include <string>
 #include <unordered_map>
 
-#include "qcir/gate_type.hpp"
 #include "qsyn/qsyn_type.hpp"
 #include "util/ordered_hashmap.hpp"
 #include "util/ordered_hashset.hpp"
-#include "util/phase.hpp"
 
 namespace qsyn::qcir {
 class QCirGate;
@@ -176,9 +173,9 @@ private:
     bool _parse_info(std::ifstream& f, std::vector<std::vector<float>>& cx_error, std::vector<std::vector<float>>& cx_delay, std::vector<float>& single_error, std::vector<float>& single_delay);
 
     // NOTE - Containers and helper functions for Floyd-Warshall
-    int _max_dist = default_max_dist;
+    size_t _max_dist = default_max_dist;
     std::vector<std::vector<QubitIdType>> _predecessor;
-    std::vector<std::vector<int>> _distance;
+    std::vector<std::vector<size_t>> _distance;
     std::vector<std::vector<QubitIdType>> _adjacency_matrix;
     void _initialize_floyd_warshall();
     void _set_weight();

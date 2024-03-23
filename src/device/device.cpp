@@ -19,7 +19,7 @@
 #include <tl/to.hpp>
 #include <utility>
 
-#include "qcir/gate_type.hpp"
+#include "qcir/basic_gate_type.hpp"
 #include "qcir/qcir_gate.hpp"
 #include "qsyn/qsyn_type.hpp"
 #include "util/dvlab_string.hpp"
@@ -325,7 +325,7 @@ void Device::_initialize_floyd_warshall() {
         for (size_t j = 0; j < get_num_qubits(); j++) {
             _distance[i][j] = _adjacency_matrix[i][j];
             if (_distance[i][j] != 0 && _distance[i][j] != _max_dist) {
-                _predecessor[i][j] = _qubit_list[gsl::narrow<QubitIdType>(i)].get_id();
+                _predecessor[i][j] = _qubit_list[i].get_id();
             }
         }
     }
@@ -336,7 +336,7 @@ void Device::_initialize_floyd_warshall() {
     }
     spdlog::debug("Distance Matrix:");
     for (auto& row : _distance) {
-        spdlog::debug("{:5}", fmt::join(row | std::views::transform([this](int j) { return (j == _max_dist) ? std::string{"X"} : std::to_string(j); }), ""));
+        spdlog::debug("{:5}", fmt::join(row | std::views::transform([this](size_t j) { return (j == _max_dist) ? std::string{"X"} : std::to_string(j); }), ""));
     }
 }
 
@@ -348,7 +348,7 @@ void Device::_initialize_floyd_warshall() {
 void Device::_set_weight() {
     assert(_adjacency_matrix.size() == _num_qubit);
     for (size_t i = 0; i < _num_qubit; i++) {
-        for (auto const& adj : _qubit_list[gsl::narrow<QubitIdType>(i)].get_adjacencies()) {
+        for (auto const& adj : _qubit_list[i].get_adjacencies()) {
             _adjacency_matrix[i][adj] = 1;
         }
     }
@@ -380,7 +380,7 @@ void Device::floyd_warshall() {
         spdlog::debug("Distance Matrix:");
         for (auto& row : _distance) {
             spdlog::debug("{:5}", fmt::join(
-                                      row | std::views::transform([this](int j) { return (j == _max_dist) ? std::string{"X"} : std::to_string(j); }), ""));
+                                      row | std::views::transform([this](size_t j) { return (j == _max_dist) ? std::string{"X"} : std::to_string(j); }), ""));
         }
     }
 }
@@ -479,7 +479,7 @@ bool Device::read_device(std::string const& filename) {
     for (size_t i = 0; i < adj_list.size(); i++) {
         for (size_t j = 0; j < adj_list[i].size(); j++) {
             if (adj_list[i][j] > i) {
-                add_adjacency(gsl::narrow<QubitIdType>(i), gsl::narrow<QubitIdType>(adj_list[i][j]));
+                add_adjacency(i, adj_list[i][j]);
                 _topology->add_adjacency_info(i, adj_list[i][j], {._time = cx_delay[i][j], ._error = cx_err[i][j]});
             }
         }
@@ -750,7 +750,7 @@ void Device::print_predecessor() const {
 void Device::print_distance() const {
     fmt::println("Distance Matrix:");
     for (auto& row : _distance) {
-        fmt::println("{:5}", fmt::join(row | std::views::transform([this](int dist) { return (dist == _max_dist) ? "X" : std::to_string(dist); }), ""));
+        fmt::println("{:5}", fmt::join(row | std::views::transform([this](size_t dist) { return (dist == _max_dist) ? "X" : std::to_string(dist); }), ""));
     }
 }
 
@@ -789,7 +789,7 @@ void Device::print_path(QubitIdType src, QubitIdType dest) const {
 void Device::print_mapping() {
     fmt::println("----------Mapping---------");
     for (size_t i = 0; i < _num_qubit; i++) {
-        fmt::println("{:<5} : {}", i, _qubit_list[gsl::narrow<QubitIdType>(i)].get_logical_qubit());
+        fmt::println("{:<5} : {}", i, _qubit_list[i].get_logical_qubit());
     }
 }
 

@@ -192,7 +192,7 @@ ID:   52 (●, 0)       (Qubit, Col): (2, 38)        #Neighbors:   1    (5, -)
 
 
 qsyn> qcir print
-QCir (3 qubits, 31 gates, 10 2-qubits gates, 0 T-gates, 25 depths)
+QCir (3 qubits, 31 gates, 10 2-qubits gates, 7 T-gates, 25 depths)
 
 qsyn> qcir print --diagram
 Q 0  ---------cx(30)----------cx(29)----------cx(28)-- h(25)----------cx(22)----------cx(21)--td(19)-- h(18)----------cz(17)-- h(16)--td(13)-- h(11)------------------cx( 8)----------cx( 7)-- h( 4)-- t( 0)-

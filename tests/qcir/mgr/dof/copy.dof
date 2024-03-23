@@ -51,8 +51,8 @@ qcir print --diagram
 qcir copy
 qcir qubit add
 qcir print --diagram
-qcir gate add --prepend cx 0 4
-qcir gate add cx 2 4
+qcir gate add --prepend cx 0 3
+qcir gate add cx 1 3
 qcir gate add --prepend rz -ph 1.2345 0
 qcir print --diagram
 qc2zx

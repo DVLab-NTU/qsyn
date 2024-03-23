@@ -12,7 +12,7 @@
 
 #include "./placer.hpp"
 #include "duostra/mapping_eqv_checker.hpp"
-#include "qcir/gate_type.hpp"
+#include "qcir/basic_gate_type.hpp"
 #include "qcir/qcir.hpp"
 #include "qsyn/qsyn_type.hpp"
 

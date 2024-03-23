@@ -27,11 +27,11 @@ void Optimizer::reset(QCir const& qcir) {
     _zs.clear();
     _swaps.clear();
     _statistics = {};
-    for (int i = 0; i < gsl::narrow<QubitIdType>(qcir.get_num_qubits()); i++) {
+    for (size_t i = 0; i < qcir.get_num_qubits(); i++) {
         _availty.emplace_back(false);
         _available.emplace(i, std::vector<QCirGate*>{});
         _gates.emplace(i, std::vector<QCirGate*>{});
-        _permutation[i] = qcir.get_qubits()[i]->get_id();
+        _permutation[i] = i;
     }
 }
 

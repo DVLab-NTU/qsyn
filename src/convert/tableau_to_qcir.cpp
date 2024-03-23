@@ -11,7 +11,7 @@
 #include <tl/adjacent.hpp>
 #include <tl/to.hpp>
 
-#include "qcir/gate_type.hpp"
+#include "qcir/basic_gate_type.hpp"
 #include "qcir/qcir.hpp"
 #include "util/phase.hpp"
 
@@ -25,40 +25,40 @@ void add_clifford_gate(qcir::QCir& qcir, CliffordOperator const& op) {
 
     switch (type) {
         case COT::h:
-            qcir.append(qcir::HGate(), {gsl::narrow<QubitIdType>(qubits[0])});
+            qcir.append(qcir::HGate(), {qubits[0]});
             break;
         case COT::s:
-            qcir.append(qcir::SGate(), {gsl::narrow<QubitIdType>(qubits[0])});
+            qcir.append(qcir::SGate(), {qubits[0]});
             break;
         case COT::cx:
-            qcir.append(qcir::CXGate(), {gsl::narrow<QubitIdType>(qubits[0]), gsl::narrow<QubitIdType>(qubits[1])});
+            qcir.append(qcir::CXGate(), {qubits[0], qubits[1]});
             break;
         case COT::sdg:
-            qcir.append(qcir::SdgGate(), {gsl::narrow<QubitIdType>(qubits[0])});
+            qcir.append(qcir::SdgGate(), {qubits[0]});
             break;
         case COT::v:
-            qcir.append(qcir::SXGate(), {gsl::narrow<QubitIdType>(qubits[0])});
+            qcir.append(qcir::SXGate(), {qubits[0]});
             break;
         case COT::vdg:
-            qcir.append(qcir::SXdgGate(), {gsl::narrow<QubitIdType>(qubits[0])});
+            qcir.append(qcir::SXdgGate(), {qubits[0]});
             break;
         case COT::x:
-            qcir.append(qcir::XGate(), {gsl::narrow<QubitIdType>(qubits[0])});
+            qcir.append(qcir::XGate(), {qubits[0]});
             break;
         case COT::y:
-            qcir.append(qcir::YGate(), {gsl::narrow<QubitIdType>(qubits[0])});
+            qcir.append(qcir::YGate(), {qubits[0]});
             break;
         case COT::z:
-            qcir.append(qcir::ZGate(), {gsl::narrow<QubitIdType>(qubits[0])});
+            qcir.append(qcir::ZGate(), {qubits[0]});
             break;
         case COT::cz:
-            qcir.append(qcir::CZGate(), {gsl::narrow<QubitIdType>(qubits[0]), gsl::narrow<QubitIdType>(qubits[1])});
+            qcir.append(qcir::CZGate(), {qubits[0], qubits[1]});
             break;
         case COT::swap:
-            qcir.append(qcir::SwapGate(), {gsl::narrow<QubitIdType>(qubits[0]), gsl::narrow<QubitIdType>(qubits[1])});
+            qcir.append(qcir::SwapGate(), {qubits[0], qubits[1]});
             break;
         case COT::ecr:
-            qcir.append(qcir::ECRGate(), {gsl::narrow<QubitIdType>(qubits[0]), gsl::narrow<QubitIdType>(qubits[1])});
+            qcir.append(qcir::ECRGate(), {qubits[0], qubits[1]});
             break;
     }
 }
@@ -93,7 +93,7 @@ std::optional<qcir::QCir> NaivePauliRotationsSynthesisStrategy::synthesize(std::
             add_clifford_gate(qcir, op);
         }
 
-        qcir.append(qcir::PZGate(rotation.phase()), {gsl::narrow<QubitIdType>(qubit)});
+        qcir.append(qcir::PZGate(rotation.phase()), {qubit});
 
         adjoint_inplace(ops);
 

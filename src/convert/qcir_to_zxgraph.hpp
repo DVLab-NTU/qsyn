@@ -14,6 +14,7 @@
 namespace qsyn {
 
 std::optional<zx::ZXGraph> to_zxgraph(qcir::QCirGate const& gate);
+template <>
 std::optional<zx::ZXGraph> to_zxgraph(qcir::QCir const& qcir);
 
 }  // namespace qsyn

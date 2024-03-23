@@ -11,8 +11,9 @@
 
 #include <cstddef>
 #include <gsl/narrow>
+#include <tl/enumerate.hpp>
 
-#include "qcir/gate_type.hpp"
+#include "qcir/basic_gate_type.hpp"
 #include "qcir/qcir.hpp"
 #include "qcir/qcir_gate.hpp"
 #include "util/phase.hpp"
@@ -46,9 +47,9 @@ create_multi_control_backbone(ZXGraph& g, size_t num_qubits, RotationAxis ax) {
     ZXVertex* target  = nullptr;
     auto target_qubit = num_qubits - 1;
     for (auto qubit : std::views::iota(0ul, num_qubits)) {
-        ZXVertex* in  = g.add_input(gsl::narrow<QubitIdType>(qubit));
+        ZXVertex* in  = g.add_input(qubit);
         ZXVertex* v   = g.add_vertex(VertexType::z, dvlab::Phase{}, static_cast<float>(qubit));
-        ZXVertex* out = g.add_output(gsl::narrow<QubitIdType>(qubit));
+        ZXVertex* out = g.add_output(qubit);
         if (ax == RotationAxis::z || qubit != target_qubit) {
             g.add_edge(in, v, EdgeType::simple);
             g.add_edge(v, out, EdgeType::simple);
@@ -432,6 +433,7 @@ std::optional<ZXGraph> to_zxgraph(qcir::QCirGate const& gate) {
 /**
  * @brief Mapping QCir to ZXGraph
  */
+template <>
 std::optional<ZXGraph> to_zxgraph(QCir const& qcir) {
     if (qcir.is_empty()) {
         spdlog::error("QCir is empty!!");
@@ -441,9 +443,9 @@ std::optional<ZXGraph> to_zxgraph(QCir const& qcir) {
 
     ZXGraph graph;
     spdlog::debug("Add boundaries");
-    for (auto* qubit : qcir.get_qubits()) {
-        ZXVertex* input  = graph.add_input(qubit->get_id());
-        ZXVertex* output = graph.add_output(qubit->get_id());
+    for (auto i : std::views::iota(0ul, qcir.get_num_qubits())) {
+        ZXVertex* input  = graph.add_input(i);
+        ZXVertex* output = graph.add_output(i);
         graph.add_edge(input, output, EdgeType::simple);
     }
 
