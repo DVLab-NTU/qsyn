@@ -77,7 +77,10 @@ create_multi_control_backbone(ZXGraph& g, size_t num_qubits, RotationAxis ax) {
 void create_multi_control_r_gate_gadgets(ZXGraph& g, std::vector<ZXVertex*> const& controls, ZXVertex* target, dvlab::Phase const& phase) {
     target->set_phase(phase);
     for (size_t k = 1; k <= controls.size(); k++) {
-        for (auto& combination : dvlab::combinations(controls, k)) {
+        for (auto& combination : dvlab::combinations(controls,
+                                                     k,
+                                                     std::ranges::less{},
+                                                     [](ZXVertex* v) { return v->get_id(); })) {
             combination.emplace_back(target);
             g.add_gadget((combination.size() % 2) ? phase : -phase, combination);
         }
@@ -89,7 +92,10 @@ void create_multi_control_p_gate_gadgets(ZXGraph& g, std::vector<ZXVertex*> cons
         v->set_phase(phase);
     }
     for (size_t k = 2; k <= vertices.size(); k++) {
-        for (auto& combination : dvlab::combinations(vertices, k)) {
+        for (auto& combination : dvlab::combinations(vertices,
+                                                     k,
+                                                     std::ranges::less{},
+                                                     [](ZXVertex* v) { return v->get_id(); })) {
             g.add_gadget((combination.size() % 2) ? phase : -phase, combination);
         }
     }
