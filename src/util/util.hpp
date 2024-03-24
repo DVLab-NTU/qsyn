@@ -166,8 +166,6 @@ bool next_combination(const InputIt first, InputIt k, const InputIt last, Compar
     return false;
 }
 
-}  // namespace detail
-
 template <std::ranges::bidirectional_range R, typename Compare = std::ranges::less, typename Proj = std::identity>
 auto next_combination(R& r, size_t const comb_size, Compare comp = {}, Proj proj = {}) {
     return detail::next_combination(r.begin(), dvlab::iterator::next(r.begin(), comb_size), r.end(), comp, proj);
@@ -192,54 +190,30 @@ tl::generator<std::vector<T>> permutations(std::vector<T> elements, size_t const
     } while (std::ranges::next_permutation(elements, comp, proj));
 }
 
-template <std::bidirectional_iterator InputIt>
-bool next_combination(const InputIt first, InputIt k, const InputIt last) {
-    /* Credits: Mark Nelson http://marknelson.us */
-    if ((first == last) || (first == k) || (last == k))
-        return false;
-    InputIt i1 = first;
-    InputIt i2 = last;
-    ++i1;
-    if (last == i1)
-        return false;
-    i1 = last;
-    --i1;
-    i1 = k;
-    --i2;
-    while (first != i1) {
-        if (*--i1 < *i2) {
-            InputIt j = k;
-            while (!(*i1 < *j)) ++j;
-            std::iter_swap(i1, j);
-            ++i1;
-            ++j;
-            i2 = k;
-            std::rotate(i1, j, last);
-            while (last != j) {
-                ++j;
-                ++i2;
-            }
-            std::rotate(k, i2, last);
-            return true;
-        }
-    }
-    std::rotate(first, k, last);
-    return false;
-}
+}  // namespace detail
 
-template <std::ranges::bidirectional_range R>
-auto next_combination(R& r, size_t const comb_size) {
-    return next_combination(r.begin(), dvlab::iterator::next(r.begin(), comb_size), r.end());
+template <std::ranges::bidirectional_range R, typename Compare = std::ranges::less, typename Proj = std::identity>
+auto next_combination(R& r, size_t const comb_size, Compare comp = {}, Proj proj = {}) {
+    return detail::next_combination(r.begin(), dvlab::iterator::next(r.begin(), comb_size), r.end(), comp, proj);
 }
 
 // iterate over all combinations in the range
-template <typename T>
-tl::generator<std::vector<T>> combinations(std::vector<T> elements, size_t const comb_size) {
-    std::ranges::sort(elements);
+template <typename T, typename Compare = std::ranges::less, typename Proj = std::identity>
+tl::generator<std::vector<T>> combinations(std::vector<T> elements, size_t const comb_size, Compare comp = {}, Proj proj = {}) {
+    std::ranges::sort(elements, comp, proj);
     do {  // NOLINT(cppcoreguidelines-avoid-do-while)
         auto comb = elements | std::views::take(comb_size) | tl::to<std::vector<T>>();
         co_yield comb;
-    } while (next_combination(elements, comb_size));
+    } while (next_combination(elements, comb_size, comp, proj));
+}
+
+template <typename T, typename Compare = std::ranges::less, typename Proj = std::identity>
+tl::generator<std::vector<T>> permutations(std::vector<T> elements, size_t const perm_size, Compare comp = {}, Proj proj = {}) {
+    std::ranges::sort(elements, comp, proj);
+    do {  // NOLINT(cppcoreguidelines-avoid-do-while)
+        auto perm = elements | std::views::take(perm_size) | tl::to<std::vector<T>>();
+        co_yield perm;
+    } while (std::ranges::next_permutation(elements, comp, proj));
 }
 
 }  // namespace dvlab
