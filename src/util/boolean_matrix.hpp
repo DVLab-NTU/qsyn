@@ -80,24 +80,14 @@ public:
     size_t num_rows() const { return _matrix.size(); }
     size_t num_cols() const { return _matrix[0].size(); }
 
-    void clear() {
-        _matrix.clear();
-        _row_operations.clear();
-    }
-
     bool row_operation(size_t ctrl, size_t targ, bool track = false);
     size_t gaussian_elimination_skip(size_t block_size, bool do_fully_reduced, bool track = true);
     size_t matrix_rank() const;
-    bool gaussian_elimination(bool track = false, bool is_augmented_matrix = false);
     bool gaussian_elimination_augmented(bool track = false);
-    bool is_solved_form() const;
-    bool is_augmented_solved_form() const;
     void print_matrix(spdlog::level::level_enum lvl = spdlog::level::level_enum::off) const;
-    void print_trace() const;
     size_t filter_duplicate_row_operations();
     size_t row_operation_depth();
     double dense_ratio();
-    void append_one_hot_column(size_t idx);
     void push_zeros_column();
     void push_zeros_row() { _matrix.emplace_back(std::vector<unsigned char>(_matrix[0].size(), 0)); }
     void push_row(Row const& row) { _matrix.emplace_back(row); }

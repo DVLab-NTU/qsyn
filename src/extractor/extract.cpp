@@ -169,9 +169,7 @@ bool Extractor::extraction_loop(std::optional<size_t> max_iter) {
  */
 void Extractor::clean_frontier() {
     spdlog::debug("Cleaning frontier");
-    // NOTE - Edge and dvlab::Phase
     extract_singles();
-    // NOTE - CZs
     extract_czs();
 }
 

@@ -124,19 +124,6 @@ void BooleanMatrix::print_matrix(spdlog::level::level_enum lvl) const {
 }
 
 /**
- * @brief Print track of operations
- *
- */
-void BooleanMatrix::print_trace() const {
-    fmt::println("Track:");
-    for (auto const& [i, row_op] : tl::views::enumerate(_row_operations)) {
-        auto const& [row_src, row_dest] = row_op;
-        fmt::println("Step {}: {} to {}", i + 1, row_src, row_dest);
-    }
-    fmt::println("");
-}
-
-/**
  * @brief Perform XOR operation
  * @param ctrl the control
  * @param targ the target
@@ -309,88 +296,6 @@ size_t BooleanMatrix::filter_duplicate_row_operations() {
 }
 
 /**
- * @brief Perform Gaussian Elimination
- *
- * @param track if true, record the process to operation track
- * @param isAugmentedMatrix the target matrix is augmented or not
- * @return true
- * @return false
- */
-bool BooleanMatrix::gaussian_elimination(bool track, bool is_augmented_matrix) {
-    _row_operations.clear();
-
-    auto const num_variables = num_cols() - ((is_augmented_matrix) ? 1 : 0);
-
-    /**
-     * @brief If _matrix[i][i] is 0, greedily perform row operations
-     * to make the number 1
-     *
-     * @return true on success, false on failures
-     */
-    auto make_main_diagonal_one = [this, &track](size_t i) -> bool {
-        if (_matrix[i][i] == 1) return true;
-        for (size_t j = i + 1; j < num_rows(); j++) {
-            if (_matrix[j][i] == 1) {
-                row_operation(j, i, track);
-                return true;
-            }
-        }
-        return false;
-    };
-
-    // convert to upper-triangle matrix
-    for (size_t i = 0; i < std::min(num_rows() - 1, num_variables); i++) {
-        // the system of equation is not solvable if the
-        // main diagonal cannot be made 1
-        if (!make_main_diagonal_one(i)) return false;
-
-        for (size_t j = i + 1; j < num_rows(); j++) {
-            if (_matrix[j][i] == 1 && _matrix[i][i] == 1) {
-                row_operation(i, j, track);
-            }
-        }
-    }
-
-    // for augmented matrix, if any rows looks like [0 ... 0 1],
-    // the system has no solution
-    if (is_augmented_matrix) {
-        for (size_t i = num_variables; i < num_rows(); ++i) {
-            if (_matrix[i].back() == 1) return false;
-        }
-    }
-
-    // convert to identity matrix on the leftmost numRows() matrix
-    for (size_t i = 0; i < num_rows(); i++) {
-        for (size_t j = num_rows() - i; j < num_rows(); j++) {
-            if (_matrix[num_rows() - i - 1][j] == 1) {
-                row_operation(j, num_rows() - i - 1, track);
-            }
-        }
-    }
-    return true;
-}
-
-/**
- * @brief check if the matrix is of solved form. That is,
- *        (1) an identity matrix,
- *        (2) an identity matrix with an arbitrary matrix on the right, or
- *        (3) an identity matrix with an zero matrix on the bottom.
- *
- * @return true
- * @return false
- */
-bool BooleanMatrix::is_solved_form() const {
-    for (size_t i = 0; i < num_rows(); ++i) {
-        for (size_t j = 0; j < std::min(num_rows(), num_cols()); ++j) {
-            if (i == j && _matrix[i][j] != 1) return false;
-            if (i != j && _matrix[i][j] != 0) return false;
-        }
-    }
-
-    return true;
-}
-
-/**
  * @brief Perform Gaussian Elimination with augmentation column(s)
  *
  * @param track if true, record the process to operation track
@@ -442,42 +347,6 @@ bool BooleanMatrix::gaussian_elimination_augmented(bool track) {
     return none_of(dvlab::iterator::next(_matrix.begin(), cur_row), _matrix.end(), [](Row const& row) -> bool {
         return row.back() == 1;
     });
-}
-
-/**
- * @brief check if the augmented matrix is of solved form. That is,
- *        an identity matrix with an arbitrary matrix on the right, and possibly
- *        an identity matrix with an zero matrix on the bottom.
- *
- * @return true or false
- */
-bool BooleanMatrix::is_augmented_solved_form() const {
-    auto const n = std::min(num_rows(), num_cols() - 1);
-    for (size_t i = 0; i < n; ++i) {
-        for (size_t j = 0; j < n; ++j) {
-            if (i == j && _matrix[i][j] != 1) return false;
-            if (i != j && _matrix[i][j] != 0) return false;
-        }
-    }
-    for (size_t i = n; i < num_rows(); ++i) {
-        for (size_t j = 0; j < num_cols(); ++j) {
-            if (_matrix[i][j] != 0) return false;
-        }
-    }
-
-    return true;
-}
-
-/**
- * @brief Append one hot
- *
- * @param idx the id to be one
- */
-void BooleanMatrix::append_one_hot_column(size_t idx) {
-    assert(idx < _matrix.size());
-    for (size_t i = 0; i < _matrix.size(); ++i) {
-        _matrix[i].emplace_back((i == idx) ? 1 : 0);
-    }
 }
 
 /**
