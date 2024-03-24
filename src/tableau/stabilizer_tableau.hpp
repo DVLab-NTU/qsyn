@@ -11,14 +11,8 @@
 #include <fmt/format.h>
 
 #include <cstddef>
-#include <initializer_list>
-#include <iostream>
-#include <iterator>
-#include <ranges>
-#include <ratio>
 #include <string>
 #include <sul/dynamic_bitset.hpp>
-#include <variant>
 
 #include "tableau/pauli_rotation.hpp"
 
@@ -46,9 +40,9 @@ public:
         return qubit + n_qubits();
     }
 
-    StabilizerTableau& h(size_t qubit) override;
-    StabilizerTableau& s(size_t qubit) override;
-    StabilizerTableau& cx(size_t ctrl, size_t targ) override;
+    StabilizerTableau& h(size_t qubit) noexcept override;
+    StabilizerTableau& s(size_t qubit) noexcept override;
+    StabilizerTableau& cx(size_t ctrl, size_t targ) noexcept override;
 
     // prepend operations
     // these operations are specific to the stabilizer tableau

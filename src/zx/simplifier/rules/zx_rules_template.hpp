@@ -57,7 +57,7 @@ public:
     virtual std::vector<ZXVertex*> flatten_vertices(MatchType match) const          = 0;
 };
 
-// H Box related rules have simliar interface but is used differentlu in simplifier
+// H Box related rules have similar interface but is used differentlu in simplifier
 template <typename T>
 class HZXRuleTemplate : public ZXRuleBase {
 public:

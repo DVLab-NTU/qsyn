@@ -9,12 +9,9 @@
 #include <omp.h>
 
 #include <algorithm>
-#include <functional>
 #include <tl/enumerate.hpp>
-#include <unordered_set>
 #include <vector>
 
-#include "./duostra.hpp"
 #include "./scheduler.hpp"
 #include "util/util.hpp"
 
@@ -81,7 +78,7 @@ TreeNode::TreeNode(TreeNode const& other)
       _scheduler{other._scheduler->clone()} {}
 
 /**
- * @brief Grow by adding availalble gates to children.
+ * @brief Grow by adding available gates to children.
  *
  */
 void TreeNode::_grow() {

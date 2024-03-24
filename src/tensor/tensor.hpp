@@ -361,10 +361,10 @@ bool Tensor<DT>::tensor_read(std::string const& filepath) {
     while (std::getline(in_file, line)) {
         std::stringstream ss(line);
         while (std::getline(ss, word, ',')) {
-            std::stringstream ww(word);
+            std::stringstream ww(word);  // NOLINT(misc-const-correctness) : incorrect clang-tidy warning
             using float_type = typename DT::value_type;
             float_type real = 0.0, imag = 0.0;
-            char plus{}, i{};
+            char plus{}, i{};  // NOLINT(misc-const-correctness) : incorrect clang-tidy warning
             ww >> real >> plus >> imag >> i;
             if (plus == '-') imag = -imag;
             if (plus == 'j') {

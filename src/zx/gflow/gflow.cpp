@@ -33,20 +33,20 @@ constexpr auto vertex_to_id = [](ZXVertex* v) { return v->get_id(); };
 ZXVertexList GFlow::get_z_correction_set(ZXVertex* v) const {
     ZXVertexList out;
 
-    dvlab::utils::ordered_hashmap<ZXVertex*, size_t> num_occurences;
+    dvlab::utils::ordered_hashmap<ZXVertex*, size_t> num_occurrences;
 
     for (auto const& gv : get_x_correction_set(v)) {
         // FIXME - should count neighbor!
         for (auto const& [nb, et] : _zxgraph->get_neighbors(gv)) {
-            if (num_occurences.contains(nb)) {
-                num_occurences[nb]++;
+            if (num_occurrences.contains(nb)) {
+                num_occurrences[nb]++;
             } else {
-                num_occurences.emplace(nb, 1);
+                num_occurrences.emplace(nb, 1);
             }
         }
     }
 
-    for (auto const& [odd_gv, n] : num_occurences) {
+    for (auto const& [odd_gv, n] : num_occurrences) {
         if (n % 2 == 1) out.emplace(odd_gv);
     }
 
@@ -73,7 +73,7 @@ void GFlow::_initialize() {
     for (auto const& v : _zxgraph->get_vertices()) {
         _measurement_planes.emplace(v, MP::xy);
     }
-    // if calculating extended gflow, modify some of the measurment plane
+    // if calculating extended gflow, modify some of the measurement plane
     if (_do_extended) {
         for (auto const& v : _zxgraph->get_vertices()) {
             if (_zxgraph->is_gadget_leaf(v)) {

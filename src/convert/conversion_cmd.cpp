@@ -89,6 +89,7 @@ Command convert_from_qcir_cmd(
                 auto tensor = to_tensor(*qcir_mgr.get());
 
                 if (tensor.has_value()) {
+                    *tensor = tensor->to_matrix();
                     tensor_mgr.add(tensor_mgr.get_next_id());
                     tensor_mgr.set(std::make_unique<qsyn::tensor::QTensor<double>>(std::move(tensor.value())));
 

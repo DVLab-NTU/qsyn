@@ -16,6 +16,4 @@ qcir gate add y 0
 qcir gate add sy 1
 qcir gate add sdg 1
 qc2zx
-qcir read benchmark/qsim/circuits/circuit_q24 -r
-qc2zx
 quit -f

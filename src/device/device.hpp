@@ -10,16 +10,13 @@
 #include <fmt/core.h>
 
 #include <cstddef>
-#include <cstdint>
 #include <memory>
 #include <string>
 #include <unordered_map>
 
-#include "qcir/gate_type.hpp"
 #include "qsyn/qsyn_type.hpp"
 #include "util/ordered_hashmap.hpp"
 #include "util/ordered_hashset.hpp"
-#include "util/phase.hpp"
 
 namespace qsyn::qcir {
 class QCirGate;
@@ -56,24 +53,24 @@ public:
     Topology() {}
 
     std::string get_name() const { return _name; }
-    std::vector<qcir::GateType> const& get_gate_set() const { return _gate_set; }
+    auto get_gate_set() const { return _gate_set; }
     DeviceInfo const& get_adjacency_pair_info(size_t a, size_t b);
     DeviceInfo const& get_qubit_info(size_t a);
     size_t get_num_adjacencies() const { return _adjacency_info.size(); }
     void set_num_qubits(size_t n) { _num_qubit = n; }
     void set_name(std::string n) { _name = std::move(n); }
-    void add_gate_type(qcir::GateType gt) { _gate_set.emplace_back(gt); }
+    void add_gate_type(std::string const& gt) { _gate_set.emplace_back(gt); }
     void add_adjacency_info(size_t a, size_t b, DeviceInfo info);
     void add_qubit_info(size_t a, DeviceInfo info);
 
     void print_single_edge(size_t a, size_t b) const;
 
 private:
-    std::string _name                     = "";
-    size_t _num_qubit                     = 0;
-    std::vector<qcir::GateType> _gate_set = {};
-    PhysicalQubitInfo _qubit_info         = {};
-    AdjacencyMap _adjacency_info          = {};
+    std::string _name                  = "";
+    size_t _num_qubit                  = 0;
+    std::vector<std::string> _gate_set = {};
+    PhysicalQubitInfo _qubit_info      = {};
+    AdjacencyMap _adjacency_info       = {};
 };
 
 class PhysicalQubit {
@@ -176,9 +173,9 @@ private:
     bool _parse_info(std::ifstream& f, std::vector<std::vector<float>>& cx_error, std::vector<std::vector<float>>& cx_delay, std::vector<float>& single_error, std::vector<float>& single_delay);
 
     // NOTE - Containers and helper functions for Floyd-Warshall
-    int _max_dist = default_max_dist;
+    size_t _max_dist = default_max_dist;
     std::vector<std::vector<QubitIdType>> _predecessor;
-    std::vector<std::vector<int>> _distance;
+    std::vector<std::vector<size_t>> _distance;
     std::vector<std::vector<QubitIdType>> _adjacency_matrix;
     void _initialize_floyd_warshall();
     void _set_weight();

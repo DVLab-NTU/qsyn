@@ -23,9 +23,9 @@
 #include <tl/to.hpp>
 #include <tl/zip.hpp>
 
+#include "qcir/basic_gate_type.hpp"
 #include "qcir/oracle/xag.hpp"
 #include "qsyn/qsyn_type.hpp"
-#include "util/phase.hpp"
 
 namespace {
 
@@ -169,7 +169,7 @@ std::pair<std::map<XAGNodeID, XAGCut>, std::map<XAGNodeID, size_t>> k_lut_partit
             continue;
         }
 
-        optimal_costs[id] = INT_MAX;
+        optimal_costs[id] = SIZE_MAX;
         for (auto const& [cut, cost] : zip(id_to_cuts[id], id_to_costs[id])) {
             size_t const acc_cost = cost + std::accumulate(cut.begin(), cut.end(), 0, [&optimal_costs](size_t x, XAGNodeID y) { return x + optimal_costs[y]; });
             if (acc_cost < optimal_costs[id]) {
@@ -286,16 +286,16 @@ void LUT::_construct_lut_1() {
         auto tt = kitty::dynamic_truth_table(1);
         kitty::set_bit(tt, 0);
         auto qcir = QCir(2);
-        qcir.add_gate("x", {0}, {}, true);
-        qcir.add_gate("cx", {0, 1}, {}, true);
-        qcir.add_gate("x", {0}, {}, true);
+        qcir.append(qcir::XGate(), {0});
+        qcir.append(qcir::CXGate(), {0, 1});
+        qcir.append(qcir::XGate(), {0});
         _table[tt] = qcir;
     }
     {
         auto tt = kitty::dynamic_truth_table(1);
         kitty::set_bit(tt, 1);
         auto qcir = QCir(2);
-        qcir.add_gate("cx", {0, 1}, {}, true);
+        qcir.append(qcir::CXGate(), {0, 1});
         _table[tt] = qcir;
     }
     {
@@ -303,7 +303,7 @@ void LUT::_construct_lut_1() {
         kitty::set_bit(tt, 0);
         kitty::set_bit(tt, 1);
         auto qcir = QCir(2);
-        qcir.add_gate("x", {1}, {}, true);
+        qcir.append(qcir::XGate(), {1});
         _table[tt] = qcir;
     }
 }
@@ -314,9 +314,9 @@ void LUT::_construct_lut_2() {
         kitty::create_from_words(tt, &i, &i + 1);  // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
         auto qcir = QCir(3);
 
-        auto x   = [&qcir](auto const& target) { qcir.add_gate("x", {target}, {}, true); };
-        auto cx  = [&qcir](auto const& control, auto const& target) { qcir.add_gate("cx", {control, target}, {}, true); };
-        auto ccx = [&qcir](auto const& c1, auto const& c2, auto const& target) { qcir.add_gate("ccx", {c1, c2, target}, {}, true); };
+        auto x   = [&qcir](auto const& target) { qcir.append(XGate(), {target}); };
+        auto cx  = [&qcir](auto const& control, auto const& target) { qcir.append(CXGate(), {control, target}); };
+        auto ccx = [&qcir](auto const& c1, auto const& c2, auto const& target) { qcir.append(CCXGate(), {c1, c2, target}); };
 
         add_gates_2(i, x, cx, ccx);
 
@@ -330,11 +330,9 @@ void LUT::_construct_lut_3() {
         kitty::create_from_words(tt, &i, &i + 1);  // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
         auto qcir = QCir(4);
 
-        auto x   = [&qcir](auto const& target) { qcir.add_gate("cx", {0, target + 1}, {}, true); };
-        auto cx  = [&qcir](auto const& control, auto const& target) { qcir.add_gate("ccx", {0, control + 1, target + 1}, {}, true); };
-        auto ccx = [&qcir](auto const& c1, auto const& c2, auto const& target) {
-            qcir.add_gate("mcpx", {0, c1 + 1, c2 + 1, target + 1}, Phase(1), true);
-        };
+        auto x   = [&qcir](auto const& target) { qcir.append(CXGate(), {0, target + 1}); };
+        auto cx  = [&qcir](auto const& control, auto const& target) { qcir.append(CCXGate(), {0, control + 1, target + 1}); };
+        auto ccx = [&qcir](auto const& c1, auto const& c2, auto const& target) { qcir.append(ControlGate(XGate(), 3), {0, c1 + 1, c2 + 1, target + 1}); };
 
         // (a & b) ^ (!a & c)
 
@@ -350,10 +348,9 @@ void LUT::_construct_lut_3() {
                 }
             }
         }
-
-        qcir.add_gate("x", {0}, {}, true);
+        qcir.append(qcir::XGate(), {0});
         add_gates_2(i_00, x, cx, ccx);
-        qcir.add_gate("x", {0}, {}, true);
+        qcir.append(qcir::XGate(), {0});
         add_gates_2(i_01, x, cx, ccx);
 
         _table[tt] = qcir;

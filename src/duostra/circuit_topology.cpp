@@ -12,8 +12,6 @@
 
 #include <ranges>
 
-#include "qcir/gate_type.hpp"
-
 using namespace qsyn::qcir;
 
 namespace qsyn::duostra {

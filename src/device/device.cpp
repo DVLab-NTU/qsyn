@@ -11,19 +11,15 @@
 #include <fmt/std.h>
 #include <spdlog/spdlog.h>
 
+#include <algorithm>
 #include <cassert>
-#include <cmath>
-#include <cstdint>
-#include <cstdlib>
-#include <fstream>
 #include <gsl/narrow>
-#include <limits>
 #include <ranges>
 #include <string>
 #include <tl/to.hpp>
 #include <utility>
 
-#include "qcir/gate_type.hpp"
+#include "qcir/basic_gate_type.hpp"
 #include "qcir/qcir_gate.hpp"
 #include "qsyn/qsyn_type.hpp"
 #include "util/dvlab_string.hpp"
@@ -238,7 +234,7 @@ void Device::apply_gate(qcir::QCirGate const& op, size_t time_begin) {
         q0.set_occupied_time(time_begin + op.get_delay());
         q1.set_occupied_time(time_begin + op.get_delay());
     } else {
-        DVLAB_ASSERT(false, fmt::format("Unknown gate type ({}) at apply_gate()!!", op.get_type_str()));
+        DVLAB_ASSERT(false, fmt::format("Unknown gate type ({}) at apply_gate()!!", op.get_operation().get_repr()));
     }
 }
 
@@ -329,7 +325,7 @@ void Device::_initialize_floyd_warshall() {
         for (size_t j = 0; j < get_num_qubits(); j++) {
             _distance[i][j] = _adjacency_matrix[i][j];
             if (_distance[i][j] != 0 && _distance[i][j] != _max_dist) {
-                _predecessor[i][j] = _qubit_list[gsl::narrow<QubitIdType>(i)].get_id();
+                _predecessor[i][j] = _qubit_list[i].get_id();
             }
         }
     }
@@ -340,7 +336,7 @@ void Device::_initialize_floyd_warshall() {
     }
     spdlog::debug("Distance Matrix:");
     for (auto& row : _distance) {
-        spdlog::debug("{:5}", fmt::join(row | std::views::transform([this](int j) { return (j == _max_dist) ? std::string{"X"} : std::to_string(j); }), ""));
+        spdlog::debug("{:5}", fmt::join(row | std::views::transform([this](size_t j) { return (j == _max_dist) ? std::string{"X"} : std::to_string(j); }), ""));
     }
 }
 
@@ -352,7 +348,7 @@ void Device::_initialize_floyd_warshall() {
 void Device::_set_weight() {
     assert(_adjacency_matrix.size() == _num_qubit);
     for (size_t i = 0; i < _num_qubit; i++) {
-        for (auto const& adj : _qubit_list[gsl::narrow<QubitIdType>(i)].get_adjacencies()) {
+        for (auto const& adj : _qubit_list[i].get_adjacencies()) {
             _adjacency_matrix[i][adj] = 1;
         }
     }
@@ -384,7 +380,7 @@ void Device::floyd_warshall() {
         spdlog::debug("Distance Matrix:");
         for (auto& row : _distance) {
             spdlog::debug("{:5}", fmt::join(
-                                      row | std::views::transform([this](int j) { return (j == _max_dist) ? std::string{"X"} : std::to_string(j); }), ""));
+                                      row | std::views::transform([this](size_t j) { return (j == _max_dist) ? std::string{"X"} : std::to_string(j); }), ""));
         }
     }
 }
@@ -483,7 +479,7 @@ bool Device::read_device(std::string const& filename) {
     for (size_t i = 0; i < adj_list.size(); i++) {
         for (size_t j = 0; j < adj_list[i].size(); j++) {
             if (adj_list[i][j] > i) {
-                add_adjacency(gsl::narrow<QubitIdType>(i), gsl::narrow<QubitIdType>(adj_list[i][j]));
+                add_adjacency(i, adj_list[i][j]);
                 _topology->add_adjacency_info(i, adj_list[i][j], {._time = cx_delay[i][j], ._error = cx_err[i][j]});
             }
         }
@@ -514,13 +510,16 @@ bool Device::_parse_gate_set(std::string const& gate_set_str) {
     auto gate_set_view =
         dvlab::str::views::tokenize(data, ',') |
         std::views::transform([](auto const& str) { return dvlab::str::tolower_string(str); }) |
-        std::views::transform([&](auto const& str) {
-            auto gate_type = str_to_gate_type(str);
-            if (!gate_type.has_value()) {
-                spdlog::error("unsupported gate type \"{}\"!!", str);
-            };
-            _topology->add_gate_type(gate_type.value());
-            return gate_type;
+        std::views::transform([&](auto const& str) -> std::optional<std::string> {
+            if (auto op = qcir::str_to_operation(str); op.has_value()) {
+                _topology->add_gate_type(op->get_repr().substr(0, op->get_repr().find_first_of('(')));
+                return std::make_optional(op->get_type());
+            }
+            if (auto op = qcir::str_to_operation(str, {dvlab::Phase()}); op.has_value()) {
+                _topology->add_gate_type(op->get_repr().substr(0, op->get_repr().find_first_of('(')));
+                return std::make_optional(op->get_type());
+            }
+            return std::nullopt;
         });
 
     return std::ranges::all_of(gate_set_view, [](auto const& gate_type) { return gate_type.has_value(); });
@@ -729,7 +728,8 @@ void Device::print_edges(std::vector<size_t> candidates) const {
  */
 void Device::print_topology() const {
     fmt::println("Topology: {} ({} qubits, {} edges)", get_name(), _qubit_list.size(), _topology->get_num_adjacencies());
-    fmt::println("Gate Set: {}", fmt::join(_topology->get_gate_set() | std::views::transform([](GateType gtype) { return dvlab::str::toupper_string(gate_type_to_str(gtype)); }), ", "));
+    auto const tmp = _topology->get_gate_set();  // circumvents g++ 11.4 compiler bug
+    fmt::println("Gate Set: {}", fmt::join(tmp | std::views::transform([](std::string const& gtype) { return dvlab::str::toupper_string(gtype); }), ", "));
 }
 
 /**
@@ -750,7 +750,7 @@ void Device::print_predecessor() const {
 void Device::print_distance() const {
     fmt::println("Distance Matrix:");
     for (auto& row : _distance) {
-        fmt::println("{:5}", fmt::join(row | std::views::transform([this](int dist) { return (dist == _max_dist) ? "X" : std::to_string(dist); }), ""));
+        fmt::println("{:5}", fmt::join(row | std::views::transform([this](size_t dist) { return (dist == _max_dist) ? "X" : std::to_string(dist); }), ""));
     }
 }
 
@@ -789,7 +789,7 @@ void Device::print_path(QubitIdType src, QubitIdType dest) const {
 void Device::print_mapping() {
     fmt::println("----------Mapping---------");
     for (size_t i = 0; i < _num_qubit; i++) {
-        fmt::println("{:<5} : {}", i, _qubit_list[gsl::narrow<QubitIdType>(i)].get_logical_qubit());
+        fmt::println("{:<5} : {}", i, _qubit_list[i].get_logical_qubit());
     }
 }
 

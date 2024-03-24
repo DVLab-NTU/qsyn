@@ -27,11 +27,11 @@ void Optimizer::reset(QCir const& qcir) {
     _zs.clear();
     _swaps.clear();
     _statistics = {};
-    for (int i = 0; i < gsl::narrow<QubitIdType>(qcir.get_num_qubits()); i++) {
+    for (size_t i = 0; i < qcir.get_num_qubits(); i++) {
         _availty.emplace_back(false);
         _available.emplace(i, std::vector<QCirGate*>{});
         _gates.emplace(i, std::vector<QCirGate*>{});
-        _permutation[i] = qcir.get_qubits()[i]->get_id();
+        _permutation[i] = i;
     }
 }
 
@@ -108,13 +108,7 @@ void Optimizer::_swap_element(Optimizer::ElementType type, QubitIdType e1, Qubit
  * @return false
  */
 bool Optimizer::is_single_z_rotation(QCirGate* g) {
-    return g->get_type_str() == "rz" ||
-           g->get_type_str() == "p" ||
-           g->get_type_str() == "z" ||
-           g->get_type_str() == "s" ||
-           g->get_type_str() == "sdg" ||
-           g->get_type_str() == "t" ||
-           g->get_type_str() == "tdg";
+    return g->get_operation().is<PZGate>() || g->get_operation().is<RZGate>();
 }
 
 /**
@@ -142,7 +136,7 @@ bool Optimizer::is_single_x_rotation(QCirGate* g) {
  * @return false
  */
 bool Optimizer::is_cx_or_cz_gate(QCirGate* g) {
-    return g->get_num_qubits() == 2 && (g->get_operation() == CXGate{} || g->get_operation() == CZGate{});
+    return g->get_num_qubits() == 2 && (g->get_operation() == CXGate() || g->get_operation() == CZGate());
 }
 
 /**

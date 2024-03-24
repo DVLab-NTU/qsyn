@@ -8,15 +8,16 @@
 #include "./qcir_to_tableau.hpp"
 
 #include <gsl/narrow>
-#include <iterator>
 #include <ranges>
 #include <tl/adjacent.hpp>
 #include <tl/to.hpp>
+#include <unordered_map>
 #include <variant>
 
-#include "qcir/gate_type.hpp"
+#include "qcir/basic_gate_type.hpp"
 #include "qcir/qcir_gate.hpp"
 #include "qsyn/qsyn_type.hpp"
+#include "tableau/tableau.hpp"
 #include "util/phase.hpp"
 #include "util/util.hpp"
 
@@ -27,29 +28,6 @@ namespace experimental {
 namespace {
 
 #include <algorithm>
-
-Pauli to_pauli(qcir::GateRotationCategory const& category) {
-    switch (category) {
-        case qcir::GateRotationCategory::rz:
-        case qcir::GateRotationCategory::pz:
-            return Pauli::z;
-        case qcir::GateRotationCategory::rx:
-        case qcir::GateRotationCategory::px:
-            return Pauli::x;
-        case qcir::GateRotationCategory::ry:
-        case qcir::GateRotationCategory::py:
-            return Pauli::y;
-        default:
-            DVLAB_UNREACHABLE("Invalid rotation category");
-    }
-}
-
-bool is_r_type_rotation(qcir::GateRotationCategory const& category) {
-    return (
-        category == qcir::GateRotationCategory::rz ||
-        category == qcir::GateRotationCategory::rx ||
-        category == qcir::GateRotationCategory::ry);
-}
 
 template <std::ranges::range R, typename T>
 bool contains(R const& r, T const& value) {
@@ -104,15 +82,26 @@ std::vector<size_t> get_qubit_idx_vec(QubitIdList const& qubits) {
     return ret;
 }
 
-void implement_mcrz(Tableau& tableau, qcir::LegacyGateType const& gate, QubitIdList const& qubits, dvlab::Phase const& phase) {
+void implement_mcr(Tableau& tableau, QubitIdList const& qubits, dvlab::Phase const& ph, Pauli pauli) {
     if (std::holds_alternative<StabilizerTableau>(tableau.back())) {
         tableau.push_back(std::vector<PauliRotation>{});
+    }
+
+    dvlab::Phase const phase =
+        ph *
+        dvlab::Rational(1, static_cast<int>(std::pow(2, gsl::narrow<double>(qubits.size()) - 1)));
+
+    auto const targ = qubits.back();
+    // convert rotation plane first
+    if (pauli == Pauli::x) {
+        tableau.h(targ);
+    } else if (pauli == Pauli::y) {
+        tableau.v(targ);
     }
     // guaranteed to be a vector of PauliRotation
     auto& last_rotation_group = std::get<std::vector<PauliRotation>>(tableau.back());
 
-    auto const targ = gsl::narrow<size_t>(qubits.back());
-    for (auto const comb_size : std::views::iota(0ul, gate.get_num_qubits())) {
+    for (auto const comb_size : std::views::iota(0ul, qubits.size())) {
         bool const is_neg  = comb_size % 2;
         auto qubit_idx_vec = get_qubit_idx_vec(qubits);
         do {  // NOLINT(cppcoreguidelines-avoid-do-while)
@@ -126,16 +115,34 @@ void implement_mcrz(Tableau& tableau, qcir::LegacyGateType const& gate, QubitIdL
             last_rotation_group.push_back(PauliRotation(pauli_range.begin(), pauli_range.end(), is_neg ? -phase : phase));
         } while (next_combination(qubit_idx_vec, comb_size));
     }
+    // restore rotation plane
+    if (pauli == Pauli::x) {
+        tableau.h(targ);
+    } else if (pauli == Pauli::y) {
+        tableau.vdg(targ);
+    }
 }
 
-void implement_mcpz(Tableau& tableau, qcir::LegacyGateType const& gate, QubitIdList const& qubits, dvlab::Phase const& phase) {
+void implement_mcp(Tableau& tableau, QubitIdList const& qubits, dvlab::Phase const& ph, Pauli pauli) {
     if (std::holds_alternative<StabilizerTableau>(tableau.back())) {
         tableau.push_back(std::vector<PauliRotation>{});
+    }
+
+    dvlab::Phase const phase =
+        ph *
+        dvlab::Rational(1, static_cast<int>(std::pow(2, gsl::narrow<double>(qubits.size()) - 1)));
+
+    auto const targ = qubits.back();
+    // convert rotation plane first
+    if (pauli == Pauli::x) {
+        tableau.h(targ);
+    } else if (pauli == Pauli::y) {
+        tableau.v(targ);
     }
     // guaranteed to be a vector of PauliRotation
     auto& last_rotation_group = std::get<std::vector<PauliRotation>>(tableau.back());
 
-    for (auto const comb_size : std::views::iota(1ul, gate.get_num_qubits() + 1)) {
+    for (auto const comb_size : std::views::iota(1ul, qubits.size() + 1)) {
         bool const is_neg  = (comb_size - 1) % 2;
         auto qubit_idx_vec = get_qubit_idx_vec(qubits);
         do {  // NOLINT(cppcoreguidelines-avoid-do-while)
@@ -148,29 +155,6 @@ void implement_mcpz(Tableau& tableau, qcir::LegacyGateType const& gate, QubitIdL
             last_rotation_group.push_back(PauliRotation(pauli_range.begin(), pauli_range.end(), is_neg ? -phase : phase));
         } while (next_combination(qubit_idx_vec, comb_size));
     }
-}
-
-void implement_rotation_gate(Tableau& tableau, qcir::LegacyGateType const& gate, QubitIdList const& qubits) {
-    auto const pauli = to_pauli(gate.get_rotation_category());
-
-    auto const targ = gsl::narrow<size_t>(qubits.back());
-    // convert rotation plane first
-    if (pauli == Pauli::x) {
-        tableau.h(targ);
-    } else if (pauli == Pauli::y) {
-        tableau.v(targ);
-    }
-
-    dvlab::Phase const phase =
-        gate.get_phase() *
-        dvlab::Rational(1, static_cast<int>(std::pow(2, gsl::narrow<double>(gate.get_num_qubits()) - 1)));
-    // implement rotation in Z plane
-    if (is_r_type_rotation(gate.get_rotation_category())) {
-        implement_mcrz(tableau, gate, qubits, phase);
-    } else {
-        implement_mcpz(tableau, gate, qubits, phase);
-    }
-
     // restore rotation plane
     if (pauli == Pauli::x) {
         tableau.h(targ);
@@ -184,35 +168,170 @@ void implement_rotation_gate(Tableau& tableau, qcir::LegacyGateType const& gate,
 }  // namespace experimental
 
 template <>
-bool append_to_tableau(qcir::LegacyGateType const& op, experimental::Tableau& tableau, QubitIdList const& qubits) {
-    if (op.get_type() == "h") {
-        tableau.h(qubits[0]);
-    } else if (op.get_type() == "s") {
-        tableau.s(qubits[0]);
-    } else if (op.get_type() == "sdg") {
-        tableau.sdg(qubits[0]);
-    } else if (op.get_type() == "v") {
-        tableau.v(qubits[0]);
-    } else if (op.get_type() == "vdg") {
-        tableau.vdg(qubits[0]);
-    } else if (op.get_type() == "x") {
-        tableau.x(qubits[0]);
-    } else if (op.get_type() == "y") {
-        tableau.y(qubits[0]);
-    } else if (op.get_type() == "z") {
+bool append_to_tableau(qcir::IdGate const& /* op*/, experimental::Tableau& /* tableau */, QubitIdList const& /* qubits */) {
+    return true;
+}
+
+template <>
+bool append_to_tableau(qcir::HGate const& /* op */, experimental::Tableau& tableau, QubitIdList const& qubits) {
+    tableau.h(qubits[0]);
+    return true;
+}
+
+template <>
+bool append_to_tableau(qcir::SwapGate const& /* op */, experimental::Tableau& tableau, QubitIdList const& qubits) {
+    tableau.swap(qubits[0], qubits[1]);
+    return true;
+}
+
+template <>
+bool append_to_tableau(qcir::ECRGate const& /* op */, experimental::Tableau& tableau, QubitIdList const& qubits) {
+    tableau.ecr(qubits[0], qubits[1]);
+    return true;
+}
+
+template <>
+bool append_to_tableau(qcir::PZGate const& op, experimental::Tableau& tableau, QubitIdList const& qubits) {
+    if (op.get_phase() == dvlab::Phase(1)) {
         tableau.z(qubits[0]);
-    } else if (op.get_type() == "cx") {
-        tableau.cx(qubits[0], qubits[1]);
-    } else if (op.get_type() == "cz") {
-        tableau.cz(qubits[0], qubits[1]);
-    } else if (op.get_type() == "swap") {
-        tableau.swap(qubits[0], qubits[1]);
-    } else if (op.get_type() == "ecr") {
-        tableau.ecr(qubits[0], qubits[1]);
+    } else if (op.get_phase() == dvlab::Phase(1, 2)) {
+        tableau.s(qubits[0]);
+    } else if (op.get_phase() == dvlab::Phase(-1, 2)) {
+        tableau.sdg(qubits[0]);
     } else {
-        experimental::implement_rotation_gate(tableau, op, qubits);
+        experimental::implement_mcp(tableau, qubits, op.get_phase(), experimental::Pauli::z);
+    }
+
+    return true;
+}
+
+template <>
+bool append_to_tableau(qcir::PXGate const& op, experimental::Tableau& tableau, QubitIdList const& qubits) {
+    if (op.get_phase() == dvlab::Phase(1)) {
+        tableau.x(qubits[0]);
+    } else if (op.get_phase() == dvlab::Phase(1, 2)) {
+        tableau.v(qubits[0]);
+    } else if (op.get_phase() == dvlab::Phase(-1, 2)) {
+        tableau.vdg(qubits[0]);
+    } else {
+        experimental::implement_mcp(tableau, qubits, op.get_phase(), experimental::Pauli::x);
+    }
+
+    return true;
+}
+
+template <>
+bool append_to_tableau(qcir::PYGate const& op, experimental::Tableau& tableau, QubitIdList const& qubits) {
+    if (op.get_phase() == dvlab::Phase(1)) {
+        tableau.y(qubits[0]);
+    } else if (op.get_phase() == dvlab::Phase(1, 2)) {
+        tableau.sdg(qubits[0]);
+        tableau.v(qubits[0]);
+        tableau.s(qubits[0]);
+    } else if (op.get_phase() == dvlab::Phase(-1, 2)) {
+        tableau.sdg(qubits[0]);
+        tableau.vdg(qubits[0]);
+        tableau.s(qubits[0]);
+    } else {
+        experimental::implement_mcp(tableau, qubits, op.get_phase(), experimental::Pauli::y);
+    }
+
+    return true;
+}
+
+template <>
+bool append_to_tableau(qcir::RZGate const& op, experimental::Tableau& tableau, QubitIdList const& qubits) {
+    if (op.get_phase() == dvlab::Phase(1)) {
+        tableau.z(qubits[0]);
+    } else if (op.get_phase() == dvlab::Phase(1, 2)) {
+        tableau.s(qubits[0]);
+    } else if (op.get_phase() == dvlab::Phase(-1, 2)) {
+        tableau.sdg(qubits[0]);
+    } else {
+        experimental::implement_mcr(tableau, qubits, op.get_phase(), experimental::Pauli::z);
     }
     return true;
+}
+
+template <>
+bool append_to_tableau(qcir::RXGate const& op, experimental::Tableau& tableau, QubitIdList const& qubits) {
+    if (op.get_phase() == dvlab::Phase(1)) {
+        tableau.x(qubits[0]);
+    } else if (op.get_phase() == dvlab::Phase(1, 2)) {
+        tableau.v(qubits[0]);
+    } else if (op.get_phase() == dvlab::Phase(-1, 2)) {
+        tableau.vdg(qubits[0]);
+    } else {
+        experimental::implement_mcr(tableau, qubits, op.get_phase(), experimental::Pauli::x);
+    }
+    return true;
+}
+
+template <>
+bool append_to_tableau(qcir::RYGate const& op, experimental::Tableau& tableau, QubitIdList const& qubits) {
+    if (op.get_phase() == dvlab::Phase(1)) {
+        tableau.y(qubits[0]);
+    } else if (op.get_phase() == dvlab::Phase(1, 2)) {
+        tableau.sdg(qubits[0]);
+        tableau.v(qubits[0]);
+        tableau.s(qubits[0]);
+    } else if (op.get_phase() == dvlab::Phase(-1, 2)) {
+        tableau.sdg(qubits[0]);
+        tableau.vdg(qubits[0]);
+        tableau.s(qubits[0]);
+    } else {
+        experimental::implement_mcr(tableau, qubits, op.get_phase(), experimental::Pauli::y);
+    }
+    return true;
+}
+
+template <>
+bool append_to_tableau(qcir::ControlGate const& op, experimental::Tableau& tableau, QubitIdList const& qubits) {
+    if (auto target_op = op.get_target_operation().get_underlying_if<qcir::PXGate>()) {
+        if (op.get_num_qubits() == 2 && target_op->get_phase() == dvlab::Phase(1)) {
+            tableau.cx(qubits[0], qubits[1]);
+        } else {
+            experimental::implement_mcp(tableau, qubits, target_op->get_phase(), experimental::Pauli::x);
+        }
+        return true;
+    }
+
+    if (auto target_op = op.get_target_operation().get_underlying_if<qcir::PYGate>()) {
+        if (op.get_num_qubits() == 2 && target_op->get_phase() == dvlab::Phase(1)) {
+            tableau.sdg(qubits[1]);
+            tableau.cx(qubits[0], qubits[1]);
+            tableau.s(qubits[1]);
+        } else {
+            experimental::implement_mcp(tableau, qubits, target_op->get_phase(), experimental::Pauli::y);
+        }
+        return true;
+    }
+
+    if (auto target_op = op.get_target_operation().get_underlying_if<qcir::PZGate>()) {
+        if (op.get_num_qubits() == 2 && target_op->get_phase() == dvlab::Phase(1)) {
+            tableau.cz(qubits[0], qubits[1]);
+        } else {
+            experimental::implement_mcp(tableau, qubits, target_op->get_phase(), experimental::Pauli::z);
+        }
+        return true;
+    }
+
+    if (auto target_op = op.get_target_operation().get_underlying_if<qcir::RXGate>()) {
+        experimental::implement_mcr(tableau, qubits, target_op->get_phase(), experimental::Pauli::x);
+        return true;
+    }
+
+    if (auto target_op = op.get_target_operation().get_underlying_if<qcir::RYGate>()) {
+        experimental::implement_mcr(tableau, qubits, target_op->get_phase(), experimental::Pauli::y);
+        return true;
+    }
+
+    if (auto target_op = op.get_target_operation().get_underlying_if<qcir::RZGate>()) {
+        experimental::implement_mcr(tableau, qubits, target_op->get_phase(), experimental::Pauli::z);
+        return true;
+    }
+
+    return false;
 }
 
 namespace experimental {
@@ -231,5 +350,24 @@ std::optional<Tableau> to_tableau(qcir::QCir const& qcir) {
 }
 
 }  // namespace experimental
+
+template <>
+bool append_to_tableau(qcir::QCir const& qcir, experimental::Tableau& tableau, QubitIdList const& qubits) {
+    auto qubit_map = std::unordered_map<QubitIdType, QubitIdType>();
+
+    for (size_t i = 0; i < qcir.get_num_qubits(); ++i) {
+        qubit_map[i] = qubits[i];
+    }
+
+    for (auto const& gate : qcir.get_gates()) {
+        auto const gate_qubits = gate->get_qubits();
+        if (!append_to_tableau(gate->get_operation(), tableau, gate_qubits | std::views::transform([&qubit_map](auto q) { return qubit_map[q]; }) | tl::to<QubitIdList>())) {
+            spdlog::error("Gate type {} is not supported!!", gate->get_operation().get_type());
+            return false;
+        }
+    }
+
+    return true;
+}
 
 }  // namespace qsyn

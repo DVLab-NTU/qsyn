@@ -12,7 +12,7 @@
 
 #include "./placer.hpp"
 #include "duostra/mapping_eqv_checker.hpp"
-#include "qcir/gate_type.hpp"
+#include "qcir/basic_gate_type.hpp"
 #include "qcir/qcir.hpp"
 #include "qsyn/qsyn_type.hpp"
 
@@ -137,14 +137,14 @@ void Duostra::build_circuit_by_result() {
         if (qubits[1] != max_qubit_id) {
             qu.emplace_back(qubits[1]);
         }
-        if (operation.get_operation() == SwapGate{}) {
+        if (operation.get_operation().is<SwapGate>()) {
             // NOTE - Decompose SWAP into three CX
             QubitIdList qu_reverse;
             qu_reverse.emplace_back(qubits[1]);
             qu_reverse.emplace_back(qubits[0]);
-            _physical_circuit->append(LegacyGateType(std::make_tuple(GateRotationCategory::px, 2, Phase(1))), qu);
-            _physical_circuit->append(LegacyGateType(std::make_tuple(GateRotationCategory::px, 2, Phase(1))), qu_reverse);
-            _physical_circuit->append(LegacyGateType(std::make_tuple(GateRotationCategory::px, 2, Phase(1))), qu);
+            _physical_circuit->append(CXGate(), qu);
+            _physical_circuit->append(CXGate(), qu_reverse);
+            _physical_circuit->append(CXGate(), qu);
         } else {
             _physical_circuit->append(operation.get_operation(), qu);
         }

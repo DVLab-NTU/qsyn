@@ -11,8 +11,7 @@
 #include <algorithm>
 #include <cassert>
 
-#include "./duostra.hpp"
-#include "qcir/gate_type.hpp"
+#include "qcir/basic_gate_type.hpp"
 #include "util/util.hpp"
 
 extern bool stop_requested();

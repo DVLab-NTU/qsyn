@@ -9,10 +9,6 @@
 
 #include <spdlog/spdlog.h>
 
-#include <cstddef>
-
-#include "qsyn/qsyn_type.hpp"
-
 namespace qsyn::qcir {
 
 class QCirGate;
@@ -23,21 +19,15 @@ class QCirGate;
 
 class QCirQubit {
 public:
-    using QubitIdType = qsyn::QubitIdType;
-    QCirQubit(QubitIdType id) : _id(id) {}
-
     // Basic access method
-    void set_id(QubitIdType id) { _id = id; }
-    void set_last(QCirGate* l) { _bit_last = l; }
-    void set_first(QCirGate* f) { _bit_first = f; }
-    QubitIdType get_id() const { return _id; }
-    QCirGate* get_last() const { return _bit_last; }
-    QCirGate* get_first() const { return _bit_first; }
+    void set_last_gate(QCirGate* l) { _last_gate = l; }
+    void set_first_gate(QCirGate* f) { _first_gate = f; }
+    QCirGate* get_last_gate() const { return _last_gate; }
+    QCirGate* get_first_gate() const { return _first_gate; }
 
 private:
-    QubitIdType _id;
-    QCirGate* _bit_last  = nullptr;
-    QCirGate* _bit_first = nullptr;
+    QCirGate* _last_gate  = nullptr;
+    QCirGate* _first_gate = nullptr;
 };
 
 }  // namespace qsyn::qcir

@@ -446,10 +446,10 @@ QTensor<T> QTensor<T>::to_matrix() {
 
     return this->to_matrix(
         std::views::iota(0ul, n_qubits) |
-            std::views::transform([](auto i) { return 2 * i + 1; }) |
+            std::views::transform([](auto i) { return 2 * i; }) |
             tl::to<std::vector>(),
         std::views::iota(0ul, n_qubits) |
-            std::views::transform([](auto i) { return 2 * i; }) |
+            std::views::transform([](auto i) { return 2 * i + 1; }) |
             tl::to<std::vector>());
 }
 
