@@ -369,8 +369,8 @@ bool Extractor::remove_gadget(bool check) {
     }
 
     _graph->print_graph(spdlog::level::level_enum::trace);
-    print_frontier(spdlog::level::level_enum::debug);
-    print_axels(spdlog::level::level_enum::debug);
+    print_frontier(spdlog::level::level_enum::trace);
+    print_axels(spdlog::level::level_enum::trace);
 
     bool removed_some_gadgets = false;
     for (auto& n : _neighbors) {
@@ -404,8 +404,8 @@ bool Extractor::remove_gadget(bool check) {
         }
     }
     _graph->print_vertices(spdlog::level::level_enum::trace);
-    print_frontier(spdlog::level::level_enum::debug);
-    print_axels(spdlog::level::level_enum::debug);
+    print_frontier(spdlog::level::level_enum::trace);
+    print_axels(spdlog::level::level_enum::trace);
 
     return removed_some_gadgets;
 }
@@ -612,8 +612,8 @@ bool Extractor::biadjacency_eliminations(bool check) {
         }
     }
 
-    if (OPTIMIZE_LEVEL != 2) {
-        // NOTE - opt = 0, 1 or 3
+    if (OPTIMIZE_LEVEL != 2 || greedy_opers.empty()) {
+        // NOTE - opt = 0, 1, 3 or when 2 cannot find the result
         column_optimal_swap();
         update_matrix();
 
@@ -621,7 +621,7 @@ bool Extractor::biadjacency_eliminations(bool check) {
             _biadjacency.gaussian_elimination_skip(BLOCK_SIZE, true, true);
             if (FILTER_DUPLICATE_CXS) _filter_duplicate_cxs();
             _cnots = _biadjacency.get_row_operations();
-        } else if (OPTIMIZE_LEVEL == 1 || OPTIMIZE_LEVEL == 3) {
+        } else if (OPTIMIZE_LEVEL == 1 || OPTIMIZE_LEVEL == 3 || greedy_opers.empty()) {
             auto min_cnots = SIZE_MAX;
             dvlab::BooleanMatrix best_matrix;
             for (size_t blk = 1; blk < _biadjacency.num_cols(); blk++) {
@@ -877,6 +877,7 @@ bool Extractor::contains_single_neighbor() {
  *
  */
 void Extractor::print_frontier(spdlog::level::level_enum lvl) const {
+    if (!spdlog::should_log(lvl)) return;
     spdlog::log(lvl, "Frontier:");
     for (auto& f : _frontier)
         spdlog::log(lvl, "Qubit {}: {}", f->get_qubit(), f->get_id());
@@ -888,6 +889,7 @@ void Extractor::print_frontier(spdlog::level::level_enum lvl) const {
  *
  */
 void Extractor::print_neighbors(spdlog::level::level_enum lvl) const {
+    if (!spdlog::should_log(lvl)) return;
     spdlog::log(lvl, "Neighbors:");
     for (auto& n : _neighbors)
         spdlog::log(lvl, "{}", n->get_id());
@@ -899,6 +901,7 @@ void Extractor::print_neighbors(spdlog::level::level_enum lvl) const {
  *
  */
 void Extractor::print_axels(spdlog::level::level_enum lvl) const {
+    if (!spdlog::should_log(lvl)) return;
     spdlog::log(lvl, "Axels:");
     for (auto& n : _axels) {
         spdlog::log(lvl,
