@@ -5,6 +5,8 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
+#include <spdlog/spdlog.h>
+
 #include <cstdlib>
 #include <ranges>
 #include <string>
@@ -111,6 +113,8 @@ void QCir::print_qcir() const {
  * @brief Print Qubits
  */
 void QCir::print_circuit_diagram(spdlog::level::level_enum lvl) const {
+    if (!spdlog::should_log(lvl)) return;
+
     auto const times = calculate_gate_times();
 
     for (auto const& [i, qubit] : tl::views::enumerate(_qubits)) {

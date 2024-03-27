@@ -44,8 +44,10 @@ std::vector<size_t> Extractor::find_minimal_sums(dvlab::BooleanMatrix& matrix) {
                 new_row_track_pairs.emplace_back(result, new_row);
                 iterations++;
             }
-            if (iterations > 100000)
+            if (iterations > 100000) {
+                spdlog::debug("Fallback to level 1");
                 return {};
+            }
         }
         if (new_row_track_pairs.empty())
             return {};
