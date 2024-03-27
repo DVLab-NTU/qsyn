@@ -27,6 +27,7 @@ namespace zx {
  *
  */
 void ZXGraph::print_graph(spdlog::level::level_enum lvl) const {
+    if (!spdlog::should_log(lvl)) return;
     spdlog::log(lvl, "Graph ({} inputs, {} outputs, {} vertices, {} edges)", get_num_inputs(), get_num_outputs(), get_num_vertices(), get_num_edges());
 }
 
@@ -78,6 +79,7 @@ void ZXGraph::print_io() const {
  *
  */
 void ZXGraph::print_vertices(spdlog::level::level_enum lvl) const {
+    if (!spdlog::should_log(lvl)) return;
     spdlog::log(lvl, "");
     std::ranges::for_each(_vertices, [&lvl](ZXVertex* v) { v->print_vertex(lvl); });
     spdlog::log(lvl, "Total #Vertices: {}", get_num_vertices());
@@ -105,6 +107,7 @@ void ZXGraph::print_vertices(std::vector<size_t> cand) const {
  * @param cand
  */
 void ZXGraph::print_vertices_by_rows(spdlog::level::level_enum lvl, std::vector<float> const& cand) const {
+    if (!spdlog::should_log(lvl)) return;
     std::map<float, std::vector<ZXVertex*>> q2_vmap;
     for (auto const& v : _vertices) {
         if (!q2_vmap.contains(v->get_row())) {

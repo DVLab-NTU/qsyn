@@ -8,6 +8,7 @@
 #include "./input.hpp"
 
 #include <base/abc/abc.h>
+#include <base/io/ioAbc.h>
 #include <base/main/mainInt.h>
 #include <fmt/format.h>
 
@@ -43,18 +44,34 @@ Abc_Ntk_t* truth_table_to_ntk(std::istream& input, bool hex) {
     }
 
     // Abc_NtkCreateWithNodes will fail if s_GlobalFrame is not set
-    s_GlobalFrame    = Abc_FrameGetGlobalFrame();
-    Abc_Ntk_t* p_ntk = Abc_NtkCreateWithNodes(v_sops);
+    s_GlobalFrame  = Abc_FrameGetGlobalFrame();
+    Abc_Ntk_t* ntk = Abc_NtkCreateWithNodes(v_sops);
     Vec_PtrFreeFree(v_sops);
 
-    int const f_all_nodes = 0;
-    int const f_cleanup   = 0;
-    int const f_record    = 0;
-    Abc_Ntk_t* ntk        = Abc_NtkStrash(p_ntk, f_all_nodes, f_cleanup, f_record);
+    int const f_all_nodes   = 0;
+    int const f_cleanup     = 0;
+    int const f_record      = 0;
+    Abc_Ntk_t* strashed_ntk = Abc_NtkStrash(ntk, f_all_nodes, f_cleanup, f_record);
 
-    Abc_NtkDelete(p_ntk);
-    ntk = abc_resyn(ntk, true);
-    return ntk;
+    Abc_NtkDelete(ntk);
+    return strashed_ntk;
+}
+
+Abc_Ntk_t* read_to_ntk(std::string file_name) {
+    // bool f_check   = true;
+    // bool f_bar_buf = false;
+    auto file_type = Io_ReadFileType(file_name.data());
+    // Io_Read will fail if s_GlobalFrame is not set
+    s_GlobalFrame  = Abc_FrameGetGlobalFrame();
+    Abc_Ntk_t* ntk = Io_Read(file_name.data(), file_type, 1, 0);
+
+    int const f_all_nodes   = 0;
+    int const f_cleanup     = 0;
+    int const f_record      = 0;
+    Abc_Ntk_t* strashed_ntk = Abc_NtkStrash(ntk, f_all_nodes, f_cleanup, f_record);
+
+    Abc_NtkDelete(ntk);
+    return strashed_ntk;
 }
 
 Abc_Ntk_t* abc_resyn(Abc_Ntk_t* p_ntk, bool consider_xor) {
