@@ -55,12 +55,34 @@ Command qcir_oracle_cmd(QCirMgr& qcir_mgr) {
                 .constraint(path_readable)
                 .help("path to the input truth table file");
 
+            mutex.add_argument<std::string>("-f", "--file")
+                .constraint(path_readable)
+                .constraint(allowed_extension({
+                    ".aig",
+                    ".baf",
+                    ".bblif",
+                    ".blif",
+                    ".bench",
+                    ".cnf",
+                    ".dot",
+                    ".edif",
+                    ".eqn",
+                    ".gml",
+                    ".list",
+                    ".mv",
+                    ".pla",
+                    ".smv",
+                    ".v",
+                }))
+                .help("path to the input file, supported formats: aig, baf, bblif, blif, bench, cnf, dot, edif, eqn, gml, list, mv, pla, smv, v");
+
             parser.add_argument<bool>("-x")
                 .action(store_true)
                 .default_value(false)
                 .help("use hex format for the truth table");
 
             parser.add_argument<std::string>("truth_table")
+                .required(false)
                 .help("truth table as a string");
         },
         [&](ArgumentParser const& parser) {
@@ -71,21 +93,26 @@ Command qcir_oracle_cmd(QCirMgr& qcir_mgr) {
             if (parser.parsed("--xag")) {
                 std::ifstream ifs(parser.get<std::string>("--xag"));
                 xag = from_xaag(ifs);
-            } else if (parser.parsed("--tt")) {
-                std::ifstream ifs(parser.get<std::string>("--tt"));
-                bool const hex = parser.get<bool>("-x");
-                auto ntk       = truth_table_to_ntk(ifs, hex);
-                xag            = from_abc_ntk(ntk);
-            } else if (parser.parsed("truth_table")) {
-                auto input_string = parser.get<std::string>("truth_table");
-                std::istringstream input_stream(input_string);
-                auto ntk = truth_table_to_ntk(input_stream);
-                xag      = from_abc_ntk(ntk);
             } else {
-                spdlog::error("No input file or truth table is provided");
-                return CmdExecResult::error;
+                Abc_Ntk_t* ntk{};
+                if (parser.parsed("--file")) {
+                    auto file_name = parser.get<std::string>("--file");
+                    ntk            = read_to_ntk(file_name);
+                } else if (parser.parsed("--tt")) {
+                    std::ifstream ifs(parser.get<std::string>("--tt"));
+                    bool const hex = parser.get<bool>("-x");
+                    ntk            = truth_table_to_ntk(ifs, hex);
+                } else if (parser.parsed("truth_table")) {
+                    auto input_string = parser.get<std::string>("truth_table");
+                    std::istringstream input_stream(input_string);
+                    ntk = truth_table_to_ntk(input_stream);
+                } else {
+                    spdlog::error("No input file or truth table is provided");
+                    return CmdExecResult::error;
+                }
+                ntk = abc_resyn(ntk, true);
+                xag = from_abc_ntk(ntk);
             }
-
             std::optional<QCir> qcir = synthesize_boolean_oracle(xag, n_ancilla, k);
             if (qcir.has_value()) {
                 qcir_mgr.add(qcir_mgr.get_next_id(), std::make_unique<QCir>(std::move(qcir.value())));
