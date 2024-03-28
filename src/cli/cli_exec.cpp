@@ -28,7 +28,7 @@ CmdExecResult CommandLineInterface::start_interactive() {
         status = this->execute_one_line(std::cin, true);
     }
 
-    return get_last_return_code();
+    return get_last_return_status();
 }
 
 /**

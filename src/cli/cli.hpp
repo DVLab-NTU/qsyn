@@ -41,13 +41,31 @@ struct HeterogenousStringHash {
 class CommandLineInterface;
 
 // intentionally not using enum class because it is used as the return value of main
-enum CmdExecResult : int {
-    done          = EXIT_SUCCESS,
-    error         = EXIT_FAILURE,
-    cmd_not_found = 127,
-    interrupted   = 130,
-    quit          = 131
+enum class CmdExecResult {
+    done,
+    error,
+    cmd_not_found,
+    interrupted,
+    quit
 };
+
+constexpr int get_exit_code(CmdExecResult result) {
+    switch (result) {
+        case CmdExecResult::done:
+            return EXIT_SUCCESS;
+        case CmdExecResult::error:
+            return EXIT_FAILURE;
+        case CmdExecResult::cmd_not_found:
+            return 127;
+        case CmdExecResult::interrupted:
+            return 130;
+        case CmdExecResult::quit:
+            return EXIT_SUCCESS;
+        default:
+            return EXIT_FAILURE;
+    }
+}
+
 namespace detail {
 
 inline void beep() {
@@ -167,7 +185,7 @@ public:
     std::string get_first_token(std::string_view str) const;
     std::string get_last_token(std::string_view str) const;
 
-    CmdExecResult get_last_return_code() const { return _history.empty() ? CmdExecResult::done : _history.back().status; }
+    CmdExecResult get_last_return_status() const;
 
 private:
     enum class TabActionResult {
