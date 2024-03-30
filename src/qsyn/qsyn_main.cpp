@@ -89,22 +89,16 @@ int main(int argc, char** argv) {
             cli.add_variable(std::to_string(i + 1), arg);
         }
 
-        auto const result = cli.execute_one_line(cmd_stream, !quiet);
-
-        if (result == dvlab::CmdExecResult::quit) {
-            return cli.get_last_return_code();
-        }
+        cli.execute_one_line(cmd_stream, !quiet);
+        return dvlab::get_exit_code(cli.get_last_return_status());
     }
 
     if (parser.parsed("--file")) {
         auto args = parser.get<std::vector<std::string>>("--file");
 
-        auto const result = cli.source_dofile(args[0], std::ranges::subrange(args.begin() + 1, args.end()), !quiet);
-
-        if (result == dvlab::CmdExecResult::quit) {
-            return cli.get_last_return_code();
-        }
+        cli.source_dofile(args[0], std::ranges::subrange(args.begin() + 1, args.end()), !quiet);
+        return dvlab::get_exit_code(cli.get_last_return_status());
     }
 
-    return cli.start_interactive();
+    return dvlab::get_exit_code(cli.start_interactive());
 }
