@@ -185,20 +185,31 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr) {
             methods.add_parser("collapse")
                 .description("Collapse the tableau into a canonical form");
 
+            methods.add_parser("properize")
+                .description("Make every rotation in the tableau has a phase between [0, π/2)");
+
             methods.add_parser("tmerge")
                 .description("Merge rotations of the same rotation plane");
 
             methods.add_parser("hopt")
                 .description("Minimize the number of Hadamard gates and internal Hadamard gates in the tableau");
 
-            auto matpar = methods.add_parser("matpar")
-                              .description("partition the Pauli rotations into simultaneously-implementable tableaux. This option requires all Pauli rotations to be diagonal");
+            auto phasepoly_parser = methods.add_parser("phasepoly")
+                                        .description("Reduce the number of terms for phase polynomials in the Tableau");
 
-            matpar.add_argument<size_t>("-a", "--ancillae")
+            phasepoly_parser.add_argument<std::string>("strategy")
+                .default_value("todd")
+                .constraint(choices_allow_prefix({"todd"}))
+                .help("Phase polynomial optimization strategy");
+
+            auto matpar_parser = methods.add_parser("matpar")
+                                     .description("partition the Pauli rotations into simultaneously-implementable tableaux. This option requires all Pauli rotations to be diagonal");
+
+            matpar_parser.add_argument<size_t>("-a", "--ancillae")
                 .default_value(0)
                 .help("The number of ancillae to be used in the partitioning");
 
-            matpar.add_argument<std::string>("strategy")
+            matpar_parser.add_argument<std::string>("strategy")
                 .default_value("naive")
                 .constraint(choices_allow_prefix({"naive"}))
                 .help("Matroid partitioning strategy");
@@ -212,18 +223,24 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr) {
 
             enum struct OptimizationMethod {
                 collapse,
+                properize,
                 t_merge,
                 internal_h_opt,
+                phase_polynomial_optimization,
                 matroid_partition
             };
 
             auto method = std::invoke([&]() -> std::optional<OptimizationMethod> {
                 if (dvlab::str::is_prefix_of(method_str, "collapse")) {
                     return OptimizationMethod::collapse;
+                } else if (dvlab::str::is_prefix_of(method_str, "properize")) {
+                    return OptimizationMethod::properize;
                 } else if (dvlab::str::is_prefix_of(method_str, "tmerge")) {
                     return OptimizationMethod::t_merge;
                 } else if (dvlab::str::is_prefix_of(method_str, "hopt")) {
                     return OptimizationMethod::internal_h_opt;
+                } else if (dvlab::str::is_prefix_of(method_str, "phasepoly")) {
+                    return OptimizationMethod::phase_polynomial_optimization;
                 } else if (dvlab::str::is_prefix_of(method_str, "matpar")) {
                     return OptimizationMethod::matroid_partition;
                 }
@@ -235,10 +252,47 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr) {
                 return dvlab::CmdExecResult::error;
             }
 
+            auto const do_phase_polynomial_optimization = [&]() {
+                return true;
+                auto const phasepoly_strategy_str = parser.get<std::string>("strategy");
+
+                auto const phasepoly_strategy = std::invoke([&]() -> std::unique_ptr<PhasePolynomialOptimizationStrategy> {
+                    if (dvlab::str::is_prefix_of(phasepoly_strategy_str, "todd")) {
+                        return std::make_unique<ToddPhasePolynomialOptimizationStrategy>();
+                    }
+                    return nullptr;
+                });
+                optimize_phase_polynomial(*tableau_mgr.get(), *phasepoly_strategy);
+            };
+
+            auto const do_matroid_partition = [&]() {
+                auto const ancillae            = parser.get<size_t>("--ancillae");
+                auto const matpar_strategy_str = parser.get<std::string>("strategy");
+
+                auto const matpar_strategy = std::invoke([&]() -> std::unique_ptr<MatroidPartitionStrategy> {
+                    if (dvlab::str::is_prefix_of(matpar_strategy_str, "naive")) {
+                        return std::make_unique<NaiveMatroidPartitionStrategy>();
+                    }
+                    return nullptr;
+                });
+                auto const matpar_result   = matroid_partition(*tableau_mgr.get(), *matpar_strategy, ancillae);
+                if (!matpar_result) {
+                    spdlog::error("Matroid partitioning failed!!");
+                    return false;
+                }
+                *tableau_mgr.get() = matpar_result.value();
+
+                return true;
+            };
+
             switch (method.value()) {
                 case OptimizationMethod::collapse:
                     collapse(*tableau_mgr.get());
                     tableau_mgr.get()->add_procedure("collapse");
+                    break;
+                case OptimizationMethod::properize:
+                    properize(*tableau_mgr.get());
+                    tableau_mgr.get()->add_procedure("Properize");
                     break;
                 case OptimizationMethod::t_merge:
                     merge_rotations(*tableau_mgr.get());
@@ -248,22 +302,14 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr) {
                     *tableau_mgr.get() = minimize_internal_hadamards(*tableau_mgr.get());
                     tableau_mgr.get()->add_procedure("InternalHOpt");
                     break;
+                case OptimizationMethod::phase_polynomial_optimization:
+                    do_phase_polynomial_optimization();
+                    tableau_mgr.get()->add_procedure("PhasePolyOpt");
+                    break;
                 case OptimizationMethod::matroid_partition:
-                    auto const ancillae = parser.get<size_t>("--ancillae");
-                    auto const strategy = parser.get<std::string>("strategy");
-
-                    auto const matpar_strategy = std::invoke([&]() -> std::unique_ptr<MatroidPartitionStrategy> {
-                        if (dvlab::str::is_prefix_of(strategy, "naive")) {
-                            return std::make_unique<NaiveMatroidPartitionStrategy>();
-                        }
-                        return nullptr;
-                    });
-                    auto const matpar_result   = matroid_partition(*tableau_mgr.get(), *matpar_strategy, ancillae);
-                    if (!matpar_result) {
-                        spdlog::error("Matroid partitioning failed!!");
+                    if (!do_matroid_partition()) {
                         return dvlab::CmdExecResult::error;
                     }
-                    *tableau_mgr.get() = matpar_result.value();
                     tableau_mgr.get()->add_procedure("MatroidPartition");
                     break;
             }

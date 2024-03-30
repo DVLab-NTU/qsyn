@@ -20,16 +20,24 @@
 
 namespace dvlab {
 
-struct UCharVectorHash {
-    size_t operator()(std::vector<unsigned char> const& k) const {
-        size_t ret = std::hash<unsigned char>()(k[0]);
-        for (size_t i = 1; i < k.size(); i++) {
-            ret ^= std::hash<unsigned char>()(k[i] << (i % sizeof(size_t)));
-        }
-
-        return ret;
+/**
+ * @brief Hash function for std::vector<unsigned char>
+ *
+ * @param k
+ * @return size_t
+ */
+size_t BooleanMatrixRowHash::operator()(std::vector<unsigned char> const& k) const {
+    size_t ret = std::hash<unsigned char>()(k[0]);
+    for (size_t i = 1; i < k.size(); i++) {
+        ret ^= std::hash<unsigned char>()(k[i] << (i % sizeof(size_t)));
     }
-};
+
+    return ret;
+}
+
+size_t BooleanMatrixRowHash::operator()(BooleanMatrix::Row const& k) const {
+    return operator()(k.get_row());
+}
 
 /**
  * @brief Overload operator + for Row
@@ -43,6 +51,21 @@ BooleanMatrix::Row operator+(BooleanMatrix::Row lhs, BooleanMatrix::Row const& r
     return lhs;
 }
 
+BooleanMatrix::Row operator*(BooleanMatrix::Row lhs, unsigned char const& rhs) {
+    lhs *= rhs;
+    return lhs;
+}
+
+BooleanMatrix::Row operator*(unsigned char const& lhs, BooleanMatrix::Row rhs) {
+    rhs *= lhs;
+    return rhs;
+}
+
+BooleanMatrix::Row operator*(BooleanMatrix::Row lhs, BooleanMatrix::Row const& rhs) {
+    lhs *= rhs;
+    return lhs;
+}
+
 /**
  * @brief Overload operator += for Row
  *
@@ -53,6 +76,27 @@ BooleanMatrix::Row& BooleanMatrix::Row::operator+=(Row const& rhs) {
     assert(_row.size() == rhs._row.size());
     for (size_t i = 0; i < _row.size(); i++) {
         _row[i] = (_row[i] + rhs._row[i]) % 2;
+    }
+    return *this;
+}
+
+/**
+ * @brief Overload operator *= for Row
+ *
+ * @param rhs
+ * @return Row&
+ */
+BooleanMatrix::Row& BooleanMatrix::Row::operator*=(unsigned char const& rhs) {
+    for (size_t i = 0; i < _row.size(); i++) {
+        _row[i] = (_row[i] * rhs) % 2;
+    }
+    return *this;
+}
+
+BooleanMatrix::Row& BooleanMatrix::Row::operator*=(Row const& rhs) {
+    assert(_row.size() == rhs._row.size());
+    for (size_t i = 0; i < _row.size(); i++) {
+        _row[i] = (_row[i] * rhs._row[i]) % 2;
     }
     return *this;
 }
@@ -169,7 +213,7 @@ size_t BooleanMatrix::gaussian_elimination_skip(size_t block_size, bool do_fully
     };
 
     auto const clear_section_duplicates = [this, get_sub_vec, track](size_t section_begin, size_t section_end, auto row_range) {
-        std::unordered_map<std::vector<unsigned char>, size_t, UCharVectorHash> duplicated;
+        std::unordered_map<std::vector<unsigned char>, size_t, BooleanMatrixRowHash> duplicated;
         for (auto row_idx : row_range) {
             auto sub_vec = get_sub_vec(row_idx, section_begin, section_end);
 
@@ -395,6 +439,49 @@ bool BooleanMatrix::Row::operator==(Row const& rhs) const {
         if (_row[i] != rhs._row[i]) return false;
     }
     return true;
+}
+
+dvlab::BooleanMatrix vstack(dvlab::BooleanMatrix const& a, dvlab::BooleanMatrix const& b) {
+    assert(a.num_cols() == b.num_cols());
+    auto ret = dvlab::BooleanMatrix();
+    for (auto const& row : a.get_matrix()) {
+        ret.push_row(row);
+    }
+    for (auto const& row : b.get_matrix()) {
+        ret.push_row(row);
+    }
+    return ret;
+}
+
+dvlab::BooleanMatrix hstack(dvlab::BooleanMatrix const& a, dvlab::BooleanMatrix const& b) {
+    assert(a.num_rows() == b.num_rows());
+    auto ret = dvlab::BooleanMatrix();
+    for (size_t i = 0; i < a.num_rows(); i++) {
+        auto row = a.get_row(i).get_row();
+        row.insert(row.end(), b.get_row(i).get_row().begin(), b.get_row(i).get_row().end());
+        ret.push_row(row);
+    }
+    return ret;
+}
+
+dvlab::BooleanMatrix transpose(dvlab::BooleanMatrix const& matrix) {
+    auto ret = dvlab::BooleanMatrix();
+    for (size_t i = 0; i < matrix.num_cols(); i++) {
+        std::vector<unsigned char> row;
+        for (size_t j = 0; j < matrix.num_rows(); j++) {
+            row.push_back(matrix.get_row(j).get_row()[i]);
+        }
+        ret.push_row(row);
+    }
+    return ret;
+}
+
+dvlab::BooleanMatrix identity(size_t size) {
+    auto ret = dvlab::BooleanMatrix(size, size);
+    for (size_t i = 0; i < size; i++) {
+        ret[i][i] = 1;
+    }
+    return ret;
 }
 
 }  // namespace dvlab

@@ -10,6 +10,7 @@
 
 #include "./tableau.hpp"
 #include "tableau/pauli_rotation.hpp"
+#include "tableau/stabilizer_tableau.hpp"
 
 namespace qsyn {
 
@@ -20,11 +21,33 @@ void collapse(Tableau& tableau);
 void remove_identities(std::vector<PauliRotation>& rotation);
 void remove_identities(Tableau& tableau);
 
+void absorb_clifford_rotations(StabilizerTableau& clifford, std::vector<PauliRotation>& rotations);
+void properize(StabilizerTableau& clifford, std::vector<PauliRotation>& rotations);
+
+void properize(Tableau& tableau);
+
 void merge_rotations(std::vector<PauliRotation>& rotation);
 void merge_rotations(Tableau& tableau);
 
+// hadamard minimization
+// implemented in ./optimize/internal_h_opt.cpp
+
 std::pair<Tableau, StabilizerTableau> minimize_hadamards(Tableau tableau, StabilizerTableau context);
 Tableau minimize_internal_hadamards(Tableau tableau);
+
+struct PhasePolynomialOptimizationStrategy {
+    using Polynomial                               = std::vector<PauliRotation>;
+    virtual ~PhasePolynomialOptimizationStrategy() = default;
+
+    virtual void optimize(StabilizerTableau& clifford, Polynomial& polynomial) const = 0;
+};
+
+struct ToddPhasePolynomialOptimizationStrategy : public PhasePolynomialOptimizationStrategy {
+    void optimize(StabilizerTableau& clifford, Polynomial& polynomial) const override;
+};
+
+void optimize_phase_polynomial(StabilizerTableau& clifford, std::vector<PauliRotation>& polynomial, PhasePolynomialOptimizationStrategy const& strategy);
+void optimize_phase_polynomial(Tableau& tableau, PhasePolynomialOptimizationStrategy const& strategy);
 
 struct MatroidPartitionStrategy {
     using Polynomial                    = std::vector<PauliRotation>;

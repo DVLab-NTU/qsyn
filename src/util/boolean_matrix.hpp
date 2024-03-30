@@ -43,8 +43,20 @@ public:
 
         void emplace_back(unsigned char i) { _row.emplace_back(i); }
 
+        auto begin() { return _row.begin(); }
+        auto end() { return _row.end(); }
+        auto begin() const { return _row.begin(); }
+        auto end() const { return _row.end(); }
+
         Row& operator+=(Row const& rhs);
         friend Row operator+(Row lhs, Row const& rhs);
+
+        Row& operator*=(unsigned char const& rhs);
+        friend Row operator*(Row lhs, unsigned char const& rhs);
+        friend Row operator*(unsigned char const& lhs, Row rhs);
+
+        Row& operator*=(Row const& rhs);
+        friend Row operator*(Row lhs, Row const& rhs);
 
         bool operator==(Row const& rhs) const;
 
@@ -68,9 +80,9 @@ public:
     BooleanMatrix(size_t side_length) : _matrix(side_length, Row(side_length)) {}
 
     void reset();
-    std::vector<Row> const& get_matrix() { return _matrix; }
-    std::vector<RowOperation> const& get_row_operations() { return _row_operations; }
-    Row const& get_row(size_t r) { return _matrix[r]; }
+    std::vector<Row> const& get_matrix() const { return _matrix; }
+    std::vector<RowOperation> const& get_row_operations() const { return _row_operations; }
+    Row const& get_row(size_t r) const { return _matrix[r]; }
     std::optional<size_t> find_row(Row const& row) {
         auto it = std::find(_matrix.begin(), _matrix.end(), row);
         if (it == _matrix.end()) return std::nullopt;
@@ -101,9 +113,43 @@ public:
         return _matrix[i];
     }
 
+    auto begin() { return _matrix.begin(); }
+    auto end() { return _matrix.end(); }
+    auto begin() const { return _matrix.begin(); }
+    auto end() const { return _matrix.end(); }
+
 private:
     std::vector<Row> _matrix;
     std::vector<RowOperation> _row_operations;
+};
+
+dvlab::BooleanMatrix vstack(dvlab::BooleanMatrix const& a, dvlab::BooleanMatrix const& b);
+
+// variadic template for vstack
+dvlab::BooleanMatrix vstack(
+    dvlab::BooleanMatrix const& a,
+    dvlab::BooleanMatrix const& b,
+    std::convertible_to<dvlab::BooleanMatrix> auto const&... args) {
+    return vstack(vstack(a, b), args...);
+}
+
+dvlab::BooleanMatrix hstack(dvlab::BooleanMatrix const& a, dvlab::BooleanMatrix const& b);
+
+// variadic template for hstack
+dvlab::BooleanMatrix hstack(
+    dvlab::BooleanMatrix const& a,
+    dvlab::BooleanMatrix const& b,
+    std::convertible_to<dvlab::BooleanMatrix> auto const&... args) {
+    return hstack(hstack(a, b), args...);
+}
+
+dvlab::BooleanMatrix transpose(dvlab::BooleanMatrix const& matrix);
+
+dvlab::BooleanMatrix identity(size_t size);
+
+struct BooleanMatrixRowHash {
+    size_t operator()(std::vector<unsigned char> const& k) const;
+    size_t operator()(dvlab::BooleanMatrix::Row const& k) const;
 };
 
 }  // namespace dvlab
