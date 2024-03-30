@@ -29,7 +29,7 @@ QCir& QCir::compose(QCir const& other) {
         add_qubits(other.get_num_qubits() - get_num_qubits());
     }
     for (auto& targ_gate : other.get_gates()) {
-        append(targ_gate->get_operation(), targ_gate->get_qubits());
+        append(*targ_gate);
     }
     return *this;
 }
@@ -157,10 +157,10 @@ void QCir::concat(
     for (auto const& new_gate : other.get_gates()) {
         auto const tmp =
             new_gate->get_qubits();  // circumvent g++ 11.4 compilation bug
-        auto qubits = tmp | std::views::transform([&qubit_map](auto const& qubit) {
-                          return qubit_map.at(qubit);
-                      }) |
-                      tl::to<std::vector>();
+        auto const qubits = tmp | std::views::transform([&qubit_map](auto const& qubit) {
+                                return qubit_map.at(qubit);
+                            }) |
+                            tl::to<std::vector>();
         append(new_gate->get_operation(), qubits);
     }
 }

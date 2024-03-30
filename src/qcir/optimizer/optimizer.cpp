@@ -20,18 +20,19 @@ namespace qsyn::qcir {
  */
 void Optimizer::reset(QCir const& qcir) {
     _gates.clear();
-    _available.clear();
-    _availty.clear();
+    _available_gates.clear();
+    _qubit_available.clear();
     _hadamards.clear();
     _xs.clear();
     _zs.clear();
     _swaps.clear();
     _statistics = {};
+    _permutation.clear();
     for (size_t i = 0; i < qcir.get_num_qubits(); i++) {
-        _availty.emplace_back(false);
-        _available.emplace(i, std::vector<QCirGate*>{});
-        _gates.emplace(i, std::vector<QCirGate*>{});
-        _permutation[i] = i;
+        _qubit_available.emplace_back(false);
+        _available_gates.emplace(i, std::vector<size_t>{});
+        _gates.emplace(i, std::vector<size_t>{});
+        _permutation.emplace(i, i);
     }
 }
 
@@ -107,8 +108,8 @@ void Optimizer::_swap_element(Optimizer::ElementType type, QubitIdType e1, Qubit
  * @return true
  * @return false
  */
-bool Optimizer::is_single_z_rotation(QCirGate* g) {
-    return g->get_operation().is<PZGate>() || g->get_operation().is<RZGate>();
+bool Optimizer::is_single_z_rotation(QCirGate const& g) {
+    return g.get_operation().is<PZGate>() || g.get_operation().is<RZGate>();
 }
 
 /**
@@ -118,14 +119,8 @@ bool Optimizer::is_single_z_rotation(QCirGate* g) {
  * @return true
  * @return false
  */
-bool Optimizer::is_single_x_rotation(QCirGate* g) {
-    return g->get_type_str() == "rx" ||
-           g->get_type_str() == "px" ||
-           g->get_type_str() == "x" ||
-           g->get_type_str() == "sx" ||
-           g->get_type_str() == "sxdg" ||
-           g->get_type_str() == "tx" ||
-           g->get_type_str() == "txdg";
+bool Optimizer::is_single_x_rotation(QCirGate const& g) {
+    return g.get_operation().is<PXGate>() || g.get_operation().is<RXGate>();
 }
 
 /**
@@ -135,8 +130,8 @@ bool Optimizer::is_single_x_rotation(QCirGate* g) {
  * @return true
  * @return false
  */
-bool Optimizer::is_cx_or_cz_gate(QCirGate* g) {
-    return g->get_num_qubits() == 2 && (g->get_operation() == CXGate() || g->get_operation() == CZGate());
+bool Optimizer::is_cx_or_cz_gate(QCirGate const& g) {
+    return g.get_operation() == CXGate() || g.get_operation() == CZGate();
 }
 
 /**
@@ -145,13 +140,13 @@ bool Optimizer::is_cx_or_cz_gate(QCirGate* g) {
  * @param target which qubit
  * @return QCirGate*
  */
-QCirGate* Optimizer::get_available_z_rotation(QubitIdType target) {
-    for (auto& g : _available[target]) {
-        if (is_single_z_rotation(g)) {
+std::optional<size_t> Optimizer::get_available_z_rotation(QubitIdType target) {
+    for (auto& g : _available_gates[target]) {
+        if (is_single_z_rotation(_storage[g])) {
             return g;
         }
     }
-    return nullptr;
+    return std::nullopt;
 }
 
 }  // namespace qsyn::qcir

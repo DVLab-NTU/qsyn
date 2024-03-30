@@ -132,6 +132,8 @@ public:
     bool remove_qubit(QubitIdType qid);
     size_t append(Operation const& op, QubitIdList const& bits);
     size_t prepend(Operation const& op, QubitIdList const& bits);
+    size_t append(QCirGate const& gate);
+    size_t prepend(QCirGate const& gate);
     bool remove_gate(size_t id);
 
     bool write_qasm(std::filesystem::path const& filepath) const;
