@@ -17,6 +17,7 @@
 #include "spdlog/common.h"
 #include "spdlog/spdlog.h"
 #include "util/boolean_matrix.hpp"
+#include "util/ordered_hashmap.hpp"
 #include "util/util.hpp"
 #include "zx/simplifier/simplify.hpp"
 #include "zx/zx_def.hpp"
@@ -680,8 +681,8 @@ void Extractor::_block_elimination(dvlab::BooleanMatrix& best_matrix, size_t& mi
  */
 void Extractor::permute_qubits() {
     spdlog::debug("Permuting qubits");
-    std::unordered_map<QubitIdType, QubitIdType> swap_map;      // o to i
-    std::unordered_map<QubitIdType, QubitIdType> swap_inv_map;  // i to o
+    dvlab::utils::ordered_hashmap<QubitIdType, QubitIdType> swap_map;  // o to i
+    std::unordered_map<QubitIdType, QubitIdType> swap_inv_map;         // i to o
     bool matched = true;
     for (auto& o : _graph->get_outputs()) {
         if (_graph->get_num_neighbors(o) != 1) {

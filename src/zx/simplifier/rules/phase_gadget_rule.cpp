@@ -6,6 +6,7 @@
 ****************************************************************************/
 
 #include <ranges>
+#include <tl/fold.hpp>
 
 #include "./zx_rules_template.hpp"
 #include "zx/zxgraph.hpp"
@@ -16,12 +17,11 @@ using MatchType = PhaseGadgetRule::MatchType;
 
 struct ZXVerticesHash {
     size_t operator()(std::vector<ZXVertex*> const& k) const {
-        size_t ret = std::hash<ZXVertex*>()(k[0]);
-        for (size_t i = 1; i < k.size(); i++) {
-            ret ^= std::hash<ZXVertex*>()(k[i]);
-        }
-
-        return ret;
+        return tl::fold_left(
+            k, size_t{0},
+            [](size_t acc, ZXVertex* v) {
+                return acc ^ std::hash<size_t>()(v->get_id());
+            });
     }
 };
 
