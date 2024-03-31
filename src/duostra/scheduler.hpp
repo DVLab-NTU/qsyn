@@ -11,7 +11,6 @@
 #include <cstddef>
 #include <functional>
 #include <memory>
-#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -28,18 +27,6 @@ public:
     BaseScheduler(CircuitTopology topo, bool tqdm)
         : _circuit_topology(std::move(topo)), _tqdm(tqdm) {}
     virtual ~BaseScheduler() = default;
-
-    void swap(BaseScheduler& other) noexcept {
-        std::swap(_circuit_topology, other._circuit_topology);
-        std::swap(_operations, other._operations);
-        std::swap(_assign_order, other._assign_order);
-        std::swap(_gate_id_to_time, other._gate_id_to_time);
-        std::swap(_tqdm, other._tqdm);
-    }
-
-    friend void swap(BaseScheduler& a, BaseScheduler& b) noexcept {
-        a.swap(b);
-    }
 
     virtual std::unique_ptr<BaseScheduler> clone() const;
 
@@ -106,20 +93,6 @@ public:
     using Device = BaseScheduler::Device;
     GreedyScheduler(CircuitTopology const& topo, bool tqdm) : BaseScheduler(topo, tqdm) {}
     ~GreedyScheduler() override = default;
-    GreedyScheduler(GreedyScheduler const& other) : BaseScheduler(other), _conf(other._conf) {}
-    GreedyScheduler(GreedyScheduler&& other) noexcept : BaseScheduler(other) {
-        _conf = std::exchange(other._conf, {});
-    }
-
-    GreedyScheduler& operator=(GreedyScheduler copy) {
-        copy.swap(*this);
-        return *this;
-    }
-
-    void swap(GreedyScheduler& other) noexcept {
-        std::swap(static_cast<BaseScheduler&>(*this), static_cast<BaseScheduler&>(other));
-        std::swap(_conf, other._conf);
-    }
 
     std::unique_ptr<BaseScheduler> clone() const override;
     size_t greedy_fallback(Router& router, std::vector<size_t> const& waitlist) const;

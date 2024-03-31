@@ -258,19 +258,19 @@ std::vector<qcir::QCirGate> Router::duostra_routing(qcir::QCirGate const& gate, 
  */
 std::vector<qcir::QCirGate> Router::apsp_routing(qcir::QCirGate const& gate, GateIdToTime& gate_id_to_time, std::tuple<QubitIdType, QubitIdType> qs, MinMaxOptionType tie_breaking_strategy) {
     std::vector<qcir::QCirGate> operation_list;
-    auto s0_id = get<0>(qs);
-    auto s1_id = get<1>(qs);
-    auto q0_id = s0_id;
-    auto q1_id = s1_id;
+    auto const s0_id = get<0>(qs);
+    auto const s1_id = get<1>(qs);
+    auto q0_id       = s0_id;
+    auto q1_id       = s1_id;
 
     while (!_device.get_physical_qubit(q0_id).is_adjacency(_device.get_physical_qubit(q1_id))) {
-        auto q0_next_cost = _device.get_next_swap_cost(q0_id, s1_id);
-        auto q1_next_cost = _device.get_next_swap_cost(q1_id, s0_id);
+        auto const q0_next_cost = _device.get_next_swap_cost(q0_id, s1_id);
+        auto const q1_next_cost = _device.get_next_swap_cost(q1_id, s0_id);
 
-        auto q0_next = get<0>(q0_next_cost);
-        auto q0_cost = get<1>(q0_next_cost);
-        auto q1_next = get<0>(q1_next_cost);
-        auto q1_cost = get<1>(q1_next_cost);
+        auto const q0_next = get<0>(q0_next_cost);
+        auto const q0_cost = get<1>(q0_next_cost);
+        auto const q1_next = get<0>(q1_next_cost);
+        auto const q1_cost = get<1>(q1_next_cost);
 
         if ((q0_cost < q1_cost) || ((q0_cost == q1_cost) && (tie_breaking_strategy == MinMaxOptionType::min) &&
                                     _device.get_physical_qubit(q0_id).get_logical_qubit() <

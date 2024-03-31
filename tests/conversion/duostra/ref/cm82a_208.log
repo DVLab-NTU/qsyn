@@ -72,19 +72,19 @@ Scheduler:      search
 Router:         duostra
 Placer:         dfs
 
-Mapping Depth:  1603
-Total Time:     3633
-#SWAP:          450
+Mapping Depth:  1604
+Total Time:     3573
+#SWAP:          440
 
 
 qsyn> qcir print --statistics
-QCir (16 qubits, 2000 gates)
-Clifford   : 1720
+QCir (16 qubits, 1970 gates)
+Clifford   : 1690
 └── H-gate : 80 (76 internal)
-2-qubit    : 1633
+2-qubit    : 1603
 T-family   : 280
 Others     : 0
-Depth       : 1603
+Depth       : 1604
 
 qsyn> duostra config --scheduler greedy
 
@@ -105,19 +105,19 @@ Scheduler:      greedy
 Router:         duostra
 Placer:         dfs
 
-Mapping Depth:  2441
-Total Time:     6753
-#SWAP:          520
+Mapping Depth:  1953
+Total Time:     4899
+#SWAP:          221
 
 
 qsyn> qcir print --statistics
-QCir (16 qubits, 3560 gates)
-Clifford   : 3280
+QCir (16 qubits, 2633 gates)
+Clifford   : 2353
 └── H-gate : 80 (76 internal)
-2-qubit    : 3193
+2-qubit    : 2266
 T-family   : 280
 Others     : 0
-Depth       : 2441
+Depth       : 1953
 
 qsyn> quit -f
 
