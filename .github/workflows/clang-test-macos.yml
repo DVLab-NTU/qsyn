@@ -28,7 +28,7 @@ jobs:
           mkdir -p build
           cmake -S . -B build -DCMAKE_CXX_COMPILER=$(which clang++)
           cmake --build build -j $(sysctl -n hw.logicalcpu)
-      ## remove this comment to run tests
-      ## currently, tests are not working on macos because of implementation of std::unordered_map (we guess)
-      # - name: Run test for qsyn
-      #   run: make test
+      # remove this comment to run tests
+      # currently, tests are not working on macos because of implementation of std::unordered_map (we guess)
+      - name: Run test for qsyn
+        run: make test
