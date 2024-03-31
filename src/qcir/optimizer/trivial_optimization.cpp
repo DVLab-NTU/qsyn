@@ -44,24 +44,24 @@ std::optional<QCir> Optimizer::trivial_optimization(QCir const& qcir) {
         auto const last_layer = _get_first_layer_gates(result, true);
         auto const qubit      = gate->get_qubit(gate->get_num_qubits() - 1);
         if (last_layer[qubit] == nullptr) {
-            result.append(gate->get_operation(), gate->get_qubits());
+            result.append(*gate);
             continue;
         }
         QCirGate* previous_gate = last_layer[qubit];
-        if (is_cx_or_cz_gate(gate)) {
+        if (is_cx_or_cz_gate(*gate)) {
             auto const q2 = gate->get_qubit(gate->get_num_qubits() - 1);
             if (previous_gate->get_id() != last_layer[q2]->get_id()) {
                 // 2-qubit gate do not match up
-                result.append(previous_gate->get_operation(), previous_gate->get_qubits());
+                result.append(*previous_gate);
                 continue;
             }
             _cancel_cx_or_cz(result, previous_gate, gate);
-        } else if (is_single_z_rotation(gate) && is_single_z_rotation(previous_gate)) {
+        } else if (is_single_z_rotation(*gate) && is_single_z_rotation(*previous_gate)) {
             _fuse_z_phase(result, previous_gate, gate);
-        } else if (is_single_x_rotation(gate) && is_single_x_rotation(previous_gate)) {
+        } else if (is_single_x_rotation(*gate) && is_single_x_rotation(*previous_gate)) {
             _fuse_x_phase(result, previous_gate, gate);
         } else {
-            result.append(gate->get_operation(), gate->get_qubits());
+            result.append(*gate);
         }
     }
 
@@ -180,11 +180,11 @@ void Optimizer::_cancel_cx_or_cz(QCir& qcir, QCirGate* prev_gate, QCirGate* gate
             qcir.remove_gate(prev_gate->get_id());
             return;
         } else {
-            qcir.append(gate->get_operation(), gate->get_qubits());
+            qcir.append(*gate);
         }
     }
 
-    qcir.append(gate->get_operation(), gate->get_qubits());
+    qcir.append(*gate);
 }
 
 namespace {
@@ -226,12 +226,12 @@ QCir replace_single_qubit_gate_sequence(QCir& qcir, QubitIdType qubit, size_t ga
 
     for (auto gate : gate_list) {
         if (gate->get_qubit(0) != qubit) {
-            replaced.append(gate->get_operation(), gate->get_qubits());
+            replaced.append(*gate);
             continue;
         }
 
         if (gate_num != 0) {
-            replaced.append(gate->get_operation(), gate->get_qubits());
+            replaced.append(*gate);
             gate_num--;
             if (gate_num == 0) {
                 replace_count = seq_len;
@@ -240,7 +240,7 @@ QCir replace_single_qubit_gate_sequence(QCir& qcir, QubitIdType qubit, size_t ga
         }
 
         if (replace_count == 0) {
-            replaced.append(gate->get_operation(), gate->get_qubits());
+            replaced.append(*gate);
             continue;
         }
 

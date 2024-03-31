@@ -170,7 +170,7 @@ void PhysicalQubit::reset() {
  * @return tuple<size_t, size_t> (index of next qubit, cost)
  */
 std::tuple<QubitIdType, QubitIdType> Device::get_next_swap_cost(QubitIdType source, QubitIdType target) {
-    auto const next_idx  = _predecessor[source][target];
+    auto const next_idx  = _predecessor[target][source];
     auto const& q_source = get_physical_qubit(source);
     auto const& q_next   = get_physical_qubit(next_idx);
     auto const cost      = std::max(q_source.get_occupied_time(), q_next.get_occupied_time());

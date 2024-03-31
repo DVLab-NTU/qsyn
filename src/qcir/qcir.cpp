@@ -329,6 +329,14 @@ size_t QCir::prepend(Operation const& op, QubitIdList const& bits) {
     return g->get_id();
 }
 
+size_t QCir::append(QCirGate const& gate) {
+    return append(gate.get_operation(), gate.get_qubits());
+}
+
+size_t QCir::prepend(QCirGate const& gate) {
+    return prepend(gate.get_operation(), gate.get_qubits());
+}
+
 /**
  * @brief Remove gate
  *
@@ -526,7 +534,7 @@ void QCir::translate(QCir const& qcir, std::string const& gate_set) {
         std::string const type = cur_gate->get_type_str();
 
         if (!equivalence.contains(type)) {
-            this->append(cur_gate->get_operation(), cur_gate->get_qubits());
+            this->append(*cur_gate);
             continue;
         }
 

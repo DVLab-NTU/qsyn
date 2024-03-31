@@ -23,7 +23,7 @@ bool CircuitTopology::_is_available(size_t gate_idx) const {
             std::views::filter([](std::optional<size_t> const& id) { return id.has_value(); }) |
             std::views::transform([&](std::optional<size_t> const& id) { return id.value(); }),
         [&](size_t prev) -> bool {
-            return _executed_gates.find(prev) != _executed_gates.end();
+            return _executed_gates.contains(prev);
         });
 }
 

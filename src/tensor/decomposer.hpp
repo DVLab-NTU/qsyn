@@ -48,7 +48,6 @@ struct ZYZ {
     T alpha;
     T beta;  // actual beta/2
     T gamma;
-    bool correct = true;
 };
 
 class Decomposer {
@@ -102,7 +101,7 @@ private:
     bool _decompose_cu(Tensor<U> const& t, size_t ctrl, size_t targ);
 
     template <typename U>
-    ZYZ<typename U::value_type> _decompose_zyz(Tensor<U> const& matrix);
+    std::optional<ZYZ<typename U::value_type>> _decompose_zyz(Tensor<U> const& matrix);
 
     template <typename U>
     Tensor<U> _sqrt_single_qubit_matrix(Tensor<U> const& matrix);
@@ -133,7 +132,6 @@ std::optional<QCir> Decomposer::decompose(QTensor<U> const& matrix) {
             std::swap(mat_chain[i]._matrix(0, 0), mat_chain[i]._matrix(1, 1));
             std::swap(mat_chain[i]._matrix(0, 1), mat_chain[i]._matrix(1, 0));
         }
-
         if (!_graycode(mat_chain[i]._matrix, i_idx, j_idx)) return std::nullopt;
     }
     return _quantum_circuit;
@@ -448,41 +446,41 @@ bool Decomposer::_decompose_cnx(const std::vector<size_t>& ctrls, const size_t e
 template <typename U>
 bool Decomposer::_decompose_cu(Tensor<U> const& t, size_t ctrl, size_t targ) {
     using dvlab::Phase;
-    using float_type             = typename U::value_type;
-    constexpr float_type eps     = 1e-6;
-    ZYZ<float_type> const angles = _decompose_zyz(t);
-    if (!angles.correct) return false;
+    using float_type                            = typename U::value_type;
+    constexpr float_type eps                    = 1e-6;
+    std::optional<ZYZ<float_type>> const angles = _decompose_zyz(t);
+    if (!angles.has_value()) return false;
 
-    if (std::abs((angles.alpha - angles.gamma) / 2) > eps) {
-        _quantum_circuit.append(qcir::RZGate(Phase{((angles.alpha - angles.gamma) / 2) * (-1.0)}), {targ});
+    if (std::abs((angles->alpha - angles->gamma) / 2) > eps) {
+        _quantum_circuit.append(qcir::RZGate(Phase{((angles->alpha - angles->gamma) / 2) * (-1.0)}), {targ});
     }
 
-    if (std::abs(angles.beta) > eps) {
+    if (std::abs(angles->beta) > eps) {
         _quantum_circuit.append(qcir::CXGate(), {ctrl, targ});
-        if (std::abs((angles.alpha + angles.gamma) / 2) > eps) {
-            _quantum_circuit.append(qcir::RZGate(Phase{((angles.alpha + angles.gamma) / 2) * (-1.0)}), {targ});
+        if (std::abs((angles->alpha + angles->gamma) / 2) > eps) {
+            _quantum_circuit.append(qcir::RZGate(Phase{((angles->alpha + angles->gamma) / 2) * (-1.0)}), {targ});
         }
 
-        _quantum_circuit.append(qcir::RYGate(Phase{angles.beta * (-1.0)}), {targ});
+        _quantum_circuit.append(qcir::RYGate(Phase{angles->beta * (-1.0)}), {targ});
         _quantum_circuit.append(qcir::CXGate(), {ctrl, targ});
-        _quantum_circuit.append(qcir::RYGate(Phase{angles.beta}), {targ});
+        _quantum_circuit.append(qcir::RYGate(Phase{angles->beta}), {targ});
 
-        if (std::abs(angles.alpha) > eps) {
-            _quantum_circuit.append(qcir::RZGate(Phase(angles.alpha)), {targ});
+        if (std::abs(angles->alpha) > eps) {
+            _quantum_circuit.append(qcir::RZGate(Phase(angles->alpha)), {targ});
         }
 
     } else {
-        if (std::abs((angles.alpha + angles.gamma) / 2) > eps) {
+        if (std::abs((angles->alpha + angles->gamma) / 2) > eps) {
             _quantum_circuit.append(qcir::CXGate(), {ctrl, targ});
-            _quantum_circuit.append(qcir::RZGate(Phase{((angles.alpha + angles.gamma) / 2) * (-1.0)}), {targ});
+            _quantum_circuit.append(qcir::RZGate(Phase{((angles->alpha + angles->gamma) / 2) * (-1.0)}), {targ});
             _quantum_circuit.append(qcir::CXGate(), {ctrl, targ});
         }
-        if (std::abs(angles.alpha) > eps) {
-            _quantum_circuit.append(qcir::RZGate(Phase(angles.alpha)), {targ});
+        if (std::abs(angles->alpha) > eps) {
+            _quantum_circuit.append(qcir::RZGate(Phase(angles->alpha)), {targ});
         }
     }
-    if (std::abs(angles.phi) > eps) {
-        _quantum_circuit.append(qcir::RZGate(Phase(angles.phi)), {ctrl});
+    if (std::abs(angles->phi) > eps) {
+        _quantum_circuit.append(qcir::RZGate(Phase(angles->phi)), {ctrl});
     }
 
     return true;
@@ -497,7 +495,7 @@ bool Decomposer::_decompose_cu(Tensor<U> const& t, size_t ctrl, size_t targ) {
  * @reference Nakahara, Mikio, and Tetsuo Ohmi. Quantum computing: from linear algebra to physical realizations. CRC press, 2008.
  */
 template <typename U>
-ZYZ<typename U::value_type> Decomposer::_decompose_zyz(Tensor<U> const& matrix) {
+std::optional<ZYZ<typename U::value_type>> Decomposer::_decompose_zyz(Tensor<U> const& matrix) {
     DVLAB_ASSERT(matrix.shape()[0] == 2 && matrix.shape()[1] == 2, "decompose_ZYZ only supports 2x2 matrix");
     using namespace std::literals;
     using float_type = typename U::value_type;
@@ -555,10 +553,9 @@ ZYZ<typename U::value_type> Decomposer::_decompose_zyz(Tensor<U> const& matrix) 
             return output;
         }
     }
-    output.correct = false;
     spdlog::error("No solution to ZYZ decomposition");
 
-    return output;
+    return std::nullopt;
 }
 
 /**
@@ -576,9 +573,9 @@ Tensor<U> Decomposer::_sqrt_single_qubit_matrix(Tensor<U> const& matrix) {
     // c d
     const U a = matrix(0, 0), b = matrix(0, 1), c = matrix(1, 0), d = matrix(1, 1);
     const U tau = a + d, delta = a * d - b * c;
-    const std::complex s = std::sqrt(delta);
-    const std::complex t = std::sqrt(tau + 2. * s);
-    if (std::abs(t) > 0) {
+    const U s = std::sqrt(delta);
+    const U t = std::sqrt(tau + 2. * s);
+    if (std::abs(t) > 1e-8) {
         return Tensor<U>({{(a + s) / t, b / t}, {c / t, (d + s) / t}});
     } else {
         // Diagonalized matrix

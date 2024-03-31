@@ -84,9 +84,6 @@ private:
     size_t _num_cx_iterations = 0;
     zx::ZXGraph* _graph;
     qcir::QCir* _logical_circuit;
-    // qcir::QCir* _physical_circuit;
-    // std::optional<Device> _device;
-    // std::optional<Device> _device_backup;
     zx::ZXVertexList _frontier;
     zx::ZXVertexList _neighbors;
     zx::ZXVertexList _axels;
@@ -96,7 +93,6 @@ private:
     std::vector<dvlab::BooleanMatrix::RowOperation> _cnots;
 
     void _block_elimination(dvlab::BooleanMatrix& matrix, size_t& min_n_cxs, size_t block_size);
-    // void _block_elimination(size_t& best_block, dvlab::BooleanMatrix& best_matrix, size_t& min_cost, size_t block_size);
     void _filter_duplicate_cxs();
     // NOTE - Use only in column optimal swap
     Target _find_column_swap(Target target);
