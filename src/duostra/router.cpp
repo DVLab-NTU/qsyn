@@ -264,26 +264,21 @@ std::vector<qcir::QCirGate> Router::apsp_routing(qcir::QCirGate const& gate, Gat
     auto q1_id       = s1_id;
 
     while (!_device.get_physical_qubit(q0_id).is_adjacency(_device.get_physical_qubit(q1_id))) {
-        auto const q0_next_cost = _device.get_next_swap_cost(q0_id, s1_id);
-        auto const q1_next_cost = _device.get_next_swap_cost(q1_id, s0_id);
-
-        auto const q0_next = get<0>(q0_next_cost);
-        auto const q0_cost = get<1>(q0_next_cost);
-        auto const q1_next = get<0>(q1_next_cost);
-        auto const q1_cost = get<1>(q1_next_cost);
+        auto const [q0_next, q0_cost] = _device.get_next_swap_cost(q0_id, s1_id);
+        auto const [q1_next, q1_cost] = _device.get_next_swap_cost(q1_id, s0_id);
 
         if ((q0_cost < q1_cost) || ((q0_cost == q1_cost) && (tie_breaking_strategy == MinMaxOptionType::min) &&
                                     _device.get_physical_qubit(q0_id).get_logical_qubit() <
                                         _device.get_physical_qubit(q1_id).get_logical_qubit())) {
             auto op = qcir::QCirGate(gate_id_to_time.size(), SwapGate{}, QubitIdList{q0_id, q0_next});
             gate_id_to_time.emplace(op.get_id(), std::make_pair(q0_cost, q0_cost + SWAP_DELAY));
-            operation_list.emplace_back(std::move(op));
             _device.apply_gate(op, q0_cost);
+            operation_list.emplace_back(std::move(op));
             q0_id = q0_next;
         } else {
             auto op = qcir::QCirGate(gate_id_to_time.size(), SwapGate{}, QubitIdList{q1_id, q1_next});
-            gate_id_to_time.emplace(op.get_id(), std::make_pair(q0_cost, q0_cost + SWAP_DELAY));
-            _device.apply_gate(op, q0_cost);
+            gate_id_to_time.emplace(op.get_id(), std::make_pair(q1_cost, q1_cost + SWAP_DELAY));
+            _device.apply_gate(op, q1_cost);
             operation_list.emplace_back(std::move(op));
             q1_id = q1_next;
         }

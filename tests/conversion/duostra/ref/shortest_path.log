@@ -1,0 +1,71 @@
+qsyn> qcir read benchmark/SABRE/large/cm82a_208.qasm
+
+qsyn> device read benchmark/topology/guadalupe.layout 
+
+qsyn> qcir print --statistics
+QCir (16 qubits, 650 gates)
+Clifford   : 370
+└── H-gate : 80 (75 internal)
+2-qubit    : 283
+T-family   : 280
+Others     : 0
+Depth       : 571
+
+qsyn> duostra config --depth 2 --single-immediate true
+
+qsyn> duostra config --router shortest_path
+
+qsyn> duostra --check
+Routing...
+
+Checking...
+
+Duostra Result: 
+
+Scheduler:      search
+Router:         shortest_path
+Placer:         dfs
+
+Mapping Depth:  2001
+Total Time:     3255
+#SWAP:          387
+
+
+qsyn> qcir print --statistics
+QCir (16 qubits, 1811 gates)
+Clifford   : 1531
+└── H-gate : 80 (76 internal)
+2-qubit    : 1444
+T-family   : 280
+Others     : 0
+Depth       : 2001
+
+qsyn> duostra config --scheduler greedy
+
+qsyn> duostra --check
+Routing...
+
+Checking...
+
+Duostra Result: 
+
+Scheduler:      greedy
+Router:         shortest_path
+Placer:         dfs
+
+Mapping Depth:  2027
+Total Time:     3465
+#SWAP:          35
+
+
+qsyn> qcir print --statistics
+QCir (16 qubits, 1916 gates)
+Clifford   : 1636
+└── H-gate : 80 (76 internal)
+2-qubit    : 1549
+T-family   : 280
+Others     : 0
+Depth       : 2027
+
+qsyn> quit -f
+
