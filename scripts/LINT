@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+# if on macOS, alias nproc
+if [ "$(uname)" == "Darwin" ]; then
+    alias nproc="sysctl -n hw.logicalcpu"
+fi
+
 if [ ! -x "$(command -v parallel)" ]; then
     echo "Error: GNU parallel is not installed!!"
     exit 1

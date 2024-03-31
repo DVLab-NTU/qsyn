@@ -12,6 +12,11 @@ else
     DIFF="diff"
 fi
 
+# if on macOS, alias nproc
+if [ "$(uname)" == "Darwin" ]; then
+    alias nproc="sysctl -n hw.logicalcpu"
+fi
+
 # return text in green, bold
 pass-style() {
     if [ $# -ne 1 ]; then
@@ -231,9 +236,10 @@ if [[ "$ACTION" == 'diff' ]]; then
     TESTS_COUNT=${#TESTS[@]}
     if [ $FAIL_COUNT -eq 0 ]; then
         pass-style "Passed all $TESTS_COUNT tests."
+        exit 0
     else
-
         fail-style "$FAIL_COUNT out of $TESTS_COUNT tests failed."
+        exit 1
     fi
 elif [[ "$ACTION" == 'update' ]]; then
     echo "> Updating reference files..."
