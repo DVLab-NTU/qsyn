@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
 
-# if on macOS, alias nproc
-if [ "$(uname)" == "Darwin" ]; then
-    alias nproc="sysctl -n hw.logicalcpu"
-fi
+function num_procs() {
+    if [ "$(uname)" == "Darwin" ]; then
+        sysctl -n hw.logicalcpu
+    else
+        nproc
+    fi
+}
 
 if [ ! -x "$(command -v parallel)" ]; then
     echo "Error: GNU parallel is not installed!!"
@@ -25,9 +28,9 @@ CPPS=$(find ./src -regex '.*\.cpp' -type f)
 
 # Format all files first to avoid linting errors
 echo "Formatting files..."
-parallel -j"$(nproc)" format_one ::: "$FILES"
+parallel -j"$(num_procs)" format_one ::: "$FILES"
 echo "Generating compile commands..."
 cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=1 > /dev/null
 echo "Linting files..."
-parallel -j"$(nproc)" lint_one ::: "$CPPS"
+parallel -j"$(num_procs)" lint_one ::: "$CPPS"
 echo "Done"

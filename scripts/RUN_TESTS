@@ -12,10 +12,13 @@ else
     DIFF="diff"
 fi
 
-# if on macOS, alias nproc
-if [ "$(uname)" == "Darwin" ]; then
-    alias nproc="sysctl -n hw.logicalcpu"
-fi
+function num_procs() {
+    if [ "$(uname)" == "Darwin" ]; then
+        sysctl -n hw.logicalcpu
+    else
+        nproc
+    fi
+}
 
 # return text in green, bold
 pass-style() {
@@ -229,7 +232,7 @@ if [[ "$ACTION" == 'diff' ]]; then
     echo "> Testing dofiles..."
     
     # run in parallel and count failures
-    parallel -j"$(nproc)" "dofile-result-same-with-ref {} $VERBOSE $SILENT $QSYN $DIFF" ::: "${TESTS[@]}"
+    parallel -j"$(num_procs)" "dofile-result-same-with-ref {} $VERBOSE $SILENT $QSYN $DIFF" ::: "${TESTS[@]}"
 
     FAIL_COUNT=$?
 
@@ -245,7 +248,7 @@ elif [[ "$ACTION" == 'update' ]]; then
     echo "> Updating reference files..."
 
     # run in parallel and count updates
-    parallel -j"$(nproc)" "update-dofile-ref {} $VERBOSE $SILENT $QSYN" ::: "${TESTS[@]}"
+    parallel -j"$(num_procs)" "update-dofile-ref {} $VERBOSE $SILENT $QSYN" ::: "${TESTS[@]}"
 
     UPDATE_COUNT=$?
 
