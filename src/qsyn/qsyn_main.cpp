@@ -70,9 +70,11 @@ int main(int argc, char** argv) {
         return -1;
     }
 
-    auto const quiet = parser.get<bool>("--quiet");
+    auto const verbose = parser.parsed("--verbose") || parser.parsed("--file");
 
-    if (!parser.parsed("--no-version") && !quiet) {
+    auto const print_version = !parser.parsed("--no-version") && ((!parser.parsed("filepath") && !parser.parsed("--command")) || verbose);
+
+    if (print_version) {
         fmt::println("{}", version_str);
     }
 
@@ -80,23 +82,30 @@ int main(int argc, char** argv) {
         return -1;
     }
 
+    auto const args = parser.get<std::vector<std::string>>("args");
+
     if (parser.parsed("--command")) {
-        auto args = parser.get<std::vector<std::string>>("--command");
+        auto const cmds = parser.get<std::string>("--command");
 
-        auto cmd_stream = std::stringstream(args[0]);
+        auto cmd_stream = std::stringstream(cmds);
 
-        for (auto&& [i, arg] : tl::views::enumerate(std::ranges::subrange(args.begin() + 1, args.end()))) {
+        for (auto&& [i, arg] : tl::views::enumerate(args)) {
             cli.add_variable(std::to_string(i + 1), arg);
         }
 
-        cli.execute_one_line(cmd_stream, !quiet);
+        cli.execute_one_line(cmd_stream, verbose);
         return dvlab::get_exit_code(cli.get_last_return_status());
     }
 
-    if (parser.parsed("--file")) {
-        auto args = parser.get<std::vector<std::string>>("--file");
+    if (parser.parsed("filepath")) {
+        auto const filepath = parser.get<std::string>("filepath");
 
-        cli.source_dofile(args[0], std::ranges::subrange(args.begin() + 1, args.end()), !quiet);
+        cli.source_dofile(filepath, args, verbose);
+        if (parser.parsed("--file")) {
+            spdlog::warn("The -f/--file option is deprecated and will be removed in the future.");
+            spdlog::warn("To run a script file with commands printing, use the -v flag with a filepath.");
+            spdlog::warn("To run a script file silently, simply supply the filepath.");
+        }
         return dvlab::get_exit_code(cli.get_last_return_status());
     }
 

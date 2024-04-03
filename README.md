@@ -129,7 +129,7 @@ Visualization functionalities of `qsyn` depend at runtime on the following depen
 - You can also let `qsyn` to execute a sequence of commands by passing a DOFILE to `qsyn`:
 
   ```sh
-  ❯ ./qsyn -f examples/synth.dof
+  ❯ ./qsyn -v examples/synth.dof
   qsyn v0.6.3 - DVLab NTUEE.
   Licensed under Apache 2.0 License.
   qsyn> qcir read benchmark/zx/tof3.zx

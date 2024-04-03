@@ -201,7 +201,7 @@ Command quit_cmd(CommandLineInterface& cli) {
 
                 std::string const prompt = "Are you sure you want to exit (Yes/[No])? ";
 
-                auto [exec_result, input] = cli.listen_to_input(std::cin, prompt, {.allow_browse_history = false, .allow_tab_completion = false});
+                auto const [exec_result, input] = cli.listen_to_input(std::cin, prompt, {.allow_browse_history = false, .allow_tab_completion = false});
                 if (exec_result == CmdExecResult::quit) {
                     fmt::print("EOF [assumed Yes]");
                     return CmdExecResult::quit;
