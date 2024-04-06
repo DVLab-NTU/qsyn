@@ -44,46 +44,11 @@ qsyn> zx2qc
 [debug]    Extracting single qubit gates
 [debug]    Extracting CZs
 [debug]    Removing gadget(s)
-[debug]    Frontier:
-[debug]    Qubit 0: 7
-[debug]    Qubit 1: 6
-[debug]    Qubit 2: 8
-[debug]    
-[debug]    Axels:
-[debug]    10 (phase gadget: 9)
-[debug]    12 (phase gadget: 11)
-[debug]    14 (phase gadget: 13)
-[debug]    16 (phase gadget: 15)
-[debug]    
-[debug]    Frontier:
-[debug]    Qubit 1: 20
-[debug]    Qubit 0: 21
-[debug]    Qubit 2: 22
-[debug]    
-[debug]    Axels:
-[debug]    10 (phase gadget: 9)
-[debug]    
 [debug]    Gadget(s) are removed.
 [debug]    Cleaning frontier
 [debug]    Extracting single qubit gates
 [debug]    Extracting CZs
 [debug]    Removing gadget(s)
-[debug]    Frontier:
-[debug]    Qubit 1: 20
-[debug]    Qubit 0: 21
-[debug]    Qubit 2: 22
-[debug]    
-[debug]    Axels:
-[debug]    10 (phase gadget: 9)
-[debug]    
-[debug]    Frontier:
-[debug]    Qubit 1: 20
-[debug]    Qubit 0: 21
-[debug]    Qubit 2: 22
-[debug]    
-[debug]    Axels:
-[debug]    10 (phase gadget: 9)
-[debug]    
 [debug]    Perform Gaussian elimination.
 [debug]    Filter 0 CXs. Total: 0
 [debug]    Filter 0 CXs. Total: 0
@@ -97,60 +62,17 @@ qsyn> zx2qc
 [debug]    Extracting single qubit gates
 [debug]    Extracting CZs
 [debug]    Removing gadget(s)
-[debug]    Frontier:
-[debug]    Qubit 1: 11
-[debug]    Qubit 0: 13
-[debug]    Qubit 2: 15
-[debug]    
-[debug]    Axels:
-[debug]    10 (phase gadget: 9)
-[debug]    
-[debug]    Frontier:
-[debug]    Qubit 1: 11
-[debug]    Qubit 2: 15
-[debug]    Qubit 0: 23
-[debug]    
-[debug]    Axels:
-[debug]    
 [debug]    Gadget(s) are removed.
 [debug]    Cleaning frontier
 [debug]    Extracting single qubit gates
 [debug]    Extracting CZs
 [debug]    Removing gadget(s)
-[debug]    Frontier:
-[debug]    Qubit 1: 11
-[debug]    Qubit 2: 15
-[debug]    Qubit 0: 23
-[debug]    
-[debug]    Axels:
-[debug]    
-[debug]    Frontier:
-[debug]    Qubit 1: 11
-[debug]    Qubit 2: 15
-[debug]    Qubit 0: 23
-[debug]    
-[debug]    Axels:
-[debug]    
 [debug]    Single neighbor found. Construct an easy matrix.
 [debug]    Extracting Hadamards from matrix
 [debug]    Cleaning frontier
 [debug]    Extracting single qubit gates
 [debug]    Extracting CZs
 [debug]    Removing gadget(s)
-[debug]    Frontier:
-[debug]    Qubit 1: 11
-[debug]    Qubit 2: 15
-[debug]    Qubit 0: 9
-[debug]    
-[debug]    Axels:
-[debug]    
-[debug]    Frontier:
-[debug]    Qubit 1: 11
-[debug]    Qubit 2: 15
-[debug]    Qubit 0: 9
-[debug]    
-[debug]    Axels:
-[debug]    
 [debug]    Perform Gaussian elimination.
 [debug]    Filter 0 CXs. Total: 0
 [debug]    Filter 0 CXs. Total: 0

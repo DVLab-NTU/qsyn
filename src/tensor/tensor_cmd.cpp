@@ -110,9 +110,9 @@ Command tensor_adjoint_cmd(TensorMgr& tensor_mgr) {
             },
             [&](ArgumentParser const& parser) {
                 if (parser.parsed("id")) {
-                    tensor_mgr.find_by_id(parser.get<size_t>("id"))->adjoint();
+                    tensor_mgr.find_by_id(parser.get<size_t>("id"))->adjoint_inplace();
                 } else {
-                    tensor_mgr.get()->adjoint();
+                    tensor_mgr.get()->adjoint_inplace();
                 }
                 return CmdExecResult::done;
             }};
@@ -187,7 +187,6 @@ Command tensor_cmd(TensorMgr& tensor_mgr) {
     cmd.add_subcommand("tensor-cmd-group", tensor_equivalence_cmd(tensor_mgr));
     cmd.add_subcommand("tensor-cmd-group", tensor_read_cmd(tensor_mgr));
     cmd.add_subcommand("tensor-cmd-group", tensor_write_cmd(tensor_mgr));
-
     return cmd;
 }
 

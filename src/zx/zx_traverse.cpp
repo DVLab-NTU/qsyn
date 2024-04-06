@@ -106,10 +106,10 @@ void ZXGraph::_bfs(std::unordered_set<ZXVertex*>& visited_vertices, std::vector<
         topological_order.emplace_back(s);
         queue.pop_front();
 
-        for (auto [adjecent, _] : this->get_neighbors(s)) {
-            if (!visited_vertices.contains(adjecent)) {
-                visited_vertices.emplace(adjecent);
-                queue.emplace_back(adjecent);
+        for (auto [adjacent, _] : this->get_neighbors(s)) {
+            if (!visited_vertices.contains(adjacent)) {
+                visited_vertices.emplace(adjacent);
+                queue.emplace_back(adjacent);
             }
         }
     }

@@ -38,19 +38,19 @@ std::string StabilizerTableau::to_bit_string() const {
     return ret;
 }
 
-StabilizerTableau& StabilizerTableau::h(size_t qubit) {
+StabilizerTableau& StabilizerTableau::h(size_t qubit) noexcept {
     if (qubit >= n_qubits()) return *this;
     std::ranges::for_each(_stabilizers, [qubit](PauliProduct& p) { p.h(qubit); });
     return *this;
 }
 
-StabilizerTableau& StabilizerTableau::s(size_t qubit) {
+StabilizerTableau& StabilizerTableau::s(size_t qubit) noexcept {
     if (qubit >= n_qubits()) return *this;
     std::ranges::for_each(_stabilizers, [qubit](PauliProduct& p) { p.s(qubit); });
     return *this;
 }
 
-StabilizerTableau& StabilizerTableau::cx(size_t ctrl, size_t targ) {
+StabilizerTableau& StabilizerTableau::cx(size_t ctrl, size_t targ) noexcept {
     if (ctrl >= n_qubits() || targ >= n_qubits()) return *this;
     std::ranges::for_each(_stabilizers, [ctrl, targ](PauliProduct& p) { p.cx(ctrl, targ); });
     return *this;
@@ -318,7 +318,7 @@ CliffordOperatorString HOptSynthesisStrategy::synthesize(StabilizerTableau copy)
 
         if (qubit_it == qubit_range.end()) continue;
 
-        auto const ctrl = gsl::narrow<size_t>(qubit_it - qubit_range.begin());
+        auto const ctrl = std::ranges::distance(qubit_range.begin(), qubit_it);
 
         for (size_t targ = ctrl + 1; targ < copy.n_qubits(); ++targ) {
             if (copy.stabilizer(i).is_x_set(targ)) {

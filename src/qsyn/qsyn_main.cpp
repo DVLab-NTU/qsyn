@@ -16,7 +16,6 @@
 #include <filesystem>
 #include <string>
 #include <tl/enumerate.hpp>
-#include <type_traits>
 
 #include "./qsyn_helper.hpp"
 #include "argparse/arg_parser.hpp"
@@ -25,9 +24,6 @@
 #include "qcir/qcir_mgr.hpp"
 #include "tableau/tableau_mgr.hpp"
 #include "tensor/tensor_mgr.hpp"
-#include "util/sysdep.hpp"
-#include "util/usage.hpp"
-#include "util/util.hpp"
 #include "zx/zxgraph_mgr.hpp"
 
 #ifndef QSYN_VERSION
@@ -48,7 +44,6 @@ std::string const version_str = fmt::format(
     "qsyn {} - Copyright © 2022-{:%Y}, DVLab NTUEE.\n"
     "Licensed under Apache 2.0 License.",
     QSYN_VERSION, std::chrono::system_clock::now());
-
 }  // namespace
 
 bool stop_requested() { return cli.stop_requested(); }
@@ -94,22 +89,16 @@ int main(int argc, char** argv) {
             cli.add_variable(std::to_string(i + 1), arg);
         }
 
-        auto const result = cli.execute_one_line(cmd_stream, !quiet);
-
-        if (result == dvlab::CmdExecResult::quit) {
-            return cli.get_last_return_code();
-        }
+        cli.execute_one_line(cmd_stream, !quiet);
+        return dvlab::get_exit_code(cli.get_last_return_status());
     }
 
     if (parser.parsed("--file")) {
         auto args = parser.get<std::vector<std::string>>("--file");
 
-        auto const result = cli.source_dofile(args[0], std::ranges::subrange(args.begin() + 1, args.end()), !quiet);
-
-        if (result == dvlab::CmdExecResult::quit) {
-            return cli.get_last_return_code();
-        }
+        cli.source_dofile(args[0], std::ranges::subrange(args.begin() + 1, args.end()), !quiet);
+        return dvlab::get_exit_code(cli.get_last_return_status());
     }
 
-    return cli.start_interactive();
+    return dvlab::get_exit_code(cli.start_interactive());
 }

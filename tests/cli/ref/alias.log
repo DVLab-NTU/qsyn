@@ -22,7 +22,7 @@ Description:
   read a circuit and construct the corresponding netlist
 
 Positional Arguments:
-  string  filepath    the filepath to quantum circuit file. Supported extension: .qasm, .qc, .qsim, .quipper 
+  string  filepath    the filepath to quantum circuit file. Supported extension: .qasm, .qc 
 
 Options:
   flag  -h, --help       show this help message                                                  

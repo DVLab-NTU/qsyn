@@ -10,23 +10,23 @@
 #include <fmt/core.h>
 
 #include <cstddef>
-#include <cstdint>
 #include <memory>
 #include <string>
 #include <unordered_map>
 
-#include "qcir/gate_type.hpp"
 #include "qsyn/qsyn_type.hpp"
 #include "util/ordered_hashmap.hpp"
 #include "util/ordered_hashset.hpp"
-#include "util/phase.hpp"
+
+namespace qsyn::qcir {
+class QCirGate;
+}
 
 namespace qsyn::device {
 
 class Device;
 class Topology;
 class PhysicalQubit;
-class Operation;
 struct DeviceInfo;
 
 struct DeviceInfo {
@@ -53,24 +53,24 @@ public:
     Topology() {}
 
     std::string get_name() const { return _name; }
-    std::vector<qcir::GateType> const& get_gate_set() const { return _gate_set; }
+    auto get_gate_set() const { return _gate_set; }
     DeviceInfo const& get_adjacency_pair_info(size_t a, size_t b);
     DeviceInfo const& get_qubit_info(size_t a);
     size_t get_num_adjacencies() const { return _adjacency_info.size(); }
     void set_num_qubits(size_t n) { _num_qubit = n; }
     void set_name(std::string n) { _name = std::move(n); }
-    void add_gate_type(qcir::GateType gt) { _gate_set.emplace_back(gt); }
+    void add_gate_type(std::string const& gt) { _gate_set.emplace_back(gt); }
     void add_adjacency_info(size_t a, size_t b, DeviceInfo info);
     void add_qubit_info(size_t a, DeviceInfo info);
 
     void print_single_edge(size_t a, size_t b) const;
 
 private:
-    std::string _name                     = "";
-    size_t _num_qubit                     = 0;
-    std::vector<qcir::GateType> _gate_set = {};
-    PhysicalQubitInfo _qubit_info         = {};
-    AdjacencyMap _adjacency_info          = {};
+    std::string _name                  = "";
+    size_t _num_qubit                  = 0;
+    std::vector<std::string> _gate_set = {};
+    PhysicalQubitInfo _qubit_info      = {};
+    AdjacencyMap _adjacency_info       = {};
 };
 
 class PhysicalQubit {
@@ -138,7 +138,7 @@ public:
     void add_adjacency(QubitIdType a, QubitIdType b);
 
     // NOTE - Duostra
-    void apply_gate(Operation const& op);
+    void apply_gate(qcir::QCirGate const& op, size_t time_begin);
     void apply_single_qubit_gate(QubitIdType physical_id);
     void apply_swap_check(QubitIdType qid0, QubitIdType qid1);
     std::vector<std::optional<size_t>> mapping() const;
@@ -173,44 +173,12 @@ private:
     bool _parse_info(std::ifstream& f, std::vector<std::vector<float>>& cx_error, std::vector<std::vector<float>>& cx_delay, std::vector<float>& single_error, std::vector<float>& single_delay);
 
     // NOTE - Containers and helper functions for Floyd-Warshall
-    int _max_dist = default_max_dist;
-    std::vector<std::vector<QubitIdType>> _predecessor;
-    std::vector<std::vector<int>> _distance;
+    size_t _max_dist = default_max_dist;
+    std::vector<std::vector<QubitIdType>> _predecessor;  // _predecessor[i][j] = predecessor of j in path from i to j
+    std::vector<std::vector<size_t>> _distance;          // _distance[i][j] = distance from i to j
     std::vector<std::vector<QubitIdType>> _adjacency_matrix;
     void _initialize_floyd_warshall();
     void _set_weight();
-};
-
-class Operation {
-public:
-    friend std::ostream& operator<<(std::ostream& os, Operation const& op);
-
-    Operation(qcir::GateRotationCategory op, dvlab::Phase ph, std::tuple<size_t, size_t> qubits, std::tuple<size_t, size_t> duration);
-
-    qcir::GateRotationCategory get_type() const { return _operation; }
-    dvlab::Phase get_phase() const { return _phase; }
-    size_t get_time_end() const { return std::get<1>(_duration); }
-    size_t get_time_begin() const { return std::get<0>(_duration); }
-    std::tuple<size_t, size_t> get_time_range() const { return _duration; }
-    size_t get_duration() const { return std::get<1>(_duration) - std::get<0>(_duration); }
-    std::tuple<QubitIdType, QubitIdType> get_qubits() const { return _qubits; }
-
-    size_t get_id() const { return _id; }
-    void set_id(size_t id) { _id = id; }
-
-    std::string get_type_str() const { return qcir::gate_type_to_str(_operation, is_double_qubit_gate() ? 2 : 1, _phase); }
-    bool is_double_qubit_gate() const { return std::get<1>(_qubits) != max_qubit_id; }
-
-    bool is_swap() const { return _operation == qcir::GateRotationCategory::swap; }
-    bool is_cx() const { return _operation == qcir::GateRotationCategory::px && _phase == dvlab::Phase(1) && is_double_qubit_gate(); }
-    bool is_cz() const { return _operation == qcir::GateRotationCategory::pz && _phase == dvlab::Phase(1) && is_double_qubit_gate(); }
-
-private:
-    size_t _id = SIZE_MAX;
-    qcir::GateRotationCategory _operation;
-    dvlab::Phase _phase;
-    std::tuple<QubitIdType, QubitIdType> _qubits;
-    std::tuple<size_t, size_t> _duration;  // <from, to>
 };
 
 }  // namespace qsyn::device
@@ -222,19 +190,5 @@ struct fmt::formatter<qsyn::device::DeviceInfo> {
     template <typename FormatContext>
     auto format(qsyn::device::DeviceInfo const& info, FormatContext& ctx) {
         return fmt::format_to(ctx.out(), "Delay: {:>7.3}    Error: {:7.3}    ", info._time, info._error);
-    }
-};
-
-template <>
-struct fmt::formatter<qsyn::device::Operation> {
-    constexpr auto parse(format_parse_context& ctx) { return ctx.begin(); }
-
-    template <typename FormatContext>
-    auto format(qsyn::device::Operation const& op, FormatContext& ctx) {
-        if (op.is_double_qubit_gate()) {
-            return fmt::format_to(ctx.out(), "Operation: {}  Q{} Q{}  duration: {} -- {}", op.get_type_str(), std::get<0>(op.get_qubits()), std::get<1>(op.get_qubits()), op.get_time_begin(), op.get_time_end());
-        } else {
-            return fmt::format_to(ctx.out(), "Operation: {}  Q{}  duration: {} -- {}", op.get_type_str(), std::get<0>(op.get_qubits()), op.get_time_begin(), op.get_time_end());
-        }
     }
 };

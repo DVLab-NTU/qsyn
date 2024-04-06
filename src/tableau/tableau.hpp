@@ -8,6 +8,8 @@
 
 #pragma once
 
+#include <variant>
+
 #include "./stabilizer_tableau.hpp"
 
 namespace qsyn {
@@ -64,9 +66,9 @@ public:
     auto add_procedure(std::string const& procedure) { _procedures.push_back(procedure); }
     auto add_procedures(std::vector<std::string> const& procedures) { _procedures.insert(_procedures.end(), procedures.begin(), procedures.end()); }
 
-    Tableau& h(size_t qubit) override;
-    Tableau& s(size_t qubit) override;
-    Tableau& cx(size_t control, size_t target) override;
+    Tableau& h(size_t qubit) noexcept override;
+    Tableau& s(size_t qubit) noexcept override;
+    Tableau& cx(size_t control, size_t target) noexcept override;
 
 private:
     std::vector<SubTableau> _subtableaux;

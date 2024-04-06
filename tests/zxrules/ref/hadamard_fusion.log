@@ -11,8 +11,8 @@ qsyn> qcir gate add h 0
 
 qsyn> qcir print --gate
 Listed by gate ID
-ID:   0 (  h)      Time:    1     Qubit:   0 
-ID:   1 (  h)      Time:    2     Qubit:   0 
+0 (t=1): h  q[0]
+1 (t=2): h  q[0]
 
 qsyn> qc2zx
 [info]     Converting to QCir 0 to ZXGraph 0...
@@ -85,9 +85,9 @@ qsyn> qcir gate add h 0
 
 qsyn> qcir print --gate
 Listed by gate ID
-ID:   0 (  h)      Time:    1     Qubit:   0 
-ID:   1 (  h)      Time:    2     Qubit:   0 
-ID:   2 (  h)      Time:    3     Qubit:   0 
+0 (t=1): h  q[0]
+1 (t=2): h  q[0]
+2 (t=3): h  q[0]
 
 qsyn> qc2zx
 [info]     Converting to QCir 0 to ZXGraph 0...
@@ -149,8 +149,8 @@ qsyn> qcir gate add h 0
 
 qsyn> qcir print --gate
 Listed by gate ID
-ID:   0 (  h)      Time:    1     Qubit:   0 
-ID:   1 (  h)      Time:    2     Qubit:   0 
+0 (t=1): h  q[0]
+1 (t=2): h  q[0]
 
 qsyn> qc2zx
 [info]     Converting to QCir 0 to ZXGraph 0...
@@ -223,9 +223,9 @@ qsyn> qcir gate add h 0
 
 qsyn> qcir print --gate
 Listed by gate ID
-ID:   0 (  h)      Time:    1     Qubit:   0 
-ID:   1 (  h)      Time:    2     Qubit:   0 
-ID:   2 (  h)      Time:    3     Qubit:   0 
+0 (t=1): h  q[0]
+1 (t=2): h  q[0]
+2 (t=3): h  q[0]
 
 qsyn> qc2zx
 [info]     Converting to QCir 0 to ZXGraph 0...
@@ -308,9 +308,9 @@ qsyn> qcir gate add h 0
 
 qsyn> qcir print --gate
 Listed by gate ID
-ID:   0 (  h)      Time:    1     Qubit:   0 
-ID:   1 (  z)      Time:    2     Qubit:   0 
-ID:   2 (  h)      Time:    3     Qubit:   0 
+0 (t=1): h  q[0]
+1 (t=2): z  q[0]
+2 (t=3): h  q[0]
 
 qsyn> qc2zx
 [info]     Converting to QCir 0 to ZXGraph 0...
@@ -381,8 +381,8 @@ qsyn> qcir gate add z 1
 
 qsyn> qcir print --gate
 Listed by gate ID
-ID:   0 (  z)      Time:    1     Qubit:   0 
-ID:   1 (  z)      Time:    1     Qubit:   1 
+0 (t=1): z  q[0]
+1 (t=1): z  q[1]
 
 qsyn> qc2zx
 [info]     Converting to QCir 0 to ZXGraph 0...
@@ -468,12 +468,12 @@ qsyn> qcir gate add z 0
 
 qsyn> qcir print --gate
 Listed by gate ID
-ID:   0 (  h)      Time:    1     Qubit:   0 
-ID:   1 (  h)      Time:    2     Qubit:   0 
-ID:   2 (  z)      Time:    3     Qubit:   0 
-ID:   3 (  h)      Time:    4     Qubit:   0 
-ID:   4 (  h)      Time:    5     Qubit:   0 
-ID:   5 (  z)      Time:    6     Qubit:   0 
+0 (t=1): h  q[0]
+1 (t=2): h  q[0]
+2 (t=3): z  q[0]
+3 (t=4): h  q[0]
+4 (t=5): h  q[0]
+5 (t=6): z  q[0]
 
 qsyn> qc2zx
 [info]     Converting to QCir 0 to ZXGraph 0...
