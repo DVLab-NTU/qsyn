@@ -8,9 +8,9 @@
 
 #include <concepts>
 #include <functional>
+#include <list>
 #include <unordered_map>
 #include <utility>
-#include <list>
 
 #include "./tableau.hpp"
 #include "tableau/pauli_rotation.hpp"
@@ -54,12 +54,15 @@ struct NaiveMatroidPartitionStrategy : public MatroidPartitionStrategy {
 struct TparPartitionStrategy : public MatroidPartitionStrategy {
     Partitions partition(Polynomial const& polynomial, size_t num_ancillae) const override;
 
+    // Path stores a list of (polynomial id, reference of partition where the polynomial is in)
+    // [Note] The last element should be (newest id, dummy partition), meaning the element is
+    //        not yet inside any partition.
     struct Path {
         std::list<std::pair<size_t, std::reference_wrapper<Term_Set>>> path_list;
 
-        Path () {}
-        Path (size_t i, std::reference_wrapper<Term_Set> t) { this->insert(i, t); }
-        Path (size_t i, std::reference_wrapper<Term_Set> t,  const Path& p) : path_list(p.path_list)  {
+        Path() {}
+        Path(size_t i, std::reference_wrapper<Term_Set> t) { this->insert(i, t); }
+        Path(size_t i, std::reference_wrapper<Term_Set> t, const Path& p) : path_list(p.path_list) {
             this->insert(i, t);
         }
 
@@ -71,10 +74,10 @@ struct TparPartitionStrategy : public MatroidPartitionStrategy {
         auto end() { return path_list.end(); }
 
         void insert(size_t i, std::reference_wrapper<Term_Set> t) { path_list.push_front(std::make_pair(i, t)); }
-        void pop() { path_list.pop_front(); }
+        void pop() { path_list.pop_front(); }  // unused
     };
-    
-    void print_termset(const Term_Set&) const;
+
+    void print_termset(const Term_Set& t_set) const;
 };
 
 inline bool is_phase_polynomial(std::vector<PauliRotation> const& polynomial) noexcept {

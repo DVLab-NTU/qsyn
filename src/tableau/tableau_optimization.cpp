@@ -7,6 +7,7 @@
 #include "./tableau_optimization.hpp"
 
 #include <fmt/core.h>
+#include <spdlog/spdlog.h>
 
 #include <algorithm>
 #include <deque>
@@ -15,9 +16,9 @@
 #include <ranges>
 #include <tl/adjacent.hpp>
 #include <tl/to.hpp>
+#include <unordered_set>
 #include <utility>
 #include <variant>
-#include <unordered_set>
 #include <vector>
 
 #include "tableau/pauli_rotation.hpp"
@@ -445,15 +446,12 @@ auto MatroidPartitionStrategy::is_independent(std::vector<PauliRotation> const& 
     auto const n     = dim_v + num_ancillae;
     std::vector<PauliRotation> vec;
     vec.reserve(set.size());
-    for(auto&s: set) {
+    for (auto const& s : set) {
         vec.push_back(s.second);
     }
     // equivalent to the independence oracle lemma:
     //     dim(V) + |S| <= n + rank(S)
-    auto ret = dim_v + set.size() <= n + matrix_rank(vec); 
-    std::cout << " independent? " << ret << '\n';
-    vec.clear();
-    return ret;
+    return dim_v + set.size() <= n + matrix_rank(vec);
 }
 
 MatroidPartitionStrategy::Partitions NaiveMatroidPartitionStrategy::partition(MatroidPartitionStrategy::Polynomial const& polynomial, size_t num_ancillae) const {
@@ -470,15 +468,11 @@ MatroidPartitionStrategy::Partitions NaiveMatroidPartitionStrategy::partition(Ma
             matroids.push_back({term});
         }
     }
-    
+
     DVLAB_ASSERT(std::ranges::none_of(matroids, [](std::vector<PauliRotation> const& matroid) { return matroid.empty(); }), "The matroids must not be empty.");
 
     return matroids;
 }
-
-// void TparPartitionStrategy::print_partitions(Partitions p){
-
-// }
 
 MatroidPartitionStrategy::Partitions TparPartitionStrategy::partition(MatroidPartitionStrategy::Polynomial const& polynomial, size_t num_ancillae) const {
     auto matroids = std::vector(0, std::vector<PauliRotation>{});  // starts with an empty matroid
@@ -489,68 +483,68 @@ MatroidPartitionStrategy::Partitions TparPartitionStrategy::partition(MatroidPar
 
     // Algorithm 1: A simple algorithm to create partitions
     // ref: [Polynomial-time T-depth Optimization of Clifford+T circuits via Matroid Partitioning](https://arxiv.org/pdf/1303.2042.pdf)
-    
-    Partitions_Set partitions; // The trick here is to store the index of the term and make the a group later. Maybe I can change it to pointer later.
-    std::deque<Path> path_queue; // Path Queue
-    std::unordered_set<size_t> visited_ids; // Mark if traversed
+
+    Partitions_Set partitions;               // The trick here is to store the index of the term and make the a group later. Maybe I can change it to pointer later.
+    std::deque<Path> path_queue;             // Path Queue
+    std::unordered_set<size_t> visited_ids;  // Mark if traversed
     visited_ids.reserve(polynomial.size());
 
     for (auto i : std::views::iota(0ul, polynomial.size())) {
         // auto& term = polynomial[i];
-        std::cout << polynomial[i].to_bit_string() << "\n";
+        spdlog::trace("{}", polynomial[i].to_bit_string());
 
         path_queue.clear();
         path_queue.emplace_back(TparPartitionStrategy::Path(i, std::ref(*partitions.end())));
 
-        std::cout << "\n";
-        visited_ids.clear(); // unmark each elements
-        visited_ids.insert(i); // mark present term
+        visited_ids.clear();    // unmark each elements
+        visited_ids.insert(i);  // mark present term
         bool insert_success_flag = false;
 
-        while(!path_queue.empty() && !insert_success_flag) {
+        while (!path_queue.empty() && !insert_success_flag) {
             auto t = path_queue.front();
             path_queue.pop_front();
 
-            for (auto& A: partitions) { // A: a set of size_t
+            // `partition` is a set of size_t, which records the id of polynomials
+            // In the paper, partition is symboled as A.
+            for (auto& partition : partitions) {
                 if (insert_success_flag) break;
-                if (A == t.head_partition().get()) continue;
-            
-                auto A_modified = A; // [Notice] A_modified is a copy of A
-                A_modified.insert(std::make_pair(t.head_ele() ,polynomial[t.head_ele()]) );
+                if (partition == t.head_partition().get()) continue;
 
-                // Add the head to A. If A is independent, leave it, otherwise we'll have to remove it
-                if (this->is_independent(polynomial, A_modified, num_ancillae)) {
-                    A = A_modified;
-                    std::cout << " --- is_independent ---\n";
-                    for (auto p = t.begin(); p != --(t.end());) { 
-                        std::cout << "    traversing...\n";
-                        // Go through the shortest path to the Independence Oracle and modify each node on the path to correct Oracle. 
-                        auto tmp = p->second.get();
-                        tmp.erase( p->first );
-                        ++p;
-                        tmp.insert( std::make_pair( p->first, polynomial[p->first] ));
+                // `partition_modified` is the partition after inserting the new polynomial
+                // [Notice] partition_modified is a copy of partition
+                auto partition_modified = partition;
+                partition_modified.insert(std::make_pair(t.head_ele(), polynomial[t.head_ele()]));
+
+                if (this->is_independent(polynomial, partition_modified, num_ancillae)) {
+                    // The polynomial is added to partition.
+                    partition = partition_modified;
+
+                    // Go through the shortest path to the Independence Oracle and modify each node on the path to correct partition.
+                    for (auto p = t.begin(); p != --(t.end());) {
+                        spdlog::trace("    traversing...\n");
+                        auto& tmp = p->second.get();  // why auto&???
+                        tmp.erase((p++)->first);
+                        tmp.insert(std::make_pair(p->first, polynomial[p->first]));
                     }
                     insert_success_flag = true;
-                }
-                else {
-                    for (auto& u : A) {
-                        // print_termset(A);
+                } else {
+                    for (auto& u : partition) {
+                        // print_termset(partition);
                         // u has to be unvisited
                         if (visited_ids.find(u.first) != visited_ids.end()) continue;
 
                         // check independent oracle
                         // if A' \ {u} \in I
-                        A_modified.erase(u.first);
-                        if (!this->is_independent(polynomial, A_modified, num_ancillae)) {
-                            std::cout << "not independent QQ\n";
-                            A_modified.insert(u);
+                        partition_modified.erase(u.first);
+                        if (!this->is_independent(polynomial, partition_modified, num_ancillae)) {
+                            partition_modified.insert(u);
                             continue;
                         }
-                        A_modified.insert(u);
+                        partition_modified.insert(u);
 
                         // Q.enqueue(u->t)
-                        std::cout << "new Path: " << u.first << "->" << t.head_ele() << "\n";
-                        path_queue.emplace_back(TparPartitionStrategy::Path(u.first, A, t));
+                        spdlog::trace("new Path: {}->{}", u.first, t.head_ele());
+                        path_queue.emplace_back(TparPartitionStrategy::Path(u.first, std::ref(partition), t));
 
                         // Mark u
                         visited_ids.insert(u.first);
@@ -559,40 +553,37 @@ MatroidPartitionStrategy::Partitions TparPartitionStrategy::partition(MatroidPar
             }
         }
 
-        if(!insert_success_flag) {
+        if (!insert_success_flag) {
             // create new set
-            std::cout << "create new set...\n";
+            spdlog::trace("create new set...");
             Term_Set new_set;
             new_set.insert(std::make_pair(i, polynomial[i]));
             partitions.push_back(new_set);
         }
     }
 
-    std::cout << "* Result: \n";
-
+    spdlog::trace("* Result:");
     for (auto& p : partitions) {
         std::vector<PauliRotation> new_matroid;
         new_matroid.reserve(p.size());
-        std::cout << "--- Partition ---\n"; 
+        spdlog::trace("--- Partition ---");
         for (auto& i : p) {
-            std::cout << polynomial[i.first].pauli_product().to_bit_string() << "\n";
+            spdlog::trace(polynomial[i.first].pauli_product().to_bit_string());
             new_matroid.push_back(polynomial[i.first]);
-        } 
+        }
         matroids.push_back(new_matroid);
     }
 
-    std::cout << "**************\n";
+    spdlog::trace("**************");
     DVLAB_ASSERT(std::ranges::none_of(matroids, [](std::vector<PauliRotation> const& matroid) { return matroid.empty(); }), "The matroids must not be empty.");
 
     return matroids;
 }
 
-void 
-TparPartitionStrategy::print_termset(const Term_Set& t_set) const
-{
-    for (auto& term: t_set) {
-        std::cout << "id: " << term.first << "\n";
-        std::cout << term.second.to_bit_string() << "\n";
+void TparPartitionStrategy::print_termset(const Term_Set& t_set) const {
+    for (auto& term : t_set) {
+        fmt::println("id: {}", term.first);
+        fmt::println("{}", term.second.to_bit_string());
     }
 }
 

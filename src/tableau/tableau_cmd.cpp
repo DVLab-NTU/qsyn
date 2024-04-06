@@ -6,6 +6,7 @@
 ****************************************************************************/
 
 #include "./tableau_cmd.hpp"
+
 #include <memory>
 
 #include "./stabilizer_tableau.hpp"
@@ -256,8 +257,7 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr) {
                     auto const matpar_strategy = std::invoke([&]() -> std::unique_ptr<MatroidPartitionStrategy> {
                         if (dvlab::str::is_prefix_of(strategy, "naive")) {
                             return std::make_unique<NaiveMatroidPartitionStrategy>();
-                        }
-                        else if (dvlab::str::is_prefix_of(strategy, "tpar")) {
+                        } else if (dvlab::str::is_prefix_of(strategy, "tpar")) {
                             return std::make_unique<TparPartitionStrategy>();
                         }
                         return nullptr;
