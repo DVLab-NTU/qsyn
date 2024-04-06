@@ -436,7 +436,7 @@ auto MatroidPartitionStrategy::is_independent(std::vector<PauliRotation> const& 
     // in the literature, where n is the number of qubits = polynomial dimension + num_ancillae
     // ref: [Polynomial-time T-depth Optimization of Clifford+T circuits via Matroid Partitioning](https://arxiv.org/pdf/1303.2042.pdf)
     // Here, we reorganize the inequality to make circumvent unsigned integer overflow
-    return dim_v + polynomial.size() / 2 <= n + matrix_rank(polynomial);
+    return dim_v + polynomial.size() <= n + matrix_rank(polynomial);
 };
 
 auto MatroidPartitionStrategy::is_independent(std::vector<PauliRotation> const& polynomial, Term_Set const& set, size_t num_ancillae) const -> bool {
