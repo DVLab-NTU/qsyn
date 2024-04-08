@@ -51,7 +51,20 @@ struct NaiveMatroidPartitionStrategy : public MatroidPartitionStrategy {
     Partitions partition(Polynomial const& polynomial, size_t num_ancillae) const override;
 };
 
-struct TparPartitionStrategy : public MatroidPartitionStrategy {
+/**
+ * @brief A simple modification of NaiveMatroidPartitionStrategy which searches all matroids instead of only the last one
+ *
+ */
+struct GreedyMatroidPartitionStrategy : public MatroidPartitionStrategy {
+    Partitions partition(Polynomial const& polynomial, size_t num_ancillae) const override;
+};
+
+/**
+ * @brief partitions the given polynomial by Algorithm 1 in
+ * [Polynomial-time T-depth Optimization of Clifford+T circuits via Matroid Partitioning](https://arxiv.org/pdf/1303.2042.pdf)
+ *
+ */
+struct TparMatroidPartitionStrategy : public MatroidPartitionStrategy {
     Partitions partition(Polynomial const& polynomial, size_t num_ancillae) const override;
 
     // Path stores a list of (polynomial id, reference of partition where the polynomial is in)

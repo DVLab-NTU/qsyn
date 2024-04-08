@@ -202,7 +202,7 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr) {
 
             matpar.add_argument<std::string>("strategy")
                 .default_value("naive")
-                .constraint(choices_allow_prefix({"naive", "tpar"}))
+                .constraint(choices_allow_prefix({"naive", "greedy", "tpar"}))
                 .help("Matroid partitioning strategy");
         },
         [&](ArgumentParser const& parser) {
@@ -257,8 +257,10 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr) {
                     auto const matpar_strategy = std::invoke([&]() -> std::unique_ptr<MatroidPartitionStrategy> {
                         if (dvlab::str::is_prefix_of(strategy, "naive")) {
                             return std::make_unique<NaiveMatroidPartitionStrategy>();
+                        } else if (dvlab::str::is_prefix_of(strategy, "greedy")) {
+                            return std::make_unique<GreedyMatroidPartitionStrategy>();
                         } else if (dvlab::str::is_prefix_of(strategy, "tpar")) {
-                            return std::make_unique<TparPartitionStrategy>();
+                            return std::make_unique<TparMatroidPartitionStrategy>();
                         }
                         return nullptr;
                     });

@@ -474,7 +474,35 @@ MatroidPartitionStrategy::Partitions NaiveMatroidPartitionStrategy::partition(Ma
     return matroids;
 }
 
-MatroidPartitionStrategy::Partitions TparPartitionStrategy::partition(MatroidPartitionStrategy::Polynomial const& polynomial, size_t num_ancillae) const {
+MatroidPartitionStrategy::Partitions GreedyMatroidPartitionStrategy::partition(MatroidPartitionStrategy::Polynomial const& polynomial, size_t num_ancillae) const {
+    auto matroids = std::vector(1, std::vector<PauliRotation>{});  // starts with an empty matroid
+
+    if (polynomial.empty()) {
+        return matroids;
+    }
+
+    for (auto const& term : polynomial) {
+        bool insert_success = false;
+        for (auto& matroid : matroids) {
+            matroid.push_back(term);
+            if (!this->is_independent(matroid, num_ancillae)) {
+                matroid.pop_back();
+                continue;
+            }
+            insert_success = true;
+            break;
+        }
+        if (!insert_success) {
+            matroids.push_back({term});
+        }
+    }
+
+    DVLAB_ASSERT(std::ranges::none_of(matroids, [](std::vector<PauliRotation> const& matroid) { return matroid.empty(); }), "The matroids must not be empty.");
+
+    return matroids;
+}
+
+MatroidPartitionStrategy::Partitions TparMatroidPartitionStrategy::partition(MatroidPartitionStrategy::Polynomial const& polynomial, size_t num_ancillae) const {
     auto matroids = std::vector(0, std::vector<PauliRotation>{});  // starts with an empty matroid
 
     if (polynomial.empty()) {
@@ -494,7 +522,7 @@ MatroidPartitionStrategy::Partitions TparPartitionStrategy::partition(MatroidPar
         spdlog::trace("{}", polynomial[i].to_bit_string());
 
         path_queue.clear();
-        path_queue.emplace_back(TparPartitionStrategy::Path(i, std::ref(*partitions.end())));
+        path_queue.emplace_back(TparMatroidPartitionStrategy::Path(i, std::ref(*partitions.end())));
 
         visited_ids.clear();    // unmark each elements
         visited_ids.insert(i);  // mark present term
@@ -544,7 +572,7 @@ MatroidPartitionStrategy::Partitions TparPartitionStrategy::partition(MatroidPar
 
                         // Q.enqueue(u->t)
                         spdlog::trace("new Path: {}->{}", u.first, t.head_ele());
-                        path_queue.emplace_back(TparPartitionStrategy::Path(u.first, std::ref(partition), t));
+                        path_queue.emplace_back(TparMatroidPartitionStrategy::Path(u.first, std::ref(partition), t));
 
                         // Mark u
                         visited_ids.insert(u.first);
@@ -580,7 +608,7 @@ MatroidPartitionStrategy::Partitions TparPartitionStrategy::partition(MatroidPar
     return matroids;
 }
 
-void TparPartitionStrategy::print_termset(const Term_Set& t_set) const {
+void TparMatroidPartitionStrategy::print_termset(const Term_Set& t_set) const {
     for (auto& term : t_set) {
         fmt::println("id: {}", term.first);
         fmt::println("{}", term.second.to_bit_string());
