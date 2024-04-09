@@ -16,6 +16,8 @@ namespace qsyn {
 
 namespace experimental {
 
+void full_optimize(Tableau& tableau);
+
 void collapse(Tableau& tableau);
 
 void remove_identities(std::vector<PauliRotation>& rotation);
@@ -33,17 +35,17 @@ void merge_rotations(Tableau& tableau);
 // implemented in ./optimize/internal_h_opt.cpp
 
 std::pair<Tableau, StabilizerTableau> minimize_hadamards(Tableau tableau, StabilizerTableau context);
-Tableau minimize_internal_hadamards(Tableau tableau);
+void minimize_internal_hadamards(Tableau& tableau);
 
 struct PhasePolynomialOptimizationStrategy {
     using Polynomial                               = std::vector<PauliRotation>;
     virtual ~PhasePolynomialOptimizationStrategy() = default;
 
-    virtual void optimize(StabilizerTableau& clifford, Polynomial& polynomial) const = 0;
+    virtual std::pair<StabilizerTableau, Polynomial> optimize(StabilizerTableau const& clifford, Polynomial const& polynomial) const = 0;
 };
 
 struct ToddPhasePolynomialOptimizationStrategy : public PhasePolynomialOptimizationStrategy {
-    void optimize(StabilizerTableau& clifford, Polynomial& polynomial) const override;
+    std::pair<StabilizerTableau, Polynomial> optimize(StabilizerTableau const& clifford, Polynomial const& polynomial) const override;
 };
 
 void optimize_phase_polynomial(StabilizerTableau& clifford, std::vector<PauliRotation>& polynomial, PhasePolynomialOptimizationStrategy const& strategy);

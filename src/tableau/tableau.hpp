@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include <tl/fold.hpp>
 #include <variant>
 
 #include "./stabilizer_tableau.hpp"
@@ -36,6 +37,21 @@ public:
     auto& back() { return _subtableaux.back(); }
 
     auto n_qubits() const -> size_t;
+    auto n_cliffords() const {
+        return std::ranges::count_if(_subtableaux, [](auto const& subtableau) { return std::holds_alternative<StabilizerTableau>(subtableau); });
+    }
+    auto n_pauli_rotations() const {
+        return tl::fold_left(_subtableaux, size_t{0}, [](size_t acc, auto const& subtableau) {
+            return acc + dvlab::match(
+                             subtableau,
+                             [](StabilizerTableau const&) { return 0ul; },
+                             [](std::vector<PauliRotation> const& rotations) {
+                                 return rotations.size();
+                             });
+        });
+    }
+
+    auto is_empty() const { return _subtableaux.empty(); }
 
     auto insert(std::vector<SubTableau>::iterator pos, std::vector<SubTableau>::iterator first, std::vector<SubTableau>::iterator last) {
         return _subtableaux.insert(pos, first, last);

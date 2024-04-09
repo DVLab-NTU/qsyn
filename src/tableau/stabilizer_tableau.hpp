@@ -91,6 +91,10 @@ public:
 
     inline bool is_identity() const { return *this == StabilizerTableau{n_qubits()}; }
 
+    inline bool is_commutative(PauliProduct const& rhs) const {
+        return std::ranges::all_of(_stabilizers | std::views::take(n_qubits()), [&rhs](PauliProduct const& stabilizer) { return stabilizer.is_commutative(rhs); });
+    }
+
 private:
     std::vector<PauliProduct> _stabilizers;
 };

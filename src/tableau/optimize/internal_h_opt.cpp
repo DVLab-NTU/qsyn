@@ -5,14 +5,51 @@
  */
 
 #include "../tableau_optimization.hpp"
+#include "tableau/pauli_rotation.hpp"
+#include "tableau/stabilizer_tableau.hpp"
 
 namespace qsyn::experimental {
 
 namespace {
 
+void apply_clifford(Tableau& tableau, CliffordOperatorString const& clifford, size_t n_qubits) {
+    // if the stabilizer is not commutative with the clifford, we need to add the clifford to the tableau first
+    if (clifford.empty()) {
+        return;
+    }
+
+    if (tableau.size() == 0) {
+        auto st = StabilizerTableau{n_qubits}.apply(clifford);
+        tableau.push_back(std::move(st));
+        return;
+    }
+
+    dvlab::match(
+        tableau.back(),
+        [&](StabilizerTableau& subtableau) {
+            subtableau.apply(clifford);
+        },
+        [&](std::vector<PauliRotation>& subtableau) {
+            auto st = StabilizerTableau{n_qubits}.apply(clifford);
+            if (!std::ranges::all_of(subtableau, [&](PauliRotation const& rotation) { return st.is_commutative(rotation.pauli_product()); })) {
+                tableau.push_back(std::move(st));
+                return;
+            }
+
+            if (tableau.size() > 1 && std::holds_alternative<StabilizerTableau>(tableau[tableau.size() - 2])) {
+                // if the second-to-last element is a clifford, we can merge the clifford into it
+                std::get<StabilizerTableau>(tableau[tableau.size() - 2]).apply(clifford);
+                return;
+            }
+
+            tableau.insert(tableau.end() - 1, std::move(st));
+            return;
+        });
+}
+
 void implement_into_tableau(Tableau& tableau, StabilizerTableau& context, size_t qubit, dvlab::Phase const& phase) {
     auto const qubit_range = std::views::iota(0ul, context.n_qubits());
-    StabilizerTableau clifford{context.n_qubits()};
+    CliffordOperatorString clifford{};
 
     auto stabilizer = std::ref(context.stabilizer(qubit));
 
@@ -27,37 +64,37 @@ void implement_into_tableau(Tableau& tableau, StabilizerTableau& context, size_t
         for (size_t targ = ctrl + 1; targ < context.n_qubits(); ++targ) {
             if (stabilizer.get().is_x_set(targ)) {
                 context.cx(ctrl, targ);
-                clifford.cx(ctrl, targ);
+                clifford.emplace_back(CliffordOperatorType::cx, std::array{ctrl, targ});
             }
         }
 
         if (stabilizer.get().is_z_set(ctrl)) {
             context.s(ctrl);
-            clifford.s(ctrl);
+            clifford.emplace_back(CliffordOperatorType::s, std::array{ctrl, 0ul});
         }
 
         context.h(ctrl);
-        clifford.h(ctrl);
+        clifford.emplace_back(CliffordOperatorType::h, std::array{ctrl, 0ul});
     }
 
-    if (!clifford.is_identity()) {
-        tableau.push_back(clifford);
-    }
+    apply_clifford(tableau, clifford, context.n_qubits());
 
-    std::visit(
-        dvlab::overloaded(
-            [&](StabilizerTableau& /* unused */) {
-                tableau.push_back(std::vector{PauliRotation{stabilizer, phase}});
-            },
-            [&](std::vector<PauliRotation>& subtableau) {
-                subtableau.push_back(PauliRotation{stabilizer, phase});
-            }),
-        tableau.back());
+    dvlab::match(
+        tableau.back(),
+        [&](StabilizerTableau& /* subtableau */) {
+            tableau.push_back(std::vector{PauliRotation{stabilizer, phase}});
+        },
+        [&](std::vector<PauliRotation>& subtableau) {
+            subtableau.push_back(PauliRotation{stabilizer, phase});
+        });
 }
 
 }  // namespace
 
 std::pair<Tableau, StabilizerTableau> minimize_hadamards(Tableau tableau, StabilizerTableau context) {
+    if (tableau.is_empty()) {
+        return {Tableau{context.n_qubits()}, context};
+    }
     collapse(tableau);
 
     auto const& initial_clifford = std::get<StabilizerTableau>(tableau.front());
@@ -91,10 +128,14 @@ std::pair<Tableau, StabilizerTableau> minimize_hadamards(Tableau tableau, Stabil
     return {new_tableau, context};
 }
 
-Tableau minimize_internal_hadamards(Tableau tableau) {
+void minimize_internal_hadamards(Tableau& tableau) {
+    if (tableau.is_empty()) {
+        return;
+    }
     collapse(tableau);
 
-    auto context = StabilizerTableau{tableau.n_qubits()};
+    auto context        = StabilizerTableau{tableau.n_qubits()};
+    auto final_clifford = StabilizerTableau{tableau.n_qubits()};
 
     std::ranges::for_each(
         extract_clifford_operators(std::get<StabilizerTableau>(tableau.front())),
@@ -102,18 +143,13 @@ Tableau minimize_internal_hadamards(Tableau tableau) {
             context.prepend(adjoint(op));
         });
 
-    auto [_, initial_clifford]         = minimize_hadamards(Tableau{adjoint(tableau.front())}, context);
-    auto [out_tableau, final_clifford] = minimize_hadamards(tableau, initial_clifford);
+    auto [_, initial_clifford]        = minimize_hadamards(Tableau{adjoint(tableau.front())}, context);
+    std::tie(tableau, final_clifford) = minimize_hadamards(tableau, initial_clifford);
 
-    out_tableau.insert(out_tableau.begin(), initial_clifford);
-    out_tableau.push_back(adjoint(final_clifford));
+    tableau.insert(tableau.begin(), initial_clifford);
+    tableau.push_back(adjoint(final_clifford));
 
-    remove_identities(out_tableau);
-
-    out_tableau.set_filename(tableau.get_filename());
-    out_tableau.add_procedures(tableau.get_procedures());
-
-    return out_tableau;
+    remove_identities(tableau);
 }
 
 }  // namespace qsyn::experimental

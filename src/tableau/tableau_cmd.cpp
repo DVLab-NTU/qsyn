@@ -56,7 +56,7 @@ dvlab::Command tableau_new_cmd(TableauMgr& tableau_mgr) {
         [&](ArgumentParser const& parser) {
             auto const n_qubits = parser.get<size_t>("n_qubits");
 
-            auto id = parser.parsed("id") ? parser.get<size_t>("id") : tableau_mgr.get_next_id();
+            auto const id = parser.parsed("id") ? parser.get<size_t>("id") : tableau_mgr.get_next_id();
 
             if (tableau_mgr.is_id(id)) {
                 if (!parser.parsed("--replace")) {
@@ -73,7 +73,7 @@ dvlab::Command tableau_new_cmd(TableauMgr& tableau_mgr) {
         }};
 }
 
-dvlab::Command tableau_apply_cmd(TableauMgr& tableau_mgr) {
+dvlab::Command tableau_append_cmd(TableauMgr& tableau_mgr) {
     return dvlab::Command{
         "append",
         [&](ArgumentParser& parser) {
@@ -152,9 +152,14 @@ dvlab::Command tableau_print_cmd(TableauMgr& tableau_mgr) {
             }
             if (parser.parsed("-b")) {
                 fmt::println("{:b}", *tableau_mgr.get());
-            } else {
-                fmt::println("{:c}", *tableau_mgr.get());
+                return dvlab::CmdExecResult::done;
             }
+            if (parser.parsed("-c")) {
+                fmt::println("{:c}", *tableau_mgr.get());
+                return dvlab::CmdExecResult::done;
+            }
+
+            fmt::println("Tableau ({} qubits, {} Clifford segments, {} Pauli rotations)", tableau_mgr.get()->n_qubits(), tableau_mgr.get()->n_cliffords(), tableau_mgr.get()->n_pauli_rotations());
             return dvlab::CmdExecResult::done;
         }};
 }
@@ -182,11 +187,11 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr) {
 
             auto methods = parser.add_subparsers("method").required(true);
 
+            methods.add_parser("full")
+                .description("Perform tmerge, hopt, phasepoly until the T-count stops decreasing");
+
             methods.add_parser("collapse")
                 .description("Collapse the tableau into a canonical form");
-
-            methods.add_parser("properize")
-                .description("Make every rotation in the tableau has a phase between [0, π/2)");
 
             methods.add_parser("tmerge")
                 .description("Merge rotations of the same rotation plane");
@@ -222,8 +227,8 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr) {
             auto const method_str = parser.get<std::string>("method");
 
             enum struct OptimizationMethod {
+                full,
                 collapse,
-                properize,
                 t_merge,
                 internal_h_opt,
                 phase_polynomial_optimization,
@@ -231,10 +236,10 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr) {
             };
 
             auto method = std::invoke([&]() -> std::optional<OptimizationMethod> {
-                if (dvlab::str::is_prefix_of(method_str, "collapse")) {
+                if (dvlab::str::is_prefix_of(method_str, "full")) {
+                    return OptimizationMethod::full;
+                } else if (dvlab::str::is_prefix_of(method_str, "collapse")) {
                     return OptimizationMethod::collapse;
-                } else if (dvlab::str::is_prefix_of(method_str, "properize")) {
-                    return OptimizationMethod::properize;
                 } else if (dvlab::str::is_prefix_of(method_str, "tmerge")) {
                     return OptimizationMethod::t_merge;
                 } else if (dvlab::str::is_prefix_of(method_str, "hopt")) {
@@ -253,7 +258,6 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr) {
             }
 
             auto const do_phase_polynomial_optimization = [&]() {
-                return true;
                 auto const phasepoly_strategy_str = parser.get<std::string>("strategy");
 
                 auto const phasepoly_strategy = std::invoke([&]() -> std::unique_ptr<PhasePolynomialOptimizationStrategy> {
@@ -286,20 +290,19 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr) {
             };
 
             switch (method.value()) {
+                case OptimizationMethod::full:
+                    full_optimize(*tableau_mgr.get());
+                    break;
                 case OptimizationMethod::collapse:
                     collapse(*tableau_mgr.get());
                     tableau_mgr.get()->add_procedure("collapse");
-                    break;
-                case OptimizationMethod::properize:
-                    properize(*tableau_mgr.get());
-                    tableau_mgr.get()->add_procedure("Properize");
                     break;
                 case OptimizationMethod::t_merge:
                     merge_rotations(*tableau_mgr.get());
                     tableau_mgr.get()->add_procedure("MergeT");
                     break;
                 case OptimizationMethod::internal_h_opt:
-                    *tableau_mgr.get() = minimize_internal_hadamards(*tableau_mgr.get());
+                    minimize_internal_hadamards(*tableau_mgr.get());
                     tableau_mgr.get()->add_procedure("InternalHOpt");
                     break;
                 case OptimizationMethod::phase_polynomial_optimization:
@@ -326,7 +329,7 @@ dvlab::Command tableau_cmd(TableauMgr& tableau_mgr) {
     cmd.add_subcommand("tableau-cmd-group", dvlab::utils::mgr_delete_cmd(tableau_mgr));
     cmd.add_subcommand("tableau-cmd-group", dvlab::utils::mgr_checkout_cmd(tableau_mgr));
     cmd.add_subcommand("tableau-cmd-group", dvlab::utils::mgr_copy_cmd(tableau_mgr));
-    cmd.add_subcommand("tableau-cmd-group", tableau_apply_cmd(tableau_mgr));
+    cmd.add_subcommand("tableau-cmd-group", tableau_append_cmd(tableau_mgr));
     cmd.add_subcommand("tableau-cmd-group", tableau_adjoint_cmd(tableau_mgr));
     cmd.add_subcommand("tableau-cmd-group", tableau_print_cmd(tableau_mgr));
     cmd.add_subcommand("tableau-cmd-group", tableau_optimization_cmd(tableau_mgr));

@@ -67,6 +67,8 @@ public:
             return _row[i];
         }
 
+        void reserve(size_t n) { _row.reserve(n); }
+
     private:
         std::vector<unsigned char> _row;
     };
@@ -89,6 +91,7 @@ public:
         return std::distance(_matrix.begin(), it);
     }
 
+    bool is_empty() const { return _matrix.empty(); }
     size_t num_rows() const { return _matrix.size(); }
     size_t num_cols() const { return _matrix[0].size(); }
 
@@ -105,6 +108,11 @@ public:
     void push_row(Row const& row) { _matrix.emplace_back(row); }
     void push_row(Row&& row) { _matrix.emplace_back(std::move(row)); }
     void erase_row(size_t r) { _matrix.erase(dvlab::iterator::next(_matrix.begin(), r)); };
+
+    void reserve(size_t n_rows, size_t n_cols) {
+        _matrix.reserve(n_rows);
+        for (auto& row : _matrix) row.reserve(n_cols);
+    }
 
     Row& operator[](size_t const& i) {
         return _matrix[i];

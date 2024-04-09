@@ -25,6 +25,27 @@ namespace qsyn {
 
 namespace experimental {
 
+/**
+ * @brief Perform the best-known optimization routine on the tableau. The strategy may change in the future.
+ *
+ * @param tableau
+ */
+void full_optimize(Tableau& tableau) {
+    size_t non_clifford_count = SIZE_MAX;
+    size_t count              = 0;
+    do {  // NOLINT(cppcoreguidelines-avoid-do-while)
+        non_clifford_count = tableau.n_pauli_rotations();
+        fmt::println("TMerge");
+        merge_rotations(tableau);
+        fmt::println("Internal-H-opt");
+        minimize_internal_hadamards(tableau);
+        fmt::println("Phase polynomial optimization");
+        optimize_phase_polynomial(tableau, ToddPhasePolynomialOptimizationStrategy{});
+        spdlog::info("{}: Reduced the number of non-Clifford gates from {} to {}.", ++count, non_clifford_count, tableau.n_pauli_rotations());
+    } while (non_clifford_count > tableau.n_pauli_rotations());
+    minimize_internal_hadamards(tableau);
+}
+
 namespace {
 /**
  * @brief A view of the conjugation of a Clifford and a list of PauliRotations.
@@ -200,8 +221,6 @@ void remove_identities(Tableau& tableau) {
  * @param rotations
  */
 void merge_rotations(std::vector<PauliRotation>& rotations) {
-    assert(std::ranges::all_of(rotations, [&rotations](PauliRotation const& rotation) { return rotation.n_qubits() == rotations.front().n_qubits(); }));
-
     // merge two rotations if they are commutative and have the same underlying pauli product
     for (size_t i = 0; i < rotations.size(); ++i) {
         for (size_t j = i + 1; j < rotations.size(); ++j) {
@@ -299,9 +318,14 @@ void properize(StabilizerTableau& clifford, std::vector<PauliRotation>& rotation
 
         conjugation_view.apply(ops);
     }
+
+    remove_identities(rotations);
 }
 
 void properize(Tableau& tableau) {
+    if (tableau.is_empty()) {
+        return;
+    }
     // ensures that the first sub-tableau is a stabilizer tableau
     if (std::holds_alternative<std::vector<PauliRotation>>(tableau.front())) {
         tableau.insert(tableau.begin(), StabilizerTableau{tableau.n_qubits()});
@@ -357,7 +381,7 @@ void properize(Tableau& tableau) {
 void merge_rotations(Tableau& tableau) {
     collapse(tableau);
 
-    if (tableau.size() == 1) {
+    if (tableau.size() <= 1) {
         return;
     }
 
@@ -381,7 +405,7 @@ void optimize_phase_polynomial(StabilizerTableau& clifford, std::vector<PauliRot
         return;
     }
 
-    strategy.optimize(clifford, polynomial);
+    std::tie(clifford, polynomial) = strategy.optimize(clifford, polynomial);
 }
 
 /**
@@ -391,6 +415,9 @@ void optimize_phase_polynomial(StabilizerTableau& clifford, std::vector<PauliRot
  * @param strategy
  */
 void optimize_phase_polynomial(Tableau& tableau, PhasePolynomialOptimizationStrategy const& strategy) {
+    if (tableau.is_empty()) {
+        return;
+    }
     // if the first sub-tableau is a list of PauliRotations, prepend a stabilizer tableau to the front
     if (std::holds_alternative<std::vector<PauliRotation>>(tableau.front())) {
         tableau.insert(tableau.begin(), StabilizerTableau{tableau.n_qubits()});

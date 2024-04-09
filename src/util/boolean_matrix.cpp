@@ -442,8 +442,11 @@ bool BooleanMatrix::Row::operator==(Row const& rhs) const {
 }
 
 dvlab::BooleanMatrix vstack(dvlab::BooleanMatrix const& a, dvlab::BooleanMatrix const& b) {
+    if (b.num_rows() == 0) return a;
+    if (a.num_rows() == 0) return b;
     assert(a.num_cols() == b.num_cols());
     auto ret = dvlab::BooleanMatrix();
+    ret.reserve(a.num_rows() + b.num_rows(), a.num_cols());
     for (auto const& row : a.get_matrix()) {
         ret.push_row(row);
     }
@@ -454,8 +457,11 @@ dvlab::BooleanMatrix vstack(dvlab::BooleanMatrix const& a, dvlab::BooleanMatrix 
 }
 
 dvlab::BooleanMatrix hstack(dvlab::BooleanMatrix const& a, dvlab::BooleanMatrix const& b) {
+    if (b.num_cols() == 0) return a;
+    if (a.num_cols() == 0) return b;
     assert(a.num_rows() == b.num_rows());
     auto ret = dvlab::BooleanMatrix();
+    ret.reserve(a.num_rows(), a.num_cols() + b.num_cols());
     for (size_t i = 0; i < a.num_rows(); i++) {
         auto row = a.get_row(i).get_row();
         row.insert(row.end(), b.get_row(i).get_row().begin(), b.get_row(i).get_row().end());
@@ -466,6 +472,7 @@ dvlab::BooleanMatrix hstack(dvlab::BooleanMatrix const& a, dvlab::BooleanMatrix 
 
 dvlab::BooleanMatrix transpose(dvlab::BooleanMatrix const& matrix) {
     auto ret = dvlab::BooleanMatrix();
+    ret.reserve(matrix.num_cols(), matrix.num_rows());
     for (size_t i = 0; i < matrix.num_cols(); i++) {
         std::vector<unsigned char> row;
         for (size_t j = 0; j < matrix.num_rows(); j++) {
@@ -478,6 +485,7 @@ dvlab::BooleanMatrix transpose(dvlab::BooleanMatrix const& matrix) {
 
 dvlab::BooleanMatrix identity(size_t size) {
     auto ret = dvlab::BooleanMatrix(size, size);
+    ret.reserve(size, size);
     for (size_t i = 0; i < size; i++) {
         ret[i][i] = 1;
     }
