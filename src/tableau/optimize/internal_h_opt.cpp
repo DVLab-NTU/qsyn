@@ -13,14 +13,12 @@ namespace qsyn::experimental {
 namespace {
 
 void apply_clifford(Tableau& tableau, CliffordOperatorString const& clifford, size_t n_qubits) {
-    // if the stabilizer is not commutative with the clifford, we need to add the clifford to the tableau first
     if (clifford.empty()) {
         return;
     }
 
-    if (tableau.size() == 0) {
-        auto st = StabilizerTableau{n_qubits}.apply(clifford);
-        tableau.push_back(std::move(st));
+    if (tableau.is_empty()) {
+        tableau.push_back(StabilizerTableau{n_qubits}.apply(clifford));
         return;
     }
 
@@ -30,19 +28,30 @@ void apply_clifford(Tableau& tableau, CliffordOperatorString const& clifford, si
             subtableau.apply(clifford);
         },
         [&](std::vector<PauliRotation>& subtableau) {
-            auto st = StabilizerTableau{n_qubits}.apply(clifford);
-            if (!std::ranges::all_of(subtableau, [&](PauliRotation const& rotation) { return st.is_commutative(rotation.pauli_product()); })) {
-                tableau.push_back(std::move(st));
+            // check if the clifford can be inserted before the rotations
+
+            // suppose the Pauli rotation is R_P(θ), and the clifford is C, then we have
+            // C R_P(θ) = R_P(θ) C if and only if CPC^† = P
+            auto copy_rotations = subtableau;
+            for (auto& rotation : copy_rotations) {
+                rotation.apply(clifford);
+            }
+
+            // Case I: some rotations does not commute with the clifford
+            if (copy_rotations != subtableau) {
+                tableau.push_back(StabilizerTableau{n_qubits}.apply(clifford));
                 return;
             }
 
+            // Case II: all rotations commute with the clifford, and the second-to-last element is a clifford
             if (tableau.size() > 1 && std::holds_alternative<StabilizerTableau>(tableau[tableau.size() - 2])) {
-                // if the second-to-last element is a clifford, we can merge the clifford into it
                 std::get<StabilizerTableau>(tableau[tableau.size() - 2]).apply(clifford);
                 return;
             }
 
-            tableau.insert(tableau.end() - 1, std::move(st));
+            // Case III: all rotations commute with the clifford, and the second-to-last element is a list of rotations
+            assert(tableau.size() > 0);
+            tableau.insert(std::prev(tableau.end()), StabilizerTableau{n_qubits}.apply(clifford));
             return;
         });
 }

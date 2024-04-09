@@ -35,11 +35,11 @@ void full_optimize(Tableau& tableau) {
     size_t count              = 0;
     do {  // NOLINT(cppcoreguidelines-avoid-do-while)
         non_clifford_count = tableau.n_pauli_rotations();
-        fmt::println("TMerge");
+        spdlog::debug("TMerge");
         merge_rotations(tableau);
-        fmt::println("Internal-H-opt");
+        spdlog::debug("Internal-H-opt");
         minimize_internal_hadamards(tableau);
-        fmt::println("Phase polynomial optimization");
+        spdlog::debug("Phase polynomial optimization");
         optimize_phase_polynomial(tableau, ToddPhasePolynomialOptimizationStrategy{});
         spdlog::info("{}: Reduced the number of non-Clifford gates from {} to {}.", ++count, non_clifford_count, tableau.n_pauli_rotations());
     } while (non_clifford_count > tableau.n_pauli_rotations());
