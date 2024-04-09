@@ -242,8 +242,6 @@ public:
     void print_vertices_by_rows(spdlog::level::level_enum lvl = spdlog::level::level_enum::off, std::vector<float> const& cand = {}) const;
     void print_edges() const;
 
-    void print_difference(ZXGraph* other) const;
-
     // For mapping (in zxMapping.cpp)
     ZXVertexList get_non_boundary_vertices();
     ZXVertex* get_input_by_qubit(size_t const& q);

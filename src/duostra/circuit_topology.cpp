@@ -56,7 +56,6 @@ std::unique_ptr<CircuitTopology> CircuitTopology::clone() const {
  * @param executed
  */
 void CircuitTopology::update_available_gates(size_t executed) {
-    assert(find(begin(_available_gates), end(_available_gates), executed) != end(_available_gates));
     auto const& gate_executed = get_gate(executed);
     _available_gates.erase(remove(begin(_available_gates), end(_available_gates), executed), end(_available_gates));
     assert(gate_executed.get_id() == executed);
