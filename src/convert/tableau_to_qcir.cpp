@@ -16,8 +16,10 @@
 
 #include "qcir/gate_type.hpp"
 #include "qcir/qcir.hpp"
+#include "tableau/tableau_optimization.hpp"
 #include "util/phase.hpp"
 #include "util/boolean_matrix.hpp"
+#include "util/util.hpp"
 
 namespace qsyn::experimental {
 
@@ -118,7 +120,8 @@ std::optional<qcir::QCir> TParPauliRotationsSynthesisStrategy::synthesize(std::v
     qcir::QCir qcir{rotations.front().n_qubits()};
     
     // assert it is a valid partition
-    // assert all 0f its type are z axis
+    NaiveMatroidPartitionStrategy mps;
+    DVLAB_ASSERT(mps.is_independent(rotations, 0),"It is not a valid partition.");
 
     std::unordered_map<size_t, size_t> permutation_map;
     CliffordOperatorString clifford_ops;
