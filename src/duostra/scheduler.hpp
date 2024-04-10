@@ -8,9 +8,9 @@
 
 #pragma once
 
+#include <cstddef>
 #include <functional>
 #include <memory>
-#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -23,22 +23,10 @@ namespace qsyn::duostra {
 
 class BaseScheduler {
 public:
-    using Device    = qsyn::device::Device;
-    using Operation = qsyn::device::Operation;
+    using Device = qsyn::device::Device;
     BaseScheduler(CircuitTopology topo, bool tqdm)
         : _circuit_topology(std::move(topo)), _tqdm(tqdm) {}
     virtual ~BaseScheduler() = default;
-
-    void swap(BaseScheduler& other) noexcept {
-        std::swap(_circuit_topology, other._circuit_topology);
-        std::swap(_operations, other._operations);
-        std::swap(_assign_order, other._assign_order);
-        std::swap(_tqdm, other._tqdm);
-    }
-
-    friend void swap(BaseScheduler& a, BaseScheduler& b) noexcept {
-        a.swap(b);
-    }
 
     virtual std::unique_ptr<BaseScheduler> clone() const;
 
@@ -52,7 +40,7 @@ public:
     size_t get_operations_cost() const;
     bool is_sorted() const { return _sorted; }
     std::vector<size_t> const& get_available_gates() const { return _circuit_topology.get_available_gates(); }
-    std::vector<Operation> const& get_operations() const { return _operations; }
+    std::vector<qcir::QCirGate> const& get_operations() const { return _operations; }
     std::vector<size_t> const& get_order() const { return _assign_order; }
 
     Device assign_gates_and_sort(std::unique_ptr<Router> router);
@@ -60,18 +48,18 @@ public:
 
 protected:
     CircuitTopology _circuit_topology;
-    std::vector<Operation> _operations = {};
-    std::vector<size_t> _assign_order  = {};
-    bool _sorted                       = false;
-    bool _tqdm                         = true;
+    std::vector<qcir::QCirGate> _operations = {};
+    std::vector<size_t> _assign_order       = {};
+    GateIdToTime _gate_id_to_time           = {};
+    bool _sorted                            = false;
+    bool _tqdm                              = true;
     virtual Device _assign_gates(std::unique_ptr<Router> router);
     void _sort();
 };
 
 class RandomScheduler : public BaseScheduler {
 public:
-    using Device    = BaseScheduler::Device;
-    using Operation = BaseScheduler::Operation;
+    using Device = BaseScheduler::Device;
     RandomScheduler(CircuitTopology const& topo, bool tqdm) : BaseScheduler(topo, tqdm) {}
 
     std::unique_ptr<BaseScheduler> clone() const override;
@@ -82,8 +70,7 @@ protected:
 
 class NaiveScheduler : public BaseScheduler {
 public:
-    using Device    = BaseScheduler::Device;
-    using Operation = BaseScheduler::Operation;
+    using Device = BaseScheduler::Device;
     NaiveScheduler(CircuitTopology const& topo, bool tqdm) : BaseScheduler(topo, tqdm) {}
 
     std::unique_ptr<BaseScheduler> clone() const override;
@@ -103,24 +90,9 @@ struct GreedyConf {
 
 class GreedyScheduler : public BaseScheduler {  // NOLINT(hicpp-special-member-functions, cppcoreguidelines-special-member-functions) : copy-swap idiom
 public:
-    using Device    = BaseScheduler::Device;
-    using Operation = BaseScheduler::Operation;
+    using Device = BaseScheduler::Device;
     GreedyScheduler(CircuitTopology const& topo, bool tqdm) : BaseScheduler(topo, tqdm) {}
     ~GreedyScheduler() override = default;
-    GreedyScheduler(GreedyScheduler const& other) : BaseScheduler(other), _conf(other._conf) {}
-    GreedyScheduler(GreedyScheduler&& other) noexcept : BaseScheduler(other) {
-        _conf = std::exchange(other._conf, {});
-    }
-
-    GreedyScheduler& operator=(GreedyScheduler copy) {
-        copy.swap(*this);
-        return *this;
-    }
-
-    void swap(GreedyScheduler& other) noexcept {
-        std::swap(static_cast<BaseScheduler&>(*this), static_cast<BaseScheduler&>(other));
-        std::swap(_conf, other._conf);
-    }
 
     std::unique_ptr<BaseScheduler> clone() const override;
     size_t greedy_fallback(Router& router, std::vector<size_t> const& waitlist) const;
@@ -215,8 +187,7 @@ private:
 
 class SearchScheduler : public GreedyScheduler {  // NOLINT(hicpp-special-member-functions, cppcoreguidelines-special-member-functions) : copy-swap idiom
 public:
-    using Device    = GreedyScheduler::Device;
-    using Operation = GreedyScheduler::Operation;
+    using Device = GreedyScheduler::Device;
     SearchScheduler(CircuitTopology const& topo, bool tqdm = true);
     ~SearchScheduler() override = default;
     SearchScheduler(SearchScheduler const& other);

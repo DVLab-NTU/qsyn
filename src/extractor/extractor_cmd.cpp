@@ -102,7 +102,7 @@ dvlab::Command extraction_step_cmd(zx::ZXGraphMgr& zxgraph_mgr, QCirMgr& qcir_mg
 
                 zxgraph_mgr.checkout(zx_id);
                 qcir_mgr.checkout(qcir_id);
-                Extractor ext(zxgraph_mgr.get(), qcir_mgr.get(), std::nullopt);
+                Extractor ext(zxgraph_mgr.get(), qcir_mgr.get() /*, std::nullopt */);
 
                 if (parser.parsed("--loop")) {
                     ext.extraction_loop(parser.get<size_t>("--loop"));

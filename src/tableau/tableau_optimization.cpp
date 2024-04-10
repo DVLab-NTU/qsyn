@@ -35,7 +35,7 @@ public:
         std::vector<PauliRotation>& rotations,
         size_t upto) : _clifford{clifford}, _rotations{rotations}, _upto{upto} {}
 
-    ConjugationView& h(size_t qubit) override {
+    ConjugationView& h(size_t qubit) noexcept override {
         _clifford.get().h(qubit);
         for (size_t i = 0; i < _upto; ++i) {
             _rotations.get()[i].h(qubit);
@@ -43,7 +43,7 @@ public:
         return *this;
     }
 
-    ConjugationView& s(size_t qubit) override {
+    ConjugationView& s(size_t qubit) noexcept override {
         _clifford.get().s(qubit);
         for (size_t i = 0; i < _upto; ++i) {
             _rotations.get()[i].s(qubit);
@@ -51,7 +51,7 @@ public:
         return *this;
     }
 
-    ConjugationView& cx(size_t control, size_t target) override {
+    ConjugationView& cx(size_t control, size_t target) noexcept override {
         _clifford.get().cx(control, target);
         for (size_t i = 0; i < _upto; ++i) {
             _rotations.get()[i].cx(control, target);

@@ -7,9 +7,6 @@
 
 #include "./optimizer.hpp"
 
-#include <algorithm>
-#include <cassert>
-
 #include "../qcir.hpp"
 #include "../qcir_gate.hpp"
 #include "../qcir_qubit.hpp"
@@ -23,19 +20,19 @@ namespace qsyn::qcir {
  */
 void Optimizer::reset(QCir const& qcir) {
     _gates.clear();
-    _available.clear();
-    _availty.clear();
+    _available_gates.clear();
+    _qubit_available.clear();
     _hadamards.clear();
     _xs.clear();
     _zs.clear();
     _swaps.clear();
-    _gate_count = 0;
     _statistics = {};
-    for (int i = 0; i < gsl::narrow<QubitIdType>(qcir.get_qubits().size()); i++) {
-        _availty.emplace_back(false);
-        _available.emplace(i, std::vector<QCirGate*>{});
-        _gates.emplace(i, std::vector<QCirGate*>{});
-        _permutation[i] = qcir.get_qubits()[i]->get_id();
+    _permutation.clear();
+    for (size_t i = 0; i < qcir.get_num_qubits(); i++) {
+        _qubit_available.emplace_back(false);
+        _available_gates.emplace(i, std::vector<size_t>{});
+        _gates.emplace(i, std::vector<size_t>{});
+        _permutation.emplace(i, i);
     }
 }
 
@@ -111,8 +108,8 @@ void Optimizer::_swap_element(Optimizer::ElementType type, QubitIdType e1, Qubit
  * @return true
  * @return false
  */
-bool Optimizer::is_single_z_rotation(QCirGate* g) {
-    return g->get_num_qubits() == 1 && (g->get_rotation_category() == GateRotationCategory::pz || g->get_rotation_category() == GateRotationCategory::rz);
+bool Optimizer::is_single_z_rotation(QCirGate const& g) {
+    return g.get_operation().is<PZGate>() || g.get_operation().is<RZGate>();
 }
 
 /**
@@ -122,8 +119,8 @@ bool Optimizer::is_single_z_rotation(QCirGate* g) {
  * @return true
  * @return false
  */
-bool Optimizer::is_single_x_rotation(QCirGate* g) {
-    return g->get_num_qubits() == 1 && (g->get_rotation_category() == GateRotationCategory::px || g->get_rotation_category() == GateRotationCategory::rx);
+bool Optimizer::is_single_x_rotation(QCirGate const& g) {
+    return g.get_operation().is<PXGate>() || g.get_operation().is<RXGate>();
 }
 
 /**
@@ -133,8 +130,8 @@ bool Optimizer::is_single_x_rotation(QCirGate* g) {
  * @return true
  * @return false
  */
-bool Optimizer::is_double_qubit_gate(QCirGate* g) {
-    return g->get_num_qubits() == 2 && (g->is_cx() || g->is_cz());
+bool Optimizer::is_cx_or_cz_gate(QCirGate const& g) {
+    return g.get_operation() == CXGate() || g.get_operation() == CZGate();
 }
 
 /**
@@ -143,26 +140,13 @@ bool Optimizer::is_double_qubit_gate(QCirGate* g) {
  * @param target which qubit
  * @return QCirGate*
  */
-QCirGate* Optimizer::get_available_z_rotation(QubitIdType target) {
-    for (auto& g : _available[target]) {
-        if (is_single_z_rotation(g)) {
+std::optional<size_t> Optimizer::get_available_z_rotation(QubitIdType target) {
+    for (auto& g : _available_gates[target]) {
+        if (is_single_z_rotation(_storage[g])) {
             return g;
         }
     }
-    return nullptr;
-}
-
-/**
- * @brief Add a gate (copy) to the circuit.
- *
- * @param QCir* circuit to add
- * @param QCirGate* The gate to be add
- */
-void Optimizer::_add_gate_to_circuit(QCir& circuit, QCirGate* gate, bool prepend) {
-    auto bit_range = gate->get_qubits() |
-                     std::views::transform([](QubitInfo const& qb) { return qb._qubit; });
-
-    circuit.add_gate(gate->get_type_str(), {bit_range.begin(), bit_range.end()}, gate->get_phase(), !prepend);
+    return std::nullopt;
 }
 
 }  // namespace qsyn::qcir

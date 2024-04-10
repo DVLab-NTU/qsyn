@@ -9,12 +9,7 @@ ENV CXX=/usr/bin/g++
 
 RUN cmake -B build -S ./qsyn && cmake --build build --parallel 8
 
-FROM fedora:38 AS runner
-
-RUN dnf install -y \
-    lapack  \
-    openblas-serial  \
-    libomp
+FROM debian:bookworm-slim AS runner
 
 COPY --from=builder /app/build/qsyn /usr/local/bin/qsyn
 

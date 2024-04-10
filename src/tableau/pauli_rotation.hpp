@@ -10,7 +10,6 @@
 #include <fmt/core.h>
 
 #include <algorithm>
-#include <csignal>
 #include <initializer_list>
 #include <iterator>
 #include <optional>
@@ -105,20 +104,20 @@ class PauliProductTrait {
 public:
     virtual ~PauliProductTrait() = default;
 
-    virtual T& h(size_t qubit)                   = 0;
-    virtual T& s(size_t qubit)                   = 0;
-    virtual T& cx(size_t control, size_t target) = 0;
+    virtual T& h(size_t qubit) noexcept                   = 0;
+    virtual T& s(size_t qubit) noexcept                   = 0;
+    virtual T& cx(size_t control, size_t target) noexcept = 0;
 
-    inline T& sdg(size_t qubit) { return s(qubit).s(qubit).s(qubit); }
-    inline T& v(size_t qubit) { return h(qubit).s(qubit).h(qubit); }
-    inline T& vdg(size_t qubit) { return h(qubit).sdg(qubit).h(qubit); }
+    inline T& sdg(size_t qubit) noexcept { return s(qubit).s(qubit).s(qubit); }
+    inline T& v(size_t qubit) noexcept { return h(qubit).s(qubit).h(qubit); }
+    inline T& vdg(size_t qubit) noexcept { return h(qubit).sdg(qubit).h(qubit); }
 
-    inline T& x(size_t qubit) { return h(qubit).z(qubit).h(qubit); }
-    inline T& y(size_t qubit) { return x(qubit).z(qubit); }
-    inline T& z(size_t qubit) { return s(qubit).s(qubit); }
-    inline T& cz(size_t control, size_t target) { return h(target).cx(control, target).h(target); }
-    inline T& swap(size_t qubit1, size_t qubit2) { return cx(qubit1, qubit2).cx(qubit2, qubit1).cx(qubit1, qubit2); }
-    inline T& ecr(size_t control, size_t target) { return cx(control, target).s(control).x(control).v(target); }
+    inline T& x(size_t qubit) noexcept { return h(qubit).z(qubit).h(qubit); }
+    inline T& y(size_t qubit) noexcept { return x(qubit).z(qubit); }
+    inline T& z(size_t qubit) noexcept { return s(qubit).s(qubit); }
+    inline T& cz(size_t control, size_t target) noexcept { return h(target).cx(control, target).h(target); }
+    inline T& swap(size_t qubit1, size_t qubit2) noexcept { return cx(qubit1, qubit2).cx(qubit2, qubit1).cx(qubit1, qubit2); }
+    inline T& ecr(size_t control, size_t target) noexcept { return cx(control, target).s(control).x(control).v(target); }
 
     inline T& apply(CliffordOperator const& op) {
         auto& [type, qubits] = op;
@@ -204,9 +203,9 @@ public:
     std::string to_string(char signedness = '-') const;
     std::string to_bit_string() const;
 
-    PauliProduct& h(size_t qubit) override;
-    PauliProduct& s(size_t qubit) override;
-    PauliProduct& cx(size_t control, size_t target) override;
+    PauliProduct& h(size_t qubit) noexcept override;
+    PauliProduct& s(size_t qubit) noexcept override;
+    PauliProduct& cx(size_t control, size_t target) noexcept override;
 
     inline PauliProduct& negate() {
         _bitset.flip(_r_idx());
@@ -298,9 +297,9 @@ public:
     std::string to_string(char signedness = '-') const;
     std::string to_bit_string() const;
 
-    PauliRotation& h(size_t qubit) override;
-    PauliRotation& s(size_t qubit) override;
-    PauliRotation& cx(size_t control, size_t target) override;
+    PauliRotation& h(size_t qubit) noexcept override;
+    PauliRotation& s(size_t qubit) noexcept override;
+    PauliRotation& cx(size_t control, size_t target) noexcept override;
 
     inline bool is_commutative(PauliRotation const& rhs) const {
         return _pauli_product.is_commutative(rhs._pauli_product);

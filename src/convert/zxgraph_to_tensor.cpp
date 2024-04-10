@@ -158,7 +158,7 @@ tensor::QTensor<double> get_tensor_form(zx::ZXGraph const& graph, zx::ZXVertex* 
 namespace {
 
 /**
- * @brief Consturct tensor of a single vertex
+ * @brief Construct tensor of a single vertex
  *
  * @param v the tensor of whom
  */
@@ -230,9 +230,9 @@ size_t ZX2TSMapper::_get_tensor_id(zx::ZXGraph const& graph, zx::ZXVertex* v) {
 ZX2TSMapper::InOutAxisList ZX2TSMapper::_get_axis_orders(zx::ZXGraph const& zxgraph) {
     InOutAxisList axis_lists{zxgraph.get_num_inputs(), zxgraph.get_num_outputs()};
 
-    auto const get_table = [](auto vertex_list) -> std::map<int, size_t> {
+    auto const get_table = [](auto vertex_list) -> std::map<size_t, size_t> {
         vertex_list.sort([](auto const& a, auto const& b) { return a->get_qubit() < b->get_qubit(); });
-        std::map<int, size_t> table;
+        std::map<size_t, size_t> table;
         for (auto&& [i, v] : tl::views::enumerate(vertex_list)) {
             table[v->get_qubit()] = i;
         }

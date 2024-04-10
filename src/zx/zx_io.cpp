@@ -48,8 +48,8 @@ public:
 
 private:
     size_t _line_no = 1;
-    std::unordered_set<int> _taken_input_qubits;
-    std::unordered_set<int> _taken_output_qubits;
+    std::unordered_set<QubitIdType> _taken_input_qubits;
+    std::unordered_set<QubitIdType> _taken_output_qubits;
 
     // parsing subroutines
     bool _tokenize(std::string const& line, std::vector<std::string>& tokens);
@@ -573,14 +573,14 @@ bool ZXGraph::write_tikz(std::string const& filename) const {
  */
 bool ZXGraph::write_tikz(std::ostream& os) const {
     static std::unordered_map<VertexType, std::string> const vt2s = {
-        {VertexType::boundary, "boun"},
-        {VertexType::z, "zspi"},
-        {VertexType::x, "xspi"},
-        {VertexType::h_box, "hbox"}};
+        {VertexType::boundary, "bnd"},
+        {VertexType::z, "zsp"},
+        {VertexType::x, "xsp"},
+        {VertexType::h_box, "hbx"}};
 
     static std::unordered_map<EdgeType, std::string> const et2s = {
-        {EdgeType::hadamard, "hedg"},
-        {EdgeType::simple, "sedg"}};
+        {EdgeType::hadamard, "hedge"},
+        {EdgeType::simple, "sedge"}};
 
     static constexpr std::string_view font_size = "tiny";
 

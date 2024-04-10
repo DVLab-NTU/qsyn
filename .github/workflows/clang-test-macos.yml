@@ -13,9 +13,9 @@ jobs:
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v3
-      - name: Download llvm-clang
+      - name: Download llvm-clang, parallel and coreutils
         run: |
-          brew install llvm
+          brew install llvm parallel coreutils
           echo 'export PATH="/usr/local/opt/llvm/bin:$PATH"' >> /Users/runner/.bash_profile
           echo 'export LDFLAGS="-L/usr/local/opt/llvm/lib"' >> /Users/runner/.bash_profile
           echo 'export CPPFLAGS="-I/usr/local/opt/llvm/include"' >> /Users/runner/.bash_profile
@@ -28,7 +28,5 @@ jobs:
           mkdir -p build
           cmake -S . -B build -DCMAKE_CXX_COMPILER=$(which clang++)
           cmake --build build -j $(sysctl -n hw.logicalcpu)
-      ## remove this comment to run tests
-      ## currently, tests are not working on macos because of implementation of std::unordered_map (we guess)
-      # - name: Run test for qsyn
-      #   run: make test
+      - name: Run test for qsyn
+        run: make test

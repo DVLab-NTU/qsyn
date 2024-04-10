@@ -13,11 +13,10 @@
 
 #include "./duostra_def.hpp"
 #include "device/device.hpp"
+#include "qcir/qcir_gate.hpp"
 #include "qsyn/qsyn_type.hpp"
 
 namespace qsyn::duostra {
-
-class Gate;
 
 class AStarNode {
 public:
@@ -37,6 +36,8 @@ private:
 class AStarComp {
 public:
     bool operator()(AStarNode const& a, AStarNode const& b) {
+        if (a._estimated_cost == b._estimated_cost)
+            return a._id > b._id;
         return a._estimated_cost > b._estimated_cost;
     }
 };
@@ -44,11 +45,12 @@ public:
 class Router {
 public:
     using Device        = qsyn::device::Device;
-    using Operation     = qsyn::device::Operation;
     using PhysicalQubit = qsyn::device::PhysicalQubit;
 
-    enum CostStrategyType { start,
-                            end };
+    enum CostStrategyType {
+        start,
+        end
+    };
 
     using PriorityQueue = std::priority_queue<AStarNode, std::vector<AStarNode>, AStarComp>;
     Router(Device device, CostStrategyType cost_strategy, MinMaxOptionType tie_breaking_strategy);
@@ -58,14 +60,14 @@ public:
     auto& get_device() { return _device; }
     auto const& get_device() const { return _device; }
 
-    size_t get_gate_cost(Gate const& gate, MinMaxOptionType min_max, size_t apsp_coeff);
-    bool is_executable(Gate const& gate);
+    size_t get_gate_cost(qcir::QCirGate const& gate, MinMaxOptionType min_max, size_t apsp_coeff);
+    bool is_executable(qcir::QCirGate const& gate);
 
     // Main Router function
-    Operation execute_single(qcir::GateRotationCategory gate, dvlab::Phase phase, QubitIdType q);
-    std::vector<Operation> duostra_routing(Gate const& gate, std::tuple<QubitIdType, QubitIdType> qubit_pair, MinMaxOptionType tie_breaking_strategy, bool swapped);
-    std::vector<Operation> apsp_routing(Gate const& gate, std::tuple<QubitIdType, QubitIdType> qs, MinMaxOptionType tie_breaking_strategy, bool swapped);
-    std::vector<Operation> assign_gate(Gate const& gate);
+    qcir::QCirGate execute_single(qcir::QCirGate const& gate, GateIdToTime& gate_id_to_time, QubitIdType q);
+    std::vector<qcir::QCirGate> duostra_routing(qcir::QCirGate const& gate, GateIdToTime& gate_id_to_time, std::tuple<QubitIdType, QubitIdType> qubit_pair, MinMaxOptionType tie_breaking_strategy);
+    std::vector<qcir::QCirGate> apsp_routing(qcir::QCirGate const& gate, GateIdToTime& gate_id_to_time, std::tuple<QubitIdType, QubitIdType> qs, MinMaxOptionType tie_breaking_strategy);
+    std::vector<qcir::QCirGate> assign_gate(qcir::QCirGate const& gate, GateIdToTime& gate_id_to_time);
 
 private:
     MinMaxOptionType _tie_breaking_strategy;
@@ -73,13 +75,12 @@ private:
     std::vector<QubitIdType> _logical_to_physical;
     bool _apsp : 1;
     bool _duostra : 1;
-    bool _greedy_type : 1;
 
     void _initialize();
-    std::tuple<QubitIdType, QubitIdType> _get_physical_qubits(Gate const& gate) const;
+    std::tuple<QubitIdType, QubitIdType> _get_physical_qubits(qcir::QCirGate const& gate) const;
 
     std::tuple<bool, QubitIdType> _touch_adjacency(PhysicalQubit& qubit, PriorityQueue& pq, bool source);  // return <if touch target, target id>, swtch: false q0 propagate, true q1 propagate
-    std::vector<Operation> _traceback(Gate const& gate, PhysicalQubit& q0, PhysicalQubit& q1, PhysicalQubit& t0, PhysicalQubit& t1, bool swap_ids, bool swapped);
+    std::vector<qcir::QCirGate> _traceback(qcir::QCirGate const& gate, GateIdToTime& gate_id_to_time, PhysicalQubit& q0, PhysicalQubit& q1, PhysicalQubit& t0, PhysicalQubit& t1, bool swap_ids);
 };
 
 }  // namespace qsyn::duostra

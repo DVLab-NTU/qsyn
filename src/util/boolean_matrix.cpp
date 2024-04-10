@@ -117,6 +117,7 @@ void BooleanMatrix::reset() {
  *
  */
 void BooleanMatrix::print_matrix(spdlog::level::level_enum lvl) const {
+    if (!spdlog::should_log(lvl)) return;
     for (auto const& row : _matrix) {
         row.print_row(lvl);
     }

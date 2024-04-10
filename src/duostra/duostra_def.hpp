@@ -11,8 +11,11 @@
 #include <cstdint>
 #include <optional>
 #include <string>
+#include <unordered_map>
 
 namespace qsyn::duostra {
+
+using GateIdToTime = std::unordered_map<size_t, std::pair<size_t, size_t>>;
 
 enum class SchedulerType {
     base,

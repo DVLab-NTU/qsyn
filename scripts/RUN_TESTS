@@ -12,6 +12,14 @@ else
     DIFF="diff"
 fi
 
+function num_procs() {
+    if [ "$(uname)" == "Darwin" ]; then
+        sysctl -n hw.logicalcpu
+    else
+        nproc
+    fi
+}
+
 # return text in green, bold
 pass-style() {
     if [ $# -ne 1 ]; then
@@ -99,7 +107,7 @@ while [[ $# -gt 0 ]]; do
             usage
             exit 0
             ;;
-        -*|--*)
+        -*)
             echo "Error: unknown option $1!!"
             usage
             exit 1
@@ -127,7 +135,7 @@ for arg in "${POSITIONAL[@]}"; do
     if [ -f "$arg" ]; then
         TESTS+=("$arg")
     elif [ -d "$arg" ]; then
-        for file in $(find $arg -regex ".*\.dof" -type f); do
+        for file in $(find "$arg" -regex ".*\.dof" -type f); do
             if [ -f "$file" ]; then
                 TESTS+=("$file")
             fi
@@ -143,7 +151,12 @@ done
 
 ref-path() {
     local TEST=$1
-    echo $(realpath --relative-to $(pwd) "$(dirname ${TEST})/../ref/$(basename ${TEST%.*}).log")
+    # use grealpath on macOS because realpath does not have a --relative-to option
+    if [ "$(uname)" == "Darwin" ]; then
+        grealpath --relative-to "$(pwd)" "$(dirname "${TEST}")/../ref/$(basename "${TEST%.*}").log"
+    else
+        realpath --relative-to "$(pwd)" "$(dirname "${TEST}")/../ref/$(basename "${TEST%.*}").log"
+    fi
 }
 export -f ref-path
 
@@ -154,16 +167,17 @@ dofile-result-same-with-ref() {
     local SILENT=$3
     local QSYN=$4
     local DIFF=$5
-    local REF=$(ref-path $TEST)
+    local REF
+    REF=$(ref-path "$TEST")
     
-    DIFF_OUTPUT=$(OMP_WAIT_POLICY=passive $QSYN --no-version --qsynrc-path /dev/null --file $TEST 2>&1 | $DIFF - $REF 2>&1)
+    DIFF_OUTPUT=$(OMP_WAIT_POLICY=passive $QSYN --no-version --qsynrc-path /dev/null --file "$TEST" 2>&1 | $DIFF - "$REF" 2>&1)
     if [ $? -eq 0 ]; then
         if [[ $VERBOSE -eq 1 ]]; then
             echo "  $(pass-style '✓') $TEST"
             return 0
         fi
     else
-        if [ ! -f $REF ]; then
+        if [ ! -f "$REF" ]; then
             echo "  $(unknown-style '?') $REF"
         else 
             echo "  $(fail-style '✗') $TEST"
@@ -183,15 +197,16 @@ update-dofile-ref() {
     local VERBOSE=$2
     local SILENT=$3
     local QSYN=$4
-    local REF=$(ref-path $TEST)
+    local REF
+    REF=$(ref-path "$TEST")
 
     # if the reference file does not exist, create it
     if [[ ! -f $REF ]]; then
-        mkdir -p $(dirname $REF)
-        touch $REF
+        mkdir -p "$(dirname "$REF")"
+        touch "$REF"
     fi
 
-    DIFF_OUTPUT=$(OMP_WAIT_POLICY=passive $QSYN --no-version --qsynrc-path /dev/null --file $TEST 2>&1 | diff $REF -)
+    DIFF_OUTPUT=$(OMP_WAIT_POLICY=passive $QSYN --no-version --qsynrc-path /dev/null --file "$TEST" 2>&1 | diff "$REF" -)
 
     # update reference file if the output of qsyn is different from the reference
     if [[ $? -eq 0 ]]; then
@@ -200,7 +215,7 @@ update-dofile-ref() {
             return 0
         fi
     else
-        printf "%s\n" "$DIFF_OUTPUT" | patch -f $REF
+        printf "%s\n" "$DIFF_OUTPUT" | patch -f "$REF"
         if [[ $? -eq 1 ]]; then
             echo "  $(fail-style !) $TEST"
             return 0
@@ -217,25 +232,27 @@ if [[ "$ACTION" == 'diff' ]]; then
     echo "> Testing dofiles..."
     
     # run in parallel and count failures
-    parallel -j"$(nproc)" "dofile-result-same-with-ref {} $VERBOSE $SILENT $QSYN $DIFF" ::: "${TESTS[@]}"
+    parallel -j"$(num_procs)" "dofile-result-same-with-ref {} $VERBOSE $SILENT $QSYN $DIFF" ::: "${TESTS[@]}"
 
     FAIL_COUNT=$?
 
     TESTS_COUNT=${#TESTS[@]}
     if [ $FAIL_COUNT -eq 0 ]; then
-        echo "$(pass-style "Passed all $TESTS_COUNT tests.")"
+        pass-style "Passed all $TESTS_COUNT tests."
+        exit 0
     else
-        echo "$(fail-style "$FAIL_COUNT out of $TESTS_COUNT tests failed.")"
+        fail-style "$FAIL_COUNT out of $TESTS_COUNT tests failed."
+        exit 1
     fi
 elif [[ "$ACTION" == 'update' ]]; then
     echo "> Updating reference files..."
 
     # run in parallel and count updates
-    parallel -j"$(nproc)" "update-dofile-ref {} $VERBOSE $SILENT $QSYN" ::: "${TESTS[@]}"
+    parallel -j"$(num_procs)" "update-dofile-ref {} $VERBOSE $SILENT $QSYN" ::: "${TESTS[@]}"
 
     UPDATE_COUNT=$?
 
     TESTS_COUNT=${#TESTS[@]}
 
-    echo "$(pass-style "Updated $UPDATE_COUNT out of $TESTS_COUNT reference files.")"
+    pass-style "Updated $UPDATE_COUNT out of $TESTS_COUNT reference files."
 fi

@@ -8,7 +8,6 @@
 #pragma once
 
 #include "./qcir_mgr.hpp"
-#include "argparse/argparse.hpp"
 #include "cli/cli.hpp"
 
 namespace qsyn::qcir {

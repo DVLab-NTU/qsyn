@@ -53,9 +53,5 @@ qsyn> qcir gate add sdg 1
 
 qsyn> qc2zx
 
-qsyn> qcir read benchmark/qsim/circuits/circuit_q24 -r
-
-qsyn> qc2zx
-
 qsyn> quit -f
 
