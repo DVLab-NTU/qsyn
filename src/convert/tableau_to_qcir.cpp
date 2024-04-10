@@ -177,8 +177,7 @@ std::optional<qcir::QCir> TParPauliRotationsSynthesisStrategy::synthesize(std::v
     }
 
     for(size_t i=0; i<row; i++){
-
-        qcir.add_gate("pz", {gsl::narrow<QubitIdType>(permutation_map[i])}, rotations[i].phase(), true);
+        qcir.append(qcir::PZGate(rotations[i].phase()), {permutation_map[i]});
     }
     
 
