@@ -6,14 +6,19 @@
 ****************************************************************************/
 
 #include "./tableau_to_qcir.hpp"
+#include <spdlog/spdlog.h>
 
 #include <gsl/narrow>
 #include <tl/adjacent.hpp>
 #include <tl/to.hpp>
+#include <unordered_map>
 
 #include "qcir/basic_gate_type.hpp"
 #include "qcir/qcir.hpp"
+#include "tableau/tableau_optimization.hpp"
 #include "util/phase.hpp"
+#include "util/boolean_matrix.hpp"
+#include "util/util.hpp"
 
 namespace qsyn::experimental {
 
@@ -105,9 +110,84 @@ std::optional<qcir::QCir> NaivePauliRotationsSynthesisStrategy::synthesize(std::
     return qcir;
 }
 
-std::optional<qcir::QCir> TParPauliRotationsSynthesisStrategy::synthesize(std::vector<PauliRotation> const& /* rotations */) const {
-    spdlog::error("TPar Synthesis Strategy is not implemented yet!!");
-    return std::nullopt;
+std::optional<qcir::QCir> TParPauliRotationsSynthesisStrategy::synthesize(std::vector<PauliRotation> const& rotations ) const {
+    
+    if (rotations.empty()) {
+        return qcir::QCir{0};
+    }
+
+    qcir::QCir qcir{rotations.front().n_qubits()};
+    
+    // assert it is a valid partition
+    NaiveMatroidPartitionStrategy mps;
+    DVLAB_ASSERT(mps.is_independent(rotations, 0),"It is not a valid partition.");
+
+    std::unordered_map<size_t, size_t> permutation_map;
+    CliffordOperatorString clifford_ops;
+
+    auto const add_cx = [&](size_t ctrl, size_t targ) {;
+        clifford_ops.push_back({CliffordOperatorType::cx, {ctrl, targ}});
+    };
+
+    // load to the uncomplete_matrix
+    size_t row = rotations.size();
+    size_t col = rotations[0].n_qubits();
+    dvlab::BooleanMatrix matrix(row, col);
+    for (size_t i = 0; i < row; ++i) {
+        for (size_t j = 0; j < col; ++j) {
+            matrix[i][j] = rotations[i].pauli_product().is_z_set(j);
+        }
+    }
+
+    // synthesis concept:
+    // Id matrix --(first_row_ops)--> completed matrix --(second_row_ops)--> uncompleted matrix + unchanged qubits
+    // ex:
+    // 1000      1100     1011
+    // 0100  ->  0110 ->  0110
+    // 0010      0010     0010 (unchanged)
+    // 0001      0001     1010
+    matrix.gaussian_elimination_skip(rotations.size(), true, true);
+    auto second_row_ops = matrix.get_row_operations();
+
+    
+    // build first_row_ops
+    for(size_t i=0; i< row; i++){
+        bool first_one_in_the_row = true;
+        for(size_t j=0; j< col; j++){
+            if(matrix[i][j]==0) continue;
+
+            if(first_one_in_the_row){
+                // assert i not in permutation map
+                permutation_map[i] = j;
+                first_one_in_the_row = false;
+                continue;
+            }
+
+            add_cx(j, i);
+        }
+    }
+
+    for(auto& [c, t]: second_row_ops){
+        add_cx(permutation_map[c], permutation_map[t]);
+    }
+
+    // synthesis process
+    for (auto const& op : clifford_ops) {
+            add_clifford_gate(qcir, op);
+    }
+
+    for(size_t i=0; i<row; i++){
+        qcir.append(qcir::PZGate(rotations[i].phase()), {permutation_map[i]});
+    }
+    
+
+    adjoint_inplace(clifford_ops);
+
+    for (auto const& op : clifford_ops) {
+        add_clifford_gate(qcir, op);
+    }
+    
+    return qcir;
 }
 
 /**
