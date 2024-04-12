@@ -7,7 +7,7 @@ qsyn> qcir gate add ry -ph 6.28*0.9850727657318968 0
 qsyn> qcir gate add rz -ph 6.28*0.9477936955481501 0
 
 qsyn> qcir print --diagram
-Q 0  -rx( 0)--ry( 1)--rz( 2)-
+Q 0  -rx(0)--ry(1)--rz(2)-
 
 qsyn> qcir print --gate 0
 Listed by gate ID

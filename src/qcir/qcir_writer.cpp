@@ -107,7 +107,11 @@ std::string to_qasm(QCir const& qcir) {
         // if encountering "π", replace it with "pi"
         size_t pos = 0;
         while ((pos = repr.find("π"s, pos)) != std::string::npos) {
-            repr.replace(pos, "π"s.size(), "pi");
+            if (pos == 0 || !std::isdigit(repr[pos - 1])) {
+                repr.replace(pos, "π"s.size(), "pi");
+            } else {
+                repr.replace(pos, "π"s.size(), "*pi");
+            }
         }
 
         qasm += fmt::format("{} {};\n",
