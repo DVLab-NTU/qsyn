@@ -3,8 +3,8 @@ qsyn> qcir qubit add 2
 qsyn> qcir gate add mcp -ph pi/3 0 1
 
 qsyn> qcir print --diagram
-Q 0  ---------cp( 0)-
-Q 1  ---------cp( 0)-
+Q 0  --------cp(0)-
+Q 1  --------cp(0)-
 
 qsyn> qcir print --gate 0
 Listed by gate ID
