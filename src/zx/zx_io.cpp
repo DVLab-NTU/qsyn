@@ -565,7 +565,7 @@ bool ZXGraph::write_tikz(std::string const& filename) const {
 }
 
 /**
- * @brief write tikz file to the fstream `tikzFile`
+ * @brief write tikz file to the ostream `tikzFile`
  *
  * @param tikzFile
  * @return true if the filename is valid
