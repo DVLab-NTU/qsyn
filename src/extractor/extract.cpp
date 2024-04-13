@@ -7,10 +7,12 @@
 
 #include "./extract.hpp"
 
+#include <fmt/core.h>
+
 #include <algorithm>
 #include <cassert>
-#include <ranges>
 #include <random>
+#include <ranges>
 
 #include "duostra/duostra.hpp"
 #include "duostra/mapping_eqv_checker.hpp"
@@ -112,7 +114,24 @@ QCir* Extractor::extract() {
         _logical_circuit->print_circuit_diagram(spdlog::level::level_enum::trace);
         _graph->print_vertices_by_rows(spdlog::level::level_enum::trace);
     }
-
+    fmt::println("Fake CZ list");
+    size_t cnt_fake = 0;
+    for (const auto& g : _logical_circuit->get_gates()) {
+        if (g->get_operation() == CZGate()) {
+            // fmt::print("{}: ", g->get_id());
+            auto const& preds = _logical_circuit->get_predecessors(g->get_id());
+            for (auto pred : preds | std::views::filter([](auto const& p) { return p.has_value(); })) {
+                // fmt::print("{}, ",_logical_circuit->get_gate(*pred)->get_operation().get_repr());
+                if (_logical_circuit->get_gate(*pred)->get_operation().is<HGate>()) {
+                    // fmt::println("ID: {}", g->get_id());
+                    cnt_fake++;
+                    break;
+                }
+            }
+            // fmt::println("");
+        }
+    }
+    fmt::println("TOTAL FAKE: {}", cnt_fake);
     return _logical_circuit;
 }
 
@@ -161,6 +180,8 @@ bool Extractor::extraction_loop(std::optional<size_t> max_iter) {
 
         if (max_iter.has_value()) (*max_iter)--;
     }
+    fmt::println("Total removes: CZ: {}, CX: {}", _num_cz_rms, _num_cx_rms);
+    fmt::println("CZ ratio (gadget/all): {}/{}", _num_cz_rms_after_gadget, _num_cz_rms);
     return true;
 }
 
@@ -236,6 +257,10 @@ bool Extractor::extract_czs(bool check) {
             }
         }
     }
+    _num_cz_rms += remove_list.size();
+    if (_previous_gadget) {
+        _num_cz_rms_after_gadget += remove_list.size();
+    }
     std::vector<qcir::QCirGate> gates;
     for (auto const& [s, t] : remove_list) {
         _graph->remove_edge(s, t, EdgeType::hadamard);
@@ -265,7 +290,7 @@ void Extractor::extract_cxs() {
         front_id2_vertex[cnt] = f;
         cnt++;
     }
-
+    _num_cx_rms += _cnots.size();
     for (auto& [t, c] : _cnots) {
         // NOTE - targ and ctrl are opposite here
         auto ctrl = _qubit_map[front_id2_vertex[c]->get_qubit()];
@@ -359,7 +384,6 @@ size_t Extractor::extract_hadamards_from_matrix(bool check) {
  */
 bool Extractor::remove_gadget(bool check) {
     spdlog::debug("Removing gadget(s)");
-
     if (check) {
         if (_frontier.empty()) {
             spdlog::error("no vertex left in the frontier!!");
@@ -376,11 +400,11 @@ bool Extractor::remove_gadget(bool check) {
     print_axels(spdlog::level::level_enum::trace);
 
     std::vector<ZXVertex*> shuffle_neighbors;
-    for(const auto& v: _neighbors) {
+    for (const auto& v : _neighbors) {
         shuffle_neighbors.push_back(v);
     }
 
-    if(_random){
+    if (_random) {
         std::random_device rd1;
         std::mt19937 g1(rd1());
         std::shuffle(std::begin(shuffle_neighbors), std::end(shuffle_neighbors), g1);
@@ -431,11 +455,9 @@ bool Extractor::remove_gadget(bool check) {
         }
         for (auto& [candidate, _] : _graph->get_neighbors(n)) {
             if (_frontier.contains(candidate)) {
-            // if (std::find(shuffle_frontier.begin(), shuffle_frontier.end(), candidate) != shuffle_frontier.end()) {
                 auto const qubit = candidate->get_qubit();
                 _axels.erase(n);
                 _frontier.erase(candidate);
-                // std::remove(shuffle_frontier.begin(),shuffle_frontier.end(),candidate);
 
                 ZXVertex* target_boundary = nullptr;
                 for (auto& [boundary, _] : _graph->get_neighbors(candidate)) {
@@ -446,14 +468,14 @@ bool Extractor::remove_gadget(bool check) {
                 }
 
                 PivotBoundaryRule().apply(*_graph, {{candidate, n}});
-
                 assert(target_boundary != nullptr);
                 auto new_frontier = _graph->get_first_neighbor(target_boundary).first;
                 new_frontier->set_qubit(qubit);
                 _frontier.emplace(_graph->get_first_neighbor(target_boundary).first);
-                // shuffle_frontier.push_back(_graph->get_first_neighbor(target_boundary).first);
+
                 // REVIEW - qubit_map
                 removed_some_gadgets = true;
+                _previous_gadget     = true;
                 break;
             }
         }

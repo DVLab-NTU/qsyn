@@ -81,11 +81,14 @@ public:
     std::vector<dvlab::BooleanMatrix::RowOperation> greedy_reduction(dvlab::BooleanMatrix& m);
 
 private:
+    size_t _num_cz_rms = 0;
+    size_t _num_cz_rms_after_gadget = 0;
+    size_t _num_cx_rms = 0;
     size_t _num_cx_iterations = 0;
     zx::ZXGraph* _graph;
     bool _random;
     qcir::QCir* _logical_circuit;
-
+    bool _previous_gadget = false;
     // qcir::QCir* _physical_circuit;
     // std::optional<Device> _device;
     // std::optional<Device> _device_backup;
