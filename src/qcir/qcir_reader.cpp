@@ -48,7 +48,7 @@ std::optional<QCir> from_qasm(std::filesystem::path const& filepath) {
     using dvlab::str::str_get_token;
 
     // read file and open
-    std::fstream qasm_file{filepath};
+    std::ifstream qasm_file{filepath};
     if (!qasm_file.is_open()) {
         spdlog::error("Cannot open the QASM file \"{}\"!!", filepath);
         return std::nullopt;
@@ -122,7 +122,7 @@ std::optional<QCir> from_qasm(std::filesystem::path const& filepath) {
 std::optional<QCir> from_qc(std::filesystem::path const& filepath) {
     using dvlab::str::str_get_token;
     // read file and open
-    std::fstream qc_file{filepath};
+    std::ifstream qc_file{filepath};
     if (!qc_file.is_open()) {
         spdlog::error("Cannot open the QC file \"{}\"!!", filepath);
         return std::nullopt;
