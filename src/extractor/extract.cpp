@@ -7,6 +7,9 @@
 
 #include "./extract.hpp"
 
+#include <fmt/core.h>
+#include <fmt/ostream.h>
+
 #include <cassert>
 #include <ranges>
 
@@ -32,6 +35,7 @@ bool SORT_FRONTIER        = false;
 bool SORT_NEIGHBORS       = true;
 bool PERMUTE_QUBITS       = true;
 bool FILTER_DUPLICATE_CXS = true;
+bool REDUCE_CZS           = false;
 size_t BLOCK_SIZE         = 5;
 size_t OPTIMIZE_LEVEL     = 2;
 
@@ -234,14 +238,50 @@ bool Extractor::extract_czs(bool check) {
             }
         }
     }
-    std::vector<qcir::QCirGate> gates;
-    for (auto const& [s, t] : remove_list) {
+
+    _biadjacency = get_biadjacency_matrix(*_graph, _frontier, _frontier);
+    std::vector<ZXVertex*> idx2vertex;
+    for (auto const v : _frontier)
+        idx2vertex.emplace_back(v);
+
+    for (auto const& [s, t] : remove_list)
         _graph->remove_edge(s, t, EdgeType::hadamard);
-        gates.emplace_back(0, CZGate(), QubitIdList{_qubit_map[s->get_qubit()], _qubit_map[t->get_qubit()]});
+
+    std::vector<qcir::QCirGate> gates;
+
+    size_t saved_cz_cnt = 0;
+    if (REDUCE_CZS) {
+        // Remove two most similar rows by CXs and CZs
+        auto [overlap, commons] = _max_overlap(_biadjacency);
+        while (commons.size() > 2) {
+            auto [i, j] = overlap;
+            saved_cz_cnt += commons.size() - 2;
+            gates.emplace_back(0, CXGate(), QubitIdList{_qubit_map[idx2vertex[i]->get_qubit()], _qubit_map[idx2vertex[j]->get_qubit()]});
+            for (auto const& idx : commons) {
+                gates.emplace_back(0, CZGate(), QubitIdList{_qubit_map[idx2vertex[j]->get_qubit()], _qubit_map[idx2vertex[idx]->get_qubit()]});
+                _biadjacency[i][idx] = 0;
+                _biadjacency[j][idx] = 0;
+                _biadjacency[idx][i] = 0;
+                _biadjacency[idx][j] = 0;
+            }
+            gates.emplace_back(0, CXGate(), QubitIdList{_qubit_map[idx2vertex[i]->get_qubit()], _qubit_map[idx2vertex[j]->get_qubit()]});
+            std::tie(overlap, commons) = _max_overlap(_biadjacency);
+        }
+        if (saved_cz_cnt > 0) spdlog::info("Reduce {} 2-qubit gate(s)", saved_cz_cnt);
     }
-    if (!gates.empty()) {
+
+    // Add CZs from the remaining biadj matrix
+    for (size_t i = 0; i < _biadjacency.num_rows(); i++) {
+        for (size_t j = i + 1; j < _biadjacency.num_rows(); j++) {
+            if (_biadjacency[i][j])
+                gates.emplace_back(0, CZGate(), QubitIdList{_qubit_map[idx2vertex[i]->get_qubit()], _qubit_map[idx2vertex[j]->get_qubit()]});
+        }
+    }
+    _biadjacency.clear();
+
+    if (!gates.empty())
         prepend_series_gates(gates);
-    }
+
     _logical_circuit->print_circuit_diagram(spdlog::level::level_enum::trace);
     _graph->print_vertices_by_rows(spdlog::level::level_enum::trace);
 

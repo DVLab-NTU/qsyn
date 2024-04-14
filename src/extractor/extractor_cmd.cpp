@@ -204,6 +204,8 @@ Command extractor_config_cmd() {
                     .help("Gaussian block size, only used in optimization level 0");
                 parser.add_argument<bool>("--filter-cx")
                     .help("filter duplicated CXs");
+                parser.add_argument<bool>("--reduce-cz")
+                    .help("optimize CZs by row eliminations");
                 parser.add_argument<bool>("--frontier-sorted")
                     .help("sort frontier");
                 parser.add_argument<bool>("--neighbors-sorted")
@@ -233,6 +235,10 @@ Command extractor_config_cmd() {
                     FILTER_DUPLICATE_CXS = parser.get<bool>("--filter-cx");
                     print_current_config = false;
                 }
+                if (parser.parsed("--reduce-cz")) {
+                    REDUCE_CZS = parser.get<bool>("--reduce-cz");
+                    print_current_config = false;
+                }
                 if (parser.parsed("--frontier-sorted")) {
                     SORT_FRONTIER        = parser.get<bool>("--frontier-sorted");
                     print_current_config = false;
@@ -244,12 +250,13 @@ Command extractor_config_cmd() {
                 // if no option is specified, print the current settings
                 if (print_current_config) {
                     fmt::println("");
-                    fmt::println("Optimize Level:    {}", OPTIMIZE_LEVEL);
-                    fmt::println("Sort Frontier:     {}", SORT_FRONTIER);
-                    fmt::println("Sort Neighbors:    {}", SORT_NEIGHBORS);
-                    fmt::println("Permute Qubits:    {}", PERMUTE_QUBITS);
-                    fmt::println("Filter Duplicated: {}", FILTER_DUPLICATE_CXS);
-                    fmt::println("Block Size:        {}", BLOCK_SIZE);
+                    fmt::println("Optimize Level:        {}", OPTIMIZE_LEVEL);
+                    fmt::println("Sort Frontier:         {}", SORT_FRONTIER);
+                    fmt::println("Sort Neighbors:        {}", SORT_NEIGHBORS);
+                    fmt::println("Permute Qubits:        {}", PERMUTE_QUBITS);
+                    fmt::println("Filter Duplicated CXs: {}", FILTER_DUPLICATE_CXS);
+                    fmt::println("Reduce CZs:            {}", REDUCE_CZS);
+                    fmt::println("Block Size:            {}", BLOCK_SIZE);
                 }
                 return CmdExecResult::done;
             }};
