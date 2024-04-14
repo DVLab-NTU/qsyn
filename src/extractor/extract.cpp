@@ -7,9 +7,6 @@
 
 #include "./extract.hpp"
 
-#include <fmt/core.h>
-#include <fmt/ostream.h>
-
 #include <cassert>
 #include <ranges>
 

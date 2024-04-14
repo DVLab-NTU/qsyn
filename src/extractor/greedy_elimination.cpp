@@ -5,12 +5,6 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <cassert>
-#include <climits>
-#include <cstddef>
-#include <memory>
-#include <utility>
-
 #include "./extract.hpp"
 #include "util/util.hpp"
 
