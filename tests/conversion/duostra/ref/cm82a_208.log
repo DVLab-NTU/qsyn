@@ -25,7 +25,7 @@ Clifford   : 370
 2-qubit    : 283
 T-family   : 280
 Others     : 0
-Depth       : 571
+Depth      : 571
 
 qsyn> duostra config --verbose
 
@@ -84,7 +84,7 @@ Clifford   : 1690
 2-qubit    : 1603
 T-family   : 280
 Others     : 0
-Depth       : 1604
+Depth      : 1604
 
 qsyn> duostra config --scheduler greedy
 
@@ -117,7 +117,7 @@ Clifford   : 2353
 2-qubit    : 2266
 T-family   : 280
 Others     : 0
-Depth       : 1953
+Depth      : 1953
 
 qsyn> quit -f
 
