@@ -23,6 +23,7 @@ extern size_t MULTIPLE_DELAY;
 class QCirGate {
 public:
     QCirGate(size_t id, Operation const& op, QubitIdList qubits);
+    QCirGate(Operation const& op, QubitIdList qubits) : QCirGate(0, op, std::move(qubits)) {}
 
     // Basic access method
     std::string get_type_str() const { return get_operation().get_type(); }
@@ -36,6 +37,12 @@ public:
     std::optional<size_t> get_pin_by_qubit(QubitIdType qubit) const;
 
     size_t get_num_qubits() const { return _qubits.size(); }
+
+    inline bool operator==(QCirGate const& rhs) const {
+        return _operation == rhs._operation && _qubits == rhs._qubits;
+    }
+
+    inline bool operator!=(QCirGate const& rhs) const { return !(*this == rhs); }
 
 private:
 protected:

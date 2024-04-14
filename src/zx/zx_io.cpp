@@ -9,7 +9,6 @@
 #include <fmt/std.h>
 #include <spdlog/spdlog.h>
 
-#include <cassert>
 #include <cmath>
 #include <cstddef>
 #include <cstring>
@@ -565,22 +564,29 @@ bool ZXGraph::write_tikz(std::string const& filename) const {
 }
 
 /**
- * @brief write tikz file to the fstream `tikzFile`
+ * @brief write tikz file to the ostream `tikzFile`
  *
  * @param tikzFile
  * @return true if the filename is valid
  * @return false if not
  */
 bool ZXGraph::write_tikz(std::ostream& os) const {
+    constexpr auto abbrev_boundary = "bnd";
+    constexpr auto abbrev_z        = "zsp";
+    constexpr auto abbrev_x        = "xsp";
+    constexpr auto abbrev_h_box    = "hbx";
+    constexpr auto abbrev_hadamard = "hedge";
+    constexpr auto abbrev_simple   = "sedge";
+
     static std::unordered_map<VertexType, std::string> const vt2s = {
-        {VertexType::boundary, "bnd"},
-        {VertexType::z, "zsp"},
-        {VertexType::x, "xsp"},
-        {VertexType::h_box, "hbx"}};
+        {VertexType::boundary, abbrev_boundary},
+        {VertexType::z, abbrev_z},
+        {VertexType::x, abbrev_x},
+        {VertexType::h_box, abbrev_h_box}};
 
     static std::unordered_map<EdgeType, std::string> const et2s = {
-        {EdgeType::hadamard, "hedge"},
-        {EdgeType::simple, "sedge"}};
+        {EdgeType::hadamard, abbrev_hadamard},
+        {EdgeType::simple, abbrev_simple}};
 
     static constexpr std::string_view font_size = "tiny";
 
@@ -637,12 +643,12 @@ bool ZXGraph::write_tikz(std::ostream& os) const {
     // node and edge styles
     fmt::println(os, "        font = \\sffamily,");
     fmt::println(os, "        yscale=-1,");
-    fmt::println(os, "        boun/.style={{circle, text=yellow!60, font=\\sffamily, draw=black!100, fill=black!60, thick, text width=3mm, align=center, inner sep=0pt}},");
-    fmt::println(os, "        hbox/.style={{regular polygon, regular polygon sides=4, font=\\sffamily, draw=yellow!40!black!100, fill=yellow!40, text width=2.5mm, align=center, inner sep=0pt}},");
-    fmt::println(os, "        zspi/.style={{circle, font=\\sffamily, draw=green!60!black!100, fill=zx_green, text width=5mm, align=center, inner sep=0pt}},");
-    fmt::println(os, "        xspi/.style={{circle, font=\\sffamily, draw=red!60!black!100, fill=zx_red, text width=5mm, align=center, inner sep=0pt}},");
-    fmt::println(os, "        hedg/.style={{draw=hedgeColor, thick}},");
-    fmt::println(os, "        sedg/.style={{draw=black, thick}},");
+    fmt::println(os, "        {}/.style={{circle, text=yellow!60, font=\\sffamily, draw=black!100, fill=black!60, thick, text width=3mm, align=center, inner sep=0pt}},", abbrev_boundary);
+    fmt::println(os, "        {}/.style={{regular polygon, regular polygon sides=4, font=\\sffamily, draw=yellow!40!black!100, fill=yellow!40, text width=2.5mm, align=center, inner sep=0pt}},", abbrev_h_box);
+    fmt::println(os, "        {}/.style={{circle, font=\\sffamily, draw=green!60!black!100, fill=zx_green, text width=5mm, align=center, inner sep=0pt}},", abbrev_z);
+    fmt::println(os, "        {}/.style={{circle, font=\\sffamily, draw=red!60!black!100, fill=zx_red, text width=5mm, align=center, inner sep=0pt}},", abbrev_x);
+    fmt::println(os, "        {}/.style={{draw=hedgeColor, thick}},", abbrev_hadamard);
+    fmt::println(os, "        {}/.style={{draw=black, thick}},", abbrev_simple);
     fmt::println(os, "    ];");
     // content of the tikzpicture
     fmt::println(os, "        % vertices");

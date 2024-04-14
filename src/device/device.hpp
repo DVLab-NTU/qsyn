@@ -174,8 +174,8 @@ private:
 
     // NOTE - Containers and helper functions for Floyd-Warshall
     size_t _max_dist = default_max_dist;
-    std::vector<std::vector<QubitIdType>> _predecessor;
-    std::vector<std::vector<size_t>> _distance;
+    std::vector<std::vector<QubitIdType>> _predecessor;  // _predecessor[i][j] = predecessor of j in path from i to j
+    std::vector<std::vector<size_t>> _distance;          // _distance[i][j] = distance from i to j
     std::vector<std::vector<QubitIdType>> _adjacency_matrix;
     void _initialize_floyd_warshall();
     void _set_weight();

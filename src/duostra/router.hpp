@@ -36,6 +36,8 @@ private:
 class AStarComp {
 public:
     bool operator()(AStarNode const& a, AStarNode const& b) {
+        if (a._estimated_cost == b._estimated_cost)
+            return a._id > b._id;
         return a._estimated_cost > b._estimated_cost;
     }
 };

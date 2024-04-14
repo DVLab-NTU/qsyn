@@ -12,6 +12,14 @@ else
     DIFF="diff"
 fi
 
+function num_procs() {
+    if [ "$(uname)" == "Darwin" ]; then
+        sysctl -n hw.logicalcpu
+    else
+        nproc
+    fi
+}
+
 # return text in green, bold
 pass-style() {
     if [ $# -ne 1 ]; then
@@ -224,22 +232,23 @@ if [[ "$ACTION" == 'diff' ]]; then
     echo "> Testing dofiles..."
     
     # run in parallel and count failures
-    parallel -j"$(nproc)" "dofile-result-same-with-ref {} $VERBOSE $SILENT $QSYN $DIFF" ::: "${TESTS[@]}"
+    parallel -j"$(num_procs)" "dofile-result-same-with-ref {} $VERBOSE $SILENT $QSYN $DIFF" ::: "${TESTS[@]}"
 
     FAIL_COUNT=$?
 
     TESTS_COUNT=${#TESTS[@]}
     if [ $FAIL_COUNT -eq 0 ]; then
         pass-style "Passed all $TESTS_COUNT tests."
+        exit 0
     else
-
         fail-style "$FAIL_COUNT out of $TESTS_COUNT tests failed."
+        exit 1
     fi
 elif [[ "$ACTION" == 'update' ]]; then
     echo "> Updating reference files..."
 
     # run in parallel and count updates
-    parallel -j"$(nproc)" "update-dofile-ref {} $VERBOSE $SILENT $QSYN" ::: "${TESTS[@]}"
+    parallel -j"$(num_procs)" "update-dofile-ref {} $VERBOSE $SILENT $QSYN" ::: "${TESTS[@]}"
 
     UPDATE_COUNT=$?
 

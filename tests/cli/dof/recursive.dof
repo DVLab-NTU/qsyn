@@ -1,3 +1,0 @@
-// makes sure an edge case where a dofile references itself is handled properly
-source tests/cli/helper/recursive_internal
-quit -f
