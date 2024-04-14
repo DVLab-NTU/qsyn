@@ -34,6 +34,7 @@ extern bool SORT_FRONTIER;
 extern bool SORT_NEIGHBORS;
 extern bool PERMUTE_QUBITS;
 extern bool FILTER_DUPLICATE_CXS;
+extern bool REDUCE_CZS;
 extern size_t BLOCK_SIZE;
 extern size_t OPTIMIZE_LEVEL;
 
@@ -41,6 +42,7 @@ class Extractor {
 public:
     using Target      = std::unordered_map<size_t, size_t>;
     using ConnectInfo = std::vector<std::set<size_t>>;
+    using Overlap     = std::pair<std::pair<size_t, size_t>, std::vector<size_t>>;
     // using Device      = duostra::Duostra::Device;
     // using Operation   = duostra::Duostra::Operation;
 
@@ -98,6 +100,8 @@ private:
     Target _find_column_swap(Target target);
     ConnectInfo _row_info;
     ConnectInfo _col_info;
+
+    Overlap _max_overlap(dvlab::BooleanMatrix& matrix);
 
     size_t _num_cx_filtered = 0;
     size_t _num_swaps       = 0;
