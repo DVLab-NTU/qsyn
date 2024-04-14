@@ -133,8 +133,8 @@ Command convert_from_zx_cmd(zx::ZXGraphMgr& zxgraph_mgr, QCirMgr& qcir_mgr, tens
             auto to_tensor = subparsers.add_parser("tensor")
                                  .description("convert from ZXGraph to Tensor");
 
-            to_qcir.add_argument<bool>("random")
-                    // .action(store_true)
+            to_qcir.add_argument<bool>("-r", "--random")
+                    .action(store_true)
                     .help("random extraction");
         },
         [&](ArgumentParser const& parser) {
@@ -146,7 +146,7 @@ Command convert_from_zx_cmd(zx::ZXGraphMgr& zxgraph_mgr, QCirMgr& qcir_mgr, tens
                     return CmdExecResult::error;
                 }
                 zx::ZXGraph target = *zxgraph_mgr.get();
-                extractor::Extractor ext(&target, parser.get<bool>("random"), nullptr /*, std::nullopt*/);
+                extractor::Extractor ext(&target, parser.parsed("--random"), nullptr /*, std::nullopt*/);
                 qcir::QCir* result = ext.extract();
                 if (result != nullptr) {
                     qcir_mgr.add(qcir_mgr.get_next_id(), std::make_unique<qcir::QCir>(*result));
