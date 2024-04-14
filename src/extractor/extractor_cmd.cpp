@@ -232,7 +232,7 @@ Command extractor_config_cmd() {
                     print_current_config = false;
                 }
                 if (parser.parsed("--reduce-cz")) {
-                    REDUCE_CZS = parser.get<bool>("--reduce-cz");
+                    REDUCE_CZS           = parser.get<bool>("--reduce-cz");
                     print_current_config = false;
                 }
                 if (parser.parsed("--frontier-sorted")) {
