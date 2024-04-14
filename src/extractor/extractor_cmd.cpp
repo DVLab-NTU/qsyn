@@ -8,20 +8,16 @@
 #include <spdlog/spdlog.h>
 
 #include <cstddef>
-#include <memory>
 #include <string>
 
 #include "./extract.hpp"
 #include "argparse/arg_parser.hpp"
 #include "argparse/arg_type.hpp"
-#include "argparse/argument.hpp"
 #include "cli/cli.hpp"
 #include "qcir/qcir.hpp"
 #include "qcir/qcir_cmd.hpp"
 #include "qcir/qcir_mgr.hpp"
 #include "util/data_structure_manager_common_cmd.hpp"
-#include "util/util.hpp"
-#include "zx/zx_cmd.hpp"
 #include "zx/zxgraph.hpp"
 #include "zx/zxgraph_mgr.hpp"
 
