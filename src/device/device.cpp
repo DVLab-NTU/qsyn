@@ -16,6 +16,7 @@
 #include <gsl/narrow>
 #include <ranges>
 #include <string>
+#include <tl/enumerate.hpp>
 #include <tl/to.hpp>
 #include <utility>
 
@@ -186,7 +187,7 @@ std::tuple<QubitIdType, QubitIdType> Device::get_next_swap_cost(QubitIdType sour
  * @return size_t
  */
 QubitIdType Device::get_physical_by_logical(QubitIdType id) {
-    for (auto& [_, phy] : _qubit_list) {
+    for (auto& phy : _qubit_list) {
         if (phy.get_logical_qubit() == id) {
             return phy.get_id();
         }
@@ -202,12 +203,13 @@ QubitIdType Device::get_physical_by_logical(QubitIdType id) {
  */
 void Device::add_adjacency(QubitIdType a, QubitIdType b) {
     if (a > b) std::swap(a, b);
-    if (!qubit_id_exists(a)) {
-        add_physical_qubit(PhysicalQubit(a));
-    }
-    if (!qubit_id_exists(b)) {
-        add_physical_qubit(PhysicalQubit(b));
-    }
+
+    // if (!qubit_id_exists(a)) {
+    //     add_physical_qubit(PhysicalQubit(a));
+    // }
+    // if (!qubit_id_exists(b)) {
+    //     add_physical_qubit(PhysicalQubit(b));
+    // }
     _qubit_list[a].add_adjacency(_qubit_list[b].get_id());
     _qubit_list[b].add_adjacency(_qubit_list[a].get_id());
     constexpr DeviceInfo default_info = {._time = 0.0, ._error = 0.0};
@@ -273,7 +275,7 @@ void Device::apply_single_qubit_gate(QubitIdType physical_id) {
 std::vector<std::optional<size_t>> Device::mapping() const {
     std::vector<std::optional<size_t>> ret;
     ret.resize(_qubit_list.size());
-    for (auto const& [id, qubit] : _qubit_list) {
+    for (auto const& [id, qubit] : tl::views::enumerate(_qubit_list)) {
         ret[id] = qubit.get_logical_qubit();
     }
     return ret;
@@ -476,6 +478,12 @@ bool Device::read_device(std::string const& filename) {
     if (!_parse_info(topo_file, cx_err, cx_delay, sg_err, sg_delay)) return false;
 
     // NOTE - Finish parsing, store the topology
+    _qubit_list.reserve(adj_list.size());
+
+    for (size_t i = 0; i < adj_list.size(); ++i) {
+        _qubit_list.emplace_back(PhysicalQubit(i));
+    }
+
     for (size_t i = 0; i < adj_list.size(); i++) {
         for (size_t j = 0; j < adj_list[i].size(); j++) {
             if (adj_list[i][j] > i) {
@@ -666,7 +674,7 @@ void Device::print_qubits(std::vector<size_t> candidates) const {
     fmt::println("");
     std::vector<PhysicalQubit> qubits;
     qubits.resize(_num_qubit);
-    for (auto const& [idx, info] : _qubit_list) {
+    for (auto const& [idx, info] : tl::views::enumerate(_qubit_list)) {
         qubits[idx] = info;
     }
     if (candidates.empty()) {
@@ -697,7 +705,7 @@ void Device::print_edges(std::vector<size_t> candidates) const {
     fmt::println("");
     std::vector<PhysicalQubit> qubits;
     qubits.resize(_num_qubit);
-    for (auto const& [idx, info] : _qubit_list) {
+    for (auto const& [idx, info] : tl::views::enumerate(_qubit_list)) {
         qubits[idx] = info;
     }
     if (candidates.empty()) {
@@ -801,7 +809,7 @@ void Device::print_status() const {
     fmt::println("Device Status:");
     std::vector<PhysicalQubit> qubits;
     qubits.resize(_num_qubit);
-    for (auto const& [idx, info] : _qubit_list) {
+    for (auto const& [idx, info] : tl::views::enumerate(_qubit_list)) {
         qubits[idx] = info;
     }
     for (size_t i = 0; i < qubits.size(); ++i) {

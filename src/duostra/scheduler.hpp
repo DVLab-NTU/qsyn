@@ -28,6 +28,12 @@ public:
         : _circuit_topology(std::move(topo)), _tqdm(tqdm) {}
     virtual ~BaseScheduler() = default;
 
+    BaseScheduler(BaseScheduler const& other) = default;
+    BaseScheduler(BaseScheduler&& other) = default;
+
+    BaseScheduler& operator=(BaseScheduler const& other) = default;
+    BaseScheduler& operator=(BaseScheduler&& other) = default;
+
     virtual std::unique_ptr<BaseScheduler> clone() const;
 
     CircuitTopology& circuit_topology() { return _circuit_topology; }
@@ -92,7 +98,14 @@ class GreedyScheduler : public BaseScheduler {  // NOLINT(hicpp-special-member-f
 public:
     using Device = BaseScheduler::Device;
     GreedyScheduler(CircuitTopology const& topo, bool tqdm) : BaseScheduler(topo, tqdm) {}
+
     ~GreedyScheduler() override = default;
+
+    GreedyScheduler(GreedyScheduler const& other) = default;
+    GreedyScheduler(GreedyScheduler&& other) = default;
+
+    GreedyScheduler& operator=(GreedyScheduler const& other) = default;
+    GreedyScheduler& operator=(GreedyScheduler&& other) = default;
 
     std::unique_ptr<BaseScheduler> clone() const override;
     size_t greedy_fallback(Router& router, std::vector<size_t> const& waitlist) const;

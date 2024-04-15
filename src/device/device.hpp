@@ -17,6 +17,7 @@
 #include "qsyn/qsyn_type.hpp"
 #include "util/ordered_hashmap.hpp"
 #include "util/ordered_hashset.hpp"
+#include "util/util.hpp"
 
 namespace qsyn::qcir {
 class QCirGate;
@@ -75,18 +76,18 @@ private:
 
 class PhysicalQubit {
 public:
-    using Adjacencies = dvlab::utils::ordered_hashset<QubitIdType>;
+    using Adjacencies = std::vector<QubitIdType>;
     PhysicalQubit() {}
     PhysicalQubit(QubitIdType id) : _id(id) {}
 
     void set_id(QubitIdType id) { _id = id; }
     void set_occupied_time(size_t t) { _occupied_time = t; }
     void set_logical_qubit(std::optional<size_t> id) { _logical_qubit = id; }
-    void add_adjacency(size_t adj) { _adjacencies.emplace(adj); }
+    void add_adjacency(size_t adj) { _adjacencies.emplace_back(adj); }
 
     auto get_id() const { return _id; }
     auto get_occupied_time() const { return _occupied_time; }
-    auto is_adjacency(PhysicalQubit const& pq) const { return _adjacencies.contains(pq.get_id()); }
+    auto is_adjacency(PhysicalQubit const& pq) const { return dvlab::contains(_adjacencies, pq.get_id()); }
     auto const& get_adjacencies() const { return _adjacencies; }
     auto get_logical_qubit() const { return _logical_qubit; }
 
@@ -122,7 +123,7 @@ private:
 
 class Device {
 public:
-    using PhysicalQubitList                  = dvlab::utils::ordered_hashmap<QubitIdType, PhysicalQubit>;
+    using PhysicalQubitList                  = std::vector<PhysicalQubit>;
     constexpr static size_t default_max_dist = 100000;
     Device() : _topology{std::make_shared<Topology>()} {}
 
@@ -132,7 +133,7 @@ public:
     PhysicalQubit& get_physical_qubit(QubitIdType id) { return _qubit_list[id]; }
     QubitIdType get_physical_by_logical(QubitIdType id);
     std::tuple<QubitIdType, QubitIdType> get_next_swap_cost(QubitIdType source, QubitIdType target);
-    bool qubit_id_exists(QubitIdType id) { return _qubit_list.contains(id); }
+    bool qubit_id_exists(QubitIdType id) { return id < _qubit_list.size(); }
 
     void add_physical_qubit(PhysicalQubit q) { _qubit_list[q.get_id()] = std::move(q); }
     void add_adjacency(QubitIdType a, QubitIdType b);

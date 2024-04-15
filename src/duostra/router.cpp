@@ -159,7 +159,7 @@ qcir::QCirGate Router::execute_single(qcir::QCirGate const& gate, GateIdToTime& 
     qubit.set_occupied_time(end_time);
     qubit.reset();
     auto op = qcir::QCirGate{gate_id_to_time.size(), gate.get_operation(), QubitIdList{q, max_qubit_id}};
-    gate_id_to_time.emplace(op.get_id(), std::make_pair(start_time, end_time));
+    gate_id_to_time.push_back({start_time, end_time});
     return op;
 }
 
@@ -271,13 +271,13 @@ std::vector<qcir::QCirGate> Router::apsp_routing(qcir::QCirGate const& gate, Gat
                                     _device.get_physical_qubit(q0_id).get_logical_qubit() <
                                         _device.get_physical_qubit(q1_id).get_logical_qubit())) {
             auto op = qcir::QCirGate(gate_id_to_time.size(), SwapGate{}, QubitIdList{q0_id, q0_next});
-            gate_id_to_time.emplace(op.get_id(), std::make_pair(q0_cost, q0_cost + SWAP_DELAY));
+            gate_id_to_time.emplace_back(q0_cost, q0_cost + SWAP_DELAY);
             _device.apply_gate(op, q0_cost);
             operation_list.emplace_back(std::move(op));
             q0_id = q0_next;
         } else {
             auto op = qcir::QCirGate(gate_id_to_time.size(), SwapGate{}, QubitIdList{q1_id, q1_next});
-            gate_id_to_time.emplace(op.get_id(), std::make_pair(q1_cost, q1_cost + SWAP_DELAY));
+            gate_id_to_time.emplace_back(q1_cost, q1_cost + SWAP_DELAY);
             _device.apply_gate(op, q1_cost);
             operation_list.emplace_back(std::move(op));
             q1_id = q1_next;
@@ -289,7 +289,7 @@ std::vector<qcir::QCirGate> Router::apsp_routing(qcir::QCirGate const& gate, Gat
                                     _device.get_physical_qubit(q1_id).get_occupied_time());
 
     auto cx_gate = qcir::QCirGate(gate_id_to_time.size(), gate.get_operation(), QubitIdList{q0_id, q1_id});
-    gate_id_to_time.emplace(cx_gate.get_id(), std::make_pair(gate_cost, gate_cost + gate.get_delay()));
+    gate_id_to_time.emplace_back(gate_cost, gate_cost + gate.get_delay());
     _device.apply_gate(cx_gate, gate_cost);
     operation_list.emplace_back(std::move(cx_gate));
 
@@ -359,7 +359,7 @@ std::vector<qcir::QCirGate> Router::_traceback(qcir::QCirGate const& gate, GateI
     auto const qids = swap_ids ? QubitIdList{q1.get_id(), q0.get_id()} : QubitIdList{q0.get_id(), q1.get_id()};
 
     auto cx_gate = qcir::QCirGate(gate_id_to_time.size(), gate.get_operation(), qids);
-    gate_id_to_time.emplace(cx_gate.get_id(), std::make_pair(operation_time, operation_time + gate.get_delay()));
+    gate_id_to_time.emplace_back(operation_time, operation_time + gate.get_delay());
     operation_list.emplace_back(std::move(cx_gate));
 
     // traceback by tracing the parent iteratively
@@ -373,7 +373,7 @@ std::vector<qcir::QCirGate> Router::_traceback(qcir::QCirGate const& gate, GateI
 
         auto const swap_time = q_trace0.get_swap_time();
         auto op              = qcir::QCirGate(gate_id_to_time.size(), SwapGate{}, QubitIdList{trace0, trace_pred0});
-        gate_id_to_time.emplace(op.get_id(), std::make_pair(swap_time, swap_time + SWAP_DELAY));
+        gate_id_to_time.emplace_back(swap_time, swap_time + SWAP_DELAY);
         operation_list.emplace_back(std::move(op));
         trace0 = trace_pred0;
     }
@@ -384,7 +384,7 @@ std::vector<qcir::QCirGate> Router::_traceback(qcir::QCirGate const& gate, GateI
 
         auto const swap_time = q_trace1.get_swap_time();
         auto op              = qcir::QCirGate(gate_id_to_time.size(), SwapGate{}, QubitIdList{trace1, trace_pred1});
-        gate_id_to_time.emplace(op.get_id(), std::make_pair(swap_time, swap_time + SWAP_DELAY));
+        gate_id_to_time.emplace_back(swap_time, swap_time + SWAP_DELAY);
         operation_list.emplace_back(std::move(op));
         trace1 = trace_pred1;
     }

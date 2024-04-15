@@ -119,7 +119,7 @@ std::optional<size_t> BaseScheduler::get_executable_gate(Router& router) const {
  * @return size_t
  */
 size_t BaseScheduler::get_operations_cost() const {
-    return std::ranges::max(_gate_id_to_time | std::views::values | std::views::transform([](auto const& p) { return p.second; }));
+    return std::ranges::max(_gate_id_to_time | std::views::transform([](auto const& p) { return p.second; }));
 }
 
 /**
@@ -141,6 +141,7 @@ BaseScheduler::Device BaseScheduler::assign_gates_and_sort(std::unique_ptr<Route
  * @return Device
  */
 BaseScheduler::Device BaseScheduler::_assign_gates(std::unique_ptr<Router> router) {
+    _gate_id_to_time.reserve(_circuit_topology.get_num_gates());
     for (dvlab::TqdmWrapper bar{_circuit_topology.get_num_gates()}; !bar.done(); ++bar) {
         if (stop_requested()) {
             return router->get_device();
