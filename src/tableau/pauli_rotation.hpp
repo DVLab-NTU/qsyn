@@ -148,6 +148,7 @@ public:
                 return ecr(qubits[0], qubits[1]);
         }
         DVLAB_UNREACHABLE("Every Clifford type should be handled in the switch-case");
+        return *static_cast<T*>(this);
     }
 
     inline T& apply(CliffordOperatorString const& ops) {

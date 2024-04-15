@@ -145,7 +145,7 @@ Command convert_from_zx_cmd(zx::ZXGraphMgr& zxgraph_mgr, QCirMgr& qcir_mgr, tens
                 extractor::Extractor ext(&target, nullptr /*, std::nullopt*/);
                 qcir::QCir* result = ext.extract();
                 if (result != nullptr) {
-                    qcir_mgr.add(qcir_mgr.get_next_id(), std::make_unique<qcir::QCir>(*result));
+                    qcir_mgr.add(qcir_mgr.get_next_id(), std::unique_ptr<qcir::QCir>(result));
                     qcir_mgr.get()->set_filename(zxgraph_mgr.get()->get_filename());
                     qcir_mgr.get()->add_procedures(zxgraph_mgr.get()->get_procedures());
                     if (!extractor::PERMUTE_QUBITS) {

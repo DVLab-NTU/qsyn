@@ -186,11 +186,10 @@ void remove_identities(Tableau& tableau) {
             tableau.begin(),
             tableau.end(),
             [](SubTableau const& subtableau) -> bool {
-                return std::visit(
-                    dvlab::overloaded{
-                        [](const StabilizerTableau& subtableau) { return subtableau.is_identity(); },
-                        [](const std::vector<PauliRotation>& subtableau) { return subtableau.empty(); }},
-                    subtableau);
+                return dvlab::match(
+                    subtableau,
+                    [](StabilizerTableau const& subtableau) { return subtableau.is_identity(); },
+                    [](std::vector<PauliRotation> const& subtableau) { return subtableau.empty(); });
             }),
         tableau.end());
 
@@ -468,7 +467,7 @@ std::optional<Tableau> matroid_partition(Tableau const& tableau, MatroidPartitio
             if (!partitions) {
                 return std::nullopt;
             }
-            for (auto const& partition : partitions.value()) {
+            for (auto const& partition : *partitions) {
                 new_tableau.push_back(partition);
             }
         } else {

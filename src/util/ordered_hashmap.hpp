@@ -191,7 +191,7 @@ T& ordered_hashmap<Key, T, Hash, KeyEqual>::at(Key const& key) {
     if (!this->contains(key)) {
         throw std::out_of_range("no value corresponding to the key");
     }
-    return this->_data[this->id(key)].value().second;
+    return this->_data[this->id(key)]->second;
 }
 
 /**
@@ -206,7 +206,7 @@ T const& ordered_hashmap<Key, T, Hash, KeyEqual>::at(Key const& key) const {
     if (!this->contains(key)) {
         throw std::out_of_range("no value corresponding to the key");
     }
-    return this->_data[this->id(key)].value().second;
+    return this->_data[this->id(key)]->second;
 }
 
 /**
@@ -218,6 +218,7 @@ T const& ordered_hashmap<Key, T, Hash, KeyEqual>::at(Key const& key) const {
  */
 template <typename Key, typename T, typename Hash, typename KeyEqual>
 T& ordered_hashmap<Key, T, Hash, KeyEqual>::operator[](Key const& key) {
+    if (!this->contains(key)) this->emplace(key, T());
     return at(std::move(key));
 }
 

@@ -105,7 +105,7 @@ dvlab::Command tableau_append_cmd(TableauMgr& tableau_mgr) {
                 type == CliffordOperatorType::swap ||
                 type == CliffordOperatorType::ecr) {
                 if (qubits.size() != 2) {
-                    spdlog::error("The gate {} requires specifying exactly 2 qubit indices!!", to_string(type.value()));
+                    spdlog::error("The gate {} requires specifying exactly 2 qubit indices!!", to_string(*type));
                     return dvlab::CmdExecResult::error;
                 }
 
@@ -115,7 +115,7 @@ dvlab::Command tableau_append_cmd(TableauMgr& tableau_mgr) {
                 }
             } else {
                 if (qubits.size() != 1) {
-                    spdlog::error("The gate {} requires specifying exactly 1 qubit index!!", to_string(type.value()));
+                    spdlog::error("The gate {} requires specifying exactly 1 qubit index!!", to_string(*type));
                     return dvlab::CmdExecResult::error;
                 }
             }
@@ -124,7 +124,7 @@ dvlab::Command tableau_append_cmd(TableauMgr& tableau_mgr) {
 
             std::copy(qubits.begin(), qubits.end(), qubit_array.begin());
 
-            tableau_mgr.get()->apply(CliffordOperator{type.value(), qubit_array});
+            tableau_mgr.get()->apply(CliffordOperator{*type, qubit_array});
 
             return dvlab::CmdExecResult::done;
         }};
@@ -284,12 +284,12 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr) {
                     spdlog::error("Matroid partitioning failed!!");
                     return false;
                 }
-                *tableau_mgr.get() = matpar_result.value();
+                *tableau_mgr.get() = *matpar_result;
 
                 return true;
             };
 
-            switch (method.value()) {
+            switch (*method) {
                 case OptimizationMethod::full:
                     full_optimize(*tableau_mgr.get());
                     break;

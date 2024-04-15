@@ -12,6 +12,8 @@
 
 #include "tableau/pauli_rotation.hpp"
 
+bool stop_requested();
+
 namespace qsyn::experimental {
 
 std::string StabilizerTableau::to_string() const {
@@ -140,6 +142,7 @@ StabilizerTableau& StabilizerTableau::prepend(CliffordOperator const& op) {
             return prepend_ecr(qubits[0], qubits[1]);
     }
     DVLAB_UNREACHABLE("Every Clifford type should be handled in the switch-case");
+    return *this;
 }
 
 StabilizerTableau& StabilizerTableau::prepend(CliffordOperatorString const& ops) {
@@ -270,10 +273,13 @@ CliffordOperatorString AGSynthesisStrategy::synthesize(StabilizerTableau copy) c
     };
 
     for (size_t qubit = 0; qubit < copy.n_qubits(); ++qubit) {
+        if (stop_requested()) break;
         make_destab_x_main_diag_1(qubit);
         make_destab_x_off_diag_0(qubit);
         make_stab_z_off_diag_0(qubit);
     }
+
+    if (stop_requested()) return {};
 
     for (size_t qubit = 0; qubit < copy.n_qubits(); ++qubit) {
         if (copy.stabilizer(qubit).is_neg()) {
@@ -309,6 +315,7 @@ CliffordOperatorString HOptSynthesisStrategy::synthesize(StabilizerTableau copy)
 
     // diagonalize all stabilizers
     for (size_t i = 0; i < copy.n_qubits(); ++i) {
+        if (stop_requested()) break;
         auto const qubit_range = std::views::iota(0ul, copy.n_qubits());
         auto qubit_it          = std::ranges::find_if(
             qubit_range,
@@ -332,6 +339,8 @@ CliffordOperatorString HOptSynthesisStrategy::synthesize(StabilizerTableau copy)
 
         add_h(ctrl);
     }
+
+    if (stop_requested()) return {};
 
     // synthesize the now diagonal stabilizers with Aaronson-Gottesman method
 
