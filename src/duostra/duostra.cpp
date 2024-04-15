@@ -73,7 +73,6 @@ bool Duostra::map(bool use_device_as_placement) {
         fmt::println("Routing...");
     }
     _device = scheduler->assign_gates_and_sort(std::move(router));
-
     if (stop_requested()) {
         spdlog::warn("Warning: mapping interrupted");
         return false;
@@ -81,7 +80,10 @@ bool Duostra::map(bool use_device_as_placement) {
 
     assert(scheduler->is_sorted());
     assert(scheduler->get_order().size() == _logical_circuit->get_gates().size());
-    _result = scheduler->get_operations();
+
+    for (auto [gate, _] : scheduler->get_operations())
+        _result.emplace_back(gate);
+
     store_order_info(scheduler->get_order());
     build_circuit_by_result();
 
