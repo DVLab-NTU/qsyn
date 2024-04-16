@@ -16,7 +16,6 @@
 #include "device/device_mgr.hpp"
 #include "qsyn/qsyn_type.hpp"
 #include "util/data_structure_manager_common_cmd.hpp"
-#include "util/util.hpp"
 
 using namespace dvlab::argparse;
 using dvlab::CmdExecResult;

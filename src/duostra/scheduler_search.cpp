@@ -206,7 +206,7 @@ size_t TreeNode::best_cost(size_t depth) {
 size_t TreeNode::best_cost() const {
     size_t best = SIZE_MAX;
 
-// #pragma omp parallel for reduction(min : best)
+    // #pragma omp parallel for reduction(min : best)
     for (auto& gate : scheduler().get_available_gates()) {
         TreeNode const child_node{_conf, gate, router().clone(),
                                   scheduler().clone(), _max_cost};

@@ -12,7 +12,6 @@
 #include <algorithm>
 #include <cassert>
 
-#include "./duostra.hpp"
 #include "./scheduler.hpp"
 #include "util/util.hpp"
 

@@ -46,7 +46,6 @@ public:
     bool is_sorted() const { return _sorted; }
     std::vector<size_t> const& get_available_gates() const { return _circuit_topology.get_available_gates(); }
     std::vector<GateInfo> const& get_operations() const { return _operations; }
-    // std::vector<size_t> const& get_order() const { return _assign_order; }
 
     Device assign_gates_and_sort(std::unique_ptr<Router> router);
     size_t route_one_gate(Router& router, size_t gate_id, bool forget = false);
@@ -54,7 +53,6 @@ public:
 protected:
     CircuitTopology _circuit_topology;
     std::vector<GateInfo> _operations = {};
-    // std::vector<size_t> _assign_order = {};
     bool _sorted                      = false;
     bool _tqdm                        = true;
     virtual Device _assign_gates(std::unique_ptr<Router> router);
