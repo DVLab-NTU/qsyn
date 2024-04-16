@@ -7,6 +7,7 @@
 
 #include "device/device.hpp"
 
+#include <fmt/core.h>
 #include <fmt/ranges.h>
 #include <fmt/std.h>
 #include <spdlog/spdlog.h>
@@ -300,24 +301,24 @@ void Device::place(std::vector<QubitIdType> const& assignment) {
 void Device::calculate_path() {
     _predecessor.clear();
     _distance.clear();
-    _adjacency_matrix.clear();
-    _adjacency_matrix.resize(get_num_qubits());
+    std::vector<std::vector<QubitIdType>> adjacency_matrix;
+    adjacency_matrix.resize(get_num_qubits());
+
     for (size_t i = 0; i < get_num_qubits(); i++) {
-        _adjacency_matrix[i].resize(get_num_qubits(), _max_dist);
+        adjacency_matrix[i].resize(get_num_qubits(), _max_dist);
         for (size_t j = 0; j < get_num_qubits(); j++) {
             if (i == j)
-                _adjacency_matrix[i][j] = 0;
+                adjacency_matrix[i][j] = 0;
         }
     }
-    floyd_warshall();
-    _adjacency_matrix.clear();
+    floyd_warshall(adjacency_matrix);
 }
 
 /**
  * @brief Init data for Floyd-Warshall Algorithm
  *
  */
-void Device::_initialize_floyd_warshall() {
+void Device::_initialize_floyd_warshall(const std::vector<std::vector<QubitIdType>>& adjacency_matrix) {
     _distance.resize(get_num_qubits());
     _predecessor.resize(get_num_qubits());
 
@@ -325,7 +326,7 @@ void Device::_initialize_floyd_warshall() {
         _distance[i].resize(get_num_qubits());
         _predecessor[i].resize(get_num_qubits(), max_qubit_id);
         for (size_t j = 0; j < get_num_qubits(); j++) {
-            _distance[i][j] = _adjacency_matrix[i][j];
+            _distance[i][j] = adjacency_matrix[i][j];
             if (_distance[i][j] != 0 && _distance[i][j] != _max_dist) {
                 _predecessor[i][j] = _qubit_list[i].get_id();
             }
@@ -347,11 +348,11 @@ void Device::_initialize_floyd_warshall() {
  *
  * @param type
  */
-void Device::_set_weight() {
-    assert(_adjacency_matrix.size() == _num_qubit);
+void Device::_set_weight(std::vector<std::vector<QubitIdType>>& adjacency_matrix) {
+    assert(adjacency_matrix.size() == _num_qubit);
     for (size_t i = 0; i < _num_qubit; i++) {
         for (auto const& adj : _qubit_list[i].get_adjacencies()) {
-            _adjacency_matrix[i][adj] = 1;
+            adjacency_matrix[i][adj] = 1;
         }
     }
 }
@@ -360,9 +361,9 @@ void Device::_set_weight() {
  * @brief Floyd-Warshall Algorithm. Solve All Pairs Shortest Path (APSP)
  *
  */
-void Device::floyd_warshall() {
-    _set_weight();
-    _initialize_floyd_warshall();
+void Device::floyd_warshall(std::vector<std::vector<QubitIdType>>& adjacency_matrix) {
+    _set_weight(adjacency_matrix);
+    _initialize_floyd_warshall(adjacency_matrix);
     for (size_t k = 0; k < _num_qubit; k++) {
         spdlog::debug("Including vertex({}):", k);
         for (size_t i = 0; i < _num_qubit; i++) {

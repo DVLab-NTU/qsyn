@@ -51,6 +51,7 @@ Router::Router(Device device, Router::CostStrategyType cost_strategy, MinMaxOpti
       _apsp(DuostraConfig::ROUTER_TYPE == RouterType::shortest_path || cost_strategy == CostStrategyType::end),
       _duostra(DuostraConfig::ROUTER_TYPE == RouterType::duostra) {
     _initialize();
+    fmt::println("APSP: {}", DuostraConfig::ROUTER_TYPE == RouterType::shortest_path || cost_strategy == CostStrategyType::end);
 }
 
 /**

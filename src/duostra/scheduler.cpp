@@ -168,7 +168,7 @@ size_t BaseScheduler::route_one_gate(Router& router, size_t gate_id, bool forget
     }
     if (!forget)
         _operations.insert(_operations.end(), ops.begin(), ops.end());
-    _assign_order.emplace_back(gate_id);
+    // _assign_order.emplace_back(gate_id);
     _circuit_topology.update_available_gates(gate_id);
     return max_cost;
 }

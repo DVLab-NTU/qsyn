@@ -147,7 +147,7 @@ public:
 
     // NOTE - All Pairs Shortest Path
     void calculate_path();
-    void floyd_warshall();
+    void floyd_warshall(std::vector<std::vector<QubitIdType>>& adjacency_matrix);
     std::vector<PhysicalQubit> get_path(QubitIdType src, QubitIdType dest) const;
 
     bool read_device(std::string const& filename);
@@ -177,9 +177,9 @@ private:
     size_t _max_dist = default_max_dist;
     std::vector<std::vector<QubitIdType>> _predecessor;  // _predecessor[i][j] = predecessor of j in path from i to j
     std::vector<std::vector<size_t>> _distance;          // _distance[i][j] = distance from i to j
-    std::vector<std::vector<QubitIdType>> _adjacency_matrix;
-    void _initialize_floyd_warshall();
-    void _set_weight();
+    // std::vector<std::vector<QubitIdType>> _adjacency_matrix;
+    void _initialize_floyd_warshall(const std::vector<std::vector<QubitIdType>>&);
+    void _set_weight(std::vector<std::vector<QubitIdType>>&);
 };
 
 }  // namespace qsyn::device
