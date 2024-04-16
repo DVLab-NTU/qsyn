@@ -9,7 +9,6 @@
 #pragma once
 
 #include <cstddef>
-#include <functional>
 #include <memory>
 #include <utility>
 #include <vector>
@@ -28,6 +27,12 @@ public:
         : _circuit_topology(std::move(topo)), _tqdm(tqdm) {}
     virtual ~BaseScheduler() = default;
 
+    BaseScheduler(BaseScheduler const& other) = default;
+    BaseScheduler(BaseScheduler&& other)      = default;
+
+    BaseScheduler& operator=(BaseScheduler const& other) = default;
+    BaseScheduler& operator=(BaseScheduler&& other)      = default;
+
     virtual std::unique_ptr<BaseScheduler> clone() const;
 
     CircuitTopology& circuit_topology() { return _circuit_topology; }
@@ -40,19 +45,16 @@ public:
     size_t get_operations_cost() const;
     bool is_sorted() const { return _sorted; }
     std::vector<size_t> const& get_available_gates() const { return _circuit_topology.get_available_gates(); }
-    std::vector<qcir::QCirGate> const& get_operations() const { return _operations; }
-    std::vector<size_t> const& get_order() const { return _assign_order; }
+    std::vector<GateInfo> const& get_operations() const { return _operations; }
 
     Device assign_gates_and_sort(std::unique_ptr<Router> router);
     size_t route_one_gate(Router& router, size_t gate_id, bool forget = false);
 
 protected:
     CircuitTopology _circuit_topology;
-    std::vector<qcir::QCirGate> _operations = {};
-    std::vector<size_t> _assign_order       = {};
-    GateIdToTime _gate_id_to_time           = {};
-    bool _sorted                            = false;
-    bool _tqdm                              = true;
+    std::vector<GateInfo> _operations = {};
+    bool _sorted                      = false;
+    bool _tqdm                        = true;
     virtual Device _assign_gates(std::unique_ptr<Router> router);
     void _sort();
 };
@@ -92,7 +94,14 @@ class GreedyScheduler : public BaseScheduler {  // NOLINT(hicpp-special-member-f
 public:
     using Device = BaseScheduler::Device;
     GreedyScheduler(CircuitTopology const& topo, bool tqdm) : BaseScheduler(topo, tqdm) {}
+
     ~GreedyScheduler() override = default;
+
+    GreedyScheduler(GreedyScheduler const& other) = default;
+    GreedyScheduler(GreedyScheduler&& other)      = default;
+
+    GreedyScheduler& operator=(GreedyScheduler const& other) = default;
+    GreedyScheduler& operator=(GreedyScheduler&& other)      = default;
 
     std::unique_ptr<BaseScheduler> clone() const override;
     size_t greedy_fallback(Router& router, std::vector<size_t> const& waitlist) const;

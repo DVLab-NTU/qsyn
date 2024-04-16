@@ -8,18 +8,11 @@
 
 #pragma once
 
-#include <cassert>
-#include <climits>
-#include <cmath>
 #include <memory>
-#include <set>
-#include <tuple>
 #include <vector>
 
 #include "qcir/qcir.hpp"
 #include "qcir/qcir_gate.hpp"
-#include "qsyn/qsyn_type.hpp"
-#include "util/phase.hpp"
 
 namespace qsyn::duostra {
 

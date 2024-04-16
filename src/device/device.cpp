@@ -7,6 +7,7 @@
 
 #include "device/device.hpp"
 
+#include <fmt/core.h>
 #include <fmt/ranges.h>
 #include <fmt/std.h>
 #include <spdlog/spdlog.h>
@@ -16,6 +17,7 @@
 #include <gsl/narrow>
 #include <ranges>
 #include <string>
+#include <tl/enumerate.hpp>
 #include <tl/to.hpp>
 #include <utility>
 
@@ -99,6 +101,86 @@ void Topology::add_qubit_info(size_t a, DeviceInfo info) {
 }
 
 /**
+ * @brief Resize distance and predecessor lists
+ *
+ */
+void Topology::resize_to_num_qubit() {
+    _distance.resize(_num_qubit);
+    _predecessor.resize(_num_qubit);
+
+    for (size_t i = 0; i < _num_qubit; i++) {
+        _distance[i].resize(_num_qubit);
+        _predecessor[i].resize(_num_qubit, max_qubit_id);
+    }
+}
+
+/**
+ * @brief Initialize predecessor and distance lists
+ *
+ * @param adjacency_matrix
+ * @param qubit_list
+ */
+void Topology::_init_predecessor_and_distance(const std::vector<std::vector<QubitIdType>>& adjacency_matrix, const std::vector<PhysicalQubit>& qubit_list) {
+    resize_to_num_qubit();
+    for (size_t i = 0; i < _num_qubit; i++) {
+        for (size_t j = 0; j < _num_qubit; j++) {
+            _distance[i][j] = adjacency_matrix[i][j];
+            if (_distance[i][j] != 0 && _distance[i][j] != _max_dist) {
+                _predecessor[i][j] = qubit_list[i].get_id();
+            }
+        }
+    }
+}
+
+/**
+ * @brief Set weight of edge used in Floyd-Warshall
+ *
+ * @param adjacency_matrix
+ * @param qubit_list
+ */
+void Topology::_set_weight(std::vector<std::vector<QubitIdType>>& adjacency_matrix, const std::vector<PhysicalQubit>& qubit_list) const {
+    assert(adjacency_matrix.size() == _num_qubit);
+    for (size_t i = 0; i < _num_qubit; i++) {
+        for (auto const& adj : qubit_list[i].get_adjacencies()) {
+            adjacency_matrix[i][adj] = 1;
+        }
+    }
+}
+
+/**
+ * @brief Floyd-Warshall Algorithm. Solve All Pairs Shortest Path (APSP)
+ *
+ * @param adjacency_matrix
+ * @param qubit_list
+ */
+void Topology::floyd_warshall(std::vector<std::vector<QubitIdType>>& adjacency_matrix, const std::vector<PhysicalQubit>& qubit_list) {
+    _set_weight(adjacency_matrix, qubit_list);
+    _init_predecessor_and_distance(adjacency_matrix, qubit_list);
+    for (size_t k = 0; k < _num_qubit; k++) {
+        spdlog::debug("Including vertex({}):", k);
+        for (size_t i = 0; i < _num_qubit; i++) {
+            for (size_t j = 0; j < _num_qubit; j++) {
+                if ((_distance[i][j] > _distance[i][k] + _distance[k][j]) && (_distance[i][k] != _max_dist)) {
+                    _distance[i][j]    = _distance[i][k] + _distance[k][j];
+                    _predecessor[i][j] = _predecessor[k][j];
+                }
+            }
+        }
+
+        spdlog::debug("Predecessor Matrix:");
+        for (auto& row : _predecessor) {
+            spdlog::debug("{:5}", fmt::join(
+                                      row | std::views::transform([](auto j) { return (j == max_qubit_id) ? std::string{"/"} : std::to_string(j); }), ""));
+        }
+        spdlog::debug("Distance Matrix:");
+        for (auto& row : _distance) {
+            spdlog::debug("{:5}", fmt::join(
+                                      row | std::views::transform([this](size_t j) { return (j == _max_dist) ? std::string{"X"} : std::to_string(j); }), ""));
+        }
+    }
+}
+
+/**
  * @brief Print information of the edge (a,b)
  *
  * @param a Index of first qubit
@@ -170,7 +252,7 @@ void PhysicalQubit::reset() {
  * @return tuple<size_t, size_t> (index of next qubit, cost)
  */
 std::tuple<QubitIdType, QubitIdType> Device::get_next_swap_cost(QubitIdType source, QubitIdType target) {
-    auto const next_idx  = _predecessor[target][source];
+    auto const next_idx  = _topology->get_predecessor(target, source);
     auto const& q_source = get_physical_qubit(source);
     auto const& q_next   = get_physical_qubit(next_idx);
     auto const cost      = std::max(q_source.get_occupied_time(), q_next.get_occupied_time());
@@ -186,7 +268,7 @@ std::tuple<QubitIdType, QubitIdType> Device::get_next_swap_cost(QubitIdType sour
  * @return size_t
  */
 QubitIdType Device::get_physical_by_logical(QubitIdType id) {
-    for (auto& [_, phy] : _qubit_list) {
+    for (auto& phy : _qubit_list) {
         if (phy.get_logical_qubit() == id) {
             return phy.get_id();
         }
@@ -202,12 +284,6 @@ QubitIdType Device::get_physical_by_logical(QubitIdType id) {
  */
 void Device::add_adjacency(QubitIdType a, QubitIdType b) {
     if (a > b) std::swap(a, b);
-    if (!qubit_id_exists(a)) {
-        add_physical_qubit(PhysicalQubit(a));
-    }
-    if (!qubit_id_exists(b)) {
-        add_physical_qubit(PhysicalQubit(b));
-    }
     _qubit_list[a].add_adjacency(_qubit_list[b].get_id());
     _qubit_list[b].add_adjacency(_qubit_list[a].get_id());
     constexpr DeviceInfo default_info = {._time = 0.0, ._error = 0.0};
@@ -273,7 +349,7 @@ void Device::apply_single_qubit_gate(QubitIdType physical_id) {
 std::vector<std::optional<size_t>> Device::mapping() const {
     std::vector<std::optional<size_t>> ret;
     ret.resize(_qubit_list.size());
-    for (auto const& [id, qubit] : _qubit_list) {
+    for (auto const& [id, qubit] : tl::views::enumerate(_qubit_list)) {
         ret[id] = qubit.get_logical_qubit();
     }
     return ret;
@@ -296,93 +372,20 @@ void Device::place(std::vector<QubitIdType> const& assignment) {
  *
  */
 void Device::calculate_path() {
-    _predecessor.clear();
-    _distance.clear();
-    _adjacency_matrix.clear();
-    _adjacency_matrix.resize(get_num_qubits());
+    _topology->clear_predecessor();
+    _topology->clear_distance();
+
+    std::vector<std::vector<QubitIdType>> adjacency_matrix;
+    adjacency_matrix.resize(get_num_qubits());
+
     for (size_t i = 0; i < get_num_qubits(); i++) {
-        _adjacency_matrix[i].resize(get_num_qubits(), _max_dist);
+        adjacency_matrix[i].resize(get_num_qubits(), default_max_dist);
         for (size_t j = 0; j < get_num_qubits(); j++) {
             if (i == j)
-                _adjacency_matrix[i][j] = 0;
+                adjacency_matrix[i][j] = 0;
         }
     }
-    floyd_warshall();
-    _adjacency_matrix.clear();
-}
-
-/**
- * @brief Init data for Floyd-Warshall Algorithm
- *
- */
-void Device::_initialize_floyd_warshall() {
-    _distance.resize(get_num_qubits());
-    _predecessor.resize(get_num_qubits());
-
-    for (size_t i = 0; i < get_num_qubits(); i++) {
-        _distance[i].resize(get_num_qubits());
-        _predecessor[i].resize(get_num_qubits(), max_qubit_id);
-        for (size_t j = 0; j < get_num_qubits(); j++) {
-            _distance[i][j] = _adjacency_matrix[i][j];
-            if (_distance[i][j] != 0 && _distance[i][j] != _max_dist) {
-                _predecessor[i][j] = _qubit_list[i].get_id();
-            }
-        }
-    }
-
-    spdlog::debug("Predecessor Matrix:");
-    for (auto& row : _predecessor) {
-        spdlog::debug("{:5}", fmt::join(row | std::views::transform([](QubitIdType j) { return (j == max_qubit_id) ? std::string{"/"} : std::to_string(j); }), ""));
-    }
-    spdlog::debug("Distance Matrix:");
-    for (auto& row : _distance) {
-        spdlog::debug("{:5}", fmt::join(row | std::views::transform([this](size_t j) { return (j == _max_dist) ? std::string{"X"} : std::to_string(j); }), ""));
-    }
-}
-
-/**
- * @brief Set weight of edge used in Floyd-Warshall
- *
- * @param type
- */
-void Device::_set_weight() {
-    assert(_adjacency_matrix.size() == _num_qubit);
-    for (size_t i = 0; i < _num_qubit; i++) {
-        for (auto const& adj : _qubit_list[i].get_adjacencies()) {
-            _adjacency_matrix[i][adj] = 1;
-        }
-    }
-}
-
-/**
- * @brief Floyd-Warshall Algorithm. Solve All Pairs Shortest Path (APSP)
- *
- */
-void Device::floyd_warshall() {
-    _set_weight();
-    _initialize_floyd_warshall();
-    for (size_t k = 0; k < _num_qubit; k++) {
-        spdlog::debug("Including vertex({}):", k);
-        for (size_t i = 0; i < _num_qubit; i++) {
-            for (size_t j = 0; j < _num_qubit; j++) {
-                if ((_distance[i][j] > _distance[i][k] + _distance[k][j]) && (_distance[i][k] != _max_dist)) {
-                    _distance[i][j]    = _distance[i][k] + _distance[k][j];
-                    _predecessor[i][j] = _predecessor[k][j];
-                }
-            }
-        }
-
-        spdlog::debug("Predecessor Matrix:");
-        for (auto& row : _predecessor) {
-            spdlog::debug("{:5}", fmt::join(
-                                      row | std::views::transform([](auto j) { return (j == max_qubit_id) ? std::string{"/"} : std::to_string(j); }), ""));
-        }
-        spdlog::debug("Distance Matrix:");
-        for (auto& row : _distance) {
-            spdlog::debug("{:5}", fmt::join(
-                                      row | std::views::transform([this](size_t j) { return (j == _max_dist) ? std::string{"X"} : std::to_string(j); }), ""));
-        }
-    }
+    _topology->floyd_warshall(adjacency_matrix, _qubit_list);
 }
 
 /**
@@ -396,10 +399,10 @@ std::vector<PhysicalQubit> Device::get_path(QubitIdType src, QubitIdType dest) c
     std::vector<PhysicalQubit> path;
     path.emplace_back(_qubit_list.at(src));
     if (src == dest) return path;
-    auto new_pred = _predecessor[dest][src];
+    auto new_pred = _topology->get_predecessor(dest, src);
     path.emplace_back(new_pred);
     while (true) {
-        new_pred = _predecessor[dest][new_pred];
+        new_pred = _topology->get_predecessor(dest, new_pred);
         if (new_pred == max_qubit_id) break;
         path.emplace_back(_qubit_list.at(new_pred));
     }
@@ -446,7 +449,7 @@ bool Device::read_device(std::string const& filename) {
         return false;
     }
     _num_qubit = qbn.value();
-
+    _topology->set_num_qubits(_num_qubit);
     // NOTE - Gate set
     str = "", token = "", data = "";
     while (str.empty()) {
@@ -476,6 +479,12 @@ bool Device::read_device(std::string const& filename) {
     if (!_parse_info(topo_file, cx_err, cx_delay, sg_err, sg_delay)) return false;
 
     // NOTE - Finish parsing, store the topology
+    _qubit_list.reserve(adj_list.size());
+
+    for (size_t i = 0; i < adj_list.size(); ++i) {
+        _qubit_list.emplace_back(PhysicalQubit(i));
+    }
+
     for (size_t i = 0; i < adj_list.size(); i++) {
         for (size_t j = 0; j < adj_list[i].size(); j++) {
             if (adj_list[i][j] > i) {
@@ -666,7 +675,7 @@ void Device::print_qubits(std::vector<size_t> candidates) const {
     fmt::println("");
     std::vector<PhysicalQubit> qubits;
     qubits.resize(_num_qubit);
-    for (auto const& [idx, info] : _qubit_list) {
+    for (auto const& [idx, info] : tl::views::enumerate(_qubit_list)) {
         qubits[idx] = info;
     }
     if (candidates.empty()) {
@@ -697,7 +706,7 @@ void Device::print_edges(std::vector<size_t> candidates) const {
     fmt::println("");
     std::vector<PhysicalQubit> qubits;
     qubits.resize(_num_qubit);
-    for (auto const& [idx, info] : _qubit_list) {
+    for (auto const& [idx, info] : tl::views::enumerate(_qubit_list)) {
         qubits[idx] = info;
     }
     if (candidates.empty()) {
@@ -730,28 +739,6 @@ void Device::print_topology() const {
     fmt::println("Topology: {} ({} qubits, {} edges)", get_name(), _qubit_list.size(), _topology->get_num_adjacencies());
     auto const tmp = _topology->get_gate_set();  // circumvents g++ 11.4 compiler bug
     fmt::println("Gate Set: {}", fmt::join(tmp | std::views::transform([](std::string const& gtype) { return dvlab::str::toupper_string(gtype); }), ", "));
-}
-
-/**
- * @brief Print Predecessor
- *
- */
-void Device::print_predecessor() const {
-    fmt::println("Predecessor Matrix:");
-    for (auto& row : _predecessor) {
-        fmt::println("{:5}", fmt::join(row | std::views::transform([](auto pred) { return (pred == max_qubit_id) ? "/" : std::to_string(pred); }), ""));
-    }
-}
-
-/**
- * @brief Print Distance
- *
- */
-void Device::print_distance() const {
-    fmt::println("Distance Matrix:");
-    for (auto& row : _distance) {
-        fmt::println("{:5}", fmt::join(row | std::views::transform([this](size_t dist) { return (dist == _max_dist) ? "X" : std::to_string(dist); }), ""));
-    }
 }
 
 /**
@@ -801,7 +788,7 @@ void Device::print_status() const {
     fmt::println("Device Status:");
     std::vector<PhysicalQubit> qubits;
     qubits.resize(_num_qubit);
-    for (auto const& [idx, info] : _qubit_list) {
+    for (auto const& [idx, info] : tl::views::enumerate(_qubit_list)) {
         qubits[idx] = info;
     }
     for (size_t i = 0; i < qubits.size(); ++i) {

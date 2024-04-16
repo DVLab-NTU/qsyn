@@ -38,13 +38,13 @@ public:
     std::unique_ptr<qcir::QCir> const& get_physical_circuit() const { return _physical_circuit; }
     std::unique_ptr<qcir::QCir>&& get_physical_circuit() { return std::move(_physical_circuit); }
     std::vector<qcir::QCirGate> const& get_result() const { return _result; }
-    auto const& get_order() const { return _order; }
+    // auto const& get_order() const { return _order; }
     Device get_device() const { return _device; }
 
     void make_dependency();
     // void make_dependency(std::vector<Operation> const& ops, size_t n_qubits);
     bool map(bool use_device_as_placement = false);
-    void store_order_info(std::vector<size_t> const& order);
+    // void store_order_info(std::vector<size_t> const& order);
     void build_circuit_by_result();
 
 private:
@@ -56,7 +56,7 @@ private:
     std::unique_ptr<BaseScheduler> _scheduler;
     std::shared_ptr<qcir::QCir> _logical_circuit;
     std::vector<qcir::QCirGate> _result;
-    std::vector<qcir::QCirGate> _order;
+    // std::vector<qcir::QCirGate> _order;
 };
 
 }  // namespace duostra
