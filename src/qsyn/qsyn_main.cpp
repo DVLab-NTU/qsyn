@@ -29,6 +29,9 @@
 #ifndef QSYN_VERSION
 #define QSYN_VERSION "[unknown version]"
 #endif
+#ifndef QSYN_BUILD_TYPE
+#define QSYN_BUILD_TYPE "[unknown build type]"
+#endif
 
 namespace {
 // NOLINTBEGIN(readability-identifier-naming)
@@ -42,8 +45,9 @@ qsyn::experimental::TableauMgr tableau_mgr{"Tableau"};
 
 std::string const version_str = fmt::format(
     "qsyn {} - Copyright © 2022-{:%Y}, DVLab NTUEE.\n"
-    "Licensed under Apache 2.0 License.",
-    QSYN_VERSION, std::chrono::system_clock::now());
+    "Licensed under Apache 2.0 License. {} build.",
+    QSYN_VERSION, std::chrono::system_clock::now(),
+    QSYN_BUILD_TYPE);
 }  // namespace
 
 bool stop_requested() { return cli.stop_requested(); }

@@ -131,6 +131,8 @@ target_link_libraries(spdlog PUBLIC fmt::fmt)
 
 target_compile_definitions(${CMAKE_PROJECT_NAME}
                            PRIVATE QSYN_VERSION="v${CMAKE_PROJECT_VERSION}")
+target_compile_definitions(${CMAKE_PROJECT_NAME} 
+                           PRIVATE QSYN_BUILD_TYPE="${CMAKE_BUILD_TYPE}")
 target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wall -Wextra -Werror)
 
 # g++ is being too paranoid about missing field initializers

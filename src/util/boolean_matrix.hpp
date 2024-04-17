@@ -126,6 +126,11 @@ public:
     auto begin() const { return _matrix.begin(); }
     auto end() const { return _matrix.end(); }
 
+    void clear() {
+        _matrix.clear();
+        _row_operations.clear();
+    }
+
 private:
     std::vector<Row> _matrix;
     std::vector<RowOperation> _row_operations;
