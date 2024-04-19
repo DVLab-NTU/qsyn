@@ -9,6 +9,7 @@
 
 #include <cstddef>
 #include <unordered_map>
+#include <vector>
 
 #include "qcir/basic_gate_type.hpp"
 #include "qcir/qcir_gate.hpp"
@@ -60,10 +61,11 @@ private:
     dvlab::utils::ordered_hashmap<QubitIdType, std::vector<size_t>> _available_gates;
     std::vector<bool> _qubit_available;
 
-    dvlab::utils::ordered_hashmap<QubitIdType, QubitIdType> _permutation;
-    dvlab::utils::ordered_hashset<QubitIdType> _hadamards;
-    dvlab::utils::ordered_hashset<QubitIdType> _xs;
-    dvlab::utils::ordered_hashset<QubitIdType> _zs;
+    std::vector<QubitIdType> _permutation;
+    
+    std::vector<bool> _hadamards;
+    std::vector<bool> _xs;
+    std::vector<bool> _zs;
     std::vector<std::pair<QubitIdType, QubitIdType>> _swaps;
 
     struct Statistics {

@@ -7,7 +7,9 @@
 
 #include <spdlog/spdlog.h>
 
+#include <optional>
 #include <ranges>
+#include <tl/enumerate.hpp>
 
 #include "../basic_gate_type.hpp"
 #include "../qcir.hpp"
@@ -100,11 +102,11 @@ QCir Optimizer::_parse_once(QCir const& qcir, bool reversed, bool do_minimize_cz
     }
 
     // TODO - Find a method to avoid using parameter "erase"
-    for (auto& t : _hadamards) {
+    for (size_t t = 0; t < _hadamards.size(); ++t) {
         _add_hadamard(t, false);
     }
 
-    for (auto& t : _zs) {
+    for (size_t t = 0; t < _zs.size(); ++t) {
         _add_single_z_rotation_gate(t, dvlab::Phase(1));
     }
 
@@ -112,7 +114,7 @@ QCir Optimizer::_parse_once(QCir const& qcir, bool reversed, bool do_minimize_cz
     result.set_filename(qcir.get_filename());
     result.add_procedures(qcir.get_procedures());
 
-    for (auto& t : _xs) {
+    for (size_t t = 0; t < _xs.size(); ++t) {
         auto gate = _storage[_store_x(t)];
         reversed
             ? result.prepend(gate)
@@ -277,7 +279,7 @@ QCir Optimizer::_build_from_storage(size_t n_qubits, bool reversed) {
 void Optimizer::_add_hadamard(QubitIdType target, bool erase) {
     auto h_gate = _store_h(target);
     _gates[target].emplace_back(h_gate);
-    if (erase) _hadamards.erase(target);
+    if (erase) _hadamards[target] = false;
     _available_gates[target].clear();
     _qubit_available[target] = false;
 }
@@ -535,7 +537,7 @@ std::vector<size_t> Optimizer::_compute_stats(QCir const& circuit) {
 std::vector<std::pair<QubitIdType, QubitIdType>> Optimizer::_get_swap_path() {
     std::vector<std::pair<QubitIdType, QubitIdType>> swap_path;
     std::unordered_map<QubitIdType, QubitIdType> inv_permutation;
-    for (auto [i, j] : _permutation) {
+    for (auto [i, j] : tl::views::enumerate(_permutation)) {
         inv_permutation.emplace(j, i);
     }
 

@@ -8,6 +8,8 @@
 #include <spdlog/spdlog.h>
 
 #include <cassert>
+#include <tl/enumerate.hpp>
+#include <unordered_map>
 
 #include "../basic_gate_type.hpp"
 #include "../qcir_gate.hpp"
@@ -16,24 +18,26 @@
 namespace qsyn::qcir {
 
 void Optimizer::_permute_gates(QCirGate& gate) {
-    auto const reverse_map = _permutation | std::views::transform([](auto const& p) { return std::pair(p.second, p.first); }) | tl::to<std::unordered_map>();
+    std::unordered_map<QubitIdType, QubitIdType> reverse_table;
+    for(auto const& [a, b]: tl::views::enumerate(_permutation)) {
+        reverse_table[b] = a;
+    }
     auto const qubits      = gate.get_qubits();
-    gate.set_qubits(qubits | std::views::transform([&reverse_map](auto const& operand) { return reverse_map.at(operand); }) | tl::to<QubitIdList>());
+    gate.set_qubits(qubits | std::views::transform([&reverse_table](auto const& operand) { return reverse_table.at(operand); }) | tl::to<QubitIdList>());
 }
 
 void Optimizer::_match_hadamards(QCirGate const& gate) {
     assert(gate.get_operation() == HGate());
     auto qubit = gate.get_qubit(0);
 
-    if (_xs.contains(qubit) && !_zs.contains(qubit)) {
+    if (_xs[qubit] && !_zs[qubit]) {
         spdlog::trace("Transform X gate into Z gate");
-
-        _xs.erase(qubit);
-        _zs.emplace(qubit);
-    } else if (!_xs.contains(qubit) && _zs.contains(qubit)) {
+        _xs[qubit] = false;
+        _zs[qubit] = true;
+    } else if (!_xs[qubit] && _zs[qubit]) {
         spdlog::trace("Transform Z gate into X gate");
-        _zs.erase(qubit);
-        _xs.emplace(qubit);
+        _zs[qubit] = false;
+        _xs[qubit] = true;
     }
     // NOTE - H-S-H to Sdg-H-Sdg
     if (_gates[qubit].size() > 1 &&
@@ -61,7 +65,7 @@ void Optimizer::_match_hadamards(QCirGate const& gate) {
 void Optimizer::_match_xs(QCirGate const& gate) {
     assert(gate.get_operation() == XGate());
     auto const qubit = gate.get_qubit(0);
-    if (_xs.contains(qubit)) {
+    if (_xs[qubit]) {
         spdlog::trace("Cancel X-X into Id");
         _statistics.X_CANCEL++;
     }
@@ -71,9 +75,9 @@ void Optimizer::_match_xs(QCirGate const& gate) {
 void Optimizer::_match_z_rotations(QCirGate& gate) {
     assert(is_single_z_rotation(gate));
     auto const qubit = gate.get_qubit(0);
-    if (_zs.contains(qubit)) {
+    if (_zs[qubit]) {
         _statistics.FUSE_PHASE++;
-        _zs.erase(qubit);
+        _zs[qubit] = false;
         auto op = gate.get_operation().get_underlying<PZGate>();
         op.set_phase(op.get_phase() + dvlab::Phase(1));
         gate.set_operation(op);
@@ -83,7 +87,7 @@ void Optimizer::_match_z_rotations(QCirGate& gate) {
         return;
     }
 
-    if (_xs.contains(qubit)) {
+    if (_xs[qubit]) {
         // since we know that the gate is a single-qubit z-rotation, commuting it with an x gate is equivalent to taking the adjoint of the z-rotation
         gate.set_operation(adjoint(gate.get_operation()));
     }
@@ -92,7 +96,7 @@ void Optimizer::_match_z_rotations(QCirGate& gate) {
         return;
     }
     // REVIEW - Neglect adjoint due to S and Sdg is separated
-    if (_hadamards.contains(qubit)) {
+    if (_hadamards[qubit]) {
         _add_hadamard(qubit, true);
     }
     auto const gate_op = gate.get_operation().get_underlying<PZGate>();
@@ -128,17 +132,17 @@ void Optimizer::_match_czs(QCirGate& gate, bool do_swap, bool do_minimize_czs) {
     }
     // NOTE - Push NOT gates trough the CZ
     // REVIEW - Seems strange
-    if (_xs.contains(control_qubit))
+    if (_xs[control_qubit])
         _toggle_element(ElementType::z, target_qubit);
-    if (_xs.contains(target_qubit))
+    if (_xs[target_qubit])
         _toggle_element(ElementType::z, control_qubit);
-    if (_hadamards.contains(control_qubit) && _hadamards.contains(target_qubit)) {
+    if (_hadamards[control_qubit] && _hadamards[target_qubit]) {
         _add_hadamard(control_qubit, true);
         _add_hadamard(target_qubit, true);
     }
-    if (!_hadamards.contains(control_qubit) && !_hadamards.contains(target_qubit)) {
+    if (!_hadamards[control_qubit] && !_hadamards[target_qubit]) {
         _add_cz(control_qubit, target_qubit, do_minimize_czs);
-    } else if (_hadamards.contains(control_qubit)) {
+    } else if (_hadamards[control_qubit]) {
         _statistics.CZ2CX++;
         _add_cx(target_qubit, control_qubit, do_swap);
     } else {
@@ -152,15 +156,15 @@ void Optimizer::_match_cxs(QCirGate const& gate, bool do_swap, bool do_minimize_
     auto control_qubit = gate.get_qubit(0);
     auto target_qubit  = gate.get_qubit(1);
 
-    if (_xs.contains(control_qubit))
+    if (_xs[control_qubit])
         _toggle_element(ElementType::x, target_qubit);
-    if (_zs.contains(target_qubit))
+    if (_zs[target_qubit])
         _toggle_element(ElementType::z, control_qubit);
-    if (_hadamards.contains(control_qubit) && _hadamards.contains(target_qubit)) {
+    if (_hadamards[control_qubit] && _hadamards[target_qubit]) {
         _add_cx(target_qubit, control_qubit, do_swap);
-    } else if (!_hadamards.contains(control_qubit) && !_hadamards.contains(target_qubit)) {
+    } else if (!_hadamards[control_qubit] && !_hadamards[target_qubit]) {
         _add_cx(control_qubit, target_qubit, do_swap);
-    } else if (_hadamards.contains(target_qubit)) {
+    } else if (_hadamards[target_qubit]) {
         _statistics.CX2CZ++;
         if (control_qubit > target_qubit)
             _add_cz(target_qubit, control_qubit, do_minimize_czs);
