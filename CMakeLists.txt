@@ -15,8 +15,14 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 include(FetchContent)
 set(FETCHCONTENT_UPDATES_DISCONNECTED TRUE)
 
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+  set(QSYN_PROJECT_NAME qsyn-debug)
+else()
+  set(QSYN_PROJECT_NAME qsyn)
+endif()
+
 project(
-  qsyn
+  ${QSYN_PROJECT_NAME}
   LANGUAGES CXX
   VERSION 0.6.3)
 
