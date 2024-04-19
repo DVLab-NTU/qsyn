@@ -391,7 +391,7 @@ std::optional<ZXGraph> build_graph_from_parser_storage(StorageType const& storag
     for (auto& [id, info] : storage) {
         ZXVertex* v = std::invoke(
             // clang++ does not support structured binding capture by reference with OpenMP
-            [&info = info, &graph]() {
+            [&info = info, &graph]() -> ZXVertex* {
                 switch (info.type) {
                     case 'I':
                         return graph.add_input(info.qubit, info.row, info.column);
@@ -405,6 +405,7 @@ std::optional<ZXGraph> build_graph_from_parser_storage(StorageType const& storag
                         return graph.add_vertex(VertexType::h_box, info.phase, info.row, info.column);
                     default:
                         DVLAB_UNREACHABLE("unsupported vertex type");
+                        return nullptr;  // silence warning
                 }
             });
 

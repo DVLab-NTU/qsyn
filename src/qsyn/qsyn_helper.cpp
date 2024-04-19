@@ -14,6 +14,7 @@
 #include <csignal>
 
 #include "argparse/arg_parser.hpp"
+#include "argparse/arg_type.hpp"
 #include "cli/cli.hpp"
 #include "convert/conversion_cmd.hpp"
 #include "device/device_cmd.hpp"
@@ -61,6 +62,7 @@ dvlab::Command create_qsynrc_cmd(dvlab::CommandLineInterface& cli) {
     return dvlab::Command{
         "create-qsynrc",
         [](ArgumentParser& parser) {
+            parser.description(fmt::format("Create a default qsynrc file at {}", default_qsynrc_path));
             parser.add_argument<bool>("-r", "--replace")
                 .action(store_true)
                 .help("force-replace the existing qsynrc file");
@@ -153,23 +155,17 @@ dvlab::argparse::ArgumentParser get_qsyn_parser(std::string_view const prog_name
                                                           .version            = QSYN_VERSION});
     auto mutex  = parser.add_mutually_exclusive_group();
 
-    mutex.add_argument<std::string>("-c", "--command")
-        .nargs(NArgsOption::one_or_more)
-        .usage(fmt::format("{} {}{}{}",
-                           dvlab::fmt_ext::styled_if_ansi_supported("cmd", fmt::emphasis::bold),
-                           dvlab::fmt_ext::styled_if_ansi_supported("[", fmt::fg(fmt::terminal_color::yellow)),
-                           dvlab::fmt_ext::styled_if_ansi_supported("arg", fmt::emphasis::bold),
-                           dvlab::fmt_ext::styled_if_ansi_supported("]", fmt::fg(fmt::terminal_color::yellow))))
-        .help("specify the command to run, and optionally pass arguments to the dofiles");
-
-    mutex.add_argument<std::string>("-f", "--file")
-        .nargs(NArgsOption::one_or_more)
-        .usage(fmt::format("{} {}{}{}",
+    mutex.add_argument<std::string>("filepath")
+        .usage(fmt::format("{} {}{}{}...",
                            dvlab::fmt_ext::styled_if_ansi_supported("filepath", fmt::emphasis::bold),
                            dvlab::fmt_ext::styled_if_ansi_supported("[", fmt::fg(fmt::terminal_color::yellow)),
                            dvlab::fmt_ext::styled_if_ansi_supported("arg", fmt::emphasis::bold),
                            dvlab::fmt_ext::styled_if_ansi_supported("]", fmt::fg(fmt::terminal_color::yellow))))
-        .help("specify the dofile to run, and optionally pass arguments to the dofiles");
+        .nargs(NArgsOption::zero_or_more)
+        .help("run the script file at the specified path. Arguments can be passed after the filepath.");
+
+    mutex.add_argument<std::string>("-c", "--command")
+        .help("run the command passed as a string");
 
     parser.add_argument<bool>("-q", "--quiet")
         .action(store_true)
@@ -182,6 +178,14 @@ dvlab::argparse::ArgumentParser get_qsyn_parser(std::string_view const prog_name
     parser.add_argument<std::string>("--qsynrc-path")
         .default_value("")
         .help("specify the path to the qsynrc file");
+
+    parser.add_argument<bool>("-f", "--file")
+        .action(store_true)
+        .help("This flag is deprecated but still supported for backward compatibility. To run a script file with commands printing, use `-v` flag with a filepath.");
+
+    parser.add_argument<bool>("-v", "--verbose")
+        .action(store_true)
+        .help("print the commands before executing them; only valid when `-c` or a filepath is specified");
 
     return parser;
 }

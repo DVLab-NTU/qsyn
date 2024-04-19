@@ -32,6 +32,7 @@ std::unique_ptr<BasePlacer> get_placer() {
         return std::make_unique<DFSPlacer>();
     }
     DVLAB_UNREACHABLE("Unknown placer type");
+    return nullptr;
 }
 
 // SECTION - Class BasePlacer Member Functions

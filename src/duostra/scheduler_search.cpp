@@ -187,7 +187,7 @@ size_t TreeNode::best_cost(size_t depth) {
 
     // Calculates the best cost for each children.
     size_t best_cost = SIZE_MAX;
-    for (auto& child : _children) {
+    for (auto& child : _children | std::views::take(_conf._candidates)) {
         best_cost = std::min(best_cost, child.best_cost(depth - 1));
     }
 
@@ -231,28 +231,6 @@ SearchScheduler::SearchScheduler(CircuitTopology const& topo, bool tqdm)
       _lookahead(DuostraConfig::SEARCH_DEPTH) {
     _cache_when_necessary();
 }
-
-/**
- * @brief Construct a new Search Scheduler:: Search Scheduler object
- *
- * @param other
- */
-SearchScheduler::SearchScheduler(SearchScheduler const& other)
-    : GreedyScheduler(other),
-      _never_cache(other._never_cache),
-      _execute_single(other._execute_single),
-      _lookahead(other._lookahead) {}
-
-/**
- * @brief Construct a new Search Scheduler:: Search Scheduler object
- *
- * @param other
- */
-SearchScheduler::SearchScheduler(SearchScheduler&& other) noexcept
-    : GreedyScheduler(std::move(other)),
-      _never_cache(other._never_cache),
-      _execute_single(other._execute_single),
-      _lookahead(other._lookahead) {}
 
 /**
  * @brief Clone scheduler

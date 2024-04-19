@@ -95,14 +95,6 @@ public:
     using Device = BaseScheduler::Device;
     GreedyScheduler(CircuitTopology const& topo, bool tqdm) : BaseScheduler(topo, tqdm) {}
 
-    ~GreedyScheduler() override = default;
-
-    GreedyScheduler(GreedyScheduler const& other) = default;
-    GreedyScheduler(GreedyScheduler&& other)      = default;
-
-    GreedyScheduler& operator=(GreedyScheduler const& other) = default;
-    GreedyScheduler& operator=(GreedyScheduler&& other)      = default;
-
     std::unique_ptr<BaseScheduler> clone() const override;
     size_t greedy_fallback(Router& router, std::vector<size_t> const& waitlist) const;
 
@@ -198,23 +190,6 @@ class SearchScheduler : public GreedyScheduler {  // NOLINT(hicpp-special-member
 public:
     using Device = GreedyScheduler::Device;
     SearchScheduler(CircuitTopology const& topo, bool tqdm = true);
-    ~SearchScheduler() override = default;
-    SearchScheduler(SearchScheduler const& other);
-    SearchScheduler(SearchScheduler&& other) noexcept;
-
-    SearchScheduler& operator=(SearchScheduler copy) {
-        copy.swap(*this);
-        return *this;
-    }
-
-    void swap(SearchScheduler& other) noexcept {
-        std::swap(static_cast<GreedyScheduler&>(*this), static_cast<GreedyScheduler&>(other));
-        std::swap(_conf, other._conf);
-    }
-
-    friend void swap(SearchScheduler& a, SearchScheduler& b) noexcept {
-        a.swap(b);
-    }
 
     std::unique_ptr<BaseScheduler> clone() const override;
 

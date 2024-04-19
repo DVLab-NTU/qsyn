@@ -15,8 +15,14 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 include(FetchContent)
 set(FETCHCONTENT_UPDATES_DISCONNECTED TRUE)
 
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+  set(QSYN_PROJECT_NAME qsyn-debug)
+else()
+  set(QSYN_PROJECT_NAME qsyn)
+endif()
+
 project(
-  qsyn
+  ${QSYN_PROJECT_NAME}
   LANGUAGES CXX
   VERSION 0.6.3)
 
@@ -131,6 +137,8 @@ target_link_libraries(spdlog PUBLIC fmt::fmt)
 
 target_compile_definitions(${CMAKE_PROJECT_NAME}
                            PRIVATE QSYN_VERSION="v${CMAKE_PROJECT_VERSION}")
+target_compile_definitions(${CMAKE_PROJECT_NAME} 
+                           PRIVATE QSYN_BUILD_TYPE="${CMAKE_BUILD_TYPE}")
 target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wall -Wextra -Werror)
 
 # g++ is being too paranoid about missing field initializers

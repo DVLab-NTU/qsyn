@@ -40,6 +40,7 @@ std::unique_ptr<BaseScheduler> get_scheduler(std::unique_ptr<CircuitTopology> to
         return std::make_unique<BaseScheduler>(*topo, tqdm);
     }
     DVLAB_UNREACHABLE("Scheduler type not found");
+    return nullptr;
 }
 
 // SECTION - Class BaseScheduler Member Functions

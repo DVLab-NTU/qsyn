@@ -169,9 +169,7 @@ bool Extractor::extraction_loop(std::optional<size_t> max_iter) {
  */
 void Extractor::clean_frontier() {
     spdlog::debug("Cleaning frontier");
-    // NOTE - Edge and dvlab::Phase
     extract_singles();
-    // NOTE - CZs
     extract_czs();
 }
 
@@ -637,6 +635,16 @@ bool Extractor::biadjacency_eliminations(bool check) {
     std::vector<dvlab::BooleanMatrix::RowOperation> greedy_opers;
 
     update_matrix();
+
+    if (OPTIMIZE_LEVEL == 0) {
+        column_optimal_swap();
+        update_matrix();
+        _biadjacency.gaussian_elimination_skip(BLOCK_SIZE, true, true);
+        if (FILTER_DUPLICATE_CXS) _filter_duplicate_cxs();
+        _cnots = _biadjacency.get_row_operations();
+        return true;
+    }
+
     dvlab::BooleanMatrix greedy_matrix = _biadjacency;
     auto const backup_neighbors        = _neighbors;
 
@@ -645,45 +653,39 @@ bool Extractor::biadjacency_eliminations(bool check) {
     if (OPTIMIZE_LEVEL > 1) {
         // NOTE - opt = 2 or 3
         greedy_opers = greedy_reduction(greedy_matrix);
-        for (auto oper : greedy_opers) {
+        for (auto const& oper : greedy_opers) {
             greedy_matrix.row_operation(oper.first, oper.second, true);
         }
     }
 
     if (OPTIMIZE_LEVEL != 2 || greedy_opers.empty()) {
-        // NOTE - opt = 0, 1, 3 or when 2 cannot find the result
+        // NOTE - opt = 1, 3 or when 2 cannot find the result
         column_optimal_swap();
         update_matrix();
 
-        if (OPTIMIZE_LEVEL == 0) {
-            _biadjacency.gaussian_elimination_skip(BLOCK_SIZE, true, true);
-            if (FILTER_DUPLICATE_CXS) _filter_duplicate_cxs();
-            _cnots = _biadjacency.get_row_operations();
-        } else if (OPTIMIZE_LEVEL == 1 || OPTIMIZE_LEVEL == 3 || greedy_opers.empty()) {
-            auto min_cnots = SIZE_MAX;
-            dvlab::BooleanMatrix best_matrix;
-            for (size_t blk = 1; blk < _biadjacency.num_cols(); blk++) {
-                _block_elimination(best_matrix, min_cnots, blk);
-            }
-            if (OPTIMIZE_LEVEL == 1) {
+        auto min_cnots = SIZE_MAX;
+        dvlab::BooleanMatrix best_matrix;
+        for (size_t blk = 1; blk < _biadjacency.num_cols(); blk++) {
+            _block_elimination(best_matrix, min_cnots, blk);
+        }
+        if (OPTIMIZE_LEVEL == 1) {
+            _biadjacency = best_matrix;
+            _cnots       = _biadjacency.get_row_operations();
+        } else {
+            auto const n_gauss_opers     = best_matrix.get_row_operations().size();
+            auto const n_single_one_rows = accumulate(best_matrix.get_matrix().begin(), best_matrix.get_matrix().end(), 0,
+                                                      [](size_t acc, dvlab::BooleanMatrix::Row const& r) { return acc + size_t(r.is_one_hot()); });
+            // NOTE - opers per extractable rows for Gaussian is bigger than greedy
+            auto const found_greedy = (float(n_gauss_opers) / float(n_single_one_rows)) > (float(greedy_opers.size()) - 0.1);
+            if (!greedy_opers.empty() && found_greedy) {
+                _biadjacency = greedy_matrix;
+                _cnots       = greedy_matrix.get_row_operations();
+                _neighbors   = backup_neighbors;
+                spdlog::debug("Found greedy reduction with {} CXs", _cnots.size());
+            } else {
                 _biadjacency = best_matrix;
                 _cnots       = _biadjacency.get_row_operations();
-            } else {
-                auto const n_gauss_opers     = best_matrix.get_row_operations().size();
-                auto const n_single_one_rows = accumulate(best_matrix.get_matrix().begin(), best_matrix.get_matrix().end(), 0,
-                                                          [](size_t acc, dvlab::BooleanMatrix::Row const& r) { return acc + size_t(r.is_one_hot()); });
-                // NOTE - opers per extractable rows for Gaussian is bigger than greedy
-                auto const found_greedy = (float(n_gauss_opers) / float(n_single_one_rows)) > (float(greedy_opers.size()) - 0.1);
-                if (!greedy_opers.empty() && found_greedy) {
-                    _biadjacency = greedy_matrix;
-                    _cnots       = greedy_matrix.get_row_operations();
-                    _neighbors   = backup_neighbors;
-                    spdlog::debug("Found greedy reduction with {} CXs", _cnots.size());
-                } else {
-                    _biadjacency = best_matrix;
-                    _cnots       = _biadjacency.get_row_operations();
-                    spdlog::debug("Found Gaussian elimination with {} CXs", _cnots.size());
-                }
+                spdlog::debug("Found Gaussian elimination with {} CXs", _cnots.size());
             }
         }
     } else {
