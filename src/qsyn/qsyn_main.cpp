@@ -86,25 +86,19 @@ int main(int argc, char** argv) {
         return -1;
     }
 
-    auto const args = parser.get<std::vector<std::string>>("args");
-
     if (parser.parsed("--command")) {
         auto const cmds = parser.get<std::string>("--command");
 
         auto cmd_stream = std::stringstream(cmds);
-
-        for (auto&& [i, arg] : tl::views::enumerate(args)) {
-            cli.add_variable(std::to_string(i + 1), arg);
-        }
 
         cli.execute_one_line(cmd_stream, verbose);
         return dvlab::get_exit_code(cli.get_last_return_status());
     }
 
     if (parser.parsed("filepath")) {
-        auto const filepath = parser.get<std::string>("filepath");
+        auto const filepath = parser.get<std::vector<std::string>>("filepath");
 
-        cli.source_dofile(filepath, args, verbose);
+        cli.source_dofile(filepath.front(), std::span(filepath).subspan(1), verbose);
         if (parser.parsed("--file")) {
             spdlog::warn("The -f/--file option is deprecated and will be removed in the future.");
             spdlog::warn("To run a script file with commands printing, use the -v flag with a filepath.");
