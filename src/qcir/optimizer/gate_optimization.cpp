@@ -19,10 +19,10 @@ namespace qsyn::qcir {
 
 void Optimizer::_permute_gates(QCirGate& gate) {
     std::unordered_map<QubitIdType, QubitIdType> reverse_table;
-    for(auto const& [a, b]: tl::views::enumerate(_permutation)) {
+    for (auto const& [a, b] : tl::views::enumerate(_permutation)) {
         reverse_table[b] = a;
     }
-    auto const qubits      = gate.get_qubits();
+    auto const qubits = gate.get_qubits();
     gate.set_qubits(qubits | std::views::transform([&reverse_table](auto const& operand) { return reverse_table.at(operand); }) | tl::to<QubitIdList>());
 }
 
@@ -78,7 +78,7 @@ void Optimizer::_match_z_rotations(QCirGate& gate) {
     if (_zs[qubit]) {
         _statistics.FUSE_PHASE++;
         _zs[qubit] = false;
-        auto op = gate.get_operation().get_underlying<PZGate>();
+        auto op    = gate.get_operation().get_underlying<PZGate>();
         op.set_phase(op.get_phase() + dvlab::Phase(1));
         gate.set_operation(op);
     }

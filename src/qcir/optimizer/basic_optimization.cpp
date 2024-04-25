@@ -103,10 +103,12 @@ QCir Optimizer::_parse_once(QCir const& qcir, bool reversed, bool do_minimize_cz
 
     // TODO - Find a method to avoid using parameter "erase"
     for (size_t t = 0; t < _hadamards.size(); ++t) {
+        if (!_hadamards[t]) continue;
         _add_hadamard(t, false);
     }
 
     for (size_t t = 0; t < _zs.size(); ++t) {
+        if (!_zs[t]) continue;
         _add_single_z_rotation_gate(t, dvlab::Phase(1));
     }
 
@@ -115,6 +117,7 @@ QCir Optimizer::_parse_once(QCir const& qcir, bool reversed, bool do_minimize_cz
     result.add_procedures(qcir.get_procedures());
 
     for (size_t t = 0; t < _xs.size(); ++t) {
+        if (!_xs[t]) continue;
         auto gate = _storage[_store_x(t)];
         reversed
             ? result.prepend(gate)

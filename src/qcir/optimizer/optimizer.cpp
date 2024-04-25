@@ -6,6 +6,7 @@
 ****************************************************************************/
 
 #include "./optimizer.hpp"
+
 #include <optional>
 
 #include "../qcir.hpp"

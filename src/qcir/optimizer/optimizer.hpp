@@ -62,7 +62,7 @@ private:
     std::vector<bool> _qubit_available;
 
     std::vector<QubitIdType> _permutation;
-    
+
     std::vector<bool> _hadamards;
     std::vector<bool> _xs;
     std::vector<bool> _zs;
