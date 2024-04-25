@@ -23,6 +23,7 @@
 #include "argparse/arg_def.hpp"
 #include "argparse/argparse.hpp"
 #include "jthread/jthread.hpp"
+#include "util/usage.hpp"
 
 namespace dvlab {
 
@@ -185,6 +186,9 @@ public:
 
     CmdExecResult get_last_return_status() const;
 
+    utils::Usage& usage() { return _usage; }
+    utils::Usage const& usage() const { return _usage; }
+
 private:
     enum class TabActionResult {
         autocomplete,
@@ -226,6 +230,8 @@ private:
     std::unordered_map<std::string, std::string, detail::HeterogenousStringHash, std::equal_to<>> _variables;  // stores the variables key-value pairs, e.g., $1, $INPUT_FILE, etc...
 
     std::stack<jthread::jthread> _command_threads;
+
+    utils::Usage _usage;
 
     // Private member functions
     void _clear_read_buffer_and_print_prompt();

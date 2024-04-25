@@ -25,7 +25,6 @@
 #include "tableau/tableau_mgr.hpp"
 #include "tensor/tensor_cmd.hpp"
 #include "util/sysdep.hpp"
-#include "util/usage.hpp"
 #include "zx/zx_cmd.hpp"
 
 namespace qsyn {
@@ -130,20 +129,16 @@ bool initialize_qsyn(
     spdlog::set_pattern("%L%v");
     spdlog::set_level(spdlog::level::warn);
 
-    if (!dvlab::add_cli_common_cmds(cli) ||
-        !qsyn::add_qsyn_cmds(cli) ||
-        !qsyn::device::add_device_cmds(cli, device_mgr) ||
-        !qsyn::duostra::add_duostra_cmds(cli, qcir_mgr, device_mgr) ||
-        !qsyn::add_conversion_cmds(cli, qcir_mgr, tensor_mgr, zxgraph_mgr, tableau_mgr) ||
-        !qsyn::extractor::add_extract_cmds(cli, zxgraph_mgr, qcir_mgr) ||
-        !qsyn::qcir::add_qcir_cmds(cli, qcir_mgr) ||
-        !qsyn::tensor::add_tensor_cmds(cli, tensor_mgr) ||
-        !qsyn::zx::add_zx_cmds(cli, zxgraph_mgr) ||
-        !qsyn::experimental::add_tableau_command(cli, tableau_mgr)) {
-        return false;
-    }
-    dvlab::utils::Usage::reset();
-    return true;
+    return dvlab::add_cli_common_cmds(cli) &&
+           qsyn::add_qsyn_cmds(cli) &&
+           qsyn::device::add_device_cmds(cli, device_mgr) &&
+           qsyn::duostra::add_duostra_cmds(cli, qcir_mgr, device_mgr) &&
+           qsyn::add_conversion_cmds(cli, qcir_mgr, tensor_mgr, zxgraph_mgr, tableau_mgr) &&
+           qsyn::extractor::add_extract_cmds(cli, zxgraph_mgr, qcir_mgr) &&
+           qsyn::qcir::add_qcir_cmds(cli, qcir_mgr) &&
+           qsyn::tensor::add_tensor_cmds(cli, tensor_mgr) &&
+           qsyn::zx::add_zx_cmds(cli, zxgraph_mgr) &&
+           qsyn::experimental::add_tableau_command(cli, tableau_mgr);
 }
 
 dvlab::argparse::ArgumentParser get_qsyn_parser(std::string_view const prog_name) {
