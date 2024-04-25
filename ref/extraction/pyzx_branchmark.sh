@@ -2,5 +2,5 @@
 for filename in ../../../pyzx/demos/extracted_circuit_FRbyQsyn/*.qasm; do
 #for filename in ../../benchmark/SABRE/large/*.qasm; do
     python3 dof_generator.py $filename
-    ../../qsyn -f countGates.dof >> countGates.log 2>&1
+    ../../qsyn -v countGates.dof >> countGates.log 2>&1
 done

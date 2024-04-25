@@ -170,7 +170,7 @@ dofile-result-same-with-ref() {
     local REF
     REF=$(ref-path "$TEST")
     
-    DIFF_OUTPUT=$(OMP_WAIT_POLICY=passive $QSYN --no-version --qsynrc-path /dev/null --file "$TEST" 2>&1 | $DIFF - "$REF" 2>&1)
+    DIFF_OUTPUT=$(OMP_WAIT_POLICY=passive $QSYN --no-version --qsynrc-path /dev/null --verbose "$TEST" 2>&1 | $DIFF - "$REF" 2>&1)
     if [ $? -eq 0 ]; then
         if [[ $VERBOSE -eq 1 ]]; then
             echo "  $(pass-style '✓') $TEST"
@@ -206,7 +206,7 @@ update-dofile-ref() {
         touch "$REF"
     fi
 
-    DIFF_OUTPUT=$(OMP_WAIT_POLICY=passive $QSYN --no-version --qsynrc-path /dev/null --file "$TEST" 2>&1 | diff "$REF" -)
+    DIFF_OUTPUT=$(OMP_WAIT_POLICY=passive $QSYN --no-version --qsynrc-path /dev/null --verbose "$TEST" 2>&1 | diff "$REF" -)
 
     # update reference file if the output of qsyn is different from the reference
     if [[ $? -eq 0 ]]; then

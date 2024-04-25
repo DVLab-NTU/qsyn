@@ -148,6 +148,7 @@ public:
                 return ecr(qubits[0], qubits[1]);
         }
         DVLAB_UNREACHABLE("Every Clifford type should be handled in the switch-case");
+        return *static_cast<T*>(this);
     }
 
     inline T& apply(CliffordOperatorString const& ops) {
@@ -174,8 +175,6 @@ public:
 
     template <std::ranges::range R>
     PauliProduct(R const& r, bool is_neg) : PauliProduct(std::ranges::begin(r), std::ranges::end(r), is_neg) {}
-
-    ~PauliProduct() override = default;
 
     inline size_t n_qubits() const { return (_bitset.size() - 1) / 2; }
     inline Pauli get_pauli_type(size_t i) const {
@@ -274,8 +273,6 @@ public:
 
     template <std::ranges::range R>
     PauliRotation(R const& r, dvlab::Phase const& phase) : PauliRotation(std::ranges::begin(r), std::ranges::end(r), phase) {}
-
-    ~PauliRotation() override = default;
 
     inline size_t n_qubits() const { return _pauli_product.n_qubits(); }
     inline Pauli get_pauli_type(size_t i) const { return _pauli_product.get_pauli_type(i); }

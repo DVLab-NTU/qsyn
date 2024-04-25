@@ -22,11 +22,10 @@
 //----------------------------------------------------------------------
 //    Global functions in util
 //----------------------------------------------------------------------
-#ifndef NDEBUG
-#endif
 
 namespace dvlab {
 
+#ifndef NDEBUG
 void detail::dvlab_assert_impl(std::string_view expr_str, bool expr, std::string_view file, int line, std::string_view msg) {
     if (!expr) {
         fmt::println(stderr, "Assertion failed:\t{}", msg);
@@ -35,6 +34,9 @@ void detail::dvlab_assert_impl(std::string_view expr_str, bool expr, std::string
         abort();
     }
 }
+#else
+void detail::dvlab_assert_impl(std::string_view, bool, std::string_view, int, std::string_view) {}
+#endif
 
 void detail::dvlab_abort_impl(std::string_view file, int line, std::string_view msg) {
     fmt::println(stderr, "Abort:\t{}", msg);
@@ -43,9 +45,17 @@ void detail::dvlab_abort_impl(std::string_view file, int line, std::string_view 
 }
 
 void detail::dvlab_unreachable_impl(std::string_view file, int line, std::string_view msg) {
-    fmt::println(stderr, "Unreachable:\t{}", msg);
+#ifndef NDEBUG
     fmt::println(stderr, "Source:\t\t{}, line {}\n", file, line);
+    fmt::println(stderr, "This line of code should have been unreachable:\t{}", msg);
     abort();
+#else  // NDEBUG
+#if defined(__clang__) || defined(__GNUC__)
+    __builtin_unreachable();
+#else  // MSVC
+    __assume(false);
+#endif
+#endif
 }
 
 namespace utils {

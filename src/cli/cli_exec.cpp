@@ -264,7 +264,7 @@ std::string dvlab::CommandLineInterface::_replace_variable_keys_with_values(std:
         }
     }
 
-    std::ranges::sort(to_replace, [](auto const& lhs, auto const& rhs) { return std::get<0>(lhs) < std::get<0>(rhs); });
+    std::ranges::sort(to_replace, std::ranges::less{}, [](auto const& tuple) { return std::get<0>(tuple); });
 
     size_t cursor      = 0;
     std::string result = "";

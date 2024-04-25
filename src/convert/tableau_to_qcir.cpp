@@ -21,6 +21,8 @@
 #include "util/phase.hpp"
 #include "util/util.hpp"
 
+extern bool stop_requested();
+
 namespace qsyn::experimental {
 
 namespace {
@@ -79,6 +81,9 @@ void add_clifford_gate(qcir::QCir& qcir, CliffordOperator const& op) {
 std::optional<qcir::QCir> to_qcir(StabilizerTableau const& clifford, StabilizerTableauSynthesisStrategy const& strategy) {
     qcir::QCir qcir{clifford.n_qubits()};
     for (auto const& op : extract_clifford_operators(clifford, strategy)) {
+        if (stop_requested()) {
+            return std::nullopt;
+        }
         add_clifford_gate(qcir, op);
     }
 
@@ -90,7 +95,7 @@ std::optional<qcir::QCir> NaivePauliRotationsSynthesisStrategy::synthesize(std::
         return qcir::QCir{0};
     }
 
-    qcir::QCir qcir{rotations.front().n_qubits()};
+    auto qcir = qcir::QCir{rotations.front().n_qubits()};
 
     for (auto const& rotation : rotations) {
         auto [ops, qubit] = extract_clifford_operators(rotation);
@@ -208,6 +213,9 @@ std::optional<qcir::QCir> to_qcir(Tableau const& tableau, StabilizerTableauSynth
     qcir::QCir qcir{tableau.n_qubits()};
 
     for (auto const& subtableau : tableau) {
+        if (stop_requested()) {
+            return std::nullopt;
+        }
         auto const qc_fragment =
             std::visit(
                 dvlab::overloaded{

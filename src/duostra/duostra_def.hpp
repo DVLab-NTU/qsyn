@@ -8,14 +8,16 @@
 
 #pragma once
 
-#include <cstdint>
 #include <optional>
 #include <string>
-#include <unordered_map>
+#include <vector>
+
+#include "qcir/qcir_gate.hpp"
 
 namespace qsyn::duostra {
 
-using GateIdToTime = std::unordered_map<size_t, std::pair<size_t, size_t>>;
+using GateIdToTime = std::vector<std::pair<size_t, size_t>>;
+using GateInfo     = std::pair<qcir::QCirGate, std::pair<size_t, size_t>>;
 
 enum class SchedulerType {
     base,

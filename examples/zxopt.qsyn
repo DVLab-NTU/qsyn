@@ -1,0 +1,10 @@
+//!ARGS INPUT
+qcir read ${INPUT}
+echo "--- pre-optimization  ---"
+qcir print --stat
+// to zx -> full reduction -> extract qcir
+qc2zx; zx optimize --full; zx2qc
+// post-resyn optimization
+qcir optimize
+echo "--- post-optimization ---"
+qcir print --stat

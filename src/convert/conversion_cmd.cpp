@@ -145,7 +145,7 @@ Command convert_from_zx_cmd(zx::ZXGraphMgr& zxgraph_mgr, QCirMgr& qcir_mgr, tens
                 extractor::Extractor ext(&target, nullptr /*, std::nullopt*/);
                 qcir::QCir* result = ext.extract();
                 if (result != nullptr) {
-                    qcir_mgr.add(qcir_mgr.get_next_id(), std::make_unique<qcir::QCir>(*result));
+                    qcir_mgr.add(qcir_mgr.get_next_id(), std::unique_ptr<qcir::QCir>(result));
                     qcir_mgr.get()->set_filename(zxgraph_mgr.get()->get_filename());
                     qcir_mgr.get()->add_procedures(zxgraph_mgr.get()->get_procedures());
                     if (!extractor::PERMUTE_QUBITS) {
@@ -244,6 +244,7 @@ Command convert_from_tableau_cmd(experimental::TableauMgr& tableau_mgr, qcir::QC
                     if (dvlab::str::is_prefix_of(dvlab::str::tolower_string(clifford_strategy_str), "hopt")) return std::make_unique<experimental::HOptSynthesisStrategy>();
                     if (dvlab::str::is_prefix_of(dvlab::str::tolower_string(clifford_strategy_str), "ag")) return std::make_unique<experimental::AGSynthesisStrategy>();
                     DVLAB_UNREACHABLE("Invalid clifford strategy!!");
+                    return nullptr;
                 });
 
                 auto const rotation_strategy = std::invoke([&]() -> std::unique_ptr<experimental::PauliRotationsSynthesisStrategy> {
@@ -251,6 +252,7 @@ Command convert_from_tableau_cmd(experimental::TableauMgr& tableau_mgr, qcir::QC
                     if (dvlab::str::is_prefix_of(dvlab::str::tolower_string(rotation_strategy_str), "naive")) return std::make_unique<experimental::NaivePauliRotationsSynthesisStrategy>();
                     if (dvlab::str::is_prefix_of(dvlab::str::tolower_string(rotation_strategy_str), "tpar")) return std::make_unique<experimental::TParPauliRotationsSynthesisStrategy>();
                     DVLAB_UNREACHABLE("Invalid rotation strategy!!");
+                    return nullptr;
                 });
 
                 spdlog::info("Converting to Tableau {} to QCir {}...", tableau_mgr.focused_id(), qcir_mgr.get_next_id());

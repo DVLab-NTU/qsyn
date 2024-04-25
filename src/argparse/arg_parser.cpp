@@ -369,16 +369,14 @@ bool ArgumentParser::_parse_options(TokensSpan tokens) {
             continue;
         }
         // check if the option is ambiguous
-        if (auto p_frequency = std::get_if<size_t>(&match)) {
-            assert(p_frequency != nullptr);
-
+        if (auto frequency = std::get<size_t>(match)) {
             // check if the argument is a number
             if (dvlab::str::from_string<float>(token).has_value()) {
                 continue;
             }
 
             // If the option is ambiguous, report the error and quit parsing
-            if (*p_frequency > 0) {
+            if (frequency > 0) {
                 auto const matching_option_filter = [this, &token = token](std::string const& name) {
                     return has_option_prefix(name) && name.starts_with(token);
                 };

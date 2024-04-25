@@ -14,6 +14,16 @@ build-clang++:
 build-docker:
 	docker build -f docker/dev.Dockerfile -t qsyn-local .
 
+debug:
+	cmake -S . -B debug -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -DCMAKE_BUILD_TYPE=Debug
+	$(MAKE) -C debug
+
+# force macos to use the clang++ installed by brew instead of the default one
+# which is outdated
+debug-clang++:
+	cmake -S . -B debug -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=$(shell which clang++)
+	$(MAKE) -C debug
+
 # run the binary you built with `make build-docker`
 run-docker:
 	docker run -it --rm -v $(shell pwd):/workdir qsyn-local 
@@ -49,4 +59,4 @@ clean-docker:
 	docker rmi qsyn-test-gcc -f
 	docker rmi qsyn-test-clang -f
 
-.PHONY: all build build-clang++ test test-docker test-update lint publish clean clean-docker
+.PHONY: all build build-clang++ debug debug-clang++ test test-docker test-update lint publish clean clean-docker

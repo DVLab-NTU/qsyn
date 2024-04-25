@@ -40,6 +40,7 @@ std::unique_ptr<BaseScheduler> get_scheduler(std::unique_ptr<CircuitTopology> to
         return std::make_unique<BaseScheduler>(*topo, tqdm);
     }
     DVLAB_UNREACHABLE("Scheduler type not found");
+    return nullptr;
 }
 
 // SECTION - Class BaseScheduler Member Functions
@@ -58,8 +59,8 @@ std::unique_ptr<BaseScheduler> BaseScheduler::clone() const {
  *
  */
 void BaseScheduler::_sort() {
-    std::ranges::sort(_operations, [this](qcir::QCirGate const& a, qcir::QCirGate const& b) -> bool {
-        return _gate_id_to_time.at(a.get_id()).first < _gate_id_to_time.at(b.get_id()).first;
+    std::ranges::sort(_operations, [](GateInfo const& a, GateInfo const& b) -> bool {
+        return a.second.first < b.second.first;
     });
     _sorted = true;
 }
@@ -71,7 +72,7 @@ void BaseScheduler::_sort() {
  */
 size_t BaseScheduler::get_final_cost() const {
     assert(_sorted);
-    return _gate_id_to_time.at(_operations.back().get_id()).second;
+    return _operations.back().second.second;
 }
 
 /**
@@ -81,8 +82,8 @@ size_t BaseScheduler::get_final_cost() const {
  */
 size_t BaseScheduler::get_total_time() const {
     assert(_sorted);
-    auto durations_range = _operations | std::views::transform([this](qcir::QCirGate const& op) -> size_t {
-                               return _gate_id_to_time.at(op.get_id()).second - _gate_id_to_time.at(op.get_id()).first;
+    auto durations_range = _operations | std::views::transform([](GateInfo const& op) -> size_t {
+                               return op.second.second - op.second.first;
                            });
     return std::reduce(durations_range.begin(), durations_range.end(), 0, std::plus<>{});
 }
@@ -93,8 +94,8 @@ size_t BaseScheduler::get_total_time() const {
  * @return size_t
  */
 size_t BaseScheduler::get_num_swaps() const {
-    return std::ranges::count_if(_operations, [](qcir::QCirGate const& op) {
-        return op.get_operation() == qcir::SwapGate{};
+    return std::ranges::count_if(_operations, [](GateInfo const& op) {
+        return op.first.get_operation() == qcir::SwapGate{};
     });
 }
 
@@ -119,7 +120,7 @@ std::optional<size_t> BaseScheduler::get_executable_gate(Router& router) const {
  * @return size_t
  */
 size_t BaseScheduler::get_operations_cost() const {
-    return std::ranges::max(_gate_id_to_time | std::views::values | std::views::transform([](auto const& p) { return p.second; }));
+    return _operations.back().second.second;
 }
 
 /**
@@ -160,15 +161,15 @@ BaseScheduler::Device BaseScheduler::_assign_gates(std::unique_ptr<Router> route
  */
 size_t BaseScheduler::route_one_gate(Router& router, size_t gate_id, bool forget) {
     auto const& gate = _circuit_topology.get_gate(gate_id);
-    auto ops{router.assign_gate(gate, _gate_id_to_time)};
+    auto ops{router.assign_gate(gate)};
     size_t max_cost = 0;
-    for (auto const& op : ops) {
-        if (_gate_id_to_time.at(op.get_id()).second > max_cost)
-            max_cost = _gate_id_to_time.at(op.get_id()).second;
+    for (auto const& [op, time] : ops) {
+        if (time.second > max_cost)
+            max_cost = time.second;
     }
     if (!forget)
         _operations.insert(_operations.end(), ops.begin(), ops.end());
-    _assign_order.emplace_back(gate_id);
+    // _assign_order.emplace_back(gate_id);
     _circuit_topology.update_available_gates(gate_id);
     return max_cost;
 }

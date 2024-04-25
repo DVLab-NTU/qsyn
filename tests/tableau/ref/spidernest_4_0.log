@@ -1,0 +1,18 @@
+qsyn> qcir read benchmark/qasm/spidernest_4_0.qasm
+
+qsyn> convert qcir tabl
+
+qsyn> tabl print
+Tableau (4 qubits, 1 Clifford segments, 15 Pauli rotations)
+
+qsyn> tabl opt phasepoly todd
+
+qsyn> tabl print
+Tableau (4 qubits, 0 Clifford segments, 0 Pauli rotations)
+
+qsyn> convert tabl qcir
+
+qsyn> qcir print --stat
+QCir (4 qubits, 0 gates)
+Depth      : 0
+

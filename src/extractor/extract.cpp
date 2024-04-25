@@ -32,6 +32,7 @@ bool SORT_FRONTIER        = false;
 bool SORT_NEIGHBORS       = true;
 bool PERMUTE_QUBITS       = true;
 bool FILTER_DUPLICATE_CXS = true;
+bool REDUCE_CZS           = false;
 size_t BLOCK_SIZE         = 5;
 size_t OPTIMIZE_LEVEL     = 2;
 
@@ -168,9 +169,7 @@ bool Extractor::extraction_loop(std::optional<size_t> max_iter) {
  */
 void Extractor::clean_frontier() {
     spdlog::debug("Cleaning frontier");
-    // NOTE - Edge and dvlab::Phase
     extract_singles();
-    // NOTE - CZs
     extract_czs();
 }
 
@@ -234,14 +233,50 @@ bool Extractor::extract_czs(bool check) {
             }
         }
     }
-    std::vector<qcir::QCirGate> gates;
-    for (auto const& [s, t] : remove_list) {
+
+    _biadjacency = get_biadjacency_matrix(*_graph, _frontier, _frontier);
+    std::vector<ZXVertex*> idx2vertex;
+    for (auto const v : _frontier)
+        idx2vertex.emplace_back(v);
+
+    for (auto const& [s, t] : remove_list)
         _graph->remove_edge(s, t, EdgeType::hadamard);
-        gates.emplace_back(0, CZGate(), QubitIdList{_qubit_map[s->get_qubit()], _qubit_map[t->get_qubit()]});
+
+    std::vector<qcir::QCirGate> gates;
+
+    size_t saved_cz_cnt = 0;
+    if (REDUCE_CZS) {
+        // Remove two most similar rows by CXs and CZs
+        auto [overlap, commons] = _max_overlap(_biadjacency);
+        while (commons.size() > 2) {
+            auto [i, j] = overlap;
+            saved_cz_cnt += commons.size() - 2;
+            gates.emplace_back(0, CXGate(), QubitIdList{_qubit_map[idx2vertex[i]->get_qubit()], _qubit_map[idx2vertex[j]->get_qubit()]});
+            for (auto const& idx : commons) {
+                gates.emplace_back(0, CZGate(), QubitIdList{_qubit_map[idx2vertex[j]->get_qubit()], _qubit_map[idx2vertex[idx]->get_qubit()]});
+                _biadjacency[i][idx] = 0;
+                _biadjacency[j][idx] = 0;
+                _biadjacency[idx][i] = 0;
+                _biadjacency[idx][j] = 0;
+            }
+            gates.emplace_back(0, CXGate(), QubitIdList{_qubit_map[idx2vertex[i]->get_qubit()], _qubit_map[idx2vertex[j]->get_qubit()]});
+            std::tie(overlap, commons) = _max_overlap(_biadjacency);
+        }
+        if (saved_cz_cnt > 0) spdlog::info("Reduce {} 2-qubit gate(s)", saved_cz_cnt);
     }
-    if (!gates.empty()) {
+
+    // Add CZs from the remaining biadj matrix
+    for (size_t i = 0; i < _biadjacency.num_rows(); i++) {
+        for (size_t j = i + 1; j < _biadjacency.num_rows(); j++) {
+            if (_biadjacency[i][j])
+                gates.emplace_back(0, CZGate(), QubitIdList{_qubit_map[idx2vertex[i]->get_qubit()], _qubit_map[idx2vertex[j]->get_qubit()]});
+        }
+    }
+    _biadjacency.clear();
+
+    if (!gates.empty())
         prepend_series_gates(gates);
-    }
+
     _logical_circuit->print_circuit_diagram(spdlog::level::level_enum::trace);
     _graph->print_vertices_by_rows(spdlog::level::level_enum::trace);
 
@@ -600,6 +635,16 @@ bool Extractor::biadjacency_eliminations(bool check) {
     std::vector<dvlab::BooleanMatrix::RowOperation> greedy_opers;
 
     update_matrix();
+
+    if (OPTIMIZE_LEVEL == 0) {
+        column_optimal_swap();
+        update_matrix();
+        _biadjacency.gaussian_elimination_skip(BLOCK_SIZE, true, true);
+        if (FILTER_DUPLICATE_CXS) _filter_duplicate_cxs();
+        _cnots = _biadjacency.get_row_operations();
+        return true;
+    }
+
     dvlab::BooleanMatrix greedy_matrix = _biadjacency;
     auto const backup_neighbors        = _neighbors;
 
@@ -608,45 +653,39 @@ bool Extractor::biadjacency_eliminations(bool check) {
     if (OPTIMIZE_LEVEL > 1) {
         // NOTE - opt = 2 or 3
         greedy_opers = greedy_reduction(greedy_matrix);
-        for (auto oper : greedy_opers) {
+        for (auto const& oper : greedy_opers) {
             greedy_matrix.row_operation(oper.first, oper.second, true);
         }
     }
 
     if (OPTIMIZE_LEVEL != 2 || greedy_opers.empty()) {
-        // NOTE - opt = 0, 1, 3 or when 2 cannot find the result
+        // NOTE - opt = 1, 3 or when 2 cannot find the result
         column_optimal_swap();
         update_matrix();
 
-        if (OPTIMIZE_LEVEL == 0) {
-            _biadjacency.gaussian_elimination_skip(BLOCK_SIZE, true, true);
-            if (FILTER_DUPLICATE_CXS) _filter_duplicate_cxs();
-            _cnots = _biadjacency.get_row_operations();
-        } else if (OPTIMIZE_LEVEL == 1 || OPTIMIZE_LEVEL == 3 || greedy_opers.empty()) {
-            auto min_cnots = SIZE_MAX;
-            dvlab::BooleanMatrix best_matrix;
-            for (size_t blk = 1; blk < _biadjacency.num_cols(); blk++) {
-                _block_elimination(best_matrix, min_cnots, blk);
-            }
-            if (OPTIMIZE_LEVEL == 1) {
+        auto min_cnots = SIZE_MAX;
+        dvlab::BooleanMatrix best_matrix;
+        for (size_t blk = 1; blk < _biadjacency.num_cols(); blk++) {
+            _block_elimination(best_matrix, min_cnots, blk);
+        }
+        if (OPTIMIZE_LEVEL == 1) {
+            _biadjacency = best_matrix;
+            _cnots       = _biadjacency.get_row_operations();
+        } else {
+            auto const n_gauss_opers     = best_matrix.get_row_operations().size();
+            auto const n_single_one_rows = accumulate(best_matrix.get_matrix().begin(), best_matrix.get_matrix().end(), 0,
+                                                      [](size_t acc, dvlab::BooleanMatrix::Row const& r) { return acc + size_t(r.is_one_hot()); });
+            // NOTE - opers per extractable rows for Gaussian is bigger than greedy
+            auto const found_greedy = (float(n_gauss_opers) / float(n_single_one_rows)) > (float(greedy_opers.size()) - 0.1);
+            if (!greedy_opers.empty() && found_greedy) {
+                _biadjacency = greedy_matrix;
+                _cnots       = greedy_matrix.get_row_operations();
+                _neighbors   = backup_neighbors;
+                spdlog::debug("Found greedy reduction with {} CXs", _cnots.size());
+            } else {
                 _biadjacency = best_matrix;
                 _cnots       = _biadjacency.get_row_operations();
-            } else {
-                auto const n_gauss_opers     = best_matrix.get_row_operations().size();
-                auto const n_single_one_rows = accumulate(best_matrix.get_matrix().begin(), best_matrix.get_matrix().end(), 0,
-                                                          [](size_t acc, dvlab::BooleanMatrix::Row const& r) { return acc + size_t(r.is_one_hot()); });
-                // NOTE - opers per extractable rows for Gaussian is bigger than greedy
-                auto const found_greedy = (float(n_gauss_opers) / float(n_single_one_rows)) > (float(greedy_opers.size()) - 0.1);
-                if (!greedy_opers.empty() && found_greedy) {
-                    _biadjacency = greedy_matrix;
-                    _cnots       = greedy_matrix.get_row_operations();
-                    _neighbors   = backup_neighbors;
-                    spdlog::debug("Found greedy reduction with {} CXs", _cnots.size());
-                } else {
-                    _biadjacency = best_matrix;
-                    _cnots       = _biadjacency.get_row_operations();
-                    spdlog::debug("Found Gaussian elimination with {} CXs", _cnots.size());
-                }
+                spdlog::debug("Found Gaussian elimination with {} CXs", _cnots.size());
             }
         }
     } else {

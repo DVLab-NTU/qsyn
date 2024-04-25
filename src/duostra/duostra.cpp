@@ -73,16 +73,18 @@ bool Duostra::map(bool use_device_as_placement) {
         fmt::println("Routing...");
     }
     _device = scheduler->assign_gates_and_sort(std::move(router));
-
     if (stop_requested()) {
         spdlog::warn("Warning: mapping interrupted");
         return false;
     }
 
     assert(scheduler->is_sorted());
-    assert(scheduler->get_order().size() == _logical_circuit->get_gates().size());
-    _result = scheduler->get_operations();
-    store_order_info(scheduler->get_order());
+    // assert(scheduler->get_order().size() == _logical_circuit->get_gates().size());
+
+    for (auto [gate, _] : scheduler->get_operations())
+        _result.emplace_back(gate);
+
+    // store_order_info(scheduler->get_order());
     build_circuit_by_result();
 
     if (_check) {
@@ -117,12 +119,12 @@ bool Duostra::map(bool use_device_as_placement) {
  *
  * @param order
  */
-void Duostra::store_order_info(std::vector<size_t> const& order) {
-    for (auto const& gate_id : order) {
-        auto const& g = _logical_circuit->get_gate(gate_id);
-        _order.emplace_back(*g);
-    }
-}
+// void Duostra::store_order_info(std::vector<size_t> const& order) {
+//     // for (auto const& gate_id : order) {
+//     //     auto const& g = _logical_circuit->get_gate(gate_id);
+//     //     _order.emplace_back(*g);
+//     // }
+// }
 
 /**
  * @brief Construct physical QCir by operation

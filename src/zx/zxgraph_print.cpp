@@ -129,49 +129,6 @@ void ZXGraph::print_edges() const {
     fmt::println("Total #Edges: {}", get_num_edges());
 }
 
-/**
- * @brief For each vertex ID, print the vertices that only present in one of the graph,
- *        or vertices that differs in the neighbors. This is not a graph isomorphism detector!!!
- *
- * @param other
- */
-void ZXGraph::print_difference(ZXGraph* other) const {
-    assert(other != nullptr);
-
-    auto const n_idx = std::max(_next_v_id, other->_next_v_id);
-    ZXVertexList v1s, v2s;
-    for (size_t i = 0; i < n_idx; ++i) {
-        auto v1 = find_vertex_by_id(i);
-        auto v2 = other->find_vertex_by_id(i);
-        if (v1 && v2) {
-            if (this->get_num_neighbors(v1) != this->get_num_neighbors(v2) ||
-                std::invoke([&v1, &v2, &other, this]() -> bool {
-                    return std::ranges::any_of(this->get_neighbors(v1), [&v2, &other, this](auto const& pair) {
-                        auto const& [nb1, e1] = pair;
-                        ZXVertex* nb2         = other->find_vertex_by_id(nb1->get_id());
-                        return (!nb2 || !this->is_neighbor(nb2, v2, e1));
-                    });
-                })) {
-                v1s.insert(v1);
-                v2s.insert(v2);
-            }
-        } else if (v1) {
-            v1s.insert(v1);
-        } else if (v2) {
-            v2s.insert(v2);
-        }
-    }
-    fmt::println(">>>");
-    for (auto& v : v1s) {
-        v->print_vertex();
-    }
-    fmt::println("===");
-    for (auto& v : v2s) {
-        v->print_vertex();
-    }
-    fmt::println("<<<");
-}
-
 }  // namespace zx
 
 }  // namespace qsyn

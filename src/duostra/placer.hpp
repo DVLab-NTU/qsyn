@@ -34,8 +34,7 @@ protected:
 
 class RandomPlacer : public BasePlacer {
 public:
-    using Device             = BasePlacer::Device;
-    ~RandomPlacer() override = default;
+    using Device = BasePlacer::Device;
 
 protected:
     std::vector<QubitIdType> _place(Device& /*unused*/) const override;
@@ -43,8 +42,7 @@ protected:
 
 class StaticPlacer : public BasePlacer {
 public:
-    using Device             = BasePlacer::Device;
-    ~StaticPlacer() override = default;
+    using Device = BasePlacer::Device;
 
 protected:
     std::vector<QubitIdType> _place(Device& /*unused*/) const override;
@@ -52,8 +50,7 @@ protected:
 
 class DFSPlacer : public BasePlacer {
 public:
-    using Device          = BasePlacer::Device;
-    ~DFSPlacer() override = default;
+    using Device = BasePlacer::Device;
 
 protected:
     std::vector<QubitIdType> _place(Device& /*unused*/) const override;

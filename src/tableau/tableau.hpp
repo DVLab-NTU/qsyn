@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include <tl/fold.hpp>
 #include <variant>
 
 #include "./stabilizer_tableau.hpp"
@@ -20,51 +21,118 @@ using SubTableau = std::variant<StabilizerTableau, std::vector<PauliRotation>>;
 
 class Tableau : public PauliProductTrait<Tableau> {
 public:
-    Tableau(size_t n_qubits) : _subtableaux{StabilizerTableau{n_qubits}} {}
-    Tableau(std::initializer_list<SubTableau> subtableaux) : _subtableaux{subtableaux} {}
+    Tableau(size_t n_qubits) : _subtableaux{StabilizerTableau{n_qubits}}, _n_qubits{n_qubits} {}
+    Tableau(std::initializer_list<SubTableau> subtableaux)
+        : _subtableaux{subtableaux},
+          _n_qubits(
+              dvlab::match(
+                  _subtableaux.front(),
+                  [](StabilizerTableau const& st) { return st.n_qubits(); },
+                  [](std::vector<PauliRotation> const& pr) { return pr.front().n_qubits(); })) {}
 
-    auto begin() const { return _subtableaux.begin(); }
-    auto end() const { return _subtableaux.end(); }
-    auto begin() { return _subtableaux.begin(); }
-    auto end() { return _subtableaux.end(); }
+    auto begin() const {
+        return _subtableaux.begin();
+    }
+    auto end() const {
+        return _subtableaux.end();
+    }
+    auto begin() {
+        return _subtableaux.begin();
+    }
+    auto end() {
+        return _subtableaux.end();
+    }
 
-    auto size() const { return _subtableaux.size(); }
+    auto size() const {
+        return _subtableaux.size();
+    }
 
-    auto const& front() const { return _subtableaux.front(); }
-    auto const& back() const { return _subtableaux.back(); }
-    auto& front() { return _subtableaux.front(); }
-    auto& back() { return _subtableaux.back(); }
+    auto const& front() const {
+        return _subtableaux.front();
+    }
+    auto const& back() const {
+        return _subtableaux.back();
+    }
+    auto& front() {
+        return _subtableaux.front();
+    }
+    auto& back() {
+        return _subtableaux.back();
+    }
 
-    auto n_qubits() const -> size_t;
+    auto n_qubits() const {
+        return _n_qubits;
+    }
+    auto n_cliffords() const {
+        return std::ranges::count_if(_subtableaux, [](auto const& subtableau) { return std::holds_alternative<StabilizerTableau>(subtableau); });
+    }
+    auto n_pauli_rotations() const {
+        return tl::fold_left(_subtableaux, size_t{0}, [](size_t acc, auto const& subtableau) {
+            return acc + dvlab::match(
+                             subtableau,
+                             [](StabilizerTableau const&) { return 0ul; },
+                             [](std::vector<PauliRotation> const& rotations) {
+                                 return rotations.size();
+                             });
+        });
+    }
+
+    auto is_empty() const {
+        return _subtableaux.empty();
+    }
 
     auto insert(std::vector<SubTableau>::iterator pos, std::vector<SubTableau>::iterator first, std::vector<SubTableau>::iterator last) {
+        // FIXME - check if the subtableaux have the same number of qubits
         return _subtableaux.insert(pos, first, last);
     }
 
-    auto insert(std::vector<SubTableau>::iterator pos, SubTableau const& subtableau) { return _subtableaux.insert(pos, subtableau); }
+    auto insert(std::vector<SubTableau>::iterator pos, SubTableau const& subtableau) {
+        // FIXME - check if the subtableau has the same number of qubits
+        return _subtableaux.insert(pos, subtableau);
+    }
 
     auto erase(std::vector<SubTableau>::iterator first, std::vector<SubTableau>::iterator last) {
         return _subtableaux.erase(first, last);
     }
 
-    auto push_back(SubTableau const& subtableau) { return _subtableaux.push_back(subtableau); }
+    auto erase(std::ranges::range auto const& range) {
+        return _subtableaux.erase(range);
+    }
+
+    auto push_back(SubTableau const& subtableau) {
+        // FIXME - check if the subtableau has the same number of qubits
+        return _subtableaux.push_back(subtableau);
+    }
 
     template <typename... Args>
     auto emplace_back(Args&&... args) {
+        // FIXME - check if the subtableau has the same number of qubits
         return _subtableaux.emplace_back(std::forward<Args>(args)...);
     }
 
-    auto& operator[](size_t idx) { return _subtableaux[idx]; }
-    auto const& operator[](size_t idx) const { return _subtableaux[idx]; }
+    auto& operator[](size_t idx) {
+        return _subtableaux[idx];
+    }
+    auto const& operator[](size_t idx) const {
+        return _subtableaux[idx];
+    }
 
-    auto erase(std::ranges::range auto const& range) { return _subtableaux.erase(range); }
+    auto get_filename() const {
+        return _filename;
+    }
+    auto set_filename(std::string const& filename) {
+        _filename = filename;
+    }
 
-    auto get_filename() const { return _filename; }
-    auto set_filename(std::string const& filename) { _filename = filename; }
-
-    auto get_procedures() const { return _procedures; }
-    auto add_procedure(std::string const& procedure) { _procedures.push_back(procedure); }
-    auto add_procedures(std::vector<std::string> const& procedures) { _procedures.insert(_procedures.end(), procedures.begin(), procedures.end()); }
+    auto get_procedures() const {
+        return _procedures;
+    }
+    auto add_procedure(std::string const& procedure) {
+        _procedures.push_back(procedure);
+    }
+    auto add_procedures(std::vector<std::string> const& procedures) {
+        _procedures.insert(_procedures.end(), procedures.begin(), procedures.end());
+    }
 
     Tableau& h(size_t qubit) noexcept override;
     Tableau& s(size_t qubit) noexcept override;
@@ -72,6 +140,7 @@ public:
 
 private:
     std::vector<SubTableau> _subtableaux;
+    std::size_t _n_qubits;
     std::string _filename;
     std::vector<std::string> _procedures;
 };

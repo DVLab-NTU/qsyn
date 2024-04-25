@@ -18,18 +18,12 @@
 #include "./cli.hpp"
 #include "fmt/color.h"
 #include "unicode/display_width.hpp"
+#include "util/dvlab_string.hpp"
 #include "util/terminal_attributes.hpp"
 #include "util/text_format.hpp"
 #include "util/util.hpp"
 
 namespace fs = std::filesystem;
-
-namespace {
-bool string_case_insensitive_less_than(std::string const& a, std::string const& b) {
-    return dvlab::str::tolower_string(a) < dvlab::str::tolower_string(b);
-}
-
-}  // namespace
 
 namespace dvlab {
 
@@ -172,7 +166,7 @@ dvlab::CommandLineInterface::TabActionResult dvlab::CommandLineInterface::_match
         return TabActionResult::autocomplete;
     }
 
-    std::ranges::sort(matching_variables, string_case_insensitive_less_than);
+    std::ranges::sort(matching_variables, std::ranges::less{}, dvlab::str::tolower_string);
 
     _print_as_table(matching_variables);
 
@@ -289,7 +283,7 @@ std::vector<std::string> dvlab::CommandLineInterface::_get_file_matches(fs::path
     // don't show hidden files
     std::erase_if(files, [](std::string const& file) { return file.starts_with("."); });
 
-    std::ranges::sort(files, string_case_insensitive_less_than);
+    std::ranges::sort(files, std::ranges::less{}, dvlab::str::tolower_string);
 
     return files;
 }

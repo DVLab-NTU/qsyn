@@ -117,9 +117,27 @@ void QCir::print_circuit_diagram(spdlog::level::level_enum lvl) const {
 
     auto const times = calculate_gate_times();
 
+    auto const id_print_width =
+        _id_to_gates.empty()
+            ? 0
+            : std::to_string(std::ranges::max(_id_to_gates | std::views::keys)).size();
+
+    auto const max_repr_width =
+        _id_to_gates.empty()
+            ? 0
+            : std::ranges::max(_id_to_gates | std::views::values | std::views::transform([](auto const& gate) {
+                                   // need to remove the parameter part
+                                   auto const repr = gate->get_operation().get_repr();
+                                   auto const pos  = repr.find_first_of('(');
+                                   return pos == std::string::npos ? repr.size() : pos;
+                               }));
+
+    auto const max_time =
+        times.empty() ? 0 : std::ranges::max(times | std::views::values);
+
     for (auto const& [i, qubit] : tl::views::enumerate(_qubits)) {
         QCirGate* current = qubit.get_first_gate();
-        size_t last_time  = 1;
+        size_t last_time  = 0;
         std::string line  = fmt::format("Q{:>2}  ", i);
         while (current != nullptr) {
             DVLAB_ASSERT(last_time <= times.at(current->get_id()),
@@ -129,15 +147,13 @@ void QCir::print_circuit_diagram(spdlog::level::level_enum lvl) const {
             if (pos != std::string::npos) {
                 repr = repr.substr(0, pos);
             }
-            if (repr.size() > 2) {
-                repr = repr.substr(0, 2);
-            }
             line += fmt::format(
-                "{}-{:>2}({:>2})-",
-                std::string(8 * (times.at(current->get_id()) - last_time), '-'), repr,
-                current->get_id());
+                "{0}-{1:>{2}}({3:>{4}})-",
+                std::string((4 + max_repr_width + id_print_width) * (times.at(current->get_id()) - last_time - 1), '-'),
+                repr, max_repr_width,
+                current->get_id(), id_print_width);
 
-            last_time = times.at(current->get_id()) + 1;
+            last_time = times.at(current->get_id());
 
             auto const next_pin =
                 current->get_pin_by_qubit(i);
@@ -146,6 +162,8 @@ void QCir::print_circuit_diagram(spdlog::level::level_enum lvl) const {
                           ? get_gate(get_successor(current->get_id(), *next_pin))
                           : nullptr;
         }
+        assert(last_time <= max_time);
+        line += std::string((4 + max_repr_width + id_print_width) * (max_time - last_time), '-');
 
         spdlog::log(lvl, "{}", line);
     }
