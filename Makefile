@@ -59,4 +59,4 @@ clean-docker:
 	docker rmi qsyn-test-gcc -f
 	docker rmi qsyn-test-clang -f
 
-.PHONY: all build build-clang++ test test-docker test-update lint publish clean clean-docker
+.PHONY: all build build-clang++ debug debug-clang++ test test-docker test-update lint publish clean clean-docker
