@@ -486,12 +486,16 @@ dvlab::Command qcir_gate_add_cmd(QCirMgr& qcir_mgr) {
                 return CmdExecResult::error;
             bool const do_prepend = parser.parsed("--prepend");
 
-            auto type = parser.get<std::string>("type");
-            type      = dvlab::str::tolower_string(type);
-            auto bits = parser.get<QubitIdList>("qubits");
+            auto const type = dvlab::str::tolower_string(parser.get<std::string>("type"));
+            auto const bits = parser.get<QubitIdList>("qubits");
+
+            if (!QCirGate::qubit_id_is_unique(bits)) {
+                spdlog::error("Qubits must be unique!!");
+                return CmdExecResult::error;
+            }
 
             if (type.starts_with("mc")) {
-                auto op = str_to_operation(
+                auto const op = str_to_operation(
                     type.substr(2), parser.get<std::vector<dvlab::Phase>>("--phase"));
                 if (!op.has_value()) {
                     spdlog::error("Invalid gate type {}!!", type);
@@ -511,7 +515,7 @@ dvlab::Command qcir_gate_add_cmd(QCirMgr& qcir_mgr) {
                                : qcir_mgr.get()->append(*op, bits);
                 }
             } else {
-                auto op = str_to_operation(
+                auto const op = str_to_operation(
                     type, parser.get<std::vector<dvlab::Phase>>("--phase"));
                 if (!op.has_value()) {
                     spdlog::error("Invalid gate type {}!!", type);
