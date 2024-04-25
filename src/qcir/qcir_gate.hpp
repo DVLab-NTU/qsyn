@@ -44,13 +44,12 @@ public:
 
     inline bool operator!=(QCirGate const& rhs) const { return !(*this == rhs); }
 
-private:
+    static bool qubit_id_is_unique(QubitIdList const& qubits);
+
 protected:
     size_t _id;
     Operation _operation;
     std::vector<QubitIdType> _qubits;
-
-    static bool _qubit_id_is_unique(QubitIdList const& qubits);
 };
 
 }  // namespace qsyn::qcir

@@ -95,6 +95,11 @@ std::optional<QCir> from_qasm(std::filesystem::path const& filepath) {
             n = str_get_token(str, token, n, ',');
         }
 
+        if (!QCirGate::qubit_id_is_unique(qubit_ids)) {
+            spdlog::error("duplicate qubit id on line {}!!", str);
+            return std::nullopt;
+        }
+
         if (auto op = str_to_operation(type); op.has_value()) {
             qcir.append(*op, qubit_ids);
             continue;
