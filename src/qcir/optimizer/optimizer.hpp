@@ -8,13 +8,11 @@
 #pragma once
 
 #include <cstddef>
-#include <unordered_map>
+#include <vector>
 
 #include "qcir/basic_gate_type.hpp"
 #include "qcir/qcir_gate.hpp"
 #include "qsyn/qsyn_type.hpp"
-#include "util/ordered_hashmap.hpp"
-#include "util/ordered_hashset.hpp"
 
 namespace dvlab {
 
@@ -56,14 +54,15 @@ public:
 private:
     size_t _iter = 0;
     std::vector<QCirGate> _storage;
-    dvlab::utils::ordered_hashmap<QubitIdType, std::vector<size_t>> _gates;
-    dvlab::utils::ordered_hashmap<QubitIdType, std::vector<size_t>> _available_gates;
+    std::vector<std::vector<size_t>> _gates;
+    std::vector<std::vector<size_t>> _available_gates;
     std::vector<bool> _qubit_available;
 
-    dvlab::utils::ordered_hashmap<QubitIdType, QubitIdType> _permutation;
-    dvlab::utils::ordered_hashset<QubitIdType> _hadamards;
-    dvlab::utils::ordered_hashset<QubitIdType> _xs;
-    dvlab::utils::ordered_hashset<QubitIdType> _zs;
+    std::vector<QubitIdType> _permutation;
+
+    std::vector<bool> _hs;
+    std::vector<bool> _xs;
+    std::vector<bool> _zs;
     std::vector<std::pair<QubitIdType, QubitIdType>> _swaps;
 
     struct Statistics {
