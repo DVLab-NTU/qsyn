@@ -257,7 +257,7 @@ tl::generator<TupleOfSameType<T, N>> combinations(std::vector<T> elements, Compa
     do {  // NOLINT(cppcoreguidelines-avoid-do-while)
         TupleOfSameType<T, N> comb;
         std::apply(
-            [&](auto&... comb_elem) {
+            [&](auto&... comb_elem) {  // NOLINT(cppcoreguidelines-avoid-reference-coroutine-parameters)
                 size_t i = 0;
                 ((comb_elem = elements[i++]), ...);
             },
@@ -273,7 +273,7 @@ tl::generator<TupleOfSameType<T, N>> permutations(std::vector<T> elements, Compa
     do {  // NOLINT(cppcoreguidelines-avoid-do-while)
         TupleOfSameType<T, N> perm;
         std::apply(
-            [&](auto&... perm_elem) {
+            [&](auto&... perm_elem) {  // NOLINT(cppcoreguidelines-avoid-reference-coroutine-parameters)
                 size_t i = 0;
                 ((perm_elem = elements[i++]), ...);
             },
