@@ -7,8 +7,6 @@
 
 #include "./optimizer.hpp"
 
-#include <optional>
-
 #include "../qcir.hpp"
 #include "../qcir_gate.hpp"
 #include "../qcir_qubit.hpp"

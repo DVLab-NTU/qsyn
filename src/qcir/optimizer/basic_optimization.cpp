@@ -7,7 +7,6 @@
 
 #include <spdlog/spdlog.h>
 
-#include <optional>
 #include <ranges>
 #include <tl/enumerate.hpp>
 

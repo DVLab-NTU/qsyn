@@ -8,14 +8,11 @@
 #pragma once
 
 #include <cstddef>
-#include <unordered_map>
 #include <vector>
 
 #include "qcir/basic_gate_type.hpp"
 #include "qcir/qcir_gate.hpp"
 #include "qsyn/qsyn_type.hpp"
-#include "util/ordered_hashmap.hpp"
-#include "util/ordered_hashset.hpp"
 
 namespace dvlab {
 
