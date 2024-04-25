@@ -96,7 +96,7 @@ void Optimizer::_match_z_rotations(QCirGate& gate) {
         return;
     }
     // REVIEW - Neglect adjoint due to S and Sdg is separated
-    if (_hadamards[qubit]) {
+    if (_hs[qubit]) {
         _add_hadamard(qubit, true);
     }
     auto const gate_op = gate.get_operation().get_underlying<PZGate>();
@@ -136,13 +136,13 @@ void Optimizer::_match_czs(QCirGate& gate, bool do_swap, bool do_minimize_czs) {
         _toggle_element(ElementType::z, target_qubit);
     if (_xs[target_qubit])
         _toggle_element(ElementType::z, control_qubit);
-    if (_hadamards[control_qubit] && _hadamards[target_qubit]) {
+    if (_hs[control_qubit] && _hs[target_qubit]) {
         _add_hadamard(control_qubit, true);
         _add_hadamard(target_qubit, true);
     }
-    if (!_hadamards[control_qubit] && !_hadamards[target_qubit]) {
+    if (!_hs[control_qubit] && !_hs[target_qubit]) {
         _add_cz(control_qubit, target_qubit, do_minimize_czs);
-    } else if (_hadamards[control_qubit]) {
+    } else if (_hs[control_qubit]) {
         _statistics.CZ2CX++;
         _add_cx(target_qubit, control_qubit, do_swap);
     } else {
@@ -160,11 +160,11 @@ void Optimizer::_match_cxs(QCirGate const& gate, bool do_swap, bool do_minimize_
         _toggle_element(ElementType::x, target_qubit);
     if (_zs[target_qubit])
         _toggle_element(ElementType::z, control_qubit);
-    if (_hadamards[control_qubit] && _hadamards[target_qubit]) {
+    if (_hs[control_qubit] && _hs[target_qubit]) {
         _add_cx(target_qubit, control_qubit, do_swap);
-    } else if (!_hadamards[control_qubit] && !_hadamards[target_qubit]) {
+    } else if (!_hs[control_qubit] && !_hs[target_qubit]) {
         _add_cx(control_qubit, target_qubit, do_swap);
-    } else if (_hadamards[target_qubit]) {
+    } else if (_hs[target_qubit]) {
         _statistics.CX2CZ++;
         if (control_qubit > target_qubit)
             _add_cz(target_qubit, control_qubit, do_minimize_czs);

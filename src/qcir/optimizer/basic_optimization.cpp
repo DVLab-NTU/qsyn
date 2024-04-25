@@ -102,8 +102,8 @@ QCir Optimizer::_parse_once(QCir const& qcir, bool reversed, bool do_minimize_cz
     }
 
     // TODO - Find a method to avoid using parameter "erase"
-    for (size_t t = 0; t < _hadamards.size(); ++t) {
-        if (!_hadamards[t]) continue;
+    for (size_t t = 0; t < _hs.size(); ++t) {
+        if (!_hs[t]) continue;
         _add_hadamard(t, false);
     }
 
@@ -211,16 +211,16 @@ bool Optimizer::parse_gate(QCirGate& gate, bool do_swap, bool minimize_czs) {
 QCir Optimizer::_build_from_storage(size_t n_qubits, bool reversed) {
     QCir circuit{n_qubits};
 
-    while (std::ranges::any_of(_gates | std::views::values, [](auto const& gate_list) { return !gate_list.empty(); })) {
+    while (std::ranges::any_of(_gates, [](auto const& gate_list) { return !gate_list.empty(); })) {
         dvlab::utils::ordered_hashset<size_t> available_ids;
-        for (auto& [qubit, gate_list] : _gates) {
-            while (!gate_list.empty()) {
-                auto g = _storage[gate_list[0]];
+        for (size_t qubit = 0; qubit < _gates.size(); ++qubit) {
+            while (!_gates[qubit].empty()) {
+                auto g = _storage[_gates[qubit][0]];
                 if (g.get_operation() != CXGate() && g.get_operation() != CZGate()) {
                     reversed
                         ? circuit.prepend(g)
                         : circuit.append(g);
-                    gate_list.erase(gate_list.begin());
+                    _gates[qubit].erase(_gates[qubit].begin());
                     continue;
                 }
                 if (available_ids.contains(g.get_id())) {
@@ -230,15 +230,15 @@ QCir Optimizer::_build_from_storage(size_t n_qubits, bool reversed) {
                     reversed
                         ? circuit.prepend(g)
                         : circuit.append(g);
-                    gate_list.erase(gate_list.begin());
+                    _gates[qubit].erase(_gates[qubit].begin());
                     continue;
                 }
 
                 auto const type = g.get_operation() != CZGate() && g.get_qubit(0) != qubit;
                 std::vector<size_t> removed;
                 available_ids.emplace(g.get_id());
-                for (size_t i = 1; i < gate_list.size(); i++) {
-                    auto g2 = _storage[gate_list[i]];
+                for (size_t i = 1; i < _gates[qubit].size(); i++) {
+                    auto g2 = _storage[_gates[qubit][i]];
                     if ((!type && is_single_z_rotation(g2)) || (type && is_single_x_rotation(g2))) {
                         reversed
                             ? circuit.prepend(g2)
@@ -264,7 +264,7 @@ QCir Optimizer::_build_from_storage(size_t n_qubits, bool reversed) {
                     }
                 }
                 for (auto const i : removed) {
-                    gate_list.erase(dvlab::iterator::next(gate_list.begin(), i));
+                    _gates[qubit].erase(dvlab::iterator::next(_gates[qubit].begin(), i));
                 }
                 break;
             }
@@ -282,7 +282,7 @@ QCir Optimizer::_build_from_storage(size_t n_qubits, bool reversed) {
 void Optimizer::_add_hadamard(QubitIdType target, bool erase) {
     auto h_gate = _store_h(target);
     _gates[target].emplace_back(h_gate);
-    if (erase) _hadamards[target] = false;
+    if (erase) _hs[target] = false;
     _available_gates[target].clear();
     _qubit_available[target] = false;
 }

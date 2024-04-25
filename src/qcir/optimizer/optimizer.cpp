@@ -24,19 +24,20 @@ void Optimizer::reset(QCir const& qcir) {
     _gates.clear();
     _available_gates.clear();
     _qubit_available.clear();
-    _hadamards.clear();
+    _hs.clear();
     _xs.clear();
     _zs.clear();
     _swaps.clear();
     _statistics = {};
     _permutation.clear();
-    _hadamards.resize(qcir.get_num_qubits(), false);
+
+    _hs.resize(qcir.get_num_qubits(), false);
     _xs.resize(qcir.get_num_qubits(), false);
     _zs.resize(qcir.get_num_qubits(), false);
+    _qubit_available.resize(qcir.get_num_qubits(), false);
+    _available_gates.resize(qcir.get_num_qubits(), std::vector<size_t>{});
+    _gates.resize(qcir.get_num_qubits(), std::vector<size_t>{});
     for (size_t i = 0; i < qcir.get_num_qubits(); i++) {
-        _qubit_available.emplace_back(false);
-        _available_gates.emplace(i, std::vector<size_t>{});
-        _gates.emplace(i, std::vector<size_t>{});
         _permutation.emplace_back(i);
     }
 }
@@ -57,7 +58,7 @@ QCir Optimizer::parse_backward(QCir const& qcir, bool do_minimize_czs, BasicOpti
 void Optimizer::_toggle_element(Optimizer::ElementType type, QubitIdType element) {
     switch (type) {
         case ElementType::h:
-            _hadamards[element] = !_hadamards[element];
+            _hs[element] = !_hs[element];
             break;
         case ElementType::x:
             _xs[element] = !_xs[element];
@@ -77,12 +78,12 @@ void Optimizer::_toggle_element(Optimizer::ElementType type, QubitIdType element
 void Optimizer::_swap_element(Optimizer::ElementType type, QubitIdType e1, QubitIdType e2) {
     switch (type) {
         case ElementType::h:
-            if (_hadamards[e1] && !_hadamards[e2]) {
-                _hadamards[e1] = false;
-                _hadamards[e2] = true;
-            } else if (_hadamards[e2] && !_hadamards[e1]) {
-                _hadamards[e2] = false;
-                _hadamards[e1] = true;
+            if (_hs[e1] && !_hs[e2]) {
+                _hs[e1] = false;
+                _hs[e2] = true;
+            } else if (_hs[e2] && !_hs[e1]) {
+                _hs[e2] = false;
+                _hs[e1] = true;
             }
             break;
         case ElementType::x:
