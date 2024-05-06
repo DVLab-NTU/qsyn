@@ -7,21 +7,15 @@
 
 #pragma once
 
-#include <fmt/core.h>
-
 #include <charconv>
-#include <concepts>
 #include <exception>
-#include <functional>
 #include <limits>
 #include <optional>
 #include <ranges>
-#include <span>
 #include <stdexcept>
 #include <string>
 #include <system_error>
 #include <util/util.hpp>
-#include <vector>
 
 namespace dvlab::str {
 
