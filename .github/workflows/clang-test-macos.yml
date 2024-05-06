@@ -16,9 +16,9 @@ jobs:
       - name: Download llvm-clang, parallel and coreutils
         run: |
           brew install llvm parallel coreutils
-          echo 'export PATH="/usr/local/opt/llvm/bin:$PATH"' >> /Users/runner/.bash_profile
-          echo 'export LDFLAGS="-L/usr/local/opt/llvm/lib"' >> /Users/runner/.bash_profile
-          echo 'export CPPFLAGS="-I/usr/local/opt/llvm/include"' >> /Users/runner/.bash_profile
+          echo 'export PATH="$(brew --prefix)/opt/llvm/bin:$PATH"' >> /Users/runner/.bash_profile
+          echo 'export LDFLAGS="-L$(brew --prefix)/opt/llvm/lib"' >> /Users/runner/.bash_profile
+          echo 'export CPPFLAGS="-I$(brew --prefix)/opt/llvm/include"' >> /Users/runner/.bash_profile
 
       - name: Build qsyn
         run: |
