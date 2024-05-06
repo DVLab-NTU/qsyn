@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <fmt/core.h>
 #include <charconv>
 #include <concepts>
 #include <exception>
@@ -141,56 +142,56 @@ inline auto tokenize(std::string_view str, DelimT delim) {
 }
 
 }  // namespace views
-/**
- * @brief An indirection layer for std::stoXXX(const string& str, size_t* pos = nullptr).
- *        All the dirty compile-time checking happens here.
- *
- * @tparam T
- * @param str
- * @param pos
- * @return requires
- */
-template <class T>
-requires std::is_arithmetic_v<T>
-T detail::stonum(std::string const& str, size_t* pos) {
-    try {
-        // floating point types
-        if constexpr (std::is_same<T, double>::value) return std::stod(str, pos);
-        if constexpr (std::is_same<T, float>::value) return std::stof(str, pos);
-        if constexpr (std::is_same<T, long double>::value) return std::stold(str, pos);
+// /**
+//  * @brief An indirection layer for std::stoXXX(const string& str, size_t* pos = nullptr).
+//  *        All the dirty compile-time checking happens here.
+//  *
+//  * @tparam T
+//  * @param str
+//  * @param pos
+//  * @return requires
+//  */
+// template <class T>
+// requires std::is_arithmetic_v<T>
+// T detail::stonum(std::string const& str, size_t* pos) {
+//     try {
+//         // floating point types
+//         if constexpr (std::is_same<T, double>::value) return std::stod(str, pos);
+//         if constexpr (std::is_same<T, float>::value) return std::stof(str, pos);
+//         if constexpr (std::is_same<T, long double>::value) return std::stold(str, pos);
 
-        // signed integer types
-        if constexpr (std::is_same<T, int>::value) return std::stoi(str, pos);
-        if constexpr (std::is_same<T, long>::value) return std::stol(str, pos);
-        if constexpr (std::is_same<T, long long>::value) return std::stoll(str, pos);
+//         // signed integer types
+//         if constexpr (std::is_same<T, int>::value) return std::stoi(str, pos);
+//         if constexpr (std::is_same<T, long>::value) return std::stol(str, pos);
+//         if constexpr (std::is_same<T, long long>::value) return std::stoll(str, pos);
 
-        // unsigned integer types
-        if constexpr (std::is_same<T, unsigned>::value) {
-            if (dvlab::str::trim_spaces(str)[0] == '-') throw std::out_of_range("unsigned number underflow");
-            unsigned long const result = std::stoul(str, pos);  // NOTE - for some reason there isn't stou (lol)
-            if (result > std::numeric_limits<unsigned>::max()) {
-                throw std::out_of_range("stou");
-            }
-            return (unsigned)result;
-        }
-        if constexpr (std::is_same<T, unsigned long>::value) {
-            if (dvlab::str::trim_spaces(str)[0] == '-') throw std::out_of_range("unsigned number underflow");
-            return std::stoul(str, pos);
-        }
-        if constexpr (std::is_same<T, unsigned long long>::value) {
-            if (dvlab::str::trim_spaces(str)[0] == '-') throw std::out_of_range("unsigned number underflow");
-            return std::stoull(str, pos);
-        }
+//         // unsigned integer types
+//         if constexpr (std::is_same<T, unsigned>::value) {
+//             if (dvlab::str::trim_spaces(str)[0] == '-') throw std::out_of_range("unsigned number underflow");
+//             unsigned long const result = std::stoul(str, pos);  // NOTE - for some reason there isn't stou (lol)
+//             if (result > std::numeric_limits<unsigned>::max()) {
+//                 throw std::out_of_range("stou");
+//             }
+//             return (unsigned)result;
+//         }
+//         if constexpr (std::is_same<T, unsigned long>::value) {
+//             if (dvlab::str::trim_spaces(str)[0] == '-') throw std::out_of_range("unsigned number underflow");
+//             return std::stoul(str, pos);
+//         }
+//         if constexpr (std::is_same<T, unsigned long long>::value) {
+//             if (dvlab::str::trim_spaces(str)[0] == '-') throw std::out_of_range("unsigned number underflow");
+//             return std::stoull(str, pos);
+//         }
 
-        throw std::invalid_argument("unsupported type");
-    } catch (std::invalid_argument const& e) {
-        throw std::invalid_argument(e.what());
-    } catch (std::out_of_range const& e) {
-        throw std::out_of_range(e.what());
-    }
+//         throw std::invalid_argument("unsupported type");
+//     } catch (std::invalid_argument const& e) {
+//         throw std::invalid_argument(e.what());
+//     } catch (std::out_of_range const& e) {
+//         throw std::out_of_range(e.what());
+//     }
 
-    return 0.;  // silences compiler warnings
-}
+//     return 0.;  // silences compiler warnings
+// }
 
 /**
  * @brief If `str` is a number of type T, parse it and return true;
@@ -204,14 +205,42 @@ T detail::stonum(std::string const& str, size_t* pos) {
 template <class T>
 requires std::is_arithmetic_v<T>
 bool str_to_num(std::string const& str, T& f) {
-    size_t i = 0;
+    size_t pos = 0;
     try {
-        f = detail::stonum<T>(str, &i);
+        // floating point types
+        if constexpr (std::is_same<T, double>::value) f = std::stod(str, &pos);
+        else if constexpr (std::is_same<T, float>::value) f = std::stof(str, &pos);
+        else if constexpr (std::is_same<T, long double>::value) f = std::stold(str, &pos);
+
+        // signed integer types
+        else if constexpr (std::is_same<T, int>::value) f = std::stoi(str, &pos);
+        else if constexpr (std::is_same<T, long>::value) f = std::stol(str, &pos);
+        else if constexpr (std::is_same<T, long long>::value) f = std::stoll(str, &pos);
+
+        // unsigned integer types
+        else if constexpr (std::is_same<T, unsigned>::value) {
+            if (dvlab::str::trim_spaces(str)[0] == '-') throw std::out_of_range("unsigned number underflow");
+            unsigned long const result = std::stoul(str, &pos);  // NOTE - for some reason there isn't stou (lol)
+            if (result > std::numeric_limits<unsigned>::max()) {
+                throw std::out_of_range("stou");
+            }
+            f = (unsigned)result;
+        }
+        else if constexpr (std::is_same<T, unsigned long>::value) {
+            if (dvlab::str::trim_spaces(str)[0] == '-') throw std::out_of_range("unsigned number underflow");
+            f = std::stoul(str, &pos);
+        }
+        else if constexpr (std::is_same<T, unsigned long long>::value) {
+            if (dvlab::str::trim_spaces(str)[0] == '-') throw std::out_of_range("unsigned number underflow");
+            f = std::stoull(str, &pos);
+        }
+        else
+            throw std::invalid_argument("unsupported type");
     } catch (std::exception const& e) {
         return false;
     }
     // Check if str have un-parsable parts
-    return (i == str.size());
+    return (pos == str.size());
 }
 
 namespace detail {
