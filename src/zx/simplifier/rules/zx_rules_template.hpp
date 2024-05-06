@@ -15,8 +15,8 @@ namespace qsyn::zx {
 
 struct ZXOperation {
     // std::vector<ZXVertex*> vertices_to_add;
-    std::vector<EdgePair> edges_to_add = {};
-    std::vector<EdgePair> edges_to_remove = {};
+    std::vector<EdgePair> edges_to_add        = {};
+    std::vector<EdgePair> edges_to_remove     = {};
     std::vector<ZXVertex*> vertices_to_remove = {};
 };
 

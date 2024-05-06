@@ -8,6 +8,7 @@
 #pragma once
 
 #include <fmt/core.h>
+
 #include <charconv>
 #include <concepts>
 #include <exception>
@@ -208,14 +209,20 @@ bool str_to_num(std::string const& str, T& f) {
     size_t pos = 0;
     try {
         // floating point types
-        if constexpr (std::is_same<T, double>::value) f = std::stod(str, &pos);
-        else if constexpr (std::is_same<T, float>::value) f = std::stof(str, &pos);
-        else if constexpr (std::is_same<T, long double>::value) f = std::stold(str, &pos);
+        if constexpr (std::is_same<T, double>::value)
+            f = std::stod(str, &pos);
+        else if constexpr (std::is_same<T, float>::value)
+            f = std::stof(str, &pos);
+        else if constexpr (std::is_same<T, long double>::value)
+            f = std::stold(str, &pos);
 
         // signed integer types
-        else if constexpr (std::is_same<T, int>::value) f = std::stoi(str, &pos);
-        else if constexpr (std::is_same<T, long>::value) f = std::stol(str, &pos);
-        else if constexpr (std::is_same<T, long long>::value) f = std::stoll(str, &pos);
+        else if constexpr (std::is_same<T, int>::value)
+            f = std::stoi(str, &pos);
+        else if constexpr (std::is_same<T, long>::value)
+            f = std::stol(str, &pos);
+        else if constexpr (std::is_same<T, long long>::value)
+            f = std::stoll(str, &pos);
 
         // unsigned integer types
         else if constexpr (std::is_same<T, unsigned>::value) {
@@ -225,16 +232,13 @@ bool str_to_num(std::string const& str, T& f) {
                 throw std::out_of_range("stou");
             }
             f = (unsigned)result;
-        }
-        else if constexpr (std::is_same<T, unsigned long>::value) {
+        } else if constexpr (std::is_same<T, unsigned long>::value) {
             if (dvlab::str::trim_spaces(str)[0] == '-') throw std::out_of_range("unsigned number underflow");
             f = std::stoul(str, &pos);
-        }
-        else if constexpr (std::is_same<T, unsigned long long>::value) {
+        } else if constexpr (std::is_same<T, unsigned long long>::value) {
             if (dvlab::str::trim_spaces(str)[0] == '-') throw std::out_of_range("unsigned number underflow");
             f = std::stoull(str, &pos);
-        }
-        else
+        } else
             throw std::invalid_argument("unsupported type");
     } catch (std::exception const& e) {
         return false;
