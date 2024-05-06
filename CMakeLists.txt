@@ -26,7 +26,7 @@ project(
   LANGUAGES CXX
   VERSION 0.6.3)
 
-find_package(OpenMP REQUIRED)
+# find_package(OpenMP REQUIRED)
 
 set(BLA_VENDER OpenBLAS)
 find_package(BLAS REQUIRED)
@@ -205,8 +205,9 @@ target_link_libraries_system(
   sul::dynamic_bitset
   cadical::cadical)
 target_link_libraries(
-  ${CMAKE_PROJECT_NAME} PRIVATE lapack OpenMP::OpenMP_CXX ${BLAS_LIBRARIES}
-                                ${LAPACK_LIBRARIES})
+  ${CMAKE_PROJECT_NAME} PRIVATE lapack 
+# OpenMP::OpenMP_CXX 
+  ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
 
 # default to ON
 option(COPY_EXECUTABLE " Copy executable to project root " ON)
