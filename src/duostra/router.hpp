@@ -46,7 +46,7 @@ public:
     using Device        = qsyn::device::Device;
     using PhysicalQubit = qsyn::device::PhysicalQubit;
 
-    enum CostStrategyType {
+    enum CostStrategyType : std::uint8_t {
         start,
         end
     };

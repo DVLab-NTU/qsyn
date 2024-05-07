@@ -12,8 +12,6 @@
 #include <gsl/narrow>
 #include <iterator>
 #include <memory>
-#include <optional>
-#include <span>
 #include <string>
 #include <tl/generator.hpp>
 #include <tl/to.hpp>
@@ -21,7 +19,7 @@
 #include <variant>
 #include <vector>
 
-class tqdm;
+class tqdm;  // NOLINT(readability-identifier-naming)  // forward declaration
 
 namespace dvlab {
 namespace detail {
@@ -64,8 +62,8 @@ public:
     TqdmWrapper(TqdmWrapper&&) noexcept            = default;
     TqdmWrapper& operator=(TqdmWrapper&&) noexcept = default;
 
-    inline int idx() const { return _counter; }
-    inline bool done() const { return _counter == _total; }
+    int idx() const { return _counter; }
+    bool done() const { return _counter == _total; }
     TqdmWrapper& operator++();
 
 private:

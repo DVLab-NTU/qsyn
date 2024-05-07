@@ -138,7 +138,7 @@ public:
      * @param key
      * @return size_type
      */
-    inline iterator find(Key const& key) {
+    iterator find(Key const& key) {
         return this->contains(key) ? iterator(this->_data.begin() + this->id(key), this->_data.begin(), this->_data.end()) : this->end();
     }
 
@@ -151,7 +151,7 @@ public:
      * @param key
      * @return size_type
      */
-    inline const_iterator find(Key const& key) const {
+    const_iterator find(Key const& key) const {
         return this->contains(key) ? iterator(this->_data.begin() + this->id(key), this->_data.begin(), this->_data.end()) : this->end();
     }
     /**
@@ -163,7 +163,7 @@ public:
      * @param key
      * @return size_type
      */
-    inline size_type id(Key const& key) const { return this->_key2id.at(key); }
+    size_type id(Key const& key) const { return this->_key2id.at(key); }
     bool contains(Key const& key) const;
     template <typename KT>
     bool contains(KT const& key) const;

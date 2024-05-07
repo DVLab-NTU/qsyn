@@ -37,7 +37,7 @@ class Operation;
 
 struct QubitInfo;
 
-enum class QCirDrawerType {
+enum class QCirDrawerType : std::uint8_t {
     text,
     mpl,
     latex,
@@ -220,7 +220,7 @@ Operation adjoint(qcir::QCir const& qcir);
 
 template <>
 struct fmt::formatter<qsyn::qcir::QCirDrawerType> {
-    auto parse(format_parse_context& ctx) { return ctx.begin(); }
+    constexpr auto parse(format_parse_context& ctx) { return ctx.begin(); }
     auto format(qsyn::qcir::QCirDrawerType const& type, format_context& ctx) {
         using qsyn::qcir::QCirDrawerType;
         switch (type) {

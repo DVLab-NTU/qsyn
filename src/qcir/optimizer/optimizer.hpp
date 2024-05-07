@@ -78,7 +78,7 @@ private:
     } _statistics;
 
     // Utils
-    enum class ElementType {
+    enum class ElementType : std::uint8_t {
         h,
         x,
         z
@@ -117,37 +117,37 @@ private:
     void _fuse_x_phase(QCir& qcir, QCirGate* prev_gate, QCirGate* gate);
     void _partial_zx_optimization(QCir& qcir);
 
-    inline size_t _store_x(QubitIdType qubit) {
+    size_t _store_x(QubitIdType qubit) {
         _storage.emplace_back(_storage.size(), XGate(), QubitIdList{qubit});
         return _storage.size() - 1;
     }
 
-    inline size_t _store_h(QubitIdType qubit) {
+    size_t _store_h(QubitIdType qubit) {
         _storage.emplace_back(_storage.size(), HGate(), QubitIdList{qubit});
         return _storage.size() - 1;
     }
 
-    inline size_t _store_s(QubitIdType qubit) {
+    size_t _store_s(QubitIdType qubit) {
         _storage.emplace_back(_storage.size(), SGate(), QubitIdList{qubit});
         return _storage.size() - 1;
     }
 
-    inline size_t _store_sdg(QubitIdType qubit) {
+    size_t _store_sdg(QubitIdType qubit) {
         _storage.emplace_back(_storage.size(), SdgGate(), QubitIdList{qubit});
         return _storage.size() - 1;
     }
 
-    inline size_t _store_cx(QubitIdType ctrl, QubitIdType targ) {
+    size_t _store_cx(QubitIdType ctrl, QubitIdType targ) {
         _storage.emplace_back(_storage.size(), CXGate(), QubitIdList{ctrl, targ});
         return _storage.size() - 1;
     }
 
-    inline size_t _store_cz(QubitIdType ctrl, QubitIdType targ) {
+    size_t _store_cz(QubitIdType ctrl, QubitIdType targ) {
         _storage.emplace_back(_storage.size(), CZGate(), QubitIdList{ctrl, targ});
         return _storage.size() - 1;
     }
 
-    inline size_t _store_single_z_rotation_gate(QubitIdType target, dvlab::Phase ph) {
+    size_t _store_single_z_rotation_gate(QubitIdType target, dvlab::Phase ph) {
         _storage.emplace_back(_storage.size(), PZGate(ph), QubitIdList{target});
         return _storage.size() - 1;
     }

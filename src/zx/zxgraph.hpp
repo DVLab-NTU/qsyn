@@ -182,13 +182,13 @@ public:
     bool has_dangling_neighbors(ZXVertex* v) const;
 
     double density();
-    inline size_t t_count() const {
+    size_t t_count() const {
         return std::ranges::count_if(_vertices, [](ZXVertex* v) { return (v->get_phase().denominator() == 4); });
     }
-    inline size_t non_clifford_count() const {
+    size_t non_clifford_count() const {
         return std::ranges::count_if(_vertices, [](ZXVertex* v) { return !v->is_clifford(); });
     }
-    inline size_t non_clifford_t_count() const { return non_clifford_count() - t_count(); }
+    size_t non_clifford_t_count() const { return non_clifford_count() - t_count(); }
 
     // Add and Remove
     ZXVertex* add_input(QubitIdType qubit, float col = 0.f);

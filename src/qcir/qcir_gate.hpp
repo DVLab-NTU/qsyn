@@ -38,11 +38,11 @@ public:
 
     size_t get_num_qubits() const { return _qubits.size(); }
 
-    inline bool operator==(QCirGate const& rhs) const {
+    bool operator==(QCirGate const& rhs) const {
         return _operation == rhs._operation && _qubits == rhs._qubits;
     }
 
-    inline bool operator!=(QCirGate const& rhs) const { return !(*this == rhs); }
+    bool operator!=(QCirGate const& rhs) const { return !(*this == rhs); }
 
     static bool qubit_id_is_unique(QubitIdList const& qubits);
 

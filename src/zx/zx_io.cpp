@@ -177,7 +177,7 @@ bool ZXFileParser::_tokenize(std::string const& line, std::vector<std::string>& 
 
     // parsing parenthesis
 
-    enum struct ParenthesisCase {
+    enum struct ParenthesisCase : std::uint8_t {
         none,
         both,
         left,
@@ -526,10 +526,21 @@ bool ZXGraph::write_zx(std::filesystem::path const& filename, bool complete) con
 
     for (ZXVertex* v : _vertices) {
         if (v->is_boundary()) continue;
+        char const vtypestr = [&v]() {
+            switch (v->get_type()) {
+                case VertexType::z:
+                    return 'Z';
+                case VertexType::x:
+                    return 'X';
+                case VertexType::h_box:
+                    return 'H';
+                default:
+                    DVLAB_UNREACHABLE("unsupported vertex type");
+                    return 'Z';  // silence warning
+            }
+        }();
         fmt::print(zx_file, "{}{} ({}, {})",
-                   v->is_z()   ? "Z"
-                   : v->is_x() ? "X"
-                               : "H",
+                   vtypestr,
                    v->get_id(),
                    v->get_row(),
                    std::floor(v->get_col()));

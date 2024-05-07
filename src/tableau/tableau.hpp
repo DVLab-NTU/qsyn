@@ -101,7 +101,7 @@ public:
 
     auto push_back(SubTableau const& subtableau) {
         // FIXME - check if the subtableau has the same number of qubits
-        return _subtableaux.push_back(subtableau);
+        _subtableaux.push_back(subtableau);
     }
 
     template <typename... Args>

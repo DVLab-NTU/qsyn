@@ -7,6 +7,8 @@
 
 #include "./tableau_cmd.hpp"
 
+#include <cstdint>
+
 #include "./stabilizer_tableau.hpp"
 #include "./tableau_optimization.hpp"
 #include "argparse/arg_parser.hpp"
@@ -226,7 +228,7 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr) {
 
             auto const method_str = parser.get<std::string>("method");
 
-            enum struct OptimizationMethod {
+            enum struct OptimizationMethod : std::uint8_t {
                 full,
                 collapse,
                 t_merge,

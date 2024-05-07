@@ -31,7 +31,7 @@ namespace tensor {
 
 class SolovayKitaev {
 public:
-    SolovayKitaev(size_t d, size_t r) : _depth(d), _recursion(r){};
+    SolovayKitaev(size_t d, size_t r) : _depth(d), _recursion(r) {};
 
     template <typename U>
     std::optional<QCir> solovay_kitaev_decompose(QTensor<U> const& matrix);

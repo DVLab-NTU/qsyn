@@ -19,7 +19,7 @@ namespace qsyn::duostra {
 using GateIdToTime = std::vector<std::pair<size_t, size_t>>;
 using GateInfo     = std::pair<qcir::QCirGate, std::pair<size_t, size_t>>;
 
-enum class SchedulerType {
+enum class SchedulerType : std::uint8_t {
     base,
     naive,
     random,
@@ -27,18 +27,18 @@ enum class SchedulerType {
     search,
 };
 
-enum class PlacerType {
+enum class PlacerType : std::uint8_t {
     naive,
     random,
     dfs,
 };
 
-enum class RouterType {
+enum class RouterType : std::uint8_t {
     shortest_path,
     duostra,
 };
 
-enum class MinMaxOptionType {
+enum class MinMaxOptionType : std::uint8_t {
     min,
     max,
 };

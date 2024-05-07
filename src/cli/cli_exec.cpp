@@ -269,7 +269,7 @@ std::string dvlab::CommandLineInterface::_replace_variable_keys_with_values(std:
 
     size_t cursor      = 0;
     std::string result = "";
-    for (auto [pos, len, val] : to_replace) {
+    for (auto const& [pos, len, val] : to_replace) {
         result += str.substr(cursor, pos - cursor);
         result += val;
         cursor = pos + len;
