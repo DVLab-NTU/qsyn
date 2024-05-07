@@ -31,7 +31,10 @@ namespace tensor {
 
 class SolovayKitaev {
 public:
-    SolovayKitaev(size_t d, size_t r) : _depth(d), _recursion(r){};
+    // clang-format off
+    // clang-format-17 formats this line in a weird way
+    SolovayKitaev(size_t d, size_t r) : _depth(d), _recursion(r) {};
+    // clang-format on
 
     template <typename U>
     std::optional<QCir> solovay_kitaev_decompose(QTensor<U> const& matrix);

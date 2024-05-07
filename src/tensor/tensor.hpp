@@ -121,12 +121,12 @@ public:
     Tensor<DT> transpose(TensorAxisList const& perm) const;
 
     void adjoint_inplace();
-    [[nodiscard]] inline friend Tensor<DT> adjoint(Tensor<DT> const& t) {
+    [[nodiscard]] friend Tensor<DT> adjoint(Tensor<DT> const& t) {
         assert(t.dimension() == 2);
         return xt::conj(xt::transpose(t._tensor, {1, 0}));
     }
 
-    [[nodiscard]] inline friend Tensor<DT> sqrt(Tensor<DT> const& t) {
+    [[nodiscard]] friend Tensor<DT> sqrt(Tensor<DT> const& t) {
         assert(t.dimension() == 2);
         return xt::sqrt(t._tensor);
     }

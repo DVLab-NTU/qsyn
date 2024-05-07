@@ -37,7 +37,7 @@ dvlab::Phase get_gadget_phase(dvlab::Phase const& phase, size_t n_qubits) {
     return phase * dvlab::Rational(1, static_cast<int>(std::pow(2, gsl::narrow<double>(n_qubits) - 1)));
 }
 
-enum class RotationAxis {
+enum class RotationAxis : std::uint8_t {
     x,
     y,
     z

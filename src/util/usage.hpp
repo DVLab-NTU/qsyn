@@ -13,7 +13,7 @@ namespace utils {
 
 class Usage {
 public:
-    Usage() : _initial_memory(_check_memory()), _current_memory(_initial_memory), _current_tick(_check_tick()), _period_used_time(0.0), _total_used_time(0.0) {}
+    Usage() : _initial_memory(_check_memory()), _current_memory(_initial_memory), _current_tick(_check_tick()) {}
 
     void reset_period();
 
@@ -29,8 +29,8 @@ private:
 
     // for CPU time usage
     double _current_tick;
-    double _period_used_time;
-    double _total_used_time;
+    double _period_used_time{0.0};
+    double _total_used_time{0.0};
 
     // private functions
     double _check_memory();

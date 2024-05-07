@@ -11,6 +11,7 @@
 #include <spdlog/spdlog.h>
 
 #include <cstddef>
+#include <cstdint>
 #include <filesystem>
 #include <string>
 
@@ -243,8 +244,10 @@ dvlab::Command qcir_write_cmd(QCirMgr const& qcir_mgr) {
             if (!dvlab::utils::mgr_has_data(qcir_mgr))
                 return CmdExecResult::error;
 
-            enum class OutputFormat { qasm,
-                                      latex_qcircuit };
+            enum class OutputFormat : std::uint8_t {
+                qasm,
+                latex_qcircuit
+            };
             auto output_type = std::invoke([&]() -> OutputFormat {
                 if (parser.parsed("--format")) {
                     if (dvlab::str::is_prefix_of(parser.get<std::string>("--format"),

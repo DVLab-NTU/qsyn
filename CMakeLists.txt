@@ -67,14 +67,14 @@ FetchContent_Declare(
   fmt
   SYSTEM
   GIT_REPOSITORY https://github.com/fmtlib/fmt.git
-  GIT_TAG 10.0.0)
+  GIT_TAG 10.2.1)
 FetchContent_MakeAvailable(fmt)
 
 FetchContent_Declare(
   spdlog
   SYSTEM
   GIT_REPOSITORY https://github.com/gabime/spdlog.git
-  GIT_TAG v1.12.0)
+  GIT_TAG v1.14.1)
 set(SPDLOG_FMT_EXTERNAL
     ON
     CACHE INTERNAL "")
@@ -141,11 +141,9 @@ target_compile_definitions(${CMAKE_PROJECT_NAME}
                            PRIVATE QSYN_BUILD_TYPE="${CMAKE_BUILD_TYPE}")
 target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wall -Wextra -Werror)
 
-# g++ is being too paranoid about missing field initializers
-if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
-  target_compile_options(${CMAKE_PROJECT_NAME}
-                         PRIVATE -Wno-missing-field-initializers)
-endif()
+# compilers are being too paranoid about missing field initializers
+target_compile_options(${CMAKE_PROJECT_NAME}
+                        PRIVATE -Wno-missing-field-initializers)
 
 target_include_directories(${CMAKE_PROJECT_NAME}
                            PRIVATE ${CMAKE_SOURCE_DIR}/src)

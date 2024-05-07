@@ -87,6 +87,7 @@ bool QCir::draw(QCirDrawerType drawer, std::filesystem::path const& output_path,
     auto const path_to_script = "scripts/qccdraw_qiskit_interface.py";
 
     auto cmd = fmt::format("python3 {} -input {} -drawer {} -scale {}", path_to_script, tmp_qasm.string(), drawer, scale);
+    // auto cmd = fmt::format("python3 {} -input {} -drawer {} -scale {}", path_to_script, tmp_qasm.string(), drawer, scale);
 
     if (!output_path.string().empty()) {
         cmd += " -output " + output_path.string();

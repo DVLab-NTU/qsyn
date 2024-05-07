@@ -81,7 +81,7 @@ bool Duostra::map(bool use_device_as_placement) {
     assert(scheduler->is_sorted());
     // assert(scheduler->get_order().size() == _logical_circuit->get_gates().size());
 
-    for (auto [gate, _] : scheduler->get_operations())
+    for (auto const& [gate, _] : scheduler->get_operations())
         _result.emplace_back(gate);
 
     // store_order_info(scheduler->get_order());

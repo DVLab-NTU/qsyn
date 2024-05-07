@@ -60,7 +60,7 @@ class PZGate {
 public:
     PZGate(dvlab::Phase phase) : _phase(phase) {}
     std::string get_type() const { return "p"; }
-    inline std::string get_repr() const {
+    std::string get_repr() const {
         if (_phase == dvlab::Phase(1)) {
             return "z";
         }
