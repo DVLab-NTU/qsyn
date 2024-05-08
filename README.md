@@ -17,9 +17,11 @@
 
 ## Introduction
 
-`qsyn` is a `C++`-based growing software system for synthesizing, optimizing, and verifying quantum circuits to aid the development of quantum computing. `qsyn` implements scalable quantum circuit optimization by combining ZX-Calculus and technology mapping.
+`qsyn` is an open-sourced `C++`-based growing software system for synthesizing, optimizing, and verifying quantum circuits to aid the development of quantum computing. `qsyn` implements scalable quantum circuit optimization by combining ZX-Calculus and technology mapping.
 
-`qsyn` provides an experimental implementation of optimization algorithms and a programming environment for simulation or building similar applications. Future development will focus on enhancing the optimization and qubit mapping routines, adding support to synthesize from arbitrary unitaries, and adding verification functionalities.
+`qsyn` aims to provide a unified and user-friendly developing environment for  experimental implementation of optimization algorithms and a programming environment for simulation or building similar applications. `qsyn`aims to serve as a platform for developers to evaluate their QCS algorithms with standardized tools, language, and data structures. 
+
+Future development will focus on enhancing the optimization and qubit mapping routines, adding support to synthesize from arbitrary unitaries, and adding verification functionalities.
 
 ## Getting Started
 
@@ -109,7 +111,7 @@ Visualization functionalities of `qsyn` depend at runtime on the following depen
 
   ```sh
    ❯ ./qsyn
-   qsyn v0.6.3 - Copyright © 2022-2023, DVLab NTUEE.
+   qsyn v0.6.3 - Copyright © 2022-2024, DVLab NTUEE.
    Licensed under Apache 2.0 License.
    qsyn>
   ```
@@ -120,7 +122,7 @@ Visualization functionalities of `qsyn` depend at runtime on the following depen
   qsyn> help
   ```
 
-- To see the help message of a specific command, type `<command> -h`.
+- To see the help message of a specific command, type `<command> -h` or  `<command> --help`.
 
   ```sh
   qsyn> qcir read -h
@@ -136,6 +138,29 @@ Visualization functionalities of `qsyn` depend at runtime on the following depen
   ```
 
   Some example DOFILEs are provided under `examples/`. You can also write your own DOFILEs to automate your workflow.
+
+- `qsyn` also supports reading commands from scripts. For example, we also provided a ZX-calculus-based optimization flow
+  by executing the following script in the project folder examples/zxopt.qsyn .
+
+  ```sh
+  //!ARGS INPUT
+  qcir read ${INPUT}
+  echo "--- pre-optimization ---"
+  qcir print --stat
+  // to zx -> full reduction -> extract qcir
+  qc2zx; zx optimize --full; zx2qc
+  // post-resyn optimization
+  qcir optimize
+  echo "--- post-optimization ---"
+  qcir print --stat
+  ```
+
+  To run the commands in the above file, supply the script’s file path and arguments after ./qsyn :
+  
+  ```sh
+   ❯ ./qsyn examples/zxopt.qsyn \ benchmark/SABRE/large/adr4_197.qasm
+  ```
+  This runs the ZX-calculus-based synthesis on the circuit in benchmark/SABRE/large/adr4_197.qasm. 
 
 - If you're new to `qsyn`, you will be prompted to run the command `create-qsynrc` to create a configuration file for `qsyn`. This file will be stored under `~/.config/qsynrc` and can be used to store your aliases, variables, etc.
 
@@ -175,9 +200,83 @@ We have provided some DOFILEs, i.e., a sequence of commands, to serve as functio
 
   Notice that if you use a different BLAS or LAPACK implementation to build `qsyn`, some of the DOFILEs may produce different results, which is expected.
 
+## Functionalities
+
+### Software architecture
+
+  The core interaction with `qsyn` is facilitated through its command-line interface (CLI), which processes user input, handles command execution, and manages error reporting. Developers can add additional commands and integrate into the CLI. New strategy can be added without compromising to existing data structure, as all modifications are funneled through well-defined public interfaces.
+
+  `qsyn` supports real time storage of multiple quantum circuits and intermediate representations by the `<dt>` checkout command. Users can take snapshots at any time in the synthesis process and switch to an arbitrary version of stored data. 
+
+  This architecture is central to qsyn’s flexibility and extensibility. It segregates responsibilities and simplifies command implementations while enhancing its capability as a research tool in quantum circuit synthesis.
+
+### High-level Synthesis
+  
+  `qsyn` can process various specifications for quantum circuits by supporting syntheses from Boolean oracles and unitary matrices.
+
+  | Command | Description |
+  | :-----  | :----       |
+  | qcir oracle | ROS Boolean oracle synthesis flow      |
+  | ts2qc       | Gray-code unitary matrix synthesis     |
+
+### Gate-level Synthesis
+ `qsyn` also adapt to different optimization targets by providing  different routes to synthesize low-level quantum circuits.
+  | Command  | Description |
+  | :-----   | :----       |
+  | qzq      | ZX-calculus-based synth routine            |
+  | qc2zx    | convert q. circuit to ZX-diagram           |
+  | zx opt   | fully reduce ZX diagram                    |
+  | zx2qc    | convert ZX-diagram to q. circuit           |
+  | qc opt   | basic optimization passes                  |
+  | qtablq   | tableau-based synth routine                |
+  | qc2tabl  | convert quantum circuit to tableau         |
+  | tabl opt | full iteratively apply the following three |
+  | tabl opt | tmerge phase-merging optimization          |
+  | tabl opt | hopt internal H-gate optimization          |
+  | tabl opt | ph todd TODD optimization                  |
+  | tabl2qc  | convert tableau to quantum circuit         |
+  | sk-decompose | Solovay-Kitaev decomposition           |
+
+### Device Mapping
+  `qsyn` can target a wide variety of quantum devices by addressing their available gate sets and topological constraints.
+  | Command      | Description |
+  | :-----       | :----       |
+  | device read  | read info about a quantum device       |
+  | qc translate | library-based technology mapping       |
+  | qc opt       |-t technology-aware optimization passes |
+  | duostra  | Duostra qubit mapping for depth or #SWAPs  |
+
+
+### Data Access and Utilities
+  `qsyn` provides various data representations for quantum logic. `<dt>` stands for any data representation type, including quantum circuits, ZX diagrams, Tableau, etc.
+  | Command             | Description |
+  | :-----              | :----       |
+  | `<dt>` list           | list all `<dt>`s                  |
+  | `<dt>` checkout       | switch focus between `<dt>`s      |  
+  | `<dt>` print          | print `<dt>` information          |
+  | `<dt>` new/delete     | add a new/delete a `<dt>`         |
+  | `<dt>` read/write     | read and write `<dt>`             |
+  | `<dt>` equiv          | verify equivalence of two `<dt>`s |
+  | `<dt>` draw           | render visualization of `<dt>`    |
+  | convert `<dt1>` `<dt2>` | convert from `<dt1>` to `<dt2>`     |
+
+  There are also some extra utilities: 
+  | Command   | Description |
+  | :-----    | :----       |
+  | alias     | set or unset aliases            |
+  | help      | display helps to commands       |
+  | history   | show or export command history  |
+  | logger    | control log levels              |
+  | set       | set or unset variables          |
+  | usage     | show time/memory usage          |
+
+
+
+
 ## License
 
 `qsyn` is licensed under the
 [Apache License 2.0](https://github.com/DVLab-NTU/qsyn/blob/main/LICENSE).
 
 Certain functions of `qsyn` is enabled by a series of third-party libraries. For a list of these libraries, as well as their license information, please refer to [this document](/vendor/README.md).
+ 
