@@ -102,6 +102,13 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(dynamic_bitset)
 
 FetchContent_Declare(
+  json
+  SYSTEM
+  GIT_REPOSITORY https://github.com/nlohmann/json.git
+  GIT_TAG v3.11.3)
+FetchContent_MakeAvailable(json)
+
+FetchContent_Declare(
   cadical
   SYSTEM
   # should use the upstream repo once the PR is merged
@@ -201,6 +208,7 @@ target_link_libraries_system(
   spdlog::spdlog
   Microsoft.GSL::GSL
   sul::dynamic_bitset
+  nlohmann_json::nlohmann_json
   cadical::cadical)
 target_link_libraries(
   ${CMAKE_PROJECT_NAME} PRIVATE lapack 
