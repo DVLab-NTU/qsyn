@@ -247,11 +247,15 @@ Command zxgraph_draw_cmd(ZXGraphMgr const& zxgraph_mgr) {
                     .constraint(path_writable)
                     .constraint(allowed_extension({".pdf"}))
                     .help("the output path. Supported extension: .pdf");
+
+                parser.add_argument<bool>("-a", "--adjust-coords")
+                    .action(store_true)
+                    .help("automatically adjust the coordinates");
             },
             [&](ArgumentParser const& parser) {
                 if (!dvlab::utils::mgr_has_data(zxgraph_mgr)) return CmdExecResult::error;
                 if (parser.parsed("filepath")) {
-                    zxgraph_mgr.get()->adjust_vertex_coordinates();
+                    if (parser.parsed("--adjust-coords")) zxgraph_mgr.get()->adjust_vertex_coordinates();
                     if (!zxgraph_mgr.get()->write_pdf(parser.get<std::string>("filepath"))) return CmdExecResult::error;
                 }
 
@@ -266,8 +270,8 @@ Command zxgraph_read_cmd(ZXGraphMgr& zxgraph_mgr) {
 
                 parser.add_argument<std::string>("filepath")
                     .constraint(path_readable)
-                    .constraint(allowed_extension({".zx"}))
-                    .help("path to the ZX file. Supported extensions: .zx");
+                    .constraint(allowed_extension({".zx", ".zxg"}))
+                    .help("path to the ZX file. Supported extensions: .zx, .zxg");
 
                 parser.add_argument<bool>("--keep-id")
                     .action(store_true)
@@ -283,7 +287,8 @@ Command zxgraph_read_cmd(ZXGraphMgr& zxgraph_mgr) {
                 auto const do_keep_id = parser.get<bool>("--keep-id");
                 auto const do_replace = parser.get<bool>("--replace");
                 // NOTE - Adding "const" would lead to using copy constructor in std::move
-                auto graph = from_zx(filepath, do_keep_id);
+                auto const zxg = filepath.substr(std::min(filepath.find_last_of('.'), filepath.size())) == ".zxg";
+                auto graph     = zxg ? from_json(filepath) : from_zx(filepath, do_keep_id);
                 if (!graph) {
                     return CmdExecResult::error;
                 }

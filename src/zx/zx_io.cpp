@@ -16,12 +16,20 @@
 #include <fstream>
 #include <functional>
 #include <iterator>
+#include <nlohmann/json.hpp>
+#include <optional>
 #include <string>
+#include <unordered_map>
+#include <vector>
 
 #include "./zxgraph.hpp"
+#include "qsyn/qsyn_type.hpp"
+#include "util/phase.hpp"
 #include "util/sysdep.hpp"
 #include "util/tmp_files.hpp"
 #include "util/util.hpp"
+#include "zx/simplifier/simplify.hpp"
+#include "zx/zx_def.hpp"
 
 namespace qsyn::zx {
 
@@ -427,6 +435,91 @@ std::optional<ZXGraph> build_graph_from_parser_storage(StorageType const& storag
     return graph;
 }
 
+std::optional<ZXGraph> build_graph_from_json(nlohmann::json const& data) {
+    ZXGraph graph;
+    std::unordered_map<std::string, ZXVertex*> vertex_storage;
+    std::vector<std::pair<std::string, ZXVertex*>> input_order;
+    std::vector<std::pair<std::string, ZXVertex*>> output_order;
+    for (auto const& [vertex_id_str, info] : data["node_vertices"].items()) {
+        std::string phase_str = "0";
+        if (info["data"].contains("value")) {
+            phase_str = info["data"]["value"].get<std::string>();
+            using namespace std::literals;
+            size_t pos = 0;
+            while ((pos = phase_str.find("π"s, pos)) != std::string::npos) {
+                if (pos == 0 || !std::isdigit(phase_str[pos - 1])) {
+                    phase_str.replace(pos, "π"s.size(), "pi");
+                } else {
+                    phase_str.replace(pos, "π"s.size(), "*pi");
+                }
+            }
+        }
+        auto ph = dvlab::Phase::from_string(phase_str);
+
+        if (!ph.has_value()) {
+            fmt::println("{}", phase_str);
+            return std::nullopt;
+        }
+
+        auto vtype = str_to_vertex_type(info["data"]["type"].get<std::string>());
+        if (!vtype.has_value()) {
+            fmt::println("{}", info["data"]["type"].get<std::string>());
+            return std::nullopt;
+        }
+        // NOTE - negate row coords because of the y axis direction in tikz
+        vertex_storage[vertex_id_str] = graph.add_vertex(*vtype, *ph, -info["annotation"]["coord"][1].get<float>(), info["annotation"]["coord"][0]);
+    }
+
+    for (auto const& [vertex, info] : data["wire_vertices"].items()) {
+        if (!info["annotation"]["boundary"]) continue;
+        // NOTE - negate row coords because of the y axis direction in tikz
+        vertex_storage[vertex] = new ZXVertex(0, -4, VertexType::boundary, dvlab::Phase(0), -info["annotation"]["coord"][1].get<float>(), info["annotation"]["coord"][0]);
+    }
+
+    // Classify in/out
+    for (auto const& [edge_id_str, info] : data["undir_edges"].items()) {
+        if (info["src"].get<std::string>().substr(0, 1) == "b") {
+            if (vertex_storage[info["src"].get<std::string>()]->get_col() < vertex_storage[info["tgt"].get<std::string>()]->get_col()) {
+                fmt::println("{}, {}", vertex_storage[info["src"].get<std::string>()]->get_col(), vertex_storage[info["tgt"].get<std::string>()]->get_col());
+                input_order.emplace_back(info["src"], vertex_storage[info["src"].get<std::string>()]);
+            } else {
+                output_order.emplace_back(info["src"], vertex_storage[info["src"].get<std::string>()]);
+            }
+        }
+        if (info["tgt"].get<std::string>().substr(0, 1) == "b") {
+            if (vertex_storage[info["tgt"].get<std::string>()]->get_col() > vertex_storage[info["src"].get<std::string>()]->get_col())
+                output_order.emplace_back(info["tgt"], vertex_storage[info["tgt"].get<std::string>()]);
+            else
+                input_order.emplace_back(info["tgt"], vertex_storage[info["tgt"].get<std::string>()]);
+        }
+    }
+    if (input_order.size() + output_order.size() != data["wire_vertices"].size()) {
+        return std::nullopt;
+    }
+
+    std::ranges::sort(input_order, [](const auto& a, const auto& b) {
+        return a.second->get_row() < b.second->get_row();
+    });
+
+    for (size_t i = 0; i < input_order.size(); i++) {
+        vertex_storage[input_order[i].first] = graph.add_input(i, input_order[i].second->get_row(), input_order[i].second->get_col());
+    }
+
+    std::ranges::sort(output_order, [](const auto& a, const auto& b) {
+        return a.second->get_row() < b.second->get_row();
+    });
+
+    for (size_t i = 0; i < output_order.size(); i++) {
+        vertex_storage[output_order[i].first] = graph.add_output(i, output_order[i].second->get_row(), output_order[i].second->get_col());
+    }
+
+    for (auto const& [edge_id_str, info] : data["undir_edges"].items()) {
+        graph.add_edge(vertex_storage[info["src"].get<std::string>()], vertex_storage[info["tgt"].get<std::string>()], EdgeType::simple);
+    }
+    Simplifier s(&graph);
+    s.hadamard_rule_simp();
+    return graph;
+}
 }  // namespace detail
 /**
  * @brief Read a ZXGraph
@@ -463,6 +556,23 @@ std::optional<ZXGraph> from_zx(std::istream& istr, bool keep_id) {
     }
 
     return build_graph_from_parser_storage(storage.value(), keep_id);
+}
+
+/**
+ * @brief Read a ZXLive file (.zxg)
+ *
+ * @param filename
+ * @return true if correctly constructed the graph
+ * @return false
+ */
+std::optional<ZXGraph> from_json(std::filesystem::path const& filepath) {
+    std::ifstream zx_json_file(filepath);
+
+    if (!zx_json_file.is_open()) {
+        spdlog::error("Cannot open the file \"{}\"!!", filepath);
+        return std::nullopt;
+    }
+    return detail::build_graph_from_json(nlohmann::json::parse(zx_json_file));
 }
 
 /**
