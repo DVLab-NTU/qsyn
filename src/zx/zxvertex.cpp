@@ -7,8 +7,6 @@
 
 #include <fmt/core.h>
 
-#include <cstddef>
-#include <exception>
 #include <ranges>
 #include <string>
 #include <unicode/display_width.hpp>
@@ -82,6 +80,7 @@ std::optional<VertexType> str_to_vertex_type(std::string const& str) {
     if (dvlab::str::is_prefix_of(tolower_string(str), "zspider")) return VertexType::z;
     if (dvlab::str::is_prefix_of(tolower_string(str), "xspider")) return VertexType::x;
     if (dvlab::str::is_prefix_of(tolower_string(str), "hbox")) return VertexType::h_box;
+    if (dvlab::str::is_prefix_of(tolower_string(str), "hadamard")) return VertexType::h_box;
     return std::nullopt;
 }
 

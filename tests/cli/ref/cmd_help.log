@@ -91,7 +91,7 @@ Description:
   read a file and construct the corresponding ZXGraph
 
 Positional Arguments:
-  string  filepath    path to the ZX file. Supported extensions: .zx 
+  string  filepath    path to the ZX file. Supported extensions: .zx, .zxg 
 
 Options:
   flag  -h, --help       show this help message                                                                  
