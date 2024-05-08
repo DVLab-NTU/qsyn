@@ -315,9 +315,8 @@ void ZXGraph::adjust_vertex_coordinates() {
             row_to_vertices_map |
             std::views::values |
             std::views::transform([](std::vector<ZXVertex*> const& v) {
-                return std::ranges::max(v | std::views::transform([](ZXVertex* v) { return v->get_col(); }));
+                return v.empty() ? 0 : std::ranges::max(v | std::views::transform([](ZXVertex* v) { return v->get_col(); }));
             })));
-
     for (auto& o : _outputs) o->set_col(max_col);
 }
 
