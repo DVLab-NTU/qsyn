@@ -316,7 +316,7 @@ Command zxgraph_write_cmd(ZXGraphMgr const& zxgraph_mgr) {
 
                 parser.add_argument<std::string>("filepath")
                     .constraint(path_writable)
-                    .constraint(allowed_extension({".zx", ".tikz", ".tex"}))
+                    .constraint(allowed_extension({".zx", ".zxg",".tikz", ".tex"}))
                     .help("the path to the output ZX file");
 
                 parser.add_argument<bool>("--complete")
@@ -333,6 +333,11 @@ Command zxgraph_write_cmd(ZXGraphMgr const& zxgraph_mgr) {
                 if (extension == ".zx") {
                     if (!zxgraph_mgr.get()->write_zx(filepath, do_complete)) {
                         spdlog::error("Failed to write ZXGraph to \"{}\"!!", filepath);
+                        return CmdExecResult::error;
+                    }
+                } else if (extension == ".zxg") {
+                    if (!zxgraph_mgr.get()->write_json(filepath)) {
+                        spdlog::error("Failed to write json to \"{}\"!!", filepath);
                         return CmdExecResult::error;
                     }
                 } else if (extension == ".tikz") {

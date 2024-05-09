@@ -252,6 +252,7 @@ public:
 
     // I/O (in zxIO.cpp)
     bool write_zx(std::filesystem::path const& filename, bool complete = false) const;
+    bool write_json(std::filesystem::path const& filename) const;
     bool write_tikz(std::string const& filename) const;
     bool write_tikz(std::ostream& os) const;
     bool write_pdf(std::string const& filename) const;
