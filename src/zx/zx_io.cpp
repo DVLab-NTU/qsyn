@@ -686,6 +686,106 @@ bool ZXGraph::write_tikz(std::string const& filename) const {
 }
 
 /**
+ * @brief Generate json file (for ZXLive)
+ *
+ * @param filename
+ * @return true if the filename is valid
+ * @return false if not
+ */
+bool ZXGraph::write_json(std::filesystem::path const& filename) const {
+    std::ofstream json_file{filename};
+    if (!json_file.is_open()) {
+        spdlog::error("Cannot open the file \"{}\"!!", filename);
+        return false;
+    }
+    nlohmann::json json;
+    std::vector<EdgePair> simple_edges;
+    std::vector<EdgePair> hadamard_edges;
+    std::unordered_map<ZXVertex*, std::string> vertex2label;
+    auto vtypestr = [&](ZXVertex* v) {
+        switch (v->get_type()) {
+            case VertexType::z:
+                return "Z";
+            case VertexType::x:
+                return "X";
+            case VertexType::h_box:
+                return "H";
+            default:
+                DVLAB_UNREACHABLE("unsupported vertex type");
+                return "Z";  // silence warning
+        }
+    };
+    for_each_edge([&](EdgePair const& epair) {
+        if (epair.second == EdgeType::simple)
+            simple_edges.emplace_back(epair);
+        else if (epair.second == EdgeType::hadamard)
+            hadamard_edges.emplace_back(epair);
+    });
+
+    // Inner vertices
+
+    size_t node_vertices_counter = 0;
+    for (auto const& v : _vertices) {
+        if (v->get_type() == VertexType::boundary) continue;
+        const std::string label                    = fmt::format("v{}", std::to_string(node_vertices_counter));
+        json["node_vertices"][label]["annotation"] = {
+            {"coord", {v->get_col(), -v->get_row()}}};
+        json["node_vertices"][label]["data"]["type"] = vtypestr(v);
+        if (v->get_phase() != dvlab::Phase(0))
+            json["node_vertices"][label]["data"]["value"] = v->get_phase().get_print_string();
+        node_vertices_counter++;
+        vertex2label[v] = label;
+    }
+
+    // Boundary
+    size_t wire_vertices_counter = 0;
+    auto write_boundaries        = [&](const ZXVertexList& io) {
+        for (auto const& v : io) {
+            const std::string label                                = fmt::format("b{}", std::to_string(wire_vertices_counter));
+            json["wire_vertices"][label]["annotation"]["boundary"] = true;
+            json["wire_vertices"][label]["annotation"]["coord"] =
+                {v->get_col(), -v->get_row()};
+            wire_vertices_counter++;
+            vertex2label[v] = label;
+        }
+    };
+    write_boundaries(_inputs);
+    write_boundaries(_outputs);
+
+    size_t edge_counter = 0;
+    for (auto const& edge : hadamard_edges) {
+        const std::string label                    = fmt::format("v{}", std::to_string(node_vertices_counter));
+        json["node_vertices"][label]["annotation"] = {
+            {"coord", {(edge.first.first->get_col() + edge.first.second->get_col()) / 2, -(edge.first.first->get_row() + edge.first.second->get_row()) / 2}}};
+        json["node_vertices"][label]["data"]["type"]    = "hadamard";
+        json["node_vertices"][label]["data"]["is_edge"] = "true",
+        node_vertices_counter++;
+
+        const std::string label_e1           = fmt::format("e{}", std::to_string(edge_counter));
+        const std::string label_e2           = fmt::format("e{}", std::to_string(edge_counter + 1));
+        json["undir_edges"][label_e1]["src"] = vertex2label[edge.first.first];
+        json["undir_edges"][label_e1]["tgt"] = label;
+        json["undir_edges"][label_e2]["src"] = label;
+        json["undir_edges"][label_e2]["tgt"] = vertex2label[edge.first.second];
+        edge_counter += 2;
+    }
+
+    for (auto const& edge : simple_edges) {
+        const std::string label           = fmt::format("e{}", std::to_string(edge_counter));
+        json["undir_edges"][label]["src"] = vertex2label[edge.first.first];
+        json["undir_edges"][label]["tgt"] = vertex2label[edge.first.second];
+        edge_counter++;
+    }
+
+    // NOTE - Fix the below information if needed
+    json["variable_types"] = nlohmann::json({});
+    json["scalar"]         = "{\"power2\": 0, \"phase\": \"0\"}";
+
+    json_file << std::setw(4) << json << "\n";
+    return true;
+}
+
+/**
  * @brief write tikz file to the ostream `tikzFile`
  *
  * @param tikzFile
