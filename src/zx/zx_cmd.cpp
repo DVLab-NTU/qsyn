@@ -316,7 +316,7 @@ Command zxgraph_write_cmd(ZXGraphMgr const& zxgraph_mgr) {
 
                 parser.add_argument<std::string>("filepath")
                     .constraint(path_writable)
-                    .constraint(allowed_extension({".zx", ".zxg",".tikz", ".tex"}))
+                    .constraint(allowed_extension({".zx", ".zxg", ".tikz", ".tex"}))
                     .help("the path to the output ZX file");
 
                 parser.add_argument<bool>("--complete")
