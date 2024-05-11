@@ -6,22 +6,28 @@
 ![g++-11](https://img.shields.io/badge/g++-≥11-blue?style=plastic)
 ![clang++-16](https://img.shields.io/badge/clang++-≥16-blueviolet?style=plastic)
 
-# Qsyn: An End-to-End Quantum Circuit Synthesis Framework
+# Qsyn: A Developer-Friendly Quantum Circuit Synthesis Framework for NISQ Era and Beyond
 
 ![](https://i.imgur.com/wKg5cQO.jpg)
-
-![](https://i.imgur.com/KeliAHn.png)
 
 <!-- ![example branch parameter](https://github.com/DVLab-NTU/qsyn/actions/workflows/build-and-test.yml/badge.svg)
  -->
 
-## Introduction
+## Overview
 
-`qsyn` is an open-sourced `C++`-based growing software system for synthesizing, optimizing, and verifying quantum circuits to aid the development of quantum computing. `qsyn` implements scalable quantum circuit optimization by combining ZX-Calculus and technology mapping.
+Qsyn is a developer-friendly `C++`-based Quantum Circuit Compilation framework to aid further development in this field. The main contributions of Qsyn are:
 
-`qsyn` aims to provide a unified and user-friendly developing environment for  experimental implementation of optimization algorithms and a programming environment for simulation or building similar applications. `qsyn`aims to serve as a platform for developers to evaluate their QCS algorithms with standardized tools, language, and data structures. 
+* Providing a unified and user-friendly developing environment so researchers and developers can efficiently prototype, implement, and thoroughly evaluate their QCS algorithms with standardized tools, language, and data structures.
+* Assisting the developers with a robust and intuitive interface that can access low-level data directly to provide developers with unique insights into the behavior of their algorithms during runtime.
+* Inforcing robust quality-assurance practices, such as regression tests, continuous integration-and-continuous delivery (CI/CD) flows, linting, etc. These methodologies ensure that we provide reliable and efficient functionalities and that new features adhere to the same quality we strive for. 
 
-Future development will focus on enhancing the optimization and qubit mapping routines, adding support to synthesize from arbitrary unitaries, and adding verification functionalities.
+![](https://i.imgur.com/DjqGlU5.png)
+
+Some of the future work for Qsyn includes:
+* Improving high-level synthesis: A well-designed high-level synthesis algorithm can yield efficient high-level circuits and adapt to the qubit resource constraint, simplifying the subsequent synthesis steps.
+* More flexible gate-level synthesis: We aim to optimize multiple metrics simultaneously and characterize the trade-off between them. Device-aware synthesis strategies are also promising for further compacting the resulting circuits.
+* Beyond NISQ devices: Fault-tolerant quantum architectures require decomposing the Clifford+T gate set and introducing new Clifford gate models. Distributed devices are also a common theme for realizing quantum advantage, necessitating
+algorithms targeting specifically for these devices.
 
 ## Getting Started
 
@@ -217,25 +223,30 @@ We have provided some DOFILEs, i.e., a sequence of commands, to serve as functio
   | Command | Description |
   | :-----  | :----       |
   | qcir oracle | ROS Boolean oracle synthesis flow      |
-  | ts2qc       | Gray-code unitary matrix synthesis     |
+  | convert ts qc       | Gray-code unitary matrix synthesis     |
 
 ### Gate-level Synthesis
  `qsyn` also adapt to different optimization targets by providing  different routes to synthesize low-level quantum circuits.
+
+#### Via ZX-calculus
   | Command  | Description |
   | :-----   | :----       |
   | qzq      | ZX-calculus-based synth routine            |
-  | qc2zx    | convert q. circuit to ZX-diagram           |
+  | convert qc zx    | convert quantum circuit to ZX-diagram           |
   | zx opt   | fully reduce ZX diagram                    |
-  | zx2qc    | convert ZX-diagram to q. circuit           |
+  | convert zx qc    | convert ZX-diagram to quantum circuit           |
   | qc opt   | basic optimization passes                  |
+
+#### Via Tableau
+  | Command  | Description |
+  | :-----   | :----       |
   | qtablq   | tableau-based synth routine                |
-  | qc2tabl  | convert quantum circuit to tableau         |
-  | tabl opt | full iteratively apply the following three |
-  | tabl opt | tmerge phase-merging optimization          |
-  | tabl opt | hopt internal H-gate optimization          |
-  | tabl opt | ph todd TODD optimization                  |
-  | tabl2qc  | convert tableau to quantum circuit         |
-  | sk-decompose | Solovay-Kitaev decomposition           |
+  | convert qc tabl  | convert quantum circuit to tableau         |
+  | tabl opt full | iteratively apply the following three |
+  | tabl opt tmerge | phase-merging optimization          |
+  | tabl opt hopt | internal H-gate optimization          |
+  | tabl opt ph todd | TODD optimization                  |
+  | convert tabl qc  | convert tableau to quantum circuit         |
 
 ### Device Mapping
   `qsyn` can target a wide variety of quantum devices by addressing their available gate sets and topological constraints.
