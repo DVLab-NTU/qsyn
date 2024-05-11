@@ -323,6 +323,13 @@ std::string CommandLineInterface::get_last_token(std::string_view str) const {
     return std::string{str.substr(_get_last_token_pos(str))};
 }
 
+CmdExecResult CommandLineInterface::get_last_return_status() const {
+    for (auto const& history : _history | std::views::reverse) {
+        if (history.status != CmdExecResult::quit) return history.status;
+    }
+    return CmdExecResult::done;
+}
+
 size_t CommandLineInterface::_get_first_token_pos(std::string_view str, char token) const {
     auto first_space_pos = str.find_first_of(token);
     while (first_space_pos != std::string::npos && _is_escaped(str, first_space_pos)) {

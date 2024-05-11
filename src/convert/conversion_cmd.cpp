@@ -61,11 +61,6 @@ Command convert_from_qcir_cmd(
             auto to_zxgraph =
                 subparsers.add_parser("zx")
                     .description("convert from QCir to ZXGraph");
-
-            to_zxgraph.add_argument<size_t>("decomp-mode")
-                .default_value(3)
-                .constraint(valid_decomposition_mode)
-                .help("specify the decomposition mode (default: 3). The higher the number, the more aggressive the decomposition is.");
             auto to_tensor =
                 subparsers.add_parser("tensor")
                     .description("convert from QCir to Tensor");
@@ -78,7 +73,7 @@ Command convert_from_qcir_cmd(
             auto to_type = parser.get<std::string>("to-type");
             if (to_type == "zx") {
                 spdlog::info("Converting to QCir {} to ZXGraph {}...", qcir_mgr.focused_id(), zxgraph_mgr.get_next_id());
-                auto graph = to_zxgraph(*qcir_mgr.get(), parser.get<size_t>("decomp-mode"));
+                auto graph = to_zxgraph(*qcir_mgr.get());
 
                 if (graph.has_value()) {
                     zxgraph_mgr.add(zxgraph_mgr.get_next_id(), std::make_unique<qsyn::zx::ZXGraph>(std::move(graph.value())));
@@ -94,6 +89,7 @@ Command convert_from_qcir_cmd(
                 auto tensor = to_tensor(*qcir_mgr.get());
 
                 if (tensor.has_value()) {
+                    *tensor = tensor->to_matrix();
                     tensor_mgr.add(tensor_mgr.get_next_id());
                     tensor_mgr.set(std::make_unique<qsyn::tensor::QTensor<double>>(std::move(tensor.value())));
 
@@ -146,10 +142,10 @@ Command convert_from_zx_cmd(zx::ZXGraphMgr& zxgraph_mgr, QCirMgr& qcir_mgr, tens
                     return CmdExecResult::error;
                 }
                 zx::ZXGraph target = *zxgraph_mgr.get();
-                extractor::Extractor ext(&target, nullptr, std::nullopt);
+                extractor::Extractor ext(&target, nullptr /*, std::nullopt*/);
                 qcir::QCir* result = ext.extract();
                 if (result != nullptr) {
-                    qcir_mgr.add(qcir_mgr.get_next_id(), std::make_unique<qcir::QCir>(*result));
+                    qcir_mgr.add(qcir_mgr.get_next_id(), std::unique_ptr<qcir::QCir>(result));
                     qcir_mgr.get()->set_filename(zxgraph_mgr.get()->get_filename());
                     qcir_mgr.get()->add_procedures(zxgraph_mgr.get()->get_procedures());
                     if (!extractor::PERMUTE_QUBITS) {
@@ -248,6 +244,7 @@ Command convert_from_tableau_cmd(experimental::TableauMgr& tableau_mgr, qcir::QC
                     if (dvlab::str::is_prefix_of(dvlab::str::tolower_string(clifford_strategy_str), "hopt")) return std::make_unique<experimental::HOptSynthesisStrategy>();
                     if (dvlab::str::is_prefix_of(dvlab::str::tolower_string(clifford_strategy_str), "ag")) return std::make_unique<experimental::AGSynthesisStrategy>();
                     DVLAB_UNREACHABLE("Invalid clifford strategy!!");
+                    return nullptr;
                 });
 
                 auto const rotation_strategy = std::invoke([&]() -> std::unique_ptr<experimental::PauliRotationsSynthesisStrategy> {
@@ -255,6 +252,7 @@ Command convert_from_tableau_cmd(experimental::TableauMgr& tableau_mgr, qcir::QC
                     if (dvlab::str::is_prefix_of(dvlab::str::tolower_string(rotation_strategy_str), "naive")) return std::make_unique<experimental::NaivePauliRotationsSynthesisStrategy>();
                     if (dvlab::str::is_prefix_of(dvlab::str::tolower_string(rotation_strategy_str), "tpar")) return std::make_unique<experimental::TParPauliRotationsSynthesisStrategy>();
                     DVLAB_UNREACHABLE("Invalid rotation strategy!!");
+                    return nullptr;
                 });
 
                 spdlog::info("Converting to Tableau {} to QCir {}...", tableau_mgr.focused_id(), qcir_mgr.get_next_id());

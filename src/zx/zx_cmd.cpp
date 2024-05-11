@@ -14,7 +14,6 @@
 #include "argparse/arg_parser.hpp"
 #include "cli/cli.hpp"
 #include "qsyn/qsyn_type.hpp"
-#include "util/data_structure_manager.hpp"
 #include "util/data_structure_manager_common_cmd.hpp"
 #include "zx/simplifier/simp_cmd.hpp"
 #include "zx/zx_io.hpp"
@@ -248,11 +247,15 @@ Command zxgraph_draw_cmd(ZXGraphMgr const& zxgraph_mgr) {
                     .constraint(path_writable)
                     .constraint(allowed_extension({".pdf"}))
                     .help("the output path. Supported extension: .pdf");
+
+                parser.add_argument<bool>("-a", "--adjust-coords")
+                    .action(store_true)
+                    .help("automatically adjust the coordinates");
             },
             [&](ArgumentParser const& parser) {
                 if (!dvlab::utils::mgr_has_data(zxgraph_mgr)) return CmdExecResult::error;
                 if (parser.parsed("filepath")) {
-                    zxgraph_mgr.get()->adjust_vertex_coordinates();
+                    if (parser.parsed("--adjust-coords")) zxgraph_mgr.get()->adjust_vertex_coordinates();
                     if (!zxgraph_mgr.get()->write_pdf(parser.get<std::string>("filepath"))) return CmdExecResult::error;
                 }
 
@@ -267,8 +270,8 @@ Command zxgraph_read_cmd(ZXGraphMgr& zxgraph_mgr) {
 
                 parser.add_argument<std::string>("filepath")
                     .constraint(path_readable)
-                    .constraint(allowed_extension({".zx"}))
-                    .help("path to the ZX file. Supported extensions: .zx");
+                    .constraint(allowed_extension({".zx", ".zxg"}))
+                    .help("path to the ZX file. Supported extensions: .zx, .zxg");
 
                 parser.add_argument<bool>("--keep-id")
                     .action(store_true)
@@ -284,7 +287,8 @@ Command zxgraph_read_cmd(ZXGraphMgr& zxgraph_mgr) {
                 auto const do_keep_id = parser.get<bool>("--keep-id");
                 auto const do_replace = parser.get<bool>("--replace");
                 // NOTE - Adding "const" would lead to using copy constructor in std::move
-                auto graph = from_zx(filepath, do_keep_id);
+                auto const zxg = filepath.substr(std::min(filepath.find_last_of('.'), filepath.size())) == ".zxg";
+                auto graph     = zxg ? from_json(filepath) : from_zx(filepath, do_keep_id);
                 if (!graph) {
                     return CmdExecResult::error;
                 }
@@ -312,7 +316,7 @@ Command zxgraph_write_cmd(ZXGraphMgr const& zxgraph_mgr) {
 
                 parser.add_argument<std::string>("filepath")
                     .constraint(path_writable)
-                    .constraint(allowed_extension({".zx", ".tikz", ".tex"}))
+                    .constraint(allowed_extension({".zx", ".zxg", ".tikz", ".tex"}))
                     .help("the path to the output ZX file");
 
                 parser.add_argument<bool>("--complete")
@@ -329,6 +333,11 @@ Command zxgraph_write_cmd(ZXGraphMgr const& zxgraph_mgr) {
                 if (extension == ".zx") {
                     if (!zxgraph_mgr.get()->write_zx(filepath, do_complete)) {
                         spdlog::error("Failed to write ZXGraph to \"{}\"!!", filepath);
+                        return CmdExecResult::error;
+                    }
+                } else if (extension == ".zxg") {
+                    if (!zxgraph_mgr.get()->write_json(filepath)) {
+                        spdlog::error("Failed to write json to \"{}\"!!", filepath);
                         return CmdExecResult::error;
                     }
                 } else if (extension == ".tikz") {
@@ -443,7 +452,7 @@ Command zxgraph_vertex_add_cmd(ZXGraphMgr& zxgraph_mgr) {
                 if (vertex_type == "input") {
                     auto const qid = parser.parsed("qubit")
                                          ? parser.get<QubitIdType>("qubit")
-                                         : gsl::narrow<QubitIdType>(std::ranges::max(zxgraph_mgr.get()->get_input_list() | std::views::keys) + 1);
+                                         : std::ranges::max(zxgraph_mgr.get()->get_input_list() | std::views::keys) + 1;
                     if (zxgraph_mgr.get()->is_input_qubit(qid)) {
                         spdlog::error("Input vertex for qubit {} already exists!!", qid);
                         return CmdExecResult::error;
@@ -459,7 +468,7 @@ Command zxgraph_vertex_add_cmd(ZXGraphMgr& zxgraph_mgr) {
                 if (vertex_type == "output") {
                     auto const qid = parser.parsed("qubit")
                                          ? parser.get<QubitIdType>("qubit")
-                                         : gsl::narrow<QubitIdType>(std::ranges::max(zxgraph_mgr.get()->get_output_list() | std::views::keys) + 1);
+                                         : std::ranges::max(zxgraph_mgr.get()->get_output_list() | std::views::keys) + 1;
                     if (zxgraph_mgr.get()->is_output_qubit(qid)) {
                         spdlog::error("Error: output vertex for qubit {} already exists!!", qid);
                         return CmdExecResult::error;

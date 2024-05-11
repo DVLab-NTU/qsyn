@@ -28,7 +28,7 @@ class GFlow {
 public:
     using Levels           = std::vector<ZXVertexList>;
     using CorrectionSetMap = std::unordered_map<ZXVertex*, ZXVertexList>;
-    enum class MeasurementPlane {
+    enum class MeasurementPlane : std::uint8_t {
         xy,
         yz,
         xz,

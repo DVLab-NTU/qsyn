@@ -22,7 +22,7 @@ namespace dvlab {
  * @return Rational
  */
 Rational Rational::_mediant(Rational const& lhs, Rational const& rhs) {
-    return Rational(static_cast<IntegralType>(lhs._numer + rhs._numer), static_cast<IntegralType>(lhs._denom + rhs._denom));
+    return Rational(static_cast<IntegralType>(lhs._numerator + rhs._numerator), static_cast<IntegralType>(lhs._denominator + rhs._denominator));
 }
 
 }  // namespace dvlab

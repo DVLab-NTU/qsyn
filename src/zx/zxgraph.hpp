@@ -12,7 +12,6 @@
 #include <cstddef>
 #include <filesystem>
 #include <iterator>
-#include <limits>
 #include <span>
 #include <string>
 #include <unordered_map>
@@ -22,7 +21,6 @@
 #include "qsyn/qsyn_type.hpp"
 #include "spdlog/common.h"
 #include "util/boolean_matrix.hpp"
-#include "util/phase.hpp"
 
 namespace qsyn::zx {
 
@@ -48,8 +46,6 @@ class ZXVertex {
     friend class ZXGraph;
 
 public:
-    using QubitIdType = qsyn::QubitIdType;
-
     ZXVertex(size_t id, QubitIdType qubit, VertexType vt, Phase phase, float row, float col)
         : _id{id}, _type{vt}, _qubit{qubit}, _phase{phase}, _row{row}, _col{col} {}
     // Getter and Setter
@@ -94,8 +90,6 @@ private:
 
 class ZXGraph {  // NOLINT(cppcoreguidelines-special-member-functions) : copy-swap idiom
 public:
-    using QubitIdType = ZXVertex::QubitIdType;
-
     ZXGraph() {}
 
     ~ZXGraph() {
@@ -188,13 +182,13 @@ public:
     bool has_dangling_neighbors(ZXVertex* v) const;
 
     double density();
-    inline size_t t_count() const {
+    size_t t_count() const {
         return std::ranges::count_if(_vertices, [](ZXVertex* v) { return (v->get_phase().denominator() == 4); });
     }
-    inline size_t non_clifford_count() const {
+    size_t non_clifford_count() const {
         return std::ranges::count_if(_vertices, [](ZXVertex* v) { return !v->is_clifford(); });
     }
-    inline size_t non_clifford_t_count() const { return non_clifford_count() - t_count(); }
+    size_t non_clifford_t_count() const { return non_clifford_count() - t_count(); }
 
     // Add and Remove
     ZXVertex* add_input(QubitIdType qubit, float col = 0.f);
@@ -227,7 +221,7 @@ public:
     // Action functions (zxGraphAction.cpp)
     void sort_io_by_qubit();
     void toggle_vertex(ZXVertex* v) const;
-    void lift_qubit(int n);
+    void lift_qubit(ssize_t n);
     void relabel_vertex_ids(size_t id_start) {
         std::ranges::for_each(this->_vertices, [&id_start](ZXVertex* v) { v->set_id(id_start++); });
     }
@@ -248,8 +242,6 @@ public:
     void print_vertices_by_rows(spdlog::level::level_enum lvl = spdlog::level::level_enum::off, std::vector<float> const& cand = {}) const;
     void print_edges() const;
 
-    void print_difference(ZXGraph* other) const;
-
     // For mapping (in zxMapping.cpp)
     ZXVertexList get_non_boundary_vertices();
     ZXVertex* get_input_by_qubit(size_t const& q);
@@ -260,6 +252,7 @@ public:
 
     // I/O (in zxIO.cpp)
     bool write_zx(std::filesystem::path const& filename, bool complete = false) const;
+    bool write_json(std::filesystem::path const& filename) const;
     bool write_tikz(std::string const& filename) const;
     bool write_tikz(std::ostream& os) const;
     bool write_pdf(std::string const& filename) const;

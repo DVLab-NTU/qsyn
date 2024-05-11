@@ -7,14 +7,15 @@
 
 #include "./tableau_to_qcir.hpp"
 
-#include <functional>
 #include <gsl/narrow>
 #include <tl/adjacent.hpp>
 #include <tl/to.hpp>
 
-#include "qcir/gate_type.hpp"
+#include "qcir/basic_gate_type.hpp"
 #include "qcir/qcir.hpp"
 #include "util/phase.hpp"
+
+extern bool stop_requested();
 
 namespace qsyn::experimental {
 
@@ -26,40 +27,40 @@ void add_clifford_gate(qcir::QCir& qcir, CliffordOperator const& op) {
 
     switch (type) {
         case COT::h:
-            qcir.add_gate("h", {gsl::narrow<QubitIdType>(qubits[0])}, {}, true);
+            qcir.append(qcir::HGate(), {qubits[0]});
             break;
         case COT::s:
-            qcir.add_gate("s", {gsl::narrow<QubitIdType>(qubits[0])}, {}, true);
+            qcir.append(qcir::SGate(), {qubits[0]});
             break;
         case COT::cx:
-            qcir.add_gate("cx", {gsl::narrow<QubitIdType>(qubits[0]), gsl::narrow<QubitIdType>(qubits[1])}, {}, true);
+            qcir.append(qcir::CXGate(), {qubits[0], qubits[1]});
             break;
         case COT::sdg:
-            qcir.add_gate("sdg", {gsl::narrow<QubitIdType>(qubits[0])}, {}, true);
+            qcir.append(qcir::SdgGate(), {qubits[0]});
             break;
         case COT::v:
-            qcir.add_gate("sx", {gsl::narrow<QubitIdType>(qubits[0])}, {}, true);
+            qcir.append(qcir::SXGate(), {qubits[0]});
             break;
         case COT::vdg:
-            qcir.add_gate("sxdg", {gsl::narrow<QubitIdType>(qubits[0])}, {}, true);
+            qcir.append(qcir::SXdgGate(), {qubits[0]});
             break;
         case COT::x:
-            qcir.add_gate("x", {gsl::narrow<QubitIdType>(qubits[0])}, {}, true);
+            qcir.append(qcir::XGate(), {qubits[0]});
             break;
         case COT::y:
-            qcir.add_gate("y", {gsl::narrow<QubitIdType>(qubits[0])}, {}, true);
+            qcir.append(qcir::YGate(), {qubits[0]});
             break;
         case COT::z:
-            qcir.add_gate("z", {gsl::narrow<QubitIdType>(qubits[0])}, {}, true);
+            qcir.append(qcir::ZGate(), {qubits[0]});
             break;
         case COT::cz:
-            qcir.add_gate("cz", {gsl::narrow<QubitIdType>(qubits[0]), gsl::narrow<QubitIdType>(qubits[1])}, {}, true);
+            qcir.append(qcir::CZGate(), {qubits[0], qubits[1]});
             break;
         case COT::swap:
-            qcir.add_gate("swap", {gsl::narrow<QubitIdType>(qubits[0]), gsl::narrow<QubitIdType>(qubits[1])}, {}, true);
+            qcir.append(qcir::SwapGate(), {qubits[0], qubits[1]});
             break;
         case COT::ecr:
-            qcir.add_gate("ecr", {gsl::narrow<QubitIdType>(qubits[0]), gsl::narrow<QubitIdType>(qubits[1])}, {}, true);
+            qcir.append(qcir::ECRGate(), {qubits[0], qubits[1]});
             break;
     }
 }
@@ -74,6 +75,9 @@ void add_clifford_gate(qcir::QCir& qcir, CliffordOperator const& op) {
 std::optional<qcir::QCir> to_qcir(StabilizerTableau const& clifford, StabilizerTableauSynthesisStrategy const& strategy) {
     qcir::QCir qcir{clifford.n_qubits()};
     for (auto const& op : extract_clifford_operators(clifford, strategy)) {
+        if (stop_requested()) {
+            return std::nullopt;
+        }
         add_clifford_gate(qcir, op);
     }
 
@@ -85,7 +89,7 @@ std::optional<qcir::QCir> NaivePauliRotationsSynthesisStrategy::synthesize(std::
         return qcir::QCir{0};
     }
 
-    qcir::QCir qcir{rotations.front().n_qubits()};
+    auto qcir = qcir::QCir{rotations.front().n_qubits()};
 
     for (auto const& rotation : rotations) {
         auto [ops, qubit] = extract_clifford_operators(rotation);
@@ -94,7 +98,7 @@ std::optional<qcir::QCir> NaivePauliRotationsSynthesisStrategy::synthesize(std::
             add_clifford_gate(qcir, op);
         }
 
-        qcir.add_gate("pz", {gsl::narrow<QubitIdType>(qubit)}, rotation.phase(), true);
+        qcir.append(qcir::PZGate(rotation.phase()), {qubit});
 
         adjoint_inplace(ops);
 
@@ -132,6 +136,9 @@ std::optional<qcir::QCir> to_qcir(Tableau const& tableau, StabilizerTableauSynth
     qcir::QCir qcir{tableau.n_qubits()};
 
     for (auto const& subtableau : tableau) {
+        if (stop_requested()) {
+            return std::nullopt;
+        }
         auto const qc_fragment =
             std::visit(
                 dvlab::overloaded{

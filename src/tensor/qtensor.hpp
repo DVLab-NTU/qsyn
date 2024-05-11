@@ -36,8 +36,6 @@ public:
     QTensor(xt::nested_initializer_list_t<DataType, 4> il) : Tensor<DataType>(il) {}
     QTensor(xt::nested_initializer_list_t<DataType, 5> il) : Tensor<DataType>(il) {}
 
-    ~QTensor() override = default;
-
     QTensor(TensorShape const& shape) : Tensor<DataType>(shape) {}
     QTensor(TensorShape&& shape) : Tensor<DataType>(std::move(shape)) {}
     template <typename From>
@@ -88,7 +86,7 @@ public:
     friend dvlab::Phase global_phase(QTensor<U> const& t1, QTensor<U> const& t2);
 
     template <typename U>
-    friend bool is_equivalent(QTensor<U> const& t1, QTensor<U> const& t2, double eps /* = 1e-6*/);
+    friend bool is_equivalent(QTensor<U> const& t1, QTensor<U> const& t2, U eps /* = 1e-6*/);
 
     void set_filename(std::string const& f) { _filename = f; }
     void add_procedures(std::vector<std::string> const& ps) { _procedures.insert(_procedures.end(), ps.begin(), ps.end()); }
@@ -333,8 +331,6 @@ QTensor<T> QTensor<T>::to_qtensor() const {
 
 template <typename T>
 QTensor<T> QTensor<T>::to_su2() const {
-    // std::complex<double> det = u.determinant();
-    // std::complex<double> one(1, 0);
     return std::sqrt(1.0 / this->determinant()) * this->_tensor;
 }
 
@@ -415,7 +411,7 @@ dvlab::Phase global_phase(QTensor<U> const& t1, QTensor<U> const& t2) {
 }
 
 template <typename U>
-bool is_equivalent(QTensor<U> const& t1, QTensor<U> const& t2, double eps = 1e-6) {
+bool is_equivalent(QTensor<U> const& t1, QTensor<U> const& t2, U eps = 1e-6) {
     if (t1.shape() != t2.shape()) return false;
     return cosine_similarity(t1, t2) >= (1 - eps);
 }
@@ -448,10 +444,10 @@ QTensor<T> QTensor<T>::to_matrix() {
 
     return this->to_matrix(
         std::views::iota(0ul, n_qubits) |
-            std::views::transform([](auto i) { return 2 * i + 1; }) |
+            std::views::transform([](auto i) { return 2 * i; }) |
             tl::to<std::vector>(),
         std::views::iota(0ul, n_qubits) |
-            std::views::transform([](auto i) { return 2 * i; }) |
+            std::views::transform([](auto i) { return 2 * i + 1; }) |
             tl::to<std::vector>());
 }
 

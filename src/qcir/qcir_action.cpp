@@ -5,15 +5,16 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
+#include <fmt/format.h>
+
 #include <cassert>
-#include <cstddef>
 #include <stack>
 #include <unordered_set>
 
 #include "qcir/qcir.hpp"
 #include "qcir/qcir_gate.hpp"
 #include "qcir/qcir_qubit.hpp"
-#include "util/util.hpp"
+#include "tl/to.hpp"
 
 namespace qsyn::qcir {
 
@@ -24,17 +25,11 @@ namespace qsyn::qcir {
  * @return QCir*
  */
 QCir& QCir::compose(QCir const& other) {
-    auto targ_qubits = other.get_qubits();
-    for (auto& qubit : targ_qubits) {
-        if (get_qubit(qubit->get_id()) == nullptr)
-            insert_qubit(qubit->get_id());
+    if (get_num_qubits() < other.get_num_qubits()) {
+        add_qubits(other.get_num_qubits() - get_num_qubits());
     }
     for (auto& targ_gate : other.get_gates()) {
-        QubitIdList qubits;
-        for (auto i : std::views::iota(0ul, targ_gate->get_num_qubits())) {
-            qubits.emplace_back(targ_gate->get_qubit(i));
-        }
-        add_gate(targ_gate->get_type_str(), qubits, targ_gate->get_phase(), true);
+        append(*targ_gate);
     }
     return *this;
 }
@@ -46,18 +41,15 @@ QCir& QCir::compose(QCir const& other) {
  * @return QCir*
  */
 QCir& QCir::tensor_product(QCir const& other) {
-    std::unordered_map<QubitIdType, QubitIdType> old_to_new_qubit;
-    auto targ_qubits = other.get_qubits();
-    for (auto& qubit : targ_qubits) {
-        auto q                            = push_qubit();
-        old_to_new_qubit[qubit->get_id()] = q->get_id();
-    }
+    size_t const old_num_qubits = get_num_qubits();
+    add_qubits(other.get_num_qubits());
     for (auto& targ_gate : other.get_gates()) {
-        QubitIdList qubits;
-        for (auto i : std::views::iota(0ul, targ_gate->get_num_qubits())) {
-            qubits.emplace_back(old_to_new_qubit[targ_gate->get_qubit(i)]);
-        }
-        add_gate(targ_gate->get_type_str(), qubits, targ_gate->get_phase(), true);
+        auto const old_qubits = targ_gate->get_qubits();
+        auto const qubits     = old_qubits | std::views::transform([&](auto qubit) {
+                                return qubit + old_num_qubits;
+                            }) |
+                            tl::to<QubitIdList>();
+        append(targ_gate->get_operation(), qubits);
     }
     return *this;
 }
@@ -74,7 +66,10 @@ std::vector<QCirGate*> dfs(QCir const& qcir) {
     std::vector<QCirGate*> topo_order;
     std::unordered_set<QCirGate*> visited;
 
-    for (auto const& gate : qcir.get_qubits() | std::views::transform([](auto const& q) { return q->get_first(); })) {
+    for (auto const& gate :
+         qcir.get_qubits() | std::views::transform([](auto const& q) {
+             return q.get_first_gate();
+         })) {
         if (gate != nullptr) {
             dfs_stack.emplace(false, gate);
         }
@@ -93,7 +88,8 @@ std::vector<QCirGate*> dfs(QCir const& qcir) {
         visited.insert(node);
         dfs_stack.emplace(true, node);
 
-        assert(qcir.get_successors(node->get_id()).size() == node->get_num_qubits());
+        assert(qcir.get_successors(node->get_id()).size() ==
+               node->get_num_qubits());
 
         for (auto const& succ : qcir.get_successors(node->get_id())) {
             if (succ.has_value() && !visited.contains(qcir.get_gate(succ))) {
@@ -132,14 +128,13 @@ void QCir::reset() {
     _qubits.clear();
     _gate_list.clear();
 
-    _gate_id  = 0;
-    _qubit_id = 0;
-    _dirty    = true;
+    _gate_id = 0;
+    _dirty   = true;
 }
 
-void QCir::adjoint() {
-    for (auto& g : _gate_list) {
-        g->adjoint();
+void QCir::adjoint_inplace() {
+    for (auto& g : _id_to_gates | std::views::values) {
+        g->set_operation(qsyn::qcir::adjoint(g->get_operation()));
         auto old_succs = get_successors(g->get_id());
         auto old_preds = get_predecessors(g->get_id());
         _set_successors(g->get_id(), old_preds);
@@ -147,13 +142,27 @@ void QCir::adjoint() {
     }
 
     for (auto& q : _qubits) {
-        auto first = q->get_first();
-        auto last  = q->get_last();
-        q->set_first(last);
-        q->set_last(first);
+        auto first = q.get_first_gate();
+        auto last  = q.get_last_gate();
+        q.set_first_gate(last);
+        q.set_last_gate(first);
     }
 
     _dirty = true;
+}
+
+void QCir::concat(
+    QCir const& other,
+    std::map<QubitIdType /* new */, QubitIdType /* orig */> const& qubit_map) {
+    for (auto const& new_gate : other.get_gates()) {
+        auto const tmp =
+            new_gate->get_qubits();  // circumvent g++ 11.4 compilation bug
+        auto const qubits = tmp | std::views::transform([&qubit_map](auto const& qubit) {
+                                return qubit_map.at(qubit);
+                            }) |
+                            tl::to<std::vector>();
+        append(new_gate->get_operation(), qubits);
+    }
 }
 
 }  // namespace qsyn::qcir

@@ -120,31 +120,31 @@ private:
         Model(ArgT val)
             : inner(std::move(val)) {}
 
-        inline std::unique_ptr<Concept> clone() const override { return std::make_unique<Model>(*this); }
+        std::unique_ptr<Concept> clone() const override { return std::make_unique<Model>(*this); }
 
-        inline std::string do_get_type_string() const override {
+        std::string do_get_type_string() const override {
             using V = typename std::remove_cv<typename decltype(inner._values)::value_type>::type;
             return type_string(V{});
         }
-        inline std::string const& do_get_name() const override { return inner._name; }
-        inline std::optional<std::string> const& do_get_usage() const override { return inner._usage; }
-        inline std::string const& do_get_help() const override { return inner._help; }
-        inline std::string const& do_get_metavar() const override { return inner._metavar; }
-        inline NArgsRange const& do_get_nargs() const override { return inner._nargs; }
-        inline bool do_is_parsed() const override { return inner._parsed; }
-        inline void do_mark_as_parsed() override { inner._parsed = true; }
+        std::string const& do_get_name() const override { return inner._name; }
+        std::optional<std::string> const& do_get_usage() const override { return inner._usage; }
+        std::string const& do_get_help() const override { return inner._help; }
+        std::string const& do_get_metavar() const override { return inner._metavar; }
+        NArgsRange const& do_get_nargs() const override { return inner._nargs; }
+        bool do_is_parsed() const override { return inner._parsed; }
+        void do_mark_as_parsed() override { inner._parsed = true; }
 
-        inline bool do_has_default_value() const override { return inner._default_value.has_value(); }
-        inline bool do_is_required() const override { return inner._required; }
-        inline bool do_is_help_action() const override { return inner._is_help_action; }
-        inline bool do_is_version_action() const override { return inner._is_version_action; }
-        inline bool do_is_constraints_satisfied() const override { return inner.is_constraints_satisfied(); }
+        bool do_has_default_value() const override { return inner._default_value.has_value(); }
+        bool do_is_required() const override { return inner._required; }
+        bool do_is_help_action() const override { return inner._is_help_action; }
+        bool do_is_version_action() const override { return inner._is_version_action; }
+        bool do_is_constraints_satisfied() const override { return inner.is_constraints_satisfied(); }
 
-        inline std::string do_to_string() const override { return fmt::format("{}", inner); }
+        std::string do_to_string() const override { return fmt::format("{}", inner); }
 
-        inline bool do_take_action(TokensSpan tokens) override { return inner.take_action(tokens); }
-        inline void do_set_value_to_default() override { return inner.set_value_to_default(); }
-        inline void do_reset() override { inner.reset(); }
+        bool do_take_action(TokensSpan tokens) override { return inner.take_action(tokens); }
+        void do_set_value_to_default() override { return inner.set_value_to_default(); }
+        void do_reset() override { inner.reset(); }
     };
 
     std::unique_ptr<Concept> _pimpl;
