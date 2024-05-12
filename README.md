@@ -117,7 +117,7 @@ Visualization functionalities of `qsyn` depend at runtime on the following depen
 
   ```sh
    ❯ ./qsyn
-   qsyn v0.6.3 - Copyright © 2022-2024, DVLab NTUEE.
+   qsyn v0.7.0 - Copyright © 2022-2024, DVLab NTUEE.
    Licensed under Apache 2.0 License.
    qsyn>
   ```
@@ -138,7 +138,7 @@ Visualization functionalities of `qsyn` depend at runtime on the following depen
 
   ```sh
   ❯ ./qsyn -v examples/synth.dof
-  qsyn v0.6.3 - DVLab NTUEE.
+  qsyn v0.7.0 - DVLab NTUEE.
   Licensed under Apache 2.0 License.
   qsyn> qcir read benchmark/zx/tof3.zx
   ```
