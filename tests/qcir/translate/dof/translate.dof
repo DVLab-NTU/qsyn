@@ -1,0 +1,19 @@
+qcir qubit add 2
+qcir gate add cx 0 1
+qcir gate add h 0
+qcir gate add h 1
+qcir gate add cx 1 0
+qcir print -g
+qcir translate sherbrooke
+qcir print -g
+qcir opt -t
+qcir print -g
+qcir translate prague
+qcir print -g
+qcir opt -t
+qcir print -g
+qcir translate kyiv
+qcir print -g
+qcir translate kyiv
+qcir print -g
+quit -f
