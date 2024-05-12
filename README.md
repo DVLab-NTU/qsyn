@@ -254,7 +254,7 @@ We have provided some DOFILEs, i.e., a sequence of commands, to serve as functio
   | :-----       | :----       |
   | device read  | read info about a quantum device       |
   | qc translate | library-based technology mapping       |
-  | qc opt       |-t technology-aware optimization passes |
+  | qc opt -t    | technology-aware optimization passes |
   | duostra  | Duostra qubit mapping for depth or #SWAPs  |
 
 
@@ -265,8 +265,8 @@ We have provided some DOFILEs, i.e., a sequence of commands, to serve as functio
   | `<dt>` list           | list all `<dt>`s                  |
   | `<dt>` checkout       | switch focus between `<dt>`s      |  
   | `<dt>` print          | print `<dt>` information          |
-  | `<dt>` new/delete     | add a new/delete a `<dt>`         |
-  | `<dt>` read/write     | read and write `<dt>`             |
+  | `<dt>` <new \| delete>     | add a new/delete a `<dt>`         |
+  | `<dt>` <read \| write>     | read and write `<dt>`             |
   | `<dt>` equiv          | verify equivalence of two `<dt>`s |
   | `<dt>` draw           | render visualization of `<dt>`    |
   | convert `<dt1>` `<dt2>` | convert from `<dt1>` to `<dt2>`     |
