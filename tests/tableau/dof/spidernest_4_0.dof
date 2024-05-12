@@ -1,7 +1,7 @@
 qcir read benchmark/qasm/spidernest_4_0.qasm
-convert qcir tabl
-tabl print
-tabl opt phasepoly todd
-tabl print
-convert tabl qcir
+convert qcir tableau
+tableau print
+tableau opt phasepoly todd
+tableau print
+convert tableau qcir
 qcir print --stat

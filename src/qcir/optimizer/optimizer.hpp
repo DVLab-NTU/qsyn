@@ -31,10 +31,9 @@ public:
     void reset(QCir const& qcir);
 
     // Predicate function && Utils
-    bool is_single_z_rotation(QCirGate const& g);
-    bool is_single_x_rotation(QCirGate const& g);
-    bool is_cx_or_cz_gate(QCirGate const& g);
-    std::optional<size_t> get_available_z_rotation(QubitIdType t);
+    bool is_single_z_rotation(QCirGate const& g) const;
+    bool is_single_x_rotation(QCirGate const& g) const;
+    std::optional<size_t> get_available_z_rotation(QubitIdType t) const;
 
     // basic optimization
     struct BasicOptimizationConfig {
@@ -111,8 +110,6 @@ private:
 
     // trivial optimization subroutines
 
-    std::vector<QCirGate*> _get_first_layer_gates(QCir& qcir, bool from_last = false);
-    void _cancel_cx_or_cz(QCir& qcir, QCirGate* prev_gate, QCirGate* gate);
     void _fuse_z_phase(QCir& qcir, QCirGate* prev_gate, QCirGate* gate);
     void _fuse_x_phase(QCir& qcir, QCirGate* prev_gate, QCirGate* gate);
     void _partial_zx_optimization(QCir& qcir);

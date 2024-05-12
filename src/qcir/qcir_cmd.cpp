@@ -22,6 +22,7 @@
 #include "./qcir_gate.hpp"
 #include "./qcir_io.hpp"
 #include "./qcir_mgr.hpp"
+#include "./qcir_translate.hpp"
 #include "argparse/arg_parser.hpp"
 #include "argparse/arg_type.hpp"
 #include "cli/cli.hpp"
@@ -654,11 +655,14 @@ dvlab::Command qcir_translate_cmd(QCirMgr& qcir_mgr) {
                                                                 "kyiv", "prague"});
             },
             [=, &qcir_mgr](ArgumentParser const& parser) {
-                QCir translated_qcir;
-                auto gate_set = parser.get<std::string>("gate_set");
-                translated_qcir.translate(*qcir_mgr.get(), gate_set);
+                auto const gate_set  = parser.get<std::string>("gate_set");
+                auto translated_qcir = translate(*qcir_mgr.get(), gate_set);
+                if (!translated_qcir) {
+                    spdlog::error("Translation fails!!");
+                    return CmdExecResult::error;
+                }
                 std::string const filename = qcir_mgr.get()->get_filename();
-                qcir_mgr.set(std::make_unique<QCir>(std::move(translated_qcir)));
+                qcir_mgr.set(std::make_unique<QCir>(*std::move(translated_qcir)));
                 qcir_mgr.get()->set_filename(filename);
                 return CmdExecResult::done;
             }};

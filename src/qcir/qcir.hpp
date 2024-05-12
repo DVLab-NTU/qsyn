@@ -144,8 +144,6 @@ public:
 
     void print_gate_statistics(bool detail = false) const;
 
-    void translate(QCir const& qcir, std::string const& gate_set);
-
     void update_gate_time() const;
     void print_zx_form_topological_order();
 
@@ -153,9 +151,9 @@ public:
 
     bool print_topological_order();
 
-    void concat(
-        QCir const& other,
-        std::map<QubitIdType /* new */, QubitIdType /* orig */> const& qubit_map);
+    void
+    concat(QCir const& other,
+           std::map<QubitIdType /* new */, QubitIdType /* orig */> const& qubit_map);
 
     // Member functions about circuit reporting
     void print_gates(bool print_neighbors       = false,
@@ -166,14 +164,19 @@ public:
         spdlog::level::level_enum lvl = spdlog::level::off) const;
     void print_qcir_info() const;
 
-    std::optional<size_t> get_predecessor(std::optional<size_t> gate_id,
-                                          size_t pin) const;
-    std::optional<size_t> get_successor(std::optional<size_t> gate_id,
-                                        size_t pin) const;
+    std::optional<size_t>
+    get_predecessor(std::optional<size_t> gate_id, size_t pin) const;
+    std::optional<size_t>
+    get_successor(std::optional<size_t> gate_id, size_t pin) const;
     std::vector<std::optional<size_t>>
     get_predecessors(std::optional<size_t> gate_id) const;
     std::vector<std::optional<size_t>>
     get_successors(std::optional<size_t> gate_id) const;
+
+    QCirGate*
+    get_first_gate(QubitIdType qubit) const;
+    QCirGate*
+    get_last_gate(QubitIdType qubit) const;
 
     // additional APIs to make qcir::QCir an qcir::Operation
     std::string get_type() const { return "qcir"; }
