@@ -108,7 +108,7 @@ Command convert_from_qcir_cmd(
 
                     tableau_mgr.get()->set_filename(qcir_mgr.get()->get_filename());
                     tableau_mgr.get()->add_procedures(qcir_mgr.get()->get_procedures());
-                    tableau_mgr.get()->add_procedure("QC2TB");
+                    tableau_mgr.get()->add_procedure("QC2TABL");
                 }
                 return CmdExecResult::done;
             }
@@ -263,7 +263,7 @@ Command convert_from_tableau_cmd(experimental::TableauMgr& tableau_mgr, qcir::QC
 
                     qcir_mgr.get()->set_filename(tableau_mgr.get()->get_filename());
                     qcir_mgr.get()->add_procedures(tableau_mgr.get()->get_procedures());
-                    qcir_mgr.get()->add_procedure("TB2QC");
+                    qcir_mgr.get()->add_procedure("TABL2QC");
                 }
 
                 return CmdExecResult::done;
@@ -330,8 +330,8 @@ bool add_conversion_cmds(dvlab::CommandLineInterface& cli, QCirMgr& qcir_mgr, qs
           cli.add_alias("zx2ts", "convert zx tensor") &&
           cli.add_alias("zx2qc", "convert zx qcir") &&
           cli.add_alias("ts2qc", "convert tensor qcir") &&
-          cli.add_alias("qc2tb", "convert qcir tableau") &&
-          cli.add_alias("tb2qc", "convert tableau qcir"))) {
+          cli.add_alias("qc2tabl", "convert qcir tableau") &&
+          cli.add_alias("tabl2qc", "convert tableau qcir"))) {
         fmt::println(stderr, "Registering \"conversion\" commands fails... exiting");
         return false;
     }

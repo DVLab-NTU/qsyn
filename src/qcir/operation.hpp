@@ -179,4 +179,10 @@ private:
     std::unique_ptr<Concept> _pimpl;
 };
 
+struct OperationHash {
+    inline size_t operator()(Operation const& op) const {
+        return std::hash<std::string>{}(op.get_repr());
+    }
+};
+
 }  // namespace qsyn::qcir

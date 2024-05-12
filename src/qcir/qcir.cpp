@@ -527,27 +527,26 @@ void QCir::print_gate_statistics(bool detail) const {
     fmt::println("Others     : {}", fmt_ext::styled_if_ansi_supported(other, fmt::fg((other > 0) ? fmt::terminal_color::red : fmt::terminal_color::green) | fmt::emphasis::bold));
 }
 
-void QCir::translate(QCir const& qcir, std::string const& gate_set) {
-    add_qubits(qcir.get_num_qubits());
-    Equivalence equivalence = EQUIVALENCE_LIBRARY[gate_set];
-    for (auto const* cur_gate : qcir.get_gates()) {
-        std::string const type = cur_gate->get_type_str();
+/**
+ * @brief Get the first gate at the qubit
+ *
+ * @param qubit
+ * @return QCirGate*
+ */
+QCirGate*
+QCir::get_first_gate(QubitIdType qubit) const {
+    return _qubits[qubit].get_first_gate();
+}
 
-        if (!equivalence.contains(type)) {
-            this->append(*cur_gate);
-            continue;
-        }
-
-        for (auto const& [gate_type, gate_qubit_list, gate_phase] : equivalence[type]) {
-            QubitIdList gate_qubit_id_list;
-            for (auto qubit_num : gate_qubit_list) {
-                gate_qubit_id_list.emplace_back(cur_gate->get_qubit(qubit_num));
-            }
-            if (auto op = str_to_operation(gate_type); op.has_value())
-                this->append(*op, gate_qubit_id_list);
-        }
-    }
-    set_gate_set(gate_set);
+/**
+ * @brief Get the last gate at the qubit
+ *
+ * @param qubit
+ * @return QCirGate*
+ */
+QCirGate*
+QCir::get_last_gate(QubitIdType qubit) const {
+    return _qubits[qubit].get_last_gate();
 }
 
 bool is_clifford(qcir::QCir const& qcir) {

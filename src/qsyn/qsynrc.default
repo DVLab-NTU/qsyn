@@ -41,9 +41,12 @@ alias dvr "device read"
 alias dvp "device print"
 alias dvco "device checkout"
 
+alias tabl "tableau" // allows you to use `tabl` instead of `tableau`
+
 // aliasing the `quit` command to `q` for convenience
 alias q quit
 
 // lazy-man synthesis
 alias qzq "convert qcir zx; zx optimize --full; convert zx qcir; qcir optimize"
+alias qtablq "convert qcir tabl; tabl optimize full; convert tabl qcir; qcir optimize"
 )"
