@@ -10,6 +10,7 @@
 #include "../qcir.hpp"
 #include "../qcir_gate.hpp"
 #include "../qcir_qubit.hpp"
+#include "qcir/basic_gate_type.hpp"
 #include "qsyn/qsyn_type.hpp"
 
 namespace qsyn::qcir {
@@ -112,7 +113,7 @@ void Optimizer::_swap_element(Optimizer::ElementType type, QubitIdType e1, Qubit
  * @return true
  * @return false
  */
-bool Optimizer::is_single_z_rotation(QCirGate const& g) {
+bool Optimizer::is_single_z_rotation(QCirGate const& g) const {
     return g.get_operation().is<PZGate>() || g.get_operation().is<RZGate>();
 }
 
@@ -123,19 +124,8 @@ bool Optimizer::is_single_z_rotation(QCirGate const& g) {
  * @return true
  * @return false
  */
-bool Optimizer::is_single_x_rotation(QCirGate const& g) {
+bool Optimizer::is_single_x_rotation(QCirGate const& g) const {
     return g.get_operation().is<PXGate>() || g.get_operation().is<RXGate>();
-}
-
-/**
- * @brief Is double qubit gate
- *
- * @param g
- * @return true
- * @return false
- */
-bool Optimizer::is_cx_or_cz_gate(QCirGate const& g) {
-    return g.get_operation() == CXGate() || g.get_operation() == CZGate();
 }
 
 /**
@@ -144,7 +134,7 @@ bool Optimizer::is_cx_or_cz_gate(QCirGate const& g) {
  * @param target which qubit
  * @return QCirGate*
  */
-std::optional<size_t> Optimizer::get_available_z_rotation(QubitIdType target) {
+std::optional<size_t> Optimizer::get_available_z_rotation(QubitIdType target) const {
     for (auto& g : _available_gates[target]) {
         if (is_single_z_rotation(_storage[g])) {
             return g;
