@@ -24,7 +24,7 @@ endif()
 project(
   ${QSYN_PROJECT_NAME}
   LANGUAGES CXX
-  VERSION 0.6.3)
+  VERSION 0.7.0)
 
 # find_package(OpenMP REQUIRED)
 

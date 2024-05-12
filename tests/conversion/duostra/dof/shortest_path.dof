@@ -1,5 +1,5 @@
 qcir read benchmark/SABRE/large/cm82a_208.qasm
-device read benchmark/topology/guadalupe.layout 
+device read benchmark/topology/guadalupe_16.layout 
 qcir print --statistics
 duostra config --depth 2 --single-immediate true
 duostra config --router shortest_path
