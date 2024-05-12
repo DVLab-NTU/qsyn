@@ -1,6 +1,6 @@
 qsyn> qcir read benchmark/SABRE/large/cm82a_208.qasm
 
-qsyn> device read benchmark/topology/guadalupe.layout 
+qsyn> device read benchmark/topology/guadalupe_16.layout 
 
 qsyn> qcir print --statistics
 QCir (16 qubits, 650 gates)
