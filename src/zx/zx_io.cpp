@@ -480,7 +480,6 @@ std::optional<ZXGraph> build_graph_from_json(nlohmann::json const& data) {
     for (auto const& [edge_id_str, info] : data["undir_edges"].items()) {
         if (info["src"].get<std::string>().substr(0, 1) == "b") {
             if (vertex_storage[info["src"].get<std::string>()]->get_col() < vertex_storage[info["tgt"].get<std::string>()]->get_col()) {
-                fmt::println("{}, {}", vertex_storage[info["src"].get<std::string>()]->get_col(), vertex_storage[info["tgt"].get<std::string>()]->get_col());
                 input_order.emplace_back(info["src"], vertex_storage[info["src"].get<std::string>()]);
             } else {
                 output_order.emplace_back(info["src"], vertex_storage[info["src"].get<std::string>()]);
