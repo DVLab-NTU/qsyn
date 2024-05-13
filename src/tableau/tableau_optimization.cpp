@@ -98,12 +98,16 @@ private:
 void collapse(Tableau& tableau) {
     size_t const n_qubits = tableau.n_qubits();
 
-    if (tableau.size() <= 1) return;
+    if (tableau.is_empty()) {
+        return;
+    }
 
     // prepend a stabilizer tableau to the front if the first sub-tableau is a list of PauliRotations
     if (std::holds_alternative<std::vector<PauliRotation>>(tableau.front())) {
         tableau.insert(tableau.begin(), StabilizerTableau{n_qubits});
     }
+
+    if (tableau.size() <= 1) return;
 
     // make all clifford operators to be the identity except the first one
     auto clifford_string = CliffordOperatorString{};

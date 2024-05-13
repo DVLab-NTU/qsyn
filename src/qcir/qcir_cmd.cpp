@@ -7,6 +7,7 @@
 
 #include "qcir/qcir_cmd.hpp"
 
+#include <fmt/color.h>
 #include <fmt/ostream.h>
 #include <spdlog/spdlog.h>
 
@@ -19,6 +20,7 @@
 #include "./optimizer/optimizer_cmd.hpp"
 #include "./oracle/oracle_cmd.hpp"
 #include "./qcir.hpp"
+#include "./qcir_equiv.hpp"
 #include "./qcir_gate.hpp"
 #include "./qcir_io.hpp"
 #include "./qcir_mgr.hpp"
@@ -30,6 +32,7 @@
 #include "util/data_structure_manager_common_cmd.hpp"
 #include "util/dvlab_string.hpp"
 #include "util/phase.hpp"
+#include "util/text_format.hpp"
 #include "util/util.hpp"
 
 using namespace dvlab::argparse;
@@ -668,6 +671,61 @@ dvlab::Command qcir_translate_cmd(QCirMgr& qcir_mgr) {
             }};
 }
 
+Command qcir_equiv_cmd(QCirMgr& qcir_mgr) {
+    return {
+        "equiv",
+        [&](ArgumentParser& parser) {
+            parser.description(
+                "check if two circuits are equivalent. A Tableau-based "
+                "method is used to check the equivalence. If that fails, "
+                "and the circuits are small enough, also verify the "
+                "equivalence are through tensor calculation.");
+
+            parser.add_argument<size_t>("ids")
+                .nargs(1, 2)
+                .constraint(valid_qcir_id(qcir_mgr))
+                .help("Compare the two QCirs. If only one is specified, compare with the QCir in focus");
+        },
+        [&](ArgumentParser const& parser) {
+            if (!dvlab::utils::mgr_has_data(qcir_mgr))
+                return CmdExecResult::error;
+
+            auto const ids = parser.get<std::vector<size_t>>("ids");
+
+            if ((ids.size() == 2 && ids[0] == ids[1]) ||
+                (ids.size() == 1 && qcir_mgr.focused_id() == ids[0])) {
+                spdlog::info("Note: comparing the same circuit...");
+            }
+            auto const is_equiv = [&]() -> bool {
+                if (ids.size() == 1) {
+                    return is_equivalent(
+                        *qcir_mgr.get(),
+                        *qcir_mgr.find_by_id(ids[0]));
+                } else {
+                    return is_equivalent(
+                        *qcir_mgr.find_by_id(ids[0]),
+                        *qcir_mgr.find_by_id(ids[1]));
+                }
+            }();
+
+            if (is_equiv) {
+                fmt::println(
+                    "{}",
+                    dvlab::fmt_ext::styled_if_ansi_supported(
+                        "The two circuits are equivalent!!",
+                        fmt::fg(fmt::terminal_color::green) | fmt::emphasis::bold));
+            } else {
+                fmt::println(
+                    "{}",
+                    dvlab::fmt_ext::styled_if_ansi_supported(
+                        "The two circuits are not equivalent!!",
+                        fmt::fg(fmt::terminal_color::red) | fmt::emphasis::bold));
+            }
+
+            return CmdExecResult::done;
+        }};
+};
+
 Command qcir_cmd(QCirMgr& qcir_mgr) {
     auto cmd = dvlab::utils::mgr_root_cmd(qcir_mgr);
 
@@ -690,6 +748,7 @@ Command qcir_cmd(QCirMgr& qcir_mgr) {
     cmd.add_subcommand("qcir-cmd-group", qcir_optimize_cmd(qcir_mgr));
     cmd.add_subcommand("qcir-cmd-group", qcir_translate_cmd(qcir_mgr));
     cmd.add_subcommand("qcir-cmd-group", qcir_oracle_cmd(qcir_mgr));
+    cmd.add_subcommand("qcir-cmd-group", qcir_equiv_cmd(qcir_mgr));
     return cmd;
 }
 
