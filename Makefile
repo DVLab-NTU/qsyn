@@ -1,7 +1,23 @@
+UNAME_S := $(shell uname -s)
+
+# Default target on Linux
+ifeq ($(UNAME_S), Linux)
+RELEASE_TARGET := build-g++
+DEBUG_TARGET := debug-g++
+endif
+
+# Default target on macOS (Darwin)
+ifeq ($(UNAME_S), Darwin)
+RELEASE_TARGET := build-clang++
+DEBUG_TARGET := debug-clang++
+endif
+
 all: build
 
-build:
-	cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -DCMAKE_BUILD_TYPE=Release
+build: $(RELEASE_TARGET)
+
+build-g++:
+	cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=$(shell which g++)
 	$(MAKE) -C build
 
 # force macos to use the clang++ installed by brew instead of the default one
@@ -14,8 +30,10 @@ build-clang++:
 build-docker:
 	docker build -f docker/dev.Dockerfile -t qsyn-local .
 
-debug:
-	cmake -S . -B debug -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -DCMAKE_BUILD_TYPE=Debug
+debug: $(DEBUG_TARGET)
+
+debug-g++:
+	cmake -S . -B debug -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=$(shell which g++)
 	$(MAKE) -C debug
 
 # force macos to use the clang++ installed by brew instead of the default one
@@ -54,9 +72,13 @@ clean:
 	rm -rf build
 	rm -f qsyn
 
+clean-debug:
+	rm -rf debug
+	rm -f qsyn-debug
+
 clean-docker:
 	docker container prune -f
 	docker rmi qsyn-test-gcc -f
 	docker rmi qsyn-test-clang -f
 
-.PHONY: all build build-clang++ debug debug-clang++ test test-docker test-update lint publish clean clean-docker
+.PHONY: all build build-g++ build-clang++ debug debug-g++ debug-clang++ test test-docker test-update lint publish clean clean-debug clean-docker
