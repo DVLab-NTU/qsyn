@@ -10,8 +10,7 @@
 
 ![](https://i.imgur.com/wKg5cQO.jpg)
 
-<!-- ![example branch parameter](https://github.com/DVLab-NTU/qsyn/actions/workflows/build-and-test.yml/badge.svg)
- -->
+<!-- ![example branch parameter](https://github.com/DVLab-NTU/qsyn/actions/workflows/build-and-test.yml/badge.svg) -->
 
 ## Overview
 
@@ -40,7 +39,7 @@ Some of the future work for Qsyn includes:
 
 Clone the repository to your local machine by running
 
-```shell!
+```sh
 git clone https://github.com/DVLab-NTU/qsyn.git
 cd qsyn
 ```
@@ -49,7 +48,7 @@ Then, follow the instructions below to install the dependencies and build `qsyn`
 
 Alternatively, you can try out `qsyn` in a containerized environment by running
 
-```shell!
+```sh
 docker run -it --rm dvlab/qsyn:latest
 ```
 
@@ -193,7 +192,7 @@ Of course, this requires you to have Docker installed on your machine.
   To run the commands in the above file, supply the script’s file path and arguments after ./qsyn :
 
   ```sh
-   ./qsyn examples/zxopt.qsyn benchmark/SABRE/large/adr4_197.qasm
+  ./qsyn examples/zxopt.qsyn benchmark/SABRE/large/adr4_197.qasm
   ```
 
   This runs the ZX-calculus-based synthesis on the circuit in `benchmark/SABRE/large/adr4_197.qasm`.
