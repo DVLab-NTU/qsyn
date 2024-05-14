@@ -27,14 +27,14 @@ namespace qsyn::zx {
 class ZXVertex;
 class ZXGraph;
 
-enum class VertexType {
+enum class VertexType : std::uint8_t {
     boundary,
     z,
     x,
     h_box
 };
 
-enum class EdgeType {
+enum class EdgeType : std::uint8_t {
     simple,
     hadamard
 };
@@ -92,20 +92,6 @@ struct ZXCutEqual {
 };
 
 using ZXCutSet = dvlab::utils::ordered_hashset<ZXCut, ZXCutHash, ZXCutEqual>;
-
-namespace detail {
-
-struct VertexInfo {
-    char type         = 'Z';
-    QubitIdType qubit = 0;
-    float column      = 0.0f;
-    std::vector<std::pair<char, size_t>> neighbors;
-    Phase phase;
-};
-
-using StorageType = dvlab::utils::ordered_hashmap<size_t, VertexInfo>;
-
-}  // namespace detail
 
 //------------------------------------------------------------------------
 //   Define hashes

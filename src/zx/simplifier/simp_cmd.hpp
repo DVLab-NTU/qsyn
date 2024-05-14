@@ -12,7 +12,8 @@
 
 namespace qsyn::zx {
 
-dvlab::Command zxgraph_optimize_cmd(ZXGraphMgr &zxgraph_mgr);
-dvlab::Command zxgraph_rule_cmd(ZXGraphMgr &zxgraph_mgr);
+dvlab::Command zxgraph_optimize_cmd(ZXGraphMgr& zxgraph_mgr);
+dvlab::Command zxgraph_rule_cmd(ZXGraphMgr& zxgraph_mgr);
+dvlab::Command zxgraph_manual_apply_cmd(ZXGraphMgr& zxgraph_mgr);
 
 }  // namespace qsyn::zx

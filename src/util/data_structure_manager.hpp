@@ -69,7 +69,7 @@ public:
 
     size_t get_next_id() const { return _next_id; }
 
-    T* get() const { return _list.at(_focused_id).get(); }
+    T* get() const { return size() ? _list.at(_focused_id).get() : nullptr; }
 
     void set_by_id(size_t id, std::unique_ptr<T> t) {
         if (_list.contains(id)) {
@@ -107,21 +107,22 @@ public:
     }
 
     void remove(size_t id) {
+        // Signal focused id
+        id = id == SIZE_MAX ? _focused_id : id;
         if (!_list.contains(id)) {
             _print_id_does_not_exist_error_msg();
             return;
         }
-
         _list.erase(id);
         spdlog::info("Successfully removed {0} {1}", _type_name, id);
 
         if (this->size() && _focused_id == id) {
+            fmt::println("Note: Focused graph is deleted. Checked out to {} 0", _type_name);
             checkout(0);
         }
         if (this->empty()) {
             fmt::println("Note: The {} list is empty now", _type_name);
         }
-        return;
     }
 
     void checkout(size_t id) {

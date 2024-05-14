@@ -15,7 +15,7 @@ class Phase;
 }
 
 namespace qsyn {
-using QubitIdType           = int;
+using QubitIdType           = std::size_t;
 constexpr auto max_qubit_id = std::numeric_limits<QubitIdType>::max();
 constexpr auto min_qubit_id = std::numeric_limits<QubitIdType>::min();
 using QubitIdList           = std::vector<QubitIdType>;

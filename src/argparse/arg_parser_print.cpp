@@ -110,28 +110,36 @@ std::string styled_parser_name_trace(ArgumentParser const& parser) {
  * @return string
  */
 std::string get_syntax(ArgumentParser const& parser, Argument const& arg) {
-    std::string ret   = "";
-    NArgsRange nargs  = arg.get_nargs();
-    auto usage_string = arg.get_usage().has_value()
-                            ? arg.get_usage().value()
-                            : fmt::format("{}{} {}{}", required_styled("<"), type_styled(arg.get_type_string()), metavar_styled(arg.get_metavar()), required_styled(">"));
+    std::string ret        = "";
+    NArgsRange const nargs = arg.get_nargs();
+    if (arg.get_usage().has_value()) {
+        return arg.get_usage().value();
+    }
+    auto const usage_string =
+        fmt::format("{}{} {}{}",
+                    required_styled("<"),
+                    type_styled(arg.get_type_string()),
+                    metavar_styled(arg.get_metavar()),
+                    required_styled(">"));
 
-    bool const is_required = arg.is_required();
+    auto count = nargs.lower;
 
+    while (count > 0) {
+        count--;
+    }
+    for (auto i : std::views::iota(0ul, nargs.lower)) {
+        ret += fmt::format("{}{}", usage_string, i == nargs.lower - 1 ? "" : " ");
+    }
     if (nargs.upper == SIZE_MAX) {
-        if (nargs.lower == 0 || !is_required)
-            ret = option_styled("[") + usage_string + option_styled("]") + "...";
-        else {
-            auto repeat_view = std::views::iota(0u, nargs.lower) | std::views::transform([&usage_string](size_t /*i*/) { return usage_string; });
-            ret              = fmt::format("{}...", fmt::join(repeat_view, " "));
-        }
+        ret += fmt::format("{}{}{}...", option_styled("["), usage_string, option_styled("]"));
     } else {
-        auto repeat_view = std::views::iota(0u, nargs.upper) | std::views::transform([&usage_string, &nargs, &is_required](size_t i) { return (i < nargs.lower && is_required) ? usage_string : (option_styled("[") + usage_string + option_styled("]")); });
-        ret              = fmt::format("{}", fmt::join(repeat_view, " "));
+        for (auto i : std::views::iota(nargs.lower, nargs.upper)) {
+            ret += fmt::format("{}{}{}{}", option_styled("["), usage_string, option_styled("]"), i == nargs.upper - 1 ? "" : " ");
+        }
     }
 
     if (arg.is_option()) {
-        ret = styled_arg_name(parser, arg) + (ret.size() ? (" " + ret) : "");
+        ret = styled_arg_name(parser, arg) + (!ret.empty() ? (" " + ret) : "");
     }
 
     return ret;
@@ -161,7 +169,7 @@ std::string get_syntax(ArgumentParser parser, MutuallyExclusiveGroup const& grou
 std::string wrap_text(std::string_view str, size_t max_help_width) {
     if (!dvlab::utils::is_terminal()) return std::string{str};
     auto lines = dvlab::str::views::split_to_string_views(str, '\n') | tl::to<std::vector>();
-
+    max_help_width--;
     // NOTE - the following code modifies the vector while iterating over it.
     //        don't use range-based for loop here.
     for (size_t i = 0; i < lines.size(); ++i) {
@@ -187,7 +195,7 @@ std::string wrap_text(std::string_view str, size_t max_help_width) {
  * @param arg
  */
 void tabulate_help_string(ArgumentParser const& parser, fort::utf8_table& table, size_t max_help_string_width, Argument const& arg) {
-    auto usage_string = arg.get_usage().has_value() ? arg.get_usage().value() : metavar_styled(arg.get_metavar());
+    auto usage_string = arg.get_usage().value_or(metavar_styled(arg.get_metavar()));
 
     table << type_styled(arg.get_nargs().upper > 0 ? arg.get_type_string() : "flag");
     if (arg.is_option()) {
@@ -275,23 +283,23 @@ void ArgumentParser::print_help() const {
 
     print_usage();
 
-    if (get_description().size()) {
+    if (!get_description().empty()) {
         fmt::println("\n{}", section_header_styled("Description:"));
         fmt::println("  {}", get_description());
     }
 
-    auto get_max_length = [this](std::function<size_t(Argument const&)> const fn) {
+    auto const get_max_length = [this](std::function<size_t(Argument const&)> const& fn) {
         return _pimpl->arguments.empty() ? 0 : std::ranges::max(_pimpl->arguments | std::views::values | std::views::transform(fn));
     };
 
-    constexpr auto left_margin             = 1;
-    constexpr auto left_right_cell_padding = 2;
-    constexpr auto total_padding           = left_margin + 3 * left_right_cell_padding;
-    auto max_help_string_width =
+    constexpr auto left_margin   = 2;
+    constexpr auto cell_padding  = 2;
+    constexpr auto total_padding = left_margin + 3 * cell_padding;
+    auto const max_help_string_width =
         dvlab::utils::get_terminal_size().width -
-        get_max_length([](Argument const& arg) -> size_t { return arg.get_type_string().size(); }) -
-        get_max_length([](Argument const& arg) -> size_t { return arg.get_name().size(); }) -
-        get_max_length([](Argument const& arg) -> size_t { return arg.get_metavar().size(); }) -
+        get_max_length([](Argument const& arg) -> size_t { return unicode::display_width(arg.get_type_string()); }) -
+        get_max_length([](Argument const& arg) -> size_t { return unicode::display_width(arg.get_name()); }) -
+        get_max_length([](Argument const& arg) -> size_t { return unicode::display_width(arg.get_metavar()); }) -
         total_padding;
 
     if (std::ranges::any_of(_pimpl->arguments | std::views::values, [](Argument const& arg) { return !arg.is_option(); })) {
@@ -322,7 +330,7 @@ void ArgumentParser::print_help() const {
         fmt::println("{}  {}", detail::get_syntax(_pimpl->subparsers.value()), detail::wrap_text(_pimpl->subparsers.value().get_help(), max_help_string_width));
         auto table = detail::create_parser_help_table();
         for (auto& [_, parser] : _pimpl->subparsers->get_subparsers()) {
-            if (parser.get_description().size()) {
+            if (!parser.get_description().empty()) {
                 table.write_ln("  " + detail::styled_parser_name(parser), detail::wrap_text(parser.get_description(), max_help_string_width));
             }
         }

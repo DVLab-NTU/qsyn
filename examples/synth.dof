@@ -10,7 +10,7 @@ qcir print --stat
 qcir optimize
 qcir print --stat
 
-device read benchmark/topology/guadalupe.layout
+device read benchmark/topology/guadalupe_16.layout
 duostra -c
 qcir print --stat
 

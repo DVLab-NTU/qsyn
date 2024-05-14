@@ -46,7 +46,7 @@ struct NArgsRange {
     size_t upper;
 };
 
-enum class NArgsOption {
+enum class NArgsOption : std::uint8_t {
     optional,
     one_or_more,
     zero_or_more
@@ -88,7 +88,7 @@ public:
         }
     }
 
-    inline std::string const& get_name() const { return _name; }
+    std::string const& get_name() const { return _name; }
     void append_value(T const& val) { _values.push_back(val); }
 
     void set_value_to_default() {
@@ -117,8 +117,8 @@ private:
     std::optional<T> _default_value = std::nullopt;
 
     std::string _name;
-    std::string _help                        = "";
-    std::string _metavar                     = "";
+    std::string _help;
+    std::string _metavar;
     std::optional<std::string> _usage        = std::nullopt;
     ActionCallbackType _action_callback      = nullptr;
     std::vector<ConstraintType> _constraints = {};

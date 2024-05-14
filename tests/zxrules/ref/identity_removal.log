@@ -4,11 +4,11 @@ qsyn> zx vertex add input 0
 
 qsyn> zx vertex add output 0
 
-qsyn> zx vertex add z 0 0
+qsyn> zx vertex add z 0
 
-qsyn> zx vertex add z 0 0
+qsyn> zx vertex add z 0
 
-qsyn> zx vertex add x 0 0
+qsyn> zx vertex add x 0
 
 qsyn> zx edge add 0 2 SIMPLE
 
@@ -65,27 +65,27 @@ qsyn> zx vertex add input 0
 
 qsyn> zx vertex add output 0
 
-qsyn> zx vertex add z 0 0
+qsyn> zx vertex add z 0
 
-qsyn> zx vertex add z 0 0
+qsyn> zx vertex add z 0
 
 qsyn> zx vertex add input 1
 
 qsyn> zx vertex add output 1
 
-qsyn> zx vertex add z 0 0
+qsyn> zx vertex add z 0
 
-qsyn> zx vertex add x 0 0
+qsyn> zx vertex add x 0
 
-qsyn> zx vertex add hbox 0 0
+qsyn> zx vertex add hbox 0
 
-qsyn> zx vertex add x 0 0
+qsyn> zx vertex add x 0
 
-qsyn> zx vertex add z 0 0
+qsyn> zx vertex add z 0
 
-qsyn> zx vertex add z 0 1.5708
+qsyn> zx vertex add z 1.5708
 
-qsyn> zx vertex add z 0 0
+qsyn> zx vertex add z 0
 
 qsyn> 
 qsyn> zx edge add 0 2 SIMPLE
@@ -169,21 +169,21 @@ qsyn> zx vertex add input 0
 
 qsyn> zx vertex add output 0
 
-qsyn> zx vertex add z 0 0
+qsyn> zx vertex add z 0
 
-qsyn> zx vertex add x 0 0
+qsyn> zx vertex add x 0
 
-qsyn> zx vertex add z 0 0
+qsyn> zx vertex add z 0
 
-qsyn> zx vertex add z 0 0
+qsyn> zx vertex add z 0
 
-qsyn> zx vertex add z 0 0
+qsyn> zx vertex add z 0
 
-qsyn> zx vertex add hbox 0 0
+qsyn> zx vertex add hbox 0
 
-qsyn> zx vertex add z 0 1.5708
+qsyn> zx vertex add z 1.5708
 
-qsyn> zx vertex add x 0 1.5708
+qsyn> zx vertex add x 1.5708
 
 qsyn> zx edge add 0 2 SIMPLE
 

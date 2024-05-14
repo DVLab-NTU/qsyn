@@ -13,27 +13,28 @@ namespace utils {
 
 class Usage {
 public:
-    Usage() { reset(); }
+    Usage() : _initial_memory(_check_memory()), _current_memory(_initial_memory), _current_tick(_check_tick()) {}
 
-    static void reset();
+    void reset_period();
 
-    static void report(bool report_time, bool report_mem);
+    void start_tick();
+    void end_tick();
+
+    void report(bool report_time, bool report_mem);
 
 private:
-    // for Memory usage (in MB)
-    static double _initial_memory;
-    static double _current_memory;
+    // for Memory usage (in MiB)
+    double _initial_memory = 0.0;
+    double _current_memory;
 
     // for CPU time usage
-    static double _current_tick;
-    static double _period_used_time;
-    static double _total_used_time;
+    double _current_tick;
+    double _period_used_time{0.0};
+    double _total_used_time{0.0};
 
     // private functions
-    static double _check_memory();
-    static double _check_tick();
-    static void _set_memory_usage();
-    static void _set_time_usage();
+    double _check_memory();
+    double _check_tick();
 };
 
 }  // namespace utils

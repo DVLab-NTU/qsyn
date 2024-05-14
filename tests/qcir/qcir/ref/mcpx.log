@@ -3,18 +3,18 @@ qsyn> qcir qubit add 2
 qsyn> qcir gate add mcpx -ph pi 0 1
 
 qsyn> qcir print --diagram
-Q 0  ---------cx( 0)-
-Q 1  ---------cx( 0)-
+Q 0  --------cx(0)-
+Q 1  --------cx(0)-
 
 qsyn> qcir print --gate 0
 Listed by gate ID
-ID:   0 ( cx)      Time:    2     Qubit:   0   1 
+0 (t=2): cx  q[0],  q[1]
 
 qsyn> qc2ts
 
 qsyn> qc2zx
 
-qsyn> zx print -q
+qsyn> zx print -r
 
 ID:    0 (●, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (4, -)
 ID:    1 (●, 0)       (Qubit, Col): (0, 3)         #Neighbors:   1    (4, -)
@@ -28,7 +28,7 @@ ID:    5 (X, 0)       (Qubit, Col): (1, 2)         #Neighbors:   3    (2, -) (3,
 
 qsyn> zx optimize --full
 
-qsyn> zx print -q
+qsyn> zx print -r
 
 ID:    0 (●, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (4, -)
 ID:    1 (●, 0)       (Qubit, Col): (0, 3)         #Neighbors:   1    (4, -)
@@ -60,7 +60,7 @@ qsyn> qcir gate add mcpx -ph pi 0
 
 qsyn> qcir print --gate 0
 Listed by gate ID
-ID:   0 (  x)      Time:    1     Qubit:   0 
+0 (t=1): x  q[0]
 
 qsyn> qc2zx
 

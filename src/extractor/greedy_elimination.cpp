@@ -5,10 +5,8 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <cassert>
-#include <memory>
-
 #include "./extract.hpp"
+#include "util/util.hpp"
 
 namespace qsyn::extractor {
 
@@ -44,8 +42,10 @@ std::vector<size_t> Extractor::find_minimal_sums(dvlab::BooleanMatrix& matrix) {
                 new_row_track_pairs.emplace_back(result, new_row);
                 iterations++;
             }
-            if (iterations > 100000)
+            if (iterations > 100000) {
+                spdlog::debug("Fallback to level 1");
                 return {};
+            }
         }
         if (new_row_track_pairs.empty())
             return {};
@@ -65,7 +65,7 @@ std::vector<dvlab::BooleanMatrix::RowOperation> Extractor::greedy_reduction(dvla
     std::vector<dvlab::BooleanMatrix::RowOperation> result;
     std::vector<size_t> indices = Extractor::find_minimal_sums(matrix);
     // Return empty vector if indices do not exist
-    if (!indices.size()) return result;
+    if (indices.empty()) return result;
     while (indices.size() > 1) {
         dvlab::BooleanMatrix::RowOperation best_operation(-1, -1);
         long reduction = -1 * static_cast<long>(matrix.num_cols());
@@ -94,6 +94,44 @@ std::vector<dvlab::BooleanMatrix::RowOperation> Extractor::greedy_reduction(dvla
         indices.erase(remove(indices.begin(), indices.end(), best_operation.first), indices.end());
     }
     return result;
+}
+
+/**
+ * @brief Find two rows with max inner product and provide the corresponding column values are both 1s
+ *
+ * @param matrix
+ * @return Extractor::Overlap
+ */
+Extractor::Overlap Extractor::_max_overlap(dvlab::BooleanMatrix& matrix) {
+    DVLAB_ASSERT(matrix.num_cols() == matrix.num_rows(), "The shape of input matrix should be a square.");
+
+    size_t max_inner_product = 0;
+    std::vector<size_t> best_common_indices;
+    std::pair<size_t, size_t> overlap_rows(SIZE_MAX, SIZE_MAX);
+    for (size_t i = 0; i < matrix.num_rows(); i++) {
+        for (size_t j = i + 1; j < matrix.num_rows(); j++) {
+            size_t inner_product    = 0;
+            size_t num_ones_ith_row = 0;
+            size_t num_ones_jth_row = 0;
+            std::vector<size_t> common_indices;
+            for (size_t k = 0; k < matrix.num_cols(); k++) {
+                num_ones_ith_row += matrix[i][k];
+                num_ones_jth_row += matrix[j][k];
+
+                if (matrix[i][k] == 1 && matrix[j][k] == 1) {
+                    inner_product++;
+                    common_indices.emplace_back(k);
+                }
+            }
+
+            if (inner_product > max_inner_product) {
+                max_inner_product   = inner_product;
+                overlap_rows        = num_ones_ith_row < num_ones_jth_row ? std::make_pair(j, i) : std::make_pair(i, j);
+                best_common_indices = common_indices;
+            }
+        }
+    }
+    return {overlap_rows, best_common_indices};
 }
 
 }  // namespace qsyn::extractor

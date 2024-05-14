@@ -1,0 +1,74 @@
+qsyn> qcir read benchmark/SABRE/small/3_17_13.qasm
+
+qsyn> convert qcir tensor
+
+qsyn> tensor list
+★ 0    3_17_13             #Dim: 2   QC2TS
+
+qsyn> convert tensor qcir
+
+qsyn> convert qcir tensor
+
+qsyn> tensor list
+  0    3_17_13             #Dim: 2   QC2TS
+★ 1    3_17_13             #Dim: 2   QC2TS ➔ TS2QC ➔ QC2TS
+
+qsyn> tensor equiv 0 1
+Equivalent
+- Global Norm : 1
+- Global Phase: 0
+
+qsyn> qcir read benchmark/SABRE/small/4gt13_92.qasm
+
+qsyn> convert qcir tensor
+
+qsyn> tensor list
+  0    3_17_13             #Dim: 2   QC2TS
+  1    3_17_13             #Dim: 2   QC2TS ➔ TS2QC ➔ QC2TS
+★ 2    4gt13_92            #Dim: 2   QC2TS
+
+qsyn> convert tensor qcir
+
+qsyn> convert qcir tensor
+
+qsyn> tensor list
+  0    3_17_13             #Dim: 2   QC2TS
+  1    3_17_13             #Dim: 2   QC2TS ➔ TS2QC ➔ QC2TS
+  2    4gt13_92            #Dim: 2   QC2TS
+★ 3    4gt13_92            #Dim: 2   QC2TS ➔ TS2QC ➔ QC2TS
+
+qsyn> tensor equiv 2 3
+Equivalent
+- Global Norm : 1
+- Global Phase: 0
+
+qsyn> qcir read benchmark/SABRE/small/4mod5-v1_24.qasm
+
+qsyn> convert qcir tensor
+
+qsyn> tensor list
+  0    3_17_13             #Dim: 2   QC2TS
+  1    3_17_13             #Dim: 2   QC2TS ➔ TS2QC ➔ QC2TS
+  2    4gt13_92            #Dim: 2   QC2TS
+  3    4gt13_92            #Dim: 2   QC2TS ➔ TS2QC ➔ QC2TS
+★ 4    4mod5-v1_24         #Dim: 2   QC2TS
+
+qsyn> convert tensor qcir
+
+qsyn> convert qcir tensor
+
+qsyn> tensor list
+  0    3_17_13             #Dim: 2   QC2TS
+  1    3_17_13             #Dim: 2   QC2TS ➔ TS2QC ➔ QC2TS
+  2    4gt13_92            #Dim: 2   QC2TS
+  3    4gt13_92            #Dim: 2   QC2TS ➔ TS2QC ➔ QC2TS
+  4    4mod5-v1_24         #Dim: 2   QC2TS
+★ 5    4mod5-v1_24         #Dim: 2   QC2TS ➔ TS2QC ➔ QC2TS
+
+qsyn> tensor equiv 4 5
+Equivalent
+- Global Norm : 1
+- Global Phase: 9π/16
+
+qsyn> quit -f
+

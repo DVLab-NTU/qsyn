@@ -1,0 +1,22 @@
+qcir read benchmark/SABRE/small/3_17_13.qasm
+convert qcir tensor
+tensor list
+convert tensor qcir
+convert qcir tensor
+tensor list
+tensor equiv 0 1
+qcir read benchmark/SABRE/small/4gt13_92.qasm
+convert qcir tensor
+tensor list
+convert tensor qcir
+convert qcir tensor
+tensor list
+tensor equiv 2 3
+qcir read benchmark/SABRE/small/4mod5-v1_24.qasm
+convert qcir tensor
+tensor list
+convert tensor qcir
+convert qcir tensor
+tensor list
+tensor equiv 4 5
+quit -f

@@ -11,7 +11,7 @@ qsyn> convert zx qcir
 qsyn> qcir optimize
 
 qsyn> qcir print
-QCir (16 qubits, 403 gates, 227 2-qubits gates, 122 T-gates, 509 depths)
+QCir (16 qubits, 427 gates, 246 2-qubits gates, 122 T-gates, 528 depths)
 
 qsyn> convert qcir zx
 
@@ -19,7 +19,7 @@ qsyn> zx adjoint
 
 qsyn> zx list
   0    cm82a_208           QC2ZX ➔ FR
-★ 2    cm82a_208           QC2ZX ➔ FR ➔ ZX2QC ➔ Optimize ➔ QC2ZX
+★ 1    cm82a_208           QC2ZX ➔ FR ➔ ZX2QC ➔ Optimize ➔ QC2ZX
 
 qsyn> zx compose 0
 

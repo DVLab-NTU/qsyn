@@ -5,8 +5,8 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <cstddef>
-#include <exception>
+#include <fmt/core.h>
+
 #include <ranges>
 #include <string>
 #include <unicode/display_width.hpp>
@@ -47,7 +47,7 @@ void ZXVertex::print_vertex(spdlog::level::level_enum lvl) const {
         _id,
         fmt::format("({}, {})", type_str, _phase.get_print_string()),
         11ul + ansi_token_len - 2 * (_type == VertexType::boundary ? 1 : 0),
-        fmt::format("({}, {})", _qubit, _col),
+        is_boundary() ? fmt::format("({}, {})", _qubit, _col) : fmt::format("({}, {})", _row, _col),
         _neighbors.size(),
         fmt::join(storage | std::views::transform([](NeighborPair const& nbp) { return fmt::format("({}, {})", nbp.first->get_id(), nbp.second); }), " "));
 }
@@ -80,6 +80,7 @@ std::optional<VertexType> str_to_vertex_type(std::string const& str) {
     if (dvlab::str::is_prefix_of(tolower_string(str), "zspider")) return VertexType::z;
     if (dvlab::str::is_prefix_of(tolower_string(str), "xspider")) return VertexType::x;
     if (dvlab::str::is_prefix_of(tolower_string(str), "hbox")) return VertexType::h_box;
+    if (dvlab::str::is_prefix_of(tolower_string(str), "hadamard")) return VertexType::h_box;
     return std::nullopt;
 }
 

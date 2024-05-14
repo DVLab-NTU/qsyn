@@ -19,6 +19,7 @@
 
 #include "./zx_def.hpp"
 #include "./zxgraph.hpp"
+#include "qsyn/qsyn_type.hpp"
 
 bool stop_requested();
 
@@ -56,7 +57,7 @@ std::pair<std::vector<ZXGraph*>, std::vector<ZXCut>> ZXGraph::create_subgraphs(s
     auto const primary_outputs = get_outputs();
 
     // by pass the output qubit id collision check in the copy constructor
-    int next_boundary_qubit_id = INT_MIN;
+    auto next_boundary_qubit_id = max_qubit_id;
 
     for (auto& partition : partitions) {
         ZXVertexList subgraph_inputs;
@@ -77,7 +78,7 @@ std::pair<std::vector<ZXGraph*>, std::vector<ZXCut>> ZXGraph::create_subgraphs(s
             std::vector<NeighborPair> neighbors_to_add;
             for (auto const& [neighbor, edgeType] : this->get_neighbors(vertex)) {
                 if (!partition.contains(neighbor)) {
-                    auto boundary = new ZXVertex(next_vertex_id++, next_boundary_qubit_id++, VertexType::boundary);
+                    auto boundary = new ZXVertex(next_vertex_id++, next_boundary_qubit_id--, VertexType::boundary, Phase(), 0, 0);
                     inner_cuts.emplace(vertex, neighbor, edgeType);
                     cut_to_boundary[{vertex, neighbor, edgeType}] = boundary;
 

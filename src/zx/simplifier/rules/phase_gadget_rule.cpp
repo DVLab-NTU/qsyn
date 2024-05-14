@@ -6,6 +6,7 @@
 ****************************************************************************/
 
 #include <ranges>
+#include <tl/fold.hpp>
 
 #include "./zx_rules_template.hpp"
 #include "zx/zxgraph.hpp"
@@ -16,12 +17,11 @@ using MatchType = PhaseGadgetRule::MatchType;
 
 struct ZXVerticesHash {
     size_t operator()(std::vector<ZXVertex*> const& k) const {
-        size_t ret = std::hash<ZXVertex*>()(k[0]);
-        for (size_t i = 1; i < k.size(); i++) {
-            ret ^= std::hash<ZXVertex*>()(k[i]);
-        }
-
-        return ret;
+        return tl::fold_left(
+            k, size_t{0},
+            [](size_t acc, ZXVertex* v) {
+                return acc ^ std::hash<decltype(v)>()(v);
+            });
     }
 };
 
@@ -34,7 +34,7 @@ std::vector<MatchType> PhaseGadgetRule::find_matches(ZXGraph const& graph) const
     std::vector<MatchType> matches;
 
     std::unordered_map<ZXVertex*, ZXVertex*> axel2leaf;
-    std::unordered_multimap<std::vector<ZXVertex*>, ZXVertex*, ZXVerticesHash> group2axel;
+    dvlab::utils::ordered_hashmap<std::vector<ZXVertex*>, std::vector<ZXVertex*>, ZXVerticesHash> group2axel;
 
     std::vector<ZXVertex*> axels;
     std::vector<ZXVertex*> leaves;
@@ -55,22 +55,22 @@ std::vector<MatchType> PhaseGadgetRule::find_matches(ZXGraph const& graph) const
             if (nb2 != v) group.emplace_back(nb2);
         }
 
-        if (group.size() > 0) {
+        if (!group.empty()) {
             std::ranges::sort(group);
-            group2axel.emplace(group, nb);
+            if (group2axel.contains(group)) {
+                group2axel.at(group).emplace_back(nb);
+            } else {
+                group2axel.emplace(group, std::vector<ZXVertex*>{nb});
+            }
         }
     }
-    auto itr = std::begin(group2axel);
-    while (itr != group2axel.end()) {
-        auto [groupBegin, groupEnd] = group2axel.equal_range(itr->first);
-        itr                         = groupEnd;
-
+    for (auto const& [_, tmp_axels] : group2axel) {
         axels.clear();
         leaves.clear();
 
         auto total_phase = Phase(0);
         bool flip_axel   = false;
-        for (auto& [_, axel] : std::ranges::subrange(groupBegin, groupEnd)) {
+        for (auto const& axel : tmp_axels) {
             ZXVertex* const& leaf = axel2leaf[axel];
             if (axel->get_phase() == Phase(1)) {
                 flip_axel = true;

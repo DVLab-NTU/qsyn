@@ -11,29 +11,29 @@ namespace dvlab {
 
 namespace utils {
 
-class scope_exit {
+class scope_exit {  // NOLINT(readability-identifier-naming) // emulate library
 public:
     template <typename Callable>
-    inline scope_exit(Callable&& undo_func) try : _undo_func(std::forward<Callable>(undo_func)) {
+    scope_exit(Callable&& undo_func) try : _undo_func(std::forward<Callable>(undo_func)) {
     } catch (...) {
         undo_func();
         throw;
     }
 
-    inline ~scope_exit() {
+    ~scope_exit() {
         if (_undo_func) _undo_func();
     }
 
     scope_exit(scope_exit const&)            = delete;
     scope_exit& operator=(scope_exit const&) = delete;
 
-    inline scope_exit(scope_exit&& other) noexcept : _undo_func(std::move(other._undo_func)) {
+    scope_exit(scope_exit&& other) noexcept : _undo_func(std::move(other._undo_func)) {
         other._undo_func = nullptr;
     }
 
     scope_exit& operator=(scope_exit&& other) = delete;
 
-    inline void release() { _undo_func = nullptr; }
+    void release() { _undo_func = nullptr; }
 
 private:
     std::function<void()> _undo_func;

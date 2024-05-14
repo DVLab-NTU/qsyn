@@ -1,6 +1,6 @@
 FROM dvlab/qsyn-env:latest
 
-RUN dnf install -y \
+RUN apt install -y \
     diffutils \
     patch \
     parallel

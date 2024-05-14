@@ -138,7 +138,7 @@ public:
      * @param key
      * @return size_type
      */
-    inline iterator find(Key const& key) {
+    iterator find(Key const& key) {
         return this->contains(key) ? iterator(this->_data.begin() + this->id(key), this->_data.begin(), this->_data.end()) : this->end();
     }
 
@@ -151,7 +151,7 @@ public:
      * @param key
      * @return size_type
      */
-    inline const_iterator find(Key const& key) const {
+    const_iterator find(Key const& key) const {
         return this->contains(key) ? iterator(this->_data.begin() + this->id(key), this->_data.begin(), this->_data.end()) : this->end();
     }
     /**
@@ -163,7 +163,7 @@ public:
      * @param key
      * @return size_type
      */
-    inline size_type id(Key const& key) const { return this->_key2id.at(key); }
+    size_type id(Key const& key) const { return this->_key2id.at(key); }
     bool contains(Key const& key) const;
     template <typename KT>
     bool contains(KT const& key) const;
@@ -279,7 +279,7 @@ template <typename... Args>
 std::pair<typename ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::iterator, bool>
 ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::emplace(Args&&... args) {
     this->_data.emplace_back(value_type(std::forward<Args>(args)...));
-    key_type const key  = this->key(this->_data.back().value());
+    key_type const key  = this->key(*this->_data.back());
     bool const has_item = this->_key2id.contains(key);
     if (has_item) {
         this->_data.pop_back();
@@ -305,7 +305,7 @@ void ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::sweep() {
     _data.swap(new_data);
     // _data.resize();
     for (size_t i = 0; i < _data.size(); ++i) {
-        _key2id[this->key(_data[i].value())] = i;
+        _key2id[this->key(*_data[i])] = i;
     }
 }
 
@@ -352,13 +352,13 @@ void ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::sort(F lambda) {
     std::sort(this->_data.begin(), this->_data.end(), [&lambda](std::optional<stored_type> const& a, std::optional<stored_type> const& b) {
         if (!a.has_value()) return false;
         if (!b.has_value()) return true;
-        return lambda(a.value(), b.value());
+        return lambda(*a, *b);
     });
 
     // update key2id
     for (size_t i = 0; i < _data.size(); ++i) {
         if (_data[i].has_value()) {
-            this->_key2id[this->key(this->_data[i].value())] = i;
+            this->_key2id[this->key(*this->_data[i])] = i;
         }
     }
 }

@@ -1,4 +1,4 @@
-qsyn> device read benchmark/topology/guadalupe.layout
+qsyn> device read benchmark/topology/guadalupe_16.layout
 
 qsyn> qcir config --double-delay 2 --swap-delay 6
 

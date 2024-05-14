@@ -159,7 +159,7 @@ Command duostra_config_cmd() {
                         fmt::println("APSP Coeff.:       {}", DuostraConfig::APSP_COEFF);
                         fmt::println("2-Qb. Avail. Time: {}", get_minmax_type_str(DuostraConfig::AVAILABLE_TIME_STRATEGY));
                         fmt::println("Cost Selector:     {}", get_minmax_type_str(DuostraConfig::COST_SELECTION_STRATEGY));
-                        fmt::println("Never Cache:       {}", ((DuostraConfig::NEVER_CACHE == true) ? "true" : "false"));
+                        fmt::println("Never Cache:       {}", ((DuostraConfig::NEVER_CACHE) ? "true" : "false"));
                         fmt::println("Single Immed.:     {}", ((DuostraConfig::EXECUTE_SINGLE_QUBIT_GATES_ASAP == 1) ? "true" : "false"));
                     }
                 }
@@ -223,17 +223,18 @@ Command duostra_cmd(qcir::QCirMgr& qcir_mgr, device::DeviceMgr& device_mgr) {
 
                        [&](ArgumentParser const& parser) {
                            if (!dvlab::utils::mgr_has_data(qcir_mgr) || !dvlab::utils::mgr_has_data(device_mgr)) return CmdExecResult::error;
-#ifdef __GNUC__
-                           char const* const omp_wait_policy = std::getenv("OMP_WAIT_POLICY");
+                           // ANCHOR - omp disabled
+                           // #ifdef __GNUC__
+                           //                            char const* const omp_wait_policy = std::getenv("OMP_WAIT_POLICY");
 
-                           if (omp_wait_policy == nullptr || (strcasecmp(omp_wait_policy, "passive") != 0)) {
-                               spdlog::error("Cannot run command `DUOSTRA`: environment variable `OMP_WAIT_POLICY` is not set to `PASSIVE`.");
-                               spdlog::error("Note: Not setting the `OMP_WAIT_POLICY` to `PASSIVE` may cause the program to freeze.");
-                               spdlog::error("      You can set it to PASSIVE by running `export OMP_WAIT_POLICY=PASSIVE`");
-                               spdlog::error("      prior to running `qsyn`.");
-                               return CmdExecResult::error;
-                           }
-#endif
+                           //                            if (omp_wait_policy == nullptr || (strcasecmp(omp_wait_policy, "passive") != 0)) {
+                           //                                spdlog::error("Cannot run command `DUOSTRA`: environment variable `OMP_WAIT_POLICY` is not set to `PASSIVE`.");
+                           //                                spdlog::error("Note: Not setting the `OMP_WAIT_POLICY` to `PASSIVE` may cause the program to freeze.");
+                           //                                spdlog::error("      You can set it to PASSIVE by running `export OMP_WAIT_POLICY=PASSIVE`");
+                           //                                spdlog::error("      prior to running `qsyn`.");
+                           //                                return CmdExecResult::error;
+                           //                            }
+                           // #endif
                            qcir::QCir* logical_qcir = qcir_mgr.get();
                            Duostra duo{logical_qcir,
                                        *device_mgr.get(),
@@ -257,7 +258,7 @@ Command duostra_cmd(qcir::QCirMgr& qcir_mgr, device::DeviceMgr& device_mgr) {
                            return CmdExecResult::done;
                        }};
 
-    cmd.add_subcommand(duostra_config_cmd());
+    cmd.add_subcommand("duostra-cmd", duostra_config_cmd());
     return cmd;
 }
 

@@ -4,9 +4,9 @@ qsyn> zx vertex add i 0
 
 qsyn> zx vertex add o 0
 
-qsyn> zx vertex add z 0 0
+qsyn> zx vertex add z 0
 
-qsyn> zx vertex add z 0 0
+qsyn> zx vertex add z 0
 
 qsyn> zx edge add 0 2 SIMPLE
 
@@ -63,6 +63,7 @@ Equivalent
 
 qsyn> tensor equiv 0 1 --strict
 Not Equivalent
+- Cosine Similarity: 1
 
 qsyn> quit -f
 

@@ -10,6 +10,7 @@
 #include <fmt/ostream.h>
 
 #include <gsl/narrow>
+#include <tl/to.hpp>
 
 #include "./tensor.hpp"
 #include "util/phase.hpp"
@@ -35,8 +36,6 @@ public:
     QTensor(xt::nested_initializer_list_t<DataType, 4> il) : Tensor<DataType>(il) {}
     QTensor(xt::nested_initializer_list_t<DataType, 5> il) : Tensor<DataType>(il) {}
 
-    ~QTensor() override = default;
-
     QTensor(TensorShape const& shape) : Tensor<DataType>(shape) {}
     QTensor(TensorShape&& shape) : Tensor<DataType>(std::move(shape)) {}
     template <typename From>
@@ -59,6 +58,10 @@ public:
         using namespace std::literals;
         return {{1. + 0.i, 0. + 0.i}, {0. + 0.i, -1. + 0.i}};
     }
+    static QTensor<T> hgate() {
+        using namespace std::literals;
+        return {{1. / sqrt(2) + 0.i, 1. / sqrt(2) + 0.i}, {1. / sqrt(2) + 0.i, -1. / sqrt(2) + 0.i}};
+    }
     static QTensor<T> rxgate(dvlab::Phase const& phase = dvlab::Phase(0));
     static QTensor<T> rygate(dvlab::Phase const& phase = dvlab::Phase(0));
     static QTensor<T> rzgate(dvlab::Phase const& phase = dvlab::Phase(0));
@@ -71,6 +74,8 @@ public:
 
     QTensor<T> to_qtensor() const;
 
+    QTensor<T> to_su2() const;
+
     template <typename U>
     friend std::complex<U> global_scalar_factor(QTensor<U> const& t1, QTensor<U> const& t2);
 
@@ -81,7 +86,7 @@ public:
     friend dvlab::Phase global_phase(QTensor<U> const& t1, QTensor<U> const& t2);
 
     template <typename U>
-    friend bool is_equivalent(QTensor<U> const& t1, QTensor<U> const& t2, double eps /* = 1e-6*/);
+    friend bool is_equivalent(QTensor<U> const& t1, QTensor<U> const& t2, U eps /* = 1e-6*/);
 
     void set_filename(std::string const& f) { _filename = f; }
     void add_procedures(std::vector<std::string> const& ps) { _procedures.insert(_procedures.end(), ps.begin(), ps.end()); }
@@ -89,6 +94,9 @@ public:
 
     std::string get_filename() const { return _filename; }
     std::vector<std::string> const& get_procedures() const { return _procedures; }
+
+    QTensor<T> to_matrix();
+    QTensor<T> to_matrix(TensorAxisList const& out, TensorAxisList const& in) { return Tensor<std::complex<T>>::to_matrix(out, in); }
 
 private:
     friend struct fmt::formatter<QTensor>;
@@ -321,6 +329,11 @@ QTensor<T> QTensor<T>::to_qtensor() const {
     return result.transpose(ax);
 }
 
+template <typename T>
+QTensor<T> QTensor<T>::to_su2() const {
+    return std::sqrt(1.0 / this->determinant()) * this->_tensor;
+}
+
 /**
  * @brief Generate the corresponding tensor of a controlled gate.
  *
@@ -398,7 +411,7 @@ dvlab::Phase global_phase(QTensor<U> const& t1, QTensor<U> const& t2) {
 }
 
 template <typename U>
-bool is_equivalent(QTensor<U> const& t1, QTensor<U> const& t2, double eps = 1e-6) {
+bool is_equivalent(QTensor<U> const& t1, QTensor<U> const& t2, U eps = 1e-6) {
     if (t1.shape() != t2.shape()) return false;
     return cosine_similarity(t1, t2) >= (1 - eps);
 }
@@ -417,6 +430,25 @@ bool is_equivalent(QTensor<U> const& t1, QTensor<U> const& t2, double eps = 1e-6
 template <typename T>
 typename QTensor<T>::DataType QTensor<T>::_nu_pow(int n) {
     return std::pow(2., -0.25 * n);
+}
+
+/**
+ * @brief convert the tensor to a matrix. this function overload assumes that the tensor is an 2^n x 2^n tensor and the pin order is even for input and odd for output
+ *
+ * @tparam T
+ * @return QTensor<T>
+ */
+template <typename T>
+QTensor<T> QTensor<T>::to_matrix() {
+    auto const n_qubits = this->dimension() / 2;
+
+    return this->to_matrix(
+        std::views::iota(0ul, n_qubits) |
+            std::views::transform([](auto i) { return 2 * i; }) |
+            tl::to<std::vector>(),
+        std::views::iota(0ul, n_qubits) |
+            std::views::transform([](auto i) { return 2 * i + 1; }) |
+            tl::to<std::vector>());
 }
 
 }  // namespace qsyn::tensor

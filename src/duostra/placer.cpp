@@ -32,6 +32,7 @@ std::unique_ptr<BasePlacer> get_placer() {
         return std::make_unique<DFSPlacer>();
     }
     DVLAB_UNREACHABLE("Unknown placer type");
+    return nullptr;
 }
 
 // SECTION - Class BasePlacer Member Functions
@@ -119,7 +120,7 @@ void DFSPlacer::_dfs_device(QubitIdType current, Device& device, std::vector<Qub
         // already marked
         if (qubit_marks[adj])
             continue;
-        assert(q.get_adjacencies().size() > 0);
+        assert(!q.get_adjacencies().empty());
         // corner
         if (q.get_adjacencies().size() == 1)
             _dfs_device(adj, device, assign, qubit_marks);
@@ -133,7 +134,6 @@ void DFSPlacer::_dfs_device(QubitIdType current, Device& device, std::vector<Qub
             continue;
         _dfs_device(adj, device, assign, qubit_marks);
     }
-    return;
 }
 
 }  // namespace qsyn::duostra

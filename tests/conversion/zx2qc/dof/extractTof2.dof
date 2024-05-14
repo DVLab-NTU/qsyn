@@ -2,7 +2,7 @@ extract config --optimize-level 1
 zx read benchmark/zx/tof3.zx
 zx2ts
 zx optimize --full
-zx print -q
+zx print -r
 logger debug
 zx2qc
 logger warn
@@ -10,7 +10,7 @@ qc2zx
 zx adjoint
 zx compose 0
 zx optimize --full  
-zx print -q
+zx print -r
 qcir print
 qcir print --diagram
 zx test --identity

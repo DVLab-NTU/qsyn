@@ -43,11 +43,11 @@ std::vector<ZXVertex*> ZXGraph::create_topological_order() const {
  *
  * @param currentVertex
  */
-void ZXGraph::_dfs(std::unordered_set<ZXVertex*>& visited_vertices, std::vector<ZXVertex*>& topological_order, ZXVertex* curr_vertex) const {
+void ZXGraph::_dfs(std::unordered_set<ZXVertex*>& visited_vertices, std::vector<ZXVertex*>& topological_order, ZXVertex* v) const {
     std::stack<std::pair<bool, ZXVertex*>> dfs;
 
-    if (!visited_vertices.contains(curr_vertex)) {
-        dfs.emplace(false, curr_vertex);
+    if (!visited_vertices.contains(v)) {
+        dfs.emplace(false, v);
     }
     while (!dfs.empty()) {
         auto [is_visited, vertex] = dfs.top();
@@ -94,11 +94,11 @@ std::vector<ZXVertex*> ZXGraph::create_breadth_level() const {
  *
  * @param current_vertex
  */
-void ZXGraph::_bfs(std::unordered_set<ZXVertex*>& visited_vertices, std::vector<ZXVertex*>& topological_order, ZXVertex* curr_vertex) const {
+void ZXGraph::_bfs(std::unordered_set<ZXVertex*>& visited_vertices, std::vector<ZXVertex*>& topological_order, ZXVertex* v) const {
     std::list<ZXVertex*> queue;
 
-    visited_vertices.emplace(curr_vertex);
-    queue.emplace_back(curr_vertex);
+    visited_vertices.emplace(v);
+    queue.emplace_back(v);
 
     while (!queue.empty()) {
         ZXVertex* s = queue.front();
@@ -106,10 +106,10 @@ void ZXGraph::_bfs(std::unordered_set<ZXVertex*>& visited_vertices, std::vector<
         topological_order.emplace_back(s);
         queue.pop_front();
 
-        for (auto [adjecent, _] : this->get_neighbors(s)) {
-            if (!visited_vertices.contains(adjecent)) {
-                visited_vertices.emplace(adjecent);
-                queue.emplace_back(adjecent);
+        for (auto [adjacent, _] : this->get_neighbors(s)) {
+            if (!visited_vertices.contains(adjacent)) {
+                visited_vertices.emplace(adjacent);
+                queue.emplace_back(adjacent);
             }
         }
     }

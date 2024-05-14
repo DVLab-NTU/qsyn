@@ -171,7 +171,7 @@ bool dvlab::CommandLineInterface::add_variables_from_dofiles(std::filesystem::pa
         return true;
     }
     std::string line{""};
-    while (line == "") {  // skip empty lines
+    while (line.empty()) {  // skip empty lines
         std::getline(dofile, line);
     };
 
@@ -224,7 +224,7 @@ void dvlab::CommandLineInterface::sigint_handler(int signum) {
     if (_listening_for_inputs) {
         _println_if_echo("");
         _clear_read_buffer_and_print_prompt();
-    } else if (_command_threads.size()) {
+    } else if (!_command_threads.empty()) {
         // there is an executing command
         _command_threads.top().request_stop();
     } else {
@@ -235,7 +235,7 @@ void dvlab::CommandLineInterface::sigint_handler(int signum) {
 
 std::optional<std::string> CommandLineInterface::_dequote(std::string_view str) const {
     std::string result;
-    using parse_state = CommandLineInterface::parse_state;
+    using parse_state = CommandLineInterface::ParseState;
     parse_state state = parse_state::normal;
     for (auto&& [i, ch] : str | tl::views::enumerate) {
         switch (state) {
@@ -280,8 +280,8 @@ std::optional<std::string> CommandLineInterface::_dequote(std::string_view str) 
  * @return true
  * @return false
  */
-bool CommandLineInterface::_should_be_escaped(char ch, dvlab::CommandLineInterface::parse_state state) const {
-    using parse_state = dvlab::CommandLineInterface::parse_state;
+bool CommandLineInterface::_should_be_escaped(char ch, dvlab::CommandLineInterface::ParseState state) const {
+    using parse_state = dvlab::CommandLineInterface::ParseState;
     switch (state) {
         case parse_state::normal:
             return false;
@@ -321,6 +321,13 @@ std::string CommandLineInterface::get_first_token(std::string_view str) const {
 
 std::string CommandLineInterface::get_last_token(std::string_view str) const {
     return std::string{str.substr(_get_last_token_pos(str))};
+}
+
+CmdExecResult CommandLineInterface::get_last_return_status() const {
+    for (auto const& history : _history | std::views::reverse) {
+        if (history.status != CmdExecResult::quit) return history.status;
+    }
+    return CmdExecResult::done;
 }
 
 size_t CommandLineInterface::_get_first_token_pos(std::string_view str, char token) const {

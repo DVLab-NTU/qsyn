@@ -26,9 +26,7 @@ void Argument::reset() {
  * @return false if action failed or < l argument are available
  */
 bool Argument::take_action(TokensSpan tokens) {
-    if (!_pimpl->do_take_action(tokens) || !is_constraints_satisfied()) return false;
-
-    return true;
+    return _pimpl->do_take_action(tokens) && is_constraints_satisfied();
 }
 
 /**
@@ -39,11 +37,11 @@ bool Argument::take_action(TokensSpan tokens) {
  */
 TokensSpan Argument::get_parse_range(TokensSpan tokens) const {
     auto parse_start = std::ranges::find_if(
-        tokens, [](Token& token) { return token.parsed == false; });
+        tokens, [](Token& token) { return !token.parsed; });
 
     auto parse_end = std::ranges::find_if(
         parse_start, tokens.end(),
-        [](Token& token) { return token.parsed == true; });
+        [](Token& token) { return token.parsed; });
     return tokens.subspan(parse_start - std::begin(tokens), std::min(get_nargs().upper, static_cast<size_t>(parse_end - parse_start)));
 }
 

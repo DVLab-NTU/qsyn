@@ -12,7 +12,6 @@
 #include <cstddef>
 #include <filesystem>
 #include <iterator>
-#include <limits>
 #include <span>
 #include <string>
 #include <unordered_map>
@@ -22,7 +21,6 @@
 #include "qsyn/qsyn_type.hpp"
 #include "spdlog/common.h"
 #include "util/boolean_matrix.hpp"
-#include "util/phase.hpp"
 
 namespace qsyn::zx {
 
@@ -48,23 +46,22 @@ class ZXVertex {
     friend class ZXGraph;
 
 public:
-    using QubitIdType  = qsyn::QubitIdType;
-    using ColumnIdType = double;
-
-    ZXVertex(size_t id, QubitIdType qubit, VertexType vt, Phase phase = Phase(), ColumnIdType col = 0)
-        : _id{id}, _type{vt}, _qubit{qubit}, _phase{phase}, _col{col} {}
+    ZXVertex(size_t id, QubitIdType qubit, VertexType vt, Phase phase, float row, float col)
+        : _id{id}, _type{vt}, _qubit{qubit}, _phase{phase}, _row{row}, _col{col} {}
     // Getter and Setter
 
     size_t get_id() const { return _id; }
     QubitIdType get_qubit() const { return _qubit; }
     Phase const& get_phase() const { return _phase; }
     VertexType get_type() const { return _type; }
-    ColumnIdType get_col() const { return _col; }
+    float get_row() const { return _row; }
+    float get_col() const { return _col; }
 
     void set_id(size_t id) { _id = id; }
     void set_qubit(QubitIdType q) { _qubit = q; }
     void set_phase(Phase const& p) { _phase = p; }
-    void set_col(ColumnIdType c) { _col = c; }
+    void set_row(float r) { _row = r; }
+    void set_col(float c) { _col = c; }
     void set_type(VertexType vt) { _type = vt; }
 
     // Print functions
@@ -83,21 +80,20 @@ private:
     friend class ZXGraph;
     size_t _id;
     VertexType _type;
-    QubitIdType _qubit;
+    QubitIdType _qubit;  // for boundary vertices, this is the qubit id; for non-boundary vertices,
+                         // this is a dummy value that may be used to mark temporary information
     Phase _phase;
-    ColumnIdType _col;
+    float _row;
+    float _col;
     Neighbors _neighbors;
 };
 
 class ZXGraph {  // NOLINT(cppcoreguidelines-special-member-functions) : copy-swap idiom
 public:
-    using QubitIdType  = ZXVertex::QubitIdType;
-    using ColumnIdType = ZXVertex::ColumnIdType;
-
     ZXGraph() {}
 
     ~ZXGraph() {
-        for (auto& v : _vertices) {
+        for (auto const& v : _vertices) {
             delete v;
         }
     }
@@ -181,23 +177,25 @@ public:
     bool is_input_qubit(QubitIdType qubit) const { return (_input_list.contains(qubit)); }
     bool is_output_qubit(QubitIdType qubit) const { return (_output_list.contains(qubit)); }
 
-    bool is_gadget_leaf(ZXVertex*) const;
-    bool is_gadget_axel(ZXVertex*) const;
-    bool has_dangling_neighbors(ZXVertex*) const;
+    bool is_gadget_leaf(ZXVertex* v) const;
+    bool is_gadget_axel(ZXVertex* v) const;
+    bool has_dangling_neighbors(ZXVertex* v) const;
 
     double density();
-    inline size_t t_count() const {
+    size_t t_count() const {
         return std::ranges::count_if(_vertices, [](ZXVertex* v) { return (v->get_phase().denominator() == 4); });
     }
-    inline size_t non_clifford_count() const {
+    size_t non_clifford_count() const {
         return std::ranges::count_if(_vertices, [](ZXVertex* v) { return !v->is_clifford(); });
     }
-    inline size_t non_clifford_t_count() const { return non_clifford_count() - t_count(); }
+    size_t non_clifford_t_count() const { return non_clifford_count() - t_count(); }
 
     // Add and Remove
-    ZXVertex* add_input(QubitIdType qubit, ColumnIdType col = 0);
-    ZXVertex* add_output(QubitIdType qubit, ColumnIdType col = 0);
-    ZXVertex* add_vertex(QubitIdType qubit, VertexType vt, Phase phase = Phase(), ColumnIdType col = 0);
+    ZXVertex* add_input(QubitIdType qubit, float col = 0.f);
+    ZXVertex* add_input(QubitIdType qubit, float row, float col);
+    ZXVertex* add_output(QubitIdType qubit, float col = 0.f);
+    ZXVertex* add_output(QubitIdType qubit, float row, float col);
+    ZXVertex* add_vertex(VertexType vt, Phase phase = Phase(), float row = 0.f, float col = 0.f);
     void add_edge(ZXVertex* vs, ZXVertex* vt, EdgeType et);
 
     size_t remove_isolated_vertices();
@@ -222,8 +220,8 @@ public:
 
     // Action functions (zxGraphAction.cpp)
     void sort_io_by_qubit();
-    void toggle_vertex(ZXVertex* v);
-    void lift_qubit(int n);
+    void toggle_vertex(ZXVertex* v) const;
+    void lift_qubit(ssize_t n);
     void relabel_vertex_ids(size_t id_start) {
         std::ranges::for_each(this->_vertices, [&id_start](ZXVertex* v) { v->set_id(id_start++); });
     }
@@ -232,7 +230,7 @@ public:
     void add_gadget(Phase p, std::vector<ZXVertex*> const& vertices);
     void remove_gadget(ZXVertex* v);
     std::unordered_map<size_t, ZXVertex*> create_id_to_vertex_map() const;
-    void normalize();
+    void adjust_vertex_coordinates();
 
     // Print functions (zxGraphPrint.cpp)
     void print_graph(spdlog::level::level_enum lvl = spdlog::level::level_enum::off) const;
@@ -241,11 +239,8 @@ public:
     void print_io() const;
     void print_vertices(spdlog::level::level_enum lvl = spdlog::level::level_enum::off) const;
     void print_vertices(std::vector<size_t> cand) const;
-    void print_vertices_by_qubits(spdlog::level::level_enum lvl = spdlog::level::level_enum::off, QubitIdList cand = {}) const;
+    void print_vertices_by_rows(spdlog::level::level_enum lvl = spdlog::level::level_enum::off, std::vector<float> const& cand = {}) const;
     void print_edges() const;
-
-    void print_difference(ZXGraph* other) const;
-    void draw() const;
 
     // For mapping (in zxMapping.cpp)
     ZXVertexList get_non_boundary_vertices();
@@ -256,8 +251,8 @@ public:
     std::unordered_map<size_t, ZXVertex*> const& get_output_list() const { return _output_list; }
 
     // I/O (in zxIO.cpp)
-    bool read_zx(std::filesystem::path const& filepath, bool keep_id = false);
     bool write_zx(std::filesystem::path const& filename, bool complete = false) const;
+    bool write_json(std::filesystem::path const& filename) const;
     bool write_tikz(std::string const& filename) const;
     bool write_tikz(std::ostream& os) const;
     bool write_pdf(std::string const& filename) const;
@@ -277,8 +272,8 @@ public:
     }
     template <typename F>
     void for_each_edge(F lambda) const {
-        for (auto& v : _vertices) {
-            for (auto& [nb, etype] : this->get_neighbors(v)) {
+        for (auto const& v : _vertices) {
+            for (auto const& [nb, etype] : this->get_neighbors(v)) {
                 if (nb->get_id() > v->get_id())
                     lambda(make_edge_pair(v, nb, etype));
             }
@@ -301,8 +296,6 @@ private:
 
     void _dfs(std::unordered_set<ZXVertex*>& visited_vertices, std::vector<ZXVertex*>& topological_order, ZXVertex* v) const;
     void _bfs(std::unordered_set<ZXVertex*>& visited_vertices, std::vector<ZXVertex*>& topological_order, ZXVertex* v) const;
-
-    bool _build_graph_from_parser_storage(detail::StorageType const& storage, bool keep_id = false);
 
     void _move_vertices_from(ZXGraph& other);
 };

@@ -16,41 +16,38 @@
 #include <filesystem>
 #include <string>
 #include <tl/enumerate.hpp>
-#include <type_traits>
 
 #include "./qsyn_helper.hpp"
 #include "argparse/arg_parser.hpp"
 #include "cli/cli.hpp"
-#include "convert/conversion_cmd.hpp"
-#include "device/device_cmd.hpp"
-#include "duostra/duostra_cmd.hpp"
-#include "extractor/extractor_cmd.hpp"
-#include "qcir/qcir_cmd.hpp"
-#include "tensor/tensor_cmd.hpp"
-#include "util/sysdep.hpp"
-#include "util/text_format.hpp"
-#include "util/usage.hpp"
-#include "util/util.hpp"
-#include "zx/simplifier/simp_cmd.hpp"
-#include "zx/zx_cmd.hpp"
+#include "device/device_mgr.hpp"
+#include "qcir/qcir_mgr.hpp"
+#include "tableau/tableau_mgr.hpp"
+#include "tensor/tensor_mgr.hpp"
+#include "zx/zxgraph_mgr.hpp"
 
 #ifndef QSYN_VERSION
 #define QSYN_VERSION "[unknown version]"
 #endif
+#ifndef QSYN_BUILD_TYPE
+#define QSYN_BUILD_TYPE "[unknown build type]"
+#endif
 
 namespace {
-
+// NOLINTBEGIN(readability-identifier-naming)
 dvlab::CommandLineInterface cli{"qsyn> "};
 qsyn::device::DeviceMgr device_mgr{"Device"};
 qsyn::qcir::QCirMgr qcir_mgr{"QCir"};
 qsyn::tensor::TensorMgr tensor_mgr{"Tensor"};
 qsyn::zx::ZXGraphMgr zxgraph_mgr{"ZXGraph"};
+qsyn::experimental::TableauMgr tableau_mgr{"Tableau"};
+// NOLINTEND(readability-identifier-naming)
 
 std::string const version_str = fmt::format(
     "qsyn {} - Copyright © 2022-{:%Y}, DVLab NTUEE.\n"
-    "Licensed under Apache 2.0 License.",
-    QSYN_VERSION, std::chrono::system_clock::now());
-
+    "Licensed under Apache 2.0 License. {} build.",
+    QSYN_VERSION, std::chrono::system_clock::now(),
+    QSYN_BUILD_TYPE);
 }  // namespace
 
 bool stop_requested() { return cli.stop_requested(); }
@@ -63,7 +60,7 @@ int main(int argc, char** argv) {
         return;
     });
 
-    if (!qsyn::initialize_qsyn(cli, device_mgr, qcir_mgr, tensor_mgr, zxgraph_mgr)) {
+    if (!qsyn::initialize_qsyn(cli, device_mgr, qcir_mgr, tensor_mgr, zxgraph_mgr, tableau_mgr)) {
         return -1;
     }
 
@@ -77,9 +74,11 @@ int main(int argc, char** argv) {
         return -1;
     }
 
-    auto const quiet = parser.get<bool>("--quiet");
+    auto const verbose = parser.parsed("--verbose") || parser.parsed("--file");
 
-    if (!parser.parsed("--no-version") && !quiet) {
+    auto const print_version = !parser.parsed("--no-version") && ((!parser.parsed("filepath") && !parser.parsed("--command")) || verbose);
+
+    if (print_version) {
         fmt::println("{}", version_str);
     }
 
@@ -88,32 +87,25 @@ int main(int argc, char** argv) {
     }
 
     if (parser.parsed("--command")) {
-        auto args = parser.get<std::vector<std::string>>("--command");
+        auto const cmds = parser.get<std::string>("--command");
 
-        auto cmd_stream = std::stringstream(args[0]);
+        auto cmd_stream = std::stringstream(cmds);
 
-        for (auto&& [i, arg] : tl::views::enumerate(std::ranges::subrange(args.begin() + 1, args.end()))) {
-            cli.add_variable(std::to_string(i + 1), arg);
-        }
-
-        auto const result = cli.execute_one_line(cmd_stream, !quiet);
-
-        if (result == dvlab::CmdExecResult::quit) {
-            return 0;
-        }
+        cli.execute_one_line(cmd_stream, verbose);
+        return dvlab::get_exit_code(cli.get_last_return_status());
     }
 
-    if (parser.parsed("--file")) {
-        auto args = parser.get<std::vector<std::string>>("--file");
+    if (parser.parsed("filepath")) {
+        auto const filepath = parser.get<std::vector<std::string>>("filepath");
 
-        auto const result = cli.source_dofile(args[0], std::ranges::subrange(args.begin() + 1, args.end()), !quiet);
-
-        if (result == dvlab::CmdExecResult::quit) {
-            return 0;
+        cli.source_dofile(filepath.front(), std::span(filepath).subspan(1), verbose);
+        if (parser.parsed("--file")) {
+            spdlog::warn("The -f/--file option is deprecated and will be removed in the future.");
+            spdlog::warn("To run a script file with commands printing, use the -v flag with a filepath.");
+            spdlog::warn("To run a script file silently, simply supply the filepath.");
         }
+        return dvlab::get_exit_code(cli.get_last_return_status());
     }
 
-    auto const result = cli.start_interactive();
-
-    return static_cast<std::underlying_type_t<dvlab::CmdExecResult>>(result);
+    return dvlab::get_exit_code(cli.start_interactive());
 }

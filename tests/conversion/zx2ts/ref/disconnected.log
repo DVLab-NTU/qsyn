@@ -8,9 +8,9 @@ qsyn> zx vertex add input 1
 
 qsyn> zx vertex add output 1
 
-qsyn> zx vertex add z 0 0
+qsyn> zx vertex add z 0
 
-qsyn> zx vertex add z 0 pi
+qsyn> zx vertex add z pi
 
 qsyn> zx vertex add input 2
 
@@ -207,13 +207,13 @@ qsyn> zx vertex add input 4
 qsyn> zx vertex add output 4
 
 qsyn> 
-qsyn> zx vertex add z 0 0
+qsyn> zx vertex add z 0
 
-qsyn> zx vertex add z 0 0
+qsyn> zx vertex add z 0
 
-qsyn> zx vertex add z 0 0
+qsyn> zx vertex add z 0
 
-qsyn> zx vertex add z 0 0
+qsyn> zx vertex add z 0
 
 qsyn> 
 qsyn> zx vertex add input 5

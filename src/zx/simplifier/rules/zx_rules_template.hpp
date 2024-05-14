@@ -14,7 +14,7 @@
 namespace qsyn::zx {
 
 struct ZXOperation {
-    std::vector<ZXVertex*> vertices_to_add;
+    // std::vector<ZXVertex*> vertices_to_add;
     std::vector<EdgePair> edges_to_add;
     std::vector<EdgePair> edges_to_remove;
     std::vector<ZXVertex*> vertices_to_remove;
@@ -30,8 +30,6 @@ protected:
     std::string _name;
     void _update(ZXGraph& graph, ZXOperation const& op) const {
         // TODO: add vertices is not implemented yet
-        assert(op.vertices_to_add.empty());
-
         for (auto& edge : op.edges_to_add) {
             auto const [v0, v1]      = std::get<0>(edge);
             EdgeType const edge_type = std::get<1>(edge);
@@ -57,7 +55,7 @@ public:
     virtual std::vector<ZXVertex*> flatten_vertices(MatchType match) const          = 0;
 };
 
-// H Box related rules have simliar interface but is used differentlu in simplifier
+// H Box related rules have similar interface but is used differentlu in simplifier
 template <typename T>
 class HZXRuleTemplate : public ZXRuleBase {
 public:
@@ -172,6 +170,7 @@ public:
 
     std::vector<MatchType> find_matches(ZXGraph const& graph) const override;
     void apply(ZXGraph& graph, std::vector<MatchType> const& matches) const override;
+    bool is_candidate(ZXGraph& graph, ZXVertex* v0, ZXVertex* v1);
 };
 
 class SpiderFusionRule : public ZXRuleTemplate<std::pair<ZXVertex*, ZXVertex*>> {

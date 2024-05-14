@@ -54,7 +54,7 @@ void dvlab::CommandLineInterface::list_all_variables() const {
  *
  * @param nPrint
  */
-void dvlab::CommandLineInterface::print_history(size_t n_print) const {
+void dvlab::CommandLineInterface::print_history(size_t n_print, HistoryFilter filter) const {
     assert(_temp_command_stored == false);
 
     if (n_print > _history.size())
@@ -64,12 +64,21 @@ void dvlab::CommandLineInterface::print_history(size_t n_print) const {
         fmt::println(("Empty command history!!"));
         return;
     }
-    for (auto const& [i, history] : _history | std::views::drop(_history.size() - n_print) | tl::views::enumerate) {
-        fmt::println("{:>4}: {}", i, history);
+    auto hist_range = _history |
+                      std::views::drop(_history.size() - n_print) |
+                      tl::views::enumerate |
+                      std::views::filter([&filter](auto const& history) {
+                          return (filter.success && history.second.status == CmdExecResult::done) ||
+                                 (filter.error && history.second.status == CmdExecResult::error) ||
+                                 (filter.unknown && history.second.status == CmdExecResult::cmd_not_found) ||
+                                 (filter.interrupted && history.second.status == CmdExecResult::interrupted);
+                      });
+    for (auto const& [i, history] : hist_range) {
+        fmt::println("{:>4}: {}", i, history.input);
     }
 }
 
-void dvlab::CommandLineInterface::write_history(std::filesystem::path const& filepath, size_t n_print, bool append_quit) const {
+void dvlab::CommandLineInterface::write_history(std::filesystem::path const& filepath, size_t n_print, bool append_quit, HistoryFilter filter) const {
     assert(_temp_command_stored == false);
 
     if (n_print > _history.size())
@@ -84,8 +93,16 @@ void dvlab::CommandLineInterface::write_history(std::filesystem::path const& fil
         spdlog::info("Empty command history!!");
         return;
     }
-    for (auto const& history : _history | std::views::drop(_history.size() - n_print)) {
-        fmt::println(ofs, "{}", history);
+    auto hist_range = _history |
+                      std::views::drop(_history.size() - n_print) |
+                      std::views::filter([&filter](auto const& history) {
+                          return (filter.success && history.status == CmdExecResult::done) ||
+                                 (filter.error && history.status == CmdExecResult::error) ||
+                                 (filter.unknown && history.status == CmdExecResult::cmd_not_found) ||
+                                 (filter.interrupted && history.status == CmdExecResult::interrupted);
+                      });
+    for (auto const& history : hist_range) {
+        fmt::println(ofs, "{}", history.input);
     }
     if (append_quit) {
         fmt::println(ofs, "quit -f");

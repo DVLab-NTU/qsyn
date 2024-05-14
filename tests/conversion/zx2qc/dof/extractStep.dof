@@ -7,7 +7,7 @@ zx copy 1
 qcir new
 qcir qubit add 3
 qcir
-zx print -q
+zx print -r
 extract print --frontier
 extract print --neighbors
 extract print --axels
@@ -32,5 +32,5 @@ qc2zx
 zx adjoint
 zx compose 0
 zx optimize --full
-zx print -q
+zx print -r
 quit -f
