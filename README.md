@@ -320,3 +320,15 @@ There are also some extra utilities:
 [Apache License 2.0](https://github.com/DVLab-NTU/qsyn/blob/main/LICENSE).
 
 Certain functions of `qsyn` is enabled by a series of third-party libraries. For a list of these libraries, as well as their license information, please refer to [this document](/vendor/README.md).
+
+## Reference
+If you are using Qsyn for your research, it will be greatly appreciated if you cite this publication:
+
+```
+@misc{Lau_Qsyn_2024,
+Author = {Mu-Te Lau and Chin-Yi Cheng and Cheng-Hua Lu and Chia-Hsu Chuang and Yi-Hsiang Kuo and Hsiang-Chun Yang and Chien-Tung Kuo and Hsin-Yu Chen and Chen-Ying Tung and Cheng-En Tsai and Guan-Hao Chen and Leng-Kai Lin and Ching-Huan Wang and Tzu-Hsu Wang and Chung-Yang Ric Huang},
+Title = {Qsyn: A Developer-Friendly Quantum Circuit Synthesis Framework for NISQ Era and Beyond},
+Year = {2024},
+Eprint = {arXiv:2405.07197},
+}
+```
