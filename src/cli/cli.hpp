@@ -23,6 +23,7 @@
 #include "argparse/arg_def.hpp"
 #include "argparse/argparse.hpp"
 #include "jthread/jthread.hpp"
+#include "util/usage.hpp"
 
 namespace dvlab {
 
@@ -39,7 +40,7 @@ struct HeterogenousStringHash {
 class CommandLineInterface;
 
 // intentionally not using enum class because it is used as the return value of main
-enum class CmdExecResult {
+enum class CmdExecResult : uint8_t {
     done,
     error,
     cmd_not_found,
@@ -159,7 +160,7 @@ public:
 
     void print_history(size_t n_print = SIZE_MAX, HistoryFilter filter = {.success = true, .error = true, .unknown = true, .interrupted = true}) const;
     void write_history(std::filesystem::path const& filepath, size_t n_print = SIZE_MAX, bool append_quit = true, HistoryFilter filter = {.success = true, .error = false, .unknown = false, .interrupted = false}) const;
-    inline void clear_history() {
+    void clear_history() {
         _history.clear();
         _history_idx = 0;
     }
@@ -174,19 +175,22 @@ public:
     constexpr static std::string_view double_quote_special_chars = "\\$";        // The characters that are identified as special characters when parsing inside double quotes
     constexpr static std::string_view special_chars              = "\\$\"\' ;";  // The characters that are identified as special characters when parsing
 
-    enum class ParseState {
-        normal,
-        single_quote,
-        double_quote,
-    };
-
     std::string get_first_token(std::string_view str) const;
     std::string get_last_token(std::string_view str) const;
 
     CmdExecResult get_last_return_status() const;
 
+    utils::Usage& usage() { return _usage; }
+    utils::Usage const& usage() const { return _usage; }
+
 private:
-    enum class TabActionResult {
+    enum class ParseState : std::uint8_t {
+        normal,
+        single_quote,
+        double_quote,
+    };
+
+    enum class TabActionResult : std::uint8_t {
         autocomplete,
         list_options,
         no_op
@@ -226,6 +230,8 @@ private:
     std::unordered_map<std::string, std::string, detail::HeterogenousStringHash, std::equal_to<>> _variables;  // stores the variables key-value pairs, e.g., $1, $INPUT_FILE, etc...
 
     std::stack<jthread::jthread> _command_threads;
+
+    utils::Usage _usage;
 
     // Private member functions
     void _clear_read_buffer_and_print_prompt();
@@ -284,7 +290,7 @@ private:
     // NOTE - This function passes the string by const ref instead of string_view because it uses std::regex
     std::string _replace_variable_keys_with_values(std::string const& str) const;
 
-    inline bool _is_special_char(char ch) const { return special_chars.find_first_of(ch) != std::string::npos; }
+    bool _is_special_char(char ch) const { return special_chars.find_first_of(ch) != std::string::npos; }
 };
 
 bool add_cli_common_cmds(dvlab::CommandLineInterface& cli);

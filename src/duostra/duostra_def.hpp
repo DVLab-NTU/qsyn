@@ -8,16 +8,18 @@
 
 #pragma once
 
-#include <cstdint>
 #include <optional>
 #include <string>
-#include <unordered_map>
+#include <vector>
+
+#include "qcir/qcir_gate.hpp"
 
 namespace qsyn::duostra {
 
-using GateIdToTime = std::unordered_map<size_t, std::pair<size_t, size_t>>;
+using GateIdToTime = std::vector<std::pair<size_t, size_t>>;
+using GateInfo     = std::pair<qcir::QCirGate, std::pair<size_t, size_t>>;
 
-enum class SchedulerType {
+enum class SchedulerType : std::uint8_t {
     base,
     naive,
     random,
@@ -25,18 +27,18 @@ enum class SchedulerType {
     search,
 };
 
-enum class PlacerType {
+enum class PlacerType : std::uint8_t {
     naive,
     random,
     dfs,
 };
 
-enum class RouterType {
+enum class RouterType : std::uint8_t {
     shortest_path,
     duostra,
 };
 
-enum class MinMaxOptionType {
+enum class MinMaxOptionType : std::uint8_t {
     min,
     max,
 };

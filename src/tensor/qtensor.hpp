@@ -36,8 +36,6 @@ public:
     QTensor(xt::nested_initializer_list_t<DataType, 4> il) : Tensor<DataType>(il) {}
     QTensor(xt::nested_initializer_list_t<DataType, 5> il) : Tensor<DataType>(il) {}
 
-    ~QTensor() override = default;
-
     QTensor(TensorShape const& shape) : Tensor<DataType>(shape) {}
     QTensor(TensorShape&& shape) : Tensor<DataType>(std::move(shape)) {}
     template <typename From>

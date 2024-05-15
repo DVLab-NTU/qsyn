@@ -8,13 +8,11 @@
 #pragma once
 
 #include <cstddef>
-#include <unordered_map>
+#include <vector>
 
 #include "qcir/basic_gate_type.hpp"
 #include "qcir/qcir_gate.hpp"
 #include "qsyn/qsyn_type.hpp"
-#include "util/ordered_hashmap.hpp"
-#include "util/ordered_hashset.hpp"
 
 namespace dvlab {
 
@@ -33,10 +31,9 @@ public:
     void reset(QCir const& qcir);
 
     // Predicate function && Utils
-    bool is_single_z_rotation(QCirGate const& g);
-    bool is_single_x_rotation(QCirGate const& g);
-    bool is_cx_or_cz_gate(QCirGate const& g);
-    std::optional<size_t> get_available_z_rotation(QubitIdType t);
+    bool is_single_z_rotation(QCirGate const& g) const;
+    bool is_single_x_rotation(QCirGate const& g) const;
+    std::optional<size_t> get_available_z_rotation(QubitIdType t) const;
 
     // basic optimization
     struct BasicOptimizationConfig {
@@ -56,14 +53,15 @@ public:
 private:
     size_t _iter = 0;
     std::vector<QCirGate> _storage;
-    dvlab::utils::ordered_hashmap<QubitIdType, std::vector<size_t>> _gates;
-    dvlab::utils::ordered_hashmap<QubitIdType, std::vector<size_t>> _available_gates;
+    std::vector<std::vector<size_t>> _gates;
+    std::vector<std::vector<size_t>> _available_gates;
     std::vector<bool> _qubit_available;
 
-    dvlab::utils::ordered_hashmap<QubitIdType, QubitIdType> _permutation;
-    dvlab::utils::ordered_hashset<QubitIdType> _hadamards;
-    dvlab::utils::ordered_hashset<QubitIdType> _xs;
-    dvlab::utils::ordered_hashset<QubitIdType> _zs;
+    std::vector<QubitIdType> _permutation;
+
+    std::vector<bool> _hs;
+    std::vector<bool> _xs;
+    std::vector<bool> _zs;
     std::vector<std::pair<QubitIdType, QubitIdType>> _swaps;
 
     struct Statistics {
@@ -79,7 +77,7 @@ private:
     } _statistics;
 
     // Utils
-    enum class ElementType {
+    enum class ElementType : std::uint8_t {
         h,
         x,
         z
@@ -112,43 +110,41 @@ private:
 
     // trivial optimization subroutines
 
-    std::vector<QCirGate*> _get_first_layer_gates(QCir& qcir, bool from_last = false);
-    void _cancel_cx_or_cz(QCir& qcir, QCirGate* prev_gate, QCirGate* gate);
     void _fuse_z_phase(QCir& qcir, QCirGate* prev_gate, QCirGate* gate);
     void _fuse_x_phase(QCir& qcir, QCirGate* prev_gate, QCirGate* gate);
     void _partial_zx_optimization(QCir& qcir);
 
-    inline size_t _store_x(QubitIdType qubit) {
+    size_t _store_x(QubitIdType qubit) {
         _storage.emplace_back(_storage.size(), XGate(), QubitIdList{qubit});
         return _storage.size() - 1;
     }
 
-    inline size_t _store_h(QubitIdType qubit) {
+    size_t _store_h(QubitIdType qubit) {
         _storage.emplace_back(_storage.size(), HGate(), QubitIdList{qubit});
         return _storage.size() - 1;
     }
 
-    inline size_t _store_s(QubitIdType qubit) {
+    size_t _store_s(QubitIdType qubit) {
         _storage.emplace_back(_storage.size(), SGate(), QubitIdList{qubit});
         return _storage.size() - 1;
     }
 
-    inline size_t _store_sdg(QubitIdType qubit) {
+    size_t _store_sdg(QubitIdType qubit) {
         _storage.emplace_back(_storage.size(), SdgGate(), QubitIdList{qubit});
         return _storage.size() - 1;
     }
 
-    inline size_t _store_cx(QubitIdType ctrl, QubitIdType targ) {
+    size_t _store_cx(QubitIdType ctrl, QubitIdType targ) {
         _storage.emplace_back(_storage.size(), CXGate(), QubitIdList{ctrl, targ});
         return _storage.size() - 1;
     }
 
-    inline size_t _store_cz(QubitIdType ctrl, QubitIdType targ) {
+    size_t _store_cz(QubitIdType ctrl, QubitIdType targ) {
         _storage.emplace_back(_storage.size(), CZGate(), QubitIdList{ctrl, targ});
         return _storage.size() - 1;
     }
 
-    inline size_t _store_single_z_rotation_gate(QubitIdType target, dvlab::Phase ph) {
+    size_t _store_single_z_rotation_gate(QubitIdType target, dvlab::Phase ph) {
         _storage.emplace_back(_storage.size(), PZGate(ph), QubitIdList{target});
         return _storage.size() - 1;
     }

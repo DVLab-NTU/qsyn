@@ -133,7 +133,7 @@ void QCir::reset() {
 }
 
 void QCir::adjoint_inplace() {
-    for (auto& g : _gate_list) {
+    for (auto& g : _id_to_gates | std::views::values) {
         g->set_operation(qsyn::qcir::adjoint(g->get_operation()));
         auto old_succs = get_successors(g->get_id());
         auto old_preds = get_predecessors(g->get_id());

@@ -16,12 +16,20 @@
 #include <fstream>
 #include <functional>
 #include <iterator>
+#include <nlohmann/json.hpp>
+#include <optional>
 #include <string>
+#include <unordered_map>
+#include <vector>
 
 #include "./zxgraph.hpp"
+#include "qsyn/qsyn_type.hpp"
+#include "util/phase.hpp"
 #include "util/sysdep.hpp"
 #include "util/tmp_files.hpp"
 #include "util/util.hpp"
+#include "zx/simplifier/simplify.hpp"
+#include "zx/zx_def.hpp"
 
 namespace qsyn::zx {
 
@@ -177,7 +185,7 @@ bool ZXFileParser::_tokenize(std::string const& line, std::vector<std::string>& 
 
     // parsing parenthesis
 
-    enum struct ParenthesisCase {
+    enum struct ParenthesisCase : std::uint8_t {
         none,
         both,
         left,
@@ -391,7 +399,7 @@ std::optional<ZXGraph> build_graph_from_parser_storage(StorageType const& storag
     for (auto& [id, info] : storage) {
         ZXVertex* v = std::invoke(
             // clang++ does not support structured binding capture by reference with OpenMP
-            [&info = info, &graph]() {
+            [&info = info, &graph]() -> ZXVertex* {
                 switch (info.type) {
                     case 'I':
                         return graph.add_input(info.qubit, info.row, info.column);
@@ -405,6 +413,7 @@ std::optional<ZXGraph> build_graph_from_parser_storage(StorageType const& storag
                         return graph.add_vertex(VertexType::h_box, info.phase, info.row, info.column);
                     default:
                         DVLAB_UNREACHABLE("unsupported vertex type");
+                        return nullptr;  // silence warning
                 }
             });
 
@@ -426,6 +435,90 @@ std::optional<ZXGraph> build_graph_from_parser_storage(StorageType const& storag
     return graph;
 }
 
+std::optional<ZXGraph> build_graph_from_json(nlohmann::json const& data) {
+    ZXGraph graph;
+    std::unordered_map<std::string, ZXVertex*> vertex_storage;
+    std::vector<std::pair<std::string, ZXVertex*>> input_order;
+    std::vector<std::pair<std::string, ZXVertex*>> output_order;
+    for (auto const& [vertex_id_str, info] : data["node_vertices"].items()) {
+        std::string phase_str = "0";
+        if (info["data"].contains("value")) {
+            phase_str = info["data"]["value"].get<std::string>();
+            using namespace std::literals;
+            size_t pos = 0;
+            while ((pos = phase_str.find("π"s, pos)) != std::string::npos) {
+                if (pos == 0 || !std::isdigit(phase_str[pos - 1])) {
+                    phase_str.replace(pos, "π"s.size(), "pi");
+                } else {
+                    phase_str.replace(pos, "π"s.size(), "*pi");
+                }
+            }
+        }
+        auto ph = dvlab::Phase::from_string(phase_str);
+
+        if (!ph.has_value()) {
+            fmt::println("{}", phase_str);
+            return std::nullopt;
+        }
+
+        auto vtype = str_to_vertex_type(info["data"]["type"].get<std::string>());
+        if (!vtype.has_value()) {
+            fmt::println("{}", info["data"]["type"].get<std::string>());
+            return std::nullopt;
+        }
+        // NOTE - negate row coords because of the y axis direction in tikz
+        vertex_storage[vertex_id_str] = graph.add_vertex(*vtype, *ph, -info["annotation"]["coord"][1].get<float>(), info["annotation"]["coord"][0]);
+    }
+
+    for (auto const& [vertex, info] : data["wire_vertices"].items()) {
+        if (!info["annotation"]["boundary"]) continue;
+        // NOTE - negate row coords because of the y axis direction in tikz
+        vertex_storage[vertex] = new ZXVertex(0, -4, VertexType::boundary, dvlab::Phase(0), -info["annotation"]["coord"][1].get<float>(), info["annotation"]["coord"][0]);
+    }
+
+    // Classify in/out
+    for (auto const& [edge_id_str, info] : data["undir_edges"].items()) {
+        if (info["src"].get<std::string>().substr(0, 1) == "b") {
+            if (vertex_storage[info["src"].get<std::string>()]->get_col() < vertex_storage[info["tgt"].get<std::string>()]->get_col()) {
+                input_order.emplace_back(info["src"], vertex_storage[info["src"].get<std::string>()]);
+            } else {
+                output_order.emplace_back(info["src"], vertex_storage[info["src"].get<std::string>()]);
+            }
+        }
+        if (info["tgt"].get<std::string>().substr(0, 1) == "b") {
+            if (vertex_storage[info["tgt"].get<std::string>()]->get_col() > vertex_storage[info["src"].get<std::string>()]->get_col())
+                output_order.emplace_back(info["tgt"], vertex_storage[info["tgt"].get<std::string>()]);
+            else
+                input_order.emplace_back(info["tgt"], vertex_storage[info["tgt"].get<std::string>()]);
+        }
+    }
+    if (input_order.size() + output_order.size() != data["wire_vertices"].size()) {
+        return std::nullopt;
+    }
+
+    std::ranges::sort(input_order, [](const auto& a, const auto& b) {
+        return a.second->get_row() < b.second->get_row();
+    });
+
+    for (size_t i = 0; i < input_order.size(); i++) {
+        vertex_storage[input_order[i].first] = graph.add_input(i, input_order[i].second->get_row(), input_order[i].second->get_col());
+    }
+
+    std::ranges::sort(output_order, [](const auto& a, const auto& b) {
+        return a.second->get_row() < b.second->get_row();
+    });
+
+    for (size_t i = 0; i < output_order.size(); i++) {
+        vertex_storage[output_order[i].first] = graph.add_output(i, output_order[i].second->get_row(), output_order[i].second->get_col());
+    }
+
+    for (auto const& [edge_id_str, info] : data["undir_edges"].items()) {
+        graph.add_edge(vertex_storage[info["src"].get<std::string>()], vertex_storage[info["tgt"].get<std::string>()], EdgeType::simple);
+    }
+    Simplifier s(&graph);
+    s.hadamard_rule_simp();
+    return graph;
+}
 }  // namespace detail
 /**
  * @brief Read a ZXGraph
@@ -462,6 +555,23 @@ std::optional<ZXGraph> from_zx(std::istream& istr, bool keep_id) {
     }
 
     return build_graph_from_parser_storage(storage.value(), keep_id);
+}
+
+/**
+ * @brief Read a ZXLive file (.zxg)
+ *
+ * @param filename
+ * @return true if correctly constructed the graph
+ * @return false
+ */
+std::optional<ZXGraph> from_json(std::filesystem::path const& filepath) {
+    std::ifstream zx_json_file(filepath);
+
+    if (!zx_json_file.is_open()) {
+        spdlog::error("Cannot open the file \"{}\"!!", filepath);
+        return std::nullopt;
+    }
+    return detail::build_graph_from_json(nlohmann::json::parse(zx_json_file));
 }
 
 /**
@@ -525,10 +635,21 @@ bool ZXGraph::write_zx(std::filesystem::path const& filename, bool complete) con
 
     for (ZXVertex* v : _vertices) {
         if (v->is_boundary()) continue;
+        char const vtypestr = [&v]() {
+            switch (v->get_type()) {
+                case VertexType::z:
+                    return 'Z';
+                case VertexType::x:
+                    return 'X';
+                case VertexType::h_box:
+                    return 'H';
+                default:
+                    DVLAB_UNREACHABLE("unsupported vertex type");
+                    return 'Z';  // silence warning
+            }
+        }();
         fmt::print(zx_file, "{}{} ({}, {})",
-                   v->is_z()   ? "Z"
-                   : v->is_x() ? "X"
-                               : "H",
+                   vtypestr,
                    v->get_id(),
                    v->get_row(),
                    std::floor(v->get_col()));
@@ -561,6 +682,106 @@ bool ZXGraph::write_tikz(std::string const& filename) const {
     }
 
     return write_tikz(tikz_file);
+}
+
+/**
+ * @brief Generate json file (for ZXLive)
+ *
+ * @param filename
+ * @return true if the filename is valid
+ * @return false if not
+ */
+bool ZXGraph::write_json(std::filesystem::path const& filename) const {
+    std::ofstream json_file{filename};
+    if (!json_file.is_open()) {
+        spdlog::error("Cannot open the file \"{}\"!!", filename);
+        return false;
+    }
+    nlohmann::json json;
+    std::vector<EdgePair> simple_edges;
+    std::vector<EdgePair> hadamard_edges;
+    std::unordered_map<ZXVertex*, std::string> vertex2label;
+    auto vtypestr = [&](ZXVertex* v) {
+        switch (v->get_type()) {
+            case VertexType::z:
+                return "Z";
+            case VertexType::x:
+                return "X";
+            case VertexType::h_box:
+                return "H";
+            default:
+                DVLAB_UNREACHABLE("unsupported vertex type");
+                return "Z";  // silence warning
+        }
+    };
+    for_each_edge([&](EdgePair const& epair) {
+        if (epair.second == EdgeType::simple)
+            simple_edges.emplace_back(epair);
+        else if (epair.second == EdgeType::hadamard)
+            hadamard_edges.emplace_back(epair);
+    });
+
+    // Inner vertices
+
+    size_t node_vertices_counter = 0;
+    for (auto const& v : _vertices) {
+        if (v->get_type() == VertexType::boundary) continue;
+        const std::string label                    = fmt::format("v{}", std::to_string(node_vertices_counter));
+        json["node_vertices"][label]["annotation"] = {
+            {"coord", {v->get_col(), -v->get_row()}}};
+        json["node_vertices"][label]["data"]["type"] = vtypestr(v);
+        if (v->get_phase() != dvlab::Phase(0))
+            json["node_vertices"][label]["data"]["value"] = v->get_phase().get_print_string();
+        node_vertices_counter++;
+        vertex2label[v] = label;
+    }
+
+    // Boundary
+    size_t wire_vertices_counter = 0;
+    auto write_boundaries        = [&](const ZXVertexList& io) {
+        for (auto const& v : io) {
+            const std::string label                                = fmt::format("b{}", std::to_string(wire_vertices_counter));
+            json["wire_vertices"][label]["annotation"]["boundary"] = true;
+            json["wire_vertices"][label]["annotation"]["coord"] =
+                {v->get_col(), -v->get_row()};
+            wire_vertices_counter++;
+            vertex2label[v] = label;
+        }
+    };
+    write_boundaries(_inputs);
+    write_boundaries(_outputs);
+
+    size_t edge_counter = 0;
+    for (auto const& edge : hadamard_edges) {
+        const std::string label                    = fmt::format("v{}", std::to_string(node_vertices_counter));
+        json["node_vertices"][label]["annotation"] = {
+            {"coord", {(edge.first.first->get_col() + edge.first.second->get_col()) / 2, -(edge.first.first->get_row() + edge.first.second->get_row()) / 2}}};
+        json["node_vertices"][label]["data"]["type"]    = "hadamard";
+        json["node_vertices"][label]["data"]["is_edge"] = "true",
+        node_vertices_counter++;
+
+        const std::string label_e1           = fmt::format("e{}", std::to_string(edge_counter));
+        const std::string label_e2           = fmt::format("e{}", std::to_string(edge_counter + 1));
+        json["undir_edges"][label_e1]["src"] = vertex2label[edge.first.first];
+        json["undir_edges"][label_e1]["tgt"] = label;
+        json["undir_edges"][label_e2]["src"] = label;
+        json["undir_edges"][label_e2]["tgt"] = vertex2label[edge.first.second];
+        edge_counter += 2;
+    }
+
+    for (auto const& edge : simple_edges) {
+        const std::string label           = fmt::format("e{}", std::to_string(edge_counter));
+        json["undir_edges"][label]["src"] = vertex2label[edge.first.first];
+        json["undir_edges"][label]["tgt"] = vertex2label[edge.first.second];
+        edge_counter++;
+    }
+
+    // NOTE - Fix the below information if needed
+    json["variable_types"] = nlohmann::json({});
+    json["scalar"]         = "{\"power2\": 0, \"phase\": \"0\"}";
+
+    json_file << std::setw(4) << json << "\n";
+    return true;
 }
 
 /**

@@ -108,7 +108,7 @@ Command convert_from_qcir_cmd(
 
                     tableau_mgr.get()->set_filename(qcir_mgr.get()->get_filename());
                     tableau_mgr.get()->add_procedures(qcir_mgr.get()->get_procedures());
-                    tableau_mgr.get()->add_procedure("QC2TB");
+                    tableau_mgr.get()->add_procedure("QC2TABL");
                 }
                 return CmdExecResult::done;
             }
@@ -149,7 +149,7 @@ Command convert_from_zx_cmd(zx::ZXGraphMgr& zxgraph_mgr, QCirMgr& qcir_mgr, tens
                 extractor::Extractor ext(&target, parser.parsed("--random"), nullptr /*, std::nullopt*/);
                 qcir::QCir* result = ext.extract();
                 if (result != nullptr) {
-                    qcir_mgr.add(qcir_mgr.get_next_id(), std::make_unique<qcir::QCir>(*result));
+                    qcir_mgr.add(qcir_mgr.get_next_id(), std::unique_ptr<qcir::QCir>(result));
                     qcir_mgr.get()->set_filename(zxgraph_mgr.get()->get_filename());
                     qcir_mgr.get()->add_procedures(zxgraph_mgr.get()->get_procedures());
                     if (!extractor::PERMUTE_QUBITS) {
@@ -248,6 +248,7 @@ Command convert_from_tableau_cmd(experimental::TableauMgr& tableau_mgr, qcir::QC
                     if (dvlab::str::is_prefix_of(dvlab::str::tolower_string(clifford_strategy_str), "hopt")) return std::make_unique<experimental::HOptSynthesisStrategy>();
                     if (dvlab::str::is_prefix_of(dvlab::str::tolower_string(clifford_strategy_str), "ag")) return std::make_unique<experimental::AGSynthesisStrategy>();
                     DVLAB_UNREACHABLE("Invalid clifford strategy!!");
+                    return nullptr;
                 });
 
                 auto const rotation_strategy = std::invoke([&]() -> std::unique_ptr<experimental::PauliRotationsSynthesisStrategy> {
@@ -255,6 +256,7 @@ Command convert_from_tableau_cmd(experimental::TableauMgr& tableau_mgr, qcir::QC
                     if (dvlab::str::is_prefix_of(dvlab::str::tolower_string(rotation_strategy_str), "naive")) return std::make_unique<experimental::NaivePauliRotationsSynthesisStrategy>();
                     if (dvlab::str::is_prefix_of(dvlab::str::tolower_string(rotation_strategy_str), "tpar")) return std::make_unique<experimental::TParPauliRotationsSynthesisStrategy>();
                     DVLAB_UNREACHABLE("Invalid rotation strategy!!");
+                    return nullptr;
                 });
 
                 spdlog::info("Converting to Tableau {} to QCir {}...", tableau_mgr.focused_id(), qcir_mgr.get_next_id());
@@ -265,7 +267,7 @@ Command convert_from_tableau_cmd(experimental::TableauMgr& tableau_mgr, qcir::QC
 
                     qcir_mgr.get()->set_filename(tableau_mgr.get()->get_filename());
                     qcir_mgr.get()->add_procedures(tableau_mgr.get()->get_procedures());
-                    qcir_mgr.get()->add_procedure("TB2QC");
+                    qcir_mgr.get()->add_procedure("TABL2QC");
                 }
 
                 return CmdExecResult::done;
@@ -332,8 +334,8 @@ bool add_conversion_cmds(dvlab::CommandLineInterface& cli, QCirMgr& qcir_mgr, qs
           cli.add_alias("zx2ts", "convert zx tensor") &&
           cli.add_alias("zx2qc", "convert zx qcir") &&
           cli.add_alias("ts2qc", "convert tensor qcir") &&
-          cli.add_alias("qc2tb", "convert qcir tableau") &&
-          cli.add_alias("tb2qc", "convert tableau qcir"))) {
+          cli.add_alias("qc2tabl", "convert qcir tableau") &&
+          cli.add_alias("tabl2qc", "convert tableau qcir"))) {
         fmt::println(stderr, "Registering \"conversion\" commands fails... exiting");
         return false;
     }

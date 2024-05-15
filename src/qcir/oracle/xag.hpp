@@ -20,7 +20,7 @@ namespace qsyn::qcir {
 
 // TODO: use output node to represent the output of the circuit
 //  NOLINTBEGIN(readability-identifier-naming)  // lower cases are reserved by the c++ language
-enum class XAGNodeType {
+enum class XAGNodeType : std::uint8_t {
     CONST_1,
     INPUT,
     XOR,

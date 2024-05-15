@@ -149,10 +149,9 @@ tensor::QTensor<double> get_tensor_form(zx::ZXGraph const& graph, zx::ZXVertex* 
             return tensor::QTensor<double>::hbox(graph.get_num_neighbors(v));
         case zx::VertexType::boundary:
             return tensor::QTensor<double>::identity(graph.get_num_neighbors(v));
-        default:
-            spdlog::critical("Invalid vertex type!! ({})", v->get_id());
-            exit(1);
     }
+
+    return tensor::QTensor<double>(1. + 0.i);
 }
 
 namespace {

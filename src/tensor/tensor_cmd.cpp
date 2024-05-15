@@ -120,12 +120,12 @@ Command tensor_adjoint_cmd(TensorMgr& tensor_mgr) {
 Command tensor_equivalence_cmd(TensorMgr& tensor_mgr) {
     return {"equiv",
             [&](ArgumentParser& parser) {
-                parser.description("check the equivalency of two stored tensors");
+                parser.description("check if two tensors are equivalent");
 
                 parser.add_argument<size_t>("ids")
                     .nargs(1, 2)
                     .constraint(valid_tensor_id(tensor_mgr))
-                    .help("Compare the two tensors. If only one is specified, compare with the tensor on focus");
+                    .help("Compare the two tensors. If only one is specified, compare with the tensor in focus");
                 parser.add_argument<double>("-e", "--epsilon")
                     .metavar("eps")
                     .default_value(1e-6)

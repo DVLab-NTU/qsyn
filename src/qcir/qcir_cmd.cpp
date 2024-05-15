@@ -7,10 +7,12 @@
 
 #include "qcir/qcir_cmd.hpp"
 
+#include <fmt/color.h>
 #include <fmt/ostream.h>
 #include <spdlog/spdlog.h>
 
 #include <cstddef>
+#include <cstdint>
 #include <filesystem>
 #include <string>
 
@@ -18,9 +20,11 @@
 #include "./optimizer/optimizer_cmd.hpp"
 #include "./oracle/oracle_cmd.hpp"
 #include "./qcir.hpp"
+#include "./qcir_equiv.hpp"
 #include "./qcir_gate.hpp"
 #include "./qcir_io.hpp"
 #include "./qcir_mgr.hpp"
+#include "./qcir_translate.hpp"
 #include "argparse/arg_parser.hpp"
 #include "argparse/arg_type.hpp"
 #include "cli/cli.hpp"
@@ -28,6 +32,7 @@
 #include "util/data_structure_manager_common_cmd.hpp"
 #include "util/dvlab_string.hpp"
 #include "util/phase.hpp"
+#include "util/text_format.hpp"
 #include "util/util.hpp"
 
 using namespace dvlab::argparse;
@@ -243,8 +248,10 @@ dvlab::Command qcir_write_cmd(QCirMgr const& qcir_mgr) {
             if (!dvlab::utils::mgr_has_data(qcir_mgr))
                 return CmdExecResult::error;
 
-            enum class OutputFormat { qasm,
-                                      latex_qcircuit };
+            enum class OutputFormat : std::uint8_t {
+                qasm,
+                latex_qcircuit
+            };
             auto output_type = std::invoke([&]() -> OutputFormat {
                 if (parser.parsed("--format")) {
                     if (dvlab::str::is_prefix_of(parser.get<std::string>("--format"),
@@ -486,12 +493,16 @@ dvlab::Command qcir_gate_add_cmd(QCirMgr& qcir_mgr) {
                 return CmdExecResult::error;
             bool const do_prepend = parser.parsed("--prepend");
 
-            auto type = parser.get<std::string>("type");
-            type      = dvlab::str::tolower_string(type);
-            auto bits = parser.get<QubitIdList>("qubits");
+            auto const type = dvlab::str::tolower_string(parser.get<std::string>("type"));
+            auto const bits = parser.get<QubitIdList>("qubits");
+
+            if (!QCirGate::qubit_id_is_unique(bits)) {
+                spdlog::error("Qubits must be unique!!");
+                return CmdExecResult::error;
+            }
 
             if (type.starts_with("mc")) {
-                auto op = str_to_operation(
+                auto const op = str_to_operation(
                     type.substr(2), parser.get<std::vector<dvlab::Phase>>("--phase"));
                 if (!op.has_value()) {
                     spdlog::error("Invalid gate type {}!!", type);
@@ -511,7 +522,7 @@ dvlab::Command qcir_gate_add_cmd(QCirMgr& qcir_mgr) {
                                : qcir_mgr.get()->append(*op, bits);
                 }
             } else {
-                auto op = str_to_operation(
+                auto const op = str_to_operation(
                     type, parser.get<std::vector<dvlab::Phase>>("--phase"));
                 if (!op.has_value()) {
                     spdlog::error("Invalid gate type {}!!", type);
@@ -647,15 +658,73 @@ dvlab::Command qcir_translate_cmd(QCirMgr& qcir_mgr) {
                                                                 "kyiv", "prague"});
             },
             [=, &qcir_mgr](ArgumentParser const& parser) {
-                QCir translated_qcir;
-                auto gate_set = parser.get<std::string>("gate_set");
-                translated_qcir.translate(*qcir_mgr.get(), gate_set);
+                auto const gate_set  = parser.get<std::string>("gate_set");
+                auto translated_qcir = translate(*qcir_mgr.get(), gate_set);
+                if (!translated_qcir) {
+                    spdlog::error("Translation fails!!");
+                    return CmdExecResult::error;
+                }
                 std::string const filename = qcir_mgr.get()->get_filename();
-                qcir_mgr.set(std::make_unique<QCir>(std::move(translated_qcir)));
+                qcir_mgr.set(std::make_unique<QCir>(*std::move(translated_qcir)));
                 qcir_mgr.get()->set_filename(filename);
                 return CmdExecResult::done;
             }};
 }
+
+Command qcir_equiv_cmd(QCirMgr& qcir_mgr) {
+    return {
+        "equiv",
+        [&](ArgumentParser& parser) {
+            parser.description(
+                "check if two circuits are equivalent. A Tableau-based "
+                "method is used to check the equivalence. If that fails, "
+                "and the circuits are small enough, also verify the "
+                "equivalence are through tensor calculation.");
+
+            parser.add_argument<size_t>("ids")
+                .nargs(1, 2)
+                .constraint(valid_qcir_id(qcir_mgr))
+                .help("Compare the two QCirs. If only one is specified, compare with the QCir in focus");
+        },
+        [&](ArgumentParser const& parser) {
+            if (!dvlab::utils::mgr_has_data(qcir_mgr))
+                return CmdExecResult::error;
+
+            auto const ids = parser.get<std::vector<size_t>>("ids");
+
+            if ((ids.size() == 2 && ids[0] == ids[1]) ||
+                (ids.size() == 1 && qcir_mgr.focused_id() == ids[0])) {
+                spdlog::info("Note: comparing the same circuit...");
+            }
+            auto const is_equiv = [&]() -> bool {
+                if (ids.size() == 1) {
+                    return is_equivalent(
+                        *qcir_mgr.get(),
+                        *qcir_mgr.find_by_id(ids[0]));
+                } else {
+                    return is_equivalent(
+                        *qcir_mgr.find_by_id(ids[0]),
+                        *qcir_mgr.find_by_id(ids[1]));
+                }
+            }();
+
+            if (is_equiv) {
+                fmt::println(
+                    "{}",
+                    dvlab::fmt_ext::styled_if_ansi_supported(
+                        "The two circuits are equivalent!!",
+                        fmt::fg(fmt::terminal_color::green) | fmt::emphasis::bold));
+            } else {
+                fmt::println(
+                    "{}",
+                    dvlab::fmt_ext::styled_if_ansi_supported(
+                        "The two circuits are not equivalent!!",
+                        fmt::fg(fmt::terminal_color::red) | fmt::emphasis::bold));
+            }
+
+            return CmdExecResult::done;
+        }};
+};
 
 Command qcir_cmd(QCirMgr& qcir_mgr) {
     auto cmd = dvlab::utils::mgr_root_cmd(qcir_mgr);
@@ -679,6 +748,7 @@ Command qcir_cmd(QCirMgr& qcir_mgr) {
     cmd.add_subcommand("qcir-cmd-group", qcir_optimize_cmd(qcir_mgr));
     cmd.add_subcommand("qcir-cmd-group", qcir_translate_cmd(qcir_mgr));
     cmd.add_subcommand("qcir-cmd-group", qcir_oracle_cmd(qcir_mgr));
+    cmd.add_subcommand("qcir-cmd-group", qcir_equiv_cmd(qcir_mgr));
     return cmd;
 }
 

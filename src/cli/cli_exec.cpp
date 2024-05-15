@@ -191,7 +191,7 @@ dvlab::CommandLineInterface::_parse_one_command(std::string_view cmd) {
 
 CmdExecResult CommandLineInterface::_dispatch_command(dvlab::Command* cmd, std::vector<argparse::Token> options) {
     std::atomic<CmdExecResult> exec_result = CmdExecResult::done;
-
+    _usage.start_tick();
     _command_threads.emplace(
         [&cmd, &options, &exec_result]() {
             exec_result = cmd->execute(options);
@@ -201,8 +201,9 @@ CmdExecResult CommandLineInterface::_dispatch_command(dvlab::Command* cmd, std::
 
     assert(_command_threads.top().get_stop_token().stop_requested() == false);
 
-    // wair for the command to finish
+    // wait for the command to finish
     _command_threads.top().join();
+    _usage.end_tick();
 
     // we must check if the command is interrupted after the thread is joined
     // but before the thread is popped from the stack
@@ -264,11 +265,11 @@ std::string dvlab::CommandLineInterface::_replace_variable_keys_with_values(std:
         }
     }
 
-    std::ranges::sort(to_replace, [](auto const& lhs, auto const& rhs) { return std::get<0>(lhs) < std::get<0>(rhs); });
+    std::ranges::sort(to_replace, std::ranges::less{}, [](auto const& tuple) { return std::get<0>(tuple); });
 
     size_t cursor      = 0;
     std::string result = "";
-    for (auto [pos, len, val] : to_replace) {
+    for (auto const& [pos, len, val] : to_replace) {
         result += str.substr(cursor, pos - cursor);
         result += val;
         cursor = pos + len;

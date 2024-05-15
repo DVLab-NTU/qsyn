@@ -7,6 +7,7 @@
 #include "./tableau_optimization.hpp"
 
 #include <fmt/core.h>
+#include <spdlog/spdlog.h>
 
 #include <functional>
 #include <gsl/narrow>
@@ -17,11 +18,33 @@
 #include <vector>
 
 #include "tableau/pauli_rotation.hpp"
+#include "tableau/stabilizer_tableau.hpp"
 #include "tableau/tableau.hpp"
 
 namespace qsyn {
 
 namespace experimental {
+
+/**
+ * @brief Perform the best-known optimization routine on the tableau. The strategy may change in the future.
+ *
+ * @param tableau
+ */
+void full_optimize(Tableau& tableau) {
+    size_t non_clifford_count = SIZE_MAX;
+    size_t count              = 0;
+    do {  // NOLINT(cppcoreguidelines-avoid-do-while)
+        non_clifford_count = tableau.n_pauli_rotations();
+        spdlog::debug("TMerge");
+        merge_rotations(tableau);
+        spdlog::debug("Internal-H-opt");
+        minimize_internal_hadamards(tableau);
+        spdlog::debug("Phase polynomial optimization");
+        optimize_phase_polynomial(tableau, ToddPhasePolynomialOptimizationStrategy{});
+        spdlog::info("{}: Reduced the number of non-Clifford gates from {} to {}.", ++count, non_clifford_count, tableau.n_pauli_rotations());
+    } while (non_clifford_count > tableau.n_pauli_rotations());
+    minimize_internal_hadamards(tableau);
+}
 
 namespace {
 /**
@@ -68,19 +91,23 @@ private:
 }  // namespace
 
 /**
- * @brief Pushing all the Clifford operatos to the first sub-tableau and merging all the Pauli rotations.
+ * @brief Pushing all the Clifford operators to the first sub-tableau and merging all the Pauli rotations.
  *
  * @param tableau
  */
 void collapse(Tableau& tableau) {
     size_t const n_qubits = tableau.n_qubits();
 
-    if (tableau.size() <= 1) return;
+    if (tableau.is_empty()) {
+        return;
+    }
 
     // prepend a stabilizer tableau to the front if the first sub-tableau is a list of PauliRotations
     if (std::holds_alternative<std::vector<PauliRotation>>(tableau.front())) {
         tableau.insert(tableau.begin(), StabilizerTableau{n_qubits});
     }
+
+    if (tableau.size() <= 1) return;
 
     // make all clifford operators to be the identity except the first one
     auto clifford_string = CliffordOperatorString{};
@@ -163,11 +190,10 @@ void remove_identities(Tableau& tableau) {
             tableau.begin(),
             tableau.end(),
             [](SubTableau const& subtableau) -> bool {
-                return std::visit(
-                    dvlab::overloaded{
-                        [](const StabilizerTableau& subtableau) { return subtableau.is_identity(); },
-                        [](const std::vector<PauliRotation>& subtableau) { return subtableau.empty(); }},
-                    subtableau);
+                return dvlab::match(
+                    subtableau,
+                    [](StabilizerTableau const& subtableau) { return subtableau.is_identity(); },
+                    [](std::vector<PauliRotation> const& subtableau) { return subtableau.empty(); });
             }),
         tableau.end());
 
@@ -198,8 +224,6 @@ void remove_identities(Tableau& tableau) {
  * @param rotations
  */
 void merge_rotations(std::vector<PauliRotation>& rotations) {
-    assert(std::ranges::all_of(rotations, [&rotations](PauliRotation const& rotation) { return rotation.n_qubits() == rotations.front().n_qubits(); }));
-
     // merge two rotations if they are commutative and have the same underlying pauli product
     for (size_t i = 0; i < rotations.size(); ++i) {
         for (size_t j = i + 1; j < rotations.size(); ++j) {
@@ -216,31 +240,18 @@ void merge_rotations(std::vector<PauliRotation>& rotations) {
 }
 
 /**
- * @brief merge rotations that are commutative and have the same underlying pauli product.
- *        If a rotation becomes Clifford, absorb it into the initial Clifford operator.
- *        This algorithm is inspired by the paper [[1903.12456] Optimizing T gates in Clifford+T circuit as $π/4$ rotations around Paulis](https://arxiv.org/abs/1903.12456)
+ * @brief Absorb the Clifford rotations in `rotations` into the `clifford` tableau.
  *
  * @param clifford
  * @param rotations
  */
-void merge_rotations(Tableau& tableau) {
-    collapse(tableau);
-
-    if (tableau.size() == 1) {
-        return;
-    }
-
-    auto& clifford  = std::get<StabilizerTableau>(tableau.front());
-    auto& rotations = std::get<std::vector<PauliRotation>>(tableau.back());
-
-    merge_rotations(rotations);
-
-    for (size_t i = 0; i < rotations.size(); ++i) {
+void absorb_clifford_rotations(StabilizerTableau& clifford, std::vector<PauliRotation>& rotations) {
+    for (size_t const i : std::views::iota(0ul, rotations.size())) {
         if (rotations[i].phase() != dvlab::Phase(1, 2) &&
             rotations[i].phase() != dvlab::Phase(-1, 2) &&
             rotations[i].phase() != dvlab::Phase(1)) continue;
 
-        ConjugationView conjugation_view{clifford, rotations, i};
+        auto conjugation_view = ConjugationView{clifford, rotations, i};
 
         auto [ops, qubit] = extract_clifford_operators(rotations[i]);
 
@@ -265,108 +276,166 @@ void merge_rotations(Tableau& tableau) {
     remove_identities(rotations);
 }
 
-void implement_into_tableau(Tableau& tableau, StabilizerTableau& context, size_t qubit, dvlab::Phase const& phase) {
-    auto const qubit_range = std::views::iota(0ul, context.n_qubits());
-    StabilizerTableau clifford{context.n_qubits()};
+/**
+ * @brief make all rotations proper by absorbing the Clifford effect into the initial Clifford operator.
+ *
+ * @param clifford
+ * @param rotations
+ */
+void properize(StabilizerTableau& clifford, std::vector<PauliRotation>& rotations) {
+    merge_rotations(rotations);
 
-    auto stabilizer = std::ref(context.stabilizer(qubit));
+    // checks if the phase is in the range [0, π/2)
+    auto const is_proper_phase = [](dvlab::Phase const& phase) {
+        auto const numerator   = phase.numerator();
+        auto const denominator = phase.denominator();
+        return 0 <= numerator && 2 * numerator < denominator;
+    };
 
-    auto ctrl = gsl::narrow<size_t>(
-        std::ranges::distance(
-            qubit_range.begin(),
-            std::ranges::find_if(qubit_range, [&stabilizer](size_t i) {
-                return stabilizer.get().is_x_set(i);
-            })));
+    // properize the rotations from the last to the first
+    // the order is important because absorbing a rotation may change the phase of the preceding rotations
+    for (size_t const i : std::views::iota(0ul, rotations.size()) | std::views::reverse) {
+        auto complement_phase = dvlab::Phase(0);
+        while (!is_proper_phase(rotations[i].phase())) {
+            rotations[i].phase() -= dvlab::Phase(1, 2);
+            complement_phase += dvlab::Phase(1, 2);
+        }
+        if (complement_phase == dvlab::Phase(0)) continue;
 
-    if (ctrl < context.n_qubits()) {
-        for (size_t targ = ctrl + 1; targ < context.n_qubits(); ++targ) {
-            if (stabilizer.get().is_x_set(targ)) {
-                context.cx(ctrl, targ);
-                clifford.cx(ctrl, targ);
-            }
+        auto [ops, qubit] = extract_clifford_operators(rotations[i]);
+
+        auto conjugation_view = ConjugationView{clifford, rotations, i};
+
+        conjugation_view.apply(ops);
+
+        if (complement_phase == dvlab::Phase(1, 2)) {
+            conjugation_view.s(qubit);
+        } else if (complement_phase == dvlab::Phase(-1, 2)) {
+            conjugation_view.sdg(qubit);
+        } else {
+            assert(complement_phase == dvlab::Phase(1));
+            conjugation_view.z(qubit);
         }
 
-        if (stabilizer.get().is_z_set(ctrl)) {
-            context.s(ctrl);
-            clifford.s(ctrl);
+        adjoint_inplace(ops);
+
+        conjugation_view.apply(ops);
+    }
+
+    remove_identities(rotations);
+}
+
+void properize(Tableau& tableau) {
+    if (tableau.is_empty()) {
+        return;
+    }
+    // ensures that the first sub-tableau is a stabilizer tableau
+    if (std::holds_alternative<std::vector<PauliRotation>>(tableau.front())) {
+        tableau.insert(tableau.begin(), StabilizerTableau{tableau.n_qubits()});
+    }
+
+    // merge consecutive pauli rotation tableaux into one
+    auto new_tableau = Tableau{tableau.n_qubits()};
+    new_tableau.push_back(tableau.front());
+    for (auto const& subtableau : tableau | std::views::drop(1)) {
+        std::visit(
+            dvlab::overloaded(
+                [](StabilizerTableau& st1, StabilizerTableau const& st2) {
+                    st1.apply(extract_clifford_operators(st2));
+                },
+                [&](StabilizerTableau const& /* st1 */, std::vector<PauliRotation> const& pr2) {
+                    new_tableau.push_back(pr2);
+                },
+                [&](std::vector<PauliRotation> const& /* pr1 */, StabilizerTableau const& st2) {
+                    new_tableau.push_back(st2);
+                },
+                [&](std::vector<PauliRotation>& pr1, std::vector<PauliRotation> const& pr2) {
+                    pr1.insert(pr1.end(), pr2.begin(), pr2.end());
+                }),
+            new_tableau.back(), subtableau);
+    }
+
+    tableau = new_tableau;
+
+    auto clifford = std::ref(std::get<StabilizerTableau>(tableau.front()));
+    for (auto& subtableau : tableau | std::views::drop(1)) {
+        std::visit(
+            dvlab::overloaded(
+                [&clifford](StabilizerTableau& st) {
+                    clifford = std::ref(st);
+                },
+                [&clifford](std::vector<PauliRotation>& pr) {
+                    properize(clifford.get(), pr);
+                }),
+            subtableau);
+    }
+
+    remove_identities(tableau);
+}
+
+/**
+ * @brief merge rotations that are commutative and have the same underlying pauli product.
+ *        If a rotation becomes Clifford, absorb it into the initial Clifford operator.
+ *        This algorithm is inspired by the paper [[1903.12456] Optimizing T gates in Clifford+T circuit as $π/4$ rotations around Paulis](https://arxiv.org/abs/1903.12456)
+ *
+ * @param clifford
+ * @param rotations
+ */
+void merge_rotations(Tableau& tableau) {
+    collapse(tableau);
+
+    if (tableau.size() <= 1) {
+        return;
+    }
+
+    auto& clifford  = std::get<StabilizerTableau>(tableau.front());
+    auto& rotations = std::get<std::vector<PauliRotation>>(tableau.back());
+
+    merge_rotations(rotations);
+    absorb_clifford_rotations(clifford, rotations);
+}
+
+// phase polynomial optimization
+
+/**
+ * @brief Reduce the number of terms for the phase polynomial. If the polynomial is not a phase polynomial, do nothing.
+ *
+ * @param polynomial
+ * @param strategy
+ */
+void optimize_phase_polynomial(StabilizerTableau& clifford, std::vector<PauliRotation>& polynomial, PhasePolynomialOptimizationStrategy const& strategy) {
+    if (!is_phase_polynomial(polynomial)) {
+        return;
+    }
+
+    std::tie(clifford, polynomial) = strategy.optimize(clifford, polynomial);
+}
+
+/**
+ * @brief Reduce the number of terms for all phase polynomials in the tableau.
+ *
+ * @param tableau
+ * @param strategy
+ */
+void optimize_phase_polynomial(Tableau& tableau, PhasePolynomialOptimizationStrategy const& strategy) {
+    if (tableau.is_empty()) {
+        return;
+    }
+    // if the first sub-tableau is a list of PauliRotations, prepend a stabilizer tableau to the front
+    if (std::holds_alternative<std::vector<PauliRotation>>(tableau.front())) {
+        tableau.insert(tableau.begin(), StabilizerTableau{tableau.n_qubits()});
+    }
+
+    auto last_clifford = std::ref(std::get<StabilizerTableau>(tableau.front()));
+    for (auto& subtableau : tableau) {
+        if (auto pr = std::get_if<std::vector<PauliRotation>>(&subtableau)) {
+            optimize_phase_polynomial(last_clifford.get(), *pr, strategy);
+        } else {
+            last_clifford = std::get<StabilizerTableau>(subtableau);
         }
-
-        context.h(ctrl);
-        clifford.h(ctrl);
     }
 
-    if (!clifford.is_identity()) {
-        tableau.push_back(clifford);
-    }
-
-    std::visit(
-        dvlab::overloaded(
-            [&](StabilizerTableau& /* unused */) {
-                tableau.push_back(std::vector{PauliRotation{stabilizer, phase}});
-            },
-            [&](std::vector<PauliRotation>& subtableau) {
-                subtableau.push_back(PauliRotation{stabilizer, phase});
-            }),
-        tableau.back());
-}
-
-std::pair<Tableau, StabilizerTableau> minimize_hadamards(Tableau tableau, StabilizerTableau context) {
-    collapse(tableau);
-
-    auto const& initial_clifford = std::get<StabilizerTableau>(tableau.front());
-    std::ranges::for_each(
-        extract_clifford_operators(initial_clifford),
-        [&context](CliffordOperator const& op) {
-            context.prepend(adjoint(op));
-        });
-
-    if (tableau.size() == 1) {
-        return {Tableau{context.n_qubits()}, context};
-    }
-
-    auto const& rotations = std::get<std::vector<PauliRotation>>(tableau.back());
-
-    auto new_tableau = Tableau{context.n_qubits()};
-    for (auto const& rotation : rotations) {
-        auto const [ops, qubit] = extract_clifford_operators(rotation);
-
-        std::ranges::for_each(ops, [&context](CliffordOperator const& op) {
-            context.prepend(adjoint(op));
-        });
-
-        implement_into_tableau(new_tableau, context, qubit, rotation.phase());
-
-        std::ranges::for_each(adjoint(ops), [&context](CliffordOperator const& op) {
-            context.prepend(adjoint(op));
-        });
-    }
-
-    return {new_tableau, context};
-}
-
-Tableau minimize_internal_hadamards(Tableau tableau) {
-    collapse(tableau);
-
-    auto context = StabilizerTableau{tableau.n_qubits()};
-
-    std::ranges::for_each(
-        extract_clifford_operators(std::get<StabilizerTableau>(tableau.front())),
-        [&context](CliffordOperator const& op) {
-            context.prepend(adjoint(op));
-        });
-
-    auto [_, initial_clifford]         = minimize_hadamards(Tableau{adjoint(tableau.front())}, context);
-    auto [out_tableau, final_clifford] = minimize_hadamards(tableau, initial_clifford);
-
-    out_tableau.insert(out_tableau.begin(), initial_clifford);
-    out_tableau.push_back(adjoint(final_clifford));
-
-    remove_identities(out_tableau);
-
-    out_tableau.set_filename(tableau.get_filename());
-    out_tableau.add_procedures(tableau.get_procedures());
-
-    return out_tableau;
+    remove_identities(tableau);
 }
 
 // matroid partitioning
@@ -402,7 +471,7 @@ std::optional<Tableau> matroid_partition(Tableau const& tableau, MatroidPartitio
             if (!partitions) {
                 return std::nullopt;
             }
-            for (auto const& partition : partitions.value()) {
+            for (auto const& partition : *partitions) {
                 new_tableau.push_back(partition);
             }
         } else {

@@ -25,7 +25,7 @@ QCirGate::QCirGate(size_t id, Operation const& op, QubitIdList qubits)
     : _id(id),
       _operation{op},
       _qubits{std::move(qubits)} {
-    DVLAB_ASSERT(_qubit_id_is_unique(_qubits), "Qubits must be unique!");
+    DVLAB_ASSERT(qubit_id_is_unique(_qubits), "Qubits must be unique!");
 }
 
 void QCirGate::set_operation(Operation const& op) {
@@ -63,7 +63,7 @@ void QCirGate::set_qubits(QubitIdList qubits) {
         spdlog::error("Qubits cannot be set with different size!");
         return;
     }
-    if (!_qubit_id_is_unique(qubits)) {
+    if (!qubit_id_is_unique(qubits)) {
         spdlog::error("Qubits cannot be set with duplicate qubits!");
         return;
     }
@@ -71,7 +71,7 @@ void QCirGate::set_qubits(QubitIdList qubits) {
     _qubits = std::move(qubits);
 }
 
-bool QCirGate::_qubit_id_is_unique(QubitIdList const& qubits) {
+bool QCirGate::qubit_id_is_unique(QubitIdList const& qubits) {
     return std::set(qubits.begin(), qubits.end()).size() == qubits.size();
 }
 

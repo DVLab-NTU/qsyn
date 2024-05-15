@@ -15,12 +15,18 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 include(FetchContent)
 set(FETCHCONTENT_UPDATES_DISCONNECTED TRUE)
 
-project(
-  qsyn
-  LANGUAGES CXX
-  VERSION 0.6.3)
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+  set(QSYN_PROJECT_NAME qsyn-debug)
+else()
+  set(QSYN_PROJECT_NAME qsyn)
+endif()
 
-find_package(OpenMP REQUIRED)
+project(
+  ${QSYN_PROJECT_NAME}
+  LANGUAGES CXX
+  VERSION 0.7.0)
+
+# find_package(OpenMP REQUIRED)
 
 set(BLA_VENDER OpenBLAS)
 find_package(BLAS REQUIRED)
@@ -61,14 +67,14 @@ FetchContent_Declare(
   fmt
   SYSTEM
   GIT_REPOSITORY https://github.com/fmtlib/fmt.git
-  GIT_TAG 10.0.0)
+  GIT_TAG 10.2.1)
 FetchContent_MakeAvailable(fmt)
 
 FetchContent_Declare(
   spdlog
   SYSTEM
   GIT_REPOSITORY https://github.com/gabime/spdlog.git
-  GIT_TAG v1.12.0)
+  GIT_TAG v1.14.1)
 set(SPDLOG_FMT_EXTERNAL
     ON
     CACHE INTERNAL "")
@@ -94,6 +100,13 @@ FetchContent_Declare(
   GIT_REPOSITORY https://github.com/pinam45/dynamic_bitset.git
   GIT_TAG v1.2.1)
 FetchContent_MakeAvailable(dynamic_bitset)
+
+FetchContent_Declare(
+  json
+  SYSTEM
+  GIT_REPOSITORY https://github.com/nlohmann/json.git
+  GIT_TAG v3.11.3)
+FetchContent_MakeAvailable(json)
 
 FetchContent_Declare(
   cadical
@@ -131,13 +144,13 @@ target_link_libraries(spdlog PUBLIC fmt::fmt)
 
 target_compile_definitions(${CMAKE_PROJECT_NAME}
                            PRIVATE QSYN_VERSION="v${CMAKE_PROJECT_VERSION}")
+target_compile_definitions(${CMAKE_PROJECT_NAME} 
+                           PRIVATE QSYN_BUILD_TYPE="${CMAKE_BUILD_TYPE}")
 target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wall -Wextra -Werror)
 
-# g++ is being too paranoid about missing field initializers
-if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
-  target_compile_options(${CMAKE_PROJECT_NAME}
-                         PRIVATE -Wno-missing-field-initializers)
-endif()
+# compilers are being too paranoid about missing field initializers
+target_compile_options(${CMAKE_PROJECT_NAME}
+                        PRIVATE -Wno-missing-field-initializers)
 
 target_include_directories(${CMAKE_PROJECT_NAME}
                            PRIVATE ${CMAKE_SOURCE_DIR}/src)
@@ -195,10 +208,12 @@ target_link_libraries_system(
   spdlog::spdlog
   Microsoft.GSL::GSL
   sul::dynamic_bitset
+  nlohmann_json::nlohmann_json
   cadical::cadical)
 target_link_libraries(
-  ${CMAKE_PROJECT_NAME} PRIVATE lapack OpenMP::OpenMP_CXX ${BLAS_LIBRARIES}
-                                ${LAPACK_LIBRARIES})
+  ${CMAKE_PROJECT_NAME} PRIVATE lapack 
+# OpenMP::OpenMP_CXX 
+  ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
 
 # default to ON
 option(COPY_EXECUTABLE " Copy executable to project root " ON)

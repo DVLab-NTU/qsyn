@@ -27,14 +27,14 @@ namespace qsyn::zx {
 class ZXVertex;
 class ZXGraph;
 
-enum class VertexType {
+enum class VertexType : std::uint8_t {
     boundary,
     z,
     x,
     h_box
 };
 
-enum class EdgeType {
+enum class EdgeType : std::uint8_t {
     simple,
     hadamard
 };

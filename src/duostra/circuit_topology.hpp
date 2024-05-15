@@ -8,18 +8,11 @@
 
 #pragma once
 
-#include <cassert>
-#include <climits>
-#include <cmath>
 #include <memory>
-#include <set>
-#include <tuple>
 #include <vector>
 
 #include "qcir/qcir.hpp"
 #include "qcir/qcir_gate.hpp"
-#include "qsyn/qsyn_type.hpp"
-#include "util/phase.hpp"
 
 namespace qsyn::duostra {
 
@@ -31,7 +24,7 @@ public:
 
     void update_available_gates(size_t executed);
     size_t get_num_qubits() const { return _dependency_graph->get_num_qubits(); }
-    size_t get_num_gates() const { return _dependency_graph->get_gates().size(); }
+    size_t get_num_gates() const { return _dependency_graph->get_num_gates(); }
     qcir::QCirGate const& get_gate(size_t i) const { return *_dependency_graph->get_gate(i); }
     std::vector<size_t> const& get_available_gates() const { return _available_gates; }
 

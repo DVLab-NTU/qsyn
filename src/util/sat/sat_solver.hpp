@@ -12,6 +12,7 @@
 #include <NamedType/named_type.hpp>
 #include <NamedType/underlying_functionalities.hpp>
 #include <cadical/cadical.hpp>
+#include <cstdint>
 #include <memory>
 #include <optional>
 #include <vector>
@@ -59,7 +60,7 @@ public:
     constexpr bool is_negated() const { return get() < 0; }
 };
 
-enum class Result {
+enum class Result : std::uint8_t {
     sat,
     unsat,
     unknown

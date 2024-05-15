@@ -14,7 +14,6 @@
 #include "./optimizer.hpp"
 #include "cli/cli.hpp"
 #include "util/data_structure_manager_common_cmd.hpp"
-#include "util/util.hpp"
 
 using namespace dvlab::argparse;
 using dvlab::CmdExecResult;
@@ -44,19 +43,19 @@ Command qcir_optimize_cmd(QCirMgr& qcir_mgr) {
                     .default_value(false)
                     .action(store_true)
                     .help("count the number of rules operated in optimizer.");
-                parser.add_argument<bool>("-t", "--trivial")
+                parser.add_argument<bool>("-t", "--tech")
                     .default_value(false)
                     .action(store_true)
-                    .help("Only perform trivial optimizations.");
+                    .help("Only perform optimizations preserving gate sets and qubit connectivities.");
             },
             [&](ArgumentParser const& parser) {
                 if (!dvlab::utils::mgr_has_data(qcir_mgr)) return CmdExecResult::error;
                 Optimizer optimizer;
                 std::optional<QCir> result;
                 std::string procedure_str{};
-                if (parser.get<bool>("--trivial") || !qcir_mgr.get()->get_gate_set().empty()) {
+                if (parser.get<bool>("--tech") || !qcir_mgr.get()->get_gate_set().empty()) {
                     result        = optimizer.trivial_optimization(*qcir_mgr.get());
-                    procedure_str = "Trivial Optimize";
+                    procedure_str = "Tech Optimize";
                 } else {
                     result        = optimizer.basic_optimization(*qcir_mgr.get(), {.doSwap             = !parser.get<bool>("--physical"),
                                                                                    .separateCorrection = false,
