@@ -6,7 +6,6 @@
 ****************************************************************************/
 #pragma once
 
-#include <concepts>
 #include <functional>
 #include <unordered_map>
 #include <variant>
@@ -248,7 +247,7 @@ private:
     bool _all_required_args_are_parsed() const;
 
     template <typename T>
-    static auto* _get_arg_impl(T&& t, std::string_view name);
+    static auto* _get_arg_impl(T& t, std::string_view name);
 };
 
 /**
@@ -369,7 +368,7 @@ ArgType<T>& ArgumentParser::_add_option(std::string_view name, std::convertible_
         .metavar(dvlab::str::toupper_string(name.substr(name.find_first_not_of(_pimpl->option_prefixes))));
 }
 template <typename T>
-auto* ArgumentParser::_get_arg_impl(T&& t, std::string_view name) {
+auto* ArgumentParser::_get_arg_impl(T& t, std::string_view name) {
     if (t._pimpl->subparsers.has_value() && t._pimpl->activated_subparser.has_value()) {
         if (t.get_activated_subparser()->_has_arg(name)) {
             return t.get_activated_subparser()->_get_arg(name);

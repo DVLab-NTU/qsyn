@@ -110,9 +110,9 @@ Command tensor_adjoint_cmd(TensorMgr& tensor_mgr) {
             },
             [&](ArgumentParser const& parser) {
                 if (parser.parsed("id")) {
-                    tensor_mgr.find_by_id(parser.get<size_t>("id"))->adjoint();
+                    tensor_mgr.find_by_id(parser.get<size_t>("id"))->adjoint_inplace();
                 } else {
-                    tensor_mgr.get()->adjoint();
+                    tensor_mgr.get()->adjoint_inplace();
                 }
                 return CmdExecResult::done;
             }};
@@ -120,12 +120,12 @@ Command tensor_adjoint_cmd(TensorMgr& tensor_mgr) {
 Command tensor_equivalence_cmd(TensorMgr& tensor_mgr) {
     return {"equiv",
             [&](ArgumentParser& parser) {
-                parser.description("check the equivalency of two stored tensors");
+                parser.description("check if two tensors are equivalent");
 
                 parser.add_argument<size_t>("ids")
                     .nargs(1, 2)
                     .constraint(valid_tensor_id(tensor_mgr))
-                    .help("Compare the two tensors. If only one is specified, compare with the tensor on focus");
+                    .help("Compare the two tensors. If only one is specified, compare with the tensor in focus");
                 parser.add_argument<double>("-e", "--epsilon")
                     .metavar("eps")
                     .default_value(1e-6)
@@ -187,7 +187,6 @@ Command tensor_cmd(TensorMgr& tensor_mgr) {
     cmd.add_subcommand("tensor-cmd-group", tensor_equivalence_cmd(tensor_mgr));
     cmd.add_subcommand("tensor-cmd-group", tensor_read_cmd(tensor_mgr));
     cmd.add_subcommand("tensor-cmd-group", tensor_write_cmd(tensor_mgr));
-
     return cmd;
 }
 

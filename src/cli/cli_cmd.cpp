@@ -201,7 +201,7 @@ Command quit_cmd(CommandLineInterface& cli) {
 
                 std::string const prompt = "Are you sure you want to exit (Yes/[No])? ";
 
-                auto [exec_result, input] = cli.listen_to_input(std::cin, prompt, {.allow_browse_history = false, .allow_tab_completion = false});
+                auto const [exec_result, input] = cli.listen_to_input(std::cin, prompt, {.allow_browse_history = false, .allow_tab_completion = false});
                 if (exec_result == CmdExecResult::quit) {
                     fmt::print("EOF [assumed Yes]");
                     return CmdExecResult::quit;
@@ -331,7 +331,7 @@ Command source_cmd(CommandLineInterface& cli) {
             }};
 }
 
-Command usage_cmd() {
+Command usage_cmd(CommandLineInterface& cli) {
     return {"usage",
             [](ArgumentParser& parser) {
                 parser.description("report the runtime and/or memory usage");
@@ -344,8 +344,17 @@ Command usage_cmd() {
                 mutex.add_argument<bool>("-m", "--memory")
                     .action(store_true)
                     .help("print only memory usage");
+                mutex.add_argument<bool>("-r", "--reset")
+                    .action(store_true)
+                    .help("reset the period time usage counter");
             },
-            [](ArgumentParser const& parser) {
+            [&](ArgumentParser const& parser) {
+                auto reset = parser.get<bool>("--reset");
+
+                if (reset) {
+                    cli.usage().reset_period();
+                    return CmdExecResult::done;
+                }
                 auto rep_time = parser.get<bool>("--time");
                 auto rep_mem  = parser.get<bool>("--memory");
                 if (!rep_time && !rep_mem) {
@@ -353,7 +362,7 @@ Command usage_cmd() {
                     rep_mem  = true;
                 }
 
-                dvlab::utils::Usage::report(rep_time, rep_mem);
+                cli.usage().report(rep_time, rep_mem);
 
                 return CmdExecResult::done;
             }};
@@ -423,7 +432,7 @@ bool add_cli_common_cmds(dvlab::CommandLineInterface& cli) {
           cli.add_command(history_cmd(cli)) &&
           cli.add_command(help_cmd(cli)) &&
           cli.add_command(source_cmd(cli)) &&
-          cli.add_command(usage_cmd()) &&
+          cli.add_command(usage_cmd(cli)) &&
           cli.add_command(clear_cmd()) &&
           cli.add_command(logger_cmd()))) {
         spdlog::critical("Registering \"cli\" commands fails... exiting");

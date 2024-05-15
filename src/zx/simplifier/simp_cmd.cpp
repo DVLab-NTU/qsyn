@@ -27,15 +27,15 @@ using dvlab::Command;
 
 namespace qsyn::zx {
 
-bool valid_partition_reduce_partitions(size_t const &n_parts) {
+bool valid_partition_reduce_partitions(size_t const& n_parts) {
     if (n_parts > 0) return true;
-    spdlog::error("The paritions parameter in partition reduce should be greater than 0");
+    spdlog::error("The partitions parameter in partition reduce should be greater than 0");
     return false;
 };
 
-Command zxgraph_optimize_cmd(zx::ZXGraphMgr &zxgraph_mgr) {
+Command zxgraph_optimize_cmd(zx::ZXGraphMgr& zxgraph_mgr) {
     return {"optimize",
-            [](ArgumentParser &parser) {
+            [](ArgumentParser& parser) {
                 parser.description("perform optimization routines for ZXGraph");
 
                 auto mutex = parser.add_mutually_exclusive_group();
@@ -61,7 +61,7 @@ Command zxgraph_optimize_cmd(zx::ZXGraphMgr &zxgraph_mgr) {
                     .action(store_true)
                     .help("Runs reduction without producing phase gadgets");
             },
-            [&](ArgumentParser const &parser) {
+            [&](ArgumentParser const& parser) {
                 if (!dvlab::utils::mgr_has_data(zxgraph_mgr)) return dvlab::CmdExecResult::error;
                 zx::Simplifier s(zxgraph_mgr.get());
                 std::string procedure_str = "";
@@ -95,10 +95,10 @@ Command zxgraph_optimize_cmd(zx::ZXGraphMgr &zxgraph_mgr) {
             }};
 }
 
-Command zxgraph_rule_cmd(zx::ZXGraphMgr &zxgraph_mgr) {
+Command zxgraph_rule_cmd(zx::ZXGraphMgr& zxgraph_mgr) {
     return Command{
         "rule",
-        [](ArgumentParser &parser) {
+        [](ArgumentParser& parser) {
             parser.description("apply simplification rules to ZXGraph");
 
             auto mutex = parser.add_mutually_exclusive_group().required(true);
@@ -142,7 +142,7 @@ Command zxgraph_rule_cmd(zx::ZXGraphMgr &zxgraph_mgr) {
                 .action(store_true)
                 .help("convert all Z-spiders to X-spiders");
         },
-        [&](ArgumentParser const &parser) {
+        [&](ArgumentParser const& parser) {
             if (!dvlab::utils::mgr_has_data(zxgraph_mgr)) return dvlab::CmdExecResult::error;
             zx::Simplifier s(zxgraph_mgr.get());
 
@@ -181,10 +181,10 @@ Command zxgraph_rule_cmd(zx::ZXGraphMgr &zxgraph_mgr) {
 }
 
 // REVIEW - Logic of check function is not completed
-Command zxgraph_manual_apply_cmd(zx::ZXGraphMgr &zxgraph_mgr) {
+Command zxgraph_manual_apply_cmd(zx::ZXGraphMgr& zxgraph_mgr) {
     return Command{
         "manual",
-        [&](ArgumentParser &parser) {
+        [&](ArgumentParser& parser) {
             parser.description("apply simplification rules on specific candidates");
 
             auto mutex = parser.add_mutually_exclusive_group().required(true);
@@ -203,16 +203,16 @@ Command zxgraph_manual_apply_cmd(zx::ZXGraphMgr &zxgraph_mgr) {
                 .constraint(valid_zxvertex_id(zxgraph_mgr))
                 .help("the vertices on which the rule applies");
         },
-        [&](ArgumentParser const &parser) {
+        [&](ArgumentParser const& parser) {
             if (!dvlab::utils::mgr_has_data(zxgraph_mgr)) return dvlab::CmdExecResult::error;
             auto vertices   = parser.get<std::vector<size_t>>("vertices");
-            ZXVertex *bound = zxgraph_mgr.get()->find_vertex_by_id(vertices[0]);
-            ZXVertex *vert  = zxgraph_mgr.get()->find_vertex_by_id(vertices[1]);
+            ZXVertex* bound = zxgraph_mgr.get()->find_vertex_by_id(vertices[0]);
+            ZXVertex* vert  = zxgraph_mgr.get()->find_vertex_by_id(vertices[1]);
 
             const bool is_cand = PivotBoundaryRule().is_candidate(*zxgraph_mgr.get(), bound, vert);
             if (!is_cand) return CmdExecResult::error;
 
-            std::vector<std::pair<ZXVertex *, ZXVertex *>> match;
+            std::vector<std::pair<ZXVertex*, ZXVertex*>> match;
             match.emplace_back(bound, vert);
             PivotBoundaryRule().apply(*zxgraph_mgr.get(), match);
             return CmdExecResult::done;

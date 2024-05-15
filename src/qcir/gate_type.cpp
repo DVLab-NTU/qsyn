@@ -5,263 +5,68 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "qcir/gate_type.hpp"
-
+#include "qcir/basic_gate_type.hpp"
+#include "qcir/operation.hpp"
 #include "qcir/qcir_translate.hpp"
-#include "util/util.hpp"
+#include "util/dvlab_string.hpp"
 
 namespace qsyn::qcir {
 
-std::optional<GateType> str_to_gate_type(std::string_view str) {
-    // Misc
-    if (str == "id")
-        return GateType{GateRotationCategory::id, 1, dvlab::Phase(0)};
-    if (str == "h")
-        return GateType{GateRotationCategory::h, 1, dvlab::Phase(1)};
-    if (str == "swap")
-        return GateType{GateRotationCategory::swap, 2, dvlab::Phase(1)};
-    if (str == "ecr")
-        return GateType{GateRotationCategory::ecr, 2, dvlab::Phase(0)};
+namespace {
+std::optional<Operation> str_to_basic_operation(std::string str, std::vector<dvlab::Phase> const& params) {
+    str = dvlab::str::tolower_string(str);
+    if (params.empty()) {
+        if (str == "id") return IdGate();
+        if (str == "h") return HGate();
+        if (str == "swap") return SwapGate();
+        if (str == "ecr") return ECRGate();
 
-    std::optional<size_t> num_qubits = 1;
-    if (str.starts_with("mc")) {
-        num_qubits = std::nullopt;
-        str.remove_prefix(2);
-    } else {
-        while (str.starts_with("c")) {
-            (*num_qubits)++;
-            str.remove_prefix(1);
-        }
+        if (str == "z") return ZGate();
+        if (str == "s") return SGate();
+        if (str == "sdg") return SdgGate();
+        if (str == "t") return TGate();
+        if (str == "tdg") return TdgGate();
+
+        if (str == "x" || str == "not") return XGate();
+        if (str == "sx" || str == "x_1_2") return SXGate();
+        if (str == "sxdg") return SXdgGate();
+        if (str == "tx") return TXGate();
+        if (str == "txdg") return TXdgGate();
+
+        if (str == "y") return YGate();
+        if (str == "sy" || str == "y_1_2") return SYGate();
+        if (str == "sydg") return SYdgGate();
+        if (str == "ty") return TYGate();
+        if (str == "tydg") return TYdgGate();
     }
-    // single-qubit Z-rotation gates
-    if (str == "pz" || str == "p")
-        return GateType{GateRotationCategory::pz, num_qubits, std::nullopt};
-    if (str == "rz")
-        return GateType{GateRotationCategory::rz, num_qubits, std::nullopt};
-    if (str == "z")
-        return GateType{GateRotationCategory::pz, num_qubits, dvlab::Phase(1)};
-    if (str == "s")
-        return GateType{GateRotationCategory::pz, num_qubits, dvlab::Phase(1, 2)};
-    if (str == "s*" || str == "sdg" || str == "sd")
-        return GateType{GateRotationCategory::pz, num_qubits, dvlab::Phase(-1, 2)};
-    if (str == "t")
-        return GateType{GateRotationCategory::pz, num_qubits, dvlab::Phase(1, 4)};
-    if (str == "t*" || str == "tdg" || str == "td")
-        return GateType{GateRotationCategory::pz, num_qubits, dvlab::Phase(-1, 4)};
-
-    // single-qubit X-rotation gates
-    if (str == "px")
-        return GateType{GateRotationCategory::px, num_qubits, std::nullopt};
-
-    if (str == "rx")
-        return GateType{GateRotationCategory::rx, num_qubits, std::nullopt};
-
-    if (str == "x" || str == "not")
-        return GateType{GateRotationCategory::px, num_qubits, dvlab::Phase(1)};
-
-    if (str == "sx" || str == "x_1_2")
-        return GateType{GateRotationCategory::px, num_qubits, dvlab::Phase(1, 2)};
-
-    if (str == "sx*" || str == "sxdg" || str == "sxd")
-        return GateType{GateRotationCategory::px, num_qubits, dvlab::Phase(-1, 2)};
-
-    // single-qubit Y-rotation gates
-    if (str == "py")
-        return GateType{GateRotationCategory::py, num_qubits, std::nullopt};
-    if (str == "ry")
-        return GateType{GateRotationCategory::ry, num_qubits, std::nullopt};
-    if (str == "y")
-        return GateType{GateRotationCategory::py, num_qubits, dvlab::Phase(1)};
-    if (str == "sy" || str == "y_1_2")
-        return GateType{GateRotationCategory::py, num_qubits, dvlab::Phase(1, 2)};
-    if (str == "sy*" || str == "sydg" || str == "syd")
-        return GateType{GateRotationCategory::py, num_qubits, dvlab::Phase(-1, 2)};
-
-    if (str == "ecr")
-        return GateType{GateRotationCategory::ecr, 2, dvlab::Phase(0)};
+    if (params.size() == 1) {
+        if (str == "p" || str == "pz") return PZGate(params[0]);
+        if (str == "px") return PXGate(params[0]);
+        if (str == "py") return PYGate(params[0]);
+        if (str == "rz") return RZGate(params[0]);
+        if (str == "rx") return RXGate(params[0]);
+        if (str == "ry") return RYGate(params[0]);
+    }
 
     return std::nullopt;
 }
-std::string gate_type_to_str(GateRotationCategory category, std::optional<size_t> num_qubits, std::optional<dvlab::Phase> phase) {
-    DVLAB_ASSERT(num_qubits > 0, "a gate should have at least one qubit");
-    if (category == GateRotationCategory::id)
-        return "id";
-    if (category == GateRotationCategory::h)
-        return "h";
-    if (category == GateRotationCategory::swap)
-        return "swap";
-    if (category == GateRotationCategory::ecr)
-        return "ecr";
+}  // namespace
 
-    std::string type_str = std::invoke([num_qubits]() {
-        if (!num_qubits.has_value()) {
-            return std::string{"mc"};
-        } else
-            return std::string(num_qubits.value() - 1, 'c');
-    });
+std::optional<Operation> str_to_operation(std::string str, std::vector<dvlab::Phase> const& params) {
+    str = dvlab::str::tolower_string(str);
 
-    type_str += std::invoke([phase, category]() {
-        switch (category) {
-            using dvlab::Phase;
-            case GateRotationCategory::pz: {
-                if (phase == Phase(0)) {
-                    return "id";
-                }
-                if (phase == Phase(1)) {
-                    return "z";
-                }
-                if (phase == Phase(1, 2)) {
-                    return "s";
-                }
-                if (phase == Phase(-1, 2)) {
-                    return "sdg";
-                }
-                if (phase == Phase(1, 4)) {
-                    return "t";
-                }
-                if (phase == Phase(-1, 4)) {
-                    return "tdg";
-                }
-                return "p";
-            }
-            case GateRotationCategory::px: {
-                if (phase == Phase(0)) {
-                    return "id";
-                }
-                if (phase == Phase(1)) {
-                    return "x";
-                }
-                if (phase == Phase(1, 2)) {
-                    return "sx";
-                }
-                if (phase == Phase(-1, 2)) {
-                    return "sxdg";
-                }
-                if (phase == Phase(1, 4)) {
-                    return "tx";
-                }
-                if (phase == Phase(-1, 4)) {
-                    return "txdg";
-                }
-                return "px";
-            }
-            case GateRotationCategory::py: {
-                if (phase == Phase(0)) {
-                    return "id";
-                }
-                if (phase == Phase(1)) {
-                    return "y";
-                }
-                if (phase == Phase(1, 2)) {
-                    return "sy";
-                }
-                if (phase == Phase(-1, 2)) {
-                    return "sydg";
-                }
-                if (phase == Phase(1, 4)) {
-                    return "ty";
-                }
-                if (phase == Phase(-1, 4)) {
-                    return "tydg";
-                }
-                return "py";
-            }
-            case GateRotationCategory::rz:
-                return "rz";
-            case GateRotationCategory::rx:
-                return "rx";
-            case GateRotationCategory::ry:
-                return "ry";
-            case GateRotationCategory::id:
-            case GateRotationCategory::h:
-            case GateRotationCategory::swap:
-            case GateRotationCategory::ecr:
-            default:
-                DVLAB_UNREACHABLE("Should be unreachable!!");
-        }
-    });
+    auto const n_ctrls = str.find_first_not_of('c');
+    str                = str.substr(n_ctrls);
 
-    return type_str;
-}
+    auto basic_op_type = str_to_basic_operation(str, params);
 
-std::string gate_type_to_str(GateType const& type) {
-    return gate_type_to_str(std::get<0>(type), std::get<1>(type), std::get<2>(type));
-}
+    if (!basic_op_type.has_value()) return std::nullopt;
 
-bool is_fixed_phase_gate(GateRotationCategory category) {
-    return category == GateRotationCategory::id ||
-           category == GateRotationCategory::h ||
-           category == GateRotationCategory::swap ||
-           category == GateRotationCategory::ecr;
-}
-
-dvlab::Phase get_fixed_phase(GateRotationCategory category) {
-    assert(is_fixed_phase_gate(category));
-
-    switch (category) {
-        case GateRotationCategory::id:
-            return dvlab::Phase(0);
-        case GateRotationCategory::h:
-        case GateRotationCategory::swap:
-            return dvlab::Phase(1);
-        case GateRotationCategory::ecr:
-            return dvlab::Phase(0);
-        default:
-            assert(false);
+    if (n_ctrls > 0) {
+        return ControlGate(*basic_op_type, n_ctrls);
     }
-}
 
-dvlab::utils::ordered_hashmap<std::string, Equivalence> EQUIVALENCE_LIBRARY = {
-    {"sherbrooke", {{"h", {
-                              {"s", {0}, dvlab::Phase(0)},
-                              {"sx", {0}, dvlab::Phase(0)},
-                              {"s", {0}, dvlab::Phase(0)},
-                          }},
-                    {"cx", {
-                               {"sdg", {0}, dvlab::Phase(0)},
-                               {"z", {1}, dvlab::Phase(0)},
-                               {"sx", {1}, dvlab::Phase(0)},
-                               {"z", {1}, dvlab::Phase(0)},
-                               {"ecr", {0, 1}, dvlab::Phase(0)},
-                               {"x", {0}, dvlab::Phase(0)},
-                           }},
-                    {"cz", {
-                               {"sdg", {0}, dvlab::Phase(0)},
-                               {"sx", {1}, dvlab::Phase(0)},
-                               {"s", {1}, dvlab::Phase(0)},
-                               {"ecr", {0, 1}, dvlab::Phase(0)},
-                               {"x", {0}, dvlab::Phase(0)},
-                               {"s", {1}, dvlab::Phase(0)},
-                               {"sx", {1}, dvlab::Phase(0)},
-                               {"s", {1}, dvlab::Phase(0)},
-                           }}}},
-    {"kyiv", {{"h", {
-                        {"s", {0}, dvlab::Phase(0)},
-                        {"sx", {0}, dvlab::Phase(0)},
-                        {"s", {0}, dvlab::Phase(0)},
-                    }},
-              {"cz", {
-                         {"s", {1}, dvlab::Phase(0)},
-                         {"sx", {1}, dvlab::Phase(0)},
-                         {"s", {1}, dvlab::Phase(0)},
-                         {"cx", {0, 1}, dvlab::Phase(0)},
-                         {"s", {1}, dvlab::Phase(0)},
-                         {"sx", {1}, dvlab::Phase(0)},
-                         {"s", {1}, dvlab::Phase(0)},
-                     }}}},
-    {"prague", {{"h", {
-                          {"s", {0}, dvlab::Phase(0)},
-                          {"sx", {0}, dvlab::Phase(0)},
-                          {"s", {0}, dvlab::Phase(0)},
-                      }},
-                {"cx", {
-                           {"s", {1}, dvlab::Phase(0)},
-                           {"sx", {1}, dvlab::Phase(0)},
-                           {"z", {1}, dvlab::Phase(0)},
-                           {"cz", {0, 1}, dvlab::Phase(0)},
-                           {"sx", {1}, dvlab::Phase(0)},
-                           {"s", {1}, dvlab::Phase(0)},
-                       }}}},
-};
+    return basic_op_type;
+}
 
 }  // namespace qsyn::qcir

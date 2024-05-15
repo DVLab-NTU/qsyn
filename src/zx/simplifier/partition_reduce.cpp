@@ -88,6 +88,7 @@ size_t scoped_interior_clifford_simp(ZXGraph* graph, ZXVertexList const& scope) 
         if (i1 + i2 + i3 + i4 == 0) return iterations;
     }
     DVLAB_UNREACHABLE("This line should not be reached");
+    return 0;
 }
 
 size_t scoped_clifford_simp(ZXGraph* graph, ZXVertexList const& scope) {

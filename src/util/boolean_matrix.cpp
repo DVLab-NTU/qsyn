@@ -20,16 +20,24 @@
 
 namespace dvlab {
 
-struct UCharVectorHash {
-    size_t operator()(std::vector<unsigned char> const& k) const {
-        size_t ret = std::hash<unsigned char>()(k[0]);
-        for (size_t i = 1; i < k.size(); i++) {
-            ret ^= std::hash<unsigned char>()(k[i] << (i % sizeof(size_t)));
-        }
-
-        return ret;
+/**
+ * @brief Hash function for std::vector<unsigned char>
+ *
+ * @param k
+ * @return size_t
+ */
+size_t BooleanMatrixRowHash::operator()(std::vector<unsigned char> const& k) const {
+    size_t ret = std::hash<unsigned char>()(k[0]);
+    for (size_t i = 1; i < k.size(); i++) {
+        ret ^= std::hash<unsigned char>()(k[i] << (i % sizeof(size_t)));
     }
-};
+
+    return ret;
+}
+
+size_t BooleanMatrixRowHash::operator()(BooleanMatrix::Row const& k) const {
+    return operator()(k.get_row());
+}
 
 /**
  * @brief Overload operator + for Row
@@ -43,6 +51,21 @@ BooleanMatrix::Row operator+(BooleanMatrix::Row lhs, BooleanMatrix::Row const& r
     return lhs;
 }
 
+BooleanMatrix::Row operator*(BooleanMatrix::Row lhs, unsigned char const& rhs) {
+    lhs *= rhs;
+    return lhs;
+}
+
+BooleanMatrix::Row operator*(unsigned char const& lhs, BooleanMatrix::Row rhs) {
+    rhs *= lhs;
+    return rhs;
+}
+
+BooleanMatrix::Row operator*(BooleanMatrix::Row lhs, BooleanMatrix::Row const& rhs) {
+    lhs *= rhs;
+    return lhs;
+}
+
 /**
  * @brief Overload operator += for Row
  *
@@ -53,6 +76,27 @@ BooleanMatrix::Row& BooleanMatrix::Row::operator+=(Row const& rhs) {
     assert(_row.size() == rhs._row.size());
     for (size_t i = 0; i < _row.size(); i++) {
         _row[i] = (_row[i] + rhs._row[i]) % 2;
+    }
+    return *this;
+}
+
+/**
+ * @brief Overload operator *= for Row
+ *
+ * @param rhs
+ * @return Row&
+ */
+BooleanMatrix::Row& BooleanMatrix::Row::operator*=(unsigned char const& rhs) {
+    for (size_t i = 0; i < _row.size(); i++) {
+        _row[i] = (_row[i] * rhs) % 2;
+    }
+    return *this;
+}
+
+BooleanMatrix::Row& BooleanMatrix::Row::operator*=(Row const& rhs) {
+    assert(_row.size() == rhs._row.size());
+    for (size_t i = 0; i < _row.size(); i++) {
+        _row[i] = (_row[i] * rhs._row[i]) % 2;
     }
     return *this;
 }
@@ -117,22 +161,10 @@ void BooleanMatrix::reset() {
  *
  */
 void BooleanMatrix::print_matrix(spdlog::level::level_enum lvl) const {
+    if (!spdlog::should_log(lvl)) return;
     for (auto const& row : _matrix) {
         row.print_row(lvl);
     }
-}
-
-/**
- * @brief Print track of operations
- *
- */
-void BooleanMatrix::print_trace() const {
-    fmt::println("Track:");
-    for (auto const& [i, row_op] : tl::views::enumerate(_row_operations)) {
-        auto const& [row_src, row_dest] = row_op;
-        fmt::println("Step {}: {} to {}", i + 1, row_src, row_dest);
-    }
-    fmt::println("");
 }
 
 /**
@@ -181,7 +213,7 @@ size_t BooleanMatrix::gaussian_elimination_skip(size_t block_size, bool do_fully
     };
 
     auto const clear_section_duplicates = [this, get_sub_vec, track](size_t section_begin, size_t section_end, auto row_range) {
-        std::unordered_map<std::vector<unsigned char>, size_t, UCharVectorHash> duplicated;
+        std::unordered_map<std::vector<unsigned char>, size_t, BooleanMatrixRowHash> duplicated;
         for (auto row_idx : row_range) {
             auto sub_vec = get_sub_vec(row_idx, section_begin, section_end);
 
@@ -308,88 +340,6 @@ size_t BooleanMatrix::filter_duplicate_row_operations() {
 }
 
 /**
- * @brief Perform Gaussian Elimination
- *
- * @param track if true, record the process to operation track
- * @param isAugmentedMatrix the target matrix is augmented or not
- * @return true
- * @return false
- */
-bool BooleanMatrix::gaussian_elimination(bool track, bool is_augmented_matrix) {
-    _row_operations.clear();
-
-    auto const num_variables = num_cols() - ((is_augmented_matrix) ? 1 : 0);
-
-    /**
-     * @brief If _matrix[i][i] is 0, greedily perform row operations
-     * to make the number 1
-     *
-     * @return true on success, false on failures
-     */
-    auto make_main_diagonal_one = [this, &track](size_t i) -> bool {
-        if (_matrix[i][i] == 1) return true;
-        for (size_t j = i + 1; j < num_rows(); j++) {
-            if (_matrix[j][i] == 1) {
-                row_operation(j, i, track);
-                return true;
-            }
-        }
-        return false;
-    };
-
-    // convert to upper-triangle matrix
-    for (size_t i = 0; i < std::min(num_rows() - 1, num_variables); i++) {
-        // the system of equation is not solvable if the
-        // main diagonal cannot be made 1
-        if (!make_main_diagonal_one(i)) return false;
-
-        for (size_t j = i + 1; j < num_rows(); j++) {
-            if (_matrix[j][i] == 1 && _matrix[i][i] == 1) {
-                row_operation(i, j, track);
-            }
-        }
-    }
-
-    // for augmented matrix, if any rows looks like [0 ... 0 1],
-    // the system has no solution
-    if (is_augmented_matrix) {
-        for (size_t i = num_variables; i < num_rows(); ++i) {
-            if (_matrix[i].back() == 1) return false;
-        }
-    }
-
-    // convert to identity matrix on the leftmost numRows() matrix
-    for (size_t i = 0; i < num_rows(); i++) {
-        for (size_t j = num_rows() - i; j < num_rows(); j++) {
-            if (_matrix[num_rows() - i - 1][j] == 1) {
-                row_operation(j, num_rows() - i - 1, track);
-            }
-        }
-    }
-    return true;
-}
-
-/**
- * @brief check if the matrix is of solved form. That is,
- *        (1) an identity matrix,
- *        (2) an identity matrix with an arbitrary matrix on the right, or
- *        (3) an identity matrix with an zero matrix on the bottom.
- *
- * @return true
- * @return false
- */
-bool BooleanMatrix::is_solved_form() const {
-    for (size_t i = 0; i < num_rows(); ++i) {
-        for (size_t j = 0; j < std::min(num_rows(), num_cols()); ++j) {
-            if (i == j && _matrix[i][j] != 1) return false;
-            if (i != j && _matrix[i][j] != 0) return false;
-        }
-    }
-
-    return true;
-}
-
-/**
  * @brief Perform Gaussian Elimination with augmentation column(s)
  *
  * @param track if true, record the process to operation track
@@ -444,42 +394,6 @@ bool BooleanMatrix::gaussian_elimination_augmented(bool track) {
 }
 
 /**
- * @brief check if the augmented matrix is of solved form. That is,
- *        an identity matrix with an arbitrary matrix on the right, and possibly
- *        an identity matrix with an zero matrix on the bottom.
- *
- * @return true or false
- */
-bool BooleanMatrix::is_augmented_solved_form() const {
-    auto const n = std::min(num_rows(), num_cols() - 1);
-    for (size_t i = 0; i < n; ++i) {
-        for (size_t j = 0; j < n; ++j) {
-            if (i == j && _matrix[i][j] != 1) return false;
-            if (i != j && _matrix[i][j] != 0) return false;
-        }
-    }
-    for (size_t i = n; i < num_rows(); ++i) {
-        for (size_t j = 0; j < num_cols(); ++j) {
-            if (_matrix[i][j] != 0) return false;
-        }
-    }
-
-    return true;
-}
-
-/**
- * @brief Append one hot
- *
- * @param idx the id to be one
- */
-void BooleanMatrix::append_one_hot_column(size_t idx) {
-    assert(idx < _matrix.size());
-    for (size_t i = 0; i < _matrix.size(); ++i) {
-        _matrix[i].emplace_back((i == idx) ? 1 : 0);
-    }
-}
-
-/**
  * @brief Get depth of operations
  *
  * @return size_t
@@ -525,6 +439,57 @@ bool BooleanMatrix::Row::operator==(Row const& rhs) const {
         if (_row[i] != rhs._row[i]) return false;
     }
     return true;
+}
+
+dvlab::BooleanMatrix vstack(dvlab::BooleanMatrix const& a, dvlab::BooleanMatrix const& b) {
+    if (b.num_rows() == 0) return a;
+    if (a.num_rows() == 0) return b;
+    assert(a.num_cols() == b.num_cols());
+    auto ret = dvlab::BooleanMatrix();
+    ret.reserve(a.num_rows() + b.num_rows(), a.num_cols());
+    for (auto const& row : a.get_matrix()) {
+        ret.push_row(row);
+    }
+    for (auto const& row : b.get_matrix()) {
+        ret.push_row(row);
+    }
+    return ret;
+}
+
+dvlab::BooleanMatrix hstack(dvlab::BooleanMatrix const& a, dvlab::BooleanMatrix const& b) {
+    if (b.num_cols() == 0) return a;
+    if (a.num_cols() == 0) return b;
+    assert(a.num_rows() == b.num_rows());
+    auto ret = dvlab::BooleanMatrix();
+    ret.reserve(a.num_rows(), a.num_cols() + b.num_cols());
+    for (size_t i = 0; i < a.num_rows(); i++) {
+        auto row = a.get_row(i).get_row();
+        row.insert(row.end(), b.get_row(i).get_row().begin(), b.get_row(i).get_row().end());
+        ret.push_row(row);
+    }
+    return ret;
+}
+
+dvlab::BooleanMatrix transpose(dvlab::BooleanMatrix const& matrix) {
+    auto ret = dvlab::BooleanMatrix();
+    ret.reserve(matrix.num_cols(), matrix.num_rows());
+    for (size_t i = 0; i < matrix.num_cols(); i++) {
+        std::vector<unsigned char> row;
+        for (size_t j = 0; j < matrix.num_rows(); j++) {
+            row.push_back(matrix.get_row(j).get_row()[i]);
+        }
+        ret.push_row(row);
+    }
+    return ret;
+}
+
+dvlab::BooleanMatrix identity(size_t size) {
+    auto ret = dvlab::BooleanMatrix(size, size);
+    ret.reserve(size, size);
+    for (size_t i = 0; i < size; i++) {
+        ret[i][i] = 1;
+    }
+    return ret;
 }
 
 }  // namespace dvlab

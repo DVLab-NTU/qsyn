@@ -9,12 +9,11 @@
 
 #include <cstddef>
 #include <gsl/narrow>
-#include <queue>
 #include <tl/zip.hpp>
 
 #include "./zx_def.hpp"
 #include "./zxgraph.hpp"
-#include "util/phase.hpp"
+#include "qsyn/qsyn_type.hpp"
 
 namespace qsyn::zx {
 
@@ -51,9 +50,11 @@ void ZXGraph::toggle_vertex(ZXVertex* v) const {
  *
  * @param n
  */
-void ZXGraph::lift_qubit(int n) {
+void ZXGraph::lift_qubit(ssize_t n) {
     for (auto const& v : _vertices) {
-        v->set_row(v->get_row() + static_cast<float>(n));
+        if (v->get_row() >= 0) {
+            v->set_row(v->get_row() + static_cast<float>(n));
+        }
     }
 
     for (auto const& i : _inputs) {
@@ -133,8 +134,8 @@ ZXGraph& ZXGraph::tensor_product(ZXGraph const& target) {
     ZXGraph copied_graph{target};
 
     // Lift Qubit
-    QubitIdType ori_max_qubit = INT_MIN, ori_min_qubit = INT_MAX;
-    QubitIdType copied_min_qubit = INT_MAX;
+    QubitIdType ori_max_qubit = min_qubit_id, ori_min_qubit = max_qubit_id;
+    QubitIdType copied_min_qubit = max_qubit_id;
     for (auto const& i : get_inputs()) {
         if (i->get_qubit() > ori_max_qubit) ori_max_qubit = i->get_qubit();
         if (i->get_qubit() < ori_min_qubit) ori_min_qubit = i->get_qubit();
@@ -150,7 +151,7 @@ ZXGraph& ZXGraph::tensor_product(ZXGraph const& target) {
     for (auto const& i : copied_graph.get_outputs()) {
         if (i->get_qubit() < copied_min_qubit) copied_min_qubit = i->get_qubit();
     }
-    auto lift_q = (ori_max_qubit - ori_min_qubit + 1) - copied_min_qubit;
+    auto lift_q = static_cast<ssize_t>((ori_max_qubit - ori_min_qubit + 1) - copied_min_qubit);
     copied_graph.lift_qubit(lift_q);
 
     // Merge copiedGraph to original graph
@@ -244,7 +245,7 @@ std::unordered_map<size_t, ZXVertex*> ZXGraph::create_id_to_vertex_map() const {
 }
 
 /**
- * @brief Rearrange vertices on each qubit so that each vertex can be seperated in the printed graph.
+ * @brief Rearrange vertices on each qubit so that each vertex can be separated in the printed graph.
  *
  */
 void ZXGraph::adjust_vertex_coordinates() {
@@ -272,16 +273,16 @@ void ZXGraph::adjust_vertex_coordinates() {
 
     for (auto const& i : _inputs) {
         vertex_queue.emplace_back(i);
-        visited_rows.insert(gsl::narrow<QubitIdType>(i->get_id()));
+        visited_rows.insert(i->get_id());
     }
     while (!vertex_queue.empty()) {
         ZXVertex* v = vertex_queue.front();
         vertex_queue.erase(vertex_queue.begin());
         row_to_vertices_map[v->get_row()].emplace_back(v);
         for (auto const& nb : get_neighbors(v) | std::views::keys) {
-            if (visited_rows.find(gsl::narrow<QubitIdType>(nb->get_id())) == visited_rows.end()) {
+            if (!dvlab::contains(visited_rows, nb->get_id())) {
                 vertex_queue.emplace_back(nb);
-                visited_rows.insert(gsl::narrow<QubitIdType>(nb->get_id()));
+                visited_rows.insert(nb->get_id());
             }
         }
     }
@@ -314,9 +315,8 @@ void ZXGraph::adjust_vertex_coordinates() {
             row_to_vertices_map |
             std::views::values |
             std::views::transform([](std::vector<ZXVertex*> const& v) {
-                return std::ranges::max(v | std::views::transform([](ZXVertex* v) { return v->get_col(); }));
+                return v.empty() ? 0 : std::ranges::max(v | std::views::transform([](ZXVertex* v) { return v->get_col(); }));
             })));
-
     for (auto& o : _outputs) o->set_col(max_col);
 }
 

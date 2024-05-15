@@ -1,0 +1,4 @@
+logger trace
+qcir oracle --file tests/qcir/oracle/ref/oracle.v
+qcir print -g
+quit -f

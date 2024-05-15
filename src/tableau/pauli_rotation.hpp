@@ -10,7 +10,7 @@
 #include <fmt/core.h>
 
 #include <algorithm>
-#include <csignal>
+#include <cstdint>
 #include <initializer_list>
 #include <iterator>
 #include <optional>
@@ -24,7 +24,7 @@ namespace qsyn {
 
 namespace experimental {
 
-enum class Pauli {
+enum class Pauli : std::uint8_t {
     i,
     x,
     y,
@@ -33,7 +33,7 @@ enum class Pauli {
 
 uint8_t power_of_i(Pauli a, Pauli b);
 
-enum class CliffordOperatorType {
+enum class CliffordOperatorType : std::uint8_t {
     h,
     s,
     cx,
@@ -105,22 +105,22 @@ class PauliProductTrait {
 public:
     virtual ~PauliProductTrait() = default;
 
-    virtual T& h(size_t qubit)                   = 0;
-    virtual T& s(size_t qubit)                   = 0;
-    virtual T& cx(size_t control, size_t target) = 0;
+    virtual T& h(size_t qubit) noexcept                   = 0;
+    virtual T& s(size_t qubit) noexcept                   = 0;
+    virtual T& cx(size_t control, size_t target) noexcept = 0;
 
-    inline T& sdg(size_t qubit) { return s(qubit).s(qubit).s(qubit); }
-    inline T& v(size_t qubit) { return h(qubit).s(qubit).h(qubit); }
-    inline T& vdg(size_t qubit) { return h(qubit).sdg(qubit).h(qubit); }
+    T& sdg(size_t qubit) noexcept { return s(qubit).s(qubit).s(qubit); }
+    T& v(size_t qubit) noexcept { return h(qubit).s(qubit).h(qubit); }
+    T& vdg(size_t qubit) noexcept { return h(qubit).sdg(qubit).h(qubit); }
 
-    inline T& x(size_t qubit) { return h(qubit).z(qubit).h(qubit); }
-    inline T& y(size_t qubit) { return x(qubit).z(qubit); }
-    inline T& z(size_t qubit) { return s(qubit).s(qubit); }
-    inline T& cz(size_t control, size_t target) { return h(target).cx(control, target).h(target); }
-    inline T& swap(size_t qubit1, size_t qubit2) { return cx(qubit1, qubit2).cx(qubit2, qubit1).cx(qubit1, qubit2); }
-    inline T& ecr(size_t control, size_t target) { return cx(control, target).s(control).x(control).v(target); }
+    T& x(size_t qubit) noexcept { return h(qubit).z(qubit).h(qubit); }
+    T& y(size_t qubit) noexcept { return x(qubit).z(qubit); }
+    T& z(size_t qubit) noexcept { return s(qubit).s(qubit); }
+    T& cz(size_t control, size_t target) noexcept { return h(target).cx(control, target).h(target); }
+    T& swap(size_t qubit1, size_t qubit2) noexcept { return cx(qubit1, qubit2).cx(qubit2, qubit1).cx(qubit1, qubit2); }
+    T& ecr(size_t control, size_t target) noexcept { return cx(control, target).s(control).x(control).v(target); }
 
-    inline T& apply(CliffordOperator const& op) {
+    T& apply(CliffordOperator const& op) {
         auto& [type, qubits] = op;
         switch (type) {
             case CliffordOperatorType::h:
@@ -149,9 +149,10 @@ public:
                 return ecr(qubits[0], qubits[1]);
         }
         DVLAB_UNREACHABLE("Every Clifford type should be handled in the switch-case");
+        return *static_cast<T*>(this);
     }
 
-    inline T& apply(CliffordOperatorString const& ops) {
+    T& apply(CliffordOperatorString const& ops) {
         for (auto const& op : ops) {
             this->apply(op);
         }
@@ -176,20 +177,18 @@ public:
     template <std::ranges::range R>
     PauliProduct(R const& r, bool is_neg) : PauliProduct(std::ranges::begin(r), std::ranges::end(r), is_neg) {}
 
-    ~PauliProduct() override = default;
-
-    inline size_t n_qubits() const { return (_bitset.size() - 1) / 2; }
-    inline Pauli get_pauli_type(size_t i) const {
+    size_t n_qubits() const { return (_bitset.size() - 1) / 2; }
+    Pauli get_pauli_type(size_t i) const {
         return is_z_set(i) ? (is_x_set(i) ? Pauli::y : Pauli::z)
                            : (is_x_set(i) ? Pauli::x : Pauli::i);
     }
 
-    inline bool is_i(size_t i) const { return !is_z_set(i) && !is_x_set(i); }
-    inline bool is_x(size_t i) const { return !is_z_set(i) && is_x_set(i); }
-    inline bool is_y(size_t i) const { return is_z_set(i) && is_x_set(i); }
-    inline bool is_z(size_t i) const { return is_z_set(i) && !is_x_set(i); }
+    bool is_i(size_t i) const { return !is_z_set(i) && !is_x_set(i); }
+    bool is_x(size_t i) const { return !is_z_set(i) && is_x_set(i); }
+    bool is_y(size_t i) const { return is_z_set(i) && is_x_set(i); }
+    bool is_z(size_t i) const { return is_z_set(i) && !is_x_set(i); }
 
-    inline bool is_neg() const { return _bitset[_r_idx()]; }
+    bool is_neg() const { return _bitset[_r_idx()]; }
 
     PauliProduct& operator*=(PauliProduct const& rhs);
 
@@ -198,24 +197,24 @@ public:
         return lhs;
     }
 
-    inline bool operator==(PauliProduct const& rhs) const { return _bitset == rhs._bitset; }
-    inline bool operator!=(PauliProduct const& rhs) const { return _bitset != rhs._bitset; }
+    bool operator==(PauliProduct const& rhs) const { return _bitset == rhs._bitset; }
+    bool operator!=(PauliProduct const& rhs) const { return _bitset != rhs._bitset; }
 
     std::string to_string(char signedness = '-') const;
     std::string to_bit_string() const;
 
-    PauliProduct& h(size_t qubit) override;
-    PauliProduct& s(size_t qubit) override;
-    PauliProduct& cx(size_t control, size_t target) override;
+    PauliProduct& h(size_t qubit) noexcept override;
+    PauliProduct& s(size_t qubit) noexcept override;
+    PauliProduct& cx(size_t control, size_t target) noexcept override;
 
-    inline PauliProduct& negate() {
+    PauliProduct& negate() {
         _bitset.flip(_r_idx());
         return *this;
     }
 
     bool is_commutative(PauliProduct const& rhs) const;
 
-    inline void set_pauli_type(size_t i, Pauli type) {
+    void set_pauli_type(size_t i, Pauli type) {
         switch (type) {
             case Pauli::i:
                 _bitset[_z_idx(i)] = false;
@@ -236,23 +235,23 @@ public:
         }
     }
 
-    inline bool is_z_set(size_t i) const { return _bitset[_z_idx(i)]; }
-    inline bool is_x_set(size_t i) const { return _bitset[_x_idx(i)]; }
+    bool is_z_set(size_t i) const { return _bitset[_z_idx(i)]; }
+    bool is_x_set(size_t i) const { return _bitset[_x_idx(i)]; }
 
-    inline bool is_diagonal() const {
+    bool is_diagonal() const {
         return std::ranges::all_of(std::views::iota(0ul, n_qubits()), [this](size_t i) { return is_i(i) || is_z(i); });
     }
 
-    inline bool is_identity() const {
+    bool is_identity() const {
         return std::ranges::all_of(std::views::iota(0ul, n_qubits()), [this](size_t i) { return is_i(i); });
     }
 
 private:
     sul::dynamic_bitset<> _bitset;
 
-    inline size_t _z_idx(size_t i) const { return i; }
-    inline size_t _x_idx(size_t i) const { return i + n_qubits(); }
-    inline size_t _r_idx() const { return n_qubits() * 2; }
+    size_t _z_idx(size_t i) const { return i; }
+    size_t _x_idx(size_t i) const { return i + n_qubits(); }
+    size_t _r_idx() const { return n_qubits() * 2; }
 };
 
 inline bool is_commutative(PauliProduct const& lhs, PauliProduct const& rhs) {
@@ -276,43 +275,41 @@ public:
     template <std::ranges::range R>
     PauliRotation(R const& r, dvlab::Phase const& phase) : PauliRotation(std::ranges::begin(r), std::ranges::end(r), phase) {}
 
-    ~PauliRotation() override = default;
+    size_t n_qubits() const { return _pauli_product.n_qubits(); }
+    Pauli get_pauli_type(size_t i) const { return _pauli_product.get_pauli_type(i); }
 
-    inline size_t n_qubits() const { return _pauli_product.n_qubits(); }
-    inline Pauli get_pauli_type(size_t i) const { return _pauli_product.get_pauli_type(i); }
+    bool is_i(size_t i) const { return _pauli_product.is_i(i); }
+    bool is_x(size_t i) const { return _pauli_product.is_x(i); }
+    bool is_y(size_t i) const { return _pauli_product.is_y(i); }
+    bool is_z(size_t i) const { return _pauli_product.is_z(i); }
 
-    inline bool is_i(size_t i) const { return _pauli_product.is_i(i); }
-    inline bool is_x(size_t i) const { return _pauli_product.is_x(i); }
-    inline bool is_y(size_t i) const { return _pauli_product.is_y(i); }
-    inline bool is_z(size_t i) const { return _pauli_product.is_z(i); }
+    PauliProduct const& pauli_product() const { return _pauli_product; }
+    dvlab::Phase const& phase() const { return _phase; }
+    dvlab::Phase& phase() { return _phase; }
 
-    inline PauliProduct const& pauli_product() const { return _pauli_product; }
-    inline dvlab::Phase const& phase() const { return _phase; }
-    inline dvlab::Phase& phase() { return _phase; }
-
-    inline bool operator==(PauliRotation const& rhs) const {
+    bool operator==(PauliRotation const& rhs) const {
         return _pauli_product == rhs._pauli_product && _phase == rhs._phase;
     }
-    inline bool operator!=(PauliRotation const& rhs) const { return !(*this == rhs); }
+    bool operator!=(PauliRotation const& rhs) const { return !(*this == rhs); }
 
     std::string to_string(char signedness = '-') const;
     std::string to_bit_string() const;
 
-    PauliRotation& h(size_t qubit) override;
-    PauliRotation& s(size_t qubit) override;
-    PauliRotation& cx(size_t control, size_t target) override;
+    PauliRotation& h(size_t qubit) noexcept override;
+    PauliRotation& s(size_t qubit) noexcept override;
+    PauliRotation& cx(size_t control, size_t target) noexcept override;
 
-    inline bool is_commutative(PauliRotation const& rhs) const {
+    bool is_commutative(PauliRotation const& rhs) const {
         return _pauli_product.is_commutative(rhs._pauli_product);
     }
 
-    inline bool is_diagonal() const { return _pauli_product.is_diagonal(); }
+    bool is_diagonal() const { return _pauli_product.is_diagonal(); }
 
 private:
     PauliProduct _pauli_product;
     dvlab::Phase _phase;
 
-    inline void _normalize() {
+    void _normalize() {
         if (_pauli_product.is_neg()) {
             _pauli_product.negate();
             _phase *= -1;

@@ -26,6 +26,7 @@
 #include "tableau/stabilizer_tableau.hpp"
 #include "tableau/tableau_mgr.hpp"
 #include "tensor/decomposer.hpp"
+#include "tensor/solovay_kitaev.hpp"
 #include "tensor/tensor_mgr.hpp"
 #include "util/data_structure_manager_common_cmd.hpp"
 #include "util/dvlab_string.hpp"
@@ -60,11 +61,6 @@ Command convert_from_qcir_cmd(
             auto to_zxgraph =
                 subparsers.add_parser("zx")
                     .description("convert from QCir to ZXGraph");
-
-            to_zxgraph.add_argument<size_t>("decomp-mode")
-                .default_value(3)
-                .constraint(valid_decomposition_mode)
-                .help("specify the decomposition mode (default: 3). The higher the number, the more aggressive the decomposition is.");
             auto to_tensor =
                 subparsers.add_parser("tensor")
                     .description("convert from QCir to Tensor");
@@ -77,7 +73,7 @@ Command convert_from_qcir_cmd(
             auto to_type = parser.get<std::string>("to-type");
             if (to_type == "zx") {
                 spdlog::info("Converting to QCir {} to ZXGraph {}...", qcir_mgr.focused_id(), zxgraph_mgr.get_next_id());
-                auto graph = to_zxgraph(*qcir_mgr.get(), parser.get<size_t>("decomp-mode"));
+                auto graph = to_zxgraph(*qcir_mgr.get());
 
                 if (graph.has_value()) {
                     zxgraph_mgr.add(zxgraph_mgr.get_next_id(), std::make_unique<qsyn::zx::ZXGraph>(std::move(graph.value())));
@@ -93,6 +89,7 @@ Command convert_from_qcir_cmd(
                 auto tensor = to_tensor(*qcir_mgr.get());
 
                 if (tensor.has_value()) {
+                    *tensor = tensor->to_matrix();
                     tensor_mgr.add(tensor_mgr.get_next_id());
                     tensor_mgr.set(std::make_unique<qsyn::tensor::QTensor<double>>(std::move(tensor.value())));
 
@@ -111,7 +108,7 @@ Command convert_from_qcir_cmd(
 
                     tableau_mgr.get()->set_filename(qcir_mgr.get()->get_filename());
                     tableau_mgr.get()->add_procedures(qcir_mgr.get()->get_procedures());
-                    tableau_mgr.get()->add_procedure("QC2TB");
+                    tableau_mgr.get()->add_procedure("QC2TABL");
                 }
                 return CmdExecResult::done;
             }
@@ -145,10 +142,10 @@ Command convert_from_zx_cmd(zx::ZXGraphMgr& zxgraph_mgr, QCirMgr& qcir_mgr, tens
                     return CmdExecResult::error;
                 }
                 zx::ZXGraph target = *zxgraph_mgr.get();
-                extractor::Extractor ext(&target, nullptr, std::nullopt);
+                extractor::Extractor ext(&target, nullptr /*, std::nullopt*/);
                 qcir::QCir* result = ext.extract();
                 if (result != nullptr) {
-                    qcir_mgr.add(qcir_mgr.get_next_id(), std::make_unique<qcir::QCir>(*result));
+                    qcir_mgr.add(qcir_mgr.get_next_id(), std::unique_ptr<qcir::QCir>(result));
                     qcir_mgr.get()->set_filename(zxgraph_mgr.get()->get_filename());
                     qcir_mgr.get()->add_procedures(zxgraph_mgr.get()->get_procedures());
                     if (!extractor::PERMUTE_QUBITS) {
@@ -159,6 +156,8 @@ Command convert_from_zx_cmd(zx::ZXGraphMgr& zxgraph_mgr, QCirMgr& qcir_mgr, tens
                         qcir_mgr.get()->add_procedure("ZX2QC-Unpermuted");
                     } else
                         qcir_mgr.get()->add_procedure("ZX2QC");
+
+                    assert(std::ranges::all_of(qcir_mgr.get()->get_gates(), [&](auto* gate) { return gate->get_id() == qcir_mgr.get()->get_gate(gate->get_id())->get_id(); }));
                 }
                 return CmdExecResult::done;
             }
@@ -245,6 +244,7 @@ Command convert_from_tableau_cmd(experimental::TableauMgr& tableau_mgr, qcir::QC
                     if (dvlab::str::is_prefix_of(dvlab::str::tolower_string(clifford_strategy_str), "hopt")) return std::make_unique<experimental::HOptSynthesisStrategy>();
                     if (dvlab::str::is_prefix_of(dvlab::str::tolower_string(clifford_strategy_str), "ag")) return std::make_unique<experimental::AGSynthesisStrategy>();
                     DVLAB_UNREACHABLE("Invalid clifford strategy!!");
+                    return nullptr;
                 });
 
                 auto const rotation_strategy = std::invoke([&]() -> std::unique_ptr<experimental::PauliRotationsSynthesisStrategy> {
@@ -252,6 +252,7 @@ Command convert_from_tableau_cmd(experimental::TableauMgr& tableau_mgr, qcir::QC
                     if (dvlab::str::is_prefix_of(dvlab::str::tolower_string(rotation_strategy_str), "naive")) return std::make_unique<experimental::NaivePauliRotationsSynthesisStrategy>();
                     if (dvlab::str::is_prefix_of(dvlab::str::tolower_string(rotation_strategy_str), "tpar")) return std::make_unique<experimental::TParPauliRotationsSynthesisStrategy>();
                     DVLAB_UNREACHABLE("Invalid rotation strategy!!");
+                    return nullptr;
                 });
 
                 spdlog::info("Converting to Tableau {} to QCir {}...", tableau_mgr.focused_id(), qcir_mgr.get_next_id());
@@ -262,7 +263,7 @@ Command convert_from_tableau_cmd(experimental::TableauMgr& tableau_mgr, qcir::QC
 
                     qcir_mgr.get()->set_filename(tableau_mgr.get()->get_filename());
                     qcir_mgr.get()->add_procedures(tableau_mgr.get()->get_procedures());
-                    qcir_mgr.get()->add_procedure("TB2QC");
+                    qcir_mgr.get()->add_procedure("TABL2QC");
                 }
 
                 return CmdExecResult::done;
@@ -292,15 +293,45 @@ Command conversion_cmd(QCirMgr& qcir_mgr, qsyn::tensor::TensorMgr& tensor_mgr, q
     return cmd;
 }
 
+Command sk_decompose_cmd(qsyn::tensor::TensorMgr& tensor_mgr, QCirMgr& qcir_mgr) {
+    return {"sk-decompose",
+            [&](ArgumentParser& parser) {
+                parser.description("decompose the tensor by SK-algorithm");
+                parser.add_argument<size_t>("-d", "--depth")
+                    .required(true)
+                    .help("the depth of the gate list");
+
+                parser.add_argument<size_t>("-r", "--recursion")
+                    .required(true)
+                    .help("the recursion times of Solovay-Kitaev algorithm");
+            },
+            // NOTE - Check the function solovay_kitaev_decompose
+            [&](ArgumentParser const& parser) {
+                tensor::SolovayKitaev decomposer(parser.get<size_t>("--depth"), parser.get<size_t>("--recursion"));
+                spdlog::info("Decomposing Tensor {} to QCir {} by Solovay-Kitaev algorithm...", tensor_mgr.focused_id(), qcir_mgr.get_next_id());
+                auto result = decomposer.solovay_kitaev_decompose(*tensor_mgr.get());
+
+                if (result) {
+                    qcir_mgr.add(qcir_mgr.get_next_id(), std::make_unique<qcir::QCir>(std::move(*result)));
+                    qcir_mgr.get()->add_procedures(tensor_mgr.get()->get_procedures());
+                    qcir_mgr.get()->add_procedure("Solovay-Kitaev");
+                    qcir_mgr.get()->set_filename(tensor_mgr.get()->get_filename());
+                }
+
+                return CmdExecResult::done;
+            }};
+}
+
 bool add_conversion_cmds(dvlab::CommandLineInterface& cli, QCirMgr& qcir_mgr, qsyn::tensor::TensorMgr& tensor_mgr, qsyn::zx::ZXGraphMgr& zxgraph_mgr, experimental::TableauMgr& tableau_mgr) {
     if (!(cli.add_command(conversion_cmd(qcir_mgr, tensor_mgr, zxgraph_mgr, tableau_mgr)) &&
+          cli.add_command(sk_decompose_cmd(tensor_mgr, qcir_mgr)) &&
           cli.add_alias("qc2zx", "convert qcir zx") &&
           cli.add_alias("qc2ts", "convert qcir tensor") &&
           cli.add_alias("zx2ts", "convert zx tensor") &&
           cli.add_alias("zx2qc", "convert zx qcir") &&
           cli.add_alias("ts2qc", "convert tensor qcir") &&
-          cli.add_alias("qc2tb", "convert qcir tableau") &&
-          cli.add_alias("tb2qc", "convert tableau qcir"))) {
+          cli.add_alias("qc2tabl", "convert qcir tableau") &&
+          cli.add_alias("tabl2qc", "convert tableau qcir"))) {
         fmt::println(stderr, "Registering \"conversion\" commands fails... exiting");
         return false;
     }

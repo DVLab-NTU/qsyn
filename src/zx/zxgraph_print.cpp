@@ -27,6 +27,7 @@ namespace zx {
  *
  */
 void ZXGraph::print_graph(spdlog::level::level_enum lvl) const {
+    if (!spdlog::should_log(lvl)) return;
     spdlog::log(lvl, "Graph ({} inputs, {} outputs, {} vertices, {} edges)", get_num_inputs(), get_num_outputs(), get_num_vertices(), get_num_edges());
 }
 
@@ -78,6 +79,7 @@ void ZXGraph::print_io() const {
  *
  */
 void ZXGraph::print_vertices(spdlog::level::level_enum lvl) const {
+    if (!spdlog::should_log(lvl)) return;
     spdlog::log(lvl, "");
     std::ranges::for_each(_vertices, [&lvl](ZXVertex* v) { v->print_vertex(lvl); });
     spdlog::log(lvl, "Total #Vertices: {}", get_num_vertices());
@@ -105,6 +107,7 @@ void ZXGraph::print_vertices(std::vector<size_t> cand) const {
  * @param cand
  */
 void ZXGraph::print_vertices_by_rows(spdlog::level::level_enum lvl, std::vector<float> const& cand) const {
+    if (!spdlog::should_log(lvl)) return;
     std::map<float, std::vector<ZXVertex*>> q2_vmap;
     for (auto const& v : _vertices) {
         if (!q2_vmap.contains(v->get_row())) {
@@ -139,49 +142,6 @@ void ZXGraph::print_edges() const {
         fmt::println("{:<12} Type: {}", fmt::format("({}, {})", epair.first.first->get_id(), epair.first.second->get_id()), epair.second);
     });
     fmt::println("Total #Edges: {}", get_num_edges());
-}
-
-/**
- * @brief For each vertex ID, print the vertices that only present in one of the graph,
- *        or vertices that differs in the neighbors. This is not a graph isomorphism detector!!!
- *
- * @param other
- */
-void ZXGraph::print_difference(ZXGraph* other) const {
-    assert(other != nullptr);
-
-    auto const n_idx = std::max(_next_v_id, other->_next_v_id);
-    ZXVertexList v1s, v2s;
-    for (size_t i = 0; i < n_idx; ++i) {
-        auto v1 = find_vertex_by_id(i);
-        auto v2 = other->find_vertex_by_id(i);
-        if (v1 && v2) {
-            if (this->get_num_neighbors(v1) != this->get_num_neighbors(v2) ||
-                std::invoke([&v1, &v2, &other, this]() -> bool {
-                    return std::ranges::any_of(this->get_neighbors(v1), [&v2, &other, this](auto const& pair) {
-                        auto const& [nb1, e1] = pair;
-                        ZXVertex* nb2         = other->find_vertex_by_id(nb1->get_id());
-                        return (!nb2 || !this->is_neighbor(nb2, v2, e1));
-                    });
-                })) {
-                v1s.insert(v1);
-                v2s.insert(v2);
-            }
-        } else if (v1) {
-            v1s.insert(v1);
-        } else if (v2) {
-            v2s.insert(v2);
-        }
-    }
-    fmt::println(">>>");
-    for (auto& v : v1s) {
-        v->print_vertex();
-    }
-    fmt::println("===");
-    for (auto& v : v2s) {
-        v->print_vertex();
-    }
-    fmt::println("<<<");
 }
 
 }  // namespace zx

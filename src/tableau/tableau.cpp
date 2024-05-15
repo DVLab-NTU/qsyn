@@ -12,17 +12,7 @@
 
 namespace qsyn::experimental {
 
-auto Tableau::n_qubits() const -> size_t {
-    if (_subtableaux.empty())
-        return 0;
-    return std::visit(
-        dvlab::overloaded(
-            [](StabilizerTableau const& subtableau) -> size_t { return subtableau.n_qubits(); },
-            [](std::vector<PauliRotation> const& subtableau) -> size_t { return subtableau.front().n_qubits(); }),
-        _subtableaux.front());
-}
-
-Tableau& Tableau::h(size_t qubit) {
+Tableau& Tableau::h(size_t qubit) noexcept {
     for (auto& subtableau : _subtableaux | std::views::reverse) {
         std::visit(
             dvlab::overloaded(
@@ -37,7 +27,7 @@ Tableau& Tableau::h(size_t qubit) {
     return *this;
 }
 
-Tableau& Tableau::s(size_t qubit) {
+Tableau& Tableau::s(size_t qubit) noexcept {
     for (auto& subtableau : _subtableaux | std::views::reverse) {
         std::visit(
             dvlab::overloaded(
@@ -52,7 +42,7 @@ Tableau& Tableau::s(size_t qubit) {
     return *this;
 }
 
-Tableau& Tableau::cx(size_t control, size_t target) {
+Tableau& Tableau::cx(size_t control, size_t target) noexcept {
     for (auto& subtableau : _subtableaux | std::views::reverse) {
         std::visit(
             dvlab::overloaded(

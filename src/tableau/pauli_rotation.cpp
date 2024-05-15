@@ -62,6 +62,7 @@ std::string to_string(CliffordOperatorType type) {
             return "ecr";
     }
     DVLAB_UNREACHABLE("Every Clifford type should be handled in the switch-case");
+    return "";
 }
 
 uint8_t power_of_i(Pauli a, Pauli b) {
@@ -82,7 +83,7 @@ PauliProduct::PauliProduct(std::initializer_list<Pauli> const& pauli_list, bool 
     }
 
     for (size_t i = 0; i < pauli_list.size(); ++i) {
-        switch (pauli_list.begin()[i]) {
+        switch (pauli_list.begin()[i]) {  //  NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
             case Pauli::i:
                 break;
             case Pauli::z:
@@ -198,7 +199,7 @@ void bitset_swap_two(size_t i, size_t j, sul::dynamic_bitset<>& bitset) {
 
 }  // namespace
 
-PauliProduct& PauliProduct::h(size_t qubit) {
+PauliProduct& PauliProduct::h(size_t qubit) noexcept {
     if (qubit >= n_qubits()) return *this;
     if (is_y(qubit)) {
         _bitset.flip(_r_idx());
@@ -207,7 +208,7 @@ PauliProduct& PauliProduct::h(size_t qubit) {
     return *this;
 }
 
-PauliProduct& PauliProduct::s(size_t qubit) {
+PauliProduct& PauliProduct::s(size_t qubit) noexcept {
     if (qubit >= n_qubits()) return *this;
     if (is_y(qubit)) {
         _bitset.flip(_r_idx());
@@ -216,7 +217,7 @@ PauliProduct& PauliProduct::s(size_t qubit) {
     return *this;
 }
 
-PauliProduct& PauliProduct::cx(size_t control, size_t target) {
+PauliProduct& PauliProduct::cx(size_t control, size_t target) noexcept {
     if (control >= n_qubits() || target >= n_qubits()) {
         return *this;
     }
@@ -252,19 +253,19 @@ std::string PauliRotation::to_bit_string() const {
     return fmt::format("{} {}", _pauli_product.to_bit_string().substr(0, 2 * n_qubits() + 1), _phase.get_print_string());
 }
 
-PauliRotation& PauliRotation::h(size_t qubit) {
+PauliRotation& PauliRotation::h(size_t qubit) noexcept {
     _pauli_product.h(qubit);
     _normalize();
     return *this;
 }
 
-PauliRotation& PauliRotation::s(size_t qubit) {
+PauliRotation& PauliRotation::s(size_t qubit) noexcept {
     _pauli_product.s(qubit);
     _normalize();
     return *this;
 }
 
-PauliRotation& PauliRotation::cx(size_t control, size_t target) {
+PauliRotation& PauliRotation::cx(size_t control, size_t target) noexcept {
     _pauli_product.cx(control, target);
     _normalize();
     return *this;

@@ -1,0 +1,57 @@
+qsyn> qcir qubit add 1
+
+qsyn> qcir gate add rx -ph 6.28*0.46181601443868003 0 
+
+qsyn> qcir gate add ry -ph 6.28*0.9850727657318968 0
+
+qsyn> qcir gate add rz -ph 6.28*0.9477936955481501 0
+
+qsyn> qcir print --diagram
+Q 0  -rx(0)--ry(1)--rz(2)-
+
+qsyn> qcir print --gate 0
+Listed by gate ID
+0 (t=1): rx(601π/651)   q[0]
+
+qsyn> convert qcir tensor
+
+qsyn> tensor print 0 
+{{ 0.126496-0.02764i ,  0.169178-0.977043i},
+ {-0.169178-0.977043i,  0.126496+0.02764i }}
+
+qsyn> logger info
+[info]     Setting logger level to "info"
+
+qsyn> sk-decompose -d 8 -r 4
+[info]     Decomposing Tensor 0 to QCir 1 by Solovay-Kitaev algorithm...
+[info]     Gate list depth: 8, #Recursions: 4
+
+Trace distance: 0.018421
+
+[info]     Remove 1975 redundant gates
+[info]     Decompose tensor into 1039 gates.
+[info]     Successfully created and checked out to QCir 1
+
+qsyn> qcir list
+  0                        
+★ 1                        QC2TS ➔ Solovay-Kitaev
+
+qsyn> logger warning
+
+qsyn> convert qcir tensor
+
+qsyn> tensor list 
+  0                        #Dim: 2   QC2TS
+★ 1                        #Dim: 2   QC2TS ➔ Solovay-Kitaev ➔ QC2TS
+
+qsyn> tensor equiv 0 1
+Not Equivalent
+- Cosine Similarity: 0.99983
+
+qsyn> tensor equiv -e 0.001 0 1
+Equivalent
+- Global Norm : 0.998193
+- Global Phase: 55π/109
+
+qsyn> quit -f
+

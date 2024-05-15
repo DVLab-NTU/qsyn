@@ -11,14 +11,8 @@
 #include <fmt/format.h>
 
 #include <cstddef>
-#include <initializer_list>
-#include <iostream>
-#include <iterator>
-#include <ranges>
-#include <ratio>
 #include <string>
 #include <sul/dynamic_bitset.hpp>
-#include <variant>
 
 #include "tableau/pauli_rotation.hpp"
 
@@ -35,20 +29,20 @@ public:
         }
     }
 
-    inline size_t n_qubits() const {
+    size_t n_qubits() const {
         return _stabilizers.size() / 2;
     }
 
-    inline size_t stabilizer_idx(size_t qubit) const {
+    size_t stabilizer_idx(size_t qubit) const {
         return qubit;
     }
-    inline size_t destabilizer_idx(size_t qubit) const {
+    size_t destabilizer_idx(size_t qubit) const {
         return qubit + n_qubits();
     }
 
-    StabilizerTableau& h(size_t qubit) override;
-    StabilizerTableau& s(size_t qubit) override;
-    StabilizerTableau& cx(size_t ctrl, size_t targ) override;
+    StabilizerTableau& h(size_t qubit) noexcept override;
+    StabilizerTableau& s(size_t qubit) noexcept override;
+    StabilizerTableau& cx(size_t ctrl, size_t targ) noexcept override;
 
     // prepend operations
     // these operations are specific to the stabilizer tableau
@@ -75,16 +69,16 @@ public:
     std::string to_string() const;
     std::string to_bit_string() const;
 
-    inline PauliProduct const& stabilizer(size_t qubit) const {
+    PauliProduct const& stabilizer(size_t qubit) const {
         return _stabilizers[stabilizer_idx(qubit)];
     }
-    inline PauliProduct const& destabilizer(size_t qubit) const {
+    PauliProduct const& destabilizer(size_t qubit) const {
         return _stabilizers[destabilizer_idx(qubit)];
     }
-    inline PauliProduct& stabilizer(size_t qubit) {
+    PauliProduct& stabilizer(size_t qubit) {
         return _stabilizers[stabilizer_idx(qubit)];
     }
-    inline PauliProduct& destabilizer(size_t qubit) {
+    PauliProduct& destabilizer(size_t qubit) {
         return _stabilizers[destabilizer_idx(qubit)];
     }
 
@@ -95,7 +89,11 @@ public:
         return !(*this == rhs);
     }
 
-    inline bool is_identity() const { return *this == StabilizerTableau{n_qubits()}; }
+    bool is_identity() const { return *this == StabilizerTableau{n_qubits()}; }
+
+    bool is_commutative(PauliProduct const& rhs) const {
+        return std::ranges::all_of(_stabilizers | std::views::take(n_qubits()), [&rhs](PauliProduct const& stabilizer) { return stabilizer.is_commutative(rhs); });
+    }
 
 private:
     std::vector<PauliProduct> _stabilizers;

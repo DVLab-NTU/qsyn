@@ -9,12 +9,9 @@
 #include <omp.h>
 
 #include <algorithm>
-#include <functional>
 #include <tl/enumerate.hpp>
-#include <unordered_set>
 #include <vector>
 
-#include "./duostra.hpp"
 #include "./scheduler.hpp"
 #include "util/util.hpp"
 
@@ -81,7 +78,7 @@ TreeNode::TreeNode(TreeNode const& other)
       _scheduler{other._scheduler->clone()} {}
 
 /**
- * @brief Grow by adding availalble gates to children.
+ * @brief Grow by adding available gates to children.
  *
  */
 void TreeNode::_grow() {
@@ -190,7 +187,7 @@ size_t TreeNode::best_cost(size_t depth) {
 
     // Calculates the best cost for each children.
     size_t best_cost = SIZE_MAX;
-    for (auto& child : _children) {
+    for (auto& child : _children | std::views::take(_conf._candidates)) {
         best_cost = std::min(best_cost, child.best_cost(depth - 1));
     }
 
@@ -209,7 +206,7 @@ size_t TreeNode::best_cost(size_t depth) {
 size_t TreeNode::best_cost() const {
     size_t best = SIZE_MAX;
 
-#pragma omp parallel for reduction(min : best)
+    // #pragma omp parallel for reduction(min : best)
     for (auto& gate : scheduler().get_available_gates()) {
         TreeNode const child_node{_conf, gate, router().clone(),
                                   scheduler().clone(), _max_cost};
@@ -234,28 +231,6 @@ SearchScheduler::SearchScheduler(CircuitTopology const& topo, bool tqdm)
       _lookahead(DuostraConfig::SEARCH_DEPTH) {
     _cache_when_necessary();
 }
-
-/**
- * @brief Construct a new Search Scheduler:: Search Scheduler object
- *
- * @param other
- */
-SearchScheduler::SearchScheduler(SearchScheduler const& other)
-    : GreedyScheduler(other),
-      _never_cache(other._never_cache),
-      _execute_single(other._execute_single),
-      _lookahead(other._lookahead) {}
-
-/**
- * @brief Construct a new Search Scheduler:: Search Scheduler object
- *
- * @param other
- */
-SearchScheduler::SearchScheduler(SearchScheduler&& other) noexcept
-    : GreedyScheduler(std::move(other)),
-      _never_cache(other._never_cache),
-      _execute_single(other._execute_single),
-      _lookahead(other._lookahead) {}
 
 /**
  * @brief Clone scheduler
