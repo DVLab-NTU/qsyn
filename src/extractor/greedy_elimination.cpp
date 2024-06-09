@@ -5,6 +5,8 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
+#include <fmt/core.h>
+#include <cstddef>
 #include "./extract.hpp"
 #include "util/util.hpp"
 
@@ -26,7 +28,25 @@ std::vector<size_t> Extractor::find_minimal_sums(dvlab::BooleanMatrix& matrix) {
 
     for (size_t i = 0; i < matrix.num_rows(); i++)
         row_track_pairs.emplace_back(std::vector<size_t>{i}, matrix[i]);
-
+    std::vector<bool> neighbor_connect_to_axel(_neighbors.size(), false);
+    size_t cnt = 0;
+    for (auto const& n: _neighbors) {
+        for (const auto& [nb, _] : _graph->get_neighbors(n)) {
+            if (_axels.contains(nb)) {
+                neighbor_connect_to_axel[cnt] = true;
+                break;
+            }
+        }
+        cnt++;
+    }
+    bool no_axel = true;
+    for (size_t i=0; i< neighbor_connect_to_axel.size(); i++) {
+        if (neighbor_connect_to_axel[i]) {
+            no_axel = false;
+            break;
+        }
+    }
+    std::vector<size_t> first_result;
     size_t iterations = 0;
     while (true) {
         new_row_track_pairs.clear();
@@ -36,8 +56,25 @@ std::vector<size_t> Extractor::find_minimal_sums(dvlab::BooleanMatrix& matrix) {
                 auto const new_row         = row + matrix[k];
                 std::vector<size_t> result = indices;
                 result.emplace_back(k);
-                if (new_row.is_one_hot())
+                if (new_row.is_one_hot()) {
                     return result;
+                    if (no_axel) {
+                        fmt::println("Return with no axel");
+                        return result;
+                    }
+                    // The one is axel neighbor
+                    for (size_t i=0; i<new_row.size(); i++) {
+                        if (new_row[i] && new_row[i] == neighbor_connect_to_axel[i]) {
+                            fmt::println("Return with good one");
+                            return result;
+                        }
+                            
+                    }
+                    // Save to register and find another result;
+                    fmt::println("Found but keep");
+                    if (!first_result.empty())
+                        first_result = result;
+                }
 
                 new_row_track_pairs.emplace_back(result, new_row);
                 iterations++;
@@ -50,6 +87,10 @@ std::vector<size_t> Extractor::find_minimal_sums(dvlab::BooleanMatrix& matrix) {
         if (new_row_track_pairs.empty())
             return {};
         // NOTE - update rowTrackPairs
+        // if (!first_result.empty()) {
+        //     fmt::println("Return with no sol");
+        //     return first_result;
+        // }
         row_track_pairs = new_row_track_pairs;
     }
 }

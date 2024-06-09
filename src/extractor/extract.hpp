@@ -18,6 +18,7 @@
 #include "spdlog/common.h"
 #include "util/boolean_matrix.hpp"
 #include "zx/zx_def.hpp"
+#include "zx/zxgraph.hpp"
 
 namespace qsyn {
 
@@ -35,6 +36,7 @@ extern bool SORT_NEIGHBORS;
 extern bool PERMUTE_QUBITS;
 extern bool FILTER_DUPLICATE_CXS;
 extern bool REDUCE_CZS;
+extern bool GADGET_FIRST;
 extern size_t BLOCK_SIZE;
 extern size_t OPTIMIZE_LEVEL;
 
@@ -108,8 +110,11 @@ private:
 
     Overlap _max_overlap(dvlab::BooleanMatrix& matrix);
 
+    int _calculate_cz_pivot(zx::ZXVertex* frontier, zx::ZXVertex* axel, zx::ZXVertex* cz_target);
+
     size_t _num_cx_filtered = 0;
     size_t _num_swaps       = 0;
+    size_t _cnt_print = 0;
 
     std::vector<size_t> _initial_placement;
 };

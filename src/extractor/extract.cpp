@@ -8,9 +8,11 @@
 #include "./extract.hpp"
 
 #include <fmt/core.h>
+#include <fmt/ostream.h>
 
 #include <algorithm>
 #include <cassert>
+#include <cstddef>
 #include <random>
 #include <ranges>
 
@@ -23,6 +25,7 @@
 #include "util/boolean_matrix.hpp"
 #include "util/ordered_hashmap.hpp"
 #include "util/util.hpp"
+#include "zx/gflow/gflow.hpp"
 #include "zx/simplifier/simplify.hpp"
 #include "zx/zx_def.hpp"
 #include "zx/zxgraph.hpp"
@@ -31,6 +34,7 @@ using namespace qsyn::zx;
 using namespace qsyn::qcir;
 
 namespace qsyn::extractor {
+using fmt::println;
 
 bool SORT_FRONTIER        = false;
 bool SORT_NEIGHBORS       = true;
@@ -39,6 +43,7 @@ bool FILTER_DUPLICATE_CXS = true;
 bool REDUCE_CZS           = false;
 size_t BLOCK_SIZE         = 5;
 size_t OPTIMIZE_LEVEL     = 2;
+bool GADGET_FIRST         = false;
 
 /**
  * @brief Construct a new Extractor:: Extractor object
@@ -48,7 +53,7 @@ size_t OPTIMIZE_LEVEL     = 2;
  * @param d
  */
 Extractor::Extractor(ZXGraph* g, bool r, QCir* c /*, std::optional<Device> const& d*/) : _graph(g), _random(r), _logical_circuit{c ? c : new QCir()} /* ,_physical_circuit{to_physical() ? new QCir() : nullptr}, _device(d), _device_backup(d) */ {
-    spdlog::error("Random: {}", r);
+    // spdlog::error("Random: {}", r);
     initialize(c == nullptr);
 }
 
@@ -116,8 +121,8 @@ QCir* Extractor::extract() {
         _logical_circuit->print_circuit_diagram(spdlog::level::level_enum::trace);
         _graph->print_vertices_by_rows(spdlog::level::level_enum::trace);
     }
-    fmt::println("Fake CZ list");
-    size_t cnt_fake = 0;
+    // fmt::println("Fake CZ list");
+    // size_t cnt_fake = 0;
     for (const auto& g : _logical_circuit->get_gates()) {
         if (g->get_operation() == CZGate()) {
             // fmt::print("{}: ", g->get_id());
@@ -126,14 +131,14 @@ QCir* Extractor::extract() {
                 // fmt::print("{}, ",_logical_circuit->get_gate(*pred)->get_operation().get_repr());
                 if (_logical_circuit->get_gate(*pred)->get_operation().is<HGate>()) {
                     // fmt::println("ID: {}", g->get_id());
-                    cnt_fake++;
+                    // cnt_fake++;
                     break;
                 }
             }
             // fmt::println("");
         }
     }
-    fmt::println("TOTAL FAKE: {}", cnt_fake);
+    // fmt::println("TOTAL FAKE: {}", cnt_fake);
     return _logical_circuit;
 }
 
@@ -145,20 +150,48 @@ QCir* Extractor::extract() {
  * @return false if not
  */
 bool Extractor::extraction_loop(std::optional<size_t> max_iter) {
+    // fmt::println("{}", GADGET_FIRST);
+    // _graph->write_pdf("ising.pdf");
     while ((!max_iter.has_value() || *max_iter > 0) && !stop_requested()) {
+        // size_t cnt_edges_in_frontier = 0;
+        //     for (const auto& a:_frontier) {
+        //         for(const auto& [n, _]: _graph->get_neighbors(a)){
+        //             if(_frontier.contains(n)) {
+        //                 cnt_edges_in_frontier++;
+        //             }
+        //         }
+        //     }
+        //     fmt::println("Start: Edges in frontier: {}", cnt_edges_in_frontier/2);
         clean_frontier();
         update_neighbors();
 
         if (_frontier.empty()) break;
-
+        // _graph->write_pdf(fmt::format("temp/{}.pdf", _cnt_print));
+        // _cnt_print++;
         if (remove_gadget()) {
             spdlog::debug("Gadget(s) are removed.");
             print_frontier(spdlog::level::level_enum::trace);
             _graph->print_vertices_by_rows(spdlog::level::level_enum::trace);
             _logical_circuit->print_circuit_diagram(spdlog::level::level_enum::trace);
+            // fmt::println("------- RM GADGET --------");
             continue;
         }
-
+        // _graph->write_pdf(fmt::format("temp/{}.pdf", _cnt_print));
+        // _cnt_print++;
+        if (GADGET_FIRST) {
+            // size_t cnt_edges_in_frontier = 0;
+            // for (const auto& a:_frontier) {
+            //     for(const auto& [n, _]: _graph->get_neighbors(a)){
+            //         if(_frontier.contains(n)) {
+            //             cnt_edges_in_frontier++;
+            //         }
+            //     }
+            // }
+            // fmt::println("Not Clean: Edges in frontier: {}", cnt_edges_in_frontier/2);
+            extract_czs();
+        }
+        // _graph->write_pdf(fmt::format("temp/{}.pdf", _cnt_print));
+        // _cnt_print++;
         if (contains_single_neighbor()) {
             spdlog::debug("Single neighbor found. Construct an easy matrix.");
             update_matrix();
@@ -181,9 +214,10 @@ bool Extractor::extraction_loop(std::optional<size_t> max_iter) {
         _logical_circuit->print_circuit_diagram(spdlog::level::level_enum::trace);
 
         if (max_iter.has_value()) (*max_iter)--;
+        // fmt::println("--------");
     }
-    fmt::println("Total removes: CZ: {}, CX: {}", _num_cz_rms, _num_cx_rms);
-    fmt::println("CZ ratio (gadget/all): {}/{}", _num_cz_rms_after_gadget, _num_cz_rms);
+    // fmt::println("Total removes: CZ: {}, CX: {}", _num_cz_rms, _num_cx_rms);
+    // fmt::println("CZ ratio (gadget/all): {}/{}", _num_cz_rms_after_gadget, _num_cz_rms);
     return true;
 }
 
@@ -194,7 +228,33 @@ bool Extractor::extraction_loop(std::optional<size_t> max_iter) {
 void Extractor::clean_frontier() {
     spdlog::debug("Cleaning frontier");
     extract_singles();
-    extract_czs();
+    // bool clean_cz = false;
+    // // print_frontier();
+    // for(auto const& f: _frontier) {
+    //     size_t cnt_valid_neighbors = 0;
+    //     for(auto const& [n, _]: _graph->get_neighbors(f)) {
+    //         if (!_frontier.contains(n) && !_axels.contains(n) && !n->is_boundary()) {
+    //             cnt_valid_neighbors++;
+    //         }
+    //     }
+    //     // fmt::println("Frontier: {}, #n: {}", f->get_id(), cnt_valid_neighbors);
+    //     if(cnt_valid_neighbors == 1) {
+    //         clean_cz = true;
+    //     }
+    // }
+
+    if (!GADGET_FIRST) {
+        // size_t cnt_edges_in_frontier = 0;
+        // for (const auto& a:_frontier) {
+        //     for(const auto& [n, _]: _graph->get_neighbors(a)){
+        //         if(_frontier.contains(n)) {
+        //             cnt_edges_in_frontier++;
+        //         }
+        //     }
+        // }
+        // fmt::println("Clean: Edges in frontier: {}", cnt_edges_in_frontier/2);
+        extract_czs();
+    }
 }
 
 /**
@@ -446,17 +506,36 @@ bool Extractor::remove_gadget(bool check) {
         std::shuffle(std::begin(shuffle_neighbors), std::end(shuffle_neighbors), g1);
     }
 
-    // std::vector<ZXVertex*> shuffle_frontier;
-    // for(const auto& v: _frontier) {
-    //     shuffle_frontier.push_back(v);
+    // ZXVertexList to_calculate;
+    // for (const auto& v : _axels) {
+    //     for (const auto& [n, _] : _graph->get_neighbors(v)) {
+    //         if (_frontier.contains(n)) {
+    //             to_calculate.emplace(v);
+    //             break;
+    //         }
+    //     }
     // }
-    // std::random_device rd2;
-    // std::mt19937 g2(rd2());
-    // std::shuffle(std::begin(shuffle_frontier), std::end(shuffle_frontier), g2);
+    // if (to_calculate.empty()) {
+    //     return false;
+    // }
 
+    // GFlow gflow(_graph);
+    // gflow.set_partial();
+    // gflow.do_extended_gflow(true);
+    // gflow.do_independent_layers(false);
+
+    // // fmt::println("{}/{}", to_calculate.size(), _axels.size());
+    // gflow.set_vertices_to_calculate(to_calculate);
+    // gflow.calculate();
+
+    // if (gflow.get_vertices_order().empty()) {
+    //     return false;
+    // }
+    // fmt::println("Same order amount: {}/{}", gflow.get_vertices_order().size(), to_calculate.size());
     bool removed_some_gadgets = false;
+
     // for (auto& n : _neighbors) {
-    //     if (!_axels.contains(n)) {
+    //     if (!dvlab::contains(gflow.get_vertices_order(), n)) {
     //         continue;
     //     }
     //     for (auto& [candidate, _] : _graph->get_neighbors(n)) {
@@ -485,7 +564,83 @@ bool Extractor::remove_gadget(bool check) {
     //         }
     //     }
     // }
-    for (auto& n : shuffle_neighbors) {
+
+    // ZXVertex* the_axel     = gflow.get_vertices_order()[0];
+    // ZXVertex* the_frontier = nullptr;
+    // size_t max_edge        = 0;
+    // for (auto a : gflow.get_vertices_order()) {
+    //     // for (auto const& [n, _] : _graph->get_neighbors(the_axel)) {
+    //     //     if (_frontier.contains(n)) {
+    //     //         the_frontier = n;
+    //     //         break;
+    //     //     }
+    //     // }
+
+    //     size_t cnt_edge = 0;
+    //     for (auto const& [n, _] : _graph->get_neighbors(a)) {
+    //         // fmt::print("{}", n->get_id());
+    //         if (_frontier.contains(n)) {
+    //             cnt_edge++;
+    //         }
+    //     }
+    //     // fmt::println("");
+    //     // fmt::println("Axel: {}, #frontier: {}", a->get_id(), cnt_edge);
+    //     if (max_edge < cnt_edge) {
+    //         max_edge = cnt_edge;
+    //         the_axel = a;
+    //     }
+    // }
+    // for (auto const& [n, _] : _graph->get_neighbors(the_axel)) {
+    //     if (_frontier.contains(n)) {
+    //         the_frontier = n;
+    //         break;
+    //     }
+    // }
+
+    // fmt::println("#frontier: {}", max_edge);
+    // // fmt::println("487");
+    // assert(the_frontier != nullptr);
+    // std::vector<ZXVertex*> shuffle_frontier;
+    // for(const auto& v: _frontier) {
+    //     shuffle_frontier.push_back(v);
+    // }
+    // std::random_device rd2;
+    // std::mt19937 g2(rd2());
+    // std::shuffle(std::begin(shuffle_frontier), std::end(shuffle_frontier), g2);
+    // size_t max_edge = 0;
+    // for (auto a : _axels) {
+    //     // for (auto const& [n, _] : _graph->get_neighbors(the_axel)) {
+    //     //     if (_frontier.contains(n)) {
+    //     //         the_frontier = n;
+    //     //         break;
+    //     //     }
+    //     // }
+
+    //     size_t cnt_edge = 0;
+    //     for (auto const& [n, _] : _graph->get_neighbors(a)) {
+    //         // fmt::print("{}", n->get_id());
+    //         if (_frontier.contains(n)) {
+    //             cnt_edge++;
+    //         }
+    //     }
+    //     // fmt::println("");
+    //     fmt::println("Axel: {}, #frontier: {}", a->get_id(), cnt_edge);
+    //     if (max_edge < cnt_edge) {
+    //         max_edge = cnt_edge;
+    //         // the_axel = a;
+    //     }
+    // }
+    // int cnt_cz = 0;
+    // for (const auto& f : _frontier) {
+    //     for (const auto& [n, _] : _graph->get_neighbors(f)) {
+    //         if (_frontier.contains(n)) {
+    //             cnt_cz++;
+    //         }
+    //     }
+    // }
+    // cnt_cz /= 2;
+
+    for (auto& n : _neighbors) {
         if (!_axels.contains(n)) {
             continue;
         }
@@ -502,21 +657,101 @@ bool Extractor::remove_gadget(bool check) {
                         break;
                     }
                 }
-
+                if(GADGET_FIRST){
+                    std::vector<qcir::QCirGate> gates;
+                    int diff = 0;
+                    int n_cz = 0;
+                    for(auto const& [cz_cand, _]: _graph->get_neighbors(candidate)) {
+                        if(_frontier.contains(cz_cand)) {
+                            diff += _calculate_cz_pivot(candidate, n, cz_cand);
+                            n_cz++;
+                        }
+                    }
+                    if (1*float(diff) + 1*float(n_cz) < 0) {
+                        extract_czs();
+                    }
+                }
+                // _calculate_cz_pivot(candidate, n);
                 PivotBoundaryRule().apply(*_graph, {{candidate, n}});
+                //         _graph->write_pdf(fmt::format("temp/{}.pdf", _cnt_print));
+                // _cnt_print++;
                 assert(target_boundary != nullptr);
                 auto new_frontier = _graph->get_first_neighbor(target_boundary).first;
                 new_frontier->set_qubit(qubit);
                 _frontier.emplace(_graph->get_first_neighbor(target_boundary).first);
-
                 // REVIEW - qubit_map
                 removed_some_gadgets = true;
-                _previous_gadget     = true;
                 break;
             }
         }
     }
 
+    // int cnt_cz_after = 0;
+    // for (const auto& f : _frontier) {
+    //     for (const auto& [n, _] : _graph->get_neighbors(f)) {
+    //         if (_frontier.contains(n)) {
+    //             cnt_cz_after++;
+    //         }
+    //     }
+    // }
+    // cnt_cz_after /= 2;
+
+    // fmt::println("Diff CZs: {}", cnt_cz_after - cnt_cz);
+    // fmt::println("526");
+    // auto const qubit = the_frontier->get_qubit();
+    // _axels.erase(the_axel);
+    // _frontier.erase(the_frontier);
+
+    // ZXVertex* target_boundary = nullptr;
+    // for (auto& [boundary, _] : _graph->get_neighbors(the_frontier)) {
+    //     if (boundary->is_boundary()) {
+    //         target_boundary = boundary;
+    //         break;
+    //     }
+    // }
+    // // println("538");
+    // PivotBoundaryRule().apply(*_graph, {{the_frontier, the_axel}});
+    // assert(target_boundary != nullptr);
+    // auto new_frontier = _graph->get_first_neighbor(target_boundary).first;
+    // new_frontier->set_qubit(qubit);
+    // _frontier.emplace(_graph->get_first_neighbor(target_boundary).first);
+
+    // REVIEW - qubit_map
+    // removed_some_gadgets = true;
+    // _previous_gadget     = true;
+
+    // for (auto& n : shuffle_neighbors) {
+    //     if (!_axels.contains(n)) {
+    //         continue;
+    //     }
+    //     for (auto& [candidate, _] : _graph->get_neighbors(n)) {
+    //         if (_frontier.contains(candidate)) {
+    //             auto const qubit = candidate->get_qubit();
+    //             _axels.erase(n);
+    //             _frontier.erase(candidate);
+
+    //             ZXVertex* target_boundary = nullptr;
+    //             for (auto& [boundary, _] : _graph->get_neighbors(candidate)) {
+    //                 if (boundary->is_boundary()) {
+    //                     target_boundary = boundary;
+    //                     break;
+    //                 }
+    //             }
+
+    //             PivotBoundaryRule().apply(*_graph, {{candidate, n}});
+    //             assert(target_boundary != nullptr);
+    //             auto new_frontier = _graph->get_first_neighbor(target_boundary).first;
+    //             new_frontier->set_qubit(qubit);
+    //             _frontier.emplace(_graph->get_first_neighbor(target_boundary).first);
+
+    //             // REVIEW - qubit_map
+    //             removed_some_gadgets = true;
+    //             _previous_gadget     = true;
+    //             break;
+    //         }
+    //     }
+    // }
+    // fmt::println("580");
     _graph->print_vertices(spdlog::level::level_enum::trace);
     print_frontier(spdlog::level::level_enum::trace);
     print_axels(spdlog::level::level_enum::trace);
@@ -524,6 +759,50 @@ bool Extractor::remove_gadget(bool check) {
     return removed_some_gadgets;
 }
 
+int Extractor::_calculate_cz_pivot(ZXVertex* frontier, ZXVertex* axel, ZXVertex* cz_target) {
+    std::vector<ZXVertex*> n_frontier, n_axel, n_both;
+    const bool cz_target_is_both = _graph->is_neighbor(cz_target, axel);
+    for (auto const& [n, _] : _graph->get_neighbors(frontier)) {
+        if (_graph->is_neighbor(n, axel)) {
+            n_both.emplace_back(n);
+        } else {
+            n_frontier.emplace_back(n);
+        }
+    }
+    for (auto const& [n, _] : _graph->get_neighbors(axel)) {
+        if (!_graph->is_neighbor(n, axel)) {
+            n_axel.emplace_back(n);
+        }
+    }
+    int edge_cnt = 0;
+    if (cz_target_is_both) {
+        // If remove CZ: from n(both) to n(axel)
+        // Pivot edges from --frontier & --axel to --frontier & --both
+        // Difference: # --both - # --axel
+        for (const auto& v: n_both) {
+            if(_graph->is_neighbor(v, cz_target)) edge_cnt--;
+            else edge_cnt++;
+        }
+        for (const auto& v: n_axel) {
+            if(_graph->is_neighbor(v, cz_target)) edge_cnt++;
+            else edge_cnt--;
+        }
+    } else {
+        // If remove CZ: from n(frontier) to n(none)
+        // Pivot edges from --axel & --both to nothing
+        // Difference: -(# --axel + # --both)
+        for (const auto& v: n_axel) {
+            if(_graph->is_neighbor(v, cz_target)) edge_cnt++;
+            else edge_cnt--;
+        }
+        for (const auto& v: n_both) {
+            if(_graph->is_neighbor(v, cz_target)) edge_cnt++;
+            else edge_cnt--;
+        }
+    }
+    // fmt::println("Diff CX for CZ({},{}): {}", frontier->get_id(), cz_target->get_id(), edge_cnt);
+    return edge_cnt;
+}
 /**
  * @brief Swap columns (order of neighbors) to put the most of them on the diagonal of the bi-adjacency matrix
  *

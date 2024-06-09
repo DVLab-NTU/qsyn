@@ -10,6 +10,7 @@
 
 #include <unordered_map>
 #include <vector>
+#include <set>
 
 #include "../zxgraph.hpp"
 #include "util/boolean_matrix.hpp"
@@ -69,6 +70,10 @@ public:
     void print_summary() const;
     void print_failed_vertices() const;
 
+    void set_partial() { _do_all = false; }
+    void set_vertices_to_calculate(const ZXVertexList& list);
+    const std::vector<ZXVertex*>& get_vertices_order() { return _vertices_order; } 
+
 private:
     ZXGraph* _zxgraph;
     Levels _levels;
@@ -92,6 +97,11 @@ private:
     dvlab::BooleanMatrix _prepare_matrix(ZXVertex* v, size_t i, dvlab::BooleanMatrix const& matrix);
     void _set_correction_set_by_matrix(ZXVertex* v, dvlab::BooleanMatrix const& matrix);
     void _update_frontier();
+
+    // for experiment
+    std::set<ZXVertex*> _vertices_to_calculate;
+    std::vector<ZXVertex*> _vertices_order;
+    bool _do_all = true;
 };
 
 }  // namespace zx

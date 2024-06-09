@@ -206,6 +206,8 @@ Command extractor_config_cmd() {
                     .help("sort frontier");
                 parser.add_argument<bool>("--neighbors-sorted")
                     .help("sort neighbors");
+                parser.add_argument<bool>("--gadget-first")
+                    .help("remove gadget before cleaning CZs");
             },
             [](ArgumentParser const& parser) {
                 auto print_current_config = true;
@@ -243,6 +245,10 @@ Command extractor_config_cmd() {
                     SORT_NEIGHBORS       = parser.get<bool>("--neighbors-sorted");
                     print_current_config = false;
                 }
+                if (parser.parsed("--gadget-first")) {
+                    GADGET_FIRST = parser.get<bool>("--gadget-first");
+                    print_current_config = false;
+                }
                 // if no option is specified, print the current settings
                 if (print_current_config) {
                     fmt::println("");
@@ -253,6 +259,7 @@ Command extractor_config_cmd() {
                     fmt::println("Filter Duplicated CXs: {}", FILTER_DUPLICATE_CXS);
                     fmt::println("Reduce CZs:            {}", REDUCE_CZS);
                     fmt::println("Block Size:            {}", BLOCK_SIZE);
+                    fmt::println("Rm. gadget before CZs: {}", GADGET_FIRST);
                 }
                 return CmdExecResult::done;
             }};
