@@ -8,9 +8,9 @@
 
 #include <fmt/core.h>
 
+#include <set>
 #include <unordered_map>
 #include <vector>
-#include <set>
 
 #include "../zxgraph.hpp"
 #include "util/boolean_matrix.hpp"
@@ -72,7 +72,7 @@ public:
 
     void set_partial() { _do_all = false; }
     void set_vertices_to_calculate(const ZXVertexList& list);
-    const std::vector<ZXVertex*>& get_vertices_order() { return _vertices_order; } 
+    const std::vector<ZXVertex*>& get_vertices_order() { return _vertices_order; }
 
 private:
     ZXGraph* _zxgraph;

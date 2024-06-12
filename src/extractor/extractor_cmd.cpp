@@ -246,7 +246,7 @@ Command extractor_config_cmd() {
                     print_current_config = false;
                 }
                 if (parser.parsed("--gadget-first")) {
-                    GADGET_FIRST = parser.get<bool>("--gadget-first");
+                    GADGET_FIRST         = parser.get<bool>("--gadget-first");
                     print_current_config = false;
                 }
                 // if no option is specified, print the current settings

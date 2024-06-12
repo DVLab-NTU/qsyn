@@ -134,8 +134,8 @@ Command convert_from_zx_cmd(zx::ZXGraphMgr& zxgraph_mgr, QCirMgr& qcir_mgr, tens
                                  .description("convert from ZXGraph to Tensor");
 
             to_qcir.add_argument<bool>("-r", "--random")
-                    .action(store_true)
-                    .help("random extraction");
+                .action(store_true)
+                .help("random extraction");
         },
         [&](ArgumentParser const& parser) {
             if (!dvlab::utils::mgr_has_data(zxgraph_mgr)) return CmdExecResult::error;

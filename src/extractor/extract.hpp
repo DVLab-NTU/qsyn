@@ -85,10 +85,10 @@ public:
     std::vector<dvlab::BooleanMatrix::RowOperation> greedy_reduction(dvlab::BooleanMatrix& m);
 
 private:
-    size_t _num_cz_rms = 0;
+    size_t _num_cz_rms              = 0;
     size_t _num_cz_rms_after_gadget = 0;
-    size_t _num_cx_rms = 0;
-    size_t _num_cx_iterations = 0;
+    size_t _num_cx_rms              = 0;
+    size_t _num_cx_iterations       = 0;
     zx::ZXGraph* _graph;
     bool _random;
     qcir::QCir* _logical_circuit;
@@ -114,7 +114,7 @@ private:
 
     size_t _num_cx_filtered = 0;
     size_t _num_swaps       = 0;
-    size_t _cnt_print = 0;
+    size_t _cnt_print       = 0;
 
     std::vector<size_t> _initial_placement;
 };

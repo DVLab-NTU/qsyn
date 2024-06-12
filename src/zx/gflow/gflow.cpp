@@ -124,7 +124,7 @@ bool GFlow::calculate() {
             if (augmented_matrix.gaussian_elimination_augmented(false)) {
                 spdlog::trace("Solved {}, adding to this level", v->get_id());
                 // TODO - Check Here
-                if (_vertices_to_calculate.contains(v)){
+                if (_vertices_to_calculate.contains(v)) {
                     _vertices_order.emplace_back(v);
                     // if (!_do_all)
                     //     break;
@@ -146,7 +146,6 @@ bool GFlow::calculate() {
             // fmt::println("AAA");
             break;
         }
-            
     }
 
     _valid = (_taken.size() == _zxgraph->get_num_vertices());
@@ -185,7 +184,7 @@ void GFlow::_calculate_zeroth_layer() {
     for (auto& v : _zxgraph->get_outputs()) {
         assert(!_x_correction_sets.contains(v));
         // TODO - Check Here
-        if (_vertices_to_calculate.contains(v)) 
+        if (_vertices_to_calculate.contains(v))
             _vertices_order.emplace_back(v);
         _vertex2levels.emplace(v, 0);
         _x_correction_sets[v] = ZXVertexList();
@@ -374,7 +373,7 @@ void GFlow::print_failed_vertices() const {
 }
 
 void GFlow::set_vertices_to_calculate(const ZXVertexList& list) {
-    for(const auto& v: list) {
+    for (const auto& v : list) {
         _vertices_to_calculate.emplace(v);
     }
 }
