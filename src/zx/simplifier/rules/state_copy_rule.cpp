@@ -16,43 +16,50 @@ using namespace qsyn::zx;
 using MatchType = StateCopyRule::MatchType;
 
 /**
- * @brief Find spiders with a 0 or pi phase that have a single neighbor, and copies them through. Assumes that all the spiders are green and maximally fused.
+ * @brief Find matchings of the spider rule.
  *
- * @param graph The graph to be matched.
+ * @param graph
+ * @param candidates the vertices to be considered
+ * @param allow_overlapping_candidates whether to allow overlapping candidates. If true, needs to manually check for overlapping candidates.
+ * @return std::vector<MatchType>
  */
-std::vector<MatchType> StateCopyRule::find_matches(ZXGraph const& graph) const {
+std::vector<MatchType> StateCopyRule::find_matches(
+    ZXGraph const& graph,
+    std::optional<ZXVertexList> candidates,
+    bool allow_overlapping_candidates  //
+) const {
     std::vector<MatchType> matches;
 
-    std::unordered_set<ZXVertex*> taken;
+    if (!candidates.has_value()) {
+        candidates = graph.get_vertices();
+    }
 
     for (auto const& v : graph.get_vertices()) {
-        if (taken.contains(v)) continue;
+        if (!candidates->contains(v)) continue;
 
         if (v->get_type() != VertexType::z) {
-            taken.emplace(v);
             continue;
         }
         if (v->get_phase() != Phase(0) && v->get_phase() != Phase(1)) {
-            taken.emplace(v);
             continue;
         }
         if (graph.get_num_neighbors(v) != 1) {
-            taken.emplace(v);
             continue;
         }
 
         ZXVertex* pi_neighbor = graph.get_first_neighbor(v).first;
         if (pi_neighbor->get_type() != VertexType::z) {
-            taken.emplace(v);
             continue;
         }
         std::vector<ZXVertex*> apply_neighbors;
-        for (auto const& [nebOfPiNeighbor, _] : graph.get_neighbors(pi_neighbor)) {
-            if (nebOfPiNeighbor != v)
-                apply_neighbors.emplace_back(nebOfPiNeighbor);
-            taken.emplace(nebOfPiNeighbor);
+        for (auto const& [nb, _] : graph.get_neighbors(pi_neighbor)) {
+            if (nb != v)
+                apply_neighbors.emplace_back(nb);
+            if (!allow_overlapping_candidates) {
+                candidates->erase(nb);
+            }
         }
-        matches.emplace_back(make_tuple(v, pi_neighbor, apply_neighbors));
+        matches.emplace_back(v, pi_neighbor, apply_neighbors);
     }
 
     return matches;

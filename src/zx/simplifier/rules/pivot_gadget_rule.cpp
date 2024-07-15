@@ -11,25 +11,34 @@ using namespace qsyn::zx;
 
 using MatchType = PivotGadgetRule::MatchType;
 
-std::vector<MatchType> PivotGadgetRule::find_matches(ZXGraph const& graph) const {
+/**
+ * @brief Find matchings of the pivot gadget rule.
+ *
+ * @param graph
+ * @param candidates the vertices to be considered
+ * @param allow_overlapping_candidates whether to allow overlapping candidates. If true, needs to manually check for overlapping candidates.
+ * @return std::vector<MatchType>
+ */
+std::vector<MatchType> PivotGadgetRule::find_matches(
+    ZXGraph const& graph,
+    std::optional<ZXVertexList> candidates,
+    bool allow_overlapping_candidates  //
+) const {
     std::vector<MatchType> matches;
 
-    std::unordered_set<ZXVertex*> taken;
+    if (!candidates.has_value()) {
+        candidates = graph.get_vertices();
+    }
 
-    graph.for_each_edge([&graph, &taken, &matches](EdgePair const& epair) {
+    graph.for_each_edge([&](EdgePair const& epair) {
         if (epair.second != EdgeType::hadamard) return;
 
         ZXVertex* vs = epair.first.first;
         ZXVertex* vt = epair.first.second;
 
-        if (taken.contains(vs) || taken.contains(vt)) return;
+        if (!candidates->contains(vs) || !candidates->contains(vt)) return;
 
-        if (!vs->is_z()) {
-            taken.insert(vs);
-            return;
-        }
-        if (!vt->is_z()) {
-            taken.insert(vt);
+        if (!vs->is_z() || !vt->is_z()) {
             return;
         }
 
@@ -45,16 +54,12 @@ std::vector<MatchType> PivotGadgetRule::find_matches(ZXGraph const& graph) const
         // REVIEW - check ground conditions
 
         if (graph.get_num_neighbors(vt) == 1) {  // early return: (vs, vt) is a phase gadget
-            taken.insert(vs);
-            taken.insert(vt);
             return;
         }
 
         for (const auto& [v, _] : graph.get_neighbors(vs)) {
             if (!v->is_z()) return;                 // vs is not internal or not graph-like
             if (graph.get_num_neighbors(v) == 1) {  // (vs, v) is a phase gadget
-                taken.insert(vs);
-                taken.insert(v);
                 return;
             }
         }
@@ -62,11 +67,13 @@ std::vector<MatchType> PivotGadgetRule::find_matches(ZXGraph const& graph) const
             if (!v->is_z()) return;  // vt is not internal or not graph-like
         }
 
+        if (allow_overlapping_candidates) return;
+
         // Both vs and vt are interior vertices
-        taken.insert(vs);
-        taken.insert(vt);
-        for (auto& [v, _] : graph.get_neighbors(vs)) taken.insert(v);
-        for (auto& [v, _] : graph.get_neighbors(vt)) taken.insert(v);
+        candidates->erase(vs);
+        candidates->erase(vt);
+        for (auto& [v, _] : graph.get_neighbors(vs)) candidates->erase(v);
+        for (auto& [v, _] : graph.get_neighbors(vt)) candidates->erase(v);
 
         matches.emplace_back(vs, vt);
     });

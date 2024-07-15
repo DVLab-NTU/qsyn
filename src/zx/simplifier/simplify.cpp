@@ -222,8 +222,9 @@ void symbolic_reduce(ZXGraph& g) {
     to_x_graph(g);
 }
 
-void causal_reduce(ZXGraph& /* */) {
+void causal_reduce(ZXGraph& g) {
     // TODO: implement causal reduce
+    to_z_graph(g);
 }
 
 }  // namespace qsyn::zx::simplify

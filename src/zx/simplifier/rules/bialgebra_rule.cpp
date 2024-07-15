@@ -9,6 +9,7 @@
 #include <utility>
 
 #include "./zx_rules_template.hpp"
+#include "zx/zx_def.hpp"
 #include "zx/zxgraph.hpp"
 
 using namespace qsyn::zx;
@@ -16,21 +17,32 @@ using namespace qsyn::zx;
 using MatchType = BialgebraRule::MatchType;
 
 /**
- * @brief Find noninteracting matchings of the bialgebra rule.
- *        (Check PyZX/pyzx/rules.py/match_bialg_parallel for more details)
+ * @brief Find matchings of the bialgebra rule.
  *
- * @param g
+ * @param graph
+ * @param candidates the vertices to be considered
+ * @param allow_overlapping_candidates whether to allow overlapping candidates. If true, needs to manually check for overlapping candidates.
+ * @return std::vector<MatchType>
  */
-std::vector<MatchType> BialgebraRule::find_matches(ZXGraph const& graph) const {
+std::vector<MatchType>
+BialgebraRule::find_matches(
+    ZXGraph const& graph,
+    std::optional<ZXVertexList> candidates,
+    bool allow_overlapping_candidates  //
+) const {
     std::vector<MatchType> matches;
 
-    std::unordered_set<ZXVertex*> taken;
-    graph.for_each_edge([&graph, &taken, &matches](EdgePair const& epair) {
+    if (!candidates.has_value()) {
+        candidates = graph.get_vertices();
+    }
+
+    graph.for_each_edge([&](EdgePair const& epair) {
         if (epair.second != EdgeType::simple) return;
+
         auto [left, right] = std::get<0>(epair);
 
         // Verify if the vertices are taken
-        if (taken.contains(left) || taken.contains(right)) return;
+        if (!candidates->contains(left) || !candidates->contains(right)) return;
 
         // Does not consider the phase spider yet
         // TODO: consider the phase
@@ -72,12 +84,14 @@ std::vector<MatchType> BialgebraRule::find_matches(ZXGraph const& graph) const {
 
         matches.emplace_back(epair);
 
-        // set left, right and their neighbors into taken
+        if (allow_overlapping_candidates) return;
+
+        // discard neighbors of the matched vertices
         for (auto const& v : neighbor_vertices_of_left) {
-            taken.emplace(v);
+            candidates->erase(v);
         }
         for (auto const& v : neighbor_vertices_of_right) {
-            taken.emplace(v);
+            candidates->erase(v);
         }
     });
 

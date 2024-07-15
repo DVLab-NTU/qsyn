@@ -26,11 +26,21 @@ struct ZXVerticesHash {
 };
 
 /**
- * @brief Determine which phase gadgets act on the same vertices, so that they can be fused together.
+ * @brief Find matchings of the phase gadget fusion rule.
  *
- * @param graph The graph to find matches in.
+ * @param graph
+ * @param candidates the vertices to be considered
+ * @param allow_overlapping_candidates whether to allow overlapping candidates. If true, needs to manually check for overlapping candidates.
+ * @return std::vector<MatchType>
  */
-std::vector<MatchType> PhaseGadgetRule::find_matches(ZXGraph const& graph) const {
+std::vector<MatchType> PhaseGadgetRule::find_matches(
+    ZXGraph const& graph, std::optional<ZXVertexList> candidates,
+    bool /* allow_overlapping_candidates */  // phase gadget rule candidates won't overlap
+) const {
+    if (!candidates.has_value()) {
+        candidates = graph.get_vertices();
+    }
+
     std::vector<MatchType> matches;
 
     std::unordered_map<ZXVertex*, ZXVertex*> axel2leaf;
@@ -39,6 +49,7 @@ std::vector<MatchType> PhaseGadgetRule::find_matches(ZXGraph const& graph) const
     std::vector<ZXVertex*> axels;
     std::vector<ZXVertex*> leaves;
     for (auto const& v : graph.get_vertices()) {
+        if (!candidates->contains(v)) continue;
         if (v->get_phase().denominator() <= 2 || graph.get_num_neighbors(v) != 1) continue;
 
         ZXVertex* nb = graph.get_first_neighbor(v).first;

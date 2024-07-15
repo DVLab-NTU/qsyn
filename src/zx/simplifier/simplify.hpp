@@ -122,9 +122,9 @@ size_t scoped_simplify(ZXGraph& g, Rule const& rule, ZXVertexList const& scope) 
     while (!stop_requested()) {
         std::vector<typename Rule::MatchType> const matches = rule.find_matches(g);
         std::vector<typename Rule::MatchType> scoped_matches;
-        auto is_in_scope = [&scope](ZXVertex* v) { return scope.contains(v); };
+        auto const is_in_scope = [&scope](ZXVertex* v) { return scope.contains(v); };
         for (auto& match : matches) {
-            std::vector<ZXVertex*> match_vertices = rule.flatten_vertices(match);
+            std::vector<ZXVertex*> const match_vertices = rule.flatten_vertices(match);
             if (std::ranges::any_of(match_vertices, is_in_scope)) {
                 scoped_matches.push_back(match);
             }
