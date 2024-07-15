@@ -60,29 +60,35 @@ Command zxgraph_optimize_cmd(zx::ZXGraphMgr& zxgraph_mgr) {
                 mutex.add_argument<bool>("-c", "--clifford")
                     .action(store_true)
                     .help("Runs reduction without producing phase gadgets");
+                mutex.add_argument<bool>("-C", "--causal")
+                    .action(store_true)
+                    .help("Runs a causal flow-preserving routine that reduces 2Q-counts");
             },
             [&](ArgumentParser const& parser) {
                 if (!dvlab::utils::mgr_has_data(zxgraph_mgr)) return dvlab::CmdExecResult::error;
-                zx::Simplifier s(zxgraph_mgr.get());
+                zx::Simplifier s;
                 std::string procedure_str = "";
 
                 if (parser.parsed("--symbolic")) {
-                    s.symbolic_reduce();
+                    s.symbolic_reduce(*zxgraph_mgr.get());
                     procedure_str = "SR";
                 } else if (parser.parsed("--dynamic")) {
-                    s.dynamic_reduce();
+                    s.dynamic_reduce(*zxgraph_mgr.get());
                     procedure_str = "DR";
                 } else if (parser.parsed("--partition")) {
-                    s.partition_reduce(parser.get<size_t>("--partition"));
+                    s.partition_reduce(*zxgraph_mgr.get(), parser.get<size_t>("--partition"));
                     procedure_str = "PR";
                 } else if (parser.parsed("--interior-clifford")) {
-                    s.interior_clifford_simp();
+                    s.interior_clifford_simp(*zxgraph_mgr.get());
                     procedure_str = "ICR";
                 } else if (parser.parsed("--clifford")) {
-                    s.clifford_simp();
+                    s.clifford_simp(*zxgraph_mgr.get());
                     procedure_str = "CR";
+                } else if (parser.parsed("--causal")) {
+                    s.causal_reduce(*zxgraph_mgr.get());
+                    procedure_str = "Causal";
                 } else {
-                    s.full_reduce();
+                    s.full_reduce(*zxgraph_mgr.get());
                     procedure_str = "FR";
                 }
 
@@ -144,34 +150,34 @@ Command zxgraph_rule_cmd(zx::ZXGraphMgr& zxgraph_mgr) {
         },
         [&](ArgumentParser const& parser) {
             if (!dvlab::utils::mgr_has_data(zxgraph_mgr)) return dvlab::CmdExecResult::error;
-            zx::Simplifier s(zxgraph_mgr.get());
+            zx::Simplifier s;
 
             if (parser.parsed("--bialgebra")) {
-                s.bialgebra_simp();
+                s.bialgebra_simp(*zxgraph_mgr.get());
             } else if (parser.parsed("--gadget-fusion")) {
-                s.phase_gadget_simp();
+                s.phase_gadget_simp(*zxgraph_mgr.get());
             } else if (parser.parsed("--hadamard-fusion")) {
-                s.hadamard_fusion_simp();
+                s.hadamard_fusion_simp(*zxgraph_mgr.get());
             } else if (parser.parsed("--hadamard-rule")) {
-                s.hadamard_rule_simp();
+                s.hadamard_rule_simp(*zxgraph_mgr.get());
             } else if (parser.parsed("--identity-removal")) {
-                s.identity_removal_simp();
+                s.identity_removal_simp(*zxgraph_mgr.get());
             } else if (parser.parsed("--local-complementation")) {
-                s.local_complement_simp();
+                s.local_complement_simp(*zxgraph_mgr.get());
             } else if (parser.parsed("--pivot")) {
-                s.pivot_simp();
+                s.pivot_simp(*zxgraph_mgr.get());
             } else if (parser.parsed("--pivot-boundary")) {
-                s.pivot_boundary_simp();
+                s.pivot_boundary_simp(*zxgraph_mgr.get());
             } else if (parser.parsed("--pivot-gadget")) {
-                s.pivot_gadget_simp();
+                s.pivot_gadget_simp(*zxgraph_mgr.get());
             } else if (parser.parsed("--spider-fusion")) {
-                s.spider_fusion_simp();
+                s.spider_fusion_simp(*zxgraph_mgr.get());
             } else if (parser.parsed("--state-copy")) {
-                s.state_copy_simp();
+                s.state_copy_simp(*zxgraph_mgr.get());
             } else if (parser.parsed("--to-z-graph")) {
-                s.to_z_graph();
+                s.to_z_graph(*zxgraph_mgr.get());
             } else if (parser.parsed("--to-x-graph")) {
-                s.to_x_graph();
+                s.to_x_graph(*zxgraph_mgr.get());
             } else {
                 spdlog::error("No rule specified");
                 return CmdExecResult::error;

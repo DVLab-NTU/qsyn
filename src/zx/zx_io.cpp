@@ -515,8 +515,8 @@ std::optional<ZXGraph> build_graph_from_json(nlohmann::json const& data) {
     for (auto const& [edge_id_str, info] : data["undir_edges"].items()) {
         graph.add_edge(vertex_storage[info["src"].get<std::string>()], vertex_storage[info["tgt"].get<std::string>()], EdgeType::simple);
     }
-    Simplifier s(&graph);
-    s.hadamard_rule_simp();
+    Simplifier s;
+    s.hadamard_rule_simp(graph);
     return graph;
 }
 }  // namespace detail
