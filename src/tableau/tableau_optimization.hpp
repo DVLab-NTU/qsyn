@@ -6,8 +6,6 @@
 
 #pragma once
 
-#include <concepts>
-
 #include "./tableau.hpp"
 #include "tableau/pauli_rotation.hpp"
 #include "tableau/stabilizer_tableau.hpp"
@@ -34,7 +32,6 @@ void merge_rotations(Tableau& tableau);
 // hadamard minimization
 // implemented in ./optimize/internal_h_opt.cpp
 
-std::pair<Tableau, StabilizerTableau> minimize_hadamards(Tableau tableau, StabilizerTableau context);
 void minimize_internal_hadamards(Tableau& tableau);
 
 struct PhasePolynomialOptimizationStrategy {

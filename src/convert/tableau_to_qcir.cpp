@@ -9,6 +9,7 @@
 
 #include <gsl/narrow>
 #include <tl/adjacent.hpp>
+#include <tl/enumerate.hpp>
 #include <tl/to.hpp>
 
 #include "qcir/basic_gate_type.hpp"
@@ -115,6 +116,198 @@ std::optional<qcir::QCir> TParPauliRotationsSynthesisStrategy::synthesize(std::v
     return std::nullopt;
 }
 
+namespace {
+/**
+ * @brief select a row consisting completely of 1s to be the target row.
+ *
+ * @param rotations
+ * @param rotation_filter
+ * @param pivot
+ * @return size_t
+ */
+size_t
+get_control_row(
+    std::vector<PauliRotation> const& rotations,
+    std::vector<size_t> const& rotation_filter,
+    size_t pivot) {
+    auto const num_qubits = rotations.front().n_qubits();
+    for (auto i : std::views::iota(0ul, num_qubits)) {
+        if (i == pivot) continue;
+
+        if (std::ranges::all_of(
+                rotation_filter,
+                [&](auto x) {
+                    return rotations[x].pauli_product().is_z_set(i);
+                })) {
+            return i;
+        }
+    }
+
+    return SIZE_MAX;
+}
+/**
+ * @brief select a row with the most or least number of 1.
+ *
+ * @param rotations
+ * @param rotation_filter
+ * @param qubit_filter
+ * @return size_t
+ */
+size_t
+get_cofactor_row(
+    std::vector<PauliRotation> const& rotations,
+    std::vector<size_t> const& rotation_filter,
+    std::vector<size_t> const& qubit_filter) {
+    auto counts = std::vector<std::size_t>(qubit_filter.size(), 0);
+    for (auto col_id : rotation_filter) {
+        for (auto&& [idx, qubit] : tl::views::enumerate(qubit_filter)) {
+            if (rotations[col_id].pauli_product().is_z_set(qubit)) {
+                counts[idx]++;
+            }
+        }
+    }
+
+    auto const most_ones = std::distance(
+        counts.begin(),
+        std::max_element(counts.begin(), counts.end()));
+    auto const most_zeros = std::distance(
+        counts.begin(),
+        std::min_element(counts.begin(), counts.end()));
+
+    if (counts[most_ones] >= rotation_filter.size() - counts[most_zeros]) {
+        return qubit_filter[most_ones];
+    } else {
+        return qubit_filter[most_zeros];
+    }
+}
+
+/**
+ * @brief filter out a number from a vector.
+ *
+ * @param vec
+ * @param num
+ * @return std::vector<std::size_t>
+ */
+std::vector<std::size_t>
+filter_out_number(
+    std::vector<std::size_t> const& vec,
+    std::size_t num) {
+    return vec |
+           std::views::filter([&](auto const& x) { return x != num; }) |
+           tl::to<std::vector>();
+}
+
+}  // namespace
+
+std::optional<qcir::QCir>
+GraySynthPauliRotationsSynthesisStrategy::synthesize(
+    std::vector<PauliRotation> const& rotations) const {
+    if (rotations.empty()) {
+        return qcir::QCir{0};
+    }
+
+    // checks if all rotations are diagonal
+    if (!std::ranges::all_of(rotations, [](auto const& x) { return x.is_diagonal(); })) {
+        spdlog::error("GraySynth only supports diagonal rotations");
+        return std::nullopt;
+    }
+
+    auto const num_qubits    = rotations.front().n_qubits();
+    auto const num_rotations = rotations.size();
+
+    auto frozen_rotations =
+        std::unordered_set<std::size_t>{};  // ids to the rotations that
+                                            // have been synthesized
+
+    auto copy_rotations = rotations;
+
+    using stack_elem_t =
+        std::tuple<
+            std::vector<std::size_t>,  // rotation filter
+            std::vector<std::size_t>,  // qubit filter
+            size_t>;                   // target row
+    auto stack = std::vector<stack_elem_t>{};
+
+    stack.emplace_back(
+        std::views::iota(0ul, num_rotations) | tl::to<std::vector>(),
+        std::views::iota(0ul, num_qubits) | tl::to<std::vector>(),
+        SIZE_MAX);
+
+    auto qcir = qcir::QCir{copy_rotations.front().n_qubits()};
+
+    StabilizerTableau final_clifford{num_qubits};
+
+    while (!stack.empty()) {
+        auto const [rotation_filter, qubit_filter, targ] = std::move(stack.back());
+        stack.pop_back();
+        if (rotation_filter.empty()) continue;
+        if (targ != SIZE_MAX) {
+            auto ctrl = get_control_row(copy_rotations, rotation_filter, targ);
+            while (ctrl != SIZE_MAX) {
+                for (auto col_id : std::views::iota(0ul, num_rotations)) {
+                    if (frozen_rotations.contains(col_id)) continue;
+                    copy_rotations[col_id].cx(ctrl, targ);
+                }
+                qcir.append(qcir::CXGate(), {ctrl, targ});
+                final_clifford.prepend_cx(ctrl, targ);
+                ctrl = get_control_row(copy_rotations, rotation_filter, targ);
+            }
+        }
+
+        if (qubit_filter.empty()) {
+            for (auto col_id : rotation_filter) {
+                if (frozen_rotations.contains(col_id)) continue;
+                frozen_rotations.insert(col_id);
+                DVLAB_ASSERT(
+                    targ < num_qubits,
+                    "`targ` should be a valid qubit index");
+                qcir.append(
+                    qcir::PZGate(copy_rotations[col_id].phase()),
+                    {targ});
+            }
+            continue;
+        }
+
+        auto const row_id = get_cofactor_row(
+            copy_rotations,
+            rotation_filter,
+            qubit_filter);
+
+        auto const zero_rotations =
+            rotation_filter |
+            std::views::filter([&](auto const& x) {
+                return !copy_rotations[x].pauli_product().is_z_set(row_id);
+            }) |
+            tl::to<std::vector>();
+        auto const one_rotations =
+            rotation_filter |
+            std::views::filter([&](auto const& x) {
+                return copy_rotations[x].pauli_product().is_z_set(row_id);
+            }) |
+            tl::to<std::vector>();
+
+        stack.emplace_back(
+            zero_rotations,
+            filter_out_number(qubit_filter, row_id),
+            targ);
+        stack.emplace_back(
+            one_rotations,
+            filter_out_number(qubit_filter, row_id),
+            targ == SIZE_MAX ? row_id : targ);
+    }
+
+    auto const final_clifford_circ = to_qcir(
+        final_clifford,
+        AGSynthesisStrategy{});
+
+    if (!final_clifford_circ) {
+        return std::nullopt;
+    }
+    qcir.compose(*final_clifford_circ);
+
+    return qcir;
+}
+
 /**
  * @brief convert a Pauli rotation to a QCir. This is a naive implementation.
  *
@@ -148,7 +341,7 @@ std::optional<qcir::QCir> to_qcir(Tableau const& tableau, StabilizerTableauSynth
         if (!qc_fragment) {
             return std::nullopt;
         }
-        qcir.compose(qc_fragment.value());
+        qcir.compose(*qc_fragment);
     }
 
     return qcir;
