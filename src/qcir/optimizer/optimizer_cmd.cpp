@@ -12,8 +12,11 @@
 #include "../qcir.hpp"
 #include "../qcir_mgr.hpp"
 #include "./optimizer.hpp"
+#include "argparse/arg_type.hpp"
 #include "cli/cli.hpp"
 #include "util/data_structure_manager_common_cmd.hpp"
+#include "util/dvlab_string.hpp"
+#include "util/phase.hpp"
 
 using namespace dvlab::argparse;
 using dvlab::CmdExecResult;
@@ -30,6 +33,11 @@ Command qcir_optimize_cmd(QCirMgr& qcir_mgr) {
     return {"optimize",
             [](ArgumentParser& parser) {
                 parser.description("optimize QCir");
+
+                parser.add_argument<std::string>("strategy")
+                    .help("optimization strategy")
+                    .default_value("basic")
+                    .constraint(choices_allow_prefix({"basic", "teleport"}));
 
                 parser.add_argument<bool>("-p", "--physical")
                     .default_value(false)
@@ -53,31 +61,36 @@ Command qcir_optimize_cmd(QCirMgr& qcir_mgr) {
                 Optimizer optimizer;
                 std::optional<QCir> result;
                 std::string procedure_str{};
-                if (parser.get<bool>("--tech") || !qcir_mgr.get()->get_gate_set().empty()) {
-                    result        = optimizer.trivial_optimization(*qcir_mgr.get());
-                    procedure_str = "Tech Optimize";
-                } else {
-                    result        = optimizer.basic_optimization(*qcir_mgr.get(), {.doSwap             = !parser.get<bool>("--physical"),
-                                                                                   .separateCorrection = false,
-                                                                                   .maxIter            = 1000,
-                                                                                   .printStatistics    = parser.get<bool>("--statistics")});
-                    procedure_str = "Optimize";
-                }
-                if (result == std::nullopt) {
-                    spdlog::error("Fail to optimize circuit.");
-                    return CmdExecResult::error;
-                }
 
-                if (parser.get<bool>("--copy")) {
-                    qcir_mgr.add(qcir_mgr.get_next_id(), std::make_unique<QCir>(std::move(*result)));
+                if (dvlab::str::is_prefix_of(parser.get<std::string>("strategy"), "teleport")) {
+                    phase_teleport(*qcir_mgr.get());
+                    procedure_str = "Phase Teleport";
                 } else {
-                    qcir_mgr.set(std::make_unique<QCir>(std::move(*result)));
+                    if (parser.get<bool>("--tech") || !qcir_mgr.get()->get_gate_set().empty()) {
+                        result        = optimizer.trivial_optimization(*qcir_mgr.get());
+                        procedure_str = "Tech Optimize";
+                    } else {
+                        result        = optimizer.basic_optimization(*qcir_mgr.get(), {.doSwap             = !parser.get<bool>("--physical"),
+                                                                                       .separateCorrection = false,
+                                                                                       .maxIter            = 1000,
+                                                                                       .printStatistics    = parser.get<bool>("--statistics")});
+                        procedure_str = "Optimize";
+                    }
+                    if (result == std::nullopt) {
+                        spdlog::error("Fail to optimize circuit.");
+                        return CmdExecResult::error;
+                    }
+
+                    if (parser.get<bool>("--copy")) {
+                        qcir_mgr.add(qcir_mgr.get_next_id(), std::make_unique<QCir>(std::move(*result)));
+                    } else {
+                        qcir_mgr.set(std::make_unique<QCir>(std::move(*result)));
+                    }
                 }
 
                 if (stop_requested()) {
                     procedure_str += "[INT]";
                 }
-
                 qcir_mgr.get()->add_procedure(procedure_str);
 
                 return CmdExecResult::done;
