@@ -172,8 +172,8 @@ void QCir::print_circuit_diagram(spdlog::level::level_enum lvl) const {
 void QCir::print_qcir_info() const {
     auto stat = get_gate_statistics(*this);
     fmt::println(
-        "QCir ({} qubits, {} gates, {} 2-qubits gates, {} T-gates, {} depths)",
-        get_num_qubits(), get_num_gates(), stat.at("2-qubit"),
+        "QCir ({} qubits, {} gates, {} 2-qubits gates ( {} CX, {} CZ ), {} T-gates, {} depths)",
+        get_num_qubits(), get_num_gates(), stat.at("2-qubit"), stat.contains("cx") ? stat.at("cx") : 0, stat.contains("cz") ? stat.at("cz"): 0,
         stat.at("t-family"), calculate_depth());
 }
 

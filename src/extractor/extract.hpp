@@ -39,6 +39,7 @@ extern bool REDUCE_CZS;
 extern bool GADGET_FIRST;
 extern size_t BLOCK_SIZE;
 extern size_t OPTIMIZE_LEVEL;
+extern float CX_COEFF;
 
 class Extractor {
 public:
@@ -115,6 +116,7 @@ private:
     size_t _num_cx_filtered = 0;
     size_t _num_swaps       = 0;
     size_t _cnt_print       = 0;
+    size_t _max_axel        = 0;
 
     std::vector<size_t> _initial_placement;
 };

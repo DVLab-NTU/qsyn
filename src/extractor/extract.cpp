@@ -43,6 +43,7 @@ bool REDUCE_CZS           = false;
 size_t BLOCK_SIZE         = 5;
 size_t OPTIMIZE_LEVEL     = 2;
 bool GADGET_FIRST         = false;
+float CX_COEFF            = 0.7;
 
 /**
  * @brief Construct a new Extractor:: Extractor object
@@ -87,6 +88,7 @@ void Extractor::initialize(bool from_empty_qcir) {
             _axels.emplace(_graph->get_first_neighbor(v).first);
         }
     }
+    _max_axel = _axels.size();
     print_frontier(spdlog::level::level_enum::trace);
     print_neighbors(spdlog::level::level_enum::trace);
     _graph->print_vertices_by_rows(spdlog::level::level_enum::trace);
@@ -481,7 +483,7 @@ bool Extractor::remove_gadget(bool check) {
                             n_cz++;
                         }
                     }
-                    if (0.7 * float(diff) + 1 * float(n_cz) < 0) {
+                    if (CX_COEFF * float(diff) + 1 * float(n_cz) < 0) {
                         extract_czs();
                     }
                 }

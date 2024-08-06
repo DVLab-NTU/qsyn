@@ -208,6 +208,8 @@ Command extractor_config_cmd() {
                     .help("sort neighbors");
                 parser.add_argument<bool>("--gadget-first")
                     .help("remove gadget before cleaning CZs");
+                parser.add_argument<float>("--cx-coefficient")
+                    .help("coefficient of cx");
             },
             [](ArgumentParser const& parser) {
                 auto print_current_config = true;
@@ -249,6 +251,10 @@ Command extractor_config_cmd() {
                     GADGET_FIRST         = parser.get<bool>("--gadget-first");
                     print_current_config = false;
                 }
+                if (parser.parsed("--cx-coefficient")) {
+                    CX_COEFF       = parser.get<float>("--cx-coefficient");
+                    print_current_config = false;
+                }
                 // if no option is specified, print the current settings
                 if (print_current_config) {
                     fmt::println("");
@@ -260,6 +266,7 @@ Command extractor_config_cmd() {
                     fmt::println("Reduce CZs:            {}", REDUCE_CZS);
                     fmt::println("Block Size:            {}", BLOCK_SIZE);
                     fmt::println("Rm. gadget before CZs: {}", GADGET_FIRST);
+                    fmt::println("CX Coefficient:        {}", CX_COEFF);
                 }
                 return CmdExecResult::done;
             }};
