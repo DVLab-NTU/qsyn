@@ -42,8 +42,8 @@ bool FILTER_DUPLICATE_CXS = true;
 bool REDUCE_CZS           = false;
 size_t BLOCK_SIZE         = 5;
 size_t OPTIMIZE_LEVEL     = 2;
-bool GADGET_FIRST         = false;
-float CX_COEFF            = 0.7;
+bool DYNAMIC_ORDER        = false;
+float PRED_COEFF          = 0.7;
 
 /**
  * @brief Construct a new Extractor:: Extractor object
@@ -122,24 +122,6 @@ QCir* Extractor::extract() {
         _logical_circuit->print_circuit_diagram(spdlog::level::level_enum::trace);
         _graph->print_vertices_by_rows(spdlog::level::level_enum::trace);
     }
-    // fmt::println("Fake CZ list");
-    // size_t cnt_fake = 0;
-    for (const auto& g : _logical_circuit->get_gates()) {
-        if (g->get_operation() == CZGate()) {
-            // fmt::print("{}: ", g->get_id());
-            auto const& preds = _logical_circuit->get_predecessors(g->get_id());
-            for (auto pred : preds | std::views::filter([](auto const& p) { return p.has_value(); })) {
-                // fmt::print("{}, ",_logical_circuit->get_gate(*pred)->get_operation().get_repr());
-                if (_logical_circuit->get_gate(*pred)->get_operation().is<HGate>()) {
-                    // fmt::println("ID: {}", g->get_id());
-                    // cnt_fake++;
-                    break;
-                }
-            }
-            // fmt::println("");
-        }
-    }
-    // fmt::println("TOTAL FAKE: {}", cnt_fake);
     return _logical_circuit;
 }
 
@@ -163,7 +145,7 @@ bool Extractor::extraction_loop(std::optional<size_t> max_iter) {
             _logical_circuit->print_circuit_diagram(spdlog::level::level_enum::trace);
             continue;
         }
-        if (GADGET_FIRST) {
+        if (DYNAMIC_ORDER) {
             // Should clean CZs before further extraction
             extract_czs();
         }
@@ -200,7 +182,7 @@ bool Extractor::extraction_loop(std::optional<size_t> max_iter) {
 void Extractor::clean_frontier() {
     spdlog::debug("Cleaning frontier");
     extract_singles();
-    if (!GADGET_FIRST) {
+    if (!DYNAMIC_ORDER) {
         extract_czs();
     }
 }
@@ -473,17 +455,17 @@ bool Extractor::remove_gadget(bool check) {
                         break;
                     }
                 }
-                if (GADGET_FIRST) {
+                if (DYNAMIC_ORDER) {
                     const std::vector<qcir::QCirGate> gates;
                     int diff = 0;
                     int n_cz = 0;
                     for (auto const& [cz_cand, _] : _graph->get_neighbors(candidate)) {
                         if (_frontier.contains(cz_cand)) {
-                            diff += _calculate_cz_pivot(candidate, n, cz_cand);
+                            diff += _calculate_diff_pivot_edges_if_extracting_cz(candidate, n, cz_cand);
                             n_cz++;
                         }
                     }
-                    if (CX_COEFF * float(diff) + 1 * float(n_cz) < 0) {
+                    if (PRED_COEFF * float(diff) + 1 * float(n_cz) < 0) {
                         extract_czs();
                     }
                 }
@@ -508,7 +490,15 @@ bool Extractor::remove_gadget(bool check) {
     return removed_some_gadgets;
 }
 
-int Extractor::_calculate_cz_pivot(ZXVertex* frontier, ZXVertex* axel, ZXVertex* cz_target) {
+/**
+ * @brief Calculate the differential of pivot edges before and after extracting CZ gates
+ *
+ * @param frontier
+ * @param axel
+ * @param cz_target
+ * @return int
+ */
+int Extractor::_calculate_diff_pivot_edges_if_extracting_cz(ZXVertex* frontier, ZXVertex* axel, ZXVertex* cz_target) {
     std::vector<ZXVertex*> n_frontier, n_axel, n_both;
     const bool cz_target_is_both = _graph->is_neighbor(cz_target, axel);
     for (auto const& [n, _] : _graph->get_neighbors(frontier)) {

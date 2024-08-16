@@ -36,10 +36,10 @@ extern bool SORT_NEIGHBORS;
 extern bool PERMUTE_QUBITS;
 extern bool FILTER_DUPLICATE_CXS;
 extern bool REDUCE_CZS;
-extern bool GADGET_FIRST;
+extern bool DYNAMIC_ORDER;
 extern size_t BLOCK_SIZE;
 extern size_t OPTIMIZE_LEVEL;
-extern float CX_COEFF;
+extern float PRED_COEFF;
 
 class Extractor {
 public:
@@ -111,7 +111,7 @@ private:
 
     Overlap _max_overlap(dvlab::BooleanMatrix& matrix);
 
-    int _calculate_cz_pivot(zx::ZXVertex* frontier, zx::ZXVertex* axel, zx::ZXVertex* cz_target);
+    int _calculate_diff_pivot_edges_if_extracting_cz(zx::ZXVertex* frontier, zx::ZXVertex* axel, zx::ZXVertex* cz_target);
 
     size_t _num_cx_filtered = 0;
     size_t _num_swaps       = 0;
