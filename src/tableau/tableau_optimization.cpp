@@ -388,11 +388,14 @@ void merge_rotations(Tableau& tableau) {
         return;
     }
 
-    auto& clifford  = std::get<StabilizerTableau>(tableau.front());
-    auto& rotations = std::get<std::vector<PauliRotation>>(tableau.back());
-
-    merge_rotations(rotations);
-    absorb_clifford_rotations(clifford, rotations);
+    auto& clifford   = std::get<StabilizerTableau>(tableau.front());
+    auto& rotations  = std::get<std::vector<PauliRotation>>(tableau.back());
+    auto n_rotations = SIZE_MAX;
+    do {  // NOLINT(cppcoreguidelines-avoid-do-while)
+        n_rotations = rotations.size();
+        merge_rotations(rotations);
+        absorb_clifford_rotations(clifford, rotations);
+    } while (rotations.size() < n_rotations);
 }
 
 // phase polynomial optimization
