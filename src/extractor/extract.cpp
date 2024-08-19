@@ -45,26 +45,22 @@ size_t OPTIMIZE_LEVEL     = 2;
 bool DYNAMIC_ORDER        = false;
 float PRED_COEFF          = 0.7;
 
-/**
- * @brief Construct a new Extractor:: Extractor object
- *
- * @param g
- * @param c
- * @param d
- */
-Extractor::Extractor(ZXGraph* g, QCir* c, bool r /*, std::optional<Device> const& d*/) : _graph(g), _logical_circuit{c ? c : new QCir()}, _random(r) /* ,_physical_circuit{to_physical() ? new QCir() : nullptr}, _device(d), _device_backup(d) */ {
-    // spdlog::error("Random: {}", r);
-    initialize(c == nullptr);
+Extractor::Extractor(ZXGraph* graph, QCir* qcir, bool random)
+    : _graph(graph), _logical_circuit{qcir}, _random(random) {
+    initialize();
 }
 
 /**
  * @brief Initialize the extractor. Set ZXGraph to QCir qubit map.
  *
  */
-void Extractor::initialize(bool from_empty_qcir) {
+void Extractor::initialize() {
     spdlog::debug("Initializing extractor");
 
     QubitIdType cnt = 0;
+    if (_logical_circuit == nullptr) {
+        _logical_circuit = new QCir(_graph->get_num_outputs());
+    }
     for (auto& o : _graph->get_outputs()) {
         ZXVertex* neighbor_to_output = _graph->get_first_neighbor(o).first;
         if (!neighbor_to_output->is_boundary()) {
@@ -72,8 +68,6 @@ void Extractor::initialize(bool from_empty_qcir) {
             _frontier.emplace(neighbor_to_output);
         }
         _qubit_map[o->get_qubit()] = cnt;
-        if (from_empty_qcir)
-            _logical_circuit->add_qubits(1);
         cnt++;
     }
 
@@ -431,8 +425,8 @@ bool Extractor::remove_gadget(bool check) {
     }
 
     if (_random) {
-        std::random_device rd1;
-        std::mt19937 g1(rd1());
+        static std::random_device rd1;
+        static std::mt19937 g1(rd1());
         std::shuffle(std::begin(shuffle_neighbors), std::end(shuffle_neighbors), g1);
     }
 
@@ -491,7 +485,7 @@ bool Extractor::remove_gadget(bool check) {
 }
 
 /**
- * @brief Calculate the differential of pivot edges before and after extracting CZ gates
+ * @brief Calculate the difference in the number of pivot edges before and after extracting CZ gates
  *
  * @param frontier
  * @param axel

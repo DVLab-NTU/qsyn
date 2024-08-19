@@ -126,8 +126,6 @@ bool GFlow::calculate() {
                 // TODO - Check Here
                 if (_vertices_to_calculate.contains(v)) {
                     _vertices_order.emplace_back(v);
-                    // if (!_do_all)
-                    //     break;
                 }
                 _taken.insert(v);
                 _levels.back().insert(v);
@@ -143,7 +141,6 @@ bool GFlow::calculate() {
             _vertex2levels.emplace(v, _levels.size() - 1);
         }
         if (!_do_all && !_vertices_order.empty()) {
-            // fmt::println("AAA");
             break;
         }
     }

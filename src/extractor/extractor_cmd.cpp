@@ -193,23 +193,23 @@ Command extractor_config_cmd() {
                 parser.description("configure the behavior of extractor");
                 parser.add_argument<size_t>("--optimize-level")
                     .choices({0, 1, 2, 3})
-                    .help("optimization level");
+                    .help("the strategy for biadjacency elimination. 0: fixed block size, 1: all block sizes, 2: greedy reduction, 3: best of 1 and 2");
                 parser.add_argument<bool>("--permute-qubit")
-                    .help("permute the qubit after extraction");
+                    .help("synthesizes permutation circuits at the end of extraction");
                 parser.add_argument<size_t>("--block-size")
-                    .help("Gaussian block size, only used in optimization level 0");
+                    .help("the block size for block Gaussian elimination. Only used in optimization level 0");
                 parser.add_argument<bool>("--filter-cx")
-                    .help("filter duplicated CXs");
+                    .help("filters duplicate CXs during extraction");
                 parser.add_argument<bool>("--reduce-cz")
-                    .help("optimize CZs by row eliminations");
+                    .help("tries to reduce the number of CZs by feeding them into the biadjacency matrix");
                 parser.add_argument<bool>("--frontier-sorted")
-                    .help("sort frontier");
+                    .help("sorts frontier by the qubit IDs");
                 parser.add_argument<bool>("--neighbors-sorted")
-                    .help("sort neighbors");
+                    .help("sorts neighbors by the vertex IDs");
                 parser.add_argument<bool>("--dynamic-extraction")
-                    .help("dynamic extraction");
+                    .help("dynamically decides the order of gadget removal and CZ extraction");
                 parser.add_argument<float>("--predictive-coefficient")
-                    .help("coefficient of predictive formula");
+                    .help("hyperparameter for the dynamic extraction routine. If #CZs > #(edge reduced) * coeff, eagerly extract CZs");
             },
             [](ArgumentParser const& parser) {
                 auto print_current_config = true;

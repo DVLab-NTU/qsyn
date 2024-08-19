@@ -81,10 +81,6 @@ private:
     std::unordered_map<ZXVertex*, MeasurementPlane> _measurement_planes;
     std::unordered_map<ZXVertex*, size_t> _vertex2levels;
 
-    bool _valid                 = false;
-    bool _do_independent_layers = false;
-    bool _do_extended           = false;
-
     // helper members
     ZXVertexList _frontier;
     ZXVertexList _neighbors;
@@ -101,7 +97,11 @@ private:
     // for experiment
     std::set<ZXVertex*> _vertices_to_calculate;
     std::vector<ZXVertex*> _vertices_order;
-    bool _do_all = true;
+
+    bool _valid                 = false;
+    bool _do_independent_layers = false;
+    bool _do_extended           = false;
+    bool _do_all                = true;
 };
 
 }  // namespace zx

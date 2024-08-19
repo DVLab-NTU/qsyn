@@ -135,7 +135,7 @@ Command convert_from_zx_cmd(zx::ZXGraphMgr& zxgraph_mgr, QCirMgr& qcir_mgr, tens
 
             to_qcir.add_argument<bool>("-r", "--random")
                 .action(store_true)
-                .help("random extraction");
+                .help("Shuffle the neighbors to the extraction frontier, which changes the gadget removal order.");
         },
         [&](ArgumentParser const& parser) {
             if (!dvlab::utils::mgr_has_data(zxgraph_mgr)) return CmdExecResult::error;
