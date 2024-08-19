@@ -98,7 +98,7 @@ dvlab::Command extraction_step_cmd(zx::ZXGraphMgr& zxgraph_mgr, QCirMgr& qcir_mg
 
                 zxgraph_mgr.checkout(zx_id);
                 qcir_mgr.checkout(qcir_id);
-                Extractor ext(zxgraph_mgr.get(), qcir_mgr.get() /*, std::nullopt */);
+                Extractor ext(zxgraph_mgr.get(), qcir_mgr.get(), false /*, std::nullopt */);
 
                 if (parser.parsed("--loop")) {
                     ext.extraction_loop(parser.get<size_t>("--loop"));
@@ -172,7 +172,7 @@ dvlab::Command extraction_print_cmd(ZXGraphMgr& zxgraph_mgr) {
                     spdlog::error("ZXGraph {} is not extractable because it is not graph-like!!", zxgraph_mgr.focused_id());
                     return CmdExecResult::error;
                 }
-                Extractor ext(zxgraph_mgr.get(), false);
+                Extractor ext(zxgraph_mgr.get(), nullptr, false);
                 if (parser.parsed("--frontier")) {
                     ext.print_frontier();
                 } else if (parser.parsed("--neighbors")) {

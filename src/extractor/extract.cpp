@@ -52,7 +52,7 @@ float PRED_COEFF          = 0.7;
  * @param c
  * @param d
  */
-Extractor::Extractor(ZXGraph* g, bool r, QCir* c /*, std::optional<Device> const& d*/) : _graph(g), _random(r), _logical_circuit{c ? c : new QCir()} /* ,_physical_circuit{to_physical() ? new QCir() : nullptr}, _device(d), _device_backup(d) */ {
+Extractor::Extractor(ZXGraph* g, QCir* c, bool r /*, std::optional<Device> const& d*/) : _graph(g), _logical_circuit{c ? c : new QCir()}, _random(r) /* ,_physical_circuit{to_physical() ? new QCir() : nullptr}, _device(d), _device_backup(d) */ {
     // spdlog::error("Random: {}", r);
     initialize(c == nullptr);
 }
