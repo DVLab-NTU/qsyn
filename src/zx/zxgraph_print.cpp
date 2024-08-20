@@ -50,6 +50,21 @@ void ZXGraph::print_outputs() const {
 }
 
 /**
+ * @brief Print Gadgets of ZXGraph
+ *
+ */
+void ZXGraph::print_gadgets() const {
+    for (const auto& cand : _vertices) {
+        if (is_gadget_leaf(cand)) {
+            fmt::print("Gadget leaf: {:>4}, ", cand->get_id());
+            fmt::print("axel: {:>4}, ", get_first_neighbor(cand).first->get_id());
+            fmt::println("phase: {}", cand->get_phase());
+        }
+    }
+    fmt::println("Total #Gadgets: {}", get_num_gadgets());
+}
+
+/**
  * @brief Print Inputs and Outputs of ZXGraph
  *
  */

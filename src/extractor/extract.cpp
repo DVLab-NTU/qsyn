@@ -7,7 +7,13 @@
 
 #include "./extract.hpp"
 
+#include <fmt/core.h>
+#include <fmt/ostream.h>
+
+#include <algorithm>
 #include <cassert>
+#include <cstddef>
+#include <random>
 #include <ranges>
 
 #include "duostra/duostra.hpp"
@@ -19,6 +25,7 @@
 #include "util/boolean_matrix.hpp"
 #include "util/ordered_hashmap.hpp"
 #include "util/util.hpp"
+#include "zx/gflow/gflow.hpp"
 #include "zx/simplifier/simplify.hpp"
 #include "zx/zx_def.hpp"
 #include "zx/zxgraph.hpp"
@@ -35,26 +42,25 @@ bool FILTER_DUPLICATE_CXS = true;
 bool REDUCE_CZS           = false;
 size_t BLOCK_SIZE         = 5;
 size_t OPTIMIZE_LEVEL     = 2;
+bool DYNAMIC_ORDER        = false;
+float PRED_COEFF          = 0.7;
 
-/**
- * @brief Construct a new Extractor:: Extractor object
- *
- * @param g
- * @param c
- * @param d
- */
-Extractor::Extractor(ZXGraph* g, QCir* c /*, std::optional<Device> const& d*/) : _graph(g), _logical_circuit{c ? c : new QCir()} /* ,_physical_circuit{to_physical() ? new QCir() : nullptr}, _device(d), _device_backup(d) */ {
-    initialize(c == nullptr);
+Extractor::Extractor(ZXGraph* graph, QCir* qcir, bool random)
+    : _graph(graph), _logical_circuit{qcir}, _random(random) {
+    initialize();
 }
 
 /**
  * @brief Initialize the extractor. Set ZXGraph to QCir qubit map.
  *
  */
-void Extractor::initialize(bool from_empty_qcir) {
+void Extractor::initialize() {
     spdlog::debug("Initializing extractor");
 
     QubitIdType cnt = 0;
+    if (_logical_circuit == nullptr) {
+        _logical_circuit = new QCir(_graph->get_num_outputs());
+    }
     for (auto& o : _graph->get_outputs()) {
         ZXVertex* neighbor_to_output = _graph->get_first_neighbor(o).first;
         if (!neighbor_to_output->is_boundary()) {
@@ -62,8 +68,6 @@ void Extractor::initialize(bool from_empty_qcir) {
             _frontier.emplace(neighbor_to_output);
         }
         _qubit_map[o->get_qubit()] = cnt;
-        if (from_empty_qcir)
-            _logical_circuit->add_qubits(1);
         cnt++;
     }
 
@@ -78,6 +82,7 @@ void Extractor::initialize(bool from_empty_qcir) {
             _axels.emplace(_graph->get_first_neighbor(v).first);
         }
     }
+    _max_axel = _axels.size();
     print_frontier(spdlog::level::level_enum::trace);
     print_neighbors(spdlog::level::level_enum::trace);
     _graph->print_vertices_by_rows(spdlog::level::level_enum::trace);
@@ -111,7 +116,6 @@ QCir* Extractor::extract() {
         _logical_circuit->print_circuit_diagram(spdlog::level::level_enum::trace);
         _graph->print_vertices_by_rows(spdlog::level::level_enum::trace);
     }
-
     return _logical_circuit;
 }
 
@@ -128,7 +132,6 @@ bool Extractor::extraction_loop(std::optional<size_t> max_iter) {
         update_neighbors();
 
         if (_frontier.empty()) break;
-
         if (remove_gadget()) {
             spdlog::debug("Gadget(s) are removed.");
             print_frontier(spdlog::level::level_enum::trace);
@@ -136,7 +139,10 @@ bool Extractor::extraction_loop(std::optional<size_t> max_iter) {
             _logical_circuit->print_circuit_diagram(spdlog::level::level_enum::trace);
             continue;
         }
-
+        if (DYNAMIC_ORDER) {
+            // Should clean CZs before further extraction
+            extract_czs();
+        }
         if (contains_single_neighbor()) {
             spdlog::debug("Single neighbor found. Construct an easy matrix.");
             update_matrix();
@@ -170,7 +176,9 @@ bool Extractor::extraction_loop(std::optional<size_t> max_iter) {
 void Extractor::clean_frontier() {
     spdlog::debug("Cleaning frontier");
     extract_singles();
-    extract_czs();
+    if (!DYNAMIC_ORDER) {
+        extract_czs();
+    }
 }
 
 /**
@@ -232,6 +240,10 @@ bool Extractor::extract_czs(bool check) {
                 remove_list.emplace_back((*itr), (*jtr));
             }
         }
+    }
+    _num_cz_rms += remove_list.size();
+    if (_previous_gadget) {
+        _num_cz_rms_after_gadget += remove_list.size();
     }
 
     _biadjacency = get_biadjacency_matrix(*_graph, _frontier, _frontier);
@@ -298,7 +310,7 @@ void Extractor::extract_cxs() {
         front_id2_vertex[cnt] = f;
         cnt++;
     }
-
+    _num_cx_rms += _cnots.size();
     for (auto& [t, c] : _cnots) {
         // NOTE - targ and ctrl are opposite here
         auto ctrl = _qubit_map[front_id2_vertex[c]->get_qubit()];
@@ -392,7 +404,6 @@ size_t Extractor::extract_hadamards_from_matrix(bool check) {
  */
 bool Extractor::remove_gadget(bool check) {
     spdlog::debug("Removing gadget(s)");
-
     if (check) {
         if (_frontier.empty()) {
             spdlog::error("no vertex left in the frontier!!");
@@ -408,8 +419,20 @@ bool Extractor::remove_gadget(bool check) {
     print_frontier(spdlog::level::level_enum::trace);
     print_axels(spdlog::level::level_enum::trace);
 
+    std::vector<ZXVertex*> shuffle_neighbors;
+    for (const auto& v : _neighbors) {
+        shuffle_neighbors.push_back(v);
+    }
+
+    if (_random) {
+        static std::random_device rd1;
+        static std::mt19937 g1(rd1());
+        std::shuffle(std::begin(shuffle_neighbors), std::end(shuffle_neighbors), g1);
+    }
+
     bool removed_some_gadgets = false;
-    for (auto& n : _neighbors) {
+
+    for (auto& n : shuffle_neighbors) {
         if (!_axels.contains(n)) {
             continue;
         }
@@ -426,6 +449,20 @@ bool Extractor::remove_gadget(bool check) {
                         break;
                     }
                 }
+                if (DYNAMIC_ORDER) {
+                    const std::vector<qcir::QCirGate> gates;
+                    int diff = 0;
+                    int n_cz = 0;
+                    for (auto const& [cz_cand, _] : _graph->get_neighbors(candidate)) {
+                        if (_frontier.contains(cz_cand)) {
+                            diff += _calculate_diff_pivot_edges_if_extracting_cz(candidate, n, cz_cand);
+                            n_cz++;
+                        }
+                    }
+                    if (PRED_COEFF * float(diff) + 1 * float(n_cz) < 0) {
+                        extract_czs();
+                    }
+                }
 
                 PivotBoundaryRule().apply(*_graph, {{candidate, n}});
 
@@ -439,6 +476,7 @@ bool Extractor::remove_gadget(bool check) {
             }
         }
     }
+
     _graph->print_vertices(spdlog::level::level_enum::trace);
     print_frontier(spdlog::level::level_enum::trace);
     print_axels(spdlog::level::level_enum::trace);
@@ -446,6 +484,65 @@ bool Extractor::remove_gadget(bool check) {
     return removed_some_gadgets;
 }
 
+/**
+ * @brief Calculate the difference in the number of pivot edges before and after extracting CZ gates
+ *
+ * @param frontier
+ * @param axel
+ * @param cz_target
+ * @return int
+ */
+int Extractor::_calculate_diff_pivot_edges_if_extracting_cz(ZXVertex* frontier, ZXVertex* axel, ZXVertex* cz_target) {
+    std::vector<ZXVertex*> n_frontier, n_axel, n_both;
+    const bool cz_target_is_both = _graph->is_neighbor(cz_target, axel);
+    for (auto const& [n, _] : _graph->get_neighbors(frontier)) {
+        if (_graph->is_neighbor(n, axel)) {
+            n_both.emplace_back(n);
+        } else {
+            n_frontier.emplace_back(n);
+        }
+    }
+    for (auto const& [n, _] : _graph->get_neighbors(axel)) {
+        if (!_graph->is_neighbor(n, axel)) {
+            n_axel.emplace_back(n);
+        }
+    }
+    int edge_cnt = 0;
+    if (cz_target_is_both) {
+        // If remove CZ: from n(both) to n(axel)
+        // Pivot edges from --frontier & --axel to --frontier & --both
+        // Difference: # --both - # --axel
+        for (const auto& v : n_both) {
+            if (_graph->is_neighbor(v, cz_target))
+                edge_cnt--;
+            else
+                edge_cnt++;
+        }
+        for (const auto& v : n_axel) {
+            if (_graph->is_neighbor(v, cz_target))
+                edge_cnt++;
+            else
+                edge_cnt--;
+        }
+    } else {
+        // If remove CZ: from n(frontier) to n(none)
+        // Pivot edges from --axel & --both to nothing
+        // Difference: -(# --axel + # --both)
+        for (const auto& v : n_axel) {
+            if (_graph->is_neighbor(v, cz_target))
+                edge_cnt++;
+            else
+                edge_cnt--;
+        }
+        for (const auto& v : n_both) {
+            if (_graph->is_neighbor(v, cz_target))
+                edge_cnt++;
+            else
+                edge_cnt--;
+        }
+    }
+    return edge_cnt;
+}
 /**
  * @brief Swap columns (order of neighbors) to put the most of them on the diagonal of the bi-adjacency matrix
  *

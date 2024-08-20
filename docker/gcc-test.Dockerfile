@@ -1,5 +1,7 @@
 FROM dvlab/qsyn-env:latest
 
+RUN apt update
+
 RUN apt install -y \
     diffutils \
     patch \
