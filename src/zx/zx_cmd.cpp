@@ -177,6 +177,9 @@ Command zxgraph_print_cmd(ZXGraphMgr const& zxgraph_mgr) {
                 mutex.add_argument<bool>("-o", "--outputs")
                     .action(store_true)
                     .help("print the output info of ZXGraph");
+                mutex.add_argument<bool>("-g", "--gadgets")
+                    .action(store_true)
+                    .help("print the gadget info of ZXGraph");
                 mutex.add_argument<size_t>("-v", "--vertices")
                     .nargs(NArgsOption::zero_or_more)
                     .constraint(valid_zxvertex_id(zxgraph_mgr))
@@ -210,6 +213,8 @@ Command zxgraph_print_cmd(ZXGraphMgr const& zxgraph_mgr) {
                     zxgraph_mgr.get()->print_inputs();
                 else if (parser.parsed("--outputs"))
                     zxgraph_mgr.get()->print_outputs();
+                else if (parser.parsed("--gadgets"))
+                    zxgraph_mgr.get()->print_gadgets();
                 else if (parser.parsed("--vertices")) {
                     auto vids = parser.get<std::vector<size_t>>("--vertices");
                     if (vids.empty())

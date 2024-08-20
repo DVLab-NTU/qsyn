@@ -8,6 +8,7 @@
 
 #include <fmt/core.h>
 
+#include <set>
 #include <unordered_map>
 #include <vector>
 
@@ -76,10 +77,6 @@ private:
     std::unordered_map<ZXVertex*, MeasurementPlane> _measurement_planes;
     std::unordered_map<ZXVertex*, size_t> _vertex2levels;
 
-    bool _valid                 = false;
-    bool _do_independent_layers = false;
-    bool _do_extended           = false;
-
     // helper members
     ZXVertexList _frontier;
     ZXVertexList _neighbors;
@@ -92,6 +89,10 @@ private:
     dvlab::BooleanMatrix _prepare_matrix(ZXVertex* v, size_t i, dvlab::BooleanMatrix const& matrix);
     void _set_correction_set_by_matrix(ZXVertex* v, dvlab::BooleanMatrix const& matrix);
     void _update_frontier();
+
+    bool _valid                 = false;
+    bool _do_independent_layers = false;
+    bool _do_extended           = false;
 };
 
 }  // namespace zx

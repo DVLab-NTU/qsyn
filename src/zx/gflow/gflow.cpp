@@ -173,7 +173,6 @@ void GFlow::_calculate_zeroth_layer() {
 
     for (auto& v : _zxgraph->get_outputs()) {
         assert(!_x_correction_sets.contains(v));
-        _vertex2levels.emplace(v, 0);
         _x_correction_sets[v] = ZXVertexList();
         _taken.insert(v);
     }

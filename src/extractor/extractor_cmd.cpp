@@ -98,7 +98,7 @@ dvlab::Command extraction_step_cmd(zx::ZXGraphMgr& zxgraph_mgr, QCirMgr& qcir_mg
 
                 zxgraph_mgr.checkout(zx_id);
                 qcir_mgr.checkout(qcir_id);
-                Extractor ext(zxgraph_mgr.get(), qcir_mgr.get() /*, std::nullopt */);
+                Extractor ext(zxgraph_mgr.get(), qcir_mgr.get(), false /*, std::nullopt */);
 
                 if (parser.parsed("--loop")) {
                     ext.extraction_loop(parser.get<size_t>("--loop"));
@@ -172,7 +172,7 @@ dvlab::Command extraction_print_cmd(ZXGraphMgr& zxgraph_mgr) {
                     spdlog::error("ZXGraph {} is not extractable because it is not graph-like!!", zxgraph_mgr.focused_id());
                     return CmdExecResult::error;
                 }
-                Extractor ext(zxgraph_mgr.get());
+                Extractor ext(zxgraph_mgr.get(), nullptr, false);
                 if (parser.parsed("--frontier")) {
                     ext.print_frontier();
                 } else if (parser.parsed("--neighbors")) {
@@ -193,19 +193,23 @@ Command extractor_config_cmd() {
                 parser.description("configure the behavior of extractor");
                 parser.add_argument<size_t>("--optimize-level")
                     .choices({0, 1, 2, 3})
-                    .help("optimization level");
+                    .help("the strategy for biadjacency elimination. 0: fixed block size, 1: all block sizes, 2: greedy reduction, 3: best of 1 and 2");
                 parser.add_argument<bool>("--permute-qubit")
-                    .help("permute the qubit after extraction");
+                    .help("synthesizes permutation circuits at the end of extraction");
                 parser.add_argument<size_t>("--block-size")
-                    .help("Gaussian block size, only used in optimization level 0");
+                    .help("the block size for block Gaussian elimination. Only used in optimization level 0");
                 parser.add_argument<bool>("--filter-cx")
-                    .help("filter duplicated CXs");
+                    .help("filters duplicate CXs during extraction");
                 parser.add_argument<bool>("--reduce-cz")
-                    .help("optimize CZs by row eliminations");
+                    .help("tries to reduce the number of CZs by feeding them into the biadjacency matrix");
                 parser.add_argument<bool>("--frontier-sorted")
-                    .help("sort frontier");
+                    .help("sorts frontier by the qubit IDs");
                 parser.add_argument<bool>("--neighbors-sorted")
-                    .help("sort neighbors");
+                    .help("sorts neighbors by the vertex IDs");
+                parser.add_argument<bool>("--dynamic-extraction")
+                    .help("dynamically decides the order of gadget removal and CZ extraction");
+                parser.add_argument<float>("--predictive-coefficient")
+                    .help("hyperparameter for the dynamic extraction routine. If #CZs > #(edge reduced) * coeff, eagerly extract CZs");
             },
             [](ArgumentParser const& parser) {
                 auto print_current_config = true;
@@ -243,16 +247,26 @@ Command extractor_config_cmd() {
                     SORT_NEIGHBORS       = parser.get<bool>("--neighbors-sorted");
                     print_current_config = false;
                 }
+                if (parser.parsed("--dynamic-extraction")) {
+                    DYNAMIC_ORDER        = parser.get<bool>("--dynamic-extraction");
+                    print_current_config = false;
+                }
+                if (parser.parsed("--predictive-coefficient")) {
+                    PRED_COEFF           = parser.get<float>("--predictive-coefficient");
+                    print_current_config = false;
+                }
                 // if no option is specified, print the current settings
                 if (print_current_config) {
                     fmt::println("");
-                    fmt::println("Optimize Level:        {}", OPTIMIZE_LEVEL);
-                    fmt::println("Sort Frontier:         {}", SORT_FRONTIER);
-                    fmt::println("Sort Neighbors:        {}", SORT_NEIGHBORS);
-                    fmt::println("Permute Qubits:        {}", PERMUTE_QUBITS);
-                    fmt::println("Filter Duplicated CXs: {}", FILTER_DUPLICATE_CXS);
-                    fmt::println("Reduce CZs:            {}", REDUCE_CZS);
-                    fmt::println("Block Size:            {}", BLOCK_SIZE);
+                    fmt::println("Optimize Level:               {}", OPTIMIZE_LEVEL);
+                    fmt::println("Sort Frontier:                {}", SORT_FRONTIER);
+                    fmt::println("Sort Neighbors:               {}", SORT_NEIGHBORS);
+                    fmt::println("Permute Qubits:               {}", PERMUTE_QUBITS);
+                    fmt::println("Filter Duplicated CXs:        {}", FILTER_DUPLICATE_CXS);
+                    fmt::println("Reduce CZs:                   {}", REDUCE_CZS);
+                    fmt::println("Block Size:                   {}", BLOCK_SIZE);
+                    fmt::println("Dynamic Extraction:           {}", DYNAMIC_ORDER);
+                    fmt::println("Coeff. of Predictive Formula: {}", PRED_COEFF);
                 }
                 return CmdExecResult::done;
             }};

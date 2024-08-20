@@ -236,6 +236,7 @@ public:
     void print_graph(spdlog::level::level_enum lvl = spdlog::level::level_enum::off) const;
     void print_inputs() const;
     void print_outputs() const;
+    void print_gadgets() const;
     void print_io() const;
     void print_vertices(spdlog::level::level_enum lvl = spdlog::level::level_enum::off) const;
     void print_vertices(std::vector<size_t> cand) const;

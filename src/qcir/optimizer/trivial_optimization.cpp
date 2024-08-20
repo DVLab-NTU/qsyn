@@ -220,7 +220,7 @@ std::vector<Operation> zx_optimize(std::vector<qcir::Operation> const& partial) 
     zx::Simplifier simplifier{&zx};
     simplifier.full_reduce();
 
-    extractor::Extractor ext(&zx, nullptr /*, std::nullopt */);
+    extractor::Extractor ext(&zx, nullptr, false /*, std::nullopt */);
     QCir* result = ext.extract();
 
     auto const gate_list = result->get_gates();
