@@ -123,10 +123,6 @@ bool GFlow::calculate() {
 
             if (augmented_matrix.gaussian_elimination_augmented(false)) {
                 spdlog::trace("Solved {}, adding to this level", v->get_id());
-                // TODO - Check Here
-                if (_vertices_to_calculate.contains(v)) {
-                    _vertices_order.emplace_back(v);
-                }
                 _taken.insert(v);
                 _levels.back().insert(v);
                 _set_correction_set_by_matrix(v, augmented_matrix);
@@ -139,9 +135,6 @@ bool GFlow::calculate() {
 
         for (auto& v : _levels.back()) {
             _vertex2levels.emplace(v, _levels.size() - 1);
-        }
-        if (!_do_all && !_vertices_order.empty()) {
-            break;
         }
     }
 
@@ -180,10 +173,6 @@ void GFlow::_calculate_zeroth_layer() {
 
     for (auto& v : _zxgraph->get_outputs()) {
         assert(!_x_correction_sets.contains(v));
-        // TODO - Check Here
-        if (_vertices_to_calculate.contains(v))
-            _vertices_order.emplace_back(v);
-        _vertex2levels.emplace(v, 0);
         _x_correction_sets[v] = ZXVertexList();
         _taken.insert(v);
     }
@@ -369,11 +358,6 @@ void GFlow::print_failed_vertices() const {
     fmt::println("{}", fmt::join(_neighbors | std::views::transform(vertex_to_id), " "));
 }
 
-void GFlow::set_vertices_to_calculate(const ZXVertexList& list) {
-    for (const auto& v : list) {
-        _vertices_to_calculate.emplace(v);
-    }
-}
 std::ostream& operator<<(std::ostream& os, GFlow::MeasurementPlane const& plane) {
     return os << fmt::format("{}", plane);
 }
