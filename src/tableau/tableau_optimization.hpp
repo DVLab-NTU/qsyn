@@ -48,6 +48,14 @@ struct ToddPhasePolynomialOptimizationStrategy : public PhasePolynomialOptimizat
     std::pair<StabilizerTableau, Polynomial> optimize(StabilizerTableau const& clifford, Polynomial const& polynomial) const override;
 };
 
+struct TohpePhasePolynomialOptimizationStrategy : public PhasePolynomialOptimizationStrategy {
+    std::pair<StabilizerTableau, Polynomial> optimize(StabilizerTableau const& clifford, Polynomial const& polynomial) const override;
+};
+
+struct FastToddPhasePolynomialOptimizationStrategy : public PhasePolynomialOptimizationStrategy {
+    std::pair<StabilizerTableau, Polynomial> optimize(StabilizerTableau const& clifford, Polynomial const& polynomial) const override;
+};
+
 void optimize_phase_polynomial(StabilizerTableau& clifford, std::vector<PauliRotation>& polynomial, PhasePolynomialOptimizationStrategy const& strategy);
 void optimize_phase_polynomial(Tableau& tableau, PhasePolynomialOptimizationStrategy const& strategy);
 
