@@ -265,8 +265,7 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr) {
                 auto const phasepoly_strategy = std::invoke([&]() -> std::unique_ptr<PhasePolynomialOptimizationStrategy> {
                     if (dvlab::str::is_prefix_of(phasepoly_strategy_str, "todd")) {
                         return std::make_unique<ToddPhasePolynomialOptimizationStrategy>();
-                    }
-                    else if (dvlab::str::is_prefix_of(phasepoly_strategy_str, "tohpe")) {
+                    } else if (dvlab::str::is_prefix_of(phasepoly_strategy_str, "tohpe")) {
                         return std::make_unique<TohpePhasePolynomialOptimizationStrategy>();
                     }
                     return nullptr;
