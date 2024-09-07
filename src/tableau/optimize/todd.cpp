@@ -373,7 +373,6 @@ Polynomial tohpe_once(Polynomial const& polynomial) {
 
     auto phase_poly_matrix_copy = phase_poly_matrix;
     for (auto const& y : nullspace_transposed) {
-        spdlog::trace("c");
         if (y.is_zeros()) {
             continue;
         } else if (y.sum() != y.size() || y.sum() % 2 == 0) {
@@ -591,9 +590,8 @@ std::pair<StabilizerTableau, Polynomial> TohpePhasePolynomialOptimizationStrateg
     auto multi_linear_polynomial = MultiLinearPolynomial();
     multi_linear_polynomial.add_rotations(ret_polynomial, false);
 
-    spdlog::trace("Polynomial before TODD:\n{}", fmt::join(ret_polynomial, "\n"));
-    spdlog::debug("num_terms before TODD: {}", ret_polynomial.size());
-    fmt::println("Cool4");
+    spdlog::trace("Polynomial before Tohpe:\n{}", fmt::join(ret_polynomial, "\n"));
+    spdlog::debug("num_terms before Tophe: {}", ret_polynomial.size());
 
     while (true) {
         auto const num_terms = ret_polynomial.size();
