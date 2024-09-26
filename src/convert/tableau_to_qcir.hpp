@@ -30,6 +30,10 @@ struct TParPauliRotationsSynthesisStrategy : public PauliRotationsSynthesisStrat
     std::optional<qcir::QCir> synthesize(std::vector<PauliRotation> const& rotations) const override;
 };
 
+struct GraySynthPauliRotationsSynthesisStrategy : public PauliRotationsSynthesisStrategy {
+    std::optional<qcir::QCir> synthesize(std::vector<PauliRotation> const& rotations) const override;
+};
+
 std::optional<qcir::QCir> to_qcir(
     StabilizerTableau const& clifford,
     StabilizerTableauSynthesisStrategy const& strategy);

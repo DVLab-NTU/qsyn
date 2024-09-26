@@ -19,138 +19,129 @@ namespace qsyn::zx {
 
 class ZXGraph;
 
-class Simplifier {
-public:
-    Simplifier(ZXGraph* g) : _simp_graph{g} {
-        hadamard_rule_simp();
-    }
-    ~Simplifier() {
-        // REVIEW - Whether to adjust
-        // _simp_graph->adjust_vertex_coordinates();
-    }
-    Simplifier(Simplifier const& other)            = default;
-    Simplifier(Simplifier&& other)                 = default;
-    Simplifier& operator=(Simplifier const& other) = default;
-    Simplifier& operator=(Simplifier&& other)      = default;
+namespace simplify {
 
-    /**
-     * @brief apply the rule on the zx graph
-     *
-     * @return number of iterations
-     */
-    template <typename Rule>
-    size_t simplify(Rule const& rule) {
-        static_assert(std::is_base_of<ZXRuleTemplate<typename Rule::MatchType>, Rule>::value, "Rule must be a subclass of ZXRule");
+// Basic rules simplification
+size_t bialgebra_simp(ZXGraph& g);
+size_t state_copy_simp(ZXGraph& g);
+size_t phase_gadget_simp(ZXGraph& g);
+size_t hadamard_fusion_simp(ZXGraph& g);
+size_t hadamard_rule_simp(ZXGraph& g);
+size_t identity_removal_simp(ZXGraph& g);
+size_t local_complement_simp(ZXGraph& g);
+size_t pivot_simp(ZXGraph& g);
+size_t pivot_boundary_simp(ZXGraph& g);
+size_t pivot_gadget_simp(ZXGraph& g);
+size_t spider_fusion_simp(ZXGraph& g);
 
-        std::vector<size_t> match_counts;
+// Composite simplification routines
+size_t interior_clifford_simp(ZXGraph& g);
+size_t pi_clifford_simp(ZXGraph& g);
+size_t clifford_simp(ZXGraph& g);
+void full_reduce(ZXGraph& g);
+void dynamic_reduce(ZXGraph& g);
+void dynamic_reduce(ZXGraph& g, size_t optimal_t_count);
+void symbolic_reduce(ZXGraph& g);
+void partition_reduce(ZXGraph& g, size_t n_partitions);
+void causal_reduce(ZXGraph& g);
 
-        while (!stop_requested()) {
-            std::vector<typename Rule::MatchType> const matches = rule.find_matches(*_simp_graph);
-            if (matches.empty()) {
-                break;
-            }
-            match_counts.emplace_back(matches.size());
+void to_z_graph(ZXGraph& g);
+void to_x_graph(ZXGraph& g);
 
-            rule.apply(*_simp_graph, matches);
+void report_simplification_result(std::string_view rule_name, std::span<size_t> match_counts);
+/**
+ * @brief apply the rule on the zx graph
+ *
+ * @return number of iterations
+ */
+template <typename Rule>
+size_t simplify(ZXGraph& g, Rule const& rule) {
+    static_assert(std::is_base_of<ZXRuleTemplate<typename Rule::MatchType>, Rule>::value, "Rule must be a subclass of ZXRule");
+
+    hadamard_rule_simp(g);
+
+    std::vector<size_t> match_counts;
+
+    while (!stop_requested()) {
+        std::vector<typename Rule::MatchType> const matches = rule.find_matches(g);
+        if (matches.empty()) {
+            break;
         }
+        match_counts.emplace_back(matches.size());
 
-        _report_simp_result(rule.get_name(), match_counts);
-
-        return match_counts.size();
+        rule.apply(g, matches);
     }
 
-    /**
-     * @brief apply the rule on the zx graph
-     *
-     * @return number of iterations
-     */
-    template <typename Rule>
-    size_t hadamard_simplify(Rule rule) {
-        static_assert(std::is_base_of<HZXRuleTemplate<typename Rule::MatchType>, Rule>::value, "Rule must be a subclass of HZXRule");
+    report_simplification_result(rule.get_name(), match_counts);
 
-        std::vector<size_t> match_counts;
+    return match_counts.size();
+}
 
-        while (!stop_requested()) {
-            auto const old_vertex_count = _simp_graph->get_num_vertices();
+/**
+ * @brief apply the rule on the zx graph
+ *
+ * @return number of iterations
+ */
+template <typename Rule>
+size_t hadamard_simplify(ZXGraph& g, Rule rule) {
+    static_assert(std::is_base_of<HZXRuleTemplate<typename Rule::MatchType>, Rule>::value, "Rule must be a subclass of HZXRule");
 
-            std::vector<typename Rule::MatchType> const matches = rule.find_matches(*_simp_graph);
-            if (matches.empty()) {
-                break;
-            }
-            match_counts.emplace_back(matches.size());
+    std::vector<size_t> match_counts;
 
-            rule.apply(*_simp_graph, matches);
-            if (_simp_graph->get_num_vertices() >= old_vertex_count) break;
+    while (!stop_requested()) {
+        auto const old_vertex_count = g.get_num_vertices();
+
+        std::vector<typename Rule::MatchType> const matches = rule.find_matches(g);
+        if (matches.empty()) {
+            break;
         }
+        match_counts.emplace_back(matches.size());
 
-        _report_simp_result(rule.get_name(), match_counts);
-
-        return match_counts.size();
+        rule.apply(g, matches);
+        if (g.get_num_vertices() >= old_vertex_count) break;
     }
 
-    /**
-     * @brief apply the rule on the vertices in the scope
-     *
-     * @return number of iterations
-     */
-    template <typename Rule>
-    size_t scoped_simplify(Rule const& rule, ZXVertexList const& scope) {
-        static_assert(std::is_base_of<ZXRuleTemplate<typename Rule::MatchType>, Rule>::value, "Rule must be a subclass of ZXRule");
+    report_simplification_result(rule.get_name(), match_counts);
 
-        std::vector<size_t> match_counts;
+    return match_counts.size();
+}
 
-        while (!stop_requested()) {
-            std::vector<typename Rule::MatchType> const matches = rule.find_matches(*_simp_graph);
-            std::vector<typename Rule::MatchType> scoped_matches;
-            auto is_in_scope = [&scope](ZXVertex* v) { return scope.contains(v); };
-            for (auto& match : matches) {
-                std::vector<ZXVertex*> match_vertices = rule.flatten_vertices(match);
-                if (std::ranges::any_of(match_vertices, is_in_scope)) {
-                    scoped_matches.push_back(match);
-                }
+/**
+ * @brief apply the rule on the vertices in the scope
+ *
+ * @return number of iterations
+ */
+template <typename Rule>
+size_t scoped_simplify(ZXGraph& g, Rule const& rule, ZXVertexList const& scope) {
+    static_assert(std::is_base_of<ZXRuleTemplate<typename Rule::MatchType>, Rule>::value, "Rule must be a subclass of ZXRule");
+
+    hadamard_rule_simp(g);
+
+    std::vector<size_t> match_counts;
+
+    while (!stop_requested()) {
+        std::vector<typename Rule::MatchType> const matches = rule.find_matches(g);
+        std::vector<typename Rule::MatchType> scoped_matches;
+        auto const is_in_scope = [&scope](ZXVertex* v) { return scope.contains(v); };
+        for (auto& match : matches) {
+            std::vector<ZXVertex*> const match_vertices = rule.flatten_vertices(match);
+            if (std::ranges::any_of(match_vertices, is_in_scope)) {
+                scoped_matches.push_back(match);
             }
-            if (scoped_matches.empty()) {
-                break;
-            }
-            match_counts.emplace_back(scoped_matches.size());
-
-            rule.apply(*_simp_graph, scoped_matches);
         }
+        if (scoped_matches.empty()) {
+            break;
+        }
+        match_counts.emplace_back(scoped_matches.size());
 
-        _report_simp_result(rule.get_name(), match_counts);
-
-        return match_counts.size();
+        rule.apply(g, scoped_matches);
     }
 
-    // Basic rules simplification
-    size_t bialgebra_simp();
-    size_t state_copy_simp();
-    size_t phase_gadget_simp();
-    size_t hadamard_fusion_simp();
-    size_t hadamard_rule_simp();
-    size_t identity_removal_simp();
-    size_t local_complement_simp();
-    size_t pivot_simp();
-    size_t pivot_boundary_simp();
-    size_t pivot_gadget_simp();
-    size_t spider_fusion_simp();
+    report_simplification_result(rule.get_name(), match_counts);
 
-    // Composite simplification routines
-    size_t interior_clifford_simp();
-    size_t pi_clifford_simp();
-    size_t clifford_simp();
-    void full_reduce();
-    void dynamic_reduce();
-    void dynamic_reduce(size_t optimal_t_count);
-    void symbolic_reduce();
-    void partition_reduce(size_t n_partitions);
+    return match_counts.size();
+}
 
-    void to_z_graph();
-    void to_x_graph();
-
-private:
-    void _report_simp_result(std::string_view rule_name, std::span<size_t> match_counts) const;
-    ZXGraph* _simp_graph;
-};
+}  // namespace simplify
 
 }  // namespace qsyn::zx

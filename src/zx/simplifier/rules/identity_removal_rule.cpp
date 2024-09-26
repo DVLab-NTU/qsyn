@@ -13,17 +13,25 @@ using namespace qsyn::zx;
 using MatchType = IdentityRemovalRule::MatchType;
 
 /**
- * @brief Find all the matches of the identity removal rule.
+ * @brief Find matchings of the identity removal rule.
  *
- * @param g The graph to be simplified.
+ * @param graph
+ * @param candidates the vertices to be considered
+ * @param allow_overlapping_candidates whether to allow overlapping candidates. If true, needs to manually check for overlapping candidates.
+ * @return std::vector<MatchType>
  */
-std::vector<MatchType> IdentityRemovalRule::find_matches(ZXGraph const& graph) const {
+std::vector<MatchType> IdentityRemovalRule::find_matches(
+    ZXGraph const& graph, std::optional<ZXVertexList> candidates,
+    bool allow_overlapping_candidates  //
+) const {
     std::vector<MatchType> matches;
 
-    std::unordered_set<ZXVertex*> taken;
+    if (!candidates.has_value()) {
+        candidates = graph.get_vertices();
+    }
 
     for (auto const& v : graph.get_vertices()) {
-        if (taken.contains(v)) continue;
+        if (!candidates->contains(v)) continue;
 
         if (v->get_phase() != Phase(0)) continue;
         if (v->get_type() != VertexType::z && v->get_type() != VertexType::x) continue;
@@ -33,9 +41,12 @@ std::vector<MatchType> IdentityRemovalRule::find_matches(ZXGraph const& graph) c
         auto [n1, etype1] = graph.get_second_neighbor(v);
 
         matches.emplace_back(v, n0, n1, zx::concat_edge(etype0, etype1));
-        taken.insert(v);
-        taken.insert(n0);
-        taken.insert(n1);
+
+        if (allow_overlapping_candidates) continue;
+
+        candidates->erase(v);
+        candidates->erase(n0);
+        candidates->erase(n1);
     }
 
     return matches;

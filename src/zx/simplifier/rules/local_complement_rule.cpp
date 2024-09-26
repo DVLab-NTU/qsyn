@@ -16,36 +16,53 @@ using namespace qsyn::zx;
 using MatchType = LocalComplementRule::MatchType;
 
 /**
- * @brief Find noninteracting matchings of the local complementation rule.
+ * @brief Find matchings of the local complementation rule.
  *
- * @param graph The graph to find matches in.
+ * @param graph
+ * @param candidates the vertices to be considered
+ * @param allow_overlapping_candidates whether to allow overlapping candidates. If true, needs to manually check for overlapping candidates.
+ * @return std::vector<MatchType>
  */
-std::vector<MatchType> LocalComplementRule::find_matches(ZXGraph const& graph) const {
+std::vector<MatchType> LocalComplementRule::find_matches(
+    ZXGraph const& graph,
+    std::optional<ZXVertexList> candidates,
+    bool allow_overlapping_candidates  //
+) const {
     std::vector<MatchType> matches;
 
-    std::unordered_set<ZXVertex*> taken;
+    if (!candidates.has_value()) {
+        candidates = graph.get_vertices();
+    }
 
     for (auto const& v : graph.get_vertices()) {
-        if (v->get_type() == VertexType::z && (v->get_phase() == Phase(1, 2) || v->get_phase() == Phase(3, 2))) {
-            bool match_condition = true;
-            if (taken.contains(v)) continue;
+        if (!candidates->contains(v)) continue;
+        if (!v->is_z()) continue;
+        if (v->get_phase() != Phase(1, 2) && v->get_phase() != Phase(3, 2)) continue;
 
-            for (auto const& [nb, etype] : graph.get_neighbors(v)) {
-                if (etype != EdgeType::hadamard || nb->get_type() != VertexType::z || taken.contains(nb)) {
-                    match_condition = false;
-                    break;
-                }
+        if (std::ranges::any_of(
+                graph.get_neighbors(v),
+                [&](auto const& epair) {
+                    auto const& [nb, etype] = epair;
+                    return etype != EdgeType::hadamard ||
+                           nb->get_type() != VertexType::z ||
+                           !candidates->contains(nb);
+                })) {
+            continue;
+        }
+
+        std::vector<ZXVertex*> neighbors;
+        for (auto const& [nb, _] : graph.get_neighbors(v)) {
+            if (v == nb) continue;
+            neighbors.emplace_back(nb);
+            if (!allow_overlapping_candidates) {
+                candidates->erase(nb);
             }
-            if (match_condition) {
-                std::vector<ZXVertex*> neighbors;
-                for (auto const& [nb, _] : graph.get_neighbors(v)) {
-                    if (v == nb) continue;
-                    neighbors.emplace_back(nb);
-                    taken.insert(nb);
-                }
-                taken.insert(v);
-                matches.emplace_back(make_pair(v, neighbors));
-            }
+        }
+
+        matches.emplace_back(make_pair(v, neighbors));
+
+        if (!allow_overlapping_candidates) {
+            candidates->erase(v);
         }
     }
 

@@ -270,9 +270,10 @@ inline Operation adjoint(ControlGate const& op) {
     return ControlGate(adjoint(op.get_target_operation()), op.get_num_ctrls());
 }
 inline bool is_clifford(ControlGate const& op) {
-    return op.get_target_operation() == XGate() ||
-           op.get_target_operation() == YGate() ||
-           op.get_target_operation() == ZGate();
+    return op.get_num_ctrls() == 1 &&
+           (op.get_target_operation() == XGate() ||
+            op.get_target_operation() == YGate() ||
+            op.get_target_operation() == ZGate());
 }
 
 // NOLINTBEGIN(readability-identifier-naming)  // pseudo classes

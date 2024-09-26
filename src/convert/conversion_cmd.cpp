@@ -235,7 +235,7 @@ Command convert_from_tableau_cmd(experimental::TableauMgr& tableau_mgr, qcir::QC
                 .help("specify the Clifford synthesis strategy (default: HOpt).");
 
             to_qcir.add_argument<std::string>("-r", "--rotation")
-                .constraint(choices_allow_prefix({"Naive", "TPar"}))
+                .constraint(choices_allow_prefix({"Naive", "TPar", "GraySynth"}))
                 .default_value("Naive")
                 .help("specify the rotation synthesis strategy (default: Naive).");
         },
@@ -255,6 +255,7 @@ Command convert_from_tableau_cmd(experimental::TableauMgr& tableau_mgr, qcir::QC
                     auto const rotation_strategy_str = parser.get<std::string>("--rotation");
                     if (dvlab::str::is_prefix_of(dvlab::str::tolower_string(rotation_strategy_str), "naive")) return std::make_unique<experimental::NaivePauliRotationsSynthesisStrategy>();
                     if (dvlab::str::is_prefix_of(dvlab::str::tolower_string(rotation_strategy_str), "tpar")) return std::make_unique<experimental::TParPauliRotationsSynthesisStrategy>();
+                    if (dvlab::str::is_prefix_of(dvlab::str::tolower_string(rotation_strategy_str), "graysynth")) return std::make_unique<experimental::GraySynthPauliRotationsSynthesisStrategy>();
                     DVLAB_UNREACHABLE("Invalid rotation strategy!!");
                     return nullptr;
                 });

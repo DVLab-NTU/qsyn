@@ -150,4 +150,6 @@ private:
     }
 };
 
+void phase_teleport(QCir& qcir);
+
 }  // namespace qsyn::qcir

@@ -125,7 +125,7 @@ template <class... Ts>
 overloaded(Ts...) -> overloaded<Ts...>;
 
 template <typename Val, typename... Ts>
-auto match(Val&& val, Ts&&... ts) {
+constexpr auto match(Val&& val, Ts&&... ts) {
     return std::visit(overloaded{std::forward<Ts>(ts)...}, std::forward<Val>(val));
 }
 

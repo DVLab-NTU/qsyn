@@ -217,8 +217,7 @@ std::vector<Operation> zx_optimize(std::vector<qcir::Operation> const& partial) 
 
     auto zx = to_zxgraph(qcir).value();
 
-    zx::Simplifier simplifier{&zx};
-    simplifier.full_reduce();
+    zx::simplify::full_reduce(zx);
 
     extractor::Extractor ext(&zx, nullptr, false /*, std::nullopt */);
     QCir* result = ext.extract();

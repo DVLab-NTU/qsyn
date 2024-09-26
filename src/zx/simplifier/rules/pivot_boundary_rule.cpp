@@ -12,22 +12,36 @@ using namespace qsyn::zx;
 
 using MatchType = PivotBoundaryRule::MatchType;
 
-std::vector<MatchType> PivotBoundaryRule::find_matches(ZXGraph const& graph) const {
+/**
+ * @brief Find matchings of the pivot boundary rule.
+ *
+ * @param graph
+ * @param candidates the vertices to be considered
+ * @param allow_overlapping_candidates whether to allow overlapping candidates. If true, needs to manually check for overlapping candidates.
+ * @return std::vector<MatchType>
+ */
+std::vector<MatchType> PivotBoundaryRule::find_matches(
+    ZXGraph const& graph,
+    std::optional<ZXVertexList> candidates,
+    bool allow_overlapping_candidates  //
+) const {
     std::vector<MatchType> matches;
 
-    std::unordered_set<ZXVertex*> taken;
-    auto match_boundary = [&taken, &graph, &matches](ZXVertex* v) {
+    if (!candidates.has_value()) {
+        candidates = graph.get_vertices();
+    }
+
+    auto const match_boundary = [&](ZXVertex* v) {
         ZXVertex* vs = graph.get_first_neighbor(v).first;
-        if (taken.contains(vs)) return;
+        if (!candidates->contains(vs)) return;
 
         if (!vs->is_z()) {
-            taken.insert(vs);
             return;
         }
 
         ZXVertex* vt = nullptr;
         for (auto& [nb, etype] : graph.get_neighbors(vs)) {
-            if (taken.contains(nb)) continue;  // do not choose the one in taken
+            if (!candidates->contains(nb)) continue;
             if (nb->is_boundary()) continue;
             if (!nb->has_n_pi_phase()) continue;
             if (etype != EdgeType::hadamard) continue;
@@ -53,11 +67,13 @@ std::vector<MatchType> PivotBoundaryRule::find_matches(ZXGraph const& graph) con
             if (!nb->is_z() || etype != EdgeType::hadamard) return;
         }
 
-        taken.insert(vs);
-        taken.insert(vt);
+        if (allow_overlapping_candidates) return;
 
-        for (auto& [nb, _] : graph.get_neighbors(vs)) taken.insert(nb);
-        for (auto& [nb, _] : graph.get_neighbors(vt)) taken.insert(nb);
+        candidates->erase(vs);
+        candidates->erase(vt);
+
+        for (auto& [nb, _] : graph.get_neighbors(vs)) candidates->erase(nb);
+        for (auto& [nb, _] : graph.get_neighbors(vt)) candidates->erase(nb);
         matches.emplace_back(vs, vt);
     };
 
