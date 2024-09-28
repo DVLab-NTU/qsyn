@@ -51,7 +51,7 @@ void ZXGraph::toggle_vertex(ZXVertex* v) const {
  * @param n
  */
 void ZXGraph::lift_qubit(ssize_t n) {
-    for (auto const& v : _vertices) {
+    for (auto const& v : get_vertices()) {
         if (v->get_row() >= 0) {
             v->set_row(v->get_row() + static_cast<float>(n));
         }
@@ -240,7 +240,7 @@ void ZXGraph::remove_gadget(ZXVertex* v) {
  */
 std::unordered_map<size_t, ZXVertex*> ZXGraph::create_id_to_vertex_map() const {
     std::unordered_map<size_t, ZXVertex*> id2_vertex_map;
-    for (auto const& v : _vertices) id2_vertex_map[v->get_id()] = v;
+    for (auto const& v : get_vertices()) id2_vertex_map[v->get_id()] = v;
     return id2_vertex_map;
 }
 

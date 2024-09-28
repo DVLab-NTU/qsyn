@@ -210,8 +210,8 @@ Command zxgraph_manual_apply_cmd(zx::ZXGraphMgr& zxgraph_mgr) {
         [&](ArgumentParser const& parser) {
             if (!dvlab::utils::mgr_has_data(zxgraph_mgr)) return dvlab::CmdExecResult::error;
             auto vertices   = parser.get<std::vector<size_t>>("vertices");
-            ZXVertex* bound = zxgraph_mgr.get()->find_vertex_by_id(vertices[0]);
-            ZXVertex* vert  = zxgraph_mgr.get()->find_vertex_by_id(vertices[1]);
+            ZXVertex* bound = zxgraph_mgr.get()->get_vertex(vertices[0]);
+            ZXVertex* vert  = zxgraph_mgr.get()->get_vertex(vertices[1]);
 
             const bool is_cand = PivotBoundaryRule().is_candidate(*zxgraph_mgr.get(), bound, vert);
             if (!is_cand) return CmdExecResult::error;

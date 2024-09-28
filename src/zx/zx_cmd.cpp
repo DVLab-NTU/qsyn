@@ -227,7 +227,7 @@ Command zxgraph_print_cmd(ZXGraphMgr const& zxgraph_mgr) {
                     auto qids = parser.get<std::vector<float>>("--rows");
                     zxgraph_mgr.get()->print_vertices_by_rows(spdlog::level::level_enum::off, qids);
                 } else if (parser.parsed("--neighbors")) {
-                    auto v = zxgraph_mgr.get()->find_vertex_by_id(parser.get<size_t>("--neighbors"));
+                    auto v = zxgraph_mgr.get()->get_vertex(parser.get<size_t>("--neighbors"));
                     v->print_vertex();
                     fmt::println("----- Neighbors -----");
                     for (auto [nb, _] : zxgraph_mgr.get()->get_neighbors(v)) {
@@ -528,7 +528,7 @@ Command zxgraph_vertex_remove_cmd(ZXGraphMgr& zxgraph_mgr) {
             if (parser.parsed("ids")) {
                 auto ids            = parser.get<std::vector<size_t>>("ids");
                 auto vertices_range = ids |
-                                      std::views::transform([&](size_t id) { return zxgraph_mgr.get()->find_vertex_by_id(id); }) |
+                                      std::views::transform([&](size_t id) { return zxgraph_mgr.get()->get_vertex(id); }) |
                                       std::views::filter([](ZXVertex* v) { return v != nullptr; });
                 for (auto&& v : vertices_range) {
                     spdlog::info("Removing vertex {}...", v->get_id());
@@ -578,8 +578,8 @@ Command zxgraph_edge_add_cmd(ZXGraphMgr& zxgraph_mgr) {
         [&](ArgumentParser const& parser) {
             if (!dvlab::utils::mgr_has_data(zxgraph_mgr)) return CmdExecResult::error;
             auto ids = parser.get<std::vector<size_t>>("ids");
-            auto vs  = zxgraph_mgr.get()->find_vertex_by_id(ids[0]);
-            auto vt  = zxgraph_mgr.get()->find_vertex_by_id(ids[1]);
+            auto vs  = zxgraph_mgr.get()->get_vertex(ids[0]);
+            auto vt  = zxgraph_mgr.get()->get_vertex(ids[1]);
             assert(vs != nullptr && vt != nullptr);
 
             auto etype = str_to_edge_type(parser.get<std::string>("etype"));
@@ -630,8 +630,8 @@ Command zxgraph_edge_remove_cmd(ZXGraphMgr& zxgraph_mgr) {
         [&](ArgumentParser const& parser) {
             if (!dvlab::utils::mgr_has_data(zxgraph_mgr)) return CmdExecResult::error;
             auto ids = parser.get<std::vector<size_t>>("ids");
-            auto vs  = zxgraph_mgr.get()->find_vertex_by_id(ids[0]);
-            auto vt  = zxgraph_mgr.get()->find_vertex_by_id(ids[1]);
+            auto vs  = zxgraph_mgr.get()->get_vertex(ids[0]);
+            auto vt  = zxgraph_mgr.get()->get_vertex(ids[1]);
             assert(vs != nullptr && vt != nullptr);
 
             auto etype = str_to_edge_type(parser.get<std::string>("etype"));

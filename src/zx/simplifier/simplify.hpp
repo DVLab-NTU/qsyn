@@ -106,42 +106,6 @@ size_t hadamard_simplify(ZXGraph& g, Rule rule) {
     return match_counts.size();
 }
 
-/**
- * @brief apply the rule on the vertices in the scope
- *
- * @return number of iterations
- */
-template <typename Rule>
-size_t scoped_simplify(ZXGraph& g, Rule const& rule, ZXVertexList const& scope) {
-    static_assert(std::is_base_of<ZXRuleTemplate<typename Rule::MatchType>, Rule>::value, "Rule must be a subclass of ZXRule");
-
-    hadamard_rule_simp(g);
-
-    std::vector<size_t> match_counts;
-
-    while (!stop_requested()) {
-        std::vector<typename Rule::MatchType> const matches = rule.find_matches(g);
-        std::vector<typename Rule::MatchType> scoped_matches;
-        auto const is_in_scope = [&scope](ZXVertex* v) { return scope.contains(v); };
-        for (auto& match : matches) {
-            std::vector<ZXVertex*> const match_vertices = rule.flatten_vertices(match);
-            if (std::ranges::any_of(match_vertices, is_in_scope)) {
-                scoped_matches.push_back(match);
-            }
-        }
-        if (scoped_matches.empty()) {
-            break;
-        }
-        match_counts.emplace_back(scoped_matches.size());
-
-        rule.apply(g, scoped_matches);
-    }
-
-    report_simplification_result(rule.get_name(), match_counts);
-
-    return match_counts.size();
-}
-
 }  // namespace simplify
 
 }  // namespace qsyn::zx

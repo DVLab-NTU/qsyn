@@ -37,6 +37,7 @@ ZXGraph::ZXGraph(ZXVertexList const& vertices,
                  ZXVertexList const& outputs) : _inputs{inputs}, _outputs{outputs}, _vertices{vertices} {
     for (auto v : _vertices) {
         v->set_id(_next_v_id);
+        _id_to_vertices.emplace(_next_v_id, v);
         _next_v_id++;
     }
     for (auto v : _inputs) {
@@ -130,7 +131,7 @@ bool ZXGraph::is_valid() const {
  * @return false
  */
 bool ZXGraph::is_v_id(size_t id) const {
-    return std::ranges::any_of(_vertices, [id](ZXVertex* v) { return v->get_id() == id; });
+    return _id_to_vertices.contains(id);
 }
 
 /**
@@ -221,6 +222,7 @@ ZXVertex* ZXGraph::add_input(QubitIdType qubit, float row, float col) {
     _inputs.emplace(v);
     _input_list.emplace(qubit, v);
     _vertices.emplace(v);
+    _id_to_vertices.emplace(_next_v_id, v);
     _next_v_id++;
     return v;
 }
@@ -236,6 +238,7 @@ ZXVertex* ZXGraph::add_output(QubitIdType qubit, float row, float col) {
     _outputs.emplace(v);
     _output_list.emplace(qubit, v);
     _vertices.emplace(v);
+    _id_to_vertices.emplace(_next_v_id, v);
     _next_v_id++;
     return v;
 }
@@ -251,6 +254,7 @@ ZXVertex* ZXGraph::add_output(QubitIdType qubit, float row, float col) {
 ZXVertex* ZXGraph::add_vertex(VertexType vt, Phase phase, float row, float col) {
     auto v = new ZXVertex(_next_v_id, 0, vt, phase, row, col);
     _vertices.emplace(v);
+    _id_to_vertices.emplace(_next_v_id, v);
     _next_v_id++;
     return v;
 }
@@ -315,14 +319,18 @@ void ZXGraph::add_edge(ZXVertex* vs, ZXVertex* vt, EdgeType et) {
  */
 void ZXGraph::_move_vertices_from(ZXGraph& other) {
     _vertices.insert(other._vertices.begin(), other._vertices.end());
-    other.relabel_vertex_ids(_next_v_id);
-    _next_v_id += other.get_num_vertices();
+    for (auto v : other._vertices) {
+        v->set_id(_next_v_id);
+        _id_to_vertices.emplace(_next_v_id, v);
+        _next_v_id++;
+    }
 
     other._vertices.clear();
     other._inputs.clear();
     other._outputs.clear();
     other._input_list.clear();
     other._output_list.clear();
+    other._id_to_vertices.clear();
 }
 
 /*****************************************************/
@@ -357,6 +365,7 @@ size_t ZXGraph::remove_vertex(ZXVertex* v) {
         nv->_neighbors.erase({v, ne});
     }
     _vertices.erase(v);
+    _id_to_vertices.erase(v->get_id());
 
     // Check if also in _inputs or _outputs
     if (_inputs.contains(v)) {
@@ -515,9 +524,8 @@ ZXVertex* ZXGraph::add_buffer(ZXVertex* vertex_to_protect, ZXVertex* vertex_othe
  * @param id
  * @return ZXVertex*
  */
-ZXVertex* ZXGraph::find_vertex_by_id(size_t const& id) const {
-    auto it = std::ranges::find_if(_vertices, [id](ZXVertex* v) { return v->get_id() == id; });
-    return it == _vertices.end() ? nullptr : *it;
+ZXVertex* ZXGraph::get_vertex(size_t const& id) const {
+    return is_v_id(id) ? _id_to_vertices.at(id) : nullptr;
 }
 
 dvlab::BooleanMatrix get_biadjacency_matrix(ZXGraph const& graph, ZXVertexList const& row_vertices, ZXVertexList const& col_vertices) {

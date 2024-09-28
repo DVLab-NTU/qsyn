@@ -54,7 +54,7 @@ void ZXGraph::print_outputs() const {
  *
  */
 void ZXGraph::print_gadgets() const {
-    for (const auto& cand : _vertices) {
+    for (const auto& cand : get_vertices()) {
         if (is_gadget_leaf(cand)) {
             fmt::print("Gadget leaf: {:>4}, ", cand->get_id());
             fmt::print("axel: {:>4}, ", get_first_neighbor(cand).first->get_id());
@@ -81,7 +81,7 @@ void ZXGraph::print_io() const {
 void ZXGraph::print_vertices(spdlog::level::level_enum lvl) const {
     if (!spdlog::should_log(lvl)) return;
     spdlog::log(lvl, "");
-    std::ranges::for_each(_vertices, [&lvl](ZXVertex* v) { v->print_vertex(lvl); });
+    std::ranges::for_each(get_vertices(), [&lvl](ZXVertex* v) { v->print_vertex(lvl); });
     spdlog::log(lvl, "Total #Vertices: {}", get_num_vertices());
     spdlog::log(lvl, "");
 }
@@ -109,7 +109,7 @@ void ZXGraph::print_vertices(std::vector<size_t> cand) const {
 void ZXGraph::print_vertices_by_rows(spdlog::level::level_enum lvl, std::vector<float> const& cand) const {
     if (!spdlog::should_log(lvl)) return;
     std::map<float, std::vector<ZXVertex*>> q2_vmap;
-    for (auto const& v : _vertices) {
+    for (auto const& v : get_vertices()) {
         if (!q2_vmap.contains(v->get_row())) {
             q2_vmap.emplace(v->get_row(), std::vector<ZXVertex*>(1, v));
         } else {

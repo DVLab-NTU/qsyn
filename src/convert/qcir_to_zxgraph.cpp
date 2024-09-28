@@ -384,20 +384,7 @@ std::optional<ZXGraph> to_zxgraph(qcir::ControlGate const& op) {
 }
 
 std::optional<ZXGraph> to_zxgraph(qcir::QCirGate const& gate) {
-    auto ret = to_zxgraph(gate.get_operation());
-
-    // annotate qubit information
-    if (ret) {
-        for (auto* v : ret->get_vertices()) {
-            v->set_qubit(gate.get_qubit(v->get_qubit()));
-            // if row is non-negative, it is a non-gadget qubit; and we would want to draw it on the correct row
-            if (v->get_row() >= 0) {
-                v->set_row(static_cast<float>(gate.get_qubit(static_cast<size_t>(v->get_row()))));
-            }
-        }
-    }
-
-    return ret;
+    return to_zxgraph(gate.get_operation());
 }
 
 /**
@@ -437,7 +424,7 @@ std::optional<ZXGraph> to_zxgraph(QCir const& qcir) {
             v->set_col(v->get_col() + static_cast<float>(times.at(gate->get_id())));
         }
 
-        graph.concatenate(*tmp);
+        graph.concatenate(*std::move(tmp), gate->get_qubits());
     }
 
     auto const max_col = std::ranges::max(graph.get_outputs() | std::views::transform([&graph](ZXVertex* v) { return graph.get_first_neighbor(v).first->get_col(); }));

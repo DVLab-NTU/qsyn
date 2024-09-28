@@ -632,7 +632,7 @@ bool ZXGraph::write_zx(std::filesystem::path const& filename, bool complete) con
 
     fmt::println(zx_file, "// non-boundary vertices");
 
-    for (ZXVertex* v : _vertices) {
+    for (ZXVertex* v : get_vertices()) {
         if (v->is_boundary()) continue;
         char const vtypestr = [&v]() {
             switch (v->get_type()) {
@@ -723,7 +723,7 @@ bool ZXGraph::write_json(std::filesystem::path const& filename) const {
     // Inner vertices
 
     size_t node_vertices_counter = 0;
-    for (auto const& v : _vertices) {
+    for (auto const& v : get_vertices()) {
         if (v->get_type() == VertexType::boundary) continue;
         const std::string label                    = fmt::format("v{}", std::to_string(node_vertices_counter));
         json["node_vertices"][label]["annotation"] = {
@@ -879,7 +879,7 @@ bool ZXGraph::write_tikz(std::ostream& os) const {
     fmt::println(os, "");
     fmt::println(os, "        % edges");
     // drawing edges: \draw[hedg] (1234) -- (123);
-    for (auto& v : _vertices) {
+    for (auto& v : get_vertices()) {
         for (auto& [n, e] : this->get_neighbors(v)) {
             if (n->get_id() > v->get_id()) {
                 if (n->get_col() == v->get_col() && n->get_row() == v->get_row()) {

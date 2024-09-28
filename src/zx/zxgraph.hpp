@@ -47,22 +47,22 @@ class ZXVertex {
 
 public:
     ZXVertex(size_t id, QubitIdType qubit, VertexType vt, Phase phase, float row, float col)
-        : _id{id}, _type{vt}, _qubit{qubit}, _phase{phase}, _row{row}, _col{col} {}
+        : _attrs(id, vt, qubit, phase, row, col) {}
     // Getter and Setter
 
-    size_t get_id() const { return _id; }
-    QubitIdType get_qubit() const { return _qubit; }
-    Phase const& get_phase() const { return _phase; }
-    VertexType get_type() const { return _type; }
-    float get_row() const { return _row; }
-    float get_col() const { return _col; }
+    size_t get_id() const { return _attrs.id; }
+    QubitIdType get_qubit() const { return _attrs.qubit; }
+    Phase const& get_phase() const { return _attrs.phase; }
+    VertexType get_type() const { return _attrs.type; }
+    float get_row() const { return _attrs.row; }
+    float get_col() const { return _attrs.col; }
 
-    void set_id(size_t id) { _id = id; }
-    void set_qubit(QubitIdType q) { _qubit = q; }
-    void set_phase(Phase const& p) { _phase = p; }
-    void set_row(float r) { _row = r; }
-    void set_col(float c) { _col = c; }
-    void set_type(VertexType vt) { _type = vt; }
+    void set_id(size_t id) { _attrs.id = id; }
+    void set_qubit(QubitIdType q) { _attrs.qubit = q; }
+    void set_phase(Phase const& p) { _attrs.phase = p; }
+    void set_row(float r) { _attrs.row = r; }
+    void set_col(float c) { _attrs.col = c; }
+    void set_type(VertexType vt) { _attrs.type = vt; }
 
     // Print functions
     void print_vertex(spdlog::level::level_enum lvl = spdlog::level::level_enum::off) const;
@@ -73,24 +73,30 @@ public:
     bool is_hbox() const { return get_type() == VertexType::h_box; }
     bool is_boundary() const { return get_type() == VertexType::boundary; }
 
-    bool has_n_pi_phase() const { return _phase.denominator() == 1; }
-    bool is_clifford() const { return _phase.denominator() <= 2; }
+    bool has_n_pi_phase() const { return _attrs.phase.denominator() == 1; }
+    bool is_clifford() const { return _attrs.phase.denominator() <= 2; }
 
 private:
     friend class ZXGraph;
-    size_t _id;
-    VertexType _type;
-    QubitIdType _qubit;  // for boundary vertices, this is the qubit id; for non-boundary vertices,
-                         // this is a dummy value that may be used to mark temporary information
-    Phase _phase;
-    float _row;
-    float _col;
+    struct ZXVertexAttrs {
+        size_t id;
+        VertexType type;
+        QubitIdType qubit;  // for boundary vertices, this is the qubit id; for non-boundary vertices,
+                            // this is a dummy value that may be used to mark temporary information
+        Phase phase;
+        float row;
+        float col;
+    } _attrs;
     Neighbors _neighbors;
 };
 
 class ZXGraph {  // NOLINT(cppcoreguidelines-special-member-functions) : copy-swap idiom
 public:
     ZXGraph() {}
+
+    ZXGraph(ZXVertexList const& vertices,
+            ZXVertexList const& inputs,
+            ZXVertexList const& outputs);
 
     ~ZXGraph() {
         for (auto const& v : _vertices) {
@@ -101,10 +107,6 @@ public:
     ZXGraph(ZXGraph const& other);
 
     ZXGraph(ZXGraph&& other) noexcept = default;
-
-    ZXGraph(ZXVertexList const& vertices,
-            ZXVertexList const& inputs,
-            ZXVertexList const& outputs);
 
     ZXGraph& operator=(ZXGraph copy) {
         copy.swap(*this);
@@ -120,6 +122,7 @@ public:
         _vertices.clear();
         _input_list.clear();
         _output_list.clear();
+        _id_to_vertices.clear();
     }
 
     void swap(ZXGraph& other) noexcept {
@@ -131,6 +134,7 @@ public:
         std::swap(_vertices, other._vertices);
         std::swap(_input_list, other._input_list);
         std::swap(_output_list, other._output_list);
+        std::swap(_id_to_vertices, other._id_to_vertices);
     }
 
     friend void swap(ZXGraph& a, ZXGraph& b) noexcept {
@@ -150,9 +154,21 @@ public:
     ZXVertexList const& get_outputs() const { return _outputs; }
     ZXVertexList const& get_vertices() const { return _vertices; }
     size_t get_num_edges() const;
-    size_t get_num_inputs() const { return _inputs.size(); }
-    size_t get_num_outputs() const { return _outputs.size(); }
-    size_t get_num_vertices() const { return _vertices.size(); }
+    size_t get_num_inputs() const { return get_inputs().size(); }
+    size_t get_num_outputs() const { return get_outputs().size(); }
+    size_t get_num_vertices() const { return get_vertices().size(); }
+
+    // FIXME - This is a temporary solution to avoid breaking the code
+    void regenerate_io_map() {
+        _input_list.clear();
+        _output_list.clear();
+        for (auto const& v : _inputs) {
+            _input_list.emplace(v->get_qubit(), v);
+        }
+        for (auto const& v : _outputs) {
+            _output_list.emplace(v->get_qubit(), v);
+        }
+    }
 
     Neighbors const& get_neighbors(ZXVertex* v) const { return v->_neighbors; }
     size_t get_num_neighbors(ZXVertex* v) const { return v->_neighbors.size(); }
@@ -183,10 +199,10 @@ public:
 
     double density();
     size_t t_count() const {
-        return std::ranges::count_if(_vertices, [](ZXVertex* v) { return (v->get_phase().denominator() == 4); });
+        return std::ranges::count_if(get_vertices(), [](ZXVertex* v) { return (v->get_phase().denominator() == 4); });
     }
     size_t non_clifford_count() const {
-        return std::ranges::count_if(_vertices, [](ZXVertex* v) { return !v->is_clifford(); });
+        return std::ranges::count_if(get_vertices(), [](ZXVertex* v) { return !v->is_clifford(); });
     }
     size_t non_clifford_t_count() const { return non_clifford_count() - t_count(); }
 
@@ -216,15 +232,13 @@ public:
     ZXVertex* add_buffer(ZXVertex* vertex_to_protect, ZXVertex* vertex_other, EdgeType etype);
 
     // Find functions
-    ZXVertex* find_vertex_by_id(size_t const& id) const;
+    ZXVertex* get_vertex(size_t const& id) const;
 
     // Action functions (zxGraphAction.cpp)
     void sort_io_by_qubit();
     void toggle_vertex(ZXVertex* v) const;
     void lift_qubit(ssize_t n);
-    void relabel_vertex_ids(size_t id_start) {
-        std::ranges::for_each(this->_vertices, [&id_start](ZXVertex* v) { v->set_id(id_start++); });
-    }
+
     ZXGraph& compose(ZXGraph const& target);
     ZXGraph& tensor_product(ZXGraph const& target);
     void add_gadget(Phase p, std::vector<ZXVertex*> const& vertices);
@@ -244,10 +258,10 @@ public:
     void print_edges() const;
 
     // For mapping (in zxMapping.cpp)
-    ZXVertexList get_non_boundary_vertices();
+    ZXVertexList get_non_boundary_vertices() const;
     ZXVertex* get_input_by_qubit(size_t const& q);
     ZXVertex* get_output_by_qubit(size_t const& q);
-    void concatenate(ZXGraph const& other);
+    void concatenate(ZXGraph other, std::vector<size_t> const& qubits);
     std::unordered_map<size_t, ZXVertex*> const& get_input_list() const { return _input_list; }
     std::unordered_map<size_t, ZXVertex*> const& get_output_list() const { return _output_list; }
 
@@ -273,7 +287,7 @@ public:
     }
     template <typename F>
     void for_each_edge(F lambda) const {
-        for (auto const& v : _vertices) {
+        for (auto const& v : get_vertices()) {
             for (auto const& [nb, etype] : this->get_neighbors(v)) {
                 if (nb->get_id() > v->get_id())
                     lambda(make_edge_pair(v, nb, etype));
@@ -282,8 +296,8 @@ public:
     }
 
     // divide into subgraphs and merge (in zxPartition.cpp)
-    std::pair<std::vector<ZXGraph*>, std::vector<ZXCut>> create_subgraphs(std::vector<ZXVertexList> partitions);
-    static ZXGraph* from_subgraphs(std::vector<ZXGraph*> const& subgraphs, std::vector<ZXCut> const& cuts);
+    static std::pair<std::vector<ZXGraph*>, std::vector<ZXCut>> create_subgraphs(ZXGraph g, std::vector<ZXVertexList> partitions);
+    static ZXGraph from_subgraphs(std::vector<ZXGraph*> const& subgraphs, std::vector<ZXCut> const& cuts);
 
 private:
     size_t _next_v_id = 0;
@@ -294,6 +308,7 @@ private:
     ZXVertexList _vertices;
     std::unordered_map<size_t, ZXVertex*> _input_list;
     std::unordered_map<size_t, ZXVertex*> _output_list;
+    std::unordered_map<size_t, ZXVertex*> _id_to_vertices;
 
     void _dfs(std::unordered_set<ZXVertex*>& visited_vertices, std::vector<ZXVertex*>& topological_order, ZXVertex* v) const;
     void _bfs(std::unordered_set<ZXVertex*>& visited_vertices, std::vector<ZXVertex*>& topological_order, ZXVertex* v) const;
