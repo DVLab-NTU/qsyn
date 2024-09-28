@@ -6,6 +6,7 @@
 ****************************************************************************/
 
 #include "./zx_rules_template.hpp"
+#include "zx/zxgraph_action.hpp"
 
 using namespace qsyn::zx;
 
@@ -85,7 +86,7 @@ void PivotGadgetRule::apply(ZXGraph& graph, std::vector<MatchType> const& matche
     for (auto& [_, v] : matches) {
         // REVIEW - scalar add power
         if (v->get_phase().denominator() != 1) {
-            graph.gadgetize_phase(v);
+            zx::gadgetize_phase(graph, v->get_id());
         }
     }
 

@@ -30,6 +30,8 @@ std::vector<ZXVertex*> ZXGraph::get_copied_neighbors(ZXVertex* v) const {
     return storage;
 }
 
+// FIXME - should raise this function to the ZXGraph class
+
 /**
  * @brief Print summary of ZXVertex
  *

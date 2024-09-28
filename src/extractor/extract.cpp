@@ -29,6 +29,7 @@
 #include "zx/simplifier/simplify.hpp"
 #include "zx/zx_def.hpp"
 #include "zx/zxgraph.hpp"
+#include "zx/zxgraph_action.hpp"
 
 using namespace qsyn::zx;
 using namespace qsyn::qcir;
@@ -888,9 +889,11 @@ void Extractor::update_neighbors() {
             }
             rm_vs.emplace_back(f);
         } else {
-            for (auto [b, ep] : _graph->get_neighbors(f)) {  // The pass-by-copy is deliberate. Pass by ref will cause segfault
+            for (auto [b, ep] : _graph->get_neighbors(f)) {
+                // Deliberately pass-by-copy. Passing-by-ref causes segfault
                 if (_graph->get_inputs().contains(b)) {
-                    _graph->add_buffer(b, f, ep);
+                    zx::add_identity_vertex(
+                        *_graph, f->get_id(), b->get_id(), EdgeType::hadamard);
                     break;
                 }
             }

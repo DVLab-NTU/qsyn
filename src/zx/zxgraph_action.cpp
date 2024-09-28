@@ -27,24 +27,6 @@ void ZXGraph::sort_io_by_qubit() {
 }
 
 /**
- * @brief Toggle a vertex between type Z and X, and toggle the edges adjacent to `v`. ( H -> S / S -> H)
- *        Ex: [(3, S), (4, H), (5, S)] -> [(3, H), (4, S), (5, H)]
- *
- * @param v
- */
-void ZXGraph::toggle_vertex(ZXVertex* v) const {
-    if (!v->is_z() && !v->is_x()) return;
-    Neighbors toggled_neighbors;
-    for (auto& [nb, etype] : this->get_neighbors(v)) {
-        toggled_neighbors.emplace(nb, toggle_edge(etype));
-        nb->_neighbors.erase({v, etype});
-        nb->_neighbors.emplace(v, toggle_edge(etype));
-    }
-    v->_neighbors = toggled_neighbors;
-    v->set_type(v->get_type() == VertexType::z ? VertexType::x : VertexType::z);
-}
-
-/**
  * @brief Lift each vertex's qubit in ZXGraph with `n`.
  *        Ex: origin: 0 -> after lifting: n
  *
@@ -318,6 +300,82 @@ void ZXGraph::adjust_vertex_coordinates() {
                 return v.empty() ? 0 : std::ranges::max(v | std::views::transform([](ZXVertex* v) { return v->get_col(); }));
             })));
     for (auto& o : _outputs) o->set_col(max_col);
+}
+
+// free functions for editing ZXGraph
+
+/**
+ * @brief Toggle a vertex between type Z and X, and toggle the adjacent edges.
+ *
+ * @param v
+ */
+void toggle_vertex(ZXGraph& graph, size_t v_id) {
+    auto v = graph[v_id];
+    if (!v->is_z() && !v->is_x()) return;
+    auto const old_neighbors = graph.get_neighbors(v);
+    for (auto& [nb, etype] : old_neighbors) {
+        graph.remove_edge(v, nb, etype);
+    }
+    for (auto& [nb, etype] : old_neighbors) {
+        graph.add_edge(v, nb, toggle_edge(etype));
+    }
+    v->set_type(v->get_type() == VertexType::z ? VertexType::x : VertexType::z);
+}
+
+/**
+ * @brief Add a Z-spider between two vertices. The edge type to the left vertex
+ *        is specified and the edge type to the right vertex is automatically
+ *        determined to keep the underlying mapping unchanged.
+ *
+ * @param graph
+ * @param left_id
+ * @param right_id
+ * @param etype_to_left
+ * @return std::optional<size_t> if the vertex ids are invalid or no edge exists
+ *         between the two vertices, return std::nullopt. Otherwise, return the
+ *         id of the added vertex.
+ */
+std::optional<size_t>
+add_identity_vertex(
+    ZXGraph& graph, size_t left_id, size_t right_id, EdgeType etype_to_left) {
+    auto l = graph[left_id];
+    auto r = graph[right_id];
+
+    if (l == nullptr || r == nullptr) return std::nullopt;
+    auto etype_orig = graph.get_edge_type(left_id, right_id);
+    if (!etype_orig.has_value()) return std::nullopt;
+
+    // REVIEW - the row takes the row of the right vertex
+    // due to backward compatibility. Might want to change this in the future
+    auto id_vtx = graph.add_vertex(
+        VertexType::z, Phase(0),
+        r->get_row(), (l->get_col() + r->get_col()) / 2);
+    graph.add_edge(l, id_vtx, etype_to_left);
+    graph.add_edge(id_vtx, r, concat_edge(etype_orig.value(), etype_to_left));
+    graph.remove_edge(l, r, etype_orig.value());
+
+    return id_vtx->get_id();
+}
+
+/**
+ * @brief transfer the phase of the specified vertex to a unary gadget.
+ *        This function does nothing if the target vertex is not a Z-spider.
+ *
+ * @param v
+ * @param keepPhase if specified, keep this amount of phase on the vertex
+ *                  and only transfer the rest.
+ */
+void gadgetize_phase(ZXGraph& graph, size_t v_id, Phase const& keep_phase) {
+    auto v = graph[v_id];
+    if (!v->is_z()) return;
+    ZXVertex* leaf = graph.add_vertex(
+        VertexType::z, v->get_phase() - keep_phase, -2, v->get_col());
+    ZXVertex* buffer = graph.add_vertex(
+        VertexType::z, Phase(0), -1, v->get_col());
+    v->set_phase(keep_phase);
+
+    graph.add_edge(leaf, buffer, EdgeType::hadamard);
+    graph.add_edge(buffer, v, EdgeType::hadamard);
 }
 
 }  // namespace qsyn::zx

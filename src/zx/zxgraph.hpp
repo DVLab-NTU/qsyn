@@ -183,6 +183,14 @@ public:
     // attributes
     bool is_neighbor(ZXVertex* v1, ZXVertex* v2) const { return v1->_neighbors.contains({v2, EdgeType::simple}) || v1->_neighbors.contains({v2, EdgeType::hadamard}); }
     bool is_neighbor(ZXVertex* v1, ZXVertex* v2, EdgeType et) const { return v1->_neighbors.contains({v2, et}); }
+    std::optional<EdgeType> get_edge_type(ZXVertex* v1, ZXVertex* v2) const {
+        if (is_neighbor(v1, v2, EdgeType::simple)) return EdgeType::simple;
+        if (is_neighbor(v1, v2, EdgeType::hadamard)) return EdgeType::hadamard;
+        return std::nullopt;
+    }
+    std::optional<EdgeType> get_edge_type(size_t v1_id, size_t v2_id) const {
+        return get_edge_type(vertex(v1_id), vertex(v2_id));
+    }
 
     bool is_empty() const;
     bool is_valid() const;
@@ -227,16 +235,12 @@ public:
     void adjoint();
     void assign_vertex_to_boundary(QubitIdType qubit, bool is_input, VertexType vtype, Phase phase);
 
-    // helper functions for simplifiers
-    void gadgetize_phase(ZXVertex* v, Phase const& keep_phase = Phase(0));
-    ZXVertex* add_buffer(ZXVertex* vertex_to_protect, ZXVertex* vertex_other, EdgeType etype);
-
     // Find functions
-    ZXVertex* get_vertex(size_t const& id) const;
+    ZXVertex* vertex(size_t const& id) const;
+    auto operator[](size_t const& id) const { return vertex(id); }
 
     // Action functions (zxGraphAction.cpp)
     void sort_io_by_qubit();
-    void toggle_vertex(ZXVertex* v) const;
     void lift_qubit(ssize_t n);
 
     ZXGraph& compose(ZXGraph const& target);

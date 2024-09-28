@@ -478,42 +478,6 @@ void ZXGraph::assign_vertex_to_boundary(QubitIdType qubit, bool is_input, Vertex
     remove_vertex(boundary);
 }
 
-/**
- * @brief transfer the phase of the specified vertex to a unary gadget. This function does nothing
- *        if the target vertex is not a Z-spider.
- *
- * @param v
- * @param keepPhase if specified, keep this amount of phase on the vertex and only transfer the rest.
- */
-void ZXGraph::gadgetize_phase(ZXVertex* v, Phase const& keep_phase) {
-    if (!v->is_z()) return;
-    ZXVertex* leaf   = this->add_vertex(VertexType::z, v->get_phase() - keep_phase, -2, v->get_col());
-    ZXVertex* buffer = this->add_vertex(VertexType::z, Phase(0), -1, v->get_col());
-    v->set_phase(keep_phase);
-
-    this->add_edge(leaf, buffer, EdgeType::hadamard);
-    this->add_edge(buffer, v, EdgeType::hadamard);
-}
-/**
- * @brief Add a Z-spider to buffer a vertex from another vertex, so that they don't come in
- *        contact with each other on the edge with specified edge type. If such edge does not
- *        exists, this function does nothing.
- *
- * @param vertex_to_protect the vertex to protect
- * @param vertex_other the vertex to buffer from
- * @param etype the edgetype the buffer should be added on
- */
-ZXVertex* ZXGraph::add_buffer(ZXVertex* vertex_to_protect, ZXVertex* vertex_other, EdgeType etype) {
-    if (!this->is_neighbor(vertex_to_protect, vertex_other, etype)) return nullptr;
-
-    ZXVertex* buffer_vertex = this->add_vertex(VertexType::z, Phase(0), vertex_to_protect->get_row(), (vertex_to_protect->get_col() + vertex_other->get_col()) / 2);
-
-    this->add_edge(vertex_to_protect, buffer_vertex, toggle_edge(etype));
-    this->add_edge(buffer_vertex, vertex_other, EdgeType::hadamard);
-    this->remove_edge(vertex_to_protect, vertex_other, etype);
-    return buffer_vertex;
-}
-
 /*****************************************************/
 /*   class ZXGraph Find functions.                   */
 /*****************************************************/
@@ -524,7 +488,7 @@ ZXVertex* ZXGraph::add_buffer(ZXVertex* vertex_to_protect, ZXVertex* vertex_othe
  * @param id
  * @return ZXVertex*
  */
-ZXVertex* ZXGraph::get_vertex(size_t const& id) const {
+ZXVertex* ZXGraph::vertex(size_t const& id) const {
     return is_v_id(id) ? _id_to_vertices.at(id) : nullptr;
 }
 

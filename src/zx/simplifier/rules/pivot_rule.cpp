@@ -6,6 +6,9 @@
 ****************************************************************************/
 
 #include "./zx_rules_template.hpp"
+#include "zx/zx_def.hpp"
+#include "zx/zxgraph.hpp"
+#include "zx/zxgraph_action.hpp"
 
 using namespace qsyn::zx;
 
@@ -76,7 +79,9 @@ void PivotRule::apply(ZXGraph& graph, std::vector<MatchType> const& matches) con
             for (auto& [nb, et] : graph.get_neighbors(v)) {
                 if (nb->is_z() && et == EdgeType::hadamard) continue;
                 if (nb->is_boundary()) {
-                    graph.add_buffer(nb, v, et);
+                    zx::add_identity_vertex(
+                        graph, v->get_id(), nb->get_id(), EdgeType::hadamard);
+                    // graph.add_buffer(nb, v, et);
                     goto next_pair;
                 }
             }

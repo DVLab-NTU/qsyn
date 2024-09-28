@@ -22,6 +22,7 @@
 #include "util/util.hpp"
 #include "zx/zx_def.hpp"
 #include "zx/zxgraph.hpp"
+#include "zx/zxgraph_action.hpp"
 
 extern bool stop_requested();
 
@@ -59,8 +60,15 @@ create_multi_control_backbone(ZXGraph& g, size_t num_qubits, RotationAxis ax) {
             g.add_edge(in, v, EdgeType::hadamard);
             g.add_edge(v, out, EdgeType::hadamard);
             if (ax == RotationAxis::y) {
-                g.add_buffer(in, v, EdgeType::hadamard)->set_phase(dvlab::Phase(-1, 2));
-                g.add_buffer(out, v, EdgeType::hadamard)->set_phase(dvlab::Phase(1, 2));
+                auto const buffer1 = zx::add_identity_vertex(
+                    g, v->get_id(), in->get_id(), EdgeType::hadamard);
+                auto const buffer2 = zx::add_identity_vertex(
+                    g, v->get_id(), out->get_id(), EdgeType::hadamard);
+
+                assert(buffer1.has_value() && buffer2.has_value());
+
+                g[*buffer1]->set_phase(dvlab::Phase(-1, 2));
+                g[*buffer2]->set_phase(dvlab::Phase(1, 2));
             }
         }
         if (qubit != target_qubit)

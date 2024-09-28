@@ -7,6 +7,7 @@
 
 #include "./zx_rules_template.hpp"
 #include "zx/zxgraph.hpp"
+#include "zx/zxgraph_action.hpp"
 
 using namespace qsyn::zx;
 
@@ -87,15 +88,20 @@ void PivotBoundaryRule::apply(ZXGraph& graph, std::vector<MatchType> const& matc
     for (auto& [vs, _] : matches) {
         for (auto& [nb, etype] : graph.get_neighbors(vs)) {
             if (nb->is_boundary()) {
-                graph.add_buffer(nb, vs, etype);
+                zx::add_identity_vertex(
+                    graph, vs->get_id(), nb->get_id(), EdgeType::hadamard);
                 break;
             }
             if (!nb->is_z() || etype != EdgeType::hadamard) return;
         }
     }
     for (auto& [v0, v1] : matches) {
-        if (!v0->has_n_pi_phase()) graph.gadgetize_phase(v0);
-        if (!v1->has_n_pi_phase()) graph.gadgetize_phase(v1);
+        if (!v0->has_n_pi_phase()) {
+            gadgetize_phase(graph, v0->get_id());
+        }
+        if (!v1->has_n_pi_phase()) {
+            gadgetize_phase(graph, v1->get_id());
+        }
     }
 
     PivotRuleInterface::apply(graph, matches);

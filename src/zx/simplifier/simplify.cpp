@@ -13,6 +13,7 @@
 #include "zx/zx_def.hpp"
 #include "zx/zx_partition.hpp"
 #include "zx/zxgraph.hpp"
+#include "zx/zxgraph_action.hpp"
 #include "zx/zxgraph_mgr.hpp"
 
 namespace qsyn::zx::simplify {
@@ -85,7 +86,7 @@ size_t spider_fusion_simp(ZXGraph& g) {
 void to_z_graph(ZXGraph& g) {
     for (auto& v : g.get_vertices()) {
         if (v->get_type() == VertexType::x) {
-            g.toggle_vertex(v);
+            toggle_vertex(g, v->get_id());
         }
     }
 }
@@ -97,7 +98,7 @@ void to_z_graph(ZXGraph& g) {
 void to_x_graph(ZXGraph& g) {
     for (auto& v : g.get_vertices()) {
         if (v->get_type() == VertexType::z) {
-            g.toggle_vertex(v);
+            toggle_vertex(g, v->get_id());
         }
     }
 }

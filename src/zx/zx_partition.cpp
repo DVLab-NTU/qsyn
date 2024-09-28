@@ -68,25 +68,29 @@ std::pair<std::vector<ZXGraph*>, std::vector<ZXCut>> ZXGraph::create_subgraphs(Z
         }
 
         for (auto const& vertex : partition) {
-            if (g.get_inputs().contains(vertex)) subgraph_inputs.insert(vertex);
-            if (g.get_outputs().contains(vertex)) subgraph_outputs.insert(vertex);
+            if (g.get_inputs().contains(vertex)) {
+                subgraph_inputs.insert(vertex);
+            }
+            if (g.get_outputs().contains(vertex)) {
+                subgraph_outputs.insert(vertex);
+            }
 
             std::vector<NeighborPair> neighbors_to_remove;
             std::vector<NeighborPair> neighbors_to_add;
             for (auto const& [neighbor, edgeType] : g.get_neighbors(vertex)) {
-                if (!partition.contains(neighbor)) {
-                    auto boundary = new ZXVertex(next_vertex_id++, next_boundary_qubit_id--, VertexType::boundary, Phase(), 0, 0);
-                    inner_cuts.emplace(vertex, neighbor, edgeType);
-                    cut_to_boundary[{vertex, neighbor, edgeType}] = boundary;
+                if (partition.contains(neighbor)) continue;
 
-                    neighbors_to_remove.push_back({neighbor, edgeType});
-                    neighbors_to_add.push_back({boundary, edgeType});
+                auto boundary = new ZXVertex(next_vertex_id++, next_boundary_qubit_id--, VertexType::boundary, Phase(), 0, 0);
+                inner_cuts.emplace(vertex, neighbor, edgeType);
+                cut_to_boundary[{vertex, neighbor, edgeType}] = boundary;
 
-                    boundary->_neighbors.emplace(vertex, edgeType);
+                neighbors_to_remove.push_back({neighbor, edgeType});
+                neighbors_to_add.push_back({boundary, edgeType});
 
-                    boundary_vertices.push_back(boundary);
-                    subgraph_outputs.insert(boundary);
-                }
+                boundary->_neighbors.emplace(vertex, edgeType);
+
+                boundary_vertices.push_back(boundary);
+                subgraph_outputs.insert(boundary);
             }
 
             for (auto const& neighbor_pair : neighbors_to_add) {
