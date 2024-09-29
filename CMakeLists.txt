@@ -123,6 +123,14 @@ FetchContent_Declare(
   GIT_TAG add-cmake-fetchcontent-support)
 FetchContent_MakeAvailable(libabc)
 
+FetchContent_Declare(
+  Catch2
+  SYSTEM
+  GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+  GIT_TAG        v3.7.1
+)
+FetchContent_MakeAvailable(Catch2)
+
 file(
   GLOB_RECURSE SOURCES
   RELATIVE ${CMAKE_SOURCE_DIR}
@@ -229,3 +237,57 @@ if(COPY_EXECUTABLE)
       ${CMAKE_SOURCE_DIR}/${CMAKE_PROJECT_NAME}
     COMMENT " Copied executable to ${CMAKE_SOURCE_DIR}/${CMAKE_PROJECT_NAME} ")
 endif()
+
+file(
+    GLOB_RECURSE TEST_SOURCES
+    RELATIVE ${CMAKE_SOURCE_DIR}
+    "tests/src/**/*.cpp")
+
+# list all tests sources
+message(STATUS "Test sources:")
+foreach(test_source ${TEST_SOURCES})
+    message(STATUS "Test source: ${test_source}")
+endforeach()
+
+# Exclude src/qsyn/qsyn_main.cpp from SOURCES for the test executable
+list(FILTER SOURCES EXCLUDE REGEX "src/qsyn/qsyn_main.cpp")
+
+add_executable(${CMAKE_PROJECT_NAME}-tests ${TEST_SOURCES} ${SOURCES})
+
+target_link_libraries(${CMAKE_PROJECT_NAME}-tests PRIVATE Catch2::Catch2WithMain)
+
+target_link_libraries_system(
+  ${CMAKE_PROJECT_NAME}-tests
+  PRIVATE
+  libabc
+  xtl
+  xtensor
+  xtensor-blas
+  libfort::fort
+  fmt::fmt
+  spdlog::spdlog
+  Microsoft.GSL::GSL
+  sul::dynamic_bitset
+  nlohmann_json::nlohmann_json
+  cadical::cadical)
+target_link_libraries(
+  ${CMAKE_PROJECT_NAME}-tests PRIVATE lapack 
+# OpenMP::OpenMP_CXX 
+  ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
+
+target_compile_definitions(${CMAKE_PROJECT_NAME}-tests
+                           PRIVATE QSYN_VERSION="v${CMAKE_PROJECT_VERSION}")
+target_compile_definitions(${CMAKE_PROJECT_NAME}-tests
+                           PRIVATE QSYN_BUILD_TYPE="${CMAKE_BUILD_TYPE}")
+target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wall -Wextra -Werror)
+
+# compilers are being too paranoid about missing field initializers
+target_compile_options(${CMAKE_PROJECT_NAME}-tests
+                        PRIVATE -Wno-missing-field-initializers)
+
+target_include_directories(${CMAKE_PROJECT_NAME}-tests
+                           PRIVATE ${CMAKE_SOURCE_DIR}/src)
+
+# specify SYSTEM to suppress warnings from vendor code
+target_include_directories(${CMAKE_PROJECT_NAME}-tests SYSTEM
+                           PRIVATE ${CMAKE_SOURCE_DIR}/vendor)
