@@ -6,6 +6,7 @@
 ****************************************************************************/
 
 #include "./zx_rules_template.hpp"
+#include "zx/zx_def.hpp"
 #include "zx/zxgraph.hpp"
 #include "zx/zxgraph_action.hpp"
 
@@ -89,7 +90,8 @@ void PivotBoundaryRule::apply(ZXGraph& graph, std::vector<MatchType> const& matc
         for (auto& [nb, etype] : graph.get_neighbors(vs)) {
             if (nb->is_boundary()) {
                 zx::add_identity_vertex(
-                    graph, vs->get_id(), nb->get_id(), EdgeType::hadamard);
+                    graph, vs->get_id(), nb->get_id(),
+                    VertexType::z, EdgeType::hadamard);
                 break;
             }
             if (!nb->is_z() || etype != EdgeType::hadamard) return;

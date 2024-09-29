@@ -893,7 +893,8 @@ void Extractor::update_neighbors() {
                 // Deliberately pass-by-copy. Passing-by-ref causes segfault
                 if (_graph->get_inputs().contains(b)) {
                     zx::add_identity_vertex(
-                        *_graph, f->get_id(), b->get_id(), EdgeType::hadamard);
+                        *_graph, f->get_id(), b->get_id(),
+                        VertexType::z, EdgeType::hadamard);
                     break;
                 }
             }

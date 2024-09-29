@@ -61,9 +61,11 @@ create_multi_control_backbone(ZXGraph& g, size_t num_qubits, RotationAxis ax) {
             g.add_edge(v, out, EdgeType::hadamard);
             if (ax == RotationAxis::y) {
                 auto const buffer1 = zx::add_identity_vertex(
-                    g, v->get_id(), in->get_id(), EdgeType::hadamard);
+                    g, v->get_id(), in->get_id(),
+                    VertexType::z, EdgeType::hadamard);
                 auto const buffer2 = zx::add_identity_vertex(
-                    g, v->get_id(), out->get_id(), EdgeType::hadamard);
+                    g, v->get_id(), out->get_id(),
+                    VertexType::z, EdgeType::hadamard);
 
                 assert(buffer1.has_value() && buffer2.has_value());
 

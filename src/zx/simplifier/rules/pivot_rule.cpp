@@ -80,8 +80,8 @@ void PivotRule::apply(ZXGraph& graph, std::vector<MatchType> const& matches) con
                 if (nb->is_z() && et == EdgeType::hadamard) continue;
                 if (nb->is_boundary()) {
                     zx::add_identity_vertex(
-                        graph, v->get_id(), nb->get_id(), EdgeType::hadamard);
-                    // graph.add_buffer(nb, v, et);
+                        graph, v->get_id(), nb->get_id(),
+                        VertexType::z, EdgeType::hadamard);
                     goto next_pair;
                 }
             }

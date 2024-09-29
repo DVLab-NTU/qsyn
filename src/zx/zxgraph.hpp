@@ -220,6 +220,8 @@ public:
     ZXVertex* add_output(QubitIdType qubit, float col = 0.f);
     ZXVertex* add_output(QubitIdType qubit, float row, float col);
     ZXVertex* add_vertex(VertexType vt, Phase phase = Phase(), float row = 0.f, float col = 0.f);
+    ZXVertex* add_vertex(size_t id, VertexType vt, Phase phase = Phase(), float row = 0.f, float col = 0.f);
+    ZXVertex* add_vertex(std::optional<size_t> id, VertexType vt, Phase phase = Phase(), float row = 0.f, float col = 0.f);
     void add_edge(ZXVertex* vs, ZXVertex* vt, EdgeType et);
 
     size_t remove_isolated_vertices();

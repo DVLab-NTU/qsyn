@@ -55,9 +55,8 @@ void report_simplification_result(std::string_view rule_name, std::span<size_t> 
  * @return number of iterations
  */
 template <typename Rule>
+requires std::is_base_of<ZXRuleTemplate<typename Rule::MatchType>, Rule>::value
 size_t simplify(ZXGraph& g, Rule const& rule) {
-    static_assert(std::is_base_of<ZXRuleTemplate<typename Rule::MatchType>, Rule>::value, "Rule must be a subclass of ZXRule");
-
     hadamard_rule_simp(g);
 
     std::vector<size_t> match_counts;
@@ -83,9 +82,8 @@ size_t simplify(ZXGraph& g, Rule const& rule) {
  * @return number of iterations
  */
 template <typename Rule>
+requires std::is_base_of<ZXRuleTemplate<typename Rule::MatchType>, Rule>::value
 size_t hadamard_simplify(ZXGraph& g, Rule rule) {
-    static_assert(std::is_base_of<HZXRuleTemplate<typename Rule::MatchType>, Rule>::value, "Rule must be a subclass of HZXRule");
-
     std::vector<size_t> match_counts;
 
     while (!stop_requested()) {

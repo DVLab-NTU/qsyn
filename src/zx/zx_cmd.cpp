@@ -18,6 +18,7 @@
 #include "zx/simplifier/simp_cmd.hpp"
 #include "zx/zx_io.hpp"
 #include "zx/zxgraph.hpp"
+#include "zx/zxgraph_action.hpp"
 
 using namespace dvlab::argparse;
 using dvlab::CmdExecResult;

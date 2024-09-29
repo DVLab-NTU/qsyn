@@ -252,11 +252,25 @@ ZXVertex* ZXGraph::add_output(QubitIdType qubit, float row, float col) {
  * @return ZXVertex*
  */
 ZXVertex* ZXGraph::add_vertex(VertexType vt, Phase phase, float row, float col) {
-    auto v = new ZXVertex(_next_v_id, 0, vt, phase, row, col);
+    return add_vertex(_next_v_id++, vt, phase, row, col);
+}
+
+ZXVertex* ZXGraph::add_vertex(size_t id, VertexType vt, Phase phase, float row, float col) {
+    if (_id_to_vertices.contains(id)) {
+        spdlog::warn("Vertex with id {} already exists", id);
+        return nullptr;
+    }
+    auto v = new ZXVertex(id, 0, vt, phase, row, col);
     _vertices.emplace(v);
-    _id_to_vertices.emplace(_next_v_id, v);
-    _next_v_id++;
+    _id_to_vertices.emplace(id, v);
     return v;
+}
+
+ZXVertex* ZXGraph::add_vertex(std::optional<size_t> id, VertexType vt, Phase phase, float row, float col) {
+    if (id.has_value()) {
+        return add_vertex(id.value(), vt, phase, row, col);
+    }
+    return add_vertex(vt, phase, row, col);
 }
 
 /**

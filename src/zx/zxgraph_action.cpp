@@ -5,11 +5,14 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
+#include "zx/zxgraph_action.hpp"
+
 #include <fmt/core.h>
 
 #include <cstddef>
 #include <gsl/narrow>
 #include <tl/zip.hpp>
+#include <tuple>
 
 #include "./zx_def.hpp"
 #include "./zxgraph.hpp"
@@ -337,24 +340,50 @@ void toggle_vertex(ZXGraph& graph, size_t v_id) {
  */
 std::optional<size_t>
 add_identity_vertex(
-    ZXGraph& graph, size_t left_id, size_t right_id, EdgeType etype_to_left) {
-    auto l = graph[left_id];
-    auto r = graph[right_id];
+    ZXGraph& graph, size_t left_id, size_t right_id,
+    VertexType vtype, EdgeType etype_to_left, std::optional<size_t> new_v_id) {
+    auto const l = graph[left_id];
+    auto const r = graph[right_id];
 
     if (l == nullptr || r == nullptr) return std::nullopt;
-    auto etype_orig = graph.get_edge_type(left_id, right_id);
+    if (new_v_id.has_value() && graph.is_v_id(new_v_id.value())) {
+        return std::nullopt;
+    }
+
+    auto const etype_orig = graph.get_edge_type(left_id, right_id);
     if (!etype_orig.has_value()) return std::nullopt;
 
-    // REVIEW - the row takes the row of the right vertex
-    // due to backward compatibility. Might want to change this in the future
-    auto id_vtx = graph.add_vertex(
-        VertexType::z, Phase(0),
+    // REVIEW - the row takes the row of the right vertex due to
+    // backward compatibility. Might want to change this in the future
+    auto const id_vtx = graph.add_vertex(
+        new_v_id, vtype, Phase(0),
         r->get_row(), (l->get_col() + r->get_col()) / 2);
     graph.add_edge(l, id_vtx, etype_to_left);
-    graph.add_edge(id_vtx, r, concat_edge(etype_orig.value(), etype_to_left));
-    graph.remove_edge(l, r, etype_orig.value());
+    graph.add_edge(id_vtx, r, concat_edge(*etype_orig, etype_to_left));
+    graph.remove_edge(l, r, *etype_orig);
 
     return id_vtx->get_id();
+}
+
+std::optional<std::tuple<size_t, size_t, VertexType, EdgeType>>
+remove_identity_vertex(ZXGraph& graph, size_t v_id) {
+    auto const v = graph[v_id];
+    if (v == nullptr ||
+        graph.get_num_neighbors(v) != 2 ||
+        !(v->is_z() || v->is_x()) ||
+        v->get_phase() != Phase(0)) {
+        return std::nullopt;
+    }
+
+    auto const vtype = v->get_type();
+
+    auto const [l, etype_to_l] = graph.get_first_neighbor(v);
+    auto const [r, etype_to_r] = graph.get_second_neighbor(v);
+
+    graph.add_edge(l, r, concat_edge(etype_to_l, etype_to_r));
+    graph.remove_vertex(v);
+
+    return std::make_tuple(l->get_id(), r->get_id(), vtype, etype_to_l);
 }
 
 /**
@@ -376,6 +405,39 @@ void gadgetize_phase(ZXGraph& graph, size_t v_id, Phase const& keep_phase) {
 
     graph.add_edge(leaf, buffer, EdgeType::hadamard);
     graph.add_edge(buffer, v, EdgeType::hadamard);
+}
+
+// ZXGraphAction classes
+
+IdentityRemoval::IdentityRemoval(size_t v_id) : _v_id(v_id) {}
+
+bool IdentityRemoval::apply(ZXGraph& graph) {
+    auto res = remove_identity_vertex(graph, _v_id);
+    if (!res.has_value()) return false;
+    std::tie(_left_id, _right_id, _vtype, _etype_to_left) = *std::move(res);
+    return true;
+}
+bool IdentityRemoval::undo(ZXGraph& graph) {
+    auto const res = add_identity_vertex(
+        graph, _left_id, _right_id, _vtype, _etype_to_left, _v_id);
+    return res.has_value();
+}
+
+IdentityAddition::IdentityAddition(
+    size_t left_id, size_t right_id,
+    VertexType vtype, EdgeType etype_to_left)
+    : _left_id(left_id), _right_id(right_id),
+      _vtype(vtype), _etype_to_left(etype_to_left) {}
+
+bool IdentityAddition::apply(ZXGraph& graph) {
+    auto res = add_identity_vertex(
+        graph, _left_id, _right_id, _vtype, _etype_to_left);
+    if (!res.has_value()) return false;
+    _new_v_id = *res;
+    return true;
+}
+bool IdentityAddition::undo(ZXGraph& graph) {
+    return remove_identity_vertex(graph, _new_v_id).has_value();
 }
 
 }  // namespace qsyn::zx

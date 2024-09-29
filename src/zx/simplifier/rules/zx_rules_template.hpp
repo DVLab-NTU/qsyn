@@ -56,26 +56,6 @@ public:
         bool allow_overlapping_candidates      = false) const = 0;
 
     virtual void apply(ZXGraph& graph, std::vector<MatchType> const& matches) const = 0;
-    virtual std::vector<ZXVertex*> flatten_vertices(MatchType match) const          = 0;
-};
-
-// H Box related rules have similar interface but is used differentlu in simplifier
-template <typename T>
-class HZXRuleTemplate : public ZXRuleBase {
-public:
-    using MatchType = T;
-
-    ~HZXRuleTemplate() override = default;
-
-    std::string get_name() const override = 0;
-
-    virtual std::vector<MatchType> find_matches(
-        ZXGraph const& graph,
-        std::optional<ZXVertexList> candidates = std::nullopt,
-        bool allow_overlapping_candidates      = false) const = 0;
-
-    virtual void apply(ZXGraph& graph, std::vector<MatchType> const& matches) const = 0;
-    virtual std::vector<ZXVertex*> flatten_vertices(MatchType match) const          = 0;
 };
 
 class BialgebraRule : public ZXRuleTemplate<EdgePair> {
@@ -86,10 +66,6 @@ public:
         std::optional<ZXVertexList> candidates = std::nullopt,
         bool allow_overlapping_candidates      = false) const override;
     void apply(ZXGraph& graph, std::vector<MatchType> const& matches) const override;
-    std::vector<ZXVertex*> flatten_vertices(MatchType match) const override {
-        auto [v0, v1] = match.first;
-        return {v0, v1};
-    }
 };
 
 class StateCopyRule : public ZXRuleTemplate<std::tuple<ZXVertex*, ZXVertex*, std::vector<ZXVertex*>>> {
@@ -100,12 +76,6 @@ public:
         std::optional<ZXVertexList> candidates = std::nullopt,
         bool allow_overlapping_candidates      = false) const override;
     void apply(ZXGraph& graph, std::vector<MatchType> const& matches) const override;
-    std::vector<ZXVertex*> flatten_vertices(MatchType match) const override {
-        auto [v0, v1, vertices] = match;
-        vertices.push_back(v0);
-        vertices.push_back(v1);
-        return vertices;
-    }
 };
 
 class HadamardFusionRule : public ZXRuleTemplate<ZXVertex*> {
@@ -116,7 +86,6 @@ public:
         std::optional<ZXVertexList> candidates = std::nullopt,
         bool allow_overlapping_candidates      = false) const override;
     void apply(ZXGraph& graph, std::vector<MatchType> const& matches) const override;
-    std::vector<ZXVertex*> flatten_vertices(MatchType match) const override { return {match}; }
 };
 
 class IdentityRemovalRule : public ZXRuleTemplate<std::tuple<ZXVertex*, ZXVertex*, ZXVertex*, EdgeType>> {
@@ -127,7 +96,6 @@ public:
         std::optional<ZXVertexList> candidates = std::nullopt,
         bool allow_overlapping_candidates      = false) const override;
     void apply(ZXGraph& graph, std::vector<MatchType> const& matches) const override;
-    std::vector<ZXVertex*> flatten_vertices(MatchType match) const override { return {std::get<0>(match), std::get<1>(match), std::get<2>(match)}; }
 };
 
 class LocalComplementRule : public ZXRuleTemplate<std::pair<ZXVertex*, std::vector<ZXVertex*>>> {
@@ -138,11 +106,6 @@ public:
         std::optional<ZXVertexList> candidates = std::nullopt,
         bool allow_overlapping_candidates      = false) const override;
     void apply(ZXGraph& graph, std::vector<MatchType> const& matches) const override;
-    std::vector<ZXVertex*> flatten_vertices(MatchType match) const override {
-        auto [v0, vertices] = match;
-        vertices.push_back(v0);
-        return vertices;
-    }
 };
 
 class PhaseGadgetRule : public ZXRuleTemplate<std::tuple<Phase, std::vector<ZXVertex*>, std::vector<ZXVertex*>>> {
@@ -153,11 +116,6 @@ public:
         std::optional<ZXVertexList> candidates = std::nullopt,
         bool allow_overlapping_candidates      = false) const override;
     void apply(ZXGraph& graph, std::vector<MatchType> const& matches) const override;
-    std::vector<ZXVertex*> flatten_vertices(MatchType match) const override {
-        auto [_, vertices0, vertices1] = match;
-        vertices0.insert(std::end(vertices0), std::begin(vertices1), std::end(vertices1));
-        return vertices0;
-    }
 };
 
 class PivotRuleInterface : public ZXRuleTemplate<std::pair<ZXVertex*, ZXVertex*>> {
@@ -168,7 +126,6 @@ public:
         std::optional<ZXVertexList> candidates = std::nullopt,
         bool allow_overlapping_candidates      = false) const override = 0;
     void apply(ZXGraph& graph, std::vector<MatchType> const& matches) const override;
-    std::vector<ZXVertex*> flatten_vertices(MatchType match) const override { return {match.first, match.second}; }
 };
 
 class PivotRule : public PivotRuleInterface {
@@ -210,10 +167,9 @@ public:
         std::optional<ZXVertexList> candidates = std::nullopt,
         bool allow_overlapping_candidates      = false) const override;
     void apply(ZXGraph& graph, std::vector<MatchType> const& matches) const override;
-    std::vector<ZXVertex*> flatten_vertices(MatchType match) const override { return {match.first, match.second}; }
 };
 
-class HadamardRule : public HZXRuleTemplate<ZXVertex*> {
+class HadamardRule : public ZXRuleTemplate<ZXVertex*> {
 public:
     std::string get_name() const override { return "Hadamard Rule"; }
     std::vector<MatchType> find_matches(
@@ -221,7 +177,6 @@ public:
         std::optional<ZXVertexList> candidates = std::nullopt,
         bool allow_overlapping_candidates      = false) const override;
     void apply(ZXGraph& graph, std::vector<MatchType> const& matches) const override;
-    std::vector<ZXVertex*> flatten_vertices(MatchType match) const override { return {match}; }
 };
 
 }  // namespace qsyn::zx
