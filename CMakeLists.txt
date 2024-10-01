@@ -243,12 +243,6 @@ file(
     RELATIVE ${CMAKE_SOURCE_DIR}
     "tests/src/**/*.cpp")
 
-# list all tests sources
-message(STATUS "Test sources:")
-foreach(test_source ${TEST_SOURCES})
-    message(STATUS "Test source: ${test_source}")
-endforeach()
-
 # Exclude src/qsyn/qsyn_main.cpp from SOURCES for the test executable
 list(FILTER SOURCES EXCLUDE REGEX "src/qsyn/qsyn_main.cpp")
 

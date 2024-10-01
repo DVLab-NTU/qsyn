@@ -3,8 +3,6 @@
 #include "util/phase.hpp"
 #include "zx/zxgraph_action.hpp"
 
-bool stop_requested() { return false; }
-
 using namespace qsyn::zx;
 using dvlab::Phase;
 

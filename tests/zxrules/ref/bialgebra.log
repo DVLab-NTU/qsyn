@@ -304,8 +304,8 @@ ID:    3 (●, 0)       (Qubit, Col): (1, 0)         #Neighbors:   1    (15, -)
 ID:    4 (X, 0)       (Qubit, Col): (0, 0)         #Neighbors:   2    (0, -) (5, -)
 ID:    5 (Z, 0)       (Qubit, Col): (0, 0)         #Neighbors:   3    (4, -) (6, H) (10, -)
 ID:    6 (X, 0)       (Qubit, Col): (0, 0)         #Neighbors:   2    (2, -) (5, H)
-ID:    8 (Z, 0)       (Qubit, Col): (0, 0)         #Neighbors:   2    (10, -) (10, H)
-ID:   10 (X, 0)       (Qubit, Col): (0, 0)         #Neighbors:   4    (5, -) (8, -) (8, H) (11, -)
+ID:    8 (Z, π)       (Qubit, Col): (0, 0)         #Neighbors:   1    (10, H)
+ID:   10 (X, 0)       (Qubit, Col): (0, 0)         #Neighbors:   3    (5, -) (8, H) (11, -)
 ID:   11 (Z, 0)       (Qubit, Col): (0, 0)         #Neighbors:   3    (10, -) (12, H) (13, H)
 ID:   12 (X, 0)       (Qubit, Col): (0, 0)         #Neighbors:   2    (11, H) (15, -)
 ID:   13 (X, 0)       (Qubit, Col): (0, 0)         #Neighbors:   2    (11, H) (14, -)
@@ -323,13 +323,12 @@ qsyn> zx print -e
 (5, 6)       Type: H
 (5, 10)      Type: -
 (8, 10)      Type: H
-(8, 10)      Type: -
 (10, 11)     Type: -
 (11, 12)     Type: H
 (11, 13)     Type: H
 (12, 15)     Type: -
 (13, 14)     Type: -
-Total #Edges: 14
+Total #Edges: 13
 
 qsyn> quit -f
 

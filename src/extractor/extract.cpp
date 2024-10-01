@@ -201,8 +201,8 @@ void Extractor::extract_singles() {
         }
     }
     for (auto& [s, t] : toggle_list) {
-        _graph->add_edge(s, t, EdgeType::simple);
         _graph->remove_edge(s, t, EdgeType::hadamard);
+        _graph->add_edge(s, t, EdgeType::simple);
     }
     _logical_circuit->print_circuit_diagram(spdlog::level::level_enum::trace);
     _graph->print_vertices_by_rows(spdlog::level::level_enum::trace);

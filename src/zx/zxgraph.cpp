@@ -289,41 +289,51 @@ void ZXGraph::add_edge(ZXVertex* vs, ZXVertex* vt, EdgeType et) {
 
     if (vs->get_id() > vt->get_id()) std::swap(vs, vt);
 
-    // in case an edge already exists
-    if (this->is_neighbor(vs, vt, et)) {
-        // if vs or vt (or both) is H-box,
-        // there isn't a way to merge or cancel out with the current edge
-        // To circumvent this, we add a new vertex in the middle of the edge
-        // and connect the new vertex to both vs and vt
-        if (vs->is_hbox() || vt->is_hbox()) {
-            ZXVertex* v = add_vertex(
-                et == EdgeType::hadamard ? VertexType::h_box : VertexType::z,
-                et == EdgeType::hadamard ? Phase(1) : Phase(0),
-                (vs->get_row() + vt->get_row()) / 2,
-                (vs->get_col() + vt->get_col()) / 2);
-            vs->_neighbors.emplace(v, EdgeType::simple);
-            v->_neighbors.emplace(vs, EdgeType::simple);
-            vt->_neighbors.emplace(v, EdgeType::simple);
-            v->_neighbors.emplace(vt, EdgeType::simple);
-
-            return;
-        }
-
-        // Z and X vertices: merge or cancel out
-        if (
-            (vs->is_z() && vt->is_x() && et == EdgeType::simple) ||
-            (vs->is_x() && vt->is_z() && et == EdgeType::simple) ||
-            (vs->is_z() && vt->is_z() && et == EdgeType::hadamard) ||
-            (vs->is_x() && vt->is_x() && et == EdgeType::hadamard)) {
-            vs->_neighbors.erase({vt, et});
-            vt->_neighbors.erase({vs, et});
-        }  // else do nothing
-
+    // if vs and vt are not neighbors, simply add the edge
+    if (!this->is_neighbor(vs, vt)) {
+        vs->_neighbors.emplace(vt, et);
+        vt->_neighbors.emplace(vs, et);
         return;
     }
 
-    vs->_neighbors.emplace(vt, et);
-    vt->_neighbors.emplace(vs, et);
+    // when vs and vt are neighbors, try to merge or cancel out the edge
+
+    auto const is_zx = [](ZXVertex* v) { return v->is_z() || v->is_x(); };
+
+    // If one or both vertices are not Z/X-spiders,
+    // we can't merge or cancel out the edges in an meaningful way
+    if (!is_zx(vs) || !is_zx(vt)) {
+        throw std::logic_error(
+            fmt::format(
+                "Cannot add >1 between {}({}) and {}({})",
+                vs->get_type(), vs->get_id(),
+                vt->get_type(), vt->get_id()));
+    }
+
+    auto const existing_etype = this->get_edge_type(vs, vt).value();
+
+    auto const same_type = vs->get_type() == vt->get_type();
+    auto const to_merge  = same_type ? EdgeType::simple : EdgeType::hadamard;
+    auto const to_cancel = same_type ? EdgeType::hadamard : EdgeType::simple;
+    // Z and X vertices: merge or cancel out
+
+    if (existing_etype == to_merge && et == to_merge) {
+        // new edge can be merged with existing edge
+        // do nothing
+    } else if (existing_etype == to_cancel && et == to_cancel) {
+        // new edge can be canceled out with existing edge
+        this->remove_edge(vs, vt, to_cancel);
+    } else {
+        // one edge is to_merge and the other is to_cancel
+        // keep the to_merge edge and turn the to_cancel edge into a pi phase
+        if (existing_etype == to_cancel) {
+            this->remove_edge(vs, vt, to_cancel);
+            vs->_neighbors.emplace(vt, to_merge);
+            vt->_neighbors.emplace(vs, to_merge);
+        }
+
+        vs->set_phase(vs->get_phase() + Phase(1));
+    }
 }
 
 /**

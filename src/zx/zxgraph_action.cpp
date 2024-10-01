@@ -430,7 +430,7 @@ IdentityAddition::IdentityAddition(
       _vtype(vtype), _etype_to_left(etype_to_left) {}
 
 bool IdentityAddition::apply(ZXGraph& graph) {
-    auto res = add_identity_vertex(
+    auto const res = add_identity_vertex(
         graph, _left_id, _right_id, _vtype, _etype_to_left);
     if (!res.has_value()) return false;
     _new_v_id = *res;
