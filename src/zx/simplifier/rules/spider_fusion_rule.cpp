@@ -64,15 +64,8 @@ void SpiderFusionRule::apply(ZXGraph& graph, std::vector<MatchType> const& match
         v0->set_phase(v0->get_phase() + v1->get_phase());
 
         for (auto& [neighbor, edgeType] : graph.get_neighbors(v1)) {
-            // NOTE: Will become selfloop after merged, only considered hadamard
-            if (neighbor == v0) {
-                if (edgeType == EdgeType::hadamard) {
-                    v0->set_phase(v0->get_phase() + Phase(1));
-                }
-                // NOTE: No need to remove edges since v1 will be removed
-            } else {
-                op.edges_to_add.emplace_back(std::make_pair(v0, neighbor), edgeType);
-            }
+            if (neighbor == v0) continue;
+            op.edges_to_add.emplace_back(std::make_pair(v0, neighbor), edgeType);
         }
         op.vertices_to_remove.emplace_back(v1);
     }

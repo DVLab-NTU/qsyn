@@ -207,6 +207,15 @@ double ZXGraph::density() {
            gsl::narrow_cast<double>(this->get_num_vertices());
 }
 
+bool ZXGraph::is_neighbor(size_t v0_id, size_t v1_id) const {
+    if (!is_v_id(v0_id) || !is_v_id(v1_id)) return false;
+    return is_neighbor(vertex(v0_id), vertex(v1_id));
+}
+bool ZXGraph::is_neighbor(size_t v0_id, size_t v1_id, EdgeType et) const {
+    if (!is_v_id(v0_id) || !is_v_id(v1_id)) return false;
+    return is_neighbor(vertex(v0_id), vertex(v1_id), et);
+}
+
 /*****************************************************/
 /*   class ZXGraph Add functions                     */
 /*****************************************************/
@@ -298,11 +307,9 @@ void ZXGraph::add_edge(ZXVertex* vs, ZXVertex* vt, EdgeType et) {
 
     // when vs and vt are neighbors, try to merge or cancel out the edge
 
-    auto const is_zx = [](ZXVertex* v) { return v->is_z() || v->is_x(); };
-
     // If one or both vertices are not Z/X-spiders,
     // we can't merge or cancel out the edges in an meaningful way
-    if (!is_zx(vs) || !is_zx(vt)) {
+    if (!vs->is_zx() || !vt->is_zx()) {
         throw std::logic_error(
             fmt::format(
                 "Cannot add >1 between {}({}) and {}({})",
@@ -334,6 +341,18 @@ void ZXGraph::add_edge(ZXVertex* vs, ZXVertex* vt, EdgeType et) {
 
         vs->set_phase(vs->get_phase() + Phase(1));
     }
+}
+
+void ZXGraph::add_edge(size_t v0_id, size_t v1_id, EdgeType et) {
+    if (!is_v_id(v0_id)) {
+        spdlog::warn("Vertex with id {} does not exist", v0_id);
+        return;
+    }
+    if (!is_v_id(v1_id)) {
+        spdlog::warn("Vertex with id {} does not exist", v1_id);
+        return;
+    }
+    add_edge(vertex(v0_id), vertex(v1_id), et);
 }
 
 /**
@@ -406,6 +425,14 @@ size_t ZXGraph::remove_vertex(ZXVertex* v) {
     return 1;
 }
 
+size_t ZXGraph::remove_vertex(size_t id) {
+    if (!is_v_id(id)) {
+        spdlog::warn("Vertex with id {} does not exist", id);
+        return 0;
+    }
+    return remove_vertex(vertex(id));
+}
+
 /**
  * @brief Remove all vertex in vertices by calling `removeVertex(ZXVertex* v)`
  *
@@ -425,6 +452,18 @@ size_t ZXGraph::remove_vertices(std::vector<ZXVertex*> const& vertices) {
  */
 size_t ZXGraph::remove_edge(EdgePair const& ep) {
     return remove_edge(ep.first.first, ep.first.second, ep.second);
+}
+
+size_t ZXGraph::remove_edge(size_t v0_id, size_t v1_id, EdgeType et) {
+    if (!is_v_id(v0_id)) {
+        spdlog::warn("Vertex with id {} does not exist", v0_id);
+        return 0;
+    }
+    if (!is_v_id(v1_id)) {
+        spdlog::warn("Vertex with id {} does not exist", v1_id);
+        return 0;
+    }
+    return remove_edge(vertex(v0_id), vertex(v1_id), et);
 }
 
 /**

@@ -314,7 +314,7 @@ void ZXGraph::adjust_vertex_coordinates() {
  */
 void toggle_vertex(ZXGraph& graph, size_t v_id) {
     auto v = graph[v_id];
-    if (!v->is_z() && !v->is_x()) return;
+    if (!v->is_zx()) return;
     auto const old_neighbors = graph.get_neighbors(v);
     for (auto& [nb, etype] : old_neighbors) {
         graph.remove_edge(v, nb, etype);
@@ -370,7 +370,7 @@ remove_identity_vertex(ZXGraph& graph, size_t v_id) {
     auto const v = graph[v_id];
     if (v == nullptr ||
         graph.get_num_neighbors(v) != 2 ||
-        !(v->is_z() || v->is_x()) ||
+        !v->is_zx() ||
         v->get_phase() != Phase(0)) {
         return std::nullopt;
     }
@@ -411,13 +411,13 @@ void gadgetize_phase(ZXGraph& graph, size_t v_id, Phase const& keep_phase) {
 
 IdentityRemoval::IdentityRemoval(size_t v_id) : _v_id(v_id) {}
 
-bool IdentityRemoval::apply(ZXGraph& graph) {
+bool IdentityRemoval::apply(ZXGraph& graph) const {
     auto res = remove_identity_vertex(graph, _v_id);
     if (!res.has_value()) return false;
     std::tie(_left_id, _right_id, _vtype, _etype_to_left) = *std::move(res);
     return true;
 }
-bool IdentityRemoval::undo(ZXGraph& graph) {
+bool IdentityRemoval::undo(ZXGraph& graph) const {
     auto const res = add_identity_vertex(
         graph, _left_id, _right_id, _vtype, _etype_to_left, _v_id);
     return res.has_value();
@@ -429,15 +429,126 @@ IdentityAddition::IdentityAddition(
     : _left_id(left_id), _right_id(right_id),
       _vtype(vtype), _etype_to_left(etype_to_left) {}
 
-bool IdentityAddition::apply(ZXGraph& graph) {
+bool IdentityAddition::apply(ZXGraph& graph) const {
     auto const res = add_identity_vertex(
         graph, _left_id, _right_id, _vtype, _etype_to_left);
     if (!res.has_value()) return false;
     _new_v_id = *res;
     return true;
 }
-bool IdentityAddition::undo(ZXGraph& graph) {
+bool IdentityAddition::undo(ZXGraph& graph) const {
     return remove_identity_vertex(graph, _new_v_id).has_value();
+}
+
+// SpiderFusion::SpiderFusion(size_t v0_id, size_t v1_id)
+//     : _v0_id(v0_id), _v1_id(v1_id) {}
+
+// bool SpiderFusion::apply(ZXGraph& graph) const {
+//     auto const v0 = graph[_v0_id];
+//     auto const v1 = graph[_v1_id];
+//     if (v0 == nullptr || v1 == nullptr) return false;
+//     if (graph.get_edge_type(_v0_id, _v1_id) != EdgeType::simple) {
+//         return false;
+//     }
+//     if (v0->get_type() != v1->get_type() || !v0->is_zx()) return false;
+
+//     _v1_type  = v1->get_type();
+//     _v1_phase = v1->get_phase();
+
+//     _v1_neighbors.clear();
+//     _v1_neighbors.reserve(graph.get_num_neighbors(v1) - 1);
+
+//     for (auto const& [nb, etype] : graph.get_neighbors(v1)) {
+//         if (nb == v0) continue;
+//         _v1_neighbors.emplace_back(nb->get_id());
+//         graph.add_edge(v0, nb, etype);
+//     }
+
+//     graph.remove_vertex(v1);
+//     return true;
+// }
+
+IdentityFusion::IdentityFusion(size_t v_id) : _v_id(v_id) {}
+
+bool IdentityFusion::apply(ZXGraph& graph) const {
+    auto v = graph[_v_id];
+    if (v == nullptr) return false;
+    if (!v->is_z() || v->get_phase() != Phase(0)) return false;
+    if (graph.get_num_neighbors(v) != 2) return false;
+
+    auto const [l, etype_to_l] = graph.get_first_neighbor(v);
+    auto const [r, etype_to_r] = graph.get_second_neighbor(v);
+
+    assert(etype_to_l == EdgeType::hadamard || l->is_boundary());
+    assert(etype_to_r == EdgeType::hadamard || r->is_boundary());
+
+    _left_id     = l->get_id();
+    _right_id    = r->get_id();
+    _right_phase = r->get_phase();
+
+    _right_neighbors.clear();
+    _right_neighbors.reserve(graph.get_num_neighbors(r) - 1);
+
+    for (auto const& [nb, etype] : graph.get_neighbors(r)) {
+        if (nb == v) continue;
+        _right_neighbors.emplace_back(nb->get_id());
+
+        if (nb == l) {
+            l->set_phase(l->get_phase() + Phase(1));
+            continue;
+        }
+
+        graph.add_edge(l, nb, etype);
+    }
+
+    graph.remove_vertex(v);
+    graph.remove_vertex(r);
+
+    l->set_phase(l->get_phase() + r->get_phase());
+
+    return true;
+}
+
+bool IdentityFusion::undo(ZXGraph& graph) const {
+    auto l = graph[_left_id];
+    if (l == nullptr) return false;
+    if (graph[_v_id] != nullptr) return false;
+    if (graph[_right_id] != nullptr) return false;
+
+    for (auto const& nb_id : _right_neighbors) {
+        auto nb = graph[nb_id];
+        if (nb == nullptr && nb_id != _v_id) return false;
+    }
+
+    auto v = graph.add_vertex(
+        _v_id, VertexType::z, Phase(0), l->get_row(), l->get_col());
+
+    auto r = graph.add_vertex(
+        _right_id, VertexType::z, _right_phase, l->get_row(), l->get_col() + 1);
+
+    graph.add_edge(l, v, EdgeType::hadamard);
+    graph.add_edge(v, r, EdgeType::hadamard);
+
+    l->set_phase(l->get_phase() - r->get_phase());
+
+    for (auto const& nb_id : _right_neighbors) {
+        if (nb_id == _left_id) {
+            l->set_phase(l->get_phase() + Phase(1));
+            graph.add_edge(l, r, EdgeType::hadamard);
+        } else {
+            auto nb    = graph[nb_id];
+            auto etype = graph.get_edge_type(_left_id, nb_id);
+            if (graph.is_neighbor(l, nb, *etype)) {
+                graph.remove_edge(l, nb, *etype);
+                graph.add_edge(r, nb, *etype);
+            } else {
+                graph.add_edge(l, nb, EdgeType::hadamard);
+                graph.add_edge(r, nb, EdgeType::hadamard);
+            }
+        }
+    }
+
+    return true;
 }
 
 }  // namespace qsyn::zx

@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "zx/zxgraph.hpp"
+#include "zx/zxgraph_action.hpp"
 
 namespace qsyn::zx {
 
@@ -88,7 +89,7 @@ public:
     void apply(ZXGraph& graph, std::vector<MatchType> const& matches) const override;
 };
 
-class IdentityRemovalRule : public ZXRuleTemplate<std::tuple<ZXVertex*, ZXVertex*, ZXVertex*, EdgeType>> {
+class IdentityRemovalRule : public ZXRuleTemplate<IdentityRemoval> {
 public:
     std::string get_name() const override { return "Identity Removal Rule"; }
     std::vector<MatchType> find_matches(

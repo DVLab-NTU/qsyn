@@ -70,6 +70,7 @@ public:
     // Test
     bool is_z() const { return get_type() == VertexType::z; }
     bool is_x() const { return get_type() == VertexType::x; }
+    bool is_zx() const { return is_z() || is_x(); }
     bool is_hbox() const { return get_type() == VertexType::h_box; }
     bool is_boundary() const { return get_type() == VertexType::boundary; }
 
@@ -158,18 +159,6 @@ public:
     size_t get_num_outputs() const { return get_outputs().size(); }
     size_t get_num_vertices() const { return get_vertices().size(); }
 
-    // FIXME - This is a temporary solution to avoid breaking the code
-    void regenerate_io_map() {
-        _input_list.clear();
-        _output_list.clear();
-        for (auto const& v : _inputs) {
-            _input_list.emplace(v->get_qubit(), v);
-        }
-        for (auto const& v : _outputs) {
-            _output_list.emplace(v->get_qubit(), v);
-        }
-    }
-
     Neighbors const& get_neighbors(ZXVertex* v) const { return v->_neighbors; }
     size_t get_num_neighbors(ZXVertex* v) const { return v->_neighbors.size(); }
     NeighborPair const& get_first_neighbor(ZXVertex* v) const { return *(std::begin(v->_neighbors)); }
@@ -183,6 +172,8 @@ public:
     // attributes
     bool is_neighbor(ZXVertex* v1, ZXVertex* v2) const { return v1->_neighbors.contains({v2, EdgeType::simple}) || v1->_neighbors.contains({v2, EdgeType::hadamard}); }
     bool is_neighbor(ZXVertex* v1, ZXVertex* v2, EdgeType et) const { return v1->_neighbors.contains({v2, et}); }
+    bool is_neighbor(size_t v0_id, size_t v1_id) const;
+    bool is_neighbor(size_t v0_id, size_t v1_id, EdgeType et) const;
     std::optional<EdgeType> get_edge_type(ZXVertex* v1, ZXVertex* v2) const {
         if (is_neighbor(v1, v2, EdgeType::simple)) return EdgeType::simple;
         if (is_neighbor(v1, v2, EdgeType::hadamard)) return EdgeType::hadamard;
@@ -223,13 +214,16 @@ public:
     ZXVertex* add_vertex(size_t id, VertexType vt, Phase phase = Phase(), float row = 0.f, float col = 0.f);
     ZXVertex* add_vertex(std::optional<size_t> id, VertexType vt, Phase phase = Phase(), float row = 0.f, float col = 0.f);
     void add_edge(ZXVertex* vs, ZXVertex* vt, EdgeType et);
+    void add_edge(size_t v0_id, size_t v1_id, EdgeType et);
 
     size_t remove_isolated_vertices();
     size_t remove_vertex(ZXVertex* v);
+    size_t remove_vertex(size_t id);
 
     size_t remove_vertices(std::vector<ZXVertex*> const& vertices);
     size_t remove_edge(EdgePair const& ep);
     size_t remove_edge(ZXVertex* vs, ZXVertex* vt, EdgeType etype);
+    size_t remove_edge(size_t v0_id, size_t v1_id, EdgeType etype);
     size_t remove_edges(std::span<EdgePair const> epairs);
     size_t remove_all_edges_between(ZXVertex* vs, ZXVertex* vt);
 

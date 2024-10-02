@@ -35,9 +35,9 @@ public:
     virtual ~ZXRule() = default;
 
     // should return true if and only if the rule is successfully applied
-    virtual bool apply(ZXGraph& graph) = 0;
+    virtual bool apply(ZXGraph& graph) const = 0;
     // should return true if and only if the rule is successfully undone
-    virtual bool undo(ZXGraph& graph) = 0;
+    virtual bool undo(ZXGraph& graph) const = 0;
 };
 
 /**
@@ -47,15 +47,15 @@ public:
 class IdentityRemoval : public ZXRule {
 public:
     IdentityRemoval(size_t v_id);
-    bool apply(ZXGraph& graph) override;
-    bool undo(ZXGraph& graph) override;
+    bool apply(ZXGraph& graph) const override;
+    bool undo(ZXGraph& graph) const override;
 
 private:
     size_t _v_id;
-    size_t _left_id         = 0;
-    size_t _right_id        = 0;
-    VertexType _vtype       = VertexType::z;
-    EdgeType _etype_to_left = EdgeType::hadamard;
+    mutable size_t _left_id         = 0;
+    mutable size_t _right_id        = 0;
+    mutable VertexType _vtype       = VertexType::z;
+    mutable EdgeType _etype_to_left = EdgeType::hadamard;
 };
 
 /**
@@ -69,15 +69,48 @@ public:
                      VertexType vtype,
                      EdgeType etype_to_left);
 
-    bool apply(ZXGraph& graph) override;
-    bool undo(ZXGraph& graph) override;
+    bool apply(ZXGraph& graph) const override;
+    bool undo(ZXGraph& graph) const override;
 
 private:
     size_t _left_id;
     size_t _right_id;
     VertexType _vtype;
     EdgeType _etype_to_left;
-    size_t _new_v_id = 0;
+    mutable size_t _new_v_id = 0;
+};
+
+// class SpiderFusion : public ZXRule {
+// public:
+//     SpiderFusion(size_t v0_id, size_t v1_id);
+//     bool apply(ZXGraph& graph) const override;
+//     bool undo(ZXGraph& graph) const override;
+
+// private:
+//     size_t _v0_id;
+//     size_t _v1_id;
+//     mutable VertexType _v1_type = VertexType::z;
+//     mutable Phase _v1_phase;
+//     mutable std::vector<size_t> _v1_neighbors;
+// };
+
+/**
+ * @brief Remove a identity vertex and merge its neighbors.
+ *        Assumes the graph is graph-like.
+ *
+ */
+class IdentityFusion : public ZXRule {
+public:
+    IdentityFusion(size_t v_id);
+    bool apply(ZXGraph& graph) const override;
+    bool undo(ZXGraph& graph) const override;
+
+private:
+    size_t _v_id;
+    mutable size_t _left_id    = 0;
+    mutable size_t _right_id   = 0;
+    mutable Phase _right_phase = Phase(0);
+    mutable std::vector<size_t> _right_neighbors;
 };
 
 }  // namespace qsyn::zx
