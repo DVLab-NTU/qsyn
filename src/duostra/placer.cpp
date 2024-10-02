@@ -13,6 +13,7 @@
 
 #include "./duostra.hpp"
 #include "device/device.hpp"
+#include "duostra/duostra_def.hpp"
 #include "qsyn/qsyn_type.hpp"
 #include "util/util.hpp"
 
@@ -23,15 +24,15 @@ namespace qsyn::duostra {
  *
  * @return unique_ptr<BasePlacer>
  */
-std::unique_ptr<BasePlacer> get_placer() {
-    if (DuostraConfig::PLACER_TYPE == PlacerType::naive) {
-        return std::make_unique<StaticPlacer>();
-    } else if (DuostraConfig::PLACER_TYPE == PlacerType::random) {
-        return std::make_unique<RandomPlacer>();
-    } else if (DuostraConfig::PLACER_TYPE == PlacerType::dfs) {
-        return std::make_unique<DFSPlacer>();
+std::unique_ptr<BasePlacer> get_placer(PlacerType type) {
+    switch (type) {
+        case PlacerType::naive:
+            return std::make_unique<StaticPlacer>();
+        case PlacerType::random:
+            return std::make_unique<RandomPlacer>();
+        case PlacerType::dfs:
+            return std::make_unique<DFSPlacer>();
     }
-    DVLAB_UNREACHABLE("Unknown placer type");
     return nullptr;
 }
 

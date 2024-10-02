@@ -41,17 +41,23 @@ struct fmt::formatter<qsyn::device::PhysicalQubit> {
 
 namespace qsyn::device {
 
-// SECTION - Struct Info Member Functions
-
 /**
- * @brief Print overloading
+ * @brief TEMPORARY SOLUTION! get gate delay as used by the Duostra algorithm
+ *        This function should be rewritten to use the actual device information
  *
- * @param os
- * @param info
- * @return ostream&
+ * @param inst
+ * @return size_t
  */
-std::ostream& operator<<(std::ostream& os, DeviceInfo const& info) {
-    return os << fmt::format("{}", info);
+size_t Device::get_delay(qcir::QCirGate const& inst) const {
+    if (inst.get_operation().get_type() == "swap") {
+        return 6;
+    } else if (inst.get_qubits().size() == 1) {
+        return 1;
+    } else if (inst.get_qubits().size() == 2) {
+        return 2;
+    } else {
+        return 5;
+    }
 }
 
 // SECTION - Class Topology Member Functions
@@ -304,41 +310,14 @@ void Device::apply_gate(qcir::QCirGate const& op, size_t time_begin) {
         auto temp = q0.get_logical_qubit();
         q0.set_logical_qubit(q1.get_logical_qubit());
         q1.set_logical_qubit(temp);
-        q0.set_occupied_time(time_begin + op.get_delay());
-        q1.set_occupied_time(time_begin + op.get_delay());
+        q0.set_occupied_time(time_begin + get_delay(op));
+        q1.set_occupied_time(time_begin + get_delay(op));
     } else if (op.get_num_qubits() == 2) {
-        q0.set_occupied_time(time_begin + op.get_delay());
-        q1.set_occupied_time(time_begin + op.get_delay());
+        q0.set_occupied_time(time_begin + get_delay(op));
+        q1.set_occupied_time(time_begin + get_delay(op));
     } else {
         DVLAB_ASSERT(false, fmt::format("Unknown gate type ({}) at apply_gate()!!", op.get_operation().get_repr()));
     }
-}
-
-/**
- * @brief Apply swap, only used in checker
- *
- * @param op
- */
-void Device::apply_swap_check(QubitIdType qid0, QubitIdType qid1) {
-    auto& q0  = get_physical_qubit(qid0);
-    auto& q1  = get_physical_qubit(qid1);
-    auto temp = q0.get_logical_qubit();
-    q0.set_logical_qubit(q1.get_logical_qubit());
-    q1.set_logical_qubit(temp);
-    auto const max_occupied_time = std::max(q0.get_occupied_time(), q1.get_occupied_time());
-    q0.set_occupied_time(max_occupied_time + DOUBLE_DELAY);
-    q1.set_occupied_time(max_occupied_time + DOUBLE_DELAY);
-}
-
-/**
- * @brief Apply single-qubit gate
- *
- * @param physicalId
- */
-void Device::apply_single_qubit_gate(QubitIdType physical_id) {
-    auto const start_time = _qubit_list[physical_id].get_occupied_time();
-    _qubit_list[physical_id].set_occupied_time(start_time + SINGLE_DELAY);
-    _qubit_list[physical_id].reset();
 }
 
 /**

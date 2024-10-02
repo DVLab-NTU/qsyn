@@ -5,7 +5,7 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "qcir/qcir_cmd.hpp"
+#include "cmd/qcir_cmd.hpp"
 
 #include <fmt/color.h>
 #include <fmt/ostream.h>
@@ -16,18 +16,18 @@
 #include <filesystem>
 #include <string>
 
-#include "./basic_gate_type.hpp"
-#include "./optimizer/optimizer_cmd.hpp"
-#include "./oracle/oracle_cmd.hpp"
-#include "./qcir.hpp"
-#include "./qcir_equiv.hpp"
-#include "./qcir_gate.hpp"
-#include "./qcir_io.hpp"
-#include "./qcir_mgr.hpp"
-#include "./qcir_translate.hpp"
+#include "./qcir/optimizer_cmd.hpp"
+#include "./qcir/oracle_cmd.hpp"
 #include "argparse/arg_parser.hpp"
 #include "argparse/arg_type.hpp"
 #include "cli/cli.hpp"
+#include "cmd/qcir_mgr.hpp"
+#include "qcir/basic_gate_type.hpp"
+#include "qcir/qcir.hpp"
+#include "qcir/qcir_equiv.hpp"
+#include "qcir/qcir_gate.hpp"
+#include "qcir/qcir_io.hpp"
+#include "qcir/qcir_translate.hpp"
 #include "util/cin_cout_cerr.hpp"
 #include "util/data_structure_manager_common_cmd.hpp"
 #include "util/dvlab_string.hpp"
@@ -108,78 +108,6 @@ dvlab::Command qcir_tensor_product_cmd(QCirMgr& qcir_mgr) {
                     *qcir_mgr.find_by_id(parser.get<size_t>("id")));
                 return CmdExecResult::done;
             }};
-}
-
-dvlab::Command qcir_config_cmd() {
-    return {
-        "config",
-        [](ArgumentParser& parser) {
-            parser.description("set QCir parameters");
-
-            parser.add_argument<size_t>("--single-delay")
-                .help("delay of single-qubit gate");
-            parser.add_argument<size_t>("--double-delay")
-                .help("delay of double-qubit gate, SWAP excluded");
-            parser.add_argument<size_t>("--swap-delay")
-                .help("delay of SWAP gate, used to be 3x double-qubit gate");
-            parser.add_argument<size_t>("--multiple-delay")
-                .help("delay of multiple-qubit gate");
-        },
-        [](ArgumentParser const& parser) {
-            auto printing_config = true;
-            if (parser.parsed("--single-delay")) {
-                auto single_delay = parser.get<size_t>("--single-delay");
-                if (single_delay == 0) {
-                    fmt::println(
-                        "Error: single delay value should > 0, skipping this option!!");
-                } else {
-                    SINGLE_DELAY = single_delay;
-                }
-                printing_config = false;
-            }
-            if (parser.parsed("--double-delay")) {
-                auto double_delay = parser.get<size_t>("--double-delay");
-                if (double_delay == 0) {
-                    fmt::println(
-                        "Error: double delay value should > 0, skipping this option!!");
-                } else {
-                    DOUBLE_DELAY = double_delay;
-                }
-                printing_config = false;
-            }
-            if (parser.parsed("--swap-delay")) {
-                auto swap_delay = parser.get<size_t>("--swap-delay");
-                if (swap_delay == 0) {
-                    fmt::println(
-                        "Error: swap delay value should > 0, skipping this option!!");
-                } else {
-                    SWAP_DELAY = swap_delay;
-                }
-                printing_config = false;
-            }
-            if (parser.parsed("--multiple-delay")) {
-                auto multi_delay = parser.get<size_t>("--multiple-delay");
-                if (multi_delay == 0) {
-                    fmt::println(
-                        "Error: multiple delay value should > 0, skipping "
-                        "this option!!");
-                } else {
-                    MULTIPLE_DELAY = multi_delay;
-                }
-                printing_config = false;
-            }
-
-            if (printing_config) {
-                fmt::println("");
-                fmt::println("Delay of Single-qubit gate :     {}", SINGLE_DELAY);
-                fmt::println("Delay of Double-qubit gate :     {}", DOUBLE_DELAY);
-                fmt::println("Delay of SWAP gate :             {} {}", SWAP_DELAY,
-                             (SWAP_DELAY == 3 * DOUBLE_DELAY) ? "(3 CXs)" : "");
-                fmt::println("Delay of Multiple-qubit gate :   {}", MULTIPLE_DELAY);
-            }
-
-            return CmdExecResult::done;
-        }};
 }
 
 dvlab::Command qcir_read_cmd(QCirMgr& qcir_mgr) {
@@ -735,7 +663,6 @@ Command qcir_cmd(QCirMgr& qcir_mgr) {
     cmd.add_subcommand("qcir-cmd-group", dvlab::utils::mgr_new_cmd(qcir_mgr));
     cmd.add_subcommand("qcir-cmd-group", dvlab::utils::mgr_delete_cmd(qcir_mgr));
     cmd.add_subcommand("qcir-cmd-group", dvlab::utils::mgr_copy_cmd(qcir_mgr));
-    cmd.add_subcommand("qcir-cmd-group", qcir_config_cmd());
     cmd.add_subcommand("qcir-cmd-group", qcir_compose_cmd(qcir_mgr));
     cmd.add_subcommand("qcir-cmd-group", qcir_tensor_product_cmd(qcir_mgr));
     cmd.add_subcommand("qcir-cmd-group", qcir_read_cmd(qcir_mgr));

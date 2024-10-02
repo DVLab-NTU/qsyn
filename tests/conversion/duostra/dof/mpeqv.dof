@@ -1,5 +1,4 @@
 device read benchmark/topology/guadalupe_16.layout
-qcir config --double-delay 2 --swap-delay 6
 qcir read benchmark/SABRE/small/3_17_13.qasm
 duostra --check
 qcir print

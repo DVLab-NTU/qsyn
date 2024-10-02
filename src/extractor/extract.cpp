@@ -36,18 +36,14 @@ using namespace qsyn::qcir;
 
 namespace qsyn::extractor {
 
-bool SORT_FRONTIER        = false;
-bool SORT_NEIGHBORS       = true;
-bool PERMUTE_QUBITS       = true;
-bool FILTER_DUPLICATE_CXS = true;
-bool REDUCE_CZS           = false;
-size_t BLOCK_SIZE         = 5;
-size_t OPTIMIZE_LEVEL     = 2;
-bool DYNAMIC_ORDER        = false;
-float PRED_COEFF          = 0.7;
-
-Extractor::Extractor(ZXGraph* graph, QCir* qcir, bool random)
-    : _graph(graph), _logical_circuit{qcir}, _random(random) {
+Extractor::Extractor(
+    ZXGraph* graph,
+    ExtractorConfig config,
+    QCir* qcir, bool random)
+    : _graph(graph),
+      _logical_circuit{qcir},
+      _random(random),
+      _config(config) {
     initialize();
 }
 
@@ -112,7 +108,7 @@ QCir* Extractor::extract() {
     _logical_circuit->print_circuit_diagram(spdlog::level::level_enum::trace);
     _graph->print_vertices_by_rows(spdlog::level::level_enum::trace);
 
-    if (PERMUTE_QUBITS) {
+    if (_config.permute_qubits) {
         permute_qubits();
         _logical_circuit->print_circuit_diagram(spdlog::level::level_enum::trace);
         _graph->print_vertices_by_rows(spdlog::level::level_enum::trace);
@@ -140,7 +136,7 @@ bool Extractor::extraction_loop(std::optional<size_t> max_iter) {
             _logical_circuit->print_circuit_diagram(spdlog::level::level_enum::trace);
             continue;
         }
-        if (DYNAMIC_ORDER) {
+        if (_config.dynamic_order) {
             // Should clean CZs before further extraction
             extract_czs();
         }
@@ -177,7 +173,7 @@ bool Extractor::extraction_loop(std::optional<size_t> max_iter) {
 void Extractor::clean_frontier() {
     spdlog::debug("Cleaning frontier");
     extract_singles();
-    if (!DYNAMIC_ORDER) {
+    if (!_config.dynamic_order) {
         extract_czs();
     }
 }
@@ -258,7 +254,7 @@ bool Extractor::extract_czs(bool check) {
     std::vector<qcir::QCirGate> gates;
 
     size_t saved_cz_cnt = 0;
-    if (REDUCE_CZS) {
+    if (_config.reduce_czs) {
         // Remove two most similar rows by CXs and CZs
         auto [overlap, commons] = _max_overlap(_biadjacency);
         while (commons.size() > 2) {
@@ -450,7 +446,7 @@ bool Extractor::remove_gadget(bool check) {
                         break;
                     }
                 }
-                if (DYNAMIC_ORDER) {
+                if (_config.dynamic_order) {
                     const std::vector<qcir::QCirGate> gates;
                     int diff = 0;
                     int n_cz = 0;
@@ -460,7 +456,7 @@ bool Extractor::remove_gadget(bool check) {
                             n_cz++;
                         }
                     }
-                    if (PRED_COEFF * float(diff) + 1 * float(n_cz) < 0) {
+                    if (_config.pred_coeff * float(diff) + 1 * float(n_cz) < 0) {
                         extract_czs();
                     }
                 }
@@ -718,12 +714,12 @@ bool Extractor::biadjacency_eliminations(bool check) {
         }
     }
 
-    if (SORT_FRONTIER) {
+    if (_config.sort_frontier) {
         _frontier.sort([](ZXVertex const* a, ZXVertex const* b) {
             return a->get_qubit() < b->get_qubit();
         });
     }
-    if (SORT_NEIGHBORS) {
+    if (_config.sort_neighbors) {
         // REVIEW - Do not know why sort here would be better
         _neighbors.sort([](ZXVertex const* a, ZXVertex const* b) {
             return a->get_id() < b->get_id();
@@ -734,11 +730,11 @@ bool Extractor::biadjacency_eliminations(bool check) {
 
     update_matrix();
 
-    if (OPTIMIZE_LEVEL == 0) {
+    if (_config.optimize_level == 0) {
         column_optimal_swap();
         update_matrix();
-        _biadjacency.gaussian_elimination_skip(BLOCK_SIZE, true, true);
-        if (FILTER_DUPLICATE_CXS) _filter_duplicate_cxs();
+        _biadjacency.gaussian_elimination_skip(_config.block_size, true, true);
+        if (_config.filter_duplicate_cxs) _filter_duplicate_cxs();
         _cnots = _biadjacency.get_row_operations();
         return true;
     }
@@ -746,9 +742,9 @@ bool Extractor::biadjacency_eliminations(bool check) {
     dvlab::BooleanMatrix greedy_matrix = _biadjacency;
     auto const backup_neighbors        = _neighbors;
 
-    DVLAB_ASSERT(OPTIMIZE_LEVEL <= 3, "Error: wrong optimize level");
+    DVLAB_ASSERT(_config.optimize_level <= 3, "Error: wrong optimize level");
 
-    if (OPTIMIZE_LEVEL > 1) {
+    if (_config.optimize_level > 1) {
         // NOTE - opt = 2 or 3
         greedy_opers = greedy_reduction(greedy_matrix);
         for (auto const& oper : greedy_opers) {
@@ -756,7 +752,7 @@ bool Extractor::biadjacency_eliminations(bool check) {
         }
     }
 
-    if (OPTIMIZE_LEVEL != 2 || greedy_opers.empty()) {
+    if (_config.optimize_level != 2 || greedy_opers.empty()) {
         // NOTE - opt = 1, 3 or when 2 cannot find the result
         column_optimal_swap();
         update_matrix();
@@ -766,7 +762,7 @@ bool Extractor::biadjacency_eliminations(bool check) {
         for (size_t blk = 1; blk < _biadjacency.num_cols(); blk++) {
             _block_elimination(best_matrix, min_cnots, blk);
         }
-        if (OPTIMIZE_LEVEL == 1) {
+        if (_config.optimize_level == 1) {
             _biadjacency = best_matrix;
             _cnots       = _biadjacency.get_row_operations();
         } else {
@@ -805,7 +801,7 @@ bool Extractor::biadjacency_eliminations(bool check) {
 void Extractor::_block_elimination(dvlab::BooleanMatrix& best_matrix, size_t& min_n_cxs, size_t block_size) {
     dvlab::BooleanMatrix copied_matrix = _biadjacency;
     copied_matrix.gaussian_elimination_skip(block_size, true, true);
-    if (FILTER_DUPLICATE_CXS) _filter_duplicate_cxs();
+    if (_config.filter_duplicate_cxs) _filter_duplicate_cxs();
     if (copied_matrix.get_row_operations().size() < min_n_cxs) {
         min_n_cxs   = copied_matrix.get_row_operations().size();
         best_matrix = copied_matrix;

@@ -9,8 +9,7 @@
 
 #include "./tableau_cmd.hpp"
 #include "cli/cli.hpp"
-#include "qcir/qcir_mgr.hpp"
-#include "tableau/tableau_mgr.hpp"
+#include "cmd/tableau_mgr.hpp"
 
 namespace qsyn {
 

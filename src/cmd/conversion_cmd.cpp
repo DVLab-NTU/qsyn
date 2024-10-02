@@ -11,27 +11,26 @@
 
 #include <string>
 
-#include "./qcir_to_tableau.hpp"
-#include "./qcir_to_tensor.hpp"
-#include "./qcir_to_zxgraph.hpp"
-#include "./tableau_to_qcir.hpp"
-#include "./zxgraph_to_tensor.hpp"
 #include "argparse/arg_parser.hpp"
 #include "argparse/arg_type.hpp"
 #include "cli/cli.hpp"
+#include "cmd/qcir_mgr.hpp"
+#include "cmd/tableau_mgr.hpp"
+#include "cmd/tensor_mgr.hpp"
+#include "cmd/zxgraph_mgr.hpp"
 #include "convert/qcir_to_tableau.hpp"
+#include "convert/qcir_to_tensor.hpp"
+#include "convert/qcir_to_zxgraph.hpp"
+#include "convert/tableau_to_qcir.hpp"
+#include "convert/zxgraph_to_tensor.hpp"
 #include "extractor/extract.hpp"
 #include "qcir/qcir.hpp"
-#include "qcir/qcir_mgr.hpp"
 #include "tableau/stabilizer_tableau.hpp"
-#include "tableau/tableau_mgr.hpp"
 #include "tensor/decomposer.hpp"
 #include "tensor/solovay_kitaev.hpp"
-#include "tensor/tensor_mgr.hpp"
 #include "util/data_structure_manager_common_cmd.hpp"
 #include "util/dvlab_string.hpp"
 #include "util/util.hpp"
-#include "zx/zxgraph_mgr.hpp"
 
 using namespace dvlab::argparse;
 
@@ -39,11 +38,9 @@ using dvlab::Command, dvlab::CmdExecResult;
 
 namespace qsyn {
 
-bool valid_decomposition_mode(size_t const& val) {
-    if (val < 4) return true;
-    spdlog::error("Decomposition Mode {} is not valid!!", val);
-    return false;
-};
+namespace extractor {
+extern ExtractorConfig EXTRACTOR_CONFIG;
+}
 
 Command convert_from_qcir_cmd(
     qcir::QCirMgr& qcir_mgr,
@@ -146,13 +143,17 @@ Command convert_from_zx_cmd(zx::ZXGraphMgr& zxgraph_mgr, QCirMgr& qcir_mgr, tens
                     return CmdExecResult::error;
                 }
                 zx::ZXGraph target = *zxgraph_mgr.get();
-                extractor::Extractor ext(&target, nullptr, parser.parsed("--random") /*, std::nullopt*/);
+                extractor::Extractor ext(
+                    &target,
+                    extractor::EXTRACTOR_CONFIG,
+                    nullptr,
+                    parser.parsed("--random") /*, std::nullopt*/);
                 qcir::QCir* result = ext.extract();
                 if (result != nullptr) {
                     qcir_mgr.add(qcir_mgr.get_next_id(), std::unique_ptr<qcir::QCir>(result));
                     qcir_mgr.get()->set_filename(zxgraph_mgr.get()->get_filename());
                     qcir_mgr.get()->add_procedures(zxgraph_mgr.get()->get_procedures());
-                    if (!extractor::PERMUTE_QUBITS) {
+                    if (!extractor::EXTRACTOR_CONFIG.permute_qubits) {
                         spdlog::warn("The extracted circuit is up to a qubit permutation.");
                         spdlog::warn("Remaining permutation information is in ZXGraph id {}.", zxgraph_mgr.get_next_id());
                         zxgraph_mgr.add(zxgraph_mgr.get_next_id(), std::make_unique<zx::ZXGraph>(std::move(target)));

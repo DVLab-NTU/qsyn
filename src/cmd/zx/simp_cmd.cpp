@@ -13,13 +13,13 @@
 #include <string>
 #include <vector>
 
-#include "./simplify.hpp"
 #include "argparse/arg_parser.hpp"
 #include "cli/cli.hpp"
+#include "cmd/zx_cmd.hpp"
+#include "cmd/zxgraph_mgr.hpp"
 #include "util/data_structure_manager_common_cmd.hpp"
-#include "zx/zx_cmd.hpp"
+#include "zx/simplifier/simplify.hpp"
 #include "zx/zxgraph.hpp"
-#include "zx/zxgraph_mgr.hpp"
 
 using namespace dvlab::argparse;
 using dvlab::CmdExecResult;

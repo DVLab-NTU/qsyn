@@ -14,6 +14,7 @@
 #include <string>
 #include <unordered_map>
 
+#include "qcir/qcir_gate.hpp"
 #include "qsyn/qsyn_type.hpp"
 #include "util/util.hpp"
 
@@ -152,8 +153,6 @@ public:
 
     // NOTE - Duostra
     void apply_gate(qcir::QCirGate const& op, size_t time_begin);
-    void apply_single_qubit_gate(QubitIdType physical_id);
-    void apply_swap_check(QubitIdType qid0, QubitIdType qid1);
     std::vector<std::optional<size_t>> mapping() const;
     void place(std::vector<QubitIdType> const& assignment);
 
@@ -171,6 +170,8 @@ public:
     void print_path(QubitIdType src, QubitIdType dest) const;
     void print_mapping();
     void print_status() const;
+
+    size_t get_delay(qcir::QCirGate const& inst) const;
 
 private:
     size_t _num_qubit = 0;

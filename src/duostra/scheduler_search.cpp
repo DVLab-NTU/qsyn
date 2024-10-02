@@ -224,11 +224,17 @@ size_t TreeNode::best_cost() const {
  * @param topo
  * @param tqdm
  */
-SearchScheduler::SearchScheduler(CircuitTopology const& topo, bool tqdm)
-    : GreedyScheduler(topo, tqdm),
-      _never_cache(DuostraConfig::NEVER_CACHE),
-      _execute_single(DuostraConfig::EXECUTE_SINGLE_QUBIT_GATES_ASAP),
-      _lookahead(DuostraConfig::SEARCH_DEPTH) {
+SearchScheduler::SearchScheduler(
+    CircuitTopology const& topo,
+    DuostraConfig config,
+    bool tqdm)
+    : GreedyScheduler(
+          topo,
+          config,
+          tqdm),
+      _never_cache(config.never_cache),
+      _execute_single(config.execute_single_qubit_gates_asap),
+      _lookahead(config.search_depth) {
     _cache_when_necessary();
 }
 

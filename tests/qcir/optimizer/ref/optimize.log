@@ -7,7 +7,7 @@ Clifford   : 1941
 2-qubit    : 1498
 T-family   : 1498
 Others     : 0
-Depth      : 3088
+Depth      : 1839
 
 qsyn> logger trace
 [info]     Setting logger level to "trace"
@@ -191,7 +191,7 @@ Clifford   : 1717
 2-qubit    : 1502
 T-family   : 1488
 Others     : 0
-Depth      : 3197
+Depth      : 1947
 
 qsyn> qc2zx
 
@@ -206,7 +206,7 @@ Clifford   : 2921
 2-qubit    : 1705
 T-family   : 692
 Others     : 0
-Depth      : 4595
+Depth      : 3102
 
 qsyn> logger info
 [info]     Setting logger level to "info"
@@ -382,7 +382,7 @@ Clifford   : 1850
 2-qubit    : 1574
 T-family   : 692
 Others     : 0
-Depth      : 3505
+Depth      : 2150
 
 qsyn> quit -f
 

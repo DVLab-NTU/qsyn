@@ -5,7 +5,7 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "qcir/oracle/oracle_cmd.hpp"
+#include "./oracle_cmd.hpp"
 
 #include <spdlog/spdlog.h>
 

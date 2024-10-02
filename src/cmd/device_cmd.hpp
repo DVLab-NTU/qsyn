@@ -1,6 +1,7 @@
+
 /****************************************************************************
-  PackageName  [ qcir/optimizer ]
-  Synopsis     [ Define optimizer package commands ]
+  PackageName  [ device ]
+  Synopsis     [ Define device package commands ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
@@ -8,10 +9,10 @@
 #pragma once
 
 #include "cli/cli.hpp"
-#include "qcir/qcir_mgr.hpp"
+#include "cmd/device_mgr.hpp"
 
-namespace qsyn::qcir {
+namespace qsyn::device {
 
-dvlab::Command qcir_optimize_cmd(QCirMgr& qcir_mgr);
+bool add_device_cmds(dvlab::CommandLineInterface& cli, qsyn::device::DeviceMgr& device_mgr);
 
 }

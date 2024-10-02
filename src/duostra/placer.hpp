@@ -12,6 +12,7 @@
 #include <random>
 #include <vector>
 
+#include "duostra/duostra_def.hpp"
 #include "qsyn/qsyn_type.hpp"
 
 namespace qsyn::device {
@@ -59,6 +60,6 @@ private:
     void _dfs_device(QubitIdType current, Device& device, std::vector<QubitIdType>& assign, std::vector<bool>& qubit_marks) const;
 };
 
-std::unique_ptr<BasePlacer> get_placer();
+std::unique_ptr<BasePlacer> get_placer(PlacerType type);
 
 }  // namespace qsyn::duostra

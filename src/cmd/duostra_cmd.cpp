@@ -12,13 +12,13 @@
 #include <gsl/util>
 #include <string>
 
-#include "./duostra.hpp"
-#include "./mapping_eqv_checker.hpp"
 #include "cli/cli.hpp"
-#include "device/device_mgr.hpp"
+#include "cmd/device_mgr.hpp"
+#include "cmd/qcir_cmd.hpp"
+#include "duostra/duostra.hpp"
 #include "duostra/duostra_def.hpp"
+#include "duostra/mapping_eqv_checker.hpp"
 #include "qcir/qcir.hpp"
-#include "qcir/qcir_cmd.hpp"
 #include "util/data_structure_manager_common_cmd.hpp"
 #include "util/text_format.hpp"
 
@@ -28,7 +28,27 @@ using dvlab::Command;
 
 namespace qsyn::duostra {
 
-Command duostra_config_cmd() {
+DuostraConfig DUOSTRA_CONFIG{
+    // SECTION - Global settings for Duostra mapper
+    .scheduler_type        = SchedulerType::search,
+    .router_type           = RouterType::duostra,
+    .placer_type           = PlacerType::dfs,
+    .tie_breaking_strategy = MinMaxOptionType::min,
+
+    // SECTION - Initialize in Greedy Scheduler
+    .num_candidates          = SIZE_MAX,               // top k candidates, SIZE_MAX: all
+    .apsp_coeff              = 1,                      // coefficient of apsp cost
+    .available_time_strategy = MinMaxOptionType::max,  // available time of double-qubit gate is set to min or max of occupied time
+    .cost_selection_strategy = MinMaxOptionType::min,  // select min or max cost from the waitlist
+
+    // SECTION - Initialize in Search Scheduler
+    .search_depth                    = 4,  // depth of searching region
+    .never_cache                     = 1,  // never cache any children unless children() is called
+    .execute_single_qubit_gates_asap = 0,  // execute the single gates when they are available
+};
+
+Command
+duostra_config_cmd() {
     return {"config",
             [](ArgumentParser& parser) {
                 parser.description("set Duostra parameter(s)");
@@ -80,87 +100,87 @@ Command duostra_config_cmd() {
                 if (parser.parsed("--scheduler")) {
                     auto new_scheduler_type = get_scheduler_type(parser.get<std::string>("--scheduler"));
                     assert(new_scheduler_type.has_value());
-                    DuostraConfig::SCHEDULER_TYPE = new_scheduler_type.value();
+                    DUOSTRA_CONFIG.scheduler_type = new_scheduler_type.value();
                     printing_config               = false;
                 }
 
                 if (parser.parsed("--router")) {
                     auto new_router_type = get_router_type(parser.get<std::string>("--router"));
                     assert(new_router_type.has_value());
-                    DuostraConfig::ROUTER_TYPE = new_router_type.value();
+                    DUOSTRA_CONFIG.router_type = new_router_type.value();
                     printing_config            = false;
                 }
 
                 if (parser.parsed("--placer")) {
                     auto new_placer_type = get_placer_type(parser.get<std::string>("--placer"));
                     assert(new_placer_type.has_value());
-                    DuostraConfig::PLACER_TYPE = new_placer_type.value();
+                    DUOSTRA_CONFIG.placer_type = new_placer_type.value();
                     printing_config            = false;
                 }
 
                 if (parser.parsed("--tie-breaker")) {
                     auto new_tie_breaking_strategy = get_minmax_type(parser.get<std::string>("--tie-breaker"));
                     assert(new_tie_breaking_strategy.has_value());
-                    DuostraConfig::TIE_BREAKING_STRATEGY = new_tie_breaking_strategy.value();
+                    DUOSTRA_CONFIG.tie_breaking_strategy = new_tie_breaking_strategy.value();
                     printing_config                      = false;
                 }
 
                 if (parser.parsed("--candidates")) {
-                    DuostraConfig::NUM_CANDIDATES = gsl::narrow_cast<size_t>(parser.get<int>("--candidates"));
+                    DUOSTRA_CONFIG.num_candidates = gsl::narrow_cast<size_t>(parser.get<int>("--candidates"));
                     printing_config               = false;
                 }
 
                 if (parser.parsed("--apsp-coefficient")) {
-                    DuostraConfig::APSP_COEFF = parser.get<size_t>("--apsp-coefficient");
+                    DUOSTRA_CONFIG.apsp_coeff = parser.get<size_t>("--apsp-coefficient");
                     printing_config           = false;
                 }
 
                 if (parser.parsed("--available")) {
                     auto new_available_time_strategy = get_minmax_type(parser.get<std::string>("--available"));
                     assert(new_available_time_strategy.has_value());
-                    DuostraConfig::AVAILABLE_TIME_STRATEGY = new_available_time_strategy.value();
+                    DUOSTRA_CONFIG.available_time_strategy = new_available_time_strategy.value();
                     printing_config                        = false;
                 }
 
                 if (parser.parsed("--cost")) {
                     auto new_cost_selection_strategy = get_minmax_type(parser.get<std::string>("--cost"));
                     assert(new_cost_selection_strategy.has_value());
-                    DuostraConfig::COST_SELECTION_STRATEGY = new_cost_selection_strategy.value();
+                    DUOSTRA_CONFIG.cost_selection_strategy = new_cost_selection_strategy.value();
                     printing_config                        = false;
                 }
 
                 if (parser.parsed("--depth")) {
-                    DuostraConfig::SEARCH_DEPTH = (size_t)parser.get<int>("--depth");
+                    DUOSTRA_CONFIG.search_depth = (size_t)parser.get<int>("--depth");
                     printing_config             = false;
                 }
 
                 if (parser.parsed("--never-cache")) {
-                    DuostraConfig::NEVER_CACHE = parser.get<bool>("--never-cache");
+                    DUOSTRA_CONFIG.never_cache = parser.get<bool>("--never-cache");
                     printing_config            = false;
                 }
 
                 if (parser.parsed("--single-immediately")) {
-                    DuostraConfig::EXECUTE_SINGLE_QUBIT_GATES_ASAP = parser.get<bool>("--single-immediately");
+                    DUOSTRA_CONFIG.execute_single_qubit_gates_asap = parser.get<bool>("--single-immediately");
                     printing_config                                = false;
                 }
 
                 if (printing_config) {
                     fmt::println("");
-                    fmt::println("Scheduler:         {}", get_scheduler_type_str(DuostraConfig::SCHEDULER_TYPE));
-                    fmt::println("Router:            {}", get_router_type_str(DuostraConfig::ROUTER_TYPE));
-                    fmt::println("Placer:            {}", get_placer_type_str(DuostraConfig::PLACER_TYPE));
+                    fmt::println("Scheduler:         {}", get_scheduler_type_str(DUOSTRA_CONFIG.scheduler_type));
+                    fmt::println("Router:            {}", get_router_type_str(DUOSTRA_CONFIG.router_type));
+                    fmt::println("Placer:            {}", get_placer_type_str(DUOSTRA_CONFIG.placer_type));
 
                     if (parser.parsed("--verbose")) {
                         fmt::println("");
-                        fmt::println("# Candidates:      {}", ((DuostraConfig::NUM_CANDIDATES == SIZE_MAX) ? "unlimited" : std::to_string(DuostraConfig::NUM_CANDIDATES)));
-                        fmt::println("Search Depth:      {}", DuostraConfig::SEARCH_DEPTH);
+                        fmt::println("# Candidates:      {}", ((DUOSTRA_CONFIG.num_candidates == SIZE_MAX) ? "unlimited" : std::to_string(DUOSTRA_CONFIG.num_candidates)));
+                        fmt::println("Search Depth:      {}", DUOSTRA_CONFIG.search_depth);
                         fmt::println("");
-                        fmt::println("Tie breaker:       {}", get_minmax_type_str(DuostraConfig::TIE_BREAKING_STRATEGY));
-                        fmt::println("APSP Coeff.:       {}", DuostraConfig::APSP_COEFF);
-                        fmt::println("2-Qb. Avail. Time: {}", get_minmax_type_str(DuostraConfig::AVAILABLE_TIME_STRATEGY));
-                        fmt::println("Cost Selector:     {}", get_minmax_type_str(DuostraConfig::COST_SELECTION_STRATEGY));
-                        fmt::println("Never Cache:       {}", ((DuostraConfig::NEVER_CACHE) ? "true" : "false"));
-                        fmt::println("Single Immed.:     {}", ((DuostraConfig::EXECUTE_SINGLE_QUBIT_GATES_ASAP == 1) ? "true" : "false"));
+                        fmt::println("Tie breaker:       {}", get_minmax_type_str(DUOSTRA_CONFIG.tie_breaking_strategy));
+                        fmt::println("APSP Coeff.:       {}", DUOSTRA_CONFIG.apsp_coeff);
+                        fmt::println("2-Qb. Avail. Time: {}", get_minmax_type_str(DUOSTRA_CONFIG.available_time_strategy));
+                        fmt::println("Cost Selector:     {}", get_minmax_type_str(DUOSTRA_CONFIG.cost_selection_strategy));
+                        fmt::println("Never Cache:       {}", ((DUOSTRA_CONFIG.never_cache) ? "true" : "false"));
+                        fmt::println("Single Immed.:     {}", ((DUOSTRA_CONFIG.execute_single_qubit_gates_asap == 1) ? "true" : "false"));
                     }
                 }
 
@@ -193,7 +213,7 @@ Command mapping_equivalence_check_cmd(qcir::QCirMgr& qcir_mgr, device::DeviceMgr
             if (physical_qc == nullptr || logical_qc == nullptr) {
                 return CmdExecResult::error;
             }
-            MappingEquivalenceChecker mpeqc(physical_qc, logical_qc, *device_mgr.get(), {});
+            MappingEquivalenceChecker mpeqc(physical_qc, logical_qc, *device_mgr.get(), DUOSTRA_CONFIG.placer_type, {});
             if (mpeqc.check()) {
                 fmt::println("{}", styled_if_ansi_supported("Equivalent up to permutation", fmt::fg(fmt::terminal_color::green) | fmt::emphasis::bold));
             } else {
@@ -238,6 +258,7 @@ Command duostra_cmd(qcir::QCirMgr& qcir_mgr, device::DeviceMgr& device_mgr) {
                            qcir::QCir* logical_qcir = qcir_mgr.get();
                            Duostra duo{logical_qcir,
                                        *device_mgr.get(),
+                                       DUOSTRA_CONFIG,
                                        {.verify_result = parser.get<bool>("--check"),
                                         .silent        = parser.get<bool>("--silent"),
                                         .use_tqdm      = !parser.get<bool>("--mute-tqdm")}};

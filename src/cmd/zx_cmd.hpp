@@ -9,8 +9,8 @@
 
 #include <cstddef>
 
-#include "./zxgraph_mgr.hpp"
 #include "cli/cli.hpp"
+#include "cmd/zxgraph_mgr.hpp"
 
 namespace qsyn::zx {
 

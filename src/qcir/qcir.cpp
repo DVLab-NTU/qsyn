@@ -199,7 +199,7 @@ std::unordered_map<size_t, size_t> QCir::calculate_gate_times() const {
                     return predecessor ? gate_times.at(*predecessor) : 0;
                 }));
 
-        gate_times.emplace(curr_gate->get_id(), max_time + curr_gate->get_delay());
+        gate_times.emplace(curr_gate->get_id(), max_time + 1);
     };
 
     std::ranges::for_each(get_gates(), lambda);

@@ -12,10 +12,10 @@
 #include <cstddef>
 #include <string>
 
-#include "./gflow.hpp"
 #include "cli/cli.hpp"
+#include "cmd/zx_cmd.hpp"
 #include "util/data_structure_manager_common_cmd.hpp"
-#include "zx/zx_cmd.hpp"
+#include "zx/gflow/gflow.hpp"
 #include "zx/zxgraph.hpp"
 
 using namespace dvlab::argparse;

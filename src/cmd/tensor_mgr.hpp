@@ -9,7 +9,7 @@
 #include <map>
 #include <string>
 
-#include "./qtensor.hpp"
+#include "tensor/qtensor.hpp"
 #include "util/data_structure_manager.hpp"
 #include "util/phase.hpp"
 

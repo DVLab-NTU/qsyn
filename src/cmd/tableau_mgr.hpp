@@ -10,8 +10,8 @@
 #include <cstddef>
 #include <vector>
 
-#include "./cli/cli.hpp"
-#include "./tableau.hpp"
+#include "cli/cli.hpp"
+#include "tableau/tableau.hpp"
 #include "util/data_structure_manager.hpp"
 
 namespace qsyn::experimental {

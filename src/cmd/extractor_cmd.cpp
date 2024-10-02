@@ -10,16 +10,16 @@
 #include <cstddef>
 #include <string>
 
-#include "./extract.hpp"
 #include "argparse/arg_parser.hpp"
 #include "argparse/arg_type.hpp"
 #include "cli/cli.hpp"
+#include "cmd/qcir_cmd.hpp"
+#include "cmd/qcir_mgr.hpp"
+#include "cmd/zxgraph_mgr.hpp"
+#include "extractor/extract.hpp"
 #include "qcir/qcir.hpp"
-#include "qcir/qcir_cmd.hpp"
-#include "qcir/qcir_mgr.hpp"
 #include "util/data_structure_manager_common_cmd.hpp"
 #include "zx/zxgraph.hpp"
-#include "zx/zxgraph_mgr.hpp"
 
 using namespace dvlab::argparse;
 using dvlab::CmdExecResult;
@@ -29,6 +29,18 @@ using qsyn::qcir::QCirMgr;
 using qsyn::zx::ZXGraphMgr;
 
 namespace qsyn::extractor {
+
+ExtractorConfig EXTRACTOR_CONFIG{
+    .sort_frontier        = false,
+    .sort_neighbors       = true,
+    .permute_qubits       = true,
+    .filter_duplicate_cxs = true,
+    .reduce_czs           = false,
+    .dynamic_order        = false,
+    .block_size           = 5,
+    .optimize_level       = 2,
+    .pred_coeff           = 0.7,
+};
 
 dvlab::Command extraction_step_cmd(zx::ZXGraphMgr& zxgraph_mgr, QCirMgr& qcir_mgr) {
     return {"step",
@@ -98,7 +110,7 @@ dvlab::Command extraction_step_cmd(zx::ZXGraphMgr& zxgraph_mgr, QCirMgr& qcir_mg
 
                 zxgraph_mgr.checkout(zx_id);
                 qcir_mgr.checkout(qcir_id);
-                Extractor ext(zxgraph_mgr.get(), qcir_mgr.get(), false /*, std::nullopt */);
+                Extractor ext(zxgraph_mgr.get(), EXTRACTOR_CONFIG, qcir_mgr.get(), false /*, std::nullopt */);
 
                 if (parser.parsed("--loop")) {
                     ext.extraction_loop(parser.get<size_t>("--loop"));
@@ -172,7 +184,7 @@ dvlab::Command extraction_print_cmd(ZXGraphMgr& zxgraph_mgr) {
                     spdlog::error("ZXGraph {} is not extractable because it is not graph-like!!", zxgraph_mgr.focused_id());
                     return CmdExecResult::error;
                 }
-                Extractor ext(zxgraph_mgr.get(), nullptr, false);
+                Extractor ext(zxgraph_mgr.get(), EXTRACTOR_CONFIG, nullptr, false);
                 if (parser.parsed("--frontier")) {
                     ext.print_frontier();
                 } else if (parser.parsed("--neighbors")) {
@@ -214,17 +226,17 @@ Command extractor_config_cmd() {
             [](ArgumentParser const& parser) {
                 auto print_current_config = true;
                 if (parser.parsed("--optimize-level")) {
-                    OPTIMIZE_LEVEL       = parser.get<size_t>("--optimize-level");
-                    print_current_config = false;
+                    EXTRACTOR_CONFIG.optimize_level = parser.get<size_t>("--optimize-level");
+                    print_current_config            = false;
                 }
                 if (parser.parsed("--permute-qubit")) {
-                    PERMUTE_QUBITS       = parser.get<bool>("--permute-qubit");
-                    print_current_config = false;
+                    EXTRACTOR_CONFIG.permute_qubits = parser.get<bool>("--permute-qubit");
+                    print_current_config            = false;
                 }
                 if (parser.parsed("--block-size")) {
                     auto block_size = parser.get<size_t>("--block-size");
                     if (block_size > 0) {
-                        BLOCK_SIZE = parser.get<size_t>("--block-size");
+                        EXTRACTOR_CONFIG.block_size = block_size;
                     } else {
                         spdlog::warn("Block size should be a positive number!!");
                         spdlog::warn("Ignoring this option...");
@@ -232,41 +244,41 @@ Command extractor_config_cmd() {
                     print_current_config = false;
                 }
                 if (parser.parsed("--filter-cx")) {
-                    FILTER_DUPLICATE_CXS = parser.get<bool>("--filter-cx");
-                    print_current_config = false;
+                    EXTRACTOR_CONFIG.filter_duplicate_cxs = parser.get<bool>("--filter-cx");
+                    print_current_config                  = false;
                 }
                 if (parser.parsed("--reduce-cz")) {
-                    REDUCE_CZS           = parser.get<bool>("--reduce-cz");
-                    print_current_config = false;
+                    EXTRACTOR_CONFIG.reduce_czs = parser.get<bool>("--reduce-cz");
+                    print_current_config        = false;
                 }
                 if (parser.parsed("--frontier-sorted")) {
-                    SORT_FRONTIER        = parser.get<bool>("--frontier-sorted");
-                    print_current_config = false;
+                    EXTRACTOR_CONFIG.sort_frontier = parser.get<bool>("--frontier-sorted");
+                    print_current_config           = false;
                 }
                 if (parser.parsed("--neighbors-sorted")) {
-                    SORT_NEIGHBORS       = parser.get<bool>("--neighbors-sorted");
-                    print_current_config = false;
+                    EXTRACTOR_CONFIG.sort_neighbors = parser.get<bool>("--neighbors-sorted");
+                    print_current_config            = false;
                 }
                 if (parser.parsed("--dynamic-extraction")) {
-                    DYNAMIC_ORDER        = parser.get<bool>("--dynamic-extraction");
-                    print_current_config = false;
+                    EXTRACTOR_CONFIG.dynamic_order = parser.get<bool>("--dynamic-extraction");
+                    print_current_config           = false;
                 }
                 if (parser.parsed("--predictive-coefficient")) {
-                    PRED_COEFF           = parser.get<float>("--predictive-coefficient");
-                    print_current_config = false;
+                    EXTRACTOR_CONFIG.pred_coeff = parser.get<float>("--predictive-coefficient");
+                    print_current_config        = false;
                 }
                 // if no option is specified, print the current settings
                 if (print_current_config) {
                     fmt::println("");
-                    fmt::println("Optimize Level:               {}", OPTIMIZE_LEVEL);
-                    fmt::println("Sort Frontier:                {}", SORT_FRONTIER);
-                    fmt::println("Sort Neighbors:               {}", SORT_NEIGHBORS);
-                    fmt::println("Permute Qubits:               {}", PERMUTE_QUBITS);
-                    fmt::println("Filter Duplicated CXs:        {}", FILTER_DUPLICATE_CXS);
-                    fmt::println("Reduce CZs:                   {}", REDUCE_CZS);
-                    fmt::println("Block Size:                   {}", BLOCK_SIZE);
-                    fmt::println("Dynamic Extraction:           {}", DYNAMIC_ORDER);
-                    fmt::println("Coeff. of Predictive Formula: {}", PRED_COEFF);
+                    fmt::println("Optimize Level:               {}", EXTRACTOR_CONFIG.optimize_level);
+                    fmt::println("Sort Frontier:                {}", EXTRACTOR_CONFIG.sort_frontier);
+                    fmt::println("Sort Neighbors:               {}", EXTRACTOR_CONFIG.sort_neighbors);
+                    fmt::println("Permute Qubits:               {}", EXTRACTOR_CONFIG.permute_qubits);
+                    fmt::println("Filter Duplicated CXs:        {}", EXTRACTOR_CONFIG.filter_duplicate_cxs);
+                    fmt::println("Reduce CZs:                   {}", EXTRACTOR_CONFIG.reduce_czs);
+                    fmt::println("Block Size:                   {}", EXTRACTOR_CONFIG.block_size);
+                    fmt::println("Dynamic Extraction:           {}", EXTRACTOR_CONFIG.dynamic_order);
+                    fmt::println("Coeff. of Predictive Formula: {}", EXTRACTOR_CONFIG.pred_coeff);
                 }
                 return CmdExecResult::done;
             }};

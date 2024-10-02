@@ -9,11 +9,11 @@
 
 #include <string>
 
-#include "../qcir.hpp"
-#include "../qcir_mgr.hpp"
-#include "./optimizer.hpp"
 #include "argparse/arg_type.hpp"
 #include "cli/cli.hpp"
+#include "cmd/qcir_mgr.hpp"
+#include "qcir/optimizer/optimizer.hpp"
+#include "qcir/qcir.hpp"
 #include "util/data_structure_manager_common_cmd.hpp"
 #include "util/dvlab_string.hpp"
 #include "util/phase.hpp"

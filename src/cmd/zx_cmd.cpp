@@ -9,13 +9,13 @@
 
 #include <string>
 
-#include "./gflow/gflow_cmd.hpp"
-#include "./zxgraph_mgr.hpp"
 #include "argparse/arg_parser.hpp"
 #include "cli/cli.hpp"
+#include "cmd/zx/gflow_cmd.hpp"
+#include "cmd/zx/simp_cmd.hpp"
+#include "cmd/zxgraph_mgr.hpp"
 #include "qsyn/qsyn_type.hpp"
 #include "util/data_structure_manager_common_cmd.hpp"
-#include "zx/simplifier/simp_cmd.hpp"
 #include "zx/zx_io.hpp"
 #include "zx/zxgraph.hpp"
 #include "zx/zxgraph_action.hpp"

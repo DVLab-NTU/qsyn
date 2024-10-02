@@ -9,12 +9,12 @@
 
 #include <cstddef>
 
+#include "cmd/zxgraph_mgr.hpp"
 #include "util/util.hpp"
 #include "zx/zx_def.hpp"
 #include "zx/zx_partition.hpp"
 #include "zx/zxgraph.hpp"
 #include "zx/zxgraph_action.hpp"
-#include "zx/zxgraph_mgr.hpp"
 
 namespace qsyn::zx::simplify {
 

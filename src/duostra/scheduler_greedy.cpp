@@ -40,16 +40,6 @@ private:
 
 // SECTION - Struct GreedyConf Member Functions
 
-/**
- * @brief Construct a new Greedy Conf:: Greedy Conf object
- *
- */
-GreedyConf::GreedyConf()
-    : available_time_strategy(DuostraConfig::AVAILABLE_TIME_STRATEGY),
-      cost_type(DuostraConfig::COST_SELECTION_STRATEGY),
-      num_candidates(DuostraConfig::NUM_CANDIDATES),
-      apsp_coeff(DuostraConfig::APSP_COEFF) {}
-
 // SECTION - Class GreedyScheduler Member Functions
 
 /**

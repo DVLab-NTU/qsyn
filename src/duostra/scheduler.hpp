@@ -82,8 +82,6 @@ protected:
 };
 
 struct GreedyConf {
-    GreedyConf();
-
     MinMaxOptionType available_time_strategy;
     MinMaxOptionType cost_type;
     size_t num_candidates;
@@ -93,7 +91,14 @@ struct GreedyConf {
 class GreedyScheduler : public BaseScheduler {  // NOLINT(hicpp-special-member-functions, cppcoreguidelines-special-member-functions) : copy-swap idiom
 public:
     using Device = BaseScheduler::Device;
-    GreedyScheduler(CircuitTopology const& topo, bool tqdm) : BaseScheduler(topo, tqdm) {}
+    GreedyScheduler(CircuitTopology const& topo,
+                    DuostraConfig config,
+                    bool tqdm)
+        : BaseScheduler(topo, tqdm),
+          _conf{config.available_time_strategy,
+                config.cost_selection_strategy,
+                config.num_candidates,
+                config.apsp_coeff} {}
 
     std::unique_ptr<BaseScheduler> clone() const override;
     size_t greedy_fallback(Router& router, std::vector<size_t> const& waitlist) const;
@@ -189,7 +194,10 @@ private:
 class SearchScheduler : public GreedyScheduler {  // NOLINT(hicpp-special-member-functions, cppcoreguidelines-special-member-functions) : copy-swap idiom
 public:
     using Device = GreedyScheduler::Device;
-    SearchScheduler(CircuitTopology const& topo, bool tqdm = true);
+    SearchScheduler(
+        CircuitTopology const& topo,
+        DuostraConfig config,
+        bool tqdm = true);
 
     std::unique_ptr<BaseScheduler> clone() const override;
 
@@ -202,6 +210,6 @@ protected:
     void _cache_when_necessary();
 };
 
-std::unique_ptr<BaseScheduler> get_scheduler(std::unique_ptr<CircuitTopology> topo, bool tqdm = true);
+std::unique_ptr<BaseScheduler> get_scheduler(DuostraConfig config, std::unique_ptr<CircuitTopology> topo, bool tqdm = true);
 
 }  // namespace qsyn::duostra

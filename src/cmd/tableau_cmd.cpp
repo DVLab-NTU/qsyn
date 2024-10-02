@@ -9,17 +9,14 @@
 
 #include <cstdint>
 
-#include "./stabilizer_tableau.hpp"
-#include "./tableau_optimization.hpp"
 #include "argparse/arg_parser.hpp"
 #include "argparse/arg_type.hpp"
 #include "argparse/argument.hpp"
 #include "cli/cli.hpp"
-#include "convert/qcir_to_tensor.hpp"
-#include "qcir/qcir.hpp"
-#include "qcir/qcir_mgr.hpp"
+#include "cmd/tableau_mgr.hpp"
 #include "tableau/pauli_rotation.hpp"
-#include "tableau/tableau_mgr.hpp"
+#include "tableau/stabilizer_tableau.hpp"
+#include "tableau/tableau_optimization.hpp"
 #include "tensor/qtensor.hpp"
 #include "util/data_structure_manager_common_cmd.hpp"
 #include "util/dvlab_string.hpp"

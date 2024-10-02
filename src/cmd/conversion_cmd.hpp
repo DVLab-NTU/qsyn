@@ -7,10 +7,10 @@
 #pragma once
 
 #include "cli/cli.hpp"
-#include "qcir/qcir_mgr.hpp"
-#include "tableau/tableau_mgr.hpp"
-#include "tensor/tensor_mgr.hpp"
-#include "zx/zxgraph_mgr.hpp"
+#include "cmd/qcir_mgr.hpp"
+#include "cmd/tableau_mgr.hpp"
+#include "cmd/tensor_mgr.hpp"
+#include "cmd/zxgraph_mgr.hpp"
 
 namespace qsyn {
 

@@ -32,31 +32,32 @@ public:
         bool silent        = false;
         bool use_tqdm      = true;
     };
-    Duostra(qcir::QCir* qcir, Device dev, DuostraExecutionOptions const& config = {.verify_result = false, .silent = false, .use_tqdm = true});
-    // Duostra(std::vector<device::Operation> const& cir, size_t n_qubit, Device dev, DuostraExecutionOptions const& config = {.verify_result = false, .silent = false, .use_tqdm = true});
+    Duostra(
+        qcir::QCir* qcir,
+        Device dev,
+        DuostraConfig const& config,
+        DuostraExecutionOptions const& exe_opts = {.verify_result = false, .silent = false, .use_tqdm = true});
 
     std::unique_ptr<qcir::QCir> const& get_physical_circuit() const { return _physical_circuit; }
     std::unique_ptr<qcir::QCir>&& get_physical_circuit() { return std::move(_physical_circuit); }
     std::vector<qcir::QCirGate> const& get_result() const { return _result; }
-    // auto const& get_order() const { return _order; }
     Device get_device() const { return _device; }
 
     void make_dependency();
-    // void make_dependency(std::vector<Operation> const& ops, size_t n_qubits);
     bool map(bool use_device_as_placement = false);
-    // void store_order_info(std::vector<size_t> const& order);
     void build_circuit_by_result();
 
 private:
-    std::unique_ptr<qcir::QCir> _physical_circuit = std::make_unique<qcir::QCir>();
+    std::unique_ptr<qcir::QCir> _physical_circuit =
+        std::make_unique<qcir::QCir>();
     Device _device;
+    DuostraConfig _config;
     bool _check;
     bool _tqdm;
     bool _silent;
     std::unique_ptr<BaseScheduler> _scheduler;
     std::shared_ptr<qcir::QCir> _logical_circuit;
     std::vector<qcir::QCirGate> _result;
-    // std::vector<qcir::QCirGate> _order;
 };
 
 }  // namespace duostra

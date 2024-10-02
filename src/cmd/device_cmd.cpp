@@ -12,8 +12,8 @@
 #include <memory>
 #include <string>
 
+#include "./device_mgr.hpp"
 #include "device/device.hpp"
-#include "device/device_mgr.hpp"
 #include "qsyn/qsyn_type.hpp"
 #include "util/data_structure_manager_common_cmd.hpp"
 

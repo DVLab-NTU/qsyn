@@ -9,8 +9,8 @@
 #pragma once
 
 #include "cli/cli.hpp"
-#include "device/device_mgr.hpp"
-#include "qcir/qcir_cmd.hpp"
+#include "cmd/device_mgr.hpp"
+#include "cmd/qcir_cmd.hpp"
 
 namespace qsyn::duostra {
 
