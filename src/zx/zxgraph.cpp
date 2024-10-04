@@ -292,6 +292,9 @@ ZXVertex* ZXGraph::add_vertex(std::optional<size_t> id, VertexType vt, Phase pha
  */
 void ZXGraph::add_edge(ZXVertex* vs, ZXVertex* vt, EdgeType et) {
     if (vs == vt) {
+        if (!vs->is_zx()) {
+            throw std::logic_error("Cannot add an edge between a boundary vertex and itself");
+        }
         vs->set_phase(vs->get_phase() + (et == EdgeType::hadamard ? Phase(1) : Phase(0)));
         return;
     }

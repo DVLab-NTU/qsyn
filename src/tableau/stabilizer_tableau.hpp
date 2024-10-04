@@ -12,7 +12,6 @@
 
 #include <cstddef>
 #include <string>
-#include <sul/dynamic_bitset.hpp>
 
 #include "tableau/pauli_rotation.hpp"
 

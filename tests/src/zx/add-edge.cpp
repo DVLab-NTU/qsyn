@@ -130,3 +130,45 @@ TEST_CASE("Adding >1 edge between other vertex types", "[zx][basic]") {
     REQUIRE_THROWS_AS(g.add_edge(g[0], g[2], etype_throw), std::logic_error);
     REQUIRE_THROWS_AS(g.add_edge(g[1], g[2], etype_throw), std::logic_error);
 }
+
+TEST_CASE("Adding an edge between a vertex and itself", "[zx][basic]") {
+    ZXGraph g;
+
+    auto const vt = GENERATE(VertexType::z, VertexType::x);
+    g.add_vertex(vt);
+
+    g.add_edge(size_t{0}, 0, EdgeType::simple);
+    REQUIRE(g.get_num_neighbors(g[0]) == 0);
+    REQUIRE(g[0]->get_phase() == Phase(0));
+
+    g.add_edge(size_t{0}, 0, EdgeType::hadamard);
+    REQUIRE(g.get_num_neighbors(g[0]) == 0);
+    REQUIRE(g[0]->get_phase() == Phase(1));
+}
+
+TEST_CASE("Adding an edge between a Z/X vertex and itself", "[zx][basic]") {
+    ZXGraph g;
+
+    auto const vt = GENERATE(VertexType::z, VertexType::x);
+    g.add_vertex(vt);
+
+    g.add_edge(size_t{0}, 0, EdgeType::simple);
+    REQUIRE(g.get_num_neighbors(g[0]) == 0);
+    REQUIRE(g[0]->get_phase() == Phase(0));
+
+    g.add_edge(size_t{0}, 0, EdgeType::hadamard);
+    REQUIRE(g.get_num_neighbors(g[0]) == 0);
+    REQUIRE(g[0]->get_phase() == Phase(1));
+}
+
+TEST_CASE(
+    "Adding an edge between a boundary/H-box and itself", "[zx][basic]") {
+    ZXGraph g;
+    auto const vt = GENERATE(VertexType::h_box, VertexType::boundary);
+    g.add_vertex(vt);
+
+    auto const et = GENERATE(EdgeType::simple, EdgeType::hadamard);
+    REQUIRE_THROWS_AS(g.add_edge(0ul, 0, et), std::logic_error);
+}
+
+// TODO - what is the correct behavior for self loops on H-boxes?
