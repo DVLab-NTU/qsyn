@@ -17,6 +17,7 @@
 #include "qsyn/qsyn_type.hpp"
 #include "tl/enumerate.hpp"
 #include "util/boolean_matrix.hpp"
+#include "util/util.hpp"
 
 namespace qsyn::zx {
 
@@ -50,18 +51,18 @@ ZXGraph::ZXGraph(ZXVertexList const& vertices,
     }
 }
 
-ZXGraph::ZXGraph(ZXGraph const& other) : _filename{other._filename}, _procedures{other._procedures} {
+ZXGraph::ZXGraph(ZXGraph const& other) : _filename{other._filename}, _procedures{other._procedures}, _next_v_id(other._next_v_id) {
     std::unordered_map<ZXVertex*, ZXVertex*> old_to_new_vertex_map;
 
-    for (auto& v : other._vertices) {
+    for (auto& v : other.get_vertices()) {
         if (v->is_boundary()) {
             if (other._inputs.contains(v)) {
-                old_to_new_vertex_map[v] = this->add_input(v->get_qubit(), v->get_col());
+                old_to_new_vertex_map[v] = this->add_input(v->get_id(), v->get_qubit(), v->get_row(), v->get_col());
             } else {
-                old_to_new_vertex_map[v] = this->add_output(v->get_qubit(), v->get_col());
+                old_to_new_vertex_map[v] = this->add_output(v->get_id(), v->get_qubit(), v->get_row(), v->get_col());
             }
         } else if (v->is_z() || v->is_x() || v->is_hbox()) {
-            old_to_new_vertex_map[v] = this->add_vertex(v->get_type(), v->get_phase(), v->get_row(), v->get_col());
+            old_to_new_vertex_map[v] = this->add_vertex(v->get_id(), v->get_type(), v->get_phase(), v->get_row(), v->get_col());
         }
     }
 
@@ -80,6 +81,32 @@ size_t ZXGraph::get_num_edges() const {
                return sum + this->get_num_neighbors(v);
            }) /
            2;
+}
+
+/**
+ * @brief Get an unoccupied vertex ID. Note that this function may not return
+ *        the smallest unoccupied ID. This function is not thread-safe.
+ *
+ * @return size_t
+ */
+size_t const& ZXGraph::next_v_id() const {
+    while (is_v_id(_next_v_id)) {
+        _next_v_id++;
+    }
+    return _next_v_id;
+}
+
+/**
+ * @brief Get an unoccupied vertex ID. Note that this function may not return
+ *        the smallest unoccupied ID. This function is not thread-safe.
+ *
+ * @return size_t
+ */
+size_t& ZXGraph::next_v_id() {
+    while (is_v_id(_next_v_id)) {
+        _next_v_id++;
+    }
+    return _next_v_id;
 }
 
 /*****************************************************/
@@ -225,14 +252,23 @@ ZXVertex* ZXGraph::add_input(QubitIdType qubit, float col) {
 }
 
 ZXVertex* ZXGraph::add_input(QubitIdType qubit, float row, float col) {
-    assert(!is_input_qubit(qubit));
+    return add_input(next_v_id()++, qubit, row, col);
+}
 
-    auto v = new ZXVertex(_next_v_id, qubit, VertexType::boundary, Phase(), row, col);
+ZXVertex* ZXGraph::add_input(size_t id, QubitIdType qubit, float row, float col) {
+    if (_id_to_vertices.contains(id)) {
+        spdlog::warn("Vertex with id {} already exists", id);
+        return nullptr;
+    }
+    if (is_input_qubit(qubit)) {
+        spdlog::warn("Input qubit {} already exists", qubit);
+        return nullptr;
+    }
+    auto v = new ZXVertex(id, qubit, VertexType::boundary, Phase(), row, col);
     _inputs.emplace(v);
     _input_list.emplace(qubit, v);
     _vertices.emplace(v);
-    _id_to_vertices.emplace(_next_v_id, v);
-    _next_v_id++;
+    _id_to_vertices.emplace(id, v);
     return v;
 }
 
@@ -241,30 +277,45 @@ ZXVertex* ZXGraph::add_output(QubitIdType qubit, float col) {
 }
 
 ZXVertex* ZXGraph::add_output(QubitIdType qubit, float row, float col) {
-    assert(!is_output_qubit(qubit));
+    return add_output(next_v_id()++, qubit, row, col);
+}
 
-    auto v = new ZXVertex(_next_v_id, qubit, VertexType::boundary, Phase(), row, col);
+ZXVertex* ZXGraph::add_output(size_t id, QubitIdType qubit, float row, float col) {
+    if (_id_to_vertices.contains(id)) {
+        spdlog::warn("Vertex with id {} already exists", id);
+        return nullptr;
+    }
+    if (is_output_qubit(qubit)) {
+        spdlog::warn("Output qubit {} already exists", qubit);
+        return nullptr;
+    }
+    auto v = new ZXVertex(id, qubit, VertexType::boundary, Phase(), row, col);
     _outputs.emplace(v);
     _output_list.emplace(qubit, v);
     _vertices.emplace(v);
-    _id_to_vertices.emplace(_next_v_id, v);
-    _next_v_id++;
+    _id_to_vertices.emplace(id, v);
     return v;
 }
 
 /**
  * @brief Add a vertex to the ZXGraph.
  *
- * @param qubit the qubit to the ZXVertex. In case of adding a boundary vertex, it is the user's responsibility to maintain non-overlapping input and output qubit IDs.
- * @param vt vertex type. In case of adding boundary vertex, it is the user's responsibility to maintain non-overlapping input and output qubit IDs.
+ * @param qubit the qubit to the ZXVertex. In case of adding a boundary vertex,
+ *        it is the user's responsibility to maintain non-overlapping input and
+ *        output qubit IDs.
+ * @param vt vertex type. In case of adding boundary vertex, it is the user's
+ *        responsibility to maintain non-overlapping input and output qubit IDs.
  * @param phase the phase
  * @return ZXVertex*
  */
-ZXVertex* ZXGraph::add_vertex(VertexType vt, Phase phase, float row, float col) {
-    return add_vertex(_next_v_id++, vt, phase, row, col);
+ZXVertex*
+ZXGraph::add_vertex(VertexType vt, Phase phase, float row, float col) {
+    return add_vertex(next_v_id()++, vt, phase, row, col);
 }
 
-ZXVertex* ZXGraph::add_vertex(size_t id, VertexType vt, Phase phase, float row, float col) {
+ZXVertex*
+ZXGraph::add_vertex(
+    size_t id, VertexType vt, Phase phase, float row, float col) {
     if (_id_to_vertices.contains(id)) {
         spdlog::warn("Vertex with id {} already exists", id);
         return nullptr;
@@ -275,7 +326,12 @@ ZXVertex* ZXGraph::add_vertex(size_t id, VertexType vt, Phase phase, float row, 
     return v;
 }
 
-ZXVertex* ZXGraph::add_vertex(std::optional<size_t> id, VertexType vt, Phase phase, float row, float col) {
+ZXVertex*
+ZXGraph::add_vertex(std::optional<size_t> id,
+                    VertexType vt,
+                    Phase phase,
+                    float row,
+                    float col) {
     if (id.has_value()) {
         return add_vertex(id.value(), vt, phase, row, col);
     }

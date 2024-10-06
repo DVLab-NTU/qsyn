@@ -150,7 +150,8 @@ public:
     void add_procedures(std::vector<std::string> const& ps) { _procedures.insert(std::end(_procedures), std::begin(ps), std::end(ps)); }
     void add_procedure(std::string_view p) { _procedures.emplace_back(p); }
 
-    size_t const& get_next_v_id() const { return _next_v_id; }
+    size_t const& next_v_id() const;
+    size_t& next_v_id();
     ZXVertexList const& get_inputs() const { return _inputs; }
     ZXVertexList const& get_outputs() const { return _outputs; }
     ZXVertexList const& get_vertices() const { return _vertices; }
@@ -205,14 +206,28 @@ public:
     }
     size_t non_clifford_t_count() const { return non_clifford_count() - t_count(); }
 
-    // Add and Remove
+    // Vertex addition
+
     ZXVertex* add_input(QubitIdType qubit, float col = 0.f);
     ZXVertex* add_input(QubitIdType qubit, float row, float col);
     ZXVertex* add_output(QubitIdType qubit, float col = 0.f);
     ZXVertex* add_output(QubitIdType qubit, float row, float col);
     ZXVertex* add_vertex(VertexType vt, Phase phase = Phase(), float row = 0.f, float col = 0.f);
-    ZXVertex* add_vertex(size_t id, VertexType vt, Phase phase = Phase(), float row = 0.f, float col = 0.f);
-    ZXVertex* add_vertex(std::optional<size_t> id, VertexType vt, Phase phase = Phase(), float row = 0.f, float col = 0.f);
+
+    // Add vertices with specified IDs. It is generally advised to use
+    // the above functions if the ID is not important.
+
+    ZXVertex* add_input(
+        size_t id, QubitIdType qubit, float row, float col);
+    ZXVertex* add_output(
+        size_t id, QubitIdType qubit, float row, float col);
+    ZXVertex* add_vertex(
+        size_t id, VertexType vt,
+        Phase phase = Phase(), float row = 0.f, float col = 0.f);
+    ZXVertex* add_vertex(
+        std::optional<size_t> id, VertexType vt,
+        Phase phase = Phase(), float row = 0.f, float col = 0.f);
+
     void add_edge(ZXVertex* vs, ZXVertex* vt, EdgeType et);
     void add_edge(size_t v0_id, size_t v1_id, EdgeType et);
 
@@ -300,7 +315,7 @@ public:
     static ZXGraph from_subgraphs(std::vector<ZXGraph*> const& subgraphs, std::vector<ZXCut> const& cuts);
 
 private:
-    size_t _next_v_id = 0;
+    mutable size_t _next_v_id = 0;
     std::string _filename;
     std::vector<std::string> _procedures;
     ZXVertexList _inputs;
