@@ -37,7 +37,7 @@ std::vector<MatchType> SpiderFusionRule::find_matches(
 
         if (!candidates->contains(v0) || !candidates->contains(v1)) return;
 
-        if ((v0->get_type() == v1->get_type()) && (v0->is_x() || v0->is_z())) {
+        if ((v0->type() == v1->type()) && (v0->is_x() || v0->is_z())) {
             match_type_vec.emplace_back(v0, v1);
             if (allow_overlapping_candidates) return;
             candidates->erase(v0);
@@ -61,7 +61,7 @@ void SpiderFusionRule::apply(ZXGraph& graph, std::vector<MatchType> const& match
     ZXOperation op;
 
     for (auto [v0, v1] : matches) {
-        v0->set_phase(v0->get_phase() + v1->get_phase());
+        v0->phase() += v1->phase();
 
         for (auto& [neighbor, edgeType] : graph.get_neighbors(v1)) {
             if (neighbor == v0) continue;

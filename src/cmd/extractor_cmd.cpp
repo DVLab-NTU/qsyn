@@ -98,12 +98,12 @@ dvlab::Command extraction_step_cmd(zx::ZXGraphMgr& zxgraph_mgr, QCirMgr& qcir_mg
                 if (!dvlab::utils::mgr_has_data(zxgraph_mgr)) return CmdExecResult::error;
                 auto zx_id   = parser.get<size_t>("--zxgraph");
                 auto qcir_id = parser.get<size_t>("--qcir");
-                if (!zxgraph_mgr.find_by_id(zx_id)->is_graph_like()) {
+                if (!is_graph_like(*zxgraph_mgr.find_by_id(zx_id))) {
                     spdlog::error("ZXGraph {} is not extractable because it is not graph-like!!", zx_id);
                     return CmdExecResult::error;
                 }
 
-                if (zxgraph_mgr.find_by_id(zx_id)->get_num_outputs() != qcir_mgr.find_by_id(qcir_id)->get_num_qubits()) {
+                if (zxgraph_mgr.find_by_id(zx_id)->num_outputs() != qcir_mgr.find_by_id(qcir_id)->get_num_qubits()) {
                     spdlog::error("Number of outputs in ZXGraph {} is not equal to number of qubits in QCir {}!!", zx_id, qcir_id);
                     return CmdExecResult::error;
                 }
@@ -180,7 +180,7 @@ dvlab::Command extraction_print_cmd(ZXGraphMgr& zxgraph_mgr) {
                     .help("print biadjancency");
             },
             [&](ArgumentParser const& parser) {
-                if (!zxgraph_mgr.get()->is_graph_like()) {
+                if (!is_graph_like(*zxgraph_mgr.get())) {
                     spdlog::error("ZXGraph {} is not extractable because it is not graph-like!!", zxgraph_mgr.focused_id());
                     return CmdExecResult::error;
                 }

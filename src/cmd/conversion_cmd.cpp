@@ -138,7 +138,7 @@ Command convert_from_zx_cmd(zx::ZXGraphMgr& zxgraph_mgr, QCirMgr& qcir_mgr, tens
             if (!dvlab::utils::mgr_has_data(zxgraph_mgr)) return CmdExecResult::error;
             auto to_type = parser.get<std::string>("to-type");
             if (to_type == "qcir") {
-                if (!zxgraph_mgr.get()->is_graph_like()) {
+                if (!is_graph_like(*zxgraph_mgr.get())) {
                     spdlog::error("ZXGraph {} is not extractable because it is not graph-like!!", zxgraph_mgr.focused_id());
                     return CmdExecResult::error;
                 }

@@ -73,7 +73,7 @@ void ZXGraph::concatenate(ZXGraph other, std::vector<size_t> const& qubits) {
     // auto tmp = other;
     // other    = tmp;
 
-    if (other.get_num_inputs() != other.get_num_outputs()) {
+    if (other.num_inputs() != other.num_outputs()) {
         spdlog::error("Error: the graph being concatenated does not have the same number of inputs and outputs. Concatenation aborted!!");
         return;
     }

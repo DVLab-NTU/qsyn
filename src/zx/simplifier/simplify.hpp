@@ -8,7 +8,6 @@
 #pragma once
 
 #include <cstddef>
-#include <memory>
 #include <type_traits>
 
 #include "./rules/zx_rules_template.hpp"
@@ -48,7 +47,8 @@ void causal_reduce(ZXGraph& g);
 void to_z_graph(ZXGraph& g);
 void to_x_graph(ZXGraph& g);
 
-void report_simplification_result(std::string_view rule_name, std::span<size_t> match_counts);
+void report_simplification_result(
+    std::string_view rule_name, std::span<size_t> match_counts);
 /**
  * @brief apply the rule on the zx graph
  *
@@ -62,7 +62,7 @@ size_t simplify(ZXGraph& g, Rule const& rule) {
     std::vector<size_t> match_counts;
 
     while (!stop_requested()) {
-        std::vector<typename Rule::MatchType> const matches = rule.find_matches(g);
+        auto const matches = rule.find_matches(g);
         if (matches.empty()) {
             break;
         }
@@ -87,16 +87,16 @@ size_t hadamard_simplify(ZXGraph& g, Rule rule) {
     std::vector<size_t> match_counts;
 
     while (!stop_requested()) {
-        auto const old_vertex_count = g.get_num_vertices();
+        auto const old_vertex_count = g.num_vertices();
+        auto const matches          = rule.find_matches(g);
 
-        std::vector<typename Rule::MatchType> const matches = rule.find_matches(g);
         if (matches.empty()) {
             break;
         }
         match_counts.emplace_back(matches.size());
 
         rule.apply(g, matches);
-        if (g.get_num_vertices() >= old_vertex_count) break;
+        if (g.num_vertices() >= old_vertex_count) break;
     }
 
     report_simplification_result(rule.get_name(), match_counts);

@@ -19,8 +19,8 @@ all: release
 .PHONY: all
 
 configure:
-	mkdir -p $(RELEASE_DIR)
-	cmake -S . -B $(RELEASE_DIR) \
+	@mkdir -p $(RELEASE_DIR)
+	@cmake -S . -B $(RELEASE_DIR) \
 	--log-level=NOTICE \
 	-DCMAKE_EXPORT_COMPILE_COMMANDS=1 \
 	-DCMAKE_BUILD_TYPE=Release \
@@ -29,8 +29,8 @@ configure:
 .PHONY: configure
 
 configure-debug:
-	mkdir -p $(DEBUG_DIR)
-	cmake -S . -B $(DEBUG_DIR) \
+	@mkdir -p $(DEBUG_DIR)
+	@cmake -S . -B $(DEBUG_DIR) \
 	--log-level=NOTICE \
 	-DCMAKE_EXPORT_COMPILE_COMMANDS=1 \
 	-DCMAKE_BUILD_TYPE=Debug \
@@ -39,24 +39,32 @@ configure-debug:
 .PHONY: configure-debug
 
 release: configure
-	$(MAKE) -C ${RELEASE_DIR} qsyn
+	@$(MAKE) -C ${RELEASE_DIR} qsyn
 	@cp ${RELEASE_DIR}/qsyn .
 	@$(ECHO) "Copied qsyn to $(shell pwd)"
 .PHONY: release
 
 debug: configure-debug
-	$(MAKE) -C ${DEBUG_DIR} qsyn-debug
+	@$(MAKE) -C ${DEBUG_DIR} qsyn-debug
 	@cp ${DEBUG_DIR}/qsyn-debug .
 	@$(ECHO) "Copied qsyn-debug to $(shell pwd)"
 .PHONY: debug
 
-unit-test: configure
-	$(MAKE) -C ${RELEASE_DIR} unit-test
-.PHONY: unit-test
 
 # -----------------------------------------------------------------------------
 # Testings, Linting and Cleaning
 # -----------------------------------------------------------------------------
+
+# run unit tests from the tests/src/ directory
+unit-test: configure
+	@$(MAKE) -C ${RELEASE_DIR} unit-test
+	@$(ECHO) "Running unit tests..."
+	@./${RELEASE_DIR}/qsyn-unit-test
+.PHONY: unit-test
+
+integrated-test: release
+	@$(ECHO) "Running integrated tests..."
+	@./scripts/RUN_TESTS
 
 # run all tests with current qsyn binary at the root of the project
 # use ./scripts/RUN_TESTS to run tests with specific dofiles
@@ -66,7 +74,7 @@ test: configure
 	@$(ECHO) "Copied qsyn to $(shell pwd)"
 	@$(ECHO) "Running unit tests..."
 	@./${RELEASE_DIR}/qsyn-unit-test
-	@$(ECHO) "\n\nRunning integrated tests..."
+	@$(ECHO) "Running integrated tests..."
 	@./scripts/RUN_TESTS
 .PHONY: test
 

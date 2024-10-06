@@ -81,7 +81,7 @@ void GFlow::_initialize() {
                 _taken.insert(v);
             } else if (_zxgraph->is_gadget_axel(v))
                 _measurement_planes[v] = v->has_n_pi_phase() ? MP::yz
-                                         : v->get_phase().denominator() == 2
+                                         : v->phase().denominator() == 2
                                              ? MP::xz
                                              : MP::error;
             assert(_measurement_planes[v] != MP::error);
@@ -138,7 +138,7 @@ bool GFlow::calculate() {
         }
     }
 
-    _valid = (_taken.size() == _zxgraph->get_num_vertices());
+    _valid = (_taken.size() == _zxgraph->num_vertices());
     _levels.pop_back();  // the back is always empty
 
     std::vector<std::pair<size_t, ZXVertex*>> inputs_to_move;

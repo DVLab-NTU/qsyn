@@ -69,8 +69,8 @@ create_multi_control_backbone(ZXGraph& g, size_t num_qubits, RotationAxis ax) {
 
                 assert(buffer1.has_value() && buffer2.has_value());
 
-                g[*buffer1]->set_phase(dvlab::Phase(-1, 2));
-                g[*buffer2]->set_phase(dvlab::Phase(1, 2));
+                g[*buffer1]->phase() = dvlab::Phase(-1, 2);
+                g[*buffer2]->phase() = dvlab::Phase(1, 2);
             }
         }
         if (qubit != target_qubit)
@@ -85,7 +85,7 @@ create_multi_control_backbone(ZXGraph& g, size_t num_qubits, RotationAxis ax) {
 }
 
 void create_multi_control_r_gate_gadgets(ZXGraph& g, std::vector<ZXVertex*> const& controls, ZXVertex* target, dvlab::Phase const& phase) {
-    target->set_phase(phase);
+    target->phase() = phase;
     for (size_t k = 1; k <= controls.size(); k++) {
         for (auto& combination : dvlab::combinations(controls,
                                                      k,
@@ -99,7 +99,7 @@ void create_multi_control_r_gate_gadgets(ZXGraph& g, std::vector<ZXVertex*> cons
 
 void create_multi_control_p_gate_gadgets(ZXGraph& g, std::vector<ZXVertex*> const& vertices, dvlab::Phase const& phase) {
     for (auto& v : vertices) {
-        v->set_phase(phase);
+        v->phase() = phase;
     }
     for (size_t k = 2; k <= vertices.size(); k++) {
         for (auto& combination : dvlab::combinations(vertices,

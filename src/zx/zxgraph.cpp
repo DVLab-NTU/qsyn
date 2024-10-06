@@ -17,7 +17,6 @@
 #include "qsyn/qsyn_type.hpp"
 #include "tl/enumerate.hpp"
 #include "util/boolean_matrix.hpp"
-#include "util/util.hpp"
 
 namespace qsyn::zx {
 
@@ -35,7 +34,8 @@ namespace qsyn::zx {
  */
 ZXGraph::ZXGraph(ZXVertexList const& vertices,
                  ZXVertexList const& inputs,
-                 ZXVertexList const& outputs) : _inputs{inputs}, _outputs{outputs}, _vertices{vertices} {
+                 ZXVertexList const& outputs)
+    : _inputs{inputs}, _outputs{outputs}, _vertices{vertices} {
     for (auto v : _vertices) {
         v->set_id(_next_v_id);
         _id_to_vertices.emplace(_next_v_id, v);
@@ -62,7 +62,7 @@ ZXGraph::ZXGraph(ZXGraph const& other) : _filename{other._filename}, _procedures
                 old_to_new_vertex_map[v] = this->add_output(v->get_id(), v->get_qubit(), v->get_row(), v->get_col());
             }
         } else if (v->is_z() || v->is_x() || v->is_hbox()) {
-            old_to_new_vertex_map[v] = this->add_vertex(v->get_id(), v->get_type(), v->get_phase(), v->get_row(), v->get_col());
+            old_to_new_vertex_map[v] = this->add_vertex(v->get_id(), v->type(), v->phase(), v->get_row(), v->get_col());
         }
     }
 
@@ -72,13 +72,77 @@ ZXGraph::ZXGraph(ZXGraph const& other) : _filename{other._filename}, _procedures
 }
 
 /**
+ * @brief Returns true if two ZXGraph have the same ID-vertex correspondences,
+ *        qubit-IO correspondences, and connectivity between vertices.
+ *        This comparison takes $O(|V| + |E|)$ time.
+ *
+ * @param other
+ * @return true
+ * @return false
+ */
+bool ZXGraph::operator==(ZXGraph const& other) const {
+    // check if all ID-vertex correspondences are the same
+    if (_id_to_vertices.size() != other._id_to_vertices.size()) {
+        return false;
+    }
+    for (auto const& [id, v] : _id_to_vertices) {
+        if (!other._id_to_vertices.contains(id) ||
+            *v != *other._id_to_vertices.at(id)) {
+            return false;
+        }
+    }
+
+    // check if all qubit-IO correspondences are the same
+    if (_input_list.size() != other._input_list.size() ||
+        _output_list.size() != other._output_list.size()) {
+        return false;
+    }
+    for (auto const& [q, v] : _input_list) {
+        if (!other._input_list.contains(q) ||
+            v->get_id() != other._input_list.at(q)->get_id()) {
+            return false;
+        }
+    }
+    for (auto const& [q, v] : _output_list) {
+        if (!other._output_list.contains(q) ||
+            v->get_id() != other._output_list.at(q)->get_id()) {
+            return false;
+        }
+    }
+
+    // check if connectivity between vertices are the same
+    for (auto const& v : _vertices) {
+        for (auto const& [nb, etype] : this->get_neighbors(v)) {
+            if (!other.is_neighbor(v->get_id(), nb->get_id(), etype)) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+/**
+ * @brief Returns true if two ZXGraph have different ID-vertex correspondences,
+ *        qubit-IO correspondences, or connectivity between vertices.
+ *        The comparison takes $O(|V| + |E|)$ time.
+ *
+ * @param other
+ * @return true
+ * @return false
+ */
+bool ZXGraph::operator!=(ZXGraph const& other) const {
+    return !(*this == other);
+}
+
+/**
  * @brief Get the number of edges in ZXGraph
  *
  * @return size_t
  */
-size_t ZXGraph::get_num_edges() const {
+size_t ZXGraph::num_edges() const {
     return std::accumulate(_vertices.begin(), _vertices.end(), 0, [this](size_t sum, ZXVertex* v) {
-               return sum + this->get_num_neighbors(v);
+               return sum + this->num_neighbors(v);
            }) /
            2;
 }
@@ -89,7 +153,7 @@ size_t ZXGraph::get_num_edges() const {
  *
  * @return size_t
  */
-size_t const& ZXGraph::next_v_id() const {
+size_t const& ZXGraph::_next_vertex_id() const {
     while (is_v_id(_next_v_id)) {
         _next_v_id++;
     }
@@ -102,7 +166,7 @@ size_t const& ZXGraph::next_v_id() const {
  *
  * @return size_t
  */
-size_t& ZXGraph::next_v_id() {
+size_t& ZXGraph::_next_vertex_id() {
     while (is_v_id(_next_v_id)) {
         _next_v_id++;
     }
@@ -124,33 +188,6 @@ bool ZXGraph::is_empty() const {
 }
 
 /**
- * @brief Check if the ZXGraph is valid (i/o connected to 1 vertex, each neighbor matches)
- *
- * @return true
- * @return false
- */
-bool ZXGraph::is_valid() const {
-    for (auto& v : _inputs) {
-        if (this->get_num_neighbors(v) != 1) {
-            spdlog::debug("Error: input {} has {} neighbors, expected 1", v->get_id(), this->get_num_neighbors(v));
-            return false;
-        }
-    }
-    for (auto& v : _outputs) {
-        if (this->get_num_neighbors(v) != 1) {
-            spdlog::debug("Error: output {} has {} neighbors, expected 1", v->get_id(), this->get_num_neighbors(v));
-            return false;
-        }
-    }
-    for (auto& v : _vertices) {
-        for (auto& [nb, etype] : this->get_neighbors(v)) {
-            if (!this->is_neighbor(nb, v, etype)) return false;
-        }
-    }
-    return true;
-}
-
-/**
  * @brief Check if `id` exists
  *
  * @param id
@@ -162,43 +199,99 @@ bool ZXGraph::is_v_id(size_t id) const {
 }
 
 /**
+ * @brief Check if each input and output is connected to exactly one edge
+ *
+ * @param graph
+ * @return true
+ * @return false
+ */
+bool is_io_connection_valid(ZXGraph const& graph) {
+    return std::ranges::all_of(graph.get_inputs(), [&](ZXVertex* i) {
+               return graph.num_neighbors(i) == 1;
+           }) &&
+           std::ranges::all_of(graph.get_outputs(), [&](ZXVertex* o) {
+               return graph.num_neighbors(o) == 1;
+           });
+}
+
+/**
  * @brief Check if ZXGraph is graph-like, report first error
  *
  * @return true
  * @return false
  */
-bool ZXGraph::is_graph_like() const {
+bool is_graph_like(ZXGraph const& graph) {
     // all internal edges are hadamard edges
-    for (auto const& v : _vertices) {
+    for (auto const& v : graph.get_vertices()) {
         if (!v->is_z() && !v->is_boundary()) {
-            spdlog::debug("Note: vertex {} is of type {}", v->get_id(), v->get_type());
             return false;
         }
-        for (auto const& [nb, etype] : this->get_neighbors(v)) {
-            if (v->is_boundary() || nb->is_boundary()) continue;
-            if (etype != EdgeType::hadamard) {
-                spdlog::debug("Note: internal edge ({}, {}) is of type {}", v->get_id(), nb->get_id(), etype);
+    }
+
+    for (auto const& v : graph.get_vertices()) {
+        if (std::ranges::any_of(
+                graph.get_neighbors(v),
+                [&](auto const& neighbor) {
+                    auto const& [nb, etype] = neighbor;
+                    return !v->is_boundary() &&
+                           !nb->is_boundary() &&
+                           etype != EdgeType::hadamard;
+                })) {
+            return false;
+        }
+    }
+
+    return is_io_connection_valid(graph);
+}
+
+/**
+ * @brief check if the subgraph of `g` at `v_id` and its neighbors is graph-like
+ *
+ * @param g
+ * @param v
+ * @return true
+ * @return false
+ */
+bool is_graph_like_at(ZXGraph const& g, size_t v_id) {
+    auto v = g[v_id];
+    if (v == nullptr) return false;
+    // early return
+    if (v->is_boundary()) {
+        return g.num_neighbors(v) == 1;
+    }
+
+    // check v
+    if (!v->is_z()) {
+        return false;
+    }
+
+    // v's neighbors should either be boundary
+    // or z-spider connected with hadamard edge
+    if (!std::ranges::all_of(
+            g.get_neighbors(v),
+            [&](auto const& nb_pair) {
+                auto const& [nb, etype] = nb_pair;
+                return nb->is_boundary() && g.num_neighbors(nb) == 1 ||
+                       nb->is_z() && etype == EdgeType::hadamard;
+            })) {
+        return false;
+    }
+
+    // any two non-boundary neighbors should not be connected by a simple edge
+
+    auto const& neighbors = g.get_neighbors(v);
+
+    for (auto it = neighbors.begin(); it != neighbors.end(); ++it) {
+        for (auto jt = std::next(it); jt != neighbors.end(); ++jt) {
+            if (!it->first->is_boundary() &&
+                !jt->first->is_boundary() &&
+                g.is_neighbor(it->first, jt->first, EdgeType::simple)) {
                 return false;
             }
         }
     }
 
-    // 4. Boundary vertices only has an edge
-
-    return std::ranges::all_of(_inputs, [this](ZXVertex* i) {
-               if (this->get_num_neighbors(i) != 1) {
-                   spdlog::debug("Note: input {} has {} neighbors; expected 1", i->get_id(), this->get_num_neighbors(i));
-                   return false;
-               }
-               return true;
-           }) &&
-           std::ranges::all_of(_outputs, [this](ZXVertex* o) {
-               if (this->get_num_neighbors(o) != 1) {
-                   spdlog::debug("Note: output {} has {} neighbors; expected 1", o->get_id(), this->get_num_neighbors(o));
-                   return false;
-               }
-               return true;
-           });
+    return true;
 }
 
 /**
@@ -209,29 +302,16 @@ bool ZXGraph::is_graph_like() const {
  */
 bool ZXGraph::is_identity() const {
     return all_of(_inputs.begin(), _inputs.end(), [this](ZXVertex* i) {
-        return (this->get_num_neighbors(i) == 1) &&
+        return (this->num_neighbors(i) == 1) &&
                _outputs.contains(this->get_first_neighbor(i).first) &&
                this->get_first_neighbor(i).first->get_qubit() == i->get_qubit();
     });
 }
 
-size_t ZXGraph::get_num_gadgets() const {
+size_t ZXGraph::num_gadgets() const {
     return std::ranges::count_if(_vertices, [this](ZXVertex* v) {
         return this->is_gadget_leaf(v);
     });
-}
-
-/**
- * @brief Return the density of the ZXGraph
- *
- * @return double
- */
-double ZXGraph::density() {
-    return std::accumulate(this->get_vertices().begin(), this->get_vertices().end(), 0,
-                           [this](double sum, ZXVertex* v) {
-                               return sum + std::pow(this->get_num_neighbors(v), 2);
-                           }) /
-           gsl::narrow_cast<double>(this->get_num_vertices());
 }
 
 bool ZXGraph::is_neighbor(size_t v0_id, size_t v1_id) const {
@@ -252,7 +332,7 @@ ZXVertex* ZXGraph::add_input(QubitIdType qubit, float col) {
 }
 
 ZXVertex* ZXGraph::add_input(QubitIdType qubit, float row, float col) {
-    return add_input(next_v_id()++, qubit, row, col);
+    return add_input(_next_vertex_id()++, qubit, row, col);
 }
 
 ZXVertex* ZXGraph::add_input(size_t id, QubitIdType qubit, float row, float col) {
@@ -277,7 +357,7 @@ ZXVertex* ZXGraph::add_output(QubitIdType qubit, float col) {
 }
 
 ZXVertex* ZXGraph::add_output(QubitIdType qubit, float row, float col) {
-    return add_output(next_v_id()++, qubit, row, col);
+    return add_output(_next_vertex_id()++, qubit, row, col);
 }
 
 ZXVertex* ZXGraph::add_output(size_t id, QubitIdType qubit, float row, float col) {
@@ -310,7 +390,7 @@ ZXVertex* ZXGraph::add_output(size_t id, QubitIdType qubit, float row, float col
  */
 ZXVertex*
 ZXGraph::add_vertex(VertexType vt, Phase phase, float row, float col) {
-    return add_vertex(next_v_id()++, vt, phase, row, col);
+    return add_vertex(_next_vertex_id()++, vt, phase, row, col);
 }
 
 ZXVertex*
@@ -349,9 +429,10 @@ ZXGraph::add_vertex(std::optional<size_t> id,
 void ZXGraph::add_edge(ZXVertex* vs, ZXVertex* vt, EdgeType et) {
     if (vs == vt) {
         if (!vs->is_zx()) {
-            throw std::logic_error("Cannot add an edge between a boundary vertex and itself");
+            throw std::logic_error(
+                "Cannot add an edge between a boundary vertex and itself");
         }
-        vs->set_phase(vs->get_phase() + (et == EdgeType::hadamard ? Phase(1) : Phase(0)));
+        vs->phase() += (et == EdgeType::hadamard ? Phase(1) : Phase(0));
         return;
     }
 
@@ -372,13 +453,13 @@ void ZXGraph::add_edge(ZXVertex* vs, ZXVertex* vt, EdgeType et) {
         throw std::logic_error(
             fmt::format(
                 "Cannot add >1 between {}({}) and {}({})",
-                vs->get_type(), vs->get_id(),
-                vt->get_type(), vt->get_id()));
+                vs->type(), vs->get_id(),
+                vt->type(), vt->get_id()));
     }
 
     auto const existing_etype = this->get_edge_type(vs, vt).value();
 
-    auto const same_type = vs->get_type() == vt->get_type();
+    auto const same_type = vs->type() == vt->type();
     auto const to_merge  = same_type ? EdgeType::simple : EdgeType::hadamard;
     auto const to_cancel = same_type ? EdgeType::hadamard : EdgeType::simple;
     // Z and X vertices: merge or cancel out
@@ -398,7 +479,7 @@ void ZXGraph::add_edge(ZXVertex* vs, ZXVertex* vt, EdgeType et) {
             vt->_neighbors.emplace(vs, to_merge);
         }
 
-        vs->set_phase(vs->get_phase() + Phase(1));
+        vs->phase() += Phase(1);
     }
 }
 
@@ -446,7 +527,7 @@ void ZXGraph::_move_vertices_from(ZXGraph& other) {
 size_t ZXGraph::remove_isolated_vertices() {
     std::vector<ZXVertex*> rm_list;
     for (auto const& v : _vertices) {
-        if (this->get_num_neighbors(v) == 0) rm_list.emplace_back(v);
+        if (this->num_neighbors(v) == 0) rm_list.emplace_back(v);
     }
     return remove_vertices(rm_list);
 }
@@ -560,7 +641,7 @@ size_t ZXGraph::remove_edges(std::span<EdgePair const> epairs) {
  * @param vs
  * @param vt
  */
-size_t ZXGraph::remove_all_edges_between(ZXVertex* vs, ZXVertex* vt) {
+size_t ZXGraph::remove_edge(ZXVertex* vs, ZXVertex* vt) {
     return remove_edge(vs, vt, EdgeType::simple) + remove_edge(vs, vt, EdgeType::hadamard);
 }
 
@@ -578,7 +659,7 @@ void ZXGraph::adjoint() {
     auto max_col = std::ranges::max(_vertices | std::views::transform([](ZXVertex* v) { return v->get_col(); }));
 
     std::ranges::for_each(_vertices, [&max_col](ZXVertex* v) {
-        v->set_phase(-v->get_phase());
+        v->phase() *= -1;
         v->set_col(max_col - v->get_col());
     });
 }
@@ -622,6 +703,38 @@ dvlab::BooleanMatrix get_biadjacency_matrix(ZXGraph const& graph, ZXVertexList c
         }
     }
     return matrix;
+}
+
+// free functions that compute graph properties'
+
+/**
+ * @brief Return the density of the ZXGraph
+ *
+ * @return double
+ */
+double density(ZXGraph const& graph) {
+    return std::transform_reduce(
+               graph.get_vertices().begin(), graph.get_vertices().end(),
+               0.0,
+               std::plus<>(),
+               [&](ZXVertex* v) {
+                   return std::pow(graph.num_neighbors(v), 2);
+               }) /
+           gsl::narrow_cast<double>(graph.num_vertices());
+}
+
+size_t t_count(ZXGraph const& graph) {
+    return std::ranges::count_if(
+        graph.get_vertices(),
+        [](ZXVertex* v) { return (v->phase().denominator() == 4); });
+}
+size_t non_clifford_count(ZXGraph const& graph) {
+    return std::ranges::count_if(
+        graph.get_vertices(),
+        [](ZXVertex* v) { return !v->is_clifford(); });
+}
+size_t non_clifford_t_count(ZXGraph const& graph) {
+    return non_clifford_count(graph) - t_count(graph);
 }
 
 }  // namespace qsyn::zx

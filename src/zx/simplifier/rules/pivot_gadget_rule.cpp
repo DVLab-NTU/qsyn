@@ -6,7 +6,6 @@
 ****************************************************************************/
 
 #include "./zx_rules_template.hpp"
-#include "zx/zxgraph_action.hpp"
 
 using namespace qsyn::zx;
 
@@ -17,7 +16,8 @@ using MatchType = PivotGadgetRule::MatchType;
  *
  * @param graph
  * @param candidates the vertices to be considered
- * @param allow_overlapping_candidates whether to allow overlapping candidates. If true, needs to manually check for overlapping candidates.
+ * @param allow_overlapping_candidates whether to allow overlapping candidates.
+ *        If true, needs to manually check for overlapping candidates.
  * @return std::vector<MatchType>
  */
 std::vector<MatchType> PivotGadgetRule::find_matches(
@@ -43,24 +43,25 @@ std::vector<MatchType> PivotGadgetRule::find_matches(
             return;
         }
 
-        auto const vs_is_n_pi = (vs->get_phase().denominator() == 1);
-        auto const vt_is_n_pi = (vt->get_phase().denominator() == 1);
+        auto const vs_is_n_pi = (vs->phase().denominator() == 1);
+        auto const vt_is_n_pi = (vt->phase().denominator() == 1);
 
         // if both n*pi --> ordinary pivot rules
         // if both not, --> maybe pivot double-boundary
         if (vs_is_n_pi == vt_is_n_pi) return;
 
-        if (!vs_is_n_pi && vt_is_n_pi) std::swap(vs, vt);  // if vs is not n*pi but vt is, should extract vs as gadget instead
+        // if vs is not n*pi but vt is, should extract vs as gadget instead
+        if (!vs_is_n_pi && vt_is_n_pi) std::swap(vs, vt);
 
-        // REVIEW - check ground conditions
-
-        if (graph.get_num_neighbors(vt) == 1) {  // early return: (vs, vt) is a phase gadget
+        if (graph.num_neighbors(vt) == 1) {
+            // (vs, vt) is already a phase gadget
             return;
         }
 
         for (const auto& [v, _] : graph.get_neighbors(vs)) {
-            if (!v->is_z()) return;                 // vs is not internal or not graph-like
-            if (graph.get_num_neighbors(v) == 1) {  // (vs, v) is a phase gadget
+            // only consider internal vertices that are not phase gadgets
+            if (!v->is_z() ||
+                graph.num_neighbors(v) == 1) {
                 return;
             }
         }
@@ -76,19 +77,10 @@ std::vector<MatchType> PivotGadgetRule::find_matches(
         for (auto& [v, _] : graph.get_neighbors(vs)) candidates->erase(v);
         for (auto& [v, _] : graph.get_neighbors(vt)) candidates->erase(v);
 
-        matches.emplace_back(vs, vt);
+        matches.emplace_back(
+            vs->get_id(), vt->get_id(),
+            std::vector<size_t>{}, std::vector<size_t>{});
     });
 
     return matches;
-}
-
-void PivotGadgetRule::apply(ZXGraph& graph, std::vector<MatchType> const& matches) const {
-    for (auto& [_, v] : matches) {
-        // REVIEW - scalar add power
-        if (v->get_phase().denominator() != 1) {
-            zx::gadgetize_phase(graph, v->get_id());
-        }
-    }
-
-    PivotRuleInterface::apply(graph, matches);
 }

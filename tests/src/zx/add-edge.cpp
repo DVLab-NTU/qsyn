@@ -24,15 +24,15 @@ TEST_CASE("Adding Edges between Z-Z/X-X connections", "[zx][basic]") {
         SECTION("Add another simple edge") {
             g.add_edge(g[0], g[1], EdgeType::simple);
             REQUIRE(g.get_edge_type(g[0], g[1]) == EdgeType::simple);
-            REQUIRE(g[0]->get_phase() == Phase(0));
-            REQUIRE(g[1]->get_phase() == Phase(0));
+            REQUIRE(g[0]->phase() == Phase(0));
+            REQUIRE(g[1]->phase() == Phase(0));
         }
 
         SECTION("Add another hadamard edge") {
             g.add_edge(g[0], g[1], EdgeType::hadamard);
             REQUIRE(g.get_edge_type(g[0], g[1]) == EdgeType::simple);
-            REQUIRE(g[0]->get_phase() == Phase(1));
-            REQUIRE(g[1]->get_phase() == Phase(0));
+            REQUIRE(g[0]->phase() == Phase(1));
+            REQUIRE(g[1]->phase() == Phase(0));
         }
     }
 
@@ -43,15 +43,15 @@ TEST_CASE("Adding Edges between Z-Z/X-X connections", "[zx][basic]") {
         SECTION("Add another simple edge") {
             g.add_edge(g[0], g[1], EdgeType::simple);
             REQUIRE(g.get_edge_type(g[0], g[1]) == EdgeType::simple);
-            REQUIRE(g[0]->get_phase() == Phase(1));
-            REQUIRE(g[1]->get_phase() == Phase(0));
+            REQUIRE(g[0]->phase() == Phase(1));
+            REQUIRE(g[1]->phase() == Phase(0));
         }
 
         SECTION("Add another hadamard edge") {
             g.add_edge(g[0], g[1], EdgeType::hadamard);
             REQUIRE(g.get_edge_type(g[0], g[1]) == std::nullopt);
-            REQUIRE(g[0]->get_phase() == Phase(0));
-            REQUIRE(g[1]->get_phase() == Phase(0));
+            REQUIRE(g[0]->phase() == Phase(0));
+            REQUIRE(g[1]->phase() == Phase(0));
         }
     }
 }
@@ -71,15 +71,15 @@ TEST_CASE("Adding Edges between Z-X/X-Z connections", "[zx][basic]") {
         SECTION("Add another simple edge") {
             g.add_edge(g[0], g[1], EdgeType::simple);
             REQUIRE(g.get_edge_type(g[0], g[1]) == std::nullopt);
-            REQUIRE(g[0]->get_phase() == Phase(0));
-            REQUIRE(g[1]->get_phase() == Phase(0));
+            REQUIRE(g[0]->phase() == Phase(0));
+            REQUIRE(g[1]->phase() == Phase(0));
         }
 
         SECTION("Add another hadamard edge") {
             g.add_edge(g[0], g[1], EdgeType::hadamard);
             REQUIRE(g.get_edge_type(g[0], g[1]) == EdgeType::hadamard);
-            REQUIRE(g[0]->get_phase() == Phase(1));
-            REQUIRE(g[1]->get_phase() == Phase(0));
+            REQUIRE(g[0]->phase() == Phase(1));
+            REQUIRE(g[1]->phase() == Phase(0));
         }
     }
 
@@ -90,15 +90,15 @@ TEST_CASE("Adding Edges between Z-X/X-Z connections", "[zx][basic]") {
         SECTION("Add another simple edge") {
             g.add_edge(g[0], g[1], EdgeType::simple);
             REQUIRE(g.get_edge_type(g[0], g[1]) == EdgeType::hadamard);
-            REQUIRE(g[0]->get_phase() == Phase(1));
-            REQUIRE(g[1]->get_phase() == Phase(0));
+            REQUIRE(g[0]->phase() == Phase(1));
+            REQUIRE(g[1]->phase() == Phase(0));
         }
 
         SECTION("Add another hadamard edge") {
             g.add_edge(g[0], g[1], EdgeType::hadamard);
             REQUIRE(g.get_edge_type(g[0], g[1]) == EdgeType::hadamard);
-            REQUIRE(g[0]->get_phase() == Phase(0));
-            REQUIRE(g[1]->get_phase() == Phase(0));
+            REQUIRE(g[0]->phase() == Phase(0));
+            REQUIRE(g[1]->phase() == Phase(0));
         }
     }
 }
@@ -138,12 +138,12 @@ TEST_CASE("Adding an edge between a vertex and itself", "[zx][basic]") {
     g.add_vertex(vt);
 
     g.add_edge(size_t{0}, 0, EdgeType::simple);
-    REQUIRE(g.get_num_neighbors(g[0]) == 0);
-    REQUIRE(g[0]->get_phase() == Phase(0));
+    REQUIRE(g.num_neighbors(g[0]) == 0);
+    REQUIRE(g[0]->phase() == Phase(0));
 
     g.add_edge(size_t{0}, 0, EdgeType::hadamard);
-    REQUIRE(g.get_num_neighbors(g[0]) == 0);
-    REQUIRE(g[0]->get_phase() == Phase(1));
+    REQUIRE(g.num_neighbors(g[0]) == 0);
+    REQUIRE(g[0]->phase() == Phase(1));
 }
 
 TEST_CASE("Adding an edge between a Z/X vertex and itself", "[zx][basic]") {
@@ -153,12 +153,12 @@ TEST_CASE("Adding an edge between a Z/X vertex and itself", "[zx][basic]") {
     g.add_vertex(vt);
 
     g.add_edge(size_t{0}, 0, EdgeType::simple);
-    REQUIRE(g.get_num_neighbors(g[0]) == 0);
-    REQUIRE(g[0]->get_phase() == Phase(0));
+    REQUIRE(g.num_neighbors(g[0]) == 0);
+    REQUIRE(g[0]->phase() == Phase(0));
 
     g.add_edge(size_t{0}, 0, EdgeType::hadamard);
-    REQUIRE(g.get_num_neighbors(g[0]) == 0);
-    REQUIRE(g[0]->get_phase() == Phase(1));
+    REQUIRE(g.num_neighbors(g[0]) == 0);
+    REQUIRE(g[0]->phase() == Phase(1));
 }
 
 TEST_CASE(

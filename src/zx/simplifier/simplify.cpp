@@ -9,16 +9,14 @@
 
 #include <cstddef>
 
-#include "cmd/zxgraph_mgr.hpp"
-#include "util/util.hpp"
 #include "zx/zx_def.hpp"
-#include "zx/zx_partition.hpp"
 #include "zx/zxgraph.hpp"
 #include "zx/zxgraph_action.hpp"
 
 namespace qsyn::zx::simplify {
 
-void report_simplification_result(std::string_view rule_name, std::span<size_t> match_counts) {
+void report_simplification_result(
+    std::string_view rule_name, std::span<size_t> match_counts) {
     spdlog::log(
         !match_counts.empty() ? spdlog::level::info : spdlog::level::trace,
         "{:<28} {:>2} iterations, total {:>4} matches",
@@ -80,31 +78,32 @@ size_t spider_fusion_simp(ZXGraph& g) {
 }
 
 /**
- * @brief Turn every red node(VertexType::X) into green node(VertexType::Z) by regular simple edges <--> hadamard edges.
+ * @brief Turn X-spiders into Z-spiders and toggle edges accordingly
  *
  */
 void to_z_graph(ZXGraph& g) {
     for (auto& v : g.get_vertices()) {
-        if (v->get_type() == VertexType::x) {
+        if (v->is_x()) {
             toggle_vertex(g, v->get_id());
         }
     }
 }
 
 /**
- * @brief Turn green nodes into red nodes by color-changing vertices which greedily reducing the number of Hadamard-edges.
+ * @brief Turn Z-spiders into X-spiders and toggle edges accordingly
  *
  */
 void to_x_graph(ZXGraph& g) {
     for (auto& v : g.get_vertices()) {
-        if (v->get_type() == VertexType::z) {
+        if (v->is_z()) {
             toggle_vertex(g, v->get_id());
         }
     }
 }
 
 /**
- * @brief Keep doing the simplifications `id_removal`, `s_fusion`, `pivot`, `lcomp` until none of them can be applied anymore.
+ * @brief Remove Clifford vertices in the interior of the graph iteratively
+ *        until no more can be removed
  *
  * @return the number of iterations
  */
@@ -122,9 +121,10 @@ size_t interior_clifford_simp(ZXGraph& g) {
 }
 
 /**
- * @brief Perform `interior_clifford` and `pivot_boundary` iteratively until no pivot_boundary candidate is found
+ * @brief Perform `interior_clifford` and `pivot_boundary` iteratively
+ *        until no pivot_boundary candidate is found
  *
- * @return int
+ * @return the number of iterations
  */
 size_t clifford_simp(ZXGraph& g) {
     size_t iterations = 0;
@@ -138,7 +138,7 @@ size_t clifford_simp(ZXGraph& g) {
 }
 
 /**
- * @brief The main simplification routine
+ * @brief Perform full reduction on the graph
  *
  */
 void full_reduce(ZXGraph& g) {
@@ -154,7 +154,7 @@ void full_reduce(ZXGraph& g) {
 }
 
 /**
- * @brief Perform a full reduce on the graph to determine the optimal T-count automatically
+ * @brief Perform a full reduce on the graph to determine the optimal T-count
  *        and then perform a dynamic reduce
  *
  */
@@ -165,39 +165,40 @@ void dynamic_reduce(ZXGraph& g) {
     spdlog::info("Full Reduce:");
     // to obtain the T-optimal
     full_reduce(copied_graph);
-    auto t_optimal = copied_graph.t_count();
+    auto t_optimal = t_count(copied_graph);
 
     spdlog::info("Dynamic Reduce: (T-optimal: {})", t_optimal);
     dynamic_reduce(g, t_optimal);
 }
 
 /**
- * @brief Do full reduce until the T-count is equal to the T-optimal while maintaining the lowest possible density
+ * @brief Do full reduce until the T-count is equal to the T-optimal
+ *        while maintaining the lowest possible density
  *
  * @param optimal_t_count the target optimal T-count
  */
 void dynamic_reduce(ZXGraph& g, size_t optimal_t_count) {
     interior_clifford_simp(g);
     pivot_gadget_simp(g);
-    if (g.t_count() == optimal_t_count) {
+    if (t_count(g) == optimal_t_count) {
         return;
     }
 
     while (!stop_requested()) {
         clifford_simp(g);
-        if (g.t_count() == optimal_t_count) {
+        if (t_count(g) == optimal_t_count) {
             break;
         }
         auto i1 = phase_gadget_simp(g);
-        if (g.t_count() == optimal_t_count) {
+        if (t_count(g) == optimal_t_count) {
             break;
         }
         interior_clifford_simp(g);
-        if (g.t_count() == optimal_t_count) {
+        if (t_count(g) == optimal_t_count) {
             break;
         }
         auto i2 = pivot_gadget_simp(g);
-        if (g.t_count() == optimal_t_count) {
+        if (t_count(g) == optimal_t_count) {
             break;
         }
         if (i1 + i2 == 0) break;

@@ -635,7 +635,7 @@ bool ZXGraph::write_zx(std::filesystem::path const& filename, bool complete) con
     for (ZXVertex* v : get_vertices()) {
         if (v->is_boundary()) continue;
         char const vtypestr = [&v]() {
-            switch (v->get_type()) {
+            switch (v->type()) {
                 case VertexType::z:
                     return 'Z';
                 case VertexType::x:
@@ -658,8 +658,8 @@ bool ZXGraph::write_zx(std::filesystem::path const& filename, bool complete) con
             return false;
         }
 
-        if (v->get_phase() != (v->is_hbox() ? Phase(1) : Phase(0))) {
-            fmt::print(zx_file, " {}", v->get_phase().get_ascii_string());
+        if (v->phase() != (v->is_hbox() ? Phase(1) : Phase(0))) {
+            fmt::print(zx_file, " {}", v->phase().get_ascii_string());
         }
         fmt::println(zx_file, "");
     }
@@ -701,7 +701,7 @@ bool ZXGraph::write_json(std::filesystem::path const& filename) const {
     std::vector<EdgePair> hadamard_edges;
     std::unordered_map<ZXVertex*, std::string> vertex2label;
     auto vtypestr = [&](ZXVertex* v) {
-        switch (v->get_type()) {
+        switch (v->type()) {
             case VertexType::z:
                 return "Z";
             case VertexType::x:
@@ -724,13 +724,13 @@ bool ZXGraph::write_json(std::filesystem::path const& filename) const {
 
     size_t node_vertices_counter = 0;
     for (auto const& v : get_vertices()) {
-        if (v->get_type() == VertexType::boundary) continue;
+        if (v->is_boundary()) continue;
         const std::string label                    = fmt::format("v{}", std::to_string(node_vertices_counter));
         json["node_vertices"][label]["annotation"] = {
             {"coord", {v->get_col(), -v->get_row()}}};
         json["node_vertices"][label]["data"]["type"] = vtypestr(v);
-        if (v->get_phase() != dvlab::Phase(0))
-            json["node_vertices"][label]["data"]["value"] = v->get_phase().get_print_string();
+        if (v->phase() != dvlab::Phase(0))
+            json["node_vertices"][label]["data"]["value"] = v->phase().get_print_string();
         node_vertices_counter++;
         vertex2label[v] = label;
     }
@@ -819,15 +819,15 @@ bool ZXGraph::write_tikz(std::ostream& os) const {
     // scale        = (scale > 3.0) ? 3.0 : scale;
 
     auto get_attr_string = [](ZXVertex* v) {
-        std::string result = vt2s.at(v->get_type());
+        std::string result = vt2s.at(v->type());
         // don't print phase for zero-phase vertices, except for h-boxes we don't print when phase is pi.
-        if ((v->get_phase() == Phase(0) && !v->is_hbox()) || (v->get_phase() == Phase(1) && v->is_hbox())) {
+        if ((v->phase() == Phase(0) && !v->is_hbox()) || (v->phase() == Phase(1) && v->is_hbox())) {
             return result;
         }
 
         std::string_view label_style = "[label distance=-2]90:{\\color{phaseColor}";
 
-        auto numerator            = v->get_phase().numerator();
+        auto numerator            = v->phase().numerator();
         std::string numerator_str = fmt::format("{}\\pi",
                                                 numerator == 1    ? ""
                                                 : numerator == -1 ? "-"
@@ -835,7 +835,7 @@ bool ZXGraph::write_tikz(std::ostream& os) const {
 
         auto sans_serif_styled = [](auto const& val) { return fmt::format("\\mathsf{{{}}}", val); };
 
-        auto denominator         = v->get_phase().denominator();
+        auto denominator         = v->phase().denominator();
         std::string fraction_str = std::invoke([&]() -> std::string {
             if (denominator == 1) {
                 return sans_serif_styled(numerator_str);

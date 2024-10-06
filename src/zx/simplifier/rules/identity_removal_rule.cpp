@@ -36,9 +36,9 @@ std::vector<MatchType> IdentityRemovalRule::find_matches(
     for (auto const& v : graph.get_vertices()) {
         if (!candidates->contains(v)) continue;
 
-        if (v->get_phase() != Phase(0)) continue;
+        if (v->phase() != Phase(0)) continue;
         if (!v->is_zx()) continue;
-        if (graph.get_num_neighbors(v) != 2) continue;
+        if (graph.num_neighbors(v) != 2) continue;
 
         matches.emplace_back(v->get_id());
 
@@ -50,17 +50,4 @@ std::vector<MatchType> IdentityRemovalRule::find_matches(
     }
 
     return matches;
-}
-
-/**
- * @brief Apply the identity removal rule to the graph.
- *
- * @param graph The graph to be simplified.
- * @param matches The matches of the identity removal rule.
- */
-void IdentityRemovalRule::apply(
-    ZXGraph& graph, std::vector<MatchType> const& matches) const {
-    std::ranges::for_each(matches, [&graph](auto const& match) {
-        match.apply(graph);
-    });
 }

@@ -35,7 +35,7 @@ std::vector<MatchType> HadamardRule::find_matches(
 
     // Find all H-boxes
     for (auto const& v : graph.get_vertices()) {
-        if (!v->is_hbox() || graph.get_num_neighbors(v) != 2) continue;
+        if (!v->is_hbox() || graph.num_neighbors(v) != 2) continue;
 
         auto [nv0, _0] = graph.get_first_neighbor(v);
         auto [nv1, _1] = graph.get_second_neighbor(v);

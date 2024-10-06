@@ -120,8 +120,8 @@ ID:    6 (●, 0)       (Qubit, Col): (3, 0)         #Neighbors:   1    (23, H)
 ID:    7 (●, 0)       (Qubit, Col): (3, 4)         #Neighbors:   1    (23, H)
 ID:   11 (Z, 0)       (Qubit, Col): (1, 1)         #Neighbors:   3    (2, -) (3, -) (23, H)
 ID:   23 (Z, 0)       (Qubit, Col): (3, 2)         #Neighbors:   3    (6, H) (7, H) (11, H)
-ID:   51 (Z, π/4)     (Qubit, Col): (-2, 2)        #Neighbors:   1    (52, H)
-ID:   52 (Z, π)       (Qubit, Col): (-1, 2)        #Neighbors:   1    (51, H)
+ID:   51 (Z, π/4)     (Qubit, Col): (-2, 0)        #Neighbors:   1    (52, H)
+ID:   52 (Z, π)       (Qubit, Col): (-1, 0)        #Neighbors:   1    (51, H)
 Total #Vertices: 8
 
 

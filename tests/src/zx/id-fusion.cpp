@@ -29,40 +29,26 @@ TEST_CASE("Identity Fusion", "[zx]") {
     g.add_edge(1, 6, EdgeType::simple);
     g.add_edge(2, 7, EdgeType::simple);
 
-    SECTION("Apply Success") {
-        IdentityFusion ifu{0};
-        REQUIRE(ifu.apply(g));
-        REQUIRE(g[0] == nullptr);
-        REQUIRE(g[1] != nullptr);
-        REQUIRE(g[2] == nullptr);
-        REQUIRE(g.is_neighbor(1, 4, EdgeType::hadamard));
-        REQUIRE(g.is_neighbor(1, 5, EdgeType::hadamard));
-        REQUIRE(g.is_neighbor(1, 6, EdgeType::simple));
-        REQUIRE(g.is_neighbor(1, 7, EdgeType::simple));
-        REQUIRE(g.get_num_neighbors(g[3]) == 0);
+    IdentityFusion ifu{0};
+    auto g_before = g;
 
-        REQUIRE(g[1]->get_phase() == Phase(1, 3) + Phase(1, 4) + Phase(1));
+    REQUIRE(ifu.apply(g));
+    REQUIRE(g[0] == nullptr);
+    REQUIRE(g[1] != nullptr);
+    REQUIRE(g[2] == nullptr);
+    REQUIRE(g.is_neighbor(1, 4, EdgeType::hadamard));
+    REQUIRE(g.is_neighbor(1, 5, EdgeType::hadamard));
+    REQUIRE(g.is_neighbor(1, 6, EdgeType::simple));
+    REQUIRE(g.is_neighbor(1, 7, EdgeType::simple));
+    REQUIRE(g.num_neighbors(g[3]) == 0);
 
-        SECTION("Undo Success") {
-            REQUIRE(ifu.undo(g));
-            REQUIRE(g[0] != nullptr);
-            REQUIRE(g[1] != nullptr);
-            REQUIRE(g[2] != nullptr);
+    REQUIRE(g[1]->phase() == Phase(1, 3) + Phase(1, 4) + Phase(1));
 
-            REQUIRE(g[1]->get_phase() == Phase(1, 3));
-            REQUIRE(g[2]->get_phase() == Phase(1, 4));
+    auto g_after = g;
 
-            REQUIRE(g.is_neighbor(0, 1, EdgeType::hadamard));
-            REQUIRE(g.is_neighbor(0, 2, EdgeType::hadamard));
-            REQUIRE(g.is_neighbor(1, 2, EdgeType::hadamard));
-            REQUIRE(g.is_neighbor(1, 3, EdgeType::hadamard));
-            REQUIRE(g.is_neighbor(2, 3, EdgeType::hadamard));
-            REQUIRE(g.is_neighbor(1, 4, EdgeType::hadamard));
-            REQUIRE(g.is_neighbor(2, 5, EdgeType::hadamard));
-            REQUIRE(g.is_neighbor(1, 6, EdgeType::simple));
-            REQUIRE(g.is_neighbor(2, 7, EdgeType::simple));
-            REQUIRE(!g.is_neighbor(1, 5));
-            REQUIRE(!g.is_neighbor(1, 7));
-        }
-    }
+    REQUIRE(ifu.undo(g));
+    REQUIRE(g == g_before);
+
+    REQUIRE(ifu.apply(g));
+    REQUIRE(g == g_after);
 }

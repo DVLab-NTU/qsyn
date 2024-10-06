@@ -216,9 +216,8 @@ Command zxgraph_manual_apply_cmd(zx::ZXGraphMgr& zxgraph_mgr) {
             const bool is_cand = PivotBoundaryRule().is_candidate(*zxgraph_mgr.get(), bound, vert);
             if (!is_cand) return CmdExecResult::error;
 
-            std::vector<std::pair<ZXVertex*, ZXVertex*>> match;
-            match.emplace_back(bound, vert);
-            PivotBoundaryRule().apply(*zxgraph_mgr.get(), match);
+            PivotUnfusion pvu{bound->get_id(), vert->get_id(), {}, {}};
+            pvu.apply(*zxgraph_mgr.get());
             return CmdExecResult::done;
         }};
 }

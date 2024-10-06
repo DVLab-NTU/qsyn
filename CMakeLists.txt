@@ -271,6 +271,10 @@ set_target_properties(
 
 target_include_directories(
     ${UNIT_TEST_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/src)
+
+target_include_directories(
+    ${UNIT_TEST_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/tests/src)
+
 target_include_directories(
     ${UNIT_TEST_NAME} SYSTEM PRIVATE ${CMAKE_SOURCE_DIR}/vendor)
 target_link_libraries(

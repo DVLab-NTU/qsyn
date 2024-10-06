@@ -59,7 +59,7 @@ std::vector<MatchType> PivotRule::find_matches(
                 }
             }
         }
-        matches.emplace_back(vs, vt);
+        matches.emplace_back(vs->get_id(), vt->get_id());
 
         if (allow_overlapping_candidates) return;
 
@@ -71,24 +71,4 @@ std::vector<MatchType> PivotRule::find_matches(
     });
 
     return matches;
-}
-
-void PivotRule::apply(ZXGraph& graph, std::vector<MatchType> const& matches) const {
-    for (auto const& [vs, vt] : matches) {
-        for (auto& v : {vs, vt}) {
-            for (auto& [nb, et] : graph.get_neighbors(v)) {
-                if (nb->is_z() && et == EdgeType::hadamard) continue;
-                if (nb->is_boundary()) {
-                    zx::add_identity_vertex(
-                        graph, v->get_id(), nb->get_id(),
-                        VertexType::z, EdgeType::hadamard);
-                    goto next_pair;
-                }
-            }
-        }
-    next_pair:
-        continue;
-    }
-
-    PivotRuleInterface::apply(graph, matches);
 }

@@ -105,8 +105,8 @@ ID:   13 (Z, π)       (Qubit, Col): (-1, 1)        #Neighbors:   2    (8, H) (1
 ID:   14 (Z, -π/4)    (Qubit, Col): (-2, 1)        #Neighbors:   1    (13, H)
 ID:   15 (Z, π)       (Qubit, Col): (-1, 1)        #Neighbors:   3    (6, H) (8, H) (16, H)
 ID:   16 (Z, π/4)     (Qubit, Col): (-2, 1)        #Neighbors:   1    (15, H)
-ID:   19 (Z, π/4)     (Qubit, Col): (-2, 1)        #Neighbors:   1    (20, H)
-ID:   20 (Z, π)       (Qubit, Col): (-1, 1)        #Neighbors:   1    (19, H)
+ID:   19 (Z, π/4)     (Qubit, Col): (-2, 0)        #Neighbors:   1    (20, H)
+ID:   20 (Z, π)       (Qubit, Col): (-1, 0)        #Neighbors:   1    (19, H)
 Total #Vertices: 16
 
 
@@ -128,8 +128,8 @@ ID:   13 (Z, π)       (Qubit, Col): (-1, 1)        #Neighbors:   2    (8, H) (1
 ID:   14 (Z, -π/4)    (Qubit, Col): (-2, 1)        #Neighbors:   1    (13, H)
 ID:   15 (Z, π)       (Qubit, Col): (-1, 1)        #Neighbors:   3    (6, H) (8, H) (16, H)
 ID:   16 (Z, π/4)     (Qubit, Col): (-2, 1)        #Neighbors:   1    (15, H)
-ID:   19 (Z, π/4)     (Qubit, Col): (-2, 1)        #Neighbors:   1    (20, H)
-ID:   20 (Z, π)       (Qubit, Col): (-1, 1)        #Neighbors:   1    (19, H)
+ID:   19 (Z, π/4)     (Qubit, Col): (-2, 0)        #Neighbors:   1    (20, H)
+ID:   20 (Z, π)       (Qubit, Col): (-1, 0)        #Neighbors:   1    (19, H)
 Total #Vertices: 16
 
 

@@ -11,7 +11,7 @@ qsyn> convert zx qcir
 qsyn> qcir optimize
 
 qsyn> qcir print
-QCir (16 qubits, 427 gates, 246 2-qubits gates, 122 T-gates, 326 depths)
+QCir (16 qubits, 447 gates, 265 2-qubits gates, 122 T-gates, 341 depths)
 
 qsyn> convert qcir zx
 

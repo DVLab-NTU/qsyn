@@ -18,7 +18,6 @@
 #include "util/data_structure_manager_common_cmd.hpp"
 #include "zx/zx_io.hpp"
 #include "zx/zxgraph.hpp"
-#include "zx/zxgraph_action.hpp"
 
 using namespace dvlab::argparse;
 using dvlab::CmdExecResult;
@@ -106,57 +105,6 @@ Command zxgraph_tensor_product_cmd(ZXGraphMgr& zxgraph_mgr) {
             }};
 }
 
-Command zxgraph_test_cmd(ZXGraphMgr const& zxgraph_mgr) {
-    return {"test",
-            [](ArgumentParser& parser) {
-                parser.description("test ZXGraph structures and functions");
-
-                auto mutex = parser.add_mutually_exclusive_group().required(true);
-
-                mutex.add_argument<bool>("-v", "--valid")
-                    .action(store_true)
-                    .help("check if the ZXGraph is valid");
-                mutex.add_argument<bool>("-e", "--empty")
-                    .action(store_true)
-                    .help("check if the ZXGraph is empty");
-                mutex.add_argument<bool>("-g", "--graph-like")
-                    .action(store_true)
-                    .help("check if the ZXGraph is graph-like");
-                mutex.add_argument<bool>("-i", "--identity")
-                    .action(store_true)
-                    .help("check if the ZXGraph is equivalent to identity");
-            },
-            [&](ArgumentParser const& parser) {
-                if (!dvlab::utils::mgr_has_data(zxgraph_mgr)) return CmdExecResult::error;
-                if (parser.parsed("--empty")) {
-                    if (zxgraph_mgr.get()->is_empty()) {
-                        fmt::println("The graph is empty!");
-                    } else {
-                        fmt::println("The graph is not empty!");
-                    }
-                } else if (parser.parsed("--valid")) {
-                    if (zxgraph_mgr.get()->is_valid()) {
-                        fmt::println("The graph is valid!");
-                    } else {
-                        fmt::println("The graph is invalid!");
-                    }
-                } else if (parser.parsed("--graph-like")) {
-                    if (zxgraph_mgr.get()->is_graph_like()) {
-                        fmt::println("The graph is graph-like!");
-                    } else {
-                        fmt::println("The graph is not graph-like!");
-                    }
-                } else if (parser.parsed("--identity")) {
-                    if (zxgraph_mgr.get()->is_identity()) {
-                        fmt::println("The graph is an identity!");
-                    } else {
-                        fmt::println("The graph is not an identity!");
-                    }
-                }
-                return CmdExecResult::done;
-            }};
-}
-
 Command zxgraph_print_cmd(ZXGraphMgr const& zxgraph_mgr) {
     return {"print",
             [&](ArgumentParser& parser) {
@@ -203,9 +151,9 @@ Command zxgraph_print_cmd(ZXGraphMgr const& zxgraph_mgr) {
                 if (!dvlab::utils::mgr_has_data(zxgraph_mgr)) return CmdExecResult::error;
                 if (parser.parsed("--statistics")) {
                     zxgraph_mgr.get()->print_graph();
-                    fmt::println("{:<29} {}", "#T-gate:", zxgraph_mgr.get()->t_count());
-                    fmt::println("{:<29} {}", "#Non-(Clifford+T)-gate: ", zxgraph_mgr.get()->non_clifford_t_count());
-                    fmt::println("{:<29} {}", "#Non-Clifford-gate: ", zxgraph_mgr.get()->non_clifford_count());
+                    fmt::println("{:<29} {}", "#T-gate:", t_count(*zxgraph_mgr.get()));
+                    fmt::println("{:<29} {}", "#Non-(Clifford+T)-gate: ", non_clifford_t_count(*zxgraph_mgr.get()));
+                    fmt::println("{:<29} {}", "#Non-Clifford-gate: ", non_clifford_count(*zxgraph_mgr.get()));
                 } else if (parser.parsed("--io"))
                     zxgraph_mgr.get()->print_io();
                 else if (parser.parsed("--list"))
@@ -235,7 +183,7 @@ Command zxgraph_print_cmd(ZXGraphMgr const& zxgraph_mgr) {
                         nb->print_vertex();
                     }
                 } else if (parser.parsed("--density")) {
-                    fmt::println("Density: {}", zxgraph_mgr.get()->density());
+                    fmt::println("Density: {}", density(*zxgraph_mgr.get()));
                 } else {
                     zxgraph_mgr.get()->print_graph();
                 }
@@ -625,8 +573,9 @@ Command zxgraph_edge_remove_cmd(ZXGraphMgr& zxgraph_mgr) {
                 .help("the IDs to the two vertices to remove edges in between");
 
             parser.add_argument<std::string>("etype")
-                .constraint(choices_allow_prefix({"simple", "hadamard", "all"}))
-                .help("the edge type to remove. Options: simple, hadamard, all (i.e., remove both)");
+                .constraint(choices_allow_prefix({"simple", "hadamard", "any"}))
+                .default_value("any")
+                .help("the edge type to remove (simple, hadamard, [any])");
         },
         [&](ArgumentParser const& parser) {
             if (!dvlab::utils::mgr_has_data(zxgraph_mgr)) return CmdExecResult::error;
@@ -642,7 +591,7 @@ Command zxgraph_edge_remove_cmd(ZXGraphMgr& zxgraph_mgr) {
                 zxgraph_mgr.get()->remove_edge(vs, vt, etype.value());
             } else {
                 spdlog::info("Removing all edges between ({}, {})...", vs->get_id(), vt->get_id());
-                zxgraph_mgr.get()->remove_all_edges_between(vs, vt);
+                zxgraph_mgr.get()->remove_edge(vs, vt);
             }
 
             return CmdExecResult::done;

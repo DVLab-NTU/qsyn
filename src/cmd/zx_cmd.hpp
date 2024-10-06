@@ -20,4 +20,6 @@ std::function<bool(int const&)> zxgraph_input_qubit_not_exist(ZXGraphMgr const& 
 std::function<bool(int const&)> zxgraph_output_qubit_not_exist(ZXGraphMgr const& zxgraph_mgr);
 bool add_zx_cmds(dvlab::CommandLineInterface& cli, qsyn::zx::ZXGraphMgr& zxgraph_mgr);
 
+dvlab::Command zxgraph_test_cmd(ZXGraphMgr& zxgraph_mgr);
+
 }  // namespace qsyn::zx

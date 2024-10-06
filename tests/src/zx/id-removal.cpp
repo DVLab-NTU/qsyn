@@ -3,6 +3,7 @@
 #include <catch2/generators/catch_generators_adapters.hpp>
 #include <random>
 
+#include "common/global.hpp"
 #include "util/phase.hpp"
 #include "zx/zx_def.hpp"
 #include "zx/zxgraph.hpp"
@@ -31,13 +32,6 @@ TEST_CASE("Identity Removal Matches", "[zx][action]") {
     REQUIRE(g[2] == nullptr);
     REQUIRE(g.is_neighbor(0, 1));
     REQUIRE(g.get_edge_type(0, 1) == concat_edge(left_edge, right_edge));
-}
-
-std::vector<size_t> get_shuffle_seq(std::vector<size_t> vec) {
-    static std::random_device rd;
-    static std::mt19937 g(rd());
-    std::shuffle(vec.begin(), vec.end(), g);
-    return vec;
 }
 
 TEST_CASE("Identity Removal Are Associative", "[zx][action]") {
@@ -69,7 +63,7 @@ TEST_CASE("Identity Removal Are Associative", "[zx][action]") {
     }
 
     REQUIRE(g.is_identity());
-    REQUIRE(g.get_num_vertices() == 2);
+    REQUIRE(g.num_vertices() == 2);
     REQUIRE(g[0] != nullptr);
     REQUIRE(g[1] != nullptr);
     REQUIRE(g.is_neighbor(0, 1, EdgeType::hadamard));
@@ -118,7 +112,7 @@ TEST_CASE("Identity Removal Undo/Redo", "[zx][action]") {
     }
 
     SECTION("Apply Fail") {
-        g[1]->set_phase(Phase(1, 3));
+        g[1]->phase() = Phase(1, 3);
         IdentityRemoval ir{1};
         REQUIRE_FALSE(ir.apply(g));
         REQUIRE(g[1] != nullptr);

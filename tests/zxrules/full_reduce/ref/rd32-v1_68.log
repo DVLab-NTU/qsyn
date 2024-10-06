@@ -92,35 +92,35 @@ qsyn> logger warn
 
 qsyn> zx print -r
 
-ID:   61 (Z, -π/4)    (Qubit, Col): (-2, 5)        #Neighbors:   1    (62, H)
-ID:   67 (Z, -π/4)    (Qubit, Col): (-2, 17)       #Neighbors:   1    (68, H)
-ID:   69 (Z, -π/4)    (Qubit, Col): (-2, 7)        #Neighbors:   1    (70, H)
-ID:   73 (Z, -3π/4)   (Qubit, Col): (-2, 16)       #Neighbors:   1    (74, H)
-ID:   76 (Z, π/4)     (Qubit, Col): (-2, 1)        #Neighbors:   1    (77, H)
+ID:   61 (Z, -π/4)    (Qubit, Col): (-2, 0)        #Neighbors:   1    (62, H)
+ID:   67 (Z, -π/4)    (Qubit, Col): (-2, 0)        #Neighbors:   1    (68, H)
+ID:   69 (Z, -π/4)    (Qubit, Col): (-2, 0)        #Neighbors:   1    (70, H)
+ID:   73 (Z, -3π/4)   (Qubit, Col): (-2, 0)        #Neighbors:   1    (74, H)
+ID:   75 (Z, π/4)     (Qubit, Col): (-2, 0)        #Neighbors:   1    (76, H)
 
 
-ID:   62 (Z, 0)       (Qubit, Col): (-1, 5)        #Neighbors:   3    (8, H) (13, H) (61, H)
-ID:   68 (Z, 0)       (Qubit, Col): (-1, 17)       #Neighbors:   3    (12, H) (13, H) (67, H)
-ID:   70 (Z, 0)       (Qubit, Col): (-1, 7)        #Neighbors:   5    (8, H) (12, H) (13, H) (43, H) (69, H)
-ID:   74 (Z, 0)       (Qubit, Col): (-1, 16)       #Neighbors:   3    (13, H) (43, H) (73, H)
-ID:   77 (Z, 0)       (Qubit, Col): (-1, 1)        #Neighbors:   4    (8, H) (12, H) (43, H) (76, H)
+ID:   62 (Z, 0)       (Qubit, Col): (-1, 0)        #Neighbors:   3    (8, H) (13, H) (61, H)
+ID:   68 (Z, 0)       (Qubit, Col): (-1, 0)        #Neighbors:   3    (12, H) (13, H) (67, H)
+ID:   70 (Z, 0)       (Qubit, Col): (-1, 0)        #Neighbors:   5    (8, H) (12, H) (13, H) (43, H) (69, H)
+ID:   74 (Z, 0)       (Qubit, Col): (-1, 0)        #Neighbors:   3    (13, H) (43, H) (73, H)
+ID:   76 (Z, 0)       (Qubit, Col): (-1, 0)        #Neighbors:   4    (8, H) (12, H) (43, H) (75, H)
 
 
 ID:    0 (●, 0)       (Qubit, Col): (0, 0)         #Neighbors:   1    (8, -)
 ID:    1 (●, 0)       (Qubit, Col): (0, 22)        #Neighbors:   1    (8, -)
-ID:    8 (Z, π/4)     (Qubit, Col): (0, 1)         #Neighbors:   6    (0, -) (1, -) (62, H) (70, H) (75, H) (77, H)
+ID:    8 (Z, π/4)     (Qubit, Col): (0, 1)         #Neighbors:   6    (0, -) (1, -) (62, H) (70, H) (76, H) (77, H)
 
 
-ID:    2 (●, 0)       (Qubit, Col): (1, 0)         #Neighbors:   1    (75, H)
+ID:    2 (●, 0)       (Qubit, Col): (1, 0)         #Neighbors:   1    (77, H)
 ID:    3 (●, 0)       (Qubit, Col): (1, 22)        #Neighbors:   1    (51, H)
 ID:   51 (Z, 0)       (Qubit, Col): (1, 18)        #Neighbors:   3    (3, H) (12, H) (43, H)
-ID:   75 (Z, 0)       (Qubit, Col): (1, 0.5)       #Neighbors:   4    (2, H) (8, H) (12, H) (43, H)
+ID:   77 (Z, 0)       (Qubit, Col): (1, 0.5)       #Neighbors:   4    (2, H) (8, H) (12, H) (43, H)
 
 
 ID:    4 (●, 0)       (Qubit, Col): (2, 0)         #Neighbors:   1    (12, -)
 ID:    5 (●, 0)       (Qubit, Col): (2, 22)        #Neighbors:   1    (43, -)
-ID:   12 (Z, π/4)     (Qubit, Col): (2, 1)         #Neighbors:   6    (4, -) (51, H) (68, H) (70, H) (75, H) (77, H)
-ID:   43 (Z, 3π/4)    (Qubit, Col): (2, 15)        #Neighbors:   6    (5, -) (51, H) (70, H) (74, H) (75, H) (77, H)
+ID:   12 (Z, π/4)     (Qubit, Col): (2, 1)         #Neighbors:   6    (4, -) (51, H) (68, H) (70, H) (76, H) (77, H)
+ID:   43 (Z, 3π/4)    (Qubit, Col): (2, 15)        #Neighbors:   6    (5, -) (51, H) (70, H) (74, H) (76, H) (77, H)
 
 
 ID:    6 (●, 0)       (Qubit, Col): (3, 0)         #Neighbors:   1    (13, H)

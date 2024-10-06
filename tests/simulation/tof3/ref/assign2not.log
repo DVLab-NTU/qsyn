@@ -121,8 +121,8 @@ qsyn> zx print -v
 ID:    6 (●, 0)       (Qubit, Col): (3, 0)         #Neighbors:   1    (23, H)
 ID:    7 (●, 0)       (Qubit, Col): (3, 4)         #Neighbors:   1    (23, H)
 ID:   23 (Z, π)       (Qubit, Col): (3, 2)         #Neighbors:   2    (6, H) (7, H)
-ID:   53 (Z, π/4)     (Qubit, Col): (-2, 2)        #Neighbors:   1    (54, H)
-ID:   54 (Z, π)       (Qubit, Col): (-1, 2)        #Neighbors:   1    (53, H)
+ID:   53 (Z, π/4)     (Qubit, Col): (-2, 0)        #Neighbors:   1    (54, H)
+ID:   54 (Z, π)       (Qubit, Col): (-1, 0)        #Neighbors:   1    (53, H)
 Total #Vertices: 5
 
 

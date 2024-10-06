@@ -56,7 +56,7 @@ void Extractor::initialize() {
 
     QubitIdType cnt = 0;
     if (_logical_circuit == nullptr) {
-        _logical_circuit = new QCir(_graph->get_num_outputs());
+        _logical_circuit = new QCir(_graph->num_outputs());
     }
     for (auto& o : _graph->get_outputs()) {
         ZXVertex* neighbor_to_output = _graph->get_first_neighbor(o).first;
@@ -190,10 +190,10 @@ void Extractor::extract_singles() {
             _logical_circuit->prepend(HGate(), {_qubit_map[o->get_qubit()]});
             toggle_list.emplace_back(o, _graph->get_first_neighbor(o).first);
         }
-        auto const ph = _graph->get_first_neighbor(o).first->get_phase();
+        auto const ph = _graph->get_first_neighbor(o).first->phase();
         if (ph != dvlab::Phase(0)) {
             _logical_circuit->prepend(PZGate(ph), {_qubit_map[o->get_qubit()]});
-            _graph->get_first_neighbor(o).first->set_phase(dvlab::Phase(0));
+            _graph->get_first_neighbor(o).first->phase() = dvlab::Phase(0);
         }
     }
     for (auto& [s, t] : toggle_list) {
@@ -216,7 +216,7 @@ bool Extractor::extract_czs(bool check) {
 
     if (check) {
         for (auto& f : _frontier) {
-            if (f->get_phase() != dvlab::Phase(0)) {
+            if (f->phase() != dvlab::Phase(0)) {
                 spdlog::error("Phase found in frontier!! Please extract them first");
                 return false;
             }
@@ -461,7 +461,8 @@ bool Extractor::remove_gadget(bool check) {
                     }
                 }
 
-                PivotBoundaryRule().apply(*_graph, {{candidate, n}});
+                PivotUnfusion pvu{candidate->get_id(), n->get_id(), {}, {}};
+                pvu.apply_unchecked(*_graph);
 
                 assert(target_boundary != nullptr);
                 auto new_frontier = _graph->get_first_neighbor(target_boundary).first;
@@ -818,7 +819,7 @@ void Extractor::permute_qubits() {
     std::unordered_map<QubitIdType, QubitIdType> swap_inv_map;         // i to o
     bool matched = true;
     for (auto& o : _graph->get_outputs()) {
-        if (_graph->get_num_neighbors(o) != 1) {
+        if (_graph->num_neighbors(o) != 1) {
             spdlog::error("Output is not connected to only one vertex!!");
             return;
         }
@@ -846,7 +847,7 @@ void Extractor::permute_qubits() {
         swap_inv_map[i] = t2;
     }
     for (auto& o : _graph->get_outputs()) {
-        _graph->remove_all_edges_between(_graph->get_first_neighbor(o).first, o);
+        _graph->remove_edge(_graph->get_first_neighbor(o).first, o);
     }
     for (auto& o : _graph->get_outputs()) {
         for (auto& i : _graph->get_inputs()) {
@@ -873,7 +874,7 @@ void Extractor::update_neighbors() {
 
         if (num_boundaries != 2) continue;
 
-        if (_graph->get_num_neighbors(f) == 2 && f->get_phase() == dvlab::Phase(0)) {
+        if (_graph->num_neighbors(f) == 2 && f->phase() == dvlab::Phase(0)) {
             // NOTE - Remove
             for (auto& [b, ep] : _graph->get_neighbors(f)) {
                 if (_graph->get_inputs().contains(b)) {
@@ -976,7 +977,7 @@ void Extractor::prepend_swap_gate(QubitIdType q0, QubitIdType q1, QCir* circuit)
  */
 bool Extractor::frontier_is_cleaned() {
     for (auto& f : _frontier) {
-        if (f->get_phase() != dvlab::Phase(0)) return false;
+        if (f->phase() != dvlab::Phase(0)) return false;
         for (auto& [n, e] : _graph->get_neighbors(f)) {
             if (_frontier.contains(n)) return false;
             if (_graph->get_outputs().contains(n) && e == EdgeType::hadamard) return false;
@@ -1005,7 +1006,7 @@ bool Extractor::axel_in_neighbors() {
  */
 bool Extractor::contains_single_neighbor() {
     return std::ranges::any_of(_frontier, [&](auto& f) {
-        return _graph->get_num_neighbors(f) == 2;
+        return _graph->num_neighbors(f) == 2;
     });
 }
 
