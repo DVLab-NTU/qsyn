@@ -8,11 +8,11 @@ bool stop_requested();
 
 #include "util/phase.hpp"
 
-extern std::mt19937 RAND_GEN;
+std::mt19937& rand_gen();
 
 template <typename T>
 std::vector<T> get_shuffle_seq(std::vector<T> vec) {
-    std::shuffle(vec.begin(), vec.end(), RAND_GEN);
+    std::shuffle(vec.begin(), vec.end(), rand_gen());
     return vec;
 }
 

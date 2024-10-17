@@ -118,6 +118,8 @@ public:
     void apply_unchecked(ZXGraph& graph) const override;
     void undo_unchecked(ZXGraph& graph) const override;
 
+    auto get_v_id() const { return _v_id; }
+
 private:
     size_t _v_id;
     mutable size_t _left_id  = 0;
@@ -218,7 +220,9 @@ public:
     auto get_v_id() const { return _v_id; }
     auto get_buffer_id() const { return _buffer_v_id; }
     auto get_unfused_id() const { return _unfused_v_id; }
-    auto get_neighbors_to_unfuse() const { return _neighbors_to_unfuse; }
+    auto const& get_neighbors_to_unfuse() const {
+        return _neighbors_to_unfuse;
+    }
 
 private:
     size_t _v_id;
@@ -235,6 +239,11 @@ public:
     bool is_undoable(ZXGraph const& graph) const override;
     void apply_unchecked(ZXGraph& graph) const override;
     void undo_unchecked(ZXGraph& graph) const override;
+
+    auto get_v_id() const { return _nu.get_v_id(); }
+    auto const& get_neighbors_to_unfuse() const {
+        return _nu.get_neighbors_to_unfuse();
+    }
 
 private:
     NeighborUnfusion _nu;
@@ -254,6 +263,15 @@ public:
     bool is_undoable(ZXGraph const& graph) const override;
     void apply_unchecked(ZXGraph& graph) const override;
     void undo_unchecked(ZXGraph& graph) const override;
+
+    auto get_v1_id() const { return _nu1.get_v_id(); }
+    auto get_v2_id() const { return _nu2.get_v_id(); }
+    auto const& get_neighbors_to_unfuse_v1() const {
+        return _nu1.get_neighbors_to_unfuse();
+    }
+    auto const& get_neighbors_to_unfuse_v2() const {
+        return _nu2.get_neighbors_to_unfuse();
+    }
 
 private:
     NeighborUnfusion _nu1;

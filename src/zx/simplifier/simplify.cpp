@@ -102,14 +102,24 @@ void to_x_graph(ZXGraph& g) {
 }
 
 /**
+ * @brief Make the ZXGraph graph-like, i.e., all vertices are Z-spiders or
+ *        boundary vertices and all Z-Z edges are Hadamard edges
+ *
+ * @param g
+ */
+void to_graph_like(ZXGraph& g) {
+    spider_fusion_simp(g);
+    to_z_graph(g);
+}
+
+/**
  * @brief Remove Clifford vertices in the interior of the graph iteratively
  *        until no more can be removed
  *
  * @return the number of iterations
  */
 size_t interior_clifford_simp(ZXGraph& g) {
-    spider_fusion_simp(g);
-    to_z_graph(g);
+    to_graph_like(g);
     for (size_t iterations = 0; !stop_requested(); iterations++) {
         auto const i1 = identity_removal_simp(g);
         auto const i2 = spider_fusion_simp(g);
@@ -222,11 +232,6 @@ void symbolic_reduce(ZXGraph& g) {
         if (i1 + i2 == 0) break;
     }
     to_x_graph(g);
-}
-
-void causal_reduce(ZXGraph& g) {
-    // TODO: implement causal reduce
-    to_z_graph(g);
 }
 
 }  // namespace qsyn::zx::simplify

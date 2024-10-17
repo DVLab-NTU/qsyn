@@ -42,10 +42,11 @@ void dynamic_reduce(ZXGraph& g);
 void dynamic_reduce(ZXGraph& g, size_t optimal_t_count);
 void symbolic_reduce(ZXGraph& g);
 void partition_reduce(ZXGraph& g, size_t n_partitions);
-void causal_reduce(ZXGraph& g);
+void causal_flow_opt(ZXGraph& g);
 
 void to_z_graph(ZXGraph& g);
 void to_x_graph(ZXGraph& g);
+void to_graph_like(ZXGraph& g);
 
 void report_simplification_result(
     std::string_view rule_name, std::span<size_t> match_counts);
