@@ -417,13 +417,20 @@ void IdentityAddition::undo_unchecked(ZXGraph& graph) const {
 
 IdentityFusion::IdentityFusion(size_t v_id) : _v_id(v_id) {}
 
-bool IdentityFusion::is_applicable(ZXGraph const& graph) const {
-    auto v = graph[_v_id];
+bool IdentityFusion::is_applicable(ZXGraph const& graph, size_t v_id) {
+    auto v = graph[v_id];
     if (v == nullptr) return false;
     if (!v->is_z() || v->phase() != Phase(0)) return false;
     if (graph.num_neighbors(v) != 2) return false;
+    auto const [l, etype_to_l] = graph.get_first_neighbor(v);
+    auto const [r, etype_to_r] = graph.get_second_neighbor(v);
+    return l->is_zx() && r->is_zx() &&
+           l->type() == r->type() &&
+           etype_to_l == etype_to_r;
+}
 
-    return is_graph_like_at(graph, _v_id);
+bool IdentityFusion::is_applicable(ZXGraph const& graph) const {
+    return is_applicable(graph, _v_id);
 }
 
 bool IdentityFusion::is_undoable(ZXGraph const& graph) const {

@@ -34,7 +34,7 @@ class ZXRule {
 public:
     virtual ~ZXRule() = default;
 
-    // should return true if and only if the rule is applicable to the graph
+    // should return true if and only if the rule is applicable to the graph.
     virtual bool is_applicable(ZXGraph const& graph) const = 0;
     // should return true if and only if the rule is undoable
     virtual bool is_undoable(ZXGraph const& graph) const = 0;
@@ -119,6 +119,8 @@ public:
     void undo_unchecked(ZXGraph& graph) const override;
 
     auto get_v_id() const { return _v_id; }
+
+    static bool is_applicable(ZXGraph const& graph, size_t v_id);
 
 private:
     size_t _v_id;

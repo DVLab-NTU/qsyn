@@ -20,6 +20,7 @@
 #include "util/data_structure_manager_common_cmd.hpp"
 #include "zx/simplifier/simplify.hpp"
 #include "zx/zxgraph.hpp"
+#include "zx/zxgraph_action.hpp"
 
 using namespace dvlab::argparse;
 using dvlab::CmdExecResult;
@@ -84,7 +85,7 @@ Command zxgraph_optimize_cmd(zx::ZXGraphMgr& zxgraph_mgr) {
                     simplify::clifford_simp(*zxgraph_mgr.get());
                     procedure_str = "CR";
                 } else if (parser.parsed("--causal")) {
-                    simplify::causal_flow_opt(*zxgraph_mgr.get());
+                    simplify::causal_flow_opt(*zxgraph_mgr.get(), 2, 2);
                     procedure_str = "Causal";
                 } else {
                     simplify::full_reduce(*zxgraph_mgr.get());

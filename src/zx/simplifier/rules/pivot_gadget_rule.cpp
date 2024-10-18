@@ -16,15 +16,11 @@ using MatchType = PivotGadgetRule::MatchType;
  *
  * @param graph
  * @param candidates the vertices to be considered
- * @param allow_overlapping_candidates whether to allow overlapping candidates.
- *        If true, needs to manually check for overlapping candidates.
  * @return std::vector<MatchType>
  */
 std::vector<MatchType> PivotGadgetRule::find_matches(
     ZXGraph const& graph,
-    std::optional<ZXVertexList> candidates,
-    bool allow_overlapping_candidates  //
-) const {
+    std::optional<ZXVertexList> candidates) const {
     std::vector<MatchType> matches;
 
     if (!candidates.has_value()) {
@@ -69,7 +65,7 @@ std::vector<MatchType> PivotGadgetRule::find_matches(
             if (!v->is_z()) return;  // vt is not internal or not graph-like
         }
 
-        if (allow_overlapping_candidates) return;
+        if (_allow_overlapping_candidates) return;
 
         // Both vs and vt are interior vertices
         candidates->erase(vs);

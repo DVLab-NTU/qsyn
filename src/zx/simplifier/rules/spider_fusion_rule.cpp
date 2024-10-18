@@ -16,14 +16,11 @@ using MatchType = SpiderFusionRule::MatchType;
  *
  * @param graph
  * @param candidates the vertices to be considered
- * @param allow_overlapping_candidates whether to allow overlapping candidates. If true, needs to manually check for overlapping candidates.
  * @return std::vector<MatchType>
  */
 std::vector<MatchType> SpiderFusionRule::find_matches(
     ZXGraph const& graph,
-    std::optional<ZXVertexList> candidates,
-    bool allow_overlapping_candidates  //
-) const {
+    std::optional<ZXVertexList> candidates) const {
     std::vector<MatchType> match_type_vec;
 
     if (!candidates.has_value()) {
@@ -39,7 +36,7 @@ std::vector<MatchType> SpiderFusionRule::find_matches(
 
         if ((v0->type() == v1->type()) && (v0->is_x() || v0->is_z())) {
             match_type_vec.emplace_back(v0, v1);
-            if (allow_overlapping_candidates) return;
+            if (_allow_overlapping_candidates) return;
             candidates->erase(v0);
             candidates->erase(v1);
             // NOTE: Cannot choose the vertex connected to the vertices that will be merged

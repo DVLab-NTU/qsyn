@@ -30,13 +30,10 @@ struct ZXVerticesHash {
  *
  * @param graph
  * @param candidates the vertices to be considered
- * @param allow_overlapping_candidates whether to allow overlapping candidates. If true, needs to manually check for overlapping candidates.
  * @return std::vector<MatchType>
  */
 std::vector<MatchType> PhaseGadgetRule::find_matches(
-    ZXGraph const& graph, std::optional<ZXVertexList> candidates,
-    bool /* allow_overlapping_candidates */  // phase gadget rule candidates won't overlap
-) const {
+    ZXGraph const& graph, std::optional<ZXVertexList> candidates) const {
     if (!candidates.has_value()) {
         candidates = graph.get_vertices();
     }

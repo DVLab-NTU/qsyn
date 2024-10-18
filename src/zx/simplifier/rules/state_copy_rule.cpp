@@ -20,14 +20,11 @@ using MatchType = StateCopyRule::MatchType;
  *
  * @param graph
  * @param candidates the vertices to be considered
- * @param allow_overlapping_candidates whether to allow overlapping candidates. If true, needs to manually check for overlapping candidates.
  * @return std::vector<MatchType>
  */
 std::vector<MatchType> StateCopyRule::find_matches(
     ZXGraph const& graph,
-    std::optional<ZXVertexList> candidates,
-    bool allow_overlapping_candidates  //
-) const {
+    std::optional<ZXVertexList> candidates) const {
     std::vector<MatchType> matches;
 
     if (!candidates.has_value()) {
@@ -55,7 +52,7 @@ std::vector<MatchType> StateCopyRule::find_matches(
         for (auto const& [nb, _] : graph.get_neighbors(pi_neighbor)) {
             if (nb != v)
                 apply_neighbors.emplace_back(nb);
-            if (!allow_overlapping_candidates) {
+            if (!_allow_overlapping_candidates) {
                 candidates->erase(nb);
             }
         }

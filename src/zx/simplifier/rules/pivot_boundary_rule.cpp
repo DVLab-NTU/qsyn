@@ -18,15 +18,11 @@ using MatchType = PivotBoundaryRule::MatchType;
  *
  * @param graph
  * @param candidates the vertices to be considered
- * @param allow_overlapping_candidates whether to allow overlapping candidates.
- *        If true, needs to manually check for overlapping candidates.
  * @return std::vector<MatchType>
  */
 std::vector<MatchType> PivotBoundaryRule::find_matches(
     ZXGraph const& graph,
-    std::optional<ZXVertexList> candidates,
-    bool allow_overlapping_candidates  //
-) const {
+    std::optional<ZXVertexList> candidates) const {
     std::vector<MatchType> matches;
 
     if (!candidates.has_value()) {
@@ -71,7 +67,7 @@ std::vector<MatchType> PivotBoundaryRule::find_matches(
             if (!nb->is_z() || etype != EdgeType::hadamard) return;
         }
 
-        if (allow_overlapping_candidates) return;
+        if (_allow_overlapping_candidates) return;
 
         candidates->erase(vs);
         candidates->erase(vt);
@@ -90,7 +86,7 @@ std::vector<MatchType> PivotBoundaryRule::find_matches(
 }
 
 bool PivotBoundaryRule::is_candidate(
-    ZXGraph& graph, ZXVertex* v0, ZXVertex* v1) {
+    ZXGraph const& graph, ZXVertex* v0, ZXVertex* v1) const {
     if (!is_graph_like(graph)) {
         spdlog::error("The graph is not graph like!");
         return false;

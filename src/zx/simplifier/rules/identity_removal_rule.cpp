@@ -18,15 +18,10 @@ using MatchType = IdentityRemovalRule::MatchType;
  *
  * @param graph
  * @param candidates the vertices to be considered
- * @param allow_overlapping_candidates whether to allow overlapping candidates.
- *        If true, return all candidates that match the rule;
- *        otherwise, only returns non-overlapping candidates.
  * @return std::vector<MatchType>
  */
 std::vector<MatchType> IdentityRemovalRule::find_matches(
-    ZXGraph const& graph, std::optional<ZXVertexList> candidates,
-    bool allow_overlapping_candidates  //
-) const {
+    ZXGraph const& graph, std::optional<ZXVertexList> candidates) const {
     std::vector<MatchType> matches;
 
     if (!candidates.has_value()) {
@@ -42,7 +37,7 @@ std::vector<MatchType> IdentityRemovalRule::find_matches(
 
         matches.emplace_back(v->get_id());
 
-        if (allow_overlapping_candidates) continue;
+        if (_allow_overlapping_candidates) continue;
 
         candidates->erase(v);
         candidates->erase(graph.get_first_neighbor(v).first);

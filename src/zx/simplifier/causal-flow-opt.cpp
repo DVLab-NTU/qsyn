@@ -3,6 +3,7 @@
 #include "./heuristics.hpp"
 #include "./simplify.hpp"
 #include "zx/gflow/causal_flow.hpp"
+#include "zx/simplifier/rules/rule-matchers.hpp"
 #include "zx/zx_def.hpp"
 #include "zx/zxgraph.hpp"
 #include "zx/zxgraph_action.hpp"
@@ -16,18 +17,6 @@ using MatchType = std::variant<
 
 using MatchWithScore = std::pair<MatchType, size_t>;
 
-std::vector<IdentityFusion> match_identity_fusion(ZXGraph const& g) {
-    return {};
-}
-
-std::vector<LCompUnfusion> match_lcomp_unfusion(ZXGraph const& g) {
-    return {};
-}
-
-std::vector<PivotUnfusion> match_pivot_unfusion(ZXGraph const& g) {
-    return {};
-}
-
 void update_affected_matches(
     ZXGraph& g, std::vector<MatchWithScore>& matches, MatchType const& match) {
 }
@@ -36,28 +25,36 @@ void update_affected_matches(
  * @brief Perform the core of the causal flow-preserving simplification as
  *        described in https://arxiv.org/pdf/2312.02793.
  *
- * @param g
+ * @param g the graph to simplify
+ * @param max_lcomp_unfusions the maximum number of LCompUnfusion to apply
+ * @param max_pivot_unfusions the maximum number of PivotUnfusion to apply
  */
-void causal_flow_opt(ZXGraph& g) {
+void causal_flow_opt(ZXGraph& g,
+                     size_t max_lcomp_unfusions,
+                     size_t max_pivot_unfusions) {
     to_graph_like(g);
 
     auto matches = std::vector<MatchWithScore>{};
 
-    for (auto&& m : match_identity_fusion(g)) {
+    auto ifu_matcher = IdentityFusionMatcher{};
+    auto lcu_matcher = LCompUnfusionMatcher{max_lcomp_unfusions};
+    auto pvu_matcher = PivotUnfusionMatcher{max_pivot_unfusions};
+
+    for (auto&& m : ifu_matcher.find_matches(g)) {
         auto const score = calculate_2q_decrease(m, g);
         if (score > 0) {
             matches.emplace_back(std::move(m), score);
         }
     }
 
-    for (auto&& m : match_lcomp_unfusion(g)) {
+    for (auto&& m : lcu_matcher.find_matches(g)) {
         auto const score = calculate_2q_decrease(m, g);
         if (score > 0) {
             matches.emplace_back(std::move(m), score);
         }
     }
 
-    for (auto&& m : match_pivot_unfusion(g)) {
+    for (auto&& m : pvu_matcher.find_matches(g)) {
         auto const score = calculate_2q_decrease(m, g);
         if (score > 0) {
             matches.emplace_back(std::move(m), score);

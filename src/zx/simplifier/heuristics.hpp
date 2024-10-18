@@ -1,3 +1,5 @@
+#pragma once
+
 #include "zx/zxgraph_action.hpp"
 
 namespace qsyn::zx::simplify {

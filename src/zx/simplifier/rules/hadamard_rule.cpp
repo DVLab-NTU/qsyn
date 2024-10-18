@@ -19,14 +19,11 @@ using MatchType = HadamardRule::MatchType;
  *
  * @param graph
  * @param candidates the vertices to be considered
- * @param allow_overlapping_candidates whether to allow overlapping candidates. If true, needs to manually check for overlapping candidates.
  * @return std::vector<MatchType>
  */
 std::vector<MatchType> HadamardRule::find_matches(
     ZXGraph const& graph,
-    std::optional<ZXVertexList> candidates,
-    bool allow_overlapping_candidates  //
-) const {
+    std::optional<ZXVertexList> candidates) const {
     std::vector<MatchType> matches;
 
     if (!candidates.has_value()) {
@@ -44,7 +41,7 @@ std::vector<MatchType> HadamardRule::find_matches(
 
         matches.emplace_back(v);
 
-        if (allow_overlapping_candidates) continue;
+        if (_allow_overlapping_candidates) continue;
 
         candidates->erase(v);
         candidates->erase(nv0);
