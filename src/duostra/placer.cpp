@@ -62,7 +62,7 @@ std::vector<QubitIdType> RandomPlacer::_place(Device& device) const {
     for (size_t i = 0; i < device.get_num_qubits(); ++i)
         assign.emplace_back(i);
 
-    shuffle(assign.begin(), assign.end(), std::default_random_engine(std::random_device{}()));
+    std::ranges::shuffle(assign, std::default_random_engine(std::random_device{}()));
     return assign;
 }
 

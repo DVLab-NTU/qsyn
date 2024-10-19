@@ -576,8 +576,10 @@ void Extractor::column_optimal_swap() {
         targ_val.emplace(v);
     }
 
-    std::set_difference(col_set.begin(), col_set.end(), targ_val.begin(), targ_val.end(), inserter(left, left.end()));
-    std::set_difference(col_set.begin(), col_set.end(), targ_key.begin(), targ_key.end(), inserter(right, right.end()));
+    std::ranges::set_difference(
+        col_set, targ_val, inserter(left, left.end()));
+    std::ranges::set_difference(
+        col_set, targ_key, inserter(right, right.end()));
     std::vector<size_t> lvec(left.begin(), left.end());
     std::vector<size_t> rvec(right.begin(), right.end());
     for (size_t i = 0; i < lvec.size(); i++) {
@@ -621,7 +623,9 @@ Extractor::Target Extractor::_find_column_swap(Target target) {
             if (claimed_rows.contains(i)) continue;
             std::set<size_t> free_cols;
             // NOTE - find the free columns
-            set_difference(_row_info[i].begin(), _row_info[i].end(), claimed_cols.begin(), claimed_cols.end(), inserter(free_cols, free_cols.end()));
+            std::ranges::set_difference(
+                _row_info[i], claimed_cols,
+                inserter(free_cols, free_cols.end()));
             if (free_cols.size() == 1) {
                 // NOTE - pop the only element
                 auto const j = *(free_cols.begin());
@@ -641,7 +645,9 @@ Extractor::Target Extractor::_find_column_swap(Target target) {
 
             for (auto& j : free_cols) {
                 std::set<size_t> free_rows;
-                set_difference(_col_info[j].begin(), _col_info[j].end(), claimed_rows.begin(), claimed_rows.end(), inserter(free_rows, free_rows.end()));
+                std::ranges::set_difference(
+                    _col_info[j], claimed_rows,
+                    inserter(free_rows, free_rows.end()));
                 if (free_rows.size() == 1) {
                     target[j] = i;  // NOTE - j can only be connected to i
                     claimed_cols.emplace(j);

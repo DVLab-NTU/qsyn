@@ -609,17 +609,8 @@ namespace {
  * @return true
  * @return false
  */
-bool neighbors_applicable(ZXGraph const& graph,
-                          size_t v_id) {
-    auto const v = graph[v_id];
-    if (v == nullptr) return false;
-    return std::ranges::all_of(
-        graph.get_neighbors(v),
-        [&graph](auto nb_pair) {
-            auto const [nb, etype] = nb_pair;
-            return (nb->is_z() && etype == EdgeType::hadamard) ||
-                   nb->is_boundary();
-        });
+bool neighbors_applicable(ZXGraph const& graph, size_t v_id) {
+    return graph[v_id] != nullptr && is_graph_like_at(graph, v_id);
 }
 
 /**
@@ -848,15 +839,8 @@ void Pivot::apply_unchecked(ZXGraph& graph) const {
     _v2_neighbors.clear();
     _both_neighbors.clear();
 
-    auto const get_neighbor_ids = [&](size_t v_id) {
-        return graph.get_neighbors(graph[v_id]) |
-               std::views::keys |
-               std::views::transform(&ZXVertex::get_id) |
-               tl::to<std::vector>();
-    };
-
-    auto m1_neighbors = get_neighbor_ids(_v1_id);
-    auto m2_neighbors = get_neighbor_ids(_v2_id);
+    auto m1_neighbors = graph.get_neighbor_ids(graph[_v1_id]);
+    auto m2_neighbors = graph.get_neighbor_ids(graph[_v2_id]);
 
     std::erase(m1_neighbors, _v2_id);
     std::erase(m2_neighbors, _v1_id);

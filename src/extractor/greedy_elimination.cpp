@@ -96,7 +96,7 @@ std::vector<dvlab::BooleanMatrix::RowOperation> Extractor::greedy_reduction(dvla
         result.emplace_back(best_operation);
         matrix[best_operation.second] = matrix[best_operation.first] + matrix[best_operation.second];
 
-        indices.erase(remove(indices.begin(), indices.end(), best_operation.first), indices.end());
+        std::erase(indices, best_operation.first);
     }
     return result;
 }

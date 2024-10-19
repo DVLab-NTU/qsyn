@@ -39,7 +39,7 @@ void XAG::_evaluate_fanouts() {
         }
     }
     for (auto& node : _nodes) {
-        std::sort(node.fanouts.begin(), node.fanouts.end());
+        std::ranges::sort(node.fanouts);
     }
 }
 

@@ -132,24 +132,14 @@ void remove_identities_teleport(
         }
     }
 
-    rotations.erase(
-        std::remove_if(
-            rotations.begin(),
-            rotations.end(),
-            [](auto const& rotation) {
-                return rotation.phase() == dvlab::Phase(0) ||
-                       rotation.pauli_product().is_identity();
-            }),
-        rotations.end());
+    std::erase_if(rotations, [](auto const& rotation) {
+        return rotation.phase() == dvlab::Phase(0) ||
+               rotation.pauli_product().is_identity();
+    });
 
-    gate_ids.erase(
-        std::remove_if(
-            gate_ids.begin(),
-            gate_ids.end(),
-            [](auto const& gate_id) {
-                return gate_id == SIZE_MAX;
-            }),
-        gate_ids.end());
+    std::erase_if(gate_ids, [](auto const& gate_id) {
+        return gate_id == SIZE_MAX;
+    });
 }
 
 /**

@@ -167,12 +167,9 @@ get_cofactor_row(
         }
     }
 
-    auto const most_ones = std::distance(
-        counts.begin(),
-        std::max_element(counts.begin(), counts.end()));
-    auto const most_zeros = std::distance(
-        counts.begin(),
-        std::min_element(counts.begin(), counts.end()));
+    auto const [min_it, max_it] = std::ranges::minmax_element(counts);
+    auto const most_ones        = std::distance(counts.begin(), max_it);
+    auto const most_zeros       = std::distance(counts.begin(), min_it);
 
     if (counts[most_ones] >= rotation_filter.size() - counts[most_zeros]) {
         return qubit_filter[most_ones];

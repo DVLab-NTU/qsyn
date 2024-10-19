@@ -41,7 +41,6 @@ public:
     requires valid_argument_type<T>
     ArgType<T>& add_argument(std::string_view name, std::convertible_to<std::string> auto... alias);
 
-    bool contains(std::string_view name) const { return std::ranges::find(_pimpl->_arg_names, name) != _pimpl->_arg_names.end(); }
     MutuallyExclusiveGroup required(bool is_req) {
         _pimpl->_required = is_req;
         return *this;

@@ -29,9 +29,10 @@ void SolovayKitaev::_init_binary_list() {
  * @param sequence
  * @return std::vector<int>
  */
-std::vector<int> SolovayKitaev::_adjoint_gate_sequence(std::vector<int> sequence) const {
-    std::reverse(sequence.begin(), sequence.end());
-    std::transform(sequence.cbegin(), sequence.cend(), sequence.begin(), std::negate<int>());
+std::vector<int>
+SolovayKitaev::_adjoint_gate_sequence(std::vector<int> sequence) const {
+    std::ranges::reverse(sequence);
+    std::ranges::transform(sequence, sequence.begin(), std::negate<int>());
     return sequence;
 }
 

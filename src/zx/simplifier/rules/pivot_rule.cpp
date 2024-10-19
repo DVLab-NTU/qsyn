@@ -8,7 +8,6 @@
 #include "./zx_rules_template.hpp"
 #include "zx/zx_def.hpp"
 #include "zx/zxgraph.hpp"
-#include "zx/zxgraph_action.hpp"
 
 using namespace qsyn::zx;
 

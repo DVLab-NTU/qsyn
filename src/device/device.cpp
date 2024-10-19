@@ -663,7 +663,7 @@ void Device::print_qubits(std::vector<size_t> candidates) const {
         }
         fmt::println("Total #Qubits: {}", _num_qubit);
     } else {
-        sort(candidates.begin(), candidates.end());
+        std::ranges::sort(candidates);
         for (auto& p : candidates) {
             fmt::println("ID: {:>3}    {}Adjs: {:>3}", p, _topology->get_qubit_info(p), fmt::join(qubits[p].get_adjacencies(), " "));
         }

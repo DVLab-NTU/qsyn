@@ -121,7 +121,7 @@ dvlab::Command tableau_append_cmd(TableauMgr& tableau_mgr) {
 
             auto qubit_array = std::array<size_t, 2>{};
 
-            std::copy(qubits.begin(), qubits.end(), qubit_array.begin());
+            std::ranges::copy(qubits, qubit_array.begin());
 
             tableau_mgr.get()->apply(CliffordOperator{*type, qubit_array});
 

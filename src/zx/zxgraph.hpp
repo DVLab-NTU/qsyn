@@ -183,6 +183,7 @@ public:
     }
 
     std::vector<ZXVertex*> get_copied_neighbors(ZXVertex* v) const;
+    std::vector<size_t> get_neighbor_ids(ZXVertex* v) const;
 
     size_t num_edges() const;
     size_t num_inputs() const { return get_inputs().size(); }
@@ -350,6 +351,16 @@ public:
         }
     }
 
+    template <typename F>
+    void for_each_edge(ZXVertexList const& vertices, F lambda) const {
+        for (auto const& v : vertices) {
+            for (auto const& [nb, etype] : this->get_neighbors(v)) {
+                if (nb->get_id() > v->get_id())
+                    lambda(make_edge_pair(v, nb, etype));
+            }
+        }
+    }
+
     // divide into subgraphs and merge (in zxPartition.cpp)
     static std::pair<std::vector<ZXGraph*>, std::vector<ZXCut>>
     create_subgraphs(
@@ -388,6 +399,7 @@ private:
 bool is_io_connection_valid(ZXGraph const& graph);
 bool is_graph_like(ZXGraph const& graph);
 bool is_graph_like_at(ZXGraph const& graph, size_t v_id);
+bool is_interiorly_graph_like_at(ZXGraph const& graph, size_t v_id);
 
 double density(ZXGraph const& graph);
 size_t t_count(ZXGraph const& graph);

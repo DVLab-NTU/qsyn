@@ -37,35 +37,30 @@ std::vector<MatchType> PivotBoundaryRule::find_matches(
             return;
         }
 
-        ZXVertex* vt = nullptr;
-        for (auto& [nb, etype] : graph.get_neighbors(vs)) {
-            if (!candidates->contains(nb)) continue;
-            if (nb->is_boundary()) continue;
-            if (!nb->has_n_pi_phase()) continue;
-            if (etype != EdgeType::hadamard) continue;
-            // nb is the axel of a phase gadget
-            if (graph.has_dangling_neighbors(nb)) continue;
-            vt = nb;
-            break;
-        }
-        if (vt == nullptr) return;
+        // vs, vt should have only graph-like connections,
+        // vs should connect to exactly one boundary vertex and graph-like
+        // vt should be interiorly graph-like
 
-        bool found_one = false;
-        // check if vs is only connected to boundary,
-        // or connected to Z-spider by H-edge
-        for (auto& [nb, etype] : graph.get_neighbors(vs)) {
-            if (nb->is_boundary()) {
-                if (found_one) return;
-                found_one = true;
-                continue;
-            }
-            if (!nb->is_z() || etype != EdgeType::hadamard) return;
+        if (!is_graph_like_at(graph, vs->get_id())) return;
+        if (std::ranges::count_if(
+                graph.get_neighbors(vs) | std::views::keys,
+                &ZXVertex::is_boundary) != 1) {
+            return;
         }
 
-        // check if vt is only connected to Z-spider by H-edge
-        for (auto& [nb, etype] : graph.get_neighbors(vt)) {
-            if (!nb->is_z() || etype != EdgeType::hadamard) return;
-        }
+        auto const it = std::ranges::find_if(
+            graph.get_neighbors(vs),
+            [&](auto const& nb_pair) {
+                auto const& [nb, etype] = nb_pair;
+                return candidates->contains(nb) &&
+                       !nb->is_boundary() &&
+                       nb->has_n_pi_phase() &&
+                       !graph.has_dangling_neighbors(nb);
+            });
+        if (it == graph.get_neighbors(vs).end()) return;
+        ZXVertex* vt = it->first;
+
+        if (!is_interiorly_graph_like_at(graph, vt->get_id())) return;
 
         if (_allow_overlapping_candidates) return;
 

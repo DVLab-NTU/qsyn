@@ -114,9 +114,9 @@ void TreeNode::_route_internal_gates() {
     // Execute the initial gates.
     for (auto const& gate_id : _gate_ids) {
         [[maybe_unused]] auto const& avail_gates = scheduler().get_available_gates();
-        assert(find(avail_gates.begin(), avail_gates.end(), gate_id) != avail_gates.end());
+        assert(dvlab::contains(avail_gates, gate_id));
         _max_cost = std::max(_max_cost, _scheduler->route_one_gate(*_router, gate_id, true));
-        assert(find(avail_gates.begin(), avail_gates.end(), gate_id) == avail_gates.end());
+        assert(!dvlab::contains(avail_gates, gate_id));
     }
 
     // Execute additional gates if _executeSingle.
@@ -176,26 +176,28 @@ size_t TreeNode::best_cost(size_t depth) {
     assert(depth > 1);
     assert(!_children.empty());
 
-    auto end = _children.end();
     if (_conf._candidates < _children.size()) {
-        end = _children.begin() + static_cast<std::ptrdiff_t>(_conf._candidates);
-        std::nth_element(_children.begin(), end, _children.end(),
-                         [](TreeNode const& a, TreeNode const& b) {
-                             return a._max_cost < b._max_cost;
-                         });
+        auto nth_cand = _children.begin() +
+                        static_cast<std::ptrdiff_t>(_conf._candidates);
+        std::ranges::nth_element(_children, nth_cand,
+                                 std::less{},
+                                 &TreeNode::_max_cost);
     }
 
     // Calculates the best cost for each children.
-    size_t best_cost = SIZE_MAX;
-    for (auto& child : _children | std::views::take(_conf._candidates)) {
-        best_cost = std::min(best_cost, child.best_cost(depth - 1));
-    }
+    // We must cache the results to avoid calling best_cost() multiple times.
+    auto best_costs = _children |
+                      std::views::take(_conf._candidates) |
+                      std::views::transform([&](auto& child) {
+                          return child.best_cost(depth - 1);
+                      }) |
+                      tl::to<std::vector>();
 
     // Clear the cache if specified.
     if (_conf._neverCache)
         _children.clear();
 
-    return best_cost;
+    return std::ranges::min(best_costs);
 }
 
 /**

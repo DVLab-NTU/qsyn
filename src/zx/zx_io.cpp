@@ -714,10 +714,14 @@ bool ZXGraph::write_json(std::filesystem::path const& filename) const {
         }
     };
     for_each_edge([&](EdgePair const& epair) {
-        if (epair.second == EdgeType::simple)
-            simple_edges.emplace_back(epair);
-        else if (epair.second == EdgeType::hadamard)
-            hadamard_edges.emplace_back(epair);
+        switch (epair.second) {
+            case EdgeType::simple:
+                simple_edges.emplace_back(epair);
+                break;
+            case EdgeType::hadamard:
+                hadamard_edges.emplace_back(epair);
+                break;
+        }
     });
 
     // Inner vertices

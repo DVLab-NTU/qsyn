@@ -245,7 +245,8 @@ bool is_graph_like(ZXGraph const& graph) {
 }
 
 /**
- * @brief check if the subgraph of `g` at `v_id` and its neighbors is graph-like
+ * @brief check if the neighbors of g[v_id] are Z-spider connected by hadamard
+ *        edges or valid boundary vertices
  *
  * @param g
  * @param v
@@ -256,42 +257,42 @@ bool is_graph_like_at(ZXGraph const& g, size_t v_id) {
     auto v = g[v_id];
     if (v == nullptr) return false;
     // early return
-    if (v->is_boundary()) {
-        return g.num_neighbors(v) == 1;
+    if (v->is_boundary() && g.num_neighbors(v) != 1) {
+        return false;
     }
 
-    // check v
+    // check v is a Z-spider
     if (!v->is_z()) {
         return false;
     }
 
     // v's neighbors should either be boundary
     // or z-spider connected with hadamard edge
-    if (!std::ranges::all_of(
-            g.get_neighbors(v),
-            [&](auto const& nb_pair) {
-                auto const& [nb, etype] = nb_pair;
-                return nb->is_boundary() && g.num_neighbors(nb) == 1 ||
-                       nb->is_z() && etype == EdgeType::hadamard;
-            })) {
+    return std::ranges::all_of(
+        g.get_neighbors(v),
+        [&](auto const& nb_pair) {
+            auto const& [nb, etype] = nb_pair;
+            return nb->is_boundary() && g.num_neighbors(nb) == 1 ||
+                   nb->is_z() && etype == EdgeType::hadamard;
+        });
+}
+
+bool is_interiorly_graph_like_at(ZXGraph const& g, size_t v_id) {
+    auto v = g[v_id];
+    if (v == nullptr) return false;
+    // early return
+    if (!v->is_z()) {
         return false;
     }
 
-    // any two non-boundary neighbors should not be connected by a simple edge
-
-    auto const& neighbors = g.get_neighbors(v);
-
-    for (auto it = neighbors.begin(); it != neighbors.end(); ++it) {
-        for (auto jt = std::next(it); jt != neighbors.end(); ++jt) {
-            if (!it->first->is_boundary() &&
-                !jt->first->is_boundary() &&
-                g.is_neighbor(it->first, jt->first, EdgeType::simple)) {
-                return false;
-            }
-        }
-    }
-
-    return true;
+    // v's neighbors should either be boundary
+    // or z-spider connected with hadamard edge
+    return std::ranges::all_of(
+        g.get_neighbors(v),
+        [&](auto const& nb_pair) {
+            auto const& [nb, etype] = nb_pair;
+            return nb->is_z() && etype == EdgeType::hadamard;
+        });
 }
 
 /**
@@ -321,6 +322,13 @@ bool ZXGraph::is_neighbor(size_t v0_id, size_t v1_id) const {
 bool ZXGraph::is_neighbor(size_t v0_id, size_t v1_id, EdgeType et) const {
     if (!is_v_id(v0_id) || !is_v_id(v1_id)) return false;
     return is_neighbor(vertex(v0_id), vertex(v1_id), et);
+}
+
+std::vector<size_t> ZXGraph::get_neighbor_ids(ZXVertex* v) const {
+    return get_neighbors(v) |
+           std::views::keys |
+           std::views::transform(&ZXVertex::get_id) |
+           tl::to<std::vector>();
 }
 
 /*****************************************************/

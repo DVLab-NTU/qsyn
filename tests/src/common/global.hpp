@@ -12,7 +12,7 @@ std::mt19937& rand_gen();
 
 template <typename T>
 std::vector<T> get_shuffle_seq(std::vector<T> vec) {
-    std::shuffle(vec.begin(), vec.end(), rand_gen());
+    std::ranges::shuffle(vec, rand_gen());
     return vec;
 }
 

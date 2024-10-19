@@ -8,14 +8,6 @@
 namespace qsyn::zx::simplify {
 
 namespace {
-// inplace version of std::ranges::set_difference
-// assumes that both vectors are sorted
-std::vector<size_t> get_neighbor_ids(ZXGraph const& g, ZXVertex* v) {
-    return g.get_neighbors(v) |
-           std::views::keys |
-           std::views::transform(&ZXVertex::get_id) |
-           tl::to<std::vector>();
-}
 
 std::vector<size_t> sort(std::vector<size_t> vec) {
     std::ranges::sort(vec);
@@ -98,8 +90,8 @@ long calculate_2q_decrease(IdentityFusion const& rule, ZXGraph const& g) {
     auto const left  = g.get_first_neighbor(g[v_id]).first;
     auto const right = g.get_second_neighbor(g[v_id]).first;
 
-    auto const v1_neighbors = sort(get_neighbor_ids(g, left));
-    auto const v2_neighbors = sort(get_neighbor_ids(g, right));
+    auto const v1_neighbors = sort(g.get_neighbor_ids(left));
+    auto const v2_neighbors = sort(g.get_neighbor_ids(right));
 
     auto const intersection = vec_intersection(v1_neighbors, v2_neighbors);
 
@@ -121,7 +113,7 @@ long calculate_2q_decrease(LCompUnfusion const& rule, ZXGraph const& g) {
     assert(rule.is_applicable(g));
 
     auto const neighbors_to_unfuse = sort(rule.get_neighbors_to_unfuse());
-    auto const neighbors           = sort(get_neighbor_ids(g, g[v_id]));
+    auto const neighbors           = sort(g.get_neighbor_ids(g[v_id]));
 
     auto const difference = vec_difference(neighbors, neighbors_to_unfuse);
 
@@ -164,8 +156,8 @@ long calculate_2q_decrease(PivotUnfusion const& rule, ZXGraph const& g) {
     auto const neighbors_to_unfuse_v1 = sort(rule.get_neighbors_to_unfuse_v1());
     auto const neighbors_to_unfuse_v2 = sort(rule.get_neighbors_to_unfuse_v2());
 
-    auto neighbors_v1 = sort(get_neighbor_ids(g, g[v1_id]));
-    auto neighbors_v2 = sort(get_neighbor_ids(g, g[v2_id]));
+    auto neighbors_v1 = sort(g.get_neighbor_ids(g[v1_id]));
+    auto neighbors_v2 = sort(g.get_neighbor_ids(g[v2_id]));
 
     // exclude v1, v2 from each other's neighbors
     std::erase(neighbors_v1, v2_id);
