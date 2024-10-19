@@ -25,6 +25,7 @@ enum class SchedulerType : std::uint8_t {
     random,
     greedy,
     search,
+    astar,
 };
 
 enum class PlacerType : std::uint8_t {

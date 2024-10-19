@@ -15,7 +15,7 @@ namespace qsyn::duostra {
  * @return string
  */
 std::string get_scheduler_type_str(SchedulerType const& type) {
-    // 0:base 1:static 2:random 3:greedy 4:search
+    // 0:base 1:static 2:random 3:greedy 4:search 5:astar
     switch (type) {
         case SchedulerType::base:
             return "base";
@@ -26,6 +26,9 @@ std::string get_scheduler_type_str(SchedulerType const& type) {
         case SchedulerType::greedy:
             return "greedy";
         case SchedulerType::search:
+            return "search";
+        case SchedulerType::astar:
+            return "astar";
         default:
             return "search";
     }
@@ -90,6 +93,7 @@ std::optional<SchedulerType> get_scheduler_type(std::string const& str) {
     if (str == "random") return SchedulerType::random;
     if (str == "greedy") return SchedulerType::greedy;
     if (str == "search") return SchedulerType::search;
+    if (str == "astar") return SchedulerType::astar;
 
     return std::nullopt;
 }

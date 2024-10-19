@@ -202,6 +202,22 @@ protected:
     void _cache_when_necessary();
 };
 
+class AStarScheduler : public GreedyScheduler {  // NOLINT(hicpp-special-member-functions, cppcoreguidelines-special-member-functions) : copy-swap idiom
+public:
+    using Device = GreedyScheduler::Device;
+    AStarScheduler(CircuitTopology const& topo, bool tqdm = true);
+
+    std::unique_ptr<BaseScheduler> clone() const override;
+
+protected:
+    bool _never_cache;
+    bool _execute_single;
+    size_t _lookahead;
+
+    Device _assign_gates(std::unique_ptr<Router> /*unused*/) override;
+    void _cache_when_necessary();
+};
+
 std::unique_ptr<BaseScheduler> get_scheduler(std::unique_ptr<CircuitTopology> topo, bool tqdm = true);
 
 }  // namespace qsyn::duostra

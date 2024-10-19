@@ -34,8 +34,8 @@ Command duostra_config_cmd() {
                 parser.description("set Duostra parameter(s)");
 
                 parser.add_argument<std::string>("--scheduler")
-                    .choices({"base", "naive", "random", "greedy", "search"})
-                    .help("<base | naive | random | greedy | search>");
+                    .choices({"base", "naive", "random", "greedy", "search", "astar"})
+                    .help("<base | naive | random | greedy | search | astar>");
                 parser.add_argument<std::string>("--router")
                     .choices({"shortest_path", "duostra"})
                     .help("<shortest_path | duostra>");

@@ -27,7 +27,7 @@ namespace qsyn::duostra {
  * @return unique_ptr<BaseScheduler>
  */
 std::unique_ptr<BaseScheduler> get_scheduler(std::unique_ptr<CircuitTopology> topo, bool tqdm) {
-    // 0:base 1:static 2:random 3:greedy 4:search
+    // 0:base 1:static 2:random 3:greedy 4:search 5:astar
     if (DuostraConfig::SCHEDULER_TYPE == SchedulerType::random) {
         return std::make_unique<RandomScheduler>(*topo, tqdm);
     } else if (DuostraConfig::SCHEDULER_TYPE == SchedulerType::naive) {
@@ -37,6 +37,8 @@ std::unique_ptr<BaseScheduler> get_scheduler(std::unique_ptr<CircuitTopology> to
     } else if (DuostraConfig::SCHEDULER_TYPE == SchedulerType::search) {
         return std::make_unique<SearchScheduler>(*topo, tqdm);
     } else if (DuostraConfig::SCHEDULER_TYPE == SchedulerType::base) {
+        return std::make_unique<BaseScheduler>(*topo, tqdm);
+    } else if (DuostraConfig::SCHEDULER_TYPE == SchedulerType::astar) {
         return std::make_unique<BaseScheduler>(*topo, tqdm);
     }
     DVLAB_UNREACHABLE("Scheduler type not found");
