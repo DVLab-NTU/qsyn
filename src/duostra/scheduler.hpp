@@ -202,6 +202,67 @@ protected:
     void _cache_when_necessary();
 };
 
+class StarNode {  // NOLINT(hicpp-special-member-functions, cppcoreguidelines-special-member-functions) : copy-swap idiom
+
+public:
+    StarNode(size_t type,
+             size_t gate_id,
+             std::unique_ptr<Router> router,
+             std::unique_ptr<BaseScheduler> scheduler,
+             StarNode* parent);
+
+    ~StarNode() = default;
+
+    bool is_root() const { return _type == 0; }
+    bool is_leaf() const { return _type == 2; }
+    bool can_grow() const { return !scheduler().get_available_gates().empty(); }
+
+    size_t get_gate_id() const { return _gate_id; }
+    size_t get_estimated_cost() const { return _cost; }
+    void grow(StarNode* self_pointer);
+    StarNode* get_parent() const { return _parent; }
+    
+    Router const& router() const { return *_router; }
+    BaseScheduler const& scheduler() const { return *_scheduler; }
+
+    bool done() const { return scheduler().get_available_gates().empty(); }
+    void delete_self() { _parent->delete_child(); delete this; }
+    void delete_child() { _delete_count++; if(_delete_count==children.size() && !children.empty()) delete_self(); }
+
+    std::vector<StarNode> children;
+
+private:
+
+    // The configuration of the node.
+    // type of the node: 0 for root, 1 for internal, 2 for leaf.
+    size_t _type = 0;
+
+    // The head of the node.
+    size_t _gate_id;
+
+    // parent node
+    StarNode* _parent = nullptr;
+
+    // The estimated cost of the node.
+    size_t _cost = 0;
+
+    // number to record how many children have been delete
+    size_t _delete_count = 0;
+
+    // Using vector to pointer so that frequent cache misses
+    // won't be as bad in parallel code.
+    
+    // The state of duostra.
+    std::unique_ptr<Router> _router;
+    std::unique_ptr<BaseScheduler> _scheduler;
+
+    
+    std::optional<size_t> _immediate_next() const;
+    void _route_internal_gates();
+    void _route_and_estimate();
+};
+
+
 class AStarScheduler : public GreedyScheduler {  // NOLINT(hicpp-special-member-functions, cppcoreguidelines-special-member-functions) : copy-swap idiom
 public:
     using Device = GreedyScheduler::Device;
