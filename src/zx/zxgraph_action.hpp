@@ -247,6 +247,8 @@ public:
         return _nu.get_neighbors_to_unfuse();
     }
 
+    std::string to_string() const;
+
 private:
     NeighborUnfusion _nu;
     LComp _lcomp;
@@ -274,6 +276,8 @@ public:
     auto const& get_neighbors_to_unfuse_v2() const {
         return _nu2.get_neighbors_to_unfuse();
     }
+
+    std::string to_string() const;
 
 private:
     NeighborUnfusion _nu1;

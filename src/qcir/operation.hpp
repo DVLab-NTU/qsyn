@@ -180,7 +180,7 @@ private:
 };
 
 struct OperationHash {
-    inline size_t operator()(Operation const& op) const {
+    size_t operator()(Operation const& op) const {
         return std::hash<std::string>{}(op.get_repr());
     }
 };

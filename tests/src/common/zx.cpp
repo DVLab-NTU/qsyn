@@ -6,6 +6,25 @@
 using namespace qsyn::zx;
 using dvlab::Phase;
 
+ZXGraph generate_random_palm_graph(size_t num_neighbors,
+                                   Phase phase,
+                                   bool boundary_neighbors) {
+    ZXGraph g;
+
+    g.add_vertex(qsyn::zx::VertexType::z, phase);
+
+    for (auto i : std::views::iota(0ul, num_neighbors)) {
+        if (boundary_neighbors && coin_flip(0.25)) {
+            g.add_input(i);
+        } else {
+            g.add_vertex(qsyn::zx::VertexType::z, get_random_phase());
+        }
+        g.add_edge(0, i + 1, qsyn::zx::EdgeType::hadamard);
+    }
+
+    return g;
+}
+
 /**
  * @brief generate a random lcomp graph. The graph will have a Z-spider with the
  *        given phase as the first vertex, and the rest of the vertices will be
@@ -22,18 +41,8 @@ ZXGraph
 generate_random_lcomp_graph(size_t num_neighbors,
                             Phase phase,
                             bool boundary_neighbors) {
-    qsyn::zx::ZXGraph g;
-
-    g.add_vertex(qsyn::zx::VertexType::z, phase);
-
-    for (auto i : std::views::iota(0ul, num_neighbors)) {
-        if (boundary_neighbors && coin_flip()) {
-            g.add_input(i);
-        } else {
-            g.add_vertex(qsyn::zx::VertexType::z, get_random_phase());
-        }
-        g.add_edge(0, i + 1, qsyn::zx::EdgeType::hadamard);
-    }
+    auto g = generate_random_palm_graph(
+        num_neighbors, phase, boundary_neighbors);
 
     for (size_t i = 1; i <= num_neighbors; ++i) {
         if (g[i]->is_boundary()) continue;
@@ -49,12 +58,12 @@ generate_random_lcomp_graph(size_t num_neighbors,
 }
 
 ZXGraph
-generate_random_pivot_graph(size_t num_v1_nbrs,
-                            size_t num_v2_nbrs,
-                            size_t num_common_nbrs,
-                            dvlab::Phase phase1,
-                            dvlab::Phase phase2,
-                            bool boundary_neighbors) {
+generate_random_two_palm_graph(size_t num_v1_nbrs,
+                               size_t num_v2_nbrs,
+                               size_t num_common_nbrs,
+                               dvlab::Phase phase1,
+                               dvlab::Phase phase2,
+                               bool boundary_neighbors) {
     ZXGraph g;
 
     g.add_vertex(VertexType::z, phase1);
@@ -71,7 +80,7 @@ generate_random_pivot_graph(size_t num_v1_nbrs,
         num_common_nbrs + 2 + num_v1_nbrs + num_v2_nbrs);
 
     for (auto i : v1_nbrs_range) {
-        if (boundary_neighbors && coin_flip()) {
+        if (boundary_neighbors && coin_flip(0.25)) {
             g.add_input(i);
         } else {
             g.add_vertex(VertexType::z, get_random_phase());
@@ -80,7 +89,7 @@ generate_random_pivot_graph(size_t num_v1_nbrs,
     }
 
     for (auto i : v2_nbrs_range) {
-        if (boundary_neighbors && coin_flip()) {
+        if (boundary_neighbors && coin_flip(0.25)) {
             g.add_input(i);
         } else {
             g.add_vertex(VertexType::z, get_random_phase());
@@ -93,6 +102,28 @@ generate_random_pivot_graph(size_t num_v1_nbrs,
         g.add_edge(0, i, EdgeType::hadamard);
         g.add_edge(1, i, EdgeType::hadamard);
     }
+
+    return g;
+}
+
+ZXGraph
+generate_random_pivot_graph(size_t num_v1_nbrs,
+                            size_t num_v2_nbrs,
+                            size_t num_common_nbrs,
+                            dvlab::Phase phase1,
+                            dvlab::Phase phase2,
+                            bool boundary_neighbors) {
+    auto g = generate_random_two_palm_graph(
+        num_v1_nbrs, num_v2_nbrs, num_common_nbrs, phase1, phase2,
+        boundary_neighbors);
+
+    auto const v1_nbrs_range = std::views::iota(
+        2ul, num_v1_nbrs + 2);
+    auto const v2_nbrs_range = std::views::iota(
+        2ul + num_v1_nbrs, num_v2_nbrs + 2 + num_v1_nbrs);
+    auto const common_nbrs_range = std::views::iota(
+        2 + num_v1_nbrs + num_v2_nbrs,
+        num_common_nbrs + 2 + num_v1_nbrs + num_v2_nbrs);
 
     // random connections between the three groups
 

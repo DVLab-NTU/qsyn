@@ -461,7 +461,8 @@ bool Extractor::remove_gadget(bool check) {
                     }
                 }
 
-                PivotUnfusion pvu{candidate->get_id(), n->get_id(), {}, {}};
+                PivotUnfusion const
+                    pvu{candidate->get_id(), n->get_id(), {}, {}};
                 pvu.apply_unchecked(*_graph);
 
                 assert(target_boundary != nullptr);

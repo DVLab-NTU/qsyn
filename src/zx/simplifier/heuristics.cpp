@@ -119,7 +119,7 @@ long calculate_2q_decrease(LCompUnfusion const& rule, ZXGraph const& g) {
 
     // the number of unfusions performed. For lcomp, this is 0 or 1.
     auto const num_unfusions =
-        (neighbors_to_unfuse.size() > 0 ||
+        (!neighbors_to_unfuse.empty() ||
          g[v_id]->phase().denominator() != 2)
             ? 1
             : 0;
@@ -189,9 +189,9 @@ long calculate_2q_decrease(PivotUnfusion const& rule, ZXGraph const& g) {
         count_hadamard_edges(neighbors_v1, common_neighbors) +
         count_hadamard_edges(neighbors_v2, common_neighbors);
 
-    auto const do_unfusion_v1 = neighbors_to_unfuse_v1.size() > 0 ||
+    auto const do_unfusion_v1 = !neighbors_to_unfuse_v1.empty() ||
                                 g[v1_id]->phase().denominator() != 1;
-    auto const do_unfusion_v2 = neighbors_to_unfuse_v2.size() > 0 ||
+    auto const do_unfusion_v2 = !neighbors_to_unfuse_v2.empty() ||
                                 g[v2_id]->phase().denominator() != 1;
 
     // clang-format off

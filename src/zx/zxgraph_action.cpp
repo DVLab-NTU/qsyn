@@ -1056,6 +1056,13 @@ void LCompUnfusion::undo_unchecked(ZXGraph& graph) const {
     }
 }
 
+std::string LCompUnfusion::to_string() const {
+    return fmt::format(
+        "LCompUnfusion({}, [{}])",
+        _nu.get_v_id(),
+        fmt::join(_nu.get_neighbors_to_unfuse(), ", "));
+}
+
 PivotUnfusion::PivotUnfusion(size_t v1_id, size_t v2_id,
                              std::vector<size_t> const& neighbors_to_unfuse_v1,
                              std::vector<size_t> const& neighbors_to_unfuse_v2)
@@ -1126,6 +1133,14 @@ void PivotUnfusion::undo_unchecked(ZXGraph& graph) const {
     if (!_no_need_to_undo_unfuse(_nu2)) {
         _nu2.undo_unchecked(graph);
     }
+}
+
+std::string PivotUnfusion::to_string() const {
+    return fmt::format(
+        "PivotUnfusion({}, {}, [{}], [{}])",
+        _nu1.get_v_id(), _nu2.get_v_id(),
+        fmt::join(_nu1.get_neighbors_to_unfuse(), ", "),
+        fmt::join(_nu2.get_neighbors_to_unfuse(), ", "));
 }
 
 }  // namespace qsyn::zx

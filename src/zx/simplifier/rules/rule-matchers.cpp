@@ -45,13 +45,19 @@ std::optional<std::vector<size_t>> get_boundary_ids_if_valid(
 }
 
 tl::generator<std::vector<size_t>> unfuse_combinations(
-    std::vector<size_t> const& neighbor_ids, size_t max_unfusions) {
+    std::vector<size_t> neighbor_ids, size_t max_unfusions) {
     for (auto subset_size : std::views::iota(0ul, max_unfusions + 1)) {
         for (auto&& neighbors_to_unfuse :
              dvlab::combinations(neighbor_ids, subset_size)) {
             co_yield neighbors_to_unfuse;
         }
     }
+}
+
+auto get_max_unfusions(size_t num_neighbors, size_t max_unfusions) {
+    return num_neighbors <= 2
+               ? 0ul
+               : std::min(num_neighbors - 2, max_unfusions);
 }
 
 }  // namespace
@@ -87,8 +93,7 @@ LCompUnfusionMatcher::find_matches(
         //                                          the original graph
 
         auto const max_unfusions =
-            std::min(graph.num_neighbors(v) - 2,
-                     num_max_unfusions());
+            get_max_unfusions(graph.num_neighbors(v), num_max_unfusions());
 
         auto const neighbor_ids = graph.get_neighbor_ids(v);
 
@@ -126,7 +131,6 @@ PivotUnfusionMatcher::find_matches(
 
         auto [v1, v2] = epair.first;
         if (!v1->is_z() || !v2->is_z()) return;
-        if (!v1->has_n_pi_phase() || !v2->has_n_pi_phase()) return;
 
         if (graph.num_neighbors(v1) == 1 || graph.num_neighbors(v2) == 1) {
             return;
@@ -135,6 +139,12 @@ PivotUnfusionMatcher::find_matches(
         // Keep at least two neighbors unfused to avoid indefinite loops.
         // This is similar to the case in LCompUnfusionMatcher.
 
+        auto neighbor_ids_1 = graph.get_neighbor_ids(v1);
+        auto neighbor_ids_2 = graph.get_neighbor_ids(v2);
+
+        std::erase(neighbor_ids_1, v2->get_id());
+        std::erase(neighbor_ids_2, v1->get_id());
+
         auto const boundary_ids_1 = get_boundary_ids_if_valid(graph, v1);
         auto const boundary_ids_2 = get_boundary_ids_if_valid(graph, v2);
 
@@ -142,17 +152,19 @@ PivotUnfusionMatcher::find_matches(
             return;
 
         auto const max_unfusions_1 =
-            std::min(graph.num_neighbors(v1) - 2,
-                     num_max_unfusions());
+            get_max_unfusions(graph.num_neighbors(v1) - 1, num_max_unfusions());
         auto const max_unfusions_2 =
-            std::min(graph.num_neighbors(v2) - 2,
-                     num_max_unfusions());
+            get_max_unfusions(graph.num_neighbors(v2) - 1, num_max_unfusions());
+
+        if (boundary_ids_1->size() > max_unfusions_1) {
+            return;
+        }
+        if (boundary_ids_2->size() > max_unfusions_2) {
+            return;
+        }
 
         for (auto&& neighbors_to_unfuse_1 :
-             unfuse_combinations(*boundary_ids_1, max_unfusions_1)) {
-            if (dvlab::contains(neighbors_to_unfuse_1, v2->get_id())) {
-                continue;
-            }
+             unfuse_combinations(neighbor_ids_1, max_unfusions_1)) {
             if (!std::ranges::includes(
                     neighbors_to_unfuse_1, *boundary_ids_1)) {
                 continue;
@@ -164,10 +176,7 @@ PivotUnfusionMatcher::find_matches(
             }
 
             for (auto&& neighbors_to_unfuse_2 :
-                 unfuse_combinations(*boundary_ids_2, max_unfusions_2)) {
-                if (dvlab::contains(neighbors_to_unfuse_2, v1->get_id())) {
-                    continue;
-                }
+                 unfuse_combinations(neighbor_ids_2, max_unfusions_2)) {
                 if (!std::ranges::includes(
                         neighbors_to_unfuse_2, *boundary_ids_2)) {
                     continue;

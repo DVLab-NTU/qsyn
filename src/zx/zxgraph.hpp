@@ -355,7 +355,7 @@ public:
     void for_each_edge(ZXVertexList const& vertices, F lambda) const {
         for (auto const& v : vertices) {
             for (auto const& [nb, etype] : this->get_neighbors(v)) {
-                if (nb->get_id() > v->get_id())
+                if (nb->get_id() > v->get_id() && vertices.contains(nb))
                     lambda(make_edge_pair(v, nb, etype));
             }
         }

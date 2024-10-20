@@ -10,7 +10,7 @@ using namespace qsyn::zx;
 using namespace qsyn::zx::simplify;
 using dvlab::Phase;
 
-TEST_CASE("IdentityFusion Heuristic", "[heuristics]") {
+TEST_CASE("IdentityFusion Heuristic", "[zx][rule][heuristics]") {
     auto const num_left_neighbors   = GENERATE(as<size_t>(), 3, 5, 7);
     auto const num_right_neighbors  = GENERATE(as<size_t>(), 3, 5, 7);
     auto const num_common_neighbors = GENERATE(as<size_t>(), 0, 1, 3);
@@ -76,7 +76,7 @@ TEST_CASE("IdentityFusion Heuristic", "[heuristics]") {
     REQUIRE(decrease == e_minus_v_before - e_minus_v_after);
 }
 
-TEST_CASE("LCompUnfusion Heuristic", "[heuristics]") {
+TEST_CASE("LCompUnfusion Heuristic", "[zx][rule][heuristics]") {
     auto const num_neighbors = GENERATE(as<size_t>(), 5, 7);
 
     auto const phase = GENERATE(get_random_phase(), Phase(1, 2), Phase(-1, 2));
@@ -105,7 +105,7 @@ TEST_CASE("LCompUnfusion Heuristic", "[heuristics]") {
     REQUIRE(decrease == e_minus_v_before - e_minus_v_after);
 }
 
-TEST_CASE("PivotUnfusion Heuristic", "[heuristics]") {
+TEST_CASE("PivotUnfusion Heuristic", "[zx][rule][heuristics]") {
     auto const num_v1_neighbors     = GENERATE(as<size_t>(), 3, 4, 5);
     auto const num_v2_neighbors     = GENERATE(as<size_t>(), 3, 4, 5);
     auto const num_common_neighbors = GENERATE(as<size_t>(), 0, 1, 3);

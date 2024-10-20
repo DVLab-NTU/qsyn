@@ -217,7 +217,7 @@ Command zxgraph_manual_apply_cmd(zx::ZXGraphMgr& zxgraph_mgr) {
             const bool is_cand = PivotBoundaryRule().is_candidate(*zxgraph_mgr.get(), bound, vert);
             if (!is_cand) return CmdExecResult::error;
 
-            PivotUnfusion pvu{bound->get_id(), vert->get_id(), {}, {}};
+            PivotUnfusion const pvu{bound->get_id(), vert->get_id(), {}, {}};
             pvu.apply(*zxgraph_mgr.get());
             return CmdExecResult::done;
         }};
