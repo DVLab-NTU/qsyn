@@ -406,6 +406,10 @@ size_t t_count(ZXGraph const& graph);
 size_t non_clifford_count(ZXGraph const& graph);
 size_t non_clifford_t_count(ZXGraph const& graph);
 
+std::vector<size_t> closed_neighborhood(ZXGraph const& graph,
+                                        std::vector<size_t> const& vertices,
+                                        size_t level = 1);
+
 dvlab::BooleanMatrix get_biadjacency_matrix(
     ZXGraph const& graph,
     ZXVertexList const& row_vertices,

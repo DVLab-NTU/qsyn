@@ -15,11 +15,20 @@ namespace qsyn::zx {
 // 3-tuple containing an order labelling, the successor function of the flow, and the maximum depth reached.
 
 struct CausalFlow {
-    std::unordered_map<size_t, size_t> order;      // vertex ID to order labelling
-    std::unordered_map<size_t, size_t> successor;  // vertex ID to successor vertex ID
-    size_t depth;                                  // maximum depth reached
+    using OrderMap       = std::unordered_map<size_t, size_t>;
+    using VertexRelation = std::unordered_map<size_t, size_t>;
+
+    OrderMap order;            // vertex ID to order labelling
+    VertexRelation successor;  // vertex ID to successor vertex ID
+    size_t depth;              // maximum depth reached
 };
 
-std::optional<CausalFlow> causal_flow(ZXGraph const& g);
+std::optional<CausalFlow> calculate_causal_flow(ZXGraph const& g);
+
+std::optional<CausalFlow::VertexRelation>
+calculate_causal_flow_predecessor_map(ZXGraph const& g);
+void cut_predecessor_map(
+    CausalFlow::VertexRelation& predecessor_map,
+    std::vector<size_t> const& affected_vertices);
 
 }  // namespace qsyn::zx

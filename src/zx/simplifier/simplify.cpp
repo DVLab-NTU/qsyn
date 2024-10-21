@@ -108,8 +108,8 @@ void to_x_graph(ZXGraph& g) {
  * @param g
  */
 void to_graph_like(ZXGraph& g) {
-    spider_fusion_simp(g);
     to_z_graph(g);
+    spider_fusion_simp(g);
 }
 
 /**

@@ -61,9 +61,12 @@ Command zxgraph_optimize_cmd(zx::ZXGraphMgr& zxgraph_mgr) {
                 mutex.add_argument<bool>("-c", "--clifford")
                     .action(store_true)
                     .help("Runs reduction without producing phase gadgets");
-                mutex.add_argument<bool>("-C", "--causal")
-                    .action(store_true)
-                    .help("Runs a causal flow-preserving routine that reduces 2Q-counts");
+                mutex.add_argument<size_t>("-C", "--causal")
+                    .default_value(2)
+                    .help(
+                        "Runs a causal flow-preserving routine that reduces "
+                        "2Q-counts. The parameter is the maximum number of "
+                        "LCompUnfusion and PivotUnfusion to apply.");
             },
             [&](ArgumentParser const& parser) {
                 if (!dvlab::utils::mgr_has_data(zxgraph_mgr)) return dvlab::CmdExecResult::error;
@@ -85,8 +88,10 @@ Command zxgraph_optimize_cmd(zx::ZXGraphMgr& zxgraph_mgr) {
                     simplify::clifford_simp(*zxgraph_mgr.get());
                     procedure_str = "CR";
                 } else if (parser.parsed("--causal")) {
-                    simplify::causal_flow_opt(*zxgraph_mgr.get(), 2, 2);
-                    procedure_str = "Causal";
+                    auto const max_unfusions = parser.get<size_t>("--causal");
+                    simplify::causal_flow_opt(*zxgraph_mgr.get(),
+                                              max_unfusions, max_unfusions);
+                    procedure_str = fmt::format("Causal-{}", max_unfusions);
                 } else {
                     simplify::full_reduce(*zxgraph_mgr.get());
                     procedure_str = "FR";

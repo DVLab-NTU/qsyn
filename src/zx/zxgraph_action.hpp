@@ -122,6 +122,13 @@ public:
 
     static bool is_applicable(ZXGraph const& graph, size_t v_id);
 
+    std::string to_string() const;
+
+    constexpr static size_t radius() { return 2; }
+    std::vector<size_t> core_vertices() const { return {_v_id}; }
+
+    std::vector<size_t> get_affected_vertices(ZXGraph const& graph) const;
+
 private:
     size_t _v_id;
     mutable size_t _left_id  = 0;
@@ -168,8 +175,14 @@ public:
 
     auto get_v_id() const { return _v_id; }
     auto get_num_neighbors() const { return _neighbors.size(); }
+    auto get_neighbors() const { return _neighbors; }
 
     bool is_applicable_no_phase_check(ZXGraph const& graph) const;
+
+    constexpr static size_t eccentricity() { return 1; }
+    std::vector<size_t> core_vertices() const { return {_v_id}; }
+
+    std::vector<size_t> get_affected_vertices(ZXGraph const& graph) const;
 
 private:
     size_t _v_id;
@@ -193,6 +206,11 @@ public:
     auto get_num_v1_neighbors() const { return _v1_neighbors.size(); }
     auto get_num_v2_neighbors() const { return _v2_neighbors.size(); }
     auto get_num_both_neighbors() const { return _both_neighbors.size(); }
+
+    constexpr static size_t eccentricity() { return 2; }
+    std::vector<size_t> core_vertices() const { return {_v1_id, _v2_id}; }
+
+    std::vector<size_t> get_affected_vertices(ZXGraph const& graph) const;
 
 private:
     size_t _v1_id;
@@ -249,6 +267,11 @@ public:
 
     std::string to_string() const;
 
+    constexpr static size_t radius() { return LComp::eccentricity(); }
+    std::vector<size_t> core_vertices() const { return {_nu.get_v_id()}; }
+
+    std::vector<size_t> get_affected_vertices(ZXGraph const& graph) const;
+
 private:
     NeighborUnfusion _nu;
     LComp _lcomp;
@@ -278,6 +301,13 @@ public:
     }
 
     std::string to_string() const;
+
+    constexpr static size_t radius() { return Pivot::eccentricity(); }
+    std::vector<size_t> core_vertices() const {
+        return {_nu1.get_v_id(), _nu2.get_v_id()};
+    }
+
+    std::vector<size_t> get_affected_vertices(ZXGraph const& graph) const;
 
 private:
     NeighborUnfusion _nu1;

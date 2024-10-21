@@ -11,6 +11,7 @@
 
 #include <algorithm>
 #include <numeric>
+#include <queue>
 #include <ranges>
 
 #include "./zx_def.hpp"
@@ -726,7 +727,7 @@ double density(ZXGraph const& graph) {
                0.0,
                std::plus<>(),
                [&](ZXVertex* v) {
-                   return std::pow(graph.num_neighbors(v), 2);
+                   return graph.num_neighbors(v);
                }) /
            gsl::narrow_cast<double>(graph.num_vertices());
 }
@@ -743,6 +744,37 @@ size_t non_clifford_count(ZXGraph const& graph) {
 }
 size_t non_clifford_t_count(ZXGraph const& graph) {
     return non_clifford_count(graph) - t_count(graph);
+}
+
+std::vector<size_t> closed_neighborhood(ZXGraph const& graph,
+                                        std::vector<size_t> const& vertices,
+                                        size_t level) {
+    auto result = vertices;
+    // remove invalid vertices
+    std::erase_if(result, [&](auto v_id) {
+        return !graph.is_v_id(v_id);
+    });
+
+    auto visited = std::unordered_set<size_t>(
+        result.begin(), result.end());
+    std::queue<std::pair<size_t, size_t>> queue;
+    for (auto const& v : result) {
+        queue.push({v, 0});
+    }
+
+    while (!queue.empty()) {
+        auto const [v, d] = queue.front();
+        queue.pop();
+        if (d > level) continue;
+        for (auto const& [nb, etype] : graph.get_neighbors(graph[v])) {
+            if (visited.contains(nb->get_id())) continue;
+            result.emplace_back(nb->get_id());
+            visited.emplace(nb->get_id());
+            queue.push({nb->get_id(), d + 1});
+        }
+    }
+
+    return result;
 }
 
 }  // namespace qsyn::zx

@@ -513,6 +513,28 @@ void IdentityFusion::undo_unchecked(ZXGraph& graph) const {
     }
 }
 
+std::string IdentityFusion::to_string() const {
+    return fmt::format("IdentityFusion({})", _v_id);
+}
+
+/**
+ * @brief Get the affected vertex ids, including the vertices that have been
+ *        removed. This function should only be called after applying the rule.
+ *
+ * @param graph
+ * @return std::vector<size_t>
+ */
+std::vector<size_t>
+IdentityFusion::get_affected_vertices(ZXGraph const& graph) const {
+    auto affected_vertices = _right_neighbors;
+    affected_vertices.emplace_back(_left_id);
+    affected_vertices.emplace_back(_v_id);
+    for (auto const& [nb, _] : graph.get_neighbors(graph[_left_id])) {
+        affected_vertices.emplace_back(nb->get_id());
+    }
+    return affected_vertices;
+}
+
 BoundaryDetachment::BoundaryDetachment(size_t v_id) : _v_id(v_id) {}
 
 /**
@@ -756,6 +778,20 @@ void LComp::undo_unchecked(ZXGraph& graph) const {
     _bd->undo_unchecked(graph);
 }
 
+/**
+ * @brief Get the affected vertex ids, including the vertices that have been
+ *        removed. This function should only be called after applying the rule.
+ *
+ * @param graph
+ * @return std::vector<size_t>
+ */
+std::vector<size_t>
+LComp::get_affected_vertices(ZXGraph const& /* graph */) const {
+    auto affected_vertices = _neighbors;
+    affected_vertices.emplace_back(_v_id);
+    return affected_vertices;
+}
+
 Pivot::Pivot(size_t v1_id, size_t v2_id) : _v1_id(v1_id), _v2_id(v2_id) {}
 
 bool Pivot::is_applicable_no_phase_check(ZXGraph const& graph) const {
@@ -898,6 +934,25 @@ void Pivot::undo_unchecked(ZXGraph& graph) const {
 
     _bd1->undo_unchecked(graph);
     _bd2->undo_unchecked(graph);
+}
+
+/**
+ * @brief Get the affected vertex ids, including the vertices that have been
+ *        removed. This function should only be called after applying the rule.
+ *
+ * @param graph
+ * @return std::vector<size_t>
+ */
+std::vector<size_t>
+Pivot::get_affected_vertices(ZXGraph const& /* graph */) const {
+    auto affected_vertices = _both_neighbors;
+    affected_vertices.insert(affected_vertices.end(),
+                             _v1_neighbors.begin(), _v1_neighbors.end());
+    affected_vertices.insert(affected_vertices.end(),
+                             _v2_neighbors.begin(), _v2_neighbors.end());
+    affected_vertices.emplace_back(_v1_id);
+    affected_vertices.emplace_back(_v2_id);
+    return affected_vertices;
 }
 
 NeighborUnfusion::NeighborUnfusion(size_t v_id,
@@ -1063,6 +1118,23 @@ std::string LCompUnfusion::to_string() const {
         fmt::join(_nu.get_neighbors_to_unfuse(), ", "));
 }
 
+/**
+ * @brief Get the affected vertex ids, including the vertices that have been
+ *        removed. This function should only be called after applying the rule.
+ *
+ * @param graph
+ * @return std::vector<size_t>
+ */
+std::vector<size_t>
+LCompUnfusion::get_affected_vertices(ZXGraph const& graph) const {
+    auto affected_vertices = _lcomp.get_affected_vertices(graph);
+    // buffer are already added by the lcomp rule
+    if (_nu.get_unfused_id().has_value()) {
+        affected_vertices.emplace_back(*_nu.get_unfused_id());
+    }
+    return affected_vertices;
+}
+
 PivotUnfusion::PivotUnfusion(size_t v1_id, size_t v2_id,
                              std::vector<size_t> const& neighbors_to_unfuse_v1,
                              std::vector<size_t> const& neighbors_to_unfuse_v2)
@@ -1141,6 +1213,26 @@ std::string PivotUnfusion::to_string() const {
         _nu1.get_v_id(), _nu2.get_v_id(),
         fmt::join(_nu1.get_neighbors_to_unfuse(), ", "),
         fmt::join(_nu2.get_neighbors_to_unfuse(), ", "));
+}
+
+/**
+ * @brief Get the affected vertex ids, including the vertices that have been
+ *        removed. This function should only be called after applying the rule.
+ *
+ * @param graph
+ * @return std::vector<size_t>
+ */
+std::vector<size_t>
+PivotUnfusion::get_affected_vertices(ZXGraph const& graph) const {
+    auto affected_vertices = _pivot.get_affected_vertices(graph);
+    // buffers are already added by the pivot rule
+    if (_nu1.get_unfused_id().has_value()) {
+        affected_vertices.emplace_back(*_nu1.get_unfused_id());
+    }
+    if (_nu2.get_unfused_id().has_value()) {
+        affected_vertices.emplace_back(*_nu2.get_unfused_id());
+    }
+    return affected_vertices;
 }
 
 }  // namespace qsyn::zx

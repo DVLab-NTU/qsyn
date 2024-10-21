@@ -7,130 +7,168 @@
 
 #include "./causal_flow.hpp"
 
+#include <chrono>
 #include <ranges>
 #include <unordered_set>
+#include <vector>
 
 namespace qsyn::zx {
 
 namespace {
 
-/**
- * @brief return a set containing all elements in a that are not in b
- *
- * @tparam T
- * @param a
- * @param b
- * @return std::unordered_set<T>
- */
-template <typename T>
-std::unordered_set<T>
-set_difference(std::unordered_set<T> const& a, std::unordered_set<T> const& b) {
-    auto result = std::unordered_set<T>{};
-    std::ranges::copy_if(a, std::inserter(result, std::end(result)),
-                         [&b](T const& x) { return b.find(x) == std::end(b); });
+auto const get_neighbor_vector = [](ZXGraph const& g, ZXVertex* v) {
+    return g.get_neighbors(v) | std::views::keys | tl::to<std::vector>();
+};
 
-    return result;
-}
-
-/**
- * @brief remove all elements in b from a
- *
- * @tparam T
- * @param a
- * @param b
- */
-template <typename T>
-void set_difference_inplace(std::unordered_set<T>& a, std::unordered_set<T> const& b) {
-    for (auto const& x : b) {
-        a.erase(x);
+void erase_last_occurrence(std::ranges::range auto& range, auto const& value) {
+    if (auto it = std::ranges::find(
+            range | std::views::reverse, value);
+        it != range.rend()) {
+        range.erase(std::prev(it.base()));
     }
 }
 
-template <typename T>
-std::unordered_set<T> set_intersection(std::unordered_set<T> const& a, std::unordered_set<T> const& b) {
-    auto result = std::unordered_set<T>{};
-    std::ranges::copy_if(a, std::inserter(result, std::end(result)),
-                         [&b](T const& x) { return b.find(x) != std::end(b); });
+bool loop_through_correctors(
+    ZXGraph const& g, auto on_last_neighbor, auto on_level_end) {
+    auto processed = g.get_outputs() | tl::to<std::vector>();
 
-    return result;
-}
+    auto correctors =
+        std::vector<std::pair<ZXVertex*, std::vector<ZXVertex*>>>{};
 
-template <typename T>
-void set_union_inplace(std::unordered_set<T>& a, std::unordered_set<T> const& b) {
-    for (auto const& x : b) {
-        a.insert(x);
-    }
-}
-
-auto get_neighbor_sets(ZXGraph const& g) {
-    auto neighbor_sets = std::unordered_map<ZXVertex*, std::unordered_set<ZXVertex*>>{};
-
-    for (auto const& v : g.get_vertices()) {
-        auto const neighbors =
-            g.get_neighbors(v) | std::views::keys | tl::to<std::unordered_set>();
-        neighbor_sets.emplace(v, neighbors);
+    for (auto const& v : g.get_outputs()) {
+        if (!g.get_inputs().contains(v)) {
+            correctors.emplace_back(v, get_neighbor_vector(g, v));
+        }
     }
 
-    return neighbor_sets;
+    auto new_correctors = std::vector<ZXVertex*>{};
+    auto old_correctors = std::vector<ZXVertex*>{};
+
+    while (true) {
+        new_correctors.clear();
+        old_correctors.clear();
+
+        for (auto& [v, neighbors] : correctors) {
+            for (auto const& p : processed) {
+                erase_last_occurrence(neighbors, p);
+            }
+
+            if (neighbors.size() > 1) continue;
+
+            auto const pred = *std::begin(neighbors);
+
+            on_last_neighbor(v->get_id(), pred->get_id());
+
+            new_correctors.emplace_back(pred);
+            old_correctors.emplace_back(v);
+        }
+
+        if (new_correctors.empty()) {
+            return processed.size() == g.num_vertices();
+        }
+
+        processed.insert(
+            processed.end(), new_correctors.begin(), new_correctors.end());
+
+        for (auto const& v : old_correctors) {
+            std::erase_if(correctors, [&](auto const& p) {
+                return p.first == v;
+            });
+        }
+
+        for (auto const& v : new_correctors) {
+            if (!g.get_inputs().contains(v)) {
+                correctors.emplace_back(v, get_neighbor_vector(g, v));
+            }
+        }
+
+        on_level_end();
+    }
 }
 
 }  // namespace
 
 /**
- * @brief calculate the causal flow of a ZXGraph. If the graph is not causal, return std::nullopt.
- *        The source code is basically a translation from https://github.com/calumholker/pyzx/blob/master/pyzx/flow.py
+ * @brief calculate the causal flow of a ZXGraph. If the graph is not causal,
+ *        return std::nullopt. The source code is an optimized version of
+ *        https://github.com/calumholker/pyzx/blob/master/pyzx/flow.py
  *
  * @param g
  * @return std::optional<CausalFlow>
- * @ref Perdrix & Mhalla, "Finding Optimal Flows Efficiently." arXiv: https://arxiv.org/abs/0709.2670
+ * @ref Perdrix & Mhalla, "Finding Optimal Flows Efficiently."
+ *      arXiv: https://arxiv.org/abs/0709.2670
  */
-std::optional<CausalFlow> causal_flow(ZXGraph const& g) {
+std::optional<CausalFlow> calculate_causal_flow(ZXGraph const& g) {
     CausalFlow flow{.order     = {},
                     .successor = {},
                     .depth     = 1};
 
-    auto const inputs     = g.get_inputs() | tl::to<std::unordered_set>();
-    auto processed        = g.get_outputs() | tl::to<std::unordered_set>();
-    auto const vertices   = g.get_vertices() | tl::to<std::unordered_set>();
-    auto const non_inputs = set_difference(vertices, inputs);
-    auto correctors       = set_difference(processed, inputs);
+    flow.order.reserve(g.num_vertices());
+    flow.successor.reserve(g.num_vertices());
 
-    auto const neighbor_sets = get_neighbor_sets(g);
+    auto const success = loop_through_correctors(
+        g,
+        [&](size_t v, size_t pred) {
+            flow.order.emplace(v, flow.depth);
+            flow.successor.emplace(pred, v);
+        },
+        [&]() { ++flow.depth; });
 
-    while (true) {
-        auto out_prime = std::unordered_set<ZXVertex*>{};
-        auto c_prime   = std::unordered_set<ZXVertex*>{};
+    return success ? std::make_optional(flow) : std::nullopt;
+}
 
-        for (auto const& v : correctors) {
-            auto const ns = set_difference(neighbor_sets.at(v), processed);
+/**
+ * @brief Specialized version of calculate_causal_flow that only returns the
+ *        successor map.
+ *
+ * @param g
+ * @return std::optional<CausalFlow::SuccessorMap>
+ */
+std::optional<CausalFlow::VertexRelation>
+calculate_causal_flow_predecessor_map(ZXGraph const& g) {
+    CausalFlow::VertexRelation predecessor;
 
-            if (ns.size() > 1) continue;
+    predecessor.reserve(g.num_vertices());
 
-            auto const u = *std::begin(ns);
+    auto const success = loop_through_correctors(
+        g,
+        [&](size_t v, size_t pred) {
+            predecessor.emplace(v, pred);
+        },
+        [&]() {});
 
-            if (v == u) continue;
+    return success ? std::make_optional(predecessor) : std::nullopt;
+}
 
-            flow.order.emplace(v->get_id(), flow.depth);
-            flow.successor.emplace(u->get_id(), v->get_id());
-            out_prime.insert(u);
-            c_prime.insert(v);
-        }
-
-        if (out_prime.empty()) {
-            if (processed.size() == vertices.size()) {
-                return flow;
-            } else {
-                return std::nullopt;
-            }
-        }
-
-        set_union_inplace(processed, out_prime);
-        set_difference_inplace(correctors, c_prime);
-        set_union_inplace(correctors, set_intersection(non_inputs, out_prime));
-        flow.depth++;
+/**
+ * @brief Remove the parts of the flow that are affected by the given vertices
+ *
+ * @param flow
+ * @param affected_vertices
+ */
+void cut_predecessor_map(CausalFlow::VertexRelation& predecessor_map,
+                         std::vector<size_t> const& affected_vertices) {
+    for (auto const v_id : affected_vertices) {
+        predecessor_map.erase(v_id);
     }
 
-    return std::nullopt;
+    auto to_erase = std::vector<size_t>{};
+    for (auto const& [v, pred] : predecessor_map) {
+        if (dvlab::contains(affected_vertices, pred)) {
+            to_erase.emplace_back(v);
+        }
+    }
+
+    for (auto const v_id : to_erase) {
+        predecessor_map.erase(v_id);
+    }
+
+    // REVIEW - check that the affected vertices are not in the predecessor map
+    // remove this after debugging
+    for (auto const& [v, pred] : predecessor_map) {
+        assert(!dvlab::contains(affected_vertices, v));
+        assert(!dvlab::contains(affected_vertices, pred));
+    }
 }
 
 }  // namespace qsyn::zx
