@@ -62,6 +62,55 @@ std::unique_ptr<BaseScheduler> GreedyScheduler::clone() const {
 }
 
 /**
+ * @brief Calculate total time to route all remaining gates
+ * 
+ * @param router Current router state
+ * @param next_gate_id ID of the next gate to be routed
+ * @return size_t Total time to route all remaining gates
+ */
+size_t GreedyScheduler::calculate_total_routing_time(Router& router, size_t next_gate_id) const {
+    size_t total_time = 0;
+    auto temp_router = router.clone();
+    auto temp_topo = _circuit_topology.clone();
+    fmt::println("Calculating total routing time for gate {}", next_gate_id);
+    // Route the next gate
+    auto const& next_gate = temp_topo->get_gate(next_gate_id);
+    auto ops = temp_router->assign_gate(next_gate);
+    size_t max_cost = 0;
+    for (auto const& [op, time] : ops) {
+        if (time.second > max_cost)
+            max_cost = time.second;
+    }
+    total_time += max_cost;
+    temp_topo->update_available_gates(next_gate_id);
+
+    // Route remaining gates
+    auto topo_wrap = TopologyCandidate(*temp_topo, _conf.num_candidates);
+    while (!topo_wrap.get_available_gates().empty()) {
+        auto waitlist = topo_wrap.get_available_gates();
+        assert(!waitlist.empty());
+
+        auto gate_idx = get_executable_gate(*temp_router);
+        if (gate_idx == std::nullopt) {
+            gate_idx = greedy_fallback(*temp_router, waitlist);
+        }
+        assert(gate_idx.has_value());
+        
+        auto const& gate = temp_topo->get_gate(gate_idx.value());
+        ops = temp_router->assign_gate(gate);
+        max_cost = 0;
+        for (auto const& [op, time] : ops) {
+            if (time.second > max_cost)
+                max_cost = time.second;
+        }
+        total_time += max_cost;
+        temp_topo->update_available_gates(gate_idx.value());
+    }
+
+    return total_time;
+}
+
+/**
  * @brief Assign gates
  *
  * @param router
@@ -70,6 +119,7 @@ std::unique_ptr<BaseScheduler> GreedyScheduler::clone() const {
 GreedyScheduler::Device GreedyScheduler::_assign_gates(std::unique_ptr<Router> router) {
     [[maybe_unused]] size_t count = 0;
     auto topo_wrap                = TopologyCandidate(_circuit_topology, _conf.num_candidates);
+    auto done = false;
     for (dvlab::TqdmWrapper bar{_circuit_topology.get_num_gates(), _tqdm};
          !topo_wrap.get_available_gates().empty(); ++bar) {
         if (stop_requested()) {
@@ -84,6 +134,12 @@ GreedyScheduler::Device GreedyScheduler::_assign_gates(std::unique_ptr<Router> r
         }
         assert(gate_idx.has_value());
         route_one_gate(*router, gate_idx.value());
+        // call calculate_total_routing_time
+        // if (!done) {
+        //     auto total_time = calculate_total_routing_time(*router, gate_idx.value());
+        //     fmt::println("Total time to route all remaining gates: {}", total_time);
+        //     done = true;
+        // }
 
         spdlog::debug("waitlist: [{}] {}\n", fmt::join(waitlist, ", "), gate_idx.value());
 
