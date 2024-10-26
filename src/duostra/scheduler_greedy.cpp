@@ -92,7 +92,7 @@ size_t GreedyScheduler::greedy_fallback(Router& router,
  * @param next_gate_id ID of the next gate to be routed
  * @return size_t Total time to route all remaining gates
  */
-size_t GreedyScheduler::calculate_total_routing_time(Router& router, size_t next_gate_id){
+size_t GreedyScheduler::get_estimated_cost(Router& router, size_t next_gate_id){
     // Clone the router and topology for simulation
     auto temp_router = router.clone();
     auto temp_topo = _circuit_topology.clone();
@@ -166,7 +166,7 @@ GreedyScheduler::Device GreedyScheduler::_assign_gates(std::unique_ptr<Router> r
 
         if (count == 0) {
             // Calculate total routing time for the next gate
-            auto total_time = calculate_total_routing_time(*router, gate_idx);
+            auto total_time = get_estimated_cost(*router, gate_idx);
             spdlog::debug("Total time to route all remaining gates: {}", total_time);
             fmt::println("Total time to route all remaining gates: {}", total_time);
         }
