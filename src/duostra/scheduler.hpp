@@ -97,7 +97,7 @@ public:
 
     std::unique_ptr<BaseScheduler> clone() const override;
     size_t greedy_fallback(Router& router, std::vector<size_t> const& waitlist) const;
-    size_t calculate_total_routing_time(Router& router, size_t gate_id) const;
+    size_t calculate_total_routing_time(Router& router, size_t gate_id);
 protected:
     GreedyConf _conf;
 
