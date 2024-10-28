@@ -263,9 +263,9 @@ dvlab::BooleanMatrix get_l_matrix(dvlab::BooleanMatrix const& phase_poly_matrix,
 
     for (auto const& [a, b] : dvlab::combinations<2>(id_vec)) {
         auto const new_row = row_products[get_row_product_idx(a, b)];
-        if (new_row.is_zeros()) {
-            continue;
-        }
+        // if (new_row.is_zeros()) {
+        //     continue;
+        // }
         l_matrix.push_row(new_row);
     }
 
@@ -432,12 +432,12 @@ Polynomial tohpe_once(Polynomial const& polynomial) {
 
     auto phase_poly_matrix_copy = phase_poly_matrix;
     int max_score               = std::numeric_limits<int>::min();
-    auto chosen_y               = nullspace_transposed[0];
+    auto chosen_y               = dvlab::BooleanMatrix::Row(polynomial.size(), 0);
     auto max_z                  = s_matrices.begin()->first;
     for (auto const& y : nullspace_transposed) {
         if (y.is_zeros()) {
             continue;
-        } else if (y.sum() != y.size() || y.sum() % 2 == 0) {
+        } else if ((y.sum() == y.size() && y.sum() % 2 == 0) || y.sum() != y.size()) {
             // y is the only candidate
             chosen_y = y;
             // traverse s_matrices to find z with best score
@@ -453,11 +453,14 @@ Polynomial tohpe_once(Polynomial const& polynomial) {
     }
 
     if (max_score < 0) {
-        // do nothing
-        return from_boolean_matrix(phase_poly_matrix_copy);
+        spdlog::debug("max_score < 0, Stop.");
+        return polynomial;
     }
 
-    // auto& chosen_z = z_matrix[max_index];
+    if (chosen_y.is_zeros()) {
+        spdlog::debug("y=0, Stop."); 
+        return polynomial;
+    }
 
     spdlog::debug("Found a TOHPE move");
     spdlog::debug("- z: {}", fmt::join(max_z, ""));
