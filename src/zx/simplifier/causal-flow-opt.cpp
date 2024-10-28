@@ -123,7 +123,7 @@ void causal_flow_opt(ZXGraph& g,
 
     to_graph_like(g);
 
-    if (!calculate_causal_flow_predecessor_map(g).has_value()) {
+    if (!has_causal_flow(g)) {
         spdlog::error("The ZXGraph is not causal to begin with!!");
         return;
     }
@@ -154,6 +154,9 @@ void causal_flow_opt(ZXGraph& g,
         auto [match, score] = std::move(matches.back());
         matches.pop_back();
 
+        // fmt::println("applying match: {}", std::visit(
+        //    [&](auto&& m) { return m.to_string(); }, match));
+
         std::visit([&](auto&& m) { m.apply_unchecked(g); }, match);
 
         ++num_matches_tried;
@@ -166,15 +169,11 @@ void causal_flow_opt(ZXGraph& g,
         }
 
         auto const causal_flow_start = high_resolution_clock::now();
-        auto const success =
-            calculate_causal_flow_predecessor_map(g).has_value();
-        auto const affected_vertices = std::visit(
-            [&](auto&& m) { return m.get_affected_vertices(g); }, match);
-
+        auto expected_result         = has_causal_flow(g);
         causal_flow_duration +=
             to_us(high_resolution_clock::now() - causal_flow_start);
 
-        if (success) {
+        if (expected_result) {
             ++num_matches_applied;
             if (std::holds_alternative<IdentityFusion>(match)) {
                 ++num_ifus_applied;

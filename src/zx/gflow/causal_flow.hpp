@@ -27,8 +27,7 @@ std::optional<CausalFlow> calculate_causal_flow(ZXGraph const& g);
 
 std::optional<CausalFlow::VertexRelation>
 calculate_causal_flow_predecessor_map(ZXGraph const& g);
-void cut_predecessor_map(
-    CausalFlow::VertexRelation& predecessor_map,
-    std::vector<size_t> const& affected_vertices);
+
+bool has_causal_flow(ZXGraph const& g);
 
 }  // namespace qsyn::zx

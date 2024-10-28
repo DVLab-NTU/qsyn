@@ -77,9 +77,9 @@ qsyn> logger info
 
 qsyn> zx optimize --full
 [info]     Hadamard Rule                 2 iterations, total    4 matches
-[info]     Spider Fusion Rule            3 iterations, total   16 matches
+[info]     Spider Fusion Rule            3 iterations, total   17 matches
 [info]     Identity Removal Rule         1 iterations, total    4 matches
-[info]     Spider Fusion Rule            1 iterations, total    2 matches
+[info]     Spider Fusion Rule            1 iterations, total    1 matches
 [info]     Pivot Rule                    1 iterations, total    2 matches
 [info]     Pivot Gadget Rule             3 iterations, total    7 matches
 [info]     Identity Removal Rule         1 iterations, total    3 matches

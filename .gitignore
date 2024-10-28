@@ -23,3 +23,6 @@ docs/_build/
 docs/_doxygen/
 docs/dev/api/
 docs/doc-coverage.info
+
+perf.data
+perf.data.old
