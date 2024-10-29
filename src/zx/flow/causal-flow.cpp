@@ -5,7 +5,7 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "./causal_flow.hpp"
+#include "./causal-flow.hpp"
 
 #include <ranges>
 #include <set>
@@ -29,6 +29,17 @@ auto get_neighbor_vector(
            tl::to<std::vector>();
 };
 
+/**
+ * @brief Loop through the correctors of a ZXGraph. This function is the core
+ *        loop of the causal flow calculation. Different lambda functions can be
+ *        passed in to tailor the behavior of the loop.
+ *
+ * @param g
+ * @param on_last_neighbor
+ * @param on_level_end
+ * @return true
+ * @return false
+ */
 bool loop_through_correctors(
     ZXGraph const& g, auto on_last_neighbor, auto on_level_end) {
     auto processed = g.get_outputs() | tl::to<std::unordered_set>();
@@ -135,6 +146,15 @@ calculate_causal_flow_predecessor_map(ZXGraph const& g) {
     return success ? std::make_optional(predecessor) : std::nullopt;
 }
 
+/**
+ * @brief Check if a ZXGraph has a causal flow. This function does not record
+ *        the causal flow and should be a little bit faster than
+ *        `calculate_causal_flow`.
+ *
+ * @param g
+ * @return true
+ * @return false
+ */
 bool has_causal_flow(ZXGraph const& g) {
     return loop_through_correctors(g, [](auto, auto) {}, []() {});
 }

@@ -12,8 +12,9 @@
 #include "zx/zxgraph.hpp"
 
 namespace qsyn::zx {
-// 3-tuple containing an order labelling, the successor function of the flow, and the maximum depth reached.
 
+// 3-tuple containing an order labelling,
+// the successor function of the flow, and the maximum depth reached.
 struct CausalFlow {
     using OrderMap       = std::unordered_map<size_t, size_t>;
     using VertexRelation = std::unordered_map<size_t, size_t>;

@@ -9,14 +9,9 @@
 
 #include <spdlog/spdlog.h>
 
-#include <cstddef>
-#include <string>
-
 #include "cli/cli.hpp"
-#include "cmd/zx_cmd.hpp"
 #include "util/data_structure_manager_common_cmd.hpp"
-#include "zx/gflow/gflow.hpp"
-#include "zx/zxgraph.hpp"
+#include "zx/flow/gflow.hpp"
 
 using namespace dvlab::argparse;
 using dvlab::CmdExecResult;

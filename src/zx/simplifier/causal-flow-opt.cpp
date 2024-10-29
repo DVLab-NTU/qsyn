@@ -4,7 +4,7 @@
 
 #include "./heuristics.hpp"
 #include "./simplify.hpp"
-#include "zx/gflow/causal_flow.hpp"
+#include "zx/flow/causal-flow.hpp"
 #include "zx/simplifier/rules/rule-matchers.hpp"
 #include "zx/zx_def.hpp"
 #include "zx/zxgraph.hpp"
@@ -77,7 +77,7 @@ void update_affected_matches(
     search_space.insert(search_space_vec.begin(), search_space_vec.end());
 
     // remove the matches that becomes invalid or those with changed scores
-    auto const num_removed = std::erase_if(matches, [&](auto const& mws) {
+    std::erase_if(matches, [&](auto const& mws) {
         auto const& [match, score] = mws;
         auto const core_vertices   = std::visit(
             [&](auto&& m) { return m.core_vertices(); }, match);
@@ -121,21 +121,6 @@ void causal_flow_opt(ZXGraph& g,
         return duration_cast<microseconds>(dur).count();
     };
 
-    to_graph_like(g);
-
-    if (!has_causal_flow(g)) {
-        spdlog::error("The ZXGraph is not causal to begin with!!");
-        return;
-    }
-
-    auto const start_time = high_resolution_clock::now();
-
-    auto matches = get_matches_with_scores(
-        g, std::nullopt, max_lcomp_unfusions, max_pivot_unfusions);
-
-    // sort the matches in the ascending order of the score
-    // so that we can apply the first match and discard it in O(1) time
-
     size_t num_matches_tried   = 0;
     size_t num_matches_applied = 0;
     size_t num_ifus_tried      = 0;
@@ -145,9 +130,20 @@ void causal_flow_opt(ZXGraph& g,
     size_t num_pvus_tried      = 0;
     size_t num_pvus_applied    = 0;
 
+    auto causal_flow_duration = 0ll;
+    auto update_duration      = 0ll;
+
     auto const loop_start_time = high_resolution_clock::now();
-    auto causal_flow_duration  = 0ll;
-    auto update_duration       = 0ll;
+
+    to_graph_like(g);
+
+    if (!has_causal_flow(g)) {
+        spdlog::error("The ZXGraph is not causal to begin with!!");
+        return;
+    }
+
+    auto matches = get_matches_with_scores(
+        g, std::nullopt, max_lcomp_unfusions, max_pivot_unfusions);
 
     while (!matches.empty()) {
         // step 2: identify a best match to apply
