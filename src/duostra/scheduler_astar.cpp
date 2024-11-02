@@ -10,12 +10,13 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <memory>
 #include <queue>
 #include <tl/enumerate.hpp>
 #include <vector>
 
 #include "./scheduler.hpp"
-#include "util/util.hpp"
+#include "duostra/router.hpp"
 
 extern bool stop_requested();
 
@@ -32,12 +33,16 @@ namespace qsyn::duostra {
  */
 StarNode::StarNode( size_t type,
                     size_t gate_id,
+                    std::unique_ptr<Router> est_router,
+                    std::unique_ptr<BaseScheduler> est_scheduler,
                     std::unique_ptr<Router> router,
                     std::unique_ptr<BaseScheduler> scheduler,
                     StarNode* parent)
     : _type(type),
       _gate_id(gate_id),
       _parent(parent),
+      _est_router(std::move(est_router)),
+      _est_scheduler(std::move(est_scheduler)),
       _router(std::move(router)),
       _scheduler(std::move(scheduler)){
         if(_type == 1) _route_and_estimate(); // do the exact routing for the given gate_id and estimate the rest
@@ -50,8 +55,9 @@ StarNode::StarNode( size_t type,
 void StarNode::grow(StarNode* self_pointer) {
     auto const& avail_gates = scheduler().get_available_gates();
     assert(children.empty());
+    children.reserve(avail_gates.size());
     for (auto gate_id : avail_gates)
-        children.emplace_back(1, gate_id, router().clone(), scheduler().clone(), self_pointer);
+        children.emplace_back(1, gate_id, est_router().clone(), est_scheduler().clone(), router().clone(), scheduler().clone(), self_pointer);
 }
 
 
@@ -63,9 +69,11 @@ void StarNode::grow(StarNode* self_pointer) {
 void StarNode::_route_and_estimate(){
 
     // route the exact gate given gate_id
-    cost = _scheduler->route_one_gate(*_router, gate_id, false);
+    _cost = _scheduler->route_one_gate(*_router, gate_id, false);
 
     // estimate the cost
+
+
 }
 
 
@@ -124,12 +132,28 @@ struct cmp {
  * @param router
  * @return Device
  */
-AStarScheduler::Device AStarScheduler::_assign_gates(std::unique_ptr<Router> router) {
+BaseScheduler::Device AStarScheduler::assign_gates_and_sort(std::unique_ptr<Router> router, std::unique_ptr<Router> est_router, std::unique_ptr<BaseScheduler> est_scheduler) {
+    Device d = assign_gates(std::move(router), std::move(est_router), std::move(est_scheduler));
+    _sort();
+    return d;
+}
+
+// BaseScheduler::Device AStarScheduler::_assign_gates(std::unique_ptr<Router> router, std::unique_ptr<Router> est_router, std::unique_ptr<BaseScheduler> est_scheduler) {
+//     for (dvlab::TqdmWrapper bar{_circuit_topology.get_num_gates()}; !bar.done(); ++bar) {
+//         if (stop_requested()) {
+//             return router->get_device();
+//         }
+//         route_one_gate(*router, bar.idx());
+//     }
+//     return router->get_device();
+// }
+
+AStarScheduler::Device AStarScheduler::assign_gates(std::unique_ptr<Router> router, std::unique_ptr<Router> est_router, std::unique_ptr<BaseScheduler> est_scheduler) {
     // get the total gates count in the circuit
     auto total_gates = _circuit_topology.get_num_gates();
     
     // construct the root node
-    auto root = std::make_unique<StarNode>(0, 0, router->clone(), clone(), NULL);
+    auto root = std::make_unique<StarNode>(0, 0, est_router->clone(), est_scheduler->clone(), router->clone(), clone(), nullptr);
     
     // construct a list to store the best cost of each node
     // -1 means the node is not visited yet
@@ -139,19 +163,19 @@ AStarScheduler::Device AStarScheduler::_assign_gates(std::unique_ptr<Router> rou
     auto available_gates = root->scheduler().get_available_gates();
 
     // construct a candidate list to store the current unvisited nodes sorted by their best cost
-    std::priority_queue<StarNode, std::vector<StarNode>, cmp> candidate_list;
+    std::priority_queue<StarNode*, std::vector<StarNode*>, cmp> candidate_list;
 
     // flag to indicate whether there is a feasible solution
     bool done = false;
     size_t final_cost = 0;
     StarNode* finish_node = nullptr;
     // build the first layer of the tree
-    root->grow(&root);
-    for(auto child : root.child) {
+    root->grow(root.get());
+    for(auto& child : root->children) {
         auto cost = child.get_estimated_cost();
         auto id = child.get_gate_id();
 
-        if(best_cost_list[id] == -1 || cost < best_cost_list[id]){
+        if(best_cost_list[id] == 0 || cost < best_cost_list[id]){
             if(child.is_leaf()) {
                 done = true;
                 if(final_cost == 0 || cost < final_cost) {
@@ -173,8 +197,8 @@ AStarScheduler::Device AStarScheduler::_assign_gates(std::unique_ptr<Router> rou
         auto node = candidate_list.top();
         candidate_list.pop();
         // grow the node
-        node->grow();
-        for(auto child : node->children) {
+        node->grow(root.get());
+        for(auto& child : node->children) {
             auto cost = child.get_estimated_cost();
             auto id = child.get_gate_id();
             if(best_cost_list[id] == 0 || cost < best_cost_list[id]){
@@ -189,36 +213,24 @@ AStarScheduler::Device AStarScheduler::_assign_gates(std::unique_ptr<Router> rou
                 candidate_list.push(&child);
             }
             else{
-                child->delete_self();
+                child.delete_self();
             }
         }
+
+
 
         return router->get_device();
     }
 
-
-
-
-    // auto root = make_unique<StarNode>(
-    //     StarNodeConf{_never_cache, _execute_single, _conf.num_candidates},
-    //     std::vector<size_t>{}, router->clone(), clone(), 0);
-
-    // For each step. (all nodes + 1 dummy)
-    // dvlab::TqdmWrapper bar{total_gates + 1, _tqdm};
-    // assert(!root->done());
-    // while (!root->done()) {
-    //     // Update the _candidates.
-    //     if (stop_requested()) {
-    //         return router->get_device();
-    //     }
-    //     auto selected_node = std::make_unique<StarNode>(root->best_child(static_cast<int>(_lookahead)));
-    //     root               = std::move(selected_node);
-
-    //     for (auto const& gate_id : root->get_executed_gates()) {
-    //         route_one_gate(*router, gate_id);
-    //         ++bar;
-    //     }
-    // }
+    std::vector<size_t> order;
+    while(finish_node->get_parent() != nullptr){
+        order.push_back(finish_node->get_gate_id());
+        finish_node = finish_node->get_parent();
+    }
+    std::reverse(order.begin(), order.end());
+    for(auto gate_id : order){
+        route_one_gate(*router, gate_id);
+    }
     return router->get_device();
 }
 

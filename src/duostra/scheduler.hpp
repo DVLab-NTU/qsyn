@@ -207,6 +207,8 @@ class StarNode {  // NOLINT(hicpp-special-member-functions, cppcoreguidelines-sp
 public:
     StarNode(size_t type,
              size_t gate_id,
+             std::unique_ptr<Router> est_router,
+             std::unique_ptr<BaseScheduler> est_scheduler,
              std::unique_ptr<Router> router,
              std::unique_ptr<BaseScheduler> scheduler,
              StarNode* parent);
@@ -224,6 +226,8 @@ public:
     
     Router const& router() const { return *_router; }
     BaseScheduler const& scheduler() const { return *_scheduler; }
+    Router const& est_router() const { return *_est_router; }
+    BaseScheduler const& est_scheduler() const { return *_est_scheduler; }
 
     bool done() const { return scheduler().get_available_gates().empty(); }
     void delete_self() { _parent->delete_child(); delete this; }
@@ -233,6 +237,7 @@ public:
 
 private:
 
+    
     // The configuration of the node.
     // type of the node: 0 for root, 1 for internal, 2 for leaf.
     size_t _type = 0;
@@ -253,15 +258,16 @@ private:
     // won't be as bad in parallel code.
     
     // The state of duostra.
+    std::unique_ptr<Router> _est_router;
+    std::unique_ptr<BaseScheduler> _est_scheduler;
     std::unique_ptr<Router> _router;
     std::unique_ptr<BaseScheduler> _scheduler;
-
+    
     
     std::optional<size_t> _immediate_next() const;
     void _route_internal_gates();
     void _route_and_estimate();
 };
-
 
 class AStarScheduler : public GreedyScheduler {  // NOLINT(hicpp-special-member-functions, cppcoreguidelines-special-member-functions) : copy-swap idiom
 public:
@@ -269,16 +275,19 @@ public:
     AStarScheduler(CircuitTopology const& topo, bool tqdm = true);
 
     std::unique_ptr<BaseScheduler> clone() const override;
+    Device assign_gates_and_sort(std::unique_ptr<Router>,  std::unique_ptr<Router>, std::unique_ptr<BaseScheduler>);
+    Device assign_gates(std::unique_ptr<Router>,  std::unique_ptr<Router>, std::unique_ptr<BaseScheduler>);
 
 protected:
     bool _never_cache;
     bool _execute_single;
     size_t _lookahead;
 
-    Device _assign_gates(std::unique_ptr<Router> /*unused*/) override;
+    
     void _cache_when_necessary();
 };
 
 std::unique_ptr<BaseScheduler> get_scheduler(std::unique_ptr<CircuitTopology> topo, bool tqdm = true);
-
+std::unique_ptr<BaseScheduler> get_est_scheduler(std::unique_ptr<CircuitTopology> topo, bool tqdm = true);
+bool if_astar();
 }  // namespace qsyn::duostra

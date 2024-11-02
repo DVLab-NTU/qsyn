@@ -12,6 +12,7 @@
 
 #include "./placer.hpp"
 #include "duostra/mapping_eqv_checker.hpp"
+#include "duostra/scheduler.hpp"
 #include "qcir/basic_gate_type.hpp"
 #include "qcir/qcir.hpp"
 #include "qsyn/qsyn_type.hpp"
@@ -61,18 +62,25 @@ bool Duostra::map(bool use_device_as_placement) {
     // scheduler
     spdlog::info("Creating Scheduler...");
     auto scheduler = get_scheduler(std::move(topo), _tqdm);
-
+    auto est_scheduler = get_est_scheduler(std::move(topo), _tqdm);
     // router
     spdlog::info("Creating Router...");
     auto cost_strategy = (DuostraConfig::SCHEDULER_TYPE == SchedulerType::greedy) ? Router::CostStrategyType::end
                                                                                   : Router::CostStrategyType::start;
     auto router        = std::make_unique<Router>(std::move(_device), cost_strategy, DuostraConfig::TIE_BREAKING_STRATEGY);
+    auto est_router        = std::make_unique<Router>(std::move(_device), cost_strategy, DuostraConfig::TIE_BREAKING_STRATEGY);
 
     // routing
     if (!_silent) {
         fmt::println("Routing...");
     }
-    _device = scheduler->assign_gates_and_sort(std::move(router));
+    if (if_astar()){
+        _device = scheduler->assign_gates_and_sort(std::move(router), std::move(est_router), std::move(est_scheduler));
+    }
+    else{
+        _device = scheduler->assign_gates_and_sort(std::move(router));
+    }
+    
     if (stop_requested()) {
         spdlog::warn("Warning: mapping interrupted");
         return false;

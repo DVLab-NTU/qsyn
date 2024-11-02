@@ -39,12 +39,24 @@ std::unique_ptr<BaseScheduler> get_scheduler(std::unique_ptr<CircuitTopology> to
     } else if (DuostraConfig::SCHEDULER_TYPE == SchedulerType::base) {
         return std::make_unique<BaseScheduler>(*topo, tqdm);
     } else if (DuostraConfig::SCHEDULER_TYPE == SchedulerType::astar) {
-        return std::make_unique<BaseScheduler>(*topo, tqdm);
+        return std::make_unique<AStarScheduler>(*topo, tqdm);
     }
     DVLAB_UNREACHABLE("Scheduler type not found");
     return nullptr;
 }
 
+bool if_astar() {
+    return DuostraConfig::SCHEDULER_TYPE == SchedulerType::astar;
+}
+
+std::unique_ptr<BaseScheduler> get_est_scheduler(std::unique_ptr<CircuitTopology> topo, bool tqdm) {
+    // 0:base 1:static 2:random 3:greedy 4:search 5:astar
+    if (DuostraConfig::SCHEDULER_TYPE == SchedulerType::astar) {
+        return std::make_unique<BaseScheduler>(*topo, tqdm);
+    }
+    // DVLAB_UNREACHABLE("Scheduler type not found");
+    return nullptr;
+}
 // SECTION - Class BaseScheduler Member Functions
 
 /**
