@@ -62,7 +62,6 @@ bool Duostra::map(bool use_device_as_placement) {
     // scheduler
     spdlog::info("Creating Scheduler...");
     auto scheduler = get_scheduler(std::move(topo), _tqdm);
-    auto est_scheduler = get_est_scheduler(std::move(topo), _tqdm);
     // router
     spdlog::info("Creating Router...");
     auto cost_strategy = (DuostraConfig::SCHEDULER_TYPE == SchedulerType::greedy) ? Router::CostStrategyType::end
@@ -75,7 +74,7 @@ bool Duostra::map(bool use_device_as_placement) {
         fmt::println("Routing...");
     }
     if (if_astar()){
-        _device = scheduler->assign_gates_and_sort(std::move(router), std::move(est_router), std::move(est_scheduler));
+        _device = scheduler->assign_gates_and_sort(std::move(router), std::move(est_router));
     }
     else{
         _device = scheduler->assign_gates_and_sort(std::move(router));

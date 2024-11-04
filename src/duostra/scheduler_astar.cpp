@@ -34,7 +34,6 @@ namespace qsyn::duostra {
 StarNode::StarNode( size_t type,
                     size_t gate_id,
                     std::unique_ptr<Router> est_router,
-                    std::unique_ptr<BaseScheduler> est_scheduler,
                     std::unique_ptr<Router> router,
                     std::unique_ptr<BaseScheduler> scheduler,
                     StarNode* parent)
@@ -42,7 +41,6 @@ StarNode::StarNode( size_t type,
       _gate_id(gate_id),
       _parent(parent),
       _est_router(std::move(est_router)),
-      _est_scheduler(std::move(est_scheduler)),
       _router(std::move(router)),
       _scheduler(std::move(scheduler)){
         if(_type == 1) _route_and_estimate(); // do the exact routing for the given gate_id and estimate the rest
@@ -57,7 +55,7 @@ void StarNode::grow(StarNode* self_pointer) {
     assert(children.empty());
     children.reserve(avail_gates.size());
     for (auto gate_id : avail_gates)
-        children.emplace_back(1, gate_id, est_router().clone(), est_scheduler().clone(), router().clone(), scheduler().clone(), self_pointer);
+        children.emplace_back(1, gate_id, est_router().clone(), router().clone(), scheduler().clone(), self_pointer);
 }
 
 
@@ -79,10 +77,10 @@ size_t StarNode::_route_and_estimate() {
         auto temp_router = _est_router->clone();
         auto temp_topo = cloned_scheduler->circuit_topology().clone();
         GreedyScheduler temp_scheduler(*temp_topo, false);
-        temp_scheduler._conf = GreedyConf(); // Use default Greedy configuration
+        temp_scheduler.set_conf(GreedyConf()); // Use default Greedy configuration
 
         // Copy the current state to temp_scheduler
-        temp_scheduler._operations = cloned_scheduler->_operations;
+        temp_scheduler._operations = cloned_scheduler->get_operations();
         temp_scheduler._sorted = cloned_scheduler->_sorted;
 
         // Now simulate routing the remaining gates
@@ -113,13 +111,14 @@ size_t StarNode::_route_and_estimate() {
         // Calculate total_time as the sum of all operation durations
         size_t estimated_total_time = temp_scheduler.get_total_time();
 
+        _cost = estimated_total_time;
         // The total estimated cost is estimated_total_time
         return estimated_total_time;
     }
 
     // Granting access to the comparison struct
-    friend struct StarNodeCmp;
-}
+    
+
 
 
 // SECTION - Class Search Scheduler Member Functions
@@ -157,6 +156,7 @@ void AStarScheduler::_cache_when_necessary() {
         _never_cache = true;
     }
 }
+
 /**
  * @brief Priority Queue Cmp for AStar Candidate
  *
@@ -167,18 +167,18 @@ void AStarScheduler::_cache_when_necessary() {
 // Proirity Queue Cmp
 struct cmp {
     bool operator()(StarNode* a, StarNode* b) {
-        return a->_route_and_estimate() > b->_route_and_estimate();
+        return a->get_estimated_cost() > b->get_estimated_cost();
     }
 };
- 
+
 /**
  * @brief Assign gates
  *
  * @param router
  * @return Device
  */
-BaseScheduler::Device AStarScheduler::assign_gates_and_sort(std::unique_ptr<Router> router, std::unique_ptr<Router> est_router, std::unique_ptr<BaseScheduler> est_scheduler) {
-    Device d = assign_gates(std::move(router), std::move(est_router), std::move(est_scheduler));
+BaseScheduler::Device AStarScheduler::assign_gates_and_sort(std::unique_ptr<Router> router, std::unique_ptr<Router> est_router) {
+    Device d = assign_gates(std::move(router), std::move(est_router));
     _sort();
     return d;
 }
@@ -193,12 +193,12 @@ BaseScheduler::Device AStarScheduler::assign_gates_and_sort(std::unique_ptr<Rout
 //     return router->get_device();
 // }
 
-AStarScheduler::Device AStarScheduler::assign_gates(std::unique_ptr<Router> router, std::unique_ptr<Router> est_router, std::unique_ptr<BaseScheduler> est_scheduler) {
+AStarScheduler::Device AStarScheduler::assign_gates(std::unique_ptr<Router> router, std::unique_ptr<Router> est_router) {
     // get the total gates count in the circuit
     auto total_gates = _circuit_topology.get_num_gates();
     
     // construct the root node
-    auto root = std::make_unique<StarNode>(0, 0, est_router->clone(), est_scheduler->clone(), router->clone(), clone(), nullptr);
+    auto root = std::make_unique<StarNode>(0, 0, est_router->clone(), router->clone(), clone(), nullptr);
     
     // construct a list to store the best cost of each node
     // -1 means the node is not visited yet
@@ -217,7 +217,7 @@ AStarScheduler::Device AStarScheduler::assign_gates(std::unique_ptr<Router> rout
     // build the first layer of the tree
     root->grow(root.get());
     for(auto& child : root->children) {
-        auto cost = child._route_and_estimate();
+        auto cost = child.get_estimated_cost();
         auto id = child.get_gate_id();
 
         if(best_cost_list[id] == 0 || cost < best_cost_list[id]){
@@ -244,7 +244,7 @@ AStarScheduler::Device AStarScheduler::assign_gates(std::unique_ptr<Router> rout
         // grow the node
         node->grow(root.get());
         for(auto& child : node->children) {
-            auto cost = child._route_and_estimate();
+            auto cost = child.get_estimated_cost();
             auto id = child.get_gate_id();
             if(best_cost_list[id] == 0 || cost < best_cost_list[id]){
                 if(child.is_leaf()) {
@@ -278,5 +278,5 @@ AStarScheduler::Device AStarScheduler::assign_gates(std::unique_ptr<Router> rout
     }
     return router->get_device();
 }
-
 }  // namespace qsyn::duostra
+

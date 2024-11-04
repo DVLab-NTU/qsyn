@@ -10,6 +10,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <cstddef>
 
 #include "qcir/basic_gate_type.hpp"
 #include "util/util.hpp"
@@ -49,14 +50,6 @@ bool if_astar() {
     return DuostraConfig::SCHEDULER_TYPE == SchedulerType::astar;
 }
 
-std::unique_ptr<BaseScheduler> get_est_scheduler(std::unique_ptr<CircuitTopology> topo, bool tqdm) {
-    // 0:base 1:static 2:random 3:greedy 4:search 5:astar
-    if (DuostraConfig::SCHEDULER_TYPE == SchedulerType::astar) {
-        return std::make_unique<BaseScheduler>(*topo, tqdm);
-    }
-    // DVLAB_UNREACHABLE("Scheduler type not found");
-    return nullptr;
-}
 // SECTION - Class BaseScheduler Member Functions
 
 /**
@@ -143,7 +136,7 @@ size_t BaseScheduler::get_operations_cost() const {
  * @param router
  * @return Device
  */
-BaseScheduler::Device BaseScheduler::assign_gates_and_sort(std::unique_ptr<Router> router) {
+BaseScheduler::Device BaseScheduler::assign_gates_and_sort(std::unique_ptr<Router> router, std::unique_ptr<Router> /*unused*/) {
     Device d = _assign_gates(std::move(router));
     _sort();
     return d;

@@ -17,29 +17,29 @@
 
 namespace qsyn::duostra {
 
-// class AStarNode {
-// public:
-//     friend class AStarComp;
-//     AStarNode(size_t cost, QubitIdType id, bool source);
+class AStarNode {
+public:
+    friend class AStarComp;
+    AStarNode(size_t cost, QubitIdType id, bool source);
 
-//     auto get_source() const { return _source; }
-//     auto get_id() const { return _id; }
-//     auto get_cost() const { return _estimated_cost; }
+    auto get_source() const { return _source; }
+    auto get_id() const { return _id; }
+    auto get_cost() const { return _estimated_cost; }
 
-// private:
-//     size_t _estimated_cost;
-//     QubitIdType _id;
-//     bool _source;  // false q0 propagate, true q1 propagate
-// };
+private:
+    size_t _estimated_cost;
+    QubitIdType _id;
+    bool _source;  // false q0 propagate, true q1 propagate
+};
 
-// class AStarComp {
-// public:
-//     bool operator()(AStarNode const& a, AStarNode const& b) {
-//         if (a._estimated_cost == b._estimated_cost)
-//             return a._id > b._id;
-//         return a._estimated_cost > b._estimated_cost;
-//     }
-// };
+class AStarComp {
+public:
+    bool operator()(AStarNode const& a, AStarNode const& b) {
+        if (a._estimated_cost == b._estimated_cost)
+            return a._id > b._id;
+        return a._estimated_cost > b._estimated_cost;
+    }
+};
 
 class Router {
 public:
