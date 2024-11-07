@@ -50,6 +50,18 @@ public:
     Device assign_gates_and_sort(std::unique_ptr<Router> router, std::unique_ptr<Router> est_router = nullptr);
     size_t route_one_gate(Router& router, size_t gate_id, bool forget = false);
 
+    void set_operations(const std::vector<GateInfo>& operations) {
+        _operations = operations;
+    }
+
+    void set_sorted(bool sorted) {
+        _sorted = sorted;
+    }
+
+    void sort_operations() {
+        _sort();
+    }
+
 protected:
     CircuitTopology _circuit_topology;
     std::vector<GateInfo> _operations;
@@ -98,6 +110,10 @@ public:
     std::unique_ptr<BaseScheduler> clone() const override;
     size_t greedy_fallback(Router& router, std::vector<size_t> const& waitlist) const;
     size_t calculate_total_routing_time(Router& router, size_t gate_id);
+
+    size_t get_estimated_cost(Router& router, size_t next_gate_id);
+    void set_conf(const GreedyConf& conf);
+
 protected:
     GreedyConf _conf;
 
@@ -233,6 +249,7 @@ public:
     bool done() const { return scheduler().get_available_gates().empty(); }
     void delete_self() { _parent->delete_child(); delete this; }
     void delete_child() { _delete_count++; if(_delete_count==children.size() && !children.empty()) delete_self(); }
+    size_t route_and_estimate();
 
     std::vector<StarNode> children;
 
@@ -266,7 +283,6 @@ private:
     
     std::optional<size_t> _immediate_next() const;
     void _route_internal_gates();
-    size_t _route_and_estimate();
 };
 
 class AStarScheduler : public GreedyScheduler {  // NOLINT(hicpp-special-member-functions, cppcoreguidelines-special-member-functions) : copy-swap idiom

@@ -43,7 +43,7 @@ StarNode::StarNode( size_t type,
       _est_router(std::move(est_router)),
       _router(std::move(router)),
       _scheduler(std::move(scheduler)){
-        if(_type == 1) _route_and_estimate(); // do the exact routing for the given gate_id and estimate the rest
+        if(_type == 1) route_and_estimate(); // do the exact routing for the given gate_id and estimate the rest
       }
 
 /**
@@ -64,62 +64,57 @@ void StarNode::grow(StarNode* self_pointer) {
  *
  */
 
-size_t StarNode::_route_and_estimate() {
-        // Clone the actual scheduler and router to avoid modifying the original state
-        auto cloned_router = _router->clone();
-        auto cloned_scheduler = _scheduler->clone();
+size_t StarNode::route_and_estimate() {
+    // Clone the actual scheduler and router to avoid modifying the original state
+    auto cloned_router = _router->clone();
+    auto cloned_scheduler = _scheduler->clone();
 
-        // Route the current gate on the cloned router and scheduler
-        size_t cost_so_far = cloned_scheduler->route_one_gate(*cloned_router, _gate_id, false);
-        cloned_scheduler->circuit_topology().update_available_gates(_gate_id);
+    // Route the current gate on the cloned router and scheduler
+    cloned_scheduler->route_one_gate(*cloned_router, _gate_id, false);
+    cloned_scheduler->circuit_topology().update_available_gates(_gate_id);
 
-        // Estimate the remaining cost using a GreedyScheduler and APSP router (est_router)
-        auto temp_router = _est_router->clone();
-        auto temp_topo = cloned_scheduler->circuit_topology().clone();
-        GreedyScheduler temp_scheduler(*temp_topo, false);
-        temp_scheduler.set_conf(GreedyConf()); // Use default Greedy configuration
+    // Estimate the remaining cost using a GreedyScheduler and APSP router (est_router)
+    auto temp_router = _est_router->clone();
+    auto temp_topo = cloned_scheduler->circuit_topology().clone();
+    GreedyScheduler temp_scheduler(*temp_topo, false);
+    temp_scheduler.set_conf(GreedyConf()); // Use default Greedy configuration
 
-        // Copy the current state to temp_scheduler
-        temp_scheduler._operations = cloned_scheduler->get_operations();
-        temp_scheduler._sorted = cloned_scheduler->_sorted;
+    // Copy the current state to temp_scheduler
+    temp_scheduler.set_operations(cloned_scheduler->get_operations());
+    temp_scheduler.set_sorted(cloned_scheduler->is_sorted());
 
-        // Now simulate routing the remaining gates
-        while (!temp_scheduler.get_available_gates().empty()) {
-            if (stop_requested()) {
-                break; // Continue to sum what is processed so far
-            }
-            auto waitlist = temp_scheduler.get_available_gates();
-            assert(!waitlist.empty());
-
-            auto gate_idx_opt = temp_scheduler.get_executable_gate(*temp_router);
-            size_t gate_idx;
-            if (gate_idx_opt.has_value()) {
-                gate_idx = gate_idx_opt.value();
-            } else {
-                gate_idx = temp_scheduler.greedy_fallback(*temp_router, waitlist);
-            }
-            assert(gate_idx < temp_scheduler.circuit_topology().get_num_gates());
-
-            // Route gate with forget=false to track operations
-            temp_scheduler.route_one_gate(*temp_router, gate_idx, false);  // forget=false
-            temp_scheduler.circuit_topology().update_available_gates(gate_idx);
+    // Now simulate routing the remaining gates
+    while (!temp_scheduler.get_available_gates().empty()) {
+        if (stop_requested()) {
+            break; // Continue to sum what is processed so far
         }
+        auto waitlist = temp_scheduler.get_available_gates();
+        assert(!waitlist.empty());
 
-        // Sort the operations to satisfy the assertion in get_total_time()
-        temp_scheduler._sort();
+        auto gate_idx_opt = temp_scheduler.get_executable_gate(*temp_router);
+        size_t gate_idx;
+        if (gate_idx_opt.has_value()) {
+            gate_idx = gate_idx_opt.value();
+        } else {
+            gate_idx = temp_scheduler.greedy_fallback(*temp_router, waitlist);
+        }
+        assert(gate_idx < temp_scheduler.circuit_topology().get_num_gates());
 
-        // Calculate total_time as the sum of all operation durations
-        size_t estimated_total_time = temp_scheduler.get_total_time();
-
-        _cost = estimated_total_time;
-        // The total estimated cost is estimated_total_time
-        return estimated_total_time;
+        // Route gate with forget=false to track operations
+        temp_scheduler.route_one_gate(*temp_router, gate_idx, false);  // forget=false
+        temp_scheduler.circuit_topology().update_available_gates(gate_idx);
     }
 
-    // Granting access to the comparison struct
-    
+    // Sort the operations to satisfy the assertion in get_total_time()
+    temp_scheduler.sort_operations();
 
+    // Calculate total_time as the sum of all operation durations
+    size_t estimated_total_time = temp_scheduler.get_total_time();
 
+    _cost = estimated_total_time;
+    // The total estimated cost is estimated_total_time
+    return estimated_total_time;
+}
 
 // SECTION - Class Search Scheduler Member Functions
 
@@ -167,7 +162,7 @@ void AStarScheduler::_cache_when_necessary() {
 // Proirity Queue Cmp
 struct cmp {
     bool operator()(StarNode* a, StarNode* b) {
-        return a->get_estimated_cost() > b->get_estimated_cost();
+        return a->route_and_estimate() > b->route_and_estimate();
     }
 };
 
@@ -217,7 +212,7 @@ AStarScheduler::Device AStarScheduler::assign_gates(std::unique_ptr<Router> rout
     // build the first layer of the tree
     root->grow(root.get());
     for(auto& child : root->children) {
-        auto cost = child.get_estimated_cost();
+        auto cost = child.route_and_estimate();
         auto id = child.get_gate_id();
 
         if(best_cost_list[id] == 0 || cost < best_cost_list[id]){
@@ -244,7 +239,7 @@ AStarScheduler::Device AStarScheduler::assign_gates(std::unique_ptr<Router> rout
         // grow the node
         node->grow(root.get());
         for(auto& child : node->children) {
-            auto cost = child.get_estimated_cost();
+            auto cost = child.route_and_estimate();
             auto id = child.get_gate_id();
             if(best_cost_list[id] == 0 || cost < best_cost_list[id]){
                 if(child.is_leaf()) {

@@ -86,6 +86,15 @@ size_t GreedyScheduler::greedy_fallback(Router& router,
 }
 
 /**
+ * @brief Set configuration
+ *
+ * @param conf
+ */
+void GreedyScheduler::set_conf(const GreedyConf& conf) {
+    _conf = conf;
+}
+
+/**
  * @brief Calculate total time to route all remaining gates
  * 
  * @param router Current router state
