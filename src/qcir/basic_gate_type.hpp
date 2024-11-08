@@ -34,17 +34,6 @@ public:
 inline Operation adjoint(HGate const& op) { return op; }
 inline bool is_clifford(HGate const& /* op */) { return true; }
 
-class SwapGate {
-public:
-    SwapGate() = default;
-    std::string get_type() const { return "swap"; }
-    std::string get_repr() const { return "swap"; }
-    size_t get_num_qubits() const { return 2; }
-};
-
-inline Operation adjoint(SwapGate const& op) { return op; }
-inline bool is_clifford(SwapGate const& /* op */) { return true; }
-
 class ECRGate {
 public:
     ECRGate() = default;
@@ -284,5 +273,73 @@ inline ControlGate CCXGate() { return ControlGate(XGate(), 2); }
 inline ControlGate CCYGate() { return ControlGate(YGate(), 2); }
 inline ControlGate CCZGate() { return ControlGate(ZGate(), 2); }
 // NOLINTEND(readability-identifier-naming)
+
+inline bool is_single_qubit_pauli(Operation const& op) {
+    return op == XGate() || op == YGate() || op == ZGate();
+}
+
+template <>
+inline std::optional<QCir> to_basic_gates(ControlGate const& op) {
+    if (is_clifford(op)) {
+        return as_qcir(op);
+    }
+    auto const& target_op = op.get_target_operation();
+    // in general control gate decomposition is very complicated.
+    // for now, we only support Toffoli-like gates.
+    // TODO: support more general control gate decomposition
+    if (!is_single_qubit_pauli(target_op) || op.get_num_ctrls() != 2) {
+        return std::nullopt;
+    }
+
+    QCir qcir{op.get_num_qubits()};
+    // flip the target to the Z rotation plane
+    if (target_op == XGate()) {
+        qcir.append(HGate(), {2});
+    } else if (target_op == YGate()) {
+        qcir.append(SXGate(), {2});
+    }
+    // optimal decomposition of CCZ
+    qcir.append(TGate(), {2});      // R_IIZ(pi/4)
+    qcir.append(CXGate(), {1, 2});  // qubit 2: IIZ -> IZZ
+    qcir.append(TdgGate(), {2});    // R_IZZ(-pi/4)
+    qcir.append(CXGate(), {0, 2});  // qubit 2: IZZ -> ZZZ
+    qcir.append(TGate(), {2});      // R_ZZZ(pi/4)
+    qcir.append(CXGate(), {1, 2});  // qubit 2: ZZZ -> ZIZ
+    qcir.append(TdgGate(), {2});    // R_ZIZ(-pi/4)
+    qcir.append(TGate(), {1});      // R_IZI(pi/4)
+    qcir.append(CXGate(), {0, 1});  // qubit 1: IZI -> ZZI
+    qcir.append(TGate(), {0});      // R_ZII(pi/4)
+    qcir.append(TdgGate(), {1});    // R_ZZI(-pi/4)
+    qcir.append(CXGate(), {0, 1});  // qubit 1: ZZI -> IZI
+
+    // flip the rotation plane back
+    if (target_op == XGate()) {
+        qcir.append(HGate(), {2});
+    } else if (target_op == YGate()) {
+        qcir.append(SXdgGate(), {2});
+    }
+
+    return qcir;
+}
+
+class SwapGate {
+public:
+    SwapGate() = default;
+    std::string get_type() const { return "swap"; }
+    std::string get_repr() const { return "swap"; }
+    size_t get_num_qubits() const { return 2; }
+};
+
+inline Operation adjoint(SwapGate const& op) { return op; }
+inline bool is_clifford(SwapGate const& /* op */) { return true; }
+
+template <>
+inline std::optional<QCir> to_basic_gates(SwapGate const& /* op */) {
+    QCir qcir{2};
+    qcir.append(CXGate(), {0, 1});
+    qcir.append(CXGate(), {1, 0});
+    qcir.append(CXGate(), {0, 1});
+    return qcir;
+}
 
 }  // namespace qsyn::qcir

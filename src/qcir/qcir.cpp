@@ -26,6 +26,7 @@
 #include "./qcir_qubit.hpp"
 #include "./qcir_translate.hpp"
 #include "convert/qcir_to_tableau.hpp"
+#include "qcir/operation.hpp"
 #include "qsyn/qsyn_type.hpp"
 #include "tableau/stabilizer_tableau.hpp"
 #include "tableau/tableau_optimization.hpp"
@@ -563,6 +564,51 @@ Operation adjoint(qcir::QCir const& qcir) {
     auto copy = qcir;
     copy.adjoint_inplace();
     return copy;
+}
+
+std::optional<QCir> to_basic_gates(QCirGate const& gate) {
+    auto qcir = to_basic_gates(gate.get_operation());
+    if (!qcir.has_value()) {
+        return std::nullopt;
+    }
+    auto const& gate_qubits = gate.get_qubits();
+    for (auto& g : qcir->get_gates()) {
+        // copy to circumvent g++ 11.4 compiler bug
+        auto const curr_qubits = g->get_qubits();
+        auto new_qubits =
+            curr_qubits |
+            std::views::transform([&](auto q) { return gate_qubits[q]; }) |
+            tl::to<std::vector>();
+        g->set_qubits(std::move(new_qubits));
+    }
+    return qcir;
+}
+
+template <>
+// NOLINTNEXTLINE(readability-inconsistent-declaration-parameter-name)
+std::optional<QCir> to_basic_gates(qcir::QCir const& qcir) {
+    auto new_qcir = QCir{qcir.get_num_qubits()};
+    for (auto const& g : qcir.get_gates()) {
+        auto sub_qcir = to_basic_gates(*g);
+        if (!sub_qcir.has_value()) {
+            return std::nullopt;
+        }
+        for (auto const& sub_g : sub_qcir->get_gates()) {
+            new_qcir.append(sub_g->get_operation(), sub_g->get_qubits());
+        }
+    }
+
+    return new_qcir;
+}
+
+QCir as_qcir(Operation const& op) {
+    auto const n_qubits = op.get_num_qubits();
+    auto const qubits =
+        std::views::iota(0ul, n_qubits) |
+        tl::to<QubitIdList>();
+    QCir qcir{n_qubits};
+    qcir.append(op, qubits);
+    return qcir;
 }
 
 }  // namespace qsyn::qcir

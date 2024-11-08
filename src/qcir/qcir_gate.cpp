@@ -12,24 +12,59 @@
 
 #include <set>
 
-#include "./basic_gate_type.hpp"
+#include "./operation.hpp"
+#include "util/util.hpp"
 
 namespace qsyn::qcir {
 
 QCirGate::QCirGate(size_t id, Operation const& op, QubitIdList qubits)
     : _id(id),
-      _operation{op},
+      // Check operation.hpp for the reason of using raw pointers.
+      _operation{new Operation(op)},
       _qubits{std::move(qubits)} {
     DVLAB_ASSERT(qubit_id_is_unique(_qubits), "Qubits must be unique!");
 }
 
-void QCirGate::set_operation(Operation const& op) {
-    if (op.get_num_qubits() != _qubits.size()) {
-        spdlog::error("Operation {} cannot be set with {} qubits!", op.get_type(), _qubits.size());
-        return;
-    }
+QCirGate::~QCirGate() {
+    // Check operation.hpp for the reason of using raw pointers.
+    delete _operation;
+}
 
-    _operation = op;
+QCirGate::QCirGate(QCirGate const& other)
+    : _id(other._id),
+      // Check operation.hpp for the reason of using raw pointers.
+      _operation{new Operation(*other._operation)},
+      _qubits{other._qubits} {}
+
+QCirGate::QCirGate(QCirGate&& other) noexcept
+    : _id(other._id), _operation(other._operation),
+      _qubits(std::move(other._qubits)) {
+    // avoids double deletion.
+    // Check operation.hpp for the reason of using raw pointers.
+    other._operation = nullptr;
+}
+
+void QCirGate::swap(QCirGate& other) noexcept {
+    using std::swap;
+    swap(_id, other._id);
+    swap(_operation, other._operation);
+    swap(_qubits, other._qubits);
+}
+
+std::string QCirGate::get_type_str() const {
+    return get_operation().get_type();
+}
+
+Operation const& QCirGate::get_operation() const { return *_operation; }
+
+void QCirGate::set_operation(Operation const& op) {
+    DVLAB_ASSERT(op.get_num_qubits() == _qubits.size(),
+                 fmt::format("Operation {} cannot be set with {} qubits!",
+                             op.get_type(), _qubits.size()));
+    // Check operation.hpp for the reason of using raw pointers.
+    auto temp  = _operation;
+    _operation = new Operation(op);
+    delete temp;
 }
 
 std::optional<size_t> QCirGate::get_pin_by_qubit(QubitIdType qubit) const {
@@ -49,6 +84,10 @@ void QCirGate::set_qubits(QubitIdList qubits) {
     }
 
     _qubits = std::move(qubits);
+}
+
+bool QCirGate::operator==(QCirGate const& rhs) const {
+    return *_operation == *rhs._operation && _qubits == rhs._qubits;
 }
 
 bool QCirGate::qubit_id_is_unique(QubitIdList const& qubits) {

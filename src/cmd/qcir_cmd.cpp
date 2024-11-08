@@ -654,6 +654,8 @@ Command qcir_equiv_cmd(QCirMgr& qcir_mgr) {
         }};
 };
 
+Command qcir_to_basic_cmd(QCirMgr& qcir_mgr);
+
 Command qcir_cmd(QCirMgr& qcir_mgr) {
     auto cmd = dvlab::utils::mgr_root_cmd(qcir_mgr);
 
@@ -676,6 +678,7 @@ Command qcir_cmd(QCirMgr& qcir_mgr) {
     cmd.add_subcommand("qcir-cmd-group", qcir_translate_cmd(qcir_mgr));
     cmd.add_subcommand("qcir-cmd-group", qcir_oracle_cmd(qcir_mgr));
     cmd.add_subcommand("qcir-cmd-group", qcir_equiv_cmd(qcir_mgr));
+    cmd.add_subcommand("qcir-cmd-group", qcir_to_basic_cmd(qcir_mgr));
     return cmd;
 }
 

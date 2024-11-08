@@ -11,18 +11,38 @@
 #include <string>
 #include <tl/to.hpp>
 
-#include "qcir/operation.hpp"
 #include "qsyn/qsyn_type.hpp"
 namespace qsyn::qcir {
 
-class QCirGate {
+class Operation;
+
+class QCirGate {  // NOLINT(cppcoreguidelines-special-member-functions)
+                  // : copy-swap idiom
 public:
     QCirGate(size_t id, Operation const& op, QubitIdList qubits);
-    QCirGate(Operation const& op, QubitIdList qubits) : QCirGate(0, op, std::move(qubits)) {}
+    QCirGate(Operation const& op, QubitIdList qubits)
+        : QCirGate(0, op, std::move(qubits)) {}
+
+    ~QCirGate();
+
+    QCirGate(QCirGate const& other);
+    QCirGate(QCirGate&& other) noexcept;
+
+    // copy-swap idiom
+    void swap(QCirGate& other) noexcept;
+
+    friend void swap(QCirGate& lhs, QCirGate& rhs) noexcept {
+        lhs.swap(rhs);
+    }
+
+    QCirGate& operator=(QCirGate copy) {
+        copy.swap(*this);
+        return *this;
+    }
 
     // Basic access method
-    std::string get_type_str() const { return get_operation().get_type(); }
-    Operation const& get_operation() const { return _operation; }
+    std::string get_type_str() const;
+    Operation const& get_operation() const;
     void set_operation(Operation const& op);
     size_t get_id() const { return _id; }
     QubitIdList get_qubits() const { return _qubits; }
@@ -32,17 +52,16 @@ public:
 
     size_t get_num_qubits() const { return _qubits.size(); }
 
-    bool operator==(QCirGate const& rhs) const {
-        return _operation == rhs._operation && _qubits == rhs._qubits;
-    }
-
+    bool operator==(QCirGate const& rhs) const;
     bool operator!=(QCirGate const& rhs) const { return !(*this == rhs); }
 
     static bool qubit_id_is_unique(QubitIdList const& qubits);
 
 protected:
     size_t _id;
-    Operation _operation;
+    Operation* _operation;  // owning; but raw pointer to avoid having to
+                            // include operation.hpp in this header. This is
+                            // a necessary evil to realize `to_basic_gates`.
     std::vector<QubitIdType> _qubits;
 };
 

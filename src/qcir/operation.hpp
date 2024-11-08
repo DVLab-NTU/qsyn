@@ -15,6 +15,7 @@
 #include <string>
 #include <utility>
 
+#include "qcir/qcir.hpp"
 #include "qsyn/qsyn_type.hpp"
 #include "tableau/tableau.hpp"
 #include "tensor/qtensor.hpp"
@@ -100,6 +101,9 @@ public:
                                   QubitIdList const& qubits) {
         return op._pimpl->do_append_to_tableau(tableau, qubits);
     }
+    friend std::optional<QCir> to_basic_gates(Operation const& op) {
+        return op._pimpl->do_to_basic_gates();
+    }
 
     bool operator==(Operation const& rhs) const {
         return get_repr() == rhs.get_repr() &&
@@ -146,6 +150,7 @@ private:
         virtual std::optional<tensor::QTensor<double>> do_to_tensor() const = 0;
         virtual bool do_append_to_tableau(experimental::Tableau& tableau,
                                           QubitIdList const& qubits) const  = 0;
+        virtual std::optional<QCir> do_to_basic_gates() const               = 0;
     };
 
     template <typename T>
@@ -171,6 +176,9 @@ private:
         bool do_append_to_tableau(experimental::Tableau& tableau,
                                   QubitIdList const& qubits) const override {
             return qsyn::append_to_tableau(value, tableau, qubits);
+        }
+        std::optional<QCir> do_to_basic_gates() const override {
+            return to_basic_gates(value);
         }
 
         T value;

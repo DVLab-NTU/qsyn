@@ -16,6 +16,7 @@
 #include "./qcir_gate.hpp"
 #include "./qcir_qubit.hpp"
 #include "fmt/core.h"
+#include "qcir/operation.hpp"
 
 namespace qsyn::qcir {
 
