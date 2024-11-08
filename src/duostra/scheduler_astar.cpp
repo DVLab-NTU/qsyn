@@ -70,6 +70,7 @@ void StarNode::grow(StarNode* self_pointer) {
  */
 
 size_t StarNode::route_and_estimate() {
+    // fmt::print("Route and estimate\n");
     // Clone the actual scheduler and router to avoid modifying the original state
     auto cloned_router = _router->clone();
     auto cloned_scheduler = _scheduler->clone();
@@ -115,6 +116,7 @@ size_t StarNode::route_and_estimate() {
 
     // Calculate total_time as the sum of all operation durations
     size_t estimated_total_time = temp_scheduler.get_total_time();
+    // fmt::print("Est: estimated_total_time: {}\n", estimated_total_time);
 
     _cost = estimated_total_time;
     // The total estimated cost is estimated_total_time

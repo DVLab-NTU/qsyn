@@ -52,7 +52,7 @@ public:
     };
 
     using PriorityQueue = std::priority_queue<AStarNode, std::vector<AStarNode>, AStarComp>;
-    Router(Device device, CostStrategyType cost_strategy, MinMaxOptionType tie_breaking_strategy);
+    Router(Device device, CostStrategyType cost_strategy, MinMaxOptionType tie_breaking_strategy, bool is_estimator = false);
 
     std::unique_ptr<Router> clone() const;
 
