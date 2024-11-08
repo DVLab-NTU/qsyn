@@ -47,7 +47,7 @@ public:
     std::vector<size_t> const& get_available_gates() const { return _circuit_topology.get_available_gates(); }
     std::vector<GateInfo> const& get_operations() const { return _operations; }
     
-    Device assign_gates_and_sort(std::unique_ptr<Router> router, std::unique_ptr<Router> est_router = nullptr);
+    virtual Device assign_gates_and_sort(std::unique_ptr<Router> router, std::unique_ptr<Router> est_router = nullptr);
     size_t route_one_gate(Router& router, size_t gate_id, bool forget = false);
 
     void set_operations(const std::vector<GateInfo>& operations) {
@@ -271,9 +271,15 @@ public:
     Router const& est_router() const { return *_est_router; }
 
     bool done() const { return scheduler().get_available_gates().empty(); }
-    void delete_self() { _parent->delete_child(); delete this; }
+    void delete_self() { _parent->delete_child();}
     void delete_child() { _delete_count++; if(_delete_count==children.size() && !children.empty()) delete_self(); }
     size_t route_and_estimate();
+    void update_topology(){
+        for(auto& child : children) {
+            child._scheduler->circuit_topology().update_available_gates(child.get_gate_id());
+            if(child._scheduler->get_available_gates().empty()) child._type = 2;
+        }
+    }
 
     std::vector<StarNode> children;
 
@@ -314,7 +320,7 @@ public:
     AStarScheduler(CircuitTopology const& topo, bool tqdm = true);
 
     std::unique_ptr<BaseScheduler> clone() const override;
-    Device assign_gates_and_sort(std::unique_ptr<Router>,  std::unique_ptr<Router>);
+    Device assign_gates_and_sort(std::unique_ptr<Router> router, std::unique_ptr<Router> est_router) override;
     Device assign_gates(std::unique_ptr<Router>,  std::unique_ptr<Router>);
 
 protected:

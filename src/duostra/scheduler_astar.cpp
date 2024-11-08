@@ -6,6 +6,7 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
+#include <fmt/core.h>
 #include <omp.h>
 
 // #include <algorithm>
@@ -52,11 +53,14 @@ StarNode::StarNode( size_t type,
  *
  */
 void StarNode::grow(StarNode* self_pointer) {
+    // fmt::println("Growing StarNode");
     auto const& avail_gates = scheduler().get_available_gates();
     assert(children.empty());
     children.reserve(avail_gates.size());
     for (auto gate_id : avail_gates)
         children.emplace_back(1, gate_id, est_router().clone(), router().clone(), scheduler().clone(), self_pointer);
+    update_topology();
+    // fmt::println("Finish growing StarNode");
 }
 
 
@@ -189,7 +193,8 @@ BaseScheduler::Device AStarScheduler::assign_gates_and_sort(std::unique_ptr<Rout
 //     return router->get_device();
 // }
 
-AStarScheduler::Device AStarScheduler::assign_gates(std::unique_ptr<Router> router, std::unique_ptr<Router> est_router) {
+BaseScheduler::Device AStarScheduler::assign_gates(std::unique_ptr<Router> router, std::unique_ptr<Router> est_router) {
+    fmt::println("Start A* search");
     // get the total gates count in the circuit
     auto total_gates = _circuit_topology.get_num_gates();
     
@@ -210,13 +215,16 @@ AStarScheduler::Device AStarScheduler::assign_gates(std::unique_ptr<Router> rout
     bool done = false;
     size_t final_cost = 0;
     StarNode* finish_node = nullptr;
+
+    // fmt::println("finish initialization");
     // build the first layer of the tree
     root->grow(root.get());
+    // fmt::println("node {}'s children size: {}", root->get_gate_id(), root->children.size());
     for(auto& child : root->children) {
         auto cost = child.route_and_estimate();
         auto id = child.get_gate_id();
 
-        if(best_cost_list[id] == 0 || cost < best_cost_list[id]){
+        if(best_cost_list[id+1] == 0 || cost < best_cost_list[id+1]){
             if(child.is_leaf()) {
                 done = true;
                 if(final_cost == 0 || cost < final_cost) {
@@ -224,10 +232,12 @@ AStarScheduler::Device AStarScheduler::assign_gates(std::unique_ptr<Router> rout
                     finish_node = &child;
                 }
             }
-            best_cost_list[id] = cost;
+            best_cost_list[id+1] = cost;
             candidate_list.push(&child);
         }
     }
+
+    // fmt::println("finish first layer");
     while(!done){
         // if the candidate list is empty, there is no feasible solution
         if(candidate_list.empty()) {
@@ -235,14 +245,26 @@ AStarScheduler::Device AStarScheduler::assign_gates(std::unique_ptr<Router> rout
             return router->get_device();
         }
         // get the node with the smallest cost
+        // fmt::println("candidate list size: {}", candidate_list.size());
         auto node = candidate_list.top();
         candidate_list.pop();
+
+        if(node->is_leaf()) {
+            done = true;
+            finish_node = node;
+            break;
+        }
+        
         // grow the node
-        node->grow(root.get());
+        node->grow(node);
+        // fmt::println("node {}'s children: {}", node->get_gate_id(), node->children.size());
+        // for(auto& child: node->children){
+        //     fmt::println("child: {}", child.get_gate_id());
+        // }
         for(auto& child : node->children) {
             auto cost = child.route_and_estimate();
             auto id = child.get_gate_id();
-            if(best_cost_list[id] == 0 || cost < best_cost_list[id]){
+            if(best_cost_list[id+1] == 0 || cost < best_cost_list[id+1]){
                 if(child.is_leaf()) {
                     done = true;
                     if(final_cost == 0 || cost < final_cost) {
@@ -250,17 +272,10 @@ AStarScheduler::Device AStarScheduler::assign_gates(std::unique_ptr<Router> rout
                         finish_node = &child;
                     }
                 }
-                best_cost_list[id] = cost;
+                best_cost_list[id+1] = cost;
                 candidate_list.push(&child);
             }
-            else{
-                child.delete_self();
-            }
         }
-
-
-
-        return router->get_device();
     }
 
     std::vector<size_t> order;

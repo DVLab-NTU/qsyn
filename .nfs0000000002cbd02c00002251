@@ -1,0 +1,4 @@
+qcir read benchmark/SABRE/large/9symml_195.qasm
+device read benchmark/topology/guadalupe_16.layout
+duostra config --scheduler astar
+duostra
