@@ -594,6 +594,13 @@ size_t ZXGraph::remove_vertices(std::vector<ZXVertex*> const& vertices) {
         });
 }
 
+size_t ZXGraph::remove_vertices(std::vector<size_t> const& ids) {
+    return std::transform_reduce(
+        ids.begin(), ids.end(), 0, std::plus{}, [this](size_t id) {
+            return remove_vertex(id);
+        });
+}
+
 /**
  * @brief Remove an edge exactly equal to `ep`.
  *
@@ -775,6 +782,14 @@ std::vector<size_t> closed_neighborhood(ZXGraph const& graph,
     }
 
     return result;
+}
+
+std::vector<size_t> get_isolated_vertices(ZXGraph const& graph) {
+    return graph.get_vertices() | std::views::filter([&](ZXVertex* v) {
+               return graph.num_neighbors(v) == 0;
+           }) |
+           std::views::transform(&ZXVertex::get_id) |
+           tl::to<std::vector>();
 }
 
 }  // namespace qsyn::zx

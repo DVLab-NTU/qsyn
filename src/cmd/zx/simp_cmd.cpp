@@ -152,9 +152,14 @@ Command zxgraph_rule_cmd(zx::ZXGraphMgr& zxgraph_mgr) {
             mutex.add_argument<bool>("--to-x-graph")
                 .action(store_true)
                 .help("convert all Z-spiders to X-spiders");
+            mutex.add_argument<double>("--redundant-hadamard-insertion")
+                .help(
+                    "the probability of inserting a "
+                    "redundant hadamard vertex");
         },
         [&](ArgumentParser const& parser) {
-            if (!dvlab::utils::mgr_has_data(zxgraph_mgr)) return dvlab::CmdExecResult::error;
+            if (!dvlab::utils::mgr_has_data(zxgraph_mgr))
+                return dvlab::CmdExecResult::error;
 
             if (parser.parsed("--bialgebra")) {
                 simplify::bialgebra_simp(*zxgraph_mgr.get());
@@ -182,6 +187,10 @@ Command zxgraph_rule_cmd(zx::ZXGraphMgr& zxgraph_mgr) {
                 simplify::to_z_graph(*zxgraph_mgr.get());
             } else if (parser.parsed("--to-x-graph")) {
                 simplify::to_x_graph(*zxgraph_mgr.get());
+            } else if (parser.parsed("--redundant-hadamard-insertion")) {
+                simplify::redundant_hadamard_insertion(
+                    *zxgraph_mgr.get(),
+                    parser.get<double>("--redundant-hadamard-insertion"));
             } else {
                 spdlog::error("No rule specified");
                 return CmdExecResult::error;

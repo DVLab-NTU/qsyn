@@ -483,7 +483,9 @@ Command zxgraph_vertex_remove_cmd(ZXGraphMgr& zxgraph_mgr) {
                     spdlog::info("Removing vertex {}...", v->get_id());
                 }
 
-                zxgraph_mgr.get()->remove_vertices({vertices_range.begin(), vertices_range.end()});
+                zxgraph_mgr.get()->remove_vertices(
+                    std::vector<ZXVertex*>{
+                        vertices_range.begin(), vertices_range.end()});
             } else if (parser.parsed("--isolated")) {
                 spdlog::info("Removing isolated vertices...");
                 zxgraph_mgr.get()->remove_isolated_vertices();

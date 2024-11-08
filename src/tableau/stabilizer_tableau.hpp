@@ -129,6 +129,9 @@ public:
  */
 class HOptSynthesisStrategy : public StabilizerTableauSynthesisStrategy {
 public:
+    enum class Mode { star,
+                      staircase } mode;
+    HOptSynthesisStrategy(Mode mode = Mode::star) : mode{mode} {}
     CliffordOperatorString synthesize(StabilizerTableau copy) const override;
 };
 

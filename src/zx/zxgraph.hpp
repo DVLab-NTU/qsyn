@@ -269,6 +269,7 @@ public:
     size_t remove_vertex(size_t id);
 
     size_t remove_vertices(std::vector<ZXVertex*> const& vertices);
+    size_t remove_vertices(std::vector<size_t> const& ids);
     size_t remove_edge(EdgePair const& ep);
     size_t remove_edge(ZXVertex* vs, ZXVertex* vt);
     size_t remove_edge(ZXVertex* vs, ZXVertex* vt, EdgeType etype);
@@ -409,6 +410,8 @@ size_t non_clifford_t_count(ZXGraph const& graph);
 std::vector<size_t> closed_neighborhood(ZXGraph const& graph,
                                         std::vector<size_t> const& vertices,
                                         size_t level = 1);
+
+std::vector<size_t> get_isolated_vertices(ZXGraph const& graph);
 
 dvlab::BooleanMatrix get_biadjacency_matrix(
     ZXGraph const& graph,

@@ -31,6 +31,10 @@ struct TParPauliRotationsSynthesisStrategy : public PauliRotationsSynthesisStrat
 };
 
 struct GraySynthPauliRotationsSynthesisStrategy : public PauliRotationsSynthesisStrategy {
+    enum class Mode { star,
+                      staircase };
+    Mode mode;
+    GraySynthPauliRotationsSynthesisStrategy(Mode mode = Mode::star) : mode(mode) {}
     std::optional<qcir::QCir> synthesize(std::vector<PauliRotation> const& rotations) const override;
 };
 

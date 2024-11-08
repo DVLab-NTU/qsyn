@@ -393,7 +393,7 @@ bool IdentityAddition::is_applicable(ZXGraph const& graph) const {
     auto const l = graph[_left_id];
     auto const r = graph[_right_id];
     if (l == nullptr || r == nullptr) return false;
-    if (graph.is_neighbor(_left_id, _right_id)) return false;
+    if (!graph.is_neighbor(_left_id, _right_id)) return false;
     return true;
 }
 
@@ -527,8 +527,9 @@ std::string IdentityFusion::to_string() const {
 std::vector<size_t>
 IdentityFusion::get_affected_vertices(ZXGraph const& graph) const {
     auto affected_vertices = _right_neighbors;
-    affected_vertices.emplace_back(_left_id);
     affected_vertices.emplace_back(_v_id);
+    affected_vertices.emplace_back(_left_id);
+    affected_vertices.emplace_back(_right_id);
     for (auto const& [nb, _] : graph.get_neighbors(graph[_left_id])) {
         affected_vertices.emplace_back(nb->get_id());
     }
@@ -1018,6 +1019,7 @@ bool NeighborUnfusion::is_undoable(ZXGraph const& graph) const {
 
 void NeighborUnfusion::apply_unchecked(ZXGraph& graph) const {
     auto v = graph[_v_id];
+    assert(v != nullptr);
 
     auto unfused_v = graph.add_vertex(_unfused_v_id,
                                       v->type(),
@@ -1037,7 +1039,8 @@ void NeighborUnfusion::apply_unchecked(ZXGraph& graph) const {
     // move the neighbors to unfused to the _unfused_v_id
 
     for (auto const& nb_id : _neighbors_to_unfuse) {
-        auto nb    = graph[nb_id];
+        auto nb = graph[nb_id];
+        assert(nb != nullptr);
         auto etype = graph.get_edge_type(_v_id, nb_id).value();
         graph.remove_edge(_v_id, nb_id, etype);
         graph.add_edge(*_unfused_v_id, nb_id, etype);

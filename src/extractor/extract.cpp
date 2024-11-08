@@ -25,7 +25,7 @@
 #include "util/boolean_matrix.hpp"
 #include "util/ordered_hashmap.hpp"
 #include "util/util.hpp"
-#include "zx/gflow/gflow.hpp"
+#include "zx/flow/gflow.hpp"
 #include "zx/simplifier/simplify.hpp"
 #include "zx/zx_def.hpp"
 #include "zx/zxgraph.hpp"

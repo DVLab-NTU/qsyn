@@ -8,6 +8,7 @@
 #include "./tableau_to_qcir.hpp"
 
 #include <gsl/narrow>
+#include <random>
 #include <tl/adjacent.hpp>
 #include <tl/enumerate.hpp>
 #include <tl/to.hpp>
@@ -125,12 +126,13 @@ namespace {
  * @param pivot
  * @return size_t
  */
-size_t
-get_control_row(
+std::vector<size_t>
+get_control_rows(
     std::vector<PauliRotation> const& rotations,
     std::vector<size_t> const& rotation_filter,
     size_t pivot) {
     auto const num_qubits = rotations.front().n_qubits();
+    auto control_rows     = std::vector<size_t>{};
     for (auto i : std::views::iota(0ul, num_qubits)) {
         if (i == pivot) continue;
 
@@ -139,12 +141,56 @@ get_control_row(
                 [&](auto x) {
                     return rotations[x].pauli_product().is_z_set(i);
                 })) {
-            return i;
+            control_rows.push_back(i);
         }
     }
 
-    return SIZE_MAX;
+    return control_rows;
 }
+
+void apply_cxs(
+    std::vector<size_t> ctrls,
+    size_t targ,
+    GraySynthPauliRotationsSynthesisStrategy::Mode mode,
+    std::vector<PauliRotation>& rotations,
+    qcir::QCir& qcir,
+    StabilizerTableau& final_clifford,
+    std::unordered_set<std::size_t> const& frozen_rotations,
+    std::size_t num_rotations,
+    std::vector<std::size_t> const& random_order) {
+    using Mode = GraySynthPauliRotationsSynthesisStrategy::Mode;
+
+    auto const apply_cx = [&](size_t ctrl, size_t targ) {
+        for (auto col_id : std::views::iota(0ul, num_rotations)) {
+            if (!frozen_rotations.contains(col_id)) {
+                rotations[col_id].cx(ctrl, targ);
+            }
+        }
+        qcir.append(qcir::CXGate(), {ctrl, targ});
+        final_clifford.prepend_cx(ctrl, targ);
+    };
+
+    switch (mode) {
+        case Mode::star:
+            for (auto ctrl : ctrls) {
+                apply_cx(ctrl, targ);
+            }
+            break;
+        case Mode::staircase:
+            // sort the controls according to the random_order
+            std::ranges::sort(ctrls, [&](auto const& x, auto const& y) {
+                return random_order[x] < random_order[y];
+            });
+            for (auto&& [c, t] : ctrls | tl::views::pairwise) {
+                apply_cx(c, t);
+            }
+            if (!ctrls.empty()) {
+                apply_cx(ctrls.back(), targ);
+            }
+            break;
+    }
+}
+
 /**
  * @brief select a row with the most or least number of 1.
  *
@@ -154,10 +200,7 @@ get_control_row(
  * @return size_t
  */
 size_t
-get_cofactor_row(
-    std::vector<PauliRotation> const& rotations,
-    std::vector<size_t> const& rotation_filter,
-    std::vector<size_t> const& qubit_filter) {
+get_cofactor_row(std::vector<PauliRotation> const& rotations, std::vector<size_t> const& rotation_filter, std::vector<size_t> const& qubit_filter) {
     auto counts = std::vector<std::size_t>(qubit_filter.size(), 0);
     for (auto col_id : rotation_filter) {
         for (auto&& [idx, qubit] : tl::views::enumerate(qubit_filter)) {
@@ -204,7 +247,7 @@ GraySynthPauliRotationsSynthesisStrategy::synthesize(
     }
 
     // checks if all rotations are diagonal
-    if (!std::ranges::all_of(rotations, [](auto const& x) { return x.is_diagonal(); })) {
+    if (!std::ranges::all_of(rotations, &PauliRotation::is_diagonal)) {
         spdlog::error("GraySynth only supports diagonal rotations");
         return std::nullopt;
     }
@@ -234,21 +277,25 @@ GraySynthPauliRotationsSynthesisStrategy::synthesize(
 
     StabilizerTableau final_clifford{num_qubits};
 
+    // generate 0..num_qubits random order
+    static auto rng = std::mt19937{42};
+    auto random_order =
+        std::views::iota(0ul, num_qubits) | tl::to<std::vector>();
+    std::ranges::shuffle(random_order, rng);
+
     while (!stack.empty()) {
         auto const [rotation_filter, qubit_filter, targ] = std::move(stack.back());
         stack.pop_back();
         if (rotation_filter.empty()) continue;
         if (targ != SIZE_MAX) {
-            auto ctrl = get_control_row(copy_rotations, rotation_filter, targ);
-            while (ctrl != SIZE_MAX) {
-                for (auto col_id : std::views::iota(0ul, num_rotations)) {
-                    if (frozen_rotations.contains(col_id)) continue;
-                    copy_rotations[col_id].cx(ctrl, targ);
-                }
-                qcir.append(qcir::CXGate(), {ctrl, targ});
-                final_clifford.prepend_cx(ctrl, targ);
-                ctrl = get_control_row(copy_rotations, rotation_filter, targ);
-            }
+            auto ctrls =
+                get_control_rows(copy_rotations, rotation_filter, targ);
+
+            apply_cxs(
+                std::move(ctrls), targ, mode,
+                copy_rotations,
+                qcir, final_clifford,
+                frozen_rotations, num_rotations, random_order);
         }
 
         if (qubit_filter.empty()) {
