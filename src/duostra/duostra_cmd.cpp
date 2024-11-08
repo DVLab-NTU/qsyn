@@ -248,6 +248,7 @@ Command duostra_cmd(qcir::QCirMgr& qcir_mgr, device::DeviceMgr& device_mgr) {
                            if (duo.get_physical_circuit() == nullptr) {
                                spdlog::error("Detected error in Duostra Mapping!!");
                            }
+                           spdlog::info("Duostra Command Parser");
                            auto const id = qcir_mgr.get_next_id();
                            qcir_mgr.add(id, std::move(duo.get_physical_circuit()));
 

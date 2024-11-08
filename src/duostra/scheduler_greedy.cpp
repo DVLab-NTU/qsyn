@@ -131,7 +131,7 @@ size_t GreedyScheduler::get_estimated_cost(Router& router, size_t next_gate_id){
             gate_idx = temp_scheduler.greedy_fallback(*temp_router, waitlist);
         }
         assert(gate_idx < _circuit_topology.get_num_gates());
-        fmt::println("Routing gate {}", gate_idx);
+        // fmt::println("Routing gate {}", gate_idx);
 
         // Route gate with forget=false to track operations
         temp_scheduler.route_one_gate(*temp_router, gate_idx, false); // forget=false
