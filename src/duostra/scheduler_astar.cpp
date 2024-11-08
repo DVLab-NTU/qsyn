@@ -101,6 +101,7 @@ size_t StarNode::route_and_estimate() {
         }
         assert(gate_idx < temp_scheduler.circuit_topology().get_num_gates());
 
+        fmt::print("Est: gate_idx: {}\n", gate_idx);
         // Route gate with forget=false to track operations
         temp_scheduler.route_one_gate(*temp_router, gate_idx, false);  // forget=false
         temp_scheduler.circuit_topology().update_available_gates(gate_idx);
@@ -111,6 +112,7 @@ size_t StarNode::route_and_estimate() {
 
     // Calculate total_time as the sum of all operation durations
     size_t estimated_total_time = temp_scheduler.get_total_time();
+    fmt::print("Est: estimated_total_time: {}\n", estimated_total_time);
 
     _cost = estimated_total_time;
     // The total estimated cost is estimated_total_time
