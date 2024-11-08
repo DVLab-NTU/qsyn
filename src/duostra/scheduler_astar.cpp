@@ -8,7 +8,7 @@
 
 #include <omp.h>
 
-#include <algorithm>
+// #include <algorithm>
 #include <cstddef>
 #include <memory>
 #include <queue>
@@ -25,7 +25,7 @@ namespace qsyn::duostra {
 // SECTION - Class StarNode Member Functions
 
 /**
- * @brief Construct a new Tree Node:: Tree Node object
+ * @brief Construct a new Star Node:: Star Node object
  *
  * @param gateId
  * @param router
@@ -37,7 +37,8 @@ StarNode::StarNode( size_t type,
                     std::unique_ptr<Router> router,
                     std::unique_ptr<BaseScheduler> scheduler,
                     StarNode* parent)
-    : _type(type),
+    : children(std::vector<StarNode>{}), 
+      _type(type),
       _gate_id(gate_id),
       _parent(parent),
       _est_router(std::move(est_router)),

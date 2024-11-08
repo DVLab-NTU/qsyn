@@ -231,7 +231,31 @@ public:
              std::unique_ptr<BaseScheduler> scheduler,
              StarNode* parent);
 
+    StarNode(StarNode const& other);
+    StarNode(StarNode&& other) noexcept = default;
+
     ~StarNode() = default;
+
+    void swap(StarNode& other) noexcept {
+        std::swap(children, other.children);
+        std::swap(_cost, other._cost);
+        std::swap(_router, other._router);
+        std::swap(_scheduler, other._scheduler);
+        std::swap(_est_router, other._est_router);
+        std::swap(_type, other._type);
+        std::swap(_parent, other._parent);
+        std::swap(_gate_id, other._gate_id);
+        std::swap(_delete_count, other._delete_count);
+    }
+
+    friend void swap(StarNode& a, StarNode& b) noexcept {
+        a.swap(b);
+    }
+
+    StarNode& operator=(StarNode copy) {
+        copy.swap(*this);
+        return *this;
+    }
 
     bool is_root() const { return _type == 0; }
     bool is_leaf() const { return _type == 2; }
@@ -255,7 +279,6 @@ public:
 
 private:
 
-    
     // The configuration of the node.
     // type of the node: 0 for root, 1 for internal, 2 for leaf.
     size_t _type = 0;
