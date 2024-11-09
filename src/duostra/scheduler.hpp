@@ -225,6 +225,7 @@ friend class GreedyScheduler;
 
 public:
     StarNode(size_t type,
+             size_t est_depth,
              size_t gate_id,
              std::unique_ptr<Router> est_router,
              std::unique_ptr<Router> router,
@@ -246,6 +247,7 @@ public:
         std::swap(_parent, other._parent);
         std::swap(_gate_id, other._gate_id);
         std::swap(_delete_count, other._delete_count);
+        std::swap(_depth, other._depth);
     }
 
     friend void swap(StarNode& a, StarNode& b) noexcept {
@@ -259,12 +261,15 @@ public:
 
     bool is_root() const { return _type == 0; }
     bool is_leaf() const { return _type == 2; }
+    bool is_internal() const { return _type == 3; }
     bool can_grow() const { return !scheduler().get_available_gates().empty(); }
 
     size_t get_gate_id() const { return _gate_id; }
     size_t get_estimated_cost() const { return _cost; }
+    size_t get_depth() const { return _depth; }
     void grow(StarNode* self_pointer);
     StarNode* get_parent() const { return _parent; }
+    void set_root() { _type = 0;}
     
     Router const& router() const { return *_router; }
     BaseScheduler const& scheduler() const { return *_scheduler; }
@@ -278,6 +283,7 @@ public:
         for(auto& child : children) {
             child._scheduler->circuit_topology().update_available_gates(child.get_gate_id());
             if(child._scheduler->get_available_gates().empty()) child._type = 2;
+            if(child._depth == 0) child._type = 3;
         }
     }
 
@@ -300,6 +306,9 @@ private:
 
     // number to record how many children have been delete
     size_t _delete_count = 0;
+
+    // estimate depth
+    size_t _depth = 0;
 
     // Using vector to pointer so that frequent cache misses
     // won't be as bad in parallel code.

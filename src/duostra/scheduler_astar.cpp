@@ -33,6 +33,7 @@ namespace qsyn::duostra {
  * @param scheduler
  */
 StarNode::StarNode( size_t type,
+                    size_t est_depth,
                     size_t gate_id,
                     std::unique_ptr<Router> est_router,
                     std::unique_ptr<Router> router,
@@ -42,6 +43,7 @@ StarNode::StarNode( size_t type,
       _type(type),
       _gate_id(gate_id),
       _parent(parent),
+      _depth(est_depth),
       _est_router(std::move(est_router)),
       _router(std::move(router)),
       _scheduler(std::move(scheduler)){
@@ -58,7 +60,7 @@ void StarNode::grow(StarNode* self_pointer) {
     assert(children.empty());
     children.reserve(avail_gates.size());
     for (auto gate_id : avail_gates)
-        children.emplace_back(1, gate_id, est_router().clone(), router().clone(), scheduler().clone(), self_pointer);
+        children.emplace_back(1, self_pointer->get_depth()-1, gate_id, est_router().clone(), router().clone(), scheduler().clone(), self_pointer);
     update_topology();
     // fmt::println("Finish growing StarNode");
 }
@@ -199,9 +201,12 @@ BaseScheduler::Device AStarScheduler::assign_gates(std::unique_ptr<Router> route
     fmt::println("Start A* search");
     // get the total gates count in the circuit
     auto total_gates = _circuit_topology.get_num_gates();
+
+    // subcircuit depth
+    size_t depth = 30;
     
     // construct the root node
-    auto root = std::make_unique<StarNode>(0, 0, est_router->clone(), router->clone(), clone(), nullptr);
+    auto root = std::make_unique<StarNode>(0, depth, 0, est_router->clone(), router->clone(), clone(), nullptr);
     
     // construct a list to store the best cost of each node
     // -1 means the node is not visited yet
@@ -239,56 +244,72 @@ BaseScheduler::Device AStarScheduler::assign_gates(std::unique_ptr<Router> route
         }
     }
 
+    // total iteration count
+    size_t iteration = size_t(total_gates/depth)+1;
     // fmt::println("finish first layer");
-    while(!done){
-        // if the candidate list is empty, there is no feasible solution
-        if(candidate_list.empty()) {
-            spdlog::error("No feasible solution found");
-            return router->get_device();
-        }
-        // get the node with the smallest cost
-        // fmt::println("candidate list size: {}", candidate_list.size());
-        auto node = candidate_list.top();
-        candidate_list.pop();
+    for(size_t i=0; i<iteration && !done; i++){
+        bool terminate = false;
+        while(!terminate && !done){
+            // if the candidate list is empty, there is no feasible solution
+            if(candidate_list.empty()) {
+                spdlog::error("No feasible solution found");
+                return router->get_device();
+            }
+            // get the node with the smallest cost
+            // fmt::println("candidate list size: {}", candidate_list.size());
+            auto node = candidate_list.top();
+            candidate_list.pop();
 
-        if(node->is_leaf()) {
-            done = true;
-            finish_node = node;
-            break;
-        }
-        
-        // grow the node
-        node->grow(node);
-        // fmt::println("node {}'s children: {}", node->get_gate_id(), node->children.size());
-        // for(auto& child: node->children){
-        //     fmt::println("child: {}", child.get_gate_id());
-        // }
-        for(auto& child : node->children) {
-            auto cost = child.route_and_estimate();
-            auto id = child.get_gate_id();
-            if(best_cost_list[id+1] == 0 || cost < best_cost_list[id+1]){
-                if(child.is_leaf()) {
-                    done = true;
-                    if(final_cost == 0 || cost < final_cost) {
-                        final_cost = cost;
-                        finish_node = &child;
+            if(node->is_leaf()) {
+                done = true;
+                finish_node = node;
+                break;
+            }
+            else if(node->is_internal()) {
+                terminate = true;
+                finish_node = node;
+                break;
+            }
+
+            
+            // grow the node
+            node->grow(node);
+            // fmt::println("node {}'s children: {}", node->get_gate_id(), node->children.size());
+            // for(auto& child: node->children){
+            //     fmt::println("child: {}", child.get_gate_id());
+            // }
+            for(auto& child : node->children) {
+                auto cost = child.route_and_estimate();
+                auto id = child.get_gate_id();
+                if(best_cost_list[id+1] == 0 || cost < best_cost_list[id+1]){
+                    if(child.is_leaf()) {
+                        done = true;
+                        if(final_cost == 0 || cost < final_cost) {
+                            final_cost = cost;
+                            finish_node = &child;
+                        }
                     }
+                    best_cost_list[id+1] = cost;
+                    candidate_list.push(&child);
                 }
-                best_cost_list[id+1] = cost;
-                candidate_list.push(&child);
             }
         }
+        std::vector<size_t> order;
+        while(!finish_node->is_root()){
+            order.push_back(finish_node->get_gate_id());
+            finish_node = finish_node->get_parent();
+        }
+        std::reverse(order.begin(), order.end());
+        for(auto gate_id : order){
+            route_one_gate(*router, gate_id);
+        }
+        std::priority_queue<StarNode*, std::vector<StarNode*>, cmp>().swap(candidate_list);
+        finish_node->set_root();
+        candidate_list.push(finish_node);
     }
+    
 
-    std::vector<size_t> order;
-    while(finish_node->get_parent() != nullptr){
-        order.push_back(finish_node->get_gate_id());
-        finish_node = finish_node->get_parent();
-    }
-    std::reverse(order.begin(), order.end());
-    for(auto gate_id : order){
-        route_one_gate(*router, gate_id);
-    }
+    
     return router->get_device();
 }
 }  // namespace qsyn::duostra
