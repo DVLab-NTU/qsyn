@@ -278,7 +278,7 @@ BaseScheduler::Device AStarScheduler::assign_gates(std::unique_ptr<Router> route
             //     fmt::println("child: {}", child.get_gate_id());
             // }
             for(auto& child : node->children) {
-                fmt::print("Current operations: {}\n", get_operations().size());
+                // fmt::print("Current operations: {}\n", get_operations().size());
                 auto cost = child.route_and_estimate(get_operations());
                 auto id = child.get_gate_id();
                 if(best_cost_list[id+1] == 0 || cost < best_cost_list[id+1]){
