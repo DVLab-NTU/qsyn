@@ -1,4 +1,4 @@
 qcir read benchmark/SABRE/small/4gt11_84.qasm
 device read benchmark/topology/quito_5.layout
-duostra config --scheduler greedy
+duostra config --scheduler astar
 duostra

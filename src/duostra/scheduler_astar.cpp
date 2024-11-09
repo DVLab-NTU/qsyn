@@ -57,6 +57,7 @@ StarNode::StarNode( size_t type,
 void StarNode::grow(StarNode* self_pointer) {
     // fmt::println("Growing StarNode");
     auto const& avail_gates = scheduler().get_available_gates();
+    fmt::println("grow: gate_id: {}, avail_gates: {}", _gate_id, avail_gates.size());
     assert(children.empty());
     children.reserve(avail_gates.size());
     for (auto gate_id : avail_gates)
@@ -203,7 +204,7 @@ BaseScheduler::Device AStarScheduler::assign_gates(std::unique_ptr<Router> route
     auto total_gates = _circuit_topology.get_num_gates();
 
     // subcircuit depth
-    size_t depth = 30;
+    size_t depth = 5;
     
     // construct the root node
     auto root = std::make_unique<StarNode>(0, depth, 0, est_router->clone(), router->clone(), clone(), nullptr);
@@ -295,6 +296,7 @@ BaseScheduler::Device AStarScheduler::assign_gates(std::unique_ptr<Router> route
             }
         }
         std::vector<size_t> order;
+        auto new_root = finish_node;
         while(!finish_node->is_root()){
             order.push_back(finish_node->get_gate_id());
             finish_node = finish_node->get_parent();
@@ -302,10 +304,12 @@ BaseScheduler::Device AStarScheduler::assign_gates(std::unique_ptr<Router> route
         std::reverse(order.begin(), order.end());
         for(auto gate_id : order){
             route_one_gate(*router, gate_id);
+            fmt::println("gate_id: {}", gate_id);
         }
         std::priority_queue<StarNode*, std::vector<StarNode*>, cmp>().swap(candidate_list);
-        finish_node->set_root();
-        candidate_list.push(finish_node);
+        new_root->set_root();
+        fmt::println("new root: {}", new_root->get_gate_id());
+        candidate_list.push(new_root);
     }
     
 
