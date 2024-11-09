@@ -278,7 +278,7 @@ public:
     bool done() const { return scheduler().get_available_gates().empty(); }
     void delete_self() { _parent->delete_child();}
     void delete_child() { _delete_count++; if(_delete_count==children.size() && !children.empty()) delete_self(); }
-    size_t route_and_estimate();
+    size_t route_and_estimate(std::vector<GateInfo> const& operations = {});
     void update_topology(){
         for(auto& child : children) {
             child._scheduler->circuit_topology().update_available_gates(child.get_gate_id());

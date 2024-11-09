@@ -72,12 +72,14 @@ void StarNode::grow(StarNode* self_pointer) {
  *
  */
 
-size_t StarNode::route_and_estimate() {
+size_t StarNode::route_and_estimate(std::vector<GateInfo> const& operations) {
     // fmt::print("Route and estimate\n");
     // Clone the actual scheduler and router to avoid modifying the original state
     auto cloned_router = _router->clone();
     auto cloned_scheduler = _scheduler->clone();
-
+    // fmt::print("Current operations: {}\n", operations.size());
+    cloned_scheduler->set_operations(operations);
+    // fmt::print("Current cloned operations: {}\n", cloned_scheduler->get_operations().size());
     // Route the current gate on the cloned router and scheduler
     cloned_scheduler->route_one_gate(*cloned_router, _gate_id, false);
     cloned_scheduler->circuit_topology().update_available_gates(_gate_id);
@@ -91,7 +93,7 @@ size_t StarNode::route_and_estimate() {
     // Copy the current state to temp_scheduler
     temp_scheduler.set_operations(cloned_scheduler->get_operations());
     temp_scheduler.set_sorted(cloned_scheduler->is_sorted());
-
+    // fmt::print("Current temp operations: {}\n", temp_scheduler.get_operations().size());
     // Now simulate routing the remaining gates
     while (!temp_scheduler.get_available_gates().empty()) {
         if (stop_requested()) {
@@ -119,7 +121,7 @@ size_t StarNode::route_and_estimate() {
 
     // Calculate total_time as the sum of all operation durations
     size_t estimated_total_time = temp_scheduler.get_total_time();
-    // fmt::print("Est: estimated_total_time: {}\n", estimated_total_time);
+    fmt::print("Est: estimated_total_time: {}\n", estimated_total_time);
 
     _cost = estimated_total_time;
     // The total estimated cost is estimated_total_time
@@ -229,7 +231,7 @@ BaseScheduler::Device AStarScheduler::assign_gates(std::unique_ptr<Router> route
     root->grow(root.get());
     // fmt::println("node {}'s children size: {}", root->get_gate_id(), root->children.size());
     for(auto& child : root->children) {
-        auto cost = child.route_and_estimate();
+        auto cost = child.route_and_estimate(get_operations());
         auto id = child.get_gate_id();
 
         if(best_cost_list[id+1] == 0 || cost < best_cost_list[id+1]){
@@ -280,7 +282,8 @@ BaseScheduler::Device AStarScheduler::assign_gates(std::unique_ptr<Router> route
             //     fmt::println("child: {}", child.get_gate_id());
             // }
             for(auto& child : node->children) {
-                auto cost = child.route_and_estimate();
+                // fmt::print("Current operations: {}\n", get_operations().size());
+                auto cost = child.route_and_estimate(get_operations());
                 auto id = child.get_gate_id();
                 if(best_cost_list[id+1] == 0 || cost < best_cost_list[id+1]){
                     if(child.is_leaf()) {
@@ -304,11 +307,11 @@ BaseScheduler::Device AStarScheduler::assign_gates(std::unique_ptr<Router> route
         std::reverse(order.begin(), order.end());
         for(auto gate_id : order){
             route_one_gate(*router, gate_id);
-            fmt::println("gate_id: {}", gate_id);
+            // fmt::println("gate_id: {}", gate_id);
         }
         std::priority_queue<StarNode*, std::vector<StarNode*>, cmp>().swap(candidate_list);
         new_root->set_root();
-        fmt::println("new root: {}", new_root->get_gate_id());
+        // fmt::println("new root: {}", new_root->get_gate_id());
         candidate_list.push(new_root);
     }
     
