@@ -270,6 +270,7 @@ public:
     void grow(StarNode* self_pointer);
     StarNode* get_parent() const { return _parent; }
     void set_root() { _type = 0;}
+    void set_depth(size_t depth) { _depth = depth; }
     
     Router const& router() const { return *_router; }
     BaseScheduler const& scheduler() const { return *_scheduler; }

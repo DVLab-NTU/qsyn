@@ -57,7 +57,7 @@ StarNode::StarNode( size_t type,
 void StarNode::grow(StarNode* self_pointer) {
     // fmt::println("Growing StarNode");
     auto const& avail_gates = scheduler().get_available_gates();
-    fmt::println("grow: gate_id: {}, avail_gates: {}", _gate_id, avail_gates.size());
+    fmt::println("grow: gate_id: {}, depth: {}", _gate_id, _depth);
     assert(children.empty());
     children.reserve(avail_gates.size());
     for (auto gate_id : avail_gates)
@@ -121,7 +121,7 @@ size_t StarNode::route_and_estimate(std::vector<GateInfo> const& operations) {
 
     // Calculate total_time as the sum of all operation durations
     size_t estimated_total_time = temp_scheduler.get_total_time();
-    fmt::print("Est: estimated_total_time: {}\n", estimated_total_time);
+    // fmt::print("Est: estimated_total_time: {}\n", estimated_total_time);
 
     _cost = estimated_total_time;
     // The total estimated cost is estimated_total_time
@@ -174,7 +174,7 @@ void AStarScheduler::_cache_when_necessary() {
 // Proirity Queue Cmp
 struct cmp {
     bool operator()(StarNode* a, StarNode* b) {
-        return a->route_and_estimate() > b->route_and_estimate();
+        return a->get_estimated_cost() > b->get_estimated_cost();
     }
 };
 
@@ -223,7 +223,7 @@ BaseScheduler::Device AStarScheduler::assign_gates(std::unique_ptr<Router> route
 
     // flag to indicate whether there is a feasible solution
     bool done = false;
-    size_t final_cost = 0;
+    // size_t final_cost = 0;
     StarNode* finish_node = nullptr;
 
     // fmt::println("finish initialization");
@@ -235,18 +235,13 @@ BaseScheduler::Device AStarScheduler::assign_gates(std::unique_ptr<Router> route
         auto id = child.get_gate_id();
 
         if(best_cost_list[id+1] == 0 || cost < best_cost_list[id+1]){
-            if(child.is_leaf()) {
-                done = true;
-                if(final_cost == 0 || cost < final_cost) {
-                    final_cost = cost;
-                    finish_node = &child;
-                }
-            }
             best_cost_list[id+1] = cost;
             candidate_list.push(&child);
         }
+        candidate_list.push(&child);
     }
 
+    // StarNode* pre_node = nullptr;
     // total iteration count
     size_t iteration = size_t(total_gates/depth)+1;
     // fmt::println("finish first layer");
@@ -254,12 +249,13 @@ BaseScheduler::Device AStarScheduler::assign_gates(std::unique_ptr<Router> route
         bool terminate = false;
         while(!terminate && !done){
             // if the candidate list is empty, there is no feasible solution
-            if(candidate_list.empty()) {
-                spdlog::error("No feasible solution found");
-                return router->get_device();
-            }
+            
+                // fmt::println("node {}'s children size: {}", node->get_gate_id(), node->children.size());
+                // spdlog::error("No feasible solution found");
+                // return router->get_device();
+            
             // get the node with the smallest cost
-            // fmt::println("candidate list size: {}", candidate_list.size());
+            fmt::println("candidate list size: {}", candidate_list.size());
             auto node = candidate_list.top();
             candidate_list.pop();
 
@@ -282,18 +278,17 @@ BaseScheduler::Device AStarScheduler::assign_gates(std::unique_ptr<Router> route
             //     fmt::println("child: {}", child.get_gate_id());
             // }
             for(auto& child : node->children) {
-                // fmt::print("Current operations: {}\n", get_operations().size());
+                fmt::print("Current operations: {}\n", get_operations().size());
                 auto cost = child.route_and_estimate(get_operations());
                 auto id = child.get_gate_id();
                 if(best_cost_list[id+1] == 0 || cost < best_cost_list[id+1]){
-                    if(child.is_leaf()) {
-                        done = true;
-                        if(final_cost == 0 || cost < final_cost) {
-                            final_cost = cost;
-                            finish_node = &child;
-                        }
-                    }
                     best_cost_list[id+1] = cost;
+                    candidate_list.push(&child);
+                }
+                // candidate_list.push(&child);
+            }
+            if(candidate_list.empty()) {
+                for(auto &child : node->children){
                     candidate_list.push(&child);
                 }
             }
@@ -307,12 +302,14 @@ BaseScheduler::Device AStarScheduler::assign_gates(std::unique_ptr<Router> route
         std::reverse(order.begin(), order.end());
         for(auto gate_id : order){
             route_one_gate(*router, gate_id);
-            // fmt::println("gate_id: {}", gate_id);
+            fmt::println("gate_id: {}", gate_id);
         }
         std::priority_queue<StarNode*, std::vector<StarNode*>, cmp>().swap(candidate_list);
         new_root->set_root();
+        new_root->set_depth(depth);
         // fmt::println("new root: {}", new_root->get_gate_id());
         candidate_list.push(new_root);
+        std::vector<size_t>(total_gates + 1, 0).swap(best_cost_list);
     }
     
 

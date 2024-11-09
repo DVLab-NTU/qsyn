@@ -1,4 +1,4 @@
-qcir read benchmark/SABRE/small/4gt11_84.qasm
-device read benchmark/topology/quito_5.layout
-duostra config --scheduler astar
+qc r benchmark/SABRE/large/adr4_197.qasm
+de r benchmark/topology/guadalupe_16.layout
+duostra config --scheduler search
 duostra
