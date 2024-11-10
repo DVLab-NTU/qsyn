@@ -175,18 +175,6 @@ void causal_flow_opt(ZXGraph& g,
         return;
     }
 
-    // print the graph density and max degree
-    auto const get_max_degree_vertex = [&]() -> ZXVertex* {
-        if (g.is_empty()) return nullptr;
-        return *std::ranges::max_element(
-            g.get_vertices(), std::ranges::less{},
-            [&](auto const& v) { return g.num_neighbors(v); });
-    };
-
-    fmt::println("max degree vertex: {}; degree: {}",
-                 get_max_degree_vertex()->get_id(),
-                 g.num_neighbors(get_max_degree_vertex()));
-
     auto matches = get_matches_with_scores(
         g, std::nullopt, max_lcomp_unfusions, max_pivot_unfusions);
 
@@ -252,7 +240,7 @@ void causal_flow_opt(ZXGraph& g,
     auto const total_duration =
         to_us(high_resolution_clock::now() - loop_start_time);
 
-    fmt::println(
+    spdlog::info(
         "Total time: {:.3f} s, {:.3f}s cauculating causal flow ({:.2f}%), "
         "{:.3f}s updating ({:.2f}%)",
         static_cast<double>(total_duration) / 1'000'000.0,
@@ -268,19 +256,19 @@ void causal_flow_opt(ZXGraph& g,
                static_cast<double>(tried);
     };
 
-    fmt::println("ALL:   Applied {:>8} out of {:>8}. ({:3.2f}%)",
+    spdlog::info("ALL:   Applied {:>8} out of {:>8}. ({:3.2f}%)",
                  num_matches_applied, num_matches_tried,
                  applied_ratio(num_matches_applied, num_matches_tried));
 
-    fmt::println("- IFU: Applied {:>8} out of {:>8}. ({:3.2f}%)",
+    spdlog::info("- IFU: Applied {:>8} out of {:>8}. ({:3.2f}%)",
                  num_ifus_applied, num_ifus_tried,
                  applied_ratio(num_ifus_applied, num_ifus_tried));
 
-    fmt::println("- LCU: Applied {:>8} out of {:>8}. ({:3.2f}%)",
+    spdlog::info("- LCU: Applied {:>8} out of {:>8}. ({:3.2f}%)",
                  num_lcus_applied, num_lcus_tried,
                  applied_ratio(num_lcus_applied, num_lcus_tried));
 
-    fmt::println("- PVU: Applied {:>8} out of {:>8}. ({:3.2f}%)",
+    spdlog::info("- PVU: Applied {:>8} out of {:>8}. ({:3.2f}%)",
                  num_pvus_applied, num_pvus_tried,
                  applied_ratio(num_pvus_applied, num_pvus_tried));
 }
@@ -301,7 +289,7 @@ void redundant_hadamard_insertion(ZXGraph& g, double prob) {
     auto num_added = 0ul;
     for (auto const& [v0_id, v1_id] : vpairs) {
         // randomly add...
-        static std::mt19937 gen(42);
+        static std::mt19937 gen(std::random_device{}());
         if (std::bernoulli_distribution{prob}(gen)) {
             IdentityAddition{
                 v0_id, v1_id, VertexType::z, EdgeType::hadamard}
@@ -309,7 +297,7 @@ void redundant_hadamard_insertion(ZXGraph& g, double prob) {
             ++num_added;
         }
     }
-    fmt::println("Inserted {} redundant vertices", num_added);
+    spdlog::info("Inserted {} redundant vertices", num_added);
 }
 
 }  // namespace qsyn::zx::simplify

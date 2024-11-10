@@ -38,6 +38,16 @@ struct GraySynthPauliRotationsSynthesisStrategy : public PauliRotationsSynthesis
     std::optional<qcir::QCir> synthesize(std::vector<PauliRotation> const& rotations) const override;
 };
 
+/**
+ * @brief Synthesize Pauli rotations using minimum spanning arborescence.
+ * This method is based on the following paper by Vandaele et al.:
+ * https://arxiv.org/abs/2104.00934
+ *
+ */
+struct MstSynthesisStrategy : public PauliRotationsSynthesisStrategy {
+    std::optional<qcir::QCir> synthesize(std::vector<PauliRotation> const& rotations) const override;
+};
+
 std::optional<qcir::QCir> to_qcir(
     StabilizerTableau const& clifford,
     StabilizerTableauSynthesisStrategy const& strategy);

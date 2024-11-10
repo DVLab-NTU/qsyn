@@ -259,10 +259,10 @@ bool append_to_tableau(qcir::ControlGate const& op, experimental::Tableau& table
     if (auto target_op = op.get_target_operation().get_underlying_if<qcir::PXGate>()) {
         if (op.get_num_qubits() == 2 && target_op->get_phase() == dvlab::Phase(1)) {
             tableau.cx(qubits[0], qubits[1]);
+            return true;
         } else {
             return experimental::implement_mcp(tableau, qubits, target_op->get_phase(), experimental::Pauli::x);
         }
-        return true;
     }
 
     if (auto target_op = op.get_target_operation().get_underlying_if<qcir::PYGate>()) {
@@ -270,34 +270,31 @@ bool append_to_tableau(qcir::ControlGate const& op, experimental::Tableau& table
             tableau.sdg(qubits[1]);
             tableau.cx(qubits[0], qubits[1]);
             tableau.s(qubits[1]);
+            return true;
         } else {
             return experimental::implement_mcp(tableau, qubits, target_op->get_phase(), experimental::Pauli::y);
         }
-        return true;
     }
 
     if (auto target_op = op.get_target_operation().get_underlying_if<qcir::PZGate>()) {
         if (op.get_num_qubits() == 2 && target_op->get_phase() == dvlab::Phase(1)) {
             tableau.cz(qubits[0], qubits[1]);
+            return true;
         } else {
             return experimental::implement_mcp(tableau, qubits, target_op->get_phase(), experimental::Pauli::z);
         }
-        return true;
     }
 
     if (auto target_op = op.get_target_operation().get_underlying_if<qcir::RXGate>()) {
         return experimental::implement_mcr(tableau, qubits, target_op->get_phase(), experimental::Pauli::x);
-        return true;
     }
 
     if (auto target_op = op.get_target_operation().get_underlying_if<qcir::RYGate>()) {
         return experimental::implement_mcr(tableau, qubits, target_op->get_phase(), experimental::Pauli::y);
-        return true;
     }
 
     if (auto target_op = op.get_target_operation().get_underlying_if<qcir::RZGate>()) {
         return experimental::implement_mcr(tableau, qubits, target_op->get_phase(), experimental::Pauli::z);
-        return true;
     }
 
     return false;

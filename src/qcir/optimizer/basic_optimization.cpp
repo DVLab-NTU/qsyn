@@ -36,7 +36,6 @@ void remove_last_occurrence_if(std::ranges::range auto& range, auto const& pred)
  * @brief Parse the circuit and forward and backward iteratively and optimize it
  *
  * @param doSwap permute the qubit if true
- * @param separateCorrection separate corrections if true
  * @param maxIter
  * @return QCir* Optimized Circuit
  */

@@ -156,7 +156,8 @@ calculate_causal_flow_predecessor_map(ZXGraph const& g) {
  * @return false
  */
 bool has_causal_flow(ZXGraph const& g) {
-    return loop_through_correctors(g, [](auto, auto) {}, []() {});
+    return loop_through_correctors(
+        g, [](auto, auto) {}, []() {});
 }
 
 }  // namespace qsyn::zx
