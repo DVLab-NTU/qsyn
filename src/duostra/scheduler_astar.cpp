@@ -95,7 +95,9 @@ size_t StarNode::route_and_estimate(std::vector<GateInfo> const& operations) {
     temp_scheduler.set_sorted(cloned_scheduler->is_sorted());
     // fmt::print("Current temp operations: {}\n", temp_scheduler.get_operations().size());
     // Now simulate routing the remaining gates
-    while (!temp_scheduler.get_available_gates().empty()) {
+    size_t est_counter = 0;
+    
+    while (!temp_scheduler.get_available_gates().empty() && est_counter <= _depth) {
         if (stop_requested()) {
             break; // Continue to sum what is processed so far
         }
@@ -114,6 +116,8 @@ size_t StarNode::route_and_estimate(std::vector<GateInfo> const& operations) {
         // Route gate with forget=false to track operations
         temp_scheduler.route_one_gate(*temp_router, gate_idx, false);  // forget=false
         temp_scheduler.circuit_topology().update_available_gates(gate_idx);
+
+        est_counter++;
     }
 
     // Sort the operations to satisfy the assertion in get_total_time()
