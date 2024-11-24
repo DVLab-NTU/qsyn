@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include <fmt/core.h>
 #include <cstddef>
 #include <memory>
 #include <utility>
@@ -50,7 +51,7 @@ public:
     virtual Device assign_gates_and_sort(std::unique_ptr<Router> router, std::unique_ptr<Router> est_router = nullptr);
     size_t route_one_gate(Router& router, size_t gate_id, bool forget = false);
 
-    void set_operations(const std::vector<GateInfo>& operations) {
+    void set_operations(const std::vector<GateInfo> operations) {
         _operations = operations;
     }
 
@@ -269,7 +270,10 @@ public:
     size_t get_depth() const { return _depth; }
     void grow(StarNode* self_pointer);
     StarNode* get_parent() const { return _parent; }
-    void set_root() { _type = 0;}
+    void set_root() {
+        if(can_grow()) _type = 0;
+        else _type = 2;
+    }
     void set_depth(size_t depth) { _depth = depth; }
     
     Router const& router() const { return *_router; }
@@ -282,9 +286,10 @@ public:
     size_t route_and_estimate(std::vector<GateInfo> const& operations = {});
     void update_topology(){
         for(auto& child : children) {
-            child._scheduler->circuit_topology().update_available_gates(child.get_gate_id());
+            child._scheduler->set_operations(_scheduler->get_operations());
+            child._scheduler->route_one_gate(*child._router, child._gate_id, false);
+            // fmt::println("Update topology {}: gate_id: {}, operations: {}", _gate_id, child.get_gate_id(), child._scheduler->get_operations().size());
             if(child._scheduler->get_available_gates().empty()) child._type = 2;
-            if(child._depth == 0) child._type = 3;
         }
     }
 

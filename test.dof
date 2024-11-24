@@ -1,4 +1,5 @@
-qc r benchmark/SABRE/large/adr4_197.qasm
-de r benchmark/topology/guadalupe_16.layout
-duostra config --scheduler search
-duostra
+de r benchmark/topology/example.layout
+qc r benchmark/SABRE/small/miller_11.qasm
+duostra config --scheduler astar
+duostra -c
+

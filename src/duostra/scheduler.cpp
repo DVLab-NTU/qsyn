@@ -7,6 +7,7 @@
 ****************************************************************************/
 
 #include "./scheduler.hpp"
+#include <fmt/core.h>
 
 #include <algorithm>
 #include <cassert>
@@ -92,7 +93,11 @@ size_t BaseScheduler::get_total_time() const {
     auto durations_range = _operations | std::views::transform([](GateInfo const& op) -> size_t {
                                return op.second.second - op.second.first;
                            });
-    return std::reduce(durations_range.begin(), durations_range.end(), 0, std::plus<>{});
+    fmt::println("get total cost (operation size): {}", durations_range.size());
+    // fmt::println("first gate: {}", durations_range.front());
+    auto total_time = std::reduce(durations_range.begin(), durations_range.end(), 0, std::plus<>{});
+    fmt::println("get total cost: {}", total_time);
+    return total_time;
 }
 
 /**
@@ -169,6 +174,7 @@ BaseScheduler::Device BaseScheduler::_assign_gates(std::unique_ptr<Router> route
 size_t BaseScheduler::route_one_gate(Router& router, size_t gate_id, bool forget) {
     auto const& gate = _circuit_topology.get_gate(gate_id);
     auto ops{router.assign_gate(gate)};
+    // fmt::println("Route one gate operations: {}", ops.size());
     size_t max_cost = 0;
     for (auto const& [op, time] : ops) {
         if (time.second > max_cost)
