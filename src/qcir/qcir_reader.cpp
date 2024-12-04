@@ -194,7 +194,7 @@ std::optional<QCir> from_qc(std::filesystem::path const& filepath) {
                     spdlog::error("Toffoli gates with more than 2 controls are not supported!!");
                     return std::nullopt;
                 }
-            } else if ((type == "Z" || type == "z") && qubit_ids.size() == 3) {
+            } else if ((type == "Z" || type == "z" || type == "Zd") && qubit_ids.size() == 3) {
                 qcir.append(CCZGate(), qubit_ids);
             } else if ((type == "Z" || type == "z") && qubit_ids.size() == 2) {
                 qcir.append(CZGate(), qubit_ids);
@@ -202,6 +202,9 @@ std::optional<QCir> from_qc(std::filesystem::path const& filepath) {
                 auto op = str_to_operation(type);
                 if (op.has_value()) {
                     qcir.append(*op, qubit_ids);
+                } else {
+                    spdlog::error("unsupported gate type ({})!!", type);
+                    return std::nullopt;
                 }
             }
         }
