@@ -6,8 +6,6 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <omp.h>
-
 #include <algorithm>
 #include <tl/enumerate.hpp>
 #include <vector>

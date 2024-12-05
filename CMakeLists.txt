@@ -36,12 +36,17 @@ if(CMAKE_SYSTEM_NAME MATCHES "Darwin"
     message(
         STATUS 
         "Setting the correct unwind library for Clang18 on Apple Silicon")
+# the clang should be installed at .../bin/clang++
+# get the path to clang and remove the /bin/clang++
     execute_process(
-        COMMAND brew --prefix OUTPUT_VARIABLE BREW_PREFIX
+        COMMAND which clang++
+        OUTPUT_VARIABLE CLANG_PATH
         OUTPUT_STRIP_TRAILING_WHITESPACE)
-    link_libraries(${BREW_PREFIX}/opt/llvm/lib/libunwind.dylib)
+    string(REGEX REPLACE "/bin/clang\\+\\+" "" BREW_PREFIX ${CLANG_PATH})
+    message(STATUS "BREW_PREFIX: ${BREW_PREFIX}")
+    link_libraries(${BREW_PREFIX}/lib/libunwind.dylib)
     set(CMAKE_EXE_LINKER_FLAGS  
-        "${CMAKE_EXE_LINKER_FLAGS} -L${BREW_PREFIX}/opt/llvm/lib/c++")
+        "${CMAKE_EXE_LINKER_FLAGS} -L${BREW_PREFIX}/lib/c++")
 endif()
 
 include(scripts/cmake/target_link_libraries_system.cmake)
