@@ -26,6 +26,24 @@ project(
     LANGUAGES CXX
     VERSION 0.7.0)
 
+# Link the correct unwind library for Clang18 on Apple Silicon
+# Assumes that Homebrew is used to install LLVM
+# https://github.com/llvm/llvm-project/issues/92121#issuecomment-2307947170
+if(CMAKE_SYSTEM_NAME MATCHES "Darwin"
+    AND CMAKE_SYSTEM_PROCESSOR MATCHES "arm64"
+    AND CMAKE_CXX_COMPILER_ID MATCHES "Clang"
+    AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 18)
+    message(
+        STATUS 
+        "Setting the correct unwind library for Clang18 on Apple Silicon")
+    execute_process(
+        COMMAND brew --prefix OUTPUT_VARIABLE BREW_PREFIX
+        OUTPUT_STRIP_TRAILING_WHITESPACE)
+    link_libraries(${BREW_PREFIX}/opt/llvm/lib/libunwind.dylib)
+    set(CMAKE_EXE_LINKER_FLAGS  
+        "${CMAKE_EXE_LINKER_FLAGS} -L${BREW_PREFIX}/opt/llvm/lib/c++")
+endif()
+
 include(scripts/cmake/target_link_libraries_system.cmake)
 
 # find_package(OpenMP REQUIRED)

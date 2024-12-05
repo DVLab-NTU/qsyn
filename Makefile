@@ -2,11 +2,20 @@ UNAME_S := $(shell uname -s)
 
 # On MacOS, the default compiler is clang
 ifeq ($(UNAME_S), Darwin)
-	CC ?= $(shell which clang)
-	CXX ?= $(shell which clang++)
+# Override CC if it is set to the default 'cc'
+	ifeq ($(origin CC), default)
+		CC := $(shell which clang)
+	endif
+	ifeq ($(origin CXX), default)
+		CXX := $(shell which clang++)
+	endif
 else
-	CC ?= $(shell which gcc)
-	CXX ?= $(shell which g++)
+	ifeq ($(origin CC), default)
+		CC := $(shell which gcc)
+	endif
+	ifeq ($(origin CXX), default)
+		CXX := $(shell which g++)
+	endif
 endif
 
 ECHO := $(shell which echo) -e
