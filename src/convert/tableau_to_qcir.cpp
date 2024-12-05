@@ -9,6 +9,7 @@
 
 #include <gsl/narrow>
 #include <random>
+#include <stack>
 #include <tl/adjacent.hpp>
 #include <tl/enumerate.hpp>
 #include <tl/to.hpp>

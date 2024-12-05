@@ -4,6 +4,7 @@
 #include <fmt/format.h>
 
 #include <cstddef>
+#include <ranges>
 #include <type_traits>
 
 #include "util/ordered_hashmap.hpp"
