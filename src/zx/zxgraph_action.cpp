@@ -478,7 +478,7 @@ void IdentityFusion::apply_unchecked(ZXGraph& graph) const {
     graph.remove_vertex(v);
     graph.remove_vertex(r);
 
-    l->phase() += r->phase();
+    l->phase() += _right_phase;
 }
 
 void IdentityFusion::undo_unchecked(ZXGraph& graph) const {

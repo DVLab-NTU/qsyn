@@ -56,7 +56,7 @@ public:
              Phase phase,
              float row,
              float col)
-        : _attrs(id, vt, qubit, phase, row, col) {}
+        : _attrs{id, vt, qubit, phase, row, col} {}
     // Getter and Setter
 
     size_t get_id() const { return _attrs.id; }
