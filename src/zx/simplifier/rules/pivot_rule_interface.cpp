@@ -53,9 +53,9 @@ void PivotRuleInterface::apply(ZXGraph& graph, std::vector<MatchType> const& mat
         }
 
         // REVIEW - check if not ground
-        for (auto const& v : n0) v->set_phase(v->get_phase() + m1->get_phase());
-        for (auto const& v : n1) v->set_phase(v->get_phase() + m0->get_phase());
-        for (auto const& v : n2) v->set_phase(v->get_phase() + m0->get_phase() + m1->get_phase() + Phase(1));
+        for (auto const& v : n0) v->phase() += m1->phase();
+        for (auto const& v : n1) v->phase() += m0->phase();
+        for (auto const& v : n2) v->phase() += m0->phase() + m1->phase() + Phase(1);
 
         op.vertices_to_remove.emplace_back(m0);
         op.vertices_to_remove.emplace_back(m1);

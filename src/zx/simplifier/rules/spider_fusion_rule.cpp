@@ -16,14 +16,11 @@ using MatchType = SpiderFusionRule::MatchType;
  *
  * @param graph
  * @param candidates the vertices to be considered
- * @param allow_overlapping_candidates whether to allow overlapping candidates. If true, needs to manually check for overlapping candidates.
  * @return std::vector<MatchType>
  */
 std::vector<MatchType> SpiderFusionRule::find_matches(
     ZXGraph const& graph,
-    std::optional<ZXVertexList> candidates,
-    bool allow_overlapping_candidates  //
-) const {
+    std::optional<ZXVertexList> candidates) const {
     std::vector<MatchType> match_type_vec;
 
     if (!candidates.has_value()) {
@@ -37,9 +34,9 @@ std::vector<MatchType> SpiderFusionRule::find_matches(
 
         if (!candidates->contains(v0) || !candidates->contains(v1)) return;
 
-        if ((v0->get_type() == v1->get_type()) && (v0->is_x() || v0->is_z())) {
+        if ((v0->type() == v1->type()) && (v0->is_x() || v0->is_z())) {
             match_type_vec.emplace_back(v0, v1);
-            if (allow_overlapping_candidates) return;
+            if (_allow_overlapping_candidates) return;
             candidates->erase(v0);
             candidates->erase(v1);
             // NOTE: Cannot choose the vertex connected to the vertices that will be merged
@@ -61,18 +58,11 @@ void SpiderFusionRule::apply(ZXGraph& graph, std::vector<MatchType> const& match
     ZXOperation op;
 
     for (auto [v0, v1] : matches) {
-        v0->set_phase(v0->get_phase() + v1->get_phase());
+        v0->phase() += v1->phase();
 
         for (auto& [neighbor, edgeType] : graph.get_neighbors(v1)) {
-            // NOTE: Will become selfloop after merged, only considered hadamard
-            if (neighbor == v0) {
-                if (edgeType == EdgeType::hadamard) {
-                    v0->set_phase(v0->get_phase() + Phase(1));
-                }
-                // NOTE: No need to remove edges since v1 will be removed
-            } else {
-                op.edges_to_add.emplace_back(std::make_pair(v0, neighbor), edgeType);
-            }
+            if (neighbor == v0) continue;
+            op.edges_to_add.emplace_back(std::make_pair(v0, neighbor), edgeType);
         }
         op.vertices_to_remove.emplace_back(v1);
     }

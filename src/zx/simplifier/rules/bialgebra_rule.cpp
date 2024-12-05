@@ -21,15 +21,12 @@ using MatchType = BialgebraRule::MatchType;
  *
  * @param graph
  * @param candidates the vertices to be considered
- * @param allow_overlapping_candidates whether to allow overlapping candidates. If true, needs to manually check for overlapping candidates.
  * @return std::vector<MatchType>
  */
 std::vector<MatchType>
 BialgebraRule::find_matches(
     ZXGraph const& graph,
-    std::optional<ZXVertexList> candidates,
-    bool allow_overlapping_candidates  //
-) const {
+    std::optional<ZXVertexList> candidates) const {
     std::vector<MatchType> matches;
 
     if (!candidates.has_value()) {
@@ -46,13 +43,13 @@ BialgebraRule::find_matches(
 
         // Does not consider the phase spider yet
         // TODO: consider the phase
-        if ((left->get_phase() != Phase(0)) || (right->get_phase() != Phase(0))) return;
+        if ((left->phase() != Phase(0)) || (right->phase() != Phase(0))) return;
 
         // Verify if the edge is connected by a X and a Z spider.
         if (!(left->is_x() && right->is_z()) && !(left->is_z() && right->is_x())) return;
 
         // Check if the vertices is_ground (with only one edge).
-        if ((graph.get_num_neighbors(left) == 1) || (graph.get_num_neighbors(right) == 1)) return;
+        if ((graph.num_neighbors(left) == 1) || (graph.num_neighbors(right) == 1)) return;
 
         auto const neighbor_edges_of_left  = graph.get_neighbors(left) | std::views::values;
         auto const neighbor_edges_of_right = graph.get_neighbors(right) | std::views::values;
@@ -75,16 +72,16 @@ BialgebraRule::find_matches(
         auto const neighbor_vertices_of_right = graph.get_neighbors(right) | std::views::keys;
 
         // Check if all neighbors of z are x without phase and all neighbors of x are z without phase.
-        if (std::ranges::any_of(neighbor_vertices_of_left, [type = right->get_type()](ZXVertex* v) { return v->get_phase() != Phase(0) || v->get_type() != type; })) {
+        if (std::ranges::any_of(neighbor_vertices_of_left, [type = right->type()](ZXVertex* v) { return v->phase() != Phase(0) || v->type() != type; })) {
             return;
         }
-        if (std::ranges::any_of(neighbor_vertices_of_right, [type = left->get_type()](ZXVertex* v) { return v->get_phase() != Phase(0) || v->get_type() != type; })) {
+        if (std::ranges::any_of(neighbor_vertices_of_right, [type = left->type()](ZXVertex* v) { return v->phase() != Phase(0) || v->type() != type; })) {
             return;
         }
 
         matches.emplace_back(epair);
 
-        if (allow_overlapping_candidates) return;
+        if (_allow_overlapping_candidates) return;
 
         // discard neighbors of the matched vertices
         for (auto const& v : neighbor_vertices_of_left) {

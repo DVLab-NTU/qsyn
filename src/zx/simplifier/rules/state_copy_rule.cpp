@@ -20,14 +20,11 @@ using MatchType = StateCopyRule::MatchType;
  *
  * @param graph
  * @param candidates the vertices to be considered
- * @param allow_overlapping_candidates whether to allow overlapping candidates. If true, needs to manually check for overlapping candidates.
  * @return std::vector<MatchType>
  */
 std::vector<MatchType> StateCopyRule::find_matches(
     ZXGraph const& graph,
-    std::optional<ZXVertexList> candidates,
-    bool allow_overlapping_candidates  //
-) const {
+    std::optional<ZXVertexList> candidates) const {
     std::vector<MatchType> matches;
 
     if (!candidates.has_value()) {
@@ -37,25 +34,25 @@ std::vector<MatchType> StateCopyRule::find_matches(
     for (auto const& v : graph.get_vertices()) {
         if (!candidates->contains(v)) continue;
 
-        if (v->get_type() != VertexType::z) {
+        if (!v->is_z()) {
             continue;
         }
-        if (v->get_phase() != Phase(0) && v->get_phase() != Phase(1)) {
+        if (v->phase() != Phase(0) && v->phase() != Phase(1)) {
             continue;
         }
-        if (graph.get_num_neighbors(v) != 1) {
+        if (graph.num_neighbors(v) != 1) {
             continue;
         }
 
         ZXVertex* pi_neighbor = graph.get_first_neighbor(v).first;
-        if (pi_neighbor->get_type() != VertexType::z) {
+        if (!pi_neighbor->is_z()) {
             continue;
         }
         std::vector<ZXVertex*> apply_neighbors;
         for (auto const& [nb, _] : graph.get_neighbors(pi_neighbor)) {
             if (nb != v)
                 apply_neighbors.emplace_back(nb);
-            if (!allow_overlapping_candidates) {
+            if (!_allow_overlapping_candidates) {
                 candidates->erase(nb);
             }
         }
@@ -73,8 +70,8 @@ void StateCopyRule::apply(ZXGraph& graph, std::vector<MatchType> const& matches)
         op.vertices_to_remove.emplace_back(npi);
         op.vertices_to_remove.emplace_back(a);
         for (auto neighbor : neighbors) {
-            if (neighbor->get_type() == VertexType::boundary) {
-                ZXVertex* const new_v     = graph.add_vertex(VertexType::z, npi->get_phase(), neighbor->get_row(), (neighbor->get_col() + a->get_col()) / 2);
+            if (neighbor->is_boundary()) {
+                ZXVertex* const new_v     = graph.add_vertex(VertexType::z, npi->phase(), neighbor->get_row(), (neighbor->get_col() + a->get_col()) / 2);
                 auto const is_simple_edge = graph.get_first_neighbor(neighbor).second == EdgeType::simple;
 
                 op.edges_to_remove.emplace_back(std::make_pair(a, neighbor), graph.get_first_neighbor(neighbor).second);
@@ -86,7 +83,7 @@ void StateCopyRule::apply(ZXGraph& graph, std::vector<MatchType> const& matches)
                 op.edges_to_add.emplace_back(std::make_pair(a, new_v), EdgeType::hadamard);
 
             } else {
-                neighbor->set_phase(npi->get_phase() + neighbor->get_phase());
+                neighbor->phase() += npi->phase();
             }
         }
     }

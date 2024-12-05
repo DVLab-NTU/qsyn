@@ -3,7 +3,7 @@ zx edge add 0 5 SIMPLE
 zx2ts // invalid graph 1: boundary has too more than one neighbors
 
 zx read benchmark/zx/cnot.zx
-zx edge remove 0 2 ALL
+zx edge remove 0 2
 zx2ts // invalid graph 2: boundary has no neighbors
 
 quit -f

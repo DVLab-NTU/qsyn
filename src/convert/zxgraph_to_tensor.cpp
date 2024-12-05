@@ -9,7 +9,6 @@
 #include <spdlog/spdlog.h>
 
 #include <cassert>
-#include <limits>
 #include <ranges>
 #include <tl/enumerate.hpp>
 #include <tl/fold.hpp>
@@ -99,7 +98,7 @@ std::optional<tensor::QTensor<double>> ZX2TSMapper::map(zx::ZXGraph const& graph
         spdlog::error("The ZXGraph is empty!!");
         return std::nullopt;
     }
-    if (!graph.is_valid()) {
+    if (!is_io_connection_valid(graph)) {
         spdlog::error("The ZXGraph is not valid!!");
         return std::nullopt;
     }
@@ -140,15 +139,15 @@ std::optional<tensor::QTensor<double>> ZX2TSMapper::map(zx::ZXGraph const& graph
  */
 tensor::QTensor<double> get_tensor_form(zx::ZXGraph const& graph, zx::ZXVertex* v) {
     using namespace std::complex_literals;
-    switch (v->get_type()) {
+    switch (v->type()) {
         case zx::VertexType::z:
-            return tensor::QTensor<double>::zspider(graph.get_num_neighbors(v), v->get_phase());
+            return tensor::QTensor<double>::zspider(graph.num_neighbors(v), v->phase());
         case zx::VertexType::x:
-            return tensor::QTensor<double>::xspider(graph.get_num_neighbors(v), v->get_phase());
+            return tensor::QTensor<double>::xspider(graph.num_neighbors(v), v->phase());
         case zx::VertexType::h_box:
-            return tensor::QTensor<double>::hbox(graph.get_num_neighbors(v));
+            return tensor::QTensor<double>::hbox(graph.num_neighbors(v));
         case zx::VertexType::boundary:
-            return tensor::QTensor<double>::identity(graph.get_num_neighbors(v));
+            return tensor::QTensor<double>::identity(graph.num_neighbors(v));
     }
 
     return tensor::QTensor<double>(1. + 0.i);
@@ -188,13 +187,13 @@ void ZX2TSMapper::_map_one_vertex(zx::ZXGraph const& graph, zx::ZXVertex* v) {
 void ZX2TSMapper::_initialize_subgraph(zx::ZXGraph const& graph, zx::ZXVertex* v) {
     using namespace std::complex_literals;
     assert(v->is_boundary());
-    spdlog::debug("Mapping vertex {:>4} ({}): New Subgraph", v->get_id(), v->get_type());
+    spdlog::debug("Mapping vertex {:>4} ({}): New Subgraph", v->get_id(), v->type());
     auto [nb, etype] = graph.get_first_neighbor(v);
 
     _current_tensor_id = _zx2ts_list.size();
     _zx2ts_list.emplace_back(Frontiers(), tensor::QTensor<double>(1. + 0.i));
 
-    _curr_tensor()      = tensordot(_curr_tensor(), tensor::QTensor<double>::identity(graph.get_num_neighbors(v)));
+    _curr_tensor()      = tensordot(_curr_tensor(), tensor::QTensor<double>::identity(graph.num_neighbors(v)));
     auto const edge_key = make_edge_pair(v, nb, etype);
     _boundary_edges.emplace_back(edge_key);
     _curr_frontiers().emplace(edge_key, 1);
@@ -227,7 +226,7 @@ size_t ZX2TSMapper::_get_tensor_id(zx::ZXGraph const& graph, zx::ZXVertex* v) {
  * @return std::pair<TensorAxisList, TensorAxisList> input and output tensor axis lists
  */
 ZX2TSMapper::InOutAxisList ZX2TSMapper::_get_axis_orders(zx::ZXGraph const& zxgraph) {
-    InOutAxisList axis_lists{zxgraph.get_num_inputs(), zxgraph.get_num_outputs()};
+    InOutAxisList axis_lists{zxgraph.num_inputs(), zxgraph.num_outputs()};
 
     auto const get_table = [](auto vertex_list) -> std::map<size_t, size_t> {
         vertex_list.sort([](auto const& a, auto const& b) { return a->get_qubit() < b->get_qubit(); });
@@ -353,12 +352,12 @@ void ZX2TSMapper::_tensordot_vertex(zx::ZXGraph const& graph, zx::ZXVertex* v) {
     auto info = _calculate_mapping_info(graph, v);
 
     if (v->is_boundary()) {
-        spdlog::debug("Mapping vertex {:>4} ({}): Boundary", v->get_id(), v->get_type());
+        spdlog::debug("Mapping vertex {:>4} ({}): Boundary", v->get_id(), v->type());
         _curr_tensor() = _dehadamardize(_curr_tensor(), info);
         return;
     }
 
-    spdlog::debug("Mapping vertex {:>4} ({}): Tensordot", v->get_id(), v->get_type());
+    spdlog::debug("Mapping vertex {:>4} ({}): Tensordot", v->get_id(), v->type());
     auto const dehadamarded = _dehadamardize(_curr_tensor(), info);
     // we don't care which pins to connect because all vertices correspond to a symmetric tensor
     auto const vertex_pins_to_connect = std::views::iota(0ul, info.simple_edge_pins.size()) | tl::to<std::vector>();

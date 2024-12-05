@@ -16,13 +16,10 @@ using MatchType = HadamardFusionRule::MatchType;
  *
  * @param graph
  * @param candidates the vertices to be considered
- * @param allow_overlapping_candidates whether to allow overlapping candidates. If true, needs to manually check for overlapping candidates.
  * @return std::vector<MatchType>
  */
 std::vector<MatchType> HadamardFusionRule::find_matches(
-    ZXGraph const& graph, std::optional<ZXVertexList> candidates,
-    bool allow_overlapping_candidates  //
-) const {
+    ZXGraph const& graph, std::optional<ZXVertexList> candidates) const {
     std::vector<MatchType> matches;
 
     if (!candidates.has_value()) {
@@ -39,7 +36,7 @@ std::vector<MatchType> HadamardFusionRule::find_matches(
         if (neighbor_left->is_hbox()) {
             matches.emplace_back(neighbor_left);
 
-            if (allow_overlapping_candidates) return;
+            if (_allow_overlapping_candidates) return;
 
             candidates->erase(neighbor_left);
             candidates->erase(neighbor_right);
@@ -55,7 +52,7 @@ std::vector<MatchType> HadamardFusionRule::find_matches(
         } else if (neighbor_right->is_hbox()) {
             matches.emplace_back(neighbor_right);
 
-            if (allow_overlapping_candidates) return;
+            if (_allow_overlapping_candidates) return;
 
             candidates->erase(neighbor_left);
             candidates->erase(neighbor_right);
@@ -82,7 +79,7 @@ std::vector<MatchType> HadamardFusionRule::find_matches(
             matches.emplace_back(neighbor_left);
             matches.emplace_back(neighbor_right);
 
-            if (allow_overlapping_candidates) return;
+            if (_allow_overlapping_candidates) return;
 
             candidates->erase(neighbor_left);
             candidates->erase(neighbor_right);

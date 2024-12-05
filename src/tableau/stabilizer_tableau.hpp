@@ -12,7 +12,6 @@
 
 #include <cstddef>
 #include <string>
-#include <sul/dynamic_bitset.hpp>
 
 #include "tableau/pauli_rotation.hpp"
 
@@ -130,6 +129,9 @@ public:
  */
 class HOptSynthesisStrategy : public StabilizerTableauSynthesisStrategy {
 public:
+    enum class Mode { star,
+                      staircase } mode;
+    HOptSynthesisStrategy(Mode mode = Mode::star) : mode{mode} {}
     CliffordOperatorString synthesize(StabilizerTableau copy) const override;
 };
 

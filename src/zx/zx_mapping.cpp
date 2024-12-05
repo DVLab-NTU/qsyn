@@ -18,10 +18,10 @@ namespace zx {
  *
  * @return ZXVertexList
  */
-ZXVertexList ZXGraph::get_non_boundary_vertices() {
+ZXVertexList ZXGraph::get_non_boundary_vertices() const {
     ZXVertexList tmp;
     tmp.clear();
-    for (auto const& v : _vertices) {
+    for (auto const& v : get_vertices()) {
         if (!v->is_boundary())
             tmp.emplace(v);
     }
@@ -61,8 +61,8 @@ ZXVertex* ZXGraph::get_output_by_qubit(size_t const& q) {
  *
  * @param other the other graph to concatenate with. This graph should have the same number of inputs and outputs
  */
-void ZXGraph::concatenate(ZXGraph const& other) {
-    /* Visualiztion of what is done:
+void ZXGraph::concatenate(ZXGraph other, std::vector<size_t> const& qubits) {
+    /* Visualization of what is done:
        ┌────┐                                ┌────┐
     i0─┤    ├─o0         ┌─────┐          i0─┤    ├─ o0 ┌─────┐
     i1─┤main├─o1  +  i1'─┤     ├─o1' -->  i1─┤main├─────┤     ├─o1
@@ -70,31 +70,40 @@ void ZXGraph::concatenate(ZXGraph const& other) {
        └────┘            └─────┘             └────┘     └─────┘
     */
 
-    if (other.get_num_inputs() != other.get_num_outputs()) {
+    // auto tmp = other;
+    // other    = tmp;
+
+    if (other.num_inputs() != other.num_outputs()) {
         spdlog::error("Error: the graph being concatenated does not have the same number of inputs and outputs. Concatenation aborted!!");
         return;
     }
-
-    ZXGraph copy{other};
+    // relabel qubit and rows
+    for (auto* v : other.get_vertices()) {
+        v->set_qubit(qubits[v->get_qubit()]);
+        // if row is non-negative, it is a non-gadget qubit; and we would want to draw it on the correct row
+        if (v->get_row() >= 0) {
+            v->set_row(static_cast<float>(qubits[static_cast<size_t>(v->get_row())]));
+        }
+    }
     // Reconnect Input
-    std::unordered_map<size_t, ZXVertex*> const copy_inputs = copy.get_input_list();
-    for (auto& [qubit, i] : copy_inputs) {
-        auto [other_i_vtx, other_i_et] = copy.get_first_neighbor(i);
-        auto [this_o_vtx, this_o_et]   = copy.get_first_neighbor(this->get_output_by_qubit(qubit));
+    std::unordered_map<size_t, ZXVertex*> const copy_inputs = other.get_input_list();
+    for (auto& [_, i] : copy_inputs) {
+        auto [other_i_vtx, other_i_et] = other.get_first_neighbor(i);
+        auto [this_o_vtx, this_o_et]   = other.get_first_neighbor(this->get_output_by_qubit(i->get_qubit()));
 
-        this->remove_edge(this_o_vtx, this->get_output_by_qubit(qubit), this_o_et);
+        this->remove_edge(this_o_vtx, this->get_output_by_qubit(i->get_qubit()), this_o_et);
         this->add_edge(this_o_vtx, other_i_vtx, concat_edge(this_o_et, other_i_et));
-        copy.remove_vertex(i);
+        other.remove_vertex(i);
     }
 
     // Reconnect Output
-    std::unordered_map<size_t, ZXVertex*> const copy_outputs = copy.get_output_list();
-    for (auto& [qubit, o] : copy_outputs) {
-        auto [other_o_vtx, etype] = copy.get_first_neighbor(o);
-        this->add_edge(other_o_vtx, this->get_output_by_qubit(qubit), etype);
-        copy.remove_vertex(o);
+    std::unordered_map<size_t, ZXVertex*> const copy_outputs = other.get_output_list();
+    for (auto& [_, o] : copy_outputs) {
+        auto [other_o_vtx, etype] = other.get_first_neighbor(o);
+        this->add_edge(other_o_vtx, this->get_output_by_qubit(o->get_qubit()), etype);
+        other.remove_vertex(o);
     }
-    this->_move_vertices_from(copy);
+    this->_move_vertices_from(other);
 }
 
 }  // namespace zx

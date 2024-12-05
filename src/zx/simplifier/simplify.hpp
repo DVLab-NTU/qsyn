@@ -8,7 +8,6 @@
 #pragma once
 
 #include <cstddef>
-#include <memory>
 #include <type_traits>
 
 #include "./rules/zx_rules_template.hpp"
@@ -43,27 +42,31 @@ void dynamic_reduce(ZXGraph& g);
 void dynamic_reduce(ZXGraph& g, size_t optimal_t_count);
 void symbolic_reduce(ZXGraph& g);
 void partition_reduce(ZXGraph& g, size_t n_partitions);
-void causal_reduce(ZXGraph& g);
+void causal_flow_opt(ZXGraph& g,
+                     size_t max_lcomp_unfusions,
+                     size_t max_pivot_unfusions);
+void redundant_hadamard_insertion(ZXGraph& g, double prob);
 
 void to_z_graph(ZXGraph& g);
 void to_x_graph(ZXGraph& g);
+void to_graph_like(ZXGraph& g);
 
-void report_simplification_result(std::string_view rule_name, std::span<size_t> match_counts);
+void report_simplification_result(
+    std::string_view rule_name, std::span<size_t> match_counts);
 /**
  * @brief apply the rule on the zx graph
  *
  * @return number of iterations
  */
 template <typename Rule>
+requires std::is_base_of<ZXRuleTemplate<typename Rule::MatchType>, Rule>::value
 size_t simplify(ZXGraph& g, Rule const& rule) {
-    static_assert(std::is_base_of<ZXRuleTemplate<typename Rule::MatchType>, Rule>::value, "Rule must be a subclass of ZXRule");
-
     hadamard_rule_simp(g);
 
     std::vector<size_t> match_counts;
 
     while (!stop_requested()) {
-        std::vector<typename Rule::MatchType> const matches = rule.find_matches(g);
+        auto const matches = rule.find_matches(g);
         if (matches.empty()) {
             break;
         }
@@ -83,58 +86,21 @@ size_t simplify(ZXGraph& g, Rule const& rule) {
  * @return number of iterations
  */
 template <typename Rule>
+requires std::is_base_of<ZXRuleTemplate<typename Rule::MatchType>, Rule>::value
 size_t hadamard_simplify(ZXGraph& g, Rule rule) {
-    static_assert(std::is_base_of<HZXRuleTemplate<typename Rule::MatchType>, Rule>::value, "Rule must be a subclass of HZXRule");
-
     std::vector<size_t> match_counts;
 
     while (!stop_requested()) {
-        auto const old_vertex_count = g.get_num_vertices();
+        auto const old_vertex_count = g.num_vertices();
+        auto const matches          = rule.find_matches(g);
 
-        std::vector<typename Rule::MatchType> const matches = rule.find_matches(g);
         if (matches.empty()) {
             break;
         }
         match_counts.emplace_back(matches.size());
 
         rule.apply(g, matches);
-        if (g.get_num_vertices() >= old_vertex_count) break;
-    }
-
-    report_simplification_result(rule.get_name(), match_counts);
-
-    return match_counts.size();
-}
-
-/**
- * @brief apply the rule on the vertices in the scope
- *
- * @return number of iterations
- */
-template <typename Rule>
-size_t scoped_simplify(ZXGraph& g, Rule const& rule, ZXVertexList const& scope) {
-    static_assert(std::is_base_of<ZXRuleTemplate<typename Rule::MatchType>, Rule>::value, "Rule must be a subclass of ZXRule");
-
-    hadamard_rule_simp(g);
-
-    std::vector<size_t> match_counts;
-
-    while (!stop_requested()) {
-        std::vector<typename Rule::MatchType> const matches = rule.find_matches(g);
-        std::vector<typename Rule::MatchType> scoped_matches;
-        auto const is_in_scope = [&scope](ZXVertex* v) { return scope.contains(v); };
-        for (auto& match : matches) {
-            std::vector<ZXVertex*> const match_vertices = rule.flatten_vertices(match);
-            if (std::ranges::any_of(match_vertices, is_in_scope)) {
-                scoped_matches.push_back(match);
-            }
-        }
-        if (scoped_matches.empty()) {
-            break;
-        }
-        match_counts.emplace_back(scoped_matches.size());
-
-        rule.apply(g, scoped_matches);
+        if (g.num_vertices() >= old_vertex_count) break;
     }
 
     report_simplification_result(rule.get_name(), match_counts);

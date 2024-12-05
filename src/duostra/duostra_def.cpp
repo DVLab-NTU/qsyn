@@ -130,22 +130,4 @@ std::optional<MinMaxOptionType> get_minmax_type(std::string const& str) {
     return std::nullopt;
 }
 
-// SECTION - Global settings for Duostra mapper
-
-SchedulerType DuostraConfig::SCHEDULER_TYPE           = SchedulerType::search;
-RouterType DuostraConfig::ROUTER_TYPE                 = RouterType::duostra;
-PlacerType DuostraConfig::PLACER_TYPE                 = PlacerType::dfs;
-MinMaxOptionType DuostraConfig::TIE_BREAKING_STRATEGY = MinMaxOptionType::min;
-
-// SECTION - Initialize in Greedy Scheduler
-size_t DuostraConfig::NUM_CANDIDATES                    = SIZE_MAX;               // top k candidates, SIZE_MAX: all
-size_t DuostraConfig::APSP_COEFF                        = 1;                      // coefficient of apsp cost
-MinMaxOptionType DuostraConfig::AVAILABLE_TIME_STRATEGY = MinMaxOptionType::max;  // available time of double-qubit gate is set to min or max of occupied time
-MinMaxOptionType DuostraConfig::COST_SELECTION_STRATEGY = MinMaxOptionType::min;  // select min or max cost from the waitlist
-
-// SECTION - Initialize in Search Scheduler
-size_t DuostraConfig::SEARCH_DEPTH                  = 4;  // depth of searching region
-bool DuostraConfig::NEVER_CACHE                     = 1;  // never cache any children unless children() is called
-bool DuostraConfig::EXECUTE_SINGLE_QUBIT_GATES_ASAP = 0;  // execute the single gates when they are available
-
 }  // namespace qsyn::duostra

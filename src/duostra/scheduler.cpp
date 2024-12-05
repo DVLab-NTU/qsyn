@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <cassert>
 
+#include "duostra/duostra_def.hpp"
 #include "qcir/basic_gate_type.hpp"
 #include "util/util.hpp"
 
@@ -26,20 +27,22 @@ namespace qsyn::duostra {
  * @param tqdm
  * @return unique_ptr<BaseScheduler>
  */
-std::unique_ptr<BaseScheduler> get_scheduler(std::unique_ptr<CircuitTopology> topo, bool tqdm) {
+std::unique_ptr<BaseScheduler> get_scheduler(
+    DuostraConfig config, std::unique_ptr<CircuitTopology> topo, bool tqdm) {
     // 0:base 1:static 2:random 3:greedy 4:search
-    if (DuostraConfig::SCHEDULER_TYPE == SchedulerType::random) {
-        return std::make_unique<RandomScheduler>(*topo, tqdm);
-    } else if (DuostraConfig::SCHEDULER_TYPE == SchedulerType::naive) {
-        return std::make_unique<NaiveScheduler>(*topo, tqdm);
-    } else if (DuostraConfig::SCHEDULER_TYPE == SchedulerType::greedy) {
-        return std::make_unique<GreedyScheduler>(*topo, tqdm);
-    } else if (DuostraConfig::SCHEDULER_TYPE == SchedulerType::search) {
-        return std::make_unique<SearchScheduler>(*topo, tqdm);
-    } else if (DuostraConfig::SCHEDULER_TYPE == SchedulerType::base) {
-        return std::make_unique<BaseScheduler>(*topo, tqdm);
+    switch (config.scheduler_type) {
+        case SchedulerType::base:
+            return std::make_unique<BaseScheduler>(*topo, tqdm);
+        case SchedulerType::naive:
+            return std::make_unique<NaiveScheduler>(*topo, tqdm);
+        case SchedulerType::random:
+            return std::make_unique<RandomScheduler>(*topo, tqdm);
+        case SchedulerType::greedy:
+            return std::make_unique<GreedyScheduler>(*topo, config, tqdm);
+        case SchedulerType::search:
+            return std::make_unique<SearchScheduler>(*topo, config, tqdm);
     }
-    DVLAB_UNREACHABLE("Scheduler type not found");
+
     return nullptr;
 }
 

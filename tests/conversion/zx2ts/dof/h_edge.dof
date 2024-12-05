@@ -12,7 +12,7 @@ zx2ts
 logger warn
 
 // both edges are S-edge
-zx edge remove 2 1 ALL
+zx edge remove 2 1
 zx edge add 2 1 SIMPLE
 
 logger trace
@@ -20,7 +20,7 @@ zx2ts
 logger warn
 
 // in-edge are H-edge
-zx edge remove 0 2 ALL
+zx edge remove 0 2
 zx edge add 2 0 HADAMARD
 
 logger trace
@@ -28,7 +28,7 @@ zx2ts
 logger warn
 
 // Both edges are H-edge
-zx edge remove 1 2 ALL
+zx edge remove 1 2
 zx edge add 2 1 HADAMARD
 
 logger trace

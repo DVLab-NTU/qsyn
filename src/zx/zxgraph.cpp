@@ -11,6 +11,7 @@
 
 #include <algorithm>
 #include <numeric>
+#include <queue>
 #include <ranges>
 
 #include "./zx_def.hpp"
@@ -34,9 +35,11 @@ namespace qsyn::zx {
  */
 ZXGraph::ZXGraph(ZXVertexList const& vertices,
                  ZXVertexList const& inputs,
-                 ZXVertexList const& outputs) : _inputs{inputs}, _outputs{outputs}, _vertices{vertices} {
+                 ZXVertexList const& outputs)
+    : _inputs{inputs}, _outputs{outputs}, _vertices{vertices} {
     for (auto v : _vertices) {
         v->set_id(_next_v_id);
+        _id_to_vertices.emplace(_next_v_id, v);
         _next_v_id++;
     }
     for (auto v : _inputs) {
@@ -49,18 +52,18 @@ ZXGraph::ZXGraph(ZXVertexList const& vertices,
     }
 }
 
-ZXGraph::ZXGraph(ZXGraph const& other) : _filename{other._filename}, _procedures{other._procedures} {
+ZXGraph::ZXGraph(ZXGraph const& other) : _filename{other._filename}, _procedures{other._procedures}, _next_v_id(other._next_v_id) {
     std::unordered_map<ZXVertex*, ZXVertex*> old_to_new_vertex_map;
 
-    for (auto& v : other._vertices) {
+    for (auto& v : other.get_vertices()) {
         if (v->is_boundary()) {
             if (other._inputs.contains(v)) {
-                old_to_new_vertex_map[v] = this->add_input(v->get_qubit(), v->get_col());
+                old_to_new_vertex_map[v] = this->add_input(v->get_id(), v->get_qubit(), v->get_row(), v->get_col());
             } else {
-                old_to_new_vertex_map[v] = this->add_output(v->get_qubit(), v->get_col());
+                old_to_new_vertex_map[v] = this->add_output(v->get_id(), v->get_qubit(), v->get_row(), v->get_col());
             }
         } else if (v->is_z() || v->is_x() || v->is_hbox()) {
-            old_to_new_vertex_map[v] = this->add_vertex(v->get_type(), v->get_phase(), v->get_row(), v->get_col());
+            old_to_new_vertex_map[v] = this->add_vertex(v->get_id(), v->type(), v->phase(), v->get_row(), v->get_col());
         }
     }
 
@@ -70,15 +73,105 @@ ZXGraph::ZXGraph(ZXGraph const& other) : _filename{other._filename}, _procedures
 }
 
 /**
+ * @brief Returns true if two ZXGraph have the same ID-vertex correspondences,
+ *        qubit-IO correspondences, and connectivity between vertices.
+ *        This comparison takes $O(|V| + |E|)$ time.
+ *
+ * @param other
+ * @return true
+ * @return false
+ */
+bool ZXGraph::operator==(ZXGraph const& other) const {
+    // check if all ID-vertex correspondences are the same
+    if (_id_to_vertices.size() != other._id_to_vertices.size()) {
+        return false;
+    }
+    for (auto const& [id, v] : _id_to_vertices) {
+        if (!other._id_to_vertices.contains(id) ||
+            *v != *other._id_to_vertices.at(id)) {
+            return false;
+        }
+    }
+
+    // check if all qubit-IO correspondences are the same
+    if (_input_list.size() != other._input_list.size() ||
+        _output_list.size() != other._output_list.size()) {
+        return false;
+    }
+    for (auto const& [q, v] : _input_list) {
+        if (!other._input_list.contains(q) ||
+            v->get_id() != other._input_list.at(q)->get_id()) {
+            return false;
+        }
+    }
+    for (auto const& [q, v] : _output_list) {
+        if (!other._output_list.contains(q) ||
+            v->get_id() != other._output_list.at(q)->get_id()) {
+            return false;
+        }
+    }
+
+    // check if connectivity between vertices are the same
+    for (auto const& v : _vertices) {
+        for (auto const& [nb, etype] : this->get_neighbors(v)) {
+            if (!other.is_neighbor(v->get_id(), nb->get_id(), etype)) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+/**
+ * @brief Returns true if two ZXGraph have different ID-vertex correspondences,
+ *        qubit-IO correspondences, or connectivity between vertices.
+ *        The comparison takes $O(|V| + |E|)$ time.
+ *
+ * @param other
+ * @return true
+ * @return false
+ */
+bool ZXGraph::operator!=(ZXGraph const& other) const {
+    return !(*this == other);
+}
+
+/**
  * @brief Get the number of edges in ZXGraph
  *
  * @return size_t
  */
-size_t ZXGraph::get_num_edges() const {
+size_t ZXGraph::num_edges() const {
     return std::accumulate(_vertices.begin(), _vertices.end(), 0, [this](size_t sum, ZXVertex* v) {
-               return sum + this->get_num_neighbors(v);
+               return sum + this->num_neighbors(v);
            }) /
            2;
+}
+
+/**
+ * @brief Get an unoccupied vertex ID. Note that this function may not return
+ *        the smallest unoccupied ID. This function is not thread-safe.
+ *
+ * @return size_t
+ */
+size_t const& ZXGraph::_next_vertex_id() const {
+    while (is_v_id(_next_v_id)) {
+        _next_v_id++;
+    }
+    return _next_v_id;
+}
+
+/**
+ * @brief Get an unoccupied vertex ID. Note that this function may not return
+ *        the smallest unoccupied ID. This function is not thread-safe.
+ *
+ * @return size_t
+ */
+size_t& ZXGraph::_next_vertex_id() {
+    while (is_v_id(_next_v_id)) {
+        _next_v_id++;
+    }
+    return _next_v_id;
 }
 
 /*****************************************************/
@@ -96,33 +189,6 @@ bool ZXGraph::is_empty() const {
 }
 
 /**
- * @brief Check if the ZXGraph is valid (i/o connected to 1 vertex, each neighbor matches)
- *
- * @return true
- * @return false
- */
-bool ZXGraph::is_valid() const {
-    for (auto& v : _inputs) {
-        if (this->get_num_neighbors(v) != 1) {
-            spdlog::debug("Error: input {} has {} neighbors, expected 1", v->get_id(), this->get_num_neighbors(v));
-            return false;
-        }
-    }
-    for (auto& v : _outputs) {
-        if (this->get_num_neighbors(v) != 1) {
-            spdlog::debug("Error: output {} has {} neighbors, expected 1", v->get_id(), this->get_num_neighbors(v));
-            return false;
-        }
-    }
-    for (auto& v : _vertices) {
-        for (auto& [nb, etype] : this->get_neighbors(v)) {
-            if (!this->is_neighbor(nb, v, etype)) return false;
-        }
-    }
-    return true;
-}
-
-/**
  * @brief Check if `id` exists
  *
  * @param id
@@ -130,7 +196,23 @@ bool ZXGraph::is_valid() const {
  * @return false
  */
 bool ZXGraph::is_v_id(size_t id) const {
-    return std::ranges::any_of(_vertices, [id](ZXVertex* v) { return v->get_id() == id; });
+    return _id_to_vertices.contains(id);
+}
+
+/**
+ * @brief Check if each input and output is connected to exactly one edge
+ *
+ * @param graph
+ * @return true
+ * @return false
+ */
+bool is_io_connection_valid(ZXGraph const& graph) {
+    return std::ranges::all_of(graph.get_inputs(), [&](ZXVertex* i) {
+               return graph.num_neighbors(i) == 1;
+           }) &&
+           std::ranges::all_of(graph.get_outputs(), [&](ZXVertex* o) {
+               return graph.num_neighbors(o) == 1;
+           });
 }
 
 /**
@@ -139,38 +221,79 @@ bool ZXGraph::is_v_id(size_t id) const {
  * @return true
  * @return false
  */
-bool ZXGraph::is_graph_like() const {
+bool is_graph_like(ZXGraph const& graph) {
     // all internal edges are hadamard edges
-    for (auto const& v : _vertices) {
+    for (auto const& v : graph.get_vertices()) {
         if (!v->is_z() && !v->is_boundary()) {
-            spdlog::debug("Note: vertex {} is of type {}", v->get_id(), v->get_type());
             return false;
-        }
-        for (auto const& [nb, etype] : this->get_neighbors(v)) {
-            if (v->is_boundary() || nb->is_boundary()) continue;
-            if (etype != EdgeType::hadamard) {
-                spdlog::debug("Note: internal edge ({}, {}) is of type {}", v->get_id(), nb->get_id(), etype);
-                return false;
-            }
         }
     }
 
-    // 4. Boundary vertices only has an edge
+    for (auto const& v : graph.get_vertices()) {
+        if (std::ranges::any_of(
+                graph.get_neighbors(v),
+                [&](auto const& neighbor) {
+                    auto const& [nb, etype] = neighbor;
+                    return !v->is_boundary() &&
+                           !nb->is_boundary() &&
+                           etype != EdgeType::hadamard;
+                })) {
+            return false;
+        }
+    }
 
-    return std::ranges::all_of(_inputs, [this](ZXVertex* i) {
-               if (this->get_num_neighbors(i) != 1) {
-                   spdlog::debug("Note: input {} has {} neighbors; expected 1", i->get_id(), this->get_num_neighbors(i));
-                   return false;
-               }
-               return true;
-           }) &&
-           std::ranges::all_of(_outputs, [this](ZXVertex* o) {
-               if (this->get_num_neighbors(o) != 1) {
-                   spdlog::debug("Note: output {} has {} neighbors; expected 1", o->get_id(), this->get_num_neighbors(o));
-                   return false;
-               }
-               return true;
-           });
+    return is_io_connection_valid(graph);
+}
+
+/**
+ * @brief check if the neighbors of g[v_id] are Z-spider connected by hadamard
+ *        edges or valid boundary vertices
+ *
+ * @param g
+ * @param v
+ * @return true
+ * @return false
+ */
+bool is_graph_like_at(ZXGraph const& g, size_t v_id) {
+    auto v = g[v_id];
+    if (v == nullptr) return false;
+    // early return
+    if (v->is_boundary() && g.num_neighbors(v) != 1) {
+        return false;
+    }
+
+    // check v is a Z-spider
+    if (!v->is_z()) {
+        return false;
+    }
+
+    // v's neighbors should either be boundary
+    // or z-spider connected with hadamard edge
+    return std::ranges::all_of(
+        g.get_neighbors(v),
+        [&](auto const& nb_pair) {
+            auto const& [nb, etype] = nb_pair;
+            return nb->is_boundary() && g.num_neighbors(nb) == 1 ||
+                   nb->is_z() && etype == EdgeType::hadamard;
+        });
+}
+
+bool is_interiorly_graph_like_at(ZXGraph const& g, size_t v_id) {
+    auto v = g[v_id];
+    if (v == nullptr) return false;
+    // early return
+    if (!v->is_z()) {
+        return false;
+    }
+
+    // v's neighbors should either be boundary
+    // or z-spider connected with hadamard edge
+    return std::ranges::all_of(
+        g.get_neighbors(v),
+        [&](auto const& nb_pair) {
+            auto const& [nb, etype] = nb_pair;
+            return nb->is_z() && etype == EdgeType::hadamard;
+        });
 }
 
 /**
@@ -181,29 +304,32 @@ bool ZXGraph::is_graph_like() const {
  */
 bool ZXGraph::is_identity() const {
     return all_of(_inputs.begin(), _inputs.end(), [this](ZXVertex* i) {
-        return (this->get_num_neighbors(i) == 1) &&
+        return (this->num_neighbors(i) == 1) &&
                _outputs.contains(this->get_first_neighbor(i).first) &&
                this->get_first_neighbor(i).first->get_qubit() == i->get_qubit();
     });
 }
 
-size_t ZXGraph::get_num_gadgets() const {
+size_t ZXGraph::num_gadgets() const {
     return std::ranges::count_if(_vertices, [this](ZXVertex* v) {
         return this->is_gadget_leaf(v);
     });
 }
 
-/**
- * @brief Return the density of the ZXGraph
- *
- * @return double
- */
-double ZXGraph::density() {
-    return std::accumulate(this->get_vertices().begin(), this->get_vertices().end(), 0,
-                           [this](double sum, ZXVertex* v) {
-                               return sum + std::pow(this->get_num_neighbors(v), 2);
-                           }) /
-           gsl::narrow_cast<double>(this->get_num_vertices());
+bool ZXGraph::is_neighbor(size_t v0_id, size_t v1_id) const {
+    if (!is_v_id(v0_id) || !is_v_id(v1_id)) return false;
+    return is_neighbor(vertex(v0_id), vertex(v1_id));
+}
+bool ZXGraph::is_neighbor(size_t v0_id, size_t v1_id, EdgeType et) const {
+    if (!is_v_id(v0_id) || !is_v_id(v1_id)) return false;
+    return is_neighbor(vertex(v0_id), vertex(v1_id), et);
+}
+
+std::vector<size_t> ZXGraph::get_neighbor_ids(ZXVertex* v) const {
+    return get_neighbors(v) |
+           std::views::keys |
+           std::views::transform(&ZXVertex::get_id) |
+           tl::to<std::vector>();
 }
 
 /*****************************************************/
@@ -215,13 +341,23 @@ ZXVertex* ZXGraph::add_input(QubitIdType qubit, float col) {
 }
 
 ZXVertex* ZXGraph::add_input(QubitIdType qubit, float row, float col) {
-    assert(!is_input_qubit(qubit));
+    return add_input(_next_vertex_id()++, qubit, row, col);
+}
 
-    auto v = new ZXVertex(_next_v_id, qubit, VertexType::boundary, Phase(), row, col);
+ZXVertex* ZXGraph::add_input(size_t id, QubitIdType qubit, float row, float col) {
+    if (_id_to_vertices.contains(id)) {
+        spdlog::warn("Vertex with id {} already exists", id);
+        return nullptr;
+    }
+    if (is_input_qubit(qubit)) {
+        spdlog::warn("Input qubit {} already exists", qubit);
+        return nullptr;
+    }
+    auto v = new ZXVertex(id, qubit, VertexType::boundary, Phase(), row, col);
     _inputs.emplace(v);
     _input_list.emplace(qubit, v);
     _vertices.emplace(v);
-    _next_v_id++;
+    _id_to_vertices.emplace(id, v);
     return v;
 }
 
@@ -230,29 +366,65 @@ ZXVertex* ZXGraph::add_output(QubitIdType qubit, float col) {
 }
 
 ZXVertex* ZXGraph::add_output(QubitIdType qubit, float row, float col) {
-    assert(!is_output_qubit(qubit));
+    return add_output(_next_vertex_id()++, qubit, row, col);
+}
 
-    auto v = new ZXVertex(_next_v_id, qubit, VertexType::boundary, Phase(), row, col);
+ZXVertex* ZXGraph::add_output(size_t id, QubitIdType qubit, float row, float col) {
+    if (_id_to_vertices.contains(id)) {
+        spdlog::warn("Vertex with id {} already exists", id);
+        return nullptr;
+    }
+    if (is_output_qubit(qubit)) {
+        spdlog::warn("Output qubit {} already exists", qubit);
+        return nullptr;
+    }
+    auto v = new ZXVertex(id, qubit, VertexType::boundary, Phase(), row, col);
     _outputs.emplace(v);
     _output_list.emplace(qubit, v);
     _vertices.emplace(v);
-    _next_v_id++;
+    _id_to_vertices.emplace(id, v);
     return v;
 }
 
 /**
  * @brief Add a vertex to the ZXGraph.
  *
- * @param qubit the qubit to the ZXVertex. In case of adding a boundary vertex, it is the user's responsibility to maintain non-overlapping input and output qubit IDs.
- * @param vt vertex type. In case of adding boundary vertex, it is the user's responsibility to maintain non-overlapping input and output qubit IDs.
+ * @param qubit the qubit to the ZXVertex. In case of adding a boundary vertex,
+ *        it is the user's responsibility to maintain non-overlapping input and
+ *        output qubit IDs.
+ * @param vt vertex type. In case of adding boundary vertex, it is the user's
+ *        responsibility to maintain non-overlapping input and output qubit IDs.
  * @param phase the phase
  * @return ZXVertex*
  */
-ZXVertex* ZXGraph::add_vertex(VertexType vt, Phase phase, float row, float col) {
-    auto v = new ZXVertex(_next_v_id, 0, vt, phase, row, col);
+ZXVertex*
+ZXGraph::add_vertex(VertexType vt, Phase phase, float row, float col) {
+    return add_vertex(_next_vertex_id()++, vt, phase, row, col);
+}
+
+ZXVertex*
+ZXGraph::add_vertex(
+    size_t id, VertexType vt, Phase phase, float row, float col) {
+    if (_id_to_vertices.contains(id)) {
+        spdlog::warn("Vertex with id {} already exists", id);
+        return nullptr;
+    }
+    auto v = new ZXVertex(id, 0, vt, phase, row, col);
     _vertices.emplace(v);
-    _next_v_id++;
+    _id_to_vertices.emplace(id, v);
     return v;
+}
+
+ZXVertex*
+ZXGraph::add_vertex(std::optional<size_t> id,
+                    VertexType vt,
+                    Phase phase,
+                    float row,
+                    float col) {
+    if (id.has_value()) {
+        return add_vertex(id.value(), vt, phase, row, col);
+    }
+    return add_vertex(vt, phase, row, col);
 }
 
 /**
@@ -265,47 +437,71 @@ ZXVertex* ZXGraph::add_vertex(VertexType vt, Phase phase, float row, float col) 
  */
 void ZXGraph::add_edge(ZXVertex* vs, ZXVertex* vt, EdgeType et) {
     if (vs == vt) {
-        vs->set_phase(vs->get_phase() + (et == EdgeType::hadamard ? Phase(1) : Phase(0)));
+        if (!vs->is_zx()) {
+            throw std::logic_error(
+                "Cannot add an edge between a boundary vertex and itself");
+        }
+        vs->phase() += (et == EdgeType::hadamard ? Phase(1) : Phase(0));
         return;
     }
 
     if (vs->get_id() > vt->get_id()) std::swap(vs, vt);
 
-    // in case an edge already exists
-    if (this->is_neighbor(vs, vt, et)) {
-        // if vs or vt (or both) is H-box,
-        // there isn't a way to merge or cancel out with the current edge
-        // To circumvent this, we add a new vertex in the middle of the edge
-        // and connect the new vertex to both vs and vt
-        if (vs->is_hbox() || vt->is_hbox()) {
-            ZXVertex* v = add_vertex(
-                et == EdgeType::hadamard ? VertexType::h_box : VertexType::z,
-                et == EdgeType::hadamard ? Phase(1) : Phase(0),
-                (vs->get_row() + vt->get_row()) / 2,
-                (vs->get_col() + vt->get_col()) / 2);
-            vs->_neighbors.emplace(v, EdgeType::simple);
-            v->_neighbors.emplace(vs, EdgeType::simple);
-            vt->_neighbors.emplace(v, EdgeType::simple);
-            v->_neighbors.emplace(vt, EdgeType::simple);
-
-            return;
-        }
-
-        // Z and X vertices: merge or cancel out
-        if (
-            (vs->is_z() && vt->is_x() && et == EdgeType::simple) ||
-            (vs->is_x() && vt->is_z() && et == EdgeType::simple) ||
-            (vs->is_z() && vt->is_z() && et == EdgeType::hadamard) ||
-            (vs->is_x() && vt->is_x() && et == EdgeType::hadamard)) {
-            vs->_neighbors.erase({vt, et});
-            vt->_neighbors.erase({vs, et});
-        }  // else do nothing
-
+    // if vs and vt are not neighbors, simply add the edge
+    if (!this->is_neighbor(vs, vt)) {
+        vs->_neighbors.emplace(vt, et);
+        vt->_neighbors.emplace(vs, et);
         return;
     }
 
-    vs->_neighbors.emplace(vt, et);
-    vt->_neighbors.emplace(vs, et);
+    // when vs and vt are neighbors, try to merge or cancel out the edge
+
+    // If one or both vertices are not Z/X-spiders,
+    // we can't merge or cancel out the edges in an meaningful way
+    if (!vs->is_zx() || !vt->is_zx()) {
+        throw std::logic_error(
+            fmt::format(
+                "Cannot add >1 between {}({}) and {}({})",
+                vs->type(), vs->get_id(),
+                vt->type(), vt->get_id()));
+    }
+
+    auto const existing_etype = this->get_edge_type(vs, vt).value();
+
+    auto const same_type = vs->type() == vt->type();
+    auto const to_merge  = same_type ? EdgeType::simple : EdgeType::hadamard;
+    auto const to_cancel = same_type ? EdgeType::hadamard : EdgeType::simple;
+    // Z and X vertices: merge or cancel out
+
+    if (existing_etype == to_merge && et == to_merge) {
+        // new edge can be merged with existing edge
+        // do nothing
+    } else if (existing_etype == to_cancel && et == to_cancel) {
+        // new edge can be canceled out with existing edge
+        this->remove_edge(vs, vt, to_cancel);
+    } else {
+        // one edge is to_merge and the other is to_cancel
+        // keep the to_merge edge and turn the to_cancel edge into a pi phase
+        if (existing_etype == to_cancel) {
+            this->remove_edge(vs, vt, to_cancel);
+            vs->_neighbors.emplace(vt, to_merge);
+            vt->_neighbors.emplace(vs, to_merge);
+        }
+
+        vs->phase() += Phase(1);
+    }
+}
+
+void ZXGraph::add_edge(size_t v0_id, size_t v1_id, EdgeType et) {
+    if (!is_v_id(v0_id)) {
+        spdlog::warn("Vertex with id {} does not exist", v0_id);
+        return;
+    }
+    if (!is_v_id(v1_id)) {
+        spdlog::warn("Vertex with id {} does not exist", v1_id);
+        return;
+    }
+    add_edge(vertex(v0_id), vertex(v1_id), et);
 }
 
 /**
@@ -315,14 +511,18 @@ void ZXGraph::add_edge(ZXVertex* vs, ZXVertex* vt, EdgeType et) {
  */
 void ZXGraph::_move_vertices_from(ZXGraph& other) {
     _vertices.insert(other._vertices.begin(), other._vertices.end());
-    other.relabel_vertex_ids(_next_v_id);
-    _next_v_id += other.get_num_vertices();
+    for (auto v : other._vertices) {
+        v->set_id(_next_v_id);
+        _id_to_vertices.emplace(_next_v_id, v);
+        _next_v_id++;
+    }
 
     other._vertices.clear();
     other._inputs.clear();
     other._outputs.clear();
     other._input_list.clear();
     other._output_list.clear();
+    other._id_to_vertices.clear();
 }
 
 /*****************************************************/
@@ -336,7 +536,7 @@ void ZXGraph::_move_vertices_from(ZXGraph& other) {
 size_t ZXGraph::remove_isolated_vertices() {
     std::vector<ZXVertex*> rm_list;
     for (auto const& v : _vertices) {
-        if (this->get_num_neighbors(v) == 0) rm_list.emplace_back(v);
+        if (this->num_neighbors(v) == 0) rm_list.emplace_back(v);
     }
     return remove_vertices(rm_list);
 }
@@ -357,6 +557,7 @@ size_t ZXGraph::remove_vertex(ZXVertex* v) {
         nv->_neighbors.erase({v, ne});
     }
     _vertices.erase(v);
+    _id_to_vertices.erase(v->get_id());
 
     // Check if also in _inputs or _outputs
     if (_inputs.contains(v)) {
@@ -373,6 +574,14 @@ size_t ZXGraph::remove_vertex(ZXVertex* v) {
     return 1;
 }
 
+size_t ZXGraph::remove_vertex(size_t id) {
+    if (!is_v_id(id)) {
+        spdlog::warn("Vertex with id {} does not exist", id);
+        return 0;
+    }
+    return remove_vertex(vertex(id));
+}
+
 /**
  * @brief Remove all vertex in vertices by calling `removeVertex(ZXVertex* v)`
  *
@@ -385,6 +594,13 @@ size_t ZXGraph::remove_vertices(std::vector<ZXVertex*> const& vertices) {
         });
 }
 
+size_t ZXGraph::remove_vertices(std::vector<size_t> const& ids) {
+    return std::transform_reduce(
+        ids.begin(), ids.end(), 0, std::plus{}, [this](size_t id) {
+            return remove_vertex(id);
+        });
+}
+
 /**
  * @brief Remove an edge exactly equal to `ep`.
  *
@@ -392,6 +608,18 @@ size_t ZXGraph::remove_vertices(std::vector<ZXVertex*> const& vertices) {
  */
 size_t ZXGraph::remove_edge(EdgePair const& ep) {
     return remove_edge(ep.first.first, ep.first.second, ep.second);
+}
+
+size_t ZXGraph::remove_edge(size_t v0_id, size_t v1_id, EdgeType et) {
+    if (!is_v_id(v0_id)) {
+        spdlog::warn("Vertex with id {} does not exist", v0_id);
+        return 0;
+    }
+    if (!is_v_id(v1_id)) {
+        spdlog::warn("Vertex with id {} does not exist", v1_id);
+        return 0;
+    }
+    return remove_edge(vertex(v0_id), vertex(v1_id), et);
 }
 
 /**
@@ -429,7 +657,7 @@ size_t ZXGraph::remove_edges(std::span<EdgePair const> epairs) {
  * @param vs
  * @param vt
  */
-size_t ZXGraph::remove_all_edges_between(ZXVertex* vs, ZXVertex* vt) {
+size_t ZXGraph::remove_edge(ZXVertex* vs, ZXVertex* vt) {
     return remove_edge(vs, vt, EdgeType::simple) + remove_edge(vs, vt, EdgeType::hadamard);
 }
 
@@ -447,7 +675,7 @@ void ZXGraph::adjoint() {
     auto max_col = std::ranges::max(_vertices | std::views::transform([](ZXVertex* v) { return v->get_col(); }));
 
     std::ranges::for_each(_vertices, [&max_col](ZXVertex* v) {
-        v->set_phase(-v->get_phase());
+        v->phase() *= -1;
         v->set_col(max_col - v->get_col());
     });
 }
@@ -469,42 +697,6 @@ void ZXGraph::assign_vertex_to_boundary(QubitIdType qubit, bool is_input, Vertex
     remove_vertex(boundary);
 }
 
-/**
- * @brief transfer the phase of the specified vertex to a unary gadget. This function does nothing
- *        if the target vertex is not a Z-spider.
- *
- * @param v
- * @param keepPhase if specified, keep this amount of phase on the vertex and only transfer the rest.
- */
-void ZXGraph::gadgetize_phase(ZXVertex* v, Phase const& keep_phase) {
-    if (!v->is_z()) return;
-    ZXVertex* leaf   = this->add_vertex(VertexType::z, v->get_phase() - keep_phase, -2, v->get_col());
-    ZXVertex* buffer = this->add_vertex(VertexType::z, Phase(0), -1, v->get_col());
-    v->set_phase(keep_phase);
-
-    this->add_edge(leaf, buffer, EdgeType::hadamard);
-    this->add_edge(buffer, v, EdgeType::hadamard);
-}
-/**
- * @brief Add a Z-spider to buffer a vertex from another vertex, so that they don't come in
- *        contact with each other on the edge with specified edge type. If such edge does not
- *        exists, this function does nothing.
- *
- * @param vertex_to_protect the vertex to protect
- * @param vertex_other the vertex to buffer from
- * @param etype the edgetype the buffer should be added on
- */
-ZXVertex* ZXGraph::add_buffer(ZXVertex* vertex_to_protect, ZXVertex* vertex_other, EdgeType etype) {
-    if (!this->is_neighbor(vertex_to_protect, vertex_other, etype)) return nullptr;
-
-    ZXVertex* buffer_vertex = this->add_vertex(VertexType::z, Phase(0), vertex_to_protect->get_row(), (vertex_to_protect->get_col() + vertex_other->get_col()) / 2);
-
-    this->add_edge(vertex_to_protect, buffer_vertex, toggle_edge(etype));
-    this->add_edge(buffer_vertex, vertex_other, EdgeType::hadamard);
-    this->remove_edge(vertex_to_protect, vertex_other, etype);
-    return buffer_vertex;
-}
-
 /*****************************************************/
 /*   class ZXGraph Find functions.                   */
 /*****************************************************/
@@ -515,9 +707,8 @@ ZXVertex* ZXGraph::add_buffer(ZXVertex* vertex_to_protect, ZXVertex* vertex_othe
  * @param id
  * @return ZXVertex*
  */
-ZXVertex* ZXGraph::find_vertex_by_id(size_t const& id) const {
-    auto it = std::ranges::find_if(_vertices, [id](ZXVertex* v) { return v->get_id() == id; });
-    return it == _vertices.end() ? nullptr : *it;
+ZXVertex* ZXGraph::vertex(size_t const& id) const {
+    return is_v_id(id) ? _id_to_vertices.at(id) : nullptr;
 }
 
 dvlab::BooleanMatrix get_biadjacency_matrix(ZXGraph const& graph, ZXVertexList const& row_vertices, ZXVertexList const& col_vertices) {
@@ -528,6 +719,77 @@ dvlab::BooleanMatrix get_biadjacency_matrix(ZXGraph const& graph, ZXVertexList c
         }
     }
     return matrix;
+}
+
+// free functions that compute graph properties'
+
+/**
+ * @brief Return the density of the ZXGraph
+ *
+ * @return double
+ */
+double density(ZXGraph const& graph) {
+    return std::transform_reduce(
+               graph.get_vertices().begin(), graph.get_vertices().end(),
+               0.0,
+               std::plus<>(),
+               [&](ZXVertex* v) {
+                   return graph.num_neighbors(v);
+               }) /
+           gsl::narrow_cast<double>(graph.num_vertices());
+}
+
+size_t t_count(ZXGraph const& graph) {
+    return std::ranges::count_if(
+        graph.get_vertices(),
+        [](ZXVertex* v) { return (v->phase().denominator() == 4); });
+}
+size_t non_clifford_count(ZXGraph const& graph) {
+    return std::ranges::count_if(
+        graph.get_vertices(),
+        [](ZXVertex* v) { return !v->is_clifford(); });
+}
+size_t non_clifford_t_count(ZXGraph const& graph) {
+    return non_clifford_count(graph) - t_count(graph);
+}
+
+std::vector<size_t> closed_neighborhood(ZXGraph const& graph,
+                                        std::vector<size_t> const& vertices,
+                                        size_t level) {
+    auto result = vertices;
+    // remove invalid vertices
+    std::erase_if(result, [&](auto v_id) {
+        return !graph.is_v_id(v_id);
+    });
+
+    auto visited = std::unordered_set<size_t>(
+        result.begin(), result.end());
+    std::queue<std::pair<size_t, size_t>> queue;
+    for (auto const& v : result) {
+        queue.push({v, 0});
+    }
+
+    while (!queue.empty()) {
+        auto const [v, d] = queue.front();
+        queue.pop();
+        if (d > level) continue;
+        for (auto const& [nb, etype] : graph.get_neighbors(graph[v])) {
+            if (visited.contains(nb->get_id())) continue;
+            result.emplace_back(nb->get_id());
+            visited.emplace(nb->get_id());
+            queue.push({nb->get_id(), d + 1});
+        }
+    }
+
+    return result;
+}
+
+std::vector<size_t> get_isolated_vertices(ZXGraph const& graph) {
+    return graph.get_vertices() | std::views::filter([&](ZXVertex* v) {
+               return graph.num_neighbors(v) == 0;
+           }) |
+           std::views::transform(&ZXVertex::get_id) |
+           tl::to<std::vector>();
 }
 
 }  // namespace qsyn::zx

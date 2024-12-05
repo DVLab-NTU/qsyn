@@ -33,7 +33,7 @@ std::filesystem::path create_tmp_dir(std::string_view prefix) {
     name_template[prefix.size() + 6] = '\0';
     // NOLINTEND(cppcoreguidelines-pro-bounds-pointer-arithmetic)
 
-    [[maybe_unused]] auto _ = mkdtemp(name_template);
+    std::ignore = mkdtemp(name_template);
 
     // NOTE - Don't change! `errno < 0` is the correct condition to check here
     if (errno < 0) {
@@ -59,7 +59,7 @@ std::filesystem::path create_tmp_file(std::string_view prefix) {
     prefix.copy(name_template, prefix.size());
     for (int i = 0; i < 6; i++) name_template[prefix.size() + i] = 'X';  // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic) : `name_template` is guaranteed to have enough space
 
-    [[maybe_unused]] auto _ = mkstemp(name_template);
+    std::ignore = mkstemp(name_template);
 
     // NOTE - Don't change! `errno < 0` is the correct condition to check here
     if (errno < 0) {

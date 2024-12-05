@@ -28,10 +28,10 @@ DepGraphNode(id: 0, xag_id: 6, deps: [])
 
 qsyn> qcir print -g
 Listed by gate ID
-0 (t= 1): x    q[0]
-1 (t= 2): x    q[0]
-2 (t= 7): ccx  q[0],  q[1],  q[3]
-3 (t=12): ccx  q[0],  q[2],  q[3]
+0 (t=1): x    q[0]
+1 (t=2): x    q[0]
+2 (t=3): ccx  q[0],  q[1],  q[3]
+3 (t=4): ccx  q[0],  q[2],  q[3]
 
 qsyn> quit -f
 

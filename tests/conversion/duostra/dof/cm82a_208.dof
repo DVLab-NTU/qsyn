@@ -1,6 +1,3 @@
-qcir config
-qcir config --double-delay 2 --swap-delay 6
-qcir config
 qcir read benchmark/SABRE/large/cm82a_208.qasm
 device read benchmark/topology/guadalupe_16.layout 
 qcir print --statistics

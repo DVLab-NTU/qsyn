@@ -44,12 +44,17 @@ AStarNode::AStarNode(size_t cost, QubitIdType id, bool source)
  * @param cost
  * @param orient
  */
-Router::Router(Device device, Router::CostStrategyType cost_strategy, MinMaxOptionType tie_breaking_strategy)
+Router::Router(
+    Device device,
+    RouterType type,
+    Router::CostStrategyType cost_strategy,
+    MinMaxOptionType tie_breaking_strategy)
     : _tie_breaking_strategy(tie_breaking_strategy),
       _device(std::move(device)),
       _logical_to_physical({}),
-      _apsp(DuostraConfig::ROUTER_TYPE == RouterType::shortest_path || cost_strategy == CostStrategyType::end),
-      _duostra(DuostraConfig::ROUTER_TYPE == RouterType::duostra) {
+      _apsp(type == RouterType::shortest_path ||
+            cost_strategy == CostStrategyType::end),
+      _duostra(type == RouterType::duostra) {
     _initialize();
 }
 
@@ -155,7 +160,7 @@ bool Router::is_executable(qcir::QCirGate const& gate) {
 GateInfo Router::execute_single(qcir::QCirGate const& gate, QubitIdType q) {
     auto& qubit           = _device.get_physical_qubit(q);
     auto const start_time = qubit.get_occupied_time();
-    auto const end_time   = start_time + gate.get_delay();
+    auto const end_time   = start_time + _device.get_delay(gate);
     qubit.set_occupied_time(end_time);
     qubit.reset();
     auto op = qcir::QCirGate{0, gate.get_operation(), QubitIdList{q, max_qubit_id}};
@@ -206,6 +211,8 @@ std::vector<GateInfo> Router::duostra_routing(qcir::QCirGate const& gate, std::t
     auto is_adjacent  = get<0>(touch0);
     _touch_adjacency(t1, priority_queue, true);
 
+    auto const swap_delay = _device.get_delay(QCirGate{SwapGate{}, {0, 1}});
+
     // the two paths from the two sources propagate until the two paths meet each other
     while (!is_adjacent) {
         // each iteration gets an element from the priority queue
@@ -218,8 +225,8 @@ std::vector<GateInfo> Router::duostra_routing(qcir::QCirGate const& gate, std::t
 
         // mark the element as visited and check its neighbors
         auto const cost = next.get_cost();
-        assert(cost >= SWAP_DELAY);
-        auto const operation_time = cost - SWAP_DELAY;
+        assert(cost >= swap_delay);
+        auto const operation_time = cost - swap_delay;
         q_next.take_route(cost, operation_time);
         auto const touch = _touch_adjacency(q_next, priority_queue, next.get_source());
         is_adjacent      = get<0>(touch);
@@ -271,13 +278,13 @@ std::vector<GateInfo> Router::apsp_routing(qcir::QCirGate const& gate, std::tupl
                                         _device.get_physical_qubit(q1_id).get_logical_qubit())) {
             auto op = qcir::QCirGate(0, SwapGate{}, QubitIdList{q0_id, q0_next});
             _device.apply_gate(op, q0_cost);
-            GateInfo gate_info = {op, {q0_cost, q0_cost + SWAP_DELAY}};
+            GateInfo gate_info = {op, {q0_cost, q0_cost + _device.get_delay(op)}};
             operation_list.emplace_back(std::move(gate_info));
             q0_id = q0_next;
         } else {
             auto op = qcir::QCirGate(0, SwapGate{}, QubitIdList{q1_id, q1_next});
             _device.apply_gate(op, q1_cost);
-            GateInfo gate_info = {op, {q1_cost, q1_cost + SWAP_DELAY}};
+            GateInfo gate_info = {op, {q1_cost, q1_cost + _device.get_delay(op)}};
             operation_list.emplace_back(std::move(gate_info));
             q1_id = q1_next;
         }
@@ -290,7 +297,7 @@ std::vector<GateInfo> Router::apsp_routing(qcir::QCirGate const& gate, std::tupl
     auto cx_gate = qcir::QCirGate(0, gate.get_operation(), QubitIdList{q0_id, q1_id});
     _device.apply_gate(cx_gate, gate_cost);
 
-    GateInfo gate_info = {cx_gate, {gate_cost, gate_cost + gate.get_delay()}};
+    GateInfo gate_info = {cx_gate, {gate_cost, gate_cost + _device.get_delay(gate)}};
     operation_list.emplace_back(std::move(gate_info));
     return operation_list;
 }
@@ -322,7 +329,7 @@ std::tuple<bool, QubitIdType> Router::_touch_adjacency(PhysicalQubit& qubit, Pri
         }
 
         // push the node into the priority queue
-        auto const cost = std::max(qubit.get_cost(), adj.get_occupied_time()) + SWAP_DELAY;
+        auto const cost = std::max(qubit.get_cost(), adj.get_occupied_time()) + _device.get_delay(QCirGate{SwapGate{}, {0, 1}});
         adj.mark(source, qubit.get_id());
 
         pq.push(AStarNode(cost, adj.get_id(), source));
@@ -358,7 +365,7 @@ std::vector<GateInfo> Router::_traceback(qcir::QCirGate const& gate, PhysicalQub
     auto const qids = swap_ids ? QubitIdList{q1.get_id(), q0.get_id()} : QubitIdList{q0.get_id(), q1.get_id()};
 
     auto cx_gate       = qcir::QCirGate(0, gate.get_operation(), qids);
-    GateInfo gate_info = {cx_gate, {operation_time, operation_time + gate.get_delay()}};
+    GateInfo gate_info = {cx_gate, {operation_time, operation_time + _device.get_delay(gate)}};
     operation_list.emplace_back(std::move(gate_info));
 
     // traceback by tracing the parent iteratively
@@ -372,7 +379,7 @@ std::vector<GateInfo> Router::_traceback(qcir::QCirGate const& gate, PhysicalQub
 
         auto const swap_time = q_trace0.get_swap_time();
         auto op              = qcir::QCirGate(0, SwapGate{}, QubitIdList{trace0, trace_pred0});
-        GateInfo gate_info   = {op, {swap_time, swap_time + SWAP_DELAY}};
+        GateInfo gate_info   = {op, {swap_time, swap_time + _device.get_delay(op)}};
         operation_list.emplace_back(std::move(gate_info));
         trace0 = trace_pred0;
     }
@@ -383,7 +390,7 @@ std::vector<GateInfo> Router::_traceback(qcir::QCirGate const& gate, PhysicalQub
 
         auto const swap_time = q_trace1.get_swap_time();
         auto op              = qcir::QCirGate(0, SwapGate{}, QubitIdList{trace1, trace_pred1});
-        GateInfo gate_info   = {op, {swap_time, swap_time + SWAP_DELAY}};
+        GateInfo gate_info   = {op, {swap_time, swap_time + _device.get_delay(op)}};
         operation_list.emplace_back(std::move(gate_info));
         trace1 = trace_pred1;
     }

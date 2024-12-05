@@ -8,6 +8,7 @@
 #include "./stabilizer_tableau.hpp"
 
 #include <ranges>
+#include <tl/adjacent.hpp>
 #include <tl/to.hpp>
 
 #include "tableau/pauli_rotation.hpp"
@@ -295,6 +296,18 @@ CliffordOperatorString AGSynthesisStrategy::synthesize(StabilizerTableau copy) c
     return clifford_ops;
 }
 
+namespace {
+std::vector<size_t> get_qubits_with_stabilizer_set(StabilizerTableau const& tableau, size_t qubit) {
+    std::vector<size_t> qubits_with_stabilizer_set;
+    for (size_t i = 0; i < tableau.n_qubits(); ++i) {
+        if (tableau.stabilizer(qubit).is_x_set(i)) {
+            qubits_with_stabilizer_set.push_back(i);
+        }
+    }
+    return qubits_with_stabilizer_set;
+}
+}  // namespace
+
 CliffordOperatorString HOptSynthesisStrategy::synthesize(StabilizerTableau copy) const {
     CliffordOperatorString diag_ops;
 
@@ -317,19 +330,24 @@ CliffordOperatorString HOptSynthesisStrategy::synthesize(StabilizerTableau copy)
     for (size_t i = 0; i < copy.n_qubits(); ++i) {
         if (stop_requested()) break;
         auto const qubit_range = std::views::iota(0ul, copy.n_qubits());
-        auto qubit_it          = std::ranges::find_if(
-            qubit_range,
-            [&, i](size_t t) {
-                return copy.stabilizer(i).is_x_set(t);
-            });
+        auto const qubits_with_stabilizer_set =
+            get_qubits_with_stabilizer_set(copy, i);
 
-        if (qubit_it == qubit_range.end()) continue;
+        if (qubits_with_stabilizer_set.empty()) continue;
 
-        auto const ctrl = std::ranges::distance(qubit_range.begin(), qubit_it);
-
-        for (size_t targ = ctrl + 1; targ < copy.n_qubits(); ++targ) {
-            if (copy.stabilizer(i).is_x_set(targ)) {
+        auto const ctrl = qubits_with_stabilizer_set.front();
+        if (mode == Mode::star) {
+            for (auto const targ :
+                 qubits_with_stabilizer_set | std::views::drop(1)) {
                 add_cx(ctrl, targ);
+            }
+
+        } else /* staircase */ {
+            for (auto&& [t, c] :
+                 qubits_with_stabilizer_set |
+                     std::views::reverse |
+                     tl::views::pairwise) {
+                add_cx(c, t);
             }
         }
 

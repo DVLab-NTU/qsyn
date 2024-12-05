@@ -6,6 +6,8 @@
 ****************************************************************************/
 
 #include "./zx_rules_template.hpp"
+#include "zx/zx_def.hpp"
+#include "zx/zxgraph.hpp"
 
 using namespace qsyn::zx;
 
@@ -16,14 +18,11 @@ using MatchType = PivotRule::MatchType;
  *
  * @param graph
  * @param candidates the vertices to be considered
- * @param allow_overlapping_candidates whether to allow overlapping candidates. If true, needs to manually check for overlapping candidates.
  * @return std::vector<MatchType>
  */
 std::vector<MatchType> PivotRule::find_matches(
     ZXGraph const& graph,
-    std::optional<ZXVertexList> candidates,
-    bool allow_overlapping_candidates  //
-) const {
+    std::optional<ZXVertexList> candidates) const {
     std::vector<MatchType> matches;
 
     if (!candidates.has_value()) {
@@ -56,9 +55,9 @@ std::vector<MatchType> PivotRule::find_matches(
                 }
             }
         }
-        matches.emplace_back(vs, vt);
+        matches.emplace_back(vs->get_id(), vt->get_id());
 
-        if (allow_overlapping_candidates) return;
+        if (_allow_overlapping_candidates) return;
 
         candidates->erase(vs);
         candidates->erase(vt);
@@ -68,22 +67,4 @@ std::vector<MatchType> PivotRule::find_matches(
     });
 
     return matches;
-}
-
-void PivotRule::apply(ZXGraph& graph, std::vector<MatchType> const& matches) const {
-    for (auto const& [vs, vt] : matches) {
-        for (auto& v : {vs, vt}) {
-            for (auto& [nb, et] : graph.get_neighbors(v)) {
-                if (nb->is_z() && et == EdgeType::hadamard) continue;
-                if (nb->is_boundary()) {
-                    graph.add_buffer(nb, v, et);
-                    goto next_pair;
-                }
-            }
-        }
-    next_pair:
-        continue;
-    }
-
-    PivotRuleInterface::apply(graph, matches);
 }

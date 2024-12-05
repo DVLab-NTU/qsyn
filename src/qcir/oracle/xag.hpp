@@ -16,6 +16,8 @@
 #include <set>
 #include <vector>
 
+#include "util/util.hpp"
+
 namespace qsyn::qcir {
 
 // TODO: use output node to represent the output of the circuit
@@ -88,8 +90,8 @@ public:
     XAGNode const& get_node(XAGNodeID id) const { return _nodes[id.get()]; }
     void set_node(size_t id, XAGNode node) { _nodes[id] = std::move(node); }
     std::vector<XAGNode> const& get_nodes() const { return _nodes; }
-    bool is_output(XAGNodeID const& id) const { return std::find(outputs.begin(), outputs.end(), id) != outputs.end(); }
-    bool is_input(XAGNodeID const& id) const { return std::find(inputs.begin(), inputs.end(), id) != inputs.end(); }
+    bool is_output(XAGNodeID const& id) const { return dvlab::contains(outputs, id); }
+    bool is_input(XAGNodeID const& id) const { return dvlab::contains(inputs, id); }
 
     std::vector<XAGNodeID> get_cone_node_ids(XAGNodeID const& node_id, XAGCut const& cut) const;
     std::vector<XAGNodeID> calculate_topological_order();

@@ -43,13 +43,13 @@ qsyn> zx compose 0
 qsyn> zx optimize --full
 [info]     Hadamard Rule                 1 iterations, total    2 matches
 [debug]       1) 2 matches
-[info]     Spider Fusion Rule            4 iterations, total   14 matches
+[info]     Spider Fusion Rule            4 iterations, total   15 matches
 [debug]       1) 6 matches
 [debug]       2) 4 matches
-[debug]       3) 2 matches
+[debug]       3) 3 matches
 [debug]       4) 2 matches
-[info]     Identity Removal Rule         1 iterations, total    2 matches
-[debug]       1) 2 matches
+[info]     Identity Removal Rule         1 iterations, total    1 matches
+[debug]       1) 1 matches
 [info]     Pivot Rule                    1 iterations, total    1 matches
 [debug]       1) 1 matches
 [info]     Identity Removal Rule         1 iterations, total    1 matches

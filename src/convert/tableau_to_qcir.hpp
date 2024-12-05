@@ -31,6 +31,20 @@ struct TParPauliRotationsSynthesisStrategy : public PauliRotationsSynthesisStrat
 };
 
 struct GraySynthPauliRotationsSynthesisStrategy : public PauliRotationsSynthesisStrategy {
+    enum class Mode { star,
+                      staircase };
+    Mode mode;
+    GraySynthPauliRotationsSynthesisStrategy(Mode mode = Mode::star) : mode(mode) {}
+    std::optional<qcir::QCir> synthesize(std::vector<PauliRotation> const& rotations) const override;
+};
+
+/**
+ * @brief Synthesize Pauli rotations using minimum spanning arborescence.
+ * This method is based on the following paper by Vandaele et al.:
+ * https://arxiv.org/abs/2104.00934
+ *
+ */
+struct MstSynthesisStrategy : public PauliRotationsSynthesisStrategy {
     std::optional<qcir::QCir> synthesize(std::vector<PauliRotation> const& rotations) const override;
 };
 

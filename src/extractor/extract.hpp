@@ -30,25 +30,28 @@ class ZXGraph;
 }
 
 namespace extractor {
-extern bool SORT_FRONTIER;         // sort frontier by the qubit IDs
-extern bool SORT_NEIGHBORS;        // sort neighbors by the vertex IDs
-extern bool PERMUTE_QUBITS;        // synthesize permutation circuits at
-                                   // the end of extraction
-extern bool FILTER_DUPLICATE_CXS;  // filters duplicate CXs during extraction
-extern bool REDUCE_CZS;            // tries to reduce the number of CZs by
-                                   // feeding them into the biadjacency matrix
-extern bool DYNAMIC_ORDER;         // dynamically decides the order of gadget
-                                   // removal and CZ extraction
-extern size_t BLOCK_SIZE;          // the block size for block Gaussian
-                                   // elimination. Only used in optimization
-                                   // level 0
-extern size_t OPTIMIZE_LEVEL;      // the strategy for biadjacency elimination.
-                                   // 0: fixed block size, 1: all block sizes,
-                                   // 2: greedy reduction, 3: best of 1 and 2
-extern float PRED_COEFF;           // hyperparameter for the dynamic extraction
-                                   // routine. If
-                                   // #CZs > #(edge reduced) * coeff,
-                                   // eagerly extract CZs
+
+struct ExtractorConfig {
+    bool sort_frontier;         // sort frontier by the qubit IDs
+    bool sort_neighbors;        // sort neighbors by the vertex IDs
+    bool permute_qubits;        // synthesize permutation circuits at
+                                // the end of extraction
+    bool filter_duplicate_cxs;  // filters duplicate CXs during extraction
+    bool reduce_czs;            // tries to reduce the number of CZs by
+                                // feeding them into the biadjacency matrix
+    bool dynamic_order;         // dynamically decides the order of gadget
+                                // removal and CZ extraction
+    size_t block_size;          // the block size for block Gaussian
+                                // elimination. Only used in optimization
+                                // level 0
+    size_t optimize_level;      // the strategy for biadjacency elimination.
+                                // 0: fixed block size, 1: all block sizes,
+                                // 2: greedy reduction, 3: best of 1 and 2
+    float pred_coeff;           // hyperparameter for the dynamic extraction
+                                // routine. If
+                                // #CZs > #(edge reduced) * coeff,
+                                // eagerly extract CZs
+};
 
 class Extractor {
 public:
@@ -56,7 +59,11 @@ public:
     using ConnectInfo = std::vector<std::set<size_t>>;
     using Overlap     = std::pair<std::pair<size_t, size_t>, std::vector<size_t>>;
 
-    Extractor(zx::ZXGraph* graph, qcir::QCir* qcir = nullptr, bool random = false);
+    Extractor(
+        zx::ZXGraph* graph,
+        ExtractorConfig config,
+        qcir::QCir* qcir = nullptr,
+        bool random      = false);
 
     qcir::QCir* get_logical() { return _logical_circuit; }
 
@@ -125,6 +132,8 @@ private:
     size_t _max_axel        = 0;
 
     std::vector<size_t> _initial_placement;
+
+    ExtractorConfig _config;
 };
 
 }  // namespace extractor
