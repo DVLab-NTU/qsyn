@@ -5,7 +5,7 @@
 
 #include "util/graph/minimum_spanning_arborescence.hpp"
 
-TEST_CASE("digraph") {
+TEST_CASE("digraph", "[digraph]") {
     using Digraph = dvlab::Digraph<int, int>;
     auto g        = Digraph{};
 
