@@ -1,4 +1,4 @@
 qc r benchmark/SABRE/small/3_17_13.qasm
 de r benchmark/topology/2n_8.layout 
-du c --scheduler greedy --router shortest_path
+du c --scheduler astar
 duostra

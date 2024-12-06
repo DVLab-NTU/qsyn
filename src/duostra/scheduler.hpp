@@ -289,6 +289,7 @@ public:
             child._scheduler->set_operations(_scheduler->get_operations());
             child._scheduler->route_one_gate(*child._router, child._gate_id, false);
             // fmt::println("Update topology {}: gate_id: {}, operations: {}", _gate_id, child.get_gate_id(), child._scheduler->get_operations().size());
+            child.route_and_estimate();
             if(child._scheduler->get_available_gates().empty()) child._type = 2;
         }
     }
@@ -337,6 +338,7 @@ public:
     std::unique_ptr<BaseScheduler> clone() const override;
     Device assign_gates_and_sort(std::unique_ptr<Router> router, std::unique_ptr<Router> est_router) override;
     Device assign_gates(std::unique_ptr<Router>,  std::unique_ptr<Router>);
+    std::vector<GateInfo> best_operations;
 
 protected:
     bool _never_cache;

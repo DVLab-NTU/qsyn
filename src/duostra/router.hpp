@@ -56,8 +56,9 @@ public:
 
     std::unique_ptr<Router> clone() const;
 
-    auto& get_device() { return _device; }
+    auto &get_device() { return _device; }
     auto const& get_device() const { return _device; }
+    void set_device(Device device) { _device = std::move(device); }
 
     size_t get_gate_cost(qcir::QCirGate const& gate, MinMaxOptionType min_max, size_t apsp_coeff);
     bool is_executable(qcir::QCirGate const& gate);
@@ -67,6 +68,8 @@ public:
     std::vector<GateInfo> duostra_routing(qcir::QCirGate const& gate, std::tuple<QubitIdType, QubitIdType> qubit_pair, MinMaxOptionType tie_breaking_strategy);
     std::vector<GateInfo> apsp_routing(qcir::QCirGate const& gate, std::tuple<QubitIdType, QubitIdType> qs, MinMaxOptionType tie_breaking_strategy);
     std::vector<GateInfo> assign_gate(qcir::QCirGate const& gate);
+    void set_logical_to_physical(std::vector<QubitIdType> const& logical_to_physical) { _logical_to_physical = logical_to_physical; }
+    std::vector<QubitIdType> get_logical_to_physical() { return _logical_to_physical; }
 
 private:
     MinMaxOptionType _tie_breaking_strategy;

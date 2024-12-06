@@ -158,7 +158,7 @@ GateInfo Router::execute_single(qcir::QCirGate const& gate, QubitIdType q) {
     auto const end_time   = start_time + gate.get_delay();
     qubit.set_occupied_time(end_time);
     qubit.reset();
-    auto op = qcir::QCirGate{0, gate.get_operation(), QubitIdList{q, max_qubit_id}};
+    auto op = qcir::QCirGate{gate.get_id() + 1, gate.get_operation(), QubitIdList{q, max_qubit_id}};
     return {op, {start_time, end_time}};
 }
 
@@ -270,16 +270,20 @@ std::vector<GateInfo> Router::apsp_routing(qcir::QCirGate const& gate, std::tupl
                                     _device.get_physical_qubit(q0_id).get_logical_qubit() <
                                         _device.get_physical_qubit(q1_id).get_logical_qubit())) {
             auto op = qcir::QCirGate(0, SwapGate{}, QubitIdList{q0_id, q0_next});
+            std::cout << "swap: " << q0_id << " " << q0_next << std::endl;
             _device.apply_gate(op, q0_cost);
             GateInfo gate_info = {op, {q0_cost, q0_cost + SWAP_DELAY}};
             operation_list.emplace_back(std::move(gate_info));
             q0_id = q0_next;
+            
         } else {
             auto op = qcir::QCirGate(0, SwapGate{}, QubitIdList{q1_id, q1_next});
+            std::cout << "swap: " << q0_id << " " << q0_next << std::endl;
             _device.apply_gate(op, q1_cost);
             GateInfo gate_info = {op, {q1_cost, q1_cost + SWAP_DELAY}};
             operation_list.emplace_back(std::move(gate_info));
             q1_id = q1_next;
+            
         }
     }
     assert(_device.get_physical_qubit(q1_id).is_adjacency(_device.get_physical_qubit(q0_id)));
@@ -287,8 +291,9 @@ std::vector<GateInfo> Router::apsp_routing(qcir::QCirGate const& gate, std::tupl
     auto const gate_cost = std::max(_device.get_physical_qubit(q0_id).get_occupied_time(),
                                     _device.get_physical_qubit(q1_id).get_occupied_time());
 
-    auto cx_gate = qcir::QCirGate(0, gate.get_operation(), QubitIdList{q0_id, q1_id});
+    auto cx_gate = qcir::QCirGate(gate.get_id()+1, gate.get_operation(), QubitIdList{q0_id, q1_id});
     _device.apply_gate(cx_gate, gate_cost);
+    std::cout << "gate: " << gate.get_id() << " q0: " << q0_id << " q1: " << q1_id << std::endl;
 
     GateInfo gate_info = {cx_gate, {gate_cost, gate_cost + gate.get_delay()}};
     operation_list.emplace_back(std::move(gate_info));
@@ -356,8 +361,8 @@ std::vector<GateInfo> Router::_traceback(qcir::QCirGate const& gate, PhysicalQub
 
     // NOTE - Order of qubits in CX matters
     auto const qids = swap_ids ? QubitIdList{q1.get_id(), q0.get_id()} : QubitIdList{q0.get_id(), q1.get_id()};
-
-    auto cx_gate       = qcir::QCirGate(0, gate.get_operation(), qids);
+    // fmt::println("_traceback: {}, {}", q0.get_id(), q1.get_id());
+    auto cx_gate       = qcir::QCirGate(gate.get_id(), gate.get_operation(), qids);
     GateInfo gate_info = {cx_gate, {operation_time, operation_time + gate.get_delay()}};
     operation_list.emplace_back(std::move(gate_info));
 
@@ -410,6 +415,7 @@ std::vector<GateInfo> Router::assign_gate(qcir::QCirGate const& gate) {
     if (gate.get_num_qubits() == 1) {
         assert(get<1>(physical_qubits_ids) == max_qubit_id);
         auto op = execute_single(gate, get<0>(physical_qubits_ids));
+        std::cout << "single: " << gate.get_id() << " q0: " << get<0>(physical_qubits_ids) << std::endl;
         return std::vector(1, op);
     }
     auto operation_list =

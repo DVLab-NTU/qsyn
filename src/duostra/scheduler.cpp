@@ -93,7 +93,12 @@ size_t BaseScheduler::get_total_time() const {
     auto durations_range = _operations | std::views::transform([](GateInfo const& op) -> size_t {
                                return op.second.second - op.second.first;
                            });
-    fmt::println("get total cost (operation size): {}", durations_range.size());
+    // fmt::println("get total cost (operation size): {}", durations_range.size());
+    // fmt::print("operations: ");
+    // for (auto const& op: _operations){
+    //     fmt::print("{}, ", op.first.get_id());
+    // }
+    // fmt::print("\n");
     // fmt::println("first gate: {}", durations_range.front());
     auto total_time = std::reduce(durations_range.begin(), durations_range.end(), 0, std::plus<>{});
     fmt::println("get total cost: {}", total_time);

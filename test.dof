@@ -1,5 +1,5 @@
-de r benchmark/topology/example.layout
-qc r benchmark/SABRE/small/miller_11.qasm
-duostra config --scheduler astar
+qc r benchmark/SABRE/small/4gt11_82.qasm
+de r benchmark/topology/linear_5.layout 
+du c --scheduler astar --router shortest_path
 duostra -c
-
+qc write
