@@ -74,6 +74,24 @@ void StarNode::grow(StarNode* self_pointer) {
     // fmt::println("Finish growing StarNode");
 }
 
+// SECTION - Class Topology Candidate Member Functions
+
+class TopologyCandidate {
+public:
+    TopologyCandidate(CircuitTopology const& topo, size_t candidate)
+        : _circuit_topology(&topo), _num_candidates(candidate) {}
+
+    std::vector<size_t> get_available_gates() const {
+        auto& gates = _circuit_topology->get_available_gates();
+        if (gates.size() < _num_candidates)
+            return gates;
+        return std::vector<size_t>(gates.begin(), dvlab::iterator::next(gates.begin(), _num_candidates));
+    }
+
+private:
+    CircuitTopology const* _circuit_topology;
+    size_t _num_candidates;
+};
 
 /**
  * @brief Route the exact gate given gate_id and estimate the cost
@@ -85,7 +103,7 @@ size_t StarNode::route_and_estimate(std::vector<GateInfo> const& /*unused*/) {
     // Clone the actual scheduler and router to avoid modifying the original state
     // auto cloned_router = _router->clone();
     // auto cloned_scheduler = _scheduler->clone();
-    fmt::println("---------------Route and estimate: {}", _gate_id);
+    // fmt::println("---------------Route and estimate: {}", _gate_id);
     _scheduler->sort_operations();
     // fmt::println("RnE origin scheduler operations: {}", _scheduler->get_operations().size());
     // fmt::println("RnE Current operations: {}", _scheduler->get_operations().size());
@@ -102,6 +120,7 @@ size_t StarNode::route_and_estimate(std::vector<GateInfo> const& /*unused*/) {
     temp_router->set_logical_to_physical(_router->get_logical_to_physical());
     temp_router->set_device(_router->get_device());
     auto temp_topo = _scheduler->circuit_topology().clone();
+    auto temp_topo_wrap = TopologyCandidate(*temp_topo, DuostraConfig::NUM_CANDIDATES);
     GreedyScheduler temp_scheduler(*temp_topo, false);
     temp_scheduler.set_conf(GreedyConf()); // Use default Greedy configuration
 
@@ -118,11 +137,11 @@ size_t StarNode::route_and_estimate(std::vector<GateInfo> const& /*unused*/) {
     // Now simulate routing the remaining gates
     // size_t est_counter = 0;
     
-    while (!temp_scheduler.get_available_gates().empty()) {
+    while (!temp_topo_wrap.get_available_gates().empty()) {
         if (stop_requested()) {
             break; // Continue to sum what is processed so far
         }
-        auto waitlist = temp_scheduler.get_available_gates();
+        auto waitlist = temp_topo_wrap.get_available_gates();
         assert(!waitlist.empty());
 
         auto gate_idx_opt = temp_scheduler.get_executable_gate(*temp_router);
@@ -137,7 +156,7 @@ size_t StarNode::route_and_estimate(std::vector<GateInfo> const& /*unused*/) {
         // Route gate with forget=false to track operations
         temp_scheduler.route_one_gate(*temp_router, gate_idx, false);  // forget=false
         temp_scheduler.circuit_topology().update_available_gates(gate_idx);
-
+        temp_topo->update_available_gates(gate_idx);
         // est_counter++;
     }
 
