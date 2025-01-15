@@ -321,6 +321,10 @@ There are also some extra utilities:
 
 Certain functions of `qsyn` is enabled by a series of third-party libraries. For a list of these libraries, as well as their license information, please refer to [this document](/vendor/README.md).
 
+## Resources
+
+* Quantum circuit benchmark: [qsyn-benchmark](https://github.com/DVLab-NTU/qsyn-benchmark)
+ 
 ## Reference
 If you are using Qsyn for your research, it will be greatly appreciated if you cite this publication:
 
