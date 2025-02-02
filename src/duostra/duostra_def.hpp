@@ -43,21 +43,29 @@ enum class MinMaxOptionType : std::uint8_t {
     max,
 };
 
+enum class AlgorithmType : std::uint8_t {
+    duostra,
+    subcircuit,
+};
+
 std::string get_scheduler_type_str(SchedulerType const& type);
 std::string get_placer_type_str(PlacerType const& type);
 std::string get_router_type_str(RouterType const& type);
 std::string get_minmax_type_str(MinMaxOptionType const& type);
+std::string get_algorithm_type_str(AlgorithmType const& type);
 
 std::optional<SchedulerType> get_scheduler_type(std::string const& str);
 std::optional<PlacerType> get_placer_type(std::string const& str);
 std::optional<RouterType> get_router_type(std::string const& str);
 std::optional<MinMaxOptionType> get_minmax_type(std::string const& str);
+std::optional<AlgorithmType> get_algorithm_type(std::string const& str);
 
 struct DuostraConfig {
     SchedulerType scheduler_type;
     RouterType router_type;
     PlacerType placer_type;
     MinMaxOptionType tie_breaking_strategy;  // t/f smaller logical qubit index with little priority
+    AlgorithmType algorithm_type; // which strategy is using: duostra or layout_synthesis
 
     // SECTION - Initialize in Greedy Scheduler
     size_t num_candidates;                     // top k candidates, SIZE_MAX: all candidates

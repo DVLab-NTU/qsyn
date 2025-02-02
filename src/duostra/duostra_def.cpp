@@ -79,6 +79,21 @@ std::string get_minmax_type_str(MinMaxOptionType const& type) {
 }
 
 /**
+ * @brief Get the Algorithm Type Str object
+ *
+ * @return string
+ */
+std::string get_algorithm_type_str(AlgorithmType const& type) {
+    switch (type) {
+        case AlgorithmType::duostra:
+            return "duostra";
+        case AlgorithmType::subcircuit:
+        default:
+            return "subcircuit";
+    }
+}
+
+/**
  * @brief Get the Scheduler object
  *
  * @param str
@@ -126,6 +141,13 @@ std::optional<PlacerType> get_placer_type(std::string const& str) {
 std::optional<MinMaxOptionType> get_minmax_type(std::string const& str) {
     if (str == "min") return MinMaxOptionType::min;
     if (str == "max") return MinMaxOptionType::max;
+
+    return std::nullopt;
+}
+
+std::optional<AlgorithmType> get_algorithm_type(std::string const& str) {
+    if (str == "duostra") return AlgorithmType::duostra;
+    if (str == "subcircuit") return AlgorithmType::subcircuit;
 
     return std::nullopt;
 }

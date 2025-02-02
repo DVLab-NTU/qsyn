@@ -17,6 +17,7 @@
 #include "cmd/qcir_cmd.hpp"
 #include "duostra/duostra.hpp"
 #include "duostra/duostra_def.hpp"
+#include "duostra/layoutcir_mgr.hpp"
 #include "duostra/mapping_eqv_checker.hpp"
 #include "qcir/qcir.hpp"
 #include "util/data_structure_manager_common_cmd.hpp"
@@ -34,6 +35,7 @@ DuostraConfig DUOSTRA_CONFIG{
     .router_type           = RouterType::duostra,
     .placer_type           = PlacerType::dfs,
     .tie_breaking_strategy = MinMaxOptionType::min,
+    .algorithm_type        = AlgorithmType::subcircuit,
 
     // SECTION - Initialize in Greedy Scheduler
     .num_candidates          = SIZE_MAX,               // top k candidates, SIZE_MAX: all
@@ -62,6 +64,9 @@ duostra_config_cmd() {
                 parser.add_argument<std::string>("--placer")
                     .choices({"naive", "random", "dfs"})
                     .help("<naive | random | dfs>");
+                parser.add_argument<std::string>("--algorithm")
+                    .choices({"duostra", "subcircuit"})
+                    .help("<duostra | subcircuit>");
 
                 parser.add_argument<std::string>("--tie-breaker")
                     .choices({"min", "max"})
@@ -117,6 +122,13 @@ duostra_config_cmd() {
                     DUOSTRA_CONFIG.placer_type = new_placer_type.value();
                     printing_config            = false;
                 }
+                
+                if (parser.parsed("--algorithm")) {
+                    auto new_algorithm_type = get_algorithm_type(parser.get<std::string>("--algorithm"));
+                    assert(new_algorithm_type.has_value());
+                    DUOSTRA_CONFIG.algorithm_type = new_algorithm_type.value();
+                    printing_config            = false;
+                }
 
                 if (parser.parsed("--tie-breaker")) {
                     auto new_tie_breaking_strategy = get_minmax_type(parser.get<std::string>("--tie-breaker"));
@@ -169,6 +181,7 @@ duostra_config_cmd() {
                     fmt::println("Scheduler:         {}", get_scheduler_type_str(DUOSTRA_CONFIG.scheduler_type));
                     fmt::println("Router:            {}", get_router_type_str(DUOSTRA_CONFIG.router_type));
                     fmt::println("Placer:            {}", get_placer_type_str(DUOSTRA_CONFIG.placer_type));
+                    fmt::println("Algorithm:         {}", get_algorithm_type_str(DUOSTRA_CONFIG.algorithm_type));
 
                     if (parser.parsed("--verbose")) {
                         fmt::println("");
@@ -256,25 +269,34 @@ Command duostra_cmd(qcir::QCirMgr& qcir_mgr, device::DeviceMgr& device_mgr) {
                            //                            }
                            // #endif
                            qcir::QCir* logical_qcir = qcir_mgr.get();
-                           Duostra duo{logical_qcir,
-                                       *device_mgr.get(),
-                                       DUOSTRA_CONFIG,
-                                       {.verify_result = parser.get<bool>("--check"),
-                                        .silent        = parser.get<bool>("--silent"),
-                                        .use_tqdm      = !parser.get<bool>("--mute-tqdm")}};
-                           if (!duo.map()) {
-                               return CmdExecResult::error;
+                           if (DUOSTRA_CONFIG.algorithm_type == AlgorithmType::subcircuit) {
+                                LayoutCirMgr layout_cir_mgr{logical_qcir, *device_mgr.get()};
+                            //    spdlog::error("Duostra is not available for subcircuit");
+                            //    return CmdExecResult::error;
                            }
+                           else{
+                                Duostra duo{logical_qcir,
+                                        *device_mgr.get(),
+                                        DUOSTRA_CONFIG,
+                                        {.verify_result = parser.get<bool>("--check"),
+                                                .silent        = parser.get<bool>("--silent"),
+                                                .use_tqdm      = !parser.get<bool>("--mute-tqdm")}};
+                                if (!duo.map()) {
+                                    return CmdExecResult::error;
+                                }
 
-                           if (duo.get_physical_circuit() == nullptr) {
-                               spdlog::error("Detected error in Duostra Mapping!!");
+                                if (duo.get_physical_circuit() == nullptr) {
+                                    spdlog::error("Detected error in Duostra Mapping!!");
+                                }
+                                auto const id = qcir_mgr.get_next_id();
+                                qcir_mgr.add(id, std::move(duo.get_physical_circuit()));
+
+                                qcir_mgr.get()->set_filename(logical_qcir->get_filename());
+                                qcir_mgr.get()->add_procedures(logical_qcir->get_procedures());
+                                qcir_mgr.get()->add_procedure("Duostra");
                            }
-                           auto const id = qcir_mgr.get_next_id();
-                           qcir_mgr.add(id, std::move(duo.get_physical_circuit()));
-
-                           qcir_mgr.get()->set_filename(logical_qcir->get_filename());
-                           qcir_mgr.get()->add_procedures(logical_qcir->get_procedures());
-                           qcir_mgr.get()->add_procedure("Duostra");
+                           
+                           
 
                            return CmdExecResult::done;
                        }};
