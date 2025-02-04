@@ -57,6 +57,8 @@ std::string get_placer_type_str(PlacerType const& type) {
             return "naive";
         case PlacerType::random:
             return "random";
+        case PlacerType::qmdla:
+            return "QMDLA";
         case PlacerType::dfs:
         default:
             return "dfs";
@@ -134,6 +136,7 @@ std::optional<PlacerType> get_placer_type(std::string const& str) {
     if (str == "naive") return PlacerType::naive;
     if (str == "random") return PlacerType::random;
     if (str == "dfs") return PlacerType::dfs;
+    if (str == "qmdla" || str == "QMDLA") return PlacerType::qmdla;
 
     return std::nullopt;
 }

@@ -31,6 +31,7 @@ enum class PlacerType : std::uint8_t {
     naive,
     random,
     dfs,
+    qmdla
 };
 
 enum class RouterType : std::uint8_t {

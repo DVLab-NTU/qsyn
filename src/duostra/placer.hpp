@@ -62,4 +62,13 @@ private:
 
 std::unique_ptr<BasePlacer> get_placer(PlacerType type);
 
+class QMDLAPlacer : public BasePlacer {
+public:
+    using Device = BasePlacer::Device;
+
+protected:
+    std::vector<QubitIdType> _place(Device& /*unused*/) const override;
+};
+
+
 }  // namespace qsyn::duostra

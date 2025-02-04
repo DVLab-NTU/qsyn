@@ -36,12 +36,16 @@ public:
 
     LayoutCirMgr(
         qcir::QCir* qcir,
-        Device dev)
+        Device dev,
+        DuostraConfig const& config)
         // DuostraConfig const& config)
         : dvlab::utils::DataStructureManager<LayoutCir>("LayoutCirMgr"),
           _device(std::move(dev)),
-        //   _config{config},
-          _logical_circuit{std::make_shared<qcir::QCir>(*qcir)} { fmt::println("create layout circuit mgr"); };
+          _logical_circuit(std::make_shared<qcir::QCir>(*qcir)),
+          _config(config) { fmt::println("create layout circuit mgr"); };
+
+    bool map();
+    
 
 private:
 
@@ -55,6 +59,7 @@ private:
     // std::unique_ptr<BaseScheduler> _scheduler;
     std::shared_ptr<qcir::QCir> _logical_circuit;
     std::vector<qcir::QCirGate> _result;
+    DuostraConfig _config;
 
 
 };

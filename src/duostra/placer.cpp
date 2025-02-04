@@ -32,6 +32,9 @@ std::unique_ptr<BasePlacer> get_placer(PlacerType type) {
             return std::make_unique<RandomPlacer>();
         case PlacerType::dfs:
             return std::make_unique<DFSPlacer>();
+        case PlacerType::qmdla:
+            return std::make_unique<QMDLAPlacer>();
+            break;
     }
     return nullptr;
 }
@@ -136,5 +139,19 @@ void DFSPlacer::_dfs_device(QubitIdType current, Device& device, std::vector<Qub
         _dfs_device(adj, device, assign, qubit_marks);
     }
 }
+
+/**
+ * @brief Place logical qubit
+ *
+ * @param device
+ * @return vector<size_t>
+ */
+std::vector<QubitIdType> QMDLAPlacer::_place(Device& device) const {
+    std::vector<QubitIdType> assign;
+    // TODO
+    
+    return assign;
+}
+
 
 }  // namespace qsyn::duostra

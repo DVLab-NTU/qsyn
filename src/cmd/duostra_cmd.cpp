@@ -33,7 +33,7 @@ DuostraConfig DUOSTRA_CONFIG{
     // SECTION - Global settings for Duostra mapper
     .scheduler_type        = SchedulerType::search,
     .router_type           = RouterType::duostra,
-    .placer_type           = PlacerType::dfs,
+    .placer_type           = PlacerType::qmdla,
     .tie_breaking_strategy = MinMaxOptionType::min,
     .algorithm_type        = AlgorithmType::subcircuit,
 
@@ -62,8 +62,8 @@ duostra_config_cmd() {
                     .choices({"shortest_path", "duostra"})
                     .help("<shortest_path | duostra>");
                 parser.add_argument<std::string>("--placer")
-                    .choices({"naive", "random", "dfs"})
-                    .help("<naive | random | dfs>");
+                    .choices({"naive", "random", "dfs", "qmdla"})
+                    .help("<naive | random | dfs | QMDLA>");
                 parser.add_argument<std::string>("--algorithm")
                     .choices({"duostra", "subcircuit"})
                     .help("<duostra | subcircuit>");
@@ -270,7 +270,7 @@ Command duostra_cmd(qcir::QCirMgr& qcir_mgr, device::DeviceMgr& device_mgr) {
                            // #endif
                            qcir::QCir* logical_qcir = qcir_mgr.get();
                            if (DUOSTRA_CONFIG.algorithm_type == AlgorithmType::subcircuit) {
-                                LayoutCirMgr layout_cir_mgr{logical_qcir, *device_mgr.get()};
+                                LayoutCirMgr layout_cir_mgr{logical_qcir, *device_mgr.get(), DUOSTRA_CONFIG};
                             //    spdlog::error("Duostra is not available for subcircuit");
                             //    return CmdExecResult::error;
                            }
