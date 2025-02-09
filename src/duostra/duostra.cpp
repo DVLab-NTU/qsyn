@@ -64,7 +64,59 @@ bool Duostra::map(bool use_device_as_placement) {
     if (!use_device_as_placement) {
         spdlog::info("Calculating Initial Placement...");
         auto placer = get_placer(_config.placer_type);
-        assign      = placer->place_and_assign(_device);
+
+        if (_config.placer_type == PlacerType::qmdla) {
+            // Calculate number of 2q gates for each qubit
+            std::vector<std::pair<QubitIdType, size_t>> qubit_interactions;
+            std::vector<size_t> interaction_counts(topo->get_num_qubits(), 0);
+            
+            for (const auto& gate : _logical_circuit->get_gates()) {
+                auto qubits = gate->get_qubits();
+                if (qubits.size() == 2) {
+                    interaction_counts[qubits[0]]++;
+                    interaction_counts[qubits[1]]++;
+                }
+            }
+            
+            // Create pairs of (qubit_id, interaction_count) and sort by count
+            for (QubitIdType i = 0; i < topo->get_num_qubits(); i++) {
+                qubit_interactions.emplace_back(i, interaction_counts[i]);
+            }
+            
+            // Sort in descending order of interaction count
+            std::sort(qubit_interactions.begin(), qubit_interactions.end(),
+                     [](const auto& a, const auto& b) { return a.second > b.second; });
+            
+            // Extract just the qubit IDs in priority order
+            std::vector<QubitIdType> qubit_priority;
+            for (const auto& pair : qubit_interactions) {
+                qubit_priority.push_back(pair.first);
+            }
+
+            // Calculate QPI (Qubit Pair Interaction) matrix with proper weights
+            std::vector<std::vector<size_t>> qpi(topo->get_num_qubits(), 
+                std::vector<size_t>(topo->get_num_qubits(), 0));
+                
+            // Get total number of gates for weight calculation
+            size_t total_gates = _logical_circuit->get_gates().size();
+            
+            // Calculate QPI with weights (m-i) for each gate
+            size_t gate_index = 0;
+            for (const auto& gate : _logical_circuit->get_gates()) {
+                auto qubits = gate->get_qubits();
+                if (qubits.size() == 2) {
+                    // Weight of current gate is (total_gates - gate_index)
+                    size_t weight = total_gates - gate_index;
+                    qpi[qubits[0]][qubits[1]] += weight;
+                    qpi[qubits[1]][qubits[0]] += weight;
+                }
+                gate_index++;
+            }
+
+            assign = placer->place_and_assign(_device, qubit_priority, qpi);
+        } else {
+            assign = placer->place_and_assign(_device);
+        }
     }
     // scheduler
     spdlog::info("Creating Scheduler...");
@@ -172,3 +224,4 @@ void Duostra::build_circuit_by_result() {
 }
 
 }  // namespace qsyn::duostra
+

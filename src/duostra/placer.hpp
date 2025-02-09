@@ -27,10 +27,16 @@ public:
     BasePlacer() {}
     virtual ~BasePlacer() = default;
 
-    std::vector<QubitIdType> place_and_assign(Device& device);
+    std::vector<QubitIdType> place_and_assign(
+        Device& device,
+        const std::vector<QubitIdType>& qubit_priority = std::vector<QubitIdType>(),
+        const std::vector<std::vector<size_t>>& qpi = std::vector<std::vector<size_t>>());
 
 protected:
-    virtual std::vector<QubitIdType> _place(Device&) const = 0;
+    virtual std::vector<QubitIdType> _place(
+        Device& device,
+        const std::vector<QubitIdType>& qubit_priority,
+        const std::vector<std::vector<size_t>>& qpi) const = 0;
 };
 
 class RandomPlacer : public BasePlacer {
@@ -38,7 +44,10 @@ public:
     using Device = BasePlacer::Device;
 
 protected:
-    std::vector<QubitIdType> _place(Device& /*unused*/) const override;
+    std::vector<QubitIdType> _place(
+        Device& device,
+        const std::vector<QubitIdType>& /*unused*/,
+        const std::vector<std::vector<size_t>>& /*unused*/) const override;
 };
 
 class StaticPlacer : public BasePlacer {
@@ -46,7 +55,10 @@ public:
     using Device = BasePlacer::Device;
 
 protected:
-    std::vector<QubitIdType> _place(Device& /*unused*/) const override;
+    std::vector<QubitIdType> _place(
+        Device& device,
+        const std::vector<QubitIdType>& /*unused*/,
+        const std::vector<std::vector<size_t>>& /*unused*/) const override;
 };
 
 class DFSPlacer : public BasePlacer {
@@ -54,7 +66,10 @@ public:
     using Device = BasePlacer::Device;
 
 protected:
-    std::vector<QubitIdType> _place(Device& /*unused*/) const override;
+    std::vector<QubitIdType> _place(
+        Device& device,
+        const std::vector<QubitIdType>& /*unused*/,
+        const std::vector<std::vector<size_t>>& /*unused*/) const override;
 
 private:
     void _dfs_device(QubitIdType current, Device& device, std::vector<QubitIdType>& assign, std::vector<bool>& qubit_marks) const;
@@ -67,7 +82,10 @@ public:
     using Device = BasePlacer::Device;
 
 protected:
-    std::vector<QubitIdType> _place(Device& /*unused*/) const override;
+    std::vector<QubitIdType> _place(
+        Device& device,
+        const std::vector<QubitIdType>& qubit_priority,
+        const std::vector<std::vector<size_t>>& qpi) const override;
 };
 
 
