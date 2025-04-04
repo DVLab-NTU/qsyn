@@ -236,7 +236,7 @@ Command convert_from_tableau_cmd(experimental::TableauMgr& tableau_mgr, qcir::QC
                 .help("specify the Clifford synthesis strategy (default: hopt).");
 
             to_qcir.add_argument<std::string>("-r", "--rotation")
-                .constraint(choices_allow_prefix({"naive", "tpar", "graysynth", "gstair", "mst"}))
+                .constraint(choices_allow_prefix({"naive", "graysynth", "gstair", "mst"}))
                 .default_value("naive")
                 .help("specify the rotation synthesis strategy (default: naive).");
         },
@@ -257,9 +257,8 @@ Command convert_from_tableau_cmd(experimental::TableauMgr& tableau_mgr, qcir::QC
                 auto const rotation_strategy = std::invoke([&]() -> std::unique_ptr<experimental::PauliRotationsSynthesisStrategy> {
                     auto const rotation_strategy_str = parser.get<std::string>("--rotation");
                     if (is_prefix_of(rotation_strategy_str, "naive")) return std::make_unique<experimental::NaivePauliRotationsSynthesisStrategy>();
-                    if (is_prefix_of(rotation_strategy_str, "tpar")) return std::make_unique<experimental::TParPauliRotationsSynthesisStrategy>();
-                    if (is_prefix_of(rotation_strategy_str, "graysynth")) return std::make_unique<experimental::GraySynthPauliRotationsSynthesisStrategy>();
-                    if (is_prefix_of(rotation_strategy_str, "gstair")) return std::make_unique<experimental::GraySynthPauliRotationsSynthesisStrategy>(experimental::GraySynthPauliRotationsSynthesisStrategy::Mode::staircase);
+                    if (is_prefix_of(rotation_strategy_str, "graysynth")) return std::make_unique<experimental::GraySynthStrategy>();
+                    if (is_prefix_of(rotation_strategy_str, "gstair")) return std::make_unique<experimental::GraySynthStrategy>(experimental::GraySynthStrategy::Mode::staircase);
                     if (is_prefix_of(rotation_strategy_str, "mst")) return std::make_unique<experimental::MstSynthesisStrategy>();
                     DVLAB_UNREACHABLE("Invalid rotation strategy!!");
                     return nullptr;

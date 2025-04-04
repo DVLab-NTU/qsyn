@@ -116,11 +116,6 @@ std::optional<qcir::QCir> NaivePauliRotationsSynthesisStrategy::synthesize(std::
     return qcir;
 }
 
-std::optional<qcir::QCir> TParPauliRotationsSynthesisStrategy::synthesize(std::vector<PauliRotation> const& /* rotations */) const {
-    spdlog::error("TPar Synthesis Strategy is not implemented yet!!");
-    return std::nullopt;
-}
-
 namespace {
 /**
  * @brief select a row consisting completely of 1s to be the target row.
@@ -155,14 +150,14 @@ get_control_rows(
 void apply_cxs(
     std::vector<size_t> ctrls,
     size_t targ,
-    GraySynthPauliRotationsSynthesisStrategy::Mode mode,
+    GraySynthStrategy::Mode mode,
     std::vector<PauliRotation>& rotations,
     qcir::QCir& qcir,
     StabilizerTableau& final_clifford,
     std::unordered_set<std::size_t> const& frozen_rotations,
     std::size_t num_rotations,
     std::vector<std::size_t> const& random_order) {
-    using Mode = GraySynthPauliRotationsSynthesisStrategy::Mode;
+    using Mode = GraySynthStrategy::Mode;
 
     auto const apply_cx = [&](size_t ctrl, size_t targ) {
         for (auto col_id : std::views::iota(0ul, num_rotations)) {
@@ -244,7 +239,7 @@ filter_out_number(
 }  // namespace
 
 std::optional<qcir::QCir>
-GraySynthPauliRotationsSynthesisStrategy::synthesize(
+GraySynthStrategy::synthesize(
     std::vector<PauliRotation> const& rotations) const {
     auto const num_qubits    = rotations.front().n_qubits();
     auto const num_rotations = rotations.size();

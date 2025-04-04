@@ -15,27 +15,34 @@ namespace qsyn {
 
 namespace experimental {
 
+using PauliRotationTableau = std::vector<PauliRotation>;
+
+struct PartialSynthesisResult {
+    qcir::QCir qcir;
+    StabilizerTableau final_clifford;
+};
+
 struct PauliRotationsSynthesisStrategy {
 public:
     virtual ~PauliRotationsSynthesisStrategy() = default;
 
-    virtual std::optional<qcir::QCir> synthesize(std::vector<PauliRotation> const& rotations) const = 0;
+    virtual std::optional<qcir::QCir>
+    synthesize(PauliRotationTableau const& rotations) const = 0;
 };
 
-struct NaivePauliRotationsSynthesisStrategy : public PauliRotationsSynthesisStrategy {
-    std::optional<qcir::QCir> synthesize(std::vector<PauliRotation> const& rotations) const override;
+struct NaivePauliRotationsSynthesisStrategy
+    : public PauliRotationsSynthesisStrategy {
+    std::optional<qcir::QCir>
+    synthesize(PauliRotationTableau const& rotations) const override;
 };
 
-struct TParPauliRotationsSynthesisStrategy : public PauliRotationsSynthesisStrategy {
-    std::optional<qcir::QCir> synthesize(std::vector<PauliRotation> const& rotations) const override;
-};
-
-struct GraySynthPauliRotationsSynthesisStrategy : public PauliRotationsSynthesisStrategy {
+struct GraySynthStrategy : public PauliRotationsSynthesisStrategy {
     enum class Mode { star,
                       staircase };
     Mode mode;
-    GraySynthPauliRotationsSynthesisStrategy(Mode mode = Mode::star) : mode(mode) {}
-    std::optional<qcir::QCir> synthesize(std::vector<PauliRotation> const& rotations) const override;
+    GraySynthStrategy(Mode mode = Mode::star) : mode(mode) {}
+    std::optional<qcir::QCir>
+    synthesize(PauliRotationTableau const& rotations) const override;
 };
 
 /**
@@ -45,14 +52,15 @@ struct GraySynthPauliRotationsSynthesisStrategy : public PauliRotationsSynthesis
  *
  */
 struct MstSynthesisStrategy : public PauliRotationsSynthesisStrategy {
-    std::optional<qcir::QCir> synthesize(std::vector<PauliRotation> const& rotations) const override;
+    std::optional<qcir::QCir>
+    synthesize(PauliRotationTableau const& rotations) const override;
 };
 
 std::optional<qcir::QCir> to_qcir(
     StabilizerTableau const& clifford,
     StabilizerTableauSynthesisStrategy const& strategy);
 std::optional<qcir::QCir> to_qcir(
-    std::vector<PauliRotation> const& rotations,
+    PauliRotationTableau const& rotations,
     PauliRotationsSynthesisStrategy const& strategy);
 std::optional<qcir::QCir> to_qcir(
     Tableau const& tableau,
