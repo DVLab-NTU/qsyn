@@ -15,12 +15,11 @@ namespace qsyn {
 
 namespace experimental {
 
-using PauliRotationTableau = std::vector<PauliRotation>;
+namespace detail {
+void add_clifford_gate(qcir::QCir& qcir, CliffordOperator const& op);
+}  // namespace detail
 
-struct PartialSynthesisResult {
-    qcir::QCir qcir;
-    StabilizerTableau final_clifford;
-};
+using PauliRotationTableau = std::vector<PauliRotation>;
 
 struct PauliRotationsSynthesisStrategy {
 public:
@@ -30,19 +29,43 @@ public:
     synthesize(PauliRotationTableau const& rotations) const = 0;
 };
 
+struct PartialSynthesisResult {
+    qcir::QCir qcir;
+    StabilizerTableau final_clifford;
+};
+
+/**
+ * @brief Partial synthesis strategy for Pauli rotations.
+ * This strategy is used to synthesize a subset of Pauli rotations.
+ * The synthesized result is a partial result,
+ * which is a pair of a QCir and a StabilizerTableau.
+ * The QCir is the synthesized quantum circuit,
+ * and the StabilizerTableau is the final Clifford.
+ */
+struct PartialPauliRotationsSynthesisStrategy
+    : public PauliRotationsSynthesisStrategy {
+    ~PartialPauliRotationsSynthesisStrategy() override = default;
+
+    virtual std::optional<PartialSynthesisResult>
+    partial_synthesize(PauliRotationTableau const& rotations) const = 0;
+};
+
 struct NaivePauliRotationsSynthesisStrategy
     : public PauliRotationsSynthesisStrategy {
     std::optional<qcir::QCir>
     synthesize(PauliRotationTableau const& rotations) const override;
 };
 
-struct GraySynthStrategy : public PauliRotationsSynthesisStrategy {
+struct GraySynthStrategy : public PartialPauliRotationsSynthesisStrategy {
     enum class Mode { star,
                       staircase };
     Mode mode;
     GraySynthStrategy(Mode mode = Mode::star) : mode(mode) {}
     std::optional<qcir::QCir>
     synthesize(PauliRotationTableau const& rotations) const override;
+
+    std::optional<PartialSynthesisResult>
+    partial_synthesize(PauliRotationTableau const& rotations) const override;
 };
 
 /**
@@ -51,9 +74,12 @@ struct GraySynthStrategy : public PauliRotationsSynthesisStrategy {
  * https://arxiv.org/abs/2104.00934
  *
  */
-struct MstSynthesisStrategy : public PauliRotationsSynthesisStrategy {
+struct MstSynthesisStrategy : public PartialPauliRotationsSynthesisStrategy {
     std::optional<qcir::QCir>
     synthesize(PauliRotationTableau const& rotations) const override;
+
+    std::optional<PartialSynthesisResult>
+    partial_synthesize(PauliRotationTableau const& rotations) const override;
 };
 
 std::optional<qcir::QCir> to_qcir(
