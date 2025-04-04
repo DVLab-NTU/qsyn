@@ -4,7 +4,7 @@
 #include "qcir/qcir.hpp"
 #include "util/phase.hpp"
 
-namespace qsyn::experimental {
+namespace qsyn::tableau {
 
 std::optional<qcir::QCir>
 NaivePauliRotationsSynthesisStrategy::synthesize(
@@ -34,4 +34,4 @@ NaivePauliRotationsSynthesisStrategy::synthesize(
     return qcir;
 }
 
-}  // namespace qsyn::experimental
+}  // namespace qsyn::tableau

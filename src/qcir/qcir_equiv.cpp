@@ -28,12 +28,12 @@ bool is_equivalent(QCir const& qcir1, QCir const& qcir2) {
     adjoint_composed.adjoint_inplace();
     adjoint_composed.compose(qcir2);
 
-    auto tableau = qsyn::experimental::to_tableau(adjoint_composed);
+    auto tableau = qsyn::tableau::to_tableau(adjoint_composed);
     if (!tableau) {
         spdlog::error("Failed to convert adjoint composed QCir to tableau.");
         return false;
     }
-    qsyn::experimental::full_optimize(*tableau);
+    qsyn::tableau::full_optimize(*tableau);
 
     if (tableau->is_empty()) {
         return true;
@@ -48,7 +48,7 @@ bool is_equivalent(QCir const& qcir1, QCir const& qcir2) {
     spdlog::info("Cannot prove equivalence via tableau optimization.");
     spdlog::info("Trying to verify equivalence via tensor contraction...");
 
-    auto const optimized_qcir = qsyn::experimental::to_qcir(*tableau, experimental::HOptSynthesisStrategy{}, experimental::NaivePauliRotationsSynthesisStrategy{});
+    auto const optimized_qcir = qsyn::tableau::to_qcir(*tableau, tableau::HOptSynthesisStrategy{}, tableau::NaivePauliRotationsSynthesisStrategy{});
 
     if (!optimized_qcir) {
         spdlog::error("Failed to convert optimized tableau to QCir.");

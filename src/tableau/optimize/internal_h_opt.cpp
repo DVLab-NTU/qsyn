@@ -8,7 +8,7 @@
 #include "tableau/pauli_rotation.hpp"
 #include "tableau/stabilizer_tableau.hpp"
 
-namespace qsyn::experimental {
+namespace qsyn::tableau {
 
 namespace {
 
@@ -161,4 +161,4 @@ void minimize_internal_hadamards(Tableau& tableau) {
     remove_identities(tableau);
 }
 
-}  // namespace qsyn::experimental
+}  // namespace qsyn::tableau

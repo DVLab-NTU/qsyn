@@ -22,7 +22,7 @@
 
 namespace qsyn {
 
-namespace experimental {
+namespace tableau {
 
 enum class Pauli : std::uint8_t {
     i,
@@ -325,27 +325,27 @@ std::pair<CliffordOperatorString, size_t> extract_clifford_operators(PauliRotati
 using PauliRotationTableau = std::vector<PauliRotation>;
 size_t matrix_rank(std::vector<PauliRotation> const& rotations);
 
-}  // namespace experimental
+}  // namespace tableau
 
 }  // namespace qsyn
 
 template <>
-struct fmt::formatter<qsyn::experimental::Pauli> {
+struct fmt::formatter<qsyn::tableau::Pauli> {
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>
-    auto format(qsyn::experimental::Pauli c, FormatContext& ctx) {
+    auto format(qsyn::tableau::Pauli c, FormatContext& ctx) {
         string_view name = "I";
         switch (c) {
-            case qsyn::experimental::Pauli::i:
+            case qsyn::tableau::Pauli::i:
                 name = "I";
                 break;
-            case qsyn::experimental::Pauli::x:
+            case qsyn::tableau::Pauli::x:
                 name = "X";
                 break;
-            case qsyn::experimental::Pauli::y:
+            case qsyn::tableau::Pauli::y:
                 name = "Y";
                 break;
-            case qsyn::experimental::Pauli::z:
+            case qsyn::tableau::Pauli::z:
                 name = "Z";
                 break;
         }
@@ -354,7 +354,7 @@ struct fmt::formatter<qsyn::experimental::Pauli> {
 };
 
 template <>
-struct fmt::formatter<qsyn::experimental::PauliProduct> {
+struct fmt::formatter<qsyn::tableau::PauliProduct> {
     char presentation = 'c';
     char signedness   = '-';
 
@@ -367,7 +367,7 @@ struct fmt::formatter<qsyn::experimental::PauliProduct> {
     }
 
     template <typename FormatContext>
-    auto format(qsyn::experimental::PauliProduct const& c, FormatContext& ctx) {
+    auto format(qsyn::tableau::PauliProduct const& c, FormatContext& ctx) {
         if (presentation == 'b') {
             return fmt::format_to(ctx.out(), "{}", c.to_bit_string());
         } else {
@@ -377,7 +377,7 @@ struct fmt::formatter<qsyn::experimental::PauliProduct> {
 };
 
 template <>
-struct fmt::formatter<qsyn::experimental::PauliRotation> {
+struct fmt::formatter<qsyn::tableau::PauliRotation> {
     char presentation = 'c';
     char signedness   = '-';
 
@@ -390,7 +390,7 @@ struct fmt::formatter<qsyn::experimental::PauliRotation> {
     }
 
     template <typename FormatContext>
-    auto format(qsyn::experimental::PauliRotation const& c, FormatContext& ctx) const {
+    auto format(qsyn::tableau::PauliRotation const& c, FormatContext& ctx) const {
         if (presentation == 'b') {
             return fmt::format_to(ctx.out(), "{}", c.to_bit_string());
         } else {

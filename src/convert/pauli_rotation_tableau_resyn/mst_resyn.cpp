@@ -14,7 +14,7 @@
 
 extern bool stop_requested();
 
-namespace qsyn::experimental {
+namespace qsyn::tableau {
 
 namespace {
 
@@ -210,4 +210,4 @@ MstSynthesisStrategy::synthesize(
     return qcir;
 }
 
-}  // namespace qsyn::experimental
+}  // namespace qsyn::tableau

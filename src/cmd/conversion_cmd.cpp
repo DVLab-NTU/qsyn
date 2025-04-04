@@ -46,7 +46,7 @@ Command convert_from_qcir_cmd(
     qcir::QCirMgr& qcir_mgr,
     zx::ZXGraphMgr& zxgraph_mgr,
     tensor::TensorMgr& tensor_mgr,
-    experimental::TableauMgr& tableau_mgr) {
+    tableau::TableauMgr& tableau_mgr) {
     return {
         "qcir",
         [&](ArgumentParser& parser) {
@@ -98,10 +98,10 @@ Command convert_from_qcir_cmd(
             }
             if (to_type == "tableau") {
                 spdlog::info("Converting to QCir {} to Tableau {}...", qcir_mgr.focused_id(), tableau_mgr.get_next_id());
-                auto tableau = experimental::to_tableau(*qcir_mgr.get());
+                auto tableau = tableau::to_tableau(*qcir_mgr.get());
 
                 if (tableau.has_value()) {
-                    tableau_mgr.add(tableau_mgr.get_next_id(), std::make_unique<experimental::Tableau>(std::move(tableau.value())));
+                    tableau_mgr.add(tableau_mgr.get_next_id(), std::make_unique<tableau::Tableau>(std::move(tableau.value())));
 
                     tableau_mgr.get()->set_filename(qcir_mgr.get()->get_filename());
                     tableau_mgr.get()->add_procedures(qcir_mgr.get()->get_procedures());
@@ -218,7 +218,7 @@ Command convert_from_tensor_cmd(tensor::TensorMgr& tensor_mgr, QCirMgr& qcir_mgr
         }};
 }
 
-Command convert_from_tableau_cmd(experimental::TableauMgr& tableau_mgr, qcir::QCirMgr& qcir_mgr) {
+Command convert_from_tableau_cmd(tableau::TableauMgr& tableau_mgr, qcir::QCirMgr& qcir_mgr) {
     return {
         "tableau",
         [&](ArgumentParser& parser) {
@@ -245,27 +245,27 @@ Command convert_from_tableau_cmd(experimental::TableauMgr& tableau_mgr, qcir::QC
             if (!dvlab::utils::mgr_has_data(tableau_mgr)) return CmdExecResult::error;
             auto to_type = parser.get<std::string>("to-type");
             if (to_type == "qcir") {
-                auto const clifford_strategy = std::invoke([&]() -> std::unique_ptr<experimental::StabilizerTableauSynthesisStrategy> {
+                auto const clifford_strategy = std::invoke([&]() -> std::unique_ptr<tableau::StabilizerTableauSynthesisStrategy> {
                     auto const clifford_strategy_str = parser.get<std::string>("--clifford");
-                    if (is_prefix_of(clifford_strategy_str, "hopt")) return std::make_unique<experimental::HOptSynthesisStrategy>();
-                    if (is_prefix_of(clifford_strategy_str, "ag")) return std::make_unique<experimental::AGSynthesisStrategy>();
-                    if (is_prefix_of(clifford_strategy_str, "hstair")) return std::make_unique<experimental::HOptSynthesisStrategy>(experimental::HOptSynthesisStrategy::Mode::staircase);
+                    if (is_prefix_of(clifford_strategy_str, "hopt")) return std::make_unique<tableau::HOptSynthesisStrategy>();
+                    if (is_prefix_of(clifford_strategy_str, "ag")) return std::make_unique<tableau::AGSynthesisStrategy>();
+                    if (is_prefix_of(clifford_strategy_str, "hstair")) return std::make_unique<tableau::HOptSynthesisStrategy>(tableau::HOptSynthesisStrategy::Mode::staircase);
                     DVLAB_UNREACHABLE("Invalid clifford strategy!!");
                     return nullptr;
                 });
 
-                auto const rotation_strategy = std::invoke([&]() -> std::unique_ptr<experimental::PauliRotationsSynthesisStrategy> {
+                auto const rotation_strategy = std::invoke([&]() -> std::unique_ptr<tableau::PauliRotationsSynthesisStrategy> {
                     auto const rotation_strategy_str = parser.get<std::string>("--rotation");
-                    if (is_prefix_of(rotation_strategy_str, "naive")) return std::make_unique<experimental::NaivePauliRotationsSynthesisStrategy>();
-                    if (is_prefix_of(rotation_strategy_str, "graysynth")) return std::make_unique<experimental::GraySynthStrategy>();
-                    if (is_prefix_of(rotation_strategy_str, "gstair")) return std::make_unique<experimental::GraySynthStrategy>(experimental::GraySynthStrategy::Mode::staircase);
-                    if (is_prefix_of(rotation_strategy_str, "mst")) return std::make_unique<experimental::MstSynthesisStrategy>();
+                    if (is_prefix_of(rotation_strategy_str, "naive")) return std::make_unique<tableau::NaivePauliRotationsSynthesisStrategy>();
+                    if (is_prefix_of(rotation_strategy_str, "graysynth")) return std::make_unique<tableau::GraySynthStrategy>();
+                    if (is_prefix_of(rotation_strategy_str, "gstair")) return std::make_unique<tableau::GraySynthStrategy>(tableau::GraySynthStrategy::Mode::staircase);
+                    if (is_prefix_of(rotation_strategy_str, "mst")) return std::make_unique<tableau::MstSynthesisStrategy>();
                     DVLAB_UNREACHABLE("Invalid rotation strategy!!");
                     return nullptr;
                 });
 
                 spdlog::info("Converting to Tableau {} to QCir {}...", tableau_mgr.focused_id(), qcir_mgr.get_next_id());
-                auto qcir = experimental::to_qcir(*tableau_mgr.get(), *clifford_strategy, *rotation_strategy);
+                auto qcir = tableau::to_qcir(*tableau_mgr.get(), *clifford_strategy, *rotation_strategy);
 
                 if (qcir.has_value()) {
                     qcir_mgr.add(qcir_mgr.get_next_id(), std::make_unique<qcir::QCir>(std::move(qcir.value())));
@@ -283,7 +283,7 @@ Command convert_from_tableau_cmd(experimental::TableauMgr& tableau_mgr, qcir::QC
         }};
 }
 
-Command conversion_cmd(QCirMgr& qcir_mgr, qsyn::tensor::TensorMgr& tensor_mgr, qsyn::zx::ZXGraphMgr& zxgraph_mgr, experimental::TableauMgr& tableau_mgr) {
+Command conversion_cmd(QCirMgr& qcir_mgr, qsyn::tensor::TensorMgr& tensor_mgr, qsyn::zx::ZXGraphMgr& zxgraph_mgr, tableau::TableauMgr& tableau_mgr) {
     auto cmd = dvlab::Command{
         "convert",
         [&](ArgumentParser& parser) {
@@ -331,7 +331,7 @@ Command sk_decompose_cmd(qsyn::tensor::TensorMgr& tensor_mgr, QCirMgr& qcir_mgr)
             }};
 }
 
-bool add_conversion_cmds(dvlab::CommandLineInterface& cli, QCirMgr& qcir_mgr, qsyn::tensor::TensorMgr& tensor_mgr, qsyn::zx::ZXGraphMgr& zxgraph_mgr, experimental::TableauMgr& tableau_mgr) {
+bool add_conversion_cmds(dvlab::CommandLineInterface& cli, QCirMgr& qcir_mgr, qsyn::tensor::TensorMgr& tensor_mgr, qsyn::zx::ZXGraphMgr& zxgraph_mgr, tableau::TableauMgr& tableau_mgr) {
     if (!(cli.add_command(conversion_cmd(qcir_mgr, tensor_mgr, zxgraph_mgr, tableau_mgr)) &&
           cli.add_command(sk_decompose_cmd(tensor_mgr, qcir_mgr)) &&
           cli.add_alias("qc2zx", "convert qcir zx") &&

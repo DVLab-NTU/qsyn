@@ -13,7 +13,7 @@
 
 namespace qsyn {
 
-namespace experimental {
+namespace tableau {
 
 namespace detail {
 void add_clifford_gate(qcir::QCir& qcir, CliffordOperator const& op);
@@ -93,6 +93,6 @@ std::optional<qcir::QCir> to_qcir(
     StabilizerTableauSynthesisStrategy const& st_strategy,
     PauliRotationsSynthesisStrategy const& pr_strategy);
 
-}  // namespace experimental
+}  // namespace tableau
 
 }  // namespace qsyn

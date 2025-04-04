@@ -17,7 +17,7 @@
 
 namespace qsyn {
 
-namespace experimental {
+namespace tableau {
 
 class StabilizerTableau : public PauliProductTrait<StabilizerTableau> {
 public:
@@ -139,12 +139,12 @@ CliffordOperatorString extract_clifford_operators(
     StabilizerTableau copy,
     StabilizerTableauSynthesisStrategy const& strategy = HOptSynthesisStrategy{});
 
-}  // namespace experimental
+}  // namespace tableau
 
 }  // namespace qsyn
 
 template <>
-struct fmt::formatter<qsyn::experimental::StabilizerTableau> {
+struct fmt::formatter<qsyn::tableau::StabilizerTableau> {
     char presentation = 'c';
     constexpr auto parse(format_parse_context& ctx) {
         auto it = ctx.begin(), end = ctx.end();
@@ -154,7 +154,7 @@ struct fmt::formatter<qsyn::experimental::StabilizerTableau> {
     }
 
     template <typename FormatContext>
-    auto format(qsyn::experimental::StabilizerTableau const& tableau, FormatContext& ctx) const {
+    auto format(qsyn::tableau::StabilizerTableau const& tableau, FormatContext& ctx) const {
         return presentation == 'c' ? format_to(ctx.out(), "{}", tableau.to_string())
                                    : format_to(ctx.out(), "{}", tableau.to_bit_string());
     }

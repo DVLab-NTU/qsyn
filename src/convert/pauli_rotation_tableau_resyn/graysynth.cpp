@@ -11,7 +11,7 @@
 #include "util/phase.hpp"
 #include "util/util.hpp"
 
-namespace qsyn::experimental {
+namespace qsyn::tableau {
 
 namespace {
 /**
@@ -275,4 +275,4 @@ GraySynthStrategy::synthesize(
     return qcir;
 }
 
-}  // namespace qsyn::experimental
+}  // namespace qsyn::tableau

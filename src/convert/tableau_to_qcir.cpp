@@ -17,7 +17,7 @@
 
 extern bool stop_requested();
 
-namespace qsyn::experimental {
+namespace qsyn::tableau {
 
 namespace detail {
 
@@ -135,4 +135,4 @@ std::optional<qcir::QCir> to_qcir(
     return qcir;
 }
 
-}  // namespace qsyn::experimental
+}  // namespace qsyn::tableau

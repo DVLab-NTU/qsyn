@@ -15,7 +15,7 @@
 
 bool stop_requested();
 
-namespace qsyn::experimental {
+namespace qsyn::tableau {
 
 std::string StabilizerTableau::to_string() const {
     std::string ret;
@@ -375,4 +375,4 @@ CliffordOperatorString HOptSynthesisStrategy::synthesize(StabilizerTableau copy)
     return clifford_ops;
 }
 
-}  // namespace qsyn::experimental
+}  // namespace qsyn::tableau
