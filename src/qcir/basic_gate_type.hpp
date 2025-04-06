@@ -299,7 +299,6 @@ inline std::optional<QCir> to_basic_gates(ControlGate const& op) {
         qcir.append(SXGate(), {2});
     }
     // optimal decomposition of CCZ
-    qcir.append(TGate(), {2});      // R_IIZ(pi/4)
     qcir.append(CXGate(), {1, 2});  // qubit 2: IIZ -> IZZ
     qcir.append(TdgGate(), {2});    // R_IZZ(-pi/4)
     qcir.append(CXGate(), {0, 2});  // qubit 2: IZZ -> ZZZ
@@ -307,6 +306,8 @@ inline std::optional<QCir> to_basic_gates(ControlGate const& op) {
     qcir.append(CXGate(), {1, 2});  // qubit 2: ZZZ -> ZIZ
     qcir.append(TdgGate(), {2});    // R_ZIZ(-pi/4)
     qcir.append(TGate(), {1});      // R_IZI(pi/4)
+    qcir.append(CXGate(), {0, 2});  // qubit 2: IZZ -> ZZZ
+    qcir.append(TGate(), {2});      // R_IIZ(pi/4)
     qcir.append(CXGate(), {0, 1});  // qubit 1: IZI -> ZZI
     qcir.append(TGate(), {0});      // R_ZII(pi/4)
     qcir.append(TdgGate(), {1});    // R_ZZI(-pi/4)
