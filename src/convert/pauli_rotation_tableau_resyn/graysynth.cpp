@@ -263,14 +263,12 @@ GraySynthStrategy::synthesize(
 
     auto [qcir, final_clifford] = std::move(*partial_result);
 
-    auto const final_clifford_circ = to_qcir(
-        final_clifford,
-        AGSynthesisStrategy{});
+    // it seems like gaussian is the best
+    auto const final_cxs = synthesize_cx_gaussian(final_clifford);
 
-    if (!final_clifford_circ) {
-        return std::nullopt;
+    for (auto const& cx : final_cxs) {
+        detail::add_clifford_gate(qcir, cx);
     }
-    qcir.compose(*final_clifford_circ);
 
     return qcir;
 }

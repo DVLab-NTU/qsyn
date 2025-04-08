@@ -91,7 +91,8 @@ std::optional<qcir::QCir> to_qcir(
 std::optional<qcir::QCir> to_qcir(
     Tableau const& tableau,
     StabilizerTableauSynthesisStrategy const& st_strategy,
-    PauliRotationsSynthesisStrategy const& pr_strategy);
+    PauliRotationsSynthesisStrategy const& pr_strategy,
+    bool lazy = false);
 
 }  // namespace tableau
 

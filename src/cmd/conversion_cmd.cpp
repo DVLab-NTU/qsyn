@@ -239,33 +239,79 @@ Command convert_from_tableau_cmd(tableau::TableauMgr& tableau_mgr, qcir::QCirMgr
                 .constraint(choices_allow_prefix({"naive", "graysynth", "gstair", "mst"}))
                 .default_value("naive")
                 .help("specify the rotation synthesis strategy (default: naive).");
+
+            to_qcir.add_argument<bool>("-l", "--lazy")
+                .action(store_true)
+                .help(
+                    "If set, only partially synthesize subtableau "
+                    "so that the remaining can be delayed to later. "
+                    "Note that not all strategies support lazy synthesis.");
         },
         [&](ArgumentParser const& parser) {
             using namespace dvlab::str;
+            using namespace qsyn::tableau;
             if (!dvlab::utils::mgr_has_data(tableau_mgr)) return CmdExecResult::error;
             auto to_type = parser.get<std::string>("to-type");
             if (to_type == "qcir") {
-                auto const clifford_strategy = std::invoke([&]() -> std::unique_ptr<tableau::StabilizerTableauSynthesisStrategy> {
-                    auto const clifford_strategy_str = parser.get<std::string>("--clifford");
-                    if (is_prefix_of(clifford_strategy_str, "hopt")) return std::make_unique<tableau::HOptSynthesisStrategy>();
-                    if (is_prefix_of(clifford_strategy_str, "ag")) return std::make_unique<tableau::AGSynthesisStrategy>();
-                    if (is_prefix_of(clifford_strategy_str, "hstair")) return std::make_unique<tableau::HOptSynthesisStrategy>(tableau::HOptSynthesisStrategy::Mode::staircase);
-                    DVLAB_UNREACHABLE("Invalid clifford strategy!!");
-                    return nullptr;
-                });
+                auto const lazy                  = parser.parsed("--lazy");
+                auto const clifford_strategy_str = parser.get<std::string>("--clifford");
+                auto const rotation_strategy_str = parser.get<std::string>("--rotation");
 
-                auto const rotation_strategy = std::invoke([&]() -> std::unique_ptr<tableau::PauliRotationsSynthesisStrategy> {
-                    auto const rotation_strategy_str = parser.get<std::string>("--rotation");
-                    if (is_prefix_of(rotation_strategy_str, "naive")) return std::make_unique<tableau::NaivePauliRotationsSynthesisStrategy>();
-                    if (is_prefix_of(rotation_strategy_str, "graysynth")) return std::make_unique<tableau::GraySynthStrategy>();
-                    if (is_prefix_of(rotation_strategy_str, "gstair")) return std::make_unique<tableau::GraySynthStrategy>(tableau::GraySynthStrategy::Mode::staircase);
-                    if (is_prefix_of(rotation_strategy_str, "mst")) return std::make_unique<tableau::MstSynthesisStrategy>();
-                    DVLAB_UNREACHABLE("Invalid rotation strategy!!");
-                    return nullptr;
-                });
+                // lazy synthesis requires hopt/hstair for Clifford synthesis
+                // and gray/gstair/mst for rotation synthesis
+                if (lazy) {
+                    if (!is_prefix_of(clifford_strategy_str, "hopt") &&
+                        !is_prefix_of(clifford_strategy_str, "hstair")) {
+                        spdlog::error("Lazy synthesis requires hopt/hstair for Clifford synthesis!!");
+                        return CmdExecResult::error;
+                    }
+
+                    if (!is_prefix_of(rotation_strategy_str, "graysynth") &&
+                        !is_prefix_of(rotation_strategy_str, "gstair") &&
+                        !is_prefix_of(rotation_strategy_str, "mst")) {
+                        spdlog::error("Lazy synthesis requires graysynth/gstair/mst for rotation synthesis!!");
+                        return CmdExecResult::error;
+                    }
+                }
+
+                auto const clifford_strategy = std::invoke(
+                    [&]() -> std::unique_ptr<
+                              StabilizerTableauSynthesisStrategy> {
+                        using HOptMode = HOptSynthesisStrategy::Mode;
+                        if (is_prefix_of(clifford_strategy_str, "hopt"))
+                            return std::make_unique<HOptSynthesisStrategy>();
+                        if (is_prefix_of(clifford_strategy_str, "ag"))
+                            return std::make_unique<AGSynthesisStrategy>();
+                        if (is_prefix_of(clifford_strategy_str, "hstair"))
+                            return std::make_unique<
+                                HOptSynthesisStrategy>(HOptMode::staircase);
+                        DVLAB_UNREACHABLE("Invalid clifford strategy!!");
+                        return nullptr;
+                    });
+
+                auto const rotation_strategy = std::invoke(
+                    [&]() -> std::unique_ptr<PauliRotationsSynthesisStrategy> {
+                        using GrayMode = GraySynthStrategy::Mode;
+                        if (is_prefix_of(rotation_strategy_str, "naive"))
+                            return std::make_unique<
+                                NaivePauliRotationsSynthesisStrategy>();
+                        if (is_prefix_of(rotation_strategy_str, "graysynth"))
+                            return std::make_unique<GraySynthStrategy>();
+                        if (is_prefix_of(rotation_strategy_str, "gstair"))
+                            return std::make_unique<
+                                GraySynthStrategy>(GrayMode::staircase);
+                        if (is_prefix_of(rotation_strategy_str, "mst"))
+                            return std::make_unique<MstSynthesisStrategy>();
+                        DVLAB_UNREACHABLE("Invalid rotation strategy!!");
+                        return nullptr;
+                    });
 
                 spdlog::info("Converting to Tableau {} to QCir {}...", tableau_mgr.focused_id(), qcir_mgr.get_next_id());
-                auto qcir = tableau::to_qcir(*tableau_mgr.get(), *clifford_strategy, *rotation_strategy);
+                auto qcir = tableau::to_qcir(
+                    *tableau_mgr.get(),
+                    *clifford_strategy,
+                    *rotation_strategy,
+                    lazy);
 
                 if (qcir.has_value()) {
                     qcir_mgr.add(qcir_mgr.get_next_id(), std::make_unique<qcir::QCir>(std::move(qcir.value())));

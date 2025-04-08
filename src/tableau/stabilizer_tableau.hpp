@@ -21,7 +21,8 @@ namespace tableau {
 
 class StabilizerTableau : public PauliProductTrait<StabilizerTableau> {
 public:
-    StabilizerTableau(size_t n_qubits) : _stabilizers(2 * n_qubits, PauliProduct(std::string(n_qubits, 'I'))) {
+    StabilizerTableau(size_t n_qubits)
+        : _stabilizers(2 * n_qubits, PauliProduct(std::string(n_qubits, 'I'))) {
         for (size_t i = 0; i < n_qubits; ++i) {
             _stabilizers[stabilizer_idx(i)].set_pauli_type(i, Pauli::z);
             _stabilizers[destabilizer_idx(i)].set_pauli_type(i, Pauli::x);
@@ -64,6 +65,7 @@ public:
 
     StabilizerTableau& prepend(CliffordOperator const& op);
     StabilizerTableau& prepend(CliffordOperatorString const& ops);
+    StabilizerTableau& prepend(StabilizerTableau const& tableau);
 
     std::string to_string() const;
     std::string to_bit_string() const;
@@ -91,7 +93,11 @@ public:
     bool is_identity() const { return *this == StabilizerTableau{n_qubits()}; }
 
     bool is_commutative(PauliProduct const& rhs) const {
-        return std::ranges::all_of(_stabilizers | std::views::take(n_qubits()), [&rhs](PauliProduct const& stabilizer) { return stabilizer.is_commutative(rhs); });
+        return std::ranges::all_of(
+            _stabilizers | std::views::take(n_qubits()),
+            [&rhs](PauliProduct const& stabilizer) {
+                return stabilizer.is_commutative(rhs);
+            });
     }
 
 private:
@@ -100,11 +106,14 @@ private:
 
 [[nodiscard]] StabilizerTableau adjoint(StabilizerTableau const& tableau);
 
-inline void adjoint_inplace(StabilizerTableau& tableau) { tableau = adjoint(tableau); }
+inline void adjoint_inplace(StabilizerTableau& tableau) {
+    tableau = adjoint(tableau);
+}
 
 class StabilizerTableauSynthesisStrategy {
 public:
-    virtual ~StabilizerTableauSynthesisStrategy()                           = default;
+    virtual ~StabilizerTableauSynthesisStrategy() = default;
+
     virtual CliffordOperatorString synthesize(StabilizerTableau copy) const = 0;
 };
 
@@ -119,12 +128,28 @@ public:
     CliffordOperatorString synthesize(StabilizerTableau copy) const override;
 };
 
+CliffordOperatorString
+synthesize_cx_pmh(StabilizerTableau tableau,
+                  std::optional<size_t> chunk_size = std::nullopt);
+
+CliffordOperatorString
+synthesize_cx_pmh_exhaustive(StabilizerTableau const& tableau);
+
+CliffordOperatorString
+synthesize_cx_gaussian(StabilizerTableau const& tableau);
+
+CliffordOperatorString
+synthesize_h_free_mr(StabilizerTableau tableau);
+
 /**
  * @brief An extractor based on the paper
- *        [Optimal Hadamard gate count for Clifford$+T$ synthesis of Pauli rotations sequences](https://arxiv.org/abs/2302.07040)
+ *        [Optimal Hadamard gate count for Clifford$+T$ synthesis of 
+ *        Pauli rotations sequences](https://arxiv.org/abs/2302.07040)
  *        by Vandaele, Martiel, Perdrix, and Vuillot.
- *        This method is guaranteed to produce the optimal number of Hadamard gates by first diagonalizing the stabilizers with
- *        provably optimal number of Hadamard gates and then applying the Aaronson-Gottesman method to the rest of the tableau.
+ *        This method is guaranteed to produce the optimal number of Hadamard 
+ *        gates by first diagonalizing the stabilizers with provably optimal 
+ *        number of Hadamard gates and then applying the Aaronson-Gottesman 
+ *        method to the rest of the tableau.
  *
  */
 class HOptSynthesisStrategy : public StabilizerTableauSynthesisStrategy {
@@ -132,12 +157,16 @@ public:
     enum class Mode { star,
                       staircase } mode;
     HOptSynthesisStrategy(Mode mode = Mode::star) : mode{mode} {}
-    CliffordOperatorString synthesize(StabilizerTableau copy) const override;
+    CliffordOperatorString
+    partial_synthesize(StabilizerTableau& clifford) const;
+    CliffordOperatorString
+    synthesize(StabilizerTableau copy) const override;
 };
 
 CliffordOperatorString extract_clifford_operators(
     StabilizerTableau copy,
-    StabilizerTableauSynthesisStrategy const& strategy = HOptSynthesisStrategy{});
+    StabilizerTableauSynthesisStrategy const& strategy =
+        HOptSynthesisStrategy{});
 
 }  // namespace tableau
 
@@ -148,14 +177,18 @@ struct fmt::formatter<qsyn::tableau::StabilizerTableau> {
     char presentation = 'c';
     constexpr auto parse(format_parse_context& ctx) {
         auto it = ctx.begin(), end = ctx.end();
-        if (it != end && (*it == 'c' || *it == 'b')) presentation = *it++;
-        if (it != end && *it != '}') detail::throw_format_error("invalid format");
+        if (it != end && (*it == 'c' || *it == 'b'))
+            presentation = *it++;
+        if (it != end && *it != '}')
+            detail::throw_format_error("invalid format");
         return it;
     }
 
     template <typename FormatContext>
-    auto format(qsyn::tableau::StabilizerTableau const& tableau, FormatContext& ctx) const {
-        return presentation == 'c' ? format_to(ctx.out(), "{}", tableau.to_string())
-                                   : format_to(ctx.out(), "{}", tableau.to_bit_string());
+    auto format(qsyn::tableau::StabilizerTableau const& tableau,
+                FormatContext& ctx) const {
+        return presentation == 'c'
+                   ? format_to(ctx.out(), "{}", tableau.to_string())
+                   : format_to(ctx.out(), "{}", tableau.to_bit_string());
     }
 };

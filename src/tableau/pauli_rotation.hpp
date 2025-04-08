@@ -238,6 +238,9 @@ public:
     bool is_z_set(size_t i) const { return _bitset[_z_idx(i)]; }
     bool is_x_set(size_t i) const { return _bitset[_x_idx(i)]; }
 
+    void set_z(size_t i, bool z) { _bitset[_z_idx(i)] = z; }
+    void set_x(size_t i, bool x) { _bitset[_x_idx(i)] = x; }
+
     bool is_diagonal() const {
         return std::ranges::all_of(std::views::iota(0ul, n_qubits()), [this](size_t i) { return is_i(i) || is_z(i); });
     }
