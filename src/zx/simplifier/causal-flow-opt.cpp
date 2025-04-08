@@ -8,6 +8,7 @@
 #include "./simplify.hpp"
 #include "zx/flow/causal-flow.hpp"
 #include "zx/simplifier/rules/rule-matchers.hpp"
+#include "zx/simplifier/rules/zx_rules_template.hpp"
 #include "zx/zx_def.hpp"
 #include "zx/zxgraph.hpp"
 #include "zx/zxgraph_action.hpp"
@@ -27,9 +28,9 @@ std::vector<MatchWithScore> get_matches_with_scores(
     using namespace std::chrono;
     auto matches = std::vector<MatchWithScore>{};
 
-    auto ifu_matcher = IdentityFusionMatcher{};
-    auto lcu_matcher = LCompUnfusionMatcher{max_lcomp_unfusions};
-    auto pvu_matcher = PivotUnfusionMatcher{max_pivot_unfusions};
+    auto const ifu_matcher = IdentityFusionMatcher{};
+    auto const lcu_matcher = LCompUnfusionMatcher{max_lcomp_unfusions};
+    auto const pvu_matcher = PivotUnfusionMatcher{max_pivot_unfusions};
 
     auto const ifu_start = high_resolution_clock::now();
 
@@ -58,36 +59,27 @@ std::vector<MatchWithScore> get_matches_with_scores(
         }
     }
 
-    auto const sort_start = high_resolution_clock::now();
-
-    std::ranges::sort(matches, std::less{}, &MatchWithScore::second);
-
-    auto const sort_end = high_resolution_clock::now();
+    auto const pvu_end = high_resolution_clock::now();
 
     auto const ifu_duration =
         duration_cast<microseconds>(lcu_start - ifu_start).count();
     auto const lcu_duration =
         duration_cast<microseconds>(pvu_start - lcu_start).count();
     auto const pvu_duration =
-        duration_cast<microseconds>(sort_end - pvu_start).count();
-    auto const sort_duration =
-        duration_cast<microseconds>(sort_end - sort_start).count();
+        duration_cast<microseconds>(pvu_end - pvu_start).count();
 
     spdlog::debug(
-        "{} matches; IFU: {:.3f} ms, LCU: {:.3f} ms, PVU: {:.3f} ms, Sort: {:.3f} ms",
+        "{:>5} matches; IFU: {:>5.4f} ms, LCU: {:>5.4f} ms, PVU: {:>5.4f} ms",
         matches.size(),
         static_cast<double>(ifu_duration) / 1'000.0,
         static_cast<double>(lcu_duration) / 1'000.0,
-        static_cast<double>(pvu_duration) / 1'000.0,
-        static_cast<double>(sort_duration) / 1'000.0);
+        static_cast<double>(pvu_duration) / 1'000.0);
 
     return matches;
 }
 
-void update_affected_matches(
-    ZXGraph& g, std::vector<MatchWithScore>& matches,
-    std::vector<size_t> const& affected_vertices, size_t max_lcomp_unfusions,
-    size_t max_pivot_unfusions) {
+std::unordered_set<size_t> get_search_space(
+    ZXGraph const& g, std::vector<size_t> const& affected_vertices) {
     constexpr auto max_radius = std::max({
         IdentityFusion::radius(),
         LCompUnfusion::radius(),
@@ -103,6 +95,15 @@ void update_affected_matches(
 
     std::move(search_space_vec.begin(), search_space_vec.end(),
               std::inserter(search_space, search_space.end()));
+
+    return search_space;
+}
+
+void update_affected_matches(
+    ZXGraph& g, std::vector<MatchWithScore>& matches,
+    std::vector<size_t> const& affected_vertices, size_t max_lcomp_unfusions,
+    size_t max_pivot_unfusions) {
+    auto search_space = get_search_space(g, affected_vertices);
 
     // remove the matches that becomes invalid or those with changed scores
     std::erase_if(matches, [&](auto const& mws) {
@@ -127,14 +128,18 @@ void update_affected_matches(
     auto new_matches = get_matches_with_scores(
         g, candidates, max_lcomp_unfusions, max_pivot_unfusions);
 
-    std::move(new_matches.begin(),
-              new_matches.end(),
+    std::move(new_matches.begin(), new_matches.end(),
               std::back_inserter(matches));
-    // matches.insert(matches.end(), new_matches.begin(), new_matches.end());
 
     // sort the matches in the ascending order of the score
     // so that we can apply the first match and discard it in O(1) time
-    std::ranges::sort(matches, std::less{}, &MatchWithScore::second);
+    auto const n_old_matches = matches.size();
+
+    std::ranges::inplace_merge(
+        matches.begin(),
+        matches.begin() + gsl::narrow_cast<std::ptrdiff_t>(n_old_matches),
+        matches.end(),
+        std::less{}, &MatchWithScore::second);
 }
 
 /**
@@ -147,7 +152,8 @@ void update_affected_matches(
  */
 void causal_flow_opt(ZXGraph& g,
                      size_t max_lcomp_unfusions,
-                     size_t max_pivot_unfusions) {
+                     size_t max_pivot_unfusions,
+                     size_t max_spider_arity) {
     using namespace std::chrono;
     constexpr auto const to_us = [](auto const dur) {
         return duration_cast<microseconds>(dur).count();
@@ -168,6 +174,26 @@ void causal_flow_opt(ZXGraph& g,
     auto const loop_start_time = high_resolution_clock::now();
     // insert redundant vertices between Z-Z or X-X simple edges
 
+    hadamard_rule_simp(g);
+    to_z_graph(g);
+    while (!stop_requested()) {
+        auto const rule = SpiderFusionRule{};
+        auto matches    = rule.find_matches(g);
+        std::erase_if(matches, [&](auto const& m) {
+            auto const& [v1, v2] = m;
+            auto const expected_arity =
+                g.num_neighbors(v1) + g.num_neighbors(v2) - 2;
+            return expected_arity > max_spider_arity;
+        });
+
+        // check emptiness after erasing to avoid infinite loop
+        if (matches.empty()) {
+            break;
+        }
+
+        rule.apply(g, matches);
+    }
+    redundant_hadamard_insertion(g, 1.0);
     to_graph_like(g);
 
     if (!has_causal_flow(g)) {
@@ -182,10 +208,6 @@ void causal_flow_opt(ZXGraph& g,
         // step 2: identify a best match to apply
         auto [match, score] = std::move(matches.back());
         matches.pop_back();
-
-        // fmt::println("applying match: {}",
-        //              std::visit(
-        //                  [&](auto&& m) { return m.to_string(); }, match));
 
         std::visit([&](auto&& m) { m.apply_unchecked(g); }, match);
 
@@ -228,9 +250,6 @@ void causal_flow_opt(ZXGraph& g,
             update_duration +=
                 to_us(high_resolution_clock::now() - update_start);
 
-            // fmt::println("max degree vertex: {}; degree: {}",
-            //              get_max_degree_vertex()->get_id(),
-            //              g.num_neighbors(get_max_degree_vertex()));
         } else {
             // undo the change and discard the match
             std::visit([&](auto&& m) { m.undo_unchecked(g); }, match);
@@ -276,6 +295,9 @@ void causal_flow_opt(ZXGraph& g,
 void redundant_hadamard_insertion(ZXGraph& g, double prob) {
     hadamard_rule_simp(g);
     to_z_graph(g);
+
+    if (prob <= 0.0) return;
+
     auto vpairs = std::vector<std::pair<size_t, size_t>>{};
 
     g.for_each_edge([&](auto const& ep) {
@@ -290,7 +312,7 @@ void redundant_hadamard_insertion(ZXGraph& g, double prob) {
     for (auto const& [v0_id, v1_id] : vpairs) {
         // randomly add...
         static std::mt19937 gen(std::random_device{}());
-        if (std::bernoulli_distribution{prob}(gen)) {
+        if (prob >= 1.0 || std::bernoulli_distribution{prob}(gen)) {
             IdentityAddition{
                 v0_id, v1_id, VertexType::z, EdgeType::hadamard}
                 .apply_unchecked(g);
