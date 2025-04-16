@@ -10,7 +10,7 @@ zx print -v
 zx vertex add hbox 0
 zx edge add 0 4 HADAMARD
 zx edge add 1 4 SIMPLE
-zx edge remove 0 1 ALL
+zx edge remove 0 1
 zx print -v
 zx rule --hadamard-fusion
 zx delete --all
@@ -23,8 +23,8 @@ qcir gate add h 0
 qcir print --gate
 qc2zx
 zx print -v
-zx edge remove 2 3 ALL
-zx edge remove 3 4 ALL
+zx edge remove 2 3 any
+zx edge remove 3 4 any
 zx edge add 2 3 HADAMARD
 zx edge add 3 4 HADAMARD
 zx print -v
@@ -37,9 +37,9 @@ qcir gate add h 0
 qcir print --gate
 qc2zx
 zx print -v
-zx edge remove 0 2 ALL
-zx edge remove 2 3 ALL
-zx edge remove 3 1 ALL
+zx edge remove 0 2
+zx edge remove 2 3
+zx edge remove 3 1
 zx edge add 0 2 HADAMARD
 zx edge add 2 3 HADAMARD
 zx edge add 3 1 HADAMARD

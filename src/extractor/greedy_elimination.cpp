@@ -5,6 +5,10 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
+#include <fmt/core.h>
+
+#include <cstddef>
+
 #include "./extract.hpp"
 #include "util/util.hpp"
 
@@ -36,8 +40,9 @@ std::vector<size_t> Extractor::find_minimal_sums(dvlab::BooleanMatrix& matrix) {
                 auto const new_row         = row + matrix[k];
                 std::vector<size_t> result = indices;
                 result.emplace_back(k);
-                if (new_row.is_one_hot())
+                if (new_row.is_one_hot()) {
                     return result;
+                }
 
                 new_row_track_pairs.emplace_back(result, new_row);
                 iterations++;
@@ -91,7 +96,7 @@ std::vector<dvlab::BooleanMatrix::RowOperation> Extractor::greedy_reduction(dvla
         result.emplace_back(best_operation);
         matrix[best_operation.second] = matrix[best_operation.first] + matrix[best_operation.second];
 
-        indices.erase(remove(indices.begin(), indices.end(), best_operation.first), indices.end());
+        std::erase(indices, best_operation.first);
     }
     return result;
 }

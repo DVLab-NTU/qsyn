@@ -9,6 +9,7 @@
 #include "cli/cli.hpp"
 #include "spdlog/common.h"
 #include "util/cin_cout_cerr.hpp"
+#include "util/dvlab_string.hpp"
 #include "util/sysdep.hpp"
 #include "util/usage.hpp"
 
@@ -209,7 +210,9 @@ Command quit_cmd(CommandLineInterface& cli) {
 
                 if (input.empty()) return CmdExecResult::done;
 
-                return (dvlab::str::is_prefix_of(input, "yes"))
+                using dvlab::str::tolower_string, dvlab::str::is_prefix_of;
+
+                return (is_prefix_of(tolower_string(input), "yes"))
                            ? CmdExecResult::quit
                            : CmdExecResult::done;  // not yet to quit
             }};

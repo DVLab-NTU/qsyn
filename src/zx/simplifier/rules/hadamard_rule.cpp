@@ -14,23 +14,38 @@ using namespace qsyn::zx;
 
 using MatchType = HadamardRule::MatchType;
 
-std::vector<MatchType> HadamardRule::find_matches(ZXGraph const& graph) const {
-    std::unordered_set<ZXVertex*> taken;
+/**
+ * @brief Find matchings of the Hadamard rule.
+ *
+ * @param graph
+ * @param candidates the vertices to be considered
+ * @return std::vector<MatchType>
+ */
+std::vector<MatchType> HadamardRule::find_matches(
+    ZXGraph const& graph,
+    std::optional<ZXVertexList> candidates) const {
     std::vector<MatchType> matches;
+
+    if (!candidates.has_value()) {
+        candidates = graph.get_vertices();
+    }
 
     // Find all H-boxes
     for (auto const& v : graph.get_vertices()) {
-        if (!v->is_hbox() || graph.get_num_neighbors(v) != 2) continue;
+        if (!v->is_hbox() || graph.num_neighbors(v) != 2) continue;
 
         auto [nv0, _0] = graph.get_first_neighbor(v);
         auto [nv1, _1] = graph.get_second_neighbor(v);
 
-        if (taken.contains(nv0) || taken.contains(nv1)) continue;
+        if (!candidates->contains(nv0) || !candidates->contains(nv1)) continue;
 
         matches.emplace_back(v);
-        taken.insert(v);
-        taken.insert(nv0);
-        taken.insert(nv1);
+
+        if (_allow_overlapping_candidates) continue;
+
+        candidates->erase(v);
+        candidates->erase(nv0);
+        candidates->erase(nv1);
     }
 
     return matches;

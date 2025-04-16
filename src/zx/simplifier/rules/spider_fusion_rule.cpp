@@ -12,30 +12,37 @@ using namespace qsyn::zx;
 using MatchType = SpiderFusionRule::MatchType;
 
 /**
- * @brief Find non-interacting matchings of the spider fusion rule.
+ * @brief Find matchings of the spider rule.
  *
- * @param graph The graph to find matches.
+ * @param graph
+ * @param candidates the vertices to be considered
+ * @return std::vector<MatchType>
  */
-std::vector<MatchType> SpiderFusionRule::find_matches(ZXGraph const& graph) const {
+std::vector<MatchType> SpiderFusionRule::find_matches(
+    ZXGraph const& graph,
+    std::optional<ZXVertexList> candidates) const {
     std::vector<MatchType> match_type_vec;
 
-    std::unordered_set<ZXVertex*> taken;
+    if (!candidates.has_value()) {
+        candidates = graph.get_vertices();
+    }
 
-    graph.for_each_edge([&graph, &taken, &match_type_vec](EdgePair const& epair) {
+    graph.for_each_edge([&](EdgePair const& epair) {
         if (epair.second != EdgeType::simple) return;
         ZXVertex* v0 = epair.first.first;
         ZXVertex* v1 = epair.first.second;  // to be merged to v0
 
-        if (taken.contains(v0) || taken.contains(v1)) return;
+        if (!candidates->contains(v0) || !candidates->contains(v1)) return;
 
-        if ((v0->get_type() == v1->get_type()) && (v0->is_x() || v0->is_z())) {
-            taken.insert(v0);
-            taken.insert(v1);
-            // NOTE: Cannot choose the vertex connected to the vertices that will be merged
-            for (auto& [nb, etype] : graph.get_neighbors(v1)) {
-                taken.insert(nb);
-            }
+        if ((v0->type() == v1->type()) && (v0->is_x() || v0->is_z())) {
             match_type_vec.emplace_back(v0, v1);
+            if (_allow_overlapping_candidates) return;
+            candidates->erase(v0);
+            candidates->erase(v1);
+            // NOTE: Cannot choose the vertex connected to the vertices that will be merged
+            for (auto& [nb, _] : graph.get_neighbors(v1)) {
+                candidates->erase(nb);
+            }
         }
     });
 
@@ -51,18 +58,11 @@ void SpiderFusionRule::apply(ZXGraph& graph, std::vector<MatchType> const& match
     ZXOperation op;
 
     for (auto [v0, v1] : matches) {
-        v0->set_phase(v0->get_phase() + v1->get_phase());
+        v0->phase() += v1->phase();
 
         for (auto& [neighbor, edgeType] : graph.get_neighbors(v1)) {
-            // NOTE: Will become selfloop after merged, only considered hadamard
-            if (neighbor == v0) {
-                if (edgeType == EdgeType::hadamard) {
-                    v0->set_phase(v0->get_phase() + Phase(1));
-                }
-                // NOTE: No need to remove edges since v1 will be removed
-            } else {
-                op.edges_to_add.emplace_back(std::make_pair(v0, neighbor), edgeType);
-            }
+            if (neighbor == v0) continue;
+            op.edges_to_add.emplace_back(std::make_pair(v0, neighbor), edgeType);
         }
         op.vertices_to_remove.emplace_back(v1);
     }

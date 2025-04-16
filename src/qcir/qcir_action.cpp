@@ -11,6 +11,7 @@
 #include <stack>
 #include <unordered_set>
 
+#include "qcir/operation.hpp"
 #include "qcir/qcir.hpp"
 #include "qcir/qcir_gate.hpp"
 #include "qcir/qcir_qubit.hpp"

@@ -18,6 +18,7 @@
 #include "spdlog/common.h"
 #include "util/boolean_matrix.hpp"
 #include "zx/zx_def.hpp"
+#include "zx/zxgraph.hpp"
 
 namespace qsyn {
 
@@ -30,28 +31,43 @@ class ZXGraph;
 
 namespace extractor {
 
-extern bool SORT_FRONTIER;
-extern bool SORT_NEIGHBORS;
-extern bool PERMUTE_QUBITS;
-extern bool FILTER_DUPLICATE_CXS;
-extern bool REDUCE_CZS;
-extern size_t BLOCK_SIZE;
-extern size_t OPTIMIZE_LEVEL;
+struct ExtractorConfig {
+    bool sort_frontier;         // sort frontier by the qubit IDs
+    bool sort_neighbors;        // sort neighbors by the vertex IDs
+    bool permute_qubits;        // synthesize permutation circuits at
+                                // the end of extraction
+    bool filter_duplicate_cxs;  // filters duplicate CXs during extraction
+    bool reduce_czs;            // tries to reduce the number of CZs by
+                                // feeding them into the biadjacency matrix
+    bool dynamic_order;         // dynamically decides the order of gadget
+                                // removal and CZ extraction
+    size_t block_size;          // the block size for block Gaussian
+                                // elimination. Only used in optimization
+                                // level 0
+    size_t optimize_level;      // the strategy for biadjacency elimination.
+                                // 0: fixed block size, 1: all block sizes,
+                                // 2: greedy reduction, 3: best of 1 and 2
+    float pred_coeff;           // hyperparameter for the dynamic extraction
+                                // routine. If
+                                // #CZs > #(edge reduced) * coeff,
+                                // eagerly extract CZs
+};
 
 class Extractor {
 public:
     using Target      = std::unordered_map<size_t, size_t>;
     using ConnectInfo = std::vector<std::set<size_t>>;
     using Overlap     = std::pair<std::pair<size_t, size_t>, std::vector<size_t>>;
-    // using Device      = duostra::Duostra::Device;
-    // using Operation   = duostra::Duostra::Operation;
 
-    Extractor(zx::ZXGraph* g, qcir::QCir* c = nullptr /*, std::optional<Device> const& d = std::nullopt */);
+    Extractor(
+        zx::ZXGraph* graph,
+        ExtractorConfig config,
+        qcir::QCir* qcir = nullptr,
+        bool random      = false);
 
-    // bool to_physical() { return _device.has_value(); }
     qcir::QCir* get_logical() { return _logical_circuit; }
 
-    void initialize(bool from_empty_qcir = true);
+    void initialize();
     qcir::QCir* extract();
     bool extraction_loop(std::optional<size_t> max_iter = std::nullopt);
     bool remove_gadget(bool check = false);
@@ -83,9 +99,14 @@ public:
     std::vector<dvlab::BooleanMatrix::RowOperation> greedy_reduction(dvlab::BooleanMatrix& m);
 
 private:
-    size_t _num_cx_iterations = 0;
+    size_t _num_cz_rms              = 0;
+    size_t _num_cz_rms_after_gadget = 0;
+    size_t _num_cx_rms              = 0;
+    size_t _num_cx_iterations       = 0;
     zx::ZXGraph* _graph;
     qcir::QCir* _logical_circuit;
+    bool _random;
+    bool _previous_gadget = false;
     zx::ZXVertexList _frontier;
     zx::ZXVertexList _neighbors;
     zx::ZXVertexList _axels;
@@ -103,10 +124,16 @@ private:
 
     Overlap _max_overlap(dvlab::BooleanMatrix& matrix);
 
+    int _calculate_diff_pivot_edges_if_extracting_cz(zx::ZXVertex* frontier, zx::ZXVertex* axel, zx::ZXVertex* cz_target);
+
     size_t _num_cx_filtered = 0;
     size_t _num_swaps       = 0;
+    size_t _cnt_print       = 0;
+    size_t _max_axel        = 0;
 
     std::vector<size_t> _initial_placement;
+
+    ExtractorConfig _config;
 };
 
 }  // namespace extractor

@@ -1,24 +1,5 @@
 zx new
 zx vertex add input 0
-zx vertex add output 0
-zx vertex add z 0
-zx vertex add z 0
-zx edge add 2 3 SIMPLE
-zx edge add 1 2 SIMPLE
-zx edge add 2 3 SIMPLE
-zx edge add 2 3 SIMPLE
-zx edge add 3 2 HADAMARD
-zx edge add 3 2 SIMPLE
-zx edge add 2 0 SIMPLE
-zx edge add 3 1 SIMPLE
-zx print -v
-zx print -e
-zx rule --spider-fusion
-zx print -v
-zx print -e
-zx delete --all
-zx new
-zx vertex add input 0
 zx vertex add input 1
 zx vertex add output 0
 zx vertex add z 0

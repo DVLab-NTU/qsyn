@@ -26,11 +26,18 @@ struct ZXVerticesHash {
 };
 
 /**
- * @brief Determine which phase gadgets act on the same vertices, so that they can be fused together.
+ * @brief Find matchings of the phase gadget fusion rule.
  *
- * @param graph The graph to find matches in.
+ * @param graph
+ * @param candidates the vertices to be considered
+ * @return std::vector<MatchType>
  */
-std::vector<MatchType> PhaseGadgetRule::find_matches(ZXGraph const& graph) const {
+std::vector<MatchType> PhaseGadgetRule::find_matches(
+    ZXGraph const& graph, std::optional<ZXVertexList> candidates) const {
+    if (!candidates.has_value()) {
+        candidates = graph.get_vertices();
+    }
+
     std::vector<MatchType> matches;
 
     std::unordered_map<ZXVertex*, ZXVertex*> axel2leaf;
@@ -39,11 +46,12 @@ std::vector<MatchType> PhaseGadgetRule::find_matches(ZXGraph const& graph) const
     std::vector<ZXVertex*> axels;
     std::vector<ZXVertex*> leaves;
     for (auto const& v : graph.get_vertices()) {
-        if (v->get_phase().denominator() <= 2 || graph.get_num_neighbors(v) != 1) continue;
+        if (!candidates->contains(v)) continue;
+        if (v->phase().denominator() <= 2 || graph.num_neighbors(v) != 1) continue;
 
         ZXVertex* nb = graph.get_first_neighbor(v).first;
 
-        if (nb->get_phase().denominator() != 1) continue;
+        if (nb->phase().denominator() != 1) continue;
         if (nb->is_boundary()) continue;
         if (axel2leaf.contains(nb)) continue;
 
@@ -72,12 +80,12 @@ std::vector<MatchType> PhaseGadgetRule::find_matches(ZXGraph const& graph) const
         bool flip_axel   = false;
         for (auto const& axel : tmp_axels) {
             ZXVertex* const& leaf = axel2leaf[axel];
-            if (axel->get_phase() == Phase(1)) {
-                flip_axel = true;
-                axel->set_phase(Phase(0));
-                leaf->set_phase((-1) * axel2leaf[axel]->get_phase());
+            if (axel->phase() == Phase(1)) {
+                flip_axel     = true;
+                axel->phase() = Phase(0);
+                leaf->phase() = (-1) * axel2leaf[axel]->phase();
             }
-            total_phase += axel2leaf[axel]->get_phase();
+            total_phase += axel2leaf[axel]->phase();
             axels.emplace_back(axel);
             leaves.emplace_back(axel2leaf[axel]);
         }
@@ -98,7 +106,7 @@ void PhaseGadgetRule::apply(ZXGraph& graph, std::vector<MatchType> const& matche
         std::vector<ZXVertex*> const& rm_axels  = get<1>(match);
         std::vector<ZXVertex*> const& rm_leaves = get<2>(match);
         ZXVertex* leaf                          = rm_leaves[0];
-        leaf->set_phase(new_phase);
+        leaf->phase()                           = new_phase;
         op.vertices_to_remove.insert(std::end(op.vertices_to_remove), std::begin(rm_axels) + 1, std::end(rm_axels));
         op.vertices_to_remove.insert(std::end(op.vertices_to_remove), std::begin(rm_leaves) + 1, std::end(rm_leaves));
     }

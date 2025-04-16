@@ -22,6 +22,7 @@
 #include "util/util.hpp"
 #include "zx/zx_def.hpp"
 #include "zx/zxgraph.hpp"
+#include "zx/zxgraph_action.hpp"
 
 extern bool stop_requested();
 
@@ -59,8 +60,17 @@ create_multi_control_backbone(ZXGraph& g, size_t num_qubits, RotationAxis ax) {
             g.add_edge(in, v, EdgeType::hadamard);
             g.add_edge(v, out, EdgeType::hadamard);
             if (ax == RotationAxis::y) {
-                g.add_buffer(in, v, EdgeType::hadamard)->set_phase(dvlab::Phase(-1, 2));
-                g.add_buffer(out, v, EdgeType::hadamard)->set_phase(dvlab::Phase(1, 2));
+                auto const buffer1 = zx::add_identity_vertex(
+                    g, v->get_id(), in->get_id(),
+                    VertexType::z, EdgeType::hadamard);
+                auto const buffer2 = zx::add_identity_vertex(
+                    g, v->get_id(), out->get_id(),
+                    VertexType::z, EdgeType::hadamard);
+
+                assert(buffer1.has_value() && buffer2.has_value());
+
+                g[*buffer1]->phase() = dvlab::Phase(-1, 2);
+                g[*buffer2]->phase() = dvlab::Phase(1, 2);
             }
         }
         if (qubit != target_qubit)
@@ -75,7 +85,7 @@ create_multi_control_backbone(ZXGraph& g, size_t num_qubits, RotationAxis ax) {
 }
 
 void create_multi_control_r_gate_gadgets(ZXGraph& g, std::vector<ZXVertex*> const& controls, ZXVertex* target, dvlab::Phase const& phase) {
-    target->set_phase(phase);
+    target->phase() = phase;
     for (size_t k = 1; k <= controls.size(); k++) {
         for (auto& combination : dvlab::combinations(controls,
                                                      k,
@@ -89,7 +99,7 @@ void create_multi_control_r_gate_gadgets(ZXGraph& g, std::vector<ZXVertex*> cons
 
 void create_multi_control_p_gate_gadgets(ZXGraph& g, std::vector<ZXVertex*> const& vertices, dvlab::Phase const& phase) {
     for (auto& v : vertices) {
-        v->set_phase(phase);
+        v->phase() = phase;
     }
     for (size_t k = 2; k <= vertices.size(); k++) {
         for (auto& combination : dvlab::combinations(vertices,
@@ -384,20 +394,7 @@ std::optional<ZXGraph> to_zxgraph(qcir::ControlGate const& op) {
 }
 
 std::optional<ZXGraph> to_zxgraph(qcir::QCirGate const& gate) {
-    auto ret = to_zxgraph(gate.get_operation());
-
-    // annotate qubit information
-    if (ret) {
-        for (auto* v : ret->get_vertices()) {
-            v->set_qubit(gate.get_qubit(v->get_qubit()));
-            // if row is non-negative, it is a non-gadget qubit; and we would want to draw it on the correct row
-            if (v->get_row() >= 0) {
-                v->set_row(static_cast<float>(gate.get_qubit(static_cast<size_t>(v->get_row()))));
-            }
-        }
-    }
-
-    return ret;
+    return to_zxgraph(gate.get_operation());
 }
 
 /**
@@ -437,7 +434,7 @@ std::optional<ZXGraph> to_zxgraph(QCir const& qcir) {
             v->set_col(v->get_col() + static_cast<float>(times.at(gate->get_id())));
         }
 
-        graph.concatenate(*tmp);
+        graph.concatenate(*std::move(tmp), gate->get_qubits());
     }
 
     auto const max_col = std::ranges::max(graph.get_outputs() | std::views::transform([&graph](ZXVertex* v) { return graph.get_first_neighbor(v).first->get_col(); }));

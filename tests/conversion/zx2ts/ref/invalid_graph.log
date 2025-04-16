@@ -8,7 +8,7 @@ qsyn> zx2ts // invalid graph 1: boundary has too more than one neighbors
 qsyn> 
 qsyn> zx read benchmark/zx/cnot.zx
 
-qsyn> zx edge remove 0 2 ALL
+qsyn> zx edge remove 0 2
 
 qsyn> zx2ts // invalid graph 2: boundary has no neighbors
 [error]    The ZXGraph is not valid!!

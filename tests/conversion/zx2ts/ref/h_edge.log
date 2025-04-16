@@ -40,7 +40,7 @@ qsyn> logger warn
 
 qsyn> 
 qsyn> // both edges are S-edge
-qsyn> zx edge remove 2 1 ALL
+qsyn> zx edge remove 2 1
 
 qsyn> zx edge add 2 1 SIMPLE
 
@@ -72,7 +72,7 @@ qsyn> logger warn
 
 qsyn> 
 qsyn> // in-edge are H-edge
-qsyn> zx edge remove 0 2 ALL
+qsyn> zx edge remove 0 2
 
 qsyn> zx edge add 2 0 HADAMARD
 
@@ -104,7 +104,7 @@ qsyn> logger warn
 
 qsyn> 
 qsyn> // Both edges are H-edge
-qsyn> zx edge remove 1 2 ALL
+qsyn> zx edge remove 1 2
 
 qsyn> zx edge add 2 1 HADAMARD
 

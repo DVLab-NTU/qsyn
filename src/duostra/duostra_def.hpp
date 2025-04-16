@@ -54,21 +54,21 @@ std::optional<RouterType> get_router_type(std::string const& str);
 std::optional<MinMaxOptionType> get_minmax_type(std::string const& str);
 
 struct DuostraConfig {
-    static SchedulerType SCHEDULER_TYPE;
-    static RouterType ROUTER_TYPE;
-    static PlacerType PLACER_TYPE;
-    static MinMaxOptionType TIE_BREAKING_STRATEGY;  // t/f smaller logical qubit index with little priority
+    SchedulerType scheduler_type;
+    RouterType router_type;
+    PlacerType placer_type;
+    MinMaxOptionType tie_breaking_strategy;  // t/f smaller logical qubit index with little priority
 
     // SECTION - Initialize in Greedy Scheduler
-    static size_t NUM_CANDIDATES;                     // top k candidates, SIZE_MAX: all candidates
-    static size_t APSP_COEFF;                         // coefficient of apsp cost
-    static MinMaxOptionType AVAILABLE_TIME_STRATEGY;  // 0:min 1:max, available time of double-qubit gate is set to min or max of occupied time
-    static MinMaxOptionType COST_SELECTION_STRATEGY;  // 0:min 1:max, select min or max cost from the waitlist
+    size_t num_candidates;                     // top k candidates, SIZE_MAX: all candidates
+    size_t apsp_coeff;                         // coefficient of apsp cost
+    MinMaxOptionType available_time_strategy;  // 0:min 1:max, available time of double-qubit gate is set to min or max of occupied time
+    MinMaxOptionType cost_selection_strategy;  // 0:min 1:max, select min or max cost from the waitlist
 
     // SECTION - Initialize in Search Scheduler
-    static size_t SEARCH_DEPTH;                   // depth of searching region
-    static bool NEVER_CACHE;                      // never cache any children unless children() is called
-    static bool EXECUTE_SINGLE_QUBIT_GATES_ASAP;  // execute the single gates when they are available
+    size_t search_depth;                   // depth of searching region
+    bool never_cache;                      // never cache any children unless children() is called
+    bool execute_single_qubit_gates_asap;  // execute the single gates when they are available
 };
 
 }  // namespace qsyn::duostra

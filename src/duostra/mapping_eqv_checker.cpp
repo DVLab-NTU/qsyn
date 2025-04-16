@@ -29,9 +29,9 @@ namespace qsyn::duostra {
  * @param init
  * @param reverse check reversily if true
  */
-MappingEquivalenceChecker::MappingEquivalenceChecker(QCir* phy, QCir* log, Device dev, std::vector<QubitIdType> init, bool reverse) : _physical(phy), _logical(log), _device(std::move(dev)), _reverse(reverse) {
+MappingEquivalenceChecker::MappingEquivalenceChecker(QCir* phy, QCir* log, Device dev, PlacerType placer_type, std::vector<QubitIdType> init, bool reverse) : _physical(phy), _logical(log), _device(std::move(dev)), _reverse(reverse) {
     if (init.empty()) {
-        auto placer = get_placer();
+        auto placer = get_placer(placer_type);
         init        = placer->place_and_assign(_device);
     } else
         _device.place(init);
@@ -128,7 +128,11 @@ bool MappingEquivalenceChecker::execute_swap(QCirGate* first, std::unordered_set
     auto next_gate = get_next(*_physical, first->get_id(), 0);
     swaps.emplace(next_gate);
     swaps.emplace(get_next(*_physical, next_gate->get_id(), 0));
-    _device.apply_swap_check(first->get_qubit(0), first->get_qubit(1));
+    auto& q0        = _device.get_physical_qubit(first->get_qubit(0));
+    auto& q1        = _device.get_physical_qubit(first->get_qubit(1));
+    auto const temp = q0.get_logical_qubit();
+    q0.set_logical_qubit(q1.get_logical_qubit());
+    q1.set_logical_qubit(temp);
     return true;
 }
 

@@ -1,7 +1,5 @@
 qsyn> device read benchmark/topology/guadalupe_16.layout
 
-qsyn> qcir config --double-delay 2 --swap-delay 6
-
 qsyn> qcir read benchmark/SABRE/small/3_17_13.qasm
 
 qsyn> duostra --check
@@ -21,7 +19,7 @@ Total Time:     101
 
 
 qsyn> qcir print
-QCir (16 qubits, 60 gates, 41 2-qubits gates, 14 T-gates, 85 depths)
+QCir (16 qubits, 60 gates, 41 2-qubits gates, 14 T-gates, 44 depths)
 
 qsyn> qcir list
   0    3_17_13             

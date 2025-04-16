@@ -31,9 +31,17 @@ namespace qsyn::duostra {
  * @param tqdm
  * @param silent
  */
-Duostra::Duostra(QCir* cir, Device dev, DuostraExecutionOptions const& config)
-    : _device(std::move(dev)), _check(config.verify_result),
-      _tqdm{!config.silent && config.use_tqdm}, _silent{config.silent}, _logical_circuit{std::make_shared<qcir::QCir>(*cir)} {}
+Duostra::Duostra(
+    QCir* cir,
+    Device dev,
+    DuostraConfig const& config,
+    DuostraExecutionOptions const& exe_opts)
+    : _device(std::move(dev)),
+      _config{config},
+      _check(exe_opts.verify_result),
+      _tqdm{!exe_opts.silent && exe_opts.use_tqdm},
+      _silent{exe_opts.silent},
+      _logical_circuit{std::make_shared<qcir::QCir>(*cir)} {}
 
 /**
  * @brief Main flow of Duostra mapper
@@ -55,18 +63,24 @@ bool Duostra::map(bool use_device_as_placement) {
     std::vector<QubitIdType> assign;
     if (!use_device_as_placement) {
         spdlog::info("Calculating Initial Placement...");
-        auto placer = get_placer();
+        auto placer = get_placer(_config.placer_type);
         assign      = placer->place_and_assign(_device);
     }
     // scheduler
     spdlog::info("Creating Scheduler...");
-    auto scheduler = get_scheduler(std::move(topo), _tqdm);
+    auto scheduler = get_scheduler(_config, std::move(topo), _tqdm);
 
     // router
     spdlog::info("Creating Router...");
-    auto cost_strategy = (DuostraConfig::SCHEDULER_TYPE == SchedulerType::greedy) ? Router::CostStrategyType::end
-                                                                                  : Router::CostStrategyType::start;
-    auto router        = std::make_unique<Router>(std::move(_device), cost_strategy, DuostraConfig::TIE_BREAKING_STRATEGY);
+    auto cost_strategy =
+        (_config.scheduler_type == SchedulerType::greedy)
+            ? Router::CostStrategyType::end
+            : Router::CostStrategyType::start;
+    auto router = std::make_unique<Router>(
+        std::move(_device),
+        _config.router_type,
+        cost_strategy,
+        _config.tie_breaking_strategy);
 
     // routing
     if (!_silent) {
@@ -92,7 +106,11 @@ bool Duostra::map(bool use_device_as_placement) {
             fmt::println("Checking...");
             fmt::println("");
         }
-        auto checker = MappingEquivalenceChecker(_physical_circuit.get(), _logical_circuit.get(), check_device);
+        auto checker = MappingEquivalenceChecker(
+            _physical_circuit.get(),
+            _logical_circuit.get(),
+            check_device,
+            _config.placer_type);
         if (!checker.check()) {
             return false;
         }
@@ -101,9 +119,9 @@ bool Duostra::map(bool use_device_as_placement) {
     if (!_silent) {
         fmt::println("Duostra Result: ");
         fmt::println("");
-        fmt::println("Scheduler:      {}", get_scheduler_type_str(DuostraConfig::SCHEDULER_TYPE));
-        fmt::println("Router:         {}", get_router_type_str(DuostraConfig::ROUTER_TYPE));
-        fmt::println("Placer:         {}", get_placer_type_str(DuostraConfig::PLACER_TYPE));
+        fmt::println("Scheduler:      {}", get_scheduler_type_str(_config.scheduler_type));
+        fmt::println("Router:         {}", get_router_type_str(_config.router_type));
+        fmt::println("Placer:         {}", get_placer_type_str(_config.placer_type));
         fmt::println("");
         fmt::println("Mapping Depth:  {}", scheduler->get_final_cost());
         fmt::println("Total Time:     {}", scheduler->get_total_time());

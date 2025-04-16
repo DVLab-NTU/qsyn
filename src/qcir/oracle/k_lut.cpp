@@ -34,17 +34,6 @@ using std::views::iota;
 using tl::views::enumerate;
 using tl::views::zip;
 
-template <typename T>
-bool is_subset_of(const std::set<T>& a, const std::set<T>& b) {
-    // return true if all members of a are also in b
-    if (a.size() > b.size())
-        return false;
-
-    auto const not_found = b.end();
-
-    return std::ranges::all_of(a, [&b, not_found](auto const& element) { return b.find(element) != not_found; });
-}
-
 /*
  * @brief enumerates all cuts of size up to max_cut_size for each node in the XAG *
  * @param xag
@@ -66,7 +55,11 @@ std::map<XAGNodeID, std::vector<XAGCut>> enumerate_cuts(XAG& xag, const size_t m
                 cuts.insert(cuts1.begin(), cuts1.end());
 
                 if (cuts.size() <= max_cut_size) {
-                    if (!std::any_of(node_id_to_cuts[id].begin(), node_id_to_cuts[id].end(), [&cuts](auto const& c) { return is_subset_of(c, cuts); })) {
+                    if (!std::ranges::any_of(
+                            node_id_to_cuts[id],
+                            [&cuts](auto const& c) {
+                                return std::ranges::includes(cuts, c);
+                            })) {
                         node_id_to_cuts[id].push_back(cuts);
                     }
                 }

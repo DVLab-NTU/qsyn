@@ -9,6 +9,7 @@
 #include <utility>
 
 #include "./zx_rules_template.hpp"
+#include "zx/zx_def.hpp"
 #include "zx/zxgraph.hpp"
 
 using namespace qsyn::zx;
@@ -16,31 +17,39 @@ using namespace qsyn::zx;
 using MatchType = BialgebraRule::MatchType;
 
 /**
- * @brief Find noninteracting matchings of the bialgebra rule.
- *        (Check PyZX/pyzx/rules.py/match_bialg_parallel for more details)
+ * @brief Find matchings of the bialgebra rule.
  *
- * @param g
+ * @param graph
+ * @param candidates the vertices to be considered
+ * @return std::vector<MatchType>
  */
-std::vector<MatchType> BialgebraRule::find_matches(ZXGraph const& graph) const {
+std::vector<MatchType>
+BialgebraRule::find_matches(
+    ZXGraph const& graph,
+    std::optional<ZXVertexList> candidates) const {
     std::vector<MatchType> matches;
 
-    std::unordered_set<ZXVertex*> taken;
-    graph.for_each_edge([&graph, &taken, &matches](EdgePair const& epair) {
+    if (!candidates.has_value()) {
+        candidates = graph.get_vertices();
+    }
+
+    graph.for_each_edge([&](EdgePair const& epair) {
         if (epair.second != EdgeType::simple) return;
+
         auto [left, right] = std::get<0>(epair);
 
         // Verify if the vertices are taken
-        if (taken.contains(left) || taken.contains(right)) return;
+        if (!candidates->contains(left) || !candidates->contains(right)) return;
 
         // Does not consider the phase spider yet
         // TODO: consider the phase
-        if ((left->get_phase() != Phase(0)) || (right->get_phase() != Phase(0))) return;
+        if ((left->phase() != Phase(0)) || (right->phase() != Phase(0))) return;
 
         // Verify if the edge is connected by a X and a Z spider.
         if (!(left->is_x() && right->is_z()) && !(left->is_z() && right->is_x())) return;
 
         // Check if the vertices is_ground (with only one edge).
-        if ((graph.get_num_neighbors(left) == 1) || (graph.get_num_neighbors(right) == 1)) return;
+        if ((graph.num_neighbors(left) == 1) || (graph.num_neighbors(right) == 1)) return;
 
         auto const neighbor_edges_of_left  = graph.get_neighbors(left) | std::views::values;
         auto const neighbor_edges_of_right = graph.get_neighbors(right) | std::views::values;
@@ -63,21 +72,23 @@ std::vector<MatchType> BialgebraRule::find_matches(ZXGraph const& graph) const {
         auto const neighbor_vertices_of_right = graph.get_neighbors(right) | std::views::keys;
 
         // Check if all neighbors of z are x without phase and all neighbors of x are z without phase.
-        if (std::ranges::any_of(neighbor_vertices_of_left, [type = right->get_type()](ZXVertex* v) { return v->get_phase() != Phase(0) || v->get_type() != type; })) {
+        if (std::ranges::any_of(neighbor_vertices_of_left, [type = right->type()](ZXVertex* v) { return v->phase() != Phase(0) || v->type() != type; })) {
             return;
         }
-        if (std::ranges::any_of(neighbor_vertices_of_right, [type = left->get_type()](ZXVertex* v) { return v->get_phase() != Phase(0) || v->get_type() != type; })) {
+        if (std::ranges::any_of(neighbor_vertices_of_right, [type = left->type()](ZXVertex* v) { return v->phase() != Phase(0) || v->type() != type; })) {
             return;
         }
 
         matches.emplace_back(epair);
 
-        // set left, right and their neighbors into taken
+        if (_allow_overlapping_candidates) return;
+
+        // discard neighbors of the matched vertices
         for (auto const& v : neighbor_vertices_of_left) {
-            taken.emplace(v);
+            candidates->erase(v);
         }
         for (auto const& v : neighbor_vertices_of_right) {
-            taken.emplace(v);
+            candidates->erase(v);
         }
     });
 

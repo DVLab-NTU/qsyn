@@ -7,57 +7,42 @@
 
 #include "./zx_rules_template.hpp"
 #include "zx/zxgraph.hpp"
+#include "zx/zxgraph_action.hpp"
 
 using namespace qsyn::zx;
 
 using MatchType = IdentityRemovalRule::MatchType;
 
 /**
- * @brief Find all the matches of the identity removal rule.
+ * @brief Find matchings of the identity removal rule.
  *
- * @param g The graph to be simplified.
+ * @param graph
+ * @param candidates the vertices to be considered
+ * @return std::vector<MatchType>
  */
-std::vector<MatchType> IdentityRemovalRule::find_matches(ZXGraph const& graph) const {
+std::vector<MatchType> IdentityRemovalRule::find_matches(
+    ZXGraph const& graph, std::optional<ZXVertexList> candidates) const {
     std::vector<MatchType> matches;
 
-    std::unordered_set<ZXVertex*> taken;
+    if (!candidates.has_value()) {
+        candidates = graph.get_vertices();
+    }
 
     for (auto const& v : graph.get_vertices()) {
-        if (taken.contains(v)) continue;
+        if (!candidates->contains(v)) continue;
 
-        if (v->get_phase() != Phase(0)) continue;
-        if (v->get_type() != VertexType::z && v->get_type() != VertexType::x) continue;
-        if (graph.get_num_neighbors(v) != 2) continue;
+        if (v->phase() != Phase(0)) continue;
+        if (!v->is_zx()) continue;
+        if (graph.num_neighbors(v) != 2) continue;
 
-        auto [n0, etype0] = graph.get_first_neighbor(v);
-        auto [n1, etype1] = graph.get_second_neighbor(v);
+        matches.emplace_back(v->get_id());
 
-        matches.emplace_back(v, n0, n1, zx::concat_edge(etype0, etype1));
-        taken.insert(v);
-        taken.insert(n0);
-        taken.insert(n1);
+        if (_allow_overlapping_candidates) continue;
+
+        candidates->erase(v);
+        candidates->erase(graph.get_first_neighbor(v).first);
+        candidates->erase(graph.get_second_neighbor(v).first);
     }
 
     return matches;
-}
-
-/**
- * @brief Apply the identity removal rule to the graph.
- *
- * @param graph The graph to be simplified.
- * @param matches The matches of the identity removal rule.
- */
-void IdentityRemovalRule::apply(ZXGraph& graph, std::vector<MatchType> const& matches) const {
-    ZXOperation op;
-
-    for (auto const& [v, n0, n1, edge_type] : matches) {
-        op.vertices_to_remove.emplace_back(v);
-        if (n0 == n1) {
-            n0->set_phase(n0->get_phase() + Phase(1));
-            continue;
-        }
-        op.edges_to_add.emplace_back(std::make_pair(n0, n1), edge_type);
-    }
-
-    _update(graph, op);
 }

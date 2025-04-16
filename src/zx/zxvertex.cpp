@@ -18,6 +18,29 @@
 namespace qsyn::zx {
 
 /**
+ * @brief Returns true if the two vertices have the same type and phase
+ *
+ * @param other
+ * @return true
+ * @return false
+ */
+bool ZXVertex::operator==(ZXVertex const& other) const {
+    return _attrs.type == other._attrs.type &&
+           _attrs.phase == other._attrs.phase;
+}
+
+/**
+ * @brief Returns true if the two vertices have different type or phase
+ *
+ * @param other
+ * @return true
+ * @return false
+ */
+bool ZXVertex::operator!=(ZXVertex const& other) const {
+    return !(*this == other);
+}
+
+/**
  * @brief return a vector of neighbor vertices
  *
  * @return vector<ZXVertex*>
@@ -30,6 +53,8 @@ std::vector<ZXVertex*> ZXGraph::get_copied_neighbors(ZXVertex* v) const {
     return storage;
 }
 
+// FIXME - should raise this function to the ZXGraph class
+
 /**
  * @brief Print summary of ZXVertex
  *
@@ -39,15 +64,15 @@ void ZXVertex::print_vertex(spdlog::level::level_enum lvl) const {
     std::ranges::sort(storage, [](NeighborPair const& a, NeighborPair const& b) {
         return (a.first->get_id() != b.first->get_id()) ? (a.first->get_id() < b.first->get_id()) : (a.second < b.second);
     });
-    auto type_str       = fmt::format("{}", _type);
+    auto type_str       = fmt::format("{}", type());
     auto ansi_token_len = type_str.size();
     spdlog::log(
         lvl,
         "ID: {0:>4} {1:<{2}} (Qubit, Col): {3:<14} #Neighbors: {4:>3}    {5}",
-        _id,
-        fmt::format("({}, {})", type_str, _phase.get_print_string()),
-        11ul + ansi_token_len - 2 * (_type == VertexType::boundary ? 1 : 0),
-        is_boundary() ? fmt::format("({}, {})", _qubit, _col) : fmt::format("({}, {})", _row, _col),
+        get_id(),
+        fmt::format("({}, {})", type_str, phase().get_print_string()),
+        11ul + ansi_token_len - 2 * (is_boundary() ? 1 : 0),
+        is_boundary() ? fmt::format("({}, {})", get_qubit(), get_col()) : fmt::format("({}, {})", get_row(), get_col()),
         _neighbors.size(),
         fmt::join(storage | std::views::transform([](NeighborPair const& nbp) { return fmt::format("({}, {})", nbp.first->get_id(), nbp.second); }), " "));
 }

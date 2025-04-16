@@ -9,7 +9,7 @@ Clifford   : 370
 2-qubit    : 283
 T-family   : 280
 Others     : 0
-Depth      : 571
+Depth      : 337
 
 qsyn> duostra config --depth 2 --single-immediate true
 
@@ -38,7 +38,7 @@ Clifford   : 1531
 2-qubit    : 1444
 T-family   : 280
 Others     : 0
-Depth      : 2001
+Depth      : 1086
 
 qsyn> duostra config --scheduler greedy
 
@@ -65,7 +65,7 @@ Clifford   : 1636
 2-qubit    : 1549
 T-family   : 280
 Others     : 0
-Depth      : 2027
+Depth      : 1099
 
 qsyn> quit -f
 

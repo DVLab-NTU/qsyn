@@ -45,16 +45,13 @@ struct DirectionalZXCutHash {
  *
  * @return A pair of the list of subgraphs and the list of cuts between the subgraphs
  */
-std::pair<std::vector<ZXGraph*>, std::vector<ZXCut>> ZXGraph::create_subgraphs(std::vector<ZXVertexList> partitions) {
+std::pair<std::vector<ZXGraph*>, std::vector<ZXCut>> ZXGraph::create_subgraphs(ZXGraph g, std::vector<ZXVertexList> partitions) {
     std::vector<ZXGraph*> subgraphs;
     // stores the two sides of the cut and the edge type
     ZXCutSet inner_cuts;
     // stores the two boundary vertices and the edge type corresponding to the cut
     std::vector<ZXCut> outer_cuts;
     std::unordered_map<ZXCut, ZXVertex*, DirectionalZXCutHash> cut_to_boundary;
-
-    auto const primary_inputs  = get_inputs();
-    auto const primary_outputs = get_outputs();
 
     // by pass the output qubit id collision check in the copy constructor
     auto next_boundary_qubit_id = max_qubit_id;
@@ -71,25 +68,29 @@ std::pair<std::vector<ZXGraph*>, std::vector<ZXCut>> ZXGraph::create_subgraphs(s
         }
 
         for (auto const& vertex : partition) {
-            if (primary_inputs.contains(vertex)) subgraph_inputs.insert(vertex);
-            if (primary_outputs.contains(vertex)) subgraph_outputs.insert(vertex);
+            if (g.get_inputs().contains(vertex)) {
+                subgraph_inputs.insert(vertex);
+            }
+            if (g.get_outputs().contains(vertex)) {
+                subgraph_outputs.insert(vertex);
+            }
 
             std::vector<NeighborPair> neighbors_to_remove;
             std::vector<NeighborPair> neighbors_to_add;
-            for (auto const& [neighbor, edgeType] : this->get_neighbors(vertex)) {
-                if (!partition.contains(neighbor)) {
-                    auto boundary = new ZXVertex(next_vertex_id++, next_boundary_qubit_id--, VertexType::boundary, Phase(), 0, 0);
-                    inner_cuts.emplace(vertex, neighbor, edgeType);
-                    cut_to_boundary[{vertex, neighbor, edgeType}] = boundary;
+            for (auto const& [neighbor, edgeType] : g.get_neighbors(vertex)) {
+                if (partition.contains(neighbor)) continue;
 
-                    neighbors_to_remove.push_back({neighbor, edgeType});
-                    neighbors_to_add.push_back({boundary, edgeType});
+                auto boundary = new ZXVertex(next_vertex_id++, next_boundary_qubit_id--, VertexType::boundary, Phase(), 0, 0);
+                inner_cuts.emplace(vertex, neighbor, edgeType);
+                cut_to_boundary[{vertex, neighbor, edgeType}] = boundary;
 
-                    boundary->_neighbors.emplace(vertex, edgeType);
+                neighbors_to_remove.push_back({neighbor, edgeType});
+                neighbors_to_add.push_back({boundary, edgeType});
 
-                    boundary_vertices.push_back(boundary);
-                    subgraph_outputs.insert(boundary);
-                }
+                boundary->_neighbors.emplace(vertex, edgeType);
+
+                boundary_vertices.push_back(boundary);
+                subgraph_outputs.insert(boundary);
             }
 
             for (auto const& neighbor_pair : neighbors_to_add) {
@@ -118,7 +119,7 @@ std::pair<std::vector<ZXGraph*>, std::vector<ZXCut>> ZXGraph::create_subgraphs(s
     }
 
     // ownership of the vertices is transferred to the subgraphs
-    release();
+    g.release();
 
     return {subgraphs, outer_cuts};
 }
@@ -133,7 +134,7 @@ std::pair<std::vector<ZXGraph*>, std::vector<ZXCut>> ZXGraph::create_subgraphs(s
  * @return The merged ZXGraph
  *
  */
-ZXGraph* ZXGraph::from_subgraphs(std::vector<ZXGraph*> const& subgraphs, std::vector<ZXCut> const& cuts) {
+ZXGraph ZXGraph::from_subgraphs(std::vector<ZXGraph*> const& subgraphs, std::vector<ZXCut> const& cuts) {
     ZXVertexList vertices;
     ZXVertexList inputs;
     ZXVertexList outputs;
@@ -170,7 +171,7 @@ ZXGraph* ZXGraph::from_subgraphs(std::vector<ZXGraph*> const& subgraphs, std::ve
         delete subgraph;
     }
 
-    return new ZXGraph(vertices, inputs, outputs);
+    return ZXGraph(vertices, inputs, outputs);
 }
 
 /*****************************************************/

@@ -51,7 +51,7 @@ qsyn> zx edge add 0 4 HADAMARD
 qsyn> zx edge add 1 4 SIMPLE
 [info]     Adding edge (1, 4), edge type: -...
 
-qsyn> zx edge remove 0 1 ALL
+qsyn> zx edge remove 0 1
 [info]     Removing all edges between (0, 1)...
 
 qsyn> zx print -v
@@ -107,10 +107,10 @@ ID:    4 (H, π)       (Qubit, Col): (0, 3)         #Neighbors:   2    (1, -) (3
 Total #Vertices: 5
 
 
-qsyn> zx edge remove 2 3 ALL
+qsyn> zx edge remove 2 3 any
 [info]     Removing all edges between (2, 3)...
 
-qsyn> zx edge remove 3 4 ALL
+qsyn> zx edge remove 3 4 any
 [info]     Removing all edges between (3, 4)...
 
 qsyn> zx edge add 2 3 HADAMARD
@@ -168,13 +168,13 @@ ID:    3 (H, π)       (Qubit, Col): (0, 2)         #Neighbors:   2    (1, -) (2
 Total #Vertices: 4
 
 
-qsyn> zx edge remove 0 2 ALL
+qsyn> zx edge remove 0 2
 [info]     Removing all edges between (0, 2)...
 
-qsyn> zx edge remove 2 3 ALL
+qsyn> zx edge remove 2 3
 [info]     Removing all edges between (2, 3)...
 
-qsyn> zx edge remove 3 1 ALL
+qsyn> zx edge remove 3 1
 [info]     Removing all edges between (3, 1)...
 
 qsyn> zx edge add 0 2 HADAMARD

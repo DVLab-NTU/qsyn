@@ -217,10 +217,21 @@ std::vector<Operation> zx_optimize(std::vector<qcir::Operation> const& partial) 
 
     auto zx = to_zxgraph(qcir).value();
 
-    zx::Simplifier simplifier{&zx};
-    simplifier.full_reduce();
+    zx::simplify::full_reduce(zx);
 
-    extractor::Extractor ext(&zx, nullptr /*, std::nullopt */);
+    constexpr extractor::ExtractorConfig config{
+        .sort_frontier        = false,
+        .sort_neighbors       = false,
+        .permute_qubits       = false,
+        .filter_duplicate_cxs = false,
+        .reduce_czs           = false,
+        .dynamic_order        = false,
+        .block_size           = 1,
+        .optimize_level       = 0,
+        .pred_coeff           = 0.7,
+    };
+
+    extractor::Extractor ext(&zx, config, nullptr, false);
     QCir* result = ext.extract();
 
     auto const gate_list = result->get_gates();

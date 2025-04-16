@@ -20,13 +20,10 @@ jobs:
           echo 'export LDFLAGS="-L$(brew --prefix)/opt/llvm@18/lib"' >> /Users/runner/.bash_profile
           echo 'export CPPFLAGS="-I$(brew --prefix)/opt/llvm@18/include"' >> /Users/runner/.bash_profile
 
-      - name: Build qsyn
+      - name: Build and test qsyn
         run: |
           source /Users/runner/.bash_profile
           clang++ --version
           echo "Building qsyn using $(sysctl -n hw.logicalcpu) cores"
           mkdir -p build
-          cmake -S . -B build -DCMAKE_CXX_COMPILER=$(which clang++)
-          cmake --build build -j $(sysctl -n hw.logicalcpu)
-      - name: Run test for qsyn
-        run: make test
+          make test -j $(sysctl -n hw.logicalcpu)

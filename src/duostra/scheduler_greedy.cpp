@@ -40,16 +40,6 @@ private:
 
 // SECTION - Struct GreedyConf Member Functions
 
-/**
- * @brief Construct a new Greedy Conf:: Greedy Conf object
- *
- */
-GreedyConf::GreedyConf()
-    : available_time_strategy(DuostraConfig::AVAILABLE_TIME_STRATEGY),
-      cost_type(DuostraConfig::COST_SELECTION_STRATEGY),
-      num_candidates(DuostraConfig::NUM_CANDIDATES),
-      apsp_coeff(DuostraConfig::APSP_COEFF) {}
-
 // SECTION - Class GreedyScheduler Member Functions
 
 /**
@@ -110,9 +100,11 @@ size_t GreedyScheduler::greedy_fallback(Router& router,
         cost_list[i]     = router.get_gate_cost(gate, _conf.available_time_strategy, _conf.apsp_coeff);
     }
 
-    auto list_idx = _conf.cost_type == MinMaxOptionType::max
-                        ? max_element(cost_list.begin(), cost_list.end()) - cost_list.begin()
-                        : min_element(cost_list.begin(), cost_list.end()) - cost_list.begin();
+    auto list_idx = std::distance(
+        cost_list.begin(),
+        _conf.cost_type == MinMaxOptionType::max
+            ? std::ranges::max_element(cost_list)
+            : std::ranges::min_element(cost_list));
     return waitlist[list_idx];
 }
 

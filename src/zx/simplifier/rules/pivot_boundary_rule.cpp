@@ -6,59 +6,72 @@
 ****************************************************************************/
 
 #include "./zx_rules_template.hpp"
+#include "zx/zx_def.hpp"
 #include "zx/zxgraph.hpp"
 
 using namespace qsyn::zx;
 
 using MatchType = PivotBoundaryRule::MatchType;
 
-std::vector<MatchType> PivotBoundaryRule::find_matches(ZXGraph const& graph) const {
+/**
+ * @brief Find matchings of the pivot boundary rule.
+ *
+ * @param graph
+ * @param candidates the vertices to be considered
+ * @return std::vector<MatchType>
+ */
+std::vector<MatchType> PivotBoundaryRule::find_matches(
+    ZXGraph const& graph,
+    std::optional<ZXVertexList> candidates) const {
     std::vector<MatchType> matches;
 
-    std::unordered_set<ZXVertex*> taken;
-    auto match_boundary = [&taken, &graph, &matches](ZXVertex* v) {
+    if (!candidates.has_value()) {
+        candidates = graph.get_vertices();
+    }
+
+    auto const match_boundary = [&](ZXVertex* v) {
         ZXVertex* vs = graph.get_first_neighbor(v).first;
-        if (taken.contains(vs)) return;
+        if (!candidates->contains(vs)) return;
 
         if (!vs->is_z()) {
-            taken.insert(vs);
             return;
         }
 
-        ZXVertex* vt = nullptr;
-        for (auto& [nb, etype] : graph.get_neighbors(vs)) {
-            if (taken.contains(nb)) continue;  // do not choose the one in taken
-            if (nb->is_boundary()) continue;
-            if (!nb->has_n_pi_phase()) continue;
-            if (etype != EdgeType::hadamard) continue;
-            if (graph.has_dangling_neighbors(nb)) continue;  // nb is the axel of a phase gadget
-            vt = nb;
-            break;
-        }
-        if (vt == nullptr) return;
+        // vs, vt should have only graph-like connections,
+        // vs should connect to exactly one boundary vertex and graph-like
+        // vt should be interiorly graph-like
 
-        bool found_one = false;
-        // check vs is only connected to boundary, or connected to Z-spider by H-edge
-        for (auto& [nb, etype] : graph.get_neighbors(vs)) {
-            if (nb->is_boundary()) {
-                if (found_one) return;
-                found_one = true;
-                continue;
-            }
-            if (!nb->is_z() || etype != EdgeType::hadamard) return;
+        if (!is_graph_like_at(graph, vs->get_id())) return;
+        if (std::ranges::count_if(
+                graph.get_neighbors(vs) | std::views::keys,
+                &ZXVertex::is_boundary) != 1) {
+            return;
         }
 
-        // check vt is only connected to Z-spider by H-edge
-        for (auto& [nb, etype] : graph.get_neighbors(vt)) {
-            if (!nb->is_z() || etype != EdgeType::hadamard) return;
-        }
+        auto const it = std::ranges::find_if(
+            graph.get_neighbors(vs),
+            [&](auto const& nb_pair) {
+                auto const& [nb, etype] = nb_pair;
+                return candidates->contains(nb) &&
+                       !nb->is_boundary() &&
+                       nb->has_n_pi_phase() &&
+                       !graph.has_dangling_neighbors(nb);
+            });
+        if (it == graph.get_neighbors(vs).end()) return;
+        ZXVertex* vt = it->first;
 
-        taken.insert(vs);
-        taken.insert(vt);
+        if (!is_interiorly_graph_like_at(graph, vt->get_id())) return;
 
-        for (auto& [nb, _] : graph.get_neighbors(vs)) taken.insert(nb);
-        for (auto& [nb, _] : graph.get_neighbors(vt)) taken.insert(nb);
-        matches.emplace_back(vs, vt);
+        if (_allow_overlapping_candidates) return;
+
+        candidates->erase(vs);
+        candidates->erase(vt);
+
+        for (auto& [nb, _] : graph.get_neighbors(vs)) candidates->erase(nb);
+        for (auto& [nb, _] : graph.get_neighbors(vt)) candidates->erase(nb);
+        matches.emplace_back(
+            vs->get_id(), vt->get_id(),
+            std::vector<size_t>{}, std::vector<size_t>{});
     };
 
     for (auto& v : graph.get_inputs()) match_boundary(v);
@@ -67,26 +80,9 @@ std::vector<MatchType> PivotBoundaryRule::find_matches(ZXGraph const& graph) con
     return matches;
 }
 
-void PivotBoundaryRule::apply(ZXGraph& graph, std::vector<MatchType> const& matches) const {
-    for (auto& [vs, _] : matches) {
-        for (auto& [nb, etype] : graph.get_neighbors(vs)) {
-            if (nb->is_boundary()) {
-                graph.add_buffer(nb, vs, etype);
-                break;
-            }
-            if (!nb->is_z() || etype != EdgeType::hadamard) return;
-        }
-    }
-    for (auto& [v0, v1] : matches) {
-        if (!v0->has_n_pi_phase()) graph.gadgetize_phase(v0);
-        if (!v1->has_n_pi_phase()) graph.gadgetize_phase(v1);
-    }
-
-    PivotRuleInterface::apply(graph, matches);
-}
-
-bool PivotBoundaryRule::is_candidate(ZXGraph& graph, ZXVertex* v0, ZXVertex* v1) {
-    if (!graph.is_graph_like()) {
+bool PivotBoundaryRule::is_candidate(
+    ZXGraph const& graph, ZXVertex* v0, ZXVertex* v1) const {
+    if (!is_graph_like(graph)) {
         spdlog::error("The graph is not graph like!");
         return false;
     }
@@ -101,24 +97,25 @@ bool PivotBoundaryRule::is_candidate(ZXGraph& graph, ZXVertex* v0, ZXVertex* v1)
         }
     }
     if (has_boundary == 0) {
-        spdlog::error("Vertex {} is not connected to a boundary", v0->get_id());
+        spdlog::error(
+            "Vertex {} is not connected to a boundary", v0->get_id());
         return false;
     }
     if (has_boundary > 1) {
-        spdlog::error("Vertex {} is connected to more than one boundaries", v0->get_id());
+        spdlog::error(
+            "Vertex {} is connected to more than one boundaries", v0->get_id());
         return false;
     }
     if (!v1->has_n_pi_phase()) {
-        spdlog::error("Vertex {} is not a Z vertex with phase n π", v1->get_id());
+        spdlog::error(
+            "Vertex {} is not a Z vertex with phase n π", v1->get_id());
         return false;
     }
     if (!graph.is_neighbor(v0, v1)) {
-        spdlog::error("Vertices {} and {} are not connected", v0->get_id(), v1->get_id());
+        spdlog::error(
+            "Vertices {} and {} are not connected", v0->get_id(), v1->get_id());
         return false;
     }
-    // if (graph.has_dangling_neighbors(vn)) {
-    //     spdlog::error("Vertex {} is the axel of a phase gadget", vn->get_id());
-    //     return false;
-    // }
+
     return true;
 }

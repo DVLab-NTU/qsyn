@@ -134,7 +134,6 @@ std::optional<QCir> from_qc(std::filesystem::path const& filepath) {
     }
 
     // ex: qubit_labels = {A,B,C,1,2,3,result}
-    //     qubit_id = distance(qubit_labels.begin(), find(qubit_labels.begin(), qubit_labels.end(), token));
     std::vector<std::string> qubit_labels;
     qubit_labels.clear();
     std::string line;
@@ -155,7 +154,7 @@ std::optional<QCir> from_qc(std::filesystem::path const& filepath) {
                 std::string token;
 
                 pos = str_get_token(line, token, pos);
-                if (!count(qubit_labels.begin(), qubit_labels.end(), token)) {
+                if (!std::ranges::count(qubit_labels, token)) {
                     qubit_labels.emplace_back(token);
                     n_qubit++;
                 }
@@ -173,8 +172,11 @@ std::optional<QCir> from_qc(std::filesystem::path const& filepath) {
             size_t pos = str_get_token(line, type, 0);
             while (pos != std::string::npos) {
                 pos = str_get_token(line, qubit_label, pos);
-                if (count(qubit_labels.begin(), qubit_labels.end(), qubit_label)) {
-                    auto const qubit_id = distance(qubit_labels.begin(), find(qubit_labels.begin(), qubit_labels.end(), qubit_label));
+                if (std::ranges::count(qubit_labels, qubit_label)) {
+                    auto const qubit_id =
+                        std::ranges::distance(
+                            qubit_labels.begin(),
+                            std::ranges::find(qubit_labels, qubit_label));
                     qubit_ids.emplace_back(qubit_id);
                 } else {
                     spdlog::error("encountered a undefined qubit ({})!!", qubit_label);
@@ -192,12 +194,17 @@ std::optional<QCir> from_qc(std::filesystem::path const& filepath) {
                     spdlog::error("Toffoli gates with more than 2 controls are not supported!!");
                     return std::nullopt;
                 }
-            } else if ((type == "Z" || type == "z") && qubit_ids.size() == 3) {
+            } else if ((type == "Z" || type == "z" || type == "Zd") && qubit_ids.size() == 3) {
                 qcir.append(CCZGate(), qubit_ids);
+            } else if ((type == "Z" || type == "z") && qubit_ids.size() == 2) {
+                qcir.append(CZGate(), qubit_ids);
             } else {
                 auto op = str_to_operation(type);
                 if (op.has_value()) {
                     qcir.append(*op, qubit_ids);
+                } else {
+                    spdlog::error("unsupported gate type ({})!!", type);
+                    return std::nullopt;
                 }
             }
         }

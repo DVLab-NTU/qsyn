@@ -12,6 +12,7 @@
 #include <unordered_set>
 
 #include "device/device.hpp"
+#include "duostra/duostra.hpp"
 #include "qsyn/qsyn_type.hpp"
 
 namespace qsyn {
@@ -29,7 +30,7 @@ namespace duostra {
 class MappingEquivalenceChecker {
 public:
     using Device = qsyn::device::Device;
-    MappingEquivalenceChecker(qcir::QCir* phy, qcir::QCir* log, Device dev, std::vector<QubitIdType> init = {}, bool reverse = false);
+    MappingEquivalenceChecker(qcir::QCir* phy, qcir::QCir* log, Device dev, PlacerType placer_type, std::vector<QubitIdType> init = {}, bool reverse = false);
 
     bool check();
     bool is_swap(qcir::QCirGate* candidate);

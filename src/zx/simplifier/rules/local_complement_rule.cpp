@@ -16,62 +16,49 @@ using namespace qsyn::zx;
 using MatchType = LocalComplementRule::MatchType;
 
 /**
- * @brief Find noninteracting matchings of the local complementation rule.
+ * @brief Find matchings of the local complementation rule.
  *
- * @param graph The graph to find matches in.
+ * @param graph
+ * @param candidates the vertices to be considered
+ * @return std::vector<MatchType>
  */
-std::vector<MatchType> LocalComplementRule::find_matches(ZXGraph const& graph) const {
+std::vector<MatchType> LocalComplementRule::find_matches(
+    ZXGraph const& graph,
+    std::optional<ZXVertexList> candidates) const {
     std::vector<MatchType> matches;
 
-    std::unordered_set<ZXVertex*> taken;
+    if (!candidates.has_value()) {
+        candidates = graph.get_vertices();
+    }
 
     for (auto const& v : graph.get_vertices()) {
-        if (v->get_type() == VertexType::z && (v->get_phase() == Phase(1, 2) || v->get_phase() == Phase(3, 2))) {
-            bool match_condition = true;
-            if (taken.contains(v)) continue;
+        if (!candidates->contains(v)) continue;
+        if (!v->is_z()) continue;
+        if (v->phase().denominator() != 2) continue;
 
-            for (auto const& [nb, etype] : graph.get_neighbors(v)) {
-                if (etype != EdgeType::hadamard || nb->get_type() != VertexType::z || taken.contains(nb)) {
-                    match_condition = false;
-                    break;
-                }
+        if (std::ranges::any_of(
+                graph.get_neighbors(v),
+                [&](auto const& epair) {
+                    auto const& [nb, etype] = epair;
+                    return etype != EdgeType::hadamard ||
+                           !nb->is_z() ||
+                           !candidates->contains(nb);
+                })) {
+            continue;
+        }
+
+        for (auto const& [nb, _] : graph.get_neighbors(v)) {
+            if (!_allow_overlapping_candidates) {
+                candidates->erase(nb);
             }
-            if (match_condition) {
-                std::vector<ZXVertex*> neighbors;
-                for (auto const& [nb, _] : graph.get_neighbors(v)) {
-                    if (v == nb) continue;
-                    neighbors.emplace_back(nb);
-                    taken.insert(nb);
-                }
-                taken.insert(v);
-                matches.emplace_back(make_pair(v, neighbors));
-            }
+        }
+
+        matches.emplace_back(v->get_id());
+
+        if (!_allow_overlapping_candidates) {
+            candidates->erase(v);
         }
     }
 
     return matches;
-}
-
-void LocalComplementRule::apply(ZXGraph& graph, std::vector<MatchType> const& matches) const {
-    ZXOperation op;
-
-    for (auto const& [v, neighbors] : matches) {
-        op.vertices_to_remove.emplace_back(v);
-        size_t h_edge_count = 0;
-        for (auto& [nb, etype] : graph.get_neighbors(v)) {
-            if (nb == v && etype == EdgeType::hadamard) {
-                h_edge_count++;
-            }
-        }
-        auto const p = v->get_phase() + Phase(gsl::narrow<int>(h_edge_count / 2));
-        // TODO: global scalar ignored
-        for (size_t n = 0; n < neighbors.size(); n++) {
-            neighbors[n]->set_phase(neighbors[n]->get_phase() - p);
-            for (size_t j = n + 1; j < neighbors.size(); j++) {
-                op.edges_to_add.emplace_back(std::make_pair(neighbors[n], neighbors[j]), EdgeType::hadamard);
-            }
-        }
-    }
-
-    _update(graph, op);
 }

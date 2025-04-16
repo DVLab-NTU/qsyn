@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE Release)
+    set(CMAKE_BUILD_TYPE Release)
 endif()
 
 set(CMAKE_CXX_FLAGS "")
@@ -16,15 +16,15 @@ include(FetchContent)
 set(FETCHCONTENT_UPDATES_DISCONNECTED TRUE)
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-  set(QSYN_PROJECT_NAME qsyn-debug)
+    set(QSYN_PROJECT_NAME qsyn-debug)
 else()
-  set(QSYN_PROJECT_NAME qsyn)
+    set(QSYN_PROJECT_NAME qsyn)
 endif()
 
 project(
     ${QSYN_PROJECT_NAME}
     LANGUAGES CXX
-    VERSION 0.7.0)
+    VERSION 0.8.0)
 
 # Link the correct unwind library for Clang18 on Apple Silicon
 # Assumes that Homebrew is used to install LLVM
@@ -49,6 +49,8 @@ if(CMAKE_SYSTEM_NAME MATCHES "Darwin"
         "${CMAKE_EXE_LINKER_FLAGS} -L${BREW_PREFIX}/lib/c++")
 endif()
 
+include(scripts/cmake/target_link_libraries_system.cmake)
+
 # find_package(OpenMP REQUIRED)
 
 set(BLA_VENDER OpenBLAS)
@@ -56,55 +58,57 @@ find_package(BLAS REQUIRED)
 find_package(LAPACK REQUIRED)
 
 FetchContent_Declare(
-  xtl
-  SYSTEM
-  GIT_REPOSITORY https://github.com/xtensor-stack/xtl.git
-  GIT_TAG 0.7.5)
+    xtl
+    SYSTEM
+    GIT_REPOSITORY https://github.com/xtensor-stack/xtl.git
+    GIT_TAG 0.7.7)
 FetchContent_MakeAvailable(xtl)
 
 FetchContent_Declare(
-  xtensor
-  SYSTEM
-  GIT_REPOSITORY https://github.com/xtensor-stack/xtensor.git
-  GIT_TAG 0.24.6)
+    xtensor
+    SYSTEM
+    GIT_REPOSITORY https://github.com/xtensor-stack/xtensor.git
+    GIT_TAG 0.25.0)
 FetchContent_MakeAvailable(xtensor)
 
 FetchContent_Declare(
-  xtensor-blas
-  SYSTEM
-  GIT_REPOSITORY https://github.com/xtensor-stack/xtensor-blas.git
-  GIT_TAG 0.20.0)
+    xtensor-blas
+    SYSTEM
+    GIT_REPOSITORY https://github.com/xtensor-stack/xtensor-blas.git
+    GIT_TAG 0.21.0)
 FetchContent_MakeAvailable(xtensor-blas)
 
 FetchContent_Declare(
-  libfort
-  SYSTEM
-  GIT_REPOSITORY https://github.com/seleznevae/libfort.git
-  GIT_TAG v0.4.2)
+    libfort
+    SYSTEM
+    GIT_REPOSITORY https://github.com/seleznevae/libfort.git
+    GIT_TAG v0.4.2)
 set(FORT_ENABLE_TESTING
     OFF
     CACHE INTERNAL "")
 FetchContent_MakeAvailable(libfort)
 
 FetchContent_Declare(
-  fmt
-  SYSTEM
-  GIT_REPOSITORY https://github.com/fmtlib/fmt.git
-  GIT_TAG 10.2.1)
+    fmt
+    SYSTEM
+    GIT_REPOSITORY https://github.com/fmtlib/fmt.git
+    GIT_TAG 10.2.1)
 FetchContent_MakeAvailable(fmt)
 
 FetchContent_Declare(
-  spdlog
-  SYSTEM
-  GIT_REPOSITORY https://github.com/gabime/spdlog.git
-  GIT_TAG v1.14.1)
+    spdlog
+    SYSTEM
+    GIT_REPOSITORY https://github.com/gabime/spdlog.git
+    GIT_TAG v1.14.1)
 set(SPDLOG_FMT_EXTERNAL
     ON
     CACHE INTERNAL "")
 FetchContent_MakeAvailable(spdlog)
+
+target_compile_definitions(spdlog PUBLIC SPDLOG_FMT_EXTERNAL=1)
 target_compile_definitions(
-  spdlog
-  PRIVATE
+    spdlog
+    PRIVATE
     SPDLOG_SHORT_LEVEL_NAMES={\"[trace]\ \ \ \ \",\"[debug]\ \ \ \ \",\"[info]\ \ \ \ \ \",\"[warn]\ \ \ \ \ \",\"[error]\ \ \ \ \",\"[critical]\ \",\"\"}
 )
 target_link_libraries(spdlog PRIVATE fmt::fmt)
@@ -146,109 +150,175 @@ FetchContent_Declare(
   GIT_TAG add-cmake-fetchcontent-support)
 FetchContent_MakeAvailable(libabc)
 
+FetchContent_Declare(
+  Catch2
+  SYSTEM
+  GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+  GIT_TAG        v3.7.1
+)
+FetchContent_MakeAvailable(Catch2)
+
 file(
   GLOB_RECURSE SOURCES
   RELATIVE ${CMAKE_SOURCE_DIR}
   "src/**/*.cpp" "src/**/*.hpp" "src/qsyn/qsynrc.default")
-add_executable(${CMAKE_PROJECT_NAME} ${SOURCES})
+
+file(
+  GLOB_RECURSE LIB_SOURCES
+  RELATIVE ${CMAKE_SOURCE_DIR}
+  "src/**/*.cpp" "src/**/*.hpp" "src/qsyn/qsynrc.default")
+
+file(
+    GLOB_RECURSE APP_SOURCES
+    RELATIVE ${CMAKE_SOURCE_DIR}
+    "src/argparse/*.cpp" "src/argparse/*.hpp"
+    "src/argparse/**/*.cpp" "src/argparse/**/*.hpp"
+    "src/cli/*.cpp" "src/cli/*.hpp"
+    "src/cli/**/*.cpp" "src/cli/**/*.hpp"
+    "src/cmd/*.cpp" "src/cmd/*.hpp"
+    "src/cmd/**/*.cpp" "src/cmd/**/*.hpp"
+    "src/qsyn/*.cpp" "src/qsyn/*.hpp" 
+    "src/qsyn/**/*.cpp" "src/qsyn/**/*.hpp" 
+    "src/qsyn/qsynrc.default")
+
+list(REMOVE_ITEM LIB_SOURCES ${APP_SOURCES})
+
+file(
+    GLOB_RECURSE TEST_SOURCES
+    RELATIVE ${CMAKE_SOURCE_DIR}
+    "tests/src/**/*.cpp")
+
+set(QSYN_LIB_NAME libqsyn.a)
+set(UNIT_TEST_NAME unit-test)
+
+
+# ----------------------------------------------------------------------------
+# config for qsyn-lib target
+# builds libqsyn.a
+# ----------------------------------------------------------------------------
+add_library(
+    ${QSYN_LIB_NAME} STATIC ${LIB_SOURCES})
+
+set_target_properties(
+    ${QSYN_LIB_NAME} PROPERTIES OUTPUT_NAME ${CMAKE_PROJECT_NAME})
+
+target_include_directories(
+    ${QSYN_LIB_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/src)
+
+target_include_directories(
+    ${QSYN_LIB_NAME} SYSTEM PRIVATE ${CMAKE_SOURCE_DIR}/vendor)
+
+target_link_libraries_system(
+    ${QSYN_LIB_NAME}
+    PRIVATE
+    libabc
+    xtl
+    xtensor
+    xtensor-blas
+    libfort::fort
+    fmt::fmt
+    spdlog::spdlog
+    Microsoft.GSL::GSL
+    sul::dynamic_bitset
+    nlohmann_json::nlohmann_json
+    cadical::cadical)
+target_link_libraries(
+    ${QSYN_LIB_NAME} 
+    PRIVATE 
+    lapack 
+# OpenMP::OpenMP_CXX 
+    ${BLAS_LIBRARIES}
+    ${LAPACK_LIBRARIES})
+
+# ----------------------------------------------------------------------------
+# config for qsyn target
+# builds qsyn executable
+# ----------------------------------------------------------------------------
+
+add_executable(${CMAKE_PROJECT_NAME} ${APP_SOURCES})
 
 target_compile_definitions(
   ${CMAKE_PROJECT_NAME} PRIVATE ABC_NAMESPACE_HEADER_START=
                                 ABC_NAMESPACE_HEADER_END=)
 
-target_compile_definitions(spdlog PUBLIC SPDLOG_FMT_EXTERNAL=1)
 target_compile_definitions(
-  spdlog
-  PUBLIC
-    SPDLOG_SHORT_LEVEL_NAMES={\"[trace]\ \ \ \ \",\"[debug]\ \ \ \ \",\"[info]\ \ \ \ \ \",\"[warn]\ \ \ \ \ \",\"[error]\ \ \ \ \",\"[critical]\ \",\"\"}
-)
-
-target_link_libraries(spdlog PUBLIC fmt::fmt)
-
-target_compile_definitions(${CMAKE_PROJECT_NAME}
-                           PRIVATE QSYN_VERSION="v${CMAKE_PROJECT_VERSION}")
-target_compile_definitions(${CMAKE_PROJECT_NAME} 
-                           PRIVATE QSYN_BUILD_TYPE="${CMAKE_BUILD_TYPE}")
-target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wall -Wextra -Werror)
+    ${CMAKE_PROJECT_NAME} PRIVATE QSYN_VERSION="v${CMAKE_PROJECT_VERSION}")
+target_compile_definitions(
+    ${CMAKE_PROJECT_NAME} PRIVATE QSYN_BUILD_TYPE="${CMAKE_BUILD_TYPE}")
+target_compile_options(
+    ${CMAKE_PROJECT_NAME} PRIVATE -Wall -Wextra -Werror)
 
 # compilers are being too paranoid about missing field initializers
-target_compile_options(${CMAKE_PROJECT_NAME}
-                        PRIVATE -Wno-missing-field-initializers)
+target_compile_options(
+    ${CMAKE_PROJECT_NAME} PRIVATE -Wno-missing-field-initializers)
 
-target_include_directories(${CMAKE_PROJECT_NAME}
-                           PRIVATE ${CMAKE_SOURCE_DIR}/src)
+target_include_directories(
+    ${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/src)
 
 # specify SYSTEM to suppress warnings from vendor code
-target_include_directories(${CMAKE_PROJECT_NAME} SYSTEM
-                           PRIVATE ${CMAKE_SOURCE_DIR}/vendor)
+target_include_directories(
+    ${CMAKE_PROJECT_NAME} SYSTEM PRIVATE ${CMAKE_SOURCE_DIR}/vendor)
 
-# black magic to link libraries as if they were system libraries
-function(target_link_libraries_system target)
-  set(options PRIVATE PUBLIC INTERFACE)
-  cmake_parse_arguments(TLLS "${options}" "" "" ${ARGN})
-
-  foreach(op ${options})
-    if(TLLS_${op})
-      set(scope ${op})
-    endif()
-  endforeach(op)
-
-  set(libs ${TLLS_UNPARSED_ARGUMENTS})
-
-  foreach(lib ${libs})
-    get_target_property(lib_include_dirs ${lib} INTERFACE_INCLUDE_DIRECTORIES)
-
-    if(lib_include_dirs)
-      if(scope)
-        target_include_directories(${target} SYSTEM ${scope}
-                                   ${lib_include_dirs})
-      else()
-        target_include_directories(${target} SYSTEM PRIVATE ${lib_include_dirs})
-      endif()
-    else()
-      message(
-        "Warning: ${lib} doesn't set INTERFACE_INCLUDE_DIRECTORIES. No include_directories set."
-      )
-    endif()
-
-    if(scope)
-      target_link_libraries(${target} ${scope} ${lib})
-    else()
-      target_link_libraries(${target} ${lib})
-    endif()
-  endforeach()
-endfunction(target_link_libraries_system)
+target_link_libraries(
+    ${CMAKE_PROJECT_NAME} PRIVATE ${QSYN_LIB_NAME})
 
 target_link_libraries_system(
-  ${CMAKE_PROJECT_NAME}
-  PRIVATE
-  libabc
-  xtl
-  xtensor
-  xtensor-blas
-  libfort::fort
-  fmt::fmt
-  spdlog::spdlog
-  Microsoft.GSL::GSL
-  sul::dynamic_bitset
-  nlohmann_json::nlohmann_json
-  cadical::cadical)
+    ${CMAKE_PROJECT_NAME}
+    PRIVATE
+    libabc
+    xtl
+    xtensor
+    xtensor-blas
+    libfort::fort
+    fmt::fmt
+    spdlog::spdlog
+    Microsoft.GSL::GSL
+    sul::dynamic_bitset)
 target_link_libraries(
-  ${CMAKE_PROJECT_NAME} PRIVATE lapack 
+    ${CMAKE_PROJECT_NAME} 
+    PRIVATE 
+    lapack 
 # OpenMP::OpenMP_CXX 
-  ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
+    ${BLAS_LIBRARIES} 
+    ${LAPACK_LIBRARIES})
 
-# default to ON
-option(COPY_EXECUTABLE " Copy executable to project root " ON)
+# ----------------------------------------------------------------------------
+# config for qsyn unit tests
+# builds qsyn unit test executable
+# ----------------------------------------------------------------------------
 
-install(TARGETS ${CMAKE_PROJECT_NAME} DESTINATION bin)
+add_executable(${UNIT_TEST_NAME} ${TEST_SOURCES})
 
-if(COPY_EXECUTABLE)
-  add_custom_command(
-    TARGET ${CMAKE_PROJECT_NAME}
-    POST_BUILD
-    COMMAND
-      ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${CMAKE_PROJECT_NAME}>
-      ${CMAKE_SOURCE_DIR}/${CMAKE_PROJECT_NAME}
-    COMMENT " Copied executable to ${CMAKE_SOURCE_DIR}/${CMAKE_PROJECT_NAME} ")
-endif()
+set_target_properties(
+    ${UNIT_TEST_NAME} PROPERTIES OUTPUT_NAME ${CMAKE_PROJECT_NAME}-unit-test)
+
+target_include_directories(
+    ${UNIT_TEST_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/src)
+
+target_include_directories(
+    ${UNIT_TEST_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/tests/src)
+
+target_include_directories(
+    ${UNIT_TEST_NAME} SYSTEM PRIVATE ${CMAKE_SOURCE_DIR}/vendor)
+target_link_libraries(
+    ${UNIT_TEST_NAME} PRIVATE ${QSYN_LIB_NAME})
+target_link_libraries(
+    ${UNIT_TEST_NAME} PRIVATE Catch2::Catch2WithMain)
+
+target_link_libraries_system(
+    ${UNIT_TEST_NAME}
+    PRIVATE
+    fmt::fmt
+    spdlog::spdlog
+    Microsoft.GSL::GSL)
+
+target_compile_options(
+    ${UNIT_TEST_NAME}
+    PRIVATE 
+    -Wall -Wextra -Werror)
+
+# compilers are being too paranoid about missing field initializers
+target_compile_options(
+    ${UNIT_TEST_NAME}
+    PRIVATE 
+    -Wno-missing-field-initializers)
