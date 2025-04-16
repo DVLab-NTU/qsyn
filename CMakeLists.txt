@@ -24,7 +24,7 @@ endif()
 project(
     ${QSYN_PROJECT_NAME}
     LANGUAGES CXX
-    VERSION 0.7.0)
+    VERSION 0.8.0)
 
 # Link the correct unwind library for Clang18 on Apple Silicon
 # Assumes that Homebrew is used to install LLVM
