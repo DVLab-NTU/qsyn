@@ -126,7 +126,7 @@ public:
     void set_theme_vertical() { bars = {"▁", "▂", "▃", "▄", "▅", "▆", "▇", "█", "█"}; }
     void set_theme_basic() {
         bars      = {" ", " ", " ", " ", " ", " ", " ", " ", "#"};
-        right_pad = "|";
+        right_pad = std::string("|");
     }
     void set_label(std::string label_) { label = label_; }
     void disable_colors() {
