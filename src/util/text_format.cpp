@@ -144,7 +144,9 @@ fmt::text_style ls_color(fs::path const& path) {
         return ls_color_internal("ex");
     }
 
-    return ls_color_internal("*" + path.extension().string());
+    std::string ret = std::string("*");
+    ret += path.extension().string();
+    return ls_color_internal(ret);
 }
 
 }  // namespace fmt_ext

@@ -232,12 +232,17 @@ dvlab::CommandLineInterface::TabActionResult dvlab::CommandLineInterface::_match
     // no auto complete : list matched files
 
     for (auto& file : files) {
-        for (size_t i = 0; i < file.size(); ++i) {
-            if (_is_special_char(file[i])) {
-                file.insert(i, "\\");
-                ++i;
+        std::string new_file;
+        bool modified = false;
+        for (char c : file) {
+            if (_is_special_char(c)) {
+                new_file += '\\';
+                modified = true;
             }
+            new_file += c;
         }
+        if (modified)
+            file = std::move(new_file);
     }
 
     for (auto& file : files) {
