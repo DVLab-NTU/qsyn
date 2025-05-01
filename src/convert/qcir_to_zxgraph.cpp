@@ -299,7 +299,29 @@ ZXGraph create_ry_zx_form(dvlab::Phase const& ph) {
     return g;
 }
 
-}  // namespace
+ZXGraph create_u_zx_form(dvlab::Phase const& theta, dvlab::Phase const& phi, dvlab::Phase const& lambda) {
+    ZXGraph g;
+
+    ZXVertex* in  = g.add_input(0);
+    ZXVertex* rz1 = g.add_vertex(VertexType::z, lambda, static_cast<float>(0));
+    ZXVertex* sdg = g.add_vertex(VertexType::z, dvlab::Phase(-1, 2), static_cast<float>(0));
+    ZXVertex* rx  = g.add_vertex(VertexType::x, theta, static_cast<float>(0));
+    ZXVertex* s   = g.add_vertex(VertexType::z, dvlab::Phase(1, 2), static_cast<float>(0));
+    ZXVertex* rz2  = g.add_vertex(VertexType::z, phi, static_cast<float>(0));
+    ZXVertex* out = g.add_output(0);
+
+    g.add_edge(in, rz1, EdgeType::simple);
+    g.add_edge(rz1, sdg, EdgeType::simple);
+    g.add_edge(sdg, rx, EdgeType::simple);
+    g.add_edge(rx, s, EdgeType::simple);
+    g.add_edge(s, rz2, EdgeType::simple);
+    g.add_edge(rz2, out, EdgeType::simple);
+
+    return g;
+
+}  
+
+}// namespace
 
 template <>
 std::optional<ZXGraph> to_zxgraph(qcir::IdGate const& /* op */) {
@@ -353,6 +375,11 @@ std::optional<ZXGraph> to_zxgraph(qcir::RXGate const& op) {
 template <>
 std::optional<ZXGraph> to_zxgraph(qcir::RYGate const& op) {
     return create_ry_zx_form(op.get_phase());
+}
+
+template <>
+std::optional<ZXGraph> to_zxgraph(qcir::UGate const& op) {
+    return create_u_zx_form(op.get_theta(), op.get_phi(), op.get_lambda());
 }
 
 template <>

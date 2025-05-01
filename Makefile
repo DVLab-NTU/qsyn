@@ -28,6 +28,7 @@ all: release
 .PHONY: all
 
 configure:
+	@$(ECHO) "cmake -S . -B $(RELEASE_DIR) --log-level=NOTICE -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=$(CC) -DCMAKE_CXX_COMPILER=$(CXX)"
 	@mkdir -p $(RELEASE_DIR)
 	@cmake -S . -B $(RELEASE_DIR) \
 	--log-level=NOTICE \

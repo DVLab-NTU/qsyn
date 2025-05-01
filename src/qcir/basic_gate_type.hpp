@@ -342,4 +342,53 @@ inline std::optional<QCir> to_basic_gates(SwapGate const& /* op */) {
     return qcir;
 }
 
+class UGate {
+public:
+    UGate(dvlab::Phase theta, dvlab::Phase phi, dvlab::Phase lambda)
+        : _theta(theta), _phi(phi), _lambda(lambda) {}
+    std::string get_type() const { return "u"; }
+    std::string get_repr() const {
+        return fmt::format("U({} {} {})", _theta.get_print_string(),
+                           _phi.get_print_string(), _lambda.get_print_string());
+    }
+
+    size_t get_num_qubits() const { return 1; }
+    auto get_theta() const { return _theta; }
+    auto get_phi() const { return _phi; }
+    auto get_lambda() const { return _lambda; }
+
+    void set_theta(dvlab::Phase theta) { _theta = theta; }
+    void set_phi(dvlab::Phase phi) { _phi = phi; }
+    void set_lambda(dvlab::Phase lambda) { _lambda = lambda; }
+
+private:
+    Operation _op;
+    dvlab::Phase _theta;
+    dvlab::Phase _phi;
+    dvlab::Phase _lambda;
+};
+
+inline Operation adjoint(UGate const& op) {
+    return UGate(-op.get_lambda(), -op.get_phi(), -op.get_theta());
+}
+
+inline bool is_clifford(UGate const& op) {
+    return op.get_theta().denominator() <= 2 &&
+           op.get_phi().denominator() <= 2 &&
+           op.get_lambda().denominator() <= 2;
+}
+
+inline std::optional<QCir> to_basic_gates(UGate const& op ) {
+    // Create a new circuit with 1 qubit
+    QCir circuit(1);
+    
+    // Add gates in reverse order (since they're applied from right to left in matrix multiplication)
+    circuit.append(RZGate(op.get_lambda()), {0});   // RZ(λ)
+    circuit.append(RYGate(op.get_theta()), {0});    // RY(θ)
+    circuit.append(RZGate(op.get_phi()), {0});      // RZ(φ)
+    return circuit;
+}
+
+
 }  // namespace qsyn::qcir
+

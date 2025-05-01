@@ -93,6 +93,15 @@ std::optional<QTensor<double>> to_tensor(ControlGate const& op) {
     }
 }
 
+template <>
+std::optional<QTensor<double>> to_tensor(UGate const& op) {
+    QTensor<double> rz_lambda = QTensor<double>::rzgate(op.get_lambda());
+    QTensor<double> ry_theta = QTensor<double>::rygate(op.get_theta());
+    QTensor<double> rz_phi = QTensor<double>::rzgate(op.get_phi());
+
+    return rz_lambda * ry_theta * rz_phi;
+}
+
 /**
  * @brief Convert gate to tensor
  *

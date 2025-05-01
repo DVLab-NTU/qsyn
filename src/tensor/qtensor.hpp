@@ -69,6 +69,7 @@ public:
     static QTensor<T> pygate(dvlab::Phase const& phase = dvlab::Phase(0));
     static QTensor<T> pzgate(dvlab::Phase const& phase = dvlab::Phase(0));
     static QTensor<T> control(QTensor<T> const& gate, size_t n_ctrls = 1);
+    static QTensor<T> ugate(dvlab::Phase const& theta, dvlab::Phase const& phi, dvlab::Phase const& lambda);
 
     QTensor<T> self_tensor_dot(TensorAxisList const& ax1 = {}, TensorAxisList const& ax2 = {});
 
