@@ -255,6 +255,19 @@ bool append_to_tableau(qcir::RYGate const& op, experimental::Tableau& tableau, Q
 }
 
 template <>
+bool append_to_tableau(qcir::UGate const& op, experimental::Tableau& tableau, QubitIdList const& qubits) {
+    bool ret = true;
+    qcir::RZGate rz_lambda(op.get_lambda());
+    qcir::RYGate ry_theta(op.get_theta());
+    qcir::RZGate rz_phi(op.get_phi());
+
+    ret &= append_to_tableau(rz_lambda, tableau, qubits);
+    ret &= append_to_tableau(ry_theta, tableau, qubits);
+    ret &= append_to_tableau(rz_phi, tableau, qubits);
+    return ret;
+}
+
+template <>
 bool append_to_tableau(qcir::ControlGate const& op, experimental::Tableau& tableau, QubitIdList const& qubits) {
     if (auto target_op = op.get_target_operation().get_underlying_if<qcir::PXGate>()) {
         if (op.get_num_qubits() == 2 && target_op->get_phase() == dvlab::Phase(1)) {
@@ -299,6 +312,8 @@ bool append_to_tableau(qcir::ControlGate const& op, experimental::Tableau& table
 
     return false;
 }
+
+
 
 namespace experimental {
 
