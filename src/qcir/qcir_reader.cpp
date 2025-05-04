@@ -146,12 +146,10 @@ std::optional<QCir> from_qasm(std::filesystem::path const& filepath) {
             }
 
             auto phase = dvlab::Phase::from_string(phase_str);
-            std::cout << "phase_str: " << phase_str << std::endl;
             if (!phase.has_value()) {
                 spdlog::error("invalid phase on line {}!!", str);
                 return std::nullopt;
             }
-
             if (auto op = str_to_operation(type, {*phase}); op.has_value()) {
                 qcir.append(*op, qubit_ids);
                 continue;

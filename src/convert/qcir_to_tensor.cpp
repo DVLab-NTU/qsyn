@@ -96,11 +96,11 @@ std::optional<QTensor<double>> to_tensor(ControlGate const& op) {
 template <>
 std::optional<QTensor<double>> to_tensor(UGate const& op) {
 
-    QTensor<double> rz_lambda = QTensor<double>::rzgate(op.get_phi());
+    QTensor<double> rz_phi = QTensor<double>::rzgate(op.get_phi());
     QTensor<double> ry_theta = QTensor<double>::rygate(op.get_theta());
-    QTensor<double> rz_phi = QTensor<double>::rzgate(op.get_lambda());
-    QTensor<double> u = tensordot(rz_lambda, ry_theta, {1}, {0});
-    u = tensordot(u, rz_phi, {1}, {0});
+    QTensor<double> rz_lambda = QTensor<double>::rzgate(op.get_lambda());
+    QTensor<double> u = tensordot(rz_phi, ry_theta, {1}, {0});
+    u = tensordot(u, rz_lambda, {1}, {0});
     return u;
 }
 
@@ -199,14 +199,6 @@ std::optional<QTensor<double>> to_tensor(QCir const& qcir) try {
             auto const qubit_id = gate->get_qubit(np);
             main_tensor_output_pins.emplace_back(qubit_to_pins[qubit_id].first);
         }
-        // for (auto const& pin : gate_tensor_input_pins) {    
-        //     std::cout << pin << " ";
-        // }
-        // std::cout << std::endl;
-        // for (auto const& pin : main_tensor_output_pins) {
-        //     std::cout << pin << " ";
-        // }
-        // std::cout << std::endl;
         // [tmp]x[tensor]
         tensor = tensordot(*gate_tensor, tensor, gate_tensor_input_pins, main_tensor_output_pins);
         update_tensor_pin(qubit_to_pins, *gate, *gate_tensor, tensor);
