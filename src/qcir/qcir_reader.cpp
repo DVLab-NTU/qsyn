@@ -71,6 +71,8 @@ std::optional<QCir> from_qasm(std::filesystem::path const& filepath) {
         if (str.empty()) continue;
         std::string type;
         auto const type_end   = str_get_token(str, type);
+
+
         std::string phase_str = "0";
         if (str_get_token(str, phase_str, 0, '(') != std::string::npos) {
             auto const stop = str_get_token(str, type, 0, '(');
@@ -80,40 +82,80 @@ std::optional<QCir> from_qasm(std::filesystem::path const& filepath) {
         if (type == "creg" || type == "qreg" || type.empty()) {
             continue;
         }
-        QubitIdList qubit_ids;
-        std::string token;
-        std::string qubit_id_str;
-        size_t n = str_get_token(str, token, type_end, ',');
-        while (!token.empty()) {
-            str_get_token(token, qubit_id_str, str_get_token(token, qubit_id_str, 0, '[') + 1, ']');
-            auto qubit_id_num = dvlab::str::from_string<unsigned>(qubit_id_str);
-            if (!qubit_id_num.has_value() || qubit_id_num >= nqubit) {
-                spdlog::error("invalid qubit id on line {}!!", str);
+
+        std::string phase_gate_type;
+        str_get_token(str, phase_gate_type, 0, '(');
+        if (phase_gate_type == "U3" || phase_gate_type == "U" || phase_gate_type == "u") {
+            std::string theta_str, phi_str, lambda_str;
+            size_t pos = str.find('(');
+            if (pos != std::string::npos) {
+                size_t end = str.find(')', pos);
+
+                std::string params = str.substr(pos + 1, end - pos - 1);
+                std::string qubit_id_str;
+                size_t qubit_pos = end + 1;
+                str_get_token(str, qubit_id_str, str_get_token(str, qubit_id_str, qubit_pos, '[') + 1, ']');
+                auto qubit_id_num = dvlab::str::from_string<unsigned>(qubit_id_str);
+                if (!qubit_id_num.has_value() || qubit_id_num >= nqubit) {
+                    spdlog::error("invalid qubit id on line {}!!", str);
+                    return std::nullopt;
+                }
+                std::stringstream ss(params);
+                std::getline(ss, theta_str, ',');
+                std::getline(ss, phi_str, ',');
+                std::getline(ss, lambda_str, ',');
+                theta_str = dvlab::str::trim_spaces(theta_str);
+                phi_str = dvlab::str::trim_spaces(phi_str);
+                lambda_str = dvlab::str::trim_spaces(lambda_str);
+                auto theta = dvlab::Phase::from_string(theta_str);
+                auto phi = dvlab::Phase::from_string(phi_str);
+                auto lambda = dvlab::Phase::from_string(lambda_str);
+                auto op = str_to_operation(type, {*theta, *phi, *lambda});
+                if (!op.has_value()) {
+                    spdlog::error("invalid phase on line {}!!", str);
+                    return std::nullopt;
+                }
+                qcir.append(*op, {qubit_id_num.value()});
+                continue;
+            }
+        }
+        else{
+            QubitIdList qubit_ids;
+            std::string token;
+            std::string qubit_id_str;
+            size_t n = str_get_token(str, token, type_end, ',');
+            while (!token.empty()) {            
+                str_get_token(token, qubit_id_str, str_get_token(token, qubit_id_str, 0, '[') + 1, ']');
+                auto qubit_id_num = dvlab::str::from_string<unsigned>(qubit_id_str);
+                if (!qubit_id_num.has_value() || qubit_id_num >= nqubit) {
+                    spdlog::error("invalid qubit id on line {}!!", str);
+                    return std::nullopt;
+                }
+                qubit_ids.emplace_back(qubit_id_num.value());
+                n = str_get_token(str, token, n, ',');
+            }
+
+            if (!QCirGate::qubit_id_is_unique(qubit_ids)) {
+                spdlog::error("duplicate qubit id on line {}!!", str);
                 return std::nullopt;
             }
-            qubit_ids.emplace_back(qubit_id_num.value());
-            n = str_get_token(str, token, n, ',');
-        }
 
-        if (!QCirGate::qubit_id_is_unique(qubit_ids)) {
-            spdlog::error("duplicate qubit id on line {}!!", str);
-            return std::nullopt;
-        }
+            if (auto op = str_to_operation(type); op.has_value()) {
+                qcir.append(*op, qubit_ids);
+                continue;
+            }
 
-        if (auto op = str_to_operation(type); op.has_value()) {
-            qcir.append(*op, qubit_ids);
-            continue;
-        }
+            auto phase = dvlab::Phase::from_string(phase_str);
+            std::cout << "phase_str: " << phase_str << std::endl;
+            if (!phase.has_value()) {
+                spdlog::error("invalid phase on line {}!!", str);
+                return std::nullopt;
+            }
 
-        auto phase = dvlab::Phase::from_string(phase_str);
-        if (!phase.has_value()) {
-            spdlog::error("invalid phase on line {}!!", str);
-            return std::nullopt;
-        }
-
-        if (auto op = str_to_operation(type, {*phase}); op.has_value()) {
-            qcir.append(*op, qubit_ids);
-            continue;
+            if (auto op = str_to_operation(type, {*phase}); op.has_value()) {
+                qcir.append(*op, qubit_ids);
+                continue;
+            }
         }
     }
     return qcir;

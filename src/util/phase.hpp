@@ -91,6 +91,7 @@ public:
     static std::optional<Phase>
     from_string(std::string const& str) {
         Phase phase;
+        
         if (!str_to_phase<T>(str, phase)) {
             return std::nullopt;
         }
