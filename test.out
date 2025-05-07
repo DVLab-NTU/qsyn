@@ -1,0 +1,9 @@
+qsyn v0.7.0 - Copyright © 2022-2024, DVLab NTUEE.
+Licensed under Apache 2.0 License. Release build.
+qsyn> qc r benchmark/SABRE/large/hwb8_113.qasm
+
+qsyn> de r benchmark/topology/guadalupe_16.layout 
+
+qsyn> du c --scheduler astar --router shortest_path
+
+qsyn> 
