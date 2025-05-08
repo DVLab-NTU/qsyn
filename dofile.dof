@@ -1,4 +1,6 @@
-qc r benchmark/SABRE/large/adr4_197.qasm
-de r benchmark/topology/tokyo_20.layout
-du c --scheduler astar --router duostra
-duostra -c
+qc read ../circuit_gen/try.qasm
+qc2zx
+zx opt -f
+zx arrange
+zx draw after_arrange.pdf
+quit -f

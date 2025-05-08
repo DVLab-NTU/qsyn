@@ -16,6 +16,7 @@
 #include "cmd/zxgraph_mgr.hpp"
 #include "qsyn/qsyn_type.hpp"
 #include "util/data_structure_manager_common_cmd.hpp"
+#include "zx/zx_arrange.hpp"
 #include "zx/zx_io.hpp"
 #include "zx/zxgraph.hpp"
 
@@ -616,6 +617,20 @@ Command zxgraph_edge_cmd(ZXGraphMgr& zxgraph_mgr) {
     return cmd;
 }
 
+Command zxgraph_arrange_cmd(ZXGraphMgr& zxgraph_mgr){
+    return {
+        "arrange",
+        [](ArgumentParser& parser) {
+            parser.description("arrange zx graph for lattice surgery extraction");
+        },
+        [&](ArgumentParser const& /*parser*/) {
+            if (!dvlab::utils::mgr_has_data(zxgraph_mgr)) return CmdExecResult::error;
+            Arranger r(zxgraph_mgr.get());
+            r.arrange();
+            return CmdExecResult::done;
+        }};
+}
+
 Command zxgraph_cmd(ZXGraphMgr& zxgraph_mgr) {
     using namespace dvlab::utils;
 
@@ -648,6 +663,7 @@ Command zxgraph_cmd(ZXGraphMgr& zxgraph_mgr) {
     cmd.add_subcommand("zx-cmd-group", zxgraph_manual_apply_cmd(zxgraph_mgr));
     cmd.add_subcommand("zx-cmd-group", zxgraph_vertex_cmd(zxgraph_mgr));
     cmd.add_subcommand("zx-cmd-group", zxgraph_edge_cmd(zxgraph_mgr));
+    cmd.add_subcommand("zx-cmd-group", zxgraph_arrange_cmd(zxgraph_mgr));
     return cmd;
 }
 

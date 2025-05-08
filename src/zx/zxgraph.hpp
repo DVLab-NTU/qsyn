@@ -69,6 +69,11 @@ public:
     void set_row(float r) { _attrs.row = r; }
     void set_col(float c) { _attrs.col = c; }
 
+    void reverse_type(){
+        if(_attrs.type == VertexType::z) _attrs.type = VertexType::x;
+        else _attrs.type = VertexType::z;
+    }
+
     auto const& type() const { return _attrs.type; }
     auto& type() { return _attrs.type; }
     auto const& phase() const { return _attrs.phase; }
