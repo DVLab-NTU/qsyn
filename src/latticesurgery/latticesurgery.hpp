@@ -1,0 +1,123 @@
+/****************************************************************************
+  PackageName  [ latticesurgery ]
+  Synopsis     [ Define class LatticeSurgery structure ]
+  Author       [ Design Verification Lab ]
+  Copyright    [ Copyright(c) 2024 DVLab, GIEE, NTU, Taiwan ]
+****************************************************************************/
+
+#pragma once
+
+#include <algorithm>
+#include <cstddef>
+#include <filesystem>
+#include <map>
+#include <memory>
+#include <span>
+#include <string>
+#include <unordered_map>
+#include <utility>
+#include <vector>
+
+#include "latticesurgery/latticesurgery_gate.hpp"
+#include "latticesurgery/latticesurgery_qubit.hpp"
+#include "qsyn/qsyn_type.hpp"
+#include "spdlog/common.h"
+#include "util/ordered_hashmap.hpp"
+
+namespace qsyn::latticesurgery {
+
+class LatticeSurgery {
+public:
+    using QubitIdType = qsyn::QubitIdType;
+    
+    LatticeSurgery() = default;
+    LatticeSurgery(size_t n_qubits) { add_qubits(n_qubits); }
+    ~LatticeSurgery() = default;
+    LatticeSurgery(LatticeSurgery const& other);
+    LatticeSurgery(LatticeSurgery&& other) noexcept = default;
+
+    LatticeSurgery& operator=(LatticeSurgery copy) {
+        copy.swap(*this);
+        return *this;
+    }
+
+    void swap(LatticeSurgery& other) noexcept {
+        std::swap(_gate_id, other._gate_id);
+        std::swap(_dirty, other._dirty);
+        std::swap(_filename, other._filename);
+        std::swap(_qubits, other._qubits);
+        std::swap(_gate_list, other._gate_list);
+        std::swap(_id_to_gates, other._id_to_gates);
+        std::swap(_predecessors, other._predecessors);
+        std::swap(_successors, other._successors);
+    }
+
+    friend void swap(LatticeSurgery& a, LatticeSurgery& b) noexcept { a.swap(b); }
+
+    // Access functions
+    size_t get_num_qubits() const { return _qubits.size(); }
+    size_t get_num_gates() const { return _id_to_gates.size(); }
+    size_t calculate_depth() const;
+    std::vector<LatticeSurgeryQubit> const& get_qubits() const { return _qubits; }
+    std::vector<LatticeSurgeryGate*> const& get_gates() const {
+        _update_topological_order();
+        return _gate_list;
+    }
+
+    LatticeSurgeryGate* get_gate(std::optional<size_t> gid) const;
+    std::string get_filename() const { return _filename; }
+    bool is_empty() const { return _qubits.empty() || _id_to_gates.empty(); }
+
+    void set_filename(std::string f) { _filename = std::move(f); }
+    void reset();
+
+    // Circuit construction methods
+    void push_qubit() { _qubits.emplace_back(); }
+    void insert_qubit(QubitIdType id);
+    void add_qubits(size_t num);
+    bool remove_qubit(QubitIdType qid);
+    size_t append(LatticeSurgeryGate const& gate);
+    size_t prepend(LatticeSurgeryGate const& gate);
+    bool remove_gate(size_t id);
+
+    // I/O methods
+    bool write_ls(std::filesystem::path const& filepath) const;
+    bool read_ls(std::filesystem::path const& filepath);
+
+    // Reporting methods
+    void print_gates(bool print_neighbors = false,
+                    std::span<size_t> gate_ids = {}) const;
+    void print_ls() const;
+    void print_ls_info() const;
+
+    // Gate connection methods
+    std::optional<size_t> get_predecessor(std::optional<size_t> gate_id, size_t pin) const;
+    std::optional<size_t> get_successor(std::optional<size_t> gate_id, size_t pin) const;
+    std::vector<std::optional<size_t>> get_predecessors(std::optional<size_t> gate_id) const;
+    std::vector<std::optional<size_t>> get_successors(std::optional<size_t> gate_id) const;
+
+    LatticeSurgeryGate* get_first_gate(QubitIdType qubit) const;
+    LatticeSurgeryGate* get_last_gate(QubitIdType qubit) const;
+
+    std::unordered_map<size_t, size_t> calculate_gate_times() const;
+
+private:
+    size_t _gate_id = 0;
+    std::string _filename;
+    std::vector<LatticeSurgeryQubit> _qubits;
+    dvlab::utils::ordered_hashmap<size_t, std::unique_ptr<LatticeSurgeryGate>> _id_to_gates;
+    std::unordered_map<size_t, std::vector<std::optional<size_t>>> _predecessors;
+    std::unordered_map<size_t, std::vector<std::optional<size_t>>> _successors;
+
+    std::vector<LatticeSurgeryGate*> mutable _gate_list;
+    bool mutable _dirty = true;
+
+    void _update_topological_order() const;
+    void _set_predecessor(size_t gate_id, size_t pin, std::optional<size_t> pred = std::nullopt);
+    void _set_successor(size_t gate_id, size_t pin, std::optional<size_t> succ = std::nullopt);
+    void _set_predecessors(size_t gate_id, std::vector<std::optional<size_t>> const& preds);
+    void _set_successors(size_t gate_id, std::vector<std::optional<size_t>> const& succs);
+    void _connect(size_t gid1, size_t gid2, QubitIdType qubit);
+};
+
+} // namespace qsyn::latticesurgery 
