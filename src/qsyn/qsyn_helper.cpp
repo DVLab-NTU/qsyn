@@ -24,6 +24,7 @@
 #include "cmd/tableau_cmd.hpp"
 #include "cmd/tensor_cmd.hpp"
 #include "cmd/zx_cmd.hpp"
+#include "cmd/latticesurgery_cmd.hpp"
 #include "util/sysdep.hpp"
 
 namespace qsyn {
@@ -124,7 +125,8 @@ bool read_qsynrc_file(dvlab::CommandLineInterface& cli, std::filesystem::path qs
 
 bool initialize_qsyn(
     dvlab::CommandLineInterface& cli, qsyn::device::DeviceMgr& device_mgr, qsyn::qcir::QCirMgr& qcir_mgr,
-    qsyn::tensor::TensorMgr& tensor_mgr, qsyn::zx::ZXGraphMgr& zxgraph_mgr, qsyn::experimental::TableauMgr& tableau_mgr) {
+    qsyn::tensor::TensorMgr& tensor_mgr, qsyn::zx::ZXGraphMgr& zxgraph_mgr, qsyn::experimental::TableauMgr& tableau_mgr,
+    qsyn::latticesurgery::LatticeSurgeryMgr& latticesurgery_mgr) {
     spdlog::set_pattern("%L%v");
     spdlog::set_level(spdlog::level::warn);
 
@@ -137,7 +139,8 @@ bool initialize_qsyn(
            qsyn::qcir::add_qcir_cmds(cli, qcir_mgr) &&
            qsyn::tensor::add_tensor_cmds(cli, tensor_mgr) &&
            qsyn::zx::add_zx_cmds(cli, zxgraph_mgr) &&
-           qsyn::experimental::add_tableau_command(cli, tableau_mgr);
+           qsyn::experimental::add_tableau_command(cli, tableau_mgr) &&
+           qsyn::latticesurgery::add_latticesurgery_cmds(cli, latticesurgery_mgr);
 }
 
 dvlab::argparse::ArgumentParser get_qsyn_parser(std::string_view const prog_name) {
