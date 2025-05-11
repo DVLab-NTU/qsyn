@@ -160,10 +160,19 @@ dvlab::Command latticesurgery_print_cmd(LatticeSurgeryMgr const& ls_mgr) {
             mutex.add_argument<size_t>("-g", "--gate")
                 .nargs(NArgsOption::zero_or_more)
                 .help("print information for the gates with the specified IDs. If the ID is not specified, print all gates");
+
+            mutex.add_argument<bool>("-p", "--patch")
+                .action(store_true)
+                .help("print patch information including logical qubit assignments");
         },
         [&](ArgumentParser const& parser) {
             if (!dvlab::utils::mgr_has_data(ls_mgr))
                 return CmdExecResult::error;
+
+            if (parser.parsed("--patch")) {
+                ls_mgr.get()->print_grid();
+                return CmdExecResult::done;
+            }
 
             if (parser.parsed("--gate")) {
                 auto gate_ids = parser.get<std::vector<size_t>>("--gate");
@@ -315,6 +324,122 @@ dvlab::Command latticesurgery_qubit_cmd(LatticeSurgeryMgr& ls_mgr) {
     return cmd;
 }
 
+dvlab::Command latticesurgery_merge_cmd(LatticeSurgeryMgr& ls_mgr) {
+    return {
+        "merge",
+        [&](ArgumentParser& parser) {
+            parser.description("merge patches in the LatticeSurgery circuit and add merge gate");
+
+            parser.add_argument<QubitIdType>("patches")
+                .nargs(NArgsOption::one_or_more)
+                .constraint(valid_latticesurgery_qubit_id(ls_mgr))
+                .help("the patches to merge");
+        },
+        [&](ArgumentParser const& parser) {
+            if (!dvlab::utils::mgr_has_data(ls_mgr))
+                return CmdExecResult::error;
+
+            auto const patches = parser.get<std::vector<QubitIdType>>("patches");
+            
+            // First try to merge the patches
+            if (!ls_mgr.get()->merge_patches(patches)) {
+                spdlog::error("Failed to merge patches");
+                return CmdExecResult::error;
+            }
+
+            // If merge successful, add the merge gate
+            LatticeSurgeryGate gate(LatticeSurgeryOpType::merge, patches);
+            ls_mgr.get()->append(gate);
+            
+            return CmdExecResult::done;
+        }};
+}
+
+dvlab::Command latticesurgery_split_cmd(LatticeSurgeryMgr& ls_mgr) {
+    return {
+        "split",
+        [&](ArgumentParser& parser) {
+            parser.description("split patches in the LatticeSurgery circuit and add split gate");
+
+            parser.add_argument<QubitIdType>("patches")
+                .nargs(NArgsOption::one_or_more)
+                .constraint(valid_latticesurgery_qubit_id(ls_mgr))
+                .help("the patches to split");
+        },
+        [&](ArgumentParser const& parser) {
+            if (!dvlab::utils::mgr_has_data(ls_mgr))
+                return CmdExecResult::error;
+
+            auto const patches = parser.get<std::vector<QubitIdType>>("patches");
+            
+            // First try to split the patches
+            if (!ls_mgr.get()->split_patches(patches)) {
+                spdlog::error("Failed to split patches");
+                return CmdExecResult::error;
+            }
+
+            // If split successful, add the split gate
+            LatticeSurgeryGate gate(LatticeSurgeryOpType::split, patches);
+            ls_mgr.get()->append(gate);
+            
+            return CmdExecResult::done;
+        }};
+}
+
+dvlab::Command latticesurgery_patch_add_cmd(LatticeSurgeryMgr& ls_mgr) {
+    return {
+        "add",
+        [](ArgumentParser& parser) {
+            parser.description("add a grid of patches to the LatticeSurgery circuit");
+
+            parser.add_argument<size_t>("rows")
+                .help("number of rows in the grid");
+
+            parser.add_argument<size_t>("cols")
+                .help("number of columns in the grid");
+        },
+        [&](ArgumentParser const& parser) {
+            if (!dvlab::utils::mgr_has_data(ls_mgr))
+                return CmdExecResult::error;
+
+            auto const rows = parser.get<size_t>("rows");
+            auto const cols = parser.get<size_t>("cols");
+
+            if (rows == 0 || cols == 0) {
+                spdlog::error("Grid dimensions must be positive");
+                return CmdExecResult::error;
+            }
+
+            // Create new grid with specified dimensions
+            ls_mgr.get()->get_grid() = LatticeSurgeryGrid(rows, cols);
+            
+            // Add qubits for each patch
+            ls_mgr.get()->add_qubits(rows * cols);
+
+            // Initialize logical qubit tracking structures
+            ls_mgr.get()->init_logical_tracking(rows * cols);
+
+            return CmdExecResult::done;
+        }};
+}
+
+dvlab::Command latticesurgery_patch_cmd(LatticeSurgeryMgr& ls_mgr) {
+    auto cmd = Command{
+        "patch",
+        [](ArgumentParser& parser) {
+            parser.description("patch operations");
+
+            parser.add_subparsers("patch-cmd").required(true);
+        },
+        [](ArgumentParser const& /*parser*/) { return CmdExecResult::error; }};
+
+    cmd.add_subcommand("patch-cmd", latticesurgery_patch_add_cmd(ls_mgr));
+    cmd.add_subcommand("patch-cmd", latticesurgery_merge_cmd(ls_mgr));
+    cmd.add_subcommand("patch-cmd", latticesurgery_split_cmd(ls_mgr));
+
+    return cmd;
+}
+
 dvlab::Command latticesurgery_cmd(LatticeSurgeryMgr& ls_mgr) {
     auto cmd = Command{
         "ls",
@@ -335,6 +460,7 @@ dvlab::Command latticesurgery_cmd(LatticeSurgeryMgr& ls_mgr) {
     cmd.add_subcommand("ls-cmd-group", latticesurgery_print_cmd(ls_mgr));
     cmd.add_subcommand("ls-cmd-group", latticesurgery_gate_cmd(ls_mgr));
     cmd.add_subcommand("ls-cmd-group", latticesurgery_qubit_cmd(ls_mgr));
+    cmd.add_subcommand("ls-cmd-group", latticesurgery_patch_cmd(ls_mgr));
 
     return cmd;
 }
