@@ -29,9 +29,13 @@ bool read_ls_file(std::filesystem::path const& filepath, LatticeSurgery& ls) {
     bool header_found = false;
     size_t num_qubits = 0;
     size_t num_gates = 0;
+    size_t grid_rows = 0;
+    size_t grid_cols = 0;
+    size_t line_number = 0;
 
     // Read header
     while (std::getline(file, line)) {
+        line_number++;
         // Trim whitespace
         line.erase(0, line.find_first_not_of(" \t\r\n"));
         line.erase(line.find_last_not_of(" \t\r\n") + 1);
@@ -43,14 +47,28 @@ bool read_ls_file(std::filesystem::path const& filepath, LatticeSurgery& ls) {
                 try {
                     num_qubits = std::stoul(line.substr(line.find(':') + 1));
                 } catch (std::exception const&) {
-                    spdlog::error("Invalid number of qubits in file");
+                    spdlog::error("Invalid number of qubits in file at line {}", line_number-1);
                     return false;
                 }
             } else if (line.find("# Number of gates:") != std::string::npos) {
                 try {
                     num_gates = std::stoul(line.substr(line.find(':') + 1));
                 } catch (std::exception const&) {
-                    spdlog::error("Invalid number of gates in file");
+                    spdlog::error("Invalid number of gates in file at line {}", line_number-1);
+                    return false;
+                }
+            } else if (line.find("# Grid dimensions:") != std::string::npos) {
+                try {
+                    std::string dims = line.substr(line.find(':') + 1);
+                    size_t x_pos = dims.find('x');
+                    if (x_pos == std::string::npos) {
+                        spdlog::error("Invalid grid dimensions format at line {}", line_number-1);
+                        return false;
+                    }
+                    grid_rows = std::stoul(dims.substr(0, x_pos));
+                    grid_cols = std::stoul(dims.substr(x_pos + 1));
+                } catch (std::exception const&) {
+                    spdlog::error("Invalid grid dimensions in file at line {}", line_number-1);
                     return false;
                 }
             }
@@ -66,12 +84,20 @@ bool read_ls_file(std::filesystem::path const& filepath, LatticeSurgery& ls) {
         return false;
     }
 
-    // Reset the circuit and add qubits
+    if (grid_rows == 0 || grid_cols == 0) {
+        spdlog::error("Grid dimensions not specified in file");
+        return false;
+    }
+
+    // Reset the circuit and add grid
     ls.reset();
-    ls.add_qubits(num_qubits);
+    ls.get_grid() = LatticeSurgeryGrid(grid_rows, grid_cols);
+    ls.add_qubits(grid_rows * grid_cols);
+    ls.init_logical_tracking(grid_rows * grid_cols);
 
     // Read operations
     while (std::getline(file, line)) {
+        line_number++;
         // Trim whitespace
         line.erase(0, line.find_first_not_of(" \t\r\n"));
         line.erase(line.find_last_not_of(" \t\r\n") + 1);
@@ -89,22 +115,36 @@ bool read_ls_file(std::filesystem::path const& filepath, LatticeSurgery& ls) {
             QubitIdType qubit_id;
             while (iss >> qubit_id) {
                 if (qubit_id >= num_qubits) {
-                    spdlog::error("Qubit ID {} out of range (max: {})", qubit_id, num_qubits - 1);
+                    spdlog::error("Qubit ID {} out of range (max: {}) at line {}", qubit_id, num_qubits - 1, line_number);
                     return false;
                 }
                 qubits.push_back(qubit_id);
             }
 
             if (qubits.empty()) {
-                spdlog::error("No qubits specified for operation");
+                spdlog::error("No qubits specified for operation at line {}", line_number-1);
                 return false;
             }
 
+            // Validate and perform the operation
+            if (op == "merge") {
+                if (!ls.merge_patches(qubits)) {
+                    spdlog::error("Failed to merge patches at line {}", line_number-1);
+                    return false;
+                }
+            } else {  // split
+                if (!ls.split_patches(qubits)) {
+                    spdlog::error("Failed to split patches at line {}", line_number-1);
+                    return false;
+                }
+            }
+
+            // Add the gate to the circuit
             LatticeSurgeryOpType op_type = (op == "merge") ? LatticeSurgeryOpType::merge : LatticeSurgeryOpType::split;
             LatticeSurgeryGate gate(op_type, qubits);
             ls.append(gate);
         } else {
-            spdlog::error("Unknown operation type: {}", op);
+            spdlog::error("Unknown operation type: {} at line {}", op, line_number);
             return false;
         }
     }

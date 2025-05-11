@@ -19,6 +19,7 @@
 #include <vector>
 
 #include "latticesurgery/latticesurgery_gate.hpp"
+#include "latticesurgery/latticesurgery_grid.hpp"
 #include "latticesurgery/latticesurgery_qubit.hpp"
 #include "qsyn/qsyn_type.hpp"
 #include "spdlog/common.h"
@@ -32,6 +33,7 @@ public:
     
     LatticeSurgery() = default;
     LatticeSurgery(size_t n_qubits) { add_qubits(n_qubits); }
+    LatticeSurgery(size_t rows, size_t cols) : _grid(rows, cols) { add_qubits(rows * cols); }
     ~LatticeSurgery() = default;
     LatticeSurgery(LatticeSurgery const& other);
     LatticeSurgery(LatticeSurgery&& other) noexcept = default;
@@ -50,6 +52,7 @@ public:
         std::swap(_id_to_gates, other._id_to_gates);
         std::swap(_predecessors, other._predecessors);
         std::swap(_successors, other._successors);
+        std::swap(_grid, other._grid);
     }
 
     friend void swap(LatticeSurgery& a, LatticeSurgery& b) noexcept { a.swap(b); }
@@ -80,6 +83,31 @@ public:
     size_t prepend(LatticeSurgeryGate const& gate);
     bool remove_gate(size_t id);
 
+    // Grid access methods
+    LatticeSurgeryGrid& get_grid() { return _grid; }
+    LatticeSurgeryGrid const& get_grid() const { return _grid; }
+    size_t get_grid_rows() const { return _grid.get_rows(); }
+    size_t get_grid_cols() const { return _grid.get_cols(); }
+    LatticeSurgeryQubit& get_patch(size_t row, size_t col) { return _grid.get_patch(row, col); }
+    LatticeSurgeryQubit const& get_patch(size_t row, size_t col) const { return _grid.get_patch(row, col); }
+    LatticeSurgeryQubit& get_patch(size_t id) { return _grid.get_patch(id); }
+    LatticeSurgeryQubit const& get_patch(size_t id) const { return _grid.get_patch(id); }
+    bool are_patches_adjacent(size_t id1, size_t id2) const { return _grid.are_adjacent(id1, id2); }
+    std::vector<size_t> get_adjacent_patches(size_t id) const { return _grid.get_adjacent_patches(id); }
+
+    // Initialize logical qubit tracking for a grid of patches
+    void init_logical_tracking(size_t num_patches) { _init_logical_tracking(num_patches); }
+
+    // Merge/Split operations
+    bool merge_patches(std::vector<QubitIdType> const& patch_ids);
+    bool split_patches(std::vector<QubitIdType> const& patch_ids);
+    bool check_connectivity(std::vector<QubitIdType> const& patch_ids) const;
+    bool check_same_logical_id(std::vector<QubitIdType> const& patch_ids) const;
+    QubitIdType get_smallest_logical_id(std::vector<QubitIdType> const& patch_ids) const;
+    QubitIdType find_logical_id(QubitIdType patch_id) const;
+    void union_logical_ids(QubitIdType id1, QubitIdType id2);
+    void split_logical_ids(std::vector<QubitIdType> const& group1, std::vector<QubitIdType> const& group2);
+
     // I/O methods
     bool write_ls(std::filesystem::path const& filepath) const;
     bool read_ls(std::filesystem::path const& filepath);
@@ -89,6 +117,7 @@ public:
                     std::span<size_t> gate_ids = {}) const;
     void print_ls() const;
     void print_ls_info() const;
+    void print_grid() const { _grid.print_grid(); }
 
     // Gate connection methods
     std::optional<size_t> get_predecessor(std::optional<size_t> gate_id, size_t pin) const;
@@ -108,9 +137,19 @@ private:
     dvlab::utils::ordered_hashmap<size_t, std::unique_ptr<LatticeSurgeryGate>> _id_to_gates;
     std::unordered_map<size_t, std::vector<std::optional<size_t>>> _predecessors;
     std::unordered_map<size_t, std::vector<std::optional<size_t>>> _successors;
+    LatticeSurgeryGrid _grid;
 
     std::vector<LatticeSurgeryGate*> mutable _gate_list;
     bool mutable _dirty = true;
+
+    // Logical qubit tracking
+    std::vector<QubitIdType> _logical_parent;  // Parent array for union-find
+    std::vector<size_t> _logical_rank;         // Rank array for union-find
+    void _init_logical_tracking(size_t num_patches);
+    QubitIdType _find_logical_id(QubitIdType id) const;
+    QubitIdType _find_logical_id_with_compression(QubitIdType id);
+    void _union_logical_ids(QubitIdType id1, QubitIdType id2);
+    std::vector<std::vector<QubitIdType>> _get_connected_components(std::vector<QubitIdType> const& patch_ids) const;
 
     void _update_topological_order() const;
     void _set_predecessor(size_t gate_id, size_t pin, std::optional<size_t> pred = std::nullopt);

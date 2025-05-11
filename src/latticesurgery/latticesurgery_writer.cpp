@@ -30,7 +30,8 @@ bool LatticeSurgery::write_ls(std::filesystem::path const& filepath) const {
 std::string to_ls(LatticeSurgery const& ls) {
     std::string output = "# Lattice Surgery Circuit\n";
     output += fmt::format("# Number of qubits: {}\n", ls.get_num_qubits());
-    output += fmt::format("# Number of gates: {}\n\n", ls.get_num_gates());
+    output += fmt::format("# Number of gates: {}\n", ls.get_num_gates());
+    output += fmt::format("# Grid dimensions: {}x{}\n\n", ls.get_grid_rows(), ls.get_grid_cols());
 
     for (auto const* gate : ls.get_gates()) {
         output += fmt::format("{} {}\n",
