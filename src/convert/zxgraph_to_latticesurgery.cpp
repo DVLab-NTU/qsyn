@@ -64,6 +64,7 @@ std::optional<LatticeSurgery> to_latticesurgery(const zx::ZXGraph* zxgraph){
             size_t count_hadamard = 0;
             std::vector<std::pair<size_t, size_t>> split_patches;
             bool exist_neighbor = false;
+            size_t count_split = 0;
 
             // find the index for split patches
             for(auto [neighbor, edge]: zxgraph->get_neighbors(frontier)){
@@ -75,6 +76,7 @@ std::optional<LatticeSurgery> to_latticesurgery(const zx::ZXGraph* zxgraph){
                         orientation = neighbor->type();
                     }
                     if(edge == EdgeType::hadamard) count_hadamard++;
+                    count_split ++;
                 }
             }
 
@@ -82,7 +84,51 @@ std::optional<LatticeSurgery> to_latticesurgery(const zx::ZXGraph* zxgraph){
             // if the current patch don't need to split and merge with others, assign it to a position that won't block others
             if(!exist_neighbor) continue;
 
-
+            if(count_hadamard == 1 and count_split == 1){
+                fmt::println("In only 1 hadamard");
+                size_t final_position = 0;
+                for(size_t i=0; i<split_index.size(); i++){ 
+                    if(split_index[i] > 0){
+                        final_position = i;
+                        break;
+                    }
+                }
+                fmt::println("after finding the final position");
+                if(orientation == VertexType::z){ // if next frontier orientation = z, split | => merge <->
+                    if(final_position == index-1 || index == split_index.size()-1){
+                        result.hadamard(std::make_pair(index, index), std::make_pair(index, index-1));
+                        if(final_position != index-1){
+                            std::vector<std::pair<size_t, size_t>> final_pos{std::make_pair(index, final_position)};
+                            result.one_to_n(std::make_pair(index, index-1), final_pos);
+                        }
+                    }
+                    else{
+                        result.hadamard(std::make_pair(index, index), std::make_pair(index, index+1));
+                        if(final_position != index+1){
+                            std::vector<std::pair<size_t, size_t>> final_pos{std::make_pair(index, final_position)};
+                            result.one_to_n(std::make_pair(index, index+1), final_pos);
+                        }
+                    }
+                }
+                else{
+                    if(final_position == index-1 || index == split_index.size()-1){
+                        result.hadamard(std::make_pair(index, index), std::make_pair(index-1, index));
+                        if(final_position != index-1){
+                            std::vector<std::pair<size_t, size_t>> final_pos{std::make_pair(final_position,index)};
+                            result.one_to_n(std::make_pair(index-1, index), final_pos);
+                        }
+                    }
+                    else{
+                        result.hadamard(std::make_pair(index, index), std::make_pair(index+1, index));
+                        if(final_position != index+1){
+                            std::vector<std::pair<size_t, size_t>> final_pos{std::make_pair(final_position,index)};
+                            result.one_to_n(std::make_pair(index+1, index), final_pos);
+                        }
+                    }
+                }
+                fmt::println("finish in only 1 hadamard");
+                continue;
+            }
 
             // No hadamard: direct split and continue
             if(count_hadamard == 0){
@@ -106,39 +152,53 @@ std::optional<LatticeSurgery> to_latticesurgery(const zx::ZXGraph* zxgraph){
                         }
                     }
                 }
-                fmt::println("before 1 to n");
                 result.one_to_n(std::make_pair(index, index), split_id_list);
-                fmt::println("after 1 to n");
+                fmt::println("finish in on hadamard");
+
                 continue;
             }
 
+
             fmt::println("In hadamard edge ls operation appending");
+            
             // partition
-            std::vector<unsigned> partitions(zxgraph->num_inputs(), 0);
+            std::vector<unsigned> partitions(split_index.size(), 0);
             unsigned pre_type = 0; // 0: not yet assign, 1: simple, 2: hadamard
 
+            fmt::println("split index size: {}", split_index.size());
+
             // partition into a sequence of 1(simple) and 2(hadamard)
-            for(size_t p_index=0; p_index < zxgraph->num_inputs(); p_index++){ 
+            for(size_t p_index=0; p_index < split_index.size(); p_index++){ 
+                fmt::println("p_index: {} type({})", p_index, pre_type);
                 switch(split_index[p_index]){
                     case 1: // simple
+                        fmt::println("in case 1");
                         partitions[p_index] = 1;
                         if(pre_type == 0){
-                            for(size_t i=p_index; i>=0; i--) partitions[i] = 1;
+                            for(int i=p_index-1; i>=0; i--){ 
+                                fmt::println("i={}", i);
+                                partitions[i] = 1;
+                            }
                         }
                         pre_type = 1;
                         break;
                     case 2: // hadamard
+                        fmt::println("in case 2");
                         partitions[p_index] = 2;
                         if(pre_type == 0){
-                            for(size_t i=p_index; i>=0; i--) partitions[i] = 2;
+                            for(int i=p_index-1; i>=0; i--) partitions[i] = 2;
                         }
                         pre_type = 2;
                         break;
                     default: 
+                        fmt::println("in default");
                         partitions[p_index] = pre_type;
                         break;
                 }
             }
+            fmt::println("");
+
+            fmt::println("After patition");
             
             auto cur_type = partitions[0]; // 1: simple, 2: hadamard
 
@@ -168,6 +228,9 @@ std::optional<LatticeSurgery> to_latticesurgery(const zx::ZXGraph* zxgraph){
                 }
             }
 
+            fmt::println("After rearrange partition");
+            
+
             // first split of logical qubits
 
             std::vector<std::pair<size_t,size_t>> first_split;
@@ -176,11 +239,14 @@ std::optional<LatticeSurgery> to_latticesurgery(const zx::ZXGraph* zxgraph){
 
             cur_type = partitions[0];
             for(size_t i=0; i<split_index.size(); i++){
+                fmt::println("i={}", i);
                 if(cur_type == 1){ // simple
+                    fmt::println("in simple");
                     size_t ancilla_index = i;
                     size_t end_index = i;
                     std::vector<size_t> simple_list;
                     std::vector<size_t> second_list;
+                    fmt::println("before simple while");
                     while(i < split_index.size() && split_index[i] != 2){
                         end_index = i;
                         if(split_index[i] == cur_type && partitions[i] == 1) {
@@ -194,9 +260,9 @@ std::optional<LatticeSurgery> to_latticesurgery(const zx::ZXGraph* zxgraph){
                         else if(partitions[i] == 1){
                             ancilla_index = i;
                         }
-                        if(split_index[i])
                         i++;
                     }
+                    fmt::println("after simple while");
                     i = end_index;
                     if(orientation == VertexType::z){ // if next frontier orientation = z, split | => merge <->
                         for(auto i: simple_list) first_split.emplace_back(std::make_pair(index, i));
@@ -233,50 +299,82 @@ std::optional<LatticeSurgery> to_latticesurgery(const zx::ZXGraph* zxgraph){
                             }
                         }
                     }
-                    
-
-
+                    cur_type=2;
                 }
                 else if(cur_type == 2){ // hadamard
                     size_t ancilla_index = i;
                     size_t first_hadamard = i+1;
-                    std::vector<size_t> hadamards_list;
+                    size_t start_index = i;
+                    size_t end_index = i;
+                    size_t hadamard_count = (split_index[i]==2)? 1:0;
+                    std::vector<size_t> hadamards_second_split;
+                    std::vector<std::pair<size_t, size_t>> hadamards_list; // (ancilla, destination)
                     i++;
                     while(i < split_index.size() && partitions[i] == cur_type){
+                        end_index = i;
                         if(split_index[i] == 0 || split_index[i] == 1){
-                            if(split_index[i-1] == cur_type){
+                            if(split_index[i-1] == cur_type && first_hadamard != i-1){
                                 ancilla_index = i;
                                 first_hadamard = i-1;
+                                hadamards_list.emplace_back(std::make_pair(i, i-1));
                             } 
-                            else if(i+1 < split_index.size() && split_index[i-1] == cur_type){
+                            else if(i+1 < split_index.size() && split_index[i+1] == cur_type){
                                 ancilla_index = i;
                                 first_hadamard = i+1;
+                                hadamards_list.emplace_back(std::make_pair(i, i+1));
+                            }
+                        }
+                        else hadamard_count++;
+                        i++;
+                    }
+
+                    if(split_index[end_index] == 1) i=end_index-1;
+                    else i=end_index;
+
+                    if(orientation == VertexType::z){ // if next frontier orientation = z, split | => merge <->
+                        if(hadamards_list.empty() || hadamards_list.size() != hadamard_count){
+                            first_split.emplace_back(std::make_pair(index, ancilla_index));
+                            hadamards_b_splits.emplace_back(std::make_pair(std::make_pair(index, ancilla_index), std::make_pair(index, first_hadamard)));
+                            if(hadamard_count > 1){
+                                std::vector<std::pair<size_t, size_t>> hadamard_index;
+                                for(size_t check_h=start_index; check_h<=i; check_h++){
+                                    if(split_index[check_h] == 2){
+                                        hadamard_index.emplace_back(std::make_pair(index, check_h));
+                                    }
+                                }
+                                second_split.emplace_back(std::make_pair(std::make_pair(index, first_hadamard), hadamard_index));
                             }
                         }
                         else{
-                            hadamards_list.emplace_back(i);
-                        }
-                        i++;
-                    }
-                    if(orientation == VertexType::z){ // if next frontier orientation = z, split | => merge <->
-                        first_split.emplace_back(std::make_pair(index, ancilla_index));
-                        hadamards_b_splits.emplace_back(std::make_pair(std::make_pair(index, ancilla_index), std::make_pair(index, first_hadamard)));
-                        if(hadamards_list.size() > 1){
-                            std::vector<std::pair<size_t, size_t>> hadamard_index;
-                            for(auto h: hadamards_list) hadamard_index.emplace_back(std::make_pair(index, h));
-                            second_split.emplace_back(std::make_pair(std::make_pair(index, first_hadamard), hadamard_index));
+                            for(auto[ancilla, h]: hadamards_list){
+                                first_split.emplace_back(std::make_pair(index, ancilla));
+                                hadamards_b_splits.emplace_back(std::make_pair(std::make_pair(index, ancilla), std::make_pair(index, h)));
+                                split_index[h] = 0;
+                            }
                         }
                     }
                     else{ // if next frontier orientation = x, split <-> => merge |
-                        first_split.emplace_back(std::make_pair(ancilla_index ,index));
-                        hadamards_b_splits.emplace_back(std::make_pair(std::make_pair(ancilla_index, index), std::make_pair( first_hadamard, index)));
-                        if(hadamards_list.size() > 1){
-                            std::vector<std::pair<size_t, size_t>> hadamard_index;
-                            for(auto h: hadamards_list) hadamard_index.emplace_back(std::make_pair(h, index ));
-                            second_split.emplace_back(std::make_pair(std::make_pair(first_hadamard, index), hadamard_index));
+                        if(hadamards_list.empty() || hadamards_list.size() != hadamard_count){
+                            first_split.emplace_back(std::make_pair(index, ancilla_index));
+                            hadamards_b_splits.emplace_back(std::make_pair(std::make_pair(ancilla_index, index), std::make_pair(first_hadamard, index)));
+                            if(hadamard_count > 1){
+                                std::vector<std::pair<size_t, size_t>> hadamard_index;
+                                for(size_t check_h=start_index; check_h<=i; check_h++){
+                                    if(split_index[check_h] == 2){
+                                        hadamard_index.emplace_back(std::make_pair(check_h, index));
+                                    }
+                                }
+                                second_split.emplace_back(std::make_pair(std::make_pair(first_hadamard,index), hadamard_index));
+                            }
+                        }
+                        else{
+                            for(auto[ancilla, h]: hadamards_list){
+                                first_split.emplace_back(std::make_pair(ancilla, index));
+                                hadamards_b_splits.emplace_back(std::make_pair(std::make_pair(ancilla,index), std::make_pair(h,index)));
+                                split_index[h] = 0;
+                            }
                         }
                     }
-                    i = hadamards_list.back();
                     cur_type = 1;
                 }
             }

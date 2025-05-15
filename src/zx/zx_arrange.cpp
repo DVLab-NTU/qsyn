@@ -7,7 +7,6 @@
 #include "qsyn/qsyn_type.hpp"
 #include "zx/zx_def.hpp"
 #include "zx/zxgraph.hpp"
-#include "zx/zxgraph_action.hpp"
 #include <fstream>
 #include <sstream>
 #include <queue>
@@ -167,7 +166,7 @@ void Arranger::internal_vertex_splitting(){
         if(!smaller_vertices.empty()){
             if(_io_marks[cur_vertex->get_id()] == 5 || _io_marks[cur_vertex->get_id()] == 3){
                 for(const auto& vertex: smaller_vertices){
-                    if(abs(vertex->get_col()-cur_vertex->get_col()) <= 1) continue;
+                    if(abs((vertex->get_col())-cur_vertex->get_col()) <= 1) continue;
                     size_t new_col = vertex->get_col()+1;
                     if(_vertex_map[new_col][cur_vertex->get_row()] == NULL){
                         auto new_vertex = _graph->add_vertex(cur_vertex->type(), Phase{0}, cur_vertex->get_row(), new_col);
@@ -406,6 +405,10 @@ void Arranger::internal_vertex_arrange(){
                         col = _output_boundary;
                         break;
                     }
+                }
+                if(col == 0){
+                    _input_boundary ++;
+                    col = _input_boundary;
                 }
                 assert(col > 0);
                 for (const auto& vertex : vertices) {

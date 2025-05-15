@@ -675,21 +675,20 @@ void LatticeSurgery::hadamard(std::pair<size_t, size_t> start, std::pair<size_t,
     auto start_id = get_patch(start_col, start_row)->get_id();
     auto dest_id = get_patch(dest_col, dest_row)->get_id();
 
-    hadamard(start_col, start_row);
+    // hadamard(start_col, start_row);
 
     assert(!get_patch(dest_col, dest_row)->occupied() 
-            && (start_col == dest_col || start_row == dest_row)
-            && get_patch(start_id)->get_lr_type() == get_patch(dest_id)->get_lr_type());
+            && (start_col == dest_col || start_row == dest_row));
 
     if(start_col == dest_col){
         auto col_measure_type = get_patch(start_id)->get_td_type();
-        merge_patches({get_patch(start_id)->get_id(), get_patch(dest_id)->get_id()}, {col_measure_type, MeasureType::y});
-        discard_patch(start_id, col_measure_type);
+        // merge_patches({get_patch(start_id)->get_id(), get_patch(dest_id)->get_id()}, {col_measure_type, MeasureType::y});
+        // discard_patch(start_id, col_measure_type);
     }
     else{
         auto row_measure_type = get_patch(start_id)->get_lr_type();
-        merge_patches({get_patch(start_id)->get_id(), get_patch(dest_id)->get_id()}, {row_measure_type, MeasureType::y});
-        discard_patch(start_id, row_measure_type);
+        // merge_patches({get_patch(start_id)->get_id(), get_patch(dest_id)->get_id()}, {row_measure_type, MeasureType::y});
+        // discard_patch(start_id, row_measure_type);
     }
 
 };
