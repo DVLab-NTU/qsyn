@@ -76,19 +76,28 @@ void Arranger::hadamard_edge_absorb(){
     fmt::println("z start cost: {} x start cost: {}", cost_z_start, cost_x_start);
     // absorb with smaller cost
     size_t start_index = 2;
+    size_t num_row = _graph->num_inputs();
+    fmt::println("vertex map size: {}", _vertex_map.size());
     if(cost_z_start > cost_x_start) start_index=1;
-    for(size_t i=start_index; i<_vertex_map.size(); i+=2){
-        for(size_t j=0; j<_graph->num_inputs(); j++){
+    for(size_t i=start_index; i<_vertex_map.size()-1; i+=2){
+        fmt::println(" ");
+        fmt::println("i={}: ", i);
+        for(size_t j=0; j<num_row; j++){
+            fmt::print(" {} ", j);
             if(_vertex_map[i][j] == NULL) continue;
             _vertex_map[i][j]->reverse_type();
+            if(_graph->get_neighbors(_vertex_map[i][j]).empty()) continue;
             for(const auto& [neighbor, edge]: _graph->get_neighbors(_vertex_map[i][j])){
+                
                 if(edge == EdgeType::simple){
                     _graph->remove_edge(std::make_pair(std::make_pair(neighbor, _vertex_map[i][j]), edge));
                     _graph->add_edge(neighbor, _vertex_map[i][j], EdgeType::hadamard);
+                    // fmt::print("v");
                 }
                 else{
                     _graph->remove_edge(std::make_pair(std::make_pair(neighbor, _vertex_map[i][j]), edge));
                     _graph->add_edge(neighbor, _vertex_map[i][j], EdgeType::simple);
+                    // fmt::print("v");
                 }
             }
         }

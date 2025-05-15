@@ -88,10 +88,11 @@ public:
     LatticeSurgeryGrid const& get_grid() const { return _grid; }
     size_t get_grid_rows() const { return _grid.get_rows(); }
     size_t get_grid_cols() const { return _grid.get_cols(); }
-    LatticeSurgeryQubit& get_patch(size_t row, size_t col) { return _grid.get_patch(row, col); }
-    LatticeSurgeryQubit const& get_patch(size_t row, size_t col) const { return _grid.get_patch(row, col); }
-    LatticeSurgeryQubit& get_patch(size_t id) { return _grid.get_patch(id); }
-    LatticeSurgeryQubit const& get_patch(size_t id) const { return _grid.get_patch(id); }
+    LatticeSurgeryQubit* get_patch(size_t col, size_t row) { return _grid.get_patch(col, row); }
+    LatticeSurgeryQubit* get_patch(size_t col, size_t row) const { return _grid.get_patch(col, row); }
+    LatticeSurgeryQubit* get_patch(size_t id) { return _grid.get_patch(id); }
+    LatticeSurgeryQubit* get_patch(size_t id) const { return _grid.get_patch(id); }
+    size_t get_patch_id(size_t col, size_t row) const { return get_patch(col, row)->get_id();}
     bool are_patches_adjacent(size_t id1, size_t id2) const { return _grid.are_adjacent(id1, id2); }
     std::vector<size_t> get_adjacent_patches(size_t id) const { return _grid.get_adjacent_patches(id); }
 
@@ -100,6 +101,7 @@ public:
 
     // Merge/Split operations
     bool merge_patches(std::vector<QubitIdType> const& patch_ids);
+    bool merge_patches(std::vector<QubitIdType> patch_ids, std::vector<MeasureType> measure_types);
     bool split_patches(std::vector<QubitIdType> const& patch_ids);
     bool check_connectivity(std::vector<QubitIdType> const& patch_ids) const;
     bool check_same_logical_id(std::vector<QubitIdType> const& patch_ids) const;
@@ -107,6 +109,12 @@ public:
     QubitIdType find_logical_id(QubitIdType patch_id) const;
     void union_logical_ids(QubitIdType id1, QubitIdType id2);
     void split_logical_ids(std::vector<QubitIdType> const& group1, std::vector<QubitIdType> const& group2);
+    void one_to_n(std::pair<size_t,size_t> start_id, std::vector<std::pair<size_t,size_t>>& id_lists);
+    void n_to_one(std::vector<std::pair<size_t,size_t>>& init_patches, std::pair<size_t,size_t> dest_patch);
+    void hadamard(size_t col, size_t row);
+    void hadamard(std::pair<size_t, size_t> start, std::pair<size_t, size_t> dest); // start: the original patch needed hadamard, dest: the adjecent patch to adjust set back the orientation of the patch
+    void discard_patch(QubitIdType id, MeasureType measure_type);
+
 
     // I/O methods
     bool write_ls(std::filesystem::path const& filepath) const;

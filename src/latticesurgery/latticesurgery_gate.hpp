@@ -10,6 +10,7 @@
 #include <cstddef>
 #include <string>
 #include <tl/to.hpp>
+#include <utility>
 #include <vector>
 
 #include "qsyn/qsyn_type.hpp"
@@ -17,15 +18,29 @@
 namespace qsyn::latticesurgery {
 
 enum class LatticeSurgeryOpType {
-    merge,
-    split
+    merge, 
+    split,
+    measure, // single qubit : {X,Y,Z} double qubits: {X,Y,Z} * {X,Y,Z}
+    initialize,
+
+
+};
+
+enum class MeasureType{
+    x,
+    y, 
+    z
 };
 
 class LatticeSurgeryGate {
 public:
     LatticeSurgeryGate(size_t id, LatticeSurgeryOpType op_type, QubitIdList qubits);
+    LatticeSurgeryGate(size_t id, LatticeSurgeryOpType op_type, QubitIdList qubits, std::vector<MeasureType> measure_list)
+        : _id(id), _op_type(op_type), _qubits(std::move(qubits)), _measure(std::move(measure_list)){};
     LatticeSurgeryGate(LatticeSurgeryOpType op_type, QubitIdList qubits)
-        : LatticeSurgeryGate(0, op_type, std::move(qubits)) {}
+        : LatticeSurgeryGate(0, op_type, std::move(qubits)) {};
+    LatticeSurgeryGate(LatticeSurgeryOpType op_type, QubitIdList qubits, std::vector<MeasureType> measure_list)
+        : LatticeSurgeryGate(0, op_type, std::move(qubits), std::move(measure_list)) {};
 
     ~LatticeSurgeryGate() = default;
     LatticeSurgeryGate(LatticeSurgeryGate const& other) = default;
@@ -55,6 +70,7 @@ public:
     void set_qubits(QubitIdList qubits);
     std::optional<size_t> get_pin_by_qubit(QubitIdType qubit) const;
     size_t get_num_qubits() const { return _qubits.size(); }
+    std::vector<MeasureType> get_measure_types() const { return _measure; };
 
     bool operator==(LatticeSurgeryGate const& rhs) const;
     bool operator!=(LatticeSurgeryGate const& rhs) const { return !(*this == rhs); }
@@ -65,6 +81,8 @@ protected:
     size_t _id;
     LatticeSurgeryOpType _op_type;
     std::vector<QubitIdType> _qubits;
+    std::vector<MeasureType> _measure;
+    
 };
 
 } // namespace qsyn::latticesurgery 

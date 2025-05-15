@@ -19,32 +19,42 @@ namespace qsyn::latticesurgery {
 class LatticeSurgeryGrid {
 public:
     LatticeSurgeryGrid() = default;
-    LatticeSurgeryGrid(size_t rows, size_t cols) : _rows(rows), _cols(cols) {
-        _patches.resize(rows * cols);
-        for (size_t i = 0; i < rows * cols; ++i) {
-            _patches[i] = LatticeSurgeryQubit(i);
+    LatticeSurgeryGrid(size_t cols, size_t rows) : _rows(rows), _cols(cols) {
+        _patches.resize(_cols, std::vector<LatticeSurgeryQubit*>(_rows, nullptr));
+        for (size_t col = 0; col < _cols; ++col) {
+            for (size_t row = 0; row < _rows; ++row) {
+            auto* qubit = new LatticeSurgeryQubit();
+            qubit->set_id(_max_patch_id);
+            _max_patch_id++;
+            _patches[col][row] = qubit;
+            _patch_list.push_back(qubit);
+            }
         }
+        fmt::println("create patch with size (col, row)=({},{})", _cols, _rows);
     }
 
     // Basic access methods
     size_t get_rows() const { return _rows; }
     size_t get_cols() const { return _cols; }
-    size_t get_num_patches() const { return _rows * _cols; }
-    LatticeSurgeryQubit& get_patch(size_t row, size_t col) { return _patches[row * _cols + col]; }
-    LatticeSurgeryQubit const& get_patch(size_t row, size_t col) const { return _patches[row * _cols + col]; }
-    LatticeSurgeryQubit& get_patch(size_t id) { return _patches[id]; }
-    LatticeSurgeryQubit const& get_patch(size_t id) const { return _patches[id]; }
+    size_t get_num_patches() const { return _patch_list.size(); }
+    LatticeSurgeryQubit* get_patch(size_t col, size_t row) { return _patches[col][row]; }
+    LatticeSurgeryQubit* get_patch(size_t col, size_t row) const { return _patches[col][row]; }
+    LatticeSurgeryQubit* get_patch(size_t id) { return _patch_list[id]; }
+    LatticeSurgeryQubit* get_patch(size_t id) const { return _patch_list[id]; }
 
     // Grid operations
-    bool is_valid_position(size_t row, size_t col) const {
+    bool is_valid_position(size_t col, size_t row) const {
         return row < _rows && col < _cols;
     }
     size_t get_patch_id(size_t row, size_t col) const {
-        return row * _cols + col;
+        return _patches[col][row]->get_id();
     }
     std::pair<size_t, size_t> get_patch_position(size_t id) const {
         return {id / _cols, id % _cols};
     }
+
+    // Get current ID
+    size_t get_max_id() const { return _max_patch_id; }
 
     // Adjacency operations
     bool are_adjacent(size_t id1, size_t id2) const {
@@ -73,7 +83,9 @@ public:
 private:
     size_t _rows = 0;
     size_t _cols = 0;
-    std::vector<LatticeSurgeryQubit> _patches;
+    size_t _max_patch_id = 0;
+    std::vector<std::vector<LatticeSurgeryQubit*>> _patches; // (col, row)
+    std::vector<LatticeSurgeryQubit*> _patch_list;
 };
 
 } // namespace qsyn::latticesurgery 

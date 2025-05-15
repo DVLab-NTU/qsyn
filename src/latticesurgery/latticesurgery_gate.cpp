@@ -8,6 +8,7 @@
 #include "latticesurgery/latticesurgery_gate.hpp"
 
 #include <algorithm>
+#include <sstream>
 #include <fmt/core.h>
 #include <spdlog/spdlog.h>
 
@@ -18,14 +19,34 @@ LatticeSurgeryGate::LatticeSurgeryGate(size_t id, LatticeSurgeryOpType op_type, 
     if (!qubit_id_is_unique(_qubits)) {
         throw std::runtime_error("Duplicate qubit IDs in gate");
     }
-}
+};
 
 std::string LatticeSurgeryGate::get_type_str() const {
+    std::ostringstream measure_op;
     switch (_op_type) {
         case LatticeSurgeryOpType::merge:
             return "merge";
         case LatticeSurgeryOpType::split:
             return "split";
+        case LatticeSurgeryOpType::measure:
+            assert(!_measure.empty());
+            measure_op << "M";
+            for (auto measure_type : _measure) {
+                switch (measure_type) {
+                    case MeasureType::x:
+                        measure_op << "X"; // Append "X" for X measurement
+                        break;
+                    case MeasureType::y:
+                        measure_op << "Y"; // Append "Y" for Y measurement
+                        break;
+                    case MeasureType::z:
+                        measure_op << "Z"; // Append "Z" for Z measurement
+                        break;
+                    default:
+                        measure_op << "-"; // Handle unexpected measure_type
+                }
+            }
+            return measure_op.str();
         default:
             return "unknown";
     }

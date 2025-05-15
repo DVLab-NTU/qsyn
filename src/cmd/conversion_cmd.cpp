@@ -9,11 +9,13 @@
 
 #include <spdlog/spdlog.h>
 
+#include <memory>
 #include <string>
 
 #include "argparse/arg_parser.hpp"
 #include "argparse/arg_type.hpp"
 #include "cli/cli.hpp"
+#include "cmd/latticesurgery_mgr.hpp"
 #include "cmd/qcir_mgr.hpp"
 #include "cmd/tableau_mgr.hpp"
 #include "cmd/tensor_mgr.hpp"
@@ -22,8 +24,10 @@
 #include "convert/qcir_to_tensor.hpp"
 #include "convert/qcir_to_zxgraph.hpp"
 #include "convert/tableau_to_qcir.hpp"
+#include "convert/zxgraph_to_latticesurgery.hpp"
 #include "convert/zxgraph_to_tensor.hpp"
 #include "extractor/extract.hpp"
+#include "latticesurgery/latticesurgery.hpp"
 #include "qcir/qcir.hpp"
 #include "tableau/stabilizer_tableau.hpp"
 #include "tensor/decomposer.hpp"
@@ -115,7 +119,7 @@ Command convert_from_qcir_cmd(
         }};
 }
 
-Command convert_from_zx_cmd(zx::ZXGraphMgr& zxgraph_mgr, QCirMgr& qcir_mgr, tensor::TensorMgr& tensor_mgr) {
+Command convert_from_zx_cmd(zx::ZXGraphMgr& zxgraph_mgr, QCirMgr& qcir_mgr, tensor::TensorMgr& tensor_mgr, latticesurgery::LatticeSurgeryMgr& latticesurgery_mgr) {
     return {
         "zx",
         [&](ArgumentParser& parser) {
@@ -129,6 +133,9 @@ Command convert_from_zx_cmd(zx::ZXGraphMgr& zxgraph_mgr, QCirMgr& qcir_mgr, tens
 
             auto to_tensor = subparsers.add_parser("tensor")
                                  .description("convert from ZXGraph to Tensor");
+
+            auto to_latticesurgery = subparsers.add_parser("latticesurgery")
+                                    .description("convert from ZXGraph tp Lattice Surgery");
 
             to_qcir.add_argument<bool>("-r", "--random")
                 .action(store_true)
@@ -178,6 +185,21 @@ Command convert_from_zx_cmd(zx::ZXGraphMgr& zxgraph_mgr, QCirMgr& qcir_mgr, tens
                     tensor_mgr.get()->add_procedure("ZX2TS");
                 }
                 return CmdExecResult::done;
+            }
+            if (to_type == "latticesurgery"){
+                spdlog::info("Converting ZXGraph {} to Tensor {}...", zxgraph_mgr.focused_id(), latticesurgery_mgr.get_next_id());
+                auto ls = qsyn::to_latticesurgery(zxgraph_mgr.get());
+
+                fmt::println("finish to lattice surgery");
+
+                if(ls){
+                    latticesurgery_mgr.add(latticesurgery_mgr.get_next_id(), std::make_unique<latticesurgery::LatticeSurgery>(*ls));
+                    latticesurgery_mgr.get()->set_filename(zxgraph_mgr.get()->get_filename());
+                    
+                }
+
+                return CmdExecResult::done;
+;
             }
 
             spdlog::error("The conversion is not supported yet!!");
@@ -284,7 +306,7 @@ Command convert_from_tableau_cmd(experimental::TableauMgr& tableau_mgr, qcir::QC
         }};
 }
 
-Command conversion_cmd(QCirMgr& qcir_mgr, qsyn::tensor::TensorMgr& tensor_mgr, qsyn::zx::ZXGraphMgr& zxgraph_mgr, experimental::TableauMgr& tableau_mgr) {
+Command conversion_cmd(QCirMgr& qcir_mgr, qsyn::tensor::TensorMgr& tensor_mgr, qsyn::zx::ZXGraphMgr& zxgraph_mgr, experimental::TableauMgr& tableau_mgr, qsyn::latticesurgery::LatticeSurgeryMgr& latticesurgery_mgr) {
     auto cmd = dvlab::Command{
         "convert",
         [&](ArgumentParser& parser) {
@@ -296,7 +318,7 @@ Command conversion_cmd(QCirMgr& qcir_mgr, qsyn::tensor::TensorMgr& tensor_mgr, q
         }};
 
     cmd.add_subcommand("from-type", convert_from_qcir_cmd(qcir_mgr, zxgraph_mgr, tensor_mgr, tableau_mgr));
-    cmd.add_subcommand("from-type", convert_from_zx_cmd(zxgraph_mgr, qcir_mgr, tensor_mgr));
+    cmd.add_subcommand("from-type", convert_from_zx_cmd(zxgraph_mgr, qcir_mgr, tensor_mgr, latticesurgery_mgr));
     cmd.add_subcommand("from-type", convert_from_tensor_cmd(tensor_mgr, qcir_mgr));
     cmd.add_subcommand("from-type", convert_from_tableau_cmd(tableau_mgr, qcir_mgr));
 
@@ -332,8 +354,8 @@ Command sk_decompose_cmd(qsyn::tensor::TensorMgr& tensor_mgr, QCirMgr& qcir_mgr)
             }};
 }
 
-bool add_conversion_cmds(dvlab::CommandLineInterface& cli, QCirMgr& qcir_mgr, qsyn::tensor::TensorMgr& tensor_mgr, qsyn::zx::ZXGraphMgr& zxgraph_mgr, experimental::TableauMgr& tableau_mgr) {
-    if (!(cli.add_command(conversion_cmd(qcir_mgr, tensor_mgr, zxgraph_mgr, tableau_mgr)) &&
+bool add_conversion_cmds(dvlab::CommandLineInterface& cli, QCirMgr& qcir_mgr, qsyn::tensor::TensorMgr& tensor_mgr, qsyn::zx::ZXGraphMgr& zxgraph_mgr, experimental::TableauMgr& tableau_mgr, qsyn::latticesurgery::LatticeSurgeryMgr& latticesurgery_mgr) {
+    if (!(cli.add_command(conversion_cmd(qcir_mgr, tensor_mgr, zxgraph_mgr, tableau_mgr, latticesurgery_mgr)) &&
           cli.add_command(sk_decompose_cmd(tensor_mgr, qcir_mgr)) &&
           cli.add_alias("qc2zx", "convert qcir zx") &&
           cli.add_alias("qc2ts", "convert qcir tensor") &&
@@ -341,6 +363,7 @@ bool add_conversion_cmds(dvlab::CommandLineInterface& cli, QCirMgr& qcir_mgr, qs
           cli.add_alias("zx2qc", "convert zx qcir") &&
           cli.add_alias("ts2qc", "convert tensor qcir") &&
           cli.add_alias("qc2tabl", "convert qcir tableau") &&
+          cli.add_alias("zx2ls", "convert zx latticesurgery") &&
           cli.add_alias("tabl2qc", "convert tableau qcir"))) {
         fmt::println(stderr, "Registering \"conversion\" commands fails... exiting");
         return false;
