@@ -436,7 +436,7 @@ ZXGraph::add_vertex(std::optional<size_t> id,
  * @return EdgePair
  */
 void ZXGraph::add_edge(ZXVertex* vs, ZXVertex* vt, EdgeType et) {
-    fmt::println("in add edge");
+    
     if (vs == vt) {
         if (!vs->is_zx()) {
             throw std::logic_error(
@@ -612,7 +612,6 @@ size_t ZXGraph::remove_edge(EdgePair const& ep) {
 }
 
 size_t ZXGraph::remove_edge(size_t v0_id, size_t v1_id, EdgeType et) {
-    fmt::println("in remove edge");
     if (!is_v_id(v0_id)) {
         spdlog::warn("Vertex with id {} does not exist", v0_id);
         return 0;

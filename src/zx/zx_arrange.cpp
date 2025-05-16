@@ -8,6 +8,7 @@
 #include "qsyn/qsyn_type.hpp"
 #include "zx/zx_def.hpp"
 #include "zx/zxgraph.hpp"
+#include "zx/zxgraph_action.hpp"
 #include <fstream>
 #include <sstream>
 #include <queue>
@@ -81,27 +82,9 @@ void Arranger::hadamard_edge_absorb(){
     for(size_t i=start_index; i<_vertex_map.size()-1; i+=2){
         fmt::println("i={}: ", i);
         for(size_t j=0; j<_vertex_map[0].size(); j++){
-            fmt::print(" {} ", j);
-            fmt::print("Pointer addr: {}\n", fmt::ptr(_vertex_map[i][j]));
-            if(_vertex_map[i][j] == nullptr) continue;
-            fmt::println("before reverse_type");
-            _vertex_map[i][j]->reverse_type();
-            fmt::println("after reverse type");
-            if(_graph->get_neighbors(_vertex_map[i][j]).empty()) continue;
-            fmt::println("num neighbor: {}", _graph->get_neighbors(_vertex_map[i][j]).size());
-            for(const auto& [neighbor, edge]: _graph->get_neighbors(_vertex_map[i][j])){
-                fmt::println("in neighbor get edge");
-                if(edge == EdgeType::simple){
-                    _graph->remove_edge(std::make_pair(std::make_pair(neighbor, _vertex_map[i][j]), edge));
-                    _graph->add_edge(neighbor, _vertex_map[i][j], EdgeType::hadamard);
-                    // fmt::print("v");
-                }
-                else{
-                    _graph->remove_edge(std::make_pair(std::make_pair(neighbor, _vertex_map[i][j]), edge));
-                    _graph->add_edge(neighbor, _vertex_map[i][j], EdgeType::simple);
-                    // fmt::print("v");
-                }
-            }
+            fmt::println("j={}, ptr={}", j, static_cast<void*>(_vertex_map[i][j]));
+            if(_vertex_map[i][j] == NULL || _vertex_map[i][j]->is_boundary()) continue;
+            toggle_vertex(*_graph, _vertex_map[i][j]->get_id());
         }
     }
 
