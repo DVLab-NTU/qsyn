@@ -2,6 +2,7 @@
 #include <fmt/core.h>
 
 #include <cstddef>
+#include <memory>
 #include <utility>
 #include <vector>
 #include "qsyn/qsyn_type.hpp"
@@ -51,7 +52,7 @@ void Arranger::hadamard_edge_absorb(){
     
     // estimate the hadamard cost if start with Z spiders
     for(size_t i=2; i<_vertex_map.size(); i+=2){
-        for(size_t j=0; j<_graph->num_inputs(); j++){
+        for(size_t j=0; j<_vertex_map[0].size(); j++){
             if(_vertex_map[i][j] == NULL) continue;
             for(const auto& [neighbor, edge]: _graph->get_neighbors(_vertex_map[i][j])){
                 if(edge == EdgeType::simple) cost_z_start ++;
@@ -63,7 +64,7 @@ void Arranger::hadamard_edge_absorb(){
 
     // estimate the hadamard cost if start with X spiders
     for(size_t i=1; i<_vertex_map.size(); i+=2){
-        for(size_t j=0; j<_graph->num_inputs(); j++){
+        for(size_t j=0; j<_vertex_map[0].size(); j++){
             if(_vertex_map[i][j] == NULL) continue;
             for(const auto& [neighbor, edge]: _graph->get_neighbors(_vertex_map[i][j])){
                 if(edge == EdgeType::simple) cost_x_start ++;
@@ -75,19 +76,21 @@ void Arranger::hadamard_edge_absorb(){
     fmt::println("z start cost: {} x start cost: {}", cost_z_start, cost_x_start);
     // absorb with smaller cost
     size_t start_index = 2;
-    size_t num_row = _graph->num_inputs();
     fmt::println("vertex map size: {}", _vertex_map.size());
     if(cost_z_start > cost_x_start) start_index=1;
     for(size_t i=start_index; i<_vertex_map.size()-1; i+=2){
-        fmt::println(" ");
         fmt::println("i={}: ", i);
-        for(size_t j=0; j<num_row; j++){
+        for(size_t j=0; j<_vertex_map[0].size(); j++){
             fmt::print(" {} ", j);
-            if(_vertex_map[i][j] == NULL) continue;
+            fmt::print("Pointer addr: {}\n", fmt::ptr(_vertex_map[i][j]));
+            if(_vertex_map[i][j] == nullptr) continue;
+            fmt::println("before reverse_type");
             _vertex_map[i][j]->reverse_type();
+            fmt::println("after reverse type");
             if(_graph->get_neighbors(_vertex_map[i][j]).empty()) continue;
+            fmt::println("num neighbor: {}", _graph->get_neighbors(_vertex_map[i][j]).size());
             for(const auto& [neighbor, edge]: _graph->get_neighbors(_vertex_map[i][j])){
-                
+                fmt::println("in neighbor get edge");
                 if(edge == EdgeType::simple){
                     _graph->remove_edge(std::make_pair(std::make_pair(neighbor, _vertex_map[i][j]), edge));
                     _graph->add_edge(neighbor, _vertex_map[i][j], EdgeType::hadamard);

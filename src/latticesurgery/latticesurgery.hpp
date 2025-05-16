@@ -82,6 +82,10 @@ public:
     size_t append(LatticeSurgeryGate const& gate);
     size_t prepend(LatticeSurgeryGate const& gate);
     bool remove_gate(size_t id);
+    void add_logical_patch(size_t col, size_t row){
+        fmt::println("add logical patch: ({},{})", col, row);
+    }; // TODO
+
 
     // Grid access methods
     LatticeSurgeryGrid& get_grid() { return _grid; }
@@ -100,20 +104,20 @@ public:
     void init_logical_tracking(size_t num_patches) { _init_logical_tracking(num_patches); }
 
     // Merge/Split operations
-    bool merge_patches(std::vector<QubitIdType> const& patch_ids);
-    bool merge_patches(std::vector<QubitIdType> patch_ids, std::vector<MeasureType> measure_types);
-    bool split_patches(std::vector<QubitIdType> const& patch_ids);
+    bool merge_patches(std::vector<QubitIdType> const& patch_ids); // TO CHECK
+    bool merge_patches(std::vector<QubitIdType> patch_ids, std::vector<MeasureType> measure_types); // TO CHECK
+    bool split_patches(std::vector<QubitIdType> const& patch_ids); // TO CHECK
     bool check_connectivity(std::vector<QubitIdType> const& patch_ids) const;
     bool check_same_logical_id(std::vector<QubitIdType> const& patch_ids) const;
     QubitIdType get_smallest_logical_id(std::vector<QubitIdType> const& patch_ids) const;
     QubitIdType find_logical_id(QubitIdType patch_id) const;
     void union_logical_ids(QubitIdType id1, QubitIdType id2);
     void split_logical_ids(std::vector<QubitIdType> const& group1, std::vector<QubitIdType> const& group2);
-    void one_to_n(std::pair<size_t,size_t> start_id, std::vector<std::pair<size_t,size_t>>& id_lists);
-    void n_to_one(std::vector<std::pair<size_t,size_t>>& init_patches, std::pair<size_t,size_t> dest_patch);
-    void hadamard(size_t col, size_t row);
-    void hadamard(std::pair<size_t, size_t> start, std::pair<size_t, size_t> dest); // start: the original patch needed hadamard, dest: the adjecent patch to adjust set back the orientation of the patch
-    void discard_patch(QubitIdType id, MeasureType measure_type);
+    void one_to_n(std::pair<size_t,size_t> start_id, std::vector<std::pair<size_t,size_t>>& id_lists); // TO CHECK
+    void n_to_one(std::vector<std::pair<size_t,size_t>>& init_patches, std::pair<size_t,size_t> dest_patch); // TO CHECK
+    void hadamard(size_t col, size_t row); // TO CHECK
+    void hadamard(std::pair<size_t, size_t> start, std::pair<size_t, size_t> dest); // TO CHECK start: the original patch needed hadamard, dest: the adjecent patch to adjust set back the orientation of the patch
+    void discard_patch(QubitIdType id, MeasureType measure_type); // TO CHECK
 
 
     // I/O methods

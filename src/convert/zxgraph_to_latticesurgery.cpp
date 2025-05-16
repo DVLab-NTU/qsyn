@@ -25,6 +25,11 @@ std::optional<LatticeSurgery> to_latticesurgery(const zx::ZXGraph* zxgraph){
     // create result lattice surgery
     LatticeSurgery result{std::max(zxgraph->num_inputs(), zxgraph->num_outputs()), std::max(zxgraph->num_inputs(), zxgraph->num_outputs())};
 
+    // initialize logical patch in lattice surgery
+    for(size_t i=0; i< zxgraph->num_inputs(); i++){
+        result.add_logical_patch(i, i);
+    }
+
 
     // get the frontier zx vertices for each row
     std::vector<ZXVertex*> frontiers(zxgraph->num_inputs(), nullptr);
