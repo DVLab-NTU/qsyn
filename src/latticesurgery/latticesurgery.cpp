@@ -340,7 +340,10 @@ void LatticeSurgery::print_gates(bool print_neighbors, std::span<size_t> gate_id
     auto const repr_print_width =
         std::ranges::max(_id_to_gates | std::views::values |
                          std::views::transform([](auto const& gate) {
-                             return std::string(gate->get_operation_type() == LatticeSurgeryOpType::merge ? "Merge" : "Split").size();
+                             return std::string(
+                                 gate->get_operation_type() == LatticeSurgeryOpType::merge ? "Merge" : 
+                                 gate->get_operation_type() == LatticeSurgeryOpType::split ? "Split" : "Measure"
+                             ).size();
                          }));
     auto const time_print_width =
         std::to_string(std::ranges::max(times | std::views::values)).size();
@@ -348,14 +351,46 @@ void LatticeSurgery::print_gates(bool print_neighbors, std::span<size_t> gate_id
     auto const print_one_gate([&](size_t id) {
         auto const gate   = get_gate(id);
         auto const qubits = gate->get_qubits();
+        std::string op_type_str;
+        switch (gate->get_operation_type()) {
+            case LatticeSurgeryOpType::merge:
+                op_type_str = "Merge";
+                break;
+            case LatticeSurgeryOpType::split:
+                op_type_str = "Split";
+                break;
+            case LatticeSurgeryOpType::measure:
+                op_type_str = "Measure";
+                break;
+            default:
+                op_type_str = "Unknown";
+                break;
+        }
+        
         fmt::println("{0:>{1}} (t={2:>{3}}): {4:<{5}} {6:>5}", id, id_print_width,
                      times.at(id), time_print_width,
-                     gate->get_operation_type() == LatticeSurgeryOpType::merge ? "Merge" : "Split", 
+                     op_type_str, 
                      repr_print_width,
                      fmt::join(qubits | std::views::transform([](QubitIdType qid) {
                                    return fmt::format("q[{}]", qid);
                                }),
                                ", "));
+        
+        // For measure operations, display the measure types
+        if (gate->get_operation_type() == LatticeSurgeryOpType::measure) {
+            auto const& measure_types = gate->get_measure_types();
+            if (!measure_types.empty()) {
+                fmt::println("  Measure types: {}", fmt::join(measure_types | std::views::transform([](MeasureType type) {
+                    switch (type) {
+                        case MeasureType::x: return "X";
+                        case MeasureType::y: return "Y";
+                        case MeasureType::z: return "Z";
+                        default: return "Unknown";
+                    }
+                }), ", "));
+            }
+        }
+        
         if (print_neighbors) {
             print_predecessors(id);
             print_successors(id);
@@ -385,19 +420,23 @@ void LatticeSurgery::print_ls() const {
 void LatticeSurgery::print_ls_info() const {
     size_t num_merge = 0;
     size_t num_split = 0;
-    for (size_t i = 0; i < get_num_gates(); ++i) {
-        auto const gate = get_gate(i);
-        if (gate->get_operation_type() == LatticeSurgeryOpType::merge) {
+    size_t num_measure = 0;
+    for (auto const& [id, gate] : _id_to_gates) {
+        auto op_type = gate->get_operation_type();
+        if (op_type == LatticeSurgeryOpType::merge) {
             num_merge++;
-        } else {
+        } else if (op_type == LatticeSurgeryOpType::split) {
             num_split++;
+        } else if (op_type == LatticeSurgeryOpType::measure) {
+            num_measure++;
         }
     }
-    fmt::println("LS ({} qubits, {} operations, {} Merge, {} Split, {} depths)",
+    fmt::println("LS ({} qubits, {} operations, {} Merge, {} Split, {} Measure, {} depths)",
                 get_num_qubits(),
                 get_num_gates(),
                 num_merge,
                 num_split,
+                num_measure,
                 calculate_depth());
 }
 
@@ -413,6 +452,9 @@ bool LatticeSurgery::check_connectivity(std::vector<QubitIdType> const& patch_id
     while (!q.empty()) {
         QubitIdType current = q.front();
         q.pop();
+
+        // Print debug info
+        auto adjacents = get_adjacent_patches(current);
 
         // Check all adjacent patches
         for (QubitIdType adj : get_adjacent_patches(current)) {
@@ -455,6 +497,12 @@ QubitIdType LatticeSurgery::get_smallest_logical_id(std::vector<QubitIdType> con
 }
 
 void LatticeSurgery::_init_logical_tracking(size_t num_patches) {
+    fmt::println("Initializing logical tracking with {} patches", num_patches);
+    if (num_patches == 0) {
+        fmt::println("WARNING: Attempted to initialize logical tracking with 0 patches");
+        num_patches = 1; // Ensure at least one patch
+    }
+    
     _logical_parent.resize(num_patches);
     _logical_rank.resize(num_patches, 0);
     for (size_t i = 0; i < num_patches; ++i) {
@@ -465,6 +513,12 @@ void LatticeSurgery::_init_logical_tracking(size_t num_patches) {
 QubitIdType LatticeSurgery::_find_logical_id(QubitIdType id) const {
     // Since we can't modify _logical_parent in a const function,
     // we'll just return the current parent without path compression
+    // Check if the id is within the valid range
+    if (id >= _logical_parent.size()) {
+        fmt::println("WARNING: Attempt to find logical ID of patch {} but _logical_parent size is only {}", 
+                    id, _logical_parent.size());
+        return id; // Return the id itself as a fallback
+    }
     if (_logical_parent[id] != id) {
         return _find_logical_id(_logical_parent[id]);
     }
@@ -473,6 +527,13 @@ QubitIdType LatticeSurgery::_find_logical_id(QubitIdType id) const {
 
 // Add a non-const version for internal use
 QubitIdType LatticeSurgery::_find_logical_id_with_compression(QubitIdType id) {
+    // Check if the id is within the valid range
+    if (id >= _logical_parent.size()) {
+        fmt::println("WARNING: Attempt to find and compress logical ID of patch {} but _logical_parent size is only {}", 
+                    id, _logical_parent.size());
+        return id; // Return the id itself as a fallback
+    }
+    
     if (_logical_parent[id] != id) {
         _logical_parent[id] = _find_logical_id_with_compression(_logical_parent[id]);  // Path compression
     }
@@ -495,6 +556,25 @@ void LatticeSurgery::_union_logical_ids(QubitIdType id1, QubitIdType id2) {
         _logical_rank[root1]++;
     }
 }
+
+size_t LatticeSurgery::get_patch_id(size_t col, size_t row) const {
+    // Check if coordinates are within grid bounds
+    if (col >= get_grid_cols() || row >= get_grid_rows()) {
+        fmt::println("WARNING: Attempted to access patch at ({}, {}), but grid size is {}x{}", 
+                   col, row, get_grid_cols(), get_grid_rows());
+        return 0; // Return a default value
+    }
+    
+    // Get the patch and check if it's null
+    LatticeSurgeryQubit* patch = get_patch(col, row);
+    if (patch == nullptr) {
+        fmt::println("WARNING: Null patch at ({}, {})", col, row);
+        return 0;
+    }
+    
+    return patch->get_id();
+}
+
 
 std::vector<std::vector<QubitIdType>> LatticeSurgery::_get_connected_components(std::vector<QubitIdType> const& patch_ids) const {
     std::vector<std::vector<QubitIdType>> components;
@@ -553,6 +633,15 @@ std::vector<std::vector<QubitIdType>> LatticeSurgery::_get_connected_components(
 }
 
 bool LatticeSurgery::merge_patches(std::vector<QubitIdType> const& patch_ids) {
+    // Check for empty arguments
+    if (patch_ids.empty()) {
+        fmt::println("WARNING: Cannot merge empty patch list");
+        return false;
+    }
+    
+    // Debug: print all patch IDs
+    fmt::println("Patches to merge (without measure types): {}", fmt::join(patch_ids, ", "));
+    
     // Check if patches are connected
     if (!check_connectivity(patch_ids)) {
         spdlog::error("Cannot merge patches: patches are not connected");
@@ -574,11 +663,43 @@ bool LatticeSurgery::merge_patches(std::vector<QubitIdType> const& patch_ids) {
 }
 
 bool LatticeSurgery::merge_patches(std::vector<QubitIdType> patch_ids, std::vector<MeasureType> measure_types){
+    // Check for empty arguments
+    if (patch_ids.empty()) {
+        fmt::println("WARNING: Cannot merge empty patch list");
+        return false;
+    }
+    
+    if (measure_types.empty()) {
+        fmt::println("WARNING: No measure types provided for merge");
+        return false;
+    }
+    
+    // Debug: print all patch IDs
+    fmt::println("Patches to merge: {}", fmt::join(patch_ids, ", "));
+    
+    // Validate all patch IDs exist
+    for (auto id : patch_ids) {
+        if (get_patch(id) == nullptr) {
+            fmt::println("WARNING: Cannot merge non-existent patch with ID {}", id);
+            return false;
+        }
+    }
+    
+    // Check all patches are within the grid bounds before checking connectivity
+    for (auto id : patch_ids) {
+        if (id >= get_num_qubits()) {
+            fmt::println("WARNING: Patch ID {} is out of bounds (max: {})", id, get_num_qubits()-1);
+            return false;
+        }
+    }
+    
+    
     // Check if patches are connected
     if (!check_connectivity(patch_ids)) {
         spdlog::error("Cannot merge patches: patches are not connected");
         return false;
     }
+    
 
     // Union all patches into one logical qubit
     for (size_t i = 1; i < patch_ids.size(); ++i) {
@@ -655,8 +776,6 @@ bool LatticeSurgery::split_patches(std::vector<QubitIdType> const& patch_ids) {
 
     append({LatticeSurgeryOpType::split, patch_ids});
 
-
-
     return true;
 }
 
@@ -668,44 +787,57 @@ void LatticeSurgery::hadamard(size_t col, size_t row){
     
 };
 
-
 void LatticeSurgery::hadamard(std::pair<size_t, size_t> start, std::pair<size_t, size_t> dest){
     auto [start_col, start_row] = start;
     auto [dest_col, dest_row]= dest;
     auto start_id = get_patch(start_col, start_row)->get_id();
     auto dest_id = get_patch(dest_col, dest_row)->get_id();
 
-    // hadamard(start_col, start_row);
+    hadamard(start_col, start_row);
 
     assert(!get_patch(dest_col, dest_row)->occupied() 
             && (start_col == dest_col || start_row == dest_row));
 
     if(start_col == dest_col){
         auto col_measure_type = get_patch(start_id)->get_td_type();
-        // merge_patches({get_patch(start_id)->get_id(), get_patch(dest_id)->get_id()}, {col_measure_type, MeasureType::y});
-        // discard_patch(start_id, col_measure_type);
+        merge_patches({get_patch(start_id)->get_id(), get_patch(dest_id)->get_id()}, {col_measure_type, MeasureType::y});
+        discard_patch(start_id, col_measure_type);
     }
     else{
         auto row_measure_type = get_patch(start_id)->get_lr_type();
-        // merge_patches({get_patch(start_id)->get_id(), get_patch(dest_id)->get_id()}, {row_measure_type, MeasureType::y});
-        // discard_patch(start_id, row_measure_type);
+        merge_patches({get_patch(start_id)->get_id(), get_patch(dest_id)->get_id()}, {row_measure_type, MeasureType::y});
+        discard_patch(start_id, row_measure_type);
     }
 
 };
 
 void LatticeSurgery::discard_patch(QubitIdType id, MeasureType measure_type){
+    // Check if the patch exists
+    LatticeSurgeryQubit* patch = get_patch(id);
+    if (patch == nullptr) {
+        fmt::println("WARNING: Cannot discard non-existent patch with ID {}", id);
+        return;
+    }
 
-    assert(get_patch(id)->occupied());
+    // Check if the patch is occupied
+    if (!patch->occupied()) {
+        fmt::println("WARNING: Attempting to discard unoccupied patch with ID {}", id);
+        return; // The patch is already unoccupied
+    }
 
     // measure out the patch to reset
     append({LatticeSurgeryOpType::measure, {id}, {measure_type}});
 
     // set the patch to ancilla
-    get_patch(id)->set_occupied(false);
-
+    patch->set_occupied(false);
 };
 
 void LatticeSurgery::one_to_n(std::pair<size_t,size_t> start_patch, std::vector<std::pair<size_t,size_t>>& patch_list){
+    // Handle empty patch_list case
+    if (patch_list.empty() || (patch_list.size() == 1 && patch_list[0] == start_patch)) {
+        return;
+    }
+    
     auto [xs, ys]=start_patch;
     auto [xl, yl]=start_patch;
     std::vector<size_t> merge_list;
@@ -720,35 +852,74 @@ void LatticeSurgery::one_to_n(std::pair<size_t,size_t> start_patch, std::vector<
     if(xs == xl){ // |
         std::vector<bool> check_discard(yl-ys+1, true);
         for(auto [_, y]: patch_list) check_discard[y-ys] = false;
+        
+        // Check if all patches on the path (except start and destinations) are unoccupied
+        for(size_t i=0; i<check_discard.size(); i++){
+            // Skip occupied patches that are our destinations
+            if(!check_discard[i]) continue;
+            
+            // Check if the patch is occupied
+            size_t patch_id = get_patch_id(xs, ys+i);
+            if(get_patch(patch_id)->occupied()) {
+                fmt::println("ERROR: Cannot merge - patch at ({}, {}) with ID {} is already occupied", 
+                             xs, ys+i, patch_id);
+                fmt::println("Aborting one_to_n due to occupied patches in the path");
+                return;
+            }
+        }
+        
+        
+        fmt::println("check discard size {}", check_discard.size());
         for(size_t i=0; i<check_discard.size(); i++){
             merge_list.emplace_back(get_patch_id(xs, ys+i));
             if(check_discard[i]) discard_list.emplace_back(get_patch_id(xs, ys+i));
         }
-        // merge_patches(merge_list, {get_patch(merge_list.front())->get_td_type()});
-        // for(auto d: discard_list){
-        //     discard_patch(d, get_patch(d)->get_td_type());
-        // }
+        merge_patches(merge_list, {get_patch(merge_list.front())->get_td_type()});
+        for(auto d: discard_list){
+            discard_patch(d, get_patch(d)->get_td_type());
+        }
     }
     else if(ys == yl){ // <->
         std::vector<bool> check_discard(xl-xs+1, true);
         for(auto [x, _]: patch_list) check_discard[x-xs] = false;
+        
+        // Check if all patches on the path (except start and destinations) are unoccupied
+        for(size_t i=0; i<check_discard.size(); i++){
+            // Skip occupied patches that are our destinations
+            if(!check_discard[i]) continue;
+            
+            // Check if the patch is occupied
+            size_t patch_id = get_patch_id(xs+i, ys);
+            if(get_patch(patch_id)->occupied()) {
+                fmt::println("ERROR: Cannot merge - patch at ({}, {}) with ID {} is already occupied", 
+                             xs+i, ys, patch_id);
+                fmt::println("Aborting one_to_n due to occupied patches in the path");
+                return;
+            }
+        }
+        
+        
         for(size_t i=0; i<check_discard.size(); i++){
             merge_list.emplace_back(get_patch_id(xs+i, ys));
             if(check_discard[i]) discard_list.emplace_back(get_patch_id(xs+i, ys));
         }
-        // merge_patches(merge_list, {get_patch(merge_list.front())->get_lr_type()});
-        // for(auto d: discard_list){
-        //     discard_patch(d, get_patch(d)->get_lr_type());
-        // }
+        merge_patches(merge_list, {get_patch(merge_list.front())->get_lr_type()});
+        for(auto d: discard_list){
+            discard_patch(d, get_patch(d)->get_lr_type());
+        }
     }
     else{
         fmt::println("Not yet develop");
     }
 
-
 };
 
 void LatticeSurgery::n_to_one(std::vector<std::pair<size_t,size_t>>& patch_list, std::pair<size_t,size_t> dest_patch){
+    // Handle empty patch_list case
+    if (patch_list.empty() || (patch_list.size() == 1 && patch_list[0] == dest_patch)) {
+        return;
+    }
+    
     auto [xs, ys]=dest_patch;
     auto [xl, yl]=dest_patch;
     std::vector<size_t> merge_list;
@@ -763,26 +934,64 @@ void LatticeSurgery::n_to_one(std::vector<std::pair<size_t,size_t>>& patch_list,
     if(xs == xl){ // |
         std::vector<bool> check_discard(yl-ys+1, true);
         check_discard[dest_patch.second-ys] = false;
+        
+        // Check if all patches on the path (except source and destination) are unoccupied
+        for(size_t i=0; i<check_discard.size(); i++){
+            // Skip if this is our destination patch
+            if(i == dest_patch.second-ys) continue;
+            
+            // Get the patch ID
+            size_t patch_id = get_patch_id(xs, ys+i);
+            
+            // If it's not a source patch and it's occupied, we can't merge
+            if(check_discard[i] && get_patch(patch_id)->occupied()) {
+                fmt::println("ERROR: Cannot merge - patch at ({}, {}) with ID {} is already occupied", 
+                             xs, ys+i, patch_id);
+                fmt::println("Aborting n_to_one due to occupied patches in the path");
+                return;
+            }
+        }
+        
+        
         for(size_t i=0; i<check_discard.size(); i++){
             merge_list.emplace_back(get_patch_id(xs, ys+i));
             if(check_discard[i]) discard_list.emplace_back(get_patch_id(xs, ys+i));
         }
-        // merge_patches(merge_list, {get_patch(merge_list.front())->get_td_type()});
-        // for(auto d: discard_list){
-        //     discard_patch(d, get_patch(d)->get_td_type());
-        // }
+        merge_patches(merge_list, {get_patch(merge_list.front())->get_td_type()});
+        for(auto d: discard_list){
+            discard_patch(d, get_patch(d)->get_td_type());
+        }
     }
     else if(ys == yl){ // <->
         std::vector<bool> check_discard(xl-xs+1, true);
         check_discard[dest_patch.first-xs] = false;
+        
+        // Check if all patches on the path (except source and destination) are unoccupied
+        for(size_t i=0; i<check_discard.size(); i++){
+            // Skip if this is our destination patch
+            if(i == dest_patch.first-xs) continue;
+            
+            // Get the patch ID
+            size_t patch_id = get_patch_id(xs+i, ys);
+            
+            // If it's not a source patch and it's occupied, we can't merge
+            if(check_discard[i] && get_patch(patch_id)->occupied()) {
+                fmt::println("ERROR: Cannot merge - patch at ({}, {}) with ID {} is already occupied", 
+                             xs+i, ys, patch_id);
+                fmt::println("Aborting n_to_one due to occupied patches in the path");
+                return;
+            }
+        }
+        
+        
         for(size_t i=0; i<check_discard.size(); i++){
             merge_list.emplace_back(get_patch_id(xs+i, ys));
             if(check_discard[i]) discard_list.emplace_back(get_patch_id(xs+i, ys));
         }
-        // merge_patches(merge_list, {get_patch(merge_list.front())->get_lr_type()});
-        // for(auto d: discard_list){
-        //     discard_patch(d, get_patch(d)->get_lr_type());
-        // }
+        merge_patches(merge_list, {get_patch(merge_list.front())->get_lr_type()});
+        for(auto d: discard_list){
+            discard_patch(d, get_patch(d)->get_lr_type());
+        }
     }
     else{
         fmt::println("Not yet develop");

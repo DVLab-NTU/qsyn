@@ -96,7 +96,7 @@ public:
     LatticeSurgeryQubit* get_patch(size_t col, size_t row) const { return _grid.get_patch(col, row); }
     LatticeSurgeryQubit* get_patch(size_t id) { return _grid.get_patch(id); }
     LatticeSurgeryQubit* get_patch(size_t id) const { return _grid.get_patch(id); }
-    size_t get_patch_id(size_t col, size_t row) const { return get_patch(col, row)->get_id();}
+    size_t get_patch_id(size_t col, size_t row) const;
     bool are_patches_adjacent(size_t id1, size_t id2) const { return _grid.are_adjacent(id1, id2); }
     std::vector<size_t> get_adjacent_patches(size_t id) const { return _grid.get_adjacent_patches(id); }
 
