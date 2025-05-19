@@ -82,6 +82,14 @@ struct MstSynthesisStrategy : public PartialPauliRotationsSynthesisStrategy {
     partial_synthesize(PauliRotationTableau const& rotations) const override;
 };
 
+struct GeneralizedMstSynthesisStrategy: public PartialPauliRotationsSynthesisStrategy {
+    std::optional<qcir::QCir>
+    synthesize(PauliRotationTableau const& rotations) const override;
+
+    std::optional<PartialSynthesisResult>
+    partial_synthesize(PauliRotationTableau const& rotations) const override;
+};
+
 std::optional<qcir::QCir> to_qcir(
     StabilizerTableau const& clifford,
     StabilizerTableauSynthesisStrategy const& strategy);
