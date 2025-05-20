@@ -62,6 +62,7 @@ public:
 
     // Get current ID
     size_t get_max_id() const { return _max_patch_id; }
+    // void set_max_id(size_t s) { _max_patch_id=s; }
 
     // Adjacency operations
     bool are_adjacent(size_t id1, size_t id2) const {

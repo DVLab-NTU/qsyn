@@ -31,7 +31,7 @@ void LatticeSurgeryGrid::print_grid() const {
     for (size_t row = 0; row < _rows; ++row) {
         fmt::print("{:3} ", row);
         for (size_t col = 0; col < _cols; ++col) {
-            size_t id = get_patch_id(row, col);
+            size_t id = get_patch_id(col, row);
             auto const& patch = _patch_list[id];
             fmt::print("{:4}", patch->get_logical_id());
         }
@@ -48,7 +48,7 @@ void LatticeSurgeryGrid::print_patch_info(size_t id) const {
     auto [row, col] = get_patch_position(id);
     auto const& patch = _patch_list[id];
 
-    fmt::println("Patch {} at position ({}, {}):", id, row, col);
+    fmt::println("Patch {} at position ({}, {}):", id, col, row);
     fmt::println("  Physical ID: {}", patch->get_id());
     fmt::println("  Logical ID: {}", patch->get_logical_id());
     

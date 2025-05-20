@@ -84,6 +84,10 @@ public:
     bool remove_gate(size_t id);
     void add_logical_patch(size_t col, size_t row){
         fmt::println("add logical patch: ({},{})", col, row);
+        get_patch(col, row)->set_occupied(true);
+        get_patch(col, row)->set_logical_id(get_patch(col, row)->get_id());
+        // get_patch(col, row)->set_logical_id(_grid.get_max_id()+1);
+        // _grid.set_max_id(_grid.get_max_id()+1);
     }; // TODO
 
 
@@ -130,6 +134,7 @@ public:
     void print_ls() const;
     void print_ls_info() const;
     void print_grid() const { _grid.print_grid(); }
+    void print_occupied();
 
     // Gate connection methods
     std::optional<size_t> get_predecessor(std::optional<size_t> gate_id, size_t pin) const;

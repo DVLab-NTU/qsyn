@@ -5,6 +5,7 @@
 #include "zx/zx_def.hpp"
 #include "zx/zxgraph.hpp"
 #include <cstddef>
+#include <iterator>
 #include <limits>
 #include <queue>
 #include <ranges>
@@ -26,11 +27,13 @@ std::optional<LatticeSurgery> to_latticesurgery(const zx::ZXGraph* zxgraph){
     LatticeSurgery result{std::max(zxgraph->num_inputs(), zxgraph->num_outputs()), std::max(zxgraph->num_inputs(), zxgraph->num_outputs())};
 
     // initialize logical patch in lattice surgery
+    result.init_logical_tracking(std::max(zxgraph->num_inputs(), zxgraph->num_outputs()) * std::max(zxgraph->num_inputs(), zxgraph->num_outputs()));
+
     for(size_t i=0; i< zxgraph->num_inputs(); i++){
         result.add_logical_patch(i, i);
     }
-    result.init_logical_tracking(std::max(zxgraph->num_inputs(), zxgraph->num_outputs()) * std::max(zxgraph->num_inputs(), zxgraph->num_outputs()));
-
+    result.print_grid();
+    result.print_occupied();
 
 
     // get the frontier zx vertices for each row
@@ -51,7 +54,9 @@ std::optional<LatticeSurgery> to_latticesurgery(const zx::ZXGraph* zxgraph){
         // set next_frontier to frontier, so we will get frontier if there is no merge and split needed for this col
         for(size_t index=0; index < frontiers.size(); index++){
             next_frontiers[index] = frontiers[index];
+            fmt::print("{} ", frontiers[index]->get_id());
         }
+        fmt::println("");
 
         // orientation (for next frontier), default orientation z <-> x |
         VertexType orientation = VertexType::boundary;
@@ -77,11 +82,17 @@ std::optional<LatticeSurgery> to_latticesurgery(const zx::ZXGraph* zxgraph){
             for(auto [neighbor, edge]: zxgraph->get_neighbors(frontier)){
                 if(neighbor->get_col() == frontier_col+1){
                     exist_neighbor = true;
-                    next_frontiers[neighbor->get_row()] = neighbor;
-                    split_index[neighbor->get_row()] = (edge == EdgeType::simple)? 1 : 2; // simple edge: 1, hadamard edge: 2
                     if(orientation == VertexType::boundary){
                         orientation = neighbor->type();
                     }
+                    next_frontiers[neighbor->get_row()] = neighbor;
+                    split_index[neighbor->get_row()] = (edge == EdgeType::simple)? 1 : 2; // simple edge: 1, hadamard edge: 2
+                    if(edge == EdgeType::hadamard) count_hadamard++;
+                    count_split ++;
+                }
+                else if(neighbor->get_col() > frontier_col){
+                    next_frontiers[neighbor->get_row()] = neighbor;
+                    split_index[neighbor->get_row()] = (edge == EdgeType::simple)? 1 : 2; // simple edge: 1, hadamard edge: 2
                     if(edge == EdgeType::hadamard) count_hadamard++;
                     count_split ++;
                 }
@@ -160,8 +171,7 @@ std::optional<LatticeSurgery> to_latticesurgery(const zx::ZXGraph* zxgraph){
                     }
                 }
                 result.one_to_n(std::make_pair(index, index), split_id_list);
-                fmt::println("finish in on hadamard");
-
+                fmt::println("finish in no hadamard");
                 continue;
             }
 
@@ -418,6 +428,7 @@ std::optional<LatticeSurgery> to_latticesurgery(const zx::ZXGraph* zxgraph){
         for(size_t i=0; i<merge_patches.size(); i++){
             result.n_to_one(merge_patches[i], std::make_pair(i, i));
         }
+        result.print_occupied();
         std::swap(frontiers, next_frontiers);
         frontier_col++;
     }

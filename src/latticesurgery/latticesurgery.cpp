@@ -6,6 +6,7 @@
 ****************************************************************************/
 
 #include "latticesurgery/latticesurgery.hpp"
+#include <fmt/core.h>
 #include "latticesurgery/latticesurgery_gate.hpp"
 #include "latticesurgery/latticesurgery_io.hpp"
 #include "qsyn/qsyn_type.hpp"
@@ -506,8 +507,9 @@ void LatticeSurgery::_init_logical_tracking(size_t num_patches) {
     _logical_parent.resize(num_patches);
     _logical_rank.resize(num_patches, 0);
     for (size_t i = 0; i < num_patches; ++i) {
-        _logical_parent[i] = i;  // Each patch starts as its own logical qubit
+        _logical_parent[i] = get_patch(i)->get_id();  // Each patch starts as its own logical qubit
     }
+    
 }
 
 QubitIdType LatticeSurgery::_find_logical_id(QubitIdType id) const {
@@ -677,16 +679,14 @@ bool LatticeSurgery::merge_patches(std::vector<QubitIdType> patch_ids, std::vect
     // Debug: print all patch IDs
     fmt::println("Patches to merge: {}", fmt::join(patch_ids, ", "));
     
-    // Validate all patch IDs exist
+    
     for (auto id : patch_ids) {
+        // Validate all patch IDs exist
         if (get_patch(id) == nullptr) {
             fmt::println("WARNING: Cannot merge non-existent patch with ID {}", id);
             return false;
         }
-    }
-    
-    // Check all patches are within the grid bounds before checking connectivity
-    for (auto id : patch_ids) {
+        // Check all patches are within the grid bounds before checking connectivity
         if (id >= get_num_qubits()) {
             fmt::println("WARNING: Patch ID {} is out of bounds (max: {})", id, get_num_qubits()-1);
             return false;
@@ -757,8 +757,10 @@ bool LatticeSurgery::split_patches(std::vector<QubitIdType> const& patch_ids) {
             QubitIdType new_logical_id = *std::min_element(components[i].begin(), 
                                                          components[i].end());
             
+            
             // Assign the new logical ID to all patches in this component
             for (QubitIdType patch_id : components[i]) {
+
                 get_patch(patch_id)->set_logical_id(new_logical_id);
                 _logical_parent[patch_id] = new_logical_id;
                 _logical_rank[patch_id] = 0;
@@ -795,6 +797,8 @@ void LatticeSurgery::hadamard(std::pair<size_t, size_t> start, std::pair<size_t,
 
     hadamard(start_col, start_row);
 
+    fmt::println("occupied: {}, start: ({},{}), dest: ({},{})", get_patch(dest_col, dest_row)->occupied(), start_col, start_row, dest_col, dest_row);    
+
     assert(!get_patch(dest_col, dest_row)->occupied() 
             && (start_col == dest_col || start_row == dest_row));
 
@@ -808,6 +812,8 @@ void LatticeSurgery::hadamard(std::pair<size_t, size_t> start, std::pair<size_t,
         merge_patches({get_patch(start_id)->get_id(), get_patch(dest_id)->get_id()}, {row_measure_type, MeasureType::y});
         discard_patch(start_id, row_measure_type);
     }
+    fmt::println("hadamard");
+    print_occupied();
 
 };
 
@@ -830,6 +836,7 @@ void LatticeSurgery::discard_patch(QubitIdType id, MeasureType measure_type){
 
     // set the patch to ancilla
     patch->set_occupied(false);
+    patch->set_logical_id(0);
 };
 
 void LatticeSurgery::one_to_n(std::pair<size_t,size_t> start_patch, std::vector<std::pair<size_t,size_t>>& patch_list){
@@ -853,10 +860,10 @@ void LatticeSurgery::one_to_n(std::pair<size_t,size_t> start_patch, std::vector<
         std::vector<bool> check_discard(yl-ys+1, true);
         for(auto [_, y]: patch_list) check_discard[y-ys] = false;
         
-        // Check if all patches on the path (except start and destinations) are unoccupied
+        // Check if all patches on the path (except START) are unoccupied
         for(size_t i=0; i<check_discard.size(); i++){
             // Skip occupied patches that are our destinations
-            if(!check_discard[i]) continue;
+            if(i == start_patch.second-ys) continue;
             
             // Check if the patch is occupied
             size_t patch_id = get_patch_id(xs, ys+i);
@@ -868,12 +875,14 @@ void LatticeSurgery::one_to_n(std::pair<size_t,size_t> start_patch, std::vector<
             }
         }
         
+        fmt::println("1ton dest size {}", patch_list.size());
+        fmt::println("1ton merge size {}", check_discard.size());
         
-        fmt::println("check discard size {}", check_discard.size());
         for(size_t i=0; i<check_discard.size(); i++){
             merge_list.emplace_back(get_patch_id(xs, ys+i));
             if(check_discard[i]) discard_list.emplace_back(get_patch_id(xs, ys+i));
         }
+        fmt::println("1ton discard size {}", discard_list.size());
         merge_patches(merge_list, {get_patch(merge_list.front())->get_td_type()});
         for(auto d: discard_list){
             discard_patch(d, get_patch(d)->get_td_type());
@@ -883,10 +892,10 @@ void LatticeSurgery::one_to_n(std::pair<size_t,size_t> start_patch, std::vector<
         std::vector<bool> check_discard(xl-xs+1, true);
         for(auto [x, _]: patch_list) check_discard[x-xs] = false;
         
-        // Check if all patches on the path (except start and destinations) are unoccupied
+        // Check if all patches on the path (except START) are unoccupied
         for(size_t i=0; i<check_discard.size(); i++){
             // Skip occupied patches that are our destinations
-            if(!check_discard[i]) continue;
+            if(i == start_patch.first-xs) continue;
             
             // Check if the patch is occupied
             size_t patch_id = get_patch_id(xs+i, ys);
@@ -911,6 +920,9 @@ void LatticeSurgery::one_to_n(std::pair<size_t,size_t> start_patch, std::vector<
     else{
         fmt::println("Not yet develop");
     }
+    fmt::println("one to n");
+    print_grid();
+    print_occupied();
 
 };
 
@@ -934,11 +946,14 @@ void LatticeSurgery::n_to_one(std::vector<std::pair<size_t,size_t>>& patch_list,
     if(xs == xl){ // |
         std::vector<bool> check_discard(yl-ys+1, true);
         check_discard[dest_patch.second-ys] = false;
+
+        std::vector<bool> check_occupied(yl-ys+1, true);
+        for(auto [_, y]: patch_list) check_occupied[y-ys] = false;
         
-        // Check if all patches on the path (except source and destination) are unoccupied
+        // Check if all patches on the path (except START) are unoccupied
         for(size_t i=0; i<check_discard.size(); i++){
             // Skip if this is our destination patch
-            if(i == dest_patch.second-ys) continue;
+            if(!check_occupied[i] || i == dest_patch.second-ys) continue;
             
             // Get the patch ID
             size_t patch_id = get_patch_id(xs, ys+i);
@@ -965,11 +980,14 @@ void LatticeSurgery::n_to_one(std::vector<std::pair<size_t,size_t>>& patch_list,
     else if(ys == yl){ // <->
         std::vector<bool> check_discard(xl-xs+1, true);
         check_discard[dest_patch.first-xs] = false;
+
+        std::vector<bool> check_occupied(xl-xs+1, true);
+        for(auto [x, _]: patch_list) check_occupied[x-xs] = false;
         
         // Check if all patches on the path (except source and destination) are unoccupied
         for(size_t i=0; i<check_discard.size(); i++){
             // Skip if this is our destination patch
-            if(i == dest_patch.first-xs) continue;
+            if(!check_occupied[i] || i == dest_patch.first-xs) continue;
             
             // Get the patch ID
             size_t patch_id = get_patch_id(xs+i, ys);
@@ -996,6 +1014,21 @@ void LatticeSurgery::n_to_one(std::vector<std::pair<size_t,size_t>>& patch_list,
     else{
         fmt::println("Not yet develop");
     }
+    fmt::println("n to one");
+    print_grid();
+    print_occupied();
 };
+
+void LatticeSurgery::print_occupied(){
+    fmt::println("");
+    fmt::println("LS Occupied Status:");
+    for(size_t y=0; y<get_grid_cols(); y++){
+        for(size_t x=0; x<get_grid_rows(); x++){
+            fmt::print("{} ", (int) get_patch(x,y)->occupied());
+        }
+        fmt::print("\n");
+    }
+    fmt::println("");
+}
 
 } // namespace qsyn::latticesurgery
