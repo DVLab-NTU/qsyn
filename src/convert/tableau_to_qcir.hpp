@@ -15,11 +15,14 @@ namespace qsyn {
 
 namespace tableau {
 
+using PauliRotationTableau = std::vector<PauliRotation>;
+
 namespace detail {
 void add_clifford_gate(qcir::QCir& qcir, CliffordOperator const& op);
+void add_clifford_gate(PauliRotationTableau& rotations, CliffordOperator const& op);
+void prepend_clifford_gate(StabilizerTableau& tableau, CliffordOperator const& op);
 }  // namespace detail
 
-using PauliRotationTableau = std::vector<PauliRotation>;
 
 struct PauliRotationsSynthesisStrategy {
 public:
@@ -51,6 +54,12 @@ struct PartialPauliRotationsSynthesisStrategy
 };
 
 struct NaivePauliRotationsSynthesisStrategy
+    : public PauliRotationsSynthesisStrategy {
+    std::optional<qcir::QCir>
+    synthesize(PauliRotationTableau const& rotations) const override;
+};
+
+struct BasicPauliRotationsSynthesisStrategy
     : public PauliRotationsSynthesisStrategy {
     std::optional<qcir::QCir>
     synthesize(PauliRotationTableau const& rotations) const override;

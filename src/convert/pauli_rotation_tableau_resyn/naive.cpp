@@ -1,4 +1,3 @@
-
 #include "convert/tableau_to_qcir.hpp"
 #include "qcir/basic_gate_type.hpp"
 #include "qcir/qcir.hpp"

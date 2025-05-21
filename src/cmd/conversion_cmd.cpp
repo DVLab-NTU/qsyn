@@ -236,7 +236,7 @@ Command convert_from_tableau_cmd(tableau::TableauMgr& tableau_mgr, qcir::QCirMgr
                 .help("specify the Clifford synthesis strategy (default: hopt).");
 
             to_qcir.add_argument<std::string>("-r", "--rotation")
-                .constraint(choices_allow_prefix({"naive", "graysynth", "gstair", "mst", "pmst"}))
+                .constraint(choices_allow_prefix({"naive", "basic", "graysynth", "gstair", "mst", "pmst"}))
                 .default_value("naive")
                 .help("specify the rotation synthesis strategy (default: naive).");
 
@@ -295,6 +295,9 @@ Command convert_from_tableau_cmd(tableau::TableauMgr& tableau_mgr, qcir::QCirMgr
                         if (is_prefix_of(rotation_strategy_str, "naive"))
                             return std::make_unique<
                                 NaivePauliRotationsSynthesisStrategy>();
+                        if (is_prefix_of(rotation_strategy_str, "basic"))
+                            return std::make_unique<
+                                BasicPauliRotationsSynthesisStrategy>();
                         if (is_prefix_of(rotation_strategy_str, "graysynth"))
                             return std::make_unique<GraySynthStrategy>();
                         if (is_prefix_of(rotation_strategy_str, "gstair"))

@@ -22,8 +22,9 @@ namespace qsyn::tableau {
 
 namespace detail {
 
+using COT = CliffordOperatorType;
+
 void add_clifford_gate(qcir::QCir& qcir, CliffordOperator const& op) {
-    using COT                  = CliffordOperatorType;
     auto const& [type, qubits] = op;
 
     switch (type) {
@@ -64,6 +65,84 @@ void add_clifford_gate(qcir::QCir& qcir, CliffordOperator const& op) {
             qcir.append(qcir::ECRGate(), {qubits[0], qubits[1]});
             break;
     }
+}
+
+void add_clifford_gate(PauliRotationTableau& rotations, CliffordOperator const& op) {
+    auto const& [type, qubits] = op;
+
+    switch (type) {
+        case COT::h:
+            for(auto& rot : rotations) {
+                rot.h(qubits[0]);
+            }
+            break;
+        case COT::s:
+            for(auto& rot : rotations) {
+                rot.s(qubits[0]);
+            }
+            break;
+        case COT::cx:
+            for(auto& rot : rotations) {
+                rot.cx(qubits[0], qubits[1]);
+            }
+            break;
+        case COT::v:
+            for(auto& rot : rotations) {
+                rot.h(qubits[0]);
+                rot.s(qubits[0]);
+                rot.h(qubits[0]);
+            }
+            break;
+        default:
+            spdlog::error("Invalid Clifford operator type {}. The operation is skipped.", to_string(type));
+            break;
+    }
+}
+
+void prepend_clifford_gate(StabilizerTableau& tableau, CliffordOperator const& op) {
+    auto const& [type, qubits] = op;
+
+    switch (type) {
+        case COT::h:
+            tableau.prepend_h(qubits[0]);
+            break;
+        case COT::s:
+            tableau.prepend_s(qubits[0]);
+            break;
+        case COT::cx:
+            tableau.prepend_cx(qubits[0], qubits[1]);
+            break;
+        case COT::sdg:
+            tableau.prepend_sdg(qubits[0]);
+            break;
+        case COT::v:
+            tableau.prepend_v(qubits[0]);
+            break;
+        case COT::vdg:
+            tableau.prepend_vdg(qubits[0]);
+            break;
+        case COT::x:
+            tableau.prepend_x(qubits[0]);
+            break;
+        case COT::y:
+            tableau.prepend_y(qubits[0]);
+            break;
+        case COT::z:
+            tableau.prepend_z(qubits[0]);
+            break;
+        case COT::cz:
+            tableau.prepend_cz(qubits[0], qubits[1]);
+            break;
+        case COT::swap:
+            tableau.prepend_swap(qubits[0], qubits[1]);
+            break;
+        case COT::ecr:
+            tableau.prepend_ecr(qubits[0], qubits[1]);
+            break;
+        default:
+            spdlog::error("Invalid Clifford operator type {}. The operation is skipped.", to_string(type));
+            break;
+    }  
 }
 
 }  // namespace detail
