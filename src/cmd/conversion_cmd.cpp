@@ -28,6 +28,7 @@
 #include "tableau/stabilizer_tableau.hpp"
 #include "tensor/decomposer.hpp"
 #include "tensor/solovay_kitaev.hpp"
+#include "tensor/solovay_kitaev_all.hpp"
 #include "util/data_structure_manager_common_cmd.hpp"
 #include "util/dvlab_string.hpp"
 #include "util/util.hpp"
@@ -332,9 +333,37 @@ Command sk_decompose_cmd(qsyn::tensor::TensorMgr& tensor_mgr, QCirMgr& qcir_mgr)
             }};
 }
 
+Command sk_all_cmd(qcir::QCirMgr& qcir_mgr) {
+    return {"sk-all",
+            [&](ArgumentParser& parser) {
+                parser.description("apply Solovay-Kitaev decomposition to all rotation gates in the QCir");
+                parser.add_argument<size_t>("-d", "--depth")
+                    .required(true)
+                    .help("the depth of the gate list");
+                parser.add_argument<size_t>("-r", "--recursion")
+                    .required(true)
+                    .help("the recursion level of Solovay-Kitaev algorithm");
+            },
+            [&](ArgumentParser const& parser) {
+                if (!dvlab::utils::mgr_has_data(qcir_mgr)) return CmdExecResult::error;
+
+                size_t depth = parser.get<size_t>("--depth");
+                size_t recursion = parser.get<size_t>("--recursion");
+
+                spdlog::info("Applying Solovay-Kitaev to all RX/RY/RZ gates in QCir {}...", qcir_mgr.focused_id());
+
+                qsyn::tensor::solovay_kitaev_all(qcir_mgr, depth, recursion);
+
+                qcir_mgr.get()->add_procedure("SK-All");
+
+                return CmdExecResult::done;
+            }};
+}
+
 bool add_conversion_cmds(dvlab::CommandLineInterface& cli, QCirMgr& qcir_mgr, qsyn::tensor::TensorMgr& tensor_mgr, qsyn::zx::ZXGraphMgr& zxgraph_mgr, experimental::TableauMgr& tableau_mgr) {
     if (!(cli.add_command(conversion_cmd(qcir_mgr, tensor_mgr, zxgraph_mgr, tableau_mgr)) &&
           cli.add_command(sk_decompose_cmd(tensor_mgr, qcir_mgr)) &&
+          cli.add_command(sk_all_cmd(qcir_mgr)) &&
           cli.add_alias("qc2zx", "convert qcir zx") &&
           cli.add_alias("qc2ts", "convert qcir tensor") &&
           cli.add_alias("zx2ts", "convert zx tensor") &&
