@@ -746,6 +746,7 @@ bool LatticeSurgery::merge_patches(std::vector<QubitIdType> patch_ids, std::vect
 };
 
 bool LatticeSurgery::split_patches(std::vector<QubitIdType> const& patch_ids) {
+    fmt::println("Patches to split: {}", fmt::join(patch_ids, ", "));
     // Check if patches are connected and have the same logical ID
     if (!check_connectivity(patch_ids)) {
         spdlog::error("Cannot split patches: patches are not connected");
@@ -788,7 +789,7 @@ bool LatticeSurgery::split_patches(std::vector<QubitIdType> const& patch_ids) {
             // Assign the new logical ID to all patches in this component
             for (QubitIdType patch_id : components[i]) {
 
-                get_patch(patch_id)->set_logical_id(new_logical_id);
+                get_patch(patch_id)->set_logical_id(new_logical_id+1);
                 _logical_parent[patch_id] = new_logical_id;
                 _logical_rank[patch_id] = 0;
             }
@@ -852,7 +853,7 @@ void LatticeSurgery::discard_patch(QubitIdType id, MeasureType measure_type){
         return;
     }
 
-    fmt::println("Patch to discard: ({}, {})" , id/get_grid_cols(), id%get_grid_cols());
+    fmt::println("Patch to discard: {}", id);
 
     // Check if the patch is occupied
     if (!patch->occupied()) {
@@ -913,6 +914,7 @@ void LatticeSurgery::one_to_n(std::pair<size_t,size_t> start_patch, std::vector<
         }
         fmt::println("1ton discard size {}", discard_list.size());
         merge_patches(merge_list, {get_patch(merge_list.front())->get_td_type()});
+        split_patches(merge_list);
         for(auto d: discard_list){
             discard_patch(d, get_patch(d)->get_td_type());
         }
@@ -942,6 +944,7 @@ void LatticeSurgery::one_to_n(std::pair<size_t,size_t> start_patch, std::vector<
             if(check_discard[i]) discard_list.emplace_back(get_patch_id(xs+i, ys));
         }
         merge_patches(merge_list, {get_patch(merge_list.front())->get_lr_type()});
+        split_patches(merge_list);
         for(auto d: discard_list){
             discard_patch(d, get_patch(d)->get_lr_type());
         }
@@ -1002,6 +1005,7 @@ void LatticeSurgery::n_to_one(std::vector<std::pair<size_t,size_t>>& patch_list,
             if(check_discard[i]) discard_list.emplace_back(get_patch_id(xs, ys+i));
         }
         merge_patches(merge_list, {get_patch(merge_list.front())->get_td_type()});
+        split_patches(merge_list);  
         for(auto d: discard_list){
             discard_patch(d, get_patch(d)->get_td_type());
         }
@@ -1036,6 +1040,7 @@ void LatticeSurgery::n_to_one(std::vector<std::pair<size_t,size_t>>& patch_list,
             if(check_discard[i]) discard_list.emplace_back(get_patch_id(xs+i, ys));
         }
         merge_patches(merge_list, {get_patch(merge_list.front())->get_lr_type()});
+        split_patches(merge_list);
         for(auto d: discard_list){
             discard_patch(d, get_patch(d)->get_lr_type());
         }
