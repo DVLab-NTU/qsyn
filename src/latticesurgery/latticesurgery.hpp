@@ -85,7 +85,7 @@ public:
     void add_logical_patch(size_t col, size_t row){
         fmt::println("add logical patch: ({},{})", col, row);
         get_patch(col, row)->set_occupied(true);
-        get_patch(col, row)->set_logical_id(get_patch(col, row)->get_id());
+        get_patch(col, row)->set_logical_id(get_patch(col, row)->get_id()+1);
         // get_patch(col, row)->set_logical_id(_grid.get_max_id()+1);
         // _grid.set_max_id(_grid.get_max_id()+1);
     }; // TODO
@@ -127,6 +127,8 @@ public:
     // I/O methods
     bool write_ls(std::filesystem::path const& filepath) const;
     bool read_ls(std::filesystem::path const& filepath);
+    bool write_lasre(std::filesystem::path const& filepath) const;
+    std::string to_lasre() const;
 
     // Reporting methods
     void print_gates(bool print_neighbors = false,

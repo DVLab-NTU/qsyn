@@ -650,15 +650,30 @@ bool LatticeSurgery::merge_patches(std::vector<QubitIdType> const& patch_ids) {
         return false;
     }
 
+    // Find the smallest non-zero logical ID among the patches
+    QubitIdType smallest_logical_id = std::numeric_limits<QubitIdType>::max();
+    bool found_non_zero = false;
+    for (QubitIdType patch_id : patch_ids) {
+        QubitIdType logical_id = get_patch(patch_id)->get_logical_id();
+        if (logical_id != 0 && logical_id < smallest_logical_id) {
+            smallest_logical_id = logical_id;
+            found_non_zero = true;
+        }
+    }
+
+    // If no non-zero logical ID found, use the first patch's ID
+    if (!found_non_zero) {
+        smallest_logical_id = patch_ids[0];
+    }
+
     // Union all patches into one logical qubit
     for (size_t i = 1; i < patch_ids.size(); ++i) {
         _union_logical_ids(patch_ids[0], patch_ids[i]);
     }
 
     // Update logical IDs for all patches
-    QubitIdType target_logical_id = _find_logical_id_with_compression(patch_ids[0]);
     for (QubitIdType patch_id : patch_ids) {
-        get_patch(patch_id)->set_logical_id(target_logical_id);
+        get_patch(patch_id)->set_logical_id(smallest_logical_id);
     }
 
     return true;
@@ -679,7 +694,6 @@ bool LatticeSurgery::merge_patches(std::vector<QubitIdType> patch_ids, std::vect
     // Debug: print all patch IDs
     fmt::println("Patches to merge: {}", fmt::join(patch_ids, ", "));
     
-    
     for (auto id : patch_ids) {
         // Validate all patch IDs exist
         if (get_patch(id) == nullptr) {
@@ -693,13 +707,27 @@ bool LatticeSurgery::merge_patches(std::vector<QubitIdType> patch_ids, std::vect
         }
     }
     
-    
     // Check if patches are connected
     if (!check_connectivity(patch_ids)) {
         spdlog::error("Cannot merge patches: patches are not connected");
         return false;
     }
-    
+
+    // Find the smallest non-zero logical ID among the patches
+    QubitIdType smallest_logical_id = std::numeric_limits<QubitIdType>::max();
+    bool found_non_zero = false;
+    for (QubitIdType patch_id : patch_ids) {
+        QubitIdType logical_id = get_patch(patch_id)->get_logical_id();
+        if (logical_id != 0 && logical_id < smallest_logical_id) {
+            smallest_logical_id = logical_id;
+            found_non_zero = true;
+        }
+    }
+
+    // If no non-zero logical ID found, use the first patch's ID
+    if (!found_non_zero) {
+        smallest_logical_id = patch_ids[0];
+    }
 
     // Union all patches into one logical qubit
     for (size_t i = 1; i < patch_ids.size(); ++i) {
@@ -707,9 +735,8 @@ bool LatticeSurgery::merge_patches(std::vector<QubitIdType> patch_ids, std::vect
     }
 
     // Update logical IDs for all patches
-    QubitIdType target_logical_id = _find_logical_id_with_compression(patch_ids[0]);
     for (QubitIdType patch_id : patch_ids) {
-        get_patch(patch_id)->set_logical_id(target_logical_id);
+        get_patch(patch_id)->set_logical_id(smallest_logical_id);
         get_patch(patch_id)->set_occupied(true);
     }
 
@@ -824,6 +851,8 @@ void LatticeSurgery::discard_patch(QubitIdType id, MeasureType measure_type){
         fmt::println("WARNING: Cannot discard non-existent patch with ID {}", id);
         return;
     }
+
+    fmt::println("Patch to discard: ({}, {})" , id/get_grid_cols(), id%get_grid_cols());
 
     // Check if the patch is occupied
     if (!patch->occupied()) {
