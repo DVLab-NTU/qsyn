@@ -116,18 +116,44 @@ dvlab::Command latticesurgery_write_cmd(LatticeSurgeryMgr const& ls_mgr) {
         [](ArgumentParser& parser) {
             parser.description("write LatticeSurgery circuit to a file");
 
-            parser.add_argument<std::string>("output_path")
+            auto mutex = parser.add_mutually_exclusive_group();
+
+            mutex.add_argument<std::string>("output_path")
                 .nargs(NArgsOption::optional)
                 .constraint(path_writable)
                 .constraint(allowed_extension({".ls"}))
                 .help(
                     "the filepath to output file. Supported extension: .ls. If "
                     "not specified, the result will be dumped to the terminal");
+
+            mutex.add_argument<std::string>("-lasre", "--lasre")
+                .nargs(NArgsOption::optional)
+                .constraint(path_writable)
+                .constraint(allowed_extension({".json"}))
+                .help(
+                    "write the circuit in LaSRe format. Supported extension: .json. If "
+                    "not specified, the result will be dumped to the terminal");
         },
         [&](ArgumentParser const& parser) {
             if (!dvlab::utils::mgr_has_data(ls_mgr))
                 return CmdExecResult::error;
 
+            // Handle LaSRe format
+            if (parser.parsed("--lasre")) {
+                auto const output_path = parser.get<std::string>("--lasre");
+                if (output_path.empty()) {
+                    fmt::print("{}\n", ls_mgr.get()->to_lasre());
+                } else {
+                    if (!ls_mgr.get()->write_lasre(output_path)) {
+                        spdlog::error("Failed to write LaSRe format to file: {}", output_path);
+                        return CmdExecResult::error;
+                    }
+                    fmt::println("Successfully wrote LaSRe format to {}", output_path);
+                }
+                return CmdExecResult::done;
+            }
+
+            // Handle original .ls format
             auto const output_path = parser.get<std::string>("output_path");
             if (output_path.empty()) {
                 ls_mgr.get()->print_ls();
@@ -136,6 +162,7 @@ dvlab::Command latticesurgery_write_cmd(LatticeSurgeryMgr const& ls_mgr) {
                     spdlog::error("Failed to write to file: {}", output_path);
                     return CmdExecResult::error;
                 }
+                fmt::println("Successfully wrote LS format to {}", output_path);
             }
             return CmdExecResult::done;
         }};
