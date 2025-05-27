@@ -107,7 +107,7 @@ std::string LatticeSurgery::to_lasre() const {
   }
   // fmt::println("gate depth: {}, gate time: {}", gate_depth, n_k);
   
-  // n_k = gate_depth+1;
+  n_k = gate_depth+1;
   
   data["n_i"] = n_i;
   data["n_j"] = n_j;
@@ -329,7 +329,7 @@ std::string LatticeSurgery::to_lasre() const {
     fmt::print("\n");
     if(gate->get_operation_type() == LatticeSurgeryOpType::measure && gate->get_num_qubits() == 1){ // discard patch
       auto patch = gate->get_qubits().front();
-      data["ExistK"][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = 0;
+      for(auto d = gate->get_depth(); d < gate_depth; d++) data["ExistK"][patch_pos[patch].first][patch_pos[patch].second][d] = 0;
     } 
     else if(gate->get_operation_type() == LatticeSurgeryOpType::measure){ // merge
       bool x_direction = patch_pos[gate->get_qubits()[0]].first == patch_pos[gate->get_qubits()[1]].first;
@@ -342,7 +342,7 @@ std::string LatticeSurgery::to_lasre() const {
         for(size_t i=0; i< gate->get_num_qubits(); i++){
           auto patch = gate->get_qubits()[i];
           if(max_y != patch_pos[patch].second) data["ExistJ"][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = 1;
-          data["ExistK"][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = 1;
+          for(auto d = gate->get_depth(); d < gate_depth; d++) data["ExistK"][patch_pos[patch].first][patch_pos[patch].second][d] = 1;
           data["CorrJI"][1][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = 1;
           data["CorrKJ"][1][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = 1;
         }
@@ -356,7 +356,7 @@ std::string LatticeSurgery::to_lasre() const {
         for(size_t i=0; i< gate->get_num_qubits(); i++){
           auto patch = gate->get_qubits()[i];
           if(max_x != patch_pos[patch].first) data["ExistI"][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = 1;
-          data["ExistK"][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = 1;
+          for(auto d = gate->get_depth(); d < gate_depth; d++) data["ExistK"][patch_pos[patch].first][patch_pos[patch].second][d] = 1;
           data["CorrIJ"][1][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = 1;
           data["CorrKI"][1][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = 1;
         }
