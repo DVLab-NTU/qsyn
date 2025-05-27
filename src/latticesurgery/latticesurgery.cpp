@@ -88,7 +88,7 @@ bool LatticeSurgery::remove_qubit(QubitIdType qid) {
 
 size_t LatticeSurgery::append(LatticeSurgeryGate const& gate) {
     size_t id = _gate_id++;
-    _id_to_gates[id] = std::make_unique<LatticeSurgeryGate>(id, gate.get_operation_type(), gate.get_qubits(), gate.get_measure_types());
+    _id_to_gates[id] = std::make_unique<LatticeSurgeryGate>(id, gate.get_operation_type(), gate.get_qubits(), gate.get_measure_types(), gate.get_depth());
     _predecessors.emplace(id, std::vector<std::optional<size_t>>(gate.get_qubits().size(), std::nullopt));
     _successors.emplace(id, std::vector<std::optional<size_t>>(gate.get_qubits().size(), std::nullopt));
     auto* g = _id_to_gates[id].get();
@@ -734,13 +734,21 @@ bool LatticeSurgery::merge_patches(std::vector<QubitIdType> patch_ids, std::vect
         _union_logical_ids(patch_ids[0], patch_ids[i]);
     }
 
+    size_t max_depth = 0;
     // Update logical IDs for all patches
     for (QubitIdType patch_id : patch_ids) {
         get_patch(patch_id)->set_logical_id(smallest_logical_id);
         get_patch(patch_id)->set_occupied(true);
+        if(get_patch(patch_id)->get_depth() > max_depth) max_depth = get_patch(patch_id)->get_depth();
     }
 
-    append({LatticeSurgeryOpType::measure, patch_ids, measure_types});
+    // update the depth
+    for(QubitIdType patch_id: patch_ids){
+        get_patch(patch_id)->set_depth(max_depth+1);
+    }
+    
+
+    append({LatticeSurgeryOpType::measure, patch_ids, measure_types, max_depth+1});
 
     return true;
 };
@@ -804,7 +812,12 @@ bool LatticeSurgery::split_patches(std::vector<QubitIdType> const& patch_ids) {
         }
     }
 
-    append({LatticeSurgeryOpType::split, patch_ids});
+    size_t max_depth = 0;
+    for(auto patch_id: patch_ids){
+        if(max_depth < get_patch(patch_id)->get_depth()) max_depth = get_patch(patch_id)->get_depth();
+    }
+
+    append({LatticeSurgeryOpType::split, patch_ids, max_depth+1});
 
     return true;
 }
@@ -862,7 +875,7 @@ void LatticeSurgery::discard_patch(QubitIdType id, MeasureType measure_type){
     }
 
     // measure out the patch to reset
-    append({LatticeSurgeryOpType::measure, {id}, {measure_type}});
+    append({LatticeSurgeryOpType::measure, {id}, {measure_type}, get_patch(id)->get_depth()});
 
     // set the patch to ancilla
     patch->set_occupied(false);

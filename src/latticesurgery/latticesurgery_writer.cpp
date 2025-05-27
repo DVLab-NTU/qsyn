@@ -5,11 +5,14 @@
   Copyright    [ Copyright(c) 2024 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
+#include <fmt/core.h>
 #include <fmt/ostream.h>
+#include <cstddef>
 #include <nlohmann/json.hpp>
 #include <filesystem>
 #include <fstream>
 #include <string>
+#include <utility>
 #include <vector>
 #include <algorithm>
 #include <optional>
@@ -20,6 +23,8 @@
 #include "./latticesurgery_io.hpp"
 
 namespace qsyn::latticesurgery {
+
+using LatticeSurgeryOpType = qsyn::latticesurgery::LatticeSurgeryOpType;
 
 bool LatticeSurgery::write_ls(std::filesystem::path const& filepath) const {
     std::ofstream ofs(filepath);
@@ -89,11 +94,21 @@ std::string LatticeSurgery::to_lasre() const {
   // dimensions
   size_t n_i = get_grid_cols();
   size_t n_j = get_grid_rows();
+  size_t gate_depth = 0;
+  
   auto gate_times = calculate_gate_times();
   size_t n_k = gate_times.empty() 
                ? 1 
                : (std::ranges::max(gate_times | std::views::values) + 1);
-
+  // fmt::println("gate list: {}", _gate_list.size());
+  for(auto gate: _gate_list){
+    if(gate_depth < gate->get_depth()) gate_depth = gate->get_depth();
+    fmt::println("gate {}: {}", gate->get_id(), gate->get_depth());
+  }
+  // fmt::println("gate depth: {}, gate time: {}", gate_depth, n_k);
+  
+  // n_k = gate_depth+1;
+  
   data["n_i"] = n_i;
   data["n_j"] = n_j;
   data["n_k"] = n_k;
@@ -159,62 +174,62 @@ std::string LatticeSurgery::to_lasre() const {
   data["n_p"] = ports.size();
   data["ports"] = std::move(ports);
 
-//  build a map: patch_id -> logical qubit ID
-std::unordered_map<int,QubitIdType> patch_to_logical;
-for (size_t i = 0; i < n_i; ++i) {
-  for (size_t j = 0; j < n_j; ++j) {
-    if (auto* p = get_patch(i,j); p && p->occupied()) {
-      int patch_id = p->get_id();        // or however you store the patch index
-      patch_to_logical[patch_id] = p->get_logical_id();
+  //  build a map: patch_id -> logical qubit ID
+  std::unordered_map<int,QubitIdType> patch_to_logical;
+  for (size_t i = 0; i < n_i; ++i) {
+    for (size_t j = 0; j < n_j; ++j) {
+      if (auto* p = get_patch(i,j); p && p->occupied()) {
+        int patch_id = p->get_id();        // or however you store the patch index
+        patch_to_logical[patch_id] = p->get_logical_id();
+      }
     }
   }
-}
 
-//  build lid->out-port index exactly as before
-std::unordered_map<QubitIdType,int> lid_to_out_port;
-for (int p = 0; p < (int)data["n_p"]; ++p) {
-  if (data["ports"][p]["e"] == "+") {
-    auto i = size_t(data["ports"][p]["i"]),
-         j = size_t(data["ports"][p]["j"]);
-    auto* q = get_patch(i,j);
-    if (q) lid_to_out_port[q->get_logical_id()] = p;
+  //  build lid->out-port index exactly as before
+  std::unordered_map<QubitIdType,int> lid_to_out_port;
+  for (int p = 0; p < (int)data["n_p"]; ++p) {
+    if (data["ports"][p]["e"] == "+") {
+      auto i = size_t(data["ports"][p]["i"]),
+          j = size_t(data["ports"][p]["j"]);
+      auto* q = get_patch(i,j);
+      if (q) lid_to_out_port[q->get_logical_id()] = p;
+    }
   }
-}
 
-//convert patch→logical ID
-json stabs = json::array();
-for (auto const* gate : get_gates()) {
-  if (gate->get_operation_type() != LatticeSurgeryOpType::measure)
-    continue;
+  //convert patch→logical ID
+  json stabs = json::array();
+  for (auto const* gate : get_gates()) {
+    if (gate->get_operation_type() != LatticeSurgeryOpType::measure)
+      continue;
 
-  for (size_t qi = 0; qi < gate->get_qubits().size(); ++qi) {
-    int patch_id = gate->get_qubits()[qi];      // your stored patch index
-    auto  mt       = gate->get_measure_types()[qi];
+    for (size_t qi = 0; qi < gate->get_qubits().size(); ++qi) {
+      int patch_id = gate->get_qubits()[qi];      // your stored patch index
+      auto  mt       = gate->get_measure_types()[qi];
 
-    // translate to logical qubit ID
-    auto it_lid = patch_to_logical.find(patch_id);
-    if (it_lid == patch_to_logical.end()) continue;
-    QubitIdType lid = it_lid->second;
+      // translate to logical qubit ID
+      auto it_lid = patch_to_logical.find(patch_id);
+      if (it_lid == patch_to_logical.end()) continue;
+      QubitIdType lid = it_lid->second;
 
-    // find the corresponding “+” port
-    auto it_p = lid_to_out_port.find(lid);
-    if (it_p == lid_to_out_port.end()) continue;
+      // find the corresponding “+” port
+      auto it_p = lid_to_out_port.find(lid);
+      if (it_p == lid_to_out_port.end()) continue;
 
-    // build a zeroed boundary‐condition vector
-    json stab = json::array();
-    for (size_t p = 0; p < data["n_p"]; ++p)
-      stab.push_back({{"KI",0},{"KJ",0}});
+      // build a zeroed boundary‐condition vector
+      json stab = json::array();
+      for (size_t p = 0; p < data["n_p"]; ++p)
+        stab.push_back({{"KI",0},{"KJ",0}});
 
-    // and mark the right bit on that port
-    int port_idx = it_p->second;
-    if (mt == MeasureType::x)      stab[port_idx]["KI"] = 1;
-    else /* z */                   stab[port_idx]["KJ"] = 1;
+      // and mark the right bit on that port
+      int port_idx = it_p->second;
+      if (mt == MeasureType::x)      stab[port_idx]["KI"] = 1;
+      else /* z */                   stab[port_idx]["KJ"] = 1;
 
-    stabs.push_back(std::move(stab));
+      stabs.push_back(std::move(stab));
+    }
   }
-}
-data["n_s"]   = stabs.size();
-data["stabs"] = std::move(stabs);
+  data["n_s"]   = stabs.size();
+  data["stabs"] = std::move(stabs);
 
 
   // port_cubes = the open cube for each port
@@ -254,7 +269,13 @@ data["stabs"] = std::move(stabs);
     size_t i = P["i"], j = P["j"], k = P["k"];
     if (P["d"] == "K") {
       // bottom ports are at k=0 with e="-", top ports at k=n_k-1 with e="+"
-      data["ExistK"][i][j][k] = 1;
+      if( k == 0){
+        data["ExistK"][i][j][k] = 1;
+      }
+      else{
+        data["ExistK"][i][j][gate_depth] = 1;
+      }
+      
     }
   }
 
@@ -266,24 +287,83 @@ data["stabs"] = std::move(stabs);
     size_t t = gate_times.at(gate->get_id());
     for (auto patch_id : gate->get_qubits()) {
       auto [i,j] = _grid.get_patch_position(patch_id);
-      data["NodeY"][i][j][t] = 1;
+      // data["NodeY"][i][j][t] = 1;
     }
   }
 
   // re‐seed t=0 from your original occupied patches
-  for (size_t i = 0; i < n_i; ++i) {
-    for (size_t j = 0; j < n_j; ++j) {
-      if (auto* p = get_patch(i,j); p && p->occupied()) {
-        // always have a K pipe at time 0
-        data["ExistK"][i][j][0] = 1;
-        // orientation → I‐ or J‐pipe
-        if (p->get_orientation())
-          data["ExistI"][i][j][0] = 1;
-        else
-          data["ExistJ"][i][j][0] = 1;
+  // for (size_t i = 0; i < n_i; ++i) {
+  //   for (size_t j = 0; j < n_j; ++j) {
+  //     if (auto* p = get_patch(i,j); p && p->occupied()) {
+  //       // always have a K pipe at time 0
+  //       // data["ExistK"][i][j][0] = 1;
+  //       // orientation → I‐ or J‐pipe
+  //       // if (p->get_orientation())
+  //       //   data["ExistI"][i][j][0] = 1;
+  //       // else
+  //       //   data["ExistJ"][i][j][0] = 1;
+  //     }
+  //   }
+  // }
+  for(size_t x=0; x<n_i; x++){
+    for(size_t k=0; k<gate_depth; k++){
+      data["ExistK"][x][x][k] = 1;
+    }
+  }
+
+  // append gate info to json
+  std::vector<std::pair<size_t, size_t>> patch_pos(_qubits.size(), std::make_pair(0, 0));
+  for(size_t x=0; x<get_grid_cols(); x++){
+    for(size_t y=0; y<get_grid_rows(); y++){
+      patch_pos[get_patch_id(x, y)].first = x;
+      patch_pos[get_patch_id(x, y)].second = y;
+    }
+  }
+
+  for(auto gate: _gate_list){
+    fmt::print("{}: {} ", gate->get_depth(), gate->get_type_str());
+    for(auto patch: gate->get_qubits()){
+      fmt::print( " ({},{}) ", patch_pos[patch].first, patch_pos[patch].second);
+      
+    }
+    fmt::print("\n");
+    if(gate->get_operation_type() == LatticeSurgeryOpType::measure && gate->get_num_qubits() == 1){ // discard patch
+      auto patch = gate->get_qubits().front();
+      data["ExistK"][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = 0;
+    } 
+    else if(gate->get_operation_type() == LatticeSurgeryOpType::measure){ // merge
+      bool x_direction = patch_pos[gate->get_qubits()[0]].first == patch_pos[gate->get_qubits()[1]].first;
+      if(x_direction){
+        size_t max_y = 0;
+        for(size_t i=0; i<gate->get_num_qubits(); i++){
+          auto patch = gate->get_qubits()[i];
+          if(max_y < patch_pos[patch].second) max_y = patch_pos[patch].second;
+        }
+        for(size_t i=0; i< gate->get_num_qubits(); i++){
+          auto patch = gate->get_qubits()[i];
+          if(max_y != patch_pos[patch].second) data["ExistJ"][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = 1;
+          data["ExistK"][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = 1;
+          data["CorrJI"][1][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = 1;
+          data["CorrKJ"][1][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = 1;
+        }
+      }
+      else{
+        size_t max_x = 0;
+        for(size_t i=0; i<gate->get_num_qubits(); i++){
+          auto patch = gate->get_qubits()[i];
+          if(max_x < patch_pos[patch].first) max_x = patch_pos[patch].first;
+        }
+        for(size_t i=0; i< gate->get_num_qubits(); i++){
+          auto patch = gate->get_qubits()[i];
+          if(max_x != patch_pos[patch].first) data["ExistI"][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = 1;
+          data["ExistK"][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = 1;
+          data["CorrIJ"][1][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = 1;
+          data["CorrKI"][1][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = 1;
+        }
       }
     }
   }
+
 
   // no extra optional stuff
   data["optional"] = json::object();

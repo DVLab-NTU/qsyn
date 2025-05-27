@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <memory>
+#include <stack>
 #include <utility>
 #include <vector>
 #include "qsyn/qsyn_type.hpp"
@@ -39,10 +40,77 @@ void Arranger::arrange(){
     // split the vertex if the neighbor vertice is not at the neighbor columns
     internal_vertex_splitting();
 
+    
+
     // absorb hadamard edge
     hadamard_edge_absorb();
 
+    // split vertices
+    split_vertices();
+
     
+
+    
+}
+
+void Arranger::split_vertices(){
+    for(size_t y=0; y<_vertex_map[0].size(); y++){
+        std::stack<size_t> null_node;
+        int full_node = -1;
+        for(size_t x=1; x<_vertex_map.size()-1; x++){
+            if(_vertex_map[x][y] == nullptr) null_node.push(x);
+            else{
+                full_node = x;
+                if(null_node.empty()) continue;
+                auto cur_vertex = _vertex_map[full_node][y];
+                EdgeType front_edge = EdgeType::simple;
+                ZXVertex* front_node = NULL;
+                for(auto [neighbor, edge]: _graph->get_neighbors(cur_vertex)){
+                    if(neighbor->get_row() == y && neighbor->get_col() < x) {
+                        front_edge = edge;
+                        front_node = neighbor;
+                        break;
+                    }
+                }
+                _graph->remove_edge(std::make_pair(std::make_pair(front_node, cur_vertex), front_edge));
+                while(!null_node.empty()){
+                    auto cur_x = null_node.top();
+                    null_node.pop();
+                    auto new_vertex = _graph->add_vertex(cur_vertex->type(), Phase{0}, y, cur_x);
+                    _vertex_map[cur_x][y] = new_vertex;
+                    // fmt::println("add vertex (smaller output): {} ({},{})", new_vertex->get_id(), new_vertex->get_col(), new_vertex->get_row());
+                    _graph->add_edge(new_vertex, cur_vertex, EdgeType::simple);
+                    if(null_node.empty()) _graph->add_edge(front_node, new_vertex, front_edge);
+                    cur_vertex = new_vertex;
+                }
+            }
+
+        }
+        if(!null_node.empty() && full_node >= 0){
+            auto cur_vertex = _vertex_map[full_node][y];
+            EdgeType back_edge = EdgeType::simple;
+            ZXVertex* back_node = NULL;
+            for(auto [neighbor, edge]: _graph->get_neighbors(cur_vertex)){
+                if(neighbor->get_row() == y && neighbor->get_col() > full_node) {
+                    back_edge = edge;
+                    back_node = neighbor;
+                    break;
+                }
+            }
+            _graph->remove_edge(std::make_pair(std::make_pair(back_node, cur_vertex), back_edge));
+            while(!null_node.empty()){
+                auto cur_x = null_node.top();
+                null_node.pop();
+                auto new_vertex = _graph->add_vertex(cur_vertex->type(), Phase{0}, y, cur_x);
+                _vertex_map[cur_x][y] = new_vertex;
+                // fmt::println("add vertex (smaller output): {} ({},{})", new_vertex->get_id(), new_vertex->get_col(), new_vertex->get_row());
+                if(cur_vertex->get_col() == full_node)_graph->add_edge(new_vertex, cur_vertex, back_edge);
+                else _graph->add_edge(new_vertex, cur_vertex, EdgeType::simple);
+                if(null_node.empty()) _graph->add_edge(back_node, new_vertex, EdgeType::simple);
+                cur_vertex = new_vertex;
+            }
+        }
+    }
 }
 
 void Arranger::hadamard_edge_absorb(){

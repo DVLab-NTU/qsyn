@@ -36,6 +36,7 @@ public:
     void internal_vertex_arrange();
     void internal_vertex_splitting();
     void hadamard_edge_absorb();
+    void split_vertices();
 
 private:
     ZXGraph* _graph;

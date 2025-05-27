@@ -35,12 +35,16 @@ enum class MeasureType{
 class LatticeSurgeryGate {
 public:
     LatticeSurgeryGate(size_t id, LatticeSurgeryOpType op_type, QubitIdList qubits);
-    LatticeSurgeryGate(size_t id, LatticeSurgeryOpType op_type, QubitIdList qubits, std::vector<MeasureType> measure_list)
-        : _id(id), _op_type(op_type), _qubits(std::move(qubits)), _measure(std::move(measure_list)){};
+    LatticeSurgeryGate(size_t id, LatticeSurgeryOpType op_type, QubitIdList qubits, size_t depth)
+        : _id(id), _op_type(op_type), _qubits(std::move(qubits)), _depth(depth){};
+    LatticeSurgeryGate(size_t id, LatticeSurgeryOpType op_type, QubitIdList qubits, std::vector<MeasureType> measure_list, size_t depth)
+        : _id(id), _op_type(op_type), _qubits(std::move(qubits)), _measure(std::move(measure_list)), _depth(depth){};
     LatticeSurgeryGate(LatticeSurgeryOpType op_type, QubitIdList qubits)
         : LatticeSurgeryGate(0, op_type, std::move(qubits)) {};
-    LatticeSurgeryGate(LatticeSurgeryOpType op_type, QubitIdList qubits, std::vector<MeasureType> measure_list)
-        : LatticeSurgeryGate(0, op_type, std::move(qubits), std::move(measure_list)) {};
+    LatticeSurgeryGate(LatticeSurgeryOpType op_type, QubitIdList qubits, size_t depth)
+        : LatticeSurgeryGate(0, op_type, std::move(qubits), depth){};
+    LatticeSurgeryGate(LatticeSurgeryOpType op_type, QubitIdList qubits, std::vector<MeasureType> measure_list, size_t depth)
+        : LatticeSurgeryGate(0, op_type, std::move(qubits), std::move(measure_list), depth) {};
 
     ~LatticeSurgeryGate() = default;
     LatticeSurgeryGate(LatticeSurgeryGate const& other) = default;
@@ -71,6 +75,8 @@ public:
     std::optional<size_t> get_pin_by_qubit(QubitIdType qubit) const;
     size_t get_num_qubits() const { return _qubits.size(); }
     std::vector<MeasureType> get_measure_types() const { return _measure; };
+    void set_depth(size_t t){ _depth = t; }
+    size_t get_depth() const { return _depth; }
 
     bool operator==(LatticeSurgeryGate const& rhs) const;
     bool operator!=(LatticeSurgeryGate const& rhs) const { return !(*this == rhs); }
@@ -82,6 +88,7 @@ protected:
     LatticeSurgeryOpType _op_type;
     std::vector<QubitIdType> _qubits;
     std::vector<MeasureType> _measure;
+    size_t _depth=0;
     
 };
 
