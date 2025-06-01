@@ -1,4 +1,0 @@
-z3-solver==4.12.1.0
-stim
-networkx
-ipykernel
