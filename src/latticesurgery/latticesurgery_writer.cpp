@@ -64,7 +64,7 @@ using json = nlohmann::json;
 
 //-----------------------------------------------------------------------------
 // helpers to build zero-filled arrays
-static json init_3d(size_t ni, size_t nj, size_t nk, int def = 0) {
+static json init_3d(size_t ni, size_t nj, size_t nk, bool def = false) {
   json a = json::array();
   for (size_t i = 0; i < ni; ++i) {
     json row = json::array();
@@ -79,7 +79,7 @@ static json init_3d(size_t ni, size_t nj, size_t nk, int def = 0) {
   return a;
 }
 
-static json init_4d(size_t ni, size_t nj, size_t nk, size_t ns, int def = 0) {
+static json init_4d(size_t ni, size_t nj, size_t nk, size_t ns, bool def = false) {
   json a = json::array();
   for (size_t s = 0; s < ns; ++s)
     a.push_back(init_3d(ni, nj, nk, def));
@@ -211,11 +211,11 @@ std::string LatticeSurgery::to_lasre() const {
       if (it_lid == patch_to_logical.end()) continue;
       QubitIdType lid = it_lid->second;
 
-      // find the corresponding “+” port
+      // find the corresponding "+" port
       auto it_p = lid_to_out_port.find(lid);
       if (it_p == lid_to_out_port.end()) continue;
 
-      // build a zeroed boundary‐condition vector
+      // build a zeroed boundary-condition vector
       json stab = json::array();
       for (size_t p = 0; p < data["n_p"]; ++p)
         stab.push_back({{"KI",0},{"KJ",0}});
@@ -249,55 +249,54 @@ std::string LatticeSurgery::to_lasre() const {
   }
   data["port_cubes"] = std::move(port_cubes);
 
-  // zero‐init all of the SAT arrays
-  data["ExistI"] = init_3d(n_i,n_j,n_k,0);
-  data["ExistJ"] = init_3d(n_i,n_j,n_k,0);
-  data["ExistK"] = init_3d(n_i,n_j,n_k,0);
-  data["ColorI"] = init_3d(n_i,n_j,n_k,0);
-  data["ColorJ"] = init_3d(n_i,n_j,n_k,0);
-  data["NodeY"]  = init_3d(n_i,n_j,n_k,0);
+  // zero-init all of the SAT arrays
+  data["ExistI"] = init_3d(n_i,n_j,n_k,false);
+  data["ExistJ"] = init_3d(n_i,n_j,n_k,false);
+  data["ExistK"] = init_3d(n_i,n_j,n_k,false);
+  data["ColorI"] = init_3d(n_i,n_j,n_k,false);
+  data["ColorJ"] = init_3d(n_i,n_j,n_k,false);
+  data["NodeY"]  = init_3d(n_i,n_j,n_k,false);
 
-  data["CorrIJ"] = init_4d(n_i,n_j,n_k,data["n_s"],0);
-  data["CorrIK"] = init_4d(n_i,n_j,n_k,data["n_s"],0);
-  data["CorrJI"] = init_4d(n_i,n_j,n_k,data["n_s"],0);
-  data["CorrJK"] = init_4d(n_i,n_j,n_k,data["n_s"],0);
-  data["CorrKI"] = init_4d(n_i,n_j,n_k,data["n_s"],0);
-  data["CorrKJ"] = init_4d(n_i,n_j,n_k,data["n_s"],0);
+  data["CorrIJ"] = init_4d(n_i,n_j,n_k,data["n_s"],false);
+  data["CorrIK"] = init_4d(n_i,n_j,n_k,data["n_s"],false);
+  data["CorrJI"] = init_4d(n_i,n_j,n_k,data["n_s"],false);
+  data["CorrJK"] = init_4d(n_i,n_j,n_k,data["n_s"],false);
+  data["CorrKI"] = init_4d(n_i,n_j,n_k,data["n_s"],false);
+  data["CorrKJ"] = init_4d(n_i,n_j,n_k,data["n_s"],false);
 
-  // force the bottom and top K-pipes (all your “ports”) to exist
+  // force the bottom and top K-pipes (all your "ports") to exist
   for (auto const& P : data["ports"].get<json::array_t>()) {
     size_t i = P["i"], j = P["j"], k = P["k"];
     if (P["d"] == "K") {
       // bottom ports are at k=0 with e="-", top ports at k=n_k-1 with e="+"
       if( k == 0){
-        data["ExistK"][i][j][k] = 1;
+        data["ExistK"][i][j][k] = true;
       }
       else{
-        data["ExistK"][i][j][gate_depth] = 1;
+        data["ExistK"][i][j][gate_depth] = true;
       }
-      
     }
   }
 
   // mark every measurement patch as NodeY at its gate time
   //    note: gate_times is your map<gate_id, time>
-  for (auto const* gate : get_gates()) {
-    if (gate->get_operation_type() != LatticeSurgeryOpType::measure)
-      continue;
-    size_t t = gate_times.at(gate->get_id());
-    for (auto patch_id : gate->get_qubits()) {
-      auto [i,j] = _grid.get_patch_position(patch_id);
-      // data["NodeY"][i][j][t] = 1;
-    }
-  }
+  // for (auto const* gate : get_gates()) {
+  //   if (gate->get_operation_type() != LatticeSurgeryOpType::measure)
+  //     continue;
+  //   size_t t = gate_times.at(gate->get_id());
+  //   for (auto patch_id : gate->get_qubits()) {
+  //     auto [i,j] = _grid.get_patch_position(patch_id);
+  //     // data["NodeY"][i][j][t] = 1;
+  //   }
+  // }
 
-  // re‐seed t=0 from your original occupied patches
+  // re-seed t=0 from your original occupied patches
   // for (size_t i = 0; i < n_i; ++i) {
   //   for (size_t j = 0; j < n_j; ++j) {
   //     if (auto* p = get_patch(i,j); p && p->occupied()) {
   //       // always have a K pipe at time 0
   //       // data["ExistK"][i][j][0] = 1;
-  //       // orientation → I‐ or J‐pipe
+  //       // orientation → I- or J-pipe
   //       // if (p->get_orientation())
   //       //   data["ExistI"][i][j][0] = 1;
   //       // else
@@ -307,7 +306,7 @@ std::string LatticeSurgery::to_lasre() const {
   // }
   for(size_t x=0; x<n_i; x++){
     for(size_t k=0; k<gate_depth; k++){
-      data["ExistK"][x][x][k] = 1;
+      data["ExistK"][x][x][k] = true;
     }
   }
 
@@ -329,7 +328,7 @@ std::string LatticeSurgery::to_lasre() const {
     fmt::print("\n");
     if(gate->get_operation_type() == LatticeSurgeryOpType::measure && gate->get_num_qubits() == 1){ // discard patch
       auto patch = gate->get_qubits().front();
-      for(auto d = gate->get_depth(); d < gate_depth; d++) data["ExistK"][patch_pos[patch].first][patch_pos[patch].second][d] = 0;
+      for(auto d = gate->get_depth(); d < gate_depth; d++) data["ExistK"][patch_pos[patch].first][patch_pos[patch].second][d] = false;
     } 
     else if(gate->get_operation_type() == LatticeSurgeryOpType::measure){ // merge
       bool x_direction = patch_pos[gate->get_qubits()[0]].first == patch_pos[gate->get_qubits()[1]].first;
@@ -339,12 +338,50 @@ std::string LatticeSurgery::to_lasre() const {
           auto patch = gate->get_qubits()[i];
           if(max_y < patch_pos[patch].second) max_y = patch_pos[patch].second;
         }
+        // First pass: Set initial colors for J-pipes
         for(size_t i=0; i< gate->get_num_qubits(); i++){
           auto patch = gate->get_qubits()[i];
-          if(max_y != patch_pos[patch].second) data["ExistJ"][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = 1;
-          for(auto d = gate->get_depth(); d < gate_depth; d++) data["ExistK"][patch_pos[patch].first][patch_pos[patch].second][d] = 1;
-          data["CorrJI"][1][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = 1;
-          data["CorrKJ"][1][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = 1;
+          if(max_y != patch_pos[patch].second) {
+            data["ExistJ"][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = true;
+          }
+          // Set correlation surfaces for all patches in the merge
+          for(auto d = gate->get_depth(); d < gate_depth; d++) 
+            data["ExistK"][patch_pos[patch].first][patch_pos[patch].second][d] = true;
+          
+          // For Y-basis measurements, set both correlation surfaces
+          if(gate->get_measure_types()[i] == MeasureType::y) {
+            data["NodeY"][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = true;
+            // Set both correlation surfaces for Y-basis measurement
+            data["CorrJI"][1][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = true;
+            data["CorrJK"][1][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = true;
+            // Forbid I and J pipes through Y-cube
+            data["ExistI"][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = false;
+            data["ExistJ"][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = false;
+            // if(patch_pos[patch].first > 0) 
+            //   data["ExistI"][patch_pos[patch].first-1][patch_pos[patch].second][gate->get_depth()] = false;
+            // if(patch_pos[patch].second > 0) 
+            //   data["ExistJ"][patch_pos[patch].first][patch_pos[patch].second-1][gate->get_depth()] = false;
+          } else {
+            // For non-Y measurements, set correlation surfaces based on measurement type
+            data["CorrJI"][1][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = true;
+            data["CorrKJ"][1][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = true;
+          }
+        }
+        // Second pass: Propagate J-pipe colors along contiguous runs
+        for(size_t i=0; i< gate->get_num_qubits(); i++){
+          auto patch = gate->get_qubits()[i];
+          if(max_y != patch_pos[patch].second) {
+            size_t i = patch_pos[patch].first;
+            size_t j = patch_pos[patch].second;
+            size_t k = gate->get_depth();
+            // Propagate color to adjacent J-pipes
+            if(j > 0 && data["ExistJ"][i][j-1][k]) {
+              data["ColorJ"][i][j][k] = data["ColorJ"][i][j-1][k];
+            }
+            if(j < n_j-1 && data["ExistJ"][i][j+1][k]) {
+              data["ColorJ"][i][j+1][k] = data["ColorJ"][i][j][k];
+            }
+          }
         }
       }
       else{
@@ -353,22 +390,76 @@ std::string LatticeSurgery::to_lasre() const {
           auto patch = gate->get_qubits()[i];
           if(max_x < patch_pos[patch].first) max_x = patch_pos[patch].first;
         }
+        // First pass: Set initial colors for I-pipes
         for(size_t i=0; i< gate->get_num_qubits(); i++){
           auto patch = gate->get_qubits()[i];
-          if(max_x != patch_pos[patch].first) data["ExistI"][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = 1;
-          for(auto d = gate->get_depth(); d < gate_depth; d++) data["ExistK"][patch_pos[patch].first][patch_pos[patch].second][d] = 1;
-          data["CorrIJ"][1][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = 1;
-          data["CorrKI"][1][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = 1;
+          if(max_x != patch_pos[patch].first) {
+            data["ExistI"][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = true;
+          }
+          // Set correlation surfaces for all patches in the merge
+          for(auto d = gate->get_depth(); d < gate_depth; d++) 
+            data["ExistK"][patch_pos[patch].first][patch_pos[patch].second][d] = true;
+          
+          // For Y-basis measurements, set both correlation surfaces
+          if(gate->get_measure_types()[i] == MeasureType::y) {
+            data["NodeY"][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = true;
+            // Set both correlation surfaces for Y-basis measurement
+            data["CorrIJ"][1][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = true;
+            data["CorrIK"][1][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = true;
+            // Forbid I and J pipes through Y-cube
+            data["ExistI"][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = false;
+            data["ExistJ"][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = false;
+            // if(patch_pos[patch].first > 0) 
+            //   data["ExistI"][patch_pos[patch].first-1][patch_pos[patch].second][gate->get_depth()] = false;
+            // if(patch_pos[patch].second > 0) 
+            //   data["ExistJ"][patch_pos[patch].first][patch_pos[patch].second-1][gate->get_depth()] = false;
+          } else {
+            // For non-Y measurements, set correlation surfaces based on measurement type
+            data["CorrIJ"][1][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = true;
+            data["CorrKI"][1][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = true;
+          }
+        }
+        // Second pass: Propagate I-pipe colors along contiguous runs
+        for(size_t i=0; i< gate->get_num_qubits(); i++){
+          auto patch = gate->get_qubits()[i];
+          if(max_x != patch_pos[patch].first) {
+            size_t i = patch_pos[patch].first;
+            size_t j = patch_pos[patch].second;
+            size_t k = gate->get_depth();
+            // Propagate color to adjacent I-pipes
+            if(i > 0 && data["ExistI"][i-1][j][k]) {
+              data["ColorI"][i][j][k] = data["ColorI"][i-1][j][k];
+            }
+            if(i < n_i-1 && data["ExistI"][i+1][j][k]) {
+              data["ColorI"][i+1][j][k] = data["ColorI"][i][j][k];
+            }
+          }
         }
       }
     }
   }
 
+  // Third pass: Handle I↔J turns (color-matching at corners)
+  for(size_t i=0; i<n_i; i++) {
+    for(size_t j=0; j<n_j; j++) {
+      for(size_t k=0; k<n_k; k++) {
+        // Check for I-pipe and J-pipe meeting at corner
+        if(i > 0 && j > 0) {
+          if(data["ExistI"][i][j][k] && data["ExistJ"][i][j][k]) {
+            // If both pipes exist, ensure opposite colors
+            if(data["ColorI"][i][j][k] == data["ColorJ"][i][j][k]) {
+              data["ColorJ"][i][j][k] = !data["ColorI"][i][j][k];
+            }
+          }
+        }
+      }
+    }
+  }
 
   // no extra optional stuff
   data["optional"] = json::object();
 
-  // pretty‐print
+  // pretty-print
   return data.dump(2);
 }
 }
