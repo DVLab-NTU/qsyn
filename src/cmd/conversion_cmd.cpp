@@ -246,6 +246,12 @@ Command convert_from_tableau_cmd(tableau::TableauMgr& tableau_mgr, qcir::QCirMgr
                     "If set, only partially synthesize subtableau "
                     "so that the remaining can be delayed to later. "
                     "Note that not all strategies support lazy synthesis.");
+
+            to_qcir.add_argument<bool>("-b", "--backward")
+                .action(store_true)
+                .help(
+                    "If set, the synthesis is synthesised backward."
+                    "Note that it is experimental and should not be used with lazy synthesis.");
         },
         [&](ArgumentParser const& parser) {
             using namespace dvlab::str;
@@ -254,9 +260,15 @@ Command convert_from_tableau_cmd(tableau::TableauMgr& tableau_mgr, qcir::QCirMgr
             auto to_type = parser.get<std::string>("to-type");
             if (to_type == "qcir") {
                 auto const lazy                  = parser.parsed("--lazy");
+                auto const backward              = parser.parsed("--backward");
                 auto const clifford_strategy_str = parser.get<std::string>("--clifford");
                 auto const rotation_strategy_str = parser.get<std::string>("--rotation");
 
+                if (lazy && backward) {
+                    spdlog::error("Lazy synthesis should not be used with backward synthesis!!");
+                    return CmdExecResult::error;
+                }
+                
                 // lazy synthesis requires hopt/hstair for Clifford synthesis
                 // and gray/gstair/mst for rotation synthesis
                 if (lazy) {
@@ -270,6 +282,13 @@ Command convert_from_tableau_cmd(tableau::TableauMgr& tableau_mgr, qcir::QCirMgr
                         !is_prefix_of(rotation_strategy_str, "gstair") &&
                         !is_prefix_of(rotation_strategy_str, "mst")) {
                         spdlog::error("Lazy synthesis requires graysynth/gstair/mst for rotation synthesis!!");
+                        return CmdExecResult::error;
+                    }
+                }
+
+                if (backward) {
+                    if (!is_prefix_of(rotation_strategy_str, "pmst")) {
+                        spdlog::error("Backward synthesis requires pmst for rotation synthesis!!");
                         return CmdExecResult::error;
                     }
                 }
@@ -316,7 +335,8 @@ Command convert_from_tableau_cmd(tableau::TableauMgr& tableau_mgr, qcir::QCirMgr
                     *tableau_mgr.get(),
                     *clifford_strategy,
                     *rotation_strategy,
-                    lazy);
+                    lazy,
+                    backward);
 
                 if (qcir.has_value()) {
                     qcir_mgr.add(qcir_mgr.get_next_id(), std::make_unique<qcir::QCir>(std::move(qcir.value())));

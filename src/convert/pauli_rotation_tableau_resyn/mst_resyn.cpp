@@ -168,14 +168,19 @@ dvlab::Digraph<size_t, int> get_parity_graph(
 
 void apply_mst_cxs(dvlab::Digraph<size_t, int> const& mst, size_t root, 
                    std::vector<PauliRotation>& rotations, qcir::QCir& qcir, 
-                   StabilizerTableau& final_clifford, size_t& num_cxs) {
+                   StabilizerTableau& final_clifford, size_t& num_cxs, bool backward) {
     
     auto const add_cx = [&](size_t ctrl, size_t targ) {
         for (auto& rot : rotations) {
             rot.cx(ctrl, targ);
         }
-        qcir.append(qcir::CXGate(), {ctrl, targ});
-        final_clifford.prepend_cx(ctrl, targ);
+        if (backward) {
+            qcir.prepend(qcir::CXGate(), {ctrl, targ});
+            final_clifford.cx(ctrl, targ);
+        } else {
+            qcir.append(qcir::CXGate(), {ctrl, targ});
+            final_clifford.prepend_cx(ctrl, targ);
+        }
         num_cxs++;
     };
     // post-order traversal to add CXs
@@ -255,7 +260,7 @@ MstSynthesisStrategy::partial_synthesize(
         auto const [mst, root] =
             dvlab::minimum_spanning_arborescence(parity_graph);
 
-        apply_mst_cxs(mst, root, copy_rotations, qcir, final_clifford, num_cxs);
+        apply_mst_cxs(mst, root, copy_rotations, qcir, final_clifford, num_cxs, false);
 
         // add the rotation at the root
         qcir.append(qcir::PZGate(best_rotation.phase()), {root});
@@ -288,27 +293,72 @@ MstSynthesisStrategy::synthesize(
     return qcir;
 }
 
-std::optional<PartialSynthesisResult>
-GeneralizedMstSynthesisStrategy::partial_synthesize(
-    PauliRotationTableau const& rotations) const {
+std::optional<qcir::QCir>
+GeneralizedMstSynthesisStrategy::_partial_synthesize(
+    PauliRotationTableau const& rotations, StabilizerTableau& residual_clifford, bool backward) const {
+    
+    auto append_s = [&](size_t qubit, std::vector<PauliRotation>& pr, qcir::QCir& qcir, StabilizerTableau& st) {
+        qcir.append(qcir::SGate(), {qubit});
+        st.prepend_sdg(qubit);
+        for(auto& rot: pr) {
+            rot.s(qubit);
+        }
+    };
+
+    auto append_h = [&](size_t qubit, std::vector<PauliRotation>& pr, qcir::QCir& qcir, StabilizerTableau& st) {
+        qcir.append(qcir::HGate(), {qubit});
+        st.prepend_h(qubit);
+        for(auto& rot: pr) {
+            rot.h(qubit);
+        }
+    };
+
+    auto prepend_s = [&](size_t qubit, std::vector<PauliRotation>& pr, qcir::QCir& qcir, StabilizerTableau& st) {
+        qcir.prepend(qcir::SdgGate(), {qubit});
+        st.s(qubit);
+        for(auto& rot: pr) {
+            rot.s(qubit);
+        }
+    };
+
+    auto prepend_h = [&](size_t qubit, std::vector<PauliRotation>& pr, qcir::QCir& qcir, StabilizerTableau& st) {
+        qcir.prepend(qcir::HGate(), {qubit});
+        st.h(qubit);
+        for(auto& rot: pr) {
+            rot.h(qubit);
+        }
+    };
+
+    auto add_s = [&](size_t qubit, std::vector<PauliRotation>& pr, qcir::QCir& qcir, StabilizerTableau& st, bool backward) {
+        if (backward) {
+            prepend_s(qubit, pr, qcir, st);
+        } else {
+            append_s(qubit, pr, qcir, st);
+        }
+    };
+
+    auto add_h = [&](size_t qubit, std::vector<PauliRotation>& pr, qcir::QCir& qcir, StabilizerTableau& st, bool backward) {
+        if (backward) {
+            prepend_h(qubit, pr, qcir, st);
+        } else {
+            append_h(qubit, pr, qcir, st);
+        }
+    };
+    
     auto const num_qubits    = rotations.front().n_qubits();
     auto const num_rotations = rotations.size();
 
+    
     if (num_qubits == 0) {
-        return PartialSynthesisResult{
-            qcir::QCir{0},
-            StabilizerTableau{num_qubits}};
+        return qcir::QCir{0};
     }
 
     if (num_rotations == 0) {
-        return PartialSynthesisResult{
-            qcir::QCir{num_qubits},
-            StabilizerTableau{num_qubits}};
+        return qcir::QCir{num_qubits};
     }
 
     auto copy_rotations = rotations;
-    auto qcir = qcir::QCir{num_qubits}; 
-    StabilizerTableau final_clifford{num_qubits};
+    auto qcir = qcir::QCir{num_qubits};
     auto dag = get_dependency_graph(rotations);
     // create the index mapping
     std::vector<size_t> index_mapping(num_rotations);  // col_idx -> vertex_idx
@@ -325,8 +375,14 @@ GeneralizedMstSynthesisStrategy::partial_synthesize(
         // get the first layer rotions
         std::vector<size_t> first_layer_rotations;
         for (auto i : std::views::iota(0ul, copy_rotations.size())) {
-            if (dag.in_degree(index_mapping[i]) == 0) {
-                first_layer_rotations.push_back(i);
+            if (backward) {
+                if (dag.out_degree(index_mapping[i]) == 0) {
+                    first_layer_rotations.push_back(i);
+                }
+            } else {
+                if (dag.in_degree(index_mapping[i]) == 0) {
+                    first_layer_rotations.push_back(i);
+                }
             }
         }
 
@@ -338,7 +394,7 @@ GeneralizedMstSynthesisStrategy::partial_synthesize(
             num_first_layer_increase++;
         }
         pre_forst_layer_size = first_layer_rotations.size();
-        // print first_layer_rotations in a line
+        // // print first_layer_rotations in a line
         // std::string layers = "";
         // for (auto const& rot : first_layer_rotations) {
         //     layers += std::to_string(index_mapping[rot]) + " ";
@@ -354,17 +410,9 @@ GeneralizedMstSynthesisStrategy::partial_synthesize(
         for (auto i: std::views::iota(0ul, num_qubits)) {
             if (best_rotation.pauli_product().is_x_set(i)) {
                 if (best_rotation.pauli_product().is_z_set(i)) {
-                    qcir.append(qcir::SGate(), {i});
-                    final_clifford.prepend_sdg(i);
-                    for(auto& rot: copy_rotations) { 
-                        rot.s(i);
-                    }
+                    add_s(i, copy_rotations, qcir, residual_clifford, backward);
                 }
-                qcir.append(qcir::HGate(), {i});
-                final_clifford.prepend_h(i);
-                for(auto& rot: copy_rotations) {
-                    rot.h(i);     
-                }
+                add_h(i, copy_rotations, qcir, residual_clifford, backward);
             }
         }
         // Update the best rotation
@@ -376,28 +424,30 @@ GeneralizedMstSynthesisStrategy::partial_synthesize(
         auto const parity_graph = get_parity_graph(copy_rotations, best_rotation, "qubit_hamming_weight");
         auto const [mst, root] = dvlab::minimum_spanning_arborescence(parity_graph);
         
-        apply_mst_cxs(mst, root, copy_rotations, qcir, final_clifford, num_cxs);
+        apply_mst_cxs(mst, root, copy_rotations, qcir, residual_clifford, num_cxs, backward);
         // assert(is_valid(copy_rotations[best_rotation_idx]));
 
         copy_rotations.erase(copy_rotations.begin() + best_rotation_idx);
 
-        qcir.append(qcir::PZGate(best_rotation.phase()), {root});
+        if (backward) {
+            qcir.prepend(qcir::PZGate(best_rotation.phase()), {root});
+        } else {
+            qcir.append(qcir::PZGate(best_rotation.phase()), {root});
+        }  
     }
 
     spdlog::info("Number of CXs for row operations : {}", num_cxs);
     
-    // print first_layer_size
-    std::string first_layer_size_str = "";
-    for (auto const& size : first_layer_size) {
-        first_layer_size_str += std::to_string(size) + " ";
-    }
-    spdlog::info("First layer size : {}", first_layer_size_str);
-    spdlog::info("Number of first layer increase : {}", num_first_layer_increase);
-    spdlog::info("Number of first layer is one : {}", num_first_layer_is_one);
+    // // print first_layer_size
+    // std::string first_layer_size_str = "";
+    // for (auto const& size : first_layer_size) {
+    //     first_layer_size_str += std::to_string(size) + " ";
+    // }
+    // spdlog::info("First layer size : {}", first_layer_size_str);
+    // spdlog::info("Number of first layer increase : {}", num_first_layer_increase);
+    // spdlog::info("Number of first layer is one : {}", num_first_layer_is_one);
     
-    return PartialSynthesisResult{
-        std::move(qcir),
-        std::move(final_clifford)};
+    return qcir;
 }
 
 std::optional<qcir::QCir>

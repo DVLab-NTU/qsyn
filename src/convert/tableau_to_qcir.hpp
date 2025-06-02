@@ -9,6 +9,7 @@
 
 #include "qcir/qcir.hpp"
 #include "tableau/pauli_rotation.hpp"
+#include "tableau/stabilizer_tableau.hpp"
 #include "tableau/tableau.hpp"
 
 namespace qsyn {
@@ -53,6 +54,14 @@ struct PartialPauliRotationsSynthesisStrategy
     partial_synthesize(PauliRotationTableau const& rotations) const = 0;
 };
 
+struct BackwardPartialPauliRotationsSynthesisStrategy
+    : public PartialPauliRotationsSynthesisStrategy {
+    ~BackwardPartialPauliRotationsSynthesisStrategy() override = default;
+
+    virtual std::optional<qcir::QCir>
+    backward_synthesize(PauliRotationTableau const& rotations, StabilizerTableau &initial_clifford) const = 0;
+};
+
 struct NaivePauliRotationsSynthesisStrategy
     : public PauliRotationsSynthesisStrategy {
     std::optional<qcir::QCir>
@@ -91,12 +100,30 @@ struct MstSynthesisStrategy : public PartialPauliRotationsSynthesisStrategy {
     partial_synthesize(PauliRotationTableau const& rotations) const override;
 };
 
-struct GeneralizedMstSynthesisStrategy: public PartialPauliRotationsSynthesisStrategy {
+struct GeneralizedMstSynthesisStrategy: public BackwardPartialPauliRotationsSynthesisStrategy {
     std::optional<qcir::QCir>
     synthesize(PauliRotationTableau const& rotations) const override;
 
     std::optional<PartialSynthesisResult>
-    partial_synthesize(PauliRotationTableau const& rotations) const override;
+    partial_synthesize(PauliRotationTableau const& rotations) const override{
+        StabilizerTableau final_clifford = StabilizerTableau{rotations.front().n_qubits()};
+        auto qcir = _partial_synthesize(rotations, final_clifford, false);
+        if (!qcir.has_value()) {
+            return std::nullopt;
+        }
+        return PartialSynthesisResult{
+            std::move(qcir.value()),
+            std::move(final_clifford)};
+    }
+
+    std::optional<qcir::QCir>
+    backward_synthesize(PauliRotationTableau const& rotations, StabilizerTableau &initial_clifford) const override{
+        return _partial_synthesize(rotations, initial_clifford, true);
+    }
+
+    private:
+        std::optional<qcir::QCir>
+        _partial_synthesize(PauliRotationTableau const& rotations, StabilizerTableau& residual_clifford, bool backward) const;
 };
 
 std::optional<qcir::QCir> to_qcir(
@@ -109,7 +136,7 @@ std::optional<qcir::QCir> to_qcir(
     Tableau const& tableau,
     StabilizerTableauSynthesisStrategy const& st_strategy,
     PauliRotationsSynthesisStrategy const& pr_strategy,
-    bool lazy = false);
+    bool lazy = false, bool backward = false);
 
 }  // namespace tableau
 
