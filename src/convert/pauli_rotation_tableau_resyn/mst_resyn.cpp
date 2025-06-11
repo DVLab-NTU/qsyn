@@ -3,6 +3,7 @@
 #include <tl/adjacent.hpp>
 #include <tl/enumerate.hpp>
 #include <tl/to.hpp>
+#include <chrono>
 
 #include "convert/tableau_to_qcir.hpp"
 #include "qcir/basic_gate_type.hpp"
@@ -116,19 +117,65 @@ size_t cx_weight(
 }
 
 // build the dependency graph according to the commutation relation
-dvlab::Digraph<size_t, int> get_dependency_graph(std::vector<PauliRotation> const& rotations, bool check = false) {
+dvlab::Digraph<size_t, int> get_dependency_graph(std::vector<PauliRotation> const& rotations, long long& total_is_commute, long long& total_add_edge) {
     size_t const num_rotations = rotations.size();
     dvlab::Digraph<size_t, int> dag{num_rotations};
-    
-    for (auto i : std::views::iota(0ul, num_rotations)) {
+    // Timer for is_commutative and add_edge
+    for (auto i : std::views::iota(0ul, num_rotations)) {   
         for (auto j : std::views::iota(i+1, num_rotations)) {
-            if (!is_commutative(rotations[i], rotations[j])) {
+            // Timing is_commutative
+            auto t_commute_start = std::chrono::high_resolution_clock::now();
+            bool not_commute = !is_commutative(rotations[i], rotations[j]);
+            auto t_commute_end = std::chrono::high_resolution_clock::now();
+            total_is_commute += std::chrono::duration_cast<std::chrono::microseconds>(t_commute_end - t_commute_start).count();
+            if (not_commute) {
+                // Timing add_edge
+                auto t_addedge_start = std::chrono::high_resolution_clock::now();
                 dag.add_edge(i, j);
+                auto t_addedge_end = std::chrono::high_resolution_clock::now();
+                total_add_edge += std::chrono::duration_cast<std::chrono::microseconds>(t_addedge_end - t_addedge_start).count();
             }
         }
     }
     return dag;
 }
+
+// // New version get_dep_graph
+// dvlab::Digraph<size_t, int> get_dependency_graph(std::vector<PauliRotation> const& rotations, long long& total_is_commute, long long& total_add_edge, long long& total_or_set) {
+//     auto const num_rotations = rotations.size();
+//     auto dag = dvlab::Digraph<size_t, int>{num_rotations};
+//     std::vector<std::unordered_set<size_t>> predecessors(num_rotations);
+
+//     for (auto i : std::views::iota(0ul, num_rotations)) {
+//         // for j = i-1 to 0 in reverse order, check if rotations[i] and rotations[j] are commutative
+//         for (size_t j = i - 1; j != SIZE_MAX; --j) {
+//             size_t num_pred_to_reach = j;
+//             if (predecessors[i].contains(j)) {
+//                 continue;
+//             }
+//             auto t_is_commute_start = std::chrono::high_resolution_clock::now();
+//             bool is_commute = is_commutative(rotations[i], rotations[j]);
+//             auto t_is_commute_end = std::chrono::high_resolution_clock::now();
+//             total_is_commute += std::chrono::duration_cast<std::chrono::microseconds>(t_is_commute_end - t_is_commute_start).count();
+//             if (is_commute) {
+//                 auto t_or_set_start = std::chrono::high_resolution_clock::now();
+//                 predecessors[i].insert(predecessors[j].begin(), predecessors[j].end());
+//                 auto t_or_set_end = std::chrono::high_resolution_clock::now();
+//                 total_or_set += std::chrono::duration_cast<std::chrono::microseconds>(t_or_set_end - t_or_set_start).count();
+//                 auto t_add_edge_start = std::chrono::high_resolution_clock::now();
+//                 dag.add_edge(i, j);
+//                 auto t_add_edge_end = std::chrono::high_resolution_clock::now();
+//                 total_add_edge += std::chrono::duration_cast<std::chrono::microseconds>(t_add_edge_end - t_add_edge_start).count();
+//             } else {
+//                 num_pred_to_reach--;
+//             }
+//             if (predecessors[i].size() == num_pred_to_reach) {
+//                 break;
+//             }
+//         }
+//     }
+//     return dag;
+// }
 
 dvlab::Digraph<size_t, int> get_parity_graph(
     std::vector<PauliRotation> const& rotations,
@@ -297,51 +344,45 @@ std::optional<qcir::QCir>
 GeneralizedMstSynthesisStrategy::_partial_synthesize(
     PauliRotationTableau const& rotations, StabilizerTableau& residual_clifford, bool backward) const {
     
-    auto append_s = [&](size_t qubit, std::vector<PauliRotation>& pr, qcir::QCir& qcir, StabilizerTableau& st) {
+    auto append_s = [&](size_t qubit, qcir::QCir& qcir, StabilizerTableau& st) {
         qcir.append(qcir::SGate(), {qubit});
         st.prepend_sdg(qubit);
-        for(auto& rot: pr) {
-            rot.s(qubit);
-        }
     };
 
-    auto append_h = [&](size_t qubit, std::vector<PauliRotation>& pr, qcir::QCir& qcir, StabilizerTableau& st) {
+    auto append_h = [&](size_t qubit, qcir::QCir& qcir, StabilizerTableau& st) {
         qcir.append(qcir::HGate(), {qubit});
         st.prepend_h(qubit);
-        for(auto& rot: pr) {
-            rot.h(qubit);
-        }
     };
 
-    auto prepend_s = [&](size_t qubit, std::vector<PauliRotation>& pr, qcir::QCir& qcir, StabilizerTableau& st) {
+    auto prepend_s = [&](size_t qubit, qcir::QCir& qcir, StabilizerTableau& st) {
         qcir.prepend(qcir::SdgGate(), {qubit});
         st.s(qubit);
-        for(auto& rot: pr) {
-            rot.s(qubit);
-        }
     };
 
-    auto prepend_h = [&](size_t qubit, std::vector<PauliRotation>& pr, qcir::QCir& qcir, StabilizerTableau& st) {
+    auto prepend_h = [&](size_t qubit, qcir::QCir& qcir, StabilizerTableau& st) {
         qcir.prepend(qcir::HGate(), {qubit});
         st.h(qubit);
-        for(auto& rot: pr) {
-            rot.h(qubit);
-        }
     };
 
     auto add_s = [&](size_t qubit, std::vector<PauliRotation>& pr, qcir::QCir& qcir, StabilizerTableau& st, bool backward) {
+        for(auto& rot: pr) {
+            rot.s(qubit);
+        }
         if (backward) {
-            prepend_s(qubit, pr, qcir, st);
+            prepend_s(qubit, qcir, st);
         } else {
-            append_s(qubit, pr, qcir, st);
+            append_s(qubit, qcir, st);
         }
     };
 
     auto add_h = [&](size_t qubit, std::vector<PauliRotation>& pr, qcir::QCir& qcir, StabilizerTableau& st, bool backward) {
+        for(auto& rot: pr) {
+            rot.h(qubit);
+        }
         if (backward) {
-            prepend_h(qubit, pr, qcir, st);
+            prepend_h(qubit, qcir, st);
         } else {
-            append_h(qubit, pr, qcir, st);
+            append_h(qubit, qcir, st);
         }
     };
     
@@ -359,20 +400,38 @@ GeneralizedMstSynthesisStrategy::_partial_synthesize(
 
     auto copy_rotations = rotations;
     auto qcir = qcir::QCir{num_qubits};
-    auto dag = get_dependency_graph(rotations);
+    // Timing: dependency graph construction
+    auto t_depgraph_start = std::chrono::high_resolution_clock::now();
+    long long total_is_commute = 0;
+    long long total_add_edge = 0;
+    auto dag = get_dependency_graph(rotations, total_is_commute, total_add_edge);
+    auto t_depgraph_end = std::chrono::high_resolution_clock::now();
+    spdlog::info("[TIMER] Dependency graph construction: {} us", std::chrono::duration_cast<std::chrono::microseconds>(t_depgraph_end - t_depgraph_start).count());
+    spdlog::info("[TIMER]        is_commutative total {} us", total_is_commute);
+    spdlog::info("[TIMER]        add_edge total {} us", total_add_edge);
     // create the index mapping
     std::vector<size_t> index_mapping(num_rotations);  // col_idx -> vertex_idx
     for (size_t i = 0; i < num_rotations; ++i) {
         index_mapping[i] = i;
     }
     size_t num_cxs = 0;
-    std::vector<size_t> first_layer_size;
-    size_t num_first_layer_is_one = 0;
-    size_t num_first_layer_increase = 0;
-    size_t pre_forst_layer_size = SIZE_MAX;
-
+    // --- Timing ---
+    long long total_firstlayer = 0;
+    long long total_bestrot = 0;
+    long long total_hs = 0;
+    long long total_remove = 0;
+    long long total_erase = 0;
+    long long total_parity = 0;
+    long long total_cal_mst = 0;
+    long long total_mstcxs = 0;
+    long long total_pz = 0;
+    long long total_iter = 0;
+    // ---
     while (!copy_rotations.empty()) {
-        // get the first layer rotions
+        // Timing: while loop iteration
+        auto t_iter_start = std::chrono::high_resolution_clock::now();
+        // Timing: find first layer rotations
+        auto t_firstlayer_start = std::chrono::high_resolution_clock::now();
         std::vector<size_t> first_layer_rotations;
         for (auto i : std::views::iota(0ul, copy_rotations.size())) {
             if (backward) {
@@ -385,28 +444,17 @@ GeneralizedMstSynthesisStrategy::_partial_synthesize(
                 }
             }
         }
-
-        first_layer_size.push_back(first_layer_rotations.size());
-        if (first_layer_rotations.size() == 1) {
-            num_first_layer_is_one++;
-        }
-        if (first_layer_rotations.size() > pre_forst_layer_size) {
-            num_first_layer_increase++;
-        }
-        pre_forst_layer_size = first_layer_rotations.size();
-        // // print first_layer_rotations in a line
-        // std::string layers = "";
-        // for (auto const& rot : first_layer_rotations) {
-        //     layers += std::to_string(index_mapping[rot]) + " ";
-        // }
-        // spdlog::info("First layer rotations");
-        // spdlog::info("{}", layers);
-
+        auto t_firstlayer_end = std::chrono::high_resolution_clock::now();
+        total_firstlayer += std::chrono::duration_cast<std::chrono::microseconds>(t_firstlayer_end - t_firstlayer_start).count();
+        // Timing: find best rotation
+        auto t_bestrot_start = std::chrono::high_resolution_clock::now();
         auto const best_rotation_idx = get_best_rotation_idx(copy_rotations, first_layer_rotations);
         size_t best_vid = index_mapping[best_rotation_idx];
         auto best_rotation = copy_rotations[best_rotation_idx];
-
-        // add the best rotation to the qcir
+        auto t_bestrot_end = std::chrono::high_resolution_clock::now();
+        total_bestrot += std::chrono::duration_cast<std::chrono::microseconds>(t_bestrot_end - t_bestrot_start).count();
+        // Timing: handle H/S gates
+        auto t_hs_start = std::chrono::high_resolution_clock::now();
         for (auto i: std::views::iota(0ul, num_qubits)) {
             if (best_rotation.pauli_product().is_x_set(i)) {
                 if (best_rotation.pauli_product().is_z_set(i)) {
@@ -417,35 +465,58 @@ GeneralizedMstSynthesisStrategy::_partial_synthesize(
         }
         // Update the best rotation
         best_rotation = copy_rotations[best_rotation_idx];
-        // assert(best_rotation.is_diagonal());
-
+        assert(best_rotation.is_diagonal());
+        auto t_hs_end = std::chrono::high_resolution_clock::now();
+        total_hs += std::chrono::duration_cast<std::chrono::microseconds>(t_hs_end - t_hs_start).count();
+        // Timing: remove vertex and update mapping
+        auto t_remove_start = std::chrono::high_resolution_clock::now();
         dag.remove_vertex(best_vid);
+        auto t_remove_end = std::chrono::high_resolution_clock::now();
+        auto t_erase_start = std::chrono::high_resolution_clock::now();
         index_mapping.erase(index_mapping.begin() + best_rotation_idx);
+        auto t_erase_end = std::chrono::high_resolution_clock::now();
+        total_erase += std::chrono::duration_cast<std::chrono::microseconds>(t_erase_end - t_erase_start).count();
+        total_remove += std::chrono::duration_cast<std::chrono::microseconds>(t_remove_end - t_remove_start).count();
+        // Timing: parity graph and minimum spanning arborescence
+        auto t_parity_start = std::chrono::high_resolution_clock::now();
         auto const parity_graph = get_parity_graph(copy_rotations, best_rotation, "qubit_hamming_weight");
+        auto t_parity_end = std::chrono::high_resolution_clock::now();
+        total_parity += std::chrono::duration_cast<std::chrono::microseconds>(t_parity_end - t_parity_start).count();
+        auto t_cal_mst_start = std::chrono::high_resolution_clock::now();
         auto const [mst, root] = dvlab::minimum_spanning_arborescence(parity_graph);
-        
+        auto t_cal_mst_end = std::chrono::high_resolution_clock::now();
+        total_cal_mst += std::chrono::duration_cast<std::chrono::microseconds>(t_cal_mst_end - t_cal_mst_start).count();
+        // Timing: apply_mst_cxs
+        auto t_mstcxs_start = std::chrono::high_resolution_clock::now();
         apply_mst_cxs(mst, root, copy_rotations, qcir, residual_clifford, num_cxs, backward);
-        // assert(is_valid(copy_rotations[best_rotation_idx]));
-
+        auto t_mstcxs_end = std::chrono::high_resolution_clock::now();
+        total_mstcxs += std::chrono::duration_cast<std::chrono::microseconds>(t_mstcxs_end - t_mstcxs_start).count();
+        assert(is_valid(copy_rotations[best_rotation_idx]));
+        // Timing: erase rotation and add PZGate
+        auto t_pz_start = std::chrono::high_resolution_clock::now();
         copy_rotations.erase(copy_rotations.begin() + best_rotation_idx);
-
         if (backward) {
             qcir.prepend(qcir::PZGate(best_rotation.phase()), {root});
         } else {
             qcir.append(qcir::PZGate(best_rotation.phase()), {root});
-        }  
+        }
+        auto t_pz_end = std::chrono::high_resolution_clock::now();
+        total_pz += std::chrono::duration_cast<std::chrono::microseconds>(t_pz_end - t_pz_start).count();
+        auto t_iter_end = std::chrono::high_resolution_clock::now();
+        total_iter += std::chrono::duration_cast<std::chrono::microseconds>(t_iter_end - t_iter_start).count();
     }
+    // --- while結束後統一輸出 ---
+    spdlog::info("[TIMER] Find first layer rotations: {} us", total_firstlayer);
+    spdlog::info("[TIMER] Find best rotation: {} us", total_bestrot);
+    spdlog::info("[TIMER] Handle H/S gates: {} us", total_hs);
+    spdlog::info("[TIMER] Remove vertex: {} us", total_remove);
+    spdlog::info("[TIMER] Erase index mapping: {} us", total_erase);
+    spdlog::info("[TIMER] Parity graph + min spanning arborescence: {} us", total_parity);
+    spdlog::info("[TIMER] apply_mst_cxs: {} us", total_mstcxs);
+    spdlog::info("[TIMER] Erase rotation + add PZGate: {} us", total_pz);
+    spdlog::info("[TIMER] Total while-iteration: {} us", total_iter);
 
     spdlog::info("Number of CXs for row operations : {}", num_cxs);
-    
-    // // print first_layer_size
-    // std::string first_layer_size_str = "";
-    // for (auto const& size : first_layer_size) {
-    //     first_layer_size_str += std::to_string(size) + " ";
-    // }
-    // spdlog::info("First layer size : {}", first_layer_size_str);
-    // spdlog::info("Number of first layer increase : {}", num_first_layer_increase);
-    // spdlog::info("Number of first layer is one : {}", num_first_layer_is_one);
     
     return qcir;
 }
