@@ -67,6 +67,49 @@ void add_clifford_gate(qcir::QCir& qcir, CliffordOperator const& op) {
     }
 }
 
+// TODO: merge with add_clifford_gate
+void prepend_clifford_gate(qcir::QCir& qcir, CliffordOperator const& op) {
+    auto const& [type, qubits] = op;
+    switch (type) {
+        case COT::h:
+            qcir.prepend(qcir::HGate(), {qubits[0]});
+            break;
+        case COT::s:
+            qcir.prepend(qcir::SGate(), {qubits[0]});
+            break;
+        case COT::cx:
+            qcir.prepend(qcir::CXGate(), {qubits[0], qubits[1]});
+            break;
+        case COT::sdg:
+            qcir.prepend(qcir::SdgGate(), {qubits[0]});
+            break;
+        case COT::v:
+            qcir.prepend(qcir::SXGate(), {qubits[0]});
+            break;
+        case COT::vdg:
+            qcir.prepend(qcir::SXdgGate(), {qubits[0]});
+            break;
+        case COT::x:
+            qcir.prepend(qcir::XGate(), {qubits[0]});
+            break;
+        case COT::y:
+            qcir.prepend(qcir::YGate(), {qubits[0]});
+            break;
+        case COT::z:
+            qcir.prepend(qcir::ZGate(), {qubits[0]});
+            break;
+        case COT::cz:
+            qcir.prepend(qcir::CZGate(), {qubits[0], qubits[1]});
+            break;
+        case COT::swap:
+            qcir.prepend(qcir::SwapGate(), {qubits[0], qubits[1]});
+            break;
+        case COT::ecr:
+            qcir.prepend(qcir::ECRGate(), {qubits[0], qubits[1]});
+            break;
+    }   
+}
+
 void add_clifford_gate(PauliRotationTableau& rotations, CliffordOperator const& op) {
     auto const& [type, qubits] = op;
 
@@ -99,50 +142,31 @@ void add_clifford_gate(PauliRotationTableau& rotations, CliffordOperator const& 
     }
 }
 
-void prepend_clifford_gate(StabilizerTableau& tableau, CliffordOperator const& op) {
+void add_clifford_gate(StabilizerTableau& tableau, CliffordOperator const& op) {
     auto const& [type, qubits] = op;
-
     switch (type) {
         case COT::h:
-            tableau.prepend_h(qubits[0]);
+            tableau.h(qubits[0]);
             break;
         case COT::s:
-            tableau.prepend_s(qubits[0]);
+            tableau.s(qubits[0]);
             break;
         case COT::cx:
-            tableau.prepend_cx(qubits[0], qubits[1]);
+            tableau.cx(qubits[0], qubits[1]);
             break;
         case COT::sdg:
-            tableau.prepend_sdg(qubits[0]);
+            tableau.sdg(qubits[0]);
             break;
         case COT::v:
-            tableau.prepend_v(qubits[0]);
+            tableau.v(qubits[0]);
             break;
         case COT::vdg:
-            tableau.prepend_vdg(qubits[0]);
-            break;
-        case COT::x:
-            tableau.prepend_x(qubits[0]);
-            break;
-        case COT::y:
-            tableau.prepend_y(qubits[0]);
-            break;
-        case COT::z:
-            tableau.prepend_z(qubits[0]);
-            break;
-        case COT::cz:
-            tableau.prepend_cz(qubits[0], qubits[1]);
-            break;
-        case COT::swap:
-            tableau.prepend_swap(qubits[0], qubits[1]);
-            break;
-        case COT::ecr:
-            tableau.prepend_ecr(qubits[0], qubits[1]);
-            break;
-        default:
-            spdlog::error("Invalid Clifford operator type {}. The operation is skipped.", to_string(type));
-            break;
-    }  
+            tableau.vdg(qubits[0]);
+    }
+}
+
+void prepend_clifford_gate(StabilizerTableau& tableau, CliffordOperator const& op) {
+    tableau.prepend(op);
 }
 
 }  // namespace detail

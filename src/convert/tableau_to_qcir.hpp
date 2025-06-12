@@ -20,7 +20,9 @@ using PauliRotationTableau = std::vector<PauliRotation>;
 
 namespace detail {
 void add_clifford_gate(qcir::QCir& qcir, CliffordOperator const& op);
+void prepend_clifford_gate(qcir::QCir& qcir, CliffordOperator const& op);
 void add_clifford_gate(PauliRotationTableau& rotations, CliffordOperator const& op);
+void add_clifford_gate(StabilizerTableau& tableau, CliffordOperator const& op);
 void prepend_clifford_gate(StabilizerTableau& tableau, CliffordOperator const& op);
 }  // namespace detail
 
@@ -69,9 +71,31 @@ struct NaivePauliRotationsSynthesisStrategy
 };
 
 struct BasicPauliRotationsSynthesisStrategy
-    : public PauliRotationsSynthesisStrategy {
+    : public BackwardPartialPauliRotationsSynthesisStrategy {
+    
     std::optional<qcir::QCir>
     synthesize(PauliRotationTableau const& rotations) const override;
+    
+    std::optional<PartialSynthesisResult>
+    partial_synthesize(PauliRotationTableau const& rotations) const {
+        StabilizerTableau final_clifford = StabilizerTableau{rotations.front().n_qubits()};
+        auto qcir = _partial_synthesize(rotations, final_clifford, false);
+        if (!qcir.has_value()) {
+            return std::nullopt;
+        }
+        return PartialSynthesisResult{
+            std::move(qcir.value()),
+            std::move(final_clifford)};
+    }
+    
+    std::optional<qcir::QCir>
+    backward_synthesize(PauliRotationTableau const& rotations, StabilizerTableau &initial_clifford) const override{
+        return _partial_synthesize(rotations, initial_clifford, true);
+    }
+
+    private:
+        std::optional<qcir::QCir>
+        _partial_synthesize(PauliRotationTableau const& rotations, StabilizerTableau& residual_clifford, bool backward) const;
 };
 
 struct GraySynthStrategy : public PartialPauliRotationsSynthesisStrategy {

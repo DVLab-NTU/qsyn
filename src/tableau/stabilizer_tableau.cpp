@@ -61,6 +61,21 @@ StabilizerTableau& StabilizerTableau::cx(size_t ctrl, size_t targ) noexcept {
     return *this;
 }
 
+StabilizerTableau& StabilizerTableau::sdg(size_t qubit) noexcept {
+    s(qubit).s(qubit).s(qubit);
+    return *this;
+}
+
+StabilizerTableau& StabilizerTableau::v(size_t qubit) noexcept {
+    h(qubit).s(qubit).h(qubit);
+    return *this;
+}
+
+StabilizerTableau& StabilizerTableau::vdg(size_t qubit) noexcept {
+    v(qubit).sdg(qubit).v(qubit);
+    return *this;
+}
+
 StabilizerTableau& StabilizerTableau::prepend_h(size_t qubit) {
     if (qubit >= n_qubits()) return *this;
     std::swap(stabilizer(qubit), destabilizer(qubit));

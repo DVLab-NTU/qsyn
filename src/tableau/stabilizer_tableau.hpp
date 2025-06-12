@@ -43,6 +43,9 @@ public:
     StabilizerTableau& h(size_t qubit) noexcept override;
     StabilizerTableau& s(size_t qubit) noexcept override;
     StabilizerTableau& cx(size_t ctrl, size_t targ) noexcept override;
+    StabilizerTableau& sdg(size_t qubit) noexcept;
+    StabilizerTableau& v(size_t qubit) noexcept;
+    StabilizerTableau& vdg(size_t qubit) noexcept;
 
     // prepend operations
     // these operations are specific to the stabilizer tableau

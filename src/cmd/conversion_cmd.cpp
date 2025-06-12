@@ -287,8 +287,9 @@ Command convert_from_tableau_cmd(tableau::TableauMgr& tableau_mgr, qcir::QCirMgr
                 }
 
                 if (backward) {
-                    if (!is_prefix_of(rotation_strategy_str, "pmst")) {
-                        spdlog::error("Backward synthesis requires pmst for rotation synthesis!!");
+                    if (!is_prefix_of(rotation_strategy_str, "pmst") &&
+                        !is_prefix_of(rotation_strategy_str, "basic")) {
+                        spdlog::error("Backward synthesis requires pmst/basic for rotation synthesis!!");
                         return CmdExecResult::error;
                     }
                 }
