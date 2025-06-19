@@ -6,8 +6,6 @@
 #include <cstddef>
 #include <ranges>
 #include <type_traits>
-#include <unordered_set>
-#include <unordered_map>
 
 #include "util/ordered_hashmap.hpp"
 #include "util/ordered_hashset.hpp"
@@ -16,10 +14,14 @@ namespace dvlab {
 
 template <typename VertexAttr = void, typename EdgeAttr = void>
 class Digraph {
-    static constexpr bool is_vertex_attr_default_constructible = std::is_default_constructible_v<VertexAttr>;
-    static constexpr bool is_edge_attr_default_constructible = std::is_default_constructible_v<EdgeAttr>;
-    static constexpr bool has_vertex_attr = !std::is_same_v<VertexAttr, void>;
-    static constexpr bool has_edge_attr = !std::is_same_v<EdgeAttr, void>;
+    constexpr static bool is_vertex_attr_default_constructible =
+        std::is_default_constructible_v<VertexAttr>;
+    constexpr static bool is_edge_attr_default_constructible =
+        std::is_default_constructible_v<EdgeAttr>;
+    constexpr static bool has_vertex_attr =
+        !std::is_same_v<VertexAttr, void>;
+    constexpr static bool has_edge_attr =
+        !std::is_same_v<EdgeAttr, void>;
 
 public:
     using Vertex = size_t;
@@ -27,7 +29,7 @@ public:
         Vertex src, dst;
         bool operator==(Edge const& other) const = default;
     };
-    using NeighborSet = std::unordered_set<Vertex>;
+    using NeighborSet = dvlab::utils::ordered_hashset<Vertex>;
 
     Digraph() = default;
     Digraph(size_t num_vertices) {
@@ -307,14 +309,15 @@ private:
 
     using VertexAttributes = std::conditional_t<
         has_vertex_attr,
-        std::unordered_map<Vertex, VertexAttr>,
-        std::unordered_set<Vertex> >;
+        dvlab::utils::ordered_hashmap<Vertex, VertexAttr>,
+        dvlab::utils::ordered_hashset<Vertex> >;
 
     VertexAttributes _vertex_attributes;
 
     struct EdgeHash {
         std::size_t operator()(Edge const& edge) const {
-            return std::hash<Vertex>{}(edge.src) ^ (std::hash<Vertex>{}(edge.dst) << 1);
+            return std::hash<Vertex>{}(edge.src) ^
+                   std::hash<Vertex>{}(edge.dst);
         }
     };
 
