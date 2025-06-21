@@ -428,6 +428,7 @@ GeneralizedMstSynthesisStrategy::_partial_synthesize(
     long long total_iter = 0;
     // ---
     while (!copy_rotations.empty()) {
+        if (stop_requested()) break;
         // Timing: while loop iteration
         auto t_iter_start = std::chrono::high_resolution_clock::now();
         // Timing: find first layer rotations
