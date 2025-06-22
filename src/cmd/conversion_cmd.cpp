@@ -231,7 +231,7 @@ Command convert_from_tableau_cmd(tableau::TableauMgr& tableau_mgr, qcir::QCirMgr
                                .description("convert from Tableau to QCir");
 
             to_qcir.add_argument<std::string>("-c", "--clifford")
-                .constraint(choices_allow_prefix({"hopt", "ag", "hstair"}))
+                .constraint(choices_allow_prefix({"hopt", "ag", "hstair", "ag+"}))
                 .default_value("hopt")
                 .help("specify the Clifford synthesis strategy (default: hopt).");
 
@@ -305,6 +305,8 @@ Command convert_from_tableau_cmd(tableau::TableauMgr& tableau_mgr, qcir::QCirMgr
                         if (is_prefix_of(clifford_strategy_str, "hstair"))
                             return std::make_unique<
                                 HOptSynthesisStrategy>(HOptMode::staircase);
+                        if (is_prefix_of(clifford_strategy_str, "ag+"))
+                            return std::make_unique<AGSynthesisStrategy>(AGSynthesisStrategy::Mode::ag_plus);
                         DVLAB_UNREACHABLE("Invalid clifford strategy!!");
                         return nullptr;
                     });

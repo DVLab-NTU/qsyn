@@ -72,7 +72,7 @@ StabilizerTableau& StabilizerTableau::v(size_t qubit) noexcept {
 }
 
 StabilizerTableau& StabilizerTableau::vdg(size_t qubit) noexcept {
-    v(qubit).sdg(qubit).v(qubit);
+    h(qubit).sdg(qubit).h(qubit);
     return *this;
 }
 
@@ -199,6 +199,11 @@ void add_s(StabilizerTableau& tableau, size_t qubit, CliffordOperatorString& cli
     clifford_ops.push_back({CliffordOperatorType::s, {qubit, 0}});
 }
 
+void add_v(StabilizerTableau& tableau, size_t qubit, CliffordOperatorString& clifford_ops) {
+    tableau.v(qubit);
+    clifford_ops.push_back({CliffordOperatorType::v, {qubit, 0}});
+}
+
 void add_x(StabilizerTableau& tableau, size_t qubit, CliffordOperatorString& clifford_ops) {
     tableau.x(qubit);
     clifford_ops.push_back({CliffordOperatorType::x, {qubit, 0}});
@@ -310,11 +315,60 @@ CliffordOperatorString AGSynthesisStrategy::synthesize(StabilizerTableau copy) c
         }
     };
 
+    auto const make_destab_x_off_diag_0_plus = [&](size_t qubit) {
+        if (copy.destabilizer(qubit).is_z_set(qubit)) {
+            add_s(copy, qubit, clifford_ops);
+        }
+
+        for (size_t qid = qubit + 1; qid < copy.n_qubits(); ++qid) {
+            if (copy.destabilizer(qubit).is_z_set(qid)) {
+                if (copy.destabilizer(qubit).is_x_set(qid)) {
+                    add_s(copy, qid, clifford_ops);
+                } else {
+                    add_h(copy, qid, clifford_ops);
+                }
+            }
+        }
+
+        for (size_t targ = qubit + 1; targ < copy.n_qubits(); ++targ) {
+            if (copy.destabilizer(qubit).is_x_set(targ)) {
+                add_cx(copy, qubit, targ, clifford_ops);
+            }
+        }
+    };
+
+    auto const make_stab_z_off_diag_0_plus = [&](size_t qubit) {
+        if (copy.stabilizer(qubit).is_x_set(qubit)) {
+            add_v(copy, qubit, clifford_ops);
+        }
+
+        for (size_t qid = qubit + 1; qid < copy.n_qubits(); ++qid) {
+            if (copy.stabilizer(qubit).is_x_set(qid)) {
+                if (copy.stabilizer(qubit).is_z_set(qid)) {
+                    add_v(copy, qid, clifford_ops);
+                } else {
+                    add_h(copy, qid, clifford_ops);
+                }
+            }
+        }
+
+        for (size_t ctrl = qubit + 1; ctrl < copy.n_qubits(); ++ctrl) {
+            if (copy.stabilizer(qubit).is_z_set(ctrl)) {
+                add_cx(copy, ctrl, qubit, clifford_ops);
+            }
+        }
+    };
+
     for (size_t qubit = 0; qubit < copy.n_qubits(); ++qubit) {
         if (stop_requested()) break;
         make_destab_x_main_diag_1(qubit);
-        make_destab_x_off_diag_0(qubit);
-        make_stab_z_off_diag_0(qubit);
+        if (mode == Mode::ag_plus) {
+            make_destab_x_off_diag_0_plus(qubit);
+            make_stab_z_off_diag_0_plus(qubit);
+        } else {
+            make_destab_x_off_diag_0(qubit);
+            make_stab_z_off_diag_0(qubit);
+        }
     }
 
     if (stop_requested()) return {};

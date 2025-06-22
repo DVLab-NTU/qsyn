@@ -128,6 +128,9 @@ public:
  */
 class AGSynthesisStrategy : public StabilizerTableauSynthesisStrategy {
 public:
+    enum class Mode { ag,
+                      ag_plus } mode;
+    AGSynthesisStrategy(Mode mode = Mode::ag) : mode{mode} {}
     CliffordOperatorString synthesize(StabilizerTableau copy) const override;
 };
 
