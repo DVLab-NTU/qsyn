@@ -178,6 +178,28 @@ size_t cx_weight(
     return x_distance + hamming_distance(rotations, q1_idx, q2_idx);
 }
 
+size_t cx_weight(
+    StabilizerTableau const& st,
+    size_t q1_idx,
+    size_t q2_idx) {
+    auto w = 0ul;
+    for (auto i : std::views::iota(0ul, st.n_qubits())) {
+        if (st.stabilizer(i).is_z_set(q1_idx) && st.stabilizer(i).is_z_set(q2_idx)) {
+            w++;
+        }
+        if (st.destabilizer(i).is_z_set(q1_idx) && st.destabilizer(i).is_z_set(q2_idx)) {
+            w++;
+        }
+        if (st.stabilizer(i).is_x_set(q1_idx) && st.stabilizer(i).is_x_set(q2_idx)) {
+            w++;
+        }
+        if (st.destabilizer(i).is_x_set(q1_idx) && st.destabilizer(i).is_x_set(q2_idx)) {
+            w++;
+        }
+    }
+    return w;
+}
+
 // build the dependency graph according to the commutation relation
 dvlab::Digraph<size_t, int> get_dependency_graph(std::vector<PauliRotation> const& rotations, long long& total_is_commute, long long& total_add_edge) {
     size_t const num_rotations = rotations.size();
@@ -263,14 +285,18 @@ dvlab::Digraph<size_t, int> get_parity_graph(
         return w_i + w_j;
     };
 
-    auto get_distance = [&](size_t i, size_t j) {
+    auto get_weight_with_distance = [&](size_t i, size_t j) {
         auto const w_i = hamming_weight(rotations, i, true) + dist2idx_Z(residual_clifford, i);
         auto const w_j = hamming_weight(rotations, j, false) + dist2idx_X(residual_clifford, j);
         return w_i + w_j;
     };
 
+    auto get_cx_weight = [&](size_t i, size_t j) {
+        return cx_weight(rotations, i, j) + cx_weight(residual_clifford, i, j);
+    };
+
     for (auto const& [i, j] : dvlab::combinations<2>(qubit_vec)) {
-        auto const dist = get_distance(i, j);
+        auto const dist = get_cx_weight(i, j);
         auto const weight_i = get_weight(i, j);
         auto const weight_j = get_weight(j, i);
         g.add_edge(i, j, dist - weight_j - 1);
