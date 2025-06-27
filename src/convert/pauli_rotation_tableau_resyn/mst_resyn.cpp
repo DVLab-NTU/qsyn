@@ -8,6 +8,7 @@
 #include "convert/tableau_to_qcir.hpp"
 #include "qcir/basic_gate_type.hpp"
 #include "qcir/qcir.hpp"
+#include "tableau/stabilizer_tableau.hpp"
 #include "util/graph/digraph.hpp"
 #include "util/graph/minimum_spanning_arborescence.hpp"
 #include "util/phase.hpp"
@@ -94,6 +95,67 @@ size_t hamming_weight(
     });
 }
 
+size_t hamming_weight(
+    StabilizerTableau const& st,
+    size_t q_idx, bool is_Z = true) {
+    auto const num_qubits = st.n_qubits();
+    auto num_ones = 0ul;
+    for (auto i : std::views::iota(0ul, num_qubits)) {
+        if (is_Z ? st.stabilizer(i).is_z_set(q_idx) : st.stabilizer(i).is_x_set(q_idx)) {
+            num_ones++;
+        }
+        if (is_Z ? st.destabilizer(i).is_z_set(q_idx) : st.destabilizer(i).is_x_set(q_idx)) {
+            num_ones++;
+        }
+    }
+    return num_ones;
+}
+
+size_t dist2idx_Z(StabilizerTableau const& st,size_t q_idx) {
+    auto const num_qubits = st.n_qubits();
+    auto dist = 0ul;
+    for (auto i : std::views::iota(0ul, num_qubits)) {
+        if (st.stabilizer(i).is_z_set(q_idx)) {
+            dist++;
+        }
+        if (st.destabilizer(i).is_z_set(q_idx)) {
+            dist++;
+        }
+    }
+    if (st.stabilizer(q_idx).is_z_set(q_idx)) {
+        dist--;
+    }
+    return dist;
+}
+
+size_t dist2idx_X(StabilizerTableau const& st,size_t q_idx) {
+    auto const num_qubits = st.n_qubits();
+    auto dist = 0ul;
+    for (auto i : std::views::iota(0ul, num_qubits)) {
+        if (st.stabilizer(i).is_x_set(q_idx)) {
+            dist++;
+        }
+        if (st.destabilizer(i).is_x_set(q_idx)) {
+            dist++;
+        }
+    }
+    if (st.destabilizer(q_idx).is_x_set(q_idx)) {
+        dist--;
+    }
+    return dist;
+}
+
+size_t dist2idx(
+    StabilizerTableau const& st) {
+    auto const num_qubits = st.n_qubits();
+    auto dist = 0ul;
+    for (auto i : std::views::iota(0ul, num_qubits)) {
+        dist += dist2idx_Z(st, i);
+        dist += dist2idx_X(st, i);
+    }
+    return dist;
+}
+
 size_t hamming_distance(
     std::vector<PauliRotation> const& rotations,
     size_t q1_idx,
@@ -140,43 +202,6 @@ dvlab::Digraph<size_t, int> get_dependency_graph(std::vector<PauliRotation> cons
     return dag;
 }
 
-// // New version get_dep_graph
-// dvlab::Digraph<size_t, int> get_dependency_graph(std::vector<PauliRotation> const& rotations, long long& total_is_commute, long long& total_add_edge, long long& total_or_set) {
-//     auto const num_rotations = rotations.size();
-//     auto dag = dvlab::Digraph<size_t, int>{num_rotations};
-//     std::vector<std::unordered_set<size_t>> predecessors(num_rotations);
-
-//     for (auto i : std::views::iota(0ul, num_rotations)) {
-//         // for j = i-1 to 0 in reverse order, check if rotations[i] and rotations[j] are commutative
-//         for (size_t j = i - 1; j != SIZE_MAX; --j) {
-//             size_t num_pred_to_reach = j;
-//             if (predecessors[i].contains(j)) {
-//                 continue;
-//             }
-//             auto t_is_commute_start = std::chrono::high_resolution_clock::now();
-//             bool is_commute = is_commutative(rotations[i], rotations[j]);
-//             auto t_is_commute_end = std::chrono::high_resolution_clock::now();
-//             total_is_commute += std::chrono::duration_cast<std::chrono::microseconds>(t_is_commute_end - t_is_commute_start).count();
-//             if (is_commute) {
-//                 auto t_or_set_start = std::chrono::high_resolution_clock::now();
-//                 predecessors[i].insert(predecessors[j].begin(), predecessors[j].end());
-//                 auto t_or_set_end = std::chrono::high_resolution_clock::now();
-//                 total_or_set += std::chrono::duration_cast<std::chrono::microseconds>(t_or_set_end - t_or_set_start).count();
-//                 auto t_add_edge_start = std::chrono::high_resolution_clock::now();
-//                 dag.add_edge(i, j);
-//                 auto t_add_edge_end = std::chrono::high_resolution_clock::now();
-//                 total_add_edge += std::chrono::duration_cast<std::chrono::microseconds>(t_add_edge_end - t_add_edge_start).count();
-//             } else {
-//                 num_pred_to_reach--;
-//             }
-//             if (predecessors[i].size() == num_pred_to_reach) {
-//                 break;
-//             }
-//         }
-//     }
-//     return dag;
-// }
-
 dvlab::Digraph<size_t, int> get_parity_graph(
     std::vector<PauliRotation> const& rotations,
     PauliRotation const& target_rotation,
@@ -206,6 +231,48 @@ dvlab::Digraph<size_t, int> get_parity_graph(
             : gsl::narrow_cast<int>(hamming_distance(rotations, i, j));
         auto const weight_i = gsl::narrow_cast<int>(get_weight(i, j));
         auto const weight_j = gsl::narrow_cast<int>(get_weight(j, i));
+        g.add_edge(i, j, dist - weight_j - 1);
+        g.add_edge(j, i, dist - weight_i - 1);
+    }
+
+    return g;
+}
+
+dvlab::Digraph<size_t, int> get_parity_graph(
+    std::vector<PauliRotation> const& rotations,
+    StabilizerTableau const& residual_clifford,
+    PauliRotation const& target_rotation) {
+        
+    assert(target_rotation.is_diagonal());
+    auto const num_qubits = rotations.front().n_qubits();
+
+    auto g = dvlab::Digraph<size_t, int>{};
+    auto qubit_vec = std::vector<size_t>{};
+
+    for (auto i : std::views::iota(0ul, num_qubits)) {
+        if (target_rotation.pauli_product().is_z_set(i)) {
+            g.add_vertex_with_id(i);
+            qubit_vec.push_back(i);
+        }
+    }
+
+    auto get_weight = [&](size_t i, size_t j) {
+        // w = ith Z + jth X
+        auto const w_i = hamming_weight(rotations, i, true) + hamming_weight(residual_clifford, i, true);
+        auto const w_j = hamming_weight(rotations, j, false) + hamming_weight(residual_clifford, j, false);
+        return w_i + w_j;
+    };
+
+    auto get_distance = [&](size_t i, size_t j) {
+        auto const w_i = hamming_weight(rotations, i, true) + dist2idx_Z(residual_clifford, i);
+        auto const w_j = hamming_weight(rotations, j, false) + dist2idx_X(residual_clifford, j);
+        return w_i + w_j;
+    };
+
+    for (auto const& [i, j] : dvlab::combinations<2>(qubit_vec)) {
+        auto const dist = get_distance(i, j);
+        auto const weight_i = get_weight(i, j);
+        auto const weight_j = get_weight(j, i);
         g.add_edge(i, j, dist - weight_j - 1);
         g.add_edge(j, i, dist - weight_i - 1);
     }
@@ -480,7 +547,8 @@ GeneralizedMstSynthesisStrategy::_partial_synthesize(
         total_remove += std::chrono::duration_cast<std::chrono::microseconds>(t_remove_end - t_remove_start).count();
         // Timing: parity graph and minimum spanning arborescence
         auto t_parity_start = std::chrono::high_resolution_clock::now();
-        auto const parity_graph = get_parity_graph(copy_rotations, best_rotation, "qubit_hamming_weight");
+        // auto const parity_graph = get_parity_graph(copy_rotations, best_rotation, "qubit_hamming_weight");
+        auto const parity_graph = get_parity_graph(copy_rotations, residual_clifford, best_rotation);
         auto t_parity_end = std::chrono::high_resolution_clock::now();
         total_parity += std::chrono::duration_cast<std::chrono::microseconds>(t_parity_end - t_parity_start).count();
         auto t_cal_mst_start = std::chrono::high_resolution_clock::now();
