@@ -831,7 +831,7 @@ void LatticeSurgery::hadamard(size_t col, size_t row){
     
 };
 
-void LatticeSurgery::hadamard(std::pair<size_t, size_t> start, std::vector<std::pair<size_t, size_t>>& dest, bool preserve_start){
+void LatticeSurgery::hadamard(std::pair<size_t, size_t> start, std::vector<std::pair<size_t, size_t>>& dest_list, bool preserve_start){
 
     // TODO: Implement Hadamard operation for a patch and its neighbors
 
@@ -887,7 +887,7 @@ void LatticeSurgery::discard_patch(QubitIdType id, MeasureType measure_type){
     patch->set_logical_id(0);
 };
 
-void LatticeSurgery::n_to_n(std::vector<std::pair<size_t,size_t>>& init_patches, std::vector<std::pair<size_t,size_t>>& dest_patches){
+void LatticeSurgery::n_to_n(std::vector<std::pair<size_t,size_t>>& start_list, std::vector<std::pair<size_t,size_t>>& dest_list){
     // TODO: Implement n_to_n operation for multiple patches
 };
 
@@ -901,7 +901,7 @@ void LatticeSurgery::print_occupied(){
         fmt::print("\n");
     }
     fmt::println("");
-}
+};
 
 // void LatticeSurgery::n_to_one(std::vector<std::pair<size_t,size_t>>& patch_list, std::pair<size_t,size_t> dest_patch){
 //     // Handle empty patch_list case
