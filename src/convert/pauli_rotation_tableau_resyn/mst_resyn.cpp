@@ -572,11 +572,16 @@ GeneralizedMstSynthesisStrategy::_partial_synthesize(
         total_erase += std::chrono::duration_cast<std::chrono::microseconds>(t_erase_end - t_erase_start).count();
         total_remove += std::chrono::duration_cast<std::chrono::microseconds>(t_remove_end - t_remove_start).count();
         // Timing: parity graph and minimum spanning arborescence
+        
+        // **************
         auto t_parity_start = std::chrono::high_resolution_clock::now();
-        // auto const parity_graph = get_parity_graph(copy_rotations, best_rotation, "qubit_hamming_weight");
-        auto const parity_graph = get_parity_graph(copy_rotations, residual_clifford, best_rotation);
+        auto const parity_graph = get_parity_graph(copy_rotations, best_rotation, "qubit_hamming_weight");
+        // auto const parity_graph = get_parity_graph(copy_rotations, residual_clifford, best_rotation);
         auto t_parity_end = std::chrono::high_resolution_clock::now();
         total_parity += std::chrono::duration_cast<std::chrono::microseconds>(t_parity_end - t_parity_start).count();
+        // **************
+        
+        
         auto t_cal_mst_start = std::chrono::high_resolution_clock::now();
         auto const [mst, root] = dvlab::minimum_spanning_arborescence(parity_graph);
         auto t_cal_mst_end = std::chrono::high_resolution_clock::now();
