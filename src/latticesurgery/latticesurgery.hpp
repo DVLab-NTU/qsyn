@@ -117,10 +117,11 @@ public:
     QubitIdType find_logical_id(QubitIdType patch_id) const;
     void union_logical_ids(QubitIdType id1, QubitIdType id2);
     void split_logical_ids(std::vector<QubitIdType> const& group1, std::vector<QubitIdType> const& group2);
-    void one_to_n(std::pair<size_t,size_t> start_id, std::vector<std::pair<size_t,size_t>>& id_lists); // TO CHECK
-    void n_to_one(std::vector<std::pair<size_t,size_t>>& init_patches, std::pair<size_t,size_t> dest_patch); // TO CHECK
+    // void one_to_n(std::pair<size_t,size_t> start_id, std::vector<std::pair<size_t,size_t>>& id_lists); // TO CHECK
+    // void n_to_one(std::vector<std::pair<size_t,size_t>>& init_patches, std::pair<size_t,size_t> dest_patch); // TO CHECK
+    void n_to_n(std::vector<std::pair<size_t,size_t>>& init_patches, std::vector<std::pair<size_t,size_t>>& dest_patches); // TO CHECK
     void hadamard(size_t col, size_t row); // TO CHECK
-    void hadamard(std::pair<size_t, size_t> start, std::pair<size_t, size_t> dest); // TO CHECK start: the original patch needed hadamard, dest: the adjecent patch to adjust set back the orientation of the patch
+    void hadamard(std::pair<size_t, size_t> start, std::vector<std::pair<size_t, size_t>>& dest, bool preserve_start); // TO CHECK start: the original patch needed hadamard, dest: the adjecent patch to adjust set back the orientation of the patch
     void discard_patch(QubitIdType id, MeasureType measure_type); // TO CHECK
 
 
