@@ -32,11 +32,13 @@ public:
         }
     };
     void arrange();
-    void io_vertex_arrange();
-    void internal_vertex_arrange();
     void internal_vertex_splitting();
+    void create_vertex_map();
+    void stitching_vertex();
     void hadamard_edge_absorb();
-    void split_vertices();
+    std::unordered_map<ZXVertex*, std::unordered_set<ZXVertex*>> calculate_smallest_dag();
+    void layer_scheduling(std::unordered_map<ZXVertex*, std::unordered_set<ZXVertex*>> dag);
+    // std::vector<std::vector<ZXVertex*>>& get_vertex_map(){ return _vertex_map; };
 
 private:
     ZXGraph* _graph;
