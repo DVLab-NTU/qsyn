@@ -832,36 +832,90 @@ void LatticeSurgery::hadamard(size_t col, size_t row){
 };
 
 void LatticeSurgery::hadamard(std::pair<size_t, size_t> start, std::vector<std::pair<size_t, size_t>>& dest_list, bool preserve_start){
-
-    // TODO: Implement Hadamard operation for a patch and its neighbors
-
-
-    // auto [start_col, start_row] = start;
-    // auto [dest_col, dest_row]= dest;
-    // auto start_id = get_patch(start_col, start_row)->get_id();
-    // auto dest_id = get_patch(dest_col, dest_row)->get_id();
-
-    // hadamard(start_col, start_row);
-
-    // fmt::println("occupied: {}, start: ({},{}), dest: ({},{})", get_patch(dest_col, dest_row)->occupied(), start_col, start_row, dest_col, dest_row);    
-
-    // assert(!get_patch(dest_col, dest_row)->occupied() 
-    //         && (start_col == dest_col || start_row == dest_row));
-
-    // if(start_col == dest_col){
-    //     auto col_measure_type = get_patch(start_id)->get_td_type();
-    //     merge_patches({get_patch(start_id)->get_id(), get_patch(dest_id)->get_id()}, {col_measure_type, MeasureType::y});
-    //     discard_patch(start_id, col_measure_type);
-    // }
-    // else{
-    //     auto row_measure_type = get_patch(start_id)->get_lr_type();
-    //     merge_patches({get_patch(start_id)->get_id(), get_patch(dest_id)->get_id()}, {row_measure_type, MeasureType::y});
-    //     discard_patch(start_id, row_measure_type);
-    // }
-    // fmt::println("hadamard");
-    // print_occupied();
-
-};
+    // Implements L-shaped Hadamard logic as described
+    // If dest_list.size() == 1: single L, else: multi-dest L
+    auto [start_col, start_row] = start;
+    
+    if (dest_list.empty()) return;
+    
+    if (dest_list.size() == 1) {
+        // Single destination: L-shape from start to dest
+        auto [dest_col, dest_row] = dest_list[0];
+        // Step 1: Grow along column (vertical)
+        std::vector<size_t> path_col;
+        int col_step = (dest_col > start_col) ? 1 : -1;
+        for (int c = start_col; c != dest_col; c += col_step) {
+            path_col.push_back(get_patch_id(c, start_row));
+        }
+        path_col.push_back(get_patch_id(dest_col, start_row));
+        // Step 2: Grow along row (horizontal) to dest
+        std::vector<size_t> path_row;
+        int row_step = (dest_row > start_row) ? 1 : -1;
+        for (int r = start_row; r != dest_row; r += row_step) {
+            if (r == start_row) continue; // skip overlap
+            path_row.push_back(get_patch_id(dest_col, r));
+        }
+        path_row.push_back(get_patch_id(dest_col, dest_row));
+        // Merge along column (X or Z depending on orientation)
+        if (path_col.size() > 1) {
+            std::vector<MeasureType> types(path_col.size(), get_patch(start_col, start_row)->get_td_type());
+            merge_patches(path_col, types);
+        }
+        // At the L-corner, do a Y measurement to flag Hadamard
+        std::vector<size_t> l_corner = {get_patch_id(dest_col, start_row), get_patch_id(dest_col, dest_row)};
+        std::vector<MeasureType> l_types = {get_patch(dest_col, start_row)->get_lr_type(), MeasureType::y};
+        merge_patches(l_corner, l_types); // Y at the L-corner
+        // Merge along row (X or Z depending on orientation)
+        if (path_row.size() > 1) {
+            std::vector<MeasureType> types(path_row.size(), get_patch(dest_col, start_row)->get_lr_type());
+            merge_patches(path_row, types);
+        }
+        // Optionally discard start if not preserve_start
+        if (!preserve_start) {
+            discard_patch(get_patch_id(start_col, start_row), get_patch(start_col, start_row)->get_td_type());
+        }
+    } else {
+        // Multiple destinations: all dest in same column
+        size_t target_col = dest_list[0].first;
+        // Step 1: Grow from start to target_col (vertical)
+        std::vector<size_t> path_col;
+        int col_step = (target_col > start_col) ? 1 : -1;
+        for (int c = start_col; c != target_col; c += col_step) {
+            path_col.push_back(get_patch_id(c, start_row));
+        }
+        path_col.push_back(get_patch_id(target_col, start_row));
+        if (path_col.size() > 1) {
+            std::vector<MeasureType> types(path_col.size(), get_patch(start_col, start_row)->get_td_type());
+            merge_patches(path_col, types);
+        }
+        // Step 2: L-corner: Y measurement at (target_col, start_row) and (target_col, dest_row) for each dest
+        for (auto& dest : dest_list) {
+            auto [dcol, drow] = dest;
+            std::vector<size_t> l_corner = {get_patch_id(target_col, start_row), get_patch_id(target_col, drow)};
+            std::vector<MeasureType> l_types = {get_patch(target_col, start_row)->get_lr_type(), MeasureType::y};
+            merge_patches(l_corner, l_types); // Y at the L-corner
+        }
+        // Step 3: Grow from (target_col, start_row) to each dest (horizontal)
+        for (auto& dest : dest_list) {
+            auto [dcol, drow] = dest;
+            std::vector<size_t> path_row;
+            int row_step = (drow > start_row) ? 1 : -1;
+            for (int r = start_row; r != drow; r += row_step) {
+                if (r == start_row) continue;
+                path_row.push_back(get_patch_id(target_col, r));
+            }
+            path_row.push_back(get_patch_id(target_col, drow));
+            if (path_row.size() > 1) {
+                std::vector<MeasureType> types(path_row.size(), get_patch(target_col, start_row)->get_lr_type());
+                merge_patches(path_row, types);
+            }
+        }
+        // Optionally discard start if not preserve_start
+        if (!preserve_start) {
+            discard_patch(get_patch_id(start_col, start_row), get_patch(start_col, start_row)->get_td_type());
+        }
+    }
+}
 
 void LatticeSurgery::discard_patch(QubitIdType id, MeasureType measure_type){
     // Check if the patch exists
@@ -888,8 +942,94 @@ void LatticeSurgery::discard_patch(QubitIdType id, MeasureType measure_type){
 };
 
 void LatticeSurgery::n_to_n(std::vector<std::pair<size_t,size_t>>& start_list, std::vector<std::pair<size_t,size_t>>& dest_list){
-    // TODO: Implement n_to_n operation for multiple patches
-};
+    // Handle empty or trivial cases
+    if (start_list.empty() || dest_list.empty()) return;
+    if (start_list == dest_list) return;
+
+    // Combine all coordinates
+    std::vector<std::pair<size_t, size_t>> all_coords = start_list;
+    all_coords.insert(all_coords.end(), dest_list.begin(), dest_list.end());
+
+    // Find bounding box
+    size_t xs = all_coords[0].first, xl = all_coords[0].first;
+    size_t ys = all_coords[0].second, yl = all_coords[0].second;
+    for (auto [x, y] : all_coords) {
+        if (x < xs) xs = x;
+        if (x > xl) xl = x;
+        if (y < ys) ys = y;
+        if (y > yl) yl = y;
+    }
+
+    std::vector<size_t> merge_list;
+    std::vector<size_t> keep_list; // patches to keep (in start or dest)
+    std::vector<size_t> discard_list;
+
+    // Helper lambda to check if a patch is in start or dest
+    auto is_in_list = [](const std::vector<std::pair<size_t, size_t>>& lst, size_t x, size_t y) {
+        for (auto [lx, ly] : lst) if (lx == x && ly == y) return true;
+        return false;
+    };
+
+    if (xs == xl) { // vertical merge
+        std::vector<bool> keep(yl - ys + 1, false);
+        for (size_t i = 0; i < keep.size(); ++i) {
+            size_t y = ys + i;
+            if (is_in_list(start_list, xs, y) || is_in_list(dest_list, xs, y)) keep[i] = true;
+        }
+        // Check for occupation conflicts
+        for (size_t i = 0; i < keep.size(); ++i) {
+            size_t patch_id = get_patch_id(xs, ys + i);
+            if (!keep[i] && get_patch(patch_id)->occupied()) {
+                fmt::println("ERROR: Cannot merge - patch at ({}, {}) with ID {} is already occupied", xs, ys + i, patch_id);
+                fmt::println("Aborting n_to_n due to occupied patches in the path");
+                return;
+            }
+        }
+        for (size_t i = 0; i < keep.size(); ++i) {
+            size_t patch_id = get_patch_id(xs, ys + i);
+            merge_list.push_back(patch_id);
+            if (keep[i]) keep_list.push_back(patch_id);
+            else discard_list.push_back(patch_id);
+        }
+        merge_patches(merge_list, {get_patch(merge_list.front())->get_td_type()});
+        split_patches(merge_list);
+        for (auto d : discard_list) {
+            discard_patch(d, get_patch(d)->get_td_type());
+        }
+    } else if (ys == yl) { // horizontal merge
+        std::vector<bool> keep(xl - xs + 1, false);
+        for (size_t i = 0; i < keep.size(); ++i) {
+            size_t x = xs + i;
+            if (is_in_list(start_list, x, ys) || is_in_list(dest_list, x, ys)) keep[i] = true;
+        }
+        // Check for occupation conflicts
+        for (size_t i = 0; i < keep.size(); ++i) {
+            size_t patch_id = get_patch_id(xs + i, ys);
+            if (!keep[i] && get_patch(patch_id)->occupied()) {
+                fmt::println("ERROR: Cannot merge - patch at ({}, {}) with ID {} is already occupied", xs + i, ys, patch_id);
+                fmt::println("Aborting n_to_n due to occupied patches in the path");
+                return;
+            }
+        }
+        for (size_t i = 0; i < keep.size(); ++i) {
+            size_t patch_id = get_patch_id(xs + i, ys);
+            merge_list.push_back(patch_id);
+            if (keep[i]) keep_list.push_back(patch_id);
+            else discard_list.push_back(patch_id);
+        }
+        merge_patches(merge_list, {get_patch(merge_list.front())->get_lr_type()});
+        split_patches(merge_list);
+        for (auto d : discard_list) {
+            discard_patch(d, get_patch(d)->get_lr_type());
+        }
+    } else {
+        fmt::println("n_to_n: Not yet developed for non-aligned cases");
+        return;
+    }
+    fmt::println("n to n");
+    print_grid();
+    print_occupied();
+}
 
 void LatticeSurgery::print_occupied(){
     fmt::println("");
@@ -902,6 +1042,95 @@ void LatticeSurgery::print_occupied(){
     }
     fmt::println("");
 };
+
+// void LatticeSurgery::one_to_n(std::pair<size_t,size_t> start_patch, std::vector<std::pair<size_t,size_t>>& patch_list){
+//     // Handle empty patch_list case
+//     if (patch_list.empty() || (patch_list.size() == 1 && patch_list[0] == start_patch)) {
+//         return;
+//     }
+    
+//     auto [xs, ys]=start_patch;
+//     auto [xl, yl]=start_patch;
+//     std::vector<size_t> merge_list;
+//     std::vector<size_t> discard_list;
+//     for(auto [x,y]: patch_list){
+//         if(x<xs) xs = x;
+//         else if(x>xl) xl = x;
+
+//         if(y<ys) ys=y;
+//         else if(y>yl) yl=y;
+//     }
+//     if(xs == xl){ // |
+//         std::vector<bool> check_discard(yl-ys+1, true);
+//         for(auto [_, y]: patch_list) check_discard[y-ys] = false;
+        
+//         // Check if all patches on the path (except START) are unoccupied
+//         for(size_t i=0; i<check_discard.size(); i++){
+//             // Skip occupied patches that are our destinations
+//             if(i == start_patch.second-ys) continue;
+            
+//             // Check if the patch is occupied
+//             size_t patch_id = get_patch_id(xs, ys+i);
+//             if(get_patch(patch_id)->occupied()) {
+//                 fmt::println("ERROR: Cannot merge - patch at ({}, {}) with ID {} is already occupied", 
+//                              xs, ys+i, patch_id);
+//                 fmt::println("Aborting one_to_n due to occupied patches in the path");
+//                 return;
+//             }
+//         }
+        
+//         fmt::println("1ton dest size {}", patch_list.size());
+//         fmt::println("1ton merge size {}", check_discard.size());
+        
+//         for(size_t i=0; i<check_discard.size(); i++){
+//             merge_list.emplace_back(get_patch_id(xs, ys+i));
+//             if(check_discard[i]) discard_list.emplace_back(get_patch_id(xs, ys+i));
+//         }
+//         fmt::println("1ton discard size {}", discard_list.size());
+//         merge_patches(merge_list, {get_patch(merge_list.front())->get_td_type()});
+//         split_patches(merge_list);
+//         for(auto d: discard_list){
+//             discard_patch(d, get_patch(d)->get_td_type());
+//         }
+//     }
+//     else if(ys == yl){ // <->
+//         std::vector<bool> check_discard(xl-xs+1, true);
+//         for(auto [x, _]: patch_list) check_discard[x-xs] = false;
+        
+//         // Check if all patches on the path (except START) are unoccupied
+//         for(size_t i=0; i<check_discard.size(); i++){
+//             // Skip occupied patches that are our destinations
+//             if(i == start_patch.first-xs) continue;
+            
+//             // Check if the patch is occupied
+//             size_t patch_id = get_patch_id(xs+i, ys);
+//             if(get_patch(patch_id)->occupied()) {
+//                 fmt::println("ERROR: Cannot merge - patch at ({}, {}) with ID {} is already occupied", 
+//                              xs+i, ys, patch_id);
+//                 fmt::println("Aborting one_to_n due to occupied patches in the path");
+//                 return;
+//             }
+//         }
+        
+        
+//         for(size_t i=0; i<check_discard.size(); i++){
+//             merge_list.emplace_back(get_patch_id(xs+i, ys));
+//             if(check_discard[i]) discard_list.emplace_back(get_patch_id(xs+i, ys));
+//         }
+//         merge_patches(merge_list, {get_patch(merge_list.front())->get_lr_type()});
+//         split_patches(merge_list);
+//         for(auto d: discard_list){
+//             discard_patch(d, get_patch(d)->get_lr_type());
+//         }
+//     }
+//     else{
+//         fmt::println("Not yet develop");
+//     }
+//     fmt::println("one to n");
+//     print_grid();
+//     print_occupied();
+
+// };
 
 // void LatticeSurgery::n_to_one(std::vector<std::pair<size_t,size_t>>& patch_list, std::pair<size_t,size_t> dest_patch){
 //     // Handle empty patch_list case
