@@ -1,6 +1,7 @@
-qc read ../circuit_gen/try.qasm
+qc read ./try.qasm
 qc2zx
 zx opt -f
 zx arrange
-zx draw after_arrange.pdf
+zx2ls
+ls w -lasre test.lasre.json
 quit -f

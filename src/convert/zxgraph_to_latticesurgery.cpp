@@ -871,6 +871,10 @@ LatticeSurgerySynthesisStrategy::LatticeSurgerySynthesisStrategy(zx::ZXGraph* zx
     fmt::println("create result lattice surgery");
     _result = LatticeSurgery{_num_qubits, _num_qubits};
 
+    // Initialize logical tracking for the grid
+    fmt::println("initialize logical tracking");
+    _result.init_logical_tracking(_num_qubits * _num_qubits);
+
     // create vertex map
     fmt::println("create vertex map");
     _vertex_map = create_vertex_map(zxgraph);
