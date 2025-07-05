@@ -28,6 +28,8 @@ std::string LatticeSurgeryGate::get_type_str() const {
             return "merge";
         case LatticeSurgeryOpType::split:
             return "split";
+        case LatticeSurgeryOpType::hadamard_l:
+            return "hadamard_l";
         case LatticeSurgeryOpType::measure:
             assert(!_measure.empty());
             measure_op << "M";
