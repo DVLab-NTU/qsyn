@@ -190,19 +190,87 @@ void Arranger::layer_scheduling(std::unordered_map<ZXVertex*, std::unordered_set
             Max_x_in_row[u->get_row()] = std::max(Max_x_in_row[u->get_row()], target_x);
         }
     }
-    size_t max_x = 0;
-    for(size_t i=0; i<Max_x_in_row.size(); i++){
-        max_x = std::max(max_x, Max_x_in_row[i]);
-    }
-    fmt::println("max_x: {}", max_x);
-    // Output the final coordinates
-    fmt::println("Final scheduled coordinates (x, y) for each spider:");
+
     for (auto* v : vertices) {
         // fmt::println("Spider {}: ({}, {})", v->get_id(), Final_x[v], y_initial[v]);
         v->set_col(Final_x[v]);
     }
+
+    std::vector<size_t> visit_num(std::max(_graph->num_inputs(), _graph->num_outputs()), 0);
+    std::vector<ZXVertex*> exist_internal_input(std::max(_graph->num_inputs(), _graph->num_outputs()), nullptr);
+    std::vector<ZXVertex*> reorder_internal_output;
+    for(auto* v: vertices){
+        if(v->is_boundary()) continue;
+        visit_num[v->get_row()] ++;
+        if(exist_internal_input[v->get_row()] == nullptr) exist_internal_input[v->get_row()] = v;
+        else{
+            if(v->get_col() < exist_internal_input[v->get_row()]->get_col()){
+                reorder_internal_output.push_back(exist_internal_input[v->get_row()]);
+                exist_internal_input[v->get_row()] = v;
+            }
+            else{
+                reorder_internal_output.push_back(v);
+            }
+        }
+    }
+    size_t internal_boundary = 0;
+    for(auto v: exist_internal_input){
+        if(v == nullptr) continue;
+        if(visit_num[v->get_row()] >1) internal_boundary = std::max(internal_boundary, (size_t)v->get_col());
+    }
+
+    for(size_t i=0; i<Max_x_in_row.size(); i++){
+        Max_x_in_row[i] = std::max(Max_x_in_row[i], internal_boundary);
+    }
+    
+    for(auto u: reorder_internal_output){
+        if(u->get_col() > internal_boundary) continue;
+        size_t min_x = Max_x_in_row[u->get_row()];
+        std::vector<bool> empty_slot(5, true);
+        for (auto& [p, _] : _graph->get_neighbors(u)) {
+            if(scheduled.count(p)) {
+                if(Final_x[p] < min_x) continue;
+                else if(Final_x[p]-min_x < empty_slot.size()) empty_slot[Final_x[p]-min_x] = false;
+                else{
+                    empty_slot.resize(Final_x[p]-min_x+1, true);
+                    empty_slot[Final_x[p]-min_x] = false;
+                }
+            }
+        }
+        // b. Find available spatial slot
+        size_t target_x = min_x;
+        for(size_t i=1; i<empty_slot.size(); i++){
+            if(empty_slot[i]){
+                target_x = min_x + i;
+                if(u->get_id()==114) fmt::println("114 target_x: {}", target_x);
+                break;
+            }
+        }
+        if(target_x == min_x) target_x = min_x + empty_slot.size();
+        
+        int y = y_initial[u];
+        while (Scheduled_Coordinates.count({target_x, y})) {
+            target_x++;
+        }
+        // c. Schedule
+        fmt::println("Spider {}: ({}, {})", u->get_id(), target_x, y);
+        Final_x[u] = target_x;
+        u->set_col(target_x);
+
+    }
+
+
+    size_t max_x = 0;
+    for(auto v: vertices){
+        if(v->is_boundary()) continue;
+        max_x = std::max(max_x, (size_t)v->get_col());
+    }
+    fmt::println("max_x: {}", max_x);
+    // Output the final coordinates
+    fmt::println("Final scheduled coordinates (x, y) for each spider:");
+    
     for(auto* v: _graph->get_outputs()){
-        v->set_col(max_x);
+        v->set_col(max_x+1);
     }
 }
 

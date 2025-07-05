@@ -33,6 +33,7 @@ public:
     };
     void arrange();
     void internal_vertex_splitting();
+    // void separate_internal_input_output();
     void create_vertex_map();
     void stitching_vertex();
     void hadamard_edge_absorb();
