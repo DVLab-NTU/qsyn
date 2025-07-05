@@ -402,13 +402,13 @@ std::string LatticeSurgery::to_lasre() const {
           if(max_y != patch_pos[patch].second) {
             data["ExistJ"][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = true;
             // Set initial color for J-pipe (removed Y measurement logic)
-            if(gate->get_depth() > 0) {
-              data["ColorJ"][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = 
-                data["ColorJ"][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth() - 1];
-            } else {
-              data["ColorJ"][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = 
-                ((patch_pos[patch].first + patch_pos[patch].second + gate->get_depth()) % 2 == 0);
-            }
+            // if(gate->get_depth() > 0) {
+            //   data["ColorJ"][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = 
+            //     data["ColorJ"][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth() - 1];
+            // } else {
+            //   data["ColorJ"][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = 
+            //     ((patch_pos[patch].first + patch_pos[patch].second + gate->get_depth()) % 2 == 0);
+            // }
           }
           // Set correlation surfaces for all patches in the merge
           for(auto d = gate->get_depth(); d < gate_depth; d++) {
@@ -449,6 +449,91 @@ std::string LatticeSurgery::to_lasre() const {
               data["ColorI"][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = 
                 ((patch_pos[patch].first + patch_pos[patch].second + gate->get_depth()) % 2 == 0);
             }
+          }
+          // Set correlation surfaces for all patches in the merge
+          for(auto d = gate->get_depth(); d < gate_depth; d++) {
+            data["ExistK"][patch_pos[patch].first][patch_pos[patch].second][d] = true;
+            // Set color for K-pipe (normal coloring, no Y measurement handling)
+            data["ColorKP"][patch_pos[patch].first][patch_pos[patch].second][d] = 
+              ((patch_pos[patch].first + patch_pos[patch].second + d) % 2 == 0);
+            data["ColorKM"][patch_pos[patch].first][patch_pos[patch].second][d] = 
+              ((patch_pos[patch].first + patch_pos[patch].second + d) % 2 == 0);
+          }
+          
+          // Set correlation surfaces based on measurement type (removed Y measurement special case)
+          if (i < gate->get_measure_types().size()) {
+            // Use stabilizer index 0 instead of hardcoded 1
+            if (data["n_s"].get<size_t>() > 0) {
+              data["CorrIJ"][0][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = true;
+              data["CorrKI"][0][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = true;
+            }
+          }
+        }
+      }
+    }
+    else if(gate->get_operation_type() == LatticeSurgeryOpType::measure_c){ // merge
+      bool x_direction = patch_pos[gate->get_qubits()[0]].first == patch_pos[gate->get_qubits()[1]].first;
+      if(x_direction){
+        size_t max_y = 0;
+        for(size_t i=0; i<gate->get_num_qubits(); i++){
+          auto patch = gate->get_qubits()[i];
+          if(max_y < patch_pos[patch].second) max_y = patch_pos[patch].second;
+        }
+        // Set up J-pipes for x-direction merge
+        for(size_t i=0; i< gate->get_num_qubits(); i++){
+          auto patch = gate->get_qubits()[i];
+          if(max_y != patch_pos[patch].second) {
+            data["ExistJ"][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = true;
+            data["ColorJ"][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = true;
+            // Set initial color for J-pipe (removed Y measurement logic)
+            // if(gate->get_depth() > 0) {
+            //   data["ColorJ"][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = 
+            //     data["ColorJ"][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth() - 1];
+            // } else {
+            //   data["ColorJ"][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = 
+            //     ((patch_pos[patch].first + patch_pos[patch].second + gate->get_depth()) % 2 == 0);
+            // }
+          }
+          // Set correlation surfaces for all patches in the merge
+          for(auto d = gate->get_depth(); d < gate_depth; d++) {
+            data["ExistK"][patch_pos[patch].first][patch_pos[patch].second][d] = true;
+            // Set color for K-pipe (normal coloring, no Y measurement handling)
+            data["ColorKP"][patch_pos[patch].first][patch_pos[patch].second][d] = 
+              ((patch_pos[patch].first + patch_pos[patch].second + d) % 2 == 0);
+            data["ColorKM"][patch_pos[patch].first][patch_pos[patch].second][d] = 
+              ((patch_pos[patch].first + patch_pos[patch].second + d) % 2 == 0);
+          }
+          
+          // Set correlation surfaces based on measurement type (removed Y measurement special case)
+          if (i < gate->get_measure_types().size()) {
+            // Use stabilizer index 0 instead of hardcoded 1
+            if (data["n_s"].get<size_t>() > 0) {
+              data["CorrJI"][0][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = true;
+              data["CorrKJ"][0][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = true;
+            }
+          }
+        }
+      }
+      else{
+        size_t max_x = 0;
+        for(size_t i=0; i<gate->get_num_qubits(); i++){
+          auto patch = gate->get_qubits()[i];
+          if(max_x < patch_pos[patch].first) max_x = patch_pos[patch].first;
+        }
+        // Set up I-pipes for y-direction merge
+        for(size_t i=0; i< gate->get_num_qubits(); i++){
+          auto patch = gate->get_qubits()[i];
+          if(max_x != patch_pos[patch].first) {
+            data["ExistI"][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = true;
+            data["ColorI"][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = true;
+            // Set initial color for I-pipe (removed Y measurement logic)
+            // if(gate->get_depth() > 0) {
+            //   data["ColorI"][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = 
+            //     data["ColorI"][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth() - 1];
+            // } else {
+            //   data["ColorI"][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = 
+            //     ((patch_pos[patch].first + patch_pos[patch].second + gate->get_depth()) % 2 == 0);
+            // }
           }
           // Set correlation surfaces for all patches in the merge
           for(auto d = gate->get_depth(); d < gate_depth; d++) {

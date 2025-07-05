@@ -49,6 +49,25 @@ std::string LatticeSurgeryGate::get_type_str() const {
                 }
             }
             return measure_op.str();
+        case LatticeSurgeryOpType::measure_c:
+            assert(!_measure.empty());
+            measure_op << "(c) M";
+            for (auto measure_type : _measure) {
+                switch (measure_type) {
+                    case MeasureType::x:
+                        measure_op << "X"; // Append "X" for X measurement
+                        break;
+                    case MeasureType::y:
+                        measure_op << "Y"; // Append "Y" for Y measurement
+                        break;
+                    case MeasureType::z:
+                        measure_op << "Z"; // Append "Z" for Z measurement
+                        break;
+                    default:
+                        measure_op << "-"; // Handle unexpected measure_type
+                }
+            }
+            return measure_op.str();
         default:
             return "unknown";
     }

@@ -687,7 +687,7 @@ bool LatticeSurgery::merge_patches(std::vector<QubitIdType> const& patch_ids) {
     return true;
 }
 
-bool LatticeSurgery::merge_patches(std::vector<QubitIdType> patch_ids, std::vector<MeasureType> measure_types){
+bool LatticeSurgery::merge_patches(std::vector<QubitIdType> patch_ids, std::vector<MeasureType> measure_types, bool color_flip = false, size_t depth = 0){
     // Check for empty arguments
     if (patch_ids.empty()) {
         fmt::println("WARNING: Cannot merge empty patch list");
@@ -700,7 +700,7 @@ bool LatticeSurgery::merge_patches(std::vector<QubitIdType> patch_ids, std::vect
     }
     
     // Debug: print all patch IDs
-    fmt::println("Patches to merge: {}", fmt::join(patch_ids, ", "));
+    fmt::println("Patches to merge (depth: {}): {}", depth, fmt::join(patch_ids, ", "));
     
     for (auto id : patch_ids) {
         // Validate all patch IDs exist
@@ -744,19 +744,23 @@ bool LatticeSurgery::merge_patches(std::vector<QubitIdType> patch_ids, std::vect
 
     size_t max_depth = 0;
     // Update logical IDs for all patches
-    for (QubitIdType patch_id : patch_ids) {
-        get_patch(patch_id)->set_logical_id(smallest_logical_id);
-        get_patch(patch_id)->set_occupied(true);
-        if(get_patch(patch_id)->get_depth() > max_depth) max_depth = get_patch(patch_id)->get_depth();
+    if (depth == 0){
+        for (QubitIdType patch_id : patch_ids) {
+            get_patch(patch_id)->set_logical_id(smallest_logical_id);
+            if(get_patch(patch_id)->get_depth() > max_depth) max_depth = get_patch(patch_id)->get_depth();
+        }
+
+        
     }
 
     // update the depth
     for(QubitIdType patch_id: patch_ids){
-        get_patch(patch_id)->set_depth(max_depth+1);
+        get_patch(patch_id)->set_occupied(true);
+        get_patch(patch_id)->set_depth(depth > 0 ? depth : max_depth+1);
     }
     
 
-    append({LatticeSurgeryOpType::measure, patch_ids, measure_types, max_depth+1});
+    append({color_flip ? LatticeSurgeryOpType::measure_c : LatticeSurgeryOpType::measure, patch_ids, measure_types, depth > 0 ? depth : max_depth+1});
 
     return true;
 };
@@ -838,160 +842,162 @@ void LatticeSurgery::hadamard(size_t col, size_t row){
     
 };
 
-void LatticeSurgery::hadamard(std::pair<size_t, size_t> start, std::vector<std::pair<size_t, size_t>>& dest_list, bool preserve_start){
+void LatticeSurgery::hadamard(std::pair<size_t, size_t> start, std::vector<std::pair<size_t, size_t>>& dest_list, bool preserve_start, bool is_x){
     // New L-shaped Hadamard logic with color continuity
-    // Creates L-pipe with continuous color, no Y measurements needed
-    auto [start_col, start_row] = start;
-    
-    if (dest_list.empty()) return;
-    
-    if (dest_list.size() == 1) {
-        // Single destination: L-shape from start to dest
-        auto [dest_col, dest_row] = dest_list[0];
-        
-        // Determine max depth from involved patches
-        size_t max_depth = 0;
-        max_depth = std::max(max_depth, get_patch(start_col, start_row)->get_depth());
-        max_depth = std::max(max_depth, get_patch(dest_col, dest_row)->get_depth());
-        
-        // Create L-pipe patches list in order: start -> corner -> dest
-        std::vector<size_t> l_pipe_patches;
-        
-        // Step 1: Build path from start to corner
-        if (start_col != dest_col) {
-            int col_step = (dest_col > start_col) ? 1 : -1;
-            for (int c = start_col; c != dest_col; c += col_step) {
-                l_pipe_patches.push_back(get_patch_id(c, start_row));
-                max_depth = std::max(max_depth, get_patch(c, start_row)->get_depth());
+    // is_x: true start with | x direction, false if start with <-> z direction
+    //get the involved patches
+
+    size_t max_depth = 0;
+    std::vector<size_t> merge_1_list;
+    std::vector<size_t> merge_2_list;
+    std::vector<size_t> discard_list;
+
+    if(dest_list.size() == 1){
+        if(is_x){
+            // | x direction
+            size_t ys = 0;
+            size_t yl = 0;
+            if(start.second < dest_list[0].second){
+                ys = start.second;
+                yl = dest_list[0].second;
+            }
+            else{
+                ys = dest_list[0].second;
+                yl = start.second;
+            }
+            for(size_t y=ys; y<=yl; y++){
+                merge_1_list.push_back(get_patch_id(start.first, y));
+                if(y != start.second || (y == start.second && !preserve_start)) discard_list.push_back(get_patch_id(start.first, y));
+            }
+            size_t xs = 0;
+            size_t xl = 0;
+            if(start.first < dest_list[0].first){
+                xs = start.first;
+                xl = dest_list[0].first;
+            }
+            else{
+                xs = dest_list[0].first;
+                xl = start.first;
+            }
+            for(size_t x=xs; x<=xl; x++){
+                merge_2_list.push_back(get_patch_id(x, dest_list[0].second));
+                if(x != dest_list[0].first) discard_list.push_back(get_patch_id(x, dest_list[0].second));
             }
         }
-        
-        // Add corner patch
-        l_pipe_patches.push_back(get_patch_id(dest_col, start_row));
-        max_depth = std::max(max_depth, get_patch(dest_col, start_row)->get_depth());
-        
-        // Step 2: Build path from corner to destination
-        if (start_row != dest_row) {
-            int row_step = (dest_row > start_row) ? 1 : -1;
-            for (int r = start_row + row_step; r != dest_row + row_step; r += row_step) {
-                l_pipe_patches.push_back(get_patch_id(dest_col, r));
-                max_depth = std::max(max_depth, get_patch(dest_col, r)->get_depth());
+        else{
+            // <-> z direction
+            size_t xs = 0;
+            size_t xl = 0;
+            if(start.first < dest_list[0].first){
+                xs = start.first;
+                xl = dest_list[0].first;
+            }
+            else{
+                xs = dest_list[0].first;
+                xl = start.first;
+            }
+            for(size_t x=xs; x<=xl; x++){
+                merge_1_list.push_back(get_patch_id(x, start.second));
+                if(x != start.first || (x == start.first && !preserve_start)) discard_list.push_back(get_patch_id(x, start.second));
+            }
+            size_t ys = 0;
+            size_t yl = 0;
+            if(start.second < dest_list[0].second){
+                ys = start.second;
+                yl = dest_list[0].second;
+            }
+            else{
+                ys = dest_list[0].second;
+                yl = start.second;
+            }
+            for(size_t y=ys; y<=yl; y++){
+                merge_2_list.push_back(get_patch_id(dest_list[0].first, y));
+                if(y != dest_list[0].second) discard_list.push_back(get_patch_id(dest_list[0].first, y));
             }
         }
-        
-        // Update depths for all patches in L-pipe
-        for (auto patch_id : l_pipe_patches) {
-            get_patch(patch_id)->set_depth(max_depth + 1);
-            get_patch(patch_id)->set_occupied(true);
+        for(auto m: merge_1_list){
+            if(get_patch(m)->get_depth() > max_depth) max_depth = get_patch(m)->get_depth();
         }
-        
-        // Create hadamard_l gate to track the L-pipe for color continuity
-        // Store additional info: [start_patch, corner_patch, dest_patch]
-        std::vector<size_t> hadamard_patches = {
-            get_patch_id(start_col, start_row),
-            get_patch_id(dest_col, start_row), // corner
-            get_patch_id(dest_col, dest_row)
-        };
-        
-        append({LatticeSurgeryOpType::hadamard_l, hadamard_patches, max_depth + 1});
-        
-        // Optionally discard start if not preserve_start
-        if (!preserve_start) {
-            discard_patch(get_patch_id(start_col, start_row), get_patch(start_col, start_row)->get_td_type());
+        for(auto m: merge_2_list){
+            if(get_patch(m)->get_depth() > max_depth) max_depth = get_patch(m)->get_depth();
         }
-    } else {
-        // Multiple destinations: all dest in same column or row
-        size_t target_col = dest_list[0].first;
-        size_t target_row = dest_list[0].second;
-        
-        // Check if all destinations are in same column or row
-        bool same_col = std::all_of(dest_list.begin(), dest_list.end(), 
-                                   [target_col](const auto& dest) { return dest.first == target_col; });
-        bool same_row = std::all_of(dest_list.begin(), dest_list.end(), 
-                                   [target_row](const auto& dest) { return dest.second == target_row; });
-        
-        if (!same_col && !same_row) {
-            fmt::println("ERROR: Multiple destination hadamard requires all destinations in same column or row");
-            return;
-        }
-        
-        size_t max_depth = get_patch(start_col, start_row)->get_depth();
-        
-        // Create L-pipe patches for multi-destination
-        std::vector<size_t> l_pipe_patches;
-        
-        if (same_col) {
-            // Step 1: Grow from start to target_col
-            if (start_col != target_col) {
-                int col_step = (target_col > start_col) ? 1 : -1;
-                for (int c = start_col; c != target_col; c += col_step) {
-                    l_pipe_patches.push_back(get_patch_id(c, start_row));
-                    max_depth = std::max(max_depth, get_patch(c, start_row)->get_depth());
-                }
-            }
-            l_pipe_patches.push_back(get_patch_id(target_col, start_row));
-            max_depth = std::max(max_depth, get_patch(target_col, start_row)->get_depth());
-            
-            // Step 2: Add paths to each destination
-            for (auto& dest : dest_list) {
-                auto [dcol, drow] = dest;
-                if (start_row != drow) {
-                    int row_step = (drow > start_row) ? 1 : -1;
-                    for (int r = start_row + row_step; r != drow + row_step; r += row_step) {
-                        l_pipe_patches.push_back(get_patch_id(target_col, r));
-                        max_depth = std::max(max_depth, get_patch(target_col, r)->get_depth());
-                    }
-                }
-            }
-        } else { // same_row
-            // Step 1: Grow from start to target_row
-            if (start_row != target_row) {
-                int row_step = (target_row > start_row) ? 1 : -1;
-                for (int r = start_row; r != target_row; r += row_step) {
-                    l_pipe_patches.push_back(get_patch_id(start_col, r));
-                    max_depth = std::max(max_depth, get_patch(start_col, r)->get_depth());
-                }
-            }
-            l_pipe_patches.push_back(get_patch_id(start_col, target_row));
-            max_depth = std::max(max_depth, get_patch(start_col, target_row)->get_depth());
-            
-            // Step 2: Add paths to each destination
-            for (auto& dest : dest_list) {
-                auto [dcol, drow] = dest;
-                if (start_col != dcol) {
-                    int col_step = (dcol > start_col) ? 1 : -1;
-                    for (int c = start_col + col_step; c != dcol + col_step; c += col_step) {
-                        l_pipe_patches.push_back(get_patch_id(c, target_row));
-                        max_depth = std::max(max_depth, get_patch(c, target_row)->get_depth());
-                    }
-                }
-            }
-        }
-        
-        // Update depths for all patches in L-pipe
-        for (auto patch_id : l_pipe_patches) {
-            get_patch(patch_id)->set_depth(max_depth + 1);
-            get_patch(patch_id)->set_occupied(true);
-        }
-        
-        // Create hadamard_l gate for multi-destination
-        std::vector<size_t> hadamard_patches = {get_patch_id(start_col, start_row)};
-        if (same_col) {
-            hadamard_patches.push_back(get_patch_id(target_col, start_row)); // corner
-        } else {
-            hadamard_patches.push_back(get_patch_id(start_col, target_row)); // corner
-        }
-        for (auto& dest : dest_list) {
-            hadamard_patches.push_back(get_patch_id(dest.first, dest.second));
-        }
-        
-        append({LatticeSurgeryOpType::hadamard_l, hadamard_patches, max_depth + 1});
-        
-        // Optionally discard start if not preserve_start
-        if (!preserve_start) {
-            discard_patch(get_patch_id(start_col, start_row), get_patch(start_col, start_row)->get_td_type());
+        merge_patches(merge_1_list, {is_x ? MeasureType::x : MeasureType::z}, false, max_depth+1);
+        merge_patches(merge_2_list, {is_x ? MeasureType::z : MeasureType::x}, true, max_depth+1);
+        for(auto d: discard_list){
+            discard_patch(d, get_patch(d)->get_td_type());
         }
     }
+    else{
+        if(is_x){
+            // | x direction
+            size_t xs = 0;
+            size_t xl = 0;
+            if(start.first < dest_list[0].first){
+                xs = start.first;
+                xl = dest_list[0].first;
+            }
+            else{
+                xs = dest_list[0].first;
+                xl = start.first;
+            }
+            for(size_t x=xs; x<=xl; x++){
+                merge_1_list.push_back(get_patch_id(x, start.second));
+                if(x != start.first || (x == start.first && !preserve_start)) discard_list.push_back(get_patch_id(x, start.second));
+            }
+            size_t ys = start.second;
+            size_t yl = start.second;
+            for(auto [x, y]: dest_list){
+                if(y < ys) ys = y;
+                if(y > yl) yl = y;
+            }
+            for(size_t y=ys; y<=yl; y++){
+                merge_2_list.push_back(get_patch_id(dest_list[0].first, y));
+                // if (dest_list[0].first, y) not in dest_list, discard_list.push_back(get_patch_id(dest_list[0].first, y));
+                if(std::find(dest_list.begin(), dest_list.end(), std::make_pair(dest_list[0].first, y)) == dest_list.end()) discard_list.push_back(get_patch_id(dest_list[0].first, y));
+            }
+        }
+        else{
+            // <-> z direction
+            size_t ys = 0;
+            size_t yl = 0;
+            if(start.second < dest_list[0].second){
+                ys = start.second;
+                yl = dest_list[0].second;
+            }
+            else{
+                ys = dest_list[0].second;
+                yl = start.second;
+            }
+            for(size_t y=ys; y<=yl; y++){
+                merge_1_list.push_back(get_patch_id(start.first, y));
+                if(y != start.second || (y == start.second && !preserve_start)) discard_list.push_back(get_patch_id(start.first, y));
+            }
+            size_t xs = start.first;
+            size_t xl = start.first;
+            for(auto [x, y]: dest_list){
+                if(x < xs) xs = x;
+                if(x > xl) xl = x;
+            }
+            for(size_t x=xs; x<=xl; x++){
+                merge_2_list.push_back(get_patch_id(x, dest_list[0].second));
+                if(std::find(dest_list.begin(), dest_list.end(), std::make_pair(x, dest_list[0].second)) == dest_list.end()) discard_list.push_back(get_patch_id(x, dest_list[0].second));
+            }
+        }
+        for(auto m: merge_1_list){
+            if(get_patch(m)->get_depth() > max_depth) max_depth = get_patch(m)->get_depth();
+        }
+        for(auto m: merge_2_list){
+            if(get_patch(m)->get_depth() > max_depth) max_depth = get_patch(m)->get_depth();
+        }
+        merge_patches(merge_1_list, {is_x ? MeasureType::z : MeasureType::x}, false, max_depth+1);
+        merge_patches(merge_2_list, {is_x ? MeasureType::x : MeasureType::z}, true, max_depth+1);
+        for(auto d: discard_list){
+            discard_patch(d, get_patch(d)->get_td_type());
+        }
+    }
+    
+    return;
+    
 };
 
 void LatticeSurgery::discard_patch(QubitIdType id, MeasureType measure_type){
@@ -1021,7 +1027,7 @@ void LatticeSurgery::discard_patch(QubitIdType id, MeasureType measure_type){
 void LatticeSurgery::n_to_n(std::vector<std::pair<size_t,size_t>>& start_list, std::vector<std::pair<size_t,size_t>>& dest_list){
     // Handle empty or trivial cases
     if (start_list.empty() || dest_list.empty()) return;
-    if (start_list == dest_list) return;
+    if (start_list == dest_list && start_list.size() == 1) return;
 
     // Combine all coordinates
     std::vector<std::pair<size_t, size_t>> all_coords = start_list;
@@ -1051,17 +1057,17 @@ void LatticeSurgery::n_to_n(std::vector<std::pair<size_t,size_t>>& start_list, s
         std::vector<bool> keep(yl - ys + 1, false);
         for (size_t i = 0; i < keep.size(); ++i) {
             size_t y = ys + i;
-            if (is_in_list(start_list, xs, y) || is_in_list(dest_list, xs, y)) keep[i] = true;
+            if (is_in_list(dest_list, xs, y)) keep[i] = true;
         }
         // Check for occupation conflicts
-        for (size_t i = 0; i < keep.size(); ++i) {
-            size_t patch_id = get_patch_id(xs, ys + i);
-            if (!keep[i] && get_patch(patch_id)->occupied()) {
-                fmt::println("ERROR: Cannot merge - patch at ({}, {}) with ID {} is already occupied", xs, ys + i, patch_id);
-                fmt::println("Aborting n_to_n due to occupied patches in the path");
-                return;
-            }
-        }
+        // for (size_t i = 0; i < keep.size(); ++i) {
+        //     size_t patch_id = get_patch_id(xs, ys + i);
+        //     if (!keep[i] && get_patch(patch_id)->occupied()) {
+        //         fmt::println("ERROR: Cannot merge - patch at ({}, {}) with ID {} is already occupied", xs, ys + i, patch_id);
+        //         fmt::println("Aborting n_to_n due to occupied patches in the path");
+        //         return;
+        //     }
+        // }
         for (size_t i = 0; i < keep.size(); ++i) {
             size_t patch_id = get_patch_id(xs, ys + i);
             merge_list.push_back(patch_id);
@@ -1077,17 +1083,17 @@ void LatticeSurgery::n_to_n(std::vector<std::pair<size_t,size_t>>& start_list, s
         std::vector<bool> keep(xl - xs + 1, false);
         for (size_t i = 0; i < keep.size(); ++i) {
             size_t x = xs + i;
-            if (is_in_list(start_list, x, ys) || is_in_list(dest_list, x, ys)) keep[i] = true;
+            if (is_in_list(dest_list, x, ys)) keep[i] = true;
         }
         // Check for occupation conflicts
-        for (size_t i = 0; i < keep.size(); ++i) {
-            size_t patch_id = get_patch_id(xs + i, ys);
-            if (!keep[i] && get_patch(patch_id)->occupied()) {
-                fmt::println("ERROR: Cannot merge - patch at ({}, {}) with ID {} is already occupied", xs + i, ys, patch_id);
-                fmt::println("Aborting n_to_n due to occupied patches in the path");
-                return;
-            }
-        }
+        // for (size_t i = 0; i < keep.size(); ++i) {
+        //     size_t patch_id = get_patch_id(xs + i, ys);
+        //     if (!keep[i] && get_patch(patch_id)->occupied()) {
+        //         fmt::println("ERROR: Cannot merge - patch at ({}, {}) with ID {} is already occupied", xs + i, ys, patch_id);
+        //         fmt::println("Aborting n_to_n due to occupied patches in the path");
+        //         return;
+        //     }
+        // }
         for (size_t i = 0; i < keep.size(); ++i) {
             size_t patch_id = get_patch_id(xs + i, ys);
             merge_list.push_back(patch_id);

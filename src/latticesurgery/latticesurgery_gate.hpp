@@ -21,6 +21,7 @@ enum class LatticeSurgeryOpType {
     merge, 
     split,
     measure, // single qubit : {X,Y,Z} double qubits: {X,Y,Z} * {X,Y,Z}
+    measure_c, // similar to measure, but with color continuity for corners
     hadamard_l, // L-pipe hadamard with color continuity
     initialize,
 };

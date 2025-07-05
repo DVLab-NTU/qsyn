@@ -61,19 +61,7 @@ std::optional<LatticeSurgery> LatticeSurgerySynthesisStrategy::synthesize(){
    fmt::println("start to create the lattice surgery");
    for(size_t i=0; i<_vertex_map.size(); i++){
 
-        fmt::println("mapping layer {}", i);
-
-        if(i == _vertex_map.size()-1) {
-            for(size_t j=0; j<_num_qubits; j++){
-                std::vector<size_t> start_patches;  
-                std::vector<size_t> dest_patches{j};
-                for(size_t k=0; k<_num_qubits; k++){
-                    if(pre_layer[j][k] == PatchType::simple || pre_layer[j][k] == PatchType::hadamard) start_patches.emplace_back(k);
-                }
-                n_to_n_merge(j, start_patches, dest_patches, color_map[i]);
-            }
-            break;
-        }
+        fmt::println("mapping layer {}/{}", i, _vertex_map.size()-1);
 
         fmt::println("pre_layer:");
         for(size_t j=0; j<_num_qubits; j++){
@@ -84,6 +72,21 @@ std::optional<LatticeSurgery> LatticeSurgerySynthesisStrategy::synthesize(){
             }
             fmt::println("");
         }
+        fmt::println("");
+        if(i == _vertex_map.size()-1) {
+            fmt::println("last layer");
+            for(size_t j=0; j<_num_qubits; j++){
+                std::vector<size_t> start_patches;  
+                std::vector<size_t> dest_patches = {j};
+                for(size_t k=0; k<_num_qubits; k++){
+                    if(pre_layer[j][k] == PatchType::simple || pre_layer[j][k] == PatchType::hadamard) start_patches.emplace_back(k);
+                }
+                n_to_n_merge(j, start_patches, dest_patches, color_map[i]);
+            }
+            break;
+        }
+
+        
 
         // create layout for current layer
         std::vector<std::vector<PatchType>> cur_layer(_num_qubits, std::vector<PatchType>(_num_qubits, PatchType::empty));
@@ -434,7 +437,7 @@ std::optional<LatticeSurgery> LatticeSurgerySynthesisStrategy::synthesize(){
                 fmt::println("start_indices: ({}, {})", start_indices[0], start_indices[1]);
                 fmt::println("dest_patches: ({}, {})", dest_patches[0].first, dest_patches[0].second);
                 if(!color_map[i]){ // <-> z
-                    _result.hadamard(std::make_pair(start_indices[0], start_indices[1]), dest_patches, (qubit_id > 0) ? true : false);
+                    _result.hadamard(std::make_pair(start_indices[0], start_indices[1]), dest_patches, (qubit_id > 0) ? true : false, color_map[i]);
                     next_layer[dest_indices[1]][dest_indices[0]] = PatchType::simple;
                     if(qubit_id > 0){
                         next_layer[start_indices[1]][start_indices[0]] = PatchType::simple;
@@ -446,7 +449,7 @@ std::optional<LatticeSurgery> LatticeSurgerySynthesisStrategy::synthesize(){
                     fmt::println("Z Preserve {}: ({}, {})", qubit_id > 0 ? "true" : "false", start_indices[1], start_indices[0]);
                 }
                 else{ // | x
-                    _result.hadamard(std::make_pair(start_indices[0], start_indices[1]), dest_patches, (qubit_id > 0) ? true : false);
+                    _result.hadamard(std::make_pair(start_indices[0], start_indices[1]), dest_patches, (qubit_id > 0) ? true : false, color_map[i]);
                     next_layer[dest_indices[0]][dest_indices[1]] = PatchType::simple;
                     if(qubit_id > 0){
                         next_layer[start_indices[0]][start_indices[1]] = PatchType::simple;
@@ -852,7 +855,7 @@ void LatticeSurgerySynthesisStrategy::n_to_n_merge(size_t qubit_id, std::vector<
 }
 
 std::vector<std::vector<ZXVertex*>> LatticeSurgerySynthesisStrategy::create_vertex_map(const zx::ZXGraph* zxgraph){
-    std::vector<std::vector<ZXVertex*>> vertex_map(5, std::vector<ZXVertex*>(std::max(zxgraph->num_inputs(), zxgraph->num_outputs()), nullptr));
+    std::vector<std::vector<ZXVertex*>> vertex_map(1, std::vector<ZXVertex*>(std::max(zxgraph->num_inputs(), zxgraph->num_outputs()), nullptr));
     for(auto& vertex: zxgraph->get_vertices()){
         if(vertex->get_col() >= vertex_map.size()) vertex_map.resize(vertex->get_col()+1, std::vector<ZXVertex*>(std::max(zxgraph->num_inputs(), zxgraph->num_outputs()), nullptr));
         vertex_map[vertex->get_col()][vertex->get_row()] = vertex;

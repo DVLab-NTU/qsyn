@@ -109,7 +109,10 @@ public:
 
     // Merge/Split operations
     bool merge_patches(std::vector<QubitIdType> const& patch_ids); // TO CHECK
-    bool merge_patches(std::vector<QubitIdType> patch_ids, std::vector<MeasureType> measure_types); // TO CHECK
+    // bool merge_patches(std::vector<QubitIdType> patch_ids, std::vector<MeasureType> measure_types){
+    //     return merge_patches(patch_ids, measure_types, false, 0);
+    // }
+    bool merge_patches(std::vector<QubitIdType> patch_ids, std::vector<MeasureType> measure_types, bool color_flip, size_t depth); // TO CHECK
     bool split_patches(std::vector<QubitIdType> const& patch_ids); // TO CHECK
     bool check_connectivity(std::vector<QubitIdType> const& patch_ids) const;
     bool check_same_logical_id(std::vector<QubitIdType> const& patch_ids) const;
@@ -121,7 +124,7 @@ public:
     // void n_to_one(std::vector<std::pair<size_t,size_t>>& init_patches, std::pair<size_t,size_t> dest_patch); // TO CHECK
     void n_to_n(std::vector<std::pair<size_t,size_t>>& start_list, std::vector<std::pair<size_t,size_t>>& dest_list); // TO CHECK
     void hadamard(size_t col, size_t row); // TO CHECK
-    void hadamard(std::pair<size_t, size_t> start, std::vector<std::pair<size_t, size_t>>& dest_list, bool preserve_start); // TO CHECK start: the original patch needed hadamard, dest: the adjecent patch to adjust set back the orientation of the patch
+    void hadamard(std::pair<size_t, size_t> start, std::vector<std::pair<size_t, size_t>>& dest_list, bool preserve_start, bool is_x); // TO CHECK start: the original patch needed hadamard, dest: the adjecent patch to adjust set back the orientation of the patch
     void discard_patch(QubitIdType id, MeasureType measure_type); // TO CHECK
 
 
