@@ -734,6 +734,7 @@ bool LatticeSurgery::merge_patches(std::vector<QubitIdType> patch_ids, std::vect
 
     // If no non-zero logical ID found, use the first patch's ID
     if (!found_non_zero) {
+        // return false;
         smallest_logical_id = patch_ids[0];
     }
 
