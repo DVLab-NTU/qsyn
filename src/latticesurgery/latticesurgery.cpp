@@ -1054,7 +1054,7 @@ void LatticeSurgery::n_to_n(std::vector<std::pair<size_t,size_t>>& start_list, s
         return false;
     };
 
-    if (xs == xl) { // vertical merge
+    if (xs == xl) { // vertical merge (same column, different rows) - should use X measurements
         std::vector<bool> keep(yl - ys + 1, false);
         for (size_t i = 0; i < keep.size(); ++i) {
             size_t y = ys + i;
@@ -1075,12 +1075,13 @@ void LatticeSurgery::n_to_n(std::vector<std::pair<size_t,size_t>>& start_list, s
             if (keep[i]) keep_list.push_back(patch_id);
             else discard_list.push_back(patch_id);
         }
-        merge_patches(merge_list, {get_patch(merge_list.front())->get_td_type()});
+        // Vertical merge uses X measurements (along vertical boundaries)
+        merge_patches(merge_list, {get_patch(merge_list.front())->get_lr_type()});
         split_patches(merge_list);
         for (auto d : discard_list) {
-            discard_patch(d, get_patch(d)->get_td_type());
+            discard_patch(d, get_patch(d)->get_lr_type());
         }
-    } else if (ys == yl) { // horizontal merge
+    } else if (ys == yl) { // horizontal merge (same row, different columns) - should use Z measurements
         std::vector<bool> keep(xl - xs + 1, false);
         for (size_t i = 0; i < keep.size(); ++i) {
             size_t x = xs + i;
@@ -1101,10 +1102,11 @@ void LatticeSurgery::n_to_n(std::vector<std::pair<size_t,size_t>>& start_list, s
             if (keep[i]) keep_list.push_back(patch_id);
             else discard_list.push_back(patch_id);
         }
-        merge_patches(merge_list, {get_patch(merge_list.front())->get_lr_type()});
+        // Horizontal merge uses Z measurements (along horizontal boundaries)
+        merge_patches(merge_list, {get_patch(merge_list.front())->get_td_type()});
         split_patches(merge_list);
         for (auto d : discard_list) {
-            discard_patch(d, get_patch(d)->get_lr_type());
+            discard_patch(d, get_patch(d)->get_td_type());
         }
     } else {
         fmt::println("n_to_n: Not yet developed for non-aligned cases");

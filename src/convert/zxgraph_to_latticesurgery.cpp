@@ -265,7 +265,7 @@ std::optional<LatticeSurgery> LatticeSurgerySynthesisStrategy::synthesize(){
 
                     count_hadamard_start[best_idx]++;
 
-                    if(!color_map[i]){ // <-> z
+                    if(!color_map[i]){ // <-> z direction
                         hadamard_ls_operations.emplace_back(
                             std::make_tuple(
                                 'h',
@@ -282,7 +282,7 @@ std::optional<LatticeSurgery> LatticeSurgerySynthesisStrategy::synthesize(){
                         // fmt::println("start_indices: ({}, {})", best_idx, cur_qubit);
                         // fmt::println("dest_patches: ({}, {})", hs[0], ancilla);
                     }
-                    else{ // x
+                    else{ // | x direction
                         hadamard_ls_operations.emplace_back(
                             std::make_tuple(
                                 'h',
@@ -329,7 +329,7 @@ std::optional<LatticeSurgery> LatticeSurgerySynthesisStrategy::synthesize(){
                         // fmt::println("exist hadamard ops");
                     }
                     
-                    if(!color_map[i]){ // <-> z
+                    if(!color_map[i]){ // <-> z direction
                         hadamard_ls_operations.emplace_back(
                             std::make_tuple(
                                 'h',
@@ -345,7 +345,7 @@ std::optional<LatticeSurgery> LatticeSurgerySynthesisStrategy::synthesize(){
                         // fmt::println("start_indices: ({}, {})", best_idx, cur_qubit);
                         // fmt::println("dest_patches: ({}, {})", hs[0], ancilla);
                     }
-                    else{ // |x
+                    else{ // | x direction
                         hadamard_ls_operations.emplace_back(
                             std::make_tuple(
                                 'h',
@@ -424,7 +424,7 @@ std::optional<LatticeSurgery> LatticeSurgerySynthesisStrategy::synthesize(){
             for(auto op: hadamard_ls_operations){
                 auto& [op_type, qubit_id, indices_pair] = op;
                 auto& [start_indices, dest_indices] = indices_pair;
-                if(!color_map[i]){ // <-> z
+                if(!color_map[i]){ // <-> z direction
                     count_hadamard_start[start_indices[0]]--;
                     if(count_hadamard_start[start_indices[0]] == 0){
                         ls_operations.emplace_back(op_type, 0, indices_pair);
@@ -433,7 +433,7 @@ std::optional<LatticeSurgery> LatticeSurgerySynthesisStrategy::synthesize(){
                        ls_operations.emplace_back(op_type, 1, indices_pair);
                     }
                 }
-                else{ // | x
+                else{ // | x direction
                     count_hadamard_start[start_indices[1]]--;
                     if(count_hadamard_start[start_indices[1]] == 0){
                         ls_operations.emplace_back(op_type, 0, indices_pair);
@@ -476,7 +476,7 @@ std::optional<LatticeSurgery> LatticeSurgerySynthesisStrategy::synthesize(){
                 fmt::println("HADAMARD:");
                 fmt::println("start_indices: ({}, {})", start_indices[0], start_indices[1]);
                 fmt::println("dest_patches: ({}, {})", dest_patches[0].first, dest_patches[0].second);
-                if(!color_map[i]){ // <-> z
+                if(!color_map[i]){ // <-> z direction
                     _result.hadamard(std::make_pair(start_indices[0], start_indices[1]), dest_patches, (qubit_id > 0) ? true : false, color_map[i]);
                     next_layer[dest_indices[1]][dest_indices[0]] = PatchType::simple;
                     if(qubit_id > 0){
@@ -488,7 +488,7 @@ std::optional<LatticeSurgery> LatticeSurgerySynthesisStrategy::synthesize(){
                     
                     // fmt::println("Z Preserve {}: ({}, {})", qubit_id > 0 ? "true" : "false", start_indices[1], start_indices[0]);
                 }
-                else{ // | x
+                else{ // | x direction
                     _result.hadamard(std::make_pair(start_indices[0], start_indices[1]), dest_patches, (qubit_id > 0) ? true : false, color_map[i]);
                     next_layer[dest_indices[0]][dest_indices[1]] = PatchType::simple;
                     if(qubit_id > 0){
@@ -500,25 +500,24 @@ std::optional<LatticeSurgery> LatticeSurgerySynthesisStrategy::synthesize(){
                     // fmt::println("X Preserve {}: ({}, {})", qubit_id > 0 ? "true" : "false", start_indices[0], start_indices[1]);
                 }
             }
-            else if(op_type == 'z'){ // <-> z
-                if(color_map[i]){ // | x
+            else if(op_type == 'z'){ // Z-direction merge (vertical, same column)
+                if(color_map[i]){ // | x direction layer
                     for(auto start_idx: start_indices) next_layer[start_idx][qubit_id] = PatchType::empty;
                     for(auto dest_idx: dest_indices) next_layer[dest_idx][qubit_id] = PatchType::simple;                    
                 }
-                else{
+                else{ // <-> z direction layer
                     for(auto start_idx: start_indices) next_layer[qubit_id][start_idx] = PatchType::empty;
                     for(auto dest_idx: dest_indices) next_layer[qubit_id][dest_idx] = PatchType::simple;
                 }
                 
-                
                 n_to_n_merge(qubit_id, start_indices, dest_indices, false);
             }
-            else if(op_type == 'x'){ // | x
-                if(!color_map[i]){ // <-> z
+            else if(op_type == 'x'){ // X-direction merge (horizontal, same row)
+                if(!color_map[i]){ // <-> z direction layer
                     for(auto start_idx: start_indices) next_layer[start_idx][qubit_id] = PatchType::empty;
                     for(auto dest_idx: dest_indices) next_layer[dest_idx][qubit_id] = PatchType::simple;
                 }
-                else{ // <-> z
+                else{ // | x direction layer
                     for(auto start_idx: start_indices) next_layer[qubit_id][start_idx] = PatchType::empty;
                     for(auto dest_idx: dest_indices) next_layer[qubit_id][dest_idx] = PatchType::simple;
                 }
@@ -578,12 +577,12 @@ std::pair<int, std::vector<std::tuple<char, size_t, std::pair<std::vector<size_t
             // fmt::println("cur layer occupied hadamard: ({}, {}), it: {}", cur_qubit, j, it != hadamard_patches.end());
             if (it != hadamard_patches.end()) {
                 // fmt::println("reverse h: ({}, {}) -> ({}, {})", cur_qubit, j, it->second.first, it->second.second);
-                char op_type = color_map ? 'z' : 'x';
+                char op_type = color_map ? 'x' : 'z';
                 std::vector<size_t> start_indices{ cur_qubit };
                 std::vector<size_t> dest_indices{ it->second.first };
                 ops.emplace_back(op_type, j, std::make_pair(start_indices, dest_indices));
-                // if(color_map) fmt::println("z: ({}, {}) -> ({}, {})", cur_qubit, j, it->second.first, it->second.second);
-                // else fmt::println("x: ({}, {}) -> ({}, {})", j, cur_qubit, it->second.second, it->second.first);
+                // if(color_map) fmt::println("x: ({}, {}) -> ({}, {})", cur_qubit, j, it->second.first, it->second.second);
+                // else fmt::println("z: ({}, {}) -> ({}, {})", j, cur_qubit, it->second.second, it->second.first);
                 // cur_layer_occupied_row[cur_qubit] = PatchType::borrowed;
                 // Optionally, mark as resolved (update cur_layer_occupied_row[k] if needed)
             }
@@ -602,12 +601,12 @@ std::pair<int, std::vector<std::tuple<char, size_t, std::pair<std::vector<size_t
                 blocked = true;
                 auto it = hadamard_patches.find(std::make_pair(cur_qubit, (size_t)i));
                 if (it != hadamard_patches.end()) {
-                    char op_type = color_map ? 'z' : 'x';
+                    char op_type = color_map ? 'x' : 'z';
                     std::vector<size_t> start_indices = { cur_qubit };
                     std::vector<size_t> dest_indices = { it->second.first };
                     ops.emplace_back(op_type, j, std::make_pair(start_indices, dest_indices));
-                    // if(color_map) fmt::println("z: ({}, {}) -> ({}, {})", cur_qubit, j, it->second.first, it->second.second);
-                    // else fmt::println("x: ({}, {}) -> ({}, {})", j, cur_qubit, it->second.second, it->second.first);
+                    // if(color_map) fmt::println("x: ({}, {}) -> ({}, {})", cur_qubit, j, it->second.first, it->second.second);
+                    // else fmt::println("z: ({}, {}) -> ({}, {})", j, cur_qubit, it->second.second, it->second.first);
                     // cur_layer_occupied_row[cur_qubit] = PatchType::borrowed;
                     // Optionally, mark as resolved (update cur_layer_occupied_row[k] if needed)
                 }
@@ -679,12 +678,12 @@ std::pair<int, std::vector<std::tuple<char, size_t, std::pair<std::vector<size_t
             // fmt::println("cur layer occupied hadamard: ({}, {})", cur_qubit, j);
             auto it = hadamard_patches.find(std::make_pair(cur_qubit, j));
                 if (it != hadamard_patches.end()) {
-                    char op_type = color_map ? 'z' : 'x';
+                    char op_type = color_map ? 'x' : 'z';
                     std::vector<size_t> start_indices = { cur_qubit };
                     std::vector<size_t> dest_indices = { it->second.first };
                     ops.emplace_back(op_type, j, std::make_pair(start_indices, dest_indices));
-                    // if(color_map) fmt::println("z: ({}, {}) -> ({}, {})", cur_qubit, j, it->second.first, it->second.second);
-                    // else fmt::println("x: ({}, {}) -> ({}, {})", j, cur_qubit, it->second.second, it->second.first);
+                    // if(color_map) fmt::println("x: ({}, {}) -> ({}, {})", cur_qubit, j, it->second.first, it->second.second);
+                    // else fmt::println("z: ({}, {}) -> ({}, {})", j, cur_qubit, it->second.second, it->second.first);
                     // cur_layer_occupied_row[cur_qubit] = PatchType::borrowed;
                     // Optionally, mark as resolved (update cur_layer_occupied_row[k] if needed)
                 }
@@ -707,12 +706,12 @@ std::pair<int, std::vector<std::tuple<char, size_t, std::pair<std::vector<size_t
                 blocked = true;
                 auto it = hadamard_patches.find(std::make_pair(cur_qubit, (size_t)i));
                 if (it != hadamard_patches.end()) {
-                    char op_type = color_map ? 'z' : 'x';
+                    char op_type = color_map ? 'x' : 'z';
                     std::vector<size_t> start_indices = { cur_qubit };
                     std::vector<size_t> dest_indices = { it->second.first };
                     ops.emplace_back(op_type, j, std::make_pair(start_indices, dest_indices));
-                    // if(color_map) fmt::println("z: ({}, {}) -> ({}, {})", cur_qubit, j, it->second.first, it->second.second);
-                    // else fmt::println("x: ({}, {}) -> ({}, {})", j, cur_qubit, it->second.second, it->second.first);
+                    // if(color_map) fmt::println("x: ({}, {}) -> ({}, {})", cur_qubit, j, it->second.first, it->second.second);
+                    // else fmt::println("z: ({}, {}) -> ({}, {})", j, cur_qubit, it->second.second, it->second.first);
                     // cur_layer_occupied_row[cur_qubit] = PatchType::borrowed;
                     // Optionally, mark as resolved (update cur_layer_occupied_row[k] if needed)
                 }
@@ -923,15 +922,17 @@ void LatticeSurgerySynthesisStrategy::n_to_n_merge(size_t qubit_id, std::vector<
     // <-> z | x
     fmt::println("MERGE:");
     if(!is_x){
-        for(auto start_idx: start_indices) start_patches.emplace_back(start_idx, qubit_id);
-        for(auto dest_idx: dest_indices) dest_patches.emplace_back(dest_idx, qubit_id);
-        fmt::println("start indices: ({}, {})", fmt::join(start_indices, "|"), qubit_id);
-        fmt::println("dest indices: ({}, {})", fmt::join(dest_indices, "|"), qubit_id);
-    } else{
+        // Z-direction merge: same column, different rows (vertical merge)
         for(auto start_idx: start_indices) start_patches.emplace_back(qubit_id, start_idx);
         for(auto dest_idx: dest_indices) dest_patches.emplace_back(qubit_id, dest_idx);
-        fmt::println("start indices: ({}, {})", qubit_id, fmt::join(start_indices, "|"));
-        fmt::println("dest indices: ({}, {})", qubit_id, fmt::join(dest_indices, "|"));
+        fmt::println("Z-merge (vertical): start indices: ({}, {})", qubit_id, fmt::join(start_indices, "|"));
+        fmt::println("Z-merge (vertical): dest indices: ({}, {})", qubit_id, fmt::join(dest_indices, "|"));
+    } else{
+        // X-direction merge: same row, different columns (horizontal merge)
+        for(auto start_idx: start_indices) start_patches.emplace_back(start_idx, qubit_id);
+        for(auto dest_idx: dest_indices) dest_patches.emplace_back(dest_idx, qubit_id);
+        fmt::println("X-merge (horizontal): start indices: ({}, {})", fmt::join(start_indices, "|"), qubit_id);
+        fmt::println("X-merge (horizontal): dest indices: ({}, {})", fmt::join(dest_indices, "|"), qubit_id);
     }
     
     // fmt::println("start indices: {}", fmt::join(start_patches, ", "));
