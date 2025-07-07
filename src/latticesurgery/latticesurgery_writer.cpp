@@ -285,8 +285,8 @@ std::string LatticeSurgery::to_lasre() const {
     for(size_t k=0; k<gate_depth; k++){
       data["ExistK"][x][x][k] = true;
       // // Set initial color for K-pipes (alternating pattern)
-      data["ColorKP"][x][x][k] = ((x + x + k) % 2 == 0);
-      data["ColorKM"][x][x][k] = ((x + x + k) % 2 == 0);
+      // data["ColorKP"][x][x][k] = ((x + x + k) % 2 == 0);
+      // data["ColorKM"][x][x][k] = ((x + x + k) % 2 == 0);
     }
   }
 
@@ -312,6 +312,7 @@ std::string LatticeSurgery::to_lasre() const {
       for(auto d = gate->get_depth(); d < gate_depth; d++) data["ExistK"][patch_pos[patch].first][patch_pos[patch].second][d] = false;
     } 
     else if(gate->get_operation_type() == LatticeSurgeryOpType::hadamard_l) { // L-pipe hadamard
+      fmt::print("hadamard_l\n");
       auto patches = gate->get_qubits();
       if (patches.size() >= 3) {
         // patches[0] = start, patches[1] = corner, patches[2+] = destinations
@@ -371,19 +372,19 @@ std::string LatticeSurgery::to_lasre() const {
           for(auto d = gate->get_depth(); d < gate_depth; d++) {
             data["ExistK"][patch_pos[patch].first][patch_pos[patch].second][d] = true;
             // Set color for K-pipe with automatic color switch at corner for hadamard
-            if (patch == patches[1]) { // corner patch
-              // Create hadamard by setting different colors for K-pipe ends
-              data["ColorKP"][patch_pos[patch].first][patch_pos[patch].second][d] = 
-                ((patch_pos[patch].first + patch_pos[patch].second + d) % 2 == 0);
-              data["ColorKM"][patch_pos[patch].first][patch_pos[patch].second][d] = 
-                !data["ColorKP"][patch_pos[patch].first][patch_pos[patch].second][d]; // Opposite color
-            } else {
-              // Normal K-pipe coloring for non-corner patches
-              data["ColorKP"][patch_pos[patch].first][patch_pos[patch].second][d] = 
-                ((patch_pos[patch].first + patch_pos[patch].second + d) % 2 == 0);
-              data["ColorKM"][patch_pos[patch].first][patch_pos[patch].second][d] = 
-                ((patch_pos[patch].first + patch_pos[patch].second + d) % 2 == 0);
-            }
+            // if (patch == patches[1]) { // corner patch
+            //   // Create hadamard by setting different colors for K-pipe ends
+            //   data["ColorKP"][patch_pos[patch].first][patch_pos[patch].second][d] = 
+            //     ((patch_pos[patch].first + patch_pos[patch].second + d) % 2 == 0);
+            //   data["ColorKM"][patch_pos[patch].first][patch_pos[patch].second][d] = 
+            //     !data["ColorKP"][patch_pos[patch].first][patch_pos[patch].second][d]; // Opposite color
+            // } else {
+            //   // Normal K-pipe coloring for non-corner patches
+            //   data["ColorKP"][patch_pos[patch].first][patch_pos[patch].second][d] = 
+            //     ((patch_pos[patch].first + patch_pos[patch].second + d) % 2 == 0);
+            //   data["ColorKM"][patch_pos[patch].first][patch_pos[patch].second][d] = 
+            //     ((patch_pos[patch].first + patch_pos[patch].second + d) % 2 == 0);
+            // }
           }
         }
       }
@@ -414,20 +415,20 @@ std::string LatticeSurgery::to_lasre() const {
           for(auto d = gate->get_depth(); d < gate_depth; d++) {
             data["ExistK"][patch_pos[patch].first][patch_pos[patch].second][d] = true;
             // Set color for K-pipe (normal coloring, no Y measurement handling)
-            data["ColorKP"][patch_pos[patch].first][patch_pos[patch].second][d] = 
-              ((patch_pos[patch].first + patch_pos[patch].second + d) % 2 == 0);
-            data["ColorKM"][patch_pos[patch].first][patch_pos[patch].second][d] = 
-              ((patch_pos[patch].first + patch_pos[patch].second + d) % 2 == 0);
+            // data["ColorKP"][patch_pos[patch].first][patch_pos[patch].second][d] = 
+            //   ((patch_pos[patch].first + patch_pos[patch].second + d) % 2 == 0);
+            // data["ColorKM"][patch_pos[patch].first][patch_pos[patch].second][d] = 
+            //   ((patch_pos[patch].first + patch_pos[patch].second + d) % 2 == 0);
           }
           
           // Set correlation surfaces based on measurement type (removed Y measurement special case)
-          if (i < gate->get_measure_types().size()) {
-            // Use stabilizer index 0 instead of hardcoded 1
-            if (data["n_s"].get<size_t>() > 0) {
-              data["CorrJI"][0][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = true;
-              data["CorrKJ"][0][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = true;
-            }
-          }
+          // if (i < gate->get_measure_types().size()) {
+          //   // Use stabilizer index 0 instead of hardcoded 1
+          //   if (data["n_s"].get<size_t>() > 0) {
+          //     data["CorrJI"][0][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = true;
+          //     data["CorrKJ"][0][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = true;
+          //   }
+          // }
         }
       }
       else{
@@ -442,32 +443,32 @@ std::string LatticeSurgery::to_lasre() const {
           if(max_x != patch_pos[patch].first) {
             data["ExistI"][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = true;
             // Set initial color for I-pipe (removed Y measurement logic)
-            if(gate->get_depth() > 0) {
-              data["ColorI"][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = 
-                data["ColorI"][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth() - 1];
-            } else {
-              data["ColorI"][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = 
-                ((patch_pos[patch].first + patch_pos[patch].second + gate->get_depth()) % 2 == 0);
-            }
+            // if(gate->get_depth() > 0) {
+            //   data["ColorI"][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = 
+            //     data["ColorI"][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth() - 1];
+            // } else {
+            //   data["ColorI"][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = 
+            //     ((patch_pos[patch].first + patch_pos[patch].second + gate->get_depth()) % 2 == 0);
+            // }
           }
           // Set correlation surfaces for all patches in the merge
           for(auto d = gate->get_depth(); d < gate_depth; d++) {
             data["ExistK"][patch_pos[patch].first][patch_pos[patch].second][d] = true;
             // Set color for K-pipe (normal coloring, no Y measurement handling)
-            data["ColorKP"][patch_pos[patch].first][patch_pos[patch].second][d] = 
-              ((patch_pos[patch].first + patch_pos[patch].second + d) % 2 == 0);
-            data["ColorKM"][patch_pos[patch].first][patch_pos[patch].second][d] = 
-              ((patch_pos[patch].first + patch_pos[patch].second + d) % 2 == 0);
+            // data["ColorKP"][patch_pos[patch].first][patch_pos[patch].second][d] = 
+            //   ((patch_pos[patch].first + patch_pos[patch].second + d) % 2 == 0);
+            // data["ColorKM"][patch_pos[patch].first][patch_pos[patch].second][d] = 
+            //   ((patch_pos[patch].first + patch_pos[patch].second + d) % 2 == 0);
           }
           
           // Set correlation surfaces based on measurement type (removed Y measurement special case)
-          if (i < gate->get_measure_types().size()) {
-            // Use stabilizer index 0 instead of hardcoded 1
-            if (data["n_s"].get<size_t>() > 0) {
-              data["CorrIJ"][0][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = true;
-              data["CorrKI"][0][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = true;
-            }
-          }
+          // if (i < gate->get_measure_types().size()) {
+          //   // Use stabilizer index 0 instead of hardcoded 1
+          //   if (data["n_s"].get<size_t>() > 0) {
+          //     data["CorrIJ"][0][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = true;
+          //     data["CorrKI"][0][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = true;
+          //   }
+          // }
         }
       }
     }
@@ -498,20 +499,20 @@ std::string LatticeSurgery::to_lasre() const {
           for(auto d = gate->get_depth(); d < gate_depth; d++) {
             data["ExistK"][patch_pos[patch].first][patch_pos[patch].second][d] = true;
             // Set color for K-pipe (normal coloring, no Y measurement handling)
-            data["ColorKP"][patch_pos[patch].first][patch_pos[patch].second][d] = 
-              ((patch_pos[patch].first + patch_pos[patch].second + d) % 2 == 0);
-            data["ColorKM"][patch_pos[patch].first][patch_pos[patch].second][d] = 
-              ((patch_pos[patch].first + patch_pos[patch].second + d) % 2 == 0);
+            // data["ColorKP"][patch_pos[patch].first][patch_pos[patch].second][d] = 
+            //   ((patch_pos[patch].first + patch_pos[patch].second + d) % 2 == 0);
+            // data["ColorKM"][patch_pos[patch].first][patch_pos[patch].second][d] = 
+            //   ((patch_pos[patch].first + patch_pos[patch].second + d) % 2 == 0);
           }
           
           // Set correlation surfaces based on measurement type (removed Y measurement special case)
-          if (i < gate->get_measure_types().size()) {
-            // Use stabilizer index 0 instead of hardcoded 1
-            if (data["n_s"].get<size_t>() > 0) {
-              data["CorrJI"][0][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = true;
-              data["CorrKJ"][0][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = true;
-            }
-          }
+          // if (i < gate->get_measure_types().size()) {
+          //   // Use stabilizer index 0 instead of hardcoded 1
+          //   if (data["n_s"].get<size_t>() > 0) {
+          //     data["CorrJI"][0][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = true;
+          //     data["CorrKJ"][0][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = true;
+          //   }
+          // }
         }
       }
       else{
@@ -539,64 +540,64 @@ std::string LatticeSurgery::to_lasre() const {
           for(auto d = gate->get_depth(); d < gate_depth; d++) {
             data["ExistK"][patch_pos[patch].first][patch_pos[patch].second][d] = true;
             // Set color for K-pipe (normal coloring, no Y measurement handling)
-            data["ColorKP"][patch_pos[patch].first][patch_pos[patch].second][d] = 
-              ((patch_pos[patch].first + patch_pos[patch].second + d) % 2 == 0);
-            data["ColorKM"][patch_pos[patch].first][patch_pos[patch].second][d] = 
-              ((patch_pos[patch].first + patch_pos[patch].second + d) % 2 == 0);
+            // data["ColorKP"][patch_pos[patch].first][patch_pos[patch].second][d] = 
+            //   ((patch_pos[patch].first + patch_pos[patch].second + d) % 2 == 0);
+            // data["ColorKM"][patch_pos[patch].first][patch_pos[patch].second][d] = 
+            //   ((patch_pos[patch].first + patch_pos[patch].second + d) % 2 == 0);
           }
           
           // Set correlation surfaces based on measurement type (removed Y measurement special case)
-          if (i < gate->get_measure_types().size()) {
-            // Use stabilizer index 0 instead of hardcoded 1
-            if (data["n_s"].get<size_t>() > 0) {
-              data["CorrIJ"][0][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = true;
-              data["CorrKI"][0][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = true;
-            }
-          }
+          // if (i < gate->get_measure_types().size()) {
+          //   // Use stabilizer index 0 instead of hardcoded 1
+          //   if (data["n_s"].get<size_t>() > 0) {
+          //     data["CorrIJ"][0][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = true;
+          //     data["CorrKI"][0][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = true;
+          //   }
+          // }
         }
       }
     }
   }
 
   // Third pass: Propagate colors along contiguous pipes
-  for(size_t k=0; k<n_k; k++) {
-    // Propagate I-pipe colors
-    for(size_t i=0; i<n_i-1; i++) {
-      for(size_t j=0; j<n_j; j++) {
-        if(data["ExistI"][i][j][k] && data["ExistI"][i+1][j][k]) {
-          // Propagate color if pipes are contiguous and not part of L-pipe hadamard
-          if (data["ColorI"][i][j][k] != data["ColorI"][i+1][j][k]) {
-            data["ColorI"][i+1][j][k] = data["ColorI"][i][j][k];
-          }
-        }
-      }
-    }
-    // Propagate J-pipe colors
-    for(size_t i=0; i<n_i; i++) {
-      for(size_t j=0; j<n_j-1; j++) {
-        if(data["ExistJ"][i][j][k] && data["ExistJ"][i][j+1][k]) {
-          // Propagate color if pipes are contiguous and not part of L-pipe hadamard
-          if (data["ColorJ"][i][j][k] != data["ColorJ"][i][j+1][k]) {
-            data["ColorJ"][i][j+1][k] = data["ColorJ"][i][j][k];
-          }
-        }
-      }
-    }
-    // Propagate K-pipe colors
-    for(size_t i=0; i<n_i; i++) {
-      for(size_t j=0; j<n_j; j++) {
-        if(data["ExistK"][i][j][k] && k+1 < n_k && data["ExistK"][i][j][k+1]) {
-          // For K-pipes, maintain consistency unless there's a hadamard color switch
-          if(data["ColorKM"][i][j][k] == data["ColorKP"][i][j][k]) {
-            // Normal case: propagate same color
-            data["ColorKM"][i][j][k+1] = data["ColorKM"][i][j][k];
-            data["ColorKP"][i][j][k+1] = data["ColorKP"][i][j][k];
-          }
-          // If colors are different, it's a hadamard edge - don't change
-        }
-      }
-    }
-  }
+  // for(size_t k=0; k<n_k; k++) {
+  //   // Propagate I-pipe colors
+  //   for(size_t i=0; i<n_i-1; i++) {
+  //     for(size_t j=0; j<n_j; j++) {
+  //       if(data["ExistI"][i][j][k] && data["ExistI"][i+1][j][k]) {
+  //         // Propagate color if pipes are contiguous and not part of L-pipe hadamard
+  //         if (data["ColorI"][i][j][k] != data["ColorI"][i+1][j][k]) {
+  //           data["ColorI"][i+1][j][k] = data["ColorI"][i][j][k];
+  //         }
+  //       }
+  //     }
+  //   }
+  //   // Propagate J-pipe colors
+  //   for(size_t i=0; i<n_i; i++) {
+  //     for(size_t j=0; j<n_j-1; j++) {
+  //       if(data["ExistJ"][i][j][k] && data["ExistJ"][i][j+1][k]) {
+  //         // Propagate color if pipes are contiguous and not part of L-pipe hadamard
+  //         if (data["ColorJ"][i][j][k] != data["ColorJ"][i][j+1][k]) {
+  //           data["ColorJ"][i][j+1][k] = data["ColorJ"][i][j][k];
+  //         }
+  //       }
+  //     }
+  //   }
+  //   // Propagate K-pipe colors
+  //   for(size_t i=0; i<n_i; i++) {
+  //     for(size_t j=0; j<n_j; j++) {
+  //       if(data["ExistK"][i][j][k] && k+1 < n_k && data["ExistK"][i][j][k+1]) {
+  //         // For K-pipes, maintain consistency unless there's a hadamard color switch
+  //         if(data["ColorKM"][i][j][k] == data["ColorKP"][i][j][k]) {
+  //           // Normal case: propagate same color
+  //           data["ColorKM"][i][j][k+1] = data["ColorKM"][i][j][k];
+  //           data["ColorKP"][i][j][k+1] = data["ColorKP"][i][j][k];
+  //         }
+  //         // If colors are different, it's a hadamard edge - don't change
+  //       }
+  //     }
+  //   }
+  // }
 
   // no extra optional stuff
   data["optional"] = json::object();
