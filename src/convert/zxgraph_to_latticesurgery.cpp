@@ -922,17 +922,17 @@ void LatticeSurgerySynthesisStrategy::n_to_n_merge(size_t qubit_id, std::vector<
     // <-> z | x
     fmt::println("MERGE:");
     if(!is_x){
-        // Z-direction merge: same row, different columns (horizontal merge)
-        for(auto start_idx: start_indices) start_patches.emplace_back(start_idx, qubit_id);
-        for(auto dest_idx: dest_indices) dest_patches.emplace_back(dest_idx, qubit_id);
-        fmt::println("Z-merge (horizontal): start indices: ({}, {})", fmt::join(start_indices, "|"), qubit_id);
-        fmt::println("Z-merge (horizontal): dest indices: ({}, {})", fmt::join(dest_indices, "|"), qubit_id);
-    } else{
-        // X-direction merge: same column, different rows (vertical merge)
+        // Z-direction merge: same column, different rows (vertical merge)
         for(auto start_idx: start_indices) start_patches.emplace_back(qubit_id, start_idx);
         for(auto dest_idx: dest_indices) dest_patches.emplace_back(qubit_id, dest_idx);
-        fmt::println("X-merge (vertical): start indices: ({}, {})", qubit_id, fmt::join(start_indices, "|"));
-        fmt::println("X-merge (vertical): dest indices: ({}, {})", qubit_id, fmt::join(dest_indices, "|"));
+        fmt::println("Z-merge (vertical): start indices: ({}, {})", qubit_id, fmt::join(start_indices, "|"));
+        fmt::println("Z-merge (vertical): dest indices: ({}, {})", qubit_id, fmt::join(dest_indices, "|"));
+    } else{
+        // X-direction merge: same row, different columns (horizontal merge)
+        for(auto start_idx: start_indices) start_patches.emplace_back(start_idx, qubit_id);
+        for(auto dest_idx: dest_indices) dest_patches.emplace_back(dest_idx, qubit_id);
+        fmt::println("X-merge (horizontal): start indices: ({}, {})", fmt::join(start_indices, "|"), qubit_id);
+        fmt::println("X-merge (horizontal): dest indices: ({}, {})", fmt::join(dest_indices, "|"), qubit_id);
     }
     
     // fmt::println("start indices: {}", fmt::join(start_patches, ", "));
