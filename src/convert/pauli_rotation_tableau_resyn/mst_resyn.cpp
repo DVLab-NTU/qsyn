@@ -184,16 +184,16 @@ size_t cx_weight(
     size_t q2_idx) {
     auto w = 0ul;
     for (auto i : std::views::iota(0ul, st.n_qubits())) {
-        if (st.stabilizer(i).is_z_set(q1_idx) && st.stabilizer(i).is_z_set(q2_idx)) {
+        if (st.stabilizer(i).is_z_set(q1_idx) != st.stabilizer(i).is_z_set(q2_idx)) {
             w++;
         }
-        if (st.destabilizer(i).is_z_set(q1_idx) && st.destabilizer(i).is_z_set(q2_idx)) {
+        if (st.destabilizer(i).is_z_set(q1_idx) != st.destabilizer(i).is_z_set(q2_idx)) {
             w++;
         }
-        if (st.stabilizer(i).is_x_set(q1_idx) && st.stabilizer(i).is_x_set(q2_idx)) {
+        if (st.stabilizer(i).is_x_set(q1_idx) != st.stabilizer(i).is_x_set(q2_idx)) {
             w++;
         }
-        if (st.destabilizer(i).is_x_set(q1_idx) && st.destabilizer(i).is_x_set(q2_idx)) {
+        if (st.destabilizer(i).is_x_set(q1_idx) != st.destabilizer(i).is_x_set(q2_idx)) {
             w++;
         }
     }
@@ -201,23 +201,15 @@ size_t cx_weight(
 }
 
 // build the dependency graph according to the commutation relation
-dvlab::Digraph<size_t, int> get_dependency_graph(std::vector<PauliRotation> const& rotations, long long& total_is_commute, long long& total_add_edge) {
+dvlab::Digraph<size_t, int> get_dependency_graph(std::vector<PauliRotation> const& rotations) {
     size_t const num_rotations = rotations.size();
     dvlab::Digraph<size_t, int> dag{num_rotations};
     // Timer for is_commutative and add_edge
     for (auto i : std::views::iota(0ul, num_rotations)) {   
         for (auto j : std::views::iota(i+1, num_rotations)) {
-            // Timing is_commutative
-            auto t_commute_start = std::chrono::high_resolution_clock::now();
             bool not_commute = !is_commutative(rotations[i], rotations[j]);
-            auto t_commute_end = std::chrono::high_resolution_clock::now();
-            total_is_commute += std::chrono::duration_cast<std::chrono::microseconds>(t_commute_end - t_commute_start).count();
             if (not_commute) {
-                // Timing add_edge
-                auto t_addedge_start = std::chrono::high_resolution_clock::now();
                 dag.add_edge(i, j);
-                auto t_addedge_end = std::chrono::high_resolution_clock::now();
-                total_add_edge += std::chrono::duration_cast<std::chrono::microseconds>(t_addedge_end - t_addedge_start).count();
             }
         }
     }
@@ -297,8 +289,8 @@ dvlab::Digraph<size_t, int> get_parity_graph(
 
     for (auto const& [i, j] : dvlab::combinations<2>(qubit_vec)) {
         auto const dist = get_cx_weight(i, j);
-        auto const weight_i = get_weight(i, j);
-        auto const weight_j = get_weight(j, i);
+        auto const weight_i = get_weight_with_distance(i, j);
+        auto const weight_j = get_weight_with_distance(j, i);
         g.add_edge(i, j, dist - weight_j - 1);
         g.add_edge(j, i, dist - weight_i - 1);
     }
@@ -493,39 +485,15 @@ GeneralizedMstSynthesisStrategy::_partial_synthesize(
 
     auto copy_rotations = rotations;
     auto qcir = qcir::QCir{num_qubits};
-    // Timing: dependency graph construction
-    auto t_depgraph_start = std::chrono::high_resolution_clock::now();
-    long long total_is_commute = 0;
-    long long total_add_edge = 0;
-    auto dag = get_dependency_graph(rotations, total_is_commute, total_add_edge);
-    auto t_depgraph_end = std::chrono::high_resolution_clock::now();
-    spdlog::info("[TIMER] Dependency graph construction: {} us", std::chrono::duration_cast<std::chrono::microseconds>(t_depgraph_end - t_depgraph_start).count());
-    spdlog::info("[TIMER]        is_commutative total {} us", total_is_commute);
-    spdlog::info("[TIMER]        add_edge total {} us", total_add_edge);
+    auto dag = get_dependency_graph(rotations);
     // create the index mapping
     std::vector<size_t> index_mapping(num_rotations);  // col_idx -> vertex_idx
     for (size_t i = 0; i < num_rotations; ++i) {
         index_mapping[i] = i;
     }
     size_t num_cxs = 0;
-    // --- Timing ---
-    long long total_firstlayer = 0;
-    long long total_bestrot = 0;
-    long long total_hs = 0;
-    long long total_remove = 0;
-    long long total_erase = 0;
-    long long total_parity = 0;
-    long long total_cal_mst = 0;
-    long long total_mstcxs = 0;
-    long long total_pz = 0;
-    long long total_iter = 0;
-    // ---
     while (!copy_rotations.empty()) {
         if (stop_requested()) break;
-        // Timing: while loop iteration
-        auto t_iter_start = std::chrono::high_resolution_clock::now();
-        // Timing: find first layer rotations
-        auto t_firstlayer_start = std::chrono::high_resolution_clock::now();
         std::vector<size_t> first_layer_rotations;
         for (auto i : std::views::iota(0ul, copy_rotations.size())) {
             if (backward) {
@@ -538,17 +506,9 @@ GeneralizedMstSynthesisStrategy::_partial_synthesize(
                 }
             }
         }
-        auto t_firstlayer_end = std::chrono::high_resolution_clock::now();
-        total_firstlayer += std::chrono::duration_cast<std::chrono::microseconds>(t_firstlayer_end - t_firstlayer_start).count();
-        // Timing: find best rotation
-        auto t_bestrot_start = std::chrono::high_resolution_clock::now();
         auto const best_rotation_idx = get_best_rotation_idx(copy_rotations, first_layer_rotations);
         size_t best_vid = index_mapping[best_rotation_idx];
         auto best_rotation = copy_rotations[best_rotation_idx];
-        auto t_bestrot_end = std::chrono::high_resolution_clock::now();
-        total_bestrot += std::chrono::duration_cast<std::chrono::microseconds>(t_bestrot_end - t_bestrot_start).count();
-        // Timing: handle H/S gates
-        auto t_hs_start = std::chrono::high_resolution_clock::now();
         for (auto i: std::views::iota(0ul, num_qubits)) {
             if (best_rotation.pauli_product().is_x_set(i)) {
                 if (best_rotation.pauli_product().is_z_set(i)) {
@@ -560,61 +520,25 @@ GeneralizedMstSynthesisStrategy::_partial_synthesize(
         // Update the best rotation
         best_rotation = copy_rotations[best_rotation_idx];
         assert(best_rotation.is_diagonal());
-        auto t_hs_end = std::chrono::high_resolution_clock::now();
-        total_hs += std::chrono::duration_cast<std::chrono::microseconds>(t_hs_end - t_hs_start).count();
-        // Timing: remove vertex and update mapping
-        auto t_remove_start = std::chrono::high_resolution_clock::now();
         dag.remove_vertex(best_vid);
-        auto t_remove_end = std::chrono::high_resolution_clock::now();
-        auto t_erase_start = std::chrono::high_resolution_clock::now();
         index_mapping.erase(index_mapping.begin() + best_rotation_idx);
-        auto t_erase_end = std::chrono::high_resolution_clock::now();
-        total_erase += std::chrono::duration_cast<std::chrono::microseconds>(t_erase_end - t_erase_start).count();
-        total_remove += std::chrono::duration_cast<std::chrono::microseconds>(t_remove_end - t_remove_start).count();
-        // Timing: parity graph and minimum spanning arborescence
         
-        // **************
-        auto t_parity_start = std::chrono::high_resolution_clock::now();
-        auto const parity_graph = get_parity_graph(copy_rotations, best_rotation, "qubit_hamming_weight");
-        // auto const parity_graph = get_parity_graph(copy_rotations, residual_clifford, best_rotation);
-        auto t_parity_end = std::chrono::high_resolution_clock::now();
-        total_parity += std::chrono::duration_cast<std::chrono::microseconds>(t_parity_end - t_parity_start).count();
-        // **************
+        // auto const parity_graph = get_parity_graph(copy_rotations, best_rotation, "qubit_hamming_weight");
+        auto const parity_graph = get_parity_graph(copy_rotations, residual_clifford, best_rotation);
         
-        
-        auto t_cal_mst_start = std::chrono::high_resolution_clock::now();
         auto const [mst, root] = dvlab::minimum_spanning_arborescence(parity_graph);
-        auto t_cal_mst_end = std::chrono::high_resolution_clock::now();
-        total_cal_mst += std::chrono::duration_cast<std::chrono::microseconds>(t_cal_mst_end - t_cal_mst_start).count();
-        // Timing: apply_mst_cxs
-        auto t_mstcxs_start = std::chrono::high_resolution_clock::now();
+        
         apply_mst_cxs(mst, root, copy_rotations, qcir, residual_clifford, num_cxs, backward);
-        auto t_mstcxs_end = std::chrono::high_resolution_clock::now();
-        total_mstcxs += std::chrono::duration_cast<std::chrono::microseconds>(t_mstcxs_end - t_mstcxs_start).count();
+        
         assert(is_valid(copy_rotations[best_rotation_idx]));
-        // Timing: erase rotation and add PZGate
-        auto t_pz_start = std::chrono::high_resolution_clock::now();
+        
         copy_rotations.erase(copy_rotations.begin() + best_rotation_idx);
         if (backward) {
             qcir.prepend(qcir::PZGate(best_rotation.phase()), {root});
         } else {
             qcir.append(qcir::PZGate(best_rotation.phase()), {root});
         }
-        auto t_pz_end = std::chrono::high_resolution_clock::now();
-        total_pz += std::chrono::duration_cast<std::chrono::microseconds>(t_pz_end - t_pz_start).count();
-        auto t_iter_end = std::chrono::high_resolution_clock::now();
-        total_iter += std::chrono::duration_cast<std::chrono::microseconds>(t_iter_end - t_iter_start).count();
     }
-    // --- while結束後統一輸出 ---
-    spdlog::info("[TIMER] Find first layer rotations: {} us", total_firstlayer);
-    spdlog::info("[TIMER] Find best rotation: {} us", total_bestrot);
-    spdlog::info("[TIMER] Handle H/S gates: {} us", total_hs);
-    spdlog::info("[TIMER] Remove vertex: {} us", total_remove);
-    spdlog::info("[TIMER] Erase index mapping: {} us", total_erase);
-    spdlog::info("[TIMER] Parity graph + min spanning arborescence: {} us", total_parity);
-    spdlog::info("[TIMER] apply_mst_cxs: {} us", total_mstcxs);
-    spdlog::info("[TIMER] Erase rotation + add PZGate: {} us", total_pz);
-    spdlog::info("[TIMER] Total while-iteration: {} us", total_iter);
 
     spdlog::info("Number of CXs for row operations : {}", num_cxs);
     
