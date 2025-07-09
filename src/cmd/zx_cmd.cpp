@@ -8,6 +8,7 @@
 #include "./zx_cmd.hpp"
 
 #include <string>
+#include <fstream>
 
 #include "argparse/arg_parser.hpp"
 #include "cli/cli.hpp"
@@ -18,6 +19,7 @@
 #include "util/data_structure_manager_common_cmd.hpp"
 #include "zx/zx_arrange.hpp"
 #include "zx/zx_io.hpp"
+#include "zx/zx_zigxag_reader.hpp"
 #include "zx/zxgraph.hpp"
 
 using namespace dvlab::argparse;
@@ -260,6 +262,73 @@ Command zxgraph_read_cmd(ZXGraphMgr& zxgraph_mgr) {
                     zxgraph_mgr.add(zxgraph_mgr.get_next_id(), std::make_unique<ZXGraph>(std::move(graph.value())));
                 }
                 zxgraph_mgr.get()->set_filename(std::filesystem::path{filepath}.stem());
+                return CmdExecResult::done;
+            }};
+}
+
+Command zxgraph_read_zigxag_cmd(ZXGraphMgr& zxgraph_mgr) {
+    return {"read_zigxag",
+            [&](ArgumentParser& parser) {
+                parser.description("read a ZigXag URL and construct the corresponding ZXGraph");
+
+                parser.add_argument<std::string>("zigxag_url")
+                    .nargs(NArgsOption::optional)
+                    .help("ZigXag URL to parse (format: https://algassert.com/zigxag#nodes:edges)");
+
+                parser.add_argument<std::string>("-f", "--file")
+                    .nargs(NArgsOption::optional)
+                    .constraint(path_readable)
+                    .help("read ZigXag URL from a file");
+
+                parser.add_argument<bool>("-r", "--replace")
+                    .action(store_true)
+                    .constraint(zxgraph_id_not_exist(zxgraph_mgr))
+                    .help("replace the current ZXGraph");
+            },
+            [&](ArgumentParser const& parser) {
+                std::string zigxag_url;
+                
+                if (parser.parsed("zigxag_url")) {
+                    zigxag_url = parser.get<std::string>("zigxag_url");
+                } else if (parser.parsed("--file")) {
+                    // Read URL from file
+                    std::ifstream file(parser.get<std::string>("--file"));
+                    if (!file.is_open()) {
+                        spdlog::error("Cannot open file: {}", parser.get<std::string>("--file"));
+                        return CmdExecResult::error;
+                    }
+                    std::getline(file, zigxag_url);
+                    // Remove any trailing whitespace or newlines
+                    zigxag_url = dvlab::str::trim_spaces(zigxag_url);
+                } else {
+                    spdlog::error("Either zigxag_url or --file must be specified");
+                    return CmdExecResult::error;
+                }
+                
+                auto const do_replace = parser.get<bool>("--replace");
+                
+                // Try to parse the URL
+                auto graph = qsyn::zx::from_zigxag_url(zigxag_url);
+                if (!graph) {
+                    spdlog::error("Failed to parse ZigXag URL: {}", zigxag_url);
+                    spdlog::error("Make sure the URL contains a '#' symbol and follows the format: https://algassert.com/zigxag#nodes:edges");
+                    return CmdExecResult::error;
+                }
+
+                if (do_replace) {
+                    if (zxgraph_mgr.empty()) {
+                        spdlog::info("ZXGraph list is empty now. Creating a new ZXGraph...");
+                        zxgraph_mgr.add(zxgraph_mgr.get_next_id());
+                    } else {
+                        spdlog::info("Original ZXGraph is replaced...");
+                    }
+                    zxgraph_mgr.set(std::make_unique<ZXGraph>(std::move(graph.value())));
+                } else {
+                    zxgraph_mgr.add(zxgraph_mgr.get_next_id(), std::make_unique<ZXGraph>(std::move(graph.value())));
+                }
+                zxgraph_mgr.get()->set_filename("zigxag_url");
+                spdlog::info("Successfully parsed ZigXag URL with {} vertices and {} edges", 
+                            zxgraph_mgr.get()->num_vertices(), zxgraph_mgr.get()->num_edges());
                 return CmdExecResult::done;
             }};
 }
@@ -652,6 +721,7 @@ Command zxgraph_cmd(ZXGraphMgr& zxgraph_mgr) {
     cmd.add_subcommand("zx-cmd-group", zxgraph_tensor_product_cmd(zxgraph_mgr));
     cmd.add_subcommand("zx-cmd-group", zxgraph_print_cmd(zxgraph_mgr));
     cmd.add_subcommand("zx-cmd-group", zxgraph_read_cmd(zxgraph_mgr));
+    cmd.add_subcommand("zx-cmd-group", zxgraph_read_zigxag_cmd(zxgraph_mgr));
     cmd.add_subcommand("zx-cmd-group", zxgraph_write_cmd(zxgraph_mgr));
     cmd.add_subcommand("zx-cmd-group", zxgraph_draw_cmd(zxgraph_mgr));
     cmd.add_subcommand("zx-cmd-group", zxgraph_assign_boundary_cmd(zxgraph_mgr));
