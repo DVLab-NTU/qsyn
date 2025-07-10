@@ -48,6 +48,11 @@ void Arranger::arrange(){
 
     // absorb hadamard edge
     hadamard_edge_absorb();
+
+    for(auto* v: _graph->get_vertices()){
+        if(v->is_boundary()) continue;
+        v->set_phase(Phase(0));
+    }
     
 }
 

@@ -78,6 +78,7 @@ public:
     auto& type() { return _attrs.type; }
     auto const& phase() const { return _attrs.phase; }
     auto& phase() { return _attrs.phase; }
+    void set_phase(Phase p) { _attrs.phase = p; }
 
     // Print functions
     void print_vertex(

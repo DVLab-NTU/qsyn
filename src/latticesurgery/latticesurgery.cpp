@@ -867,8 +867,8 @@ void LatticeSurgery::hadamard(std::pair<size_t, size_t> start, std::vector<std::
                 yl = start.second;
             }
             for(size_t y=ys; y<=yl; y++){
-                merge_1_list.push_back(get_patch_id(y, start.first)); // swapped
-                if(y != start.second || (y == start.second && !preserve_start)) discard_list.push_back(get_patch_id(y, start.first)); // swapped
+                merge_1_list.push_back(get_patch_id(start.first, y)); // swapped
+                if(y != start.second || (y == start.second && !preserve_start)) discard_list.push_back(get_patch_id(start.first, y)); // swapped
             }
             size_t xs = 0;
             size_t xl = 0;
@@ -881,8 +881,8 @@ void LatticeSurgery::hadamard(std::pair<size_t, size_t> start, std::vector<std::
                 xl = start.first;
             }
             for(size_t x=xs; x<=xl; x++){
-                merge_2_list.push_back(get_patch_id(dest_list[0].second, x)); // swapped
-                if(x != dest_list[0].first) discard_list.push_back(get_patch_id(dest_list[0].second, x)); // swapped
+                merge_2_list.push_back(get_patch_id(x, dest_list[0].second)); // swapped
+                if(x != dest_list[0].first) discard_list.push_back(get_patch_id(x, dest_list[0].second)); // swapped
             }
         }
         else{
@@ -898,8 +898,8 @@ void LatticeSurgery::hadamard(std::pair<size_t, size_t> start, std::vector<std::
                 xl = start.first;
             }
             for(size_t x=xs; x<=xl; x++){
-                merge_1_list.push_back(get_patch_id(start.second, x)); // swapped
-                if(x != start.first || (x == start.first && !preserve_start)) discard_list.push_back(get_patch_id(start.second, x)); // swapped
+                merge_1_list.push_back(get_patch_id(x, start.second)); // swapped
+                if(x != start.first || (x == start.first && !preserve_start)) discard_list.push_back(get_patch_id(x, start.second)); // swapped
             }
             size_t ys = 0;
             size_t yl = 0;
@@ -912,8 +912,8 @@ void LatticeSurgery::hadamard(std::pair<size_t, size_t> start, std::vector<std::
                 yl = start.second;
             }
             for(size_t y=ys; y<=yl; y++){
-                merge_2_list.push_back(get_patch_id(y, dest_list[0].first)); // swapped
-                if(y != dest_list[0].second) discard_list.push_back(get_patch_id(y, dest_list[0].first)); // swapped
+                merge_2_list.push_back(get_patch_id(dest_list[0].first, y)); // swapped
+                if(y != dest_list[0].second) discard_list.push_back(get_patch_id(dest_list[0].first, y)); // swapped
             }
         }
         for(auto m: merge_1_list){
@@ -942,8 +942,8 @@ void LatticeSurgery::hadamard(std::pair<size_t, size_t> start, std::vector<std::
                 xl = start.first;
             }
             for(size_t x=xs; x<=xl; x++){
-                merge_1_list.push_back(get_patch_id(start.second, x)); // swapped
-                if(x != start.first || (x == start.first && !preserve_start)) discard_list.push_back(get_patch_id(start.second, x)); // swapped
+                merge_1_list.push_back(get_patch_id(x, start.second)); // swapped
+                if(x != start.first || (x == start.first && !preserve_start)) discard_list.push_back(get_patch_id(x, start.second)); // swapped
             }
             size_t ys = start.second;
             size_t yl = start.second;
@@ -952,8 +952,8 @@ void LatticeSurgery::hadamard(std::pair<size_t, size_t> start, std::vector<std::
                 if(y > yl) yl = y;
             }
             for(size_t y=ys; y<=yl; y++){
-                merge_2_list.push_back(get_patch_id(y, dest_list[0].first)); // swapped
-                if(std::find(dest_list.begin(), dest_list.end(), std::make_pair(dest_list[0].first, y)) == dest_list.end()) discard_list.push_back(get_patch_id(y, dest_list[0].first)); // swapped
+                merge_2_list.push_back(get_patch_id(dest_list[0].first, y)); // swapped
+                if(std::find(dest_list.begin(), dest_list.end(), std::make_pair(dest_list[0].first, y)) == dest_list.end()) discard_list.push_back(get_patch_id(dest_list[0].first, y)); // swapped
             }
         }
         else{
@@ -969,8 +969,8 @@ void LatticeSurgery::hadamard(std::pair<size_t, size_t> start, std::vector<std::
                 yl = start.second;
             }
             for(size_t y=ys; y<=yl; y++){
-                merge_1_list.push_back(get_patch_id(y, start.first)); // swapped
-                if(y != start.second || (y == start.second && !preserve_start)) discard_list.push_back(get_patch_id(y, start.first)); // swapped
+                merge_1_list.push_back(get_patch_id(start.first, y)); // swapped
+                if(y != start.second || (y == start.second && !preserve_start)) discard_list.push_back(get_patch_id(start.first, y)); // swapped
             }
             size_t xs = start.first;
             size_t xl = start.first;
@@ -979,8 +979,8 @@ void LatticeSurgery::hadamard(std::pair<size_t, size_t> start, std::vector<std::
                 if(x > xl) xl = x;
             }
             for(size_t x=xs; x<=xl; x++){
-                merge_2_list.push_back(get_patch_id(dest_list[0].second, x)); // swapped
-                if(std::find(dest_list.begin(), dest_list.end(), std::make_pair(x, dest_list[0].second)) == dest_list.end()) discard_list.push_back(get_patch_id(dest_list[0].second, x)); // swapped
+                merge_2_list.push_back(get_patch_id(x, dest_list[0].second)); // swapped
+                if(std::find(dest_list.begin(), dest_list.end(), std::make_pair(x, dest_list[0].second)) == dest_list.end()) discard_list.push_back(get_patch_id(x, dest_list[0].second)); // swapped
             }
         }
         for(auto m: merge_1_list){
