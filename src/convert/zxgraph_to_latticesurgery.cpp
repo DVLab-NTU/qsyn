@@ -120,8 +120,8 @@ std::optional<LatticeSurgery> LatticeSurgerySynthesisStrategy::synthesize(){
             }
             if(hadamard_patches.size() > 0){
                 // check right row/column can be used for hadamard ancilla
+                bool can_use = true;
                 if(j+1 < _num_qubits){
-                    bool can_use = true;
                     for(auto h: hadamard_patches){
                         if(cur_layer[j+1][h] != PatchType::empty){
                             can_use = false;
@@ -134,10 +134,13 @@ std::optional<LatticeSurgery> LatticeSurgerySynthesisStrategy::synthesize(){
                         rc_dependency[j].push_back({j+1, 1.0});
                     }
                 }
+                else{
+                    if(j+1 < _num_qubits) rc_dependency[j].push_back({j+1, 2.0}); // Higher weight for fallback edges
+                }
 
                 // check left row/column can be used for hadamard ancilla
+                can_use = true;
                 if(j > 0){
-                    bool can_use = true;
                     for(auto h: hadamard_patches){
                         if(cur_layer[j-1][h] != PatchType::empty){
                             can_use = false;
@@ -150,10 +153,10 @@ std::optional<LatticeSurgery> LatticeSurgerySynthesisStrategy::synthesize(){
                         rc_dependency[j].push_back({j-1, 1.0});
                     }
                 }
-                if(rc_dependency[j].size() == 0){
-                    if(j+1 < _num_qubits) rc_dependency[j].push_back({j+1, 2.0}); // Higher weight for fallback edges
+                else{
                     if(j > 0) rc_dependency[j].push_back({j-1, 2.0}); // Higher weight for fallback edges
                 }
+                
             }
         }
 
