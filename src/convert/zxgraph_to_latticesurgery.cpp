@@ -133,9 +133,9 @@ std::optional<LatticeSurgery> LatticeSurgerySynthesisStrategy::synthesize(){
                         double weight = 1.0 + 0.1 * hadamard_patches.size(); // Base weight + penalty for number of hadamard patches
                         rc_dependency[j].push_back({j+1, 1.0});
                     }
-                }
-                else{
-                    if(j+1 < _num_qubits) rc_dependency[j].push_back({j+1, 2.0}); // Higher weight for fallback edges
+                    else{
+                        rc_dependency[j].push_back({j+1, 2.0});
+                    }
                 }
 
                 // check left row/column can be used for hadamard ancilla
@@ -152,9 +152,9 @@ std::optional<LatticeSurgery> LatticeSurgerySynthesisStrategy::synthesize(){
                         double weight = 1.0 + 0.1 * hadamard_patches.size(); // Base weight + penalty for number of hadamard patches
                         rc_dependency[j].push_back({j-1, 1.0});
                     }
-                }
-                else{
-                    if(j > 0) rc_dependency[j].push_back({j-1, 2.0}); // Higher weight for fallback edges
+                    else{
+                        rc_dependency[j].push_back({j-1, 2.0});
+                    }
                 }
             }
         }
