@@ -133,6 +133,9 @@ std::optional<LatticeSurgery> LatticeSurgerySynthesisStrategy::synthesize(){
                         double weight = 1.0 + 0.1 * hadamard_patches.size(); // Base weight + penalty for number of hadamard patches
                         rc_dependency[j].push_back({j+1, 1.0});
                     }
+                    else{
+                        rc_dependency[j].push_back({j+1, 2.0});
+                    }
                 }
 
                 // check left row/column can be used for hadamard ancilla
@@ -149,10 +152,9 @@ std::optional<LatticeSurgery> LatticeSurgerySynthesisStrategy::synthesize(){
                         double weight = 1.0 + 0.1 * hadamard_patches.size(); // Base weight + penalty for number of hadamard patches
                         rc_dependency[j].push_back({j-1, 1.0});
                     }
-                }
-                if(rc_dependency[j].size() == 0){
-                    if(j+1 < _num_qubits) rc_dependency[j].push_back({j+1, 2.0}); // Higher weight for fallback edges
-                    if(j > 0) rc_dependency[j].push_back({j-1, 2.0}); // Higher weight for fallback edges
+                    else{
+                        rc_dependency[j].push_back({j-1, 2.0});
+                    }
                 }
             }
         }
@@ -212,6 +214,8 @@ std::optional<LatticeSurgery> LatticeSurgerySynthesisStrategy::synthesize(){
                     color_map[i]
                 );
 
+                fmt::println("unmapped simple best_idx: {}, unmapped_simple: {}", best_idx, unmapped_simple);
+
                 if(first_split_patches[best_idx] == PatchType::empty) first_split_patches[best_idx] = PatchType::split;
 
                 if(best_ops.size() > 0){
@@ -244,10 +248,24 @@ std::optional<LatticeSurgery> LatticeSurgerySynthesisStrategy::synthesize(){
             for(size_t j=0; j<_num_qubits; j++){
                 if(cur_layer[cur_qubit][j] == PatchType::simple) count_hadamard_start[j] = 1;
             }
-            
-            fmt::print("DEALING HADAMARD");
+
+            fmt::print("first_split_patches: ");
+            for(auto fs: first_split_patches){
+                if(fs == PatchType::split) fmt::print("1 ");
+                else fmt::print("0 ");
+            }
+            fmt::println("");
+            fmt::print("second_split_patches: ");
+            for(auto fs: second_split_patches){
+                if(fs == PatchType::split) fmt::print("1 ");
+                else if(fs == PatchType::path) fmt::print("2 ");
+                else fmt::print("0 ");
+            }
+            fmt::println("???");
+            fmt::println("DEALING HADAMARD");
 
             for(auto hs: unmapped_hadamard){
+                fmt::println("hs: {}", fmt::join(hs, ", "));
                 if(hs.size() == 1){
                     // fmt::println("first_split_patches: {}", fmt::join(first_split_patches, ", "));
                     auto [best_idx, best_ops] = find_nearest_patch_both_sides_hadamard(
@@ -260,20 +278,22 @@ std::optional<LatticeSurgery> LatticeSurgerySynthesisStrategy::synthesize(){
                         color_map[i]
                     );
 
+                    fmt::println("unmapped hadamard best_idx: {}, hs[0]: {}, best_ops: {}", best_idx, hs[0], best_ops.size());
+
                     hadamard_patches[std::make_pair(ancilla, hs[0])] = std::make_pair(cur_qubit, hs[0]);
                     // fmt::println("first_split_patches: {}", fmt::join(first_split_patches, ", "));
                     // fmt::println("best_idx: {}", best_idx);
-                    if (first_split_patches[best_idx] == PatchType::empty){
+                    if (first_split_patches[best_idx] == PatchType::empty && cur_layer_occupied[cur_qubit][best_idx] == PatchType::empty){
                         first_split_patches[best_idx] = PatchType::split;
                         second_split_patches[best_idx] = PatchType::split;
                     }
                     else{
                         second_split_patches[best_idx] = PatchType::split;
                     }
-
+                    
                     if(best_ops.size() > 0) {
-                        ls_operations.insert(hadamard_ls_operations.end(), best_ops.begin(), best_ops.end());
-                        // fmt::println("exist hadamard ops");
+                        ls_operations.insert(ls_operations.end(), best_ops.begin(), best_ops.end());
+                        
                         for(auto op: best_ops){
                             auto& [op_type, qubit_id, indices_pair] = op;
                             auto& [start_indices, dest_indices] = indices_pair;
@@ -294,6 +314,18 @@ std::optional<LatticeSurgery> LatticeSurgerySynthesisStrategy::synthesize(){
                                 )
                             )
                         );
+                        if(cur_layer_occupied[ancilla][hs[0]] == PatchType::hadamard){
+                            auto [original_qubit, original_j] = hadamard_patches[std::make_pair(ancilla, hs[0])];
+                            ls_operations.emplace_back(
+                                color_map[i] ? 'x' : 'z',
+                                hs[0],
+                                std::make_pair(
+                                    std::vector<size_t>{ancilla},
+                                    std::vector<size_t>{original_qubit}
+                                )
+                            );
+                            cur_layer_occupied[original_qubit][original_j] = PatchType::hadamard;
+                        }
                         cur_layer_occupied[ancilla][hs[0]] = PatchType::hadamard;
                         // fmt::println("occupied: ({}, {})", ancilla, hs[0]);
                         // fmt::println("HADAMARD:");
@@ -311,6 +343,18 @@ std::optional<LatticeSurgery> LatticeSurgerySynthesisStrategy::synthesize(){
                                 )
                             )
                         );
+                        if(cur_layer_occupied[ancilla][hs[0]] == PatchType::hadamard){
+                            auto [original_qubit, original_j] = hadamard_patches[std::make_pair(ancilla, hs[0])];
+                            ls_operations.emplace_back(
+                                color_map[i] ? 'x' : 'z',
+                                hs[0],
+                                std::make_pair(
+                                    std::vector<size_t>{ancilla},
+                                    std::vector<size_t>{original_qubit}
+                                )
+                            );
+                            cur_layer_occupied[original_qubit][original_j] = PatchType::hadamard;
+                        }
                         cur_layer_occupied[ancilla][hs[0]] = PatchType::hadamard;
                         // fmt::println("occupied: ({}, {})", ancilla, hs[0]);
                         // fmt::println("HADAMARD:");
@@ -332,7 +376,7 @@ std::optional<LatticeSurgery> LatticeSurgerySynthesisStrategy::synthesize(){
 
                     hadamard_patches[std::make_pair(ancilla, hs[0])] = std::make_pair(cur_qubit, hs[0]);
 
-                    if (first_split_patches[best_idx] == PatchType::empty){
+                    if (first_split_patches[best_idx] == PatchType::empty && cur_layer_occupied[cur_qubit][best_idx] == PatchType::empty){
                         first_split_patches[best_idx] = PatchType::split;
                         second_split_patches[best_idx] = PatchType::split;
                     }
@@ -343,7 +387,7 @@ std::optional<LatticeSurgery> LatticeSurgerySynthesisStrategy::synthesize(){
                     count_hadamard_start[best_idx]++;
 
                     if(best_ops.size() > 0) {
-                        ls_operations.insert(hadamard_ls_operations.end(), best_ops.begin(), best_ops.end());
+                        ls_operations.insert(ls_operations.end(), best_ops.begin(), best_ops.end());
                         // fmt::println("exist hadamard ops");
                     }
                     
@@ -358,6 +402,18 @@ std::optional<LatticeSurgery> LatticeSurgerySynthesisStrategy::synthesize(){
                                 )
                             )
                         );
+                        if(cur_layer_occupied[ancilla][hs[0]] == PatchType::hadamard){
+                            auto [original_qubit, original_j] = hadamard_patches[std::make_pair(ancilla, hs[0])];
+                            ls_operations.emplace_back(
+                                color_map[i] ? 'x' : 'z',
+                                hs[0],
+                                std::make_pair(
+                                    std::vector<size_t>{ancilla},
+                                    std::vector<size_t>{original_qubit}
+                                )
+                            );
+                            cur_layer_occupied[original_qubit][original_j] = PatchType::hadamard;
+                        }
                         cur_layer_occupied[ancilla][hs[0]] = PatchType::hadamard;
                         // fmt::println("HADAMARD:");
                         // fmt::println("start_indices: ({}, {})", best_idx, cur_qubit);
@@ -374,6 +430,18 @@ std::optional<LatticeSurgery> LatticeSurgerySynthesisStrategy::synthesize(){
                                 )
                             )
                         );
+                        if(cur_layer_occupied[ancilla][hs[0]] == PatchType::hadamard){
+                            auto [original_qubit, original_j] = hadamard_patches[std::make_pair(ancilla, hs[0])];
+                            ls_operations.emplace_back(
+                                color_map[i] ? 'x' : 'z',
+                                hs[0],
+                                std::make_pair(
+                                    std::vector<size_t>{ancilla},
+                                    std::vector<size_t>{original_qubit}
+                                )
+                            );
+                            cur_layer_occupied[original_qubit][original_j] = PatchType::hadamard;
+                        }
                         cur_layer_occupied[ancilla][hs[0]] = PatchType::hadamard;
                         // fmt::println("HADAMARD:");
                         // fmt::println("start_indices: ({}, {})", cur_qubit, best_idx);
@@ -390,19 +458,19 @@ std::optional<LatticeSurgery> LatticeSurgerySynthesisStrategy::synthesize(){
             
             n_to_n_merge(cur_qubit, start_patches, dest_patches, color_map[i]);
             int cur_first_split_index = -1;
-            // fmt::print("first_split_patches: ");
-            // for(auto fs: first_split_patches){
-            //     if(fs == PatchType::split) fmt::print("1 ");
-            //     else fmt::print("0 ");
-            // }
-            // fmt::println("");
-            // fmt::print("second_split_patches: ");
-            // for(auto fs: second_split_patches){
-            //     if(fs == PatchType::split) fmt::print("1 ");
-            //     else if(fs == PatchType::path) fmt::print("2 ");
-            //     else fmt::print("0 ");
-            // }
-            // fmt::println("");
+            fmt::print("first_split_patches: ");
+            for(auto fs: first_split_patches){
+                if(fs == PatchType::split) fmt::print("1 ");
+                else fmt::print("0 ");
+            }
+            fmt::println("");
+            fmt::print("second_split_patches: ");
+            for(auto fs: second_split_patches){
+                if(fs == PatchType::split) fmt::print("1 ");
+                else if(fs == PatchType::path) fmt::print("2 ");
+                else fmt::print("0 ");
+            }
+            fmt::println("");
             std::vector<size_t> first_split_indices;
             std::vector<size_t> second_split_indices;
 
@@ -776,181 +844,106 @@ std::vector<std::pair<size_t, size_t>> LatticeSurgerySynthesisStrategy::qubit_sc
     // for(int i=0; i<rc_dependency.size(); i++){
     //     fmt::println("{}: {}", i, fmt::join(rc_dependency[i], "|"));
     // }
-    
-    size_t n = rc_dependency.size();
-    // Helper to find a cycle and return the edge to remove
-    std::function<bool(const std::vector<std::vector<std::pair<size_t, double>>>&, std::vector<bool>&, std::vector<bool>&, size_t, std::vector<size_t>&)> find_cycle_path;
-    find_cycle_path = [&](const std::vector<std::vector<std::pair<size_t, double>>>& graph, std::vector<bool>& visited, std::vector<bool>& rec_stack, size_t u, std::vector<size_t>& path) -> bool {
-        visited[u] = true;
-        rec_stack[u] = true;
-        path.push_back(u);
-        for (const auto& [v, weight] : graph[u]) {
-            if (!visited[v]) {
-                if (find_cycle_path(graph, visited, rec_stack, v, path))
-                    return true;
-            } else if (rec_stack[v]) {
-                // Found a cycle, record the cycle path
-                path.push_back(v);
-                return true;
-            }
-        }
-        rec_stack[u] = false;
-        path.pop_back();
-        return false;
-    };
-    // 1. Break cycles by removing only one edge per cycle, prefer parent with out-degree >= 2
-    while (true) {
-        // Compute in-degree
-        std::vector<int> in_degree(n, 0);
-        for (size_t u = 0; u < n; ++u)
-            for (const auto& [v, weight] : rc_dependency[u])
-                in_degree[v]++;
-        // Kahn's algorithm for topological sort
-        std::queue<size_t> q;
-        for (size_t i = 0; i < n; ++i)
-            if (in_degree[i] == 0)
-                q.push(i);
-        std::vector<size_t> topo_order;
-        std::vector<bool> visited(n, false);
-        while (!q.empty()) {
-            size_t u = q.front(); q.pop();
-            topo_order.push_back(u);
-            visited[u] = true;
-            for (const auto& [v, weight] : rc_dependency[u]) {
-                in_degree[v]--;
-                if (in_degree[v] == 0)
-                    q.push(v);
-            }
-        }
-        if (topo_order.size() == n) {
-            break; // No cycles
-        } else {
-            // Cycle detected, find and remove only one edge in the cycle
-            std::vector<bool> dfs_visited(n, false), rec_stack(n, false);
-            std::vector<size_t> cycle_path;
-            bool found = false;
-            for (size_t i = 0; i < n; ++i) {
-                if (!dfs_visited[i]) {
-                    if (find_cycle_path(rc_dependency, dfs_visited, rec_stack, i, cycle_path)) {
-                        found = true;
-                        break;
-                    }
-                }
-            }
-            if (found && cycle_path.size() > 1) {
-                // Special case: 2-node cycle
-                // if (cycle_path.size() == 3) {
-                //     size_t u = cycle_path[1];
-                //     size_t v = cycle_path[0];
-                //     auto& edges = rc_dependency[u];
-                //     edges.erase(std::remove(edges.begin(), edges.end(), v), edges.end());
-                //     fmt::println("[WARNING] 2-node cycle detected and broken by removing edge {} -> {}", u, v);
-                //     continue;
-                // }
-                // The cycle is from cycle_path.back() to cycle_path[cycle_path.size()-2], and so on
-                // Find an edge (u, v) in the cycle where u has out-degree >= 2
-                size_t cycle_start = cycle_path.back();
-                size_t cycle_end = cycle_path.size() - 1;
-                //print the cycle path
-                // fmt::println("cycle path: {}", fmt::join(cycle_path, "|"));
-                // for(auto c: cycle_path){
-                //     fmt::println("{}: {}", c, fmt::join(rc_dependency[c], "|"));
-                // }
-                std::pair<size_t, size_t> edge_to_remove = {n, n};
-                double max_weight = -1.0;
-                bool found_outdeg2 = false;
-                
-                // First pass: find edges where input node has degree >= 2, prefer higher weight
-                for (size_t i = cycle_end; i > 0; --i) {
-                    size_t u = cycle_path[i];
-                    size_t v = cycle_path[i-1];
-                    // print the cycle path
-                    // fmt::println("u: {}, v: {}", u, v);
-                    auto it = std::find_if(rc_dependency[u].begin(), rc_dependency[u].end(),
-                                         [v](const std::pair<size_t, double>& edge) { return edge.first == v; });
-                    if (it != rc_dependency[u].end()) {
-                        if (rc_dependency[u].size() >= 2) {
-                            // Prefer edge with higher weight among degree >= 2 nodes
-                            if (it->second > max_weight) {
-                                edge_to_remove = {u, v};
-                                max_weight = it->second;
-                                found_outdeg2 = true;
-                            }
-                        }
-                    }
-                    if (v == cycle_start) break;
-                }
-                
-                // If no degree >= 2 nodes found, fallback to any edge in cycle
-                if (!found_outdeg2) {
-                    max_weight = -1.0;
-                    for (size_t i = cycle_end; i > 0; --i) {
-                        size_t u = cycle_path[i];
-                        size_t v = cycle_path[i-1];
-                        auto it = std::find_if(rc_dependency[u].begin(), rc_dependency[u].end(),
-                                             [v](const std::pair<size_t, double>& edge) { return edge.first == v; });
-                        if (it != rc_dependency[u].end()) {
-                            if (it->second > max_weight) {
-                                edge_to_remove = {u, v};
-                                max_weight = it->second;
-                            }
-                        }
-                        if (v == cycle_start) break;
-                    }
-                }
-                if (edge_to_remove.first != n && edge_to_remove.second != n) {
-                    auto& edges = rc_dependency[edge_to_remove.first];
-                    edges.erase(std::remove_if(edges.begin(), edges.end(),
-                                             [&](const std::pair<size_t, double>& edge) { return edge.first == edge_to_remove.second; }), edges.end());
-                    if (found_outdeg2) {
-                        fmt::println("[WARNING] Cycle detected and broken by removing edge {} -> {} (parent out-degree >= 2, weight: {:.2f})", edge_to_remove.first, edge_to_remove.second, max_weight);
-                    } else {
-                        fmt::println("[WARNING] Cycle detected and broken by removing edge {} -> {} (fallback, weight: {:.2f})", edge_to_remove.first, edge_to_remove.second, max_weight);
-                    }
-                } else {
-                    fmt::println("[ERROR] Could not find cycle edge to break");
+
+    std::vector<std::pair<size_t, size_t>> qubit_schedule;
+    std::vector<bool> used(num_qubits, false);
+    if(rc_dependency[0].size() != 0){
+        qubit_schedule.push_back({0, rc_dependency[0][0].first});
+        used[0] = true;
+    }
+    if(rc_dependency[num_qubits-1].size() != 0){
+        qubit_schedule.push_back({num_qubits-1, rc_dependency[num_qubits-1][0].first});
+        used[num_qubits-1] = true;
+    }
+    std::vector<std::pair<size_t, bool>> need_borrow;
+    for(size_t i=1; i<num_qubits-1; i++){
+        if(rc_dependency[i].size() != 0){
+            bool small_weight = false;
+            for(auto [j, weight]: rc_dependency[i]){
+                if(weight < 2.0){
+                    small_weight = true;
                     break;
                 }
-            } else {
-                fmt::println("[ERROR] Could not find cycle to break");
-                break;
+            }
+            need_borrow.push_back({i, small_weight});
+        }
+        else{
+            if(need_borrow.size() == 0) continue;
+            else if(need_borrow.size() == 1){
+                qubit_schedule.push_back({need_borrow[0].first, !used[need_borrow[0].first-1] ? need_borrow[0].first-1 : need_borrow[0].first+1});
+                used[need_borrow[0].first] = true;
+                continue;
+            }
+            size_t last_qubit = 0;
+            size_t max_dist2 = 0;
+            for(auto [candidate, small_weight]: need_borrow){
+                if(small_weight){
+                    auto dist = (candidate-need_borrow[0].first)*(candidate-need_borrow[need_borrow.size()-1].first);
+                    if(dist >= max_dist2){
+                        max_dist2 = dist;
+                        last_qubit = candidate;
+                    }
+                }
+            }
+            if(last_qubit != 0){
+                for(size_t j=need_borrow[0].first; j<last_qubit; j++){
+                    qubit_schedule.push_back({j, j+1});
+                    used[j] = true;
+                }
+                for(size_t j=need_borrow[need_borrow.size()-1].first; j>last_qubit; j--){
+                    qubit_schedule.push_back({j, j-1});
+                    used[j] = true;
+                }
+                qubit_schedule.push_back({last_qubit, rc_dependency[last_qubit][0].second < 2.0 ? rc_dependency[last_qubit][0].first : rc_dependency[last_qubit][1].first});
+                used[last_qubit] = true;
+            }
+            else{
+                fmt::println("Error (qubit_schedule_min_depth): no last qubit found");
+            }
+            need_borrow.clear();
+        }
+    }
+    if(need_borrow.size() == 1){
+        qubit_schedule.push_back({need_borrow[0].first, !used[need_borrow[0].first-1] ? need_borrow[0].first-1 : need_borrow[0].first+1});
+        used[need_borrow[0].first] = true;
+    }
+    else if(need_borrow.size() != 0){
+        size_t last_qubit = 0;
+        size_t max_dist2 = 0;
+        for(auto [candidate, small_weight]: need_borrow){
+            if(small_weight){
+                auto dist = (candidate-need_borrow[0].first)*(candidate-need_borrow[need_borrow.size()-1].first);
+                if(dist >= max_dist2){
+                    max_dist2 = dist;
+                    last_qubit = candidate;
+                }
             }
         }
-    }
-    // 2. BFS from all roots
-    std::vector<int> in_degree(n, 0);
-    for (size_t u = 0; u < n; ++u)
-        for (const auto& [v, weight] : rc_dependency[u])
-            in_degree[v]++;
-    std::queue<size_t> q;
-    for (size_t i = 0; i < n; ++i)
-        if (in_degree[i] == 0)
-            q.push(i);
-    std::vector<bool> scheduled(n, false);
-    std::vector<std::pair<size_t, size_t>> qubit_schedule;
-    while (!q.empty()) {
-        size_t u = q.front(); q.pop();
-        if (scheduled[u]) continue;
-        scheduled[u] = true;
-        if (!rc_dependency[u].empty()) {
-            // Choose the neighbor with the lowest weight (best choice)
-            auto best_neighbor = std::min_element(rc_dependency[u].begin(), rc_dependency[u].end(),
-                                                [](const std::pair<size_t, double>& a, const std::pair<size_t, double>& b) {
-                                                    return a.second < b.second;
-                                                });
-            qubit_schedule.emplace_back(u, best_neighbor->first); // best neighbor based on weight
-        } else {
-            if(u == 0) qubit_schedule.emplace_back(u, 1);
-            else qubit_schedule.emplace_back(u, u-1);
+        if(last_qubit != 0){
+            for(size_t j=need_borrow[0].first; j<last_qubit; j++){
+                qubit_schedule.push_back({j, j+1});
+                used[j] = true;
+            }
+            for(size_t j=need_borrow[need_borrow.size()-1].first; j>last_qubit; j--){
+                qubit_schedule.push_back({j, j-1});
+                used[j] = true;
+            }
+            qubit_schedule.push_back({last_qubit, rc_dependency[last_qubit][0].second < 2.0 ? rc_dependency[last_qubit][0].first : rc_dependency[last_qubit][1].first});
+            used[last_qubit] = true;
         }
-        for (const auto& [v, weight] : rc_dependency[u]) {
-            in_degree[v]--;
-            if (in_degree[v] == 0)
-                q.push(v);
+        else{
+            fmt::println("Error (qubit_schedule_min_depth): no last qubit found");
+        }
+        need_borrow.clear();
+    }
+    for(size_t i=0; i<num_qubits; i++){
+        if(!used[i]){
+            qubit_schedule.push_back({i, i == num_qubits-1 ? i-1 : i+1});
+            used[i] = true;
         }
     }
-    // 4. Ensure all nodes appear once
-    // (already handled by scheduled[] check)
+    
+    
     return qubit_schedule;
 }
 
