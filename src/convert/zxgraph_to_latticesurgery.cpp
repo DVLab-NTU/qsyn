@@ -200,6 +200,9 @@ std::optional<LatticeSurgery> LatticeSurgerySynthesisStrategy::synthesize(){
                 }
             }
 
+            fmt::println("UNMAPPED_simple_patches: {}", fmt::join(unmapped_simple_patches, ", "));
+            // fmt::println("UNMAPPED_hadamard: {}", fmt::join(unmapped_hadamard, ", "));
+
             fmt::println("DEALING SIMPLE");
 
             for(auto unmapped_simple: unmapped_simple_patches){
@@ -717,7 +720,15 @@ std::pair<int, std::vector<std::tuple<char, size_t, std::pair<std::vector<size_t
                 best = candidates[1];
             }
             else if(candidates[0].dist == candidates[1].dist){
-                best = candidates[rand() % candidates.size()];
+                if(first_split_patches[candidates[0].idx] == PatchType::split){
+                    best = candidates[0];
+                }
+                else if(first_split_patches[candidates[1].idx] == PatchType::split){
+                    best = candidates[1];
+                }
+                else{
+                    best = candidates[rand() % candidates.size()];
+                }
             }
            
         }
