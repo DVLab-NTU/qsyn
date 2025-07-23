@@ -806,7 +806,7 @@ std::pair<int, std::vector<std::tuple<char, size_t, std::pair<std::vector<size_t
                     char op_type = color_map ? 'z' : 'x';
                     std::vector<size_t> start_indices = { cur_qubit };
                     std::vector<size_t> dest_indices = { it->second.first };
-                    ops.emplace_back(op_type, j, std::make_pair(start_indices, dest_indices));
+                    ops.emplace_back(op_type, i, std::make_pair(start_indices, dest_indices));
                     // if(color_map) fmt::println("x: ({}, {}) -> ({}, {})", cur_qubit, j, it->second.first, it->second.second);
                     // else fmt::println("z: ({}, {}) -> ({}, {})", j, cur_qubit, it->second.second, it->second.first);
                     // cur_layer_occupied_row[cur_qubit] = PatchType::borrowed;
