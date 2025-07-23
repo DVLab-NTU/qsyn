@@ -499,117 +499,44 @@ void Arranger::stitching_vertex() {
 void Arranger::io_vertex_arrange(){
     fmt::println("In IO Vertex Arrange");
     // fmt::println( "Input List: ");
-    
-    // arrange the sequence of the input vertex, so every vertex will be at the right column and no input edge cross one another.
-    // meaning for input index: >0 the id of the inputs, -1 there are collision, -2 unassign
-    std::vector<int> input_index(_graph->num_inputs(), -2);
-    std::vector<ZXVertex*> collision_inputs;
-    for(const auto& input: _graph->get_inputs()){
-        auto neighbor = _graph->get_first_neighbor(input).first;
-        auto neighbor_row = neighbor->get_row();
-
-        // if the number of row > number of inputs
-        if (neighbor_row > input_index.size()) input_index.resize(neighbor_row+1, -2);
-
-
-        if(_graph->get_neighbors(neighbor).size() > 2 && input_index[neighbor_row] == -2){
-            input->set_row(neighbor_row);
-            input_index[neighbor_row] = input->get_id();
+    for(auto input: _graph->get_inputs()){
+        input->set_col(0);
+        for(const auto& [neighbor, edge]: _graph->get_neighbors(input)){
+            if(neighbor->is_boundary()) continue;
+            if(input->get_row() != neighbor->get_row()){
+                neighbor->set_row(input->get_row());
+            }
+            neighbor->set_col(input->get_col()+1);
         }
-        else if (_graph->get_neighbors(neighbor).size() == 2){
-            auto descendent_row = _graph->get_first_neighbor(neighbor).first->get_row();
-            if (_graph->get_first_neighbor(neighbor).first->get_id() == input->get_id()){
-                descendent_row = _graph->get_second_neighbor(neighbor).first->get_row();
-            }
-
-            if(input_index[descendent_row] == -2){
-                input->set_row(descendent_row);
-                neighbor->set_row(descendent_row);
-                input_index[descendent_row] = input->get_id();
-            }
-            else if(input_index[neighbor_row] == -2){
-                input->set_row(neighbor_row);
-            }
-            else{
-                collision_inputs.emplace_back(input);
-            }
-        }
-        else{
-            if(input_index[neighbor_row] == -2){
-                input->set_row(neighbor_row);
-                input_index[neighbor_row] = input->get_id();
-            }
-            else{
-                collision_inputs.emplace_back(input);
-            }
-        }
-        neighbor->set_col(input->get_col()+1);
     }
-    int count_index = 0;
-    for(const auto& input: collision_inputs){
-        while(input_index[count_index] != -2) count_index++;
-        input->set_row(count_index);
-        input_index[count_index] = input->get_id();
-    }
-    // for(const auto& input: _graph->get_inputs()){
-    //     fmt::println("{}: ({},{})", input->get_id(), input->get_col(), input->get_row());
-    //     for(const auto& neighbor: _graph->get_neighbors(input)){
-    //         fmt::println("\t {}: ({}, {}) {}", neighbor.first->get_id(), neighbor.first->get_col(), neighbor.first->get_row(), _graph->get_neighbors(neighbor.first).size());
-    //     }
 
-    // }
-
-    // fmt::println("Output List: ");
-    
-    std::vector<int> output_index(_graph->num_outputs(), -2);
-    std::vector<ZXVertex*> collision_outputs;
     for(auto output: _graph->get_outputs()){
-        auto neighbor = _graph->get_first_neighbor(output).first;
-        auto neighbor_row = neighbor->get_row();
-
-        // if the number of row > number of outputs
-        if (neighbor_row > output_index.size()) output_index.resize(neighbor_row+1, -2);
-
-
-        if(_graph->get_neighbors(neighbor).size() > 2 && output_index[neighbor_row] == -2){
-            output->set_row(neighbor_row);
-            output_index[neighbor_row] = output->get_id();
+        for(const auto& [neighbor, edge]: _graph->get_neighbors(output)){
+            if(neighbor->is_boundary()) continue;
+            if(output->get_row() != neighbor->get_row()){
+                neighbor->set_row(output->get_row());
+            }
+            neighbor->set_col(output->get_col()-1);
         }
-        else if (_graph->get_neighbors(neighbor).size() == 2){
-            auto descendent_row = _graph->get_first_neighbor(neighbor).first->get_row();
-            if (_graph->get_first_neighbor(neighbor).first->get_id() == output->get_id()){
-                descendent_row = _graph->get_second_neighbor(neighbor).first->get_row();
-            }
-
-            if(output_index[descendent_row] == -2){
-                output->set_row(descendent_row);
-                neighbor->set_row(descendent_row);
-                output_index[descendent_row] = output->get_id();
-            }
-            else if(output_index[neighbor_row] == -2){
-                output->set_row(neighbor_row);
-            }
-            else{
-                collision_outputs.emplace_back(output);
-            }
-        }
-        else{
-            if(output_index[neighbor_row] == -2){
-                output->set_row(neighbor_row);
-                output_index[neighbor_row] = output->get_id();
-            }
-            else{
-                collision_outputs.emplace_back(output);
-            }
-        }
-        neighbor->set_col(output->get_col()-1);
-    }
-    count_index = 0;
-    for(const auto& output: collision_outputs){
-        while(output_index[count_index] != -2) count_index++;
-        output->set_row(count_index);
-        output_index[count_index] = output->get_id();
     }
 
+    std::vector<std::tuple<ZXVertex*, ZXVertex*, EdgeType>> nodes_to_split;
+
+    for(const auto& input: _graph->get_inputs()){
+        for(const auto& [neighbor, edge]: _graph->get_neighbors(input)){
+            if(neighbor->is_boundary()) continue;
+            if(input->get_row() != neighbor->get_row()){
+                nodes_to_split.emplace_back(input, neighbor, edge);
+            }
+        }
+    }
+
+    for(const auto& [input, neighbor, edge]: nodes_to_split){
+        // fmt::println("input: {} neighbor: {}", input->get_id(), neighbor->get_id());
+        ZXVertex* new_vertex = _graph->add_vertex(neighbor->type(), Phase{0}, input->get_row(), input->get_col()+1);
+        _graph->add_edge(input, new_vertex, EdgeType::simple);
+        _graph->add_edge(new_vertex, neighbor, edge);
+        _graph->remove_edge(input, neighbor);
+    }
 }
 

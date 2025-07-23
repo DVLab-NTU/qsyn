@@ -684,6 +684,8 @@ bool LatticeSurgery::merge_patches(std::vector<QubitIdType> const& patch_ids) {
         get_patch(patch_id)->set_logical_id(smallest_logical_id);
     }
 
+    fmt::println("Finished merging patches");
+
     return true;
 }
 
@@ -763,6 +765,8 @@ bool LatticeSurgery::merge_patches(std::vector<QubitIdType> patch_ids, std::vect
 
     append({color_flip ? LatticeSurgeryOpType::measure_c : LatticeSurgeryOpType::measure, patch_ids, measure_types, depth > 0 ? depth : max_depth+1});
 
+    fmt::println("Finished merging patches");
+    
     return true;
 };
 
