@@ -847,6 +847,8 @@ std::vector<std::pair<size_t, size_t>> LatticeSurgerySynthesisStrategy::qubit_sc
 
     std::vector<std::pair<size_t, size_t>> qubit_schedule;
     std::vector<bool> used(num_qubits, false);
+
+    // map and check the boundary qubit scheduling first
     if(rc_dependency[0].size() != 0){
         qubit_schedule.push_back({0, rc_dependency[0][0].first});
         used[0] = true;
@@ -872,6 +874,7 @@ std::vector<std::pair<size_t, size_t>> LatticeSurgerySynthesisStrategy::qubit_sc
             else if(need_borrow.size() == 1){
                 qubit_schedule.push_back({need_borrow[0].first, !used[need_borrow[0].first-1] ? need_borrow[0].first-1 : need_borrow[0].first+1});
                 used[need_borrow[0].first] = true;
+                need_borrow.clear();
                 continue;
             }
             size_t last_qubit = 0;
@@ -942,7 +945,14 @@ std::vector<std::pair<size_t, size_t>> LatticeSurgerySynthesisStrategy::qubit_sc
             used[i] = true;
         }
     }
-    
+
+    // print the qubit schedule
+    fmt::println("qubit schedule: ");
+    for(auto [qubit, dest]: qubit_schedule){
+        fmt::println("{} -> {}", qubit, dest);
+    }
+
+    assert(qubit_schedule.size() == num_qubits);
     
     return qubit_schedule;
 }
