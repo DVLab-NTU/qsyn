@@ -282,7 +282,7 @@ std::string LatticeSurgery::to_lasre() const {
 
   // re-seed t=0 from your original occupied patches
   for(size_t x=0; x<n_i; x++){
-    for(size_t k=0; k<gate_depth; k++){
+    for(size_t k=0; k<n_k; k++){
       data["ExistK"][x][x][k] = true;
       // // Set initial color for K-pipes (alternating pattern)
       // data["ColorKP"][x][x][k] = ((x + x + k) % 2 == 0);
@@ -309,7 +309,7 @@ std::string LatticeSurgery::to_lasre() const {
     fmt::print("\n");
     if(gate->get_operation_type() == LatticeSurgeryOpType::measure && gate->get_num_qubits() == 1){ // discard patch
       auto patch = gate->get_qubits().front();
-      for(auto d = gate->get_depth(); d < gate_depth; d++) data["ExistK"][patch_pos[patch].first][patch_pos[patch].second][d] = false;
+      for(auto d = gate->get_depth(); d < n_k; d++) data["ExistK"][patch_pos[patch].first][patch_pos[patch].second][d] = false;
     } 
     else if(gate->get_operation_type() == LatticeSurgeryOpType::hadamard_l) { // L-pipe hadamard
       fmt::print("hadamard_l\n");
@@ -369,7 +369,7 @@ std::string LatticeSurgery::to_lasre() const {
         
         // Set K-pipes for all involved patches
         for (auto patch : patches) {
-          for(auto d = gate->get_depth(); d < gate_depth; d++) {
+          for(auto d = gate->get_depth(); d < n_k; d++) {
             data["ExistK"][patch_pos[patch].first][patch_pos[patch].second][d] = true;
             // Set color for K-pipe with automatic color switch at corner for hadamard
             // if (patch == patches[1]) { // corner patch
@@ -412,7 +412,7 @@ std::string LatticeSurgery::to_lasre() const {
             // }
           }
           // Set correlation surfaces for all patches in the merge
-          for(auto d = gate->get_depth(); d < gate_depth; d++) {
+          for(auto d = gate->get_depth(); d < n_k; d++) {
             data["ExistK"][patch_pos[patch].first][patch_pos[patch].second][d] = true;
             // Set color for K-pipe (normal coloring, no Y measurement handling)
             // data["ColorKP"][patch_pos[patch].first][patch_pos[patch].second][d] = 
@@ -452,7 +452,7 @@ std::string LatticeSurgery::to_lasre() const {
             // }
           }
           // Set correlation surfaces for all patches in the merge
-          for(auto d = gate->get_depth(); d < gate_depth; d++) {
+          for(auto d = gate->get_depth(); d < n_k; d++) {
             data["ExistK"][patch_pos[patch].first][patch_pos[patch].second][d] = true;
             // Set color for K-pipe (normal coloring, no Y measurement handling)
             // data["ColorKP"][patch_pos[patch].first][patch_pos[patch].second][d] = 
@@ -496,7 +496,7 @@ std::string LatticeSurgery::to_lasre() const {
             // }
           }
           // Set correlation surfaces for all patches in the merge
-          for(auto d = gate->get_depth(); d < gate_depth; d++) {
+          for(auto d = gate->get_depth(); d < n_k; d++) {
             data["ExistK"][patch_pos[patch].first][patch_pos[patch].second][d] = true;
             // Set color for K-pipe (normal coloring, no Y measurement handling)
             // data["ColorKP"][patch_pos[patch].first][patch_pos[patch].second][d] = 
@@ -537,7 +537,7 @@ std::string LatticeSurgery::to_lasre() const {
             // }
           }
           // Set correlation surfaces for all patches in the merge
-          for(auto d = gate->get_depth(); d < gate_depth; d++) {
+          for(auto d = gate->get_depth(); d < n_k; d++) {
             data["ExistK"][patch_pos[patch].first][patch_pos[patch].second][d] = true;
             // Set color for K-pipe (normal coloring, no Y measurement handling)
             // data["ColorKP"][patch_pos[patch].first][patch_pos[patch].second][d] = 

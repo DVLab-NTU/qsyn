@@ -521,6 +521,7 @@ void LatticeSurgery::_init_logical_tracking(size_t num_patches) {
 }
 
 QubitIdType LatticeSurgery::_find_logical_id(QubitIdType id) const {
+    // fmt::println("_find_logical_id({}) called, _logical_parent[{}]={}", id, id, id < _logical_parent.size() ? _logical_parent[id] : -1);
     // Since we can't modify _logical_parent in a const function,
     // we'll just return the current parent without path compression
     // Check if the id is within the valid range
@@ -813,9 +814,8 @@ bool LatticeSurgery::split_patches(std::vector<QubitIdType> const& patch_ids) {
             
             // Assign the new logical ID to all patches in this component
             for (QubitIdType patch_id : components[i]) {
-
                 get_patch(patch_id)->set_logical_id(new_logical_id+1);
-                _logical_parent[patch_id] = new_logical_id;
+                _logical_parent[patch_id] = patch_id; // Each patch is its own root after split
                 _logical_rank[patch_id] = 0;
             }
         } else {
@@ -823,7 +823,7 @@ bool LatticeSurgery::split_patches(std::vector<QubitIdType> const& patch_ids) {
             // Keep the original logical ID for all patches in this component
             for (QubitIdType patch_id : components[i]) {
                 get_patch(patch_id)->set_logical_id(original_logical_id);
-                _logical_parent[patch_id] = original_logical_id;
+                _logical_parent[patch_id] = patch_id; // Each patch is its own root after split
                 _logical_rank[patch_id] = 0;
             }
         }
