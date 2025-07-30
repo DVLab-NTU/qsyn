@@ -24,6 +24,9 @@ enum class LatticeSurgeryOpType {
     measure_c, // similar to measure, but with color continuity for corners
     hadamard_l, // L-pipe hadamard with color continuity
     initialize,
+    flip,
+    s,
+    t,
 };
 
 enum class MeasureType{

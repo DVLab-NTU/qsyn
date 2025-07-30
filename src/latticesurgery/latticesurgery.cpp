@@ -11,6 +11,7 @@
 #include "latticesurgery/latticesurgery_io.hpp"
 #include "latticesurgery/latticesurgery_qubit.hpp"
 #include "qsyn/qsyn_type.hpp"
+#include "util/phase.hpp"
 
 #include <algorithm>
 #include <cassert>
@@ -32,6 +33,8 @@ namespace qsyn::latticesurgery {
 
 LatticeSurgery::LatticeSurgery(LatticeSurgery const& other) {
     _gate_id = other._gate_id;
+    _max_row = other._max_row;
+    _max_col = other._max_col;
     _filename = other._filename;
     _qubits = other._qubits;
     _predecessors = other._predecessors;
@@ -46,6 +49,8 @@ LatticeSurgery::LatticeSurgery(LatticeSurgery const& other) {
 
 void LatticeSurgery::reset() {
     _gate_id = 0;
+    _max_row = 0;
+    _max_col = 0;
     _filename.clear();
     _qubits.clear();
     _id_to_gates.clear();
@@ -367,6 +372,15 @@ void LatticeSurgery::print_gates(bool print_neighbors, std::span<size_t> gate_id
             case LatticeSurgeryOpType::measure:
                 op_type_str = "Measure";
                 break;
+            case LatticeSurgeryOpType::flip:
+                op_type_str = "Flip";
+                break;
+            case LatticeSurgeryOpType::s:
+                op_type_str = "S";
+                break;
+            case LatticeSurgeryOpType::t:
+                op_type_str = "T";
+                break;
             default:
                 op_type_str = "Unknown";
                 break;
@@ -590,18 +604,26 @@ size_t LatticeSurgery::get_patch_id(size_t col, size_t row) const {
 std::vector<std::vector<QubitIdType>> LatticeSurgery::_get_connected_components(std::vector<QubitIdType> const& patch_ids) const {
     std::vector<std::vector<QubitIdType>> components;
     std::unordered_set<QubitIdType> visited;
+
+    // fmt::println("before getting connected components");
     
     // Create a set of patches to split for quick lookup
     std::unordered_set<QubitIdType> patches_to_split(patch_ids.begin(), patch_ids.end());
+
+    // fmt::println("after creating patches to split");
     
     // First, find all patches that share the same logical ID as the patches to split
     QubitIdType target_logical_id = get_patch(patch_ids[0])->get_logical_id();
+    // fmt::println("target_logical_id: {}", target_logical_id);
+    // fmt::println("get num qubits: {}", get_num_qubits());
     std::vector<QubitIdType> all_related_patches;
     for (size_t i = 0; i < get_num_qubits(); ++i) {
+        // fmt::println("patch {} logical id: {}", i, get_patch(i)->get_logical_id());
         if (get_patch(i)->get_logical_id() == target_logical_id) {
             all_related_patches.push_back(i);
         }
     }
+    // fmt::println("after getting all related patches");
     
     // For each unvisited patch in the related patches, start a new component
     for (QubitIdType start_patch : all_related_patches) {
@@ -783,12 +805,17 @@ bool LatticeSurgery::split_patches(std::vector<QubitIdType> const& patch_ids) {
         return false;
     }
 
+    // fmt::println("getting connected components");
+
     // Get connected components after removing edges between patches
     std::vector<std::vector<QubitIdType>> components = _get_connected_components(patch_ids);
+    // fmt::println("after getting connected components");
     if (components.size() < 2) {
         spdlog::error("Cannot split patches: patches form a single connected component");
         return false;
     }
+
+    fmt::println("aftergetting connected components");
 
     // Find the original logical ID that these patches shared
     QubitIdType original_logical_id = get_patch(patch_ids[0])->get_logical_id();
@@ -798,13 +825,14 @@ bool LatticeSurgery::split_patches(std::vector<QubitIdType> const& patch_ids) {
 
     // For each component, determine which patch in the split set it contains
     // and assign logical IDs accordingly
+    fmt::println("before checking components");
     for (size_t i = 0; i < components.size(); ++i) {
         // Check if this component contains any patches we're splitting
         bool contains_split_patch = std::any_of(components[i].begin(), components[i].end(),
                                               [&patches_to_split](QubitIdType id) {
                                                   return patches_to_split.contains(id);
                                               });
-
+        
         if (contains_split_patch) {
             // This component contains patches we're splitting
             // Use the smallest patch ID in the entire component as the new logical ID
@@ -1028,7 +1056,135 @@ void LatticeSurgery::discard_patch(QubitIdType id, MeasureType measure_type){
     patch->set_logical_id(0);
 };
 
-void LatticeSurgery::n_to_n(std::vector<std::pair<size_t,size_t>>& start_list, std::vector<std::pair<size_t,size_t>>& dest_list){
+void LatticeSurgery::add_flip_gate(bool is_x, QubitIdType qubit_id){
+    // get the patch
+    size_t depth = get_patch(qubit_id)->get_depth();
+    depth = depth == 0? 1 : depth;
+    append({LatticeSurgeryOpType::flip, {qubit_id}, {is_x ? MeasureType::x : MeasureType::z}, depth});
+}
+
+void LatticeSurgery::add_s_gate(bool is_x, std::pair<size_t, size_t> qubit, size_t depth){
+    // get the patch
+    // x direction: |
+    // z direction: <->
+    auto [xq, yq] = qubit;
+    if(is_x){
+        for(size_t y=yq; y<=_max_row; y++){
+            get_patch(xq, y)->set_depth(depth);
+        }
+    }
+    else{
+        for(size_t x=xq; x<=_max_col; x++){
+            get_patch(x, yq)->set_depth(depth);
+        }
+    }
+    append({LatticeSurgeryOpType::s, {get_patch_id(xq, yq)}, {is_x ? MeasureType::x : MeasureType::z},  depth});
+}
+
+void LatticeSurgery::add_sdg_gate(bool is_x, std::pair<size_t, size_t> qubit, size_t depth){
+    // get the patch
+    auto [xq, yq] = qubit;
+    if(is_x){
+        for(size_t y=yq; y<=_max_row; y++){
+            get_patch(xq, y)->set_depth(depth);
+        }
+    }
+    else{
+        for(size_t x=xq; x<=_max_col; x++){
+            get_patch(x, yq)->set_depth(depth);
+        }
+    }
+    append({LatticeSurgeryOpType::flip, {get_patch_id(xq, yq)}, {is_x ? MeasureType::x : MeasureType::z}, depth});
+    append({LatticeSurgeryOpType::s, {get_patch_id(xq, yq)}, {is_x ? MeasureType::x : MeasureType::z}, depth});
+}
+
+void LatticeSurgery::add_t_gate(bool is_x, std::pair<size_t, size_t> qubit, size_t depth){
+    // get the patch
+    auto [xq, yq] = qubit;
+    if(is_x){
+        for(size_t y=yq; y<=_max_row; y++){
+            get_patch(xq, y)->set_depth(depth);
+        }
+    }
+    else{
+        for(size_t x=xq; x<=_max_col; x++){  
+            get_patch(x, yq)->set_depth(depth);
+        }
+    }
+    append({LatticeSurgeryOpType::t, {get_patch_id(xq, yq)}, {is_x ? MeasureType::x : MeasureType::z}, depth});
+}
+
+void LatticeSurgery::add_tdg_gate(bool is_x, std::pair<size_t, size_t> qubit, size_t depth){
+    // get the patch
+    auto [xq, yq] = qubit;
+    if(is_x){
+        for(size_t y=yq; y<=_max_row; y++){
+            get_patch(xq, y)->set_depth(depth);
+        }
+    }
+    else{
+        for(size_t x=xq; x<=_max_col; x++){      
+            get_patch(x, yq)->set_depth(depth);
+        }
+    }
+    append({LatticeSurgeryOpType::t, {get_patch_id(xq, yq)}, {is_x ? MeasureType::x : MeasureType::z}, depth}); // Need Fixed
+}
+
+void LatticeSurgery::n_to_n(std::vector<std::pair<size_t,size_t>>& start_list, std::vector<std::pair<size_t,size_t>>& dest_list, bool is_x, Phase phase){
+    // z <-> x |
+
+    fmt::println("n_to_n with phase: {}", phase);
+
+    if(phase == Phase(1)){
+        n_to_n(start_list, dest_list, 0); // Call the depth version with default depth
+        add_flip_gate(is_x, get_patch_id(dest_list[0].first, dest_list[0].second));
+        return;
+    }
+    size_t xs = 0;
+    size_t ys = 0;
+    size_t max_depth = 0;
+    // x direction: |
+    // z direction: <->
+    if(is_x){
+        xs = start_list[0].first;
+        for(auto [x, y]: start_list){
+            if(ys < y) ys = y;
+            if(get_patch(x, y)->get_depth() > max_depth) max_depth = get_patch(x, y)->get_depth();
+        }
+        for(auto [x, y]: dest_list){
+            if(ys < y) ys = y;
+            if(get_patch(x, y)->get_depth() > max_depth) max_depth = get_patch(x, y)->get_depth();
+        }
+        for(size_t y=ys; y<=_max_row; y++){
+            if(get_patch(xs, y)->get_depth() > max_depth) max_depth = get_patch(xs, y)->get_depth();
+        }
+    }
+    else{
+        ys = start_list[0].second;
+        for(auto [x, y]: start_list){
+            if(xs < x) xs = x;
+            if(get_patch(x, y)->get_depth() > max_depth) max_depth = get_patch(x, y)->get_depth();
+        }
+        for(auto [x, y]: dest_list){
+            if(xs < x) xs = x;
+            if(get_patch(x, y)->get_depth() > max_depth) max_depth = get_patch(x, y)->get_depth();
+        }
+        for(size_t x=xs; x<=_max_col; x++){
+            if(get_patch(x, ys)->get_depth() > max_depth) max_depth = get_patch(x, ys)->get_depth();
+        }
+    }
+    
+    n_to_n(start_list, dest_list, max_depth+1);
+
+    if(phase == Phase(1,2)) add_s_gate(is_x,{xs, ys}, max_depth+1);
+    else if(phase == Phase(-1,2)) add_sdg_gate(is_x,{xs, ys}, max_depth+1);
+    else if(phase == Phase(1,4)) add_t_gate(is_x,{xs, ys}, max_depth+1);
+    else if(phase == Phase(-1,4)) add_tdg_gate(is_x,{xs, ys}, max_depth+1);
+
+    return;
+}
+
+void LatticeSurgery::n_to_n(std::vector<std::pair<size_t,size_t>>& start_list, std::vector<std::pair<size_t,size_t>>& dest_list, size_t depth){
     // Handle empty or trivial cases
     if (start_list.empty() || dest_list.empty()) return;
     if (start_list == dest_list && start_list.size() == 1) return;
@@ -1063,15 +1219,6 @@ void LatticeSurgery::n_to_n(std::vector<std::pair<size_t,size_t>>& start_list, s
             size_t y = ys + i;
             if (is_in_list(dest_list, xs, y)) keep[i] = true;
         }
-        // Check for occupation conflicts
-        // for (size_t i = 0; i < keep.size(); ++i) {
-        //     size_t patch_id = get_patch_id(xs, ys + i);
-        //     if (!keep[i] && get_patch(patch_id)->occupied()) {
-        //         fmt::println("ERROR: Cannot merge - patch at ({}, {}) with ID {} is already occupied", xs, ys + i, patch_id);
-        //         fmt::println("Aborting n_to_n due to occupied patches in the path");
-        //         return;
-        //     }
-        // }
         for (size_t i = 0; i < keep.size(); ++i) {
             size_t patch_id = get_patch_id(xs, ys + i);
             merge_list.push_back(patch_id);
@@ -1079,7 +1226,7 @@ void LatticeSurgery::n_to_n(std::vector<std::pair<size_t,size_t>>& start_list, s
             else discard_list.push_back(patch_id);
         }
         // Vertical merge uses X measurements (along vertical boundaries)
-        merge_patches(merge_list, {get_patch(merge_list.front())->get_lr_type()});
+        merge_patches(merge_list, {get_patch(merge_list.front())->get_lr_type()}, false, depth);
         split_patches(merge_list);
         for (auto d : discard_list) {
             discard_patch(d, get_patch(d)->get_lr_type());
@@ -1090,15 +1237,6 @@ void LatticeSurgery::n_to_n(std::vector<std::pair<size_t,size_t>>& start_list, s
             size_t x = xs + i;
             if (is_in_list(dest_list, x, ys)) keep[i] = true;
         }
-        // Check for occupation conflicts
-        // for (size_t i = 0; i < keep.size(); ++i) {
-        //     size_t patch_id = get_patch_id(xs + i, ys);
-        //     if (!keep[i] && get_patch(patch_id)->occupied()) {
-        //         fmt::println("ERROR: Cannot merge - patch at ({}, {}) with ID {} is already occupied", xs + i, ys, patch_id);
-        //         fmt::println("Aborting n_to_n due to occupied patches in the path");
-        //         return;
-        //     }
-        // }
         for (size_t i = 0; i < keep.size(); ++i) {
             size_t patch_id = get_patch_id(xs + i, ys);
             merge_list.push_back(patch_id);
@@ -1106,7 +1244,7 @@ void LatticeSurgery::n_to_n(std::vector<std::pair<size_t,size_t>>& start_list, s
             else discard_list.push_back(patch_id);
         }
         // Horizontal merge uses Z measurements (along horizontal boundaries)
-        merge_patches(merge_list, {get_patch(merge_list.front())->get_td_type()});
+        merge_patches(merge_list, {get_patch(merge_list.front())->get_td_type()}, false, depth);
         split_patches(merge_list);
         for (auto d : discard_list) {
             discard_patch(d, get_patch(d)->get_td_type());

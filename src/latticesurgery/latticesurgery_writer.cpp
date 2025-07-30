@@ -92,20 +92,20 @@ std::string LatticeSurgery::to_lasre() const {
   json data;
 
   // dimensions
-  size_t n_i = get_grid_cols();
-  size_t n_j = get_grid_rows();
+  size_t n_i = get_grid_cols()+1;
+  size_t n_j = get_grid_rows()+1;
   size_t gate_depth = 0;
   
   auto gate_times = calculate_gate_times();
   size_t n_k = gate_times.empty() 
                ? 1 
                : (std::ranges::max(gate_times | std::views::values) + 1);
-  // fmt::println("gate list: {}", _gate_list.size());
+  fmt::println("gate list: {}", _gate_list.size());
   for(auto gate: _gate_list){
     if(gate_depth < gate->get_depth()) gate_depth = gate->get_depth();
     fmt::println("gate {}: {}", gate->get_id(), gate->get_depth());
   }
-  // fmt::println("gate depth: {}, gate time: {}", gate_depth, n_k);
+  fmt::println("gate depth: {}, gate time: {}", gate_depth, n_k);
   
   n_k = gate_depth+1;
   
@@ -113,13 +113,15 @@ std::string LatticeSurgery::to_lasre() const {
   data["n_j"] = n_j;
   data["n_k"] = n_k;
 
+  fmt::println("before gathering logical ids");
+
   // gather all logical qubit IDs
   std::vector<QubitIdType> logical_ids;
   {
     std::vector<QubitIdType> seen;
-    seen.reserve(n_i*n_j);
-    for (size_t i = 0; i < n_i; ++i)
-    for (size_t j = 0; j < n_j; ++j)
+    seen.reserve((n_i-1)*(n_j-1));
+    for (size_t i = 0; i < n_i-1; ++i)
+    for (size_t j = 0; j < n_j-1; ++j)
       if (auto* p = get_patch(i,j); p && p->occupied()) {
         auto id = p->get_logical_id();
         if (std::find(seen.begin(), seen.end(), id) == seen.end()) {
@@ -129,12 +131,14 @@ std::string LatticeSurgery::to_lasre() const {
       }
   }
 
+  fmt::println("after getting logical ids");
+
   // build ports: one "in" at k=0 on the diagonal, one "out" at k=n_k-1
   json ports = json::array();
   for (auto id : logical_ids) {
     // find the diagonal patch
     std::optional<std::pair<size_t,size_t>> in_pos;
-    for (size_t d = 0; d < std::min(n_i,n_j); ++d) {
+    for (size_t d = 0; d < std::min(n_i-1,n_j-1); ++d) {
       if (auto* p = get_patch(d,d); p && p->occupied() && p->get_logical_id()==id) {
         in_pos = {d,d};
         break;
@@ -142,8 +146,8 @@ std::string LatticeSurgery::to_lasre() const {
     }
     // find *any* final patch
     std::optional<std::pair<size_t,size_t>> out_pos;
-    for (size_t i = 0; i < n_i && !out_pos; ++i)
-    for (size_t j = 0; j < n_j; ++j) {
+    for (size_t i = 0; i < n_i-1 && !out_pos; ++i)
+    for (size_t j = 0; j < n_j-1; ++j) {
       if (auto* p = get_patch(i,j); p && p->occupied() && p->get_logical_id()==id) {
         out_pos = {i,j};
         break;
@@ -174,16 +178,20 @@ std::string LatticeSurgery::to_lasre() const {
   data["n_p"] = ports.size();
   data["ports"] = std::move(ports);
 
+  fmt::println("after building ports");
+
   //  build a map: patch_id -> logical qubit ID
   std::unordered_map<int,QubitIdType> patch_to_logical;
-  for (size_t i = 0; i < n_i; ++i) {
-    for (size_t j = 0; j < n_j; ++j) {
+  for (size_t i = 0; i < n_i-1; ++i) {
+    for (size_t j = 0; j < n_j-1; ++j) {
       if (auto* p = get_patch(i,j); p && p->occupied()) {
         int patch_id = p->get_id();        // or however you store the patch index
         patch_to_logical[patch_id] = p->get_logical_id();
       }
     }
   }
+
+  fmt::println("after building patch to logical id");
 
   //  build lid->out-port index exactly as before
   std::unordered_map<QubitIdType,int> lid_to_out_port;
@@ -258,13 +266,16 @@ std::string LatticeSurgery::to_lasre() const {
   data["ColorKP"] = init_3d(n_i,n_j,n_k,false);
   data["ColorKM"] = init_3d(n_i,n_j,n_k,false);
   data["NodeY"]  = init_3d(n_i,n_j,n_k,false);
+  data["XFlip"] = init_3d(n_i,n_j,n_k,false);
+  data["ZFlip"] = init_3d(n_i,n_j,n_k,false);
+  data["s-injection"] = json::array();
+  data["sx-injection"] = json::array();
+  data["t-injection"] = json::array();
+  data["tx-injection"] = json::array();
+  data["PO"] = json::array();
+  data["PI"] = json::array();
 
-  data["CorrIJ"] = init_4d(n_i,n_j,n_k,data["n_s"],false);
-  data["CorrIK"] = init_4d(n_i,n_j,n_k,data["n_s"],false);
-  data["CorrJI"] = init_4d(n_i,n_j,n_k,data["n_s"],false);
-  data["CorrJK"] = init_4d(n_i,n_j,n_k,data["n_s"],false);
-  data["CorrKI"] = init_4d(n_i,n_j,n_k,data["n_s"],false);
-  data["CorrKJ"] = init_4d(n_i,n_j,n_k,data["n_s"],false);
+  
 
   // force the bottom and top K-pipes (all your "ports") to exist
   for (auto const& P : data["ports"].get<json::array_t>()) {
@@ -273,15 +284,17 @@ std::string LatticeSurgery::to_lasre() const {
       // bottom ports are at k=0 with e="-", top ports at k=n_k-1 with e="+"
       if( k == 0){
         data["ExistK"][i][j][k] = true;
+        data["PI"].push_back({i,j,k});
       }
       else{
         data["ExistK"][i][j][gate_depth] = true;
+        data["PO"].push_back({i,j,k});
       }
     }
   }
 
   // re-seed t=0 from your original occupied patches
-  for(size_t x=0; x<n_i; x++){
+  for(size_t x=0; x<n_i-1; x++){
     for(size_t k=0; k<n_k; k++){
       data["ExistK"][x][x][k] = true;
       // // Set initial color for K-pipes (alternating pattern)
@@ -527,23 +540,10 @@ std::string LatticeSurgery::to_lasre() const {
           if(max_x != patch_pos[patch].first) {
             data["ExistI"][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = true;
             data["ColorI"][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = true;
-            // Set initial color for I-pipe (removed Y measurement logic)
-            // if(gate->get_depth() > 0) {
-            //   data["ColorI"][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = 
-            //     data["ColorI"][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth() - 1];
-            // } else {
-            //   data["ColorI"][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = 
-            //     ((patch_pos[patch].first + patch_pos[patch].second + gate->get_depth()) % 2 == 0);
-            // }
           }
           // Set correlation surfaces for all patches in the merge
           for(auto d = gate->get_depth(); d < n_k; d++) {
             data["ExistK"][patch_pos[patch].first][patch_pos[patch].second][d] = true;
-            // Set color for K-pipe (normal coloring, no Y measurement handling)
-            // data["ColorKP"][patch_pos[patch].first][patch_pos[patch].second][d] = 
-            //   ((patch_pos[patch].first + patch_pos[patch].second + d) % 2 == 0);
-            // data["ColorKM"][patch_pos[patch].first][patch_pos[patch].second][d] = 
-            //   ((patch_pos[patch].first + patch_pos[patch].second + d) % 2 == 0);
           }
           
           // Set correlation surfaces based on measurement type (removed Y measurement special case)
@@ -557,7 +557,82 @@ std::string LatticeSurgery::to_lasre() const {
         }
       }
     }
+    else if(gate->get_operation_type() == LatticeSurgeryOpType::flip){
+      auto patch = gate->get_qubits().front();
+      fmt::println("flip: {} {}", patch_pos[patch].first, patch_pos[patch].second);
+      if(gate->get_measure_types()[0] == MeasureType::x)
+        data["XFlip"][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = true;
+      else
+        data["ZFlip"][patch_pos[patch].first][patch_pos[patch].second][gate->get_depth()] = true;
+    }
+    else if(gate->get_operation_type() == LatticeSurgeryOpType::s){
+      auto patch = gate->get_qubits().front();
+      fmt::println("s: {} {}", patch_pos[patch].first, patch_pos[patch].second);
+      fmt::println("n_p: {}", (size_t)data["n_p"]);
+      fmt::println("n_s: {}", (size_t)data["n_s"]);
+      data["n_p"] = (size_t)data["n_p"] + 1;
+      data["n_s"] = (size_t)data["n_s"] + 1;
+      fmt::println("n_p: {}", (size_t)data["n_p"]);
+      fmt::println("n_s: {}", (size_t)data["n_s"]);
+      
+      if(gate->get_measure_types()[0] == MeasureType::x){
+        // x direction: |
+        for(size_t y=patch_pos[patch].second; y<n_j-1; y++){
+          data["ExistJ"][patch_pos[patch].first][y][gate->get_depth()] = true;
+        }
+        data["port_cubes"].push_back({patch_pos[patch].first, n_j-1, gate->get_depth()});
+        data["sx-injection"].push_back({patch_pos[patch].first, n_j-1, gate->get_depth()});
+        
+        data["ports"].push_back({
+          {"i", patch_pos[patch].first},
+          {"j", n_j-2},
+          {"k", gate->get_depth()},
+          {"d", "J"},
+          {"e", "+"},
+          {"c", 0}
+        });
+        for(size_t i=0; i<data["stabs"].size(); i++){
+          data["stabs"][i].push_back({
+            {"JI", 0},
+            {"JK", 0}
+          });
+        }
+        data["stabs"].push_back(data["stabs"].back());
+        // data["stabs"].push_back(data["stabs"].back());
+      }
+      else{
+        // y direction: <->
+        for(size_t x=patch_pos[patch].first; x<n_i-1; x++){
+          data["ExistI"][x][patch_pos[patch].second][gate->get_depth()] = true;
+        }
+        data["port_cubes"].push_back({n_i-1, patch_pos[patch].second, gate->get_depth()});
+        data["s-injection"].push_back({n_i-1, patch_pos[patch].second, gate->get_depth()});
+        
+        data["ports"].push_back({
+          {"i", n_i-2},
+          {"j", patch_pos[patch].second},
+          {"k", gate->get_depth()},
+          {"d", "I"},
+          {"e", "+"},
+          {"c", 0}
+        });
+        for(size_t i=0; i<data["stabs"].size(); i++){
+          data["stabs"][i].push_back({
+            {"IJ", 0},
+            {"IK", 0}
+          });
+        }
+        data["stabs"].push_back(data["stabs"].back());
+      }
+    }
   }
+
+  data["CorrIJ"] = init_4d(n_i,n_j,n_k,data["n_s"],false);
+  data["CorrIK"] = init_4d(n_i,n_j,n_k,data["n_s"],false);
+  data["CorrJI"] = init_4d(n_i,n_j,n_k,data["n_s"],false);
+  data["CorrJK"] = init_4d(n_i,n_j,n_k,data["n_s"],false);
+  data["CorrKI"] = init_4d(n_i,n_j,n_k,data["n_s"],false);
+  data["CorrKJ"] = init_4d(n_i,n_j,n_k,data["n_s"],false);
 
   // Third pass: Propagate colors along contiguous pipes
   // for(size_t k=0; k<n_k; k++) {

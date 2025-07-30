@@ -52,10 +52,11 @@ void Arranger::arrange(){
     // absorb hadamard edge
     hadamard_edge_absorb();
 
-    for(auto* v: _graph->get_vertices()){
-        if(v->is_boundary()) continue;
-        v->set_phase(Phase(0));
-    }
+    // for(auto* v: _graph->get_vertices()){
+    //     if(v->is_boundary()) continue;
+    //     fmt::println("v: {}, phase: {}", v->get_id(), Phase(0));
+    //     v->set_phase(Phase(0));
+    // }
     
 }
 
@@ -400,9 +401,21 @@ void Arranger::hadamard_edge_absorb(){
         for(size_t j=0; j<_vertex_map[0].size(); j++){
             // fmt::println("j={}, ptr={}", j, static_cast<void*>(_vertex_map[i][j]));
             if(_vertex_map[i][j] == NULL || _vertex_map[i][j]->is_boundary()) continue;
+            fmt::println("toggle vertex: {}, phase: {}", _vertex_map[i][j]->get_id(), _vertex_map[i][j]->phase());
             toggle_vertex(*_graph, _vertex_map[i][j]->get_id());
         }
     }
+    // for(auto v: _graph->get_vertices()){
+    //     if(v->is_boundary()) continue;
+    //     if((v->phase()*2) == Phase(0) && _graph->get_neighbors(v).size() == 2){
+    //         bool is_hadamard = true;
+    //         for(const auto& [neighbor, edge]: _graph->get_neighbors(v)){
+    //             if(edge == EdgeType::simple) is_hadamard = false;
+    //             break;
+    //         }
+    //         if(is_hadamard) toggle_vertex(*_graph, v->get_id());
+    //     }
+    // }
 
 };
 

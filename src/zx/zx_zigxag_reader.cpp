@@ -30,20 +30,26 @@ namespace {
  * @param type_str The type string from ZigXag
  * @return std::optional<VertexType> The parsed vertex type, or nullopt if invalid
  */
-std::optional<VertexType> parse_zigxag_vertex_type(std::string const& type_str) {
-    static std::unordered_map<std::string, VertexType> type_map = {
-        {"@", VertexType::z},      // Z spider
-        {"O", VertexType::x},      // X spider or Identity
-        {"s", VertexType::z},      // S (Y cube) - represented as Z spider
-        {"w", VertexType::x},      // W - represented as X spider
-        {"in", VertexType::boundary},  // Input port
-        {"out", VertexType::boundary}, // Output port
+std::optional<std::pair<VertexType, Phase>> parse_zigxag_vertex_type(std::string const& type_str) {
+    static std::unordered_map<std::string, std::pair<VertexType, Phase>> type_map = {
+        {"@", std::make_pair(VertexType::z, Phase(0))},      // Z spider
+        {"O", std::make_pair(VertexType::x, Phase(0))},      // X spider or Identity      
+        {"w", std::make_pair(VertexType::x, Phase(0))},      // W - represented as X spider
+        {"in", std::make_pair(VertexType::boundary, Phase(0))},  // Input port
+        {"out", std::make_pair(VertexType::boundary, Phase(0))}, // Output port
+        {"t", std::make_pair(VertexType::z, Phase(1,4))},      // T gate
+        {"s", std::make_pair(VertexType::z, Phase(1,2))},      // S (Y cube) - represented as Z spider
+        {"f", std::make_pair(VertexType::x, Phase(1,2))},      // Flip gate
+        {"z", std::make_pair(VertexType::z, Phase(1))},      // Z gate
+        {"x", std::make_pair(VertexType::x, Phase(1))},      // X gate
     };
     
     auto it = type_map.find(type_str);
     if (it != type_map.end()) {
+        fmt::println("vertex type: {}, phase: {}", type_str, it->second.second);
         return it->second;
     }
+    
     return std::nullopt;
 }
 
@@ -110,7 +116,7 @@ std::optional<std::pair<float, float>> parse_coordinates(std::string const& coor
  * @param node_str The node string (format: "y,x,type")
  * @return std::optional<std::tuple<float, float, VertexType>> The parsed node data, or nullopt if invalid
  */
-std::optional<std::tuple<float, float, VertexType>> parse_node(std::string const& node_str) {
+std::optional<std::tuple<float, float, std::pair<VertexType, Phase>>> parse_node(std::string const& node_str) {
     auto parts = split_string(node_str, ',');
     if (parts.size() != 3) {
         return std::nullopt;
@@ -240,7 +246,8 @@ std::optional<ZXGraph> from_zigxag_string(std::string const& zigxag_str) {
             return std::nullopt;
         }
         
-        auto [y, x, vertex_type] = *node_data;
+        auto [y, x, vertex_def] = *node_data;
+        auto [vertex_type, phase] = vertex_def;
         // Use inverted x-coordinate for coordinate key to match the vertex positioning
         std::string coord_key = std::to_string(y) + "," + std::to_string(-x);
         
@@ -264,7 +271,9 @@ std::optional<ZXGraph> from_zigxag_string(std::string const& zigxag_str) {
             }
         } else {
             // Invert x-coordinate for all vertices to maintain consistency
-            vertex = graph.add_vertex(vertex_type, dvlab::Phase(0), y, -x);
+
+            vertex = graph.add_vertex(vertex_type, phase, y, -x);
+            fmt::println("vertex: {}, phase: {}", vertex->get_id(), vertex->phase());
         }
         
         coord_to_vertex[coord_key] = vertex;

@@ -68,6 +68,18 @@ std::string LatticeSurgeryGate::get_type_str() const {
                 }
             }
             return measure_op.str();
+        case LatticeSurgeryOpType::flip:
+            assert(_measure.size() == 1);
+            if(_measure[0] == MeasureType::x) return "Xflip";
+            else return "Zflip";
+        case LatticeSurgeryOpType::s:
+            assert(_measure.size() == 1);
+            if(_measure[0] == MeasureType::x) return "SX";
+            else return "SZ";
+        case LatticeSurgeryOpType::t:
+            assert(_measure.size() == 1);
+            if(_measure[0] == MeasureType::x) return "TX";
+            else return "TZ";
         default:
             return "unknown";
     }

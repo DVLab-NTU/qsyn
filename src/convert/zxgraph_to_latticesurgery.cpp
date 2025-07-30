@@ -458,8 +458,13 @@ std::optional<LatticeSurgery> LatticeSurgerySynthesisStrategy::synthesize(){
                 if(pre_layer[cur_qubit][j] == PatchType::simple || pre_layer[cur_qubit][j] == PatchType::hadamard) start_patches.emplace_back(j);
                 if(first_split_patches[j] == PatchType::split) dest_patches.emplace_back(j);
             }
-            
-            n_to_n_merge(cur_qubit, start_patches, dest_patches, color_map[i]);
+            // BIG MERGE for vertex in each row
+            fmt::println("BIG MERGE");
+            if(_vertex_map[i][cur_qubit] && _vertex_map[i][cur_qubit]->phase() != Phase(0)) {
+                fmt::println("id: {}, phase: {}", _vertex_map[i][cur_qubit]->get_id(), _vertex_map[i][cur_qubit]->phase());
+                n_to_n_merge(cur_qubit, start_patches, dest_patches, color_map[i], _vertex_map[i][cur_qubit]->phase());
+            }
+            else n_to_n_merge(cur_qubit, start_patches, dest_patches, color_map[i]);
             int cur_first_split_index = -1;
             fmt::print("first_split_patches: ");
             for(auto fs: first_split_patches){
@@ -967,6 +972,38 @@ std::vector<std::pair<size_t, size_t>> LatticeSurgerySynthesisStrategy::qubit_sc
     
     return qubit_schedule;
 }
+
+void LatticeSurgerySynthesisStrategy::n_to_n_merge(size_t qubit_id, std::vector<size_t> start_indices, std::vector<size_t> dest_indices, bool is_x, Phase phase){
+    // fmt::println("start to merge the qubits");
+
+    // print the start and dest indices
+    // fmt::println("start indices: {}", fmt::join(start_indices, ", "));
+    // fmt::println("dest indices: {}", fmt::join(dest_indices, ", "));
+
+    std::vector<std::pair<size_t, size_t>> start_patches;
+    std::vector<std::pair<size_t, size_t>> dest_patches;
+
+    // <-> z | x
+    fmt::println("MERGE: {} {}", is_x, phase);
+    if(!is_x){
+        // Z-direction merge: same column, different rows (vertical merge)
+        for(auto start_idx: start_indices) start_patches.emplace_back(start_idx, qubit_id);
+        for(auto dest_idx: dest_indices) dest_patches.emplace_back(dest_idx, qubit_id);
+        fmt::println("Z-merge (vertical): start indices: ({}, {})", fmt::join(start_indices, "|"), qubit_id);
+        fmt::println("Z-merge (vertical): dest indices: ({}, {})", fmt::join(dest_indices, "|"), qubit_id);
+    } else{
+        // X-direction merge: same row, different columns (horizontal merge)
+        for(auto start_idx: start_indices) start_patches.emplace_back(qubit_id, start_idx);
+        for(auto dest_idx: dest_indices) dest_patches.emplace_back(qubit_id, dest_idx);
+        fmt::println("X-merge (horizontal): start indices: ({}, {})", qubit_id, fmt::join(start_indices, "|"));
+        fmt::println("X-merge (horizontal): dest indices: ({}, {})", qubit_id, fmt::join(dest_indices, "|"));
+    }
+    
+    // fmt::println("start indices: {}", fmt::join(start_patches, ", "));
+    // fmt::println("dest indices: {}", fmt::join(dest_patches, ", "));
+    _result.n_to_n(start_patches, dest_patches, is_x, phase);
+}
+
 
 
 void LatticeSurgerySynthesisStrategy::n_to_n_merge(size_t qubit_id, std::vector<size_t> start_indices, std::vector<size_t> dest_indices, bool is_x){

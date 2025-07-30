@@ -36,7 +36,8 @@ public:
     LatticeSurgerySynthesisStrategy(zx::ZXGraph* zxgraph);
     std::optional<latticesurgery::LatticeSurgery> synthesize();
     std::vector<std::vector<zx::ZXVertex*>> create_vertex_map(const zx::ZXGraph* zxgraph);
-    void n_to_n_merge(size_t qubit_id, std::vector<size_t> start_indices, std::vector<size_t> dest_indices, bool is_z);
+    void n_to_n_merge(size_t qubit_id, std::vector<size_t> start_indices, std::vector<size_t> dest_indices, bool is_x);
+    void n_to_n_merge(size_t qubit_id, std::vector<size_t> start_indices, std::vector<size_t> dest_indices, bool is_x, Phase phase);
     std::vector<std::pair<size_t, size_t>> qubit_schedule_min_depth(std::vector<std::vector<std::pair<size_t, double>>>& rc_dependency, size_t num_qubits) const;
     std::pair<int, std::vector<std::tuple<char, size_t, std::pair<std::vector<size_t>, std::vector<size_t>>>>> find_nearest_patch_both_sides(
         size_t cur_qubit,

@@ -24,6 +24,7 @@
 #include "qsyn/qsyn_type.hpp"
 #include "spdlog/common.h"
 #include "util/ordered_hashmap.hpp"
+#include "util/phase.hpp"
 
 namespace qsyn::latticesurgery {
 
@@ -33,7 +34,9 @@ public:
     
     LatticeSurgery() = default;
     LatticeSurgery(size_t n_qubits) { add_qubits(n_qubits); }
-    LatticeSurgery(size_t rows, size_t cols) : _grid(rows, cols) { add_qubits(rows * cols); }
+    LatticeSurgery(size_t rows, size_t cols) : _max_row(rows-1), _max_col(cols-1), _grid(rows, cols) { 
+        add_qubits((rows) * (cols)); 
+    }
     ~LatticeSurgery() = default;
     LatticeSurgery(LatticeSurgery const& other);
     LatticeSurgery(LatticeSurgery&& other) noexcept = default;
@@ -45,6 +48,8 @@ public:
 
     void swap(LatticeSurgery& other) noexcept {
         std::swap(_gate_id, other._gate_id);
+        std::swap(_max_row, other._max_row);
+        std::swap(_max_col, other._max_col);
         std::swap(_dirty, other._dirty);
         std::swap(_filename, other._filename);
         std::swap(_qubits, other._qubits);
@@ -122,11 +127,16 @@ public:
     void split_logical_ids(std::vector<QubitIdType> const& group1, std::vector<QubitIdType> const& group2);
     // void one_to_n(std::pair<size_t,size_t> start_id, std::vector<std::pair<size_t,size_t>>& id_lists); // TO CHECK
     // void n_to_one(std::vector<std::pair<size_t,size_t>>& init_patches, std::pair<size_t,size_t> dest_patch); // TO CHECK
-    void n_to_n(std::vector<std::pair<size_t,size_t>>& start_list, std::vector<std::pair<size_t,size_t>>& dest_list); // TO CHECK
+    void n_to_n(std::vector<std::pair<size_t,size_t>>& start_list, std::vector<std::pair<size_t,size_t>>& dest_list, size_t depth = 0); // TO CHECK
+    void n_to_n(std::vector<std::pair<size_t,size_t>>& start_list, std::vector<std::pair<size_t,size_t>>& dest_list, bool is_x, Phase phase); // TO CHECK
     void hadamard(size_t col, size_t row); // TO CHECK
     void hadamard(std::pair<size_t, size_t> start, std::vector<std::pair<size_t, size_t>>& dest_list, bool preserve_start, bool is_x); // TO CHECK start: the original patch needed hadamard, dest: the adjecent patch to adjust set back the orientation of the patch
     void discard_patch(QubitIdType id, MeasureType measure_type); // TO CHECK
-
+    void add_flip_gate(bool is_x, QubitIdType qubit_id); // TO CHECK
+    void add_s_gate(bool is_x, std::pair<size_t, size_t> qubit, size_t depth); // TO CHECK
+    void add_sdg_gate(bool is_x, std::pair<size_t, size_t> qubit, size_t depth); // TO CHECK
+    void add_t_gate(bool is_x, std::pair<size_t, size_t> qubit, size_t depth); // TO CHECK
+    void add_tdg_gate(bool is_x, std::pair<size_t, size_t> qubit, size_t depth); // TO CHECK
 
     // I/O methods
     bool write_ls(std::filesystem::path const& filepath) const;
@@ -155,6 +165,8 @@ public:
 
 private:
     size_t _gate_id = 0;
+    size_t _max_row = 0;
+    size_t _max_col = 0;
     std::string _filename;
     std::vector<LatticeSurgeryQubit> _qubits;
     dvlab::utils::ordered_hashmap<size_t, std::unique_ptr<LatticeSurgeryGate>> _id_to_gates;
