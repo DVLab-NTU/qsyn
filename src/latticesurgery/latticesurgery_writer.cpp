@@ -94,6 +94,8 @@ std::string LatticeSurgery::to_lasre() const {
   // dimensions
   size_t n_i = get_grid_cols()+1;
   size_t n_j = get_grid_rows()+1;
+  size_t grid_cols = get_grid_cols();
+  size_t grid_rows = get_grid_rows();
   size_t gate_depth = 0;
   
   auto gate_times = calculate_gate_times();
@@ -119,9 +121,9 @@ std::string LatticeSurgery::to_lasre() const {
   std::vector<QubitIdType> logical_ids;
   {
     std::vector<QubitIdType> seen;
-    seen.reserve((n_i-1)*(n_j-1));
-    for (size_t i = 0; i < n_i-1; ++i)
-    for (size_t j = 0; j < n_j-1; ++j)
+    seen.reserve(grid_cols*grid_rows);
+    for (size_t i = 0; i < grid_cols; ++i)
+    for (size_t j = 0; j < grid_rows; ++j)
       if (auto* p = get_patch(i,j); p && p->occupied()) {
         auto id = p->get_logical_id();
         if (std::find(seen.begin(), seen.end(), id) == seen.end()) {
@@ -135,10 +137,49 @@ std::string LatticeSurgery::to_lasre() const {
 
   // build ports: one "in" at k=0 on the diagonal, one "out" at k=n_k-1
   json ports = json::array();
+  
+  // First, ensure all diagonal patches have ports (for original logical qubits)
+  // This is the fix: we need to ensure all diagonal patches get ports regardless of occupation status
+  fmt::println("Creating ports for diagonal patches from 0 to {}", std::min(grid_cols, grid_rows)-1);
+  for (size_t d = 0; d < std::min(grid_cols, grid_rows); ++d) {
+    auto* p = get_patch(d, d);
+    if (p) {
+      fmt::println("Creating ports for diagonal patch ({}, {})", d, d);
+      // Always create ports for diagonal patches, even if they were discarded
+      ports.push_back({
+        {"i", d},
+        {"j", d},
+        {"k", 0},
+        {"d","K"},
+        {"e","-"},
+        {"c",1}
+      });
+      ports.push_back({
+        {"i", d},
+        {"j", d},
+        {"k", n_k-1},
+        {"d","K"},
+        {"e","+"},
+        {"c",1}
+      });
+    }
+  }
+  
+  // Then add any additional ports for non-diagonal occupied patches
   for (auto id : logical_ids) {
+    // Skip if this logical ID is already handled by diagonal patches
+    bool is_diagonal = false;
+    for (size_t d = 0; d < std::min(grid_cols, grid_rows); ++d) {
+      if (auto* p = get_patch(d, d); p && p->get_logical_id() == id) {
+        is_diagonal = true;
+        break;
+      }
+    }
+    if (is_diagonal) continue;
+    
     // find the diagonal patch
     std::optional<std::pair<size_t,size_t>> in_pos;
-    for (size_t d = 0; d < std::min(n_i-1,n_j-1); ++d) {
+    for (size_t d = 0; d < std::min(grid_cols,grid_rows); ++d) {
       if (auto* p = get_patch(d,d); p && p->occupied() && p->get_logical_id()==id) {
         in_pos = {d,d};
         break;
@@ -146,8 +187,8 @@ std::string LatticeSurgery::to_lasre() const {
     }
     // find *any* final patch
     std::optional<std::pair<size_t,size_t>> out_pos;
-    for (size_t i = 0; i < n_i-1 && !out_pos; ++i)
-    for (size_t j = 0; j < n_j-1; ++j) {
+    for (size_t i = 0; i < grid_cols && !out_pos; ++i)
+    for (size_t j = 0; j < grid_rows; ++j) {
       if (auto* p = get_patch(i,j); p && p->occupied() && p->get_logical_id()==id) {
         out_pos = {i,j};
         break;
@@ -177,13 +218,15 @@ std::string LatticeSurgery::to_lasre() const {
   }
   data["n_p"] = ports.size();
   data["ports"] = std::move(ports);
+  
+  fmt::println("Total number of ports created: {}", (size_t)data["n_p"]);
 
   fmt::println("after building ports");
 
   //  build a map: patch_id -> logical qubit ID
   std::unordered_map<int,QubitIdType> patch_to_logical;
-  for (size_t i = 0; i < n_i-1; ++i) {
-    for (size_t j = 0; j < n_j-1; ++j) {
+  for (size_t i = 0; i < grid_cols; ++i) {
+    for (size_t j = 0; j < grid_rows; ++j) {
       if (auto* p = get_patch(i,j); p && p->occupied()) {
         int patch_id = p->get_id();        // or however you store the patch index
         patch_to_logical[patch_id] = p->get_logical_id();
@@ -287,14 +330,14 @@ std::string LatticeSurgery::to_lasre() const {
         data["PI"].push_back({i,j,k});
       }
       else{
-        data["ExistK"][i][j][gate_depth] = true;
+        data["ExistK"][i][j][n_k-1] = true;
         data["PO"].push_back({i,j,k});
       }
     }
   }
 
   // re-seed t=0 from your original occupied patches
-  for(size_t x=0; x<n_i-1; x++){
+  for(size_t x=0; x<std::min(grid_cols, grid_rows); x++){
     for(size_t k=0; k<n_k; k++){
       data["ExistK"][x][x][k] = true;
       // // Set initial color for K-pipes (alternating pattern)
