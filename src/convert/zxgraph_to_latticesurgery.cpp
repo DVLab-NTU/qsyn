@@ -4,6 +4,7 @@
 #include "util/dvlab_string.hpp"
 #include "zx/zx_def.hpp"
 #include "zx/zxgraph.hpp"
+#include "zx/zxgraph_action.hpp"
 #include <cstddef>
 #include <iterator>
 #include <limits>
@@ -48,6 +49,25 @@ std::optional<LatticeSurgery> LatticeSurgerySynthesisStrategy::synthesize(){
    }
    if(!color_map[1]) color_map.front() = true;
    if(!color_map[_vertex_map.size()-2]) color_map.back() = true;
+
+   for(auto v: _zxgraph->get_vertices()){
+    if(v->is_boundary() || _zxgraph->get_neighbors(v).size() != 2) continue;
+    
+    bool all_hadamard = true;
+
+    for(auto [neighbor, edge]: _zxgraph->get_neighbors(v)){
+        if(edge != EdgeType::hadamard){
+            all_hadamard = false;
+            break;
+        }
+    }
+
+    if(all_hadamard){
+        toggle_vertex(*_zxgraph, v->get_id());
+    }
+
+   
+   }
 
    // initialize lattice surgery layout for each previous layer
    fmt::println("initialize lattice surgery layout for each previous layer");
@@ -462,7 +482,7 @@ std::optional<LatticeSurgery> LatticeSurgerySynthesisStrategy::synthesize(){
             fmt::println("BIG MERGE");
             if(_vertex_map[i][cur_qubit] && _vertex_map[i][cur_qubit]->phase() != Phase(0)) {
                 fmt::println("id: {}, phase: {}", _vertex_map[i][cur_qubit]->get_id(), _vertex_map[i][cur_qubit]->phase());
-                n_to_n_merge(cur_qubit, start_patches, dest_patches, color_map[i], _vertex_map[i][cur_qubit]->phase());
+                n_to_n_merge(cur_qubit, start_patches, dest_patches, _vertex_map[i][cur_qubit]->type() == VertexType::x, _vertex_map[i][cur_qubit]->phase());
             }
             else n_to_n_merge(cur_qubit, start_patches, dest_patches, color_map[i]);
             int cur_first_split_index = -1;
