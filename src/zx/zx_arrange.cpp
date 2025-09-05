@@ -33,6 +33,28 @@ struct Task{
 void Arranger::arrange(){
     fmt::println("Start Arrange");
 
+    // absorb hadamard edge
+    // fmt::println("Absorb Hadamard Edge");
+    // size_t iter = 0;
+    // while(true){
+    //     fmt::println("Iteration: {}", iter++);
+    //     bool changed = false;
+    //     for(auto* v: _graph->get_vertices()){
+    //         if(v->is_boundary()) continue;
+    //         size_t hadamard_count = 0;
+    //         size_t simple_count = 0;
+    //         for(auto& [p, et]: _graph->get_neighbors(v)){
+    //             if(et == EdgeType::hadamard) hadamard_count++;
+    //             else simple_count++;
+    //         }
+    //         if(hadamard_count > simple_count){
+    //             toggle_vertex(*_graph, v->get_id());
+    //             changed = true;
+    //         }
+    //     } 
+    //     if(!changed) break;
+    // }                      
+
     // arrange the io vertex
     io_vertex_arrange();
 
@@ -50,7 +72,35 @@ void Arranger::arrange(){
     stitching_vertex();
 
     // absorb hadamard edge
+    // fmt::println("Absorb Hadamard Edge");
+    // size_t iter = 0;
+    // while(true){
+    //     fmt::println("Iteration: {}", iter++);
+    //     bool changed = false;
+    //     for(auto* v: _graph->get_vertices()){
+    //         if(v->is_boundary()) continue;
+    //         size_t hadamard_count = 0;
+    //         size_t simple_count = 0;
+    //         for(auto& [p, et]: _graph->get_neighbors(v)){
+    //             if(et == EdgeType::hadamard) hadamard_count++;
+    //             else simple_count++;
+    //         }
+    //         if(hadamard_count > simple_count){
+    //             toggle_vertex(*_graph, v->get_id());
+    //             changed = true;
+    //         }
+    //     } 
+    //     if(!changed) break;
+    // }
+
+    // absorb hadamard edge
     hadamard_edge_absorb();
+
+    // add redundant spiders
+    add_redundant_spiders();
+
+    // optimize the nodes position
+    optimize_nodes_position();
 
     // for(auto* v: _graph->get_vertices()){
     //     if(v->is_boundary()) continue;
@@ -60,10 +110,139 @@ void Arranger::arrange(){
     
 }
 
+void Arranger::optimize_nodes_position(int iteration){
+    fmt::println("In Optimize Nodes Position");
+    double tolerance = 1;
+    size_t number_of_v_to_optimize = _vertex_map.size()*2;
+    double smallest_cost = 0;
+    for(auto* v: _graph->get_vertices()){
+        if(v->is_boundary()) continue;
+        smallest_cost += std::abs(calculate_cost(v));
+    }
+    fmt::println("smallest_cost: {}", smallest_cost);
+    std::vector<std::pair<ZXVertex*, double>> smallest_set;
+    for(int i=0; i<iteration; i++){
+        fmt::println("Iteration: {}", i);
+        std::vector<std::pair<ZXVertex*, double>> ranked_set;
+        double total_cost = 0;
+        for(auto* v: _graph->get_vertices()){
+            if(v->is_boundary()) continue;
+            ranked_set.push_back({v, (calculate_cost(v))});
+            total_cost += std::abs(calculate_cost(v));
+        }
+        fmt::println("total_cost: {}", total_cost);
+        if(total_cost < smallest_cost){
+            smallest_cost = total_cost;
+            smallest_set.clear();
+            for(auto* v: _graph->get_vertices()){
+                if(v->is_boundary()) continue;
+                smallest_set.push_back({v, v->get_row()});
+            }
+        }
+        // sort the ranked_set by the cost (descending)
+        std::sort(ranked_set.begin(), ranked_set.end(), [](const std::pair<ZXVertex*, double>& a, const std::pair<ZXVertex*, double>& b) {
+            return std::abs(a.second) > std::abs(b.second);
+        });
+        for(size_t j=0; j<number_of_v_to_optimize; j++){
+            // if(ranked_set[j].second < tolerance) break;
+            double  cost = calculate_cost(ranked_set[j].first);
+            if(std::abs(cost) < std::abs(ranked_set[j].second)) continue;
+            auto node = ranked_set[j].first;
+            fmt::println("node: {}, cost: {}", node->get_id(), cost);
+            if(cost < 0 && node->get_row() > 0){
+                auto neighbor = _vertex_map[node->get_col()][node->get_row()-1];
+                node->set_row(node->get_row() - 1);
+                neighbor->set_row(neighbor->get_row() + 1);
+                _vertex_map[node->get_col()][node->get_row()] = node;
+                _vertex_map[neighbor->get_col()][neighbor->get_row()] = neighbor;
+            }
+            else if(cost > 0 && node->get_row() < _vertex_map[0].size()-1){
+                auto neighbor = _vertex_map[node->get_col()][node->get_row()+1];
+                node->set_row(node->get_row() + 1);
+                neighbor->set_row(neighbor->get_row() - 1);
+                _vertex_map[node->get_col()][node->get_row()] = node;
+                _vertex_map[neighbor->get_col()][neighbor->get_row()] = neighbor;
+            }
+        }
+    }
+    for(auto& [v, row]: smallest_set){
+        v->set_row(row);
+    }
+}
+
+double Arranger::calculate_cost(ZXVertex* v){
+    if(v->is_boundary()) return 0;
+    // fmt::println("In Calculate Cost");
+    double cost = 0;
+    double degree = 0;
+    for(auto& [p, et]: _graph->get_neighbors(v)){
+        if(p->is_boundary()) continue;
+        if(et == EdgeType::simple) cost += p->get_row() - v->get_row();
+        else{
+            cost += p->get_row() - v->get_row() > 0 ? p->get_row() - v->get_row()-1 : v->get_row() - p->get_row()+1;
+        }
+        degree++;
+    }
+    return cost;
+}
+
+
+void Arranger::add_redundant_spiders(){
+    fmt::println("In Add Redundant Spiders");
+    for(size_t i=0; i<_vertex_map[0].size(); i++){
+        for(size_t j=0; j<_vertex_map.size(); j++){
+            if(_vertex_map[j][i] == nullptr) fmt::print("0 ");
+            else fmt::print("{} ", _vertex_map[j][i]->get_id());
+        }
+        fmt::println("");
+    }
+    auto first_col_vertex_type = VertexType::z;
+    for(size_t j=0; j<_vertex_map[0].size(); j++){
+        if(_vertex_map[1][j] == nullptr) continue;
+        first_col_vertex_type = _vertex_map[1][j]->type();
+        break;
+    }
+    auto sec_col_vertex_type = (first_col_vertex_type == VertexType::x) ? VertexType::z : VertexType::x;
+    for(size_t i=0; i<_vertex_map[0].size(); i++){
+        size_t start_col = 0;
+        size_t end_col = 0;
+        bool add_redundant_spider = false;
+        for (size_t j=0; j<_vertex_map.size(); j++){
+            if(_vertex_map[j][i] == nullptr) {
+                add_redundant_spider = true;
+                continue;
+            }
+            if(add_redundant_spider) {
+                end_col = j;
+                for(size_t k=start_col+1; k<=end_col; k++){
+                    if (k == end_col) {
+                        _graph->add_edge(_vertex_map[k-1][i], _vertex_map[k][i], EdgeType::simple);
+                        break;
+                    }
+                    auto new_node = _graph->add_vertex(k%2==0 ? sec_col_vertex_type : first_col_vertex_type, Phase(0), i, k);
+                    _vertex_map[k][i] = new_node;
+                    if (k==start_col+1){
+                        auto edge_type = _graph->get_edge_type(_vertex_map[start_col][i], _vertex_map[end_col][i]).value();
+                        _graph->add_edge(_vertex_map[start_col][i], new_node, edge_type);
+                        _graph->remove_edge(_vertex_map[start_col][i], _vertex_map[end_col][i]);
+                    }
+                    else{
+                        _graph->add_edge(_vertex_map[k-1][i], new_node, EdgeType::simple);
+                    }
+                }
+                add_redundant_spider = false;
+                start_col = end_col;
+            }
+            else start_col = j;
+        }
+        fmt::println("");
+    }
+}
+
 void Arranger::create_vertex_map(){
     fmt::println("In Create Vertex Map");
     for(auto& vertex: _graph->get_vertices()){
-        if(vertex->is_boundary()) continue;
+        // if(vertex->is_boundary()) continue;
         if(vertex->get_col() >= _vertex_map.size()) _vertex_map.resize(vertex->get_col() + 1, std::vector<ZXVertex*>(_graph->num_inputs(), nullptr));
         _vertex_map[vertex->get_col()][vertex->get_row()] = vertex;
     }

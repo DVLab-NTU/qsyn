@@ -38,8 +38,11 @@ public:
     void create_vertex_map();
     void stitching_vertex();
     void hadamard_edge_absorb();
+    void add_redundant_spiders();
     std::unordered_map<ZXVertex*, std::unordered_set<ZXVertex*>> calculate_smallest_dag();
     void layer_scheduling(std::unordered_map<ZXVertex*, std::unordered_set<ZXVertex*>> dag);
+    void optimize_nodes_position(int iteration = 100);
+    double calculate_cost(ZXVertex* v);
     // std::vector<std::vector<ZXVertex*>>& get_vertex_map(){ return _vertex_map; };
 
 private:
