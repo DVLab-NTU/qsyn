@@ -220,6 +220,29 @@ void Arranger::split_vertex_4_layer(){
         }
     }
 
+    for(auto* v: _graph->get_vertices()){
+        if(v->is_boundary()) continue;
+        if(_graph->get_neighbors(v).size() == 2){
+            // Get the two neighbors
+            std::vector<std::pair<ZXVertex*, EdgeType>> neighbors;
+            for(auto& [p, et]: _graph->get_neighbors(v)){
+                neighbors.emplace_back(p, et);
+            }
+            auto [p, et] = neighbors[0];
+            auto [q, et2] = neighbors[1];
+            if(v->get_row() == q->get_row() && v->get_row() == p->get_row()){
+                size_t count_h = 0;
+                if(et == EdgeType::hadamard) count_h++;
+                if(et2 == EdgeType::hadamard) count_h++;
+                _graph->add_edge(p, q, count_h == 1 ? EdgeType::hadamard : EdgeType::simple);
+                _vertex_map[v->get_col()][v->get_row()] = nullptr;
+                _graph->remove_edge(p, v);
+                _graph->remove_edge(q, v);
+                _graph->remove_vertex(v);
+            }
+        }
+    }
+
 }
 
 void Arranger::optimize_nodes_position(int iteration){
@@ -663,6 +686,7 @@ void Arranger::hadamard_edge_absorb(){
     for(size_t i=2; i<_vertex_map.size(); i+=2){
         for(size_t j=0; j<_vertex_map[0].size(); j++){
             if(_vertex_map[i][j] == NULL) continue;
+            if(_vertex_map[i][j]->is_boundary()) continue;
             for(const auto& [neighbor, edge]: _graph->get_neighbors(_vertex_map[i][j])){
                 if(edge == EdgeType::simple) cost_z_start ++;
                 else cost_z_start --;
@@ -675,6 +699,7 @@ void Arranger::hadamard_edge_absorb(){
     for(size_t i=1; i<_vertex_map.size(); i+=2){
         for(size_t j=0; j<_vertex_map[0].size(); j++){
             if(_vertex_map[i][j] == NULL) continue;
+            if(_vertex_map[i][j]->is_boundary()) continue;
             for(const auto& [neighbor, edge]: _graph->get_neighbors(_vertex_map[i][j])){
                 if(edge == EdgeType::simple) cost_x_start ++;
                 else cost_x_start --;
