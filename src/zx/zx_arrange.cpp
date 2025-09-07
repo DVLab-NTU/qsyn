@@ -62,14 +62,16 @@ void Arranger::arrange(){
     auto dag = calculate_smallest_dag();
     fmt::println("DAG size: {}", dag.size());
 
+    split_vertex_4_layer();
+
     // rearrange the graph using the DAG
-    layer_scheduling(dag);
+    // layer_scheduling(dag);
 
     // create vertex map
-    create_vertex_map();
+    // create_vertex_map();
 
     // split the vertex if the neighbor vertice is not at the neighbor columns
-    stitching_vertex();
+    // stitching_vertex();
 
     // absorb hadamard edge
     // fmt::println("Absorb Hadamard Edge");
@@ -97,10 +99,10 @@ void Arranger::arrange(){
     hadamard_edge_absorb();
 
     // add redundant spiders
-    add_redundant_spiders();
+    // add_redundant_spiders();
 
     // optimize the nodes position
-    optimize_nodes_position();
+    // optimize_nodes_position();
 
     // for(auto* v: _graph->get_vertices()){
     //     if(v->is_boundary()) continue;
@@ -108,6 +110,116 @@ void Arranger::arrange(){
     //     v->set_phase(Phase(0));
     // }
     
+}
+
+void Arranger::split_vertex_4_layer(){
+    fmt::println("In Split Vertex 4 Layer");
+
+    size_t number_of_qubits = _graph->num_inputs();
+
+    _vertex_map.clear();
+
+    for(size_t i=0; i<6; i++) _vertex_map.push_back(std::vector<ZXVertex*>(number_of_qubits, nullptr));
+
+    // Do BFS on the graph
+    std::queue<ZXVertex*> q;
+    std::set<size_t> visited;
+    for(auto* input:_graph->get_inputs()) {
+        q.push(input);
+        visited.insert(input->get_id());
+    }
+
+    while(!q.empty()){
+        ZXVertex* u = q.front();
+        q.pop();
+        // visited.insert(u->get_id());
+        if(u->is_boundary() && u->get_col() == 0) {
+            _vertex_map[0][u->get_row()] = u;
+            u->set_col(0);
+        }
+        else if(u->is_boundary()) {
+            _vertex_map[5][u->get_row()] = u;
+            u->set_col(5);
+        }
+        else{
+            if(_vertex_map[2][u->get_row()] == nullptr) {
+                _vertex_map[2][u->get_row()] = u;
+                u->set_col(2);
+            }
+            else {
+                _vertex_map[3][u->get_row()] = u;
+                u->set_col(3);
+            }
+        }
+        for(auto& [p, et]: _graph->get_neighbors(u)){
+            if(visited.count(p->get_id())) continue;
+            q.push(p);
+            visited.insert(p->get_id());
+        }
+    }
+    // prioritize node splitting with nodes that have h edge to input (high priority first)
+    std::priority_queue<Task> pq;
+    // deal with the input neighbor
+    for(size_t i=0; i<number_of_qubits; i++){
+        if(_vertex_map[2][i] == nullptr) continue;
+        if(_graph->get_edge_type(_vertex_map[2][i], _vertex_map[0][i]).value() == EdgeType::hadamard) pq.push({1, _vertex_map[2][i]});
+        else pq.push({0, _vertex_map[2][i]});
+
+    }
+    while(!pq.empty()){
+        Task task = pq.top();
+        pq.pop();
+        if(task.vertex->is_boundary()) continue;
+        // count needed splitted node
+        std::vector<ZXVertex*> needed_splitted_node;
+        for(auto& [p, et]: _graph->get_neighbors(task.vertex)){
+            if(task.vertex->get_col() == p->get_col()) needed_splitted_node.push_back(p);
+        }
+        if(needed_splitted_node.size() == 0) continue;
+        // split the node
+        auto new_vertex = _graph->add_vertex(task.vertex->type(), Phase{0}, task.vertex->get_row(), 1);
+        _graph->add_edge(task.vertex, new_vertex, EdgeType::simple);
+        _vertex_map[1][task.vertex->get_row()] = new_vertex;
+        // auto origin_edge_type = _graph->get_edge_type(_vertex_map[0][task.vertex->get_row()], task.vertex).value();
+        _graph->add_edge(_vertex_map[0][task.vertex->get_row()], new_vertex, _graph->get_edge_type(_vertex_map[0][task.vertex->get_row()], task.vertex).value());
+        _graph->remove_edge(task.vertex, _vertex_map[0][task.vertex->get_row()]);
+        for(auto* v: needed_splitted_node){
+            auto edge_type = _graph->get_edge_type(v, task.vertex).value();
+            _graph->add_edge(v, new_vertex, edge_type);
+            _graph->remove_edge(v, task.vertex);
+        }
+    }
+
+    // deal with the output neighbor
+    for(size_t i=0; i<number_of_qubits; i++){
+        if(_vertex_map[3][i] == nullptr) continue;
+        if(_graph->get_edge_type(_vertex_map[3][i], _vertex_map[5][i]).value() == EdgeType::hadamard) pq.push({1, _vertex_map[3][i]});
+        else pq.push({0, _vertex_map[3][i]});
+    }
+    while(!pq.empty()){
+        Task task = pq.top();
+        pq.pop();
+        if(task.vertex->is_boundary()) continue;
+        // count needed splitted node
+        std::vector<ZXVertex*> needed_splitted_node;
+        for(auto& [p, et]: _graph->get_neighbors(task.vertex)){
+            if(task.vertex->get_col() == p->get_col()) needed_splitted_node.push_back(p);
+        }
+        if(needed_splitted_node.size() == 0) continue;
+        // split the node
+        auto new_vertex = _graph->add_vertex(task.vertex->type(), Phase{0}, task.vertex->get_row(), 4);
+        _graph->add_edge(task.vertex, new_vertex, EdgeType::simple);
+        _vertex_map[4][task.vertex->get_row()] = new_vertex;
+        // auto origin_edge_type = _graph->get_edge_type(_vertex_map[5][task.vertex->get_row()], task.vertex).value();
+        _graph->add_edge(_vertex_map[5][task.vertex->get_row()], new_vertex, _graph->get_edge_type(_vertex_map[5][task.vertex->get_row()], task.vertex).value());
+        _graph->remove_edge(task.vertex, _vertex_map[5][task.vertex->get_row()]);
+        for(auto* v: needed_splitted_node){
+            auto edge_type = _graph->get_edge_type(v, task.vertex).value();
+            _graph->add_edge(v, new_vertex, edge_type);
+            _graph->remove_edge(v, task.vertex);
+        }
+    }
+
 }
 
 void Arranger::optimize_nodes_position(int iteration){

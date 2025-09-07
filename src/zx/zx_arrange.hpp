@@ -37,6 +37,7 @@ public:
     // void separate_internal_input_output();
     void create_vertex_map();
     void stitching_vertex();
+    void split_vertex_4_layer();
     void hadamard_edge_absorb();
     void add_redundant_spiders();
     std::unordered_map<ZXVertex*, std::unordered_set<ZXVertex*>> calculate_smallest_dag();
