@@ -1144,6 +1144,9 @@ void LatticeSurgery::n_to_n(std::vector<std::pair<size_t,size_t>>& start_list, s
 
     size_t xs = _max_col;
     size_t ys = _max_row;
+    size_t xl = 0;
+    size_t yl = 0;
+
     size_t max_depth = 0;
     // x direction: |
     // z direction: <->
@@ -1151,40 +1154,59 @@ void LatticeSurgery::n_to_n(std::vector<std::pair<size_t,size_t>>& start_list, s
         xs = start_list[0].first;
         for(auto [x, y]: start_list){
             if(ys > y) ys = y;
+            if(yl < y) yl = y;
             if(get_patch(x, y)->get_depth() > max_depth) max_depth = get_patch(x, y)->get_depth();
         }
         for(auto [x, y]: dest_list){
             if(ys > y) ys = y;
+            if(yl < y) yl = y;
             if(get_patch(x, y)->get_depth() > max_depth) max_depth = get_patch(x, y)->get_depth();
         }
         for(size_t y=ys; y<=_max_row; y++){
             if(get_patch(xs, y)->get_depth() > max_depth) max_depth = get_patch(xs, y)->get_depth();
+        }
+        for(size_t y=yl+1; y<=_max_row; y++){
+            start_list.push_back({xs, y});
         }
     }
     else{
         ys = start_list[0].second;
         for(auto [x, y]: start_list){
             if(xs > x) xs = x;
+            if(xl < x) xl = x;
             if(get_patch(x, y)->get_depth() > max_depth) max_depth = get_patch(x, y)->get_depth();
         }
         for(auto [x, y]: dest_list){
             if(xs > x) xs = x;
+            if(xl < x) xl = x;
             if(get_patch(x, y)->get_depth() > max_depth) max_depth = get_patch(x, y)->get_depth();
         }
-        for(size_t x=xs; x<=_max_col; x++){
-            fmt::println("x: {}, ys: {}, depth: {}", x, ys, get_patch(x, ys)->get_depth());
-            if(get_patch(x, ys)->get_depth() > max_depth) max_depth = get_patch(x, ys)->get_depth();
+        for(size_t x=xl+1; x<=_max_col; x++){
+            start_list.push_back({x, ys});
         }
+        // for(size_t x=xs; x<=_max_col; x++){
+        //     fmt::println("x: {}, ys: {}, depth: {}", x, ys, get_patch(x, ys)->get_depth());
+        //     if(get_patch(x, ys)->get_depth() > max_depth) max_depth = get_patch(x, ys)->get_depth();
+        // }
     }
 
     fmt::println("max_col: {}, max_row: {}, max_depth: {}", _max_col, _max_row, max_depth);
     
     n_to_n(start_list, dest_list, max_depth+1);
 
-    if(phase == Phase(1,2)) add_s_gate(is_x,{xs, ys}, max_depth+1);
-    else if(phase == Phase(-1,2)) add_sdg_gate(is_x,{xs, ys}, max_depth+1);
-    else if(phase == Phase(1,4)) add_t_gate(is_x,{xs, ys}, max_depth+1);
-    else if(phase == Phase(-1,4)) add_tdg_gate(is_x,{xs, ys}, max_depth+1);
+    if(is_x){
+        max_depth = get_patch(xs, _max_row)->get_depth();
+        ys = _max_row;
+    }
+    else{
+        max_depth = get_patch(_max_col, ys)->get_depth();
+        xs = _max_col;
+    }
+
+    if(phase == Phase(1,2)) add_s_gate(is_x,{xs, ys}, max_depth);
+    else if(phase == Phase(-1,2)) add_sdg_gate(is_x,{xs, ys}, max_depth);
+    else if(phase == Phase(1,4)) add_t_gate(is_x,{xs, ys}, max_depth);
+    else if(phase == Phase(-1,4)) add_tdg_gate(is_x,{xs, ys}, max_depth);
 
     return;
 }
@@ -1231,7 +1253,25 @@ void LatticeSurgery::n_to_n(std::vector<std::pair<size_t,size_t>>& start_list, s
             else discard_list.push_back(patch_id);
         }
         // Vertical merge uses X measurements (along vertical boundaries)
-        merge_patches(merge_list, {get_patch(merge_list.front())->get_lr_type()}, false, depth);
+
+        // schedule the merge so every patch can be merged as early as possible
+        std::vector<size_t> merge_time(merge_list.size()-1, 0);
+        for(size_t i=0; i<merge_time.size(); i++){
+            merge_time[i] = std::max(get_patch(merge_list[i])->get_depth(), get_patch(merge_list[i+1])->get_depth())+1;
+        }
+        // how to get the sorted indices of merge_time the order is decided by the value of merge_time (increasing)
+        std::vector<size_t> sorted_indices = std::vector<size_t>(merge_list.size()-1, 0); // [0, 1, 2, ..., merge_list.size()-1]
+        for(size_t i=0; i<sorted_indices.size(); i++){
+            sorted_indices[i] = i;
+        }
+        std::sort(sorted_indices.begin(), sorted_indices.end(), [&](size_t i, size_t j) {
+            return merge_time[i] < merge_time[j];
+        });
+
+        for(size_t i=0; i<sorted_indices.size(); i++){
+            merge_patches({merge_list[sorted_indices[i]], merge_list[sorted_indices[i]+1]}, {get_patch(merge_list[sorted_indices[i]])->get_lr_type()}, false, merge_time[sorted_indices[i]]);
+        }
+        // merge_patches(merge_list, {get_patch(merge_list.front())->get_lr_type()}, false, depth);
         split_patches(merge_list);
         for (auto d : discard_list) {
             discard_patch(d, get_patch(d)->get_lr_type());
@@ -1249,7 +1289,23 @@ void LatticeSurgery::n_to_n(std::vector<std::pair<size_t,size_t>>& start_list, s
             else discard_list.push_back(patch_id);
         }
         // Horizontal merge uses Z measurements (along horizontal boundaries)
-        merge_patches(merge_list, {get_patch(merge_list.front())->get_td_type()}, false, depth);
+        // schedule the merge so every patch can be merged as early as possible
+        std::vector<size_t> merge_time(merge_list.size()-1, 0);
+        for(size_t i=0; i<merge_time.size(); i++){
+            merge_time[i] = std::max(get_patch(merge_list[i])->get_depth(), get_patch(merge_list[i+1])->get_depth())+1;
+        }
+        // how to get the sorted indices of merge_time the order is decided by the value of merge_time (increasing)
+        std::vector<size_t> sorted_indices = std::vector<size_t>(merge_list.size()-1, 0); // [0, 1, 2, ..., merge_list.size()-1]
+        for(size_t i=0; i<sorted_indices.size(); i++){
+            sorted_indices[i] = i;
+        }
+        std::sort(sorted_indices.begin(), sorted_indices.end(), [&](size_t i, size_t j) {
+            return merge_time[i] < merge_time[j];
+        });
+        for(size_t i=0; i<sorted_indices.size(); i++){
+            merge_patches({merge_list[sorted_indices[i]], merge_list[sorted_indices[i]+1]}, {get_patch(merge_list[sorted_indices[i]])->get_td_type()}, false, merge_time[sorted_indices[i]]);
+        }
+        // merge_patches(merge_list, {get_patch(merge_list.front())->get_td_type()}, false, depth);
         split_patches(merge_list);
         for (auto d : discard_list) {
             discard_patch(d, get_patch(d)->get_td_type());
