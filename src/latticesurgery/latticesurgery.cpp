@@ -1135,24 +1135,26 @@ void LatticeSurgery::n_to_n(std::vector<std::pair<size_t,size_t>>& start_list, s
 
     fmt::println("n_to_n with phase: {}", phase);
 
-    if(phase == Phase(1)){
+    if(phase == Phase(1) || phase == Phase(0)){
         n_to_n(start_list, dest_list, 0); // Call the depth version with default depth
         add_flip_gate(is_x, get_patch_id(dest_list[0].first, dest_list[0].second));
         return;
     }
-    size_t xs = 0;
-    size_t ys = 0;
+
+
+    size_t xs = _max_col;
+    size_t ys = _max_row;
     size_t max_depth = 0;
     // x direction: |
     // z direction: <->
     if(is_x){
         xs = start_list[0].first;
         for(auto [x, y]: start_list){
-            if(ys < y) ys = y;
+            if(ys > y) ys = y;
             if(get_patch(x, y)->get_depth() > max_depth) max_depth = get_patch(x, y)->get_depth();
         }
         for(auto [x, y]: dest_list){
-            if(ys < y) ys = y;
+            if(ys > y) ys = y;
             if(get_patch(x, y)->get_depth() > max_depth) max_depth = get_patch(x, y)->get_depth();
         }
         for(size_t y=ys; y<=_max_row; y++){
@@ -1162,17 +1164,20 @@ void LatticeSurgery::n_to_n(std::vector<std::pair<size_t,size_t>>& start_list, s
     else{
         ys = start_list[0].second;
         for(auto [x, y]: start_list){
-            if(xs < x) xs = x;
+            if(xs > x) xs = x;
             if(get_patch(x, y)->get_depth() > max_depth) max_depth = get_patch(x, y)->get_depth();
         }
         for(auto [x, y]: dest_list){
-            if(xs < x) xs = x;
+            if(xs > x) xs = x;
             if(get_patch(x, y)->get_depth() > max_depth) max_depth = get_patch(x, y)->get_depth();
         }
         for(size_t x=xs; x<=_max_col; x++){
+            fmt::println("x: {}, ys: {}, depth: {}", x, ys, get_patch(x, ys)->get_depth());
             if(get_patch(x, ys)->get_depth() > max_depth) max_depth = get_patch(x, ys)->get_depth();
         }
     }
+
+    fmt::println("max_col: {}, max_row: {}, max_depth: {}", _max_col, _max_row, max_depth);
     
     n_to_n(start_list, dest_list, max_depth+1);
 

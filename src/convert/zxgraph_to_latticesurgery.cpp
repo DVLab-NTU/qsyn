@@ -779,6 +779,8 @@ std::pair<int, std::vector<std::tuple<char, size_t, std::pair<std::vector<size_t
     std::map<std::pair<size_t, size_t>, std::pair<size_t, size_t>>& hadamard_patches,
     bool color_map ) const {
 
+    fmt::println("find_nearest_patch_both_sides_hadamard: ({}, {})", cur_qubit, j);
+
     size_t n = cur_layer_row.size();
     struct Result {
         int idx;
