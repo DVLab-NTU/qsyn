@@ -85,7 +85,7 @@ std::optional<QCir> from_qasm(std::filesystem::path const& filepath) {
 
         std::string phase_gate_type;
         str_get_token(str, phase_gate_type, 0, '(');
-        if (phase_gate_type == "U3" || phase_gate_type == "U" || phase_gate_type == "u") {
+        if (phase_gate_type == "U3" || phase_gate_type == "U" || phase_gate_type == "u" || phase_gate_type == "u3") {
             std::string theta_str, phi_str, lambda_str;
             size_t pos = str.find('(');
             if (pos != std::string::npos) {
