@@ -471,7 +471,7 @@ GeneralizedMstSynthesisStrategy::_partial_synthesize(
         }
     };
     
-    auto const num_qubits    = rotations.front().n_qubits();
+    auto const num_qubits    = residual_clifford.n_qubits();
     auto const num_rotations = rotations.size();
 
     
