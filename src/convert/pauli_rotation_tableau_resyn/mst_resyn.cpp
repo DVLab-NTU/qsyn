@@ -202,17 +202,36 @@ size_t cx_weight(
 
 // build the dependency graph according to the commutation relation
 dvlab::Digraph<size_t, int> get_dependency_graph(std::vector<PauliRotation> const& rotations) {
+    auto const t0 = std::chrono::steady_clock::now();
     size_t const num_rotations = rotations.size();
     dvlab::Digraph<size_t, int> dag{num_rotations};
     // Timer for is_commutative and add_edge
+    std::chrono::nanoseconds total_is_commutative_time{0};
+    std::chrono::nanoseconds total_add_edge_time{0};
     for (auto i : std::views::iota(0ul, num_rotations)) {   
         for (auto j : std::views::iota(i+1, num_rotations)) {
+            auto const c0 = std::chrono::steady_clock::now();
             bool not_commute = !is_commutative(rotations[i], rotations[j]);
+            auto const c1 = std::chrono::steady_clock::now();
+            total_is_commutative_time += (c1 - c0);
             if (not_commute) {
+                auto const a0 = std::chrono::steady_clock::now();
                 dag.add_edge(i, j);
+                auto const a1 = std::chrono::steady_clock::now();
+                auto const add_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(a1 - a0).count();
+                // spdlog::info("[get_dependency_graph] add_edge({}, {}) took {} ns", i, j, add_ns);
+                total_add_edge_time += (a1 - a0);
             }
         }
     }
+    auto const t1 = std::chrono::steady_clock::now();
+    auto const ms = std::chrono::duration_cast<std::chrono::milliseconds>(t1 - t0).count();
+    auto const is_commutative_ms = std::chrono::duration_cast<std::chrono::milliseconds>(total_is_commutative_time).count();
+    auto const add_edge_ms = std::chrono::duration_cast<std::chrono::milliseconds>(total_add_edge_time).count();
+    spdlog::info("[get_dependency_graph] is_commutative total: {} ms, add_edge total: {} ms", is_commutative_ms, add_edge_ms);
+    spdlog::info(
+        "[get_dependency_graph] V={}, E={}, total time={} ms",
+        dag.num_vertices(), dag.num_edges(), ms);
     return dag;
 }
 
