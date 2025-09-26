@@ -6,6 +6,7 @@
 #include <cstddef>
 #include <ranges>
 #include <type_traits>
+#include <unordered_set>
 
 #include "util/ordered_hashmap.hpp"
 #include "util/ordered_hashset.hpp"
