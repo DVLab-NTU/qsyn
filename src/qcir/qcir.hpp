@@ -20,6 +20,7 @@
 
 #include "qcir/qcir_gate.hpp"
 #include "qcir/qcir_qubit.hpp"
+#include "qcir/qcir_bit.hpp"
 #include "qsyn/qsyn_type.hpp"
 #include "spdlog/common.h"
 #include "util/ordered_hashmap.hpp"
@@ -67,6 +68,10 @@ public:
     using QubitIdType = qsyn::QubitIdType;
     QCir() {}
     QCir(size_t n_qubits) { add_qubits(n_qubits); }
+    QCir(size_t n_qubits, size_t n_classical_bits) { 
+        add_qubits(n_qubits); 
+        add_classical_bits(n_classical_bits);
+    }
     ~QCir() = default;
     QCir(QCir const& other);
     QCir(QCir&& other) noexcept = default;
@@ -97,6 +102,7 @@ public:
     size_t calculate_depth() const;
     std::unordered_map<size_t, size_t> calculate_gate_times() const;
     std::vector<QCirQubit> const& get_qubits() const { return _qubits; }
+    std::vector<QCirBit> const& get_classical_bits() const { return _classical_bits; }
 
     /**
      * @brief Get the gates as a topologically ordered list
@@ -130,7 +136,53 @@ public:
     void insert_qubit(QubitIdType id);
     void add_qubits(size_t num);
     bool remove_qubit(QubitIdType qid);
+    
+    // Ancilla qubit management
+    void add_ancilla_qubits(size_t num, AncillaState state = AncillaState::clean);
+    void add_ancilla_qubit(AncillaState state = AncillaState::clean);
+    void push_ancilla_qubit(AncillaState state = AncillaState::clean);
+    void insert_ancilla_qubit(QubitIdType id, AncillaState state = AncillaState::clean);
+    bool remove_ancilla_qubit(QubitIdType qid);
+    void set_qubit_type(QubitIdType id, QubitType type);
+    void set_ancilla_state(QubitIdType id, AncillaState state);
+    QubitType get_qubit_type(QubitIdType id) const;
+    AncillaState get_ancilla_state(QubitIdType id) const;
+    std::vector<QubitIdType> get_ancilla_qubits() const;
+    std::vector<QubitIdType> get_data_qubits() const;
+    std::vector<QubitIdType> get_clean_ancilla_qubits() const;
+    std::vector<QubitIdType> get_dirty_ancilla_qubits() const;
+    size_t get_num_ancilla_qubits() const;
+    size_t get_num_data_qubits() const;
+    size_t get_num_clean_ancilla_qubits() const;
+    size_t get_num_dirty_ancilla_qubits() const;
+    
+    // Classical bit management
+    void add_classical_bits(size_t num);
+    void add_classical_bit();
+    void push_classical_bit();
+    void insert_classical_bit(size_t id);
+    void set_classical_value(size_t id, bool value);
+    void set_classical_measured(size_t id, QCirGate* measurement_gate = nullptr);
+    void mark_classical_as_measured(size_t id, QCirGate* measurement_gate = nullptr);
+    bool remove_classical_bit(size_t id);
+    bool get_classical_value(size_t id) const;
+    bool is_classical_measured(size_t id) const;
+    bool is_classical_determined(size_t id) const;
+    std::vector<size_t> get_classical_bit_ids() const;
+    std::vector<size_t> get_classical_zero_bit_ids() const;
+    std::vector<size_t> get_classical_one_bit_ids() const;
+    std::vector<size_t> get_classical_unknown_bit_ids() const;
+    size_t get_num_classical_bits() const;
+    size_t get_num_classical_zero_bits() const;
+    size_t get_num_classical_one_bits() const;
+    size_t get_num_classical_unknown_bits() const;
+    bool measure_qubit_to_classical(QubitIdType qubit_id, size_t classical_bit_id);
+    std::string get_qubit_type_summary() const;
+    
     size_t append(Operation const& op, QubitIdList const& bits);
+    size_t append(Operation const& op, QubitIdType qubit_id, size_t classical_bit_id);
+    size_t append(Operation const& op, QubitIdList const& bits, ClassicalBitIdType classical_bit, size_t classical_value);
+    size_t append(Operation const& op, QubitIdList const& bits, size_t classical_value);
     size_t prepend(Operation const& op, QubitIdList const& bits);
     size_t append(QCirGate const& gate);
     size_t prepend(QCirGate const& gate);
@@ -188,6 +240,7 @@ private:
     std::string _gate_set;
     std::vector<std::string> _procedures;
     std::vector<QCirQubit> _qubits;
+    std::vector<QCirBit> _classical_bits;
     dvlab::utils::ordered_hashmap<size_t, std::unique_ptr<QCirGate>> _id_to_gates;
     std::unordered_map<size_t, std::vector<std::optional<size_t>>> _predecessors;
     std::unordered_map<size_t, std::vector<std::optional<size_t>>> _successors;
@@ -211,6 +264,13 @@ private:
     void _set_successors(size_t gate_id,
                          std::vector<std::optional<size_t>> const& succs);
     void _connect(size_t gid1, size_t gid2, QubitIdType qubit);
+    void _connect_classical(size_t measurement_gate_id, size_t if_else_gate_id, QubitIdType measurement_qubit, QubitIdType if_else_qubit);
+    
+    // Validation methods
+    bool _validate_qubit_gate_addition(QubitIdList const& qubits, std::string const& gate_type) const;
+    bool _validate_measurement_gate(QubitIdType qubit_id, size_t classical_bit_id) const;
+    bool _validate_if_else_gate(QubitIdList const& qubits, size_t classical_bit_id) const;
+    bool _validate_if_else_gate_all_bits(QubitIdList const& qubits) const;
 };
 
 std::unordered_map<std::string, size_t>

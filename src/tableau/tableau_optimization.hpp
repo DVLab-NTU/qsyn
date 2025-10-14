@@ -33,6 +33,10 @@ void merge_rotations(Tableau& tableau);
 // implemented in ./optimize/internal_h_opt.cpp
 
 void minimize_internal_hadamards(Tableau& tableau);
+void minimize_internal_hadamards_n_gadgetize(Tableau& tableau);
+
+// H gadgetization - replaces H gates with gadgets using ancilla qubits and measurements
+std::pair<Tableau, StabilizerTableau> minimize_hadamards_n_gadgetize(Tableau tableau, StabilizerTableau context);
 
 struct PhasePolynomialOptimizationStrategy {
     using Polynomial                               = std::vector<PauliRotation>;

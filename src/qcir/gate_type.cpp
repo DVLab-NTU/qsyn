@@ -22,6 +22,8 @@ std::optional<Operation> str_to_basic_operation(std::string str, std::vector<dvl
         if (str == "h") return HGate();
         if (str == "swap") return SwapGate();
         if (str == "ecr") return ECRGate();
+        if (str == "measure" || str == "m") return MeasurementGate();
+        if (str == "if_else" || str == "if") return IfElseGate(IdGate(), 0, 0); // Placeholder
 
         if (str == "z") return ZGate();
         if (str == "s") return SGate();
@@ -62,6 +64,11 @@ std::optional<Operation> str_to_basic_operation(std::string str, std::vector<dvl
 
 std::optional<Operation> str_to_operation(std::string str, std::vector<dvlab::Phase> const& params) {
     str = dvlab::str::tolower_string(str);
+
+    // Handle measurement operations
+    if (str == "measure" || str == "m") {
+        return MeasurementGate();
+    }
 
     auto const n_ctrls = str.find_first_not_of('c');
     str                = str.substr(n_ctrls);

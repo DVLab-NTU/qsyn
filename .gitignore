@@ -26,3 +26,5 @@ docs/doc-coverage.info
 
 perf.data
 perf.data.old
+
+ancilla_tests/

@@ -36,6 +36,13 @@ std::optional<QTensor<double>> to_tensor(IdGate const& /* op */) {
 }
 
 template <>
+std::optional<QTensor<double>> to_tensor(MeasurementGate const& /* op */) {
+    // Measurement is a non-unitary operation that cannot be represented as a tensor
+    // Return nullopt to indicate this operation cannot be converted to tensor form
+    return std::nullopt;
+}
+
+template <>
 std::optional<QTensor<double>> to_tensor(SwapGate const& /* op */) {
     auto tensor = QTensor<double>{{1.0, 0.0, 0.0, 0.0},
                                   {0.0, 0.0, 1.0, 0.0},
@@ -102,6 +109,15 @@ std::optional<QTensor<double>> to_tensor(UGate const& op) {
     QTensor<double> u = tensordot(ry_theta, rz_phi, {1}, {0});
     u = tensordot(rz_lambda, u, {1}, {0});
     return u;
+}
+
+template <>
+std::optional<QTensor<double>> to_tensor(IfElseGate const& /* op */) {
+    // If-else gates represent conditional operations based on classical bit values
+    // They cannot be represented as a tensor as they depend on classical control flow
+    // Return nullopt to indicate this operation cannot be converted to tensor form
+    spdlog::warn("If-else gate cannot be represented as tensor");
+    return std::nullopt;
 }
 
 /**

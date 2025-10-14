@@ -89,10 +89,12 @@ std::vector<QCirGate*> dfs(QCir const& qcir) {
         visited.insert(node);
         dfs_stack.emplace(true, node);
 
-        assert(qcir.get_successors(node->get_id()).size() ==
-               node->get_num_qubits());
-
-        for (auto const& succ : qcir.get_successors(node->get_id())) {
+        // Follow all successors, including classical dependencies
+        auto const& successors = qcir.get_successors(node->get_id());
+        
+        // The successors vector may now include classical pins beyond qubit pins
+        // We need to follow all valid successors, not just qubit-based ones
+        for (auto const& succ : successors) {
             if (succ.has_value() && !visited.contains(qcir.get_gate(succ))) {
                 dfs_stack.emplace(false, qcir.get_gate(succ));
             }

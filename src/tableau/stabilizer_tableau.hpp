@@ -94,6 +94,40 @@ public:
         return std::ranges::all_of(_stabilizers | std::views::take(n_qubits()), [&rhs](PauliProduct const& stabilizer) { return stabilizer.is_commutative(rhs); });
     }
 
+    /**
+     * @brief Add an ancilla qubit to the tableau
+     * 
+     * Adds a new qubit that is initialized to |0⟩ state (Z stabilizer and X destabilizer)
+     * The ancilla qubit will have all-zero entries in existing stabilizers
+     * 
+     * @return the index of the newly added ancilla qubit
+     */
+    size_t add_ancilla_qubit() {
+        size_t new_qubit = n_qubits();
+        
+        // Resize all existing stabilizers to include the new qubit (initialized to I)
+        for (auto& stabilizer : _stabilizers) {
+            // Extend the PauliProduct to include one more qubit (I)
+            // This is done by creating a new PauliProduct with the extended size
+            std::string extended_str = stabilizer.to_string();
+            extended_str += 'I';  // Add I for the new ancilla qubit
+            stabilizer = PauliProduct(extended_str);
+        }
+        
+        // Insert Z stabilizer for the ancilla qubit at position new_qubit
+        // Z stabilizer: all I except Z at the ancilla position
+        std::string z_stabilizer_str(n_qubits() + 1, 'I');
+        z_stabilizer_str[new_qubit] = 'Z';
+        _stabilizers.insert(_stabilizers.begin() + new_qubit, PauliProduct(z_stabilizer_str));
+        
+        // Insert X destabilizer for the ancilla qubit at position new_qubit + n_qubits()
+        // X destabilizer: all I except X at the ancilla position  
+        std::string x_destabilizer_str(n_qubits() + 1, 'I');
+        x_destabilizer_str[new_qubit] = 'X';
+        _stabilizers.emplace_back(PauliProduct(x_destabilizer_str));
+        return new_qubit;
+    }
+
 private:
     std::vector<PauliProduct> _stabilizers;
 };

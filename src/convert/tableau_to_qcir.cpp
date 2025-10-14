@@ -16,16 +16,19 @@
 
 #include "qcir/basic_gate_type.hpp"
 #include "qcir/qcir.hpp"
+#include "qcir/operation.hpp"
 #include "util/graph/digraph.hpp"
 #include "util/graph/minimum_spanning_arborescence.hpp"
 #include "util/phase.hpp"
 #include "util/util.hpp"
+#include "spdlog/spdlog.h"
 
 extern bool stop_requested();
 
 namespace qsyn::experimental {
 
 namespace {
+
 
 void add_clifford_gate(qcir::QCir& qcir, CliffordOperator const& op) {
     using COT                  = CliffordOperatorType;
@@ -555,7 +558,33 @@ std::optional<qcir::QCir> to_qcir(
  * @return qcir::QCir
  */
 std::optional<qcir::QCir> to_qcir(Tableau const& tableau, StabilizerTableauSynthesisStrategy const& st_strategy, PauliRotationsSynthesisStrategy const& pr_strategy) {
-    qcir::QCir qcir{tableau.n_qubits()};
+    qcir::QCir qcir{tableau.n_qubits(), tableau.n_qubits()};
+
+    // Apply initial state gates for ancilla qubits at the beginning
+    for (auto const& [qubit, initial_state] : tableau.get_ancilla_initial_states()) {
+        if (stop_requested()) {
+            return std::nullopt;
+        }
+        
+        switch (initial_state) {
+            case qsyn::experimental::AncillaInitialState::ZERO:
+                // No gate needed for |0⟩ state
+                break;
+            case qsyn::experimental::AncillaInitialState::ONE:
+                // Apply X gate to get |1⟩ state
+                qcir.append(qcir::XGate(), {qubit});
+                break;
+            case qsyn::experimental::AncillaInitialState::PLUS:
+                // Apply H gate to get |+⟩ state
+                qcir.append(qcir::HGate(), {qubit});
+                break;
+            case qsyn::experimental::AncillaInitialState::MINUS:
+                // Apply H then X gate to get |-⟩ state
+                qcir.append(qcir::HGate(), {qubit});
+                qcir.append(qcir::XGate(), {qubit});
+                break;
+        }
+    }
 
     for (auto const& subtableau : tableau) {
         if (stop_requested()) {
@@ -571,6 +600,35 @@ std::optional<qcir::QCir> to_qcir(Tableau const& tableau, StabilizerTableauSynth
             return std::nullopt;
         }
         qcir.compose(*qc_fragment);
+    }
+
+    // Add measurement operations at the end of the circuit
+    for (auto const& [qubit, classical_bit] : tableau.get_measurements()) {
+        if (stop_requested()) {
+            return std::nullopt;
+        }
+        
+        // Add measurement gate from qubit to classical bit
+        // Validation is now handled in qcir.append()
+        qcir.append(qcir::MeasurementGate(), qubit, classical_bit);
+    }
+    
+    // Add if-else operations at the end of the circuit
+    for (auto const& if_else_op : tableau.get_if_else_operations()) {
+        if (stop_requested()) {
+            return std::nullopt;
+        }
+        
+        // Use str_to_operation to convert operation string to QCir operation
+        auto operation_opt = qcir::str_to_operation(if_else_op.operation);
+        if (!operation_opt.has_value()) {
+            spdlog::error("Unknown operation: {}", if_else_op.operation);
+            return std::nullopt;
+        }
+        
+        // Add conditional operation: if(c[classical_bit]==value) operation
+        // Validation is now handled in qcir.append()
+        qcir.append(*operation_opt, if_else_op.qubits, if_else_op.classical_bit, if_else_op.value);
     }
 
     return qcir;

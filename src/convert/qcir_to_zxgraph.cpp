@@ -420,6 +420,22 @@ std::optional<ZXGraph> to_zxgraph(qcir::ControlGate const& op) {
     return std::nullopt;
 }
 
+template <>
+std::optional<ZXGraph> to_zxgraph(qcir::MeasurementGate const& /* op */) {
+    // Measurement is a non-unitary operation that cannot be represented in a ZXGraph
+    // Return nullopt to indicate this operation cannot be converted to ZXGraph form
+    return std::nullopt;
+}
+
+template <>
+std::optional<ZXGraph> to_zxgraph(qcir::IfElseGate const& /* op */) {
+    // If-else gates represent conditional operations based on classical bit values
+    // They cannot be represented in a ZXGraph as they depend on classical control flow
+    // Return nullopt to indicate this operation cannot be converted to ZXGraph form
+    spdlog::warn("If-else gate cannot be represented in ZXGraph");
+    return std::nullopt;
+}
+
 std::optional<ZXGraph> to_zxgraph(qcir::QCirGate const& gate) {
     return to_zxgraph(gate.get_operation());
 }

@@ -172,10 +172,20 @@ void QCir::print_circuit_diagram(spdlog::level::level_enum lvl) const {
 
 void QCir::print_qcir_info() const {
     auto stat = get_gate_statistics(*this);
+    
+    // Count measurement gates
+    size_t measurement_gates = 0;
+    if (stat.contains("measure")) {
+        measurement_gates = stat.at("measure");
+    }
+    
+    // Get classical bits count
+   
+    
     fmt::println(
-        "QCir ({} qubits, {} gates, {} 2-qubits gates, {} T-gates, {} depths)",
-        get_num_qubits(), get_num_gates(), stat.at("2-qubit"),
-        stat.at("t-family"), calculate_depth());
+        "QCir ({} qubits, {} classical bits, {} gates, {} 2-qubits gates, {} T-gates, {} measurement gates, {} depths)",
+        get_num_qubits(), get_num_classical_bits(), get_num_gates(), stat.at("2-qubit"),
+        stat.at("t-family"), measurement_gates, calculate_depth());
 }
 
 }  // namespace qsyn::qcir

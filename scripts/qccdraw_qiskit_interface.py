@@ -1,3 +1,4 @@
+make -j4
 '''
   FileName     [ qccdraw_qiskit_interface.py ]
   PackageName  [ qcir ]

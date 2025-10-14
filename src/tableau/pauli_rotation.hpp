@@ -246,6 +246,32 @@ public:
         return std::ranges::all_of(std::views::iota(0ul, n_qubits()), [this](size_t i) { return is_i(i); });
     }
 
+    /**
+     * @brief Add an ancilla qubit to the PauliProduct
+     * 
+     * Extends the PauliProduct to include one more qubit initialized to I (identity)
+     * 
+     * @return the index of the newly added ancilla qubit
+     */
+    size_t add_ancilla_qubit() {
+        size_t new_qubit = n_qubits();
+        
+        // Resize the bitset to accommodate the new qubit
+        // The bitset stores: [z_0, z_1, ..., z_{n-1}, x_0, x_1, ..., x_{n-1}, sign]
+        // So we need to add 2 more bits (z_new, x_new) and update the sign bit position
+        size_t old_size = _bitset.size();
+        _bitset.resize(old_size + 2);
+        
+        // Shift the sign bit to the new position
+        _bitset[old_size + 1] = _bitset[old_size - 1];
+        _bitset[old_size - 1] = false;
+        
+        // The new qubit is initialized to I (both z and x bits are false)
+        // This is already the case since we just resized with false values
+        
+        return new_qubit;
+    }
+
 private:
     sul::dynamic_bitset<> _bitset;
 
@@ -304,6 +330,17 @@ public:
     }
 
     bool is_diagonal() const { return _pauli_product.is_diagonal(); }
+
+    /**
+     * @brief Add an ancilla qubit to the PauliRotation
+     * 
+     * Extends the underlying PauliProduct to include one more qubit initialized to I (identity)
+     * 
+     * @return the index of the newly added ancilla qubit
+     */
+    size_t add_ancilla_qubit() {
+        return _pauli_product.add_ancilla_qubit();
+    }
 
 private:
     PauliProduct _pauli_product;

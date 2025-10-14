@@ -8,6 +8,7 @@
 #pragma once
 
 #include <cstddef>
+#include <optional>
 #include <string>
 #include <tl/to.hpp>
 
@@ -22,6 +23,21 @@ public:
     QCirGate(size_t id, Operation const& op, QubitIdList qubits);
     QCirGate(Operation const& op, QubitIdList qubits)
         : QCirGate(0, op, std::move(qubits)) {}
+    
+    // Constructor for gates with classical bits (e.g., measurement)
+    QCirGate(size_t id, Operation const& op, QubitIdList qubits, ClassicalBitIdList classical_bits);
+    QCirGate(Operation const& op, QubitIdList qubits, ClassicalBitIdList classical_bits)
+        : QCirGate(0, op, std::move(qubits), std::move(classical_bits)) {}
+    
+    // Constructor for if-else gates (single classical bit with value)
+    QCirGate(size_t id, Operation const& op, QubitIdList qubits, ClassicalBitIdType classical_bit, size_t classical_value);
+    QCirGate(Operation const& op, QubitIdList qubits, ClassicalBitIdType classical_bit, size_t classical_value)
+        : QCirGate(0, op, std::move(qubits), classical_bit, classical_value) {}
+    
+    // Constructor for if-else gates (all classical bits with value)
+    QCirGate(size_t id, Operation const& op, QubitIdList qubits, size_t classical_value);
+    QCirGate(Operation const& op, QubitIdList qubits, size_t classical_value)
+        : QCirGate(0, op, std::move(qubits), classical_value) {}
 
     ~QCirGate();
 
@@ -51,6 +67,16 @@ public:
     std::optional<size_t> get_pin_by_qubit(QubitIdType qubit) const;
 
     size_t get_num_qubits() const { return _qubits.size(); }
+    
+    // Classical bit access methods
+    bool has_classical_bits() const { return _has_classical_bits; }
+    ClassicalBitIdList get_classical_bits() const { return _classical_bits; }
+    ClassicalBitIdType get_classical_bit(size_t pin_id) const { return _classical_bits[pin_id]; }
+    size_t get_num_classical_bits() const { return _classical_bits.size(); }
+    std::optional<size_t> get_pin_by_classical_bit(ClassicalBitIdType classical_bit) const;
+    
+    // If-else gate access methods
+    std::optional<size_t> get_classical_value() const { return _classical_value; }
 
     bool operator==(QCirGate const& rhs) const;
     bool operator!=(QCirGate const& rhs) const { return !(*this == rhs); }
@@ -63,6 +89,9 @@ protected:
                             // include operation.hpp in this header. This is
                             // a necessary evil to realize `to_basic_gates`.
     std::vector<QubitIdType> _qubits;
+    ClassicalBitIdList _classical_bits;   // Classical bits this gate operates on
+    bool _has_classical_bits = false;     // Flag to identify classical operations
+    std::optional<size_t> _classical_value;  // Classical value for if-else gates
 };
 
 }  // namespace qsyn::qcir

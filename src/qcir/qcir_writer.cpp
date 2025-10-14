@@ -100,11 +100,41 @@ std::string to_qasm(QCir const& qcir) {
     std::string qasm = "OPENQASM 2.0;\n";
     qasm += "include \"qelib1.inc\";\n";
     qasm += fmt::format("qreg q[{}];\n", qcir.get_num_qubits());
+    
+    // Add classical register if there are classical bits
+    if (qcir.get_num_classical_bits() > 0) {
+        qasm += fmt::format("creg c[{}];\n", qcir.get_num_classical_bits());
+    }
 
     for (auto const* gate : qcir.get_gates()) {
         using namespace std::literals;
         auto const qubits = gate->get_qubits();
         auto repr         = gate->get_operation().get_repr();
+        
+        // Handle measurement gates independently
+        if (repr == "measure") {
+            if (gate->has_classical_bits() && !gate->get_classical_bits().empty()) {
+                auto const classical_bits = gate->get_classical_bits();
+                qasm += fmt::format("measure q[{}] -> c[{}];\n", qubits[0], classical_bits[0]);
+            } else {
+                // Fallback: measure to same index classical bit
+                qasm += fmt::format("measure q[{}] -> c[{}];\n", qubits[0], qubits[0]);
+            }
+            continue;
+        }
+        
+        // Handle if-else gates independently
+        if (repr.find("if") == 0) {
+            // If-else gates need qubit targets appended
+            std::string qubit_str;
+            for (size_t i = 0; i < qubits.size(); ++i) {
+                if (i > 0) qubit_str += " ";
+                qubit_str += fmt::format("q[{}]", qubits[i]);
+            }
+            qasm += fmt::format("{} {};\n", repr, qubit_str);
+            continue;
+        }
+        
         // if encountering "π", replace it with "pi"
         size_t pos = 0;
         while ((pos = repr.find("π"s, pos)) != std::string::npos) {
@@ -115,9 +145,13 @@ std::string to_qasm(QCir const& qcir) {
             }
         }
 
-        qasm += fmt::format("{} {};\n",
-                            repr,
-                            fmt::join(qubits | std::views::transform([](auto pin) { return fmt::format("q[{}]", pin); }), ", "));
+        // Build qubit string manually to avoid fmt::join view issues
+        std::string qubit_str;
+        for (size_t i = 0; i < qubits.size(); ++i) {
+            if (i > 0) qubit_str += ", ";
+            qubit_str += fmt::format("q[{}]", qubits[i]);
+        }
+        qasm += fmt::format("{} {};\n", repr, qubit_str);
     }
     return qasm;
 }

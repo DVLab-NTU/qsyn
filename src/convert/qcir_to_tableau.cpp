@@ -16,6 +16,8 @@
 #include <unordered_map>
 #include <variant>
 
+#include <spdlog/spdlog.h>
+
 #include "qcir/basic_gate_type.hpp"
 #include "qcir/qcir_gate.hpp"
 #include "qsyn/qsyn_type.hpp"
@@ -145,6 +147,15 @@ template <>
 bool append_to_tableau(qcir::HGate const& /* op */, experimental::Tableau& tableau, QubitIdList const& qubits) {
     tableau.h(qubits[0]);
     return true;
+}
+
+template <>
+bool append_to_tableau(qcir::MeasurementGate const& /* op */, experimental::Tableau& tableau, QubitIdList const& qubits) {
+    // Measurement is a non-unitary operation that cannot be represented in a stabilizer tableau
+    // The tableau represents unitary Clifford operations, but measurement collapses the state
+    // Return false to indicate this operation cannot be converted to tableau form
+    spdlog::warn("Measurement gate cannot be represented in stabilizer tableau");
+    return false;
 }
 
 template <>
@@ -310,6 +321,15 @@ bool append_to_tableau(qcir::ControlGate const& op, experimental::Tableau& table
         return experimental::implement_mcr(tableau, qubits, target_op->get_phase(), experimental::Pauli::z);
     }
 
+    return false;
+}
+
+template <>
+bool append_to_tableau(qcir::IfElseGate const& /* op */, experimental::Tableau& /* tableau */, QubitIdList const& /* qubits */) {
+    // If-else gates represent conditional operations based on classical bit values
+    // They cannot be represented in a stabilizer tableau as tableaus only handle unitary operations
+    // Return false to indicate this operation cannot be converted to tableau form
+    spdlog::warn("If-else gate cannot be represented in stabilizer tableau");
     return false;
 }
 
