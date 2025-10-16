@@ -30,8 +30,8 @@ public:
         Vertex src, dst;
         bool operator==(Edge const& other) const = default;
     };
-    // using NeighborSet = dvlab::utils::ordered_hashset<Vertex>;
-    using NeighborSet = std::unordered_set<Vertex>;
+    using NeighborSet = dvlab::utils::ordered_hashset<Vertex>;
+    // using NeighborSet = std::unordered_set<Vertex>;
 
     Digraph() = default;
     Digraph(size_t num_vertices) {

@@ -7,10 +7,14 @@
 
 #pragma once
 
+#include <string>
+#include <vector>
+
 #include "qcir/qcir.hpp"
 #include "tableau/pauli_rotation.hpp"
 #include "tableau/stabilizer_tableau.hpp"
 #include "tableau/tableau.hpp"
+#include "util/graph/digraph.hpp"
 
 namespace qsyn {
 
@@ -24,8 +28,44 @@ void prepend_clifford_gate(qcir::QCir& qcir, CliffordOperator const& op);
 void add_clifford_gate(PauliRotationTableau& rotations, CliffordOperator const& op);
 void add_clifford_gate(StabilizerTableau& tableau, CliffordOperator const& op);
 void prepend_clifford_gate(StabilizerTableau& tableau, CliffordOperator const& op);
+
+// MST synthesis utility functions
+namespace mst {
+
+bool is_valid(PauliRotation const& rotation);
+size_t hamming_weight(PauliRotation const& rotation);
+size_t qubit_weight(PauliRotation const& rotation);
+size_t get_best_rotation_idx(std::vector<PauliRotation> const& rotations);
+size_t get_best_rotation_idx(std::vector<PauliRotation> const& rotations, std::vector<size_t> const& first_layer);
+size_t row_hamming_weight(std::vector<PauliRotation> const& rotations, size_t q_idx, bool is_Z);
+size_t row_hamming_weight(StabilizerTableau const& st, size_t q_idx, bool is_Z);
+size_t hamming_distance(std::vector<PauliRotation> const& rotations, size_t q1_idx, size_t q2_idx);
+size_t cx_distance(std::vector<PauliRotation> const& rotations, size_t q1_idx, size_t q2_idx);
+size_t cx_distance(StabilizerTableau const& st, size_t q1_idx, size_t q2_idx);
+size_t delta_trace(StabilizerTableau const& st, size_t q1_idx, size_t q2_idx);
+dvlab::Digraph<size_t, int> get_dependency_graph(std::vector<PauliRotation> const& rotations);
+dvlab::Digraph<size_t, int> get_parity_graph(std::vector<PauliRotation> const& rotations,
+                                             PauliRotation const& target_rotation,
+                                             bool consider_X = false);
+dvlab::Digraph<size_t, int> get_parity_graph_with_stabilizer(std::vector<PauliRotation> const& rotations,
+                                                             StabilizerTableau const& residual_clifford,
+                                                             PauliRotation const& target_rotation);
+void apply_mst_cxs(dvlab::Digraph<size_t, int> const& mst,
+                   size_t root,
+                   std::vector<PauliRotation>& rotations,
+                   qcir::QCir& qcir,
+                   StabilizerTableau& final_clifford,
+                   bool backward);
+
+}  // namespace mst
+
 }  // namespace detail
 
+enum class SynthesisType {
+    eager,
+    lazy,
+    unified
+};
 
 struct PauliRotationsSynthesisStrategy {
 public:
@@ -61,7 +101,7 @@ struct BackwardPartialPauliRotationsSynthesisStrategy
     ~BackwardPartialPauliRotationsSynthesisStrategy() override = default;
 
     virtual std::optional<qcir::QCir>
-    backward_synthesize(PauliRotationTableau const& rotations, StabilizerTableau &initial_clifford) const = 0;
+    backward_synthesize(PauliRotationTableau const& rotations, StabilizerTableau& initial_clifford) const = 0;
 };
 
 struct NaivePauliRotationsSynthesisStrategy
@@ -72,14 +112,13 @@ struct NaivePauliRotationsSynthesisStrategy
 
 struct BasicPauliRotationsSynthesisStrategy
     : public BackwardPartialPauliRotationsSynthesisStrategy {
-    
     std::optional<qcir::QCir>
     synthesize(PauliRotationTableau const& rotations) const override;
-    
+
     std::optional<PartialSynthesisResult>
     partial_synthesize(PauliRotationTableau const& rotations) const {
         StabilizerTableau final_clifford = StabilizerTableau{rotations.front().n_qubits()};
-        auto qcir = _partial_synthesize(rotations, final_clifford, false);
+        auto qcir                        = _partial_synthesize(rotations, final_clifford, false);
         if (!qcir.has_value()) {
             return std::nullopt;
         }
@@ -87,15 +126,15 @@ struct BasicPauliRotationsSynthesisStrategy
             std::move(qcir.value()),
             std::move(final_clifford)};
     }
-    
+
     std::optional<qcir::QCir>
-    backward_synthesize(PauliRotationTableau const& rotations, StabilizerTableau &initial_clifford) const override{
+    backward_synthesize(PauliRotationTableau const& rotations, StabilizerTableau& initial_clifford) const override {
         return _partial_synthesize(rotations, initial_clifford, true);
     }
 
-    private:
-        std::optional<qcir::QCir>
-        _partial_synthesize(PauliRotationTableau const& rotations, StabilizerTableau& residual_clifford, bool backward) const;
+private:
+    std::optional<qcir::QCir>
+    _partial_synthesize(PauliRotationTableau const& rotations, StabilizerTableau& residual_clifford, bool backward) const;
 };
 
 struct GraySynthStrategy : public PartialPauliRotationsSynthesisStrategy {
@@ -124,14 +163,14 @@ struct MstSynthesisStrategy : public PartialPauliRotationsSynthesisStrategy {
     partial_synthesize(PauliRotationTableau const& rotations) const override;
 };
 
-struct GeneralizedMstSynthesisStrategy: public BackwardPartialPauliRotationsSynthesisStrategy {
+struct GeneralizedMstSynthesisStrategy : public BackwardPartialPauliRotationsSynthesisStrategy {
     std::optional<qcir::QCir>
     synthesize(PauliRotationTableau const& rotations) const override;
 
     std::optional<PartialSynthesisResult>
-    partial_synthesize(PauliRotationTableau const& rotations) const override{
+    partial_synthesize(PauliRotationTableau const& rotations) const override {
         StabilizerTableau final_clifford = StabilizerTableau{rotations.front().n_qubits()};
-        auto qcir = _partial_synthesize(rotations, final_clifford, false);
+        auto qcir                        = _partial_synthesize(rotations, final_clifford, false);
         if (!qcir.has_value()) {
             return std::nullopt;
         }
@@ -141,13 +180,13 @@ struct GeneralizedMstSynthesisStrategy: public BackwardPartialPauliRotationsSynt
     }
 
     std::optional<qcir::QCir>
-    backward_synthesize(PauliRotationTableau const& rotations, StabilizerTableau &initial_clifford) const override{
+    backward_synthesize(PauliRotationTableau const& rotations, StabilizerTableau& initial_clifford) const override {
         return _partial_synthesize(rotations, initial_clifford, true);
     }
 
-    private:
-        std::optional<qcir::QCir>
-        _partial_synthesize(PauliRotationTableau const& rotations, StabilizerTableau& residual_clifford, bool backward) const;
+private:
+    std::optional<qcir::QCir>
+    _partial_synthesize(PauliRotationTableau const& rotations, StabilizerTableau& residual_clifford, bool backward) const;
 };
 
 std::optional<qcir::QCir> to_qcir(
@@ -160,7 +199,7 @@ std::optional<qcir::QCir> to_qcir(
     Tableau const& tableau,
     StabilizerTableauSynthesisStrategy const& st_strategy,
     PauliRotationsSynthesisStrategy const& pr_strategy,
-    bool lazy = false, bool backward = false);
+    SynthesisType synthesis_type = SynthesisType::eager);
 
 }  // namespace tableau
 

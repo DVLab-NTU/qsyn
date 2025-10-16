@@ -9,7 +9,6 @@ namespace qsyn::tableau {
 std::optional<qcir::QCir>
 BasicPauliRotationsSynthesisStrategy::_partial_synthesize(
     PauliRotationTableau const& rotations, StabilizerTableau& residual_clifford, bool backward) const {
-    
     auto pop_target_rotation = [&](PauliRotationTableau& rots) {
         auto rot = backward ? std::move(rots.back()) : std::move(rots.front());
         if (backward) {
@@ -19,44 +18,44 @@ BasicPauliRotationsSynthesisStrategy::_partial_synthesize(
         }
         return rot;
     };
-    
+
     if (rotations.empty()) {
         return qcir::QCir{0};
     }
 
     size_t num_qubits = rotations.front().n_qubits();
-    
-    auto qcir = qcir::QCir{num_qubits};
+
+    auto qcir           = qcir::QCir{num_qubits};
     auto copy_rotations = rotations;
 
     while (!copy_rotations.empty()) {
         auto target_rotation = pop_target_rotation(copy_rotations);
-        auto [ops, qubit] = extract_clifford_operators(target_rotation);
-        Phase phase = target_rotation.phase();
-        
+        auto [ops, qubit]    = extract_clifford_operators(target_rotation);
+        Phase phase          = target_rotation.phase();
+
         for (auto op : ops) {
             detail::add_clifford_gate(copy_rotations, op);
-            if (!backward){
+            if (!backward) {
                 detail::add_clifford_gate(qcir, op);
-            }else{
+            } else {
                 detail::add_clifford_gate(residual_clifford, op);
             }
         }
-        
-        if (!backward){
+
+        if (!backward) {
             qcir.append(qcir::PZGate(phase), {qubit});
         }
 
         adjoint_inplace(ops);
         for (auto op : std::views::reverse(ops)) {
-            if (!backward){
+            if (!backward) {
                 detail::prepend_clifford_gate(residual_clifford, op);
-            }else{
+            } else {
                 detail::prepend_clifford_gate(qcir, op);
             }
         }
 
-        if (backward){
+        if (backward) {
             qcir.prepend(qcir::PZGate(phase), {qubit});
         }
     }
@@ -67,7 +66,6 @@ BasicPauliRotationsSynthesisStrategy::_partial_synthesize(
 std::optional<qcir::QCir>
 BasicPauliRotationsSynthesisStrategy::synthesize(
     PauliRotationTableau const& rotations) const {
-
     auto partial_result = partial_synthesize(rotations);
     if (!partial_result) {
         return std::nullopt;

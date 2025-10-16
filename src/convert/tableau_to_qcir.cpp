@@ -107,7 +107,7 @@ void prepend_clifford_gate(qcir::QCir& qcir, CliffordOperator const& op) {
         case COT::ecr:
             qcir.prepend(qcir::ECRGate(), {qubits[0], qubits[1]});
             break;
-    }   
+    }
 }
 
 void add_clifford_gate(PauliRotationTableau& rotations, CliffordOperator const& op) {
@@ -115,22 +115,22 @@ void add_clifford_gate(PauliRotationTableau& rotations, CliffordOperator const& 
 
     switch (type) {
         case COT::h:
-            for(auto& rot : rotations) {
+            for (auto& rot : rotations) {
                 rot.h(qubits[0]);
             }
             break;
         case COT::s:
-            for(auto& rot : rotations) {
+            for (auto& rot : rotations) {
                 rot.s(qubits[0]);
             }
             break;
         case COT::cx:
-            for(auto& rot : rotations) {
+            for (auto& rot : rotations) {
                 rot.cx(qubits[0], qubits[1]);
             }
             break;
         case COT::v:
-            for(auto& rot : rotations) {
+            for (auto& rot : rotations) {
                 rot.h(qubits[0]);
                 rot.s(qubits[0]);
                 rot.h(qubits[0]);
@@ -265,7 +265,7 @@ void synthesize_clifford_until_h_free(
     qcir::QCir& qcir,
     StabilizerTableau const& this_clifford,
     PauliRotationTableau& prt,
-    StabilizerTableau& next_clifford, 
+    StabilizerTableau& next_clifford,
     size_t iter) {
     // synthesize until the H-layer
     // the H-opt synthesis strategy put the H-optimal circuit
@@ -385,14 +385,13 @@ to_qcir_backward(
     Tableau tableau,
     BackwardPartialPauliRotationsSynthesisStrategy const& pr_strategy,
     StabilizerTableauSynthesisStrategy const& st_strategy) {
-
     if (tableau.size() != 2 || !std::holds_alternative<StabilizerTableau>(tableau[0]) || !std::holds_alternative<PauliRotationTableau>(tableau[1])) {
-        spdlog::error("Tableau should be propogated to the end!!");
+        spdlog::error("Tableau should be collapsed in Unified synthesis strategy.");
         return std::nullopt;
     }
 
     auto& initial_clifford = std::get<StabilizerTableau>(tableau[0]);
-    auto const& rotations = std::get<PauliRotationTableau>(tableau[1]);
+    auto const& rotations  = std::get<PauliRotationTableau>(tableau[1]);
 
     auto result = pr_strategy.backward_synthesize(rotations, initial_clifford);
     if (!result) {
@@ -407,10 +406,9 @@ to_qcir_backward(
         gate_stats.contains("cx") ? gate_stats.at("cx") : 0;
     spdlog::info("CX gate count in the initial Clifford: {}", cx_gate_count);
     initial_clifford_qcir->compose(*result);
-    
+
     return initial_clifford_qcir;
 }
-
 
 }  // namespace
 
@@ -426,8 +424,8 @@ std::optional<qcir::QCir> to_qcir(
     Tableau const& tableau,
     StabilizerTableauSynthesisStrategy const& st_strategy,
     PauliRotationsSynthesisStrategy const& pr_strategy,
-    bool lazy, bool backward) {
-    if (lazy) {
+    SynthesisType synthesis_type) {
+    if (synthesis_type == SynthesisType::lazy) {
         auto const* pr_strategy_ptr =
             dynamic_cast<PartialPauliRotationsSynthesisStrategy const*>(
                 &pr_strategy);
@@ -438,14 +436,15 @@ std::optional<qcir::QCir> to_qcir(
         spdlog::error("Lazy synthesis requires a partially-synthesizable Pauli rotations synthesis strategy!!");
         return std::nullopt;
     }
-    if (backward) {
+    if (synthesis_type == SynthesisType::unified) {
         auto const* pr_strategy_ptr =
             dynamic_cast<BackwardPartialPauliRotationsSynthesisStrategy const*>(
                 &pr_strategy);
         if (pr_strategy_ptr) {
+            // We keep the scalability of "forward" synthesis for unified synthesis strategy
             return to_qcir_backward(tableau, *pr_strategy_ptr, st_strategy);
         }
-        spdlog::error("Backward synthesis requires a backward-synthesizable Pauli rotations synthesis strategy!!");
+        spdlog::error("Unified synthesis requires a backward-synthesizable Pauli rotations synthesis strategy!!");
         return std::nullopt;
     }
     return to_qcir_eager(tableau, st_strategy, pr_strategy);

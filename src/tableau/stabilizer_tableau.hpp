@@ -149,12 +149,12 @@ synthesize_h_free_mr(StabilizerTableau tableau);
 
 /**
  * @brief An extractor based on the paper
- *        [Optimal Hadamard gate count for Clifford$+T$ synthesis of 
+ *        [Optimal Hadamard gate count for Clifford$+T$ synthesis of
  *        Pauli rotations sequences](https://arxiv.org/abs/2302.07040)
  *        by Vandaele, Martiel, Perdrix, and Vuillot.
- *        This method is guaranteed to produce the optimal number of Hadamard 
- *        gates by first diagonalizing the stabilizers with provably optimal 
- *        number of Hadamard gates and then applying the Aaronson-Gottesman 
+ *        This method is guaranteed to produce the optimal number of Hadamard
+ *        gates by first diagonalizing the stabilizers with provably optimal
+ *        number of Hadamard gates and then applying the Aaronson-Gottesman
  *        method to the rest of the tableau.
  *
  */
