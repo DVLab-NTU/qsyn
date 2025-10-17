@@ -229,10 +229,6 @@ std::optional<qcir::QCir> to_qcir_eager(
         if (!qc_fragment) {
             return std::nullopt;
         }
-        auto const gate_stats = get_gate_statistics(*qc_fragment);
-        auto const cx_gate_count =
-            gate_stats.contains("cx") ? gate_stats.at("cx") : 0;
-        spdlog::info("CX gate count in the subtableau {}: {}", iter, cx_gate_count);
         qcir.compose(*qc_fragment);
         iter++;
     }
@@ -284,7 +280,6 @@ void synthesize_clifford_until_h_free(
             cx_gate_count++;
         }
     }
-    spdlog::info("CX gate count in the Clifford segment {}: {}", iter, cx_gate_count);
 
     // now, [diag_gates] -- [rem_gates] -- [prt] -- [next_clifford]
     // implements the desired transformation.
@@ -310,7 +305,7 @@ std::optional<qcir::QCir>
 to_qcir_lazy(
     Tableau tableau,  // takes copy to avoid modifying the original tableau
     PartialPauliRotationsSynthesisStrategy const& pr_strategy) {
-    fmt::println("Note: lazy synthesis is not stable. Use at your own risk!!");
+    // fmt::println("Note: lazy synthesis is not stable. Use at your own risk!!");
     if (!is_alternating(tableau)) {
         spdlog::error(
             "Subtableaux must alternate between "
@@ -401,10 +396,6 @@ to_qcir_backward(
     if (!initial_clifford_qcir) {
         return std::nullopt;
     }
-    auto const gate_stats = get_gate_statistics(*initial_clifford_qcir);
-    auto const cx_gate_count =
-        gate_stats.contains("cx") ? gate_stats.at("cx") : 0;
-    spdlog::info("CX gate count in the initial Clifford: {}", cx_gate_count);
     initial_clifford_qcir->compose(*result);
 
     return initial_clifford_qcir;

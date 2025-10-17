@@ -208,7 +208,6 @@ GeneralizedMstSynthesisStrategy::_partial_synthesize(
     for (size_t i = 0; i < num_rotations; ++i) {
         index_mapping[i] = i;
     }
-    size_t num_cxs = 0;
     while (!copy_rotations.empty()) {
         if (stop_requested()) break;
         std::vector<size_t> first_layer_rotations;
@@ -256,8 +255,6 @@ GeneralizedMstSynthesisStrategy::_partial_synthesize(
             qcir.append(qcir::PZGate(best_rotation.phase()), {root});
         }
     }
-
-    spdlog::info("Number of CXs for row operations : {}", num_cxs);
 
     return qcir;
 }
