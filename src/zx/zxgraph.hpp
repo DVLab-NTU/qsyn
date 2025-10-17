@@ -98,6 +98,10 @@ public:
 private:
     friend class ZXGraph;
     struct ZXVertexAttrs {
+        ZXVertexAttrs(size_t id, VertexType type, QubitIdType qubit,
+                      Phase phase, float row, float col)
+            : id(id), type(type), qubit(qubit),
+              phase(phase), row(row), col(col) {}
         size_t id;
         VertexType type;
         QubitIdType qubit;  // for boundary vertices, this is the qubit id;

@@ -54,31 +54,48 @@ std::optional<QCir> from_qasm(std::filesystem::path const& filepath) {
         return std::nullopt;
     }
     std::string str;
-    for (int i = 0; i < 6; i++) {
-        // OPENQASM 2.0;
-        // include "qelib1.inc";
-        // qreg q[int];
-        qasm_file >> str;
-    }
 
-    auto const nqubit = stoul(str.substr(str.find('[') + 1, str.size() - str.find('[') - 3));
+    QCir qcir;
 
-    QCir qcir{nqubit};
-
-    getline(qasm_file, str);
-    while (getline(qasm_file, str)) {
+    while (std::getline(qasm_file, str)) {
         str = dvlab::str::trim_spaces(dvlab::str::trim_comments(str));
         if (str.empty()) continue;
+        if (str == "OPENQASM 2.0;") continue;
+        if (str == "include \"qelib1.inc\";") continue;
+        if (str.starts_with("qreg")) {
+            if (qcir.get_num_qubits() != 0) {
+                spdlog::error("Qsyn does not support multiple qreg definition at the moment.");
+                return std::nullopt;
+            }
+            auto const nqubit = stoul(str.substr(str.find('[') + 1, str.size() - str.find('[') - 3));
+            qcir.add_qubits(nqubit);
+            continue;
+        }
+        if (str.starts_with("gate")) {
+            // if qsyn recognizes the gate, ignore gate definition
+            // example: gate ccz q0,q1,q2 { h q2; ccx q0,q1,q2; h q2; }
+            auto const gate_name_start = str.find(' ') + 1;
+            auto const gate_name_end   = str.find(' ', gate_name_start);
+            auto const gate_name       = str.substr(gate_name_start, gate_name_end - gate_name_start);
+            if (str_to_operation(gate_name).has_value()) {
+                continue;
+            }
+            // else, we cannot support this gate.
+            spdlog::error("Qsyn does not support gate \"{}\"!!", gate_name);
+            return std::nullopt;
+        }
+        if (str.starts_with("creg")) {
+            // implicitly ignore creg definition
+            continue;
+        }
         std::string type;
         auto const type_end   = str_get_token(str, type);
         std::string phase_str = "0";
         if (str_get_token(str, phase_str, 0, '(') != std::string::npos) {
             auto const stop = str_get_token(str, type, 0, '(');
             str_get_token(str, phase_str, stop + 1, ')');
-        } else
+        } else {
             phase_str = "0";
-        if (type == "creg" || type == "qreg" || type.empty()) {
-            continue;
         }
         QubitIdList qubit_ids;
         std::string token;
@@ -87,7 +104,7 @@ std::optional<QCir> from_qasm(std::filesystem::path const& filepath) {
         while (!token.empty()) {
             str_get_token(token, qubit_id_str, str_get_token(token, qubit_id_str, 0, '[') + 1, ']');
             auto qubit_id_num = dvlab::str::from_string<unsigned>(qubit_id_str);
-            if (!qubit_id_num.has_value() || qubit_id_num >= nqubit) {
+            if (!qubit_id_num.has_value() || qubit_id_num >= qcir.get_num_qubits()) {
                 spdlog::error("invalid qubit id on line {}!!", str);
                 return std::nullopt;
             }

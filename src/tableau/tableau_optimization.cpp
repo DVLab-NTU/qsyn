@@ -23,7 +23,7 @@
 
 namespace qsyn {
 
-namespace experimental {
+namespace tableau {
 
 /**
  * @brief Perform the best-known optimization routine on the tableau. The strategy may change in the future.
@@ -526,6 +526,6 @@ MatroidPartitionStrategy::Partitions NaiveMatroidPartitionStrategy::partition(Ma
     return matroids;
 }
 
-}  // namespace experimental
+}  // namespace tableau
 
 }  // namespace qsyn

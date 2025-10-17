@@ -551,13 +551,13 @@ QCir::get_last_gate(QubitIdType qubit) const {
 }
 
 bool is_clifford(qcir::QCir const& qcir) {
-    auto tabl = experimental::to_tableau(qcir);
+    auto tabl = tableau::to_tableau(qcir);
     if (!tabl.has_value()) {
         return false;
     }
-    experimental::collapse(*tabl);
+    tableau::collapse(*tabl);
 
-    return (tabl->size() == 1) && std::holds_alternative<experimental::StabilizerTableau>(tabl->front());
+    return (tabl->size() == 1) && std::holds_alternative<tableau::StabilizerTableau>(tabl->front());
 }
 
 Operation adjoint(qcir::QCir const& qcir) {

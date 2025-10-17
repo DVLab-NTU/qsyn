@@ -13,12 +13,12 @@
 
 namespace qsyn {
 
-namespace experimental {
+namespace tableau {
 
 dvlab::Command tableau_cmd();
 
 bool add_tableau_command(dvlab::CommandLineInterface& cli, TableauMgr& tableau_mgr);
 
-}  // namespace experimental
+}  // namespace tableau
 
 }  // namespace qsyn

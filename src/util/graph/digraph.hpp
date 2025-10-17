@@ -6,6 +6,7 @@
 #include <cstddef>
 #include <ranges>
 #include <type_traits>
+#include <unordered_set>
 
 #include "util/ordered_hashmap.hpp"
 #include "util/ordered_hashset.hpp"
@@ -30,6 +31,7 @@ public:
         bool operator==(Edge const& other) const = default;
     };
     using NeighborSet = dvlab::utils::ordered_hashset<Vertex>;
+    // using NeighborSet = std::unordered_set<Vertex>;
 
     Digraph() = default;
     Digraph(size_t num_vertices) {
@@ -315,9 +317,13 @@ private:
     VertexAttributes _vertex_attributes;
 
     struct EdgeHash {
-        std::size_t operator()(Edge const& edge) const {
-            return std::hash<Vertex>{}(edge.src) ^
-                   std::hash<Vertex>{}(edge.dst);
+        std::size_t operator()(Edge const& edge) const noexcept {
+            // Asymmetric, high-quality combine (boost::hash_combine style)
+            // Avoids XOR symmetry that collides (src,dst) with (dst,src)
+            std::size_t h1 = std::hash<Vertex>{}(edge.src);
+            std::size_t h2 = std::hash<Vertex>{}(edge.dst);
+            h1 ^= h2 + 0x9e3779b97f4a7c15ull + (h1 << 6) + (h1 >> 2);
+            return h1;
         }
     };
 

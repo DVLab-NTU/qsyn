@@ -29,7 +29,7 @@ template <typename T>
 std::optional<tensor::QTensor<double>> to_tensor(T const& /* op */);
 template <typename T>
 bool append_to_tableau(T const& /* op */,
-                       experimental::Tableau& /* tableau */,
+                       tableau::Tableau& /* tableau */,
                        QubitIdList const& /* qubits */);
 }  // namespace qsyn
 
@@ -97,7 +97,7 @@ public:
         return op._pimpl->do_to_tensor();
     }
     friend bool append_to_tableau(Operation const& op,
-                                  experimental::Tableau& tableau,
+                                  tableau::Tableau& tableau,
                                   QubitIdList const& qubits) {
         return op._pimpl->do_append_to_tableau(tableau, qubits);
     }
@@ -148,7 +148,7 @@ private:
 
         virtual std::optional<zx::ZXGraph> do_to_zxgraph() const            = 0;
         virtual std::optional<tensor::QTensor<double>> do_to_tensor() const = 0;
-        virtual bool do_append_to_tableau(experimental::Tableau& tableau,
+        virtual bool do_append_to_tableau(tableau::Tableau& tableau,
                                           QubitIdList const& qubits) const  = 0;
         virtual std::optional<QCir> do_to_basic_gates() const               = 0;
     };
@@ -173,7 +173,7 @@ private:
         std::optional<tensor::QTensor<double>> do_to_tensor() const override {
             return qsyn::to_tensor(value);
         }
-        bool do_append_to_tableau(experimental::Tableau& tableau,
+        bool do_append_to_tableau(tableau::Tableau& tableau,
                                   QubitIdList const& qubits) const override {
             return qsyn::append_to_tableau(value, tableau, qubits);
         }

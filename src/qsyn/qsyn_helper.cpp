@@ -124,7 +124,7 @@ bool read_qsynrc_file(dvlab::CommandLineInterface& cli, std::filesystem::path qs
 
 bool initialize_qsyn(
     dvlab::CommandLineInterface& cli, qsyn::device::DeviceMgr& device_mgr, qsyn::qcir::QCirMgr& qcir_mgr,
-    qsyn::tensor::TensorMgr& tensor_mgr, qsyn::zx::ZXGraphMgr& zxgraph_mgr, qsyn::experimental::TableauMgr& tableau_mgr) {
+    qsyn::tensor::TensorMgr& tensor_mgr, qsyn::zx::ZXGraphMgr& zxgraph_mgr, qsyn::tableau::TableauMgr& tableau_mgr) {
     spdlog::set_pattern("%L%v");
     spdlog::set_level(spdlog::level::warn);
 
@@ -137,7 +137,7 @@ bool initialize_qsyn(
            qsyn::qcir::add_qcir_cmds(cli, qcir_mgr) &&
            qsyn::tensor::add_tensor_cmds(cli, tensor_mgr) &&
            qsyn::zx::add_zx_cmds(cli, zxgraph_mgr) &&
-           qsyn::experimental::add_tableau_command(cli, tableau_mgr);
+           qsyn::tableau::add_tableau_command(cli, tableau_mgr);
 }
 
 dvlab::argparse::ArgumentParser get_qsyn_parser(std::string_view const prog_name) {

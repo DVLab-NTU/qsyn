@@ -12,7 +12,7 @@
 
 namespace qsyn {
 
-namespace experimental {
+namespace tableau {
 
 void full_optimize(Tableau& tableau);
 
@@ -74,6 +74,6 @@ inline bool is_phase_polynomial(std::vector<PauliRotation> const& polynomial) no
 std::optional<std::vector<std::vector<PauliRotation>>> matroid_partition(std::vector<PauliRotation> const& polynomial, MatroidPartitionStrategy const& strategy, size_t num_ancillae = 0);
 std::optional<Tableau> matroid_partition(Tableau const& tableau, MatroidPartitionStrategy const& strategy, size_t num_ancillae = 0);
 
-}  // namespace experimental
+}  // namespace tableau
 
 }  // namespace qsyn

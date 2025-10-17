@@ -25,7 +25,7 @@
 
 using namespace dvlab::argparse;
 
-namespace qsyn::experimental {
+namespace qsyn::tableau {
 
 ArgType<size_t>::ConstraintType valid_tableau_qubit_id(TableauMgr const& tableau_mgr) {
     return [&tableau_mgr](size_t const& id) -> bool {
@@ -340,4 +340,4 @@ bool add_tableau_command(dvlab::CommandLineInterface& cli, TableauMgr& tableau_m
     return cli.add_command(tableau_cmd(tableau_mgr));
 }
 
-}  // namespace qsyn::experimental
+}  // namespace qsyn::tableau
