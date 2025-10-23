@@ -116,7 +116,7 @@ struct BasicPauliRotationsSynthesisStrategy
     synthesize(PauliRotationTableau const& rotations) const override;
 
     std::optional<PartialSynthesisResult>
-    partial_synthesize(PauliRotationTableau const& rotations) const {
+    partial_synthesize(PauliRotationTableau const& rotations) const override {
         StabilizerTableau final_clifford = StabilizerTableau{rotations.front().n_qubits()};
         auto qcir                        = _partial_synthesize(rotations, final_clifford, false);
         if (!qcir.has_value()) {
