@@ -334,7 +334,7 @@ std::optional<QCir> from_qasm(std::filesystem::path const& filepath) {
     
     // Read first 6 lines to find register declarations
     std::string str;
-    for (int i = 0; i < 6; i++) {
+    for (int i = 0; i < 5; i++) {
         if (!getline(qasm_file, str)) break;
         str = dvlab::str::trim_spaces(dvlab::str::trim_comments(str));
         if (str.empty()) continue;
@@ -354,7 +354,7 @@ std::optional<QCir> from_qasm(std::filesystem::path const& filepath) {
                 auto size = dvlab::str::from_string<size_t>(size_str);
                 if (size.has_value()) {
                     total_qubits += size.value();
-                    spdlog::info("Found qubit register with {} qubits", size.value());
+                    // spdlog::info("Found qubit register with {} qubits", size.value());
                 }
             }
         } else if (type == "creg") {
@@ -369,7 +369,7 @@ std::optional<QCir> from_qasm(std::filesystem::path const& filepath) {
                 auto size = dvlab::str::from_string<size_t>(size_str);
                 if (size.has_value()) {
                     total_classical_bits += size.value();
-                    spdlog::info("Found classical register with {} bits", size.value());
+                    // spdlog::info("Found classical register with {} bits", size.value());
                 }
             }
         }
@@ -377,7 +377,7 @@ std::optional<QCir> from_qasm(std::filesystem::path const& filepath) {
     
     // Initialize QCir with correct number of qubits and classical bits
     QCir qcir{total_qubits, total_classical_bits};
-    spdlog::info("Initialized QCir with {} qubits and {} classical bits", total_qubits, total_classical_bits);
+    // spdlog::info("Initialized QCir with {} qubits and {} classical bits", total_qubits, total_classical_bits);
 
     // Continue reading the rest of the file
     while (getline(qasm_file, str)) {

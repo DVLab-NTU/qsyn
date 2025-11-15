@@ -55,9 +55,13 @@ std::optional<qcir::QCir> to_qcir(
     std::vector<PauliRotation> const& rotations,
     PauliRotationsSynthesisStrategy const& strategy);
 std::optional<qcir::QCir> to_qcir(
+    ClassicalControlTableau const& cct,
+    StabilizerTableauSynthesisStrategy const& cct_strategy, size_t n_qubits);
+std::optional<qcir::QCir> to_qcir(
     Tableau const& tableau,
     StabilizerTableauSynthesisStrategy const& st_strategy,
-    PauliRotationsSynthesisStrategy const& pr_strategy);
+    PauliRotationsSynthesisStrategy const& pr_strategy,
+    StabilizerTableauSynthesisStrategy const& cct_strategy);
 
 }  // namespace experimental
 

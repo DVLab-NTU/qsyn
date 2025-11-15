@@ -8,10 +8,12 @@
 #include "./stabilizer_tableau.hpp"
 
 #include <ranges>
+#include <sstream>
 #include <tl/adjacent.hpp>
 #include <tl/to.hpp>
 
 #include "tableau/pauli_rotation.hpp"
+#include <fmt/core.h>
 
 bool stop_requested();
 
@@ -160,6 +162,9 @@ StabilizerTableau adjoint(StabilizerTableau const& tableau) {
 CliffordOperatorString extract_clifford_operators(StabilizerTableau copy, StabilizerTableauSynthesisStrategy const& strategy) {
     return strategy.synthesize(std::move(copy));
 }
+
+
+
 CliffordOperatorString AGSynthesisStrategy::synthesize(StabilizerTableau copy) const {
     CliffordOperatorString clifford_ops;
 
@@ -373,6 +378,29 @@ CliffordOperatorString HOptSynthesisStrategy::synthesize(StabilizerTableau copy)
     clifford_ops.insert(clifford_ops.end(), diag_ops.begin(), diag_ops.end());
 
     return clifford_ops;
+}
+
+void print_clifford_operator_string(CliffordOperatorString const& operations) {
+    std::stringstream ss;
+    for (auto const& op : operations) {
+        auto const& [type, qubits] = op;
+        if (type == CliffordOperatorType::cx) {
+            ss << "cx q[" << qubits[0] << "], q[" << qubits[1] << "];\n";
+        } else if (type == CliffordOperatorType::s) {
+            ss << "s q[" << qubits[0] << "];\n";
+        } else if (type == CliffordOperatorType::sdg) {
+            ss << "sdg q[" << qubits[0] << "];\n";
+        } else if (type == CliffordOperatorType::x) {
+            ss << "x q[" << qubits[0] << "];\n";
+        } else if (type == CliffordOperatorType::y) {
+            ss << "y q[" << qubits[0] << "];\n";
+        } else if (type == CliffordOperatorType::z) {
+            ss << "z q[" << qubits[0] << "];\n";
+        } else {
+            ss << "Classical operation: not seen\n";
+        }
+    }
+    fmt::print("{}\n", ss.str());
 }
 
 }  // namespace qsyn::experimental

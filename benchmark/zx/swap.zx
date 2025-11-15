@@ -1,0 +1,12 @@
+// Swap
+I0 (0, -) S4 
+I1 (1, -) S5
+O2 (0, -) S8
+O3 (1, -) S9
+Z4 S5 S6
+X5 S7 S4 // Comment
+X6 S7 S8
+Z7 S9
+Z8 S9
+X9
+// Comment

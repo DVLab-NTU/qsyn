@@ -746,7 +746,7 @@ void QCir::mark_classical_as_measured(size_t id, QCirGate* measurement_gate) {
         return;
     }
     _classical_bits[id].mark_as_measured(measurement_gate);
-    spdlog::info("Marked classical bit {} as measured by measurement gate {}", id, measurement_gate->get_id());
+    // spdlog::info("Marked classical bit {} as measured by measurement gate {}", id, measurement_gate->get_id());
 }
 
 /**
@@ -914,7 +914,7 @@ bool QCir::measure_qubit_to_classical(QubitIdType qubit_id, size_t classical_bit
     mark_classical_as_measured(classical_bit_id, measurement_gate);
     
     // Map qubit to classical bit for measurement
-    spdlog::info("Mapped qubit {} to classical bit {} for measurement", qubit_id, classical_bit_id);
+    // spdlog::info("Mapped qubit {} to classical bit {} for measurement", qubit_id, classical_bit_id);
     return true;
 }
 
@@ -1089,8 +1089,8 @@ size_t QCir::append(Operation const& op, QubitIdList const& bits, ClassicalBitId
             if (!measurement_gate->get_qubits().empty()) {
                 QubitIdType measured_qubit = measurement_gate->get_qubits()[0]; // First qubit of measurement
                 QubitIdType if_else_qubit = g->get_qubits()[0]; // First qubit of if-else gate
-                spdlog::info("Connecting if-else gate {} to measurement gate {} for classical bit {} (measured qubit {}, if-else qubit {})", 
-                           g->get_id(), measurement_gate->get_id(), classical_bit, measured_qubit, if_else_qubit);
+                // spdlog::info("Connecting if-else gate {} to measurement gate {} for classical bit {} (measured qubit {}, if-else qubit {})", 
+                //            g->get_id(), measurement_gate->get_id(), classical_bit, measured_qubit, if_else_qubit);
                 _connect_classical(measurement_gate->get_id(), g->get_id(), measured_qubit, if_else_qubit);
             }
         }
@@ -1141,8 +1141,8 @@ size_t QCir::append(Operation const& op, QubitIdList const& bits, size_t classic
                 if (!measurement_gate->get_qubits().empty()) {
                     QubitIdType measured_qubit = measurement_gate->get_qubits()[0]; // First qubit of measurement
                     QubitIdType if_else_qubit = g->get_qubits()[0]; // First qubit of if-else gate
-                    spdlog::info("Connecting if-else gate {} to measurement gate {} for classical bit {} (measured qubit {}, if-else qubit {})", 
-                               g->get_id(), measurement_gate->get_id(), i, measured_qubit, if_else_qubit);
+                    // spdlog::info("Connecting if-else gate {} to measurement gate {} for classical bit {} (measured qubit {}, if-else qubit {})", 
+                    //            g->get_id(), measurement_gate->get_id(), i, measured_qubit, if_else_qubit);
                     _connect_classical(measurement_gate->get_id(), g->get_id(), measured_qubit, if_else_qubit);
                 }
             }

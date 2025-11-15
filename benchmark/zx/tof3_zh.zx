@@ -1,0 +1,14 @@
+// Input 
+I0 (0 , -) S7
+I1 (1 , -) S8
+I2 (2 , -) S9
+// Output 
+O3 (0 , -) S7
+O4 (1 , -) S8
+O5 (2 , -) S9
+// Non-boundary 
+H6 S7 S8 H9
+Z7
+Z8
+X9
+

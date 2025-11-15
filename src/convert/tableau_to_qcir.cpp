@@ -17,6 +17,8 @@
 #include "qcir/basic_gate_type.hpp"
 #include "qcir/qcir.hpp"
 #include "qcir/operation.hpp"
+#include "tableau/classical_tableau.hpp"
+#include "tableau/stabilizer_tableau.hpp"
 #include "util/graph/digraph.hpp"
 #include "util/graph/minimum_spanning_arborescence.hpp"
 #include "util/phase.hpp"
@@ -26,6 +28,35 @@
 extern bool stop_requested();
 
 namespace qsyn::experimental {
+
+/**
+ * @brief Parse a condition expression to extract classical bit and value
+ * 
+ * @param condition_expr Condition expression like "c[0]==1" or "c[1]==0"
+ * @return std::pair<std::optional<size_t>, std::optional<size_t>> (classical_bit, value)
+ */
+std::pair<std::optional<size_t>, std::optional<size_t>> parse_condition_expression(std::string const& condition_expr) {
+    // Simple parser for "c[bit]==value" format
+    size_t bracket_start = condition_expr.find('[');
+    size_t bracket_end = condition_expr.find(']');
+    size_t eq_pos = condition_expr.find("==");
+    
+    if (bracket_start == std::string::npos || bracket_end == std::string::npos || eq_pos == std::string::npos) {
+        return {std::nullopt, std::nullopt};
+    }
+    
+    if (bracket_start >= bracket_end || bracket_end >= eq_pos) {
+        return {std::nullopt, std::nullopt};
+    }
+    
+    try {
+        size_t classical_bit = std::stoul(condition_expr.substr(bracket_start + 1, bracket_end - bracket_start - 1));
+        size_t value = std::stoul(condition_expr.substr(eq_pos + 2));
+        return {classical_bit, value};
+    } catch (std::exception const&) {
+        return {std::nullopt, std::nullopt};
+    }
+}
 
 namespace {
 
@@ -73,7 +104,60 @@ void add_clifford_gate(qcir::QCir& qcir, CliffordOperator const& op) {
             break;
     }
 }
-}  // namespace
+
+/**
+ * @brief Add a classical controlled clifford gate to QCir
+ * 
+ * @param qcir The QCir to add the gate to
+ * @param op The clifford operator to wrap in classical control
+ * @param classical_bit The classical bit to control on
+ * @param classical_value The value to check (typically 1)
+ */
+void add_classical_controlled_clifford_gate(qcir::QCir& qcir, CliffordOperator const& op, size_t classical_bit, size_t classical_value = 1) {
+    using COT                  = CliffordOperatorType;
+    auto const& [type, qubits] = op;
+
+    switch (type) {
+        case COT::h:
+            qcir.append(qcir::HGate(), {qubits[0]}, classical_bit, classical_value);
+            break;
+        case COT::s:
+            qcir.append(qcir::SGate(), {qubits[0]}, classical_bit, classical_value);
+            break;
+        case COT::cx:
+            qcir.append(qcir::CXGate(), {qubits[0], qubits[1]}, classical_bit, classical_value);
+            break;
+        case COT::sdg:
+            qcir.append(qcir::SdgGate(), {qubits[0]}, classical_bit, classical_value);
+            break;
+        case COT::v:
+            qcir.append(qcir::SXGate(), {qubits[0]}, classical_bit, classical_value);
+            break;
+        case COT::vdg:
+            qcir.append(qcir::SXdgGate(), {qubits[0]}, classical_bit, classical_value);
+            break;
+        case COT::x:
+            qcir.append(qcir::XGate(), {qubits[0]}, classical_bit, classical_value);
+            break;
+        case COT::y:
+            qcir.append(qcir::YGate(), {qubits[0]}, classical_bit, classical_value);
+            break;
+        case COT::z:
+            qcir.append(qcir::ZGate(), {qubits[0]}, classical_bit, classical_value);
+            break;
+        case COT::cz:
+            qcir.append(qcir::CZGate(), {qubits[0], qubits[1]}, classical_bit, classical_value);
+            break;
+        case COT::swap:
+            qcir.append(qcir::SwapGate(), {qubits[0], qubits[1]}, classical_bit, classical_value);
+            break;
+        case COT::ecr:
+            qcir.append(qcir::ECRGate(), {qubits[0], qubits[1]}, classical_bit, classical_value);
+            break;
+    }
+}
+
+}
 
 /**
  * @brief convert a stabilizer tableau to a QCir.
@@ -551,37 +635,88 @@ std::optional<qcir::QCir> to_qcir(
 }
 
 /**
+ * @brief convert a ClassicalControlTableau to a QCir.
+ * 
+ * This function implements the cct_strategy:
+ * 1. Adds a measurement gate that measures qubit c (control_qubit) to classical bit c
+ * 2. Extracts clifford operators using the provided synthesis strategy
+ * 3. Applies each operator as a classically controlled gate (controlled by classical bit c)
+ *
+ * @param cct The ClassicalControlTableau to convert
+ * @param cct_strategy The synthesis strategy to use for extracting clifford operators
+ * @param n_qubits number of qubits in the QCir
+ * @return std::optional<qcir::QCir> The converted QCir, or nullopt on failure
+ */
+std::optional<qcir::QCir> to_qcir(
+    ClassicalControlTableau const& cct,
+    StabilizerTableauSynthesisStrategy const& cct_strategy, size_t n_qubits) {
+    if (stop_requested()) {
+        return std::nullopt;
+    }
+
+    size_t control_qubit = cct.control_qubit();
+    size_t classical_bit = control_qubit;  // Use same index for classical bit
+
+    // Create QCir with enough qubits and classical bits
+    // We need at least classical_bit + 1 classical bits
+    qcir::QCir qcir{n_qubits, n_qubits};
+    
+    // Step 1: add H gate to fix the measurement basis to X, then add measurement gate - measure qubit c to classical bit c
+    qcir.append(qcir::HGate(), {control_qubit});
+    qcir.append(qcir::MeasurementGate(), {control_qubit}, classical_bit);
+    
+    // Step 2: Extract clifford operators using the provided synthesis strategy
+    auto clifford_ops = extract_clifford_operators(cct.operations(), cct_strategy);
+    
+    // Step 3: Apply each operator as a classical controlled gate
+    for (auto const& op : clifford_ops) {
+        if (stop_requested()) {
+            return std::nullopt;
+        }
+        add_classical_controlled_clifford_gate(qcir, op, classical_bit, 1);
+    }
+    
+    return qcir;
+}
+
+/**
  * @brief convert a stabilizer tableau and a list of Pauli rotations to a QCir.
  *
  * @param clifford
  * @param pauli_rotations
  * @return qcir::QCir
  */
-std::optional<qcir::QCir> to_qcir(Tableau const& tableau, StabilizerTableauSynthesisStrategy const& st_strategy, PauliRotationsSynthesisStrategy const& pr_strategy) {
-    qcir::QCir qcir{tableau.n_qubits(), tableau.n_qubits()};
+std::optional<qcir::QCir> to_qcir(Tableau const& tableau, StabilizerTableauSynthesisStrategy const& st_strategy, PauliRotationsSynthesisStrategy const& pr_strategy, StabilizerTableauSynthesisStrategy const& cct_strategy) {
+
+    size_t n_qubits = tableau.n_qubits();
+    qcir::QCir qcir{n_qubits, n_qubits};
 
     // Apply initial state gates for ancilla qubits at the beginning
-    for (auto const& [qubit, initial_state] : tableau.get_ancilla_initial_states()) {
+    auto const& initial_states = tableau.ancilla_initial_states();
+    for (auto const& [ancilla_index, initial_state] : initial_states) {
         if (stop_requested()) {
             return std::nullopt;
         }
         
+        // Only apply gates for non-ZERO initial states
+        if (initial_state == qsyn::experimental::AncillaInitialState::ZERO) {
+            continue;
+        }
         switch (initial_state) {
-            case qsyn::experimental::AncillaInitialState::ZERO:
-                // No gate needed for |0⟩ state
-                break;
             case qsyn::experimental::AncillaInitialState::ONE:
                 // Apply X gate to get |1⟩ state
-                qcir.append(qcir::XGate(), {qubit});
+                qcir.append(qcir::XGate(), {ancilla_index});
                 break;
             case qsyn::experimental::AncillaInitialState::PLUS:
                 // Apply H gate to get |+⟩ state
-                qcir.append(qcir::HGate(), {qubit});
+                qcir.append(qcir::HGate(), {ancilla_index});
                 break;
             case qsyn::experimental::AncillaInitialState::MINUS:
                 // Apply H then X gate to get |-⟩ state
-                qcir.append(qcir::HGate(), {qubit});
-                qcir.append(qcir::XGate(), {qubit});
+                qcir.append(qcir::HGate(), {ancilla_index});
+                qcir.append(qcir::XGate(), {ancilla_index});
+                break;
+            default:
                 break;
         }
     }
@@ -594,7 +729,9 @@ std::optional<qcir::QCir> to_qcir(Tableau const& tableau, StabilizerTableauSynth
             std::visit(
                 dvlab::overloaded{
                     [&st_strategy](StabilizerTableau const& st) { return to_qcir(st, st_strategy); },
-                    [&pr_strategy](std::vector<PauliRotation> const& pr) { return to_qcir(pr, pr_strategy); }},
+                    [&pr_strategy](std::vector<PauliRotation> const& pr) { return to_qcir(pr, pr_strategy); },
+                    [&cct_strategy,n_qubits](ClassicalControlTableau const& cct) { return to_qcir(cct, cct_strategy,n_qubits);
+                }},
                 subtableau);
         if (!qc_fragment) {
             return std::nullopt;
@@ -602,36 +739,8 @@ std::optional<qcir::QCir> to_qcir(Tableau const& tableau, StabilizerTableauSynth
         qcir.compose(*qc_fragment);
     }
 
-    // Add measurement operations at the end of the circuit
-    for (auto const& [qubit, classical_bit] : tableau.get_measurements()) {
-        if (stop_requested()) {
-            return std::nullopt;
-        }
-        
-        // Add measurement gate from qubit to classical bit
-        // Validation is now handled in qcir.append()
-        qcir.append(qcir::MeasurementGate(), qubit, classical_bit);
-    }
-    
-    // Add if-else operations at the end of the circuit
-    for (auto const& if_else_op : tableau.get_if_else_operations()) {
-        if (stop_requested()) {
-            return std::nullopt;
-        }
-        
-        // Use str_to_operation to convert operation string to QCir operation
-        auto operation_opt = qcir::str_to_operation(if_else_op.operation);
-        if (!operation_opt.has_value()) {
-            spdlog::error("Unknown operation: {}", if_else_op.operation);
-            return std::nullopt;
-        }
-        
-        // Add conditional operation: if(c[classical_bit]==value) operation
-        // Validation is now handled in qcir.append()
-        qcir.append(*operation_opt, if_else_op.qubits, if_else_op.classical_bit, if_else_op.value);
-    }
-
     return qcir;
 }
 
 }  // namespace qsyn::experimental
+

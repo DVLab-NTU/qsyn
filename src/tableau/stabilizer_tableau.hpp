@@ -27,7 +27,7 @@ public:
             _stabilizers[destabilizer_idx(i)].set_pauli_type(i, Pauli::x);
         }
     }
-
+    
     size_t n_qubits() const {
         return _stabilizers.size() / 2;
     }
@@ -95,10 +95,10 @@ public:
     }
 
     /**
-     * @brief Add an ancilla qubit to the tableau
+     * @brief Add an ancilla qubit to the tableau (extends from former circuit)
      * 
-     * Adds a new qubit that is initialized to |0⟩ state (Z stabilizer and X destabilizer)
-     * The ancilla qubit will have all-zero entries in existing stabilizers
+     * Adds a new qubit that extends from the former circuit.
+     * The ancilla qubit will have all-zero entries in existing stabilizers.
      * 
      * @return the index of the newly added ancilla qubit
      */
@@ -127,7 +127,7 @@ public:
         _stabilizers.emplace_back(PauliProduct(x_destabilizer_str));
         return new_qubit;
     }
-
+    
 private:
     std::vector<PauliProduct> _stabilizers;
 };
@@ -172,6 +172,9 @@ public:
 CliffordOperatorString extract_clifford_operators(
     StabilizerTableau copy,
     StabilizerTableauSynthesisStrategy const& strategy = HOptSynthesisStrategy{});
+
+
+void print_clifford_operator_string(CliffordOperatorString const& operations);
 
 }  // namespace experimental
 

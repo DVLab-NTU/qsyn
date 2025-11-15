@@ -1,0 +1,10 @@
+// Local complementary basic example
+I0 (0, -) S4
+I1 (1, -) S5
+O2 (0, -) S7
+O3 (1, -) S8
+Z4 H6 1*pi/2
+Z5 H6
+Z6 H7 H8 1*pi/2
+Z7
+Z8

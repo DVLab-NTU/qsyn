@@ -48,7 +48,7 @@ bool is_equivalent(QCir const& qcir1, QCir const& qcir2) {
     spdlog::info("Cannot prove equivalence via tableau optimization.");
     spdlog::info("Trying to verify equivalence via tensor contraction...");
 
-    auto const optimized_qcir = qsyn::experimental::to_qcir(*tableau, experimental::HOptSynthesisStrategy{}, experimental::NaivePauliRotationsSynthesisStrategy{});
+    auto const optimized_qcir = qsyn::experimental::to_qcir(*tableau, experimental::HOptSynthesisStrategy{}, experimental::NaivePauliRotationsSynthesisStrategy{}, experimental::AGSynthesisStrategy{});
 
     if (!optimized_qcir) {
         spdlog::error("Failed to convert optimized tableau to QCir.");

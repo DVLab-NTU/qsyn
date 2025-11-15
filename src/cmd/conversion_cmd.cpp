@@ -266,7 +266,7 @@ Command convert_from_tableau_cmd(experimental::TableauMgr& tableau_mgr, qcir::QC
                 });
 
                 spdlog::info("Converting to Tableau {} to QCir {}...", tableau_mgr.focused_id(), qcir_mgr.get_next_id());
-                auto qcir = experimental::to_qcir(*tableau_mgr.get(), *clifford_strategy, *rotation_strategy);
+                auto qcir = experimental::to_qcir(*tableau_mgr.get(), *clifford_strategy, *rotation_strategy, *clifford_strategy);
 
                 if (qcir.has_value()) {
                     qcir_mgr.add(qcir_mgr.get_next_id(), std::make_unique<qcir::QCir>(std::move(qcir.value())));

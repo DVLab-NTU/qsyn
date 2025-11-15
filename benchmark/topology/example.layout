@@ -1,0 +1,14 @@
+// The device of example_topology
+NAME: example_topology //The comma has to exist
+QUBITNUM: 3
+GATESET: {x, rz, h, id, sx, cnot}
+// 裡面那層也由小到大
+COUPLINGMAP: [[ 1 ] ,[ 0 , 2], [ 1 ]]
+// The order of the following items isn't fixed
+// Single Gate Error
+SGERROR: [3e-3, 4e-3, 5e-3]
+// in nanosecond
+SGTIME: [5e-3, 4.5e-3, 5e-3]
+CNOTERROR: [[1e-2],[1e-2, 5e-3],[5e-3]]
+// in nanosecond
+CNOTTIME: [[70],[70, 60],[60]]

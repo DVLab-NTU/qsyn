@@ -20,23 +20,18 @@
 #include <fmt/format.h>
 
 #include "./stabilizer_tableau.hpp"
+#include "./classical_tableau.hpp"
 #include "util/util.hpp"
 
 namespace qsyn {
 
 namespace experimental {
 
-using SubTableau = std::variant<StabilizerTableau, std::vector<PauliRotation>>;
-
-/**
- * @brief Enumeration for ancilla qubit initial states
- */
-enum class AncillaInitialState {
-    ZERO = 0,    // |0⟩ state (default, no gate needed)
-    ONE = 1,     // |1⟩ state (requires X gate)
-    PLUS = 2,    // |+⟩ state (requires H gate)
-    MINUS = 3    // |-⟩ state (requires H then X gate)
-};
+using SubTableau = std::variant<
+    StabilizerTableau,           // Clifford operations (non-conditional)
+    std::vector<PauliRotation>,  // Non-Clifford rotations
+    ClassicalControlTableau      // Classical control operations
+>;
 
 class Tableau : public PauliProductTrait<Tableau> {
 public:
@@ -47,7 +42,8 @@ public:
               dvlab::match(
                   _subtableaux.front(),
                   [](StabilizerTableau const& st) { return st.n_qubits(); },
-                  [](std::vector<PauliRotation> const& pr) { return pr.front().n_qubits(); })) {}
+                  [](std::vector<PauliRotation> const& pr) { return pr.front().n_qubits(); },
+                  [](ClassicalControlTableau const& cct) { return cct.operations().n_qubits(); })) {}
 
     auto begin() const {
         return _subtableaux.begin();
@@ -93,7 +89,8 @@ public:
                 [](StabilizerTableau const&) { return 0ul; },
                 [](std::vector<PauliRotation> const& rotations) {
                     return rotations.size();
-                });
+                },
+                [](ClassicalControlTableau const&) { return 0ul; });
         }
         return count;
     }
@@ -156,193 +153,29 @@ public:
         _procedures.insert(_procedures.end(), procedures.begin(), procedures.end());
     }
 
-    // Measurement management
-    auto const& get_measurements() const {
-        return _measurements;
+    /**
+     * @brief Collect all ancilla initial states from all subtableaux.
+     * Iterates through all subtableaux and collects initial states from StabilizerTableau and PauliRotation.
+     */
+    void commute_classical();
+    
+    /**
+     * @brief Add an ancilla initial state to the tableau
+     * 
+     * @param ancilla_index The index of the ancilla qubit
+     * @param state The initial state of the ancilla qubit
+     */
+    void add_ancilla_state(size_t ancilla_index, AncillaInitialState state) {
+        _ancilla_initial_states.push_back({ancilla_index, state});
     }
     
-    auto& get_measurements() {
-        return _measurements;
-    }
-    
-    void add_measurement(size_t qubit, size_t classical_bit) {
-        _measurements.emplace_back(qubit, classical_bit);
-    }
-    
-    void clear_measurements() {
-        _measurements.clear();
-    }
-    
-    // If-else operation management
-    auto const& get_if_else_operations() const {
-        return _if_else_operations;
-    }
-    
-    auto& get_if_else_operations() {
-        return _if_else_operations;
-    }
-    
-    void add_if_else_operation(size_t classical_bit, size_t value, std::string const& operation, std::vector<size_t> const& qubits) {
-        _if_else_operations.emplace_back(IfElseOperation{classical_bit, value, operation, qubits});
-    }
-    
-    void clear_if_else_operations() {
-        _if_else_operations.clear();
-    }
-
     /**
-     * @brief Add an ancilla qubit to the tableau
+     * @brief Get the vector of ancilla initial states (as pairs of <ancilla_index, state>)
      * 
-     * Adds a new qubit that is initialized to |0⟩ state to all sub-tableaux
-     * For StabilizerTableau: adds Z stabilizer and X destabilizer for the ancilla
-     * For PauliRotation vectors: extends all rotations to include the new qubit as I
-     * 
-     * @param initial_state the initial state for the ancilla qubit (defaults to ZERO)
-     * @return the index of the newly added ancilla qubit
+     * @return const reference to the vector of pairs
      */
-    size_t add_ancilla_qubit(AncillaInitialState initial_state = AncillaInitialState::ZERO) {
-        size_t new_qubit = _n_qubits;
-        
-        // Add ancilla qubit to all sub-tableaux
-        for (auto& subtableau : _subtableaux) {
-            std::visit(
-                dvlab::overloaded{
-                    [](StabilizerTableau& st) {
-                        st.add_ancilla_qubit();
-                    },
-                    [](std::vector<PauliRotation>& rotations) {
-                        for (auto& rotation : rotations) {
-                            rotation.add_ancilla_qubit();
-                        }
-                    }},
-                subtableau);
-        }
-        
-        // Update the total number of qubits
-        _n_qubits++;
-        
-        // Track the ancilla qubit
-        _ancilla_qubits.insert(new_qubit);
-        _ancilla_dirty_state[new_qubit] = false;  // Initially clean
-        _ancilla_initial_states[new_qubit] = initial_state;  // Store initial state
-        
-        return new_qubit;
-    }
-
-    /**
-     * @brief Check if a qubit is an ancilla qubit
-     * 
-     * @param qubit the qubit index to check
-     * @return true if the qubit is an ancilla, false otherwise
-     */
-    bool is_ancilla_qubit(size_t qubit) const {
-        return _ancilla_qubits.find(qubit) != _ancilla_qubits.end();
-    }
-
-    /**
-     * @brief Check if an ancilla qubit is dirty (has been used)
-     * 
-     * @param ancilla_qubit the ancilla qubit index
-     * @return true if the ancilla is dirty, false if clean
-     * @throws std::invalid_argument if the qubit is not an ancilla
-     */
-    bool is_ancilla_dirty(size_t ancilla_qubit) const {
-        if (!is_ancilla_qubit(ancilla_qubit)) {
-            throw std::invalid_argument("Qubit " + std::to_string(ancilla_qubit) + " is not an ancilla qubit");
-        }
-        return _ancilla_dirty_state.at(ancilla_qubit);
-    }
-
-    /**
-     * @brief Mark an ancilla qubit as dirty (used)
-     * 
-     * @param ancilla_qubit the ancilla qubit index
-     * @throws std::invalid_argument if the qubit is not an ancilla
-     */
-    void mark_ancilla_dirty(size_t ancilla_qubit) {
-        if (!is_ancilla_qubit(ancilla_qubit)) {
-            throw std::invalid_argument("Qubit " + std::to_string(ancilla_qubit) + " is not an ancilla qubit");
-        }
-        _ancilla_dirty_state[ancilla_qubit] = true;
-    }
-
-    /**
-     * @brief Mark an ancilla qubit as clean (unused)
-     * 
-     * @param ancilla_qubit the ancilla qubit index
-     * @throws std::invalid_argument if the qubit is not an ancilla
-     */
-    void mark_ancilla_clean(size_t ancilla_qubit) {
-        if (!is_ancilla_qubit(ancilla_qubit)) {
-            throw std::invalid_argument("Qubit " + std::to_string(ancilla_qubit) + " is not an ancilla qubit");
-        }
-        _ancilla_dirty_state[ancilla_qubit] = false;
-    }
-
-
-    /**
-     * @brief Get all ancilla qubits
-     * 
-     * @return const reference to the set of ancilla qubit indices
-     */
-    std::unordered_set<size_t> const& get_ancilla_qubits() const {
-        return _ancilla_qubits;
-    }
-
-    /**
-     * @brief Get all dirty ancilla qubits
-     * 
-     * @return vector of dirty ancilla qubit indices
-     */
-    std::vector<size_t> get_dirty_ancilla_qubits() const {
-        std::vector<size_t> dirty_ancillas;
-        for (auto const& [qubit, is_dirty] : _ancilla_dirty_state) {
-            if (is_dirty) {
-                dirty_ancillas.push_back(qubit);
-            }
-        }
-        return dirty_ancillas;
-    }
-
-    /**
-     * @brief Get the initial state of an ancilla qubit
-     * 
-     * @param ancilla_qubit the ancilla qubit index
-     * @return the initial state of the ancilla qubit
-     * @throws std::invalid_argument if the qubit is not an ancilla
-     */
-    AncillaInitialState get_ancilla_initial_state(size_t ancilla_qubit) const {
-        if (!is_ancilla_qubit(ancilla_qubit)) {
-            throw std::invalid_argument("Qubit " + std::to_string(ancilla_qubit) + " is not an ancilla qubit");
-        }
-        return _ancilla_initial_states.at(ancilla_qubit);
-    }
-
-    /**
-     * @brief Set the initial state of an ancilla qubit
-     * 
-     * @param ancilla_qubit the ancilla qubit index
-     * @param initial_state the new initial state
-     * @throws std::invalid_argument if the qubit is not an ancilla
-     */
-    void set_ancilla_initial_state(size_t ancilla_qubit, AncillaInitialState initial_state) {
-        if (!is_ancilla_qubit(ancilla_qubit)) {
-            throw std::invalid_argument("Qubit " + std::to_string(ancilla_qubit) + " is not an ancilla qubit");
-        }
-        _ancilla_initial_states[ancilla_qubit] = initial_state;
-    }
-
-    /**
-     * @brief Get all ancilla qubits with their initial states
-     * 
-     * @return vector of pairs (qubit_index, initial_state)
-     */
-    std::vector<std::pair<size_t, AncillaInitialState>> get_ancilla_initial_states() const {
-        std::vector<std::pair<size_t, AncillaInitialState>> result;
-        for (auto const& [qubit, state] : _ancilla_initial_states) {
-            result.emplace_back(qubit, state);
-        }
-        return result;
+    std::vector<std::pair<size_t, AncillaInitialState>> const& ancilla_initial_states() const {
+        return _ancilla_initial_states;
     }
 
     Tableau& h(size_t qubit) noexcept override;
@@ -354,23 +187,7 @@ private:
     std::size_t _n_qubits;
     std::string _filename;
     std::vector<std::string> _procedures;
-    
-    // Measurement tracking: stores (qubit, classical_bit) pairs
-    std::vector<std::pair<size_t, size_t>> _measurements;
-    
-    // If-else tracking: stores (classical_bit, value, operation, qubits) for "if(c==value) operation"
-    struct IfElseOperation {
-        size_t classical_bit;
-        size_t value;
-        std::string operation;
-        std::vector<size_t> qubits;
-    };
-    std::vector<IfElseOperation> _if_else_operations;
-    
-    // Ancilla qubit tracking
-    std::unordered_set<size_t> _ancilla_qubits;  // Track which qubits are ancilla
-    std::unordered_map<size_t, bool> _ancilla_dirty_state;  // Track if ancilla is dirty (true) or clean (false)
-    std::unordered_map<size_t, AncillaInitialState> _ancilla_initial_states;  // Track initial state for each ancilla
+    std::vector<std::pair<size_t, AncillaInitialState>> _ancilla_initial_states;  // Track initial states for all ancilla qubits as pairs <ancilla_index, state>
 };
 
 void adjoint_inplace(SubTableau& subtableau);
@@ -406,6 +223,13 @@ struct fmt::formatter<qsyn::experimental::SubTableau> {
                         return fmt::format_to(ctx.out(), "Pauli Rotations:\n{:c}\n", fmt::join(pr, "\n"));
                     else
                         return fmt::format_to(ctx.out(), "Pauli Rotations:\n{:b}\n", fmt::join(pr, "\n"));
+                },
+                [&](qsyn::experimental::ClassicalControlTableau const& cct) -> format_context::iterator {
+                    auto result = fmt::format_to(ctx.out(), "Classical Control (qubit[{}] controls):\n", cct.control_qubit());
+                    result = fmt::format_to(result, "  Operations:\n");
+                    result = fmt::format_to(result, "  {}\n", 
+                        presentation == 'c' ? cct.operations().to_string() : cct.operations().to_bit_string());
+                    return result;
                 }},
             subtableau);
     }

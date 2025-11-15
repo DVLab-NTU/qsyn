@@ -1,0 +1,10 @@
+// State copy basic example
+I0 (0, -) S3
+I1 (1, -) H7
+O2 (0, -) S10
+Z3 H5
+Z5 H7 3*pi/4
+Z7 H8 H9 // Neighbor of Target 
+Z8 pi // Target npi
+Z9 H10 7*pi/8
+Z10

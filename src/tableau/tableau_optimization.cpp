@@ -17,6 +17,7 @@
 #include <variant>
 #include <vector>
 
+#include "tableau/classical_tableau.hpp"
 #include "tableau/pauli_rotation.hpp"
 #include "tableau/stabilizer_tableau.hpp"
 #include "tableau/tableau.hpp"
@@ -122,6 +123,10 @@ void collapse(Tableau& tableau) {
                     for (auto& rotation : pr) {
                         rotation.apply(clifford_string);
                     }
+                },
+                [&clifford_string](ClassicalControlTableau& cct) {
+                    spdlog::error("Commute ClassicalControlTableau to the end first");
+                    assert(false);
                 }),
             subtableau);
     }
@@ -154,6 +159,61 @@ void collapse(Tableau& tableau) {
     DVLAB_ASSERT(std::holds_alternative<StabilizerTableau>(tableau.front()), "The first sub-tableau must be a StabilizerTableau");
     DVLAB_ASSERT(std::holds_alternative<std::vector<PauliRotation>>(tableau.back()), "The second sub-tableau must be a list of PauliRotations");
 }
+
+/**
+ * @brief Collapse the tableau with classical operations. Extracts CCTs from the end,
+ *        collapses the non-CCT part, then transforms to PR, ST structure, and appends CCTs.
+ *        Final structure: PR, ST, CCTs.
+ *
+ * @param tableau
+ */
+void collapse_with_classical(Tableau& tableau) {
+    size_t const n_qubits = tableau.n_qubits();
+
+    if (tableau.is_empty()) {
+        return;
+    }
+
+    // Step 1: Extract CCTs from the end until we find a non-CCT tableau
+    std::vector<SubTableau> ccts;
+    while (!tableau.is_empty() && std::holds_alternative<ClassicalControlTableau>(tableau.back())) {
+        ccts.insert(ccts.begin(), tableau.back());
+        auto it = tableau.end();
+        tableau.erase(std::prev(it), it);
+    }
+    auto last_Stabilizer = tableau.back();
+    if (std::holds_alternative<StabilizerTableau>(last_Stabilizer)){
+        tableau.erase(tableau.end() - 1);
+    }
+    // Step 2: Assert the remaining are purely non-CCT
+    for (auto const& subtableau : tableau) {
+        DVLAB_ASSERT(
+            !std::holds_alternative<ClassicalControlTableau>(subtableau),
+            "All CCTs should have been extracted from the end");
+    }
+
+    // Step 3: If tableau is empty after extracting CCTs, just return CCTs
+    if (tableau.is_empty()) {
+        tableau = Tableau{n_qubits};
+        for (auto& cct : ccts) {
+            tableau.push_back(cct);
+        }
+        return;
+    }
+    // Step 4: Take the non-CCT part into collapse (gives ST, PR structure)
+    collapse(tableau);
+    
+    if (std::holds_alternative<StabilizerTableau>(last_Stabilizer)){
+        tableau.push_back(last_Stabilizer);
+    }
+    for (auto& cct : ccts) {
+        tableau.push_back(cct);
+    }
+
+    
+}
+
+
 
 /**
  * @brief remove the Pauli rotations that evaluate to identity.
@@ -193,7 +253,8 @@ void remove_identities(Tableau& tableau) {
                 return dvlab::match(
                     subtableau,
                     [](StabilizerTableau const& subtableau) { return subtableau.is_identity(); },
-                    [](std::vector<PauliRotation> const& subtableau) { return subtableau.empty(); });
+                    [](std::vector<PauliRotation> const& subtableau) { return subtableau.empty(); },
+                    [](ClassicalControlTableau const& cct) { return cct.operations().is_identity(); });
             }),
         tableau.end());
 
@@ -326,6 +387,12 @@ void properize(StabilizerTableau& clifford, std::vector<PauliRotation>& rotation
 }
 
 void properize(Tableau& tableau) {
+    
+    for (auto& subtableau : tableau) {
+        if( std::holds_alternative<ClassicalControlTableau>(subtableau)) {
+            assert(false && "Classical related circuits should not be using this method");
+        }
+    }
     if (tableau.is_empty()) {
         return;
     }
@@ -343,14 +410,29 @@ void properize(Tableau& tableau) {
                 [](StabilizerTableau& st1, StabilizerTableau const& st2) {
                     st1.apply(extract_clifford_operators(st2));
                 },
-                [&](StabilizerTableau const& /* st1 */, std::vector<PauliRotation> const& pr2) {
+                [&](StabilizerTableau& /* st1 */, std::vector<PauliRotation> const& pr2) {
                     new_tableau.push_back(pr2);
                 },
-                [&](std::vector<PauliRotation> const& /* pr1 */, StabilizerTableau const& st2) {
+                [&](StabilizerTableau& /* st1 */, ClassicalControlTableau const& /* cct2 */) {
+                    assert(false && "Classical related circuits should not be using this method");
+                },
+                [&](std::vector<PauliRotation>& /* pr1 */, StabilizerTableau const& st2) {
                     new_tableau.push_back(st2);
                 },
                 [&](std::vector<PauliRotation>& pr1, std::vector<PauliRotation> const& pr2) {
                     pr1.insert(pr1.end(), pr2.begin(), pr2.end());
+                },
+                [&](std::vector<PauliRotation>& /* pr1 */, ClassicalControlTableau const& /* cct2 */) {
+                    assert(false && "Classical related circuits should not be using this method");
+                },
+                [&](ClassicalControlTableau& /* cct1 */, StabilizerTableau const& /* st2 */) {
+                    assert(false && "Classical related circuits should not be using this method");
+                },
+                [&](ClassicalControlTableau& /* cct1 */, std::vector<PauliRotation> const& /* pr2 */) {
+                    assert(false && "Classical related circuits should not be using this method");
+                },
+                [&](ClassicalControlTableau& /* cct1 */, ClassicalControlTableau const& /* cct2 */) {
+                    assert(false && "Classical related circuits should not be using this method");
                 }),
             new_tableau.back(), subtableau);
     }
@@ -366,6 +448,9 @@ void properize(Tableau& tableau) {
                 },
                 [&clifford](std::vector<PauliRotation>& pr) {
                     properize(clifford.get(), pr);
+                },
+                [](ClassicalControlTableau& /* cct */) {
+                    assert(false && "Classical related circuits should not be using this method");
                 }),
             subtableau);
     }
@@ -433,7 +518,10 @@ void optimize_phase_polynomial(Tableau& tableau, PhasePolynomialOptimizationStra
     for (auto& subtableau : tableau) {
         if (auto pr = std::get_if<std::vector<PauliRotation>>(&subtableau)) {
             optimize_phase_polynomial(last_clifford.get(), *pr, strategy);
-        } else {
+        } else if (auto cct = std::get_if<ClassicalControlTableau>(&subtableau)) {
+            break;
+        }
+        else {
             last_clifford = std::get<StabilizerTableau>(subtableau);
         }
     }

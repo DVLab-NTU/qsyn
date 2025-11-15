@@ -24,6 +24,16 @@ namespace qsyn {
 
 namespace experimental {
 
+/**
+ * @brief Enumeration for ancilla qubit initial states
+ */
+enum class AncillaInitialState {
+    ZERO = 0,    // |0⟩ state (default, no gate needed)
+    ONE = 1,     // |1⟩ state (requires X gate)
+    PLUS = 2,    // |+⟩ state (requires H gate)
+    MINUS = 3    // |-⟩ state (requires H then X gate)
+};
+
 enum class Pauli : std::uint8_t {
     i,
     x,
@@ -332,16 +342,17 @@ public:
     bool is_diagonal() const { return _pauli_product.is_diagonal(); }
 
     /**
-     * @brief Add an ancilla qubit to the PauliRotation
+     * @brief Add an ancilla qubit to the PauliRotation (extends from former circuit)
      * 
-     * Extends the underlying PauliProduct to include one more qubit initialized to I (identity)
+     * Extends the underlying PauliProduct to include one more qubit.
+     * This method does not set an initial state.
      * 
      * @return the index of the newly added ancilla qubit
      */
     size_t add_ancilla_qubit() {
         return _pauli_product.add_ancilla_qubit();
     }
-
+    
 private:
     PauliProduct _pauli_product;
     dvlab::Phase _phase;
