@@ -10,6 +10,8 @@
 
 #include <tl/fold.hpp>
 #include <variant>
+#include <vector>
+#include <string>
 
 #include "./stabilizer_tableau.hpp"
 
@@ -144,6 +146,59 @@ private:
     std::string _filename;
     std::vector<std::string> _procedures;
 };
+
+/**
+ * @brief Construct a Tableau consisting of an identity Clifford and a list of Pauli rotations
+ *        defined by Pauli strings with a common phase.
+ *
+ * This is useful for initializing a tableau representation directly from a set of Pauli
+ * operators, e.g., for Hamiltonian simulation or optimization routines that operate on
+ * PauliRotation lists.
+ *
+ * @param pauli_strings A list of Pauli strings such as "ZIII", "XXIZ", ...
+ * @param phase         The rotation phase for each Pauli string.
+ * @return Tableau      A tableau whose first sub-tableau is an identity StabilizerTableau
+ *                      and second sub-tableau is a std::vector<PauliRotation>.
+ */
+inline Tableau make_tableau_from_pauli_strings(std::vector<std::string> const& pauli_strings, dvlab::Phase const& phase) {
+    if (pauli_strings.empty()) {
+        return Tableau{StabilizerTableau{0}, std::vector<PauliRotation>{}};
+    }
+
+    auto const n_qubits = pauli_strings.front().size();
+    std::vector<PauliRotation> rotations;
+    rotations.reserve(pauli_strings.size());
+
+    for (auto const& pstr : pauli_strings) {
+        DVLAB_ASSERT(pstr.size() == n_qubits, "All Pauli strings must have the same length.");
+        rotations.emplace_back(pstr, phase);
+    }
+
+    return Tableau{StabilizerTableau{n_qubits}, std::move(rotations)};
+}
+
+/**
+ * @brief Construct a Tableau from Pauli strings with individual phases.
+ *
+ * @param terms A list of (Pauli string, phase) pairs.
+ * @return Tableau A tableau with identity Clifford and corresponding PauliRotation list.
+ */
+inline Tableau make_tableau_from_pauli_terms(std::vector<std::pair<std::string, dvlab::Phase>> const& terms) {
+    if (terms.empty()) {
+        return Tableau{StabilizerTableau{0}, std::vector<PauliRotation>{}};
+    }
+
+    auto const n_qubits = terms.front().first.size();
+    std::vector<PauliRotation> rotations;
+    rotations.reserve(terms.size());
+
+    for (auto const& [pstr, phase] : terms) {
+        DVLAB_ASSERT(pstr.size() == n_qubits, "All Pauli strings must have the same length.");
+        rotations.emplace_back(pstr, phase);
+    }
+
+    return Tableau{StabilizerTableau{n_qubits}, std::move(rotations)};
+}
 
 void adjoint_inplace(SubTableau& subtableau);
 [[nodiscard]] SubTableau adjoint(SubTableau const& subtableau);

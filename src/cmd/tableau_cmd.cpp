@@ -16,6 +16,7 @@
 #include "cmd/tableau_mgr.hpp"
 #include "tableau/pauli_rotation.hpp"
 #include "tableau/stabilizer_tableau.hpp"
+#include "tableau/tableau.hpp"
 #include "tableau/tableau_optimization.hpp"
 #include "tensor/qtensor.hpp"
 #include "util/data_structure_manager_common_cmd.hpp"
@@ -67,6 +68,71 @@ dvlab::Command tableau_new_cmd(TableauMgr& tableau_mgr) {
             }
 
             tableau_mgr.add(id, std::make_unique<Tableau>(n_qubits));
+
+            return dvlab::CmdExecResult::done;
+        }};
+}
+
+dvlab::Command tableau_from_pauli_cmd(TableauMgr& tableau_mgr) {
+    return dvlab::Command{
+        "from-pauli",
+        [&](ArgumentParser& parser) {
+            parser.description("Create a new tableau from Pauli strings");
+
+            parser.add_argument<std::string>("phase")
+                .help("Common rotation phase for all Pauli strings (e.g. pi/4, pi/2, 1/4*pi)");
+
+            parser.add_argument<std::string>("paulis")
+                .nargs(NArgsOption::one_or_more)
+                .help("Pauli strings such as ZIII, IIZX, etc. All must have the same length.");
+
+            parser.add_argument<size_t>("id")
+                .nargs(NArgsOption::optional)
+                .help("ID of the Tableau to create/replace");
+
+            parser.add_argument<bool>("-r", "--replace")
+                .action(store_true)
+                .help("If specified, replace the existing Tableau with the same ID");
+        },
+        [&](ArgumentParser const& parser) {
+            using dvlab::Phase;
+
+            auto const phase_str = parser.get<std::string>("phase");
+            auto const paulis    = parser.get<std::vector<std::string>>("paulis");
+
+            auto const phase_opt = Phase::from_string(phase_str);
+            if (!phase_opt) {
+                spdlog::error("Cannot parse phase string \"{}\"!!", phase_str);
+                return dvlab::CmdExecResult::error;
+            }
+
+            if (paulis.empty()) {
+                spdlog::error("No Pauli strings provided!!");
+                return dvlab::CmdExecResult::error;
+            }
+
+            auto const n_qubits = paulis.front().size();
+            if (!std::ranges::all_of(paulis, [n_qubits](std::string const& s) { return s.size() == n_qubits; })) {
+                spdlog::error("All Pauli strings must have the same length!!");
+                return dvlab::CmdExecResult::error;
+            }
+
+            // Build tableau from Pauli strings
+            auto tableau = make_tableau_from_pauli_strings(paulis, *phase_opt);
+            tableau.set_filename("from_pauli");
+            tableau.add_procedure("from-pauli");
+
+            auto const id = parser.parsed("id") ? parser.get<size_t>("id") : tableau_mgr.get_next_id();
+
+            if (tableau_mgr.is_id(id)) {
+                if (!parser.parsed("--replace")) {
+                    spdlog::error("Tableau {} already exists!! Please specify `--replace` to replace if needed", id);
+                    return dvlab::CmdExecResult::error;
+                }
+                tableau_mgr.set_by_id(id, std::make_unique<Tableau>(std::move(tableau)));
+            } else {
+                tableau_mgr.add(id, std::make_unique<Tableau>(std::move(tableau)));
+            }
 
             return dvlab::CmdExecResult::done;
         }};
@@ -325,6 +391,7 @@ dvlab::Command tableau_cmd(TableauMgr& tableau_mgr) {
 
     cmd.add_subcommand("tableau-cmd-group", dvlab::utils::mgr_list_cmd(tableau_mgr));
     cmd.add_subcommand("tableau-cmd-group", tableau_new_cmd(tableau_mgr));
+    cmd.add_subcommand("tableau-cmd-group", tableau_from_pauli_cmd(tableau_mgr));
     cmd.add_subcommand("tableau-cmd-group", dvlab::utils::mgr_delete_cmd(tableau_mgr));
     cmd.add_subcommand("tableau-cmd-group", dvlab::utils::mgr_checkout_cmd(tableau_mgr));
     cmd.add_subcommand("tableau-cmd-group", dvlab::utils::mgr_copy_cmd(tableau_mgr));

@@ -19,6 +19,9 @@ dvlab::Command tableau_cmd();
 
 bool add_tableau_command(dvlab::CommandLineInterface& cli, TableauMgr& tableau_mgr);
 
+// Command to create a tableau directly from Pauli strings
+dvlab::Command tableau_from_pauli_cmd(TableauMgr& tableau_mgr);
+
 }  // namespace experimental
 
 }  // namespace qsyn
