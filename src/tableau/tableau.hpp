@@ -171,7 +171,7 @@ inline Tableau make_tableau_from_pauli_strings(std::vector<std::string> const& p
 
     for (auto const& pstr : pauli_strings) {
         DVLAB_ASSERT(pstr.size() == n_qubits, "All Pauli strings must have the same length.");
-        rotations.emplace_back(pstr, phase);
+        rotations.emplace_back(std::string_view{pstr}, phase);
     }
 
     return Tableau{StabilizerTableau{n_qubits}, std::move(rotations)};
@@ -194,7 +194,7 @@ inline Tableau make_tableau_from_pauli_terms(std::vector<std::pair<std::string, 
 
     for (auto const& [pstr, phase] : terms) {
         DVLAB_ASSERT(pstr.size() == n_qubits, "All Pauli strings must have the same length.");
-        rotations.emplace_back(pstr, phase);
+        rotations.emplace_back(std::string_view{pstr}, phase);
     }
 
     return Tableau{StabilizerTableau{n_qubits}, std::move(rotations)};
