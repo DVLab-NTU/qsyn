@@ -234,7 +234,7 @@ dvlab::CommandLineInterface::TabActionResult dvlab::CommandLineInterface::_match
     for (auto& file : files) {
         for (size_t i = 0; i < file.size(); ++i) {
             if (_is_special_char(file[i])) {
-                file.insert(i, "\\");
+                file.insert(i, 1, '\\');
                 ++i;
             }
         }
