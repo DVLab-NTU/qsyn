@@ -79,16 +79,6 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(xtensor-blas)
 
 FetchContent_Declare(
-    libfort
-    SYSTEM
-    GIT_REPOSITORY https://github.com/seleznevae/libfort.git
-    GIT_TAG v0.4.2)
-set(FORT_ENABLE_TESTING
-    OFF
-    CACHE INTERNAL "")
-FetchContent_MakeAvailable(libfort)
-
-FetchContent_Declare(
     fmt
     SYSTEM
     GIT_REPOSITORY https://github.com/fmtlib/fmt.git
@@ -215,7 +205,6 @@ target_link_libraries_system(
     xtl
     xtensor
     xtensor-blas
-    libfort::fort
     fmt::fmt
     spdlog::spdlog
     Microsoft.GSL::GSL
@@ -269,7 +258,6 @@ target_link_libraries_system(
     xtl
     xtensor
     xtensor-blas
-    libfort::fort
     fmt::fmt
     spdlog::spdlog
     Microsoft.GSL::GSL

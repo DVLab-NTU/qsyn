@@ -9,16 +9,15 @@
 #include <spdlog/spdlog.h>
 
 #include <filesystem>
-#include <fort.hpp>
 #include <ranges>
 #include <regex>
 #include <string>
 #include <tl/to.hpp>
 
 #include "./cli.hpp"
-#include "fmt/color.h"
 #include "unicode/display_width.hpp"
 #include "util/dvlab_string.hpp"
+#include "util/tabler.hpp"
 #include "util/terminal_attributes.hpp"
 #include "util/text_format.hpp"
 #include "util/util.hpp"
@@ -341,31 +340,24 @@ bool dvlab::CommandLineInterface::_autocomplete(std::string prefix_copy, std::ve
 
 void dvlab::CommandLineInterface::_print_as_table(std::vector<std::string> words) const {
     // calculate an lower bound to the spacing first
-    fort::utf8_table table;
-    table.set_border_style(FT_EMPTY_STYLE);
-    table.set_cell_left_padding(0);
-    table.set_cell_right_padding(2);
-
-    ft_set_u8strwid_func(
-        [](void const* beg, void const* end, size_t* width) -> int {
-            std::string const tmp_str(static_cast<const char*>(beg), static_cast<const char*>(end));
-
-            *width = unicode::display_width(tmp_str);
-
-            return 0;
-        });
-
     auto const longest_word_len = std::ranges::max(
         words | std::views::transform([](std::string const& str) { return unicode::display_width(str); }));
 
     auto const num_columns = dvlab::utils::get_terminal_size().width / (longest_word_len + 2);
-    auto const num_rows    = 1 + (words.size() - 1) / num_columns;
+    auto const num_rows    = (words.size() - 1) / num_columns + 1;
+
+    Tabler table;
+    table.left_margin() = 1;
+    table.cell_left_padding()  = 0;
+    table.cell_right_padding() = 2;
 
     for (size_t i = 0; i < num_rows; ++i) {
+        std::vector<std::string> row;
+        row.reserve(num_columns);
         for (size_t j = i; j < words.size(); j += num_rows) {
-            table << words[j];
+            row.emplace_back(words[j]);
         }
-        table << fort::endr;
+        table.add_row(row);
     }
     fmt::print("\n{}", table.to_string());
 }
