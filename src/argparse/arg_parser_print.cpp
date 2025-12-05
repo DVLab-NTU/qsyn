@@ -220,8 +220,8 @@ void tabulate_help_string(ArgumentParser const& parser, Tabler& table, size_t ma
 
 Tabler create_parser_help_table() {
     Tabler table;
-    table.left_margin() = 1;
-    table.cell_left_padding() = 1;
+    table.left_margin()        = 1;
+    table.cell_left_padding()  = 1;
     table.cell_right_padding() = 1;
     return table;
 }

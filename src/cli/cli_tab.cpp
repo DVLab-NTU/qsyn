@@ -347,7 +347,7 @@ void dvlab::CommandLineInterface::_print_as_table(std::vector<std::string> words
     auto const num_rows    = (words.size() - 1) / num_columns + 1;
 
     Tabler table;
-    table.left_margin() = 1;
+    table.left_margin()        = 1;
     table.cell_left_padding()  = 0;
     table.cell_right_padding() = 2;
 

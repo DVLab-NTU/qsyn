@@ -66,9 +66,11 @@ void Tabler::add_column(std::span<std::string> const& column) {
     }
 
     // update column widths
-    size_t const new_column_width = 
+    size_t const new_column_width =
         std::ranges::max(column | std::views::transform(
-            [this](auto const& str) { return _get_string_width(str); }));
+                                      [this](auto const& str) {
+                                          return _get_string_width(str);
+                                      }));
     _column_widths.emplace_back(new_column_width);
 }
 
