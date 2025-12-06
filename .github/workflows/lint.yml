@@ -6,6 +6,7 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
     branches: [main, develop]
+  workflow_dispatch: # allow manual triggering of the workflow
 
 jobs:
   run-linters:
