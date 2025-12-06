@@ -8,7 +8,7 @@
 
 #include <cstddef>
 #include <vector>
-#include <xtensor/xstorage.hpp>
+#include <xtensor/containers/xstorage.hpp>
 
 namespace qsyn::tensor {
 
