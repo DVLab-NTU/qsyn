@@ -13,6 +13,7 @@ set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 include(FetchContent)
+include(CheckCXXCompilerFlag)
 set(FETCHCONTENT_UPDATES_DISCONNECTED TRUE)
 
 # ---- helper: bump "cmake_minimum_required" in a subproject CMakeLists.txt ----
@@ -302,8 +303,12 @@ target_compile_options(
     ${CMAKE_PROJECT_NAME} PRIVATE -Wno-missing-field-initializers)
 
 # GCC 12+ is too strict about restrict warnings in std::string operations
-target_compile_options(
-    ${CMAKE_PROJECT_NAME} PRIVATE -Wno-restrict)
+# Only apply to GCC, as Clang doesn't support this flag
+check_cxx_compiler_flag(-Wno-restrict COMPILER_SUPPORTS_WNO_RESTRICT)
+if(COMPILER_SUPPORTS_WNO_RESTRICT)
+    target_compile_options(
+        ${CMAKE_PROJECT_NAME} PRIVATE -Wno-restrict)
+endif()
 
 target_include_directories(
     ${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/src)
@@ -377,7 +382,10 @@ target_compile_options(
     -Wno-missing-field-initializers)
 
 # GCC 12+ is too strict about restrict warnings in std::string operations
-target_compile_options(
-    ${UNIT_TEST_NAME}
-    PRIVATE 
-    -Wno-restrict)
+# Only apply to GCC, as Clang doesn't support this flag
+if(COMPILER_SUPPORTS_WNO_RESTRICT)
+    target_compile_options(
+        ${UNIT_TEST_NAME}
+        PRIVATE 
+        -Wno-restrict)
+endif()
