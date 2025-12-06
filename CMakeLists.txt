@@ -301,6 +301,10 @@ target_compile_options(
 target_compile_options(
     ${CMAKE_PROJECT_NAME} PRIVATE -Wno-missing-field-initializers)
 
+# GCC 12+ is too strict about restrict warnings in std::string operations
+target_compile_options(
+    ${CMAKE_PROJECT_NAME} PRIVATE -Wno-restrict)
+
 target_include_directories(
     ${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/src)
 
@@ -371,3 +375,9 @@ target_compile_options(
     ${UNIT_TEST_NAME}
     PRIVATE 
     -Wno-missing-field-initializers)
+
+# GCC 12+ is too strict about restrict warnings in std::string operations
+target_compile_options(
+    ${UNIT_TEST_NAME}
+    PRIVATE 
+    -Wno-restrict)
