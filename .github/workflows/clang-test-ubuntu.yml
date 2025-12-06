@@ -6,11 +6,10 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
     branches: [main, develop]
-  workflow_dispatch: # allow manual triggering of the workflow
 
 jobs:
   build-and-test:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v3
