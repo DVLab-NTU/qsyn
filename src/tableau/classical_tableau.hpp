@@ -67,13 +67,13 @@ private:
 
 StabilizerTableau commutation_through_clifford(StabilizerTableau const& classical_clifford, 
                                                StabilizerTableau const& clifford_block);
+StabilizerTableau reverse_n_prepend(CliffordOperatorString const& operations, size_t n_qubits);
 
 void commute_through_stabilizer(ClassicalControlTableau& cct, StabilizerTableau& st);
 void commute_through_pauli_rotation(ClassicalControlTableau& cct, std::vector<PauliRotation>& pauli_rotations);
 
 void commute_through_T(CliffordOperatorString& operations, size_t qubit_n);
 void commute_through_Tdg(CliffordOperatorString& operations, size_t qubit_n);
-void commute_through_S_Sdg(CliffordOperatorString& operations, size_t qubit_n);
 void commute_through_CX(CliffordOperatorString& operations, size_t control_qubit, size_t target_qubit);
 std::pair<CliffordOperatorString, size_t> pauli_to_CXT(PauliRotation pauli_rotation);
 

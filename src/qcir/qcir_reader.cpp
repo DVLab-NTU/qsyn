@@ -328,23 +328,35 @@ std::optional<QCir> from_qasm(std::filesystem::path const& filepath) {
         spdlog::error("Cannot open the QASM file \"{}\"!!", filepath);
         return std::nullopt;
     }
-    // Parse first 6 lines to find qreg and creg declarations
+    
+    // First pass: Find all qreg and creg declarations throughout the file
     size_t total_qubits = 0;
     size_t total_classical_bits = 0;
+    bool found_qreg = false;
+    size_t last_reg_line = 0;
+    size_t current_line = 0;
     
-    // Read first 6 lines to find register declarations
+    // Store all lines for second pass
+    std::vector<std::string> file_lines;
     std::string str;
-    for (int i = 0; i < 5; i++) {
-        if (!getline(qasm_file, str)) break;
-        str = dvlab::str::trim_spaces(dvlab::str::trim_comments(str));
-        if (str.empty()) continue;
+    
+    // First pass: Read entire file to find all register declarations
+    while (getline(qasm_file, str)) {
+        file_lines.push_back(str);
+        std::string trimmed_str = dvlab::str::trim_spaces(dvlab::str::trim_comments(str));
+        if (trimmed_str.empty()) {
+            current_line++;
+            continue;
+        }
         
         std::string type;
-        auto const type_end = str_get_token(str, type);
+        auto const type_end = str_get_token(trimmed_str, type);
         
         if (type == "qreg") {
+            found_qreg = true;
+            last_reg_line = current_line;
             // Parse qubit register: qreg q[3];
-            std::string remaining = str.substr(type_end);
+            std::string remaining = trimmed_str.substr(type_end);
             remaining = dvlab::str::trim_spaces(remaining);
             
             size_t bracket_start = remaining.find('[');
@@ -354,12 +366,12 @@ std::optional<QCir> from_qasm(std::filesystem::path const& filepath) {
                 auto size = dvlab::str::from_string<size_t>(size_str);
                 if (size.has_value()) {
                     total_qubits += size.value();
-                    // spdlog::info("Found qubit register with {} qubits", size.value());
                 }
             }
         } else if (type == "creg") {
+            last_reg_line = current_line;
             // Parse classical register: creg c[3];
-            std::string remaining = str.substr(type_end);
+            std::string remaining = trimmed_str.substr(type_end);
             remaining = dvlab::str::trim_spaces(remaining);
             
             size_t bracket_start = remaining.find('[');
@@ -369,19 +381,24 @@ std::optional<QCir> from_qasm(std::filesystem::path const& filepath) {
                 auto size = dvlab::str::from_string<size_t>(size_str);
                 if (size.has_value()) {
                     total_classical_bits += size.value();
-                    // spdlog::info("Found classical register with {} bits", size.value());
                 }
             }
         }
+        current_line++;
+    }
+    
+    // Check if qreg was found (required)
+    if (!found_qreg) {
+        spdlog::error("No qreg declaration found in QASM file \"{}\"!!", filepath);
+        return std::nullopt;
     }
     
     // Initialize QCir with correct number of qubits and classical bits
     QCir qcir{total_qubits, total_classical_bits};
-    // spdlog::info("Initialized QCir with {} qubits and {} classical bits", total_qubits, total_classical_bits);
 
-    // Continue reading the rest of the file
-    while (getline(qasm_file, str)) {
-        str = dvlab::str::trim_spaces(dvlab::str::trim_comments(str));
+    // Second pass: Parse gates from lines after the last register declaration
+    for (size_t i = last_reg_line + 1; i < file_lines.size(); ++i) {
+        str = dvlab::str::trim_spaces(dvlab::str::trim_comments(file_lines[i]));
         if (str.empty()) continue;
         std::string type;
         auto const type_end   = str_get_token(str, type);
@@ -393,7 +410,7 @@ std::optional<QCir> from_qasm(std::filesystem::path const& filepath) {
             str_get_token(str, phase_str, stop + 1, ')');
         } else
             phase_str = "0";
-        // Skip register declarations since we already parsed them in the first 6 lines
+        // Skip register declarations (shouldn't appear after last_reg_line, but just in case)
         if (type == "creg" || type == "qreg" || type.empty()) {
             continue;
         }
@@ -584,3 +601,4 @@ std::optional<QCir> from_qc(std::filesystem::path const& filepath) {
 }
 
 }  // namespace qsyn::qcir
+

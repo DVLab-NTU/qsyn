@@ -20,6 +20,14 @@
 
 namespace qsyn::experimental {
 
+StabilizerTableau reverse_n_prepend(CliffordOperatorString const& operations, size_t n_qubits) {
+    StabilizerTableau result = StabilizerTableau(n_qubits);
+    for (auto it = operations.rbegin(); it != operations.rend(); ++it) {
+        result.prepend(*it);
+    }
+    return result;
+}
+
 
 StabilizerTableau commutation_through_clifford(StabilizerTableau const& classical_clifford, 
     StabilizerTableau const& clifford_block) {
@@ -153,22 +161,6 @@ void commute_through_Tdg(CliffordOperatorString& operations, size_t qubit_n) {
  * @param target_qubit
  */
 
-void commute_through_S_Sdg(CliffordOperatorString& operations, size_t qubit_n) {
-    CliffordOperatorString result;
-    for (auto const& op : operations) {
-        auto const& [type, qubits] = op;
-        if (type == CliffordOperatorType::x && qubits[0] == qubit_n) {
-            result.push_back({CliffordOperatorType::y, {qubit_n, 0}});
-        }
-        else if (type == CliffordOperatorType::y && qubits[0] == qubit_n) {
-            result.push_back({CliffordOperatorType::x, {qubit_n, 0}});
-        }
-        else{
-            result.push_back(op);
-        }
-    }
-}
-
 void commute_through_CX(CliffordOperatorString& operations, size_t control_qubit, size_t target_qubit) {
     CliffordOperatorString result;
     // Add CX gate at the start
@@ -239,24 +231,14 @@ void commute_through_pauli_rotation(ClassicalControlTableau& cct, std::vector<Pa
         
         if(pauli_rotation.phase() == dvlab::Phase(std::numbers::pi_v<double>/4.0)){
             commute_through_T(classical_operations, qubit);
-        } 
+        }
         else{
-            assert(pauli_rotation.phase() == -dvlab::Phase(std::numbers::pi_v<double>/4.0) && "Phase must be pi/4 or -pi/4 ");
+            assert(pauli_rotation.phase() == dvlab::Phase(-std::numbers::pi_v<double>/4.0) && "Phase must be pi/4 or -pi/4");
             commute_through_Tdg(classical_operations, qubit);
         }
-        // Convert operations back to StabilizerTableau
-        StabilizerTableau cct_temp = StabilizerTableau(cct_n_qubits);
-        std::vector<CliffordOperator> reversed_operations;
-        for (auto const& op : classical_operations) {
-
-            reversed_operations.insert(reversed_operations.begin(), op);  
-        }
-        for (auto const& op : reversed_operations) {
-            cct_temp.prepend(op);
-        }
-        cct.operations() = cct_temp;
+       
+        cct.operations() = reverse_n_prepend(classical_operations, cct_n_qubits);
         cx_stabilizer = adjoint(cx_stabilizer);
-        
         commute_through_stabilizer(cct, cx_stabilizer);
     }
     
@@ -315,6 +297,8 @@ bool test_classical_equivalence_impl(
     // If the result is empty (identity), the circuits are equivalent
     return combined_tableau.is_empty();
 }
+
+
 
 bool test_classical_equivalence(
     ClassicalControlTableau const& cct_old,

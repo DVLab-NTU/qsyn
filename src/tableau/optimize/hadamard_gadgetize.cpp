@@ -97,6 +97,7 @@ void gadgetize_tableau(Tableau& tableau) {
             max_pr++;
         }
     }
+
     
     // Iterate through each subtableau without using indices
     for (auto it = tableau.begin(); it != tableau.end(); ++it) {
@@ -218,19 +219,21 @@ void gadgetize_tableau(Tableau& tableau) {
  *
  * @param tableau
  */
+
 void minimize_internal_hadamards_n_gadgetize(Tableau& tableau) {
     size_t count              = 0;
     size_t non_clifford_count = tableau.n_pauli_rotations();
     spdlog::debug("TMerge");
+    collapse(tableau);
     merge_rotations(tableau);
+    properize(tableau);
     minimize_internal_hadamards(tableau);
-    spdlog::trace("Gadgetize tableau");
+    spdlog::trace("Tableau after internal hadamard minimization:\n{:b}", tableau);
     gadgetize_tableau(tableau);
-    spdlog::trace("Tableau after gadgetize: {:b}", tableau);
     tableau.commute_classical();
     collapse_with_classical(tableau);
     spdlog::debug("Phase polynomial optimization");
-    optimize_phase_polynomial(tableau, ToddPhasePolynomialOptimizationStrategy{});
+    optimize_phase_polynomial(tableau, FastToddPhasePolynomialOptimizationStrategy{});
     spdlog::info("Reduced the number of non-Clifford gates from {} to {}, at the cost of {} ancilla qubits", non_clifford_count, tableau.n_pauli_rotations(), tableau.ancilla_initial_states().size());
 
 }
