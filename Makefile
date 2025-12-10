@@ -117,7 +117,7 @@ build-docker:
 
 # run the binary you built with `make build-docker`
 run-docker:
-	docker run -it --rm -v $(shell pwd):/workdir qsyn-local 
+	docker run -it --rm -v $(shell pwd):/workdir qsyn-local
 .PHONY: run-docker
 
 # compile and run all tests with current source code in the docker container

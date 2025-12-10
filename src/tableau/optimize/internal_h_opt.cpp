@@ -5,6 +5,7 @@
  */
 
 #include "../tableau_optimization.hpp"
+#include "spdlog/spdlog.h"
 #include "tableau/pauli_rotation.hpp"
 #include "tableau/stabilizer_tableau.hpp"
 
@@ -61,8 +62,7 @@ void implement_into_tableau(Tableau& tableau, StabilizerTableau& context, size_t
     CliffordOperatorString clifford{};
 
     auto stabilizer = std::ref(context.stabilizer(qubit));
-
-    auto ctrl = gsl::narrow<size_t>(
+    auto ctrl       = gsl::narrow<size_t>(
         std::ranges::distance(
             qubit_range.begin(),
             std::ranges::find_if(qubit_range, [&stabilizer](size_t i) {
@@ -120,6 +120,8 @@ std::pair<Tableau, StabilizerTableau> minimize_hadamards(Tableau tableau, Stabil
     auto const& rotations = std::get<std::vector<PauliRotation>>(tableau.back());
 
     auto new_tableau = Tableau{context.n_qubits()};
+
+    // Now process the modified rotations
     for (auto const& rotation : rotations) {
         auto const [ops, qubit] = extract_clifford_operators(rotation);
 
@@ -127,8 +129,9 @@ std::pair<Tableau, StabilizerTableau> minimize_hadamards(Tableau tableau, Stabil
             context.prepend(adjoint(op));
         });
 
-        implement_into_tableau(new_tableau, context, qubit, rotation.phase());
+        std::string pauli_str = rotation.pauli_product().to_string();
 
+        implement_into_tableau(new_tableau, context, qubit, rotation.phase());
         std::ranges::for_each(adjoint(ops), [&context](CliffordOperator const& op) {
             context.prepend(adjoint(op));
         });
@@ -151,10 +154,8 @@ void minimize_internal_hadamards(Tableau& tableau) {
         [&context](CliffordOperator const& op) {
             context.prepend(adjoint(op));
         });
-
-    auto [_, initial_clifford]        = minimize_hadamards(Tableau{adjoint(tableau.front())}, context);
+    auto [_, initial_clifford]        = minimize_hadamards(Tableau{adjoint(tableau)}, context);
     std::tie(tableau, final_clifford) = minimize_hadamards(tableau, initial_clifford);
-
     tableau.insert(tableau.begin(), initial_clifford);
     tableau.push_back(adjoint(final_clifford));
 
