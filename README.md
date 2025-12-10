@@ -144,7 +144,7 @@ Of course, this requires you to have Docker installed on your machine.
 
   ```sh
    ./qsyn
-   qsyn v0.8.0 - Copyright © 2022-2024, DVLab NTUEE.
+   qsyn v0.8.1 - Copyright © 2022-2024, DVLab NTUEE.
    Licensed under Apache 2.0 License. Release build.
    qsyn>
   ```
@@ -165,7 +165,7 @@ Of course, this requires you to have Docker installed on your machine.
 
   ```sh
   ./qsyn -v examples/synth.dof
-  qsyn v0.8.0 - Copyright © 2022-2024, DVLab NTUEE.
+  qsyn v0.8.1 - Copyright © 2022-2024, DVLab NTUEE.
   Licensed under Apache 2.0 License. Release build.
   qsyn> qcir read benchmark/SABRE/large/adr4_197.qasm
   # further executing commands...
