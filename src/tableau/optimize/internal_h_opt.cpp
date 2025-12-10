@@ -54,11 +54,6 @@
          assert(tableau.size() > 0);
          tableau.insert(std::prev(tableau.end()), StabilizerTableau{n_qubits}.apply(clifford));
          return;
-     },
-     [&](ClassicalControlTableau& /* cct */) {
-         // If the last element is a ClassicalControlTableau, push a new StabilizerTableau
-         // with the clifford applied
-         assert(false);
      });
  }
  
@@ -100,11 +95,6 @@
      },
      [&](std::vector<PauliRotation>& subtableau) {
          subtableau.push_back(PauliRotation{stabilizer, phase});
-     },
-     [&](ClassicalControlTableau& /* cct */) {
-         // If the last element is a ClassicalControlTableau, push a new StabilizerTableau
-         // followed by the PauliRotation
-         assert(false);
      });
  }
  
