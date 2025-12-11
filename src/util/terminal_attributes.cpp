@@ -7,7 +7,7 @@
 
 #include "util/terminal_attributes.hpp"
 
-#if defined(_WIN32)
+#ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #define VC_EXTRALEAN
 #include <Windows.h>
@@ -62,7 +62,7 @@ TerminalSize get_terminal_size() {
         csbi.srWindow.Right - csbi.srWindow.Left + 1,
         csbi.srWindow.Bottom - csbi.srWindow.Top + 1};
 #else
-    struct winsize w {};
+    struct winsize w{};
     ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);  // NOLINT(cppcoreguidelines-pro-type-vararg) : conform to POSIX
     return {w.ws_col, w.ws_row};
 #endif  // Windows/Linux
