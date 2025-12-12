@@ -109,26 +109,6 @@ FetchContent_Declare(
     GIT_TAG 0.22.0)
 FetchContent_MakeAvailable(xtensor-blas)
 
-# --- libfort (patched for new CMake) ---
-FetchContent_Declare(
-    libfort
-    SYSTEM
-    GIT_REPOSITORY https://github.com/seleznevae/libfort.git
-    GIT_TAG v0.4.2
-    GIT_SHALLOW ON
-)
-
-# turn off libfort's own tests
-set(FORT_ENABLE_TESTING OFF CACHE INTERNAL "")
-
-FetchContent_GetProperties(libfort)
-if(NOT libfort_POPULATED)
-  FetchContent_Populate(libfort)
-endif()
-# Always bump (even if already populated from a previous configure)
-qsyn_bump_min_cmake("${libfort_SOURCE_DIR}" 3.10)
-add_subdirectory("${libfort_SOURCE_DIR}" "${libfort_BINARY_DIR}" SYSTEM)
-
 FetchContent_Declare(
     fmt
     SYSTEM
@@ -265,7 +245,6 @@ target_link_libraries_system(
     xtl
     xtensor
     xtensor-blas
-    libfort::fort
     fmt::fmt
     spdlog::spdlog
     Microsoft.GSL::GSL
@@ -327,7 +306,6 @@ target_link_libraries_system(
     xtl
     xtensor
     xtensor-blas
-    libfort::fort
     fmt::fmt
     spdlog::spdlog
     Microsoft.GSL::GSL
