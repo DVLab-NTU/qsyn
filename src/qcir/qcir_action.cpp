@@ -8,6 +8,7 @@
 #include <fmt/format.h>
 
 #include <cassert>
+#include <queue>
 #include <stack>
 #include <unordered_set>
 
@@ -26,9 +27,26 @@ namespace qsyn::qcir {
  * @return QCir*
  */
 QCir& QCir::compose(QCir const& other) {
+    // Ensure enough qubits
     if (get_num_qubits() < other.get_num_qubits()) {
         add_qubits(other.get_num_qubits() - get_num_qubits());
     }
+    
+    // Ensure enough classical bits
+    if (get_num_classical_bits() < other.get_num_classical_bits()) {
+        add_classical_bits(other.get_num_classical_bits() - get_num_classical_bits());
+    }
+    
+    // Copy classical bit states from other circuit
+    for (size_t i = 0; i < other.get_num_classical_bits(); ++i) {
+        auto const& other_bit = other.get_classical_bits()[i];
+        if (other_bit.has_value() && !_classical_bits[i].has_value()) {
+            _classical_bits[i].set_value(other_bit.get_value());
+        }
+        // Note: Don't copy measurement state - gates will establish that
+    }
+    
+    // Append gates from other circuit
     for (auto& targ_gate : other.get_gates()) {
         append(*targ_gate);
     }
@@ -63,45 +81,83 @@ namespace {
  * @param currentGate the gate to start DFS
  */
 std::vector<QCirGate*> dfs(QCir const& qcir) {
-    std::stack<std::pair<bool, QCirGate*>> dfs_stack;
+    // Use Kahn's algorithm for topological sort to properly handle all dependencies
     std::vector<QCirGate*> topo_order;
-    std::unordered_set<QCirGate*> visited;
-
-    for (auto const& gate :
-         qcir.get_qubits() | std::views::transform([](auto const& q) {
-             return q.get_first_gate();
-         })) {
-        if (gate != nullptr) {
-            dfs_stack.emplace(false, gate);
+    std::unordered_map<size_t, size_t> in_degree;  // gate_id -> number of unvisited predecessors
+    std::queue<QCirGate*> ready_queue;
+    std::unordered_set<size_t> seen_gates;
+    
+    // First pass: collect all gates by traversing from last gates on each qubit backwards
+    // This ensures we find all gates including those only connected via classical dependencies
+    std::stack<QCirGate*> discovery_stack;
+    for (auto const& qubit : qcir.get_qubits()) {
+        if (qubit.get_last_gate() != nullptr) {
+            discovery_stack.push(qubit.get_last_gate());
         }
     }
 
-    while (!dfs_stack.empty()) {
-        auto [children_visited, node] = dfs_stack.top();
-        dfs_stack.pop();
-        if (children_visited) {
-            topo_order.emplace_back(node);
-            continue;
-        }
-        if (visited.contains(node)) {
-            continue;
-        }
-        visited.insert(node);
-        dfs_stack.emplace(true, node);
-
-        // Follow all successors, including classical dependencies
-        auto const& successors = qcir.get_successors(node->get_id());
+    while (!discovery_stack.empty()) {
+        auto* gate = discovery_stack.top();
+        discovery_stack.pop();
         
-        // The successors vector may now include classical pins beyond qubit pins
-        // We need to follow all valid successors, not just qubit-based ones
-        for (auto const& succ : successors) {
-            if (succ.has_value() && !visited.contains(qcir.get_gate(succ))) {
-                dfs_stack.emplace(false, qcir.get_gate(succ));
+        if (seen_gates.contains(gate->get_id())) {
+            continue;
+        }
+        seen_gates.insert(gate->get_id());
+
+        // Calculate in-degree for this gate (count unique predecessors)
+        auto const& predecessors = qcir.get_predecessors(gate->get_id());
+        std::unordered_set<size_t> unique_preds;
+        for (auto const& pred : predecessors) {
+            if (pred.has_value()) {
+                unique_preds.insert(*pred);
+            }
+        }
+        in_degree[gate->get_id()] = unique_preds.size();
+        
+        // Gates with no predecessors are ready to process
+        if (unique_preds.size() == 0) {
+            ready_queue.push(gate);
+        }
+        
+        // Discover predecessors (traverse backwards)
+        for (auto const& pred_id : unique_preds) {
+            if (!seen_gates.contains(pred_id)) {
+                discovery_stack.push(qcir.get_gate(pred_id));
             }
         }
     }
-
-    std::ranges::reverse(topo_order);
+    
+    // Process gates in topological order using Kahn's algorithm
+    while (!ready_queue.empty()) {
+        auto* gate = ready_queue.front();
+        ready_queue.pop();
+        topo_order.push_back(gate);
+        
+        // For each successor, decrement its in-degree
+        auto const& successors = qcir.get_successors(gate->get_id());
+        std::unordered_set<size_t> unique_succs;
+        for (auto const& succ_id : successors) {
+            if (succ_id.has_value()) {
+                unique_succs.insert(*succ_id);
+            }
+        }
+        
+        for (auto const& succ_id : unique_succs) {
+            if (in_degree.contains(succ_id)) {
+                in_degree[succ_id]--;
+                if (in_degree[succ_id] == 0) {
+                    ready_queue.push(qcir.get_gate(succ_id));
+            }
+        }
+    }
+    }
+    
+    // Check if all gates were processed (no cycles)
+    if (topo_order.size() != seen_gates.size()) {
+        spdlog::error("Topological sort failed: processed {} gates but found {} gates total", 
+                     topo_order.size(), seen_gates.size());
+    }
 
     return topo_order;
 }
@@ -129,7 +185,11 @@ void QCir::_update_topological_order() const {
  */
 void QCir::reset() {
     _qubits.clear();
+    _classical_bits.clear();
     _gate_list.clear();
+    _id_to_gates.clear();
+    _predecessors.clear();
+    _successors.clear();
 
     _gate_id = 0;
     _dirty   = true;

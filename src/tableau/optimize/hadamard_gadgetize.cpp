@@ -39,35 +39,40 @@ void add_ancilla_to_subtableaux(std::vector<SubTableau>& subtableaux) {
 }
 
 /**
- * @brief Gadgetize a single Hadamard gate by modifying the StabilizerTableau in-place.
- * Adds an ancilla qubit to the stabilizer tableau and applies gadget operations.
- * Returns a ClassicalControlTableau for the conditional X gate.
- *
- * @param st The StabilizerTableau to modify (will have ancilla added and gates applied)
- * @param qubit The qubit index where the H gate originally was
- * @return ClassicalControlTableau The classical control tableau for the conditional X gate
+ * @brief Gadgetize a single Hadamard gate by creating two paired CCTs
+ * 
+ * Creates:
+ * 1. CCC (Classical Control Clifford): Pre-measurement Clifford operations
+ * 2. PMC (Post-Measurement Clifford): Conditional operations after measurement
+ * 
+ * The measurement of ancilla_index is implicit between CCC and PMC.
+ * 
+ * @param reference_qubit The qubit where H gate originally was (a)
+ * @param ancilla_index The ancilla qubit for the gadget (b)
+ * @param n_qubits Total number of qubits
+ * @return std::pair<ClassicalControlTableau, ClassicalControlTableau> 
+ *         First: CCC (pre-measurement), Second: PMC (post-measurement)
  */
-std::pair<StabilizerTableau, ClassicalControlTableau> gadgetize_hadamard(StabilizerTableau& st, size_t qubit) {
-    size_t n_qubits = st.n_qubits();
+std::pair<ClassicalControlTableau, ClassicalControlTableau> 
+gadgetize_hadamard(size_t reference_qubit, size_t ancilla_index, size_t n_qubits) {
     
-    // Step 1: Create CCT of the same size as the stabilizer tableau
-    // The control qubit will be the ancilla (at index n_qubits after adding)
-    size_t ancilla_index = n_qubits - 1;
-    ClassicalControlTableau cct(ancilla_index, n_qubits);
+    // Create CCC: Pre-measurement Clifford operations
+    ClassicalControlTableau ccc(ancilla_index, reference_qubit, n_qubits, CCTType::CCC);
+    ccc.operations().s(ancilla_index);
+    ccc.operations().s(reference_qubit);
+    ccc.operations().cx(reference_qubit, ancilla_index);
+    ccc.operations().sdg(ancilla_index);
+    ccc.operations().cx(ancilla_index, reference_qubit);
+    ccc.operations().cx(reference_qubit, ancilla_index);
     
+    // Create PMC: Post-measurement conditional operations
+    ClassicalControlTableau pmc(ancilla_index, reference_qubit, n_qubits, CCTType::PMC);
+    pmc.add_gate({CliffordOperatorType::x, std::array<size_t, 2>{reference_qubit, 0}});
     
-    // Step 3: Apply gadget operations to the stabilizer tableau
-    st.s(ancilla_index);
-    st.s(qubit);
-    st.cx(qubit, ancilla_index);
-    st.sdg(ancilla_index);
-    st.cx(ancilla_index, qubit);
-    st.cx(qubit, ancilla_index);
+    // NOTE: Pairing will be done after insertion into Tableau
+    // because we need stable addresses (can't pair before copying into vector)
     
-    // Step 4: Add the conditional X gate to the CCT
-    cct.add_gate({CliffordOperatorType::x, std::array<size_t, 2>{qubit, 0}});
-    
-    return {st, cct};
+    return {std::move(ccc), std::move(pmc)};
 }
 
   // namespace
@@ -90,6 +95,7 @@ void gadgetize_tableau(Tableau& tableau) {
     // Create a new tableau to store processed circuits (start with empty, will build incrementally)
     std::vector<SubTableau> new_subtableaux;
     std::vector<std::pair<size_t, AncillaInitialState>> new_ancilla_states;
+    std::vector<std::pair<size_t, size_t>> gadget_pairs;  // Track (CCC_idx, PMC_idx) for pairing
 
     size_t max_pr = 0;
     for (auto check_it = tableau.begin(); check_it != tableau.end(); ++check_it) {
@@ -137,20 +143,26 @@ void gadgetize_tableau(Tableau& tableau) {
                                 // Step 2: qubit_n++
                                 qubit_n++;
                                 
-                                // Step 3: Create a new ST and apply the clifford operators before H to it
-                                StabilizerTableau gad_st(qubit_n);
+                                // Step 3: Apply clifford operators before H
                                 if (!ops_before_h.empty()) {
+                                    StabilizerTableau st_before(qubit_n);
                                     for (auto const& op : ops_before_h) {
-                                        gad_st.apply(op);
+                                        st_before.apply(op);
                                     }
+                                    new_subtableaux.push_back(st_before);
                                 }
                                 
-                                // Step 4: Apply gadgetize_hadamard to it and get the CCT
-                                std::pair<StabilizerTableau, ClassicalControlTableau> result = gadgetize_hadamard(gad_st, qubit);
-                                gad_st = result.first;
-                                ClassicalControlTableau cct = result.second;
-                                new_subtableaux.push_back(gad_st);
-                                new_subtableaux.push_back(cct);
+                                // Step 4: Create paired CCTs for the Hadamard gadget
+                                auto [ccc, pmc] = gadgetize_hadamard(qubit, ancilla_index, qubit_n);
+                                
+                                size_t ccc_idx = new_subtableaux.size();
+                                new_subtableaux.push_back(std::move(ccc));
+                                
+                                size_t pmc_idx = new_subtableaux.size();
+                                new_subtableaux.push_back(std::move(pmc));
+                                
+                                // Remember to pair them after tableau is built (need stable addresses)
+                                gadget_pairs.push_back({ccc_idx, pmc_idx});
                                 
                                 // Add the ancilla initial state
                                 new_ancilla_states.push_back({ancilla_index, AncillaInitialState::PLUS});
@@ -203,12 +215,26 @@ void gadgetize_tableau(Tableau& tableau) {
     }
     // Add all collected subtableaux
     for (auto& subtableau : new_subtableaux) {
-        tableau.push_back(subtableau);
+        tableau.push_back(std::move(subtableau));
     }
     
     // Add all ancilla states
     for (auto const& [anc_idx, state] : new_ancilla_states) {
         tableau.add_ancilla_state(anc_idx, state);
+    }
+    
+    // Now establish pairing between CCC and PMC (stable addresses in tableau)
+    for (auto const& [ccc_idx, pmc_idx] : gadget_pairs) {
+        auto* ccc_ptr = std::get_if<ClassicalControlTableau>(&tableau[ccc_idx]);
+        auto* pmc_ptr = std::get_if<ClassicalControlTableau>(&tableau[pmc_idx]);
+        
+        if (ccc_ptr && pmc_ptr) {
+            ccc_ptr->set_paired_cct(pmc_ptr);
+            pmc_ptr->set_paired_cct(ccc_ptr);
+            spdlog::debug("Paired CCC at index {} with PMC at index {} for ancilla {} and reference {}",
+                         ccc_idx, pmc_idx, ccc_ptr->ancilla_qubit(), 
+                         ccc_ptr->reference_qubit().value_or(0));
+        }
     }
 }
 
@@ -219,7 +245,6 @@ void gadgetize_tableau(Tableau& tableau) {
  *
  * @param tableau
  */
-
 void minimize_internal_hadamards_n_gadgetize(Tableau& tableau) {
     size_t count              = 0;
     size_t non_clifford_count = tableau.n_pauli_rotations();
@@ -228,16 +253,11 @@ void minimize_internal_hadamards_n_gadgetize(Tableau& tableau) {
     merge_rotations(tableau);
     properize(tableau);
     minimize_internal_hadamards(tableau);
-    spdlog::trace("Tableau after internal hadamard minimization:\n{:b}", tableau);
     gadgetize_tableau(tableau);
-    tableau.commute_classical();
-    collapse_with_classical(tableau);
-    spdlog::debug("Phase polynomial optimization");
-    optimize_phase_polynomial(tableau, FastToddPhasePolynomialOptimizationStrategy{});
-    spdlog::info("Reduced the number of non-Clifford gates from {} to {}, at the cost of {} ancilla qubits", non_clifford_count, tableau.n_pauli_rotations(), tableau.ancilla_initial_states().size());
-
+    spdlog::trace("Tableau after internal hadamard minimization:\n{:b}", tableau);
 }
 
-}
+
+}  // namespace qsyn::experimental
 
 

@@ -116,7 +116,6 @@ void add_clifford_gate(qcir::QCir& qcir, CliffordOperator const& op) {
 void add_classical_controlled_clifford_gate(qcir::QCir& qcir, CliffordOperator const& op, size_t classical_bit, size_t classical_value = 1) {
     using COT                  = CliffordOperatorType;
     auto const& [type, qubits] = op;
-
     switch (type) {
         case COT::h:
             qcir.append(qcir::HGate(), {qubits[0]}, classical_bit, classical_value);
@@ -638,9 +637,10 @@ std::optional<qcir::QCir> to_qcir(
  * @brief convert a ClassicalControlTableau to a QCir.
  * 
  * This function implements the cct_strategy:
- * 1. Adds a measurement gate that measures qubit c (control_qubit) to classical bit c
- * 2. Extracts clifford operators using the provided synthesis strategy
- * 3. Applies each operator as a classically controlled gate (controlled by classical bit c)
+ * 1. Adds a measurement gate that measures the ancilla qubit to a classical bit
+ * 2. Extracts clifford operators from cct.operations() using the provided synthesis strategy
+ *    Note: These operations reference the reference qubit(s) where gates were applied (not the ancilla)
+ * 3. Applies each operator as a classically controlled gate (controlled by the classical bit)
  *
  * @param cct The ClassicalControlTableau to convert
  * @param cct_strategy The synthesis strategy to use for extracting clifford operators
@@ -654,25 +654,49 @@ std::optional<qcir::QCir> to_qcir(
         return std::nullopt;
     }
 
-    size_t control_qubit = cct.control_qubit();
-    size_t classical_bit = control_qubit;  // Use same index for classical bit
+    size_t ancilla_qubit = cct.ancilla_qubit();  // This is the ancilla qubit
+    size_t classical_bit = ancilla_qubit;  // Use same index for classical bit
+    // Note: cct.reference_qubit() contains the reference qubit where H was applied (for reference/debugging)
+
+    // Validate ancilla qubit is in range
+    if (ancilla_qubit >= n_qubits) {
+        spdlog::error("Ancilla qubit {} is out of range for n_qubits {}", ancilla_qubit, n_qubits);
+        return std::nullopt;
+    }
 
     // Create QCir with enough qubits and classical bits
     // We need at least classical_bit + 1 classical bits
     qcir::QCir qcir{n_qubits, n_qubits};
     
-    // Step 1: add H gate to fix the measurement basis to X, then add measurement gate - measure qubit c to classical bit c
-    qcir.append(qcir::HGate(), {control_qubit});
-    qcir.append(qcir::MeasurementGate(), {control_qubit}, classical_bit);
+    // Validate enough classical bits
+    if (classical_bit >= qcir.get_num_classical_bits()) {
+        spdlog::error("Classical bit {} is out of range for circuit with {} classical bits", 
+                     classical_bit, qcir.get_num_classical_bits());
+        return std::nullopt;
+    }
+    
+    // Step 1: add H gate to fix the measurement basis to X, then add measurement gate
+    // Measure the ancilla qubit to classical bit
+    qcir.append(qcir::HGate(), {ancilla_qubit});
+    qcir.append(qcir::MeasurementGate(), ancilla_qubit, classical_bit);
+    
+    // Validate that classical bit was marked as measured
+    if (!qcir.is_classical_measured(classical_bit)) {
+        spdlog::error("Classical bit {} was not marked as measured after measurement gate", classical_bit);
+        return std::nullopt;
+    }
     
     // Step 2: Extract clifford operators using the provided synthesis strategy
+    // These operations reference the original qubit(s), not the ancilla
     auto clifford_ops = extract_clifford_operators(cct.operations(), cct_strategy);
     
     // Step 3: Apply each operator as a classical controlled gate
+    // The operations are applied to their target qubits (original qubits), controlled by the classical bit
     for (auto const& op : clifford_ops) {
         if (stop_requested()) {
             return std::nullopt;
         }
+        
         add_classical_controlled_clifford_gate(qcir, op, classical_bit, 1);
     }
     
@@ -689,12 +713,25 @@ std::optional<qcir::QCir> to_qcir(
 std::optional<qcir::QCir> to_qcir(Tableau const& tableau, StabilizerTableauSynthesisStrategy const& st_strategy, PauliRotationsSynthesisStrategy const& pr_strategy, StabilizerTableauSynthesisStrategy const& cct_strategy) {
 
     size_t n_qubits = tableau.n_qubits();
+    
+    // Validate tableau has qubits
+    if (n_qubits == 0) {
+        spdlog::error("Tableau has 0 qubits");
+        return std::nullopt;
+    }
+    
     qcir::QCir qcir{n_qubits, n_qubits};
 
     // Apply initial state gates for ancilla qubits at the beginning
     auto const& initial_states = tableau.ancilla_initial_states();
     for (auto const& [ancilla_index, initial_state] : initial_states) {
         if (stop_requested()) {
+            return std::nullopt;
+        }
+        
+        // Validate ancilla index
+        if (ancilla_index >= n_qubits) {
+            spdlog::error("Ancilla index {} is out of range for n_qubits {}", ancilla_index, n_qubits);
             return std::nullopt;
         }
         
@@ -734,8 +771,17 @@ std::optional<qcir::QCir> to_qcir(Tableau const& tableau, StabilizerTableauSynth
                 }},
                 subtableau);
         if (!qc_fragment) {
+            spdlog::error("Failed to convert subtableau to qcir");
             return std::nullopt;
         }
+        
+        // Validate fragment has correct number of qubits
+        if (qc_fragment->get_num_qubits() != n_qubits) {
+            spdlog::error("Fragment has {} qubits but expected {} qubits", 
+                         qc_fragment->get_num_qubits(), n_qubits);
+            return std::nullopt;
+        }
+        
         qcir.compose(*qc_fragment);
     }
 

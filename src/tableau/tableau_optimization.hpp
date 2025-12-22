@@ -17,6 +17,8 @@ namespace experimental {
 void full_optimize(Tableau& tableau);
 
 void collapse(Tableau& tableau);
+void commute_classical(Tableau& tableau);
+void commute_and_merge_rotations(Tableau& tableau);
 void collapse_with_classical(Tableau& tableau);
 
 void remove_identities(std::vector<PauliRotation>& rotation);
@@ -38,6 +40,17 @@ void minimize_internal_hadamards_n_gadgetize(Tableau& tableau);
 
 // H gadgetization - replaces H gates with gadgets using ancilla qubits and measurements
 std::pair<Tableau, StabilizerTableau> minimize_hadamards_n_gadgetize(Tableau tableau, StabilizerTableau context);
+
+// Commute classical operations and collapse
+
+// Re-establish CCC-PMC pairing after moves (internal use)
+void reestablish_hadamard_gadget_pairing(Tableau& tableau);
+
+// Export all H-gadget pairs from tableau (uses HadamardGadgetPair from classical_tableau.hpp)
+std::vector<HadamardGadgetPair> export_hadamard_gadget_pairs(Tableau const& tableau);
+
+// Classical T optimization: minimize internal H, gadgetize, commute classical, and optimize with FastTodd
+void minimize_ancillary_t_opt(Tableau& tableau);
 
 struct PhasePolynomialOptimizationStrategy {
     using Polynomial                               = std::vector<PauliRotation>;

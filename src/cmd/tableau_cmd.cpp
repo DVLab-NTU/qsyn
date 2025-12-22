@@ -201,6 +201,9 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr) {
             methods.add_parser("gadgetH")
                 .description("Minimize the number of Hadamard gates using H gadgets (ancilla qubits and measurements)");
 
+            methods.add_parser("ancillaryTopt")
+                .description("Minimize the number of T gates in the tableau with the help of classical operations & ancillary qubits");
+
             auto phasepoly_parser = methods.add_parser("phasepoly")
                                         .description("Reduce the number of terms for phase polynomials in the Tableau");
 
@@ -235,7 +238,8 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr) {
                 internal_h_opt,
                 internal_h_opt_gadgetize,
                 phase_polynomial_optimization,
-                matroid_partition
+                matroid_partition,
+                ancillary_t_opt
             };
 
             auto method = std::invoke([&]() -> std::optional<OptimizationMethod> {
@@ -253,6 +257,8 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr) {
                     return OptimizationMethod::phase_polynomial_optimization;
                 } else if (dvlab::str::is_prefix_of(method_str, "matpar")) {
                     return OptimizationMethod::matroid_partition;
+                } else if (dvlab::str::is_prefix_of(method_str, "ancillaryTopt")) {
+                    return OptimizationMethod::ancillary_t_opt;
                 }
                 return std::nullopt;
             });
@@ -323,6 +329,10 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr) {
                         return dvlab::CmdExecResult::error;
                     }
                     tableau_mgr.get()->add_procedure("MatroidPartition");
+                    break;
+                case OptimizationMethod::ancillary_t_opt:
+                    minimize_ancillary_t_opt(*tableau_mgr.get());
+                    tableau_mgr.get()->add_procedure("AncillaryTOpt");
                     break;
             }
 

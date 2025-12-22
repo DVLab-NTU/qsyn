@@ -153,11 +153,6 @@ public:
         _procedures.insert(_procedures.end(), procedures.begin(), procedures.end());
     }
 
-    /**
-     * @brief Collect all ancilla initial states from all subtableaux.
-     * Iterates through all subtableaux and collects initial states from StabilizerTableau and PauliRotation.
-     */
-    void commute_classical();
     
     /**
      * @brief Add an ancilla initial state to the tableau
@@ -225,7 +220,7 @@ struct fmt::formatter<qsyn::experimental::SubTableau> {
                         return fmt::format_to(ctx.out(), "Pauli Rotations:\n{:b}\n", fmt::join(pr, "\n"));
                 },
                 [&](qsyn::experimental::ClassicalControlTableau const& cct) -> format_context::iterator {
-                    auto result = fmt::format_to(ctx.out(), "Classical Control (qubit[{}] controls):\n", cct.control_qubit());
+                    auto result = fmt::format_to(ctx.out(), "Classical Control (ancilla qubit[{}] controls):\n", cct.ancilla_qubit());
                     result = fmt::format_to(result, "  Operations:\n");
                     result = fmt::format_to(result, "  {}\n", 
                         presentation == 'c' ? cct.operations().to_string() : cct.operations().to_bit_string());
