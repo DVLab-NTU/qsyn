@@ -8,7 +8,7 @@
 #pragma once
 
 #include <cstddef>
-#include <cassert>
+#include <cassert>å
 #include <stdexcept>
 #include <optional>
 #include "./stabilizer_tableau.hpp"
@@ -116,7 +116,8 @@ StabilizerTableau commutation_through_clifford(StabilizerTableau const& classica
 StabilizerTableau reverse_n_prepend(CliffordOperatorString const& operations, size_t n_qubits);
 
 void commute_through_stabilizer(ClassicalControlTableau& cct, StabilizerTableau& st);
-void commute_through_pauli_rotation(ClassicalControlTableau& cct, std::vector<PauliRotation>& pauli_rotations);
+void commute_through_pauli_rotation(ClassicalControlTableau& cct, PauliRotation const& pauli_rotation);
+void commute_through_pauli_rotations(ClassicalControlTableau& cct, std::vector<PauliRotation>& pauli_rotations);
 
 void commute_through_T(CliffordOperatorString& operations, size_t qubit_n);
 void commute_through_Tdg(CliffordOperatorString& operations, size_t qubit_n);
@@ -125,15 +126,6 @@ std::pair<CliffordOperatorString, size_t> pauli_to_CXT(PauliRotation pauli_rotat
 
 bool test_classical_equivalence(ClassicalControlTableau const& cct_old, StabilizerTableau const& tableau, ClassicalControlTableau const& cct_new);
 bool test_classical_equivalence(ClassicalControlTableau const& cct_old, std::vector<PauliRotation> const& tableau, ClassicalControlTableau const& cct_new);
-
-// H-gadget pair structure for degadgetization
-struct HadamardGadgetPair {
-    size_t ccc_index;              // Index of CCC in tableau
-    size_t pmc_index;              // Index of PMC in tableau
-    size_t ancilla_qubit;          // Ancilla qubit (b)
-    std::optional<size_t> reference_qubit;  // Reference qubit (a)
-    bool is_paired;                // Whether CCC and PMC are properly paired
-};
 
 }  // namespace experimental
 

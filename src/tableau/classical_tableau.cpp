@@ -198,58 +198,58 @@ void commute_through_CX(CliffordOperatorString& operations, size_t control_qubit
 }
 
 /**
+ * @brief Commute a ClassicalControlTableau through a single PauliRotation.
+ *
+ * @param cct
+ * @param pauli_rotation
+ */
+void commute_through_pauli_rotation(ClassicalControlTableau& cct, PauliRotation const& pauli_rotation) {
+    size_t cct_n_qubits = cct.operations().n_qubits();
+    size_t pauli_n_qubits = pauli_rotation.n_qubits();
+    assert(cct_n_qubits == pauli_n_qubits &&
+           "ClassicalControlTableau and PauliRotation must have the same number of qubits");
+
+    // Decompose pauli_rotation into: CXs, T, reverse(CXs)
+    auto const [cxs, qubit] = pauli_to_CXT(pauli_rotation);
+    
+    // Step 1: Commute through CXs (forward)
+    // Convert CXs to StabilizerTableau (prepend in reverse order to get correct sequence)
+    StabilizerTableau cx_stabilizer = StabilizerTableau(cct_n_qubits);
+    for (auto it = cxs.rbegin(); it != cxs.rend(); ++it) {
+        auto const& [cx_type, cx_qubits] = *it;
+        cx_stabilizer.prepend_cx(cx_qubits[0], cx_qubits[1]);
+    }
+
+    // Commute cct through the CX stabilizer
+    commute_through_stabilizer(cct, cx_stabilizer);
+    
+    // Step 2: Commute through T/Tdg
+    // Convert cct.operations() to operations, apply T/Tdg transformations, then convert back
+    CliffordOperatorString classical_operations = extract_clifford_operators(cct.operations());
+    
+    if(pauli_rotation.phase() == dvlab::Phase(std::numbers::pi_v<double>/4.0)){
+        commute_through_T(classical_operations, qubit);
+    }
+    else{
+        assert(pauli_rotation.phase() == dvlab::Phase(-std::numbers::pi_v<double>/4.0) && "Phase must be pi/4 or -pi/4");
+        commute_through_Tdg(classical_operations, qubit);
+    }
+   
+    cct.operations() = reverse_n_prepend(classical_operations, cct_n_qubits);
+    cx_stabilizer = adjoint(cx_stabilizer);
+    commute_through_stabilizer(cct, cx_stabilizer);
+}
+
+/**
  * @brief Commute a ClassicalControlTableau through a vector of PauliRotations.
  *
  * @param cct
  * @param pauli_rotations
  */
-void commute_through_pauli_rotation(ClassicalControlTableau& cct, std::vector<PauliRotation>& pauli_rotations) {
-    
-    auto old_cct = cct;
-    size_t cct_n_qubits = cct.operations().n_qubits();
-    size_t pauli_n_qubits = pauli_rotations[0].n_qubits();
-    assert(cct_n_qubits == pauli_n_qubits &&
-           "ClassicalControlTableau and PauliRotations must have the same number of qubits, cct_n_qubits: ");
-
+void commute_through_pauli_rotations(ClassicalControlTableau& cct, std::vector<PauliRotation>& pauli_rotations) {
     for (auto const& pauli_rotation : pauli_rotations) {
-        // Decompose pauli_rotation into: CXs, T, reverse(CXs)
-        auto const [cxs, qubit] = pauli_to_CXT(pauli_rotation);
-        
-        // Step 1: Commute through CXs (forward)
-        // Convert CXs to StabilizerTableau (prepend in reverse order to get correct sequence)
-        StabilizerTableau cx_stabilizer = StabilizerTableau(cct_n_qubits);
-        for (auto it = cxs.rbegin(); it != cxs.rend(); ++it) {
-            auto const& [cx_type, cx_qubits] = *it;
-            cx_stabilizer.prepend_cx(cx_qubits[0], cx_qubits[1]);
-        }
-
-        // Commute cct through the CX stabilizer
-        commute_through_stabilizer(cct, cx_stabilizer);
-        // Step 2: Commute through T/Tdg
-        // Convert cct.operations() to operations, apply T/Tdg transformations, then convert back
-        CliffordOperatorString classical_operations = extract_clifford_operators(cct.operations());
-        
-        if(pauli_rotation.phase() == dvlab::Phase(std::numbers::pi_v<double>/4.0)){
-            commute_through_T(classical_operations, qubit);
-        }
-        else{
-            assert(pauli_rotation.phase() == dvlab::Phase(-std::numbers::pi_v<double>/4.0) && "Phase must be pi/4 or -pi/4");
-            commute_through_Tdg(classical_operations, qubit);
-        }
-       
-        cct.operations() = reverse_n_prepend(classical_operations, cct_n_qubits);
-        cx_stabilizer = adjoint(cx_stabilizer);
-        commute_through_stabilizer(cct, cx_stabilizer);
+        commute_through_pauli_rotation(cct, pauli_rotation);
     }
-    
-    // bool is_equivalent = test_classical_equivalence(old_cct, pauli_rotations, cct);
-    // if (!is_equivalent) {
-    //     CliffordOperatorString classical_opration = extract_clifford_operators(cct.operations());
-    //     spdlog::error("Commutation through Pauli rotation failed");
-    // }
-    // else{
-    //     spdlog::info("Commutation through Pauli rotation succeeded");
-    // }
 }
 
 template<typename TableauType>
