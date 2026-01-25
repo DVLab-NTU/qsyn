@@ -310,6 +310,39 @@ size_t matrix_rank(std::vector<PauliRotation> const& rotations) {
     return matrix.matrix_rank();
 };
 
+/**
+ * @brief Add an ancilla qubit to the PauliProduct
+ * @return the index of the newly added ancilla qubit
+ */
+size_t PauliProduct::add_ancilla_qubit() {
+    size_t new_qubit = n_qubits();
+    size_t old_size = _bitset.size();
+    _bitset.resize(old_size + 2);
+    _bitset[old_size + 1] = _bitset[old_size - 1];
+    _bitset[old_size - 1] = false;
+    return new_qubit;
+}
+
+/**
+ * @brief Remove the ith qubit from the PauliProduct
+ * @param qubit The index of the qubit to remove
+ */
+void PauliProduct::remove_ancilla_qubit(size_t qubit) {
+    if (qubit >= n_qubits()) {
+        return;
+    }
+    
+    size_t x_idx = qubit + n_qubits();
+    
+    for (size_t i = qubit; i < x_idx - 1; ++i) {
+        _bitset[i] = _bitset[i + 1];
+    }
+    for (size_t i = x_idx - 1; i < 2 * n_qubits() - 1; ++i) {
+        _bitset[i] = _bitset[i + 2];
+    }
+    _bitset.resize(2 * (n_qubits() - 1) + 1);
+}
+
 }  // namespace experimental
 
 }  // namespace qsyn

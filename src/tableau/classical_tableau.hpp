@@ -8,7 +8,7 @@
 #pragma once
 
 #include <cstddef>
-#include <cassert>å
+#include <cassert>
 #include <stdexcept>
 #include <optional>
 #include "./stabilizer_tableau.hpp"
@@ -56,39 +56,30 @@ public:
 
     ClassicalControlTableau(size_t ancilla_qubit, size_t n_qubits)
         : _ancilla_qubit(ancilla_qubit),
-          _reference_qubit(std::nullopt),
+          _reference_qubit(0),
           _operations(n_qubits),
-          _type(CCTType::PMC),
-          _paired_cct(nullptr) {}
+          _type(CCTType::PMC) {}
     
     ClassicalControlTableau(size_t ancilla_qubit, size_t reference_qubit, size_t n_qubits)
         : _ancilla_qubit(ancilla_qubit),
           _reference_qubit(reference_qubit),
           _operations(n_qubits),
-          _type(CCTType::PMC),
-          _paired_cct(nullptr) {}
+          _type(CCTType::PMC) {}
     
     // Constructor with type specification for Hadamard gadgets
     ClassicalControlTableau(size_t ancilla_qubit, size_t reference_qubit, size_t n_qubits, CCTType type)
         : _ancilla_qubit(ancilla_qubit),
           _reference_qubit(reference_qubit),
           _operations(n_qubits),
-          _type(type),
-          _paired_cct(nullptr) {}
+          _type(type) {}
     
     size_t ancilla_qubit() const { return _ancilla_qubit; }
-    std::optional<size_t> reference_qubit() const { return _reference_qubit; }
+    size_t reference_qubit() const { return _reference_qubit; }
     CCTType type() const { return _type; }
     
     StabilizerTableau& operations() { return _operations; }
     StabilizerTableau const& operations() const { return _operations; }
     
-    // Pairing methods for Hadamard gadgets
-    void set_paired_cct(ClassicalControlTableau* paired) { _paired_cct = paired; }
-    ClassicalControlTableau* get_paired_cct() { return _paired_cct; }
-    ClassicalControlTableau const* get_paired_cct() const { return _paired_cct; }
-    
-    bool is_part_of_hadamard_gadget() const { return _paired_cct != nullptr; }
     bool is_ccc() const { return _type == CCTType::CCC; }
     bool is_pmc() const { return _type == CCTType::PMC; }
 
@@ -102,13 +93,19 @@ public:
     void add_ancilla_qubit() {
         _operations.add_ancilla_qubit();
     }
+    void remove_ancilla_qubit(size_t qubit) {
+        _operations.remove_ancilla_qubit(qubit);
+        if(qubit < _ancilla_qubit) {
+            _ancilla_qubit--;
+        }
+    }
+
 
 private:
     size_t _ancilla_qubit;                    // The ancilla qubit that controls the operation (b)
-    std::optional<size_t> _reference_qubit;   // The reference qubit where H gate was applied (a)
+    size_t _reference_qubit;   // The reference qubit where H gate was applied (a)
     StabilizerTableau _operations;            // Tableau for all Clifford operations
     CCTType _type;                            // CCC (pre-measurement) or PMC (post-measurement)
-    ClassicalControlTableau* _paired_cct;     // Pointer to paired CCT in Hadamard gadget
 };
 
 StabilizerTableau commutation_through_clifford(StabilizerTableau const& classical_clifford, 

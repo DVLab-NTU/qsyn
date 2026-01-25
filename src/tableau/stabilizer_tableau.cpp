@@ -403,4 +403,40 @@ void print_clifford_operator_string(CliffordOperatorString const& operations) {
     fmt::print("{}\n", ss.str());
 }
 
+/**
+ * @brief Add an ancilla qubit to the tableau
+ * @return the index of the newly added ancilla qubit
+ */
+size_t StabilizerTableau::add_ancilla_qubit() {
+    size_t new_qubit = n_qubits();
+    for (auto& stabilizer : _stabilizers) {
+        std::string extended_str = stabilizer.to_string();
+        extended_str += 'I';
+        stabilizer = PauliProduct(extended_str);
+    }
+    std::string z_stabilizer_str(n_qubits() + 1, 'I');
+    z_stabilizer_str[new_qubit] = 'Z';
+    _stabilizers.insert(_stabilizers.begin() + new_qubit, PauliProduct(z_stabilizer_str));
+    std::string x_destabilizer_str(n_qubits() + 1, 'I');
+    x_destabilizer_str[new_qubit] = 'X';
+    _stabilizers.emplace_back(PauliProduct(x_destabilizer_str));
+    return new_qubit;
+}
+
+/**
+ * @brief Remove the ith qubit from the StabilizerTableau
+ * @param qubit The index of the qubit to remove
+ */
+void StabilizerTableau::remove_ancilla_qubit(size_t qubit) {
+    if (qubit >= n_qubits()) {
+        return;
+    }
+    for (auto& stabilizer : _stabilizers) {
+        stabilizer.remove_ancilla_qubit(qubit);
+    }
+    size_t destabilizer_pos = n_qubits() + qubit;
+    _stabilizers.erase(_stabilizers.begin() + destabilizer_pos, _stabilizers.begin() + destabilizer_pos + 1);
+    _stabilizers.erase(_stabilizers.begin() + qubit, _stabilizers.begin() + qubit + 1);
+}
+
 }  // namespace qsyn::experimental

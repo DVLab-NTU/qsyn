@@ -723,42 +723,46 @@ std::optional<qcir::QCir> to_qcir(Tableau const& tableau, StabilizerTableauSynth
     qcir::QCir qcir{n_qubits, n_qubits};
 
     // Apply initial state gates for ancilla qubits at the beginning
-    auto const& initial_states = tableau.ancilla_initial_states();
-    for (auto const& [ancilla_index, initial_state] : initial_states) {
-        if (stop_requested()) {
-            return std::nullopt;
-        }
-        
-        // Validate ancilla index
-        if (ancilla_index >= n_qubits) {
-            spdlog::error("Ancilla index {} is out of range for n_qubits {}", ancilla_index, n_qubits);
-            return std::nullopt;
-        }
-        
-        // Only apply gates for non-ZERO initial states
-        if (initial_state == qsyn::experimental::AncillaInitialState::ZERO) {
-            continue;
-        }
-        switch (initial_state) {
-            case qsyn::experimental::AncillaInitialState::ONE:
-                // Apply X gate to get |1⟩ state
-                qcir.append(qcir::XGate(), {ancilla_index});
-                break;
-            case qsyn::experimental::AncillaInitialState::PLUS:
-                // Apply H gate to get |+⟩ state
-                qcir.append(qcir::HGate(), {ancilla_index});
-                break;
-            case qsyn::experimental::AncillaInitialState::MINUS:
-                // Apply H then X gate to get |-⟩ state
-                qcir.append(qcir::HGate(), {ancilla_index});
-                qcir.append(qcir::XGate(), {ancilla_index});
-                break;
-            default:
-                break;
+    if (tableau.n_ancilla() > 0) {
+        auto const& initial_states = tableau.ancilla_initial_states();
+        for (auto const& [ancilla_index, initial_state] : initial_states) {
+            if (stop_requested()) {
+                return std::nullopt;
+            }
+            
+            // Validate ancilla index
+            if (ancilla_index >= n_qubits) {
+                spdlog::error("Ancilla index {} is out of range for n_qubits {}", ancilla_index, n_qubits);
+                return std::nullopt;
+            }
+            
+            // Only apply gates for non-ZERO initial states
+            if (initial_state == qsyn::experimental::AncillaInitialState::ZERO) {
+                continue;
+            }
+            switch (initial_state) {
+                case qsyn::experimental::AncillaInitialState::ONE:
+                    // Apply X gate to get |1⟩ state
+                    qcir.append(qcir::XGate(), {ancilla_index});
+                    break;
+                case qsyn::experimental::AncillaInitialState::PLUS:
+                    // Apply H gate to get |+⟩ state
+                    qcir.append(qcir::HGate(), {ancilla_index});
+                    break;
+                case qsyn::experimental::AncillaInitialState::MINUS:
+                    // Apply H then X gate to get |-⟩ state
+                    qcir.append(qcir::HGate(), {ancilla_index});
+                    qcir.append(qcir::XGate(), {ancilla_index});
+                    break;
+                default:
+                    break;
+            }
         }
     }
-
-    for (auto const& subtableau : tableau) {
+    
+    for (size_t i = 0; i < tableau.size(); ++i) {
+        spdlog::debug("Converting subtableau {} to qcir", i);
+        auto const& subtableau = tableau[i];
         if (stop_requested()) {
             return std::nullopt;
         }

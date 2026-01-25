@@ -10,6 +10,7 @@
 #include "tableau/stabilizer_tableau.hpp"
 #include "util/dvlab_string.hpp"
 #include "util/util.hpp"
+#include <limits>
 #include <spdlog/spdlog.h>
 
 namespace qsyn::experimental {
@@ -37,6 +38,7 @@ void add_ancilla_to_subtableaux(std::vector<SubTableau>& subtableaux) {
             subtableau);
     }
 }
+
 
 /**
  * @brief Gadgetize a single Hadamard gate by creating two paired CCTs
@@ -69,9 +71,6 @@ gadgetize_hadamard(size_t reference_qubit, size_t ancilla_index, size_t n_qubits
     ClassicalControlTableau pmc(ancilla_index, reference_qubit, n_qubits, CCTType::PMC);
     pmc.add_gate({CliffordOperatorType::x, std::array<size_t, 2>{reference_qubit, 0}});
     
-    // NOTE: Pairing will be done after insertion into Tableau
-    // because we need stable addresses (can't pair before copying into vector)
-    
     return {std::move(ccc), std::move(pmc)};
 }
 
@@ -89,13 +88,14 @@ gadgetize_hadamard(size_t reference_qubit, size_t ancilla_index, size_t n_qubits
  */
 void gadgetize_tableau(Tableau& tableau) {
     // Record the original qubit count
-    size_t qubit_n = tableau.n_qubits();
+    size_t original_n_qubits = tableau.n_qubits();
+    size_t qubit_n = original_n_qubits;
     size_t ancilla_index = qubit_n;  // Start tracking ancilla_index from n_qubits
     
     // Create a new tableau to store processed circuits (start with empty, will build incrementally)
     std::vector<SubTableau> new_subtableaux;
     std::vector<std::pair<size_t, AncillaInitialState>> new_ancilla_states;
-    std::vector<std::pair<size_t, size_t>> gadget_pairs;  // Track (CCC_idx, PMC_idx) for pairing
+    std::vector<std::pair<size_t, size_t>> gadget_pairs;  // Track (CCC_idx, PMC_idx) for pairing in tableau
 
     size_t max_pr = 0;
     for (auto check_it = tableau.begin(); check_it != tableau.end(); ++check_it) {
@@ -161,7 +161,7 @@ void gadgetize_tableau(Tableau& tableau) {
                                 size_t pmc_idx = new_subtableaux.size();
                                 new_subtableaux.push_back(std::move(pmc));
                                 
-                                // Remember to pair them after tableau is built (need stable addresses)
+                                // Track pairs for establishing pairing in tableau after build
                                 gadget_pairs.push_back({ccc_idx, pmc_idx});
                                 
                                 // Add the ancilla initial state
@@ -208,7 +208,10 @@ void gadgetize_tableau(Tableau& tableau) {
     }
     
     // Build the new tableau from the collected subtableaux
+    size_t num_ancillae = qubit_n - original_n_qubits;
+    
     tableau = Tableau(qubit_n);
+    tableau.set_n_ancilla(num_ancillae);
     // Clear the initial ST by erasing it
     if (!tableau.is_empty()) {
         tableau.erase(tableau.begin(), tableau.end());
@@ -218,23 +221,18 @@ void gadgetize_tableau(Tableau& tableau) {
         tableau.push_back(std::move(subtableau));
     }
     
+    // Set the number of ancilla qubits (last num_ancillae qubits are ancillae)
+    tableau.set_n_ancilla(num_ancillae);
+    
     // Add all ancilla states
     for (auto const& [anc_idx, state] : new_ancilla_states) {
         tableau.add_ancilla_state(anc_idx, state);
     }
     
-    // Now establish pairing between CCC and PMC (stable addresses in tableau)
+    // Establish pairing between CCC and PMC in tableau's pairing structure
     for (auto const& [ccc_idx, pmc_idx] : gadget_pairs) {
-        auto* ccc_ptr = std::get_if<ClassicalControlTableau>(&tableau[ccc_idx]);
-        auto* pmc_ptr = std::get_if<ClassicalControlTableau>(&tableau[pmc_idx]);
-        
-        if (ccc_ptr && pmc_ptr) {
-            ccc_ptr->set_paired_cct(pmc_ptr);
-            pmc_ptr->set_paired_cct(ccc_ptr);
-            spdlog::debug("Paired CCC at index {} with PMC at index {} for ancilla {} and reference {}",
-                         ccc_idx, pmc_idx, ccc_ptr->ancilla_qubit(), 
-                         ccc_ptr->reference_qubit().value_or(0));
-        }
+        tableau.cct_pairing().emplace_back(ccc_idx, pmc_idx);
+        spdlog::debug("Paired CCC at index {} with PMC at index {}", ccc_idx, pmc_idx);
     }
 }
 
@@ -249,12 +247,92 @@ void minimize_internal_hadamards_n_gadgetize(Tableau& tableau) {
     size_t count              = 0;
     size_t non_clifford_count = tableau.n_pauli_rotations();
     spdlog::debug("TMerge");
-    collapse(tableau);
     merge_rotations(tableau);
     properize(tableau);
     minimize_internal_hadamards(tableau);
     gadgetize_tableau(tableau);
     spdlog::trace("Tableau after internal hadamard minimization:\n{:b}", tableau);
+}
+
+
+/**
+ * @brief Degadgetize a single CCC-PMC pair (removes ancilla for the whole circuit)
+ * @param tableau The tableau containing the CCC and PMC
+ * @param ccc_index The index of the CCC in the tableau
+ * @param pmc_index The index of the PMC in the tableau
+ */
+void hadamard_degadgetize(Tableau& tableau, size_t ccc_index, size_t pmc_index) {
+
+    spdlog::debug("Degadgetizing CCC at index {} and PMC at index {}", ccc_index, pmc_index);
+    // Verify CCC at ccc_index
+    auto* ccc_ptr = std::get_if<ClassicalControlTableau>(&tableau[ccc_index]);
+    if (!ccc_ptr || !ccc_ptr->is_ccc()) {
+        spdlog::error("Element at index {} is not a CCC", ccc_index);
+        return;
+    }
+    
+    // Verify PMC at pmc_index
+    auto* pmc_ptr = std::get_if<ClassicalControlTableau>(&tableau[pmc_index]);
+    if (!pmc_ptr || !pmc_ptr->is_pmc()) {
+        spdlog::error("Element at index {} is not a PMC", pmc_index);
+        return;
+    }
+    
+    // Verify they are correctly paired (check qubit pairs match)
+    if (ccc_ptr->ancilla_qubit() != pmc_ptr->ancilla_qubit()) {
+        spdlog::error("CCC at index {} and PMC at index {} have mismatched ancilla qubits ({} vs {})",
+                     ccc_index, pmc_index, ccc_ptr->ancilla_qubit(), pmc_ptr->ancilla_qubit());
+        return;
+    }
+    
+    // Verify reference qubits match (required for Hadamard gadgets)
+    size_t ccc_ref = ccc_ptr->reference_qubit();
+    size_t pmc_ref = pmc_ptr->reference_qubit();
+    if (ccc_ref != pmc_ref) {
+        spdlog::error("CCC at index {} and PMC at index {} have mismatched reference qubits ({} vs {})",
+                     ccc_index, pmc_index, ccc_ref, pmc_ref);
+        return;
+    }
+    
+    size_t ancilla_qubit = ccc_ptr->ancilla_qubit();
+    size_t reference_qubit = ccc_ref;
+
+    // Determine insertion position (where CCC was, before any removals)
+    size_t insert_pos = ccc_index;
+    
+    tableau.erase(tableau.begin() + pmc_index);
+    tableau.erase(tableau.begin() + ccc_index);
+
+
+
+    // Insert H gate at the position where CCC was
+    StabilizerTableau h_gate_tableau(tableau.n_qubits());
+    h_gate_tableau.h(reference_qubit);
+    tableau.insert(tableau.begin() + insert_pos, h_gate_tableau);
+    
+    for (size_t i = 0; i < tableau.size(); ++i) {
+        if (std::holds_alternative<StabilizerTableau>(tableau[i])) {
+            std::get<StabilizerTableau>(tableau[i]).remove_ancilla_qubit(ancilla_qubit);
+        }
+        if (std::holds_alternative<std::vector<PauliRotation>>(tableau[i])) {
+            for (auto& rotation : std::get<std::vector<PauliRotation>>(tableau[i])) {
+                rotation.remove_ancilla_qubit(ancilla_qubit);
+            }
+        }
+        if (std::holds_alternative<ClassicalControlTableau>(tableau[i])) {
+            if(std::get<ClassicalControlTableau>(tableau[i]).is_ccc()) {
+                std::get<ClassicalControlTableau>(tableau[i]).remove_ancilla_qubit(ancilla_qubit);
+            }
+            if(std::get<ClassicalControlTableau>(tableau[i]).is_pmc()) {
+                std::get<ClassicalControlTableau>(tableau[i]).remove_ancilla_qubit(ancilla_qubit);
+            }
+        }
+    }
+    tableau.set_n_qubits(tableau.n_qubits() - 1);
+    tableau.set_n_ancilla(tableau.n_ancilla() - 1);
+    
+    spdlog::debug("Degadgetized CCC at index {}: removed ancilla qubit {}, replaced with H gate on qubit {}",
+                 ccc_index, ancilla_qubit, reference_qubit);
 }
 
 

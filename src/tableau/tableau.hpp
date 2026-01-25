@@ -35,7 +35,7 @@ using SubTableau = std::variant<
 
 class Tableau : public PauliProductTrait<Tableau> {
 public:
-    Tableau(size_t n_qubits) : _subtableaux{StabilizerTableau{n_qubits}}, _n_qubits{n_qubits} {}
+    Tableau(size_t n_qubits) : _subtableaux{StabilizerTableau{n_qubits}}, _n_qubits{n_qubits}, _n_ancilla{0} {}
     Tableau(std::initializer_list<SubTableau> subtableaux)
         : _subtableaux{subtableaux},
           _n_qubits(
@@ -43,7 +43,8 @@ public:
                   _subtableaux.front(),
                   [](StabilizerTableau const& st) { return st.n_qubits(); },
                   [](std::vector<PauliRotation> const& pr) { return pr.front().n_qubits(); },
-                  [](ClassicalControlTableau const& cct) { return cct.operations().n_qubits(); })) {}
+                  [](ClassicalControlTableau const& cct) { return cct.operations().n_qubits(); })),
+          _n_ancilla{0} {}
 
     auto begin() const {
         return _subtableaux.begin();
@@ -78,6 +79,17 @@ public:
     auto n_qubits() const {
         return _n_qubits;
     }
+    void set_n_qubits(size_t n_qubits) {
+        _n_qubits = n_qubits;
+    }
+    void set_n_ancilla(size_t n_ancilla) {
+        _n_ancilla = n_ancilla;
+    }
+    
+    auto n_ancilla() const {
+        return _n_ancilla;
+    }
+
     auto n_cliffords() const {
         return std::count_if(_subtableaux.begin(), _subtableaux.end(), [](auto const& subtableau) { return std::holds_alternative<StabilizerTableau>(subtableau); });
     }
@@ -173,6 +185,70 @@ public:
         return _ancilla_initial_states;
     }
 
+    /**
+     * @brief Get the CCT pairing vector (ccc_index, pmc_index pairs)
+     * 
+     * @return const reference to the pairing vector
+     */
+    std::vector<std::pair<size_t, size_t>> const& cct_pairing() const {
+        return _cct_pairing;
+    }
+    
+    /**
+     * @brief Get the CCT pairing vector (ccc_index, pmc_index pairs)
+     * 
+     * @return reference to the pairing vector
+     */
+    std::vector<std::pair<size_t, size_t>>& cct_pairing() {
+        return _cct_pairing;
+    }
+    
+    /**
+     * @brief Set the CCT pairing vector
+     * 
+     * @param pairing Vector of (ccc_index, pmc_index) pairs
+     */
+    void set_cct_pairing(std::vector<std::pair<size_t, size_t>> const& pairing) {
+        _cct_pairing = pairing;
+    }
+    
+    /**
+     * @brief Clear the CCT pairing vector
+     */
+    void clear_cct_pairing() {
+        _cct_pairing.clear();
+    }
+    
+    /**
+     * @brief Find the PMC index paired with a given CCC index
+     * 
+     * @param ccc_index Index of the CCC in the tableau
+     * @return Optional PMC index if found, std::nullopt otherwise
+     */
+    std::optional<size_t> find_pmc_index(size_t ccc_index) const {
+        for (auto const& [ccc_idx, pmc_idx] : _cct_pairing) {
+            if (ccc_idx == ccc_index) {
+                return pmc_idx;
+            }
+        }
+        return std::nullopt;
+    }
+    
+    /**
+     * @brief Find the CCC index paired with a given PMC index
+     * 
+     * @param pmc_index Index of the PMC in the tableau
+     * @return Optional CCC index if found, std::nullopt otherwise
+     */
+    std::optional<size_t> find_ccc_index(size_t pmc_index) const {
+        for (auto const& [ccc_idx, pmc_idx] : _cct_pairing) {
+            if (pmc_idx == pmc_index) {
+                return ccc_idx;
+            }
+        }
+        return std::nullopt;
+    }
+
     Tableau& h(size_t qubit) noexcept override;
     Tableau& s(size_t qubit) noexcept override;
     Tableau& cx(size_t control, size_t target) noexcept override;
@@ -180,9 +256,11 @@ public:
 private:
     std::vector<SubTableau> _subtableaux;
     std::size_t _n_qubits;
+    std::size_t _n_ancilla;  // Number of ancilla qubits (last _n_ancilla qubits are ancillae)
     std::string _filename;
     std::vector<std::string> _procedures;
     std::vector<std::pair<size_t, AncillaInitialState>> _ancilla_initial_states;  // Track initial states for all ancilla qubits as pairs <ancilla_index, state>
+    std::vector<std::pair<size_t, size_t>> _cct_pairing;  // CCT pairing structure - stores (ccc_index, pmc_index) pairs
 };
 
 void adjoint_inplace(SubTableau& subtableau);

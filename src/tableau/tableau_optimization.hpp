@@ -56,8 +56,8 @@ struct CircuitStructureInfo {
     bool is_valid;
 };
 
-CircuitStructureInfo verify_circuit_structure(Tableau const& tableau);
-
+CircuitStructureInfo properize_for_degadgetization(Tableau& tableau);
+void reorder_n_degadgetize(Tableau& tableau);
 // Constraint graph for topological ordering constraints
 struct ConstraintGraph {
     // H-gadget pair structure for degadgetization
@@ -117,10 +117,10 @@ struct ConstraintGraph {
 };
 
 // Build constraint graph from tableau
-ConstraintGraph build_constraint_graph(Tableau const& tableau);
+ConstraintGraph build_constraint_graph(Tableau& tableau);
 
 // Export all H-gadget pairs from tableau
-std::vector<ConstraintGraph::HadamardGadgetPair> export_hadamard_gadget_pairs(Tableau const& tableau);
+std::vector<ConstraintGraph::HadamardGadgetPair> export_hadamard_gadget_pairs(Tableau& tableau);
 
 // Classical T optimization: minimize internal H, gadgetize, commute classical, and optimize with FastTodd
 void minimize_ancillary_t_opt(Tableau& tableau);
@@ -142,6 +142,7 @@ struct FastToddPhasePolynomialOptimizationStrategy : public PhasePolynomialOptim
 
 void optimize_phase_polynomial(StabilizerTableau& clifford, std::vector<PauliRotation>& polynomial, PhasePolynomialOptimizationStrategy const& strategy);
 void optimize_phase_polynomial(Tableau& tableau, PhasePolynomialOptimizationStrategy const& strategy);
+void optimize_phase_polynomial_with_classical(Tableau& tableau, PhasePolynomialOptimizationStrategy const& strategy);
 
 struct MatroidPartitionStrategy {
     using Polynomial                    = std::vector<PauliRotation>;
