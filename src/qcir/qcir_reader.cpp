@@ -60,14 +60,31 @@ std::optional<QCir> from_qasm(std::filesystem::path const& filepath) {
     while (std::getline(qasm_file, str)) {
         str = dvlab::str::trim_spaces(dvlab::str::trim_comments(str));
         if (str.empty()) continue;
+        // QASM 2.0 and 3.0 headers
         if (str == "OPENQASM 2.0;") continue;
+        if (str == "OPENQASM 3.0;" || str == "OPENQASM 3;") continue;
+        // QASM 2.0 and 3.0 standard library includes
         if (str == "include \"qelib1.inc\";") continue;
+        if (str.starts_with("include \"stdgates.inc\"")) continue;
+        // QASM 2.0 qubit register: qreg name[N];
         if (str.starts_with("qreg")) {
             if (qcir.get_num_qubits() != 0) {
                 spdlog::error("Qsyn does not support multiple qreg definition at the moment.");
                 return std::nullopt;
             }
             auto const nqubit = stoul(str.substr(str.find('[') + 1, str.size() - str.find('[') - 3));
+            qcir.add_qubits(nqubit);
+            continue;
+        }
+        // QASM 3.0 qubit register: qubit[N] name;
+        if (str.starts_with("qubit[")) {
+            if (qcir.get_num_qubits() != 0) {
+                spdlog::error("Qsyn does not support multiple qubit register definition at the moment.");
+                return std::nullopt;
+            }
+            auto const bracket_open  = str.find('[');
+            auto const bracket_close = str.find(']');
+            auto const nqubit        = stoul(str.substr(bracket_open + 1, bracket_close - bracket_open - 1));
             qcir.add_qubits(nqubit);
             continue;
         }
@@ -84,8 +101,12 @@ std::optional<QCir> from_qasm(std::filesystem::path const& filepath) {
             spdlog::error("Qsyn does not support gate \"{}\"!!", gate_name);
             return std::nullopt;
         }
+        // QASM 2.0 classical register: creg name[N];
         if (str.starts_with("creg")) {
-            // implicitly ignore creg definition
+            continue;
+        }
+        // QASM 3.0 classical register: bit[N] name;
+        if (str.starts_with("bit[")) {
             continue;
         }
         std::string type;

@@ -10,12 +10,15 @@
 #include <fmt/core.h>
 #include <fmt/ranges.h>
 #include <fmt/std.h>
+#include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
 
 #include <algorithm>
 #include <cassert>
+#include <fstream>
 #include <gsl/narrow>
 #include <ranges>
+#include <set>
 #include <string>
 #include <tl/enumerate.hpp>
 #include <tl/to.hpp>
@@ -757,6 +760,113 @@ void Device::print_mapping() {
     for (size_t i = 0; i < _num_qubit; i++) {
         fmt::println("{:<5} : {}", i, _qubit_list[i].get_logical_qubit());
     }
+}
+
+/**
+ * @brief Read a simplified Qiskit-style JSON device description.
+ *        Expected keys: backend_name, n_qubits, basis_gates, coupling_map.
+ *        SGERROR / SGTIME / CNOTERROR / CNOTTIME default to zero.
+ *
+ * @param filename path to the JSON file
+ * @return true on success
+ */
+bool Device::read_device_from_qiskit_json(std::string const& filename) {
+    std::ifstream f(filename);
+    if (!f.is_open()) {
+        spdlog::error("Cannot open the file \"{}\"!!", filename);
+        return false;
+    }
+
+    nlohmann::json j;
+    try {
+        f >> j;
+    } catch (nlohmann::json::parse_error const& e) {
+        spdlog::error("Failed to parse JSON file \"{}\": {}", filename, e.what());
+        return false;
+    }
+
+    // NAME
+    if (!j.contains("backend_name") || !j["backend_name"].is_string()) {
+        spdlog::error("Missing or invalid \"backend_name\" in JSON.");
+        return false;
+    }
+    _topology->set_name(j["backend_name"].get<std::string>());
+
+    // QUBITNUM
+    if (!j.contains("n_qubits") || !j["n_qubits"].is_number_integer()) {
+        spdlog::error("Missing or invalid \"n_qubits\" in JSON.");
+        return false;
+    }
+    _num_qubit = j["n_qubits"].get<size_t>();
+    _topology->set_num_qubits(_num_qubit);
+
+    // GATESET — map Qiskit names to qsyn names; silently skip non-unitary ops
+    if (!j.contains("basis_gates") || !j["basis_gates"].is_array()) {
+        spdlog::error("Missing or invalid \"basis_gates\" in JSON.");
+        return false;
+    }
+    for (auto const& gate_json : j["basis_gates"]) {
+        if (!gate_json.is_string()) {
+            spdlog::error("Each entry in \"basis_gates\" must be a string.");
+            return false;
+        }
+        auto gate_name = dvlab::str::tolower_string(gate_json.get<std::string>());
+        // map Qiskit gate names to qsyn equivalents
+        if (gate_name == "cx") gate_name = "cnot";
+        // non-unitary / classical operations are not supported
+        if (gate_name == "reset" || gate_name == "measure" || gate_name == "barrier") {
+            spdlog::error("Gate \"{}\" in basis_gates is a non-unitary or classical operation and is not supported by qsyn.", gate_name);
+            return false;
+        }
+
+        if (auto op = qcir::str_to_operation(gate_name); op.has_value()) {
+            _topology->add_gate_type(op->get_repr().substr(0, op->get_repr().find_first_of('(')));
+        } else if (auto op = qcir::str_to_operation(gate_name, {dvlab::Phase()}); op.has_value()) {
+            _topology->add_gate_type(op->get_repr().substr(0, op->get_repr().find_first_of('(')));
+        } else {
+            spdlog::warn("Unrecognized gate \"{}\" in basis_gates, skipping.", gate_name);
+        }
+    }
+
+    // COUPLINGMAP — directed pairs [a, b]; deduplicate into undirected edges
+    if (!j.contains("coupling_map") || !j["coupling_map"].is_array()) {
+        spdlog::error("Missing or invalid \"coupling_map\" in JSON.");
+        return false;
+    }
+    std::set<std::pair<size_t, size_t>> edges;
+    for (auto const& pair : j["coupling_map"]) {
+        if (!pair.is_array() || pair.size() != 2 ||
+            !pair[0].is_number_integer() || !pair[1].is_number_integer()) {
+            spdlog::error("Each coupling_map entry must be an integer pair [a, b].");
+            return false;
+        }
+        auto const a = pair[0].get<size_t>();
+        auto const b = pair[1].get<size_t>();
+        if (a >= _num_qubit || b >= _num_qubit) {
+            spdlog::error("Coupling map contains qubit index {} out of range (n_qubits={}).", std::max(a, b), _num_qubit);
+            return false;
+        }
+        if (a != b) edges.emplace(std::min(a, b), std::max(a, b));
+    }
+
+    // Build qubit list
+    _qubit_list.reserve(_num_qubit);
+    for (size_t i = 0; i < _num_qubit; ++i) {
+        _qubit_list.emplace_back(PhysicalQubit(i));
+    }
+
+    // Register edges (add_adjacency already sets default zero DeviceInfo)
+    for (auto const& [a, b] : edges) {
+        add_adjacency(a, b);
+    }
+
+    // SGERROR / SGTIME — zero for every qubit
+    for (size_t i = 0; i < _num_qubit; ++i) {
+        _topology->add_qubit_info(i, {._time = 0.0f, ._error = 0.0f});
+    }
+
+    calculate_path();
+    return true;
 }
 
 /**

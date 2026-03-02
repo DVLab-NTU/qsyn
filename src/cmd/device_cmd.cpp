@@ -82,13 +82,24 @@ dvlab::Command device_read_cmd(qsyn::device::DeviceMgr& device_mgr) {
                 parser.add_argument<bool>("-r", "--replace")
                     .action(store_true)
                     .help("if specified, replace the current device; otherwise store to a new one");
+
+                parser.add_argument<bool>("-s", "--simple")
+                    .action(store_true)
+                    .help("read a simplified Qiskit-style JSON file "
+                          "(keys: backend_name, n_qubits, basis_gates, coupling_map); "
+                          "error and timing fields default to zero");
             },
             [&device_mgr](ArgumentParser const& parser) {
                 qsyn::device::Device buffer_device;
-                auto filepath = parser.get<std::string>("filepath");
-                auto replace  = parser.get<bool>("--replace");
+                auto const filepath = parser.get<std::string>("filepath");
+                auto const replace  = parser.get<bool>("--replace");
+                auto const simple   = parser.get<bool>("--simple");
 
-                if (!buffer_device.read_device(filepath)) {
+                bool const ok = simple
+                                    ? buffer_device.read_device_from_qiskit_json(filepath)
+                                    : buffer_device.read_device(filepath);
+
+                if (!ok) {
                     spdlog::error("the format in \"{}\" has something wrong!!", filepath);
                     return CmdExecResult::error;
                 }

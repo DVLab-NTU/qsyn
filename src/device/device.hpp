@@ -161,6 +161,7 @@ public:
     std::vector<PhysicalQubit> get_path(QubitIdType src, QubitIdType dest) const;
 
     bool read_device(std::string const& filename);
+    bool read_device_from_qiskit_json(std::string const& filename);
 
     void print_qubits(std::vector<size_t> candidates = {}) const;
     void print_edges(std::vector<size_t> candidates = {}) const;
