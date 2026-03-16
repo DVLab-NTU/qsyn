@@ -27,7 +27,7 @@ std::string Phase::get_ascii_string() const {
         str += std::to_string(_rational.numerator()) + "*";
     str += "pi";
     if (_rational.denominator() != 1)
-        str += "/" + std::to_string(_rational.denominator());
+        str += std::string("/") + std::to_string(_rational.denominator());
     return str;
 }
 
@@ -42,7 +42,7 @@ std::string Phase::get_print_string() const {
                : _rational.numerator() == -1
                    ? "-"
                    : std::to_string(_rational.numerator())) +
-           ((_rational.numerator() != 0) ? "\u03C0" : "") + ((_rational.denominator() != 1) ? ("/" + std::to_string(_rational.denominator())) : "");
+           ((_rational.numerator() != 0) ? std::string("\u03C0") : std::string("")) + ((_rational.denominator() != 1) ? (std::string("/") + std::to_string(_rational.denominator())) : std::string(""));
 }
 
 std::ostream& operator<<(std::ostream& os, dvlab::Phase const& p) {
