@@ -273,7 +273,7 @@ void causal_flow_opt(ZXGraph& g,
                  applied_ratio(num_pvus_applied, num_pvus_tried));
 }
 
-void redundant_hadamard_insertion(ZXGraph& g, double prob) {
+void redundant_hadamard_insertion(ZXGraph& g, double prob) {  // NOLINT(misc-unused-parameters)
     hadamard_rule_simp(g);
     to_z_graph(g);
     auto vpairs = std::vector<std::pair<size_t, size_t>>{};

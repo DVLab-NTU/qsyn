@@ -1,8 +1,7 @@
 UNAME_S := $(shell uname -s)
 
-# On MacOS, the default compiler is clang
+# Platform defaults for compiler (used when CC/CXX not set by environment)
 ifeq ($(UNAME_S), Darwin)
-# Override CC if it is set to the default 'cc'
 	ifeq ($(origin CC), default)
 		CC := $(shell which clang)
 	endif
@@ -16,6 +15,11 @@ else
 	ifeq ($(origin CXX), default)
 		CXX := $(shell which g++)
 	endif
+endif
+
+# Optional local overrides (CC, CXX, etc.): included only if .env.local exists
+ifneq (,$(wildcard .env.local))
+	include .env.local
 endif
 
 ECHO := $(shell which echo) -e
@@ -119,7 +123,7 @@ build-docker:
 
 # run the binary you built with `make build-docker`
 run-docker:
-	docker run -it --rm -v $(shell pwd):/workdir qsyn-local 
+	docker run -it --rm -v $(shell pwd):/workdir qsyn-local
 .PHONY: run-docker
 
 # compile and run all tests with current source code in the docker container

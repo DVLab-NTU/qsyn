@@ -49,13 +49,13 @@ public:
 
     // returns true if and only if the rule is successfully applied
     bool apply(ZXGraph& graph, bool check = true) const {
-        if (check && !is_applicable(graph)) return false;
+        if (check && !is_applicable(graph)) return false;  // NOLINT(readability-simplify-boolean-expr)
         apply_unchecked(graph);
         return true;
     }
     // should return true if and only if the rule is successfully undone
     bool undo(ZXGraph& graph) const {
-        if (!is_undoable(graph)) return false;
+        if (!is_undoable(graph)) return false;  // NOLINT(readability-simplify-boolean-expr)
         undo_unchecked(graph);
         return true;
     }

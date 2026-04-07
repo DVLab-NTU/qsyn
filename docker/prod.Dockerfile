@@ -1,4 +1,4 @@
-FROM dvlab/qsyn-env:latest as builder
+FROM dvlab/qsyn-env:latest AS builder
 
 COPY . /app/qsyn
 
@@ -10,6 +10,14 @@ ENV CXX=/usr/bin/g++
 RUN cmake -B build -S ./qsyn && cmake --build build --parallel 8
 
 FROM debian:bookworm-slim AS runner
+
+RUN apt update
+
+RUN apt install -y \
+    libopenblas-dev \
+    liblapack-dev \
+    libreadline-dev \
+    libomp-16-dev
 
 COPY --from=builder /app/build/qsyn /usr/local/bin/qsyn
 

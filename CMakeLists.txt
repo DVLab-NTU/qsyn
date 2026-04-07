@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.19)
+cmake_minimum_required(VERSION 3.29)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -12,8 +12,47 @@ set(CMAKE_CXX_FLAGS "")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
+# On Apple Silicon with Homebrew GCC, the default CMake OSX architectures
+# may include x86, which GCC does not support and will emit a warning for
+# every compilation. Clear architectures in that case to keep the build
+# output clean while still producing a correct arm64 binary.
+if(APPLE AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    set(CMAKE_OSX_ARCHITECTURES "" CACHE STRING "Architectures for OS X (cleared for GCC)" FORCE)
+endif()
+
 include(FetchContent)
+include(CheckCXXCompilerFlag)
 set(FETCHCONTENT_UPDATES_DISCONNECTED TRUE)
+
+# ---- helper: bump "cmake_minimum_required" in a subproject CMakeLists.txt ----
+function(qsyn_bump_min_cmake project_source_dir min_ver)
+  if(NOT EXISTS "${project_source_dir}/CMakeLists.txt")
+    message(WARNING "qsyn_bump_min_cmake: no CMakeLists.txt at ${project_source_dir}")
+    return()
+  endif()
+
+  file(READ "${project_source_dir}/CMakeLists.txt" _cml_orig)
+  set(_cml "${_cml_orig}")
+
+  # First try: canonical VERSION pattern (with optional spaces and range)
+  string(REGEX REPLACE
+         "cmake_minimum_required[ \t]*\([ \t]*VERSION[ \t]+[0-9]+\.[0-9]+(\.[0-9]+)?([ \t]*\.\.\.[^)]*)?\)"
+         "cmake_minimum_required(VERSION ${min_ver})"
+         _cml "${_cml}")
+
+  # If unchanged, fall back to replacing the first cmake_minimum_required line generically
+  if(_cml STREQUAL _cml_orig)
+    string(REGEX REPLACE
+           "^[ \t]*cmake_minimum_required[ \t]*\([^\n]*\)"
+           "cmake_minimum_required(VERSION ${min_ver})"
+           _cml "${_cml}")
+  endif()
+
+  file(WRITE "${project_source_dir}/CMakeLists.txt" "${_cml}")
+  # Show a short preview of the first line after write for debugging
+  file(STRINGS "${project_source_dir}/CMakeLists.txt" _first_line LIMIT_COUNT 1)
+  message(STATUS "Bumped cmake_minimum_required in ${project_source_dir}/CMakeLists.txt to >= ${min_ver}; now: '${_first_line}'")
+endfunction()
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(QSYN_PROJECT_NAME qsyn-debug)
@@ -24,7 +63,7 @@ endif()
 project(
     ${QSYN_PROJECT_NAME}
     LANGUAGES CXX
-    VERSION 0.8.0)
+    VERSION 0.8.1)
 
 # Link the correct unwind library for Clang18 on Apple Silicon
 # Assumes that Homebrew is used to install LLVM
@@ -61,32 +100,42 @@ FetchContent_Declare(
     xtl
     SYSTEM
     GIT_REPOSITORY https://github.com/xtensor-stack/xtl.git
-    GIT_TAG 0.7.7)
+    GIT_TAG 0.8.0)
 FetchContent_MakeAvailable(xtl)
 
 FetchContent_Declare(
     xtensor
     SYSTEM
     GIT_REPOSITORY https://github.com/xtensor-stack/xtensor.git
-    GIT_TAG 0.25.0)
+    GIT_TAG 0.26.0)
 FetchContent_MakeAvailable(xtensor)
 
 FetchContent_Declare(
     xtensor-blas
     SYSTEM
     GIT_REPOSITORY https://github.com/xtensor-stack/xtensor-blas.git
-    GIT_TAG 0.21.0)
+    GIT_TAG 0.22.0)
 FetchContent_MakeAvailable(xtensor-blas)
 
+# --- libfort (patched for new CMake) ---
 FetchContent_Declare(
     libfort
     SYSTEM
     GIT_REPOSITORY https://github.com/seleznevae/libfort.git
-    GIT_TAG v0.4.2)
-set(FORT_ENABLE_TESTING
-    OFF
-    CACHE INTERNAL "")
-FetchContent_MakeAvailable(libfort)
+    GIT_TAG v0.4.2
+    GIT_SHALLOW ON
+)
+
+# turn off libfort's own tests
+set(FORT_ENABLE_TESTING OFF CACHE INTERNAL "")
+
+FetchContent_GetProperties(libfort)
+if(NOT libfort_POPULATED)
+  FetchContent_Populate(libfort)
+endif()
+# Always bump (even if already populated from a previous configure)
+qsyn_bump_min_cmake("${libfort_SOURCE_DIR}" 3.10)
+add_subdirectory("${libfort_SOURCE_DIR}" "${libfort_BINARY_DIR}" SYSTEM)
 
 FetchContent_Declare(
     fmt
@@ -143,12 +192,21 @@ FetchContent_Declare(
   GIT_TAG add-cmake-fetchcontent-support)
 FetchContent_MakeAvailable(cadical)
 
+# --- libabc (patched for new CMake) ---
 FetchContent_Declare(
   libabc
   SYSTEM
   GIT_REPOSITORY https://github.com/DVLab-NTU/abc.git
-  GIT_TAG add-cmake-fetchcontent-support)
-FetchContent_MakeAvailable(libabc)
+  GIT_TAG add-cmake-fetchcontent-support
+  GIT_SHALLOW ON)
+
+FetchContent_GetProperties(libabc)
+if(NOT libabc_POPULATED)
+  FetchContent_Populate(libabc)
+endif()
+# Always bump (even if already popuated from a previous configure)
+qsyn_bump_min_cmake("${libabc_SOURCE_DIR}" 3.10)
+add_subdirectory("${libabc_SOURCE_DIR}" "${libabc_BINARY_DIR}" SYSTEM)
 
 FetchContent_Declare(
   Catch2
@@ -230,6 +288,12 @@ target_link_libraries(
     ${BLAS_LIBRARIES}
     ${LAPACK_LIBRARIES})
 
+# GCC 15+ cast-user-defined: same as qsyn executable
+if(COMPILER_SUPPORTS_WNOERROR_CAST_USER_DEFINED)
+    target_compile_options(${QSYN_LIB_NAME}
+                           PRIVATE -Wno-error=cast-user-defined)
+endif()
+
 # ----------------------------------------------------------------------------
 # config for qsyn target
 # builds qsyn executable
@@ -251,6 +315,23 @@ target_compile_options(
 # compilers are being too paranoid about missing field initializers
 target_compile_options(
     ${CMAKE_PROJECT_NAME} PRIVATE -Wno-missing-field-initializers)
+
+# GCC 12+ is too strict about restrict warnings in std::string operations.
+# Only apply when the compiler actually supports the flag.
+check_cxx_compiler_flag(-Wno-restrict COMPILER_SUPPORTS_WNO_RESTRICT)
+if(COMPILER_SUPPORTS_WNO_RESTRICT)
+    target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wno-restrict)
+endif()
+
+# GCC 15+ (and some toolchains) treat C-style casts in ordered_hashtable as
+# -Werror=cast-user-defined. Relax this to a warning, but only if the flag
+# is recognized by the current compiler (older GCC/Clang may not know it).
+check_cxx_compiler_flag(
+    -Wno-error=cast-user-defined COMPILER_SUPPORTS_WNOERROR_CAST_USER_DEFINED)
+if(COMPILER_SUPPORTS_WNOERROR_CAST_USER_DEFINED)
+    target_compile_options(${CMAKE_PROJECT_NAME}
+                           PRIVATE -Wno-error=cast-user-defined)
+endif()
 
 target_include_directories(
     ${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/src)
@@ -322,3 +403,21 @@ target_compile_options(
     ${UNIT_TEST_NAME}
     PRIVATE 
     -Wno-missing-field-initializers)
+
+# GCC 12+ is too strict about restrict warnings in std::string operations.
+# Only apply to GCC, as Clang doesn't support this flag.
+if(COMPILER_SUPPORTS_WNO_RESTRICT)
+    target_compile_options(
+        ${UNIT_TEST_NAME}
+        PRIVATE 
+        -Wno-restrict)
+endif()
+
+# GCC 15+ treats the C-style cast in ordered_hashtable iterator dereference
+# as -Werror=cast-user-defined when building unit tests. Relax this to a
+# warning so the test target can still be built while keeping the warning
+# visible in the output.
+if(COMPILER_SUPPORTS_WNOERROR_CAST_USER_DEFINED)
+    target_compile_options(${UNIT_TEST_NAME}
+                           PRIVATE -Wno-error=cast-user-defined)
+endif()

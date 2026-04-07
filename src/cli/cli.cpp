@@ -121,7 +121,7 @@ bool dvlab::CommandLineInterface::add_alias(std::string_view alias, std::string_
 
 bool dvlab::CommandLineInterface::remove_alias(std::string_view alias) {
     if (!_identifiers.erase(alias)) {
-        return false;
+        return false;  // NOLINT(readability-simplify-boolean-expr)
     }
     _aliases.erase(std::string{alias});
 

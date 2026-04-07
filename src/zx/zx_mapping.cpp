@@ -38,8 +38,9 @@ ZXVertex* ZXGraph::get_input_by_qubit(size_t const& q) {
     if (!_input_list.contains(q)) {
         spdlog::error("Input qubit id {} not found", q);
         return nullptr;
-    } else
+    } else {
         return _input_list[q];
+    }
 }
 
 /**
@@ -52,8 +53,9 @@ ZXVertex* ZXGraph::get_output_by_qubit(size_t const& q) {
     if (!_output_list.contains(q)) {
         spdlog::error("Output qubit id {} not found", q);
         return nullptr;
-    } else
+    } else {
         return _output_list[q];
+    }
 }
 
 /**

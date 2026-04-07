@@ -20,11 +20,11 @@
 #include <unordered_map>
 #include <vector>
 #include <xtensor-blas/xlinalg.hpp>
-#include <xtensor/xadapt.hpp>
-#include <xtensor/xarray.hpp>
-#include <xtensor/xcsv.hpp>
-#include <xtensor/xio.hpp>
-#include <xtensor/xnpy.hpp>
+#include <xtensor/containers/xadapt.hpp>
+#include <xtensor/containers/xarray.hpp>
+#include <xtensor/io/xcsv.hpp>
+#include <xtensor/io/xio.hpp>
+#include <xtensor/io/xnpy.hpp>
 
 #include "./tensor_util.hpp"
 #include "util/util.hpp"

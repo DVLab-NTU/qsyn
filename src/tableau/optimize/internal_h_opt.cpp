@@ -5,6 +5,7 @@
  */
 
 #include "../tableau_optimization.hpp"
+#include "spdlog/spdlog.h"
 #include "tableau/pauli_rotation.hpp"
 #include "tableau/stabilizer_tableau.hpp"
 #include "spdlog/spdlog.h"
@@ -130,8 +131,6 @@ std::pair<Tableau, StabilizerTableau> minimize_hadamards(Tableau tableau, Stabil
     auto const& rotations = std::get<std::vector<PauliRotation>>(tableau.back());
 
     auto new_tableau = Tableau{context.n_qubits()};
-
-
     // Now process the modified rotations
     for (auto const& rotation : rotations) {
         auto const [ops, qubit] = extract_clifford_operators(rotation);
@@ -139,8 +138,6 @@ std::pair<Tableau, StabilizerTableau> minimize_hadamards(Tableau tableau, Stabil
         std::ranges::for_each(ops, [&context](CliffordOperator const& op) {
             context.prepend(adjoint(op));
         });
-        
-        std::string pauli_str = rotation.pauli_product().to_string();
 
         implement_into_tableau(new_tableau, context, qubit, rotation.phase());
         std::ranges::for_each(adjoint(ops), [&context](CliffordOperator const& op) {

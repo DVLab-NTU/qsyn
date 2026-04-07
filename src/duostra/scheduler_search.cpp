@@ -79,7 +79,7 @@ TreeNode::TreeNode(TreeNode const& other)
  * @brief Grow by adding available gates to children.
  *
  */
-void TreeNode::_grow() {
+void TreeNode::_grow() {  // NOLINT(readability-make-member-function-const) modifies _children
     auto const& avail_gates = scheduler().get_available_gates();
     assert(_children.empty());
     _children.reserve(avail_gates.size());
