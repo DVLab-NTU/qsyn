@@ -71,7 +71,7 @@ void ZXVertex::print_vertex(spdlog::level::level_enum lvl) const {
         "ID: {0:>4} {1:<{2}} (Qubit, Col): {3:<14} #Neighbors: {4:>3}    {5}",
         get_id(),
         fmt::format("({}, {})", type_str, phase().get_print_string()),
-        11ul + ansi_token_len - 2 * (is_boundary() ? 1 : 0),
+        11ul + ansi_token_len - (2 * (is_boundary() ? 1 : 0)),
         is_boundary() ? fmt::format("({}, {})", get_qubit(), get_col()) : fmt::format("({}, {})", get_row(), get_col()),
         _neighbors.size(),
         fmt::join(storage | std::views::transform([](NeighborPair const& nbp) { return fmt::format("({}, {})", nbp.first->get_id(), nbp.second); }), " "));

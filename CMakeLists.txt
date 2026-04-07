@@ -21,6 +21,14 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     set(BLA_PREFER_PKGCONFIG ON CACHE BOOL "Prefer pkg-config for BLAS")
 endif()
 
+# On Apple Silicon with Homebrew GCC, the default CMake OSX architectures
+# may include x86, which GCC does not support and will emit a warning for
+# every compilation. Clear architectures in that case to keep the build
+# output clean while still producing a correct arm64 binary.
+if(APPLE AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    set(CMAKE_OSX_ARCHITECTURES "" CACHE STRING "Architectures for OS X (cleared for GCC)" FORCE)
+endif()
+
 include(FetchContent)
 include(CheckCXXCompilerFlag)
 set(FETCHCONTENT_UPDATES_DISCONNECTED TRUE)
@@ -267,6 +275,12 @@ target_link_libraries(
     ${BLAS_LIBRARIES}
     ${LAPACK_LIBRARIES})
 
+# GCC 15+ cast-user-defined: same as qsyn executable
+if(COMPILER_SUPPORTS_WNOERROR_CAST_USER_DEFINED)
+    target_compile_options(${QSYN_LIB_NAME}
+                           PRIVATE -Wno-error=cast-user-defined)
+endif()
+
 # ----------------------------------------------------------------------------
 # config for qsyn target
 # builds qsyn executable
@@ -289,12 +303,21 @@ target_compile_options(
 target_compile_options(
     ${CMAKE_PROJECT_NAME} PRIVATE -Wno-missing-field-initializers)
 
-# GCC 12+ is too strict about restrict warnings in std::string operations
-# Only apply to GCC, as Clang doesn't support this flag
+# GCC 12+ is too strict about restrict warnings in std::string operations.
+# Only apply when the compiler actually supports the flag.
 check_cxx_compiler_flag(-Wno-restrict COMPILER_SUPPORTS_WNO_RESTRICT)
 if(COMPILER_SUPPORTS_WNO_RESTRICT)
-    target_compile_options(
-        ${CMAKE_PROJECT_NAME} PRIVATE -Wno-restrict)
+    target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wno-restrict)
+endif()
+
+# GCC 15+ (and some toolchains) treat C-style casts in ordered_hashtable as
+# -Werror=cast-user-defined. Relax this to a warning, but only if the flag
+# is recognized by the current compiler (older GCC/Clang may not know it).
+check_cxx_compiler_flag(
+    -Wno-error=cast-user-defined COMPILER_SUPPORTS_WNOERROR_CAST_USER_DEFINED)
+if(COMPILER_SUPPORTS_WNOERROR_CAST_USER_DEFINED)
+    target_compile_options(${CMAKE_PROJECT_NAME}
+                           PRIVATE -Wno-error=cast-user-defined)
 endif()
 
 target_include_directories(
@@ -367,11 +390,20 @@ target_compile_options(
     PRIVATE 
     -Wno-missing-field-initializers)
 
-# GCC 12+ is too strict about restrict warnings in std::string operations
-# Only apply to GCC, as Clang doesn't support this flag
+# GCC 12+ is too strict about restrict warnings in std::string operations.
+# Only apply to GCC, as Clang doesn't support this flag.
 if(COMPILER_SUPPORTS_WNO_RESTRICT)
     target_compile_options(
         ${UNIT_TEST_NAME}
         PRIVATE 
         -Wno-restrict)
+endif()
+
+# GCC 15+ treats the C-style cast in ordered_hashtable iterator dereference
+# as -Werror=cast-user-defined when building unit tests. Relax this to a
+# warning so the test target can still be built while keeping the warning
+# visible in the output.
+if(COMPILER_SUPPORTS_WNOERROR_CAST_USER_DEFINED)
+    target_compile_options(${UNIT_TEST_NAME}
+                           PRIVATE -Wno-error=cast-user-defined)
 endif()

@@ -33,7 +33,9 @@ Some of the future work for Qsyn includes:
 
 ### System Requirements
 
-`qsyn` requires `c++-20` to build. We support compilation with (1) `g++-11` or above or (2) `clang++-16` or above. We regularly perform build tests for the two compilers.
+- **CMake**: 3.29 or higher. Check with `cmake --version`; upgrade via your package manager (e.g. `brew install cmake` on macOS, or install from [cmake.org](https://cmake.org/download/)).
+- **C++**: C++20. We support compilation with (1) **g++-11** or above or (2) **clang++-16** or above. We regularly perform build tests for the two compilers.
+- **BLAS/LAPACK**: OpenBLAS and LAPACK are required (see platform-specific steps below).
 
 ### Installation
 
@@ -89,52 +91,89 @@ Then, run the following commands to build `qsyn`:
 make -j8
 ```
 
-which triggers our suggested CMake build process. Alternatively, use `make build-g++` or `make build-clang++` to manually specify the compiler.
+This uses the default compiler (gcc/g++) and triggers the CMake build. To override the compiler, set `CC` and `CXX` in the environment or in a local override file (see **Local overrides** below).
 
 </details>
 
 <details>
 <summary>For MacOS Users</summary>
     
-Since Qsyn uses some C++20 features that are not yet supported by Apple Clang, you'll need to install another compiler yourself. We recommend installing the `llvm` toolchain with the `brew` package manager. 
-```sh
-brew install llvm
-```
+Since Qsyn uses C++20 features not fully supported by Apple Clang, install a C++20-capable compiler. Options:
 
-After installation, `brew` will guide you to configure your environment to use LLVM `clang++` and its associated libraries.
+1. **LLVM (clang++)** via Homebrew:
+   ```sh
+   brew install llvm
+   ```
+   After installation, follow `brew`’s instructions to use LLVM’s `clang++` (e.g. add its `bin` to `PATH`).
 
-You would probably want to install `OpenBLAS` by running
+   > **Note:** Use `llvm@18` on some device may work. The unversioned `llvm` formula installs the latest LLVM (currently 20+), which has a known `consteval`/`FMT_STRING` incompatibility that causes build failures with the `fmt` version used by qsyn.
+
+2. **GCC** via Homebrew (recommended if you see fmt/consteval or similar build errors with LLVM):
+   ```sh
+   brew install gcc
+   ```
+   Then use GCC for the build by creating a `.env.local` (see **Local overrides** below) with:
+   ```make
+   CC := $(shell brew --prefix gcc)/bin/gcc-15
+   CXX := $(shell brew --prefix gcc)/bin/g++-15
+   ```
+   (Replace `15` with your installed GCC version if different.)
+
+Install **OpenBLAS**:
 
 ```sh
 brew install openblas
 ```
 
-Finally, run the following commands to build `qsyn`:
+Then build:
 
 ```sh
 make -j8
 ```
 
-which triggers our suggested CMake build process. Alternatively, use `make build-g++` or `make build-clang++` to manually specify the compiler.
+</details>
+
+<details>
+<summary>Local overrides (.env.local)</summary>
+
+To keep machine-specific settings (e.g. compiler path) out of the repo, you can use an optional **`.env.local`** file at the project root. The Makefile will include it only if the file exists; it is ignored by git (see `.gitignore`).
+
+Use it to override `CC`, `CXX`, or other variables used by the build. Copy the example and edit as needed:
+
+```sh
+cp .env.local.example .env.local
+# edit .env.local (e.g. set CC and CXX for your compiler)
+```
+
+Example **`.env.local`** (Makefile syntax; use `:=` for your paths):
+
+```make
+# Optional: override compilers (e.g. for macOS with Homebrew GCC)
+CC  := /opt/homebrew/bin/gcc-15
+CXX := /opt/homebrew/bin/g++-15
+```
+
+Then run `make -j8` as usual; the build will use these values.
 
 </details>
 
 <details>
 <summary>Docker Builds</summary>
 
-You can also build `qsyn` in a containerized environment by running
+You can run `qsyn` without building (Docker image has a pre-built binary):
+
+```sh
+docker run -it --rm dvlab/qsyn:latest
+```
+
+To build `qsyn` inside a container on your machine:
 
 ```sh
 make build-docker
-```
-
-And run that executable by running
-
-```sh
 make run-docker
 ```
 
-Of course, this requires you to have Docker installed on your machine.
+This requires Docker and uses the image defined in `docker/dev.Dockerfile`. Note: the image must provide **CMake ≥ 3.29**; if `make build-docker` fails with a CMake version error, the base image may need to be updated.
 
 </details>
 

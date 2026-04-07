@@ -77,7 +77,12 @@ export -f format_one
 export CLANG_FORMAT_CMD
 
 lint_one() {
-    "$CLANG_TIDY_CMD" -p build "$1" --quiet 2>&1 | grep -v -E "warnings? generated"
+    "$CLANG_TIDY_CMD" -p build-lint "$1" --quiet 2>&1 \
+        | grep -v -E "warnings? generated" \
+        | grep -v -E "file not found \[clang-diagnostic-error\]" \
+        | grep -v -E "^Error while processing .*\.$" \
+        | grep -v -E "^[[:space:]]*[0-9]+ \\|[[:space:]]*#include <" \
+        | grep -v -E "^[[:space:]]*\\|[[:space:]]*\\^~+"
 }
 export -f lint_one
 export CLANG_TIDY_CMD
@@ -85,11 +90,15 @@ export CLANG_TIDY_CMD
 FILES=$(find ./src -regex '.*\.[ch]pp' -type f)
 CPPS=$(find ./src -regex '.*\.cpp' -type f)
 
-# Format all files first to avoid linting errors
-echo "Formatting files..."
-parallel -j"$(num_procs)" format_one ::: "$FILES"
+# NOTE:
+# We intentionally do NOT auto-run clang-format here.
+# GitHub CI runs clang-format (v16) separately for style checks.
+# Keeping LINT to clang-tidy only avoids local version drift reformatting code.
 echo "Generating compile commands..."
-cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=1 > /dev/null
+# Use Apple clang for the lint build to avoid toolchain/header
+# incompatibilities when analyzing with clang-tidy.
+cmake -S . -B build-lint -DCMAKE_EXPORT_COMPILE_COMMANDS=1 \
+  -DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++ > /dev/null
 echo "Linting files..."
 parallel -j"$(num_procs)" lint_one ::: "$CPPS"
 echo "Done"

@@ -171,8 +171,9 @@ void ZXGraph::adjust_vertex_coordinates() {
     for (size_t i = 0; i < row_to_vertices_map[-2].size(); i++) {
         if (num_neighbors(row_to_vertices_map[-2][i]) == 1) {  // Not Gadgets
             gadgets.emplace_back(row_to_vertices_map[-2][i]);
-        } else
+        } else {
             non_gadget++;
+        }
     }
     std::erase_if(row_to_vertices_map[-2],
                   [this](ZXVertex* v) { return this->num_neighbors(v) == 1; });

@@ -55,7 +55,7 @@ void dvlab::CommandLineInterface::list_all_variables() const {
  * @param nPrint
  */
 void dvlab::CommandLineInterface::print_history(size_t n_print, HistoryFilter filter) const {
-    assert(_temp_command_stored == false);
+    assert(!_temp_command_stored);
 
     if (n_print > _history.size())
         n_print = _history.size();
@@ -79,7 +79,7 @@ void dvlab::CommandLineInterface::print_history(size_t n_print, HistoryFilter fi
 }
 
 void dvlab::CommandLineInterface::write_history(std::filesystem::path const& filepath, size_t n_print, bool append_quit, HistoryFilter filter) const {
-    assert(_temp_command_stored == false);
+    assert(!_temp_command_stored);
 
     if (n_print > _history.size())
         n_print = _history.size();

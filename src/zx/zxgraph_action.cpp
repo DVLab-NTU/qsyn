@@ -688,7 +688,7 @@ bool boundary_detachment_undoable(
     std::optional<BoundaryDetachment> const& bd,
     Phase const& phase,
     size_t target_size) {
-    if (!bd.has_value()) return false;
+    if (!bd.has_value()) return false;  // NOLINT(readability-simplify-boolean-expr) early exit
     for (auto const& b_id : *bd->get_buffers()) {
         auto b = graph[b_id];
         if (b == nullptr ||

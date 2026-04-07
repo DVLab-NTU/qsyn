@@ -334,7 +334,7 @@ bool Decomposer::Decomposer::_graycode(Tensor<U> const& matrix, size_t i, size_t
         if (q != diff_pos)
             ctrl_index += size_t(pow(2, q));
     }
-    if (!_decompose_cnu(matrix, diff_pos, ctrl_index, _n_qubits - 1)) return false;
+    if (!_decompose_cnu(matrix, diff_pos, ctrl_index, _n_qubits - 1)) return false;  // NOLINT(readability-simplify-boolean-expr)
 
     // do unpabbing
     DVLAB_ASSERT(gate_list.size() == qubit_list.size(), "Sizes of gate list and qubit list are different");

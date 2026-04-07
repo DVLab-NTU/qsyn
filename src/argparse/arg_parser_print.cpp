@@ -293,7 +293,7 @@ void ArgumentParser::print_help() const {
 
     constexpr auto left_margin   = 2;
     constexpr auto cell_padding  = 2;
-    constexpr auto total_padding = left_margin + 3 * cell_padding;
+    constexpr auto total_padding = left_margin + (3 * cell_padding);
     auto const max_help_string_width =
         dvlab::utils::get_terminal_size().width -
         get_max_length([](Argument const& arg) -> size_t { return unicode::display_width(arg.get_type_string()); }) -
