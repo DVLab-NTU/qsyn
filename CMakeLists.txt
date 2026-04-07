@@ -320,6 +320,17 @@ if(COMPILER_SUPPORTS_WNOERROR_CAST_USER_DEFINED)
                            PRIVATE -Wno-error=cast-user-defined)
 endif()
 
+# GCC 13+ may promote xtl/xtensor inlined code to -Werror=maybe-uninitialized.
+check_cxx_compiler_flag(
+    -Wno-error=maybe-uninitialized
+    COMPILER_SUPPORTS_WNOERROR_MAYBE_UNINITIALIZED)
+if(COMPILER_SUPPORTS_WNOERROR_MAYBE_UNINITIALIZED)
+    target_compile_options(${CMAKE_PROJECT_NAME}
+                           PRIVATE -Wno-error=maybe-uninitialized)
+    target_compile_options(${QSYN_LIB_NAME}
+                           PRIVATE -Wno-error=maybe-uninitialized)
+endif()
+
 target_include_directories(
     ${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/src)
 
@@ -406,4 +417,9 @@ endif()
 if(COMPILER_SUPPORTS_WNOERROR_CAST_USER_DEFINED)
     target_compile_options(${UNIT_TEST_NAME}
                            PRIVATE -Wno-error=cast-user-defined)
+endif()
+
+if(COMPILER_SUPPORTS_WNOERROR_MAYBE_UNINITIALIZED)
+    target_compile_options(${UNIT_TEST_NAME}
+                           PRIVATE -Wno-error=maybe-uninitialized)
 endif()
