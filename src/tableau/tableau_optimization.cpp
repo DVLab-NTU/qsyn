@@ -31,6 +31,56 @@ namespace qsyn {
 
 namespace experimental {
 
+namespace {
+
+// Convert a stabilizer block that consists of {CX, S/Z/Sdg} into:
+//   {cx-only StabilizerTableau}{PauliRotation tableau (phase columns)}
+std::pair<StabilizerTableau, std::vector<PauliRotation>> stabilizers_to_pauli(StabilizerTableau const& st) {
+    using COT = CliffordOperatorType;
+
+    auto const ops = extract_clifford_operators(st);
+    std::vector<PauliRotation> phase_columns;
+    phase_columns.reserve(ops.size());
+    CliffordOperatorString cx_ops;
+    cx_ops.reserve(ops.size());
+
+    for (auto const& op : ops) {
+        auto const& [type, qubits] = op;
+        if (type == COT::cx) {
+            // Commute this CX to the left of all collected phase columns.
+            for (auto& rot : phase_columns) {
+                rot.apply(op);
+            }
+            cx_ops.push_back(op);
+            continue;
+        }
+
+        if (type != COT::s && type != COT::z && type != COT::sdg) {
+            spdlog::error("stabilizers_to_pauli: unexpected non-(CX/S/Z/Sdg) op {}", to_string(type));
+            continue;
+        }
+
+        size_t const q = qubits[0];
+        dvlab::Phase phase;
+        if (type == COT::s) {
+            phase = dvlab::Phase(1, 2);
+        } else if (type == COT::z) {
+            phase = dvlab::Phase(1, 1);
+        } else {
+            phase = dvlab::Phase(-1, 2);
+        }
+        phase_columns.push_back(PauliRotation::make_linear(st.n_qubits(), q, phase));
+    }
+
+    StabilizerTableau cx_only{st.n_qubits()};
+    if (!cx_ops.empty()) {
+        cx_only.apply(cx_ops);
+    }
+    return {std::move(cx_only), std::move(phase_columns)};
+}
+
+}  // namespace
+
 /**
  * @brief Perform the best-known optimization routine on the tableau. The strategy may change in the future.
  *
@@ -186,26 +236,26 @@ void commute_classical(Tableau& tableau) {
         size_t actual_idx = idx - 1;  // Convert to 0-based index        
         if (auto* pmc = std::get_if<ClassicalControlTableau>(&tableau[actual_idx])){
             // Only process post-measurement CCTs (PMCs)
-            if (pmc->is_pmc()) {
+            if (pmc->is_classical_control()) {
                 // This is a post-measurement CCT - commute it through following tableaux
                 for (size_t j = actual_idx + 1; j < pmc_target_idx; ++j) {
                     std::visit(
                         dvlab::overloaded{
                             [pmc](StabilizerTableau& st) {
-                                commute_through_stabilizer(*pmc, st);  
+                                // [PMC][ST] -> [ST][PMC'] via adjacent-block swap API
+                                swap_forward(*pmc, st);
                             },
                             [pmc](std::vector<PauliRotation>& pr) {
-                                commute_through_pauli_rotations(*pmc, pr);
+                                swap_forward(*pmc, pr);
                             },
                             [pmc](ClassicalControlTableau& other_cct) {
                                 // Check if we encountered another PMC or a CCC
-                                if (other_cct.is_pmc()) {
+                                if (other_cct.is_classical_control()) {
                                     spdlog::error("PMC encountered another PMC during commutation - this should not happen");
-                                } else if (other_cct.is_ccc()) {
-                                    // Extract the CCC's StabilizerTableau (as reference) and commute PMC through it
-                                    // commute_through_stabilizer modifies pmc.operations(), not the CCC
+                                } else if (other_cct.is_gadget()) {
+                                    // swap_forward mutates PMC operations only for classical-control; gadget block unchanged
                                     StabilizerTableau& ccc_st = other_cct.operations();
-                                    commute_through_stabilizer(*pmc, ccc_st);
+                                    swap_forward(*pmc, ccc_st);
                                 } else {
                                     spdlog::error("Encountered CCT with unknown type during commutation");
                                 }
@@ -273,7 +323,7 @@ void commute_and_merge_rotations(Tableau& tableau) {
     for (size_t idx = tableau.size(); idx > 0; --idx) {
         size_t actual_idx = idx - 1;
         if (auto* cct = std::get_if<ClassicalControlTableau>(&tableau[actual_idx])) {
-            if (cct->is_pmc()) {
+            if (cct->is_classical_control()) {
                 pmc_start_idx = actual_idx;
             } else {
                 // Found a CCC, stop
@@ -310,16 +360,9 @@ void commute_and_merge_rotations(Tableau& tableau) {
                             spdlog::error("PR encountered another PR during commutation - this should not happen");
                         },
                         [pr](ClassicalControlTableau& cct) {
-                            // Commute PR through CCC's internal StabilizerTableau
-                            // CCCs remain unchanged - we only commute through their operations
-                            if (cct.is_ccc()) {
-                                StabilizerTableau& ccc_st = cct.operations();
-                                auto clifford_ops = extract_clifford_operators(ccc_st);
-                                for (auto& rotation : *pr) {
-                                    rotation.apply(clifford_ops);
-                                }
+                            if (cct.is_gadget()) {
+                                swap_forward(cct, *pr);
                             }
-                            // Skip PMCs - they are already at the end
                         }},
                     tableau[j]);
             }
@@ -406,7 +449,7 @@ void collapse_with_classical(Tableau& tableau) {
     std::vector<SubTableau> pmc_ccts;
     while (!tableau.is_empty() && std::holds_alternative<ClassicalControlTableau>(tableau.back())) {
         auto* cct = std::get_if<ClassicalControlTableau>(&tableau.back());
-        if (cct && cct->is_pmc()) {
+        if (cct && cct->is_classical_control()) {
             pmc_ccts.insert(pmc_ccts.begin(), tableau.back());
             auto it = tableau.end();
             tableau.erase(std::prev(it), it);
@@ -429,8 +472,8 @@ void collapse_with_classical(Tableau& tableau) {
     // Replace each CCC with its internal StabilizerTableau
     for (auto& subtableau : tableau) {
         if (auto* cct = std::get_if<ClassicalControlTableau>(&subtableau)) {
-            if (cct->is_ccc()) {
-                // Replace CCC with its internal StabilizerTableau
+            if (cct->is_gadget()) {
+                // Replace gadget block with its internal StabilizerTableau
                 StabilizerTableau ccc_st = cct->operations();
                 subtableau = std::move(ccc_st);
             }
@@ -459,6 +502,7 @@ void remove_identities(std::vector<PauliRotation>& rotations) {
             rotations.begin(),
             rotations.end(),
             [](PauliRotation const& rotation) {
+                if (rotation.is_CZ()) return false;  // CZ columns have phase 0 but are not identity
                 return rotation.phase() == dvlab::Phase(0) ||
                        rotation.pauli_product().is_identity();
             }),
@@ -589,6 +633,8 @@ void properize(StabilizerTableau& clifford, std::vector<PauliRotation>& rotation
     // properize the rotations from the last to the first
     // the order is important because absorbing a rotation may change the phase of the preceding rotations
     for (size_t const i : std::views::iota(0ul, rotations.size()) | std::views::reverse) {
+        if (rotations[i].is_CZ()) continue;  // CZ columns are already proper (phase 0), skip
+
         auto complement_phase = dvlab::Phase(0);
         while (!is_proper_phase(rotations[i].phase())) {
             rotations[i].phase() -= dvlab::Phase(1, 2);
@@ -729,6 +775,8 @@ void optimize_phase_polynomial(StabilizerTableau& clifford, std::vector<PauliRot
         return;
     }
 
+
+
     std::tie(clifford, polynomial) = strategy.optimize(clifford, polynomial);
 }
 
@@ -770,34 +818,239 @@ void optimize_phase_polynomial(Tableau& tableau, PhasePolynomialOptimizationStra
  * @param strategy
  */
 void optimize_phase_polynomial_with_classical(Tableau& tableau, PhasePolynomialOptimizationStrategy const& strategy) {
-    // Check if circuit only consists of one PR (and no CCTs)
-    size_t pr_count = 0;
-    size_t pr_index = 0;
-    
+    // One or more PR blocks: always run phase-polynomial optimization (e.g. FastTODD) on the *last* PR block.
+    // With a single PR, that is the only block; with two (PR1, PR2), that is PR2.
+    std::vector<size_t> pr_indices;
+    pr_indices.reserve(4);
     for (size_t i = 0; i < tableau.size(); ++i) {
         if (std::holds_alternative<std::vector<PauliRotation>>(tableau[i])) {
-            pr_count++;
-            pr_index = i;
-        } 
-        if(pr_count > 1 ) {
-            break;
+            pr_indices.push_back(i);
         }
     }
-    
-    // If circuit has exactly one PR and no CCTs, insert clifford and optimize
-    if (pr_count == 1 ) {
-        // Insert a clifford in front of the PR as last_clifford
-        StabilizerTableau last_clifford{tableau.n_qubits()};
-        tableau.insert(tableau.begin() + pr_index, last_clifford);
-        
-        // Now the PR is at pr_index + 1, get references to both
-        auto& clifford_ref = std::get<StabilizerTableau>(tableau[pr_index]);
-        auto& pr = std::get<std::vector<PauliRotation>>(tableau[pr_index + 1]);
-        
-        // Apply optimize_phase_polynomial
+    if (pr_indices.empty()) {
+        remove_identities(tableau);
+        return;
+    }
+
+    size_t const target_pr_index = pr_indices.back();
+
+    if (target_pr_index >= tableau.size()) {
+        remove_identities(tableau);
+        return;
+    }
+
+    {
+        // Ensure there is a stabilizer tableau right before the target PR.
+        // If we insert before the PR, the PR index shifts by +1 (PR1,PR2 -> PR1,ST,PR2).
+        size_t pr_row = target_pr_index;
+        if (pr_row == 0 || !std::holds_alternative<StabilizerTableau>(tableau[pr_row - 1])) {
+            tableau.insert(tableau.begin() + pr_row, StabilizerTableau{tableau.n_qubits()});
+            ++pr_row;
+        }
+
+        auto& clifford_ref = std::get<StabilizerTableau>(tableau[pr_row - 1]);
+        auto& pr           = std::get<std::vector<PauliRotation>>(tableau[pr_row]);
         optimize_phase_polynomial(clifford_ref, pr, strategy);
     }
     remove_identities(tableau);
+}
+
+namespace {
+
+// Prepare circuit structure for T-optimization:
+//   - Commute/merge STs through CCCs up to PR2
+//   - Rewrite pending stabilizers into {PR1, CXs}
+//   - Output canonical form: {ST0, CCCs, PR1, PR2, CXs, PMCs, ST_back}
+void properize_for_t_optimization(Tableau& tableau) {
+    if (tableau.is_empty()) return;
+    if (!std::holds_alternative<StabilizerTableau>(tableau[0])) return;
+
+    auto const get_subtableau_kind = [&](SubTableau const& subtableau) -> std::string_view {
+        if (std::holds_alternative<StabilizerTableau>(subtableau)) return "StabilizerTableau";
+        if (std::holds_alternative<std::vector<PauliRotation>>(subtableau)) return "PauliRotationTableau";
+        if (std::holds_alternative<ClassicalControlTableau>(subtableau)) return "ClassicalControlTableau";
+        return "Unknown";
+    };
+
+    size_t pr2_idx    = tableau.size();
+    StabilizerTableau pending_st{tableau.n_qubits()};
+    bool has_pending = false;
+
+    std::vector<SubTableau> new_prefix;
+    new_prefix.reserve(tableau.size());
+    new_prefix.push_back(std::move(tableau[0]));  // ST0
+
+    for (size_t j = 1; j < tableau.size(); ++j) {
+        if (std::holds_alternative<std::vector<PauliRotation>>(tableau[j])) {
+            pr2_idx = j;
+            break;
+        }
+        if (auto* st = std::get_if<StabilizerTableau>(&tableau[j])) {
+            pending_st.apply(extract_clifford_operators(*st));
+            has_pending = true;
+            continue;
+        }
+        if (auto* cct = std::get_if<ClassicalControlTableau>(&tableau[j]);
+            cct != nullptr && cct->is_gadget()) {
+            if (has_pending) {
+                swap_forward(*cct, pending_st);
+            }
+            new_prefix.push_back(std::move(*cct));
+            continue;
+        }
+        spdlog::error("properize_for_t_optimization: invalid element at index {} before PR2 (got {})",
+                      j, get_subtableau_kind(tableau[j]));
+        return;
+    }
+
+    if (pr2_idx == tableau.size()) {
+        spdlog::error("properize_for_t_optimization: no PR2 block found");
+        return;
+    }
+
+    std::vector<PauliRotation> pr2 = std::move(std::get<std::vector<PauliRotation>>(tableau[pr2_idx]));
+    std::vector<PauliRotation> pr1;
+    std::optional<StabilizerTableau> cx_only;
+
+    if (has_pending) {
+        auto [st_prime, phase_cols] = stabilizers_to_pauli(pending_st);  // CXs, PR1
+        cx_only = std::move(st_prime);
+        pr1     = std::move(phase_cols);
+
+        // Move CXs to after {PR1, PR2} by conjugating PR1 and PR2 with adjoint(CXs).
+        auto const st_ops  = extract_clifford_operators(*cx_only);
+        auto const adj_ops = adjoint(st_ops);
+        for (auto& rot : pr1) rot.apply(adj_ops);
+        for (auto& rot : pr2) rot.apply(adj_ops);
+    }
+
+    std::vector<SubTableau> new_subs;
+    new_subs.reserve(tableau.size() + 2);
+    new_subs.insert(new_subs.end(),
+                    std::make_move_iterator(new_prefix.begin()),
+                    std::make_move_iterator(new_prefix.end()));
+    new_subs.push_back(std::move(pr1));
+    new_subs.push_back(std::move(pr2));
+    if (cx_only.has_value()) {
+        new_subs.push_back(std::move(*cx_only));
+    }
+    for (size_t j = pr2_idx + 1; j < tableau.size(); ++j) {
+        new_subs.push_back(std::move(tableau[j]));
+    }
+
+    tableau.erase(tableau.begin(), tableau.end());
+    for (auto& sub : new_subs) {
+        tableau.push_back(std::move(sub));
+    }
+    remove_identities(tableau);
+    reestablish_hadamard_gadget_pairing(tableau);
+}
+
+}  // namespace
+
+// Structural checker/merger used by degadgetization:
+// Check circuit is under the form {ST, CCCs, PR1, (optional PR2), CXs, PMCs, ST}.
+// If PR2 exists, merge {PR1, PR2}; otherwise PR1 alone is fine.
+CircuitStructureInfo properize_for_degadgetization(Tableau& tableau) {
+    CircuitStructureInfo info = {0, 0, false};
+
+    if (tableau.is_empty()) {
+        spdlog::warn("Tableau is empty");
+        return info;
+    }
+
+    auto const get_subtableau_kind = [&](SubTableau const& subtableau) -> std::string_view {
+        if (std::holds_alternative<StabilizerTableau>(subtableau)) return "StabilizerTableau";
+        if (std::holds_alternative<std::vector<PauliRotation>>(subtableau)) return "PauliRotationTableau";
+        if (std::holds_alternative<ClassicalControlTableau>(subtableau)) return "ClassicalControlTableau";
+        return "Unknown";
+    };
+
+    // 1) Check that CCTs start from index 1 (index 0 must be ST).
+    if (!std::holds_alternative<StabilizerTableau>(tableau[0])) {
+        spdlog::error(
+            "properize_for_degadgetization: expected front StabilizerTableau at index 0, got {}",
+            get_subtableau_kind(tableau[0]));
+        return info;
+    }
+
+    // Expected structure:
+    //   {ST0, CCCs..., PR1, (optional PR2), CXs(ST), PMCs..., ST_back}
+    size_t idx = 1;
+    size_t ccc_count = 0;
+    while (idx < tableau.size()) {
+        auto const* cct = std::get_if<ClassicalControlTableau>(&tableau[idx]);
+        if (cct != nullptr && cct->is_gadget()) {
+            ++ccc_count;
+            ++idx;
+            continue;
+        }
+        break;
+    }
+
+    if (idx >= tableau.size() || !std::holds_alternative<std::vector<PauliRotation>>(tableau[idx])) {
+        spdlog::error("properize_for_degadgetization: expected PR1 after CCCs at index {}, got {}",
+                      idx, idx < tableau.size() ? get_subtableau_kind(tableau[idx]) : "OutOfRange");
+        return info;
+    }
+    size_t const pr1_idx = idx++;
+
+    bool has_pr2 = false;
+    size_t pr2_idx = std::numeric_limits<size_t>::max();
+    if (idx < tableau.size() && std::holds_alternative<std::vector<PauliRotation>>(tableau[idx])) {
+        has_pr2 = true;
+        pr2_idx = idx++;
+    }
+
+    // Optional CX-only stabilizer block. Some flows have no explicit CX block here:
+    //   {ST0, CCCs, PR, PMCs, ST_back}
+    bool has_cx_block = false;
+    if (idx < tableau.size() && std::holds_alternative<StabilizerTableau>(tableau[idx])) {
+        has_cx_block = true;
+        ++idx;
+    }
+
+    // Expect exactly ccc_count PMCs next, then a final back ST.
+    for (size_t k = 0; k < ccc_count; ++k) {
+        if (idx >= tableau.size()) {
+            spdlog::error("properize_for_degadgetization: expected {} PMCs after PR{}, but tableau ends early",
+                          ccc_count, has_cx_block ? "+CX block" : "");
+            return info;
+        }
+        auto const* cct = std::get_if<ClassicalControlTableau>(&tableau[idx]);
+        if (cct == nullptr || !cct->is_classical_control()) {
+            spdlog::error("properize_for_degadgetization: expected PMC at index {}, got {}",
+                          idx, get_subtableau_kind(tableau[idx]));
+            return info;
+        }
+        ++idx;
+    }
+
+    if (idx >= tableau.size() || !std::holds_alternative<StabilizerTableau>(tableau[idx]) || idx != tableau.size() - 1) {
+        spdlog::error("properize_for_degadgetization: expected final back StabilizerTableau at last index {}, got {}",
+                      tableau.size() - 1, idx < tableau.size() ? get_subtableau_kind(tableau[idx]) : "OutOfRange");
+        return info;
+    }
+
+    auto& pr1 = std::get<std::vector<PauliRotation>>(tableau[pr1_idx]);
+    if (has_pr2) {
+        // Merge PR1 into PR2 (append PR2 to PR1, then keep a single PR block).
+        auto& pr2 = std::get<std::vector<PauliRotation>>(tableau[pr2_idx]);
+        pr1.insert(pr1.end(),
+                   std::make_move_iterator(pr2.begin()),
+                   std::make_move_iterator(pr2.end()));
+
+        // Remove the now-empty PR2 block.
+        tableau.erase(tableau.begin() + static_cast<std::ptrdiff_t>(pr2_idx));
+    }
+
+    info.ccc_count       = ccc_count;
+    info.pr_column_count = pr1.size();
+    info.is_valid        = true;
+
+    remove_identities(tableau);
+    reestablish_hadamard_gadget_pairing(tableau);
+    return info;
 }
 
 /**
@@ -813,16 +1066,49 @@ void minimize_ancillary_t_opt(Tableau& tableau) {
     }
     size_t non_clifford_count = tableau.n_pauli_rotations();
     minimize_internal_hadamards_n_gadgetize(tableau);
+    // spdlog::debug("After minimize_internal_hadamards_n_gadgetize: {:g}", tableau);
     commute_and_merge_rotations(tableau);
-    spdlog::debug("Phase polynomial optimization");
+    properize_for_t_optimization(tableau);
+    // spdlog::debug("Phase polynomial optimization");
+    // spdlog::debug("Before phase polynomial optimization: {:g}", tableau);
     optimize_phase_polynomial_with_classical(tableau, FastToddPhasePolynomialOptimizationStrategy{});
-    spdlog::debug("after phase polynomial optimization: {:b}", tableau);
-    spdlog::debug("Reordering and degadgetizing");
-    reorder_n_degadgetize(tableau);
-    collapse_with_classical(tableau);
-    spdlog::info("Reduced the number of non-Clifford gates from {} to {}, at the cost of {} ancilla qubits", non_clifford_count, tableau.n_pauli_rotations(), tableau.ancilla_initial_states().size());
+    // spdlog::debug("after phase polynomial optimization: {:b}", tableau);
+    spdlog::debug("after T-opt: {:b}", tableau);
+
+    sat_reorder(tableau);
+    spdlog::debug("after sat_reorder: {:b}", tableau);
 }
 
+void blockwise_gadgetize_optimize(Tableau& tableau) {
+    if (tableau.is_empty()) {
+        return;
+    }
+
+    auto const before_t = tableau.n_pauli_rotations();
+    auto const before_a = tableau.ancilla_initial_states().size();
+    spdlog::debug("BlockwiseAncillaryTopt: begin (non-Clifford={}, ancilla={})", before_t, before_a);
+
+    spdlog::debug("BlockwiseAncillaryTopt: merge_rotations");
+    merge_rotations(tableau);
+    spdlog::debug("BlockwiseAncillaryTopt: after merge_rotations (non-Clifford={})", tableau.n_pauli_rotations());
+
+    spdlog::debug("BlockwiseAncillaryTopt: properize");
+    properize(tableau);
+    spdlog::debug("BlockwiseAncillaryTopt: after properize (non-Clifford={})", tableau.n_pauli_rotations());
+
+    spdlog::debug("BlockwiseAncillaryTopt: minimize_internal_hadamards");
+    minimize_internal_hadamards(tableau);
+    spdlog::debug(
+        "BlockwiseAncillaryTopt: after minimize_internal_hadamards (non-Clifford={}, ancilla={})",
+        tableau.n_pauli_rotations(), tableau.ancilla_initial_states().size());
+
+    spdlog::debug("BlockwiseAncillaryTopt: blockwise_gadgetize");
+    blockwise_gadgetize(tableau);
+
+    spdlog::debug(
+        "BlockwiseAncillaryTopt: end (non-Clifford={}, ancilla={})",
+        tableau.n_pauli_rotations(), tableau.ancilla_initial_states().size());
+}
 // matroid partitioning
 
 /**
@@ -925,9 +1211,9 @@ void reestablish_hadamard_gadget_pairing(Tableau& tableau) {
     for (size_t idx = 0; idx < tableau.size(); ++idx) {
         auto* cct = std::get_if<ClassicalControlTableau>(&tableau[idx]);
         if (cct) {
-            if (cct->is_ccc()) {
+            if (cct->is_gadget()) {
                 ccc_list.emplace_back(idx, cct);
-            } else if (cct->is_pmc()) {
+            } else if (cct->is_classical_control()) {
                 pmc_list.emplace_back(idx, cct);
             }
         }

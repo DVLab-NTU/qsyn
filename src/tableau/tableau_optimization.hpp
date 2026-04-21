@@ -10,7 +10,10 @@
 #include "tableau/pauli_rotation.hpp"
 #include "tableau/stabilizer_tableau.hpp"
 #include <cstddef>
+#include <filesystem>
 #include <optional>
+#include <ranges>
+#include <string>
 #include <unordered_map>
 #include <vector>
 
@@ -40,7 +43,40 @@ void merge_rotations(Tableau& tableau);
 // implemented in ./optimize/internal_h_opt.cpp
 
 void minimize_internal_hadamards(Tableau& tableau);
+
+/**
+ * @brief Rewrite Pauli rotations into Z-basis using only single-qubit H and S†.
+ *
+ * Intended for a tableau with a single \c std::vector<PauliRotation> block (after
+ * \c merge_rotations). For each column, emits \c ST(adjoint(ops)), the fixed
+ * diagonal-axis rotation, conjugates all following columns by \c ops, and emits one
+ * trailing \c ST with the composed post-Clifford at the end of that block.
+ */
+void z_basisify_rotations_h_s_only(Tableau& tableau);
+
+// Push non-H part of each intermediate Clifford through subsequent Pauli Rotations
+// to the end; implemented in ./optimize/hadamard_gadgetize.cpp
+void push_z_stabilizers(Tableau& tableau);
+
 void minimize_internal_hadamards_n_gadgetize(Tableau& tableau);
+
+/**
+ * @brief Block-wise ancillary-T optimization.
+ *
+ * After internal-H optimization produces windows of the form PR, ST, PR,
+ * this pass processes each internal ST (one window at a time):
+ * - gadgetize only that ST's H gates (CCC+PMC per H)
+ * - commute+merge rotations inside the window
+ * - run phase polynomial optimization (e.g., FastTodd) on the unified PR
+ * - split out PR columns that are ancilla-free (I on all ancilla qubits),
+ *   and move them after the PMCs:  CCCs, ST, PR', PMCs, PR_ancfree
+ *
+ * The circuit is updated in-place and may introduce ancilla qubits.
+ */
+void blockwise_gadgetize_optimize(Tableau& tableau);
+
+// Internal helper called by the wrapper.
+void blockwise_gadgetize(Tableau& tableau);
 
 // H gadgetization - replaces H gates with gadgets using ancilla qubits and measurements
 std::pair<Tableau, StabilizerTableau> minimize_hadamards_n_gadgetize(Tableau tableau, StabilizerTableau context);
@@ -58,6 +94,15 @@ struct CircuitStructureInfo {
 
 CircuitStructureInfo properize_for_degadgetization(Tableau& tableau);
 void reorder_n_degadgetize(Tableau& tableau);
+
+bool sat_reorder_export(Tableau& tableau, std::filesystem::path const& work_dir);
+bool sat_reorder_run_solver(std::filesystem::path const& work_dir, std::filesystem::path const& sat_formulation_py);
+/** Reorder PR blocks and CCCs per gadget_ordering; does not degadgetize (circuit stays gadgetized). */
+bool sat_reorder_apply(Tableau& tableau, std::filesystem::path const& ordering_path);
+/** Export → Z3 (sat_formulation.py) → apply; on failure falls back to full reorder_n_degadgetize (with degadgetize). */
+void sat_reorder(Tableau& tableau);
+
+void check_redundant_ancilla(Tableau& tableau);
 // Constraint graph for topological ordering constraints
 struct ConstraintGraph {
     // H-gadget pair structure for degadgetization
@@ -116,8 +161,10 @@ struct ConstraintGraph {
     size_t break_cycles();
 };
 
-// Build constraint graph from tableau
-ConstraintGraph build_constraint_graph(Tableau& tableau);
+// Build constraint graph from tableau.
+// If export_path is set, writes a .txt file with gadgets (index, ref, ancilla) and paulis (index, binary form).
+ConstraintGraph build_constraint_graph(Tableau& tableau,
+                                       std::optional<std::string> const& export_path = std::nullopt);
 
 // Export all H-gadget pairs from tableau
 std::vector<ConstraintGraph::HadamardGadgetPair> export_hadamard_gadget_pairs(Tableau& tableau);

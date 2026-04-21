@@ -66,15 +66,26 @@ void ZXVertex::print_vertex(spdlog::level::level_enum lvl) const {
     });
     auto type_str       = fmt::format("{}", type());
     auto ansi_token_len = type_str.size();
+
+    // Build classical annotation suffix
+    std::string classical_suffix;
+    if (_attrs.measurement_id.has_value()) {
+        classical_suffix += fmt::format(" [meas→c{}]", *_attrs.measurement_id);
+    }
+    if (_attrs.conditional_on.has_value()) {
+        classical_suffix += fmt::format(" [if c{}==1]", *_attrs.conditional_on);
+    }
+
     spdlog::log(
         lvl,
-        "ID: {0:>4} {1:<{2}} (Qubit, Col): {3:<14} #Neighbors: {4:>3}    {5}",
+        "ID: {0:>4} {1:<{2}} (Qubit, Col): {3:<14} #Neighbors: {4:>3}    {5}{6}",
         get_id(),
         fmt::format("({}, {})", type_str, phase().get_print_string()),
         11ul + ansi_token_len - (2 * (is_boundary() ? 1 : 0)),
         is_boundary() ? fmt::format("({}, {})", get_qubit(), get_col()) : fmt::format("({}, {})", get_row(), get_col()),
         _neighbors.size(),
-        fmt::join(storage | std::views::transform([](NeighborPair const& nbp) { return fmt::format("({}, {})", nbp.first->get_id(), nbp.second); }), " "));
+        fmt::join(storage | std::views::transform([](NeighborPair const& nbp) { return fmt::format("({}, {})", nbp.first->get_id(), nbp.second); }), " "),
+        classical_suffix);
 }
 
 /*****************************************************/

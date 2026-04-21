@@ -92,6 +92,7 @@ void implement_into_tableau(Tableau& tableau, StabilizerTableau& context, size_t
         clifford.emplace_back(CliffordOperatorType::h, std::array{ctrl, 0ul});
     }
 
+
     apply_clifford(tableau, clifford, context.n_qubits());
 
 dvlab::match(
@@ -107,6 +108,27 @@ dvlab::match(
         // followed by the PauliRotation
         assert(false);
     });
+}
+
+[[nodiscard]] CliffordOperatorString z_basisify_ops_h_s_only(PauliRotation const& r) {
+    CliffordOperatorString ops;
+    ops.reserve(2 * r.n_qubits());
+    for (size_t q = 0; q < r.n_qubits(); ++q) {
+        // Choose a single-qubit Clifford C (H / S† / H∘S†) such that C P C† becomes Z (or I).
+        // Conjugation rules used:
+        // - H: X <-> Z, Y -> -Y
+        // - S†: Y -> X, Z -> Z (up to phase)
+        // Therefore:
+        // - X -> Z via H
+        // - Y -> Z via (S† then H)
+        if (r.is_x(q)) {
+            ops.emplace_back(CliffordOperatorType::h, std::array{q, 0ul});
+        } else if (r.is_y(q)) {
+            ops.emplace_back(CliffordOperatorType::sdg, std::array{q, 0ul});
+            ops.emplace_back(CliffordOperatorType::h, std::array{q, 0ul});
+        }
+    }
+    return ops;
 }
 
 }  // namespace
@@ -168,6 +190,72 @@ void minimize_internal_hadamards(Tableau& tableau) {
     tableau.insert(tableau.begin(), initial_clifford);
     tableau.push_back(adjoint(final_clifford));
 
+    remove_identities(tableau);
+}
+
+void z_basisify_rotations_h_s_only(Tableau& tableau) {
+    if (tableau.is_empty()) {
+        return;
+    }
+
+    // Normalize layout first so we can safely rewrite PR blocks.
+    merge_rotations(tableau);
+    properize(tableau);
+    collapse(tableau);
+    size_t const n = tableau.n_qubits();
+    auto rewritten = Tableau{n};
+    rewritten.erase(rewritten.begin(), rewritten.end());
+
+    for (auto& sub : tableau) {
+        if (auto* pr = std::get_if<std::vector<PauliRotation>>(&sub)) {
+            // Single PR subtableau expected: no Clifford carried across other blocks.
+            auto rots = *pr;
+            CliffordOperatorString trailing_ops{};
+
+            for (size_t i = 0; i < rots.size(); ++i) {
+                auto& rot = rots[i];
+                auto const ops = z_basisify_ops_h_s_only(rot);
+
+                if (ops.empty()) {
+                    if (!rewritten.is_empty() && std::holds_alternative<std::vector<PauliRotation>>(rewritten.back())) {
+                        std::get<std::vector<PauliRotation>>(rewritten.back()).push_back(rot);
+                    } else {
+                        rewritten.push_back(std::vector<PauliRotation>{rot});
+                    }
+                    continue;
+                }
+
+                StabilizerTableau pre{n};
+                pre.apply(adjoint(ops));
+                rewritten.push_back(std::move(pre));
+
+                PauliRotation z_rot = rot;
+                z_rot.apply(ops);
+                if (!rewritten.is_empty() && std::holds_alternative<std::vector<PauliRotation>>(rewritten.back())) {
+                    std::get<std::vector<PauliRotation>>(rewritten.back()).push_back(std::move(z_rot));
+                } else {
+                    rewritten.push_back(std::vector<PauliRotation>{std::move(z_rot)});
+                }
+
+                for (size_t j = i + 1; j < rots.size(); ++j) {
+                    rots[j].apply(ops);
+                }
+
+                trailing_ops.insert(trailing_ops.end(), ops.begin(), ops.end());
+            }
+
+            if (!trailing_ops.empty()) {
+                StabilizerTableau post{n};
+                post.apply(trailing_ops);
+                rewritten.push_back(std::move(post));
+            }
+        } else {
+            rewritten.push_back(std::move(sub));
+        }
+    }
+
+    tableau = std::move(rewritten);
+    properize(tableau);
     remove_identities(tableau);
 }
 

@@ -393,8 +393,12 @@ std::optional<QCir> from_qasm(std::filesystem::path const& filepath) {
         return std::nullopt;
     }
     
-    // Initialize QCir with correct number of qubits and classical bits
+    // Initialize QCir with correct number of qubits and classical bits.
+    // QASM always starts from |0⟩ — set every qubit's initial state explicitly.
     QCir qcir{total_qubits, total_classical_bits};
+    for (size_t i = 0; i < total_qubits; ++i) {
+        qcir.set_initial_state(i, QubitInitialState::zero);
+    }
 
     // Second pass: Parse gates from lines after the last register declaration
     for (size_t i = last_reg_line + 1; i < file_lines.size(); ++i) {

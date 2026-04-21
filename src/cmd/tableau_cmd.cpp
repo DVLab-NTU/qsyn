@@ -204,6 +204,9 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr) {
             methods.add_parser("ancillaryTopt")
                 .description("Minimize the number of T gates in the tableau with the help of classical operations & ancillary qubits");
 
+            methods.add_parser("blockwiseAncillaryTopt")
+                .description("Block-wise ancillary-T optimization (gadgetize/opt per internal H block)");
+
             auto phasepoly_parser = methods.add_parser("phasepoly")
                                         .description("Reduce the number of terms for phase polynomials in the Tableau");
 
@@ -239,7 +242,8 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr) {
                 internal_h_opt_gadgetize,
                 phase_polynomial_optimization,
                 matroid_partition,
-                ancillary_t_opt
+                ancillary_t_opt,
+                blockwise_ancillary_t_opt
             };
 
             auto method = std::invoke([&]() -> std::optional<OptimizationMethod> {
@@ -259,6 +263,8 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr) {
                     return OptimizationMethod::matroid_partition;
                 } else if (dvlab::str::is_prefix_of(method_str, "ancillaryTopt")) {
                     return OptimizationMethod::ancillary_t_opt;
+                } else if (dvlab::str::is_prefix_of(method_str, "blockwiseAncillaryTopt")) {
+                    return OptimizationMethod::blockwise_ancillary_t_opt;
                 }
                 return std::nullopt;
             });
@@ -334,6 +340,19 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr) {
                     minimize_ancillary_t_opt(*tableau_mgr.get());
                     tableau_mgr.get()->add_procedure("AncillaryTOpt");
                     break;
+                case OptimizationMethod::blockwise_ancillary_t_opt: {
+                    auto const before_t = tableau_mgr.get()->n_pauli_rotations();
+                    auto const before_a = tableau_mgr.get()->ancilla_initial_states().size();
+                    spdlog::debug("BlockwiseAncillaryTopt: begin (non-Clifford={}, ancilla={})",
+                                  before_t, before_a);
+                    blockwise_gadgetize_optimize(*tableau_mgr.get());
+                    auto const after_t = tableau_mgr.get()->n_pauli_rotations();
+                    auto const after_a = tableau_mgr.get()->ancilla_initial_states().size();
+                    spdlog::debug("BlockwiseAncillaryTopt: end   (non-Clifford={}, ancilla={})",
+                                  after_t, after_a);
+                    tableau_mgr.get()->add_procedure("BlockwiseAncillaryTopt");
+                    break;
+                }
             }
 
             return dvlab::CmdExecResult::done;

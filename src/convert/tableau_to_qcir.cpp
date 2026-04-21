@@ -184,6 +184,18 @@ std::optional<qcir::QCir> NaivePauliRotationsSynthesisStrategy::synthesize(std::
     auto qcir = qcir::QCir{rotations.front().n_qubits()};
 
     for (auto const& rotation : rotations) {
+        if (rotation.is_CZ()) {
+            std::vector<size_t> z_qubits;
+            for (size_t i = 0; i < rotation.n_qubits(); ++i) {
+                if (rotation.is_z(i)) z_qubits.push_back(i);
+            }
+            if (z_qubits.size() == 2) {
+                // Represent "CZ with phase" as a controlled-Z rotation.
+                // `CZGate()` is a special case of `ControlGate(PZGate(phase))` with phase = pi.
+                qcir.append(qcir::ControlGate(qcir::PZGate(rotation.phase())), {z_qubits[0], z_qubits[1]});
+            }
+            continue;
+        }
         auto [ops, qubit] = extract_clifford_operators(rotation);
 
         for (auto const& op : ops) {
@@ -675,13 +687,22 @@ std::optional<qcir::QCir> to_qcir(
         return std::nullopt;
     }
     
-    // Step 1: add H gate to fix the measurement basis to X, then add measurement gate
-    // Measure the ancilla qubit to classical bit
-    qcir.append(qcir::HGate(), {ancilla_qubit});
-    qcir.append(qcir::MeasurementGate(), ancilla_qubit, classical_bit);
-    
-    // Validate that classical bit was marked as measured
-    if (!qcir.is_classical_measured(classical_bit)) {
+    // Emit the measurement gate according to the CCT's measurement_type.
+    // none → skip (no measurement gate emitted, classical bit stays unmeasured)
+    // Z    → standard computational-basis measure
+    // X    → Hadamard-basis measure (gate carries basis; writer emits H before measure)
+    switch (cct.measurement_type()) {
+        case MeasurementType::none:
+            break;  // no measurement gate
+        case MeasurementType::Z:
+            qcir.append(qcir::MeasurementGate(qcir::MeasurementBasis::Z), ancilla_qubit, classical_bit);
+            break;
+        case MeasurementType::X:
+            qcir.append(qcir::MeasurementGate(qcir::MeasurementBasis::X), ancilla_qubit, classical_bit);
+            break;
+    }
+
+    if (cct.measurement_type() != MeasurementType::none && !qcir.is_classical_measured(classical_bit)) {
         spdlog::error("Classical bit {} was not marked as measured after measurement gate", classical_bit);
         return std::nullopt;
     }
@@ -722,39 +743,33 @@ std::optional<qcir::QCir> to_qcir(Tableau const& tableau, StabilizerTableauSynth
     
     qcir::QCir qcir{n_qubits, n_qubits};
 
-    // Apply initial state gates for ancilla qubits at the beginning
+    // Set initial state metadata for ancilla qubits
     if (tableau.n_ancilla() > 0) {
         auto const& initial_states = tableau.ancilla_initial_states();
         for (auto const& [ancilla_index, initial_state] : initial_states) {
             if (stop_requested()) {
                 return std::nullopt;
             }
-            
-            // Validate ancilla index
+
             if (ancilla_index >= n_qubits) {
                 spdlog::error("Ancilla index {} is out of range for n_qubits {}", ancilla_index, n_qubits);
                 return std::nullopt;
             }
-            
-            // Only apply gates for non-ZERO initial states
-            if (initial_state == qsyn::experimental::AncillaInitialState::ZERO) {
-                continue;
-            }
+
+            qcir.set_qubit_type(ancilla_index, qcir::QubitType::ancilla);
+
             switch (initial_state) {
+                case qsyn::experimental::AncillaInitialState::ZERO:
+                    qcir.set_initial_state(ancilla_index, qcir::QubitInitialState::zero);
+                    break;
                 case qsyn::experimental::AncillaInitialState::ONE:
-                    // Apply X gate to get |1⟩ state
-                    qcir.append(qcir::XGate(), {ancilla_index});
+                    qcir.set_initial_state(ancilla_index, qcir::QubitInitialState::one);
                     break;
                 case qsyn::experimental::AncillaInitialState::PLUS:
-                    // Apply H gate to get |+⟩ state
-                    qcir.append(qcir::HGate(), {ancilla_index});
+                    qcir.set_initial_state(ancilla_index, qcir::QubitInitialState::plus);
                     break;
                 case qsyn::experimental::AncillaInitialState::MINUS:
-                    // Apply H then X gate to get |-⟩ state
-                    qcir.append(qcir::HGate(), {ancilla_index});
-                    qcir.append(qcir::XGate(), {ancilla_index});
-                    break;
-                default:
+                    qcir.set_initial_state(ancilla_index, qcir::QubitInitialState::minus);
                     break;
             }
         }

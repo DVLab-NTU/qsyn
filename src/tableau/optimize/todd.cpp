@@ -602,6 +602,118 @@ Polynomial fast_todd_once(Polynomial const& polynomial) {
 }  // namespace
 
 namespace {
+
+/**
+ * @brief Try to parse a single {CXs, phase, CXs} block into a PauliRotation.
+ *
+ * Verification:
+ *   - Exactly one phase gate (S, Z, or Sdg); everything else must be CX.
+ *   - The CX sequence before the phase gate must equal the one after (identical,
+ *     same order).
+ *   - An empty CX sequence (just a single phase gate) is also valid.
+ *
+ * Construction:
+ *   - Every qubit touched by any CX in the block (both control and target) is
+ *     set to Z in the Pauli product, together with the phase gate's qubit.
+ *   - Phase: S → Phase(1,2), Z → Phase(1,1), Sdg → Phase(-1,2).
+ *
+ * Returns std::nullopt if verification fails.
+ */
+std::optional<PauliRotation> try_extract_pauli_rotation(
+    CliffordOperatorString const& block, size_t n_qubits) {
+    using COT = CliffordOperatorType;
+
+    auto const is_phase = [](CliffordOperator const& op) {
+        return op.first == COT::s || op.first == COT::z || op.first == COT::sdg;
+    };
+
+    // Find the single phase gate.
+    auto phase_it = block.cend();
+    for (auto it = block.cbegin(); it != block.cend(); ++it) {
+        if (!is_phase(*it)) continue;
+        if (phase_it != block.cend()) return std::nullopt;  // more than one phase gate
+        phase_it = it;
+    }
+    if (phase_it == block.cend()) return std::nullopt;  // no phase gate
+
+    CliffordOperatorString const front_cx(block.cbegin(), phase_it);
+    CliffordOperatorString const back_cx(phase_it + 1, block.cend());
+
+    // All remaining ops must be CX.
+    if (!std::ranges::all_of(front_cx, [](auto const& op) { return op.first == COT::cx; })) return std::nullopt;
+    if (!std::ranges::all_of(back_cx,  [](auto const& op) { return op.first == COT::cx; })) return std::nullopt;
+
+    // The two CX groups must be identical.
+    if (front_cx != back_cx) return std::nullopt;
+
+    // Build the Pauli product: set Z on every qubit the CX gates visit, plus the phase gate qubit.
+    auto pauli_vec = std::vector<Pauli>(n_qubits, Pauli::i);
+    pauli_vec[phase_it->second[0]] = Pauli::z;
+    for (auto const& [type, qubits] : front_cx) {
+        pauli_vec[qubits[0]] = Pauli::z;  // control
+        pauli_vec[qubits[1]] = Pauli::z;  // target
+    }
+
+    dvlab::Phase phase;
+    switch (phase_it->first) {
+        case COT::s:   phase = dvlab::Phase(1, 2);  break;
+        case COT::z:   phase = dvlab::Phase(1, 1);  break;
+        case COT::sdg: phase = dvlab::Phase(-1, 2); break;
+        default: DVLAB_UNREACHABLE("only S, Z, Sdg are expected phase gates");
+    }
+    return PauliRotation(pauli_vec, phase);
+}
+
+/**
+ * @brief Convert a synthesized CliffordOperatorString (CX + S/Z/Sdg only) into
+ *        a sequence of PauliRotations by parsing each {CXs, phase, CXs} block.
+ *
+ * Each phase gate defines one block.  The CXs belonging to that block are those
+ * immediately surrounding the phase gate whose target qubit matches the phase
+ * gate's qubit (as produced by a diagonal-Clifford synthesis).
+ */
+std::vector<PauliRotation> clifford_ops_to_pauli_rotations(
+    CliffordOperatorString const& ops, size_t n_qubits) {
+    using COT = CliffordOperatorType;
+
+    std::vector<PauliRotation> result;
+
+    for (size_t p = 0; p < ops.size(); ++p) {
+        if (ops[p].first != COT::s && ops[p].first != COT::z && ops[p].first != COT::sdg) continue;
+
+        size_t const t = ops[p].second[0];  // phase gate's qubit = block's target
+
+        // Collect front CXs immediately before p that target qubit t.
+        CliffordOperatorString front_cx;
+        for (size_t k = p; k > 0 && ops[k - 1].first == COT::cx && ops[k - 1].second[1] == t; --k) {
+            front_cx.insert(front_cx.begin(), ops[k - 1]);
+        }
+
+        // Collect back CXs immediately after p that target qubit t.
+        CliffordOperatorString back_cx;
+        for (size_t k = p + 1; k < ops.size() && ops[k].first == COT::cx && ops[k].second[1] == t; ++k) {
+            back_cx.push_back(ops[k]);
+        }
+
+        // Assemble block and parse it.
+        CliffordOperatorString block;
+        block.insert(block.end(), front_cx.begin(), front_cx.end());
+        block.push_back(ops[p]);
+        block.insert(block.end(), back_cx.begin(), back_cx.end());
+
+        if (auto rotation = try_extract_pauli_rotation(block, n_qubits)) {
+            result.push_back(*rotation);
+        } else {
+            spdlog::warn("clifford_ops_to_pauli_rotations: block at position {} failed verification", p);
+        }
+
+        for (auto const& rotation : result) {
+            spdlog::debug("{:b}", rotation);
+        }
+    }
+    return result;
+}
+
 class MultiLinearPolynomial {
 public:
     void add_rotation(PauliRotation const& rotation, bool subtract = false) {
@@ -645,6 +757,23 @@ public:
     void add_rotations(std::vector<PauliRotation> const& rotations, bool subtract = false) {
         for (auto const& rotation : rotations) {
             add_rotation(rotation, subtract);
+        }
+    }
+
+    void print_terms() const {
+        spdlog::debug("MultiLinearPolynomial terms:");
+        for (auto const& [i, count] : _linear_terms) {
+            if (count != 0) {
+                spdlog::debug("  linear    Z[{}] : count = {}", i, count);
+            }
+        }
+        for (auto const& [pair, count] : _quadratic_terms) {
+            if (count != 0) {
+                spdlog::debug("  quadratic Z[{}]Z[{}] : count = {}", pair.first, pair.second, count);
+            }
+        }
+        for (auto const& [i, j, k] : _cubic_terms) {
+            spdlog::debug("  cubic     Z[{}]Z[{}]Z[{}]", i, j, k);
         }
     }
 
@@ -692,6 +821,37 @@ public:
         }
 
         return clifford;
+    }
+
+    /** @brief Convert linear and quadratic terms to Pauli columns (linear = Z + phase, quadratic = CZ). Returns nullopt if !is_clifford(). */
+    std::optional<std::vector<PauliRotation>> to_pauli_columns(size_t n_qubits) const {
+        if (!is_clifford()) {
+            return std::nullopt;
+        }
+        std::vector<PauliRotation> columns;
+        for (auto const& [i, count] : _linear_terms) {
+            switch (count % 8) {
+                case 0:
+                    break;
+                case 2:
+                    columns.push_back(PauliRotation::make_linear(n_qubits, i, dvlab::Phase(1, 2)));
+                    break;
+                case 4:
+                    columns.push_back(PauliRotation::make_linear(n_qubits, i, dvlab::Phase(1, 1)));
+                    break;
+                case 6:
+                    columns.push_back(PauliRotation::make_linear(n_qubits, i, dvlab::Phase(-1, 2)));
+                    break;
+                default:
+                    break;
+            }
+        }
+        for (auto const& [pair, count] : _quadratic_terms) {
+            if (count % 4 == 2) {
+                columns.push_back(PauliRotation::make_CZ(n_qubits, pair.first, pair.second));
+            }
+        }
+        return columns;
     }
 
 private:
@@ -745,8 +905,9 @@ std::pair<StabilizerTableau, Polynomial> ToddPhasePolynomialOptimizationStrategy
 
     multi_linear_polynomial.add_rotations(ret_polynomial, true);
 
-    if (auto clifford_ops = multi_linear_polynomial.extract_clifford_operators(); clifford_ops.has_value()) {
-        ret_clifford.apply(*clifford_ops);
+    // if (auto columns = multi_linear_polynomial.to_pauli_columns(polynomial.front().n_qubits())) {
+    if (auto clifford_opt = multi_linear_polynomial.extract_clifford_operators()) {
+        ret_clifford.apply(*clifford_opt);
     } else {
         spdlog::error("Failed to perform TODD optimization: the post-optimization polynomial does not have the same signature as the pre-optimization polynomial!!");
         return {clifford, polynomial};
@@ -772,9 +933,7 @@ std::pair<StabilizerTableau, Polynomial> FastToddPhasePolynomialOptimizationStra
 
     auto ret_clifford   = clifford;
     auto ret_polynomial = polynomial;
-
     properize(ret_clifford, ret_polynomial);
-
     auto multi_linear_polynomial = MultiLinearPolynomial();
     multi_linear_polynomial.add_rotations(ret_polynomial, false);
 
@@ -788,9 +947,15 @@ std::pair<StabilizerTableau, Polynomial> FastToddPhasePolynomialOptimizationStra
 
     multi_linear_polynomial.add_rotations(ret_polynomial, true);
 
-    if (auto clifford_ops = multi_linear_polynomial.extract_clifford_operators(); clifford_ops.has_value()) {
-        ret_clifford.apply(*clifford_ops);
-    } else {
+    //for Clifford terms in pauli term
+    if (auto columns = multi_linear_polynomial.to_pauli_columns(polynomial.front().n_qubits())) {
+        ret_polynomial.insert(ret_polynomial.end(), columns->begin(), columns->end());
+    } 
+    //keep clifford in StabilizerTableau terms
+    // if (auto clifford_opt = multi_linear_polynomial.extract_clifford_operators()) {
+    //     ret_clifford.apply(*clifford_opt);
+    // } 
+    else {
         spdlog::error("Failed to perform Fast-TODD optimization: the post-optimization polynomial does not have the same signature as the pre-optimization polynomial!!");
         return {clifford, polynomial};
     }

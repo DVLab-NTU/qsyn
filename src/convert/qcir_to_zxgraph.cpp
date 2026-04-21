@@ -421,19 +421,52 @@ std::optional<ZXGraph> to_zxgraph(qcir::ControlGate const& op) {
 }
 
 template <>
-std::optional<ZXGraph> to_zxgraph(qcir::MeasurementGate const& /* op */) {
-    // Measurement is a non-unitary operation that cannot be represented in a ZXGraph
-    // Return nullopt to indicate this operation cannot be converted to ZXGraph form
-    return std::nullopt;
+std::optional<ZXGraph> to_zxgraph(qcir::MeasurementGate const& op) {
+    // 1-input, 1-output subgraph: the qubit wire passes through the measurement
+    // spider so the output boundary is preserved in the main graph.
+    // Spider color encodes measurement basis (Z-spider = Z-basis, X-spider = X-basis).
+    // The measurement_id (classical bit) and qubit position are supplied by the
+    // caller after stitching via graph.set_measurement_id().
+    ZXGraph subgraph;
+    auto* in_bdry     = subgraph.add_input(0);
+    auto const vtype  = op.is_x_basis() ? VertexType::x : VertexType::z;
+    auto* meas_spider = subgraph.add_vertex(vtype, dvlab::Phase{}, 0.f, 1.f);
+    auto* out_bdry    = subgraph.add_output(0);
+    subgraph.add_edge(in_bdry,     meas_spider, EdgeType::simple);
+    subgraph.add_edge(meas_spider, out_bdry,    EdgeType::simple);
+    return subgraph;
 }
 
 template <>
-std::optional<ZXGraph> to_zxgraph(qcir::IfElseGate const& /* op */) {
-    // If-else gates represent conditional operations based on classical bit values
-    // They cannot be represented in a ZXGraph as they depend on classical control flow
-    // Return nullopt to indicate this operation cannot be converted to ZXGraph form
-    spdlog::warn("If-else gate cannot be represented in ZXGraph");
-    return std::nullopt;
+std::optional<ZXGraph> to_zxgraph(qcir::IfElseGate const& op) {
+    // Only single-bit, value-1 conditions are representable as ZX annotations.
+    if (op.checks_all_bits()) {
+        spdlog::warn("IfElseGate: multi-bit condition (if c=={}) is not "
+                     "representable in ZXGraph annotations",
+                     op.get_classical_value());
+        return std::nullopt;
+    }
+    if (op.get_classical_value() != 1) {
+        spdlog::warn("IfElseGate: only if(c[i]==1) is supported; got value={}",
+                     op.get_classical_value());
+        return std::nullopt;
+    }
+
+    // Convert the inner operation — reuses all existing gate implementations.
+    auto subgraph = to_zxgraph(op.get_operation());
+    if (!subgraph) return std::nullopt;
+
+    // Annotate every non-boundary spider with conditional_on.
+    // Whether the controlling classical bit has a prior measurement spider in
+    // the main circuit graph is validated by to_zxgraph(QCir) after the
+    // subgraph is stitched in.
+    auto const cbit = op.get_classical_bit();
+    for (auto* v : subgraph->get_vertices()) {
+        if (!v->is_boundary()) {
+            v->set_conditional_on(cbit);
+        }
+    }
+    return subgraph;
 }
 
 std::optional<ZXGraph> to_zxgraph(qcir::QCirGate const& gate) {
@@ -466,23 +499,104 @@ std::optional<ZXGraph> to_zxgraph(QCir const& qcir) {
         }
         spdlog::debug("Gate {} ({})", gate->get_id(), gate->get_operation().get_repr());
 
+        // Guard: reject any gate applied to a qubit whose wire already ends at a
+        // measurement spider.  A measured qubit is identified by the vertex
+        // immediately before its output boundary having a measurement_id set.
+        for (auto const qubit : gate->get_qubits()) {
+            auto* out_bdry = graph.get_output_by_qubit(qubit);
+            if (out_bdry && graph.get_first_neighbor(out_bdry).first->get_measurement_id().has_value()) {
+                spdlog::error(
+                    "Gate {} ({}): qubit {} has already been measured",
+                    gate->get_id(), gate->get_operation().get_repr(), qubit);
+                return std::nullopt;
+            }
+        }
+
+        // ── MeasurementGate ────────────────────────────────────────────────
+        // to_zxgraph(MeasurementGate) produces a 1-in/1-out subgraph so
+        // concatenate() works normally; the output boundary is preserved.
+        // After stitching, set_measurement_id() registers the classical bit.
+        if (gate->get_operation().is<qcir::MeasurementGate>()) {
+            if (!gate->has_classical_bits()) {
+                spdlog::error("Gate {} (measure): no classical bit assigned", gate->get_id());
+                return std::nullopt;
+            }
+            auto const cbit = gate->get_classical_bit(0);
+
+            auto tmp = to_zxgraph(*gate);
+            if (!tmp) {
+                spdlog::error("Gate {} (measure): failed to build measurement subgraph",
+                              gate->get_id());
+                return std::nullopt;
+            }
+
+            // Capture the measurement spider pointer before concatenate() moves
+            // ownership — the raw pointer stays valid after the transfer.
+            auto* meas_spider = *tmp->get_non_boundary_vertices().begin();
+            for (auto* v : tmp->get_vertices()) {
+                v->set_col(v->get_col() + static_cast<float>(times.at(gate->get_id())));
+            }
+
+            graph.concatenate(*std::move(tmp), gate->get_qubits());
+
+            if (!graph.set_measurement_id(meas_spider, cbit)) {
+                spdlog::error("Gate {} (measure): classical bit {} is already in use",
+                              gate->get_id(), cbit);
+                return std::nullopt;
+            }
+            continue;
+        }
+
+        // ── All other gates (including IfElseGate) ────────────────────────
         auto tmp = to_zxgraph(*gate);
 
         if (!tmp) {
-            spdlog::error("Conversion of Gate {} ({}) to ZXGraph is not supported yet!!", gate->get_id(), gate->get_operation().get_repr());
+            spdlog::error("Conversion of Gate {} ({}) to ZXGraph is not supported yet!!",
+                          gate->get_id(), gate->get_operation().get_repr());
             return std::nullopt;
         }
 
-        for (auto& v : tmp->get_vertices()) {
+        // Collect conditional_on annotations from non-boundary vertices before
+        // they are moved into the main graph by concatenate().  Raw pointers
+        // remain valid after the move since concatenate transfers unique_ptr
+        // ownership without reallocating the vertex objects.
+        std::vector<std::pair<ZXVertex*, size_t>> conditional_vertices;
+        for (auto* v : tmp->get_vertices()) {
             v->set_col(v->get_col() + static_cast<float>(times.at(gate->get_id())));
+            if (!v->is_boundary()) {
+                if (auto const cbit = v->get_conditional_on(); cbit.has_value()) {
+                    conditional_vertices.emplace_back(v, *cbit);
+                }
+            }
         }
 
         graph.concatenate(*std::move(tmp), gate->get_qubits());
+
+        // Validate immediately after stitching: each conditional_on must refer to
+        // a measurement spider that already exists in the graph, ensuring the
+        // measurement precedes the conditional operation in the circuit.
+        for (auto const& [v, cbit] : conditional_vertices) {
+            if (!graph.has_measurement(cbit)) {
+                spdlog::error(
+                    "Gate {} ({}): conditional_on={} but no prior measurement "
+                    "spider for that classical bit exists in the graph",
+                    gate->get_id(), gate->get_operation().get_repr(), cbit);
+                return std::nullopt;
+            }
+        }
     }
 
-    auto const max_col = std::ranges::max(graph.get_outputs() | std::views::transform([&graph](ZXVertex* v) { return graph.get_first_neighbor(v).first->get_col(); }));
-    for (auto& v : graph.get_outputs()) {
-        v->set_col(max_col + 1);
+    // Some qubits may have been consumed by measurement gates, so guard against
+    // an empty output set before computing the max column position.
+    if (!graph.get_outputs().empty()) {
+        auto const max_col = std::ranges::max(
+            graph.get_outputs() |
+            std::views::transform([&graph](ZXVertex* v) {
+                return graph.get_first_neighbor(v).first->get_col();
+            }));
+        for (auto& v : graph.get_outputs()) {
+            v->set_col(max_col + 1);
+        }
     }
 
     if (stop_requested()) {

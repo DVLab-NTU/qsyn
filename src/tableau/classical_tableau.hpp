@@ -1,12 +1,13 @@
 /**
  * @file classical_tableau.hpp
  * @brief Define classical-related operation classes for tableau
- * 
+ *
  * @copyright Copyright (c) 2024
  */
 
 #pragma once
 
+#include <algorithm>
 #include <cstddef>
 #include <cassert>
 #include <stdexcept>
@@ -20,22 +21,23 @@ namespace qsyn {
 namespace experimental {
 
 /**
- * @brief Type classification for ClassicalControlTableau
- * CCC: Classical Control Clifford (pre-measurement setup for Hadamard gadget)
- * PMC: Post-Measurement Clifford (conditional operations after measurement)
+ * @brief Kind of ClassicalControlTableau: Hadamard gadget (pre-measurement) vs classical-controlled Cliffords.
  */
 enum class CCTType {
-    CCC,  // Pre-measurement Clifford operations
-    PMC   // Post-measurement conditional operations
+    Gadget,            // Pre-measurement gadget Clifford (fixed canonical form)
+    ClassicalControl,  // Post-measurement / classically controlled Cliffords on data qubits only
 };
+
+class ClassicalControlTableau;
+void initialize_gadget(ClassicalControlTableau& cct);
+void initialize_classical_control(ClassicalControlTableau& cct);
 
 /**
  * @brief Represents a quantum operation controlled by a qubit.
  * Contains a single stabilizer tableau for Clifford operations.
  * Only certain gate types are allowed (S, SDG, CX, H, X, Y, Z).
- * 
- * Can be paired with another CCT to form a Hadamard gadget:
- * - CCC (pre-measurement) + measurement + PMC (post-measurement)
+ *
+ * Paired gadget + classical-control blocks form a Hadamard gadget.
  */
 class ClassicalControlTableau {
 public:
@@ -54,66 +56,108 @@ public:
         }
     }
 
+    /** Minimum StabilizerTableau width for given ancilla and reference indices. */
+    static size_t min_qubit_width(size_t ancilla_qubit, size_t reference_qubit) {
+        return std::max(ancilla_qubit, reference_qubit) + 1;
+    }
+
+    /** Primary constructor: width = max(ancilla, ref) + 1; dispatches to initializers. */
+    ClassicalControlTableau(CCTType type, size_t ancilla_qubit, size_t reference_qubit);
+
     ClassicalControlTableau(size_t ancilla_qubit, size_t n_qubits)
         : _ancilla_qubit(ancilla_qubit),
           _reference_qubit(0),
           _operations(n_qubits),
-          _type(CCTType::PMC) {}
-    
+          _type(CCTType::ClassicalControl),
+          _measurement_type(MeasurementType::none) {
+        initialize_classical_control(*this);
+    }
+
     ClassicalControlTableau(size_t ancilla_qubit, size_t reference_qubit, size_t n_qubits)
         : _ancilla_qubit(ancilla_qubit),
           _reference_qubit(reference_qubit),
           _operations(n_qubits),
-          _type(CCTType::PMC) {}
-    
-    // Constructor with type specification for Hadamard gadgets
+          _type(CCTType::ClassicalControl),
+          _measurement_type(MeasurementType::none) {
+        initialize_classical_control(*this);
+    }
+
     ClassicalControlTableau(size_t ancilla_qubit, size_t reference_qubit, size_t n_qubits, CCTType type)
         : _ancilla_qubit(ancilla_qubit),
           _reference_qubit(reference_qubit),
           _operations(n_qubits),
-          _type(type) {}
-    
+          _type(type),
+          _measurement_type(MeasurementType::none) {
+        if (type == CCTType::Gadget) {
+            initialize_gadget(*this);
+        } else {
+            initialize_classical_control(*this);
+        }
+    }
+
     size_t ancilla_qubit() const { return _ancilla_qubit; }
     size_t reference_qubit() const { return _reference_qubit; }
     CCTType type() const { return _type; }
-    
+
     StabilizerTableau& operations() { return _operations; }
     StabilizerTableau const& operations() const { return _operations; }
-    
-    bool is_ccc() const { return _type == CCTType::CCC; }
-    bool is_pmc() const { return _type == CCTType::PMC; }
 
-    void add_gate(CliffordOperator const& op) {
-        auto const& [type, qubits] = op;
-        if (!is_feasible_gate_type(type)) {
-            throw std::invalid_argument("Gate type is not feasible for ClassicalControlTableau");
-        }
-        _operations.prepend(op);
-    }
+    bool is_gadget() const { return _type == CCTType::Gadget; }
+    bool is_classical_control() const { return _type == CCTType::ClassicalControl; }
+
+
+    MeasurementType measurement_type() const { return _measurement_type; }
+    void set_measurement_type(MeasurementType t) { _measurement_type = t; }
+
+    void add_gate(CliffordOperator const& op);
+
     void add_ancilla_qubit() {
         _operations.add_ancilla_qubit();
     }
     void remove_ancilla_qubit(size_t qubit) {
         _operations.remove_ancilla_qubit(qubit);
-        if(qubit < _ancilla_qubit) {
+        if (qubit < _ancilla_qubit) {
             _ancilla_qubit--;
         }
     }
 
+    /** True if the gate acts on ancilla (single-qubit or CX touching ancilla). */
+    static bool clifford_touches_ancilla(CliffordOperator const& op, size_t ancilla_qubit);
+
+    /** For ClassicalControlTableau::apply_tableau_gate — throws if classical-control and gate hits ancilla. */
+    void check_gate_allowed_for_classical_control(CliffordOperatorType type,
+                                                  size_t q0,
+                                                  size_t q1 = 0) const;
 
 private:
-    size_t _ancilla_qubit;                    // The ancilla qubit that controls the operation (b)
-    size_t _reference_qubit;   // The reference qubit where H gate was applied (a)
-    StabilizerTableau _operations;            // Tableau for all Clifford operations
-    CCTType _type;                            // CCC (pre-measurement) or PMC (post-measurement)
+    size_t _ancilla_qubit;
+    size_t _reference_qubit;
+    StabilizerTableau _operations;
+    CCTType _type;
+    MeasurementType _measurement_type;
 };
 
-StabilizerTableau commutation_through_clifford(StabilizerTableau const& classical_clifford, 
+void swap_forward(ClassicalControlTableau& cct, StabilizerTableau& st);
+void swap_back(StabilizerTableau& st, ClassicalControlTableau& cct);
+void swap_forward(ClassicalControlTableau& cct, std::vector<PauliRotation>& pr);
+void swap_back(std::vector<PauliRotation>& pr, ClassicalControlTableau& cct);
+
+/** Deferred: two adjacent CCT blocks. Not implemented in v1. */
+void swap_forward_cct_cct(ClassicalControlTableau& left, ClassicalControlTableau& right);
+void swap_back_cct_cct(ClassicalControlTableau& left, ClassicalControlTableau& right);
+
+StabilizerTableau commutation_through_clifford(StabilizerTableau const& classical_clifford,
                                                StabilizerTableau const& clifford_block);
 StabilizerTableau reverse_n_prepend(CliffordOperatorString const& operations, size_t n_qubits);
 
+/** @brief Thin wrapper: `swap_forward(cct, st)`. Prefer `swap_forward` / `swap_back` for adjacent-block commuting. */
 void commute_through_stabilizer(ClassicalControlTableau& cct, StabilizerTableau& st);
+
+void commute_through_pauli_rotation(StabilizerTableau& st, PauliRotation const& pauli_rotation);
 void commute_through_pauli_rotation(ClassicalControlTableau& cct, PauliRotation const& pauli_rotation);
+
+void commute_through_pauli_rotations(StabilizerTableau& st, std::vector<PauliRotation> const& pauli_rotations);
+/** @brief For CCT: gadget uses `swap_forward`; classical-control mutates `cct.operations()` like ST+PR. Prefer `swap_forward` / `swap_back` when reordering blocks. */
 void commute_through_pauli_rotations(ClassicalControlTableau& cct, std::vector<PauliRotation>& pauli_rotations);
 
 void commute_through_T(CliffordOperatorString& operations, size_t qubit_n);
@@ -127,4 +171,3 @@ bool test_classical_equivalence(ClassicalControlTableau const& cct_old, std::vec
 }  // namespace experimental
 
 }  // namespace qsyn
-

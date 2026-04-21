@@ -340,6 +340,28 @@ namespace experimental {
 std::optional<Tableau> to_tableau(qcir::QCir const& qcir) {
     Tableau result{qcir.get_num_qubits()};
 
+    // Apply initial state preparation for each qubit before processing gates.
+    // The tableau starts in |0...0⟩; non-zero initial states need explicit operations.
+    for (size_t i = 0; i < qcir.get_num_qubits(); ++i) {
+        switch (qcir.get_initial_state(i)) {
+            case qcir::QubitInitialState::zero:
+                break;  // already |0⟩ — nothing to do
+            case qcir::QubitInitialState::one:
+                // |1⟩ = X|0⟩
+                result.x(i);
+                break;
+            case qcir::QubitInitialState::plus:
+                // |+⟩ = H|0⟩
+                result.h(i);
+                break;
+            case qcir::QubitInitialState::minus:
+                // |−⟩ = H·X|0⟩
+                result.x(i);
+                result.h(i);
+                break;
+        }
+    }
+
     for (auto const& gate : qcir.get_gates()) {
         if (stop_requested()) {
             return std::nullopt;

@@ -30,6 +30,13 @@ enum class AncillaState {
     dirty    // Dirty ancilla qubit (may contain arbitrary state)
 };
 
+enum class QubitInitialState {
+    zero,   // |0⟩ — default computational basis state
+    one,    // |1⟩
+    plus,   // |+⟩ = H|0⟩
+    minus   // |−⟩ = XH|0⟩
+};
+
 class QCirQubit {
 public:
     // Basic access methods
@@ -60,6 +67,24 @@ public:
         return is_ancilla() && _ancilla_state == AncillaState::dirty; 
     }
     
+    // Initial state management
+    void set_initial_state(QubitInitialState state) { _initial_state = state; }
+    QubitInitialState get_initial_state() const { return _initial_state; }
+    bool is_zero_initial() const { return _initial_state == QubitInitialState::zero; }
+    bool is_one_initial()  const { return _initial_state == QubitInitialState::one; }
+    bool is_plus_initial() const { return _initial_state == QubitInitialState::plus; }
+    bool is_minus_initial() const { return _initial_state == QubitInitialState::minus; }
+
+    std::string get_initial_state_string() const {
+        switch (_initial_state) {
+            case QubitInitialState::zero:  return "|0>";
+            case QubitInitialState::one:   return "|1>";
+            case QubitInitialState::plus:  return "|+>";
+            case QubitInitialState::minus: return "|->";
+        }
+        return "|0>";
+    }
+
     // Utility methods
     std::string get_type_string() const {
         if (is_data()) return "data";
@@ -71,8 +96,9 @@ public:
 private:
     QCirGate* _last_gate  = nullptr;
     QCirGate* _first_gate = nullptr;
-    QubitType _type = QubitType::data;  // Default to data qubit
-    AncillaState _ancilla_state = AncillaState::clean;  // Default to clean
+    QubitType _type = QubitType::data;
+    AncillaState _ancilla_state = AncillaState::clean;
+    QubitInitialState _initial_state = QubitInitialState::zero;
 };
 
 }  // namespace qsyn::qcir

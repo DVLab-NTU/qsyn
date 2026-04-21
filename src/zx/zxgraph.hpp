@@ -27,6 +27,23 @@ namespace qsyn::zx {
 class ZXVertex;
 class ZXGraph;
 
+/**
+ * @brief Optional classical annotations to attach to a spider at creation time.
+ *
+ * Pass to add_vertex() to set measurement_id and/or conditional_on in a single
+ * call.  The graph validates that measurement_id is not already in use.
+ *
+ * Example:
+ *   graph.add_vertex(VertexType::z, Phase{}, row, col,
+ *                    {.measurement_id = 2});          // measurement spider
+ *   graph.add_vertex(VertexType::z, Phase{}, row, col,
+ *                    {.conditional_on = 2});          // feed-forward spider
+ */
+struct ClassicalAnnotation {
+    std::optional<size_t> measurement_id = std::nullopt;
+    std::optional<size_t> conditional_on = std::nullopt;
+};
+
 // See `zxVertex.cpp` for details
 std::optional<EdgeType> str_to_edge_type(std::string const& str);
 std::optional<VertexType> str_to_vertex_type(std::string const& str);
@@ -56,7 +73,8 @@ public:
              Phase phase,
              float row,
              float col)
-        : _attrs{id, vt, qubit, phase, row, col} {}
+        : _attrs{id, vt, qubit, phase, row, col, std::nullopt, std::nullopt} {}
+
     // Getter and Setter
 
     size_t get_id() const { return _attrs.id; }
@@ -74,6 +92,19 @@ public:
     auto const& phase() const { return _attrs.phase; }
     auto& phase() { return _attrs.phase; }
 
+    // Classical annotation accessors
+
+    // measurement_id: when set, this spider is a 1-input 0-output measurement
+    // spider that produces classical bit i.
+    std::optional<size_t> get_measurement_id() const { return _attrs.measurement_id; }
+    void set_measurement_id(std::optional<size_t> id) { _attrs.measurement_id = id; }
+    bool is_measurement() const { return _attrs.measurement_id.has_value(); }
+
+    // conditional_on: when set, this spider is only applied if classical bit i == 1.
+    std::optional<size_t> get_conditional_on() const { return _attrs.conditional_on; }
+    void set_conditional_on(std::optional<size_t> id) { _attrs.conditional_on = id; }
+    bool is_conditional() const { return _attrs.conditional_on.has_value(); }
+
     // Print functions
     void print_vertex(
         spdlog::level::level_enum lvl = spdlog::level::level_enum::off) const;
@@ -89,8 +120,7 @@ public:
     bool is_clifford() const { return _attrs.phase.denominator() <= 2; }
 
     // Comparison functions. Note that the comparison functions only compares
-    // vertex type and phases. Graph attributes such as row, col and qubit are
-    // not compared.
+    // vertex type and phases. Classical annotations are not compared.
 
     bool operator==(ZXVertex const& other) const;
     bool operator!=(ZXVertex const& other) const;
@@ -100,12 +130,16 @@ private:
     struct ZXVertexAttrs {
         size_t id;
         VertexType type;
-        QubitIdType qubit;  // for boundary vertices, this is the qubit id;
-                            // for non-boundary vertices, this is a dummy value
-                            // that may be used to mark temporary information
+        QubitIdType qubit;          // for boundary vertices, this is the qubit id;
+                                    // for non-boundary vertices, this is a dummy value
+                                    // that may be used to mark temporary information
         Phase phase;
         float row;
         float col;
+        std::optional<size_t> measurement_id;  // set → 1-input 0-output measurement,
+                                               // produces classical bit i
+        std::optional<size_t> conditional_on;  // set → spider applied only when
+                                               // classical bit i == 1
     } _attrs;
     Neighbors _neighbors;
 };
@@ -144,6 +178,7 @@ public:
         _input_list.clear();
         _output_list.clear();
         _id_to_vertices.clear();
+        _measurement_map.clear();
     }
 
     void swap(ZXGraph& other) noexcept {
@@ -156,6 +191,7 @@ public:
         std::swap(_input_list, other._input_list);
         std::swap(_output_list, other._output_list);
         std::swap(_id_to_vertices, other._id_to_vertices);
+        std::swap(_measurement_map, other._measurement_map);
     }
 
     friend void swap(ZXGraph& a, ZXGraph& b) noexcept {
@@ -246,6 +282,11 @@ public:
     ZXVertex* add_output(QubitIdType qubit, float row, float col);
     ZXVertex* add_vertex(
         VertexType vt, Phase phase = Phase(), float row = 0.f, float col = 0.f);
+    // Classical-annotated variant: sets measurement_id/conditional_on atomically.
+    // Returns nullptr if measurement_id is already occupied by another spider.
+    ZXVertex* add_vertex(
+        VertexType vt, Phase phase, float row, float col,
+        ClassicalAnnotation annotation);
 
     // Add vertices with specified IDs. It is generally advised to use
     // the above functions if the ID is not important.
@@ -321,6 +362,25 @@ public:
     std::unordered_map<size_t, ZXVertex*> const&
     get_output_list() const { return _output_list; }
 
+    // Classical annotation management — measurement map
+    // Use the graph-level setters (not ZXVertex::set_*) to keep _measurement_map
+    // consistent and to enforce the following invariants:
+    //
+    //   set_measurement_id(v, id) — fails if `id` is already owned by another spider
+    //   set_conditional_on(v, id) — fails if no measurement spider for `id` exists yet
+    //
+    // Both return false and log an error on violation, leaving the graph unchanged.
+    [[nodiscard]] bool set_measurement_id(ZXVertex* v, size_t measurement_id);
+    void clear_measurement_id(ZXVertex* v);
+    [[nodiscard]] bool set_conditional_on(ZXVertex* v, size_t measurement_id);
+    void clear_conditional_on(ZXVertex* v);
+    ZXVertex* get_measurement_vertex(size_t measurement_id) const;
+    bool has_measurement(size_t measurement_id) const {
+        return _measurement_map.contains(measurement_id);
+    }
+    std::unordered_map<size_t, ZXVertex*> const&
+    get_measurement_map() const { return _measurement_map; }
+
     // I/O (in zxIO.cpp)
     bool write_zx(
         std::filesystem::path const& filename, bool complete = false) const;
@@ -381,6 +441,8 @@ private:
     std::unordered_map<size_t, ZXVertex*> _input_list;
     std::unordered_map<size_t, ZXVertex*> _output_list;
     std::unordered_map<size_t, ZXVertex*> _id_to_vertices;
+    // measurement_id → measurement spider; kept in sync by set/clear_measurement_id
+    std::unordered_map<size_t, ZXVertex*> _measurement_map;
 
     void _dfs(
         std::unordered_set<ZXVertex*>& visited_vertices,

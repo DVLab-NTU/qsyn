@@ -8,6 +8,7 @@
 #include "pauli_rotation.hpp"
 
 #include <ranges>
+#include <vector>
 #include <tl/adjacent.hpp>
 #include <tl/to.hpp>
 
@@ -246,11 +247,18 @@ PauliRotation::PauliRotation(std::string_view pauli_str, dvlab::Phase const& pha
     : _pauli_product(pauli_str), _phase(phase) { _normalize(); }
 
 std::string PauliRotation::to_string(char signedness) const {
+    if (_is_cz) {
+        return fmt::format("CZ * {}", _pauli_product.to_string(signedness));
+    }
     return fmt::format("exp(i * {} * {})", _phase.get_print_string(), _pauli_product.to_string(signedness));
 }
 
 std::string PauliRotation::to_bit_string() const {
-    return fmt::format("{} {}", _pauli_product.to_bit_string().substr(0, 2 * n_qubits() + 1), _phase.get_print_string());
+    auto const pauli_part = _pauli_product.to_bit_string().substr(0, 2 * n_qubits() + 1);
+    if (_is_cz) {
+        return fmt::format("{} CZ", pauli_part);
+    }
+    return fmt::format("{} {}", pauli_part, _phase.get_print_string());
 }
 
 PauliRotation& PauliRotation::h(size_t qubit) noexcept {
@@ -269,6 +277,21 @@ PauliRotation& PauliRotation::cx(size_t control, size_t target) noexcept {
     _pauli_product.cx(control, target);
     _normalize();
     return *this;
+}
+
+PauliRotation PauliRotation::make_linear(size_t n_qubits, size_t qubit, dvlab::Phase const& phase) {
+    auto pauli_vec = std::vector<Pauli>(n_qubits, Pauli::i);
+    pauli_vec[qubit] = Pauli::z;
+    return PauliRotation(pauli_vec, phase);
+}
+
+PauliRotation PauliRotation::make_CZ(size_t n_qubits, size_t a, size_t b) {
+    auto pauli_vec   = std::vector<Pauli>(n_qubits, Pauli::i);
+    pauli_vec[a]     = Pauli::z;
+    pauli_vec[b]     = Pauli::z;
+    auto rotation    = PauliRotation(pauli_vec, dvlab::Phase(0));
+    rotation.set_is_CZ(true);
+    return rotation;
 }
 
 std::pair<CliffordOperatorString, size_t> extract_clifford_operators(PauliRotation pauli_rotation) {

@@ -147,6 +147,11 @@ public:
     void set_ancilla_state(QubitIdType id, AncillaState state);
     QubitType get_qubit_type(QubitIdType id) const;
     AncillaState get_ancilla_state(QubitIdType id) const;
+
+    // Initial state management (applies to all qubits)
+    void set_initial_state(QubitIdType id, QubitInitialState state);
+    QubitInitialState get_initial_state(QubitIdType id) const;
+    std::string get_initial_state_string(QubitIdType id) const;
     std::vector<QubitIdType> get_ancilla_qubits() const;
     std::vector<QubitIdType> get_data_qubits() const;
     std::vector<QubitIdType> get_clean_ancilla_qubits() const;

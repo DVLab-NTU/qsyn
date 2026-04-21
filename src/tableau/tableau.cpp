@@ -11,6 +11,7 @@
 #include <spdlog/spdlog.h>
 #include <fmt/core.h>
 
+#include <cassert>
 #include <cstddef>
 
 namespace qsyn::experimental {
@@ -24,6 +25,8 @@ Tableau& Tableau::h(size_t qubit) noexcept {
                     std::ranges::for_each(subtableau, [qubit](auto& rotation) { rotation.h(qubit); });
                 },
                 [qubit](ClassicalControlTableau& cct) {
+                    assert((!cct.is_classical_control() || qubit != cct.ancilla_qubit()) &&
+                           "Tableau::h: classical-control block must not act on ancilla qubit");
                     cct.operations().h(qubit);
                 }),
             subtableau);
@@ -42,6 +45,8 @@ Tableau& Tableau::s(size_t qubit) noexcept {
                     std::ranges::for_each(subtableau, [qubit](auto& rotation) { rotation.s(qubit); });
                 },
                 [qubit](ClassicalControlTableau& cct) {
+                    assert((!cct.is_classical_control() || qubit != cct.ancilla_qubit()) &&
+                           "Tableau::s: classical-control block must not act on ancilla qubit");
                     cct.operations().s(qubit);
                 }),
             subtableau);
@@ -60,6 +65,9 @@ Tableau& Tableau::cx(size_t control, size_t target) noexcept {
                     std::ranges::for_each(subtableau, [control, target](auto& rotation) { rotation.cx(control, target); });
                 },
                 [control, target](ClassicalControlTableau& cct) {
+                    assert((!cct.is_classical_control() ||
+                            (control != cct.ancilla_qubit() && target != cct.ancilla_qubit())) &&
+                           "Tableau::cx: classical-control block must not act on ancilla qubit");
                     cct.operations().cx(control, target);
                 }),
             subtableau);

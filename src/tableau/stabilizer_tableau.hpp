@@ -145,6 +145,24 @@ CliffordOperatorString extract_clifford_operators(
 
 void print_clifford_operator_string(CliffordOperatorString const& operations);
 
+inline std::string clifford_ops_to_string(CliffordOperatorString const& ops) {
+    std::string result;
+    for (auto const& [type, qubits] : ops) {
+        switch (type) {
+            case CliffordOperatorType::cx:
+            case CliffordOperatorType::cz:
+            case CliffordOperatorType::swap:
+            case CliffordOperatorType::ecr:
+                result += fmt::format("{} q[{}], q[{}];\n", to_string(type), qubits[0], qubits[1]);
+                break;
+            default:
+                result += fmt::format("{} q[{}];\n", to_string(type), qubits[0]);
+                break;
+        }
+    }
+    return result;
+}
+
 }  // namespace experimental
 
 }  // namespace qsyn
@@ -154,13 +172,17 @@ struct fmt::formatter<qsyn::experimental::StabilizerTableau> {
     char presentation = 'c';
     constexpr auto parse(format_parse_context& ctx) {
         auto it = ctx.begin(), end = ctx.end();
-        if (it != end && (*it == 'c' || *it == 'b')) presentation = *it++;
+        if (it != end && (*it == 'c' || *it == 'b' || *it == 'g')) presentation = *it++;
         if (it != end && *it != '}') detail::throw_format_error("invalid format");
         return it;
     }
 
     template <typename FormatContext>
     auto format(qsyn::experimental::StabilizerTableau const& tableau, FormatContext& ctx) const {
+        if (presentation == 'g') {
+            auto const ops = qsyn::experimental::extract_clifford_operators(tableau);
+            return format_to(ctx.out(), "{}", qsyn::experimental::clifford_ops_to_string(ops));
+        }
         return presentation == 'c' ? format_to(ctx.out(), "{}", tableau.to_string())
                                    : format_to(ctx.out(), "{}", tableau.to_bit_string());
     }

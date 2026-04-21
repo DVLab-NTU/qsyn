@@ -168,6 +168,8 @@ CliffordOperatorString extract_clifford_operators(StabilizerTableau copy, Stabil
 CliffordOperatorString AGSynthesisStrategy::synthesize(StabilizerTableau copy) const {
     CliffordOperatorString clifford_ops;
 
+
+
     auto const add_cx = [&](size_t ctrl, size_t targ) {
         copy.cx(ctrl, targ);
         clifford_ops.push_back({CliffordOperatorType::cx, {ctrl, targ}});

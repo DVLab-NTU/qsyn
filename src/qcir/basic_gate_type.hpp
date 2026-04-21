@@ -370,12 +370,32 @@ private:
     dvlab::Phase _lambda;
 };
 
+/**
+ * @brief Basis in which a qubit is measured.
+ *
+ * Z — standard computational-basis (|0⟩/|1⟩) measurement.
+ *     Written to QASM as:  measure q[i] -> c[j];
+ * X — Hadamard-basis (|+⟩/|−⟩) measurement.
+ *     Written to QASM as:  h q[i];  measure q[i] -> c[j];
+ *     When reading QASM the default is always Z.
+ */
+enum class MeasurementBasis { Z, X };
+
 class MeasurementGate {
 public:
-    MeasurementGate() = default;
+    MeasurementGate() : _basis(MeasurementBasis::Z) {}
+    explicit MeasurementGate(MeasurementBasis basis) : _basis(basis) {}
+
     std::string get_type() const { return "measure"; }
     std::string get_repr() const { return "measure"; }
     size_t get_num_qubits() const { return 1; }
+
+    MeasurementBasis get_basis() const { return _basis; }
+    bool is_x_basis() const { return _basis == MeasurementBasis::X; }
+    bool is_z_basis() const { return _basis == MeasurementBasis::Z; }
+
+private:
+    MeasurementBasis _basis;
 };
 
 inline Operation adjoint(UGate const& op) {

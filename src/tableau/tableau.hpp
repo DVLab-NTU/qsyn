@@ -10,6 +10,7 @@
 
 #include <tl/fold.hpp>
 #include <variant>
+#include <vector>
 #include <unordered_set>
 #include <unordered_map>
 #include <ranges>
@@ -168,21 +169,48 @@ public:
     
     /**
      * @brief Add an ancilla initial state to the tableau
-     * 
+     *
      * @param ancilla_index The index of the ancilla qubit
      * @param state The initial state of the ancilla qubit
      */
     void add_ancilla_state(size_t ancilla_index, AncillaInitialState state) {
         _ancilla_initial_states.push_back({ancilla_index, state});
     }
-    
+
     /**
      * @brief Get the vector of ancilla initial states (as pairs of <ancilla_index, state>)
-     * 
+     *
      * @return const reference to the vector of pairs
      */
     std::vector<std::pair<size_t, AncillaInitialState>> const& ancilla_initial_states() const {
         return _ancilla_initial_states;
+    }
+
+    // ── Per-ancilla measurement type ──────────────────────────────────────────
+    // Tracks which basis each ancilla is measured in (Z, X, or none).
+    // Initially none for every ancilla; set explicitly by the gadgetization pass.
+
+    /**
+     * @brief Set the measurement type for ancilla qubit `ancilla_index`.
+     *
+     * @param ancilla_index  index of the ancilla qubit
+     * @param mtype          Z, X, or none
+     */
+    void set_ancilla_measurement_type(size_t ancilla_index, MeasurementType mtype) {
+        _ancilla_measurement_types[ancilla_index] = mtype;
+    }
+
+    /**
+     * @brief Get the measurement type for ancilla qubit `ancilla_index`.
+     *        Returns MeasurementType::none if not explicitly set.
+     */
+    MeasurementType get_ancilla_measurement_type(size_t ancilla_index) const {
+        auto it = _ancilla_measurement_types.find(ancilla_index);
+        return it != _ancilla_measurement_types.end() ? it->second : MeasurementType::none;
+    }
+
+    std::unordered_map<size_t, MeasurementType> const& ancilla_measurement_types() const {
+        return _ancilla_measurement_types;
     }
 
     /**
@@ -259,7 +287,8 @@ private:
     std::size_t _n_ancilla;  // Number of ancilla qubits (last _n_ancilla qubits are ancillae)
     std::string _filename;
     std::vector<std::string> _procedures;
-    std::vector<std::pair<size_t, AncillaInitialState>> _ancilla_initial_states;  // Track initial states for all ancilla qubits as pairs <ancilla_index, state>
+    std::vector<std::pair<size_t, AncillaInitialState>> _ancilla_initial_states;
+    std::unordered_map<size_t, MeasurementType> _ancilla_measurement_types;  // ancilla_index → Z/X/none
     std::vector<std::pair<size_t, size_t>> _cct_pairing;  // CCT pairing structure - stores (ccc_index, pmc_index) pairs
 };
 
@@ -277,30 +306,64 @@ struct fmt::formatter<qsyn::experimental::SubTableau> {
     char presentation = 'c';
     constexpr auto parse(format_parse_context& ctx) {
         auto it = ctx.begin(), end = ctx.end();
-        if (it != end && (*it == 'c' || *it == 'b')) presentation = *it++;
+        if (it != end && (*it == 'c' || *it == 'b' || *it == 'g')) presentation = *it++;
         if (it != end && *it != '}') detail::throw_format_error("invalid format");
         return it;
     }
 
     template <typename FormatContext>
     auto format(qsyn::experimental::SubTableau const& subtableau, FormatContext& ctx) const -> format_context::iterator {
-        // NOTE - cannot use run-time formatting to choose between 'c' and 'b'
+        // NOTE - cannot use run-time formatting to choose between 'c', 'b', and 'g'
         //        because the format function may be called in compile-time
         return std::visit(
             dvlab::overloaded{
                 [&](qsyn::experimental::StabilizerTableau const& st) -> format_context::iterator {
+                    if (presentation == 'g') {
+                        auto const ops = qsyn::experimental::extract_clifford_operators(
+                            st, qsyn::experimental::HOptSynthesisStrategy{qsyn::experimental::HOptSynthesisStrategy::Mode::staircase});
+                        return fmt::format_to(ctx.out(), "Clifford:\n{}", qsyn::experimental::clifford_ops_to_string(ops));
+                    }
                     return fmt::format_to(ctx.out(), "Clifford:\n{}\n", presentation == 'c' ? st.to_string() : st.to_bit_string());
                 },
                 [&](std::vector<qsyn::experimental::PauliRotation> const& pr) -> format_context::iterator {
+                    if (presentation == 'g') {
+                        std::string result = "Pauli Rotations:\n";
+                        for (auto const& rotation : pr) {
+                            if (rotation.is_CZ()) {
+                                std::vector<size_t> z_qubits;
+                                for (size_t i = 0; i < rotation.n_qubits(); ++i) {
+                                    if (rotation.is_z(i)) z_qubits.push_back(i);
+                                }
+                                if (z_qubits.size() == 2) {
+                                    if (rotation.phase() == dvlab::Phase(1)) {
+                                        result += fmt::format("cz q[{}], q[{}];\n", z_qubits[0], z_qubits[1]);
+                                    } else {
+                                        result += fmt::format("cz({}) q[{}], q[{}];\n", rotation.phase(), z_qubits[0], z_qubits[1]);
+                                    }
+                                }
+                                continue;
+                            }
+                            auto const [ops, target] = qsyn::experimental::extract_clifford_operators(rotation);
+                            result += qsyn::experimental::clifford_ops_to_string(ops);
+                            result += fmt::format("rz({}) q[{}];\n", rotation.phase(), target);
+                            result += qsyn::experimental::clifford_ops_to_string(qsyn::experimental::adjoint(ops));
+                        }
+                        return fmt::format_to(ctx.out(), "{}", result);
+                    }
                     if (presentation == 'c')
                         return fmt::format_to(ctx.out(), "Pauli Rotations:\n{:c}\n", fmt::join(pr, "\n"));
                     else
                         return fmt::format_to(ctx.out(), "Pauli Rotations:\n{:b}\n", fmt::join(pr, "\n"));
                 },
                 [&](qsyn::experimental::ClassicalControlTableau const& cct) -> format_context::iterator {
+                    if (presentation == 'g') {
+                        auto const ops = qsyn::experimental::extract_clifford_operators(cct.operations());
+                        auto result = fmt::format_to(ctx.out(), "Classical Control (ancilla qubit[{}] controls):\n", cct.ancilla_qubit());
+                        return fmt::format_to(result, "  Operations:\n{}", qsyn::experimental::clifford_ops_to_string(ops));
+                    }
                     auto result = fmt::format_to(ctx.out(), "Classical Control (ancilla qubit[{}] controls):\n", cct.ancilla_qubit());
                     result = fmt::format_to(result, "  Operations:\n");
-                    result = fmt::format_to(result, "  {}\n", 
+                    result = fmt::format_to(result, "  {}\n",
                         presentation == 'c' ? cct.operations().to_string() : cct.operations().to_bit_string());
                     return result;
                 }},
@@ -313,15 +376,25 @@ struct fmt::formatter<qsyn::experimental::Tableau> {
     char presentation = 'c';
     constexpr auto parse(format_parse_context& ctx) {
         auto it = ctx.begin(), end = ctx.end();
-        if (it != end && (*it == 'c' || *it == 'b')) presentation = *it++;
+        if (it != end && (*it == 'c' || *it == 'b' || *it == 'g')) presentation = *it++;
         if (it != end && *it != '}') detail::throw_format_error("invalid format");
         return it;
     }
 
     template <typename FormatContext>
     auto format(qsyn::experimental::Tableau const& tableau, FormatContext& ctx) const {
-        return presentation == 'c'
-                   ? fmt::format_to(ctx.out(), "{:c}", fmt::join(tableau, "\n"))
-                   : fmt::format_to(ctx.out(), "{:b}", fmt::join(tableau, "\n"));
+        auto out = ctx.out();
+        bool first = true;
+        for (auto const& subtableau : tableau) {
+            if (!first) out = fmt::format_to(out, "\n");
+            first = false;
+            if (presentation == 'g')
+                out = fmt::format_to(out, "{:g}", subtableau);
+            else if (presentation == 'c')
+                out = fmt::format_to(out, "{:c}", subtableau);
+            else
+                out = fmt::format_to(out, "{:b}", subtableau);
+        }
+        return out;
     }
 };

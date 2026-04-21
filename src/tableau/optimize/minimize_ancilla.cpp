@@ -13,143 +13,53 @@
 #include <fmt/format.h>
 
 #include <algorithm>
+#include <fstream>
 #include <functional>
 #include <limits>
 #include <numeric>
 #include <optional>
+#include <ranges>
 #include <set>
+#include <sul/dynamic_bitset.hpp>
+#include <string_view>
 #include <unordered_map>
 #include <vector>
 
 namespace qsyn::experimental {
 
+// For diagonal phase columns (Z/I only), commuting through a Hadamard gadget (CCC)
+// only swaps the Z-support between the gadget's (reference, ancilla) qubits.
+static void swap_gadget_phase_slots(PauliRotation& r, size_t reference, size_t ancilla) {
+    if (reference == ancilla) {
+        return;
+    }
+    if (!r.is_diagonal()) {
+        return;
+    }
+
+    std::vector<Pauli> pv(r.n_qubits(), Pauli::i);
+    for (size_t q = 0; q < r.n_qubits(); ++q) {
+        pv[q] = r.get_pauli_type(q);
+    }
+    std::swap(pv[reference], pv[ancilla]);
+    dvlab::Phase const ph = r.phase();
+    r                    = PauliRotation(pv.begin(), pv.end(), ph);
+
+    // Refresh CZ flag: CZ only if diagonal, zero phase, and exactly two Zs.
+    if (r.phase() != dvlab::Phase(0)) {
+        r.set_is_CZ(false);
+        return;
+    }
+    size_t z_count = 0;
+    for (size_t q = 0; q < r.n_qubits(); ++q) {
+        if (r.get_pauli_type(q) == Pauli::z) ++z_count;
+    }
+    r.set_is_CZ(z_count == 2);
+}
+
+
 // Forward declaration for hadamard_degadgetize (defined in hadamard_gadgetize.cpp)
 void hadamard_degadgetize(Tableau& tableau, size_t ccc_index, size_t pmc_index);
-
-/**
- * @brief Fix circuit structure to {StabilizerTableau}{CCCs}{PR_tableau}{PMCs}{StabilizerTableau}
- *        Moves all StabilizerTableaus to the front and back by commuting them through CCCs/PMCs.
- *
- * @param tableau The tableau to fix (modified in place)
- * @return CircuitStructureInfo with ccc_count, pr_column_count, and is_valid flag
- */
-CircuitStructureInfo properize_for_degadgetization(Tableau& tableau) {
-    CircuitStructureInfo info = {0, 0, false};
-    
-    if (tableau.is_empty()) {
-        spdlog::warn("Tableau is empty");
-        return info;
-    }
-    // First pass: Find PR position, count and verify CCCs/PMCs, save PMC pointers
-    size_t pr_idx = std::numeric_limits<size_t>::max();
-    std::vector<ClassicalControlTableau*> pmc_ptrs;  // PMC pointers in tableau order
-    size_t pmc_count = 0;
-    
-    for (size_t i = 0; i < tableau.size(); ++i) {
-        auto* pr_vec = std::get_if<std::vector<PauliRotation>>(&tableau[i]);
-        auto* cct = std::get_if<ClassicalControlTableau>(&tableau[i]);
-        if (pr_idx == std::numeric_limits<size_t>::max()) {
-            // Before PR: look for PR or count/verify CCCs
-
-            if (pr_vec) {
-                pr_idx = i;
-                info.pr_column_count = pr_vec->size();
-                continue;
-            }
-            if (cct) {
-                if (!cct->is_ccc()) {
-                    spdlog::error("CCT at index {} before PR is not a CCC", i);
-                    return info;
-                }
-                info.ccc_count++;
-            }
-        } else {
-            // After PR: count/verify PMCs
-            if (pr_vec) {
-                spdlog::error("PR should only appear once in the tableau", i);
-                return info;
-            }
-            if (cct) {
-                if (!cct->is_pmc()) {
-                    spdlog::error("CCT at index {} after PR is not a PMC", i);
-                    return info;
-                }
-                pmc_ptrs.push_back(cct);
-                pmc_count++;
-            }
-        }
-    }
-    if (pr_idx == std::numeric_limits<size_t>::max()) {
-        spdlog::error("No PR_tableau found in tableau");
-        return info;
-    }
-    
-    // Verify CCC and PMC counts match
-    if (info.ccc_count != pmc_count) {
-        spdlog::error("CCC count ({}) does not match PMC count ({})", info.ccc_count, pmc_count);
-        return info;
-    }
-    
-    std::vector<ClassicalControlTableau*> ccc_ptrs;  // CCC pointers collected along the path
-    StabilizerTableau merged_front_st(tableau.n_qubits());
-    StabilizerTableau merged_back_st(tableau.n_qubits());
-    std::vector<size_t> st_indices_to_remove;  // Collect ST indices to remove after iteration
-    
-    for (size_t i = 0; i < tableau.size(); ++i) {
-        if (i < pr_idx) {
-            // Before PR
-            auto* ccc = std::get_if<ClassicalControlTableau>(&tableau[i]);
-            auto* st = std::get_if<StabilizerTableau>(&tableau[i]);
-            
-            if (ccc && ccc->is_ccc()) {
-                // Save CCC to the list
-                ccc_ptrs.push_back(ccc);
-            } else if (st) {
-                // Found an ST before PR - commute all CCCs in the list through this ST
-                for (auto* ccc_ptr : ccc_ptrs) {
-                    commutation_through_clifford(*st, ccc_ptr->operations());
-                }
-                merged_front_st.apply(extract_clifford_operators(*st));
-                st_indices_to_remove.push_back(i);
-            }
-        } else if (i == pr_idx) {
-            // PR position - skip
-            continue;
-        } else {
-            // After PR
-            auto* pmc = std::get_if<ClassicalControlTableau>(&tableau[i]);
-            auto* st = std::get_if<StabilizerTableau>(&tableau[i]);
-            
-            if (pmc && pmc->is_pmc()) {
-                // Remove the first PMC from the list
-                if (!pmc_ptrs.empty()) {
-                    pmc_ptrs.erase(pmc_ptrs.begin());
-                }
-            } else if (st) {
-                // Found an ST after PR - commute all PMCs in the list through this ST
-                for (auto* pmc_ptr : pmc_ptrs) {
-                    commutation_through_clifford(pmc_ptr->operations(), *st);
-                }
-                merged_back_st.apply(extract_clifford_operators(*st));
-                st_indices_to_remove.push_back(i);
-            }
-        }
-    }
-    
-    // Remove all collected STs (in reverse order to maintain indices)
-    std::sort(st_indices_to_remove.begin(), st_indices_to_remove.end(), std::greater<size_t>());
-    for (size_t idx : st_indices_to_remove) {
-        tableau.erase(tableau.begin() + idx, tableau.begin() + idx + 1);
-    }
-
-    tableau.insert(tableau.begin(), merged_front_st);
-    tableau.push_back(merged_back_st);
-    
-    info.is_valid = true;
-    spdlog::info("Tableau structure fixed: {} CCCs, {} PR columns, {} PMCs", 
-                 info.ccc_count, info.pr_column_count, pmc_count);
-    return info;
-}
 
 /**
  * @brief Export all H-gadget pairs (CCC-PMC pairs) from a tableau.
@@ -169,9 +79,9 @@ std::vector<ConstraintGraph::HadamardGadgetPair> export_hadamard_gadget_pairs(Ta
     for (size_t idx = 0; idx < tableau.size(); ++idx) {
         auto const* cct = std::get_if<ClassicalControlTableau>(&tableau[idx]);
         if (cct) {
-            if (cct->is_ccc()) {
+            if (cct->is_gadget()) {
                 ccc_list.emplace_back(idx, cct);
-            } else if (cct->is_pmc()) {
+            } else if (cct->is_classical_control()) {
                 pmc_list.emplace_back(idx, cct);
             }
 
@@ -465,7 +375,8 @@ size_t ConstraintGraph::break_cycles() {
     return removed_count;
 }
 
-ConstraintGraph build_constraint_graph(Tableau& tableau) {
+ConstraintGraph build_constraint_graph(Tableau& tableau,
+                                       std::optional<std::string> const& export_path) {
     ConstraintGraph graph;
     
     // Extract gadgets, create vertices, and establish CCC ordering edges
@@ -502,6 +413,8 @@ ConstraintGraph build_constraint_graph(Tableau& tableau) {
         }
     }
 
+    // Collect all phase columns (every PauliRotation in the PR block). This includes
+    // T/S/Z/Sdg rotations, CZ (Z on two qubits), and single-qubit Z rotations.
     std::vector<ConstraintGraph::PRInfo> all_prs;
     size_t global_pr_counter = 0;
     
@@ -513,6 +426,57 @@ ConstraintGraph build_constraint_graph(Tableau& tableau) {
             ConstraintGraph::PRInfo pr_info = {idx, pr_idx, global_pr_counter, &(*pr_vec)[pr_idx]};
             all_prs.push_back(pr_info);
             ++global_pr_counter;
+        }
+    }
+    
+    // Export constraint graph data to a text file if path is provided
+    if (export_path.has_value()) {
+        std::ofstream out(*export_path);
+        if (!out) {
+            spdlog::warn("build_constraint_graph: could not open export file '{}'", *export_path);
+        } else {
+            size_t const qubit_count = tableau.n_qubits();
+            size_t const ancilla_count = tableau.n_ancilla();
+            size_t const no_ref = std::numeric_limits<size_t>::max();
+
+            out << "qubit_count: " << qubit_count << "\n";
+            out << "ancilla_count: " << ancilla_count << "\n";
+            out << "gadget\n";
+            for (size_t g_idx = 0; g_idx < gadgets.size(); ++g_idx) {
+                auto const& gadget = gadgets[g_idx];
+                size_t const a = gadget.reference_qubit.value_or(no_ref);
+                size_t const b = gadget.ancilla_qubit;
+                out << g_idx << " " << a << " " << b << "\n";
+            }
+
+            // Paulis: for each pauli, take the Z part of the bit string (first n chars),
+            // output Z part only.
+            out << "paulis\n";
+            for (size_t i = 0; i < all_prs.size(); ++i) {
+                auto const* pr = all_prs[i].pr_ptr;
+
+                // Extract Z basis bits (length = qubit_count), then apply the permutation so that
+                // position i gets the bit from original position permutation[i]. We always print
+                // exactly qubit_count bits after the index.
+                std::string z_original(qubit_count, '0');
+                if (pr) {
+                    std::string const full_bits = pr->to_bit_string();
+                    // Z part is the first qubit_count characters (PauliProduct::to_bit_string
+                    // formats as: Z-bits, space, X-bits, space, sign-bit).
+                    if (full_bits.size() >= qubit_count) {
+                        z_original = full_bits.substr(0, qubit_count);
+                    } else {
+                        // Fallback: copy what we have, pad with '0's.
+                        std::copy(full_bits.begin(),
+                                  full_bits.begin() + std::min(qubit_count, full_bits.size()),
+                                  z_original.begin());
+                    }
+                }
+
+                out << i + gadgets.size() << " " << z_original << "\n";
+            }
+            spdlog::info("build_constraint_graph: exported to '{}' ({} gadgets, {} paulis)",
+                         *export_path, gadgets.size(), all_prs.size());
         }
     }
     
@@ -641,20 +605,23 @@ void print_constraint_graph_info(ConstraintGraph const& graph) {
     spdlog::info("=== End Constraint Graph Information ===");
 }
 
+
+
 void reorder_n_degadgetize(Tableau& tableau) {
     spdlog::debug("=== Starting reorder_n_degadgetize ===");
     // Save original qubit count
     size_t original_n_qubits = tableau.n_qubits();
-    
+    // spdlog::debug("Original tableau: {:g}", tableau);
     auto structure_info = properize_for_degadgetization(tableau);
+    // spdlog::debug("Properized tableau: {:g}", tableau);
     if (!structure_info.is_valid) {
         spdlog::error("Invalid circuit structure in reorder_n_degadgetize");
         return;
     }
-    spdlog::info("Circuit after properize_for_degadgetization:\n{:b}", tableau);
+    // spdlog::trace("Circuit after properize_for_degadgetization:\n{:b}", tableau);
     
     spdlog::debug("Building constraint graph...");
-    ConstraintGraph graph = build_constraint_graph(tableau);
+    ConstraintGraph graph = build_constraint_graph(tableau, "/home/ferayer/TODD/note/gadget_constraint_0320.txt");
 
     print_constraint_graph_info(graph);
     
@@ -706,7 +673,7 @@ void reorder_n_degadgetize(Tableau& tableau) {
     std::vector<ClassicalControlTableau> pmcs;
     for (size_t idx = 0; idx < tableau.size(); ++idx) {
         auto const* cct = std::get_if<ClassicalControlTableau>(&tableau[idx]);
-        if (cct && cct->is_pmc()) {
+        if (cct && cct->is_classical_control()) {
             pmcs.push_back(*cct);
         }
     }
@@ -723,7 +690,7 @@ void reorder_n_degadgetize(Tableau& tableau) {
             size_t ccc_idx = gadgets[vertex_id].ccc_index;
             if (ccc_idx < tableau.size()) {
                 auto const* cct = std::get_if<ClassicalControlTableau>(&tableau[ccc_idx]);
-                if (cct && cct->is_ccc()) {
+                if (cct && cct->is_gadget()) {
                     temp_cccs.push_back(*cct);
                 }
             }
@@ -765,18 +732,40 @@ void reorder_n_degadgetize(Tableau& tableau) {
         } else {
             // This is a PR vertex
             if (pr_columns.count(vertex_id) > 0) {
+                
                 std::vector<PauliRotation> pr_column = std::move(pr_columns[vertex_id]);
+                spdlog::debug("PR vertex {}: pr_column BEFORE commuting through {} remaining CCC(s): size={}",
+                              vertex_id, temp_cccs.size(), pr_column.size());
+                for (size_t i = 0; i < pr_column.size(); ++i) {
+                    spdlog::debug("  PR vertex {}: BEFORE  col[{}] = {:b}", vertex_id, i, pr_column[i]);
+                }
+                
                 for (auto it = temp_cccs.rbegin(); it != temp_cccs.rend(); ++it) {
                     auto& ccc = *it;
-                    // Extract Clifford operators from CCC's internal StabilizerTableau
-                    auto clifford_ops = extract_clifford_operators(ccc.operations());
-                    
-                    // Apply adjoint to each PR in the column
-                    // This modifies PR to account for CCC being moved after it
-                    auto adjoint_ops = adjoint(clifford_ops);
-                    for (auto& rotation : pr_column) {
-                        rotation.apply(adjoint_ops);
+                    // When commuting (diagonal) PR columns through a Hadamard gadget,
+                    // only the gadget qubit pair is needed: swap phase slots on (reference, ancilla).
+
+                    size_t const a = ccc.reference_qubit();
+                    size_t const b = ccc.ancilla_qubit();
+                    spdlog::debug("PR vertex {}: commuting through gadget pair (ref={}, anc={}) | size={}",
+                                  vertex_id, a, b, pr_column.size());
+                    for (size_t i = 0; i < pr_column.size(); ++i) {
+                        spdlog::debug("  PR vertex {}: pair(ref={},anc={}) BEFORE col[{}] = {:b}", vertex_id, a, b, i,
+                                      pr_column[i]);
                     }
+                    for (auto& rotation : pr_column) {
+                        swap_gadget_phase_slots(rotation, a, b);
+                    }
+                    for (size_t i = 0; i < pr_column.size(); ++i) {
+                        spdlog::debug("  PR vertex {}: pair(ref={},anc={}) AFTER  col[{}] = {:b}", vertex_id, a, b, i,
+                                      pr_column[i]);
+                    }
+                }
+
+                spdlog::debug("PR vertex {}: pr_column AFTER commuting through all remaining CCC(s): size={}",
+                              vertex_id, pr_column.size());
+                for (size_t i = 0; i < pr_column.size(); ++i) {
+                    spdlog::debug("  PR vertex {}: AFTER   col[{}] = {:b}", vertex_id, i, pr_column[i]);
                 }
                 
                 new_tableau.push_back(std::move(pr_column));
@@ -784,7 +773,7 @@ void reorder_n_degadgetize(Tableau& tableau) {
         }
     }
     spdlog::debug("New tableau assembled: {} elements (before PMCs and back ST)", new_tableau.size());
-
+    spdlog::debug("New tableau: {:b}", new_tableau);
     // Add PMCs & back StabilizerTableau at the end
     for (auto& pmc : pmcs) {
         new_tableau.push_back(std::move(pmc));
@@ -793,7 +782,7 @@ void reorder_n_degadgetize(Tableau& tableau) {
 
 
     spdlog::debug("Added {} PMCs and back StabilizerTableau. New tableau size: {}", pmcs.size(), new_tableau.size());
-
+    // spdlog::debug("New tableau: {:b}", new_tableau);
     // Re-establish CCC-PMC pairing after reordering (pairing pointers were invalidated)
     spdlog::debug("Re-establishing CCC-PMC pairing...");
     reestablish_hadamard_gadget_pairing(new_tableau);
@@ -805,11 +794,11 @@ void reorder_n_degadgetize(Tableau& tableau) {
                   if (!ccc_a || !ccc_b) return false;
                   return ccc_a->ancilla_qubit() > ccc_b->ancilla_qubit();
               });
-    spdlog::debug("New tableau:\n{:b}", new_tableau);
 
 
     // Track which ancilla qubits are being removed (in descending order)
     std::set<size_t> removed_ancilla_qubits;
+
     
     spdlog::debug("Starting degadgetization of {} gadgets...", degadgetize_gadgets.size());
     size_t degadgetized_count = 0;
@@ -828,7 +817,6 @@ void reorder_n_degadgetize(Tableau& tableau) {
         
         hadamard_degadgetize(new_tableau, ccc_index, pmc_index_opt.value());
         degadgetized_count++;
-        
 
     }
     spdlog::debug("Completed degadgetization: {} gadgets processed", degadgetized_count);
@@ -843,9 +831,11 @@ void reorder_n_degadgetize(Tableau& tableau) {
     }
     
     tableau = new_tableau;
+    remove_identities(tableau);
     spdlog::debug("=== Finished reorder_n_degadgetize: final tableau size {} with {} qubits ({} ancillae) ===", 
                  tableau.size(), tableau.n_qubits(), tableau.n_ancilla());
 }
+
 
 }  // namespace qsyn::experimental
 

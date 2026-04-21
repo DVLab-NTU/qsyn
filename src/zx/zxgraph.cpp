@@ -70,6 +70,17 @@ ZXGraph::ZXGraph(ZXGraph const& other) : _filename{other._filename}, _procedures
     other.for_each_edge([&old_to_new_vertex_map, this](EdgePair const& epair) {
         this->add_edge(old_to_new_vertex_map[epair.first.first], old_to_new_vertex_map[epair.first.second], epair.second);
     });
+
+    // Copy classical annotations and rebuild the measurement map
+    for (auto& [old_v, new_v] : old_to_new_vertex_map) {
+        if (old_v->get_measurement_id().has_value()) {
+            new_v->set_measurement_id(old_v->get_measurement_id());
+            _measurement_map.emplace(*old_v->get_measurement_id(), new_v);
+        }
+        if (old_v->get_conditional_on().has_value()) {
+            new_v->set_conditional_on(old_v->get_conditional_on());
+        }
+    }
 }
 
 /**
@@ -172,6 +183,133 @@ size_t& ZXGraph::_next_vertex_id() {
         _next_v_id++;
     }
     return _next_v_id;
+}
+
+/*****************************************************/
+/*   class ZXGraph Classical annotation methods      */
+/*****************************************************/
+
+/**
+ * @brief Set the measurement_id annotation on `v` and register it in the
+ *        graph-level measurement map.
+ *
+ * Returns false and logs an error without modifying the graph when
+ * `measurement_id` is already occupied by a *different* spider.
+ * Returns true if the annotation was set successfully.
+ *
+ * @param v              the spider that performs a measurement
+ * @param measurement_id the index of the classical bit produced
+ */
+bool ZXGraph::set_measurement_id(ZXVertex* v, size_t measurement_id) {
+    // Conflict check: another spider already owns this classical bit index
+    auto existing = _measurement_map.find(measurement_id);
+    if (existing != _measurement_map.end() && existing->second != v) {
+        spdlog::error(
+            "Classical bit {} is already assigned to vertex {} — "
+            "cannot assign it to vertex {} as well",
+            measurement_id, existing->second->get_id(), v->get_id());
+        return false;
+    }
+
+    // If this vertex previously owned a different classical bit, release it
+    if (v->is_measurement()) {
+        _measurement_map.erase(*v->get_measurement_id());
+    }
+
+    v->set_measurement_id(measurement_id);
+    _measurement_map.emplace(measurement_id, v);
+    return true;
+}
+
+/**
+ * @brief Add a vertex with classical annotations set atomically at creation.
+ *
+ * If `annotation.measurement_id` is set and that ID is already occupied by
+ * another spider, the vertex is removed and nullptr is returned.
+ *
+ * @param vt         vertex type
+ * @param phase      spider phase
+ * @param row        display row
+ * @param col        display column (time position)
+ * @param annotation optional measurement_id and/or conditional_on
+ * @return ZXVertex* new vertex, or nullptr on conflict
+ */
+ZXVertex* ZXGraph::add_vertex(VertexType vt, Phase phase, float row, float col,
+                               ClassicalAnnotation annotation) {
+    auto* v = add_vertex(vt, phase, row, col);
+    if (!v) return nullptr;
+
+    if (annotation.measurement_id.has_value()) {
+        if (!set_measurement_id(v, *annotation.measurement_id)) {
+            remove_vertex(v);
+            return nullptr;
+        }
+    }
+    if (annotation.conditional_on.has_value()) {
+        if (!set_conditional_on(v, *annotation.conditional_on)) {
+            remove_vertex(v);
+            return nullptr;
+        }
+    }
+    return v;
+}
+
+/**
+ * @brief Clear the measurement_id annotation on `v` and remove it from the
+ *        graph-level measurement map.
+ *
+ * @param v the spider whose measurement annotation should be cleared
+ */
+void ZXGraph::clear_measurement_id(ZXVertex* v) {
+    if (v->is_measurement()) {
+        _measurement_map.erase(*v->get_measurement_id());
+        v->set_measurement_id(std::nullopt);
+    }
+}
+
+/**
+ * @brief Annotate `v` as conditionally applied when classical bit
+ *        `measurement_id` equals 1.
+ *
+ * Fails (returns false, logs error) when no measurement spider for
+ * `measurement_id` has been registered yet — enforcing the ordering invariant
+ * that a feed-forward correction can only reference a bit that has already been
+ * produced by a measurement.
+ *
+ * @param v              the spider to annotate
+ * @param measurement_id the classical bit index this spider is conditioned on
+ */
+bool ZXGraph::set_conditional_on(ZXVertex* v, size_t measurement_id) {
+    if (!_measurement_map.contains(measurement_id)) {
+        spdlog::error(
+            "Cannot set conditional_on={} on vertex {}: "
+            "no measurement spider with that classical bit index exists in the graph",
+            measurement_id, v->get_id());
+        return false;
+    }
+    v->set_conditional_on(measurement_id);
+    return true;
+}
+
+/**
+ * @brief Clear the conditional_on annotation on `v`.
+ *
+ * @param v the spider whose conditional annotation should be cleared
+ */
+void ZXGraph::clear_conditional_on(ZXVertex* v) {
+    v->set_conditional_on(std::nullopt);
+}
+
+/**
+ * @brief Look up the measurement spider that produces classical bit
+ *        `measurement_id`.
+ *
+ * @param measurement_id the classical bit index
+ * @return ZXVertex* pointer to the spider, or nullptr if not found
+ */
+ZXVertex* ZXGraph::get_measurement_vertex(size_t measurement_id) const {
+    auto it = _measurement_map.find(measurement_id);
+    return it != _measurement_map.end() ? it->second : nullptr;
 }
 
 /*****************************************************/
@@ -523,6 +661,12 @@ void ZXGraph::_move_vertices_from(ZXGraph& other) {
     other._input_list.clear();
     other._output_list.clear();
     other._id_to_vertices.clear();
+
+    // Transfer measurement map entries (vertex pointers remain valid after move)
+    for (auto& [meas_id, v] : other._measurement_map) {
+        _measurement_map.emplace(meas_id, v);
+    }
+    other._measurement_map.clear();
 }
 
 /*****************************************************/
@@ -567,6 +711,11 @@ size_t ZXGraph::remove_vertex(ZXVertex* v) {
     if (_outputs.contains(v)) {
         _output_list.erase(v->get_qubit());
         _outputs.erase(v);
+    }
+
+    // Remove from measurement map if applicable
+    if (v->is_measurement()) {
+        _measurement_map.erase(*v->get_measurement_id());
     }
 
     // deallocate ZXVertex

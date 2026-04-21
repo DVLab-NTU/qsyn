@@ -48,6 +48,13 @@ QCir::QCir(QCir const& other) {
     namespace views = std::ranges::views;
     this->add_qubits(other._qubits.size());
     this->add_classical_bits(other._classical_bits.size());
+
+    // Copy qubit metadata (type, ancilla state, initial state)
+    for (size_t i = 0; i < other._qubits.size(); ++i) {
+        _qubits[i].set_type(other._qubits[i].get_type());
+        _qubits[i].set_ancilla_state(other._qubits[i].get_ancilla_state());
+        _qubits[i].set_initial_state(other._qubits[i].get_initial_state());
+    }
     
     // Copy classical bit states (but not measurement gates - will be re-established)
     for (size_t i = 0; i < other._classical_bits.size(); ++i) {
@@ -602,6 +609,48 @@ AncillaState QCir::get_ancilla_state(QubitIdType id) const {
         return AncillaState::clean;
     }
     return _qubits[id].get_ancilla_state();
+}
+
+/**
+ * @brief Set the initial quantum state of a qubit
+ *
+ * @param id qubit ID
+ * @param state initial state (zero, one, plus, minus)
+ */
+void QCir::set_initial_state(QubitIdType id, QubitInitialState state) {
+    if (id >= _qubits.size()) {
+        spdlog::error("Qubit ID {} not found!!", id);
+        return;
+    }
+    _qubits[id].set_initial_state(state);
+}
+
+/**
+ * @brief Get the initial quantum state of a qubit
+ *
+ * @param id qubit ID
+ * @return initial state
+ */
+QubitInitialState QCir::get_initial_state(QubitIdType id) const {
+    if (id >= _qubits.size()) {
+        spdlog::error("Qubit ID {} not found!!", id);
+        return QubitInitialState::zero;
+    }
+    return _qubits[id].get_initial_state();
+}
+
+/**
+ * @brief Get the initial quantum state of a qubit as a string
+ *
+ * @param id qubit ID
+ * @return initial state string ("|0>", "|1>", "|+>", "|->")
+ */
+std::string QCir::get_initial_state_string(QubitIdType id) const {
+    if (id >= _qubits.size()) {
+        spdlog::error("Qubit ID {} not found!!", id);
+        return "|0>";
+    }
+    return _qubits[id].get_initial_state_string();
 }
 
 /**
