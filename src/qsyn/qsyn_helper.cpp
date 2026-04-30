@@ -137,7 +137,7 @@ bool initialize_qsyn(
            qsyn::qcir::add_qcir_cmds(cli, qcir_mgr) &&
            qsyn::tensor::add_tensor_cmds(cli, tensor_mgr) &&
            qsyn::zx::add_zx_cmds(cli, zxgraph_mgr) &&
-           qsyn::experimental::add_tableau_command(cli, tableau_mgr);
+           qsyn::experimental::add_tableau_command(cli, tableau_mgr, qcir_mgr);
 }
 
 dvlab::argparse::ArgumentParser get_qsyn_parser(std::string_view const prog_name) {

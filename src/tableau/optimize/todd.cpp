@@ -948,13 +948,13 @@ std::pair<StabilizerTableau, Polynomial> FastToddPhasePolynomialOptimizationStra
     multi_linear_polynomial.add_rotations(ret_polynomial, true);
 
     //for Clifford terms in pauli term
-    if (auto columns = multi_linear_polynomial.to_pauli_columns(polynomial.front().n_qubits())) {
-        ret_polynomial.insert(ret_polynomial.end(), columns->begin(), columns->end());
-    } 
-    //keep clifford in StabilizerTableau terms
-    // if (auto clifford_opt = multi_linear_polynomial.extract_clifford_operators()) {
-    //     ret_clifford.apply(*clifford_opt);
+    // if (auto columns = multi_linear_polynomial.to_pauli_columns(polynomial.front().n_qubits())) {
+    //     ret_polynomial.insert(ret_polynomial.end(), columns->begin(), columns->end());
     // } 
+    //keep clifford in StabilizerTableau terms
+    if (auto clifford_opt = multi_linear_polynomial.extract_clifford_operators()) {
+        ret_clifford.apply(*clifford_opt);
+    } 
     else {
         spdlog::error("Failed to perform Fast-TODD optimization: the post-optimization polynomial does not have the same signature as the pre-optimization polynomial!!");
         return {clifford, polynomial};

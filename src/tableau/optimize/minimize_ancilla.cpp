@@ -29,7 +29,7 @@ namespace qsyn::experimental {
 
 // For diagonal phase columns (Z/I only), commuting through a Hadamard gadget (CCC)
 // only swaps the Z-support between the gadget's (reference, ancilla) qubits.
-static void swap_gadget_phase_slots(PauliRotation& r, size_t reference, size_t ancilla) {
+void swap_gadget_phase_slots(PauliRotation& r, size_t reference, size_t ancilla) {
     if (reference == ancilla) {
         return;
     }
@@ -447,6 +447,50 @@ ConstraintGraph build_constraint_graph(Tableau& tableau,
                 size_t const a = gadget.reference_qubit.value_or(no_ref);
                 size_t const b = gadget.ancilla_qubit;
                 out << g_idx << " " << a << " " << b << "\n";
+            }
+
+            // Ordered operation stream for deterministic SAT-side status propagation.
+            // Source it directly from the properized G/C segment:
+            // - when a gadget CCT is encountered: emit "gadget gid a b"
+            // - when a Clifford ST is encountered: extract Clifford ops and emit each CX as "cx c t"
+            out << "ops\n";
+            std::unordered_map<size_t, size_t> ccc_index_to_gid;
+            ccc_index_to_gid.reserve(gadgets.size());
+            for (size_t gid = 0; gid < gadgets.size(); ++gid) {
+                ccc_index_to_gid[gadgets[gid].ccc_index] = gid;
+            }
+
+            // Skip the leading front Clifford (index 0), and stop once PR segment starts.
+            for (size_t idx = 1; idx < tableau.size(); ++idx) {
+                if (std::holds_alternative<std::vector<PauliRotation>>(tableau[idx])) {
+                    break;
+                }
+                if (auto const* cct = std::get_if<ClassicalControlTableau>(&tableau[idx])) {
+                    if (!cct->is_gadget()) {
+                        continue;
+                    }
+                    auto it = ccc_index_to_gid.find(idx);
+                    if (it == ccc_index_to_gid.end()) {
+                        spdlog::warn("build_constraint_graph: gadget CCT at index {} has no gid mapping", idx);
+                        continue;
+                    }
+                    size_t const gid = it->second;
+                    size_t const a = cct->reference_qubit();
+                    size_t const b = cct->ancilla_qubit();
+                    out << "gadget " << gid << " " << a << " " << b << "\n";
+                    continue;
+                }
+
+                auto const* st = std::get_if<StabilizerTableau>(&tableau[idx]);
+                if (!st) {
+                    continue;
+                }
+                auto const ops = extract_clifford_operators(*st);
+                for (auto const& [type, qubits] : ops) {
+                    if (type == CliffordOperatorType::cx) {
+                        out << "cx " << qubits[0] << " " << qubits[1] << "\n";
+                    }
+                }
             }
 
             // Paulis: for each pauli, take the Z part of the bit string (first n chars),

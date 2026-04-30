@@ -13,6 +13,7 @@
 #include "argparse/arg_type.hpp"
 #include "argparse/argument.hpp"
 #include "cli/cli.hpp"
+#include "cmd/qcir_mgr.hpp"
 #include "cmd/tableau_mgr.hpp"
 #include "tableau/pauli_rotation.hpp"
 #include "tableau/stabilizer_tableau.hpp"
@@ -178,7 +179,7 @@ dvlab::Command tableau_adjoint_cmd(TableauMgr& tableau_mgr) {
         }};
 }
 
-dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr) {
+dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr, qsyn::qcir::QCirMgr& qcir_mgr) {
     return dvlab::Command{
         "optimize",
         [&](ArgumentParser& parser) {
@@ -337,7 +338,11 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr) {
                     tableau_mgr.get()->add_procedure("MatroidPartition");
                     break;
                 case OptimizationMethod::ancillary_t_opt:
-                    minimize_ancillary_t_opt(*tableau_mgr.get());
+                    minimize_ancillary_t_opt(
+                        *tableau_mgr.get(),
+                        qcir_mgr.empty()
+                            ? std::optional<std::string>{tableau_mgr.get()->get_filename()}
+                            : std::optional<std::string>{qcir_mgr.get()->get_filename()});
                     tableau_mgr.get()->add_procedure("AncillaryTOpt");
                     break;
                 case OptimizationMethod::blockwise_ancillary_t_opt: {
@@ -359,7 +364,7 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr) {
         }};
 }
 
-dvlab::Command tableau_cmd(TableauMgr& tableau_mgr) {
+dvlab::Command tableau_cmd(TableauMgr& tableau_mgr, qsyn::qcir::QCirMgr& qcir_mgr) {
     auto cmd = dvlab::utils::mgr_root_cmd(tableau_mgr);
 
     cmd.add_subcommand("tableau-cmd-group", dvlab::utils::mgr_list_cmd(tableau_mgr));
@@ -370,13 +375,13 @@ dvlab::Command tableau_cmd(TableauMgr& tableau_mgr) {
     cmd.add_subcommand("tableau-cmd-group", tableau_append_cmd(tableau_mgr));
     cmd.add_subcommand("tableau-cmd-group", tableau_adjoint_cmd(tableau_mgr));
     cmd.add_subcommand("tableau-cmd-group", tableau_print_cmd(tableau_mgr));
-    cmd.add_subcommand("tableau-cmd-group", tableau_optimization_cmd(tableau_mgr));
+    cmd.add_subcommand("tableau-cmd-group", tableau_optimization_cmd(tableau_mgr, qcir_mgr));
 
     return cmd;
 }
 
-bool add_tableau_command(dvlab::CommandLineInterface& cli, TableauMgr& tableau_mgr) {
-    return cli.add_command(tableau_cmd(tableau_mgr));
+bool add_tableau_command(dvlab::CommandLineInterface& cli, TableauMgr& tableau_mgr, qsyn::qcir::QCirMgr& qcir_mgr) {
+    return cli.add_command(tableau_cmd(tableau_mgr, qcir_mgr));
 }
 
 }  // namespace qsyn::experimental

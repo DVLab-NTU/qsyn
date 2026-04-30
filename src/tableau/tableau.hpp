@@ -358,10 +358,31 @@ struct fmt::formatter<qsyn::experimental::SubTableau> {
                 [&](qsyn::experimental::ClassicalControlTableau const& cct) -> format_context::iterator {
                     if (presentation == 'g') {
                         auto const ops = qsyn::experimental::extract_clifford_operators(cct.operations());
-                        auto result = fmt::format_to(ctx.out(), "Classical Control (ancilla qubit[{}] controls):\n", cct.ancilla_qubit());
+                        if (cct.is_gadget()) {
+                            auto result = fmt::format_to(
+                                ctx.out(),
+                                "Gadget (ancilla qubit[{}], reference qubit[{}]):\n",
+                                cct.ancilla_qubit(),
+                                cct.reference_qubit());
+                            return fmt::format_to(result, "  Operations:\n{}", qsyn::experimental::clifford_ops_to_string(ops));
+                        }
+                        auto result = fmt::format_to(
+                            ctx.out(), "Classical Control (ancilla qubit[{}] controls):\n", cct.ancilla_qubit());
                         return fmt::format_to(result, "  Operations:\n{}", qsyn::experimental::clifford_ops_to_string(ops));
                     }
-                    auto result = fmt::format_to(ctx.out(), "Classical Control (ancilla qubit[{}] controls):\n", cct.ancilla_qubit());
+                    if (cct.is_gadget()) {
+                        auto result = fmt::format_to(
+                            ctx.out(),
+                            "Gadget (ancilla qubit[{}], reference qubit[{}]):\n",
+                            cct.ancilla_qubit(),
+                            cct.reference_qubit());
+                        result = fmt::format_to(result, "  Operations:\n");
+                        result = fmt::format_to(result, "  {}\n",
+                            presentation == 'c' ? cct.operations().to_string() : cct.operations().to_bit_string());
+                        return result;
+                    }
+                    auto result =
+                        fmt::format_to(ctx.out(), "Classical Control (ancilla qubit[{}] controls):\n", cct.ancilla_qubit());
                     result = fmt::format_to(result, "  Operations:\n");
                     result = fmt::format_to(result, "  {}\n",
                         presentation == 'c' ? cct.operations().to_string() : cct.operations().to_bit_string());

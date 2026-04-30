@@ -14,13 +14,17 @@
 #include <spdlog/spdlog.h>
 
 #include <algorithm>
+#include <cstdint>
 #include <cstdlib>
 #include <deque>
+#include <stdexcept>
 #include <fstream>
+#include <optional>
 #include <sstream>
 #include <string>
 #include <string_view>
 #include <unordered_map>
+#include <unordered_set>
 #include <utility>
 #include <vector>
 
@@ -32,33 +36,6 @@ namespace qsyn::experimental {
 
 namespace {
 
-void swap_gadget_phase_slots(PauliRotation& r, size_t reference, size_t ancilla) {
-    if (reference == ancilla) {
-        return;
-    }
-    if (!r.is_diagonal()) {
-        return;
-    }
-
-    std::vector<Pauli> pv(r.n_qubits(), Pauli::i);
-    for (size_t q = 0; q < r.n_qubits(); ++q) {
-        pv[q] = r.get_pauli_type(q);
-    }
-    std::swap(pv[reference], pv[ancilla]);
-    dvlab::Phase const ph = r.phase();
-    r                    = PauliRotation(pv.begin(), pv.end(), ph);
-
-    if (r.phase() != dvlab::Phase(0)) {
-        r.set_is_CZ(false);
-        return;
-    }
-    size_t z_count = 0;
-    for (size_t q = 0; q < r.n_qubits(); ++q) {
-        if (r.get_pauli_type(q) == Pauli::z) ++z_count;
-    }
-    r.set_is_CZ(z_count == 2);
-}
-
 enum class ScheduleParseSection { None, GadgetOrder, ColumnSlot, Span };
 
 struct ParsedGadgetOrdering {
@@ -68,6 +45,10 @@ struct ParsedGadgetOrdering {
     std::unordered_map<size_t, size_t> column_slot;
     /// From ``Span :`` section: gadget id -> (min_i, max_i) gap indices.
     std::unordered_map<size_t, std::pair<size_t, size_t>> span_by_gid;
+
+    /// `occupied_gadget_gap_time[gid][t] == 1` iff gadget `gid` is **busy** at gap time `t` per Span `[min_i,max_i]`
+    /// (else `0`). `(gid 0 0)` leaves row `gid` all zero.
+    std::vector<std::vector<std::uint8_t>> occupied_gadget_gap_time;
 };
 
 bool parse_gadget_ordering_file(std::filesystem::path const& path, ParsedGadgetOrdering& out, std::string& err) {
@@ -141,6 +122,16 @@ bool parse_gadget_ordering_file(std::filesystem::path const& path, ParsedGadgetO
             }
             out.column_slot[pid] = gap;
         } else if (section == ScheduleParseSection::Span) {
+            if (out.gadget_order_gids.empty()) {
+                err = "Span data requires gadget_order before Span (need G to size occupied_gadget_gap_time)";
+                return false;
+            }
+            size_t const G = out.gadget_order_gids.size();
+            size_t const num_gap_times = G + 1;
+            if (out.occupied_gadget_gap_time.empty()) {
+                out.occupied_gadget_gap_time.assign(G, std::vector<std::uint8_t>(num_gap_times, 0));
+            }
+
             std::istringstream iss(line);
             size_t gid = 0;
             size_t min_i = 0;
@@ -149,11 +140,30 @@ bool parse_gadget_ordering_file(std::filesystem::path const& path, ParsedGadgetO
                 err = fmt::format("bad Span line: {}", line);
                 return false;
             }
+            if (gid >= G) {
+                err = fmt::format("Span gid {} >= gadget count {}", gid, G);
+                return false;
+            }
+            if (min_i > max_i) {
+                err = fmt::format("Span gid {} has min_i {} > max_i {}", gid, min_i, max_i);
+                return false;
+            }
+            if (max_i >= num_gap_times) {
+                err = fmt::format(
+                    "Span gid {} max_i {} out of range for gap times [0,{}]", gid, max_i, num_gap_times - 1);
+                return false;
+            }
             if (out.span_by_gid.count(gid) != 0) {
                 err = fmt::format("duplicate Span gid {}", gid);
                 return false;
             }
             out.span_by_gid.emplace(gid, std::pair<size_t, size_t>{min_i, max_i});
+
+            if (!(min_i == 0 && max_i == 0)) {
+                for (size_t t = min_i; t <= max_i; ++t) {
+                    out.occupied_gadget_gap_time[gid][t] = 1;
+                }
+            }
         } else {
             err = fmt::format("unexpected line before gadget_order: {}", line);
             return false;
@@ -308,12 +318,265 @@ void log_and_export_spans(std::filesystem::path const& ordering_path, ParsedGadg
     spdlog::info("sat_reorder_apply: exported Span per gid to '{}'", out_path.string());
 }
 
-enum class LinearOpKind { Pauli, Gadget };
+bool permute_pmcs_in_middle_for_sat_order(
+    std::vector<SubTableau>& middle,
+    size_t G,
+    ParsedGadgetOrdering const& ord,
+    std::vector<ConstraintGraph::HadamardGadgetPair> const& gadgets) {
+    if (G == 0) {
+        return true;
+    }
+    if (middle.size() < G) {
+        spdlog::error("permute_pmcs_in_middle_for_sat_order: middle size {} < G {}", middle.size(), G);
+        return false;
+    }
 
-struct LinearOp {
-    LinearOpKind kind;
-    size_t vertex_id;
-};
+    size_t const tail_start = middle.size() - G;
+
+    // Locate each PMC (by gid) at the tail and each gadget CCC in the prefix.
+    std::vector<size_t> pmc_pos(G, 0);
+    for (size_t k = 0; k < G; ++k) {
+        size_t const idx = tail_start + k;
+        auto*         pmc = std::get_if<ClassicalControlTableau>(&middle[idx]);
+        if (!pmc || !pmc->is_classical_control()) {
+            spdlog::error(
+                "permute_pmcs_in_middle_for_sat_order: expected {} tail PMCs at indices [{}..{})",
+                G, tail_start, middle.size());
+            return false;
+        }
+        pmc_pos[k] = idx;
+    }
+
+    std::vector<size_t> ccc_pos;
+    ccc_pos.reserve(G);
+    for (size_t idx = 0; idx < tail_start; ++idx) {
+        if (auto* ccc = std::get_if<ClassicalControlTableau>(&middle[idx])) {
+            if (!ccc->is_gadget()) {
+                spdlog::error(
+                    "permute_pmcs_in_middle_for_sat_order: unexpected classical-control CCT at prefix index {}", idx);
+                return false;
+            }
+            ccc_pos.push_back(idx);
+        } else if (!std::holds_alternative<std::vector<PauliRotation>>(middle[idx])) {
+            spdlog::error(
+                "permute_pmcs_in_middle_for_sat_order: unexpected prefix block at index {}", idx);
+            return false;
+        }
+    }
+    if (ccc_pos.size() != G) {
+        spdlog::error(
+            "permute_pmcs_in_middle_for_sat_order: expected {} gadget CCCs in prefix, found {}", G, ccc_pos.size());
+        return false;
+    }
+
+    // Build processing order: ascending (span_max, ancilla_qubit, gid). Only gids with span_max < G move.
+    std::vector<size_t> span_max(G, 0);
+    for (size_t gid = 0; gid < G; ++gid) {
+        auto const it = ord.span_by_gid.find(gid);
+        if (it == ord.span_by_gid.end()) {
+            spdlog::error("permute_pmcs_in_middle_for_sat_order: Span missing for gid {}", gid);
+            return false;
+        }
+        size_t const max_i = it->second.second;
+        if (max_i > G) {
+            spdlog::error(
+                "permute_pmcs_in_middle_for_sat_order: Span max_i {} for gid {} out of range", max_i, gid);
+            return false;
+        }
+        span_max[gid] = max_i;
+    }
+
+    std::vector<size_t> movers;
+    movers.reserve(G);
+    for (size_t gid = 0; gid < G; ++gid) {
+        if (span_max[gid] < G) {
+            movers.push_back(gid);
+        }
+    }
+    std::sort(movers.begin(), movers.end(), [&](size_t a, size_t b) {
+        if (span_max[a] != span_max[b]) {
+            return span_max[a] < span_max[b];
+        }
+        if (gadgets[a].ancilla_qubit != gadgets[b].ancilla_qubit) {
+            return gadgets[a].ancilla_qubit < gadgets[b].ancilla_qubit;
+        }
+        return a < b;
+    });
+
+    for (size_t gid : movers) {
+        size_t const p = pmc_pos[gid];
+        size_t const i = span_max[gid];
+        size_t const t = ccc_pos[i];
+        if (p < t) {
+            spdlog::error(
+                "permute_pmcs_in_middle_for_sat_order: PMC gid {} at index {} is already left of target {}",
+                gid, p, t);
+            return false;
+        }
+        if (p == t) {
+            continue;
+        }
+
+        auto* mover_ptr = std::get_if<ClassicalControlTableau>(&middle[p]);
+        if (!mover_ptr) {
+            spdlog::error("permute_pmcs_in_middle_for_sat_order: PMC gid {} no longer a CCT at {}", gid, p);
+            return false;
+        }
+        ClassicalControlTableau& mover = *mover_ptr;
+
+        // Walk blocks between target and source in reverse (closest-to-source first) and update the mover PMC.
+        for (size_t k = p; k > t; --k) {
+            spdlog::debug("permute_pmcs_in_middle_for_sat_order: moving PMC gid {} past index {}", gid, k - 1);
+            SubTableau& neighbor = middle[k - 1];
+            if (auto* pr = std::get_if<std::vector<PauliRotation>>(&neighbor)) {
+                swap(*pr, mover);
+            } else if (auto* other = std::get_if<ClassicalControlTableau>(&neighbor)) {
+                if (other->is_gadget()) {
+                    swap(*other, mover);
+                } else {
+                    if (!check_swap(*other, mover)) {
+                        spdlog::error(
+                            "permute_pmcs_in_middle_for_sat_order: non-commuting PMCs encountered while moving gid {}",
+                            gid);
+                        return false;
+                    }
+                }
+            } else {
+                spdlog::error(
+                    "permute_pmcs_in_middle_for_sat_order: unexpected block while moving gid {} past index {}",
+                    gid, k - 1);
+                return false;
+            }
+        }
+
+        SubTableau moved = std::move(middle[p]);
+        middle.erase(middle.begin() + static_cast<std::ptrdiff_t>(p));
+        middle.insert(middle.begin() + static_cast<std::ptrdiff_t>(t), std::move(moved));
+
+        // Bookkeeping: blocks at [t .. p-1] shifted right by 1; block at p was removed, block inserted at t.
+        for (size_t k = i; k < G; ++k) {
+            ++ccc_pos[k];
+        }
+        for (size_t other_gid = 0; other_gid < G; ++other_gid) {
+            size_t& op = pmc_pos[other_gid];
+            if (other_gid == gid) {
+                op = t;
+            } else if (op >= t && op < p) {
+                ++op;
+            }
+        }
+    }
+
+    return true;
+}
+
+bool validate_classical_controls_against_span_allowlist(
+    std::vector<SubTableau> const& middle,
+    size_t const G,
+    ParsedGadgetOrdering const& ord,
+    std::vector<ConstraintGraph::HadamardGadgetPair> const& gadgets) {
+    if (ord.occupied_gadget_gap_time.size() != G) {
+        spdlog::error(
+            "validate_classical_controls_against_span_allowlist: occupied_gadget_gap_time rows {} != G {}",
+            ord.occupied_gadget_gap_time.size(),
+            G);
+        return false;
+    }
+    for (size_t gid = 0; gid < G; ++gid) {
+        if (ord.occupied_gadget_gap_time[gid].size() != G + 1) {
+            spdlog::error(
+                "validate_classical_controls_against_span_allowlist: row gid {} width {} != G+1 {}",
+                gid,
+                ord.occupied_gadget_gap_time[gid].size(),
+                G + 1);
+            return false;
+        }
+    }
+
+    size_t const data_qubit_end = ord.qubit_count - ord.ancilla_count;  // ancillas are [data_qubit_end, qubit_count)
+    size_t gadgets_seen = 0;  // gap index i before current block
+
+    for (size_t idx = 0; idx < middle.size(); ++idx) {
+        auto const* cct = std::get_if<ClassicalControlTableau>(&middle[idx]);
+        if (cct == nullptr) {
+            continue;
+        }
+
+        size_t const gap_i = gadgets_seen;
+        if (gap_i > G) {
+            spdlog::error(
+                "validate_classical_controls_against_span_allowlist: gap index {} > G {} at block {}",
+                gap_i,
+                G,
+                idx);
+            return false;
+        }
+
+        if (cct->is_classical_control()) {
+            std::unordered_set<size_t> allowed_ancillas;
+            allowed_ancillas.reserve(G);
+            for (size_t gid = 0; gid < G; ++gid) {
+                if (ord.occupied_gadget_gap_time[gid][gap_i] == 1) {
+                    allowed_ancillas.insert(gadgets[gid].ancilla_qubit);
+                }
+            }
+
+            auto const ops = extract_clifford_operators(cct->operations());
+            for (auto const& [type, qubits] : ops) {
+                std::array<size_t, 2> used = {qubits[0], qubits[0]};
+                size_t used_count = 1;
+                if (type == CliffordOperatorType::cx || type == CliffordOperatorType::cz ||
+                    type == CliffordOperatorType::swap || type == CliffordOperatorType::ecr) {
+                    used[1] = qubits[1];
+                    used_count = 2;
+                }
+
+                for (size_t k = 0; k < used_count; ++k) {
+                    size_t const q = used[k];
+                    if (q >= data_qubit_end && q < ord.qubit_count &&
+                        allowed_ancillas.count(q) == 0) {
+                        spdlog::error(
+                            "sat_reorder_apply: span allowlist violation at middle[{}], gap i={}, ancilla q={} "
+                            "not allowed by Span occupancy",
+                            idx,
+                            gap_i,
+                            q);
+                        return false;
+                    }
+                }
+            }
+        }
+
+        if (cct->is_gadget()) {
+            ++gadgets_seen;
+        }
+    }
+
+    return true;
+}
+
+bool exported_constraint_has_ops_section(std::filesystem::path const& path) {
+    std::ifstream in(path);
+    if (!in) {
+        return false;
+    }
+    std::string line;
+    while (std::getline(in, line)) {
+        if (auto const hash = line.find('#'); hash != std::string::npos) {
+            line.resize(hash);
+        }
+        while (!line.empty() && (line.front() == ' ' || line.front() == '\t')) {
+            line.erase(line.begin());
+        }
+        while (!line.empty() && (line.back() == ' ' || line.back() == '\t')) {
+            line.pop_back();
+        }
+        if (line == "ops") {
+            return true;
+        }
+    }
+    return false;
+}
 
 }  // namespace
 
@@ -325,14 +588,50 @@ bool sat_reorder_export(Tableau& tableau, std::filesystem::path const& work_dir)
         return false;
     }
 
-    auto const info = properize_for_degadgetization(tableau);
+    Tableau work_tableau = tableau;
+    auto const info = properize_for_degadgetization(work_tableau);
     if (!info.is_valid) {
         spdlog::error("sat_reorder_export: properize_for_degadgetization failed");
         return false;
     }
 
     std::filesystem::path const constraint = work_dir / "gadget_constraint.txt";
-    build_constraint_graph(tableau, constraint.string());
+    build_constraint_graph(work_tableau, constraint.string());
+    if (!std::filesystem::is_regular_file(constraint)) {
+        spdlog::error("sat_reorder_export: expected constraint file missing {}", constraint.string());
+        return false;
+    }
+    if (!exported_constraint_has_ops_section(constraint)) {
+        spdlog::error(
+            "sat_reorder_export: exported constraint file '{}' missing required 'ops' section",
+            constraint.string());
+        return false;
+    }
+
+    // Also export a stable SMT input snapshot for debugging/reruns.
+    {
+        std::filesystem::path const export_input_dir("/home/ferayer/TODD/run_qsyn/input");
+        std::filesystem::path const export_input = export_input_dir / "gadget_constraint.txt";
+        std::error_code ec2;
+        std::filesystem::create_directories(export_input_dir, ec2);
+        if (ec2) {
+            spdlog::error(
+                "sat_reorder_export: failed to create input export dir {}: {}",
+                export_input_dir.string(),
+                ec2.message());
+            return false;
+        }
+        std::filesystem::copy_file(constraint, export_input, std::filesystem::copy_options::overwrite_existing, ec2);
+        if (ec2) {
+            spdlog::error(
+                "sat_reorder_export: failed to export input {} -> {}: {}",
+                constraint.string(),
+                export_input.string(),
+                ec2.message());
+            return false;
+        }
+        spdlog::info("sat_reorder_export: exported input to {}", export_input.string());
+    }
     spdlog::info("sat_reorder_export: wrote {}", constraint.string());
     return true;
 }
@@ -344,9 +643,33 @@ bool sat_reorder_run_solver(std::filesystem::path const& work_dir, std::filesyst
     }
     std::filesystem::path const input = work_dir / "gadget_constraint.txt";
     std::filesystem::path const ordering_out = work_dir / "gadget_ordering.txt";
+    std::filesystem::path const export_input_dir("/home/ferayer/TODD/run_qsyn/input");
+    std::filesystem::path const export_output_dir("/home/ferayer/TODD/run_qsyn/output");
     if (!std::filesystem::is_regular_file(input)) {
         spdlog::error("sat_reorder_run_solver: missing {}", input.string());
         return false;
+    }
+    {
+        std::error_code ec;
+        std::filesystem::create_directories(export_input_dir, ec);
+        if (ec) {
+            spdlog::error(
+                "sat_reorder_run_solver: failed to create input export dir {}: {}",
+                export_input_dir.string(),
+                ec.message());
+        } else {
+            std::filesystem::path const export_input = export_input_dir / input.filename();
+            std::filesystem::copy_file(input, export_input, std::filesystem::copy_options::overwrite_existing, ec);
+            if (ec) {
+                spdlog::error(
+                    "sat_reorder_run_solver: failed to export input {} -> {}: {}",
+                    input.string(),
+                    export_input.string(),
+                    ec.message());
+            } else {
+                spdlog::info("sat_reorder_run_solver: exported input to {}", export_input.string());
+            }
+        }
     }
 
     std::ostringstream cmd;
@@ -363,6 +686,28 @@ bool sat_reorder_run_solver(std::filesystem::path const& work_dir, std::filesyst
     if (!std::filesystem::is_regular_file(ordering_out)) {
         spdlog::warn("sat_reorder_run_solver: expected output missing {}", ordering_out.string());
         return false;
+    }
+    {
+        std::error_code ec;
+        std::filesystem::create_directories(export_output_dir, ec);
+        if (ec) {
+            spdlog::error(
+                "sat_reorder_run_solver: failed to create output export dir {}: {}",
+                export_output_dir.string(),
+                ec.message());
+        } else {
+            std::filesystem::path const export_output = export_output_dir / ordering_out.filename();
+            std::filesystem::copy_file(ordering_out, export_output, std::filesystem::copy_options::overwrite_existing, ec);
+            if (ec) {
+                spdlog::error(
+                    "sat_reorder_run_solver: failed to export output {} -> {}: {}",
+                    ordering_out.string(),
+                    export_output.string(),
+                    ec.message());
+            } else {
+                spdlog::info("sat_reorder_run_solver: exported output to {}", export_output.string());
+            }
+        }
     }
     return true;
 }
@@ -386,6 +731,12 @@ bool sat_reorder_apply(Tableau& tableau, std::filesystem::path const& ordering_p
     std::string verr;
     if (!validate_ordering_against_tableau(tableau, gadgets, ord, verr)) {
         spdlog::error("sat_reorder_apply: {}", verr);
+        return false;
+    }
+    if (ord.span_by_gid.empty()) {
+        spdlog::error(
+            "sat_reorder_apply: ordering file must include a non-empty Span section (PMC placement); {}",
+            ordering_path.string());
         return false;
     }
 
@@ -435,26 +786,20 @@ bool sat_reorder_apply(Tableau& tableau, std::filesystem::path const& ordering_p
         std::sort(bucket.begin(), bucket.end());
     }
 
-    std::vector<LinearOp> linear;
-    for (size_t g = 0; g < G; ++g) {
-        for (size_t vid : paulis_at_gap[g]) {
-            linear.push_back({LinearOpKind::Pauli, vid});
-        }
-        linear.push_back({LinearOpKind::Gadget, 0});
-    }
-    for (size_t vid : paulis_at_gap[G]) {
-        linear.push_back({LinearOpKind::Pauli, vid});
+    if (tableau.size() < 2) {
+        spdlog::error("sat_reorder_apply: tableau too small");
+        return false;
     }
 
-    StabilizerTableau front_st = *std::get_if<StabilizerTableau>(&tableau[0]);
-    StabilizerTableau back_st  = *std::get_if<StabilizerTableau>(&tableau[tableau.size() - 1]);
-
-    std::vector<ClassicalControlTableau> pmcs;
-    for (size_t idx = 0; idx < tableau.size(); ++idx) {
-        auto const* cct = std::get_if<ClassicalControlTableau>(&tableau[idx]);
-        if (cct && cct->is_classical_control()) {
-            pmcs.push_back(*cct);
+    std::vector<ClassicalControlTableau> pmc_for_gid;
+    pmc_for_gid.reserve(G);
+    for (size_t gid = 0; gid < G; ++gid) {
+        auto* pmc_ptr = std::get_if<ClassicalControlTableau>(&tableau[gadgets[gid].pmc_index]);
+        if (!pmc_ptr || !pmc_ptr->is_classical_control()) {
+            spdlog::error("sat_reorder_apply: missing classical-control PMC for gid {}", gid);
+            return false;
         }
+        pmc_for_gid.push_back(*pmc_ptr);
     }
 
     std::deque<ClassicalControlTableau> temp_cccs;
@@ -467,55 +812,70 @@ bool sat_reorder_apply(Tableau& tableau, std::filesystem::path const& ordering_p
         }
     }
 
-    Tableau new_tableau{tableau.n_qubits()};
-    new_tableau.set_n_ancilla(tableau.n_ancilla());
-    if (!tableau.is_empty()) {
-        tableau.erase(tableau.begin(), tableau.end());
-    }
-    new_tableau.push_back(std::move(front_st));
+    std::vector<SubTableau> middle;
+    middle.reserve(tableau.size() + G + global_pr_counter);
 
-    for (LinearOp const& op : linear) {
-        if (op.kind == LinearOpKind::Gadget) {
-            if (temp_cccs.empty()) {
-                spdlog::error("sat_reorder_apply: gadget emission but temp_cccs empty");
-                return false;
-            }
-            new_tableau.push_back(std::move(temp_cccs.front()));
-            temp_cccs.pop_front();
-        } else {
-            size_t const vertex_id = op.vertex_id;
-            auto pit = pr_columns.find(vertex_id);
-            if (pit == pr_columns.end()) {
-                spdlog::error("sat_reorder_apply: missing PR column for vertex {}", vertex_id);
-                return false;
-            }
-            std::vector<PauliRotation> pr_column = std::move(pit->second);
-            pr_columns.erase(pit);
-
-            for (auto it = temp_cccs.rbegin(); it != temp_cccs.rend(); ++it) {
-                auto& ccc = *it;
-                size_t const a = ccc.reference_qubit();
-                size_t const b = ccc.ancilla_qubit();
-                for (auto& rotation : pr_column) {
-                    swap_gadget_phase_slots(rotation, a, b);
-                }
-            }
-            new_tableau.push_back(std::move(pr_column));
+    auto emit_pr_column = [&](size_t vertex_id) -> bool {
+        auto pit = pr_columns.find(vertex_id);
+        if (pit == pr_columns.end()) {
+            spdlog::error("sat_reorder_apply: missing PR column for vertex {}", vertex_id);
+            return false;
         }
+        std::vector<PauliRotation> pr_column = std::move(pit->second);
+        pr_columns.erase(pit);
+        for (auto it = temp_cccs.rbegin(); it != temp_cccs.rend(); ++it) {
+            auto& ccc = *it;
+            size_t const a = ccc.reference_qubit();
+            size_t const b = ccc.ancilla_qubit();
+            for (auto& rotation : pr_column) {
+                swap_gadget_phase_slots(rotation, a, b);
+            }
+        }
+        middle.push_back(std::move(pr_column));
+        return true;
+    };
+
+    for (size_t g = 0; g < G; ++g) {
+        for (size_t vid : paulis_at_gap[g]) {
+            if (!emit_pr_column(vid)) {
+                return false;
+            }
+        }
+        if (temp_cccs.empty()) {
+            spdlog::error("sat_reorder_apply: gadget emission but temp_cccs empty");
+            return false;
+        }
+        middle.push_back(std::move(temp_cccs.front()));
+        temp_cccs.pop_front();
+    }
+
+    for (size_t vid : paulis_at_gap[G]) {
+        if (!emit_pr_column(vid)) {
+            return false;
+        }
+    }
+    for (size_t gid = 0; gid < G; ++gid) {
+        middle.push_back(std::move(pmc_for_gid[gid]));
+    }
+    if (!permute_pmcs_in_middle_for_sat_order(middle, G, ord, gadgets)) {
+        return false;
+    }
+
+    if (!validate_classical_controls_against_span_allowlist(middle, G, ord, gadgets)) {
+        return false;
     }
 
     if (!temp_cccs.empty()) {
         spdlog::warn("sat_reorder_apply: {} unconsumed gadget(s) in queue (should be empty)", temp_cccs.size());
     }
 
-    for (auto& pmc : pmcs) {
-        new_tableau.push_back(std::move(pmc));
+    auto const back_it = tableau.end() - 1;
+    tableau.erase(tableau.begin() + 1, back_it);
+    for (auto it = middle.begin(); it != middle.end(); ++it) {
+        tableau.insert(tableau.end() - 1, std::move(*it));
     }
-    new_tableau.push_back(std::move(back_st));
 
-    reestablish_hadamard_gadget_pairing(new_tableau);
-
-    tableau = std::move(new_tableau);
+    reestablish_hadamard_gadget_pairing(tableau);
     remove_identities(tableau);
     spdlog::info("sat_reorder_apply: done ({} elements)", tableau.size());
     return true;
@@ -535,7 +895,6 @@ void sat_reorder(Tableau& tableau) {
     std::filesystem::create_directories(work_dir, ec);
     if (ec) {
         spdlog::error("sat_reorder: mkdir {} failed: {}", work_dir.string(), ec.message());
-        reorder_n_degadgetize(tableau);
         return;
     }
 
@@ -544,23 +903,21 @@ void sat_reorder(Tableau& tableau) {
         spdlog::warn(
             "sat_reorder: set QSYN_SAT_FORMULATION to sat_formulation.py or run from a directory "
             "that contains ancilla-minimization-with-sat/; falling back to topological reorder");
-        reorder_n_degadgetize(tableau);
         return;
     }
 
     if (!sat_reorder_export(tableau, work_dir)) {
-        reorder_n_degadgetize(tableau);
         return;
     }
     if (!sat_reorder_run_solver(work_dir, script)) {
-        spdlog::warn("sat_reorder: SAT run failed; falling back to reorder_n_degadgetize");
-        reorder_n_degadgetize(tableau);
+        spdlog::error("sat_reorder: SAT run failed");
+        spdlog::warn("sat_reorder: SAT run failed");
         return;
     }
     std::filesystem::path const ordering = work_dir / "gadget_ordering.txt";
     if (!sat_reorder_apply(tableau, ordering)) {
-        spdlog::warn("sat_reorder: apply failed; falling back to reorder_n_degadgetize");
-        reorder_n_degadgetize(tableau);
+        spdlog::error("sat_reorder: apply failed");
+        spdlog::warn("sat_reorder: apply failed");
     }
 }
 

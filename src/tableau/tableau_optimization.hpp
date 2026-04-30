@@ -169,8 +169,11 @@ ConstraintGraph build_constraint_graph(Tableau& tableau,
 // Export all H-gadget pairs from tableau
 std::vector<ConstraintGraph::HadamardGadgetPair> export_hadamard_gadget_pairs(Tableau& tableau);
 
+/** Diagonal-phase PR through CCC: swap Pauli support on (reference, ancilla); refresh CZ flag. Defined in optimize/minimize_ancilla.cpp. */
+void swap_gadget_phase_slots(PauliRotation& r, size_t reference, size_t ancilla);
+
 // Classical T optimization: minimize internal H, gadgetize, commute classical, and optimize with FastTodd
-void minimize_ancillary_t_opt(Tableau& tableau);
+void minimize_ancillary_t_opt(Tableau& tableau, std::optional<std::string> export_filename = std::nullopt);
 
 struct PhasePolynomialOptimizationStrategy {
     using Polynomial                               = std::vector<PauliRotation>;
@@ -184,6 +187,20 @@ struct ToddPhasePolynomialOptimizationStrategy : public PhasePolynomialOptimizat
 };
 
 struct FastToddPhasePolynomialOptimizationStrategy : public PhasePolynomialOptimizationStrategy {
+    std::pair<StabilizerTableau, Polynomial> optimize(StabilizerTableau const& clifford, Polynomial const& polynomial) const override;
+};
+
+/**
+ * @brief FastTODD strategy copied from origin/feature/fastTODD.
+ *
+ * Kept as a separate strategy so callers can explicitly choose the reference
+ * implementation without replacing the current in-tree FastTODD behavior.
+ */
+struct FastToddReferencePhasePolynomialOptimizationStrategy : public PhasePolynomialOptimizationStrategy {
+    std::pair<StabilizerTableau, Polynomial> optimize(StabilizerTableau const& clifford, Polynomial const& polynomial) const override;
+};
+
+struct TohpeOnlyPhasePolynomialOptimizationStrategy : public PhasePolynomialOptimizationStrategy {
     std::pair<StabilizerTableau, Polynomial> optimize(StabilizerTableau const& clifford, Polynomial const& polynomial) const override;
 };
 

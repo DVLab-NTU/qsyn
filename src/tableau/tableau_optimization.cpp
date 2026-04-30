@@ -10,6 +10,9 @@
 #include <spdlog/spdlog.h>
 
 #include <algorithm>
+#include <chrono>
+#include <filesystem>
+#include <fstream>
 #include <functional>
 #include <gsl/narrow>
 #include <limits>
@@ -77,6 +80,162 @@ std::pair<StabilizerTableau, std::vector<PauliRotation>> stabilizers_to_pauli(St
         cx_only.apply(cx_ops);
     }
     return {std::move(cx_only), std::move(phase_columns)};
+}
+
+// Strict converter for Clifford sequences in the canonical form:
+//   {CX-prefix}{S/Sdg/Z}{same CX-prefix}
+// Repeats this pattern until exhaustion and converts each block to one PR column.
+// Any deviation from the pattern is treated as an error.
+std::vector<PauliRotation> stabilizers_to_pauli_identical_cx_conjugation(StabilizerTableau const& st) {
+    using COT = CliffordOperatorType;
+
+    auto const ops = extract_clifford_operators(
+        st,
+        HOptSynthesisStrategy{HOptSynthesisStrategy::Mode::staircase});
+
+    auto const to_phase = [](CliffordOperatorType type) -> dvlab::Phase {
+        switch (type) {
+            case COT::s:
+                return dvlab::Phase(1, 2);
+            case COT::sdg:
+                return dvlab::Phase(-1, 2);
+            case COT::z:
+                return dvlab::Phase(1, 1);
+            default:
+                throw std::logic_error("stabilizers_to_pauli_identical_cx_conjugation: non-phase gate");
+        }
+    };
+
+    std::vector<PauliRotation> phase_columns;
+    phase_columns.reserve(ops.size());
+
+    size_t i = 0;
+    while (i < ops.size()) {
+        CliffordOperatorString prefix;
+        while (i < ops.size() && std::get<0>(ops[i]) == COT::cx) {
+            prefix.push_back(ops[i]);
+            ++i;
+        }
+
+        if (i >= ops.size()) {
+            spdlog::error(
+                "stabilizers_to_pauli_identical_cx_conjugation: trailing CX-prefix without phase gate");
+            throw std::logic_error(
+                "stabilizers_to_pauli_identical_cx_conjugation: malformed block (missing phase gate)");
+        }
+
+        auto const& [phase_type, phase_qubits] = ops[i];
+        if (phase_type != COT::s && phase_type != COT::sdg && phase_type != COT::z) {
+            spdlog::error(
+                "stabilizers_to_pauli_identical_cx_conjugation: expected S/Sdg/Z, got {}",
+                to_string(phase_type));
+            throw std::logic_error(
+                "stabilizers_to_pauli_identical_cx_conjugation: malformed block (unexpected phase gate type)");
+        }
+        size_t const phase_qubit = phase_qubits[0];
+        ++i;
+
+        if (i + prefix.size() > ops.size()) {
+            spdlog::error(
+                "stabilizers_to_pauli_identical_cx_conjugation: missing suffix CXs for phase gate on q[{}]",
+                phase_qubit);
+            throw std::logic_error(
+                "stabilizers_to_pauli_identical_cx_conjugation: malformed block (suffix too short)");
+        }
+        for (size_t k = 0; k < prefix.size(); ++k) {
+            if (ops[i + k] != prefix[k]) {
+                auto const& [expect_t, expect_q] = prefix[k];
+                auto const& [actual_t, actual_q] = ops[i + k];
+                spdlog::error(
+                    "stabilizers_to_pauli_identical_cx_conjugation: suffix CX mismatch at k={} (expected {} q[{}],q[{}], got {} q[{}],q[{}])",
+                    k,
+                    to_string(expect_t),
+                    expect_q[0],
+                    expect_q[1],
+                    to_string(actual_t),
+                    actual_q[0],
+                    actual_q[1]);
+                throw std::logic_error(
+                    "stabilizers_to_pauli_identical_cx_conjugation: malformed block (prefix/suffix mismatch)");
+            }
+        }
+        i += prefix.size();
+
+        auto rotation = PauliRotation::make_linear(st.n_qubits(), phase_qubit, to_phase(phase_type));
+        for (auto const& cx : prefix) {
+            rotation.apply(cx);
+        }
+        phase_columns.push_back(std::move(rotation));
+    }
+
+    return phase_columns;
+}
+
+void export_sat_info(Tableau const& tableau, std::optional<std::string> const& explicit_name = std::nullopt) {
+    std::filesystem::path const input_root("/home/ferayer/TODD/run_qsyn/input");
+    std::filesystem::path const tableau_root("/home/ferayer/TODD/run_qsyn/tableau");
+
+    std::error_code ec;
+    std::filesystem::create_directories(input_root, ec);
+    if (ec) {
+        spdlog::error("export_sat_info: cannot create input dir {}: {}", input_root.string(), ec.message());
+        return;
+    }
+    ec.clear();
+    std::filesystem::create_directories(tableau_root, ec);
+    if (ec) {
+        spdlog::error("export_sat_info: cannot create tableau dir {}: {}", tableau_root.string(), ec.message());
+        return;
+    }
+
+    auto const ts_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+                           std::chrono::system_clock::now().time_since_epoch())
+                           .count();
+    std::string base_name = explicit_name.value_or(tableau.get_filename());
+    if (base_name.empty()) {
+        base_name = fmt::format("satinfo_{}", ts_ms);
+    }
+
+    std::filesystem::path const work_dir = input_root / fmt::format(".tmp_satinfo_{}_{}", base_name, ts_ms);
+    ec.clear();
+    std::filesystem::create_directories(work_dir, ec);
+    if (ec) {
+        spdlog::error("export_sat_info: cannot create work dir {}: {}", work_dir.string(), ec.message());
+        return;
+    }
+
+    Tableau tableau_copy = tableau;
+    if (!sat_reorder_export(tableau_copy, work_dir)) {
+        spdlog::error("export_sat_info: sat_reorder_export failed for {}", base_name);
+        return;
+    }
+
+    std::filesystem::path const sat_input_src = work_dir / "gadget_constraint.txt";
+    std::filesystem::path const sat_input_dst = input_root / fmt::format("{}.txt", base_name);
+    ec.clear();
+    std::filesystem::copy_file(sat_input_src, sat_input_dst, std::filesystem::copy_options::overwrite_existing, ec);
+    if (ec) {
+        spdlog::error("export_sat_info: cannot export SAT input to {}: {}", sat_input_dst.string(), ec.message());
+        return;
+    }
+
+    std::filesystem::path const tableau_txt = tableau_root / fmt::format("{}.txt", base_name);
+    std::ofstream out(tableau_txt);
+    if (!out) {
+        spdlog::error("export_sat_info: cannot write tableau file {}", tableau_txt.string());
+        return;
+    }
+    out << fmt::format("{:g}", tableau_copy);
+    out.close();
+
+    spdlog::info("export_sat_info: wrote SAT input to {}", sat_input_dst.string());
+    spdlog::info("export_sat_info: wrote tableau dump to {}", tableau_txt.string());
+
+    ec.clear();
+    std::filesystem::remove_all(work_dir, ec);
+    if (ec) {
+        spdlog::warn("export_sat_info: cannot remove temp dir {}: {}", work_dir.string(), ec.message());
+    }
 }
 
 }  // namespace
@@ -243,19 +402,19 @@ void commute_classical(Tableau& tableau) {
                         dvlab::overloaded{
                             [pmc](StabilizerTableau& st) {
                                 // [PMC][ST] -> [ST][PMC'] via adjacent-block swap API
-                                swap_forward(*pmc, st);
+                                swap(*pmc, st);
                             },
                             [pmc](std::vector<PauliRotation>& pr) {
-                                swap_forward(*pmc, pr);
+                                swap(*pmc, pr);
                             },
                             [pmc](ClassicalControlTableau& other_cct) {
-                                // Check if we encountered another PMC or a CCC
                                 if (other_cct.is_classical_control()) {
-                                    spdlog::error("PMC encountered another PMC during commutation - this should not happen");
+                                    // [PMC][PMC]: commuting classical blocks; throws if compose orders differ
+                                    swap(*pmc, other_cct);
                                 } else if (other_cct.is_gadget()) {
-                                    // swap_forward mutates PMC operations only for classical-control; gadget block unchanged
+                                    // swap(CCT, ST) mutates PMC only; gadget block unchanged
                                     StabilizerTableau& ccc_st = other_cct.operations();
-                                    swap_forward(*pmc, ccc_st);
+                                    swap(*pmc, ccc_st);
                                 } else {
                                     spdlog::error("Encountered CCT with unknown type during commutation");
                                 }
@@ -361,7 +520,7 @@ void commute_and_merge_rotations(Tableau& tableau) {
                         },
                         [pr](ClassicalControlTableau& cct) {
                             if (cct.is_gadget()) {
-                                swap_forward(cct, *pr);
+                                swap(cct, *pr);
                             }
                         }},
                     tableau[j]);
@@ -851,8 +1010,13 @@ void optimize_phase_polynomial_with_classical(Tableau& tableau, PhasePolynomialO
         auto& clifford_ref = std::get<StabilizerTableau>(tableau[pr_row - 1]);
         auto& pr           = std::get<std::vector<PauliRotation>>(tableau[pr_row]);
         optimize_phase_polynomial(clifford_ref, pr, strategy);
+        auto phase_columns = stabilizers_to_pauli_identical_cx_conjugation(clifford_ref);
+        pr.insert(pr.end(), phase_columns.begin(), phase_columns.end());
+        clifford_ref = StabilizerTableau{clifford_ref.n_qubits()};
+
     }
     remove_identities(tableau);
+
 }
 
 namespace {
@@ -893,7 +1057,7 @@ void properize_for_t_optimization(Tableau& tableau) {
         if (auto* cct = std::get_if<ClassicalControlTableau>(&tableau[j]);
             cct != nullptr && cct->is_gadget()) {
             if (has_pending) {
-                swap_forward(*cct, pending_st);
+                swap(*cct, pending_st);
             }
             new_prefix.push_back(std::move(*cct));
             continue;
@@ -946,10 +1110,107 @@ void properize_for_t_optimization(Tableau& tableau) {
     reestablish_hadamard_gadget_pairing(tableau);
 }
 
+/**
+ * @brief Build a debug tableau by reverse-commuting each PMC leftward until it is
+ *        immediately after its matching gadget (same ancilla qubit).
+ *
+ * The input tableau is not modified. Along the commute path, use adjacent swap
+ * transforms on the block immediately to the left of the PMC:
+ *   [ST][PMC]  -> swap(ST, PMC)
+ *   [PR][PMC]  -> swap(PR, PMC)
+ *   [CCT][PMC] -> swap(CCT, PMC)
+ */
+[[nodiscard]] Tableau reverse_commute_pmcs_to_gadgets_for_test(Tableau const& tableau) {
+    Tableau new_tableau = tableau;
+    if (new_tableau.size() < 2) {
+        return new_tableau;
+    }
+
+    // Collect PMC ancilla IDs first, then locate each PMC dynamically during moves.
+    std::vector<size_t> pmc_ancillae;
+    pmc_ancillae.reserve(new_tableau.size());
+    for (auto const& sub : new_tableau) {
+        auto const* cct = std::get_if<ClassicalControlTableau>(&sub);
+        if (cct != nullptr && cct->is_classical_control()) {
+            pmc_ancillae.push_back(cct->ancilla_qubit());
+        }
+    }
+
+    auto const find_pmc_index = [&](size_t ancilla) -> std::optional<size_t> {
+        for (size_t i = 0; i < new_tableau.size(); ++i) {
+            auto const* cct = std::get_if<ClassicalControlTableau>(&new_tableau[i]);
+            if (cct != nullptr && cct->is_classical_control() && cct->ancilla_qubit() == ancilla) {
+                return i;
+            }
+        }
+        return std::nullopt;
+    };
+
+    auto const find_gadget_index = [&](size_t ancilla) -> std::optional<size_t> {
+        for (size_t i = 0; i < new_tableau.size(); ++i) {
+            auto const* cct = std::get_if<ClassicalControlTableau>(&new_tableau[i]);
+            if (cct != nullptr && cct->is_gadget() && cct->ancilla_qubit() == ancilla) {
+                return i;
+            }
+        }
+        return std::nullopt;
+    };
+
+    for (size_t const ancilla : pmc_ancillae) {
+        auto pmc_idx_opt    = find_pmc_index(ancilla);
+        auto gadget_idx_opt = find_gadget_index(ancilla);
+        if (!pmc_idx_opt.has_value() || !gadget_idx_opt.has_value()) {
+            spdlog::warn(
+                "reverse_commute_pmcs_to_gadgets_for_test: missing pair for ancilla {}",
+                ancilla);
+            continue;
+        }
+        size_t const pmc_idx    = *pmc_idx_opt;
+        size_t const gadget_idx = *gadget_idx_opt;
+        if (pmc_idx <= gadget_idx + 1) {
+            continue;
+        }
+
+        // Commute along the full path using swap(tableau[i], tableau[pmc_idx]) for
+        // gadget_idx < i < pmc_idx.
+        for (size_t i = pmc_idx - 1; i > gadget_idx; --i) {
+            auto* pmc = std::get_if<ClassicalControlTableau>(&new_tableau[pmc_idx]);
+            if (pmc == nullptr || !pmc->is_classical_control()) {
+                spdlog::error(
+                    "reverse_commute_pmcs_to_gadgets_for_test: expected PMC at index {}",
+                    pmc_idx);
+                break;
+            }
+
+            std::visit(
+                dvlab::overloaded{
+                    [pmc](StabilizerTableau& st) {
+                        swap(st, *pmc);
+                    },
+                    [pmc](std::vector<PauliRotation>& pr) {
+                        swap(pr, *pmc);
+                    },
+                    [pmc](ClassicalControlTableau& cct) {
+                        swap(cct, *pmc);
+                    }},
+                new_tableau[i]);
+        }
+
+        // Physically move PMC to right after its gadget counterpart.
+        SubTableau pmc_sub = std::move(new_tableau[pmc_idx]);
+        new_tableau.erase(new_tableau.begin() + static_cast<std::ptrdiff_t>(pmc_idx));
+        new_tableau.insert(new_tableau.begin() + static_cast<std::ptrdiff_t>(gadget_idx + 1), std::move(pmc_sub));
+    }
+
+    remove_identities(new_tableau);
+    reestablish_hadamard_gadget_pairing(new_tableau);
+    return new_tableau;
+}
+
 }  // namespace
 
 // Structural checker/merger used by degadgetization:
-// Check circuit is under the form {ST, CCCs, PR1, (optional PR2), CXs, PMCs, ST}.
+// Check circuit is under the form {ST, (CCCs|intermediate STs)*, PR1, (optional PR2), CXs, PMCs, ST}.
 // If PR2 exists, merge {PR1, PR2}; otherwise PR1 alone is fine.
 CircuitStructureInfo properize_for_degadgetization(Tableau& tableau) {
     CircuitStructureInfo info = {0, 0, false};
@@ -975,7 +1236,7 @@ CircuitStructureInfo properize_for_degadgetization(Tableau& tableau) {
     }
 
     // Expected structure:
-    //   {ST0, CCCs..., PR1, (optional PR2), CXs(ST), PMCs..., ST_back}
+    //   {ST0, (CCCs|intermediate STs)..., PR1, (optional PR2), CXs(ST), PMCs..., ST_back}
     size_t idx = 1;
     size_t ccc_count = 0;
     while (idx < tableau.size()) {
@@ -985,11 +1246,15 @@ CircuitStructureInfo properize_for_degadgetization(Tableau& tableau) {
             ++idx;
             continue;
         }
+        if (std::holds_alternative<StabilizerTableau>(tableau[idx])) {
+            ++idx;
+            continue;
+        }
         break;
     }
 
     if (idx >= tableau.size() || !std::holds_alternative<std::vector<PauliRotation>>(tableau[idx])) {
-        spdlog::error("properize_for_degadgetization: expected PR1 after CCCs at index {}, got {}",
+        spdlog::error("properize_for_degadgetization: expected PR1 after gadget/intermediate-Clifford prefix at index {}, got {}",
                       idx, idx < tableau.size() ? get_subtableau_kind(tableau[idx]) : "OutOfRange");
         return info;
     }
@@ -1060,23 +1325,27 @@ CircuitStructureInfo properize_for_degadgetization(Tableau& tableau) {
  *
  * @param tableau
  */
-void minimize_ancillary_t_opt(Tableau& tableau) {
+void minimize_ancillary_t_opt(Tableau& tableau, std::optional<std::string> export_filename) {
     if (tableau.is_empty()) {
         return;
     }
     size_t non_clifford_count = tableau.n_pauli_rotations();
     minimize_internal_hadamards_n_gadgetize(tableau);
-    // spdlog::debug("After minimize_internal_hadamards_n_gadgetize: {:g}", tableau);
+    spdlog::debug("After minimize_internal_hadamards_n_gadgetize: {:g}", tableau);
     commute_and_merge_rotations(tableau);
-    properize_for_t_optimization(tableau);
-    // spdlog::debug("Phase polynomial optimization");
-    // spdlog::debug("Before phase polynomial optimization: {:g}", tableau);
+    // properize_for_t_optimization(tableau);
+    spdlog::debug("Before phase polynomial optimization: {:g}", tableau);
     optimize_phase_polynomial_with_classical(tableau, FastToddPhasePolynomialOptimizationStrategy{});
     // spdlog::debug("after phase polynomial optimization: {:b}", tableau);
-    spdlog::debug("after T-opt: {:b}", tableau);
+    // spdlog::debug("after T-opt: {:g}", tableau);
+    auto const reverse_commuted_tableau = reverse_commute_pmcs_to_gadgets_for_test(tableau);
+    // spdlog::debug("reverse-commuted tableau for test: {:g}", reverse_commuted_tableau);
 
+    // // Temporary mode: only export SAT input/tableau snapshot after T-opt; do not run SAT reorder.
+    // export_sat_info(tableau, export_filename);
     sat_reorder(tableau);
-    spdlog::debug("after sat_reorder: {:b}", tableau);
+    spdlog::info("After sat_reorder: {:g}", tableau);
+    
 }
 
 void blockwise_gadgetize_optimize(Tableau& tableau) {

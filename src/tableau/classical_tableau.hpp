@@ -137,36 +137,32 @@ private:
     MeasurementType _measurement_type;
 };
 
-void swap_forward(ClassicalControlTableau& cct, StabilizerTableau& st);
-void swap_back(StabilizerTableau& st, ClassicalControlTableau& cct);
-void swap_forward(ClassicalControlTableau& cct, std::vector<PauliRotation>& pr);
-void swap_back(std::vector<PauliRotation>& pr, ClassicalControlTableau& cct);
+void swap(ClassicalControlTableau& cct, StabilizerTableau& st);
+void swap(StabilizerTableau& st, ClassicalControlTableau& cct);
+void swap(ClassicalControlTableau& cct, std::vector<PauliRotation>& pr);
+void swap(std::vector<PauliRotation>& pr, ClassicalControlTableau& cct);
 
-/** Deferred: two adjacent CCT blocks. Not implemented in v1. */
-void swap_forward_cct_cct(ClassicalControlTableau& left, ClassicalControlTableau& right);
-void swap_back_cct_cct(ClassicalControlTableau& left, ClassicalControlTableau& right);
+bool check_swap(ClassicalControlTableau const& left, ClassicalControlTableau const& right);
+
+void swap(ClassicalControlTableau& left, ClassicalControlTableau& right);
 
 StabilizerTableau commutation_through_clifford(StabilizerTableau const& classical_clifford,
                                                StabilizerTableau const& clifford_block);
 StabilizerTableau reverse_n_prepend(CliffordOperatorString const& operations, size_t n_qubits);
 
-/** @brief Thin wrapper: `swap_forward(cct, st)`. Prefer `swap_forward` / `swap_back` for adjacent-block commuting. */
-void commute_through_stabilizer(ClassicalControlTableau& cct, StabilizerTableau& st);
-
-void commute_through_pauli_rotation(StabilizerTableau& st, PauliRotation const& pauli_rotation);
-void commute_through_pauli_rotation(ClassicalControlTableau& cct, PauliRotation const& pauli_rotation);
-
-void commute_through_pauli_rotations(StabilizerTableau& st, std::vector<PauliRotation> const& pauli_rotations);
-/** @brief For CCT: gadget uses `swap_forward`; classical-control mutates `cct.operations()` like ST+PR. Prefer `swap_forward` / `swap_back` when reordering blocks. */
-void commute_through_pauli_rotations(ClassicalControlTableau& cct, std::vector<PauliRotation>& pauli_rotations);
+void commute_through_pauli_rotation(StabilizerTableau& st, PauliRotation const& pauli_rotation, bool from_front);
+void commute_through_pauli_rotations(StabilizerTableau& st, std::vector<PauliRotation> const& pauli_rotations, bool from_front);
 
 void commute_through_T(CliffordOperatorString& operations, size_t qubit_n);
 void commute_through_Tdg(CliffordOperatorString& operations, size_t qubit_n);
-void commute_through_CX(CliffordOperatorString& operations, size_t control_qubit, size_t target_qubit);
 std::pair<CliffordOperatorString, size_t> pauli_to_CXT(PauliRotation pauli_rotation);
 
 bool test_classical_equivalence(ClassicalControlTableau const& cct_old, StabilizerTableau const& tableau, ClassicalControlTableau const& cct_new);
 bool test_classical_equivalence(ClassicalControlTableau const& cct_old, std::vector<PauliRotation> const& tableau, ClassicalControlTableau const& cct_new);
+bool test_classical_equivalence(ClassicalControlTableau const& cct_old, StabilizerTableau const& old_tableau, StabilizerTableau const& new_tableau);
+bool test_classical_equivalence(ClassicalControlTableau const& cct_old, std::vector<PauliRotation> const& old_tableau, std::vector<PauliRotation> const& new_tableau);
+bool test_classical_equivalence_reverse(ClassicalControlTableau const& cct_old, StabilizerTableau const& tableau, ClassicalControlTableau const& cct_new);
+bool test_classical_equivalence_reverse(ClassicalControlTableau const& cct_old, std::vector<PauliRotation> const& tableau, ClassicalControlTableau const& cct_new);
 
 }  // namespace experimental
 
