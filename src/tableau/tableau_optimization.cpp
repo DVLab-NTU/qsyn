@@ -1341,11 +1341,7 @@ void minimize_ancillary_t_opt(Tableau& tableau, std::optional<std::string> expor
     auto const reverse_commuted_tableau = reverse_commute_pmcs_to_gadgets_for_test(tableau);
     // spdlog::debug("reverse-commuted tableau for test: {:g}", reverse_commuted_tableau);
 
-    // // Temporary mode: only export SAT input/tableau snapshot after T-opt; do not run SAT reorder.
-    // export_sat_info(tableau, export_filename);
-    sat_reorder(tableau);
-    spdlog::info("After sat_reorder: {:g}", tableau);
-    
+
 }
 
 void blockwise_gadgetize_optimize(Tableau& tableau) {

@@ -205,6 +205,9 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr, qsyn::qcir::QCi
             methods.add_parser("ancillaryTopt")
                 .description("Minimize the number of T gates in the tableau with the help of classical operations & ancillary qubits");
 
+            methods.add_parser("unified")
+                .description("Run unified ancillary T-opt flow (H-gadgetize + classical-aware phase polynomial optimization)");
+
             methods.add_parser("blockwiseAncillaryTopt")
                 .description("Block-wise ancillary-T optimization (gadgetize/opt per internal H block)");
 
@@ -262,7 +265,7 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr, qsyn::qcir::QCi
                     return OptimizationMethod::phase_polynomial_optimization;
                 } else if (dvlab::str::is_prefix_of(method_str, "matpar")) {
                     return OptimizationMethod::matroid_partition;
-                } else if (dvlab::str::is_prefix_of(method_str, "ancillaryTopt")) {
+                } else if (dvlab::str::is_prefix_of(method_str, "unified")) {
                     return OptimizationMethod::ancillary_t_opt;
                 } else if (dvlab::str::is_prefix_of(method_str, "blockwiseAncillaryTopt")) {
                     return OptimizationMethod::blockwise_ancillary_t_opt;
@@ -364,6 +367,57 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr, qsyn::qcir::QCi
         }};
 }
 
+dvlab::Command tableau_minimize_q_cmd(TableauMgr& tableau_mgr) {
+    return dvlab::Command{
+        "minimize_q",
+        [&](ArgumentParser& parser) {
+            parser.description("Minimize qubit usage in gadgetized tableaux");
+
+            auto methods = parser.add_subparsers("method").required(true);
+            methods.add_parser("degadgetize")
+                .description("Degadgetize and minimize ancilla usage via constraint-graph-based reordering");
+            methods.add_parser("reorder")
+                .description("Run SAT-based gadget/Pauli reordering for qubit minimization");
+        },
+        [&](ArgumentParser const& parser) {
+            if (!dvlab::utils::mgr_has_data(tableau_mgr)) {
+                return dvlab::CmdExecResult::error;
+            }
+
+            auto const method_str = parser.get<std::string>("method");
+            enum struct QubitMinimizationMethod : std::uint8_t {
+                degadgetize,
+                reorder
+            };
+
+            auto const method = std::invoke([&]() -> std::optional<QubitMinimizationMethod> {
+                if (dvlab::str::is_prefix_of(method_str, "degadgetize")) {
+                    return QubitMinimizationMethod::degadgetize;
+                } else if (dvlab::str::is_prefix_of(method_str, "reorder")) {
+                    return QubitMinimizationMethod::reorder;
+                }
+                return std::nullopt;
+            });
+
+            if (!method) {
+                spdlog::error("Unknown qubit minimization method {}!!", method_str);
+                return dvlab::CmdExecResult::error;
+            }
+
+            switch (*method) {
+                case QubitMinimizationMethod::degadgetize:
+                    reorder_n_degadgetize(*tableau_mgr.get());
+                    tableau_mgr.get()->add_procedure("MinimizeQDegadgetize");
+                    break;
+                case QubitMinimizationMethod::reorder:
+                    sat_reorder(*tableau_mgr.get());
+                    tableau_mgr.get()->add_procedure("MinimizeQReorder");
+                    break;
+            }
+            return dvlab::CmdExecResult::done;
+        }};
+}
+
 dvlab::Command tableau_cmd(TableauMgr& tableau_mgr, qsyn::qcir::QCirMgr& qcir_mgr) {
     auto cmd = dvlab::utils::mgr_root_cmd(tableau_mgr);
 
@@ -376,6 +430,7 @@ dvlab::Command tableau_cmd(TableauMgr& tableau_mgr, qsyn::qcir::QCirMgr& qcir_mg
     cmd.add_subcommand("tableau-cmd-group", tableau_adjoint_cmd(tableau_mgr));
     cmd.add_subcommand("tableau-cmd-group", tableau_print_cmd(tableau_mgr));
     cmd.add_subcommand("tableau-cmd-group", tableau_optimization_cmd(tableau_mgr, qcir_mgr));
+    cmd.add_subcommand("tableau-cmd-group", tableau_minimize_q_cmd(tableau_mgr));
 
     return cmd;
 }
