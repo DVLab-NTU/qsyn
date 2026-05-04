@@ -14,6 +14,9 @@
 #include <tl/enumerate.hpp>
 #include <tl/to.hpp>
 
+#include <cmath>
+#include <complex>
+
 #include "qcir/basic_gate_type.hpp"
 #include "qcir/qcir.hpp"
 #include "util/graph/digraph.hpp"
@@ -70,6 +73,76 @@ void add_clifford_gate(qcir::QCir& qcir, CliffordOperator const& op) {
             break;
     }
 }
+
+// NCF-only Clifford emission: restrict to {h,s,sdg,cx} by decomposing other Cliffords.
+void add_clifford_gate_ncf(qcir::QCir& qcir, CliffordOperator const& op) {
+    using COT                  = CliffordOperatorType;
+    auto const& [type, qubits] = op;
+
+    switch (type) {
+        case COT::h:
+            qcir.append(qcir::HGate(), {qubits[0]});
+            break;
+        case COT::s:
+            qcir.append(qcir::SGate(), {qubits[0]});
+            break;
+        case COT::cx:
+            qcir.append(qcir::CXGate(), {qubits[0], qubits[1]});
+            break;
+        case COT::sdg:
+            qcir.append(qcir::SdgGate(), {qubits[0]});
+            break;
+        case COT::v:
+            // Decompose V into {h,s,sdg}: V = H S H
+            qcir.append(qcir::HGate(), {qubits[0]});
+            qcir.append(qcir::SGate(), {qubits[0]});
+            qcir.append(qcir::HGate(), {qubits[0]});
+            break;
+        case COT::vdg:
+            // V† = H S† H
+            qcir.append(qcir::HGate(), {qubits[0]});
+            qcir.append(qcir::SdgGate(), {qubits[0]});
+            qcir.append(qcir::HGate(), {qubits[0]});
+            break;
+        case COT::x:
+            // X = H Z H, and Z = S S
+            qcir.append(qcir::HGate(), {qubits[0]});
+            qcir.append(qcir::SGate(), {qubits[0]});
+            qcir.append(qcir::SGate(), {qubits[0]});
+            qcir.append(qcir::HGate(), {qubits[0]});
+            break;
+        case COT::y:
+            // Y = S X S†
+            qcir.append(qcir::SGate(), {qubits[0]});
+            add_clifford_gate_ncf(qcir, {COT::x, qubits});
+            qcir.append(qcir::SdgGate(), {qubits[0]});
+            break;
+        case COT::z:
+            // Z = S S
+            qcir.append(qcir::SGate(), {qubits[0]});
+            qcir.append(qcir::SGate(), {qubits[0]});
+            break;
+        case COT::cz:
+            // CZ = H(t) CX(c,t) H(t)
+            qcir.append(qcir::HGate(), {qubits[1]});
+            qcir.append(qcir::CXGate(), {qubits[0], qubits[1]});
+            qcir.append(qcir::HGate(), {qubits[1]});
+            break;
+        case COT::swap:
+            // SWAP = CX(a,b) CX(b,a) CX(a,b)
+            qcir.append(qcir::CXGate(), {qubits[0], qubits[1]});
+            qcir.append(qcir::CXGate(), {qubits[1], qubits[0]});
+            qcir.append(qcir::CXGate(), {qubits[0], qubits[1]});
+            break;
+        case COT::ecr:
+            // ecr(control,target) := cx; s(control); x(control); v(target)
+            qcir.append(qcir::CXGate(), {qubits[0], qubits[1]});
+            qcir.append(qcir::SGate(), {qubits[0]});
+            add_clifford_gate_ncf(qcir, {COT::x, qubits});
+            add_clifford_gate_ncf(qcir, {COT::v, std::array<size_t, 2>{qubits[1], 0}});
+            break;
+    }
+}
 }  // namespace
 
 /**
@@ -78,16 +151,130 @@ void add_clifford_gate(qcir::QCir& qcir, CliffordOperator const& op) {
  * @param clifford - pass by value on purpose
  * @return std::optional<qcir::QCir>
  */
-std::optional<qcir::QCir> to_qcir(StabilizerTableau const& clifford, StabilizerTableauSynthesisStrategy const& strategy) {
+namespace {
+std::optional<qcir::QCir> to_qcir_clifford(StabilizerTableau const& clifford, StabilizerTableauSynthesisStrategy const& strategy, bool ncf_restricted_basis) {
     qcir::QCir qcir{clifford.n_qubits()};
     for (auto const& op : extract_clifford_operators(clifford, strategy)) {
         if (stop_requested()) {
             return std::nullopt;
         }
-        add_clifford_gate(qcir, op);
+        if (ncf_restricted_basis) {
+            add_clifford_gate_ncf(qcir, op);
+        } else {
+            add_clifford_gate(qcir, op);
+        }
     }
 
-    return qcir;
+    // Best-effort local shortening for NCF Clifford parts in the restricted basis.
+    // This does NOT guarantee global optimality, but removes obvious redundancies:
+    // - H H -> I
+    // - CX CX -> I (same ordered pair)
+    // - Reduce consecutive S/Sdg runs mod 4: S^0=I, S^1=S, S^2=SS, S^3=Sdg
+    if (!ncf_restricted_basis) return qcir;
+
+    // We'll simplify into a small stack of (repr, qubits) to avoid relying on gate IDs/types.
+    // repr is one of: "h", "s", "sdg", "cx" in this restricted path.
+    std::vector<std::pair<std::string, qsyn::QubitIdList>> stack;
+
+    auto const emit = [&](std::string repr, qsyn::QubitIdList const& qs) {
+        // cancel adjacent identical H / CX
+        if (!stack.empty() && stack.back().first == repr && stack.back().second == qs &&
+            (repr == "h" || repr == "cx")) {
+            stack.pop_back();
+            return;
+        }
+        stack.emplace_back(std::move(repr), qs);
+    };
+
+    auto const flush_s_power = [&](size_t qubit, int power_mod4) {
+        int p = ((power_mod4 % 4) + 4) % 4;
+        if (p == 0) return;
+        if (p == 1) emit("s", qsyn::QubitIdList{qubit});
+        else if (p == 2) {
+            emit("s", qsyn::QubitIdList{qubit});
+            emit("s", qsyn::QubitIdList{qubit});
+        } else {  // 3
+            emit("sdg", qsyn::QubitIdList{qubit});
+        }
+    };
+
+    // Track pending consecutive S/Sdg on each qubit.
+    std::vector<int> pending_s(clifford.n_qubits(), 0);
+
+    auto const flush_all_pending = [&]() {
+        for (size_t q = 0; q < pending_s.size(); ++q) {
+            if (pending_s[q] != 0) {
+                flush_s_power(q, pending_s[q]);
+                pending_s[q] = 0;
+            }
+        }
+    };
+
+    for (auto const* g : qcir.get_gates()) {
+        auto const& op = g->get_operation();
+        auto const qs  = g->get_qubits();
+        auto const repr = op.get_repr();
+
+        if (repr == "s") {
+            pending_s[qs[0]] += 1;
+            continue;
+        }
+        if (repr == "sdg") {
+            pending_s[qs[0]] -= 1;
+            continue;
+        }
+
+        // Before emitting a non-(S/Sdg) gate, flush pending S-power on the touched qubits
+        // to preserve order.
+        if (qs.size() == 1) {
+            if (pending_s[qs[0]] != 0) {
+                flush_s_power(qs[0], pending_s[qs[0]]);
+                pending_s[qs[0]] = 0;
+            }
+        } else if (qs.size() == 2) {
+            for (auto q : qs) {
+                if (pending_s[q] != 0) {
+                    flush_s_power(q, pending_s[q]);
+                    pending_s[q] = 0;
+                }
+            }
+        } else {
+            flush_all_pending();
+        }
+
+        // Emit remaining restricted Cliffords.
+        if (repr == "h" || repr == "cx") {
+            emit(repr, qs);
+        } else {
+            // Shouldn't happen in restricted basis, but be safe: treat as barrier for S aggregation.
+            flush_all_pending();
+            emit(repr, qs);
+        }
+    }
+
+    // Flush remaining S/Sdg at end.
+    flush_all_pending();
+
+    // Build a QCir back from the stack.
+    auto simplified = qcir::QCir{clifford.n_qubits()};
+    for (auto const& [r, qs] : stack) {
+        if (r == "h") {
+            simplified.append(qcir::HGate(), qs);
+        } else if (r == "s") {
+            simplified.append(qcir::SGate(), qs);
+        } else if (r == "sdg") {
+            simplified.append(qcir::SdgGate(), qs);
+        } else if (r == "cx") {
+            simplified.append(qcir::CXGate(), qs);
+        }
+    }
+
+    return simplified;
+}
+}  // namespace
+
+std::optional<qcir::QCir> to_qcir(StabilizerTableau const& clifford, StabilizerTableauSynthesisStrategy const& strategy) {
+    return to_qcir_clifford(clifford, strategy, false);
 }
 
 std::optional<qcir::QCir> NaivePauliRotationsSynthesisStrategy::synthesize(std::vector<PauliRotation> const& rotations) const {
@@ -119,6 +306,127 @@ std::optional<qcir::QCir> NaivePauliRotationsSynthesisStrategy::synthesize(std::
 std::optional<qcir::QCir> TParPauliRotationsSynthesisStrategy::synthesize(std::vector<PauliRotation> const& /* rotations */) const {
     spdlog::error("TPar Synthesis Strategy is not implemented yet!!");
     return std::nullopt;
+}
+
+namespace {
+
+// Return the single qubit index if all rotations act on exactly that one qubit; else nullopt.
+std::optional<size_t> ncf_single_qubit_support(std::vector<PauliRotation> const& rotations) {
+    if (rotations.empty()) return std::nullopt;
+    auto const n_qubits = rotations.front().n_qubits();
+    std::optional<size_t> common_qubit;
+    for (auto const& r : rotations) {
+        size_t count = 0;
+        size_t q     = 0;
+        for (size_t i = 0; i < n_qubits; ++i) {
+            if (r.get_pauli_type(i) != Pauli::i) {
+                ++count;
+                q = i;
+            }
+        }
+        if (count != 1) return std::nullopt;
+        if (!common_qubit) common_qubit = q;
+        else if (*common_qubit != q)
+            return std::nullopt;
+    }
+    return common_qubit;
+}
+
+// exp(i theta * P) as 2x2 matrix for P in {X,Y,Z}. Convention: rotation is exp(i theta P).
+void pauli_exp_matrix(Pauli P, double theta, std::complex<double> out[2][2]) {
+    using namespace std::complex_literals;
+    double c = std::cos(theta), s = std::sin(theta);
+    if (P == Pauli::z) {
+        out[0][0] = std::exp(1i * theta);
+        out[0][1] = 0;
+        out[1][0] = 0;
+        out[1][1] = std::exp(-1i * theta);
+        return;
+    }
+    if (P == Pauli::x) {
+        out[0][0] = c;
+        out[0][1] = 1i * s;
+        out[1][0] = 1i * s;
+        out[1][1] = c;
+        return;
+    }
+    if (P == Pauli::y) {
+        out[0][0] = c;
+        out[0][1] = s;
+        out[1][0] = -s;
+        out[1][1] = c;
+        return;
+    }
+    out[0][0] = 1;
+    out[0][1] = 0;
+    out[1][0] = 0;
+    out[1][1] = 1;
+}
+
+void mat2_mul(std::complex<double> const a[2][2], std::complex<double> const b[2][2], std::complex<double> out[2][2]) {
+    for (int i = 0; i < 2; ++i)
+        for (int j = 0; j < 2; ++j) {
+            out[i][j] = a[i][0] * b[0][j] + a[i][1] * b[1][j];
+        }
+}
+
+// ZYZ decomposition: U = Rz(phi) * Ry(theta) * Rz(lambda). Rz(t)=exp(-i t Z/2), Ry(t)=exp(-i t Y/2).
+// Returns (phi, theta, lambda) in radians. Assumes U is special unitary (det=1).
+void zyz_decompose(std::complex<double> const u[2][2], double& phi, double& theta, double& lambda) {
+    using namespace std::complex_literals;
+    double const tol = 1e-10;
+    double c_half   = std::abs(u[0][0]);
+    double s_half   = std::abs(u[0][1]);
+    if (c_half < tol && s_half < tol) {
+        theta = 0;
+        phi   = 0;
+        lambda = std::arg(u[1][0]) + std::numbers::pi / 2;
+        return;
+    }
+    theta = 2.0 * std::atan2(s_half, c_half);
+    double phi_plus_lambda = 2.0 * std::arg(u[0][0]);
+    double phi_minus_lambda = -2.0 * std::arg(u[0][1]) - 2.0 * std::numbers::pi;
+    phi    = (phi_plus_lambda + phi_minus_lambda) / 2.0;
+    lambda = (phi_plus_lambda - phi_minus_lambda) / 2.0;
+}
+
+}  // namespace
+
+std::optional<qcir::QCir> NcfMergePauliRotationsSynthesisStrategy::synthesize(std::vector<PauliRotation> const& rotations) const {
+    if (rotations.empty()) return qcir::QCir{0};
+    auto const qubit_opt = ncf_single_qubit_support(rotations);
+    if (!qubit_opt) {
+        return NaivePauliRotationsSynthesisStrategy{}.synthesize(rotations);
+    }
+    size_t const qubit = *qubit_opt;
+    qcir::QCir qcir(rotations.front().n_qubits());
+    for (auto const& r : rotations) {
+        // After tableau optimize ncf, rotations in a group are already conjugated to a single qubit.
+        // Emit them explicitly without merging/decomposing:
+        //   Z: rz(θ)
+        //   X: h; rz(θ); h
+        //   Y: sdg; h; rz(θ); h; s
+        //
+        // This matches the expected gate-listing style such as b.qasm.
+        auto const p = r.get_pauli_type(qubit);
+        if (p == Pauli::x) {
+            qcir.append(qcir::HGate(), qsyn::QubitIdList{qubit});
+            qcir.append(qcir::RZGate(r.phase()), qsyn::QubitIdList{qubit});
+            qcir.append(qcir::HGate(), qsyn::QubitIdList{qubit});
+        } else if (p == Pauli::y) {
+            qcir.append(qcir::SdgGate(), qsyn::QubitIdList{qubit});
+            qcir.append(qcir::HGate(), qsyn::QubitIdList{qubit});
+            qcir.append(qcir::RZGate(r.phase()), qsyn::QubitIdList{qubit});
+            qcir.append(qcir::HGate(), qsyn::QubitIdList{qubit});
+            qcir.append(qcir::SGate(), qsyn::QubitIdList{qubit});
+        } else {
+            // Treat identity as no-op; Z as rz(θ).
+            if (p == Pauli::z) {
+                qcir.append(qcir::RZGate(r.phase()), qsyn::QubitIdList{qubit});
+            }
+        }
+    }
+    return qcir;
 }
 
 namespace {
@@ -548,13 +856,117 @@ std::optional<qcir::QCir> to_qcir(
 }
 
 /**
+ * @brief Return true if tableau has NCF shape: [Stab][C†][R][C][C†][R][C]...
+ *        (first block StabilizerTableau, then repeating triplets C†, rotations, C).
+ */
+bool has_ncf_canonical_shape(Tableau const& tableau) {
+    size_t const n = tableau.size();
+    if (n < 4) return false;
+    if (!std::holds_alternative<StabilizerTableau>(tableau.front())) return false;
+    if ((n - 1) % 3 != 0) return false;
+    for (size_t i = 1; i < n; ++i) {
+        bool want_clifford = (i % 3 == 1 || i % 3 == 0);  // 1,3,4,6,7,9 -> C†,C,C†,C,...
+        bool want_rotations = (i % 3 == 2);               // 2,5,8 -> R
+        bool is_clifford    = std::holds_alternative<StabilizerTableau>(tableau[i]);
+        bool is_rotations   = std::holds_alternative<std::vector<PauliRotation>>(tableau[i]);
+        if (want_rotations && !is_rotations) return false;
+        if (want_clifford && !is_clifford) return false;
+    }
+    return true;
+}
+
+/**
+ * @brief Emit QCir in tableau order for NCF blocks: [front][C†][R][C] repeated per group.
+ *        This matches `tableau print` and the paper structure; it does NOT merge all rotations
+ *        into one middle segment.
+ */
+std::optional<qcir::QCir> to_qcir_ncf_sequential(Tableau const& tableau, StabilizerTableauSynthesisStrategy const& st_strategy, PauliRotationsSynthesisStrategy const& pr_strategy) {
+    size_t const n = tableau.size();
+    qcir::QCir qcir{tableau.n_qubits()};
+
+    auto const simplify_cancel_hh = [&](qcir::QCir const& in) -> qcir::QCir {
+        // Cancel consecutive H on the same qubit if no intervening gate touches that qubit.
+        // Gates on other qubits do not prevent cancellation.
+        qcir::QCir out{in.get_num_qubits()};
+        std::vector<bool> pending_h(in.get_num_qubits(), false);
+
+        auto const flush_h = [&](qsyn::QubitIdType q) {
+            if (pending_h[q]) {
+                out.append(qcir::HGate(), qsyn::QubitIdList{q});
+                pending_h[q] = false;
+            }
+        };
+
+        for (auto const* g : in.get_gates()) {
+            auto const qs   = g->get_qubits();
+            auto const repr = g->get_operation().get_repr();
+
+            if (repr == "h" && qs.size() == 1) {
+                auto const q = qs[0];
+                pending_h[q] = !pending_h[q];  // H*H cancels
+                continue;
+            }
+
+            // Flush pending H on touched qubits before emitting non-H.
+            for (auto q : qs) {
+                flush_h(q);
+            }
+            out.append(g->get_operation(), qs);
+        }
+
+        // Flush remaining pending H.
+        for (qsyn::QubitIdType q = 0; q < pending_h.size(); ++q) {
+            flush_h(q);
+        }
+        return out;
+    };
+
+    auto const emit_ops = [&](qcir::QCir& out, CliffordOperatorString const& ops) {
+        for (auto const& op : ops) {
+            add_clifford_gate_ncf(out, op);
+        }
+    };
+
+    auto const clifford_block_to_qcir = [&](size_t idx) -> std::optional<qcir::QCir> {
+        // Prefer direct ops emission if present (NCF direct-ops mode).
+        if (auto const& maybe_ops = tableau.get_block_ops(idx); maybe_ops.has_value()) {
+            qcir::QCir c{tableau.n_qubits()};
+            emit_ops(c, *maybe_ops);
+            return c;
+        }
+        // Fallback: synthesize from stabilizer tableau.
+        auto const& st = std::get<StabilizerTableau>(tableau[idx]);
+        return to_qcir_clifford(st, st_strategy, true);
+    };
+
+    for (size_t i = 0; i < n; ++i) {
+        if (stop_requested()) return std::nullopt;
+        auto const frag =
+            std::visit(
+                dvlab::overloaded{
+                    [&](StabilizerTableau const&) { return clifford_block_to_qcir(i); },
+                    [&](std::vector<PauliRotation> const& pr) { return to_qcir(pr, pr_strategy); }},
+                tableau[i]);
+        if (!frag) return std::nullopt;
+        qcir.compose(*frag);
+    }
+    return simplify_cancel_hh(qcir);
+}
+
+/**
  * @brief convert a stabilizer tableau and a list of Pauli rotations to a QCir.
+ *        If the tableau has NCF block shape ([Stab][C†][R][C]...), emit in that same order
+ *        (per-group C† R C), with NCF-restricted Clifford emission and optional stored ops.
  *
  * @param clifford
  * @param pauli_rotations
  * @return qcir::QCir
  */
 std::optional<qcir::QCir> to_qcir(Tableau const& tableau, StabilizerTableauSynthesisStrategy const& st_strategy, PauliRotationsSynthesisStrategy const& pr_strategy) {
+    if (has_ncf_canonical_shape(tableau)) {
+        return to_qcir_ncf_sequential(tableau, st_strategy, pr_strategy);
+    }
+
     qcir::QCir qcir{tableau.n_qubits()};
 
     for (auto const& subtableau : tableau) {

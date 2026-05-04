@@ -33,7 +33,9 @@ bool is_equivalent(QCir const& qcir1, QCir const& qcir2) {
         spdlog::error("Failed to convert adjoint composed QCir to tableau.");
         return false;
     }
-    qsyn::experimental::full_optimize(*tableau);
+    // Use optimize_for_equiv to avoid TODD "non-4th-root-of-unity" errors for circuits
+    // with arbitrary phases (e.g. before vs after NCF or Hamiltonian simulation).
+    qsyn::experimental::optimize_for_equiv(*tableau);
 
     if (tableau->is_empty()) {
         return true;

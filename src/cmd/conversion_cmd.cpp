@@ -236,9 +236,9 @@ Command convert_from_tableau_cmd(experimental::TableauMgr& tableau_mgr, qcir::QC
                 .help("specify the Clifford synthesis strategy (default: hopt).");
 
             to_qcir.add_argument<std::string>("-r", "--rotation")
-                .constraint(choices_allow_prefix({"naive", "tpar", "graysynth", "gstair", "mst"}))
+                .constraint(choices_allow_prefix({"naive", "tpar", "graysynth", "gstair", "mst", "ncf"}))
                 .default_value("naive")
-                .help("specify the rotation synthesis strategy (default: naive).");
+                .help("specify the rotation synthesis strategy (default: naive). Use 'ncf' to merge single-qubit NCF groups into one U3 (RZ-RY-RZ); see arXiv:2510.13573.");
         },
         [&](ArgumentParser const& parser) {
             using namespace dvlab::str;
@@ -261,6 +261,7 @@ Command convert_from_tableau_cmd(experimental::TableauMgr& tableau_mgr, qcir::QC
                     if (is_prefix_of(rotation_strategy_str, "graysynth")) return std::make_unique<experimental::GraySynthPauliRotationsSynthesisStrategy>();
                     if (is_prefix_of(rotation_strategy_str, "gstair")) return std::make_unique<experimental::GraySynthPauliRotationsSynthesisStrategy>(experimental::GraySynthPauliRotationsSynthesisStrategy::Mode::staircase);
                     if (is_prefix_of(rotation_strategy_str, "mst")) return std::make_unique<experimental::MstSynthesisStrategy>();
+                    if (is_prefix_of(rotation_strategy_str, "ncf")) return std::make_unique<experimental::NcfMergePauliRotationsSynthesisStrategy>();
                     DVLAB_UNREACHABLE("Invalid rotation strategy!!");
                     return nullptr;
                 });

@@ -79,6 +79,14 @@ SubTableau adjoint(SubTableau const& subtableau) {
 void adjoint_inplace(Tableau& tableau) {
     std::ranges::reverse(tableau);
     std::ranges::for_each(tableau, [](SubTableau& subtableau) { adjoint_inplace(subtableau); });
+
+    // Keep explicit block ops metadata in sync (if present).
+    std::ranges::reverse(tableau._subtableau_ops);
+    for (auto& maybe_ops : tableau._subtableau_ops) {
+        if (maybe_ops.has_value()) {
+            adjoint_inplace(maybe_ops.value());
+        }
+    }
 }
 
 Tableau adjoint(Tableau const& tableau) {

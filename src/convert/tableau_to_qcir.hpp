@@ -48,6 +48,20 @@ struct MstSynthesisStrategy : public PauliRotationsSynthesisStrategy {
     std::optional<qcir::QCir> synthesize(std::vector<PauliRotation> const& rotations) const override;
 };
 
+/**
+ * @brief NCF-style rotation emission: when all rotations in a block act on a single qubit
+ *        (e.g. after `tableau optimize ncf`), emit the conjugated Pauli-string rotations
+ *        explicitly without merging/decomposing:
+ *          - Z: `rz(θ)`
+ *          - X: `h; rz(θ); h`
+ *          - Y: `sdg; h; rz(θ); h; s`
+ *        This is intended to match the paper-style listing (Cliffords at ends, rotations in middle).
+ *        See arXiv:2510.13573 (Non-Clifford Fusion).
+ */
+struct NcfMergePauliRotationsSynthesisStrategy : public PauliRotationsSynthesisStrategy {
+    std::optional<qcir::QCir> synthesize(std::vector<PauliRotation> const& rotations) const override;
+};
+
 std::optional<qcir::QCir> to_qcir(
     StabilizerTableau const& clifford,
     StabilizerTableauSynthesisStrategy const& strategy);

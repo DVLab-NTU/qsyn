@@ -14,6 +14,8 @@
 #include "argparse/argument.hpp"
 #include "cli/cli.hpp"
 #include "cmd/tableau_mgr.hpp"
+#include "convert/qcir_to_tensor.hpp"
+#include "convert/tableau_to_qcir.hpp"
 #include "tableau/pauli_rotation.hpp"
 #include "tableau/stabilizer_tableau.hpp"
 #include "tableau/tableau.hpp"
@@ -77,14 +79,20 @@ dvlab::Command tableau_from_pauli_cmd(TableauMgr& tableau_mgr) {
     return dvlab::Command{
         "from-pauli",
         [&](ArgumentParser& parser) {
-            parser.description("Create a new tableau from Pauli strings");
+            parser.description("Pauli String Exponentiation (PSE) or Hamiltonian Term Exponentiation (HTE) to tableau");
 
             parser.add_argument<std::string>("phase")
-                .help("Common rotation phase for all Pauli strings (e.g. pi/4, pi/2, 1/4*pi)");
+                .nargs(NArgsOption::optional)
+                .default_value("0")
+                .help("Common rotation phase for Pauli String Exponentiation (e.g. pi/4, pi/2, 1/4*pi). Default: 0");
 
             parser.add_argument<std::string>("paulis")
+                .nargs(NArgsOption::zero_or_more)
+                .help("Pauli strings such as ZIII, IIZX, etc. Use with <phase> for Pauli String Exponentiation; all must have the same length.");
+
+            parser.add_argument<std::string>("--terms")
                 .nargs(NArgsOption::one_or_more)
-                .help("Pauli strings such as ZIII, IIZX, etc. All must have the same length.");
+                .help("Hamiltonian terms with individual phases, formatted as <pauli>:<phase> (e.g. ZIII:pi/4 XXII:-pi/8)");
 
             parser.add_argument<size_t>("id")
                 .nargs(NArgsOption::optional)
@@ -97,31 +105,21 @@ dvlab::Command tableau_from_pauli_cmd(TableauMgr& tableau_mgr) {
         [&](ArgumentParser const& parser) {
             using dvlab::Phase;
 
-            auto const phase_str = parser.get<std::string>("phase");
-            auto const paulis    = parser.get<std::vector<std::string>>("paulis");
+            auto const paulis      = parser.get<std::vector<std::string>>("paulis");
+            auto const terms_input = parser.parsed("--terms") ? parser.get<std::vector<std::string>>("--terms") : std::vector<std::string>{};
 
-            auto const phase_opt = Phase::from_string(phase_str);
-            if (!phase_opt) {
-                spdlog::error("Cannot parse phase string \"{}\"!!", phase_str);
+            auto const has_terms         = !terms_input.empty();
+            auto const has_pauli_strings = !paulis.empty();
+
+            if (!has_terms && !has_pauli_strings) {
+                spdlog::error("Specify either --terms for Hamiltonian Term Exponentiation or <pauli strings> for Pauli String Exponentiation!!");
                 return dvlab::CmdExecResult::error;
             }
 
-            if (paulis.empty()) {
-                spdlog::error("No Pauli strings provided!!");
-                return dvlab::CmdExecResult::error;
-            }
+            if (has_terms && parser.parsed("phase")) spdlog::warn("Ignoring common phase because --terms (HTE) is provided.");
+            if (has_terms && has_pauli_strings) spdlog::warn("Ignoring positional Pauli strings because --terms (HTE) is provided.");
 
-            auto const n_qubits = paulis.front().size();
-            if (!std::ranges::all_of(paulis, [n_qubits](std::string const& s) { return s.size() == n_qubits; })) {
-                spdlog::error("All Pauli strings must have the same length!!");
-                return dvlab::CmdExecResult::error;
-            }
-
-            // Build tableau from Pauli strings
-            auto tableau = make_tableau_from_pauli_strings(paulis, *phase_opt);
-            tableau.set_filename("from_pauli");
-            tableau.add_procedure("from-pauli");
-
+            auto const store_tableau = [&](Tableau&& tableau) {
             auto const id = parser.parsed("id") ? parser.get<size_t>("id") : tableau_mgr.get_next_id();
 
             if (tableau_mgr.is_id(id)) {
@@ -135,6 +133,66 @@ dvlab::Command tableau_from_pauli_cmd(TableauMgr& tableau_mgr) {
             }
 
             return dvlab::CmdExecResult::done;
+            };
+
+            if (has_terms) {
+                std::vector<std::pair<std::string, Phase>> parsed_terms;
+                parsed_terms.reserve(terms_input.size());
+
+                for (auto const& term : terms_input) {
+                    auto const pos = term.find(':');
+                    if (pos == std::string::npos || pos == 0 || pos == term.size() - 1) {
+                        spdlog::error("Cannot parse term \"{}\"!! Expected format <pauli>:<phase> (e.g. ZIII:pi/4)", term);
+                        return dvlab::CmdExecResult::error;
+                    }
+                    auto const pauli_str = term.substr(0, pos);
+                    auto const phase_str = term.substr(pos + 1);
+
+                    auto const phase_opt = Phase::from_string(phase_str);
+                    if (!phase_opt) {
+                        spdlog::error("Cannot parse phase string \"{}\" in term \"{}\"!!", phase_str, term);
+                        return dvlab::CmdExecResult::error;
+                    }
+
+                    parsed_terms.emplace_back(pauli_str, *phase_opt);
+                }
+
+                if (parsed_terms.empty()) {
+                    spdlog::error("No Hamiltonian terms provided!!");
+                    return dvlab::CmdExecResult::error;
+                }
+
+                auto const n_qubits = parsed_terms.front().first.size();
+                if (!std::ranges::all_of(parsed_terms, [n_qubits](auto const& term) { return term.first.size() == n_qubits; })) {
+                    spdlog::error("All Pauli strings must have the same length!!");
+                    return dvlab::CmdExecResult::error;
+                }
+
+                auto tableau = make_tableau_from_pauli_terms(parsed_terms);
+                tableau.set_filename("hamiltonian_term_exp");
+                tableau.add_procedure("hamiltonian-term-exp");
+
+                return store_tableau(std::move(tableau));
+            }
+
+            auto const phase_str = parser.get<std::string>("phase");
+            auto const phase_opt = Phase::from_string(phase_str);
+            if (!phase_opt) {
+                spdlog::error("Cannot parse phase string \"{}\"!!", phase_str);
+                return dvlab::CmdExecResult::error;
+            }
+
+            auto const n_qubits = paulis.front().size();
+            if (!std::ranges::all_of(paulis, [n_qubits](std::string const& s) { return s.size() == n_qubits; })) {
+                spdlog::error("All Pauli strings must have the same length!!");
+                return dvlab::CmdExecResult::error;
+            }
+
+            auto tableau = make_tableau_from_pauli_strings(paulis, *phase_opt);
+            tableau.set_filename("pauli_string_exp");
+            tableau.add_procedure("pauli-string-exp");
+
+            return store_tableau(std::move(tableau));
         }};
 }
 
@@ -244,6 +302,76 @@ dvlab::Command tableau_adjoint_cmd(TableauMgr& tableau_mgr) {
         }};
 }
 
+dvlab::Command tableau_equiv_cmd(TableauMgr& tableau_mgr) {
+    return dvlab::Command{
+        "equiv",
+        [&](ArgumentParser& parser) {
+            parser.description(
+                "Check if two tableaux are equivalent. Converts each to a circuit, then to a "
+                "tensor, and compares the two unitaries (allows global phase; uses tolerance 1e-5).");
+
+            parser.add_argument<size_t>("ids")
+                .nargs(2)
+                .constraint(dvlab::utils::valid_mgr_id(tableau_mgr))
+                .help("Two tableau IDs to compare (e.g. 0 1)");
+        },
+        [&](ArgumentParser const& parser) {
+            auto const ids = parser.get<std::vector<size_t>>("ids");
+            auto const* t0 = tableau_mgr.find_by_id(ids[0]);
+            auto const* t1 = tableau_mgr.find_by_id(ids[1]);
+            if (!t0 || !t1) {
+                return dvlab::CmdExecResult::error;
+            }
+
+            auto const qcir0 = qsyn::experimental::to_qcir(
+                *t0,
+                qsyn::experimental::HOptSynthesisStrategy{},
+                qsyn::experimental::NaivePauliRotationsSynthesisStrategy{});
+            auto const qcir1 = qsyn::experimental::to_qcir(
+                *t1,
+                qsyn::experimental::HOptSynthesisStrategy{},
+                qsyn::experimental::NaivePauliRotationsSynthesisStrategy{});
+
+            if (!qcir0) {
+                spdlog::error("Failed to convert tableau {} to circuit.", ids[0]);
+                return dvlab::CmdExecResult::error;
+            }
+            if (!qcir1) {
+                spdlog::error("Failed to convert tableau {} to circuit.", ids[1]);
+                return dvlab::CmdExecResult::error;
+            }
+
+            if (t0->n_qubits() > 7) {
+                spdlog::error("Tableau equiv via tensor only supports up to 7 qubits (got {}).", t0->n_qubits());
+                return dvlab::CmdExecResult::error;
+            }
+
+            auto const tensor0 = qsyn::to_tensor(*qcir0);
+            auto const tensor1 = qsyn::to_tensor(*qcir1);
+            if (!tensor0 || !tensor1) {
+                spdlog::error("Failed to convert circuit to tensor.");
+                return dvlab::CmdExecResult::error;
+            }
+
+            // Direct comparison of the two unitaries (tolerance 1e-5 to allow for floating-point accumulation)
+            bool const equiv = qsyn::tensor::is_equivalent(*tensor0, *tensor1, 1e-5);
+            if (equiv) {
+                fmt::println(
+                    "{}",
+                    dvlab::fmt_ext::styled_if_ansi_supported(
+                        "The two tableaux are equivalent!!",
+                        fmt::fg(fmt::terminal_color::green) | fmt::emphasis::bold));
+            } else {
+                fmt::println(
+                    "{}",
+                    dvlab::fmt_ext::styled_if_ansi_supported(
+                        "The two tableaux are not equivalent!!",
+                        fmt::fg(fmt::terminal_color::red) | fmt::emphasis::bold));
+            }
+            return dvlab::CmdExecResult::done;
+        }};
+}
+
 dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr) {
     return dvlab::Command{
         "optimize",
@@ -263,6 +391,18 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr) {
 
             methods.add_parser("hopt")
                 .description("Minimize the number of Hadamard gates and internal Hadamard gates in the tableau");
+
+            auto ncf_parser = methods.add_parser("ncf")
+                                  .description("Non-Clifford Fusion: partition Pauli rotations into groups that conjugate to 1-qubit, then emit [C†][R'][C] blocks (see arXiv:2510.13573)");
+            ncf_parser.add_argument<bool>("--all-merges")
+                .action(store_true)
+                .help("Enumerate all valid partial-merge cases (merge all / none / subset-by-group) and store each case as a separate tableau ID");
+            ncf_parser.add_argument<size_t>("--max-cases")
+                .default_value(0)
+                .help("Maximum number of enumerated NCF cases (0 = no limit)");
+
+            methods.add_parser("equiv")
+                .description("Lightweight optimization for equivalence checking (tmerge + hopt only, no phase polynomial / TODD); safe for arbitrary phases");
 
             auto phasepoly_parser = methods.add_parser("phasepoly")
                                         .description("Reduce the number of terms for phase polynomials in the Tableau");
@@ -296,6 +436,8 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr) {
                 collapse,
                 t_merge,
                 internal_h_opt,
+                ncf_fusion,
+                equiv,
                 phase_polynomial_optimization,
                 matroid_partition
             };
@@ -309,6 +451,10 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr) {
                     return OptimizationMethod::t_merge;
                 } else if (dvlab::str::is_prefix_of(method_str, "hopt")) {
                     return OptimizationMethod::internal_h_opt;
+                } else if (dvlab::str::is_prefix_of(method_str, "ncf")) {
+                    return OptimizationMethod::ncf_fusion;
+                } else if (dvlab::str::is_prefix_of(method_str, "equiv")) {
+                    return OptimizationMethod::equiv;
                 } else if (dvlab::str::is_prefix_of(method_str, "phasepoly")) {
                     return OptimizationMethod::phase_polynomial_optimization;
                 } else if (dvlab::str::is_prefix_of(method_str, "matpar")) {
@@ -370,6 +516,32 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr) {
                     minimize_internal_hadamards(*tableau_mgr.get());
                     tableau_mgr.get()->add_procedure("InternalHOpt");
                     break;
+                case OptimizationMethod::ncf_fusion:
+                    if (parser.parsed("--all-merges")) {
+                        auto const max_cases = parser.get<size_t>("--max-cases");
+                        auto cases           = ncf_fusion_all(*tableau_mgr.get(), max_cases);
+                        if (cases.empty()) {
+                            spdlog::error("NCF enumerate produced no candidates.");
+                            return dvlab::CmdExecResult::error;
+                        }
+                        *tableau_mgr.get() = std::move(cases.front());
+                        tableau_mgr.get()->add_procedure("NCF-all-merges-case0");
+                        for (size_t i = 1; i < cases.size(); ++i) {
+                            auto id = tableau_mgr.get_next_id();
+                            cases[i].add_procedure("NCF-all-merges-case" + std::to_string(i));
+                            tableau_mgr.add(id, std::make_unique<Tableau>(std::move(cases[i])));
+                            spdlog::info("NCF enumerate: case {} stored as Tableau ID {}", i, id);
+                        }
+                        spdlog::info("NCF enumerate: case 0 kept in current Tableau ID {}", tableau_mgr.focused_id());
+                    } else {
+                        ncf_fusion(*tableau_mgr.get());
+                        tableau_mgr.get()->add_procedure("NCF");
+                    }
+                    break;
+                case OptimizationMethod::equiv:
+                    optimize_for_equiv(*tableau_mgr.get());
+                    tableau_mgr.get()->add_procedure("OptimizeForEquiv");
+                    break;
                 case OptimizationMethod::phase_polynomial_optimization:
                     do_phase_polynomial_optimization();
                     tableau_mgr.get()->add_procedure("PhasePolyOpt");
@@ -398,6 +570,7 @@ dvlab::Command tableau_cmd(TableauMgr& tableau_mgr) {
     cmd.add_subcommand("tableau-cmd-group", tableau_append_cmd(tableau_mgr));
     cmd.add_subcommand("tableau-cmd-group", tableau_adjoint_cmd(tableau_mgr));
     cmd.add_subcommand("tableau-cmd-group", tableau_print_cmd(tableau_mgr));
+    cmd.add_subcommand("tableau-cmd-group", tableau_equiv_cmd(tableau_mgr));
     cmd.add_subcommand("tableau-cmd-group", tableau_optimization_cmd(tableau_mgr));
 
     return cmd;

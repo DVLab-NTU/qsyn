@@ -105,6 +105,24 @@ std::optional<QCir> from_qasm(std::filesystem::path const& filepath) {
             continue;
         }
 
+        // u1(λ)=Rz(λ), u2(φ,λ) and u3(θ,φ,λ) use last param as Rz(λ) for phase gates
+        std::string const type_lower = dvlab::str::tolower_string(type);
+        if (type_lower == "u1" || type_lower == "u2" || type_lower == "u3") {
+            std::string param;
+            size_t pos = 0;
+            std::string last_param;
+            while (true) {
+                size_t const next = str_get_token(phase_str, param, pos, ',');
+                last_param = dvlab::str::trim_spaces(param);
+                if (next == std::string::npos) break;
+                pos = next + 1;
+            }
+            if (!last_param.empty()) {
+                phase_str = last_param;
+                type      = "rz";
+            }
+        }
+
         auto phase = dvlab::Phase::from_string(phase_str);
         if (!phase.has_value()) {
             spdlog::error("invalid phase on line {}!!", str);

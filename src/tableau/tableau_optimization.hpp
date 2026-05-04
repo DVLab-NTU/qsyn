@@ -16,6 +16,14 @@ namespace experimental {
 
 void full_optimize(Tableau& tableau);
 
+/**
+ * @brief Lightweight tableau optimization for equivalence checking: merge rotations and
+ *        minimize Hadamards only. Skips phase polynomial (TODD) optimization so circuits
+ *        with arbitrary phases (e.g. after NCF or Hamiltonian simulation) do not trigger
+ *        "non-4th-root-of-unity" errors. Use this when comparing such circuits via equiv.
+ */
+void optimize_for_equiv(Tableau& tableau);
+
 void collapse(Tableau& tableau);
 
 void remove_identities(std::vector<PauliRotation>& rotation);
@@ -33,6 +41,15 @@ void merge_rotations(Tableau& tableau);
 // implemented in ./optimize/internal_h_opt.cpp
 
 void minimize_internal_hadamards(Tableau& tableau);
+
+/**
+ * @brief Non-Clifford Fusion (NCF): partition Pauli rotations into groups that can be
+ *        conjugated to act on 1 or 2 qubits, then replace the rotation list by blocks
+ *        [C†][R'][C] so that each R' can be synthesized as a single U3 or two-qubit unitary.
+ *        See https://arxiv.org/abs/2510.13573
+ */
+void ncf_fusion(Tableau& tableau);
+std::vector<Tableau> ncf_fusion_all(Tableau const& tableau, size_t max_cases = 0);
 
 struct PhasePolynomialOptimizationStrategy {
     using Polynomial                               = std::vector<PauliRotation>;

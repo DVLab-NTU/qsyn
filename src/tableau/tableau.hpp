@@ -9,6 +9,7 @@
 #pragma once
 
 #include <tl/fold.hpp>
+#include <optional>
 #include <variant>
 #include <vector>
 #include <string>
@@ -23,14 +24,20 @@ using SubTableau = std::variant<StabilizerTableau, std::vector<PauliRotation>>;
 
 class Tableau : public PauliProductTrait<Tableau> {
 public:
-    Tableau(size_t n_qubits) : _subtableaux{StabilizerTableau{n_qubits}}, _n_qubits{n_qubits} {}
+    Tableau(size_t n_qubits)
+        : _subtableaux{StabilizerTableau{n_qubits}},
+          _n_qubits{n_qubits},
+          _subtableau_labels(1, ""),
+          _subtableau_ops(1, std::nullopt) {}
     Tableau(std::initializer_list<SubTableau> subtableaux)
         : _subtableaux{subtableaux},
           _n_qubits(
               dvlab::match(
                   _subtableaux.front(),
                   [](StabilizerTableau const& st) { return st.n_qubits(); },
-                  [](std::vector<PauliRotation> const& pr) { return pr.front().n_qubits(); })) {}
+                  [](std::vector<PauliRotation> const& pr) { return pr.front().n_qubits(); })),
+          _subtableau_labels(subtableaux.size(), ""),
+          _subtableau_ops(subtableaux.size(), std::nullopt) {}
 
     auto begin() const {
         return _subtableaux.begin();
@@ -85,31 +92,65 @@ public:
 
     auto insert(std::vector<SubTableau>::iterator pos, std::vector<SubTableau>::iterator first, std::vector<SubTableau>::iterator last) {
         // FIXME - check if the subtableaux have the same number of qubits
+        auto const idx = static_cast<size_t>(std::distance(_subtableaux.begin(), pos));
+        auto const n   = static_cast<size_t>(std::distance(first, last));
+        _subtableau_labels.insert(_subtableau_labels.begin() + idx, n, "");
+        _subtableau_ops.insert(_subtableau_ops.begin() + idx, n, std::nullopt);
         return _subtableaux.insert(pos, first, last);
     }
 
     auto insert(std::vector<SubTableau>::iterator pos, SubTableau const& subtableau) {
         // FIXME - check if the subtableau has the same number of qubits
+        auto const idx = static_cast<size_t>(std::distance(_subtableaux.begin(), pos));
+        _subtableau_labels.insert(_subtableau_labels.begin() + idx, 1, "");
+        _subtableau_ops.insert(_subtableau_ops.begin() + idx, 1, std::nullopt);
         return _subtableaux.insert(pos, subtableau);
     }
 
     auto erase(std::vector<SubTableau>::iterator first, std::vector<SubTableau>::iterator last) {
-        return _subtableaux.erase(first, last);
+        auto const idx_first = static_cast<size_t>(std::distance(_subtableaux.begin(), first));
+        auto const idx_last  = static_cast<size_t>(std::distance(_subtableaux.begin(), last));
+        auto const ret       = _subtableaux.erase(first, last);
+        _subtableau_labels.erase(_subtableau_labels.begin() + idx_first, _subtableau_labels.begin() + idx_last);
+        _subtableau_ops.erase(_subtableau_ops.begin() + idx_first, _subtableau_ops.begin() + idx_last);
+        return ret;
     }
 
     auto erase(std::ranges::range auto const& range) {
-        return _subtableaux.erase(range);
+        return erase(std::ranges::begin(range), std::ranges::end(range));
     }
 
     auto push_back(SubTableau const& subtableau) {
         // FIXME - check if the subtableau has the same number of qubits
+        _subtableau_labels.push_back("");
+        _subtableau_ops.push_back(std::nullopt);
         _subtableaux.push_back(subtableau);
     }
 
     template <typename... Args>
     auto emplace_back(Args&&... args) {
         // FIXME - check if the subtableau has the same number of qubits
+        _subtableau_labels.push_back("");
+        _subtableau_ops.push_back(std::nullopt);
         return _subtableaux.emplace_back(std::forward<Args>(args)...);
+    }
+
+    std::string const& get_block_label(size_t idx) const {
+        return _subtableau_labels[idx];
+    }
+    void set_block_label(size_t idx, std::string label) {
+        _subtableau_labels[idx] = std::move(label);
+    }
+
+    // Optional per-block explicit Clifford operator string (used by NCF direct ops emission).
+    std::optional<CliffordOperatorString> const& get_block_ops(size_t idx) const {
+        return _subtableau_ops[idx];
+    }
+    void set_block_ops(size_t idx, CliffordOperatorString ops) {
+        _subtableau_ops[idx] = std::move(ops);
+    }
+    void clear_block_ops(size_t idx) {
+        _subtableau_ops[idx].reset();
     }
 
     auto& operator[](size_t idx) {
@@ -145,6 +186,10 @@ private:
     std::size_t _n_qubits;
     std::string _filename;
     std::vector<std::string> _procedures;
+    std::vector<std::string> _subtableau_labels;  // optional label per block (e.g. NCF "original #0, #2")
+    std::vector<std::optional<CliffordOperatorString>> _subtableau_ops;  // optional explicit Clifford ops per block
+
+    friend void adjoint_inplace(Tableau& tableau);
 };
 
 /**
@@ -250,8 +295,13 @@ struct fmt::formatter<qsyn::experimental::Tableau> {
 
     template <typename FormatContext>
     auto format(qsyn::experimental::Tableau const& tableau, FormatContext& ctx) const {
-        return presentation == 'c'
-                   ? fmt::format_to(ctx.out(), "{:c}", fmt::join(tableau, "\n"))
-                   : fmt::format_to(ctx.out(), "{:b}", fmt::join(tableau, "\n"));
+        auto out = ctx.out();
+        for (size_t i = 0; i < tableau.size(); ++i) {
+            if (i > 0) out = fmt::format_to(out, "\n\n");
+            auto const& label = tableau.get_block_label(i);
+            if (!label.empty()) out = fmt::format_to(out, "[{}]\n", label);
+            out = presentation == 'c' ? fmt::format_to(out, "{:c}", tableau[i]) : fmt::format_to(out, "{:b}", tableau[i]);
+        }
+        return out;
     }
 };
