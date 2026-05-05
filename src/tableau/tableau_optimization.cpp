@@ -1331,13 +1331,10 @@ void minimize_ancillary_t_opt(Tableau& tableau, std::optional<std::string> expor
     }
     size_t non_clifford_count = tableau.n_pauli_rotations();
     minimize_internal_hadamards_n_gadgetize(tableau);
-    spdlog::debug("After minimize_internal_hadamards_n_gadgetize: {:g}", tableau);
     commute_and_merge_rotations(tableau);
     // properize_for_t_optimization(tableau);
     spdlog::debug("Before phase polynomial optimization: {:g}", tableau);
     optimize_phase_polynomial_with_classical(tableau, FastToddPhasePolynomialOptimizationStrategy{});
-    // spdlog::debug("after phase polynomial optimization: {:b}", tableau);
-    // spdlog::debug("after T-opt: {:g}", tableau);
     auto const reverse_commuted_tableau = reverse_commute_pmcs_to_gadgets_for_test(tableau);
     // spdlog::debug("reverse-commuted tableau for test: {:g}", reverse_commuted_tableau);
 

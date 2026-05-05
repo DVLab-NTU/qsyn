@@ -20,6 +20,7 @@
 #include <stdexcept>
 #include <fstream>
 #include <optional>
+#include <set>
 #include <sstream>
 #include <string>
 #include <string_view>
@@ -41,6 +42,7 @@ enum class ScheduleParseSection { None, GadgetOrder, ColumnSlot, Span };
 struct ParsedGadgetOrdering {
     size_t qubit_count  = 0;
     size_t ancilla_count = 0;
+    size_t width_w      = 0;
     std::vector<size_t> gadget_order_gids;
     std::unordered_map<size_t, size_t> column_slot;
     /// From ``Span :`` section: gadget id -> (min_i, max_i) gap indices.
@@ -49,6 +51,22 @@ struct ParsedGadgetOrdering {
     /// `occupied_gadget_gap_time[gid][t] == 1` iff gadget `gid` is **busy** at gap time `t` per Span `[min_i,max_i]`
     /// (else `0`). `(gid 0 0)` leaves row `gid` all zero.
     std::vector<std::vector<std::uint8_t>> occupied_gadget_gap_time;
+};
+
+struct AncillaInterval {
+    size_t gid                   = 0;
+    size_t logical_ancilla_qubit = 0;
+    size_t min_gap_i             = 0;
+    size_t max_gap_i             = 0;
+};
+
+struct AncillaOccupancyTableau {
+    size_t width_w            = 0;
+    size_t ancilla_base_qubit = 0;
+    /// occupied_gid_by_time_lane[t][lane] = gid, or -1 if lane is free at time t.
+    std::vector<std::vector<int64_t>> occupied_gid_by_time_lane;
+    std::unordered_map<size_t, size_t> gid_to_lane;
+    std::unordered_map<size_t, size_t> gid_to_physical_ancilla;
 };
 
 bool parse_gadget_ordering_file(std::filesystem::path const& path, ParsedGadgetOrdering& out, std::string& err) {
@@ -84,6 +102,7 @@ bool parse_gadget_ordering_file(std::filesystem::path const& path, ParsedGadgetO
             continue;
         }
         if (line.starts_with("width:")) {
+            out.width_w = static_cast<size_t>(std::stoull(line.substr(std::string_view("width:").size())));
             continue;
         }
         if (line == "gadget_order") {
@@ -227,6 +246,10 @@ bool validate_ordering_against_tableau(Tableau const& tableau,
     if (ord.qubit_count != tableau.n_qubits() || ord.ancilla_count != tableau.n_ancilla()) {
         err = fmt::format("header mismatch: file n={} m={} vs tableau n={} m={}",
                           ord.qubit_count, ord.ancilla_count, tableau.n_qubits(), tableau.n_ancilla());
+        return false;
+    }
+    if (ord.width_w > ord.ancilla_count) {
+        err = fmt::format("width_w {} exceeds ancilla_count {}", ord.width_w, ord.ancilla_count);
         return false;
     }
 
@@ -474,23 +497,13 @@ bool validate_classical_controls_against_span_allowlist(
     std::vector<SubTableau> const& middle,
     size_t const G,
     ParsedGadgetOrdering const& ord,
-    std::vector<ConstraintGraph::HadamardGadgetPair> const& gadgets) {
-    if (ord.occupied_gadget_gap_time.size() != G) {
+    AncillaOccupancyTableau const& ancilla_occupancy) {
+    if (ancilla_occupancy.occupied_gid_by_time_lane.size() != G + 1) {
         spdlog::error(
-            "validate_classical_controls_against_span_allowlist: occupied_gadget_gap_time rows {} != G {}",
-            ord.occupied_gadget_gap_time.size(),
-            G);
+            "validate_classical_controls_against_span_allowlist: occupancy rows {} != G+1 {}",
+            ancilla_occupancy.occupied_gid_by_time_lane.size(),
+            G + 1);
         return false;
-    }
-    for (size_t gid = 0; gid < G; ++gid) {
-        if (ord.occupied_gadget_gap_time[gid].size() != G + 1) {
-            spdlog::error(
-                "validate_classical_controls_against_span_allowlist: row gid {} width {} != G+1 {}",
-                gid,
-                ord.occupied_gadget_gap_time[gid].size(),
-                G + 1);
-            return false;
-        }
     }
 
     size_t const data_qubit_end = ord.qubit_count - ord.ancilla_count;  // ancillas are [data_qubit_end, qubit_count)
@@ -514,11 +527,23 @@ bool validate_classical_controls_against_span_allowlist(
 
         if (cct->is_classical_control()) {
             std::unordered_set<size_t> allowed_ancillas;
-            allowed_ancillas.reserve(G);
-            for (size_t gid = 0; gid < G; ++gid) {
-                if (ord.occupied_gadget_gap_time[gid][gap_i] == 1) {
-                    allowed_ancillas.insert(gadgets[gid].ancilla_qubit);
+            auto const& occupancy_row = ancilla_occupancy.occupied_gid_by_time_lane[gap_i];
+            allowed_ancillas.reserve(occupancy_row.size());
+            for (int64_t occupied_gid : occupancy_row) {
+                if (occupied_gid < 0) {
+                    continue;
                 }
+                size_t const gid = static_cast<size_t>(occupied_gid);
+                auto const qit = ancilla_occupancy.gid_to_physical_ancilla.find(gid);
+                if (qit == ancilla_occupancy.gid_to_physical_ancilla.end()) {
+                    spdlog::error(
+                        "validate_classical_controls_against_span_allowlist: occupied gid {} at gap {} missing "
+                        "physical ancilla assignment",
+                        gid,
+                        gap_i);
+                    return false;
+                }
+                allowed_ancillas.insert(qit->second);
             }
 
             auto const ops = extract_clifford_operators(cct->operations());
@@ -536,8 +561,8 @@ bool validate_classical_controls_against_span_allowlist(
                     if (q >= data_qubit_end && q < ord.qubit_count &&
                         allowed_ancillas.count(q) == 0) {
                         spdlog::error(
-                            "sat_reorder_apply: span allowlist violation at middle[{}], gap i={}, ancilla q={} "
-                            "not allowed by Span occupancy",
+                            "sat_reorder_apply: occupancy allowlist violation at middle[{}], gap i={}, ancilla q={} "
+                            "not allowed by active ancilla occupancy",
                             idx,
                             gap_i,
                             q);
@@ -552,6 +577,274 @@ bool validate_classical_controls_against_span_allowlist(
         }
     }
 
+    return true;
+}
+
+bool build_ancilla_intervals_from_span(ParsedGadgetOrdering const& ord,
+                                       std::vector<ConstraintGraph::HadamardGadgetPair> const& gadgets,
+                                       std::vector<AncillaInterval>& intervals,
+                                       std::string& err) {
+    size_t const G = gadgets.size();
+    if (ord.span_by_gid.empty()) {
+        err = "Span section is empty";
+        return false;
+    }
+    if (ord.span_by_gid.size() != G) {
+        err = fmt::format("Span count {} does not match gadget count {}", ord.span_by_gid.size(), G);
+        return false;
+    }
+
+    intervals.clear();
+    intervals.reserve(G);
+    for (size_t gid = 0; gid < G; ++gid) {
+        auto const it = ord.span_by_gid.find(gid);
+        if (it == ord.span_by_gid.end()) {
+            err = fmt::format("missing Span entry for gid {}", gid);
+            return false;
+        }
+        auto const [min_i, max_i] = it->second;
+        if (min_i > max_i) {
+            err = fmt::format("invalid Span for gid {}: min_i {} > max_i {}", gid, min_i, max_i);
+            return false;
+        }
+        AncillaInterval interval;
+        interval.gid                   = gid;
+        interval.logical_ancilla_qubit = gadgets[gid].ancilla_qubit;
+        interval.min_gap_i             = min_i;
+        interval.max_gap_i             = max_i;
+        intervals.push_back(interval);
+    }
+    std::sort(intervals.begin(), intervals.end(), [](AncillaInterval const& lhs, AncillaInterval const& rhs) {
+        if (lhs.min_gap_i != rhs.min_gap_i) {
+            return lhs.min_gap_i < rhs.min_gap_i;
+        }
+        if (lhs.max_gap_i != rhs.max_gap_i) {
+            return lhs.max_gap_i < rhs.max_gap_i;
+        }
+        return lhs.gid < rhs.gid;
+    });
+    return true;
+}
+
+bool build_ancilla_occupancy_tableau(std::vector<AncillaInterval> const& intervals,
+                                     ParsedGadgetOrdering const& ord,
+                                     AncillaOccupancyTableau& out,
+                                     std::string& err) {
+    size_t const G = intervals.size();
+    if (G == 0) {
+        out = {};
+        return true;
+    }
+    size_t const width_w = ord.width_w > 0 ? ord.width_w : ord.ancilla_count;
+    if (width_w == 0) {
+        err = "width is zero";
+        return false;
+    }
+    if (ord.ancilla_count == 0 || ord.qubit_count < ord.ancilla_count) {
+        err = fmt::format("invalid qubit/ancilla counts: qubit_count={}, ancilla_count={}",
+                          ord.qubit_count,
+                          ord.ancilla_count);
+        return false;
+    }
+    size_t const ancilla_base = ord.qubit_count - ord.ancilla_count;
+
+    std::vector<std::vector<size_t>> starts(G + 1);
+    std::vector<std::vector<size_t>> ends(G + 1);
+    for (auto const& iv : intervals) {
+        if (iv.gid >= G) {
+            err = fmt::format("interval gid {} out of range [0,{})", iv.gid, G);
+            return false;
+        }
+        if (iv.min_gap_i > iv.max_gap_i || iv.max_gap_i > G) {
+            err = fmt::format("interval gid {} has out-of-range span [{},{}] for G={}",
+                              iv.gid,
+                              iv.min_gap_i,
+                              iv.max_gap_i,
+                              G);
+            return false;
+        }
+        starts[iv.min_gap_i].push_back(iv.gid);
+        ends[iv.max_gap_i].push_back(iv.gid);
+    }
+
+    out.width_w            = width_w;
+    out.ancilla_base_qubit = ancilla_base;
+    out.occupied_gid_by_time_lane.assign(G + 1, std::vector<int64_t>(width_w, -1));
+    out.gid_to_lane.clear();
+    out.gid_to_physical_ancilla.clear();
+    out.gid_to_lane.reserve(G);
+    out.gid_to_physical_ancilla.reserve(G);
+
+    std::set<size_t> free_lanes;
+    for (size_t lane = 0; lane < width_w; ++lane) {
+        free_lanes.insert(lane);
+    }
+    std::vector<int64_t> lane_to_gid(width_w, -1);
+
+    for (size_t t = 0; t <= G; ++t) {
+        if (t > 0) {
+            for (size_t gid : ends[t - 1]) {
+                auto const lane_it = out.gid_to_lane.find(gid);
+                if (lane_it == out.gid_to_lane.end()) {
+                    err = fmt::format("release gid {} at t={} has no lane assignment", gid, t - 1);
+                    return false;
+                }
+                size_t const lane = lane_it->second;
+                lane_to_gid[lane] = -1;
+                free_lanes.insert(lane);
+            }
+        }
+
+        auto& starters = starts[t];
+        std::sort(starters.begin(), starters.end());
+        for (size_t gid : starters) {
+            if (free_lanes.empty()) {
+                err = fmt::format("insufficient ancilla lanes at t={} (need width > {})", t, width_w);
+                return false;
+            }
+            size_t const lane = *free_lanes.begin();
+            free_lanes.erase(free_lanes.begin());
+            lane_to_gid[lane]               = static_cast<int64_t>(gid);
+            out.gid_to_lane[gid]            = lane;
+            out.gid_to_physical_ancilla[gid] = ancilla_base + lane;
+        }
+
+        for (size_t lane = 0; lane < width_w; ++lane) {
+            out.occupied_gid_by_time_lane[t][lane] = lane_to_gid[lane];
+        }
+    }
+    return true;
+}
+
+std::unordered_map<size_t, size_t> build_logical_to_physical_ancilla_map(
+    std::vector<AncillaInterval> const& intervals,
+    AncillaOccupancyTableau const&      ancilla_occupancy) {
+    std::unordered_map<size_t, size_t> logical_to_physical;
+    logical_to_physical.reserve(intervals.size());
+    for (auto const& interval : intervals) {
+        auto const it = ancilla_occupancy.gid_to_physical_ancilla.find(interval.gid);
+        if (it == ancilla_occupancy.gid_to_physical_ancilla.end()) {
+            continue;
+        }
+        logical_to_physical[interval.logical_ancilla_qubit] = it->second;
+    }
+    return logical_to_physical;
+}
+
+size_t remap_qubit(size_t q, std::unordered_map<size_t, size_t> const& logical_to_physical) {
+    auto const map_it = logical_to_physical.find(q);
+    return (map_it != logical_to_physical.end()) ? map_it->second : q;
+}
+
+void remap_clifford_ops_inplace(CliffordOperatorString& ops,
+                                std::unordered_map<size_t, size_t> const& logical_to_physical) {
+    for (auto& [type, qubits] : ops) {
+        qubits[0] = remap_qubit(qubits[0], logical_to_physical);
+        if (type == CliffordOperatorType::cx || type == CliffordOperatorType::cz ||
+            type == CliffordOperatorType::swap || type == CliffordOperatorType::ecr) {
+            qubits[1] = remap_qubit(qubits[1], logical_to_physical);
+        }
+    }
+}
+
+bool remap_pauli_rotation_qubits(PauliRotation& rotation,
+                                 std::unordered_map<size_t, size_t> const& logical_to_physical,
+                                 size_t target_n_qubits,
+                                 std::string& err) {
+    std::vector<Pauli> remapped(target_n_qubits, Pauli::i);
+    for (size_t q = 0; q < rotation.n_qubits(); ++q) {
+        auto const   p = rotation.get_pauli_type(q);
+        size_t const dst = remap_qubit(q, logical_to_physical);
+        if (p == Pauli::i) {
+            continue;
+        }
+        if (dst >= remapped.size()) {
+            err = fmt::format("Pauli remap out of range: src q{} -> dst q{} with n_qubits={}",
+                              q,
+                              dst,
+                              remapped.size());
+            return false;
+        }
+        if (remapped[dst] != Pauli::i) {
+            err = fmt::format(
+                "Pauli remap collision: src q{} and another source both map to dst q{} (non-identity overlap)",
+                q,
+                dst);
+            return false;
+        }
+        remapped[dst] = p;
+    }
+    bool const was_cz = rotation.is_CZ();
+    rotation          = PauliRotation(remapped.begin(), remapped.end(), rotation.phase());
+    if (was_cz && rotation.phase() == dvlab::Phase(0)) {
+        size_t z_count = 0;
+        for (size_t q = 0; q < rotation.n_qubits(); ++q) {
+            if (rotation.get_pauli_type(q) == Pauli::z) {
+                ++z_count;
+            }
+        }
+        rotation.set_is_CZ(z_count == 2);
+    } else {
+        rotation.set_is_CZ(false);
+    }
+    return true;
+}
+
+bool remap_cct_qubits(ClassicalControlTableau& cct,
+                      std::unordered_map<size_t, size_t> const& logical_to_physical,
+                      size_t target_n_qubits) {
+    size_t const old_ancilla = cct.ancilla_qubit();
+    size_t const new_ancilla = remap_qubit(old_ancilla, logical_to_physical);
+    size_t const old_ref     = cct.reference_qubit();
+    size_t const new_ref     = remap_qubit(old_ref, logical_to_physical);
+
+    if (cct.is_gadget()) {
+        cct.operations() = StabilizerTableau{target_n_qubits};
+        cct.set_qubits(new_ancilla, new_ref);
+        return true;
+    }
+
+    auto const ops_old = extract_clifford_operators(cct.operations());
+    auto       ops_new = ops_old;
+    remap_clifford_ops_inplace(ops_new, logical_to_physical);
+
+    ClassicalControlTableau rebuilt(new_ancilla, new_ref, target_n_qubits, CCTType::ClassicalControl);
+    rebuilt.operations() = StabilizerTableau{target_n_qubits};
+    rebuilt.operations().apply(ops_new);
+    rebuilt.set_measurement_type(cct.measurement_type());
+    cct = std::move(rebuilt);
+    return true;
+}
+
+bool remap_middle_to_physical_ancillae(std::vector<SubTableau>& middle,
+                                       std::unordered_map<size_t, size_t> const& logical_to_physical,
+                                       size_t target_n_qubits,
+                                       std::string& err) {
+    for (size_t idx = 0; idx < middle.size(); ++idx) {
+        if (auto* st = std::get_if<StabilizerTableau>(&middle[idx])) {
+            auto ops = extract_clifford_operators(*st);
+            remap_clifford_ops_inplace(ops, logical_to_physical);
+            StabilizerTableau rebuilt{target_n_qubits};
+            rebuilt.apply(ops);
+            *st = std::move(rebuilt);
+            continue;
+        }
+        if (auto* pr = std::get_if<std::vector<PauliRotation>>(&middle[idx])) {
+            for (auto& rotation : *pr) {
+                if (!remap_pauli_rotation_qubits(rotation, logical_to_physical, target_n_qubits, err)) {
+                    err = fmt::format("middle[{}] PR remap failed: {}", idx, err);
+                    return false;
+                }
+            }
+            continue;
+        }
+        if (auto* cct = std::get_if<ClassicalControlTableau>(&middle[idx])) {
+            remap_cct_qubits(*cct, logical_to_physical, target_n_qubits);
+            continue;
+        }
+        err = fmt::format("middle[{}] has unsupported block type for ancilla remap", idx);
+        return false;
+    }
     return true;
 }
 
@@ -742,6 +1035,36 @@ bool sat_reorder_apply(Tableau& tableau, std::filesystem::path const& ordering_p
 
     log_and_export_spans(ordering_path, ord);
 
+    std::vector<AncillaInterval> ancilla_intervals;
+    std::string                  interval_err;
+    if (!build_ancilla_intervals_from_span(ord, gadgets, ancilla_intervals, interval_err)) {
+        spdlog::error("sat_reorder_apply: build_ancilla_intervals_from_span failed: {}", interval_err);
+        return false;
+    }
+    AncillaOccupancyTableau ancilla_occupancy;
+    std::string             occupancy_err;
+    if (!build_ancilla_occupancy_tableau(ancilla_intervals, ord, ancilla_occupancy, occupancy_err)) {
+        spdlog::error("sat_reorder_apply: build_ancilla_occupancy_tableau failed: {}", occupancy_err);
+        return false;
+    }
+    for (auto const& interval : ancilla_intervals) {
+        auto const qit = ancilla_occupancy.gid_to_physical_ancilla.find(interval.gid);
+        if (qit != ancilla_occupancy.gid_to_physical_ancilla.end()) {
+            spdlog::info("ancilla allocation gid={} logical_q={} span=[{},{}] physical_q={}",
+                         interval.gid,
+                         interval.logical_ancilla_qubit,
+                         interval.min_gap_i,
+                         interval.max_gap_i,
+                         qit->second);
+        }
+    }
+    auto const logical_to_physical = build_logical_to_physical_ancilla_map(ancilla_intervals, ancilla_occupancy);
+    for (auto const& [logical_q, physical_q] : logical_to_physical) {
+        if (logical_q != physical_q) {
+            spdlog::info("ancilla remap logical q{} -> physical q{}", logical_q, physical_q);
+        }
+    }
+
     std::unordered_map<size_t, ConstraintGraph::PRInfo> pr_vertex_to_info;
     size_t global_pr_counter = 0;
     for (size_t idx = 0; idx < tableau.size(); ++idx) {
@@ -861,7 +1184,16 @@ bool sat_reorder_apply(Tableau& tableau, std::filesystem::path const& ordering_p
         return false;
     }
 
-    if (!validate_classical_controls_against_span_allowlist(middle, G, ord, gadgets)) {
+    size_t const sat_width_w      = ord.width_w > 0 ? ord.width_w : ord.ancilla_count;
+    size_t const data_qubits      = tableau.n_qubits() - tableau.n_ancilla();
+    size_t const target_n_qubits  = data_qubits + sat_width_w;
+    std::string remap_err;
+    if (!remap_middle_to_physical_ancillae(middle, logical_to_physical, target_n_qubits, remap_err)) {
+        spdlog::error("sat_reorder_apply: ancilla remap failed: {}", remap_err);
+        return false;
+    }
+   
+    if (!validate_classical_controls_against_span_allowlist(middle, G, ord, ancilla_occupancy)) {
         return false;
     }
 
@@ -874,10 +1206,13 @@ bool sat_reorder_apply(Tableau& tableau, std::filesystem::path const& ordering_p
     for (auto it = middle.begin(); it != middle.end(); ++it) {
         tableau.insert(tableau.end() - 1, std::move(*it));
     }
+    tableau.set_n_qubits(target_n_qubits);
+    tableau.set_n_ancilla(sat_width_w);
 
     reestablish_hadamard_gadget_pairing(tableau);
     remove_identities(tableau);
     spdlog::info("sat_reorder_apply: done ({} elements)", tableau.size());
+    spdlog::info("sat_reorder_apply: tableau = {:g}", tableau);
     return true;
 }
 

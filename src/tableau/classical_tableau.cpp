@@ -145,6 +145,32 @@ void ClassicalControlTableau::add_gate(CliffordOperator const& op) {
     _operations.prepend(op);
 }
 
+void ClassicalControlTableau::set_ancilla_qubit(size_t ancilla_qubit) {
+    set_qubits(ancilla_qubit, _reference_qubit);
+}
+
+void ClassicalControlTableau::set_reference_qubit(size_t reference_qubit) {
+    set_qubits(_ancilla_qubit, reference_qubit);
+}
+
+void ClassicalControlTableau::set_qubits(size_t ancilla_qubit, size_t reference_qubit) {
+    if (_ancilla_qubit == ancilla_qubit && _reference_qubit == reference_qubit) {
+        return;
+    }
+
+    size_t const required_n_qubits = std::max(_operations.n_qubits(), min_qubit_width(ancilla_qubit, reference_qubit));
+    _ancilla_qubit   = ancilla_qubit;
+    _reference_qubit = reference_qubit;
+    _operations = StabilizerTableau{required_n_qubits};
+    _operations.s(_ancilla_qubit);
+    _operations.s(_reference_qubit);
+    _operations.cx(_reference_qubit, _ancilla_qubit);
+    _operations.sdg(_ancilla_qubit);
+    _operations.cx(_ancilla_qubit, _reference_qubit);
+    _operations.cx(_reference_qubit, _ancilla_qubit);
+    _measurement_type = MeasurementType::X;
+}
+
 void initialize_gadget(ClassicalControlTableau& cct) {
     assert(cct.is_gadget());
     size_t const n  = cct.operations().n_qubits();

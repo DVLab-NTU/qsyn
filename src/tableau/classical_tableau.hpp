@@ -98,6 +98,9 @@ public:
     size_t ancilla_qubit() const { return _ancilla_qubit; }
     size_t reference_qubit() const { return _reference_qubit; }
     CCTType type() const { return _type; }
+    void set_ancilla_qubit(size_t ancilla_qubit);
+    void set_reference_qubit(size_t reference_qubit);
+    void set_qubits(size_t ancilla_qubit, size_t reference_qubit);
 
     StabilizerTableau& operations() { return _operations; }
     StabilizerTableau const& operations() const { return _operations; }
