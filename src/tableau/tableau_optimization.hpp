@@ -83,9 +83,6 @@ std::pair<Tableau, StabilizerTableau> minimize_hadamards_n_gadgetize(Tableau tab
 
 // Commute classical operations and collapse
 
-// Re-establish CCC-PMC pairing after moves (internal use)
-void reestablish_hadamard_gadget_pairing(Tableau& tableau);
-
 struct CircuitStructureInfo {
     size_t ccc_count;
     size_t pr_column_count;
@@ -103,6 +100,8 @@ bool sat_reorder_apply(Tableau& tableau, std::filesystem::path const& ordering_p
 void sat_reorder(Tableau& tableau);
 
 void check_redundant_ancilla(Tableau& tableau);
+bool run_commute_test_from_file(std::filesystem::path const& txt_path);
+void move_pmcs_with_reduced_PR(Tableau const& tableau);
 // Constraint graph for topological ordering constraints
 struct ConstraintGraph {
     // H-gadget pair structure for degadgetization
@@ -162,9 +161,7 @@ struct ConstraintGraph {
 };
 
 // Build constraint graph from tableau.
-// If export_path is set, writes a .txt file with gadgets (index, ref, ancilla) and paulis (index, binary form).
-ConstraintGraph build_constraint_graph(Tableau& tableau,
-                                       std::optional<std::string> const& export_path = std::nullopt);
+ConstraintGraph build_constraint_graph(Tableau& tableau);
 
 // Export all H-gadget pairs from tableau
 std::vector<ConstraintGraph::HadamardGadgetPair> export_hadamard_gadget_pairs(Tableau& tableau);

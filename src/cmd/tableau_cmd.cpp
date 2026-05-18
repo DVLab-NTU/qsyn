@@ -211,6 +211,11 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr, qsyn::qcir::QCi
             methods.add_parser("blockwiseAncillaryTopt")
                 .description("Block-wise ancillary-T optimization (gadgetize/opt per internal H block)");
 
+            auto test_parser = methods.add_parser("test")
+                                   .description("Run commute-text validation test and compare simulated PMC with ops section");
+            test_parser.add_argument<std::string>("txt-file")
+                .help("Path to the commute test text file");
+
             auto phasepoly_parser = methods.add_parser("phasepoly")
                                         .description("Reduce the number of terms for phase polynomials in the Tableau");
 
@@ -232,10 +237,6 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr, qsyn::qcir::QCi
                 .help("Matroid partitioning strategy");
         },
         [&](ArgumentParser const& parser) {
-            if (!dvlab::utils::mgr_has_data(tableau_mgr)) {
-                return dvlab::CmdExecResult::error;
-            }
-
             auto const method_str = parser.get<std::string>("method");
 
             enum struct OptimizationMethod : std::uint8_t {
@@ -247,7 +248,8 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr, qsyn::qcir::QCi
                 phase_polynomial_optimization,
                 matroid_partition,
                 ancillary_t_opt,
-                blockwise_ancillary_t_opt
+                blockwise_ancillary_t_opt,
+                commute_test
             };
 
             auto method = std::invoke([&]() -> std::optional<OptimizationMethod> {
@@ -269,12 +271,18 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr, qsyn::qcir::QCi
                     return OptimizationMethod::ancillary_t_opt;
                 } else if (dvlab::str::is_prefix_of(method_str, "blockwiseAncillaryTopt")) {
                     return OptimizationMethod::blockwise_ancillary_t_opt;
+                } else if (dvlab::str::is_prefix_of(method_str, "test")) {
+                    return OptimizationMethod::commute_test;
                 }
                 return std::nullopt;
             });
 
             if (!method) {
                 spdlog::error("Unknown optimization method {}!!", method_str);
+                return dvlab::CmdExecResult::error;
+            }
+            if (*method != OptimizationMethod::commute_test &&
+                !dvlab::utils::mgr_has_data(tableau_mgr)) {
                 return dvlab::CmdExecResult::error;
             }
 
@@ -359,6 +367,16 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr, qsyn::qcir::QCi
                     spdlog::debug("BlockwiseAncillaryTopt: end   (non-Clifford={}, ancilla={})",
                                   after_t, after_a);
                     tableau_mgr.get()->add_procedure("BlockwiseAncillaryTopt");
+                    break;
+                }
+                case OptimizationMethod::commute_test: {
+                    auto const txt_file = parser.get<std::string>("txt-file");
+                    if (!run_commute_test_from_file(txt_file)) {
+                        return dvlab::CmdExecResult::error;
+                    }
+                    if (!tableau_mgr.empty()) {
+                        tableau_mgr.get()->add_procedure("CommuteTest");
+                    }
                     break;
                 }
             }

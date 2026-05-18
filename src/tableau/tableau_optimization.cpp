@@ -19,6 +19,7 @@
 #include <optional>
 #include <ranges>
 #include <set>
+#include <stdexcept>
 #include <tl/adjacent.hpp>
 #include <tl/to.hpp>
 #include <unordered_map>
@@ -375,96 +376,21 @@ void collapse(Tableau& tableau) {
 }
 
 /**
- * @brief Commute PMCs to the end of the tableau.
- *        Moves all post-measurement CCTs (PMCs) to the end while commuting them through
- *        intermediate tableaux (STs, PRs, and CCCs).
- *        Iterates through all subtableaux and commutes PMCs through StabilizerTableau, PauliRotation, and CCCs.
- *
- * @param tableau
- */
-void commute_classical(Tableau& tableau) {
-    if (tableau.is_empty()) {
-        return;
-    }
-    // Index pointing to where the next PMC should be moved (starts at end)
-    size_t pmc_target_idx = tableau.size();
-    size_t pmc_count = 0;
-    
-    // Iterate through subtableaux in reverse order, only processing PMCs
-    for (size_t idx = tableau.size(); idx > 0; --idx) {
-        size_t actual_idx = idx - 1;  // Convert to 0-based index        
-        if (auto* pmc = std::get_if<ClassicalControlTableau>(&tableau[actual_idx])){
-            // Only process post-measurement CCTs (PMCs)
-            if (pmc->is_classical_control()) {
-                // This is a post-measurement CCT - commute it through following tableaux
-                for (size_t j = actual_idx + 1; j < pmc_target_idx; ++j) {
-                    std::visit(
-                        dvlab::overloaded{
-                            [pmc](StabilizerTableau& st) {
-                                // [PMC][ST] -> [ST][PMC'] via adjacent-block swap API
-                                swap(*pmc, st);
-                            },
-                            [pmc](std::vector<PauliRotation>& pr) {
-                                swap(*pmc, pr);
-                            },
-                            [pmc](ClassicalControlTableau& other_cct) {
-                                if (other_cct.is_classical_control()) {
-                                    // [PMC][PMC]: commuting classical blocks; throws if compose orders differ
-                                    swap(*pmc, other_cct);
-                                } else if (other_cct.is_gadget()) {
-                                    // swap(CCT, ST) mutates PMC only; gadget block unchanged
-                                    StabilizerTableau& ccc_st = other_cct.operations();
-                                    swap(*pmc, ccc_st);
-                                } else {
-                                    spdlog::error("Encountered CCT with unknown type during commutation");
-                                }
-                            }},
-                        tableau[j]);                
-                }
-                
-                // Move PMC to target position (shift elements left, place PMC at end)
-                // Target position is pmc_target_idx - 1 (the end of non-PMC section)
-                if (actual_idx < pmc_target_idx - 1) {
-                    // Save the PMC
-                    SubTableau pmc_sub = std::move(tableau[actual_idx]);
-                    // Shift all elements from (actual_idx + 1) to (pmc_target_idx - 1) one position left
-                    for (size_t k = actual_idx; k < pmc_target_idx - 1; ++k) {
-                        tableau[k] = std::move(tableau[k + 1]);
-                    }
-                    // Place PMC at target position (end of non-PMC section)
-                    tableau[pmc_target_idx - 1] = std::move(pmc_sub);
-                }
-                // Decrement target index for next PMC
-                pmc_target_idx--;
-                pmc_count++;
-            }
-            // Skip CCCs - they are not moved, only their operations are modified when PMC commutes through them
-        }
-    }
-    
-    if (pmc_count > 0) {
-        spdlog::info("Commutation complete. Moved {} post-measurement CCT(s) to end.", pmc_count);
-    }
-    
-    // Re-establish CCC-PMC pairing after moves (pointers may have been invalidated)
-    reestablish_hadamard_gadget_pairing(tableau);
-}
-
-/**
- * @brief Commute PRs to the end and merge them into one.
+ * @brief Zipper commute PMCs/PRs into canonical form.
  *        Final structure: {CCC & ST}{PR}{PMC}
- *        - CCCs and STs remain unchanged (not collapsed)
- *        - All PRs are commuted to the end and merged into one
- *        - PMCs are at the end (kept in original tableau)
+ *        - Keeps adjacent commutation primitives unchanged (`swap(...)` and PR conjugation).
+ *        - Uses a zipper order instead of the old 2-pass partition:
+ *            1) move PMCs to sit right after the current rightmost PR
+ *            2) move previous PR right next to the unified PR and merge
+ *            3) repeat until one PR remains, PMCs are all behind it
  *
  * @param tableau
  */
 void commute_and_merge_rotations(Tableau& tableau) {
-    
     if (tableau.is_empty()) {
         return;
     }
-    
+
     // Extract the last StabilizerTableau (Clifford) if it exists, to add it back at the end
     std::optional<StabilizerTableau> last_clifford;
     auto* last_st = std::get_if<StabilizerTableau>(&tableau.back());
@@ -472,123 +398,327 @@ void commute_and_merge_rotations(Tableau& tableau) {
         last_clifford = *last_st;
         tableau.erase(tableau.end() - 1, tableau.end());
     }
-    
-    
-    // Step 1: Commute PMCs to the end
-    commute_classical(tableau);
 
-    // Step 2: Find where PMCs start (they are at the end after commute_classical)
-    size_t pmc_start_idx = tableau.size();
-    for (size_t idx = tableau.size(); idx > 0; --idx) {
-        size_t actual_idx = idx - 1;
-        if (auto* cct = std::get_if<ClassicalControlTableau>(&tableau[actual_idx])) {
-            if (cct->is_classical_control()) {
-                pmc_start_idx = actual_idx;
-            } else {
-                // Found a CCC, stop
-                break;
+    auto const find_rightmost_pr_before = [&](size_t end_idx) -> std::optional<size_t> {
+        for (size_t idx = end_idx; idx > 0; --idx) {
+            size_t const actual_idx = idx - 1;
+            if (std::holds_alternative<std::vector<PauliRotation>>(tableau[actual_idx])) {
+                return actual_idx;
             }
-        } else {
-            // Found non-CCT, stop
+        }
+        return std::nullopt;
+    };
+    auto const find_rightmost_pmc_in_range = [&](size_t begin_idx, size_t end_idx) -> std::optional<size_t> {
+        if (begin_idx >= end_idx) {
+            return std::nullopt;
+        }
+        for (size_t idx = end_idx; idx > begin_idx; --idx) {
+            size_t const actual_idx = idx - 1;
+            auto const* cct = std::get_if<ClassicalControlTableau>(&tableau[actual_idx]);
+            if (cct != nullptr && cct->is_classical_control()) {
+                return actual_idx;
+            }
+        }
+        return std::nullopt;
+    };
+
+    size_t pmc_move_count = 0;
+    size_t pr_merge_count = 0;
+
+    auto const move_pmc_to_after_unified_pr = [&](size_t pmc_idx, size_t& unified_pr_idx) {
+        auto* pmc = std::get_if<ClassicalControlTableau>(&tableau[pmc_idx]);
+        if (pmc == nullptr || !pmc->is_classical_control()) {
+            spdlog::error(
+                "zipper commute: expected PMC at index {}, got other subtableau",
+                pmc_idx);
+            return;
+        }
+        // Move PMC to right after unified PR by adjacent swaps plus physical relocation.
+        swap_along(tableau, pmc_idx, unified_pr_idx);
+        if (pmc_idx < unified_pr_idx) {
+            --unified_pr_idx;
+        }
+        ++pmc_move_count;
+    };
+
+    auto const move_pr_to_before_unified_pr = [&](size_t pr_idx, size_t unified_pr_idx) {
+        auto* pr = std::get_if<std::vector<PauliRotation>>(&tableau[pr_idx]);
+        if (pr == nullptr) {
+            spdlog::error(
+                "zipper commute: expected PR at index {}, got other subtableau",
+                pr_idx);
+            return;
+        }
+
+        for (size_t j = pr_idx + 1; j < unified_pr_idx; ++j) {
+            if (std::holds_alternative<StabilizerTableau>(tableau[j])) {
+                continue;
+            }
+            if (auto const* cct = std::get_if<ClassicalControlTableau>(&tableau[j]); cct != nullptr && cct->is_gadget()) {
+                continue;
+            }
+
+            std::string_view blocker = "Unknown";
+            if (std::holds_alternative<std::vector<PauliRotation>>(tableau[j])) {
+                blocker = "PauliRotationTableau";
+            } else if (auto const* cct = std::get_if<ClassicalControlTableau>(&tableau[j]); cct != nullptr) {
+                blocker = cct->is_classical_control() ? "ClassicalControlTableau(PMC)" : "ClassicalControlTableau(UnknownType)";
+            }
+
+            spdlog::error(
+                "zipper commute export error: invalid block while moving PR. pr_idx={}, unified_pr_idx={}, blocker_idx={}, blocker={}",
+                pr_idx,
+                unified_pr_idx,
+                j,
+                blocker);
+            spdlog::error("zipper commute export error: blocker subtableau:\n{:g}", tableau[j]);
+            spdlog::error("zipper commute export error: current tableau:\n{:g}", tableau);
+            throw std::logic_error("zipper commute export error: PR move path contains non-(gadget/ST) block");
+        }
+
+        // Move PR to just before unified PR by adjacent swaps plus physical relocation.
+        swap_along(tableau, pr_idx, unified_pr_idx - 1);
+    };
+
+    auto unified_pr_idx_opt = find_rightmost_pr_before(tableau.size());
+    if (!unified_pr_idx_opt.has_value()) {
+        throw std::logic_error("zipper commute: expected at least one PR block");
+    }
+    size_t unified_pr_idx = *unified_pr_idx_opt;
+
+    // Zipper invariant: suffix is always [UnifiedPR][PMC*].
+    // For circuits in alternating form PR1,CCT1,PR2,...,CCT(n-1),PRn,
+    // run strict PMC -> PR alternating rounds.
+    while (true) {
+        auto previous_pr = find_rightmost_pr_before(unified_pr_idx);
+        if (!previous_pr.has_value()) {
             break;
         }
-    }
-    
-    // Step 3: Commute PRs to the end (before PMCs)
-    // Index pointing to where the next PR should be moved (starts at pmc_start_idx)
-    size_t pr_target_idx = pmc_start_idx;
-    size_t pr_count = 0;
-    
-    // Iterate through subtableaux in reverse order (up to pmc_start_idx), only processing PRs
-    for (size_t idx = pmc_start_idx; idx > 0; --idx) {
-        size_t actual_idx = idx - 1;  // Convert to 0-based index
-        if (auto* pr = std::get_if<std::vector<PauliRotation>>(&tableau[actual_idx])) {
-            // This is a PR - commute it through following tableaux (STs and CCCs)
-            for (size_t j = actual_idx + 1; j < pr_target_idx; ++j) {
-                std::visit(
-                    dvlab::overloaded{
-                        [pr](StabilizerTableau& st) {
-                            // Commute PR through ST by extracting clifford operators and applying to PR
-                            auto clifford_ops = extract_clifford_operators(st);
-                            for (auto& rotation : *pr) {
-                                rotation.apply(clifford_ops);
-                            }
-                        },
-                        [pr](std::vector<PauliRotation>& /* other_pr */) {
-                            // Should not encounter another PR at this point
-                            spdlog::error("PR encountered another PR during commutation - this should not happen");
-                        },
-                        [pr](ClassicalControlTableau& cct) {
-                            if (cct.is_gadget()) {
-                                swap(cct, *pr);
-                            }
-                        }},
-                    tableau[j]);
-            }
-            
-            // Move PR to target position (shift elements left, place PR at end of non-PR section)
-            if (actual_idx < pr_target_idx - 1) {
-                // Save the PR
-                SubTableau pr_sub = std::move(tableau[actual_idx]);
-                // Shift all elements from (actual_idx + 1) to (pr_target_idx - 1) one position left
-                for (size_t k = actual_idx; k < pr_target_idx - 1; ++k) {
-                    tableau[k] = std::move(tableau[k + 1]);
-                }
-                // Place PR at target position (end of non-PR section, before PMCs)
-                tableau[pr_target_idx - 1] = std::move(pr_sub);
-            }
-            // Decrement target index for next PR
-            pr_target_idx--;
-            pr_count++;
-        }
-        // Skip STs and CCCs - they are not moved, only PRs commute through them
-    }
-    
-    if (pr_count > 0) {
-        spdlog::info("PR commutation complete. Moved {} PR(s) to end.", pr_count);
-    }
-    
-    // Step 4: Merge all consecutive PRs at the end (before PMCs) into one
-    // Find where PRs start (they should be consecutive before PMCs)
-    size_t pr_start_idx = pmc_start_idx;
-    while (pr_start_idx > 0 && std::holds_alternative<std::vector<PauliRotation>>(tableau[pr_start_idx - 1])) {
-        pr_start_idx--;
-    }
-    
-    // Merge all PRs from pr_start_idx to pmc_start_idx
-    if (pr_start_idx < pmc_start_idx) {
-        // Get the first PR vector (will become the merged one)
-        auto* merged_pr = std::get_if<std::vector<PauliRotation>>(&tableau[pr_start_idx]);
-        if (merged_pr) {
-            // Merge all subsequent PRs into the first one
-            for (size_t idx = pr_start_idx + 1; idx < pmc_start_idx; ++idx) {
-                auto* pr = std::get_if<std::vector<PauliRotation>>(&tableau[idx]);
-                if (pr) {
-                    merged_pr->insert(merged_pr->end(), pr->begin(), pr->end());
-                }
-            }
-            
-            // Erase all PRs except the first (merged) one
-            tableau.erase(tableau.begin() + pr_start_idx + 1, tableau.begin() + pmc_start_idx);
-        }
-    }
-    
-    remove_identities(tableau);
-    
-    // Re-establish CCC-PMC pairing after moves (pointers may have been invalidated)
 
-    
+        // Move all PMCs between previous PR and unified PR first.
+        while (true) {
+            auto const pmc_between = find_rightmost_pmc_in_range(*previous_pr + 1, unified_pr_idx);
+            if (!pmc_between.has_value()) {
+                break;
+            }
+            move_pmc_to_after_unified_pr(*pmc_between, unified_pr_idx);
+        }
+        move_pr_to_before_unified_pr(*previous_pr, unified_pr_idx);
+
+        auto* left_pr = std::get_if<std::vector<PauliRotation>>(&tableau[unified_pr_idx - 1]);
+        auto* right_pr = std::get_if<std::vector<PauliRotation>>(&tableau[unified_pr_idx]);
+        if (left_pr == nullptr || right_pr == nullptr) {
+            throw std::logic_error("zipper commute: expected adjacent PR blocks during merge");
+        }
+        left_pr->insert(
+            left_pr->end(),
+            std::make_move_iterator(right_pr->begin()),
+            std::make_move_iterator(right_pr->end()));
+        tableau.erase(tableau.begin() + static_cast<std::ptrdiff_t>(unified_pr_idx));
+        --unified_pr_idx;
+        ++pr_merge_count;
+    }
+
+    remove_identities(tableau);
+
     // Add back the last StabilizerTableau (Clifford) if it was extracted
     if (last_clifford.has_value()) {
         tableau.push_back(std::move(last_clifford.value()));
     }
-    reestablish_hadamard_gadget_pairing(tableau);
+    if (pmc_move_count > 0 || pr_merge_count > 0) {
+        spdlog::info(
+            "Zipper commutation complete. moved_pmcs={}, merged_prs={}",
+            pmc_move_count,
+            pr_merge_count);
+    }
+}
+
+void move_pmcs_with_reduced_PR(Tableau const& tableau) {
+    Tableau working = tableau;
+    if (working.is_empty()) {
+        spdlog::warn("move_pmcs_with_reduced_PR: tableau is empty");
+        return;
+    }
+
+    auto const info = properize_for_degadgetization(working);
+    if (!info.is_valid) {
+        spdlog::warn("move_pmcs_with_reduced_PR: tableau is not in expected canonical form");
+        return;
+    }
+
+    // Canonical structure after properize_for_degadgetization:
+    //   {ST0, (CCCs|intermediate STs)..., PR, (optional CX-ST), PMCs..., ST_back}
+    size_t idx = 1;
+    while (idx < working.size()) {
+        auto const* cct = std::get_if<ClassicalControlTableau>(&working[idx]);
+        if (cct != nullptr && cct->is_gadget()) {
+            ++idx;
+            continue;
+        }
+        if (std::holds_alternative<StabilizerTableau>(working[idx])) {
+            ++idx;
+            continue;
+        }
+        break;
+    }
+    if (idx >= working.size() || !std::holds_alternative<std::vector<PauliRotation>>(working[idx])) {
+        spdlog::error("move_pmcs_with_reduced_PR: missing PR block");
+        return;
+    }
+    size_t pr_idx = idx++;
+
+    if (idx < working.size() && std::holds_alternative<StabilizerTableau>(working[idx])) {
+        ++idx;  // optional CX-only ST block
+    }
+    size_t const pmc_begin = idx;
+    size_t const pmc_end   = pmc_begin + info.ccc_count;
+    if (pmc_end > working.size()) {
+        spdlog::error("move_pmcs_with_reduced_PR: invalid PMC range");
+        return;
+    }
+
+    auto const find_gadget_index = [&](size_t ancilla) -> std::optional<size_t> {
+        for (size_t i = 1; i < pr_idx; ++i) {
+            auto const* cct = std::get_if<ClassicalControlTableau>(&working[i]);
+            if (cct != nullptr && cct->is_gadget() && cct->ancilla_qubit() == ancilla) {
+                return i;
+            }
+        }
+        return std::nullopt;
+    };
+    auto const find_pmc_index = [&](size_t ancilla) -> std::optional<size_t> {
+        for (size_t i = 0; i < working.size(); ++i) {
+            auto const* cct = std::get_if<ClassicalControlTableau>(&working[i]);
+            if (cct != nullptr && cct->is_classical_control() && cct->ancilla_qubit() == ancilla) {
+                return i;
+            }
+        }
+        return std::nullopt;
+    };
+
+    auto pr_work = std::get<std::vector<PauliRotation>>(working[pr_idx]);
+
+    // Compute PR' by commuting PR through G=(CCCs|intermediate STs), but keep it diagnostic-only.
+    auto pr_prime = pr_work;
+    for (size_t i = pr_idx; i-- > 1;) {
+        std::visit(
+            dvlab::overloaded{
+                [&pr_prime](StabilizerTableau& st) {
+                    auto const ops = extract_clifford_operators(st);
+                    auto const adj = adjoint(ops);
+                    for (auto& rotation : pr_prime) {
+                        rotation.apply(adj);
+                    }
+                },
+                [&pr_prime](ClassicalControlTableau& cct) {
+                    if (!cct.is_gadget()) {
+                        return;
+                    }
+                    auto gadget_copy = cct;
+                    swap(gadget_copy, pr_prime);
+                },
+                [](std::vector<PauliRotation>&) {}},
+            working[i]);
+    }
+    spdlog::debug(
+        "move_pmcs_with_reduced_PR: computed PR' with {} columns",
+        pr_prime.size());
+
+    std::vector<size_t> pmc_ancillae;
+    pmc_ancillae.reserve(info.ccc_count);
+    for (size_t i = pmc_begin; i < pmc_end; ++i) {
+        auto const* cct = std::get_if<ClassicalControlTableau>(&working[i]);
+        if (cct != nullptr && cct->is_classical_control()) {
+            pmc_ancillae.push_back(cct->ancilla_qubit());
+        }
+    }
+
+    for (size_t const ancilla : pmc_ancillae) {
+        auto pmc_idx_opt = find_pmc_index(ancilla);
+        if (!pmc_idx_opt.has_value()) {
+            spdlog::warn(
+                "move_pmcs_with_reduced_PR: missing PMC for ancilla {}",
+                ancilla);
+            continue;
+        }
+        size_t const pmc_idx = *pmc_idx_opt;
+        auto* pmc = std::get_if<ClassicalControlTableau>(&working[pmc_idx]);
+        if (pmc == nullptr || !pmc->is_classical_control()) {
+            spdlog::warn(
+                "move_pmcs_with_reduced_PR: expected PMC at index {}, skipping",
+                pmc_idx);
+            continue;
+        }
+
+        auto gadget_idx_opt  = find_gadget_index(ancilla);
+        if (!gadget_idx_opt.has_value()) {
+            spdlog::warn(
+                "move_pmcs_with_reduced_PR: missing gadget counterpart for ancilla {}",
+                ancilla);
+            continue;
+        }
+        size_t const gadget_idx = *gadget_idx_opt;
+
+        // Build PR_pmc(i,j): PR columns excluding those with ancilla-bit j set.
+        std::vector<PauliRotation> pr_pmc_ij;
+        std::vector<PauliRotation> pr_rest;
+        pr_pmc_ij.reserve(pr_work.size());
+        pr_rest.reserve(pr_work.size());
+        for (auto& rotation : pr_work) {
+            if (ancilla < rotation.n_qubits() && rotation.is_z(ancilla)) {
+                pr_rest.push_back(std::move(rotation));
+            } else {
+                pr_pmc_ij.push_back(std::move(rotation));
+            }
+        }
+
+        spdlog::info(
+            "move_pmcs_with_reduced_PR: PMC before swap(pr_pmc_ij, pmc) (ancilla={}):\n{}",
+            ancilla,
+            clifford_ops_to_string(extract_clifford_operators(pmc->operations())));
+        swap(pr_pmc_ij, *pmc);
+        spdlog::info(
+            "move_pmcs_with_reduced_PR: PMC after swap(pr_pmc_ij, pmc) (ancilla={}):\n{}",
+            ancilla,
+            clifford_ops_to_string(extract_clifford_operators(pmc->operations())));
+
+        // Place PR columns back behind gadgets: PR_rest followed by transformed PR_pmc_ij.
+        pr_work.clear();
+        pr_work.insert(
+            pr_work.end(),
+            std::make_move_iterator(pr_rest.begin()),
+            std::make_move_iterator(pr_rest.end()));
+        pr_work.insert(
+            pr_work.end(),
+            std::make_move_iterator(pr_pmc_ij.begin()),
+            std::make_move_iterator(pr_pmc_ij.end()));
+
+        // Commute+move PMC to right behind its gadget using indexed swap_along.
+        size_t const target_idx = gadget_idx + 1;
+        swap_along(working, pmc_idx, target_idx);
+        if (pmc_idx > pr_idx && target_idx <= pr_idx) {
+            ++pr_idx;
+        }
+        auto* moved_pmc = std::get_if<ClassicalControlTableau>(&working[target_idx]);
+        if (moved_pmc == nullptr || !moved_pmc->is_classical_control()) {
+            spdlog::error(
+                "move_pmcs_with_reduced_PR: expected moved PMC at index {} for ancilla {}",
+                target_idx,
+                ancilla);
+            continue;
+        }
+
+        spdlog::info(
+            "move_pmcs_with_reduced_PR: exported PMC' (ancilla={}):\n{}",
+            ancilla,
+            clifford_ops_to_string(extract_clifford_operators(moved_pmc->operations())));
+    }
 }
 
 /**
  * @brief Collapse the tableau with classical operations.
  *        Final structure: {ST}{PR}{PMC}
- *        - Calls commute_classical() first to move PMCs to end
+ *        - Calls commute_and_merge_rotations() to enforce strict PR/CCT zipper form
  *        - Applies normal collapse() to non-PMC part, treating CCCs as stabilizers
  *        - Result: single ST, single PR, and PMCs
  *
@@ -601,8 +731,8 @@ void collapse_with_classical(Tableau& tableau) {
 
     size_t const n_qubits = tableau.n_qubits();
 
-    // Step 1: Commute PMCs to the end
-    commute_classical(tableau);
+    // Step 1: Normalize to strict zipper output {CCC & ST}{PR}{PMC}
+    commute_and_merge_rotations(tableau);
 
     // Step 2: Extract PMCs from the end
     std::vector<SubTableau> pmc_ccts;
@@ -1107,18 +1237,11 @@ void properize_for_t_optimization(Tableau& tableau) {
         tableau.push_back(std::move(sub));
     }
     remove_identities(tableau);
-    reestablish_hadamard_gadget_pairing(tableau);
 }
 
 /**
  * @brief Build a debug tableau by reverse-commuting each PMC leftward until it is
  *        immediately after its matching gadget (same ancilla qubit).
- *
- * The input tableau is not modified. Along the commute path, use adjacent swap
- * transforms on the block immediately to the left of the PMC:
- *   [ST][PMC]  -> swap(ST, PMC)
- *   [PR][PMC]  -> swap(PR, PMC)
- *   [CCT][PMC] -> swap(CCT, PMC)
  */
 [[nodiscard]] Tableau reverse_commute_pmcs_to_gadgets_for_test(Tableau const& tableau) {
     Tableau new_tableau = tableau;
@@ -1171,39 +1294,11 @@ void properize_for_t_optimization(Tableau& tableau) {
             continue;
         }
 
-        // Commute along the full path using swap(tableau[i], tableau[pmc_idx]) for
-        // gadget_idx < i < pmc_idx.
-        for (size_t i = pmc_idx - 1; i > gadget_idx; --i) {
-            auto* pmc = std::get_if<ClassicalControlTableau>(&new_tableau[pmc_idx]);
-            if (pmc == nullptr || !pmc->is_classical_control()) {
-                spdlog::error(
-                    "reverse_commute_pmcs_to_gadgets_for_test: expected PMC at index {}",
-                    pmc_idx);
-                break;
-            }
-
-            std::visit(
-                dvlab::overloaded{
-                    [pmc](StabilizerTableau& st) {
-                        swap(st, *pmc);
-                    },
-                    [pmc](std::vector<PauliRotation>& pr) {
-                        swap(pr, *pmc);
-                    },
-                    [pmc](ClassicalControlTableau& cct) {
-                        swap(cct, *pmc);
-                    }},
-                new_tableau[i]);
-        }
-
-        // Physically move PMC to right after its gadget counterpart.
-        SubTableau pmc_sub = std::move(new_tableau[pmc_idx]);
-        new_tableau.erase(new_tableau.begin() + static_cast<std::ptrdiff_t>(pmc_idx));
-        new_tableau.insert(new_tableau.begin() + static_cast<std::ptrdiff_t>(gadget_idx + 1), std::move(pmc_sub));
+        // Commute+move PMC to right after its gadget counterpart.
+        swap_along(new_tableau, pmc_idx, gadget_idx + 1);
     }
 
     remove_identities(new_tableau);
-    reestablish_hadamard_gadget_pairing(new_tableau);
     return new_tableau;
 }
 
@@ -1314,7 +1409,6 @@ CircuitStructureInfo properize_for_degadgetization(Tableau& tableau) {
     info.is_valid        = true;
 
     remove_identities(tableau);
-    reestablish_hadamard_gadget_pairing(tableau);
     return info;
 }
 
@@ -1326,18 +1420,19 @@ CircuitStructureInfo properize_for_degadgetization(Tableau& tableau) {
  * @param tableau
  */
 void minimize_ancillary_t_opt(Tableau& tableau, std::optional<std::string> export_filename) {
+    (void)export_filename;
     if (tableau.is_empty()) {
         return;
     }
-    size_t non_clifford_count = tableau.n_pauli_rotations();
     minimize_internal_hadamards_n_gadgetize(tableau);
+    spdlog::debug("After minimize_internal_hadamards_n_gadgetize: {:g}", tableau);
     commute_and_merge_rotations(tableau);
-    // properize_for_t_optimization(tableau);
-    spdlog::debug("Before phase polynomial optimization: {:g}", tableau);
+    spdlog::debug("After commute_and_merge_rotations: {:g}", tableau);
     optimize_phase_polynomial_with_classical(tableau, FastToddPhasePolynomialOptimizationStrategy{});
-    auto const reverse_commuted_tableau = reverse_commute_pmcs_to_gadgets_for_test(tableau);
+    // auto const reverse_commuted_tableau = reverse_commute_pmcs_to_gadgets_for_test(tableau);
     // spdlog::debug("reverse-commuted tableau for test: {:g}", reverse_commuted_tableau);
-
+    move_pmcs_with_reduced_PR(tableau);
+    // spdlog::debug("After phase polynomial optimization: {:g}", tableau);
 
 }
 
@@ -1456,63 +1551,6 @@ MatroidPartitionStrategy::Partitions NaiveMatroidPartitionStrategy::partition(Ma
     return matroids;
 }
 
-/**
- * @brief Re-establish CCC-PMC pairing after moves that may have invalidated pointers.
- *        Matches CCCs and PMCs by ancilla qubit and reference qubit.
- *
- * @param tableau The tableau to fix pairing for
- */
-void reestablish_hadamard_gadget_pairing(Tableau& tableau) {
-    // Clear existing pairing
-    tableau.clear_cct_pairing();
-    
-    // Collect all CCCs and PMCs with their indices
-    std::vector<std::pair<size_t, ClassicalControlTableau*>> ccc_list;
-    std::vector<std::pair<size_t, ClassicalControlTableau*>> pmc_list;
-    
-    for (size_t idx = 0; idx < tableau.size(); ++idx) {
-        auto* cct = std::get_if<ClassicalControlTableau>(&tableau[idx]);
-        if (cct) {
-            if (cct->is_gadget()) {
-                ccc_list.emplace_back(idx, cct);
-            } else if (cct->is_classical_control()) {
-                pmc_list.emplace_back(idx, cct);
-            }
-        }
-    }
-    
-    // Match CCCs with PMCs based on ancilla qubit and reference qubit
-    size_t paired_count = 0;
-    std::vector<bool> pmc_used(pmc_list.size(), false);
-    
-    for (auto& [ccc_idx, ccc_ptr] : ccc_list) {
-        // Find matching PMC by qubit pair
-        for (size_t pmc_i = 0; pmc_i < pmc_list.size(); ++pmc_i) {
-            if (pmc_used[pmc_i]) continue;
-            
-            auto& [pmc_idx, pmc_ptr] = pmc_list[pmc_i];
-            
-            // Check if ancilla qubits match
-            if (ccc_ptr->ancilla_qubit() != pmc_ptr->ancilla_qubit()) {
-                continue;
-            }
-            
-            // Check if reference qubits match (required for Hadamard gadgets)
-            if (ccc_ptr->reference_qubit() == pmc_ptr->reference_qubit()) {
-                // Add to pairing
-                tableau.cct_pairing().emplace_back(ccc_idx, pmc_idx);
-                pmc_used[pmc_i] = true;
-                paired_count++;
-                break;
-            }
-        }
-    }
-    
-    if (paired_count > 0) {
-        spdlog::debug("Re-established {} H-gadget pairings after commutation", paired_count);
-    }
-}
+}  // namespace experimental
 
-}
-
-}
+}  // namespace qsyn

@@ -871,6 +871,95 @@ bool exported_constraint_has_ops_section(std::filesystem::path const& path) {
     return false;
 }
 
+bool export_constraint_for_sat_reorder(Tableau const& tableau, std::filesystem::path const& path) {
+    Tableau tableau_copy = tableau;
+    auto gadgets = export_hadamard_gadget_pairs(tableau_copy);
+    std::vector<ConstraintGraph::PRInfo> all_prs;
+    size_t global_pr_counter = 0;
+    for (size_t idx = 0; idx < tableau.size(); ++idx) {
+        auto const* pr_vec = std::get_if<std::vector<PauliRotation>>(&tableau[idx]);
+        if (!pr_vec) continue;
+        for (size_t pr_idx = 0; pr_idx < pr_vec->size(); ++pr_idx) {
+            all_prs.push_back({idx, pr_idx, global_pr_counter, &(*pr_vec)[pr_idx]});
+            ++global_pr_counter;
+        }
+    }
+
+    std::ofstream out(path);
+    if (!out) {
+        spdlog::error("sat_reorder_export: cannot open constraint file '{}'", path.string());
+        return false;
+    }
+
+    size_t const qubit_count = tableau.n_qubits();
+    size_t const ancilla_count = tableau.n_ancilla();
+    size_t const no_ref = std::numeric_limits<size_t>::max();
+    out << "qubit_count: " << qubit_count << "\n";
+    out << "ancilla_count: " << ancilla_count << "\n";
+    out << "gadget\n";
+    for (size_t g_idx = 0; g_idx < gadgets.size(); ++g_idx) {
+        auto const& gadget = gadgets[g_idx];
+        size_t const a = gadget.reference_qubit.value_or(no_ref);
+        size_t const b = gadget.ancilla_qubit;
+        out << g_idx << " " << a << " " << b << "\n";
+    }
+
+    out << "ops\n";
+    std::unordered_map<size_t, size_t> ccc_index_to_gid;
+    ccc_index_to_gid.reserve(gadgets.size());
+    for (size_t gid = 0; gid < gadgets.size(); ++gid) {
+        ccc_index_to_gid[gadgets[gid].ccc_index] = gid;
+    }
+
+    for (size_t idx = 1; idx < tableau.size(); ++idx) {
+        if (std::holds_alternative<std::vector<PauliRotation>>(tableau[idx])) {
+            break;
+        }
+        if (auto const* cct = std::get_if<ClassicalControlTableau>(&tableau[idx])) {
+            if (!cct->is_gadget()) {
+                continue;
+            }
+            auto it = ccc_index_to_gid.find(idx);
+            if (it == ccc_index_to_gid.end()) {
+                spdlog::warn("sat_reorder_export: gadget CCT at index {} has no gid mapping", idx);
+                continue;
+            }
+            out << "gadget " << it->second << " " << cct->reference_qubit() << " " << cct->ancilla_qubit() << "\n";
+            continue;
+        }
+        auto const* st = std::get_if<StabilizerTableau>(&tableau[idx]);
+        if (!st) {
+            continue;
+        }
+        auto const ops = extract_clifford_operators(*st);
+        for (auto const& [type, qubits] : ops) {
+            if (type == CliffordOperatorType::cx) {
+                out << "cx " << qubits[0] << " " << qubits[1] << "\n";
+            }
+        }
+    }
+
+    out << "paulis\n";
+    for (size_t i = 0; i < all_prs.size(); ++i) {
+        auto const* pr = all_prs[i].pr_ptr;
+        std::string z_original(qubit_count, '0');
+        if (pr) {
+            std::string const full_bits = pr->to_bit_string();
+            if (full_bits.size() >= qubit_count) {
+                z_original = full_bits.substr(0, qubit_count);
+            } else {
+                std::copy(full_bits.begin(),
+                          full_bits.begin() + std::min(qubit_count, full_bits.size()),
+                          z_original.begin());
+            }
+        }
+        out << i + gadgets.size() << " " << z_original << "\n";
+    }
+    spdlog::info("sat_reorder_export: wrote '{}' ({} gadgets, {} paulis)",
+                 path.string(), gadgets.size(), all_prs.size());
+    return true;
+}
+
 }  // namespace
 
 bool sat_reorder_export(Tableau& tableau, std::filesystem::path const& work_dir) {
@@ -889,9 +978,7 @@ bool sat_reorder_export(Tableau& tableau, std::filesystem::path const& work_dir)
     }
 
     std::filesystem::path const constraint = work_dir / "gadget_constraint.txt";
-    build_constraint_graph(work_tableau, constraint.string());
-    if (!std::filesystem::is_regular_file(constraint)) {
-        spdlog::error("sat_reorder_export: expected constraint file missing {}", constraint.string());
+    if (!export_constraint_for_sat_reorder(work_tableau, constraint)) {
         return false;
     }
     if (!exported_constraint_has_ops_section(constraint)) {
@@ -1209,10 +1296,9 @@ bool sat_reorder_apply(Tableau& tableau, std::filesystem::path const& ordering_p
     tableau.set_n_qubits(target_n_qubits);
     tableau.set_n_ancilla(sat_width_w);
 
-    reestablish_hadamard_gadget_pairing(tableau);
     remove_identities(tableau);
     spdlog::info("sat_reorder_apply: done ({} elements)", tableau.size());
-    spdlog::info("sat_reorder_apply: tableau = {:g}", tableau);
+    spdlog::info("sat_reorder_apply: tableau = {:b}", tableau);
     return true;
 }
 
@@ -1246,13 +1332,11 @@ void sat_reorder(Tableau& tableau) {
     }
     if (!sat_reorder_run_solver(work_dir, script)) {
         spdlog::error("sat_reorder: SAT run failed");
-        spdlog::warn("sat_reorder: SAT run failed");
         return;
     }
     std::filesystem::path const ordering = work_dir / "gadget_ordering.txt";
     if (!sat_reorder_apply(tableau, ordering)) {
         spdlog::error("sat_reorder: apply failed");
-        spdlog::warn("sat_reorder: apply failed");
     }
 }
 

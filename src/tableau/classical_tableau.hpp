@@ -12,6 +12,7 @@
 #include <cassert>
 #include <stdexcept>
 #include <optional>
+#include <variant>
 #include "./stabilizer_tableau.hpp"
 #include "./pauli_rotation.hpp"
 #include "util/util.hpp"
@@ -29,6 +30,7 @@ enum class CCTType {
 };
 
 class ClassicalControlTableau;
+class Tableau;
 void initialize_gadget(ClassicalControlTableau& cct);
 void initialize_classical_control(ClassicalControlTableau& cct);
 
@@ -144,6 +146,10 @@ void swap(ClassicalControlTableau& cct, StabilizerTableau& st);
 void swap(StabilizerTableau& st, ClassicalControlTableau& cct);
 void swap(ClassicalControlTableau& cct, std::vector<PauliRotation>& pr);
 void swap(std::vector<PauliRotation>& pr, ClassicalControlTableau& cct);
+void swap_along(std::vector<std::variant<StabilizerTableau, std::vector<PauliRotation>, ClassicalControlTableau>>& tableau_vector,
+                size_t from_idx,
+                size_t to_idx);
+void swap_along(Tableau& tableau, size_t from_idx, size_t to_idx);
 
 bool check_swap(ClassicalControlTableau const& left, ClassicalControlTableau const& right);
 

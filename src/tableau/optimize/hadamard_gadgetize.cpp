@@ -373,7 +373,6 @@ void gadgetize_tableau(Tableau& tableau) {
     }
 
     for (auto const& [ccc_idx, pmc_idx] : gadget_pairs) {
-        tableau.cct_pairing().emplace_back(ccc_idx, pmc_idx);
         spdlog::debug("Paired CCC at index {} with PMC at index {}", ccc_idx, pmc_idx);
     }
 }
@@ -518,6 +517,21 @@ void hadamard_degadgetize(Tableau& tableau, size_t ccc_index, size_t pmc_index) 
         spdlog::error("CCC at index {} and PMC at index {} have mismatched reference qubits ({} vs {})",
                      ccc_index, pmc_index, ccc_ref, pmc_ref);
         return;
+    }
+    auto const pmc_ops = extract_clifford_operators(pmc_ptr->operations());
+    bool const pmc_is_single_ref_x =
+        pmc_ops.size() == 1 &&
+        pmc_ops[0].first == CliffordOperatorType::x &&
+        pmc_ops[0].second[0] == ccc_ref;
+    if (!pmc_is_single_ref_x) {
+        spdlog::error(
+            "export error: hadamard_degadgetize requires PMC to be exactly one X on reference qubit {} "
+            "(ccc_idx={}, pmc_idx={}), but got:\n{}",
+            ccc_ref,
+            ccc_index,
+            pmc_index,
+            clifford_ops_to_string(pmc_ops));
+        throw std::logic_error("export error: hadamard_degadgetize PMC is not single X on reference");
     }
     
     size_t ancilla_qubit = ccc_ptr->ancilla_qubit();

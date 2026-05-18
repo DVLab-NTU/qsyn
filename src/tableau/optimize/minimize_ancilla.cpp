@@ -57,6 +57,86 @@ void swap_gadget_phase_slots(PauliRotation& r, size_t reference, size_t ancilla)
     r.set_is_CZ(z_count == 2);
 }
 
+struct BinaryConstraintOp {
+    enum class Kind {
+        SwapAB,  // gadget(a,b): swap bit a and bit b
+        CxCT,    // cx(c,t): bit t ^= bit c
+    };
+    Kind kind;
+    size_t q0;
+    size_t q1;
+};
+
+std::vector<BinaryConstraintOp> extract_ops_for_pr_reverse_apply(
+    Tableau const& tableau) {
+    std::vector<BinaryConstraintOp> ops;
+
+    // Match the middle export window used by SAT export:
+    // skip front ST at index 0, stop when PR segment starts.
+    for (size_t idx = 1; idx < tableau.size(); ++idx) {
+        if (std::holds_alternative<std::vector<PauliRotation>>(tableau[idx])) {
+            break;
+        }
+
+        if (auto const* cct = std::get_if<ClassicalControlTableau>(&tableau[idx])) {
+            if (!cct->is_gadget()) {
+                continue;
+            }
+            ops.push_back(BinaryConstraintOp{
+                .kind = BinaryConstraintOp::Kind::SwapAB,
+                .q0 = cct->reference_qubit(),
+                .q1 = cct->ancilla_qubit(),
+            });
+            continue;
+        }
+
+        auto const* st = std::get_if<StabilizerTableau>(&tableau[idx]);
+        if (!st) {
+            continue;
+        }
+        auto const clifford_ops = extract_clifford_operators(*st);
+        for (auto const& [type, qubits] : clifford_ops) {
+            if (type != CliffordOperatorType::cx) {
+                continue;
+            }
+            ops.push_back(BinaryConstraintOp{
+                .kind = BinaryConstraintOp::Kind::CxCT,
+                .q0 = qubits[0],
+                .q1 = qubits[1],
+            });
+        }
+    }
+
+    // PR is commuted through the middle block in reverse direction.
+    std::reverse(ops.begin(), ops.end());
+    return ops;
+}
+
+std::vector<uint8_t> extract_z_bits(PauliRotation const& pr, size_t qubit_count) {
+    std::vector<uint8_t> z_bits(qubit_count, 0);
+    std::string const bit_string = pr.to_bit_string();
+    size_t k = 0;
+    for (char c : bit_string) {
+        if (c == '0' || c == '1') {
+            if (k >= qubit_count) {
+                break;
+            }
+            z_bits[k++] = static_cast<uint8_t>(c - '0');
+        }
+    }
+    return z_bits;
+}
+
+void apply_ops_to_z_bits(std::vector<uint8_t>& z_bits, std::vector<BinaryConstraintOp> const& ops) {
+    for (auto const& op : ops) {
+        if (op.kind == BinaryConstraintOp::Kind::SwapAB) {
+            std::swap(z_bits[op.q0], z_bits[op.q1]);
+        } else {
+            z_bits[op.q1] ^= z_bits[op.q0];
+        }
+    }
+}
+
 
 // Forward declaration for hadamard_degadgetize (defined in hadamard_gadgetize.cpp)
 void hadamard_degadgetize(Tableau& tableau, size_t ccc_index, size_t pmc_index);
@@ -102,19 +182,8 @@ std::vector<ConstraintGraph::HadamardGadgetPair> export_hadamard_gadget_pairs(Ta
         
         pairs.push_back(pair);
         
-        // Log the paired Hadamard gadget
-        if (pair.reference_qubit.has_value()) {
-            spdlog::info("Hadamard Gadget Pair: CCC[{}] <-> PMC[{}] | ancilla={}, reference={}",
-                       ccc_idx, pmc_idx, pair.ancilla_qubit, pair.reference_qubit.value());
-        } else {
-            spdlog::info("Hadamard Gadget Pair: CCC[{}] <-> PMC[{}] | ancilla={}, reference=N/A",
-                       ccc_idx, pmc_idx, pair.ancilla_qubit);
-        }
-    }
-    
-    spdlog::info("Exported {} H-gadget pairs from tableau ({} CCCs, {} PMCs)", 
-                 pairs.size(), ccc_list.size(), pmc_list.size());
-    
+
+    }    
     return pairs;
 }
 
@@ -139,10 +208,6 @@ size_t ConstraintGraph::create_vertex(PRInfo const& pr) {
 }
 
 void ConstraintGraph::add_edge(size_t u, size_t v) {
-    if (u >= outgoing_edges.size() || v >= outgoing_edges.size()) {
-        spdlog::error("ConstraintGraph::add_edge: Invalid vertex indices {} -> {}", u, v);
-        return;
-    }
     // Check if edge already exists
     for (size_t i = 0; i < outgoing_edges[u].size(); ++i) {
         if (outgoing_edges[u][i] == v) {
@@ -302,10 +367,39 @@ size_t ConstraintGraph::break_cycles() {
         active_cycles.insert(i);
     }
     
-    // Helper function to remove a gadget and all cycles containing it
-    auto remove_gadget_and_cycles = [&](size_t gadget_idx) {
-        // Remove the gadget
-        vertices[gadget_idx].removed = true;
+    // Helper function to break cycles by disconnecting PR <-> gadget edges
+    // for the selected gadget, then marking all its cycles as resolved.
+    auto disconnect_pr_edges_and_cycles = [&](size_t gadget_idx) {
+        // Remove outgoing edges gadget -> PR and corresponding incoming links.
+        {
+            auto& out = outgoing_edges[gadget_idx];
+            out.erase(
+                std::remove_if(out.begin(), out.end(), [&](size_t to) {
+                    if (to >= vertices.size() || vertices[to].type != VertexType::PR) {
+                        return false;
+                    }
+                    auto& in_to = incoming_edges[to];
+                    in_to.erase(std::remove(in_to.begin(), in_to.end(), gadget_idx), in_to.end());
+                    return true;
+                }),
+                out.end());
+        }
+
+        // Remove incoming edges PR -> gadget and corresponding outgoing links.
+        {
+            auto& in = incoming_edges[gadget_idx];
+            in.erase(
+                std::remove_if(in.begin(), in.end(), [&](size_t from) {
+                    if (from >= vertices.size() || vertices[from].type != VertexType::PR) {
+                        return false;
+                    }
+                    auto& out_from = outgoing_edges[from];
+                    out_from.erase(std::remove(out_from.begin(), out_from.end(), gadget_idx), out_from.end());
+                    return true;
+                }),
+                in.end());
+        }
+
         removed_count++;
         
         // Remove all cycles containing this gadget from active cycles
@@ -320,7 +414,7 @@ size_t ConstraintGraph::break_cycles() {
             }
         }
         
-        // Remove the gadget from the map
+        // Remove the gadget from cycle-coverage bookkeeping
         gadget_to_cycles.erase(gadget_idx);
     };
     
@@ -337,12 +431,13 @@ size_t ConstraintGraph::break_cycles() {
             size_t gadget_idx = all_cycles[cycle_id][0];
             // Verify it's a valid, non-removed gadget
             if (gadget_idx < vertices.size() && !vertices[gadget_idx].removed) {
-                remove_gadget_and_cycles(gadget_idx);
+                disconnect_pr_edges_and_cycles(gadget_idx);
             }
         }
     }
     
-    // Second pass: Greedily remove gadgets with most appearances until no cycles remain
+    // Second pass: Greedily disconnect PR<->gadget edges on gadgets with
+    // most cycle appearances until no cycles remain.
     while (!active_cycles.empty()) {
         // Find the gadget that appears in the most active cycles
         size_t max_count = 0;
@@ -368,15 +463,14 @@ size_t ConstraintGraph::break_cycles() {
             break;
         }
         
-        // Remove the gadget
-        remove_gadget_and_cycles(vertex_to_remove);
+        // Disconnect PR<->gadget edges for this gadget
+        disconnect_pr_edges_and_cycles(vertex_to_remove);
     }
     
     return removed_count;
 }
 
-ConstraintGraph build_constraint_graph(Tableau& tableau,
-                                       std::optional<std::string> const& export_path) {
+ConstraintGraph build_constraint_graph(Tableau& tableau) {
     ConstraintGraph graph;
     
     // Extract gadgets, create vertices, and establish CCC ordering edges
@@ -397,6 +491,20 @@ ConstraintGraph build_constraint_graph(Tableau& tableau,
     }
 
     size_t ccc_ordering_edges = 0;
+    size_t ancilla_ordering_edges = 0;
+
+    // Add global gadget ordering by ancilla index:
+    // if gadget(i).ancilla < gadget(j).ancilla, enforce i -> j.
+    for (size_t i = 0; i < gadgets.size(); ++i) {
+        for (size_t j = 0; j < gadgets.size(); ++j) {
+            if (i == j) continue;
+            if (gadgets[i].ancilla_qubit < gadgets[j].ancilla_qubit) {
+                graph.add_edge(gadget_id_to_vertex[i], gadget_id_to_vertex[j]);
+                ancilla_ordering_edges++;
+            }
+        }
+    }
+
     for (auto& [ref_qubit, gadget_indices] : reference_gadgets) {
         // Sort by CCC index - smaller index comes before bigger index
         std::sort(gadget_indices.begin(), gadget_indices.end(),
@@ -412,7 +520,6 @@ ConstraintGraph build_constraint_graph(Tableau& tableau,
             ccc_ordering_edges++;
         }
     }
-
     // Collect all phase columns (every PauliRotation in the PR block). This includes
     // T/S/Z/Sdg rotations, CZ (Z on two qubits), and single-qubit Z rotations.
     std::vector<ConstraintGraph::PRInfo> all_prs;
@@ -429,151 +536,52 @@ ConstraintGraph build_constraint_graph(Tableau& tableau,
         }
     }
     
-    // Export constraint graph data to a text file if path is provided
-    if (export_path.has_value()) {
-        std::ofstream out(*export_path);
-        if (!out) {
-            spdlog::warn("build_constraint_graph: could not open export file '{}'", *export_path);
-        } else {
-            size_t const qubit_count = tableau.n_qubits();
-            size_t const ancilla_count = tableau.n_ancilla();
-            size_t const no_ref = std::numeric_limits<size_t>::max();
-
-            out << "qubit_count: " << qubit_count << "\n";
-            out << "ancilla_count: " << ancilla_count << "\n";
-            out << "gadget\n";
-            for (size_t g_idx = 0; g_idx < gadgets.size(); ++g_idx) {
-                auto const& gadget = gadgets[g_idx];
-                size_t const a = gadget.reference_qubit.value_or(no_ref);
-                size_t const b = gadget.ancilla_qubit;
-                out << g_idx << " " << a << " " << b << "\n";
-            }
-
-            // Ordered operation stream for deterministic SAT-side status propagation.
-            // Source it directly from the properized G/C segment:
-            // - when a gadget CCT is encountered: emit "gadget gid a b"
-            // - when a Clifford ST is encountered: extract Clifford ops and emit each CX as "cx c t"
-            out << "ops\n";
-            std::unordered_map<size_t, size_t> ccc_index_to_gid;
-            ccc_index_to_gid.reserve(gadgets.size());
-            for (size_t gid = 0; gid < gadgets.size(); ++gid) {
-                ccc_index_to_gid[gadgets[gid].ccc_index] = gid;
-            }
-
-            // Skip the leading front Clifford (index 0), and stop once PR segment starts.
-            for (size_t idx = 1; idx < tableau.size(); ++idx) {
-                if (std::holds_alternative<std::vector<PauliRotation>>(tableau[idx])) {
-                    break;
-                }
-                if (auto const* cct = std::get_if<ClassicalControlTableau>(&tableau[idx])) {
-                    if (!cct->is_gadget()) {
-                        continue;
-                    }
-                    auto it = ccc_index_to_gid.find(idx);
-                    if (it == ccc_index_to_gid.end()) {
-                        spdlog::warn("build_constraint_graph: gadget CCT at index {} has no gid mapping", idx);
-                        continue;
-                    }
-                    size_t const gid = it->second;
-                    size_t const a = cct->reference_qubit();
-                    size_t const b = cct->ancilla_qubit();
-                    out << "gadget " << gid << " " << a << " " << b << "\n";
-                    continue;
-                }
-
-                auto const* st = std::get_if<StabilizerTableau>(&tableau[idx]);
-                if (!st) {
-                    continue;
-                }
-                auto const ops = extract_clifford_operators(*st);
-                for (auto const& [type, qubits] : ops) {
-                    if (type == CliffordOperatorType::cx) {
-                        out << "cx " << qubits[0] << " " << qubits[1] << "\n";
-                    }
-                }
-            }
-
-            // Paulis: for each pauli, take the Z part of the bit string (first n chars),
-            // output Z part only.
-            out << "paulis\n";
-            for (size_t i = 0; i < all_prs.size(); ++i) {
-                auto const* pr = all_prs[i].pr_ptr;
-
-                // Extract Z basis bits (length = qubit_count), then apply the permutation so that
-                // position i gets the bit from original position permutation[i]. We always print
-                // exactly qubit_count bits after the index.
-                std::string z_original(qubit_count, '0');
-                if (pr) {
-                    std::string const full_bits = pr->to_bit_string();
-                    // Z part is the first qubit_count characters (PauliProduct::to_bit_string
-                    // formats as: Z-bits, space, X-bits, space, sign-bit).
-                    if (full_bits.size() >= qubit_count) {
-                        z_original = full_bits.substr(0, qubit_count);
-                    } else {
-                        // Fallback: copy what we have, pad with '0's.
-                        std::copy(full_bits.begin(),
-                                  full_bits.begin() + std::min(qubit_count, full_bits.size()),
-                                  z_original.begin());
-                    }
-                }
-
-                out << i + gadgets.size() << " " << z_original << "\n";
-            }
-            spdlog::info("build_constraint_graph: exported to '{}' ({} gadgets, {} paulis)",
-                         *export_path, gadgets.size(), all_prs.size());
-        }
-    }
-    
     // Create vertices for all PRs (will get IDs num_gadgets, num_gadgets+1, ..., num_gadgets+num_prs-1)
     std::unordered_map<size_t, size_t> pr_index_to_vertex;
     for (auto const& pr_info : all_prs) {
         pr_index_to_vertex[pr_info.global_pr_index] = graph.create_vertex(pr_info);
     }
     
-    // Add PR-gadget edges (Constraints 2, 3, and 4) based on phase patterns
-    size_t constraint2_edges = 0;  // PR after CCC (pattern 1,0)
-    size_t constraint3_edges = 0;  // PR before CCC (pattern 0,1)
-    size_t constraint4_cycles = 0; // Ungadgetizable (pattern 1,1)
+    // Add PR-gadget edges by bit-status before/after commuting PR through the middle block:
+    // - if before_cccs_pr[ancilla_b] == 1: gadget(b) -> PR
+    // - if  after_cccs_pr[ancilla_b] == 1: PR -> gadget(b)
+    size_t before_edges = 0;  // gadget -> PR
+    size_t after_edges = 0;   // PR -> gadget
+    auto const reverse_ops = extract_ops_for_pr_reverse_apply(tableau);
     
     for (auto const& pr_info : all_prs) {
         auto const& pr = *pr_info.pr_ptr;
         size_t pr_vertex = pr_index_to_vertex[pr_info.global_pr_index];
-        
+        std::vector<uint8_t> after_cccs_pr = extract_z_bits(pr, tableau.n_qubits());
+        std::vector<uint8_t> before_cccs_pr = after_cccs_pr;
+        apply_ops_to_z_bits(before_cccs_pr, reverse_ops);
+
         for (size_t g_idx = 0; g_idx < gadgets.size(); ++g_idx) {
             auto const& gadget = gadgets[g_idx];
-            if (!gadget.reference_qubit.has_value()) continue;
             if (!gadget_id_to_vertex.count(g_idx)) continue;
             
-            size_t ref_qubit = gadget.reference_qubit.value();
             size_t ancilla_qubit = gadget.ancilla_qubit;
             size_t gadget_vertex = gadget_id_to_vertex[g_idx];
-            
-            // Get phase pattern: (phase_on_ref, phase_on_ancilla)
-            bool has_phase_ref = (pr.get_pauli_type(ref_qubit) == Pauli::z);
-            bool has_phase_ancilla = (pr.get_pauli_type(ancilla_qubit) == Pauli::z);
-            
-            // Constraint 2: PR with pattern (1,0) should be after CCC
-            if (has_phase_ref && !has_phase_ancilla) {
+
+            if (ancilla_qubit >= before_cccs_pr.size() || ancilla_qubit >= after_cccs_pr.size()) {
+                continue;
+            }
+
+            // before CCCs PR on ancilla i is 1 -> gadget -> PR
+            if (before_cccs_pr[ancilla_qubit] == 1) {
                 graph.add_edge(gadget_vertex, pr_vertex);
-                constraint2_edges++;
+                before_edges++;
             }
-            
-            // Constraint 3: PR with pattern (0,1) should be before CCC
-            if (!has_phase_ref && has_phase_ancilla) {
+
+            // after CCCs PR on ancilla i is 1 -> PR -> gadget
+            if (after_cccs_pr[ancilla_qubit] == 1) {
                 graph.add_edge(pr_vertex, gadget_vertex);
-                constraint3_edges++;
-            }
-            
-            // Constraint 4: PR with pattern (1,1) creates a cycle (both constraint 2 and 3 triggered)
-            // This makes the gadget ungadgetizable - mark it as removed immediately
-            if (has_phase_ref && has_phase_ancilla) {
-                if (!graph.vertices[gadget_vertex].removed) {
-                    graph.vertices[gadget_vertex].removed = true;
-                    constraint4_cycles++;
-                }
+                after_edges++;
             }
         }
     }
+    spdlog::debug("build_constraint_graph: before-status edges (gadget->PR) added = {}", before_edges);
+    spdlog::debug("build_constraint_graph: after-status edges (PR->gadget) added = {}", after_edges);
 
     spdlog::debug("=== Finished build_constraint_graph ===");
     return graph;
@@ -615,38 +623,8 @@ void print_constraint_graph_info(ConstraintGraph const& graph) {
         }
     }
     
-    // Then, print edges for gadget vertices
-    spdlog::info("\nEdges for GADGET vertices:");
-    for (auto const& vertex : graph.vertices) {
-        if (vertex.type == ConstraintGraph::VertexType::GADGET) {
-            std::string removed_str = vertex.removed ? " [REMOVED]" : "";
-            // Print incoming edges (vertices pointing to this gadget)
-            if (!graph.incoming_edges[vertex.id].empty()) {
-                spdlog::info("  Vertex {} (GADGET{}): incoming edges from: [{}]", 
-                           vertex.id,
-                           removed_str,
-                           fmt::join(graph.incoming_edges[vertex.id], ", "));
-            } else {
-                spdlog::info("  Vertex {} (GADGET{}): incoming edges from: []", 
-                           vertex.id,
-                           removed_str);
-            }
-            
-            // Print outgoing edges (vertices this gadget points to)
-            if (!graph.outgoing_edges[vertex.id].empty()) {
-                spdlog::info("  Vertex {} (GADGET{}): outgoing edges to: [{}]", 
-                           vertex.id,
-                           removed_str,
-                           fmt::join(graph.outgoing_edges[vertex.id], ", "));
-            } else {
-                spdlog::info("  Vertex {} (GADGET{}): outgoing edges to: []", 
-                           vertex.id,
-                           removed_str);
-            }
-        }
-    }
     
-    spdlog::info("=== End Constraint Graph Information ===");
+    
 }
 
 
@@ -664,8 +642,7 @@ void reorder_n_degadgetize(Tableau& tableau) {
     }
     // spdlog::trace("Circuit after properize_for_degadgetization:\n{:b}", tableau);
     
-    spdlog::debug("Building constraint graph...");
-    ConstraintGraph graph = build_constraint_graph(tableau, "/home/ferayer/TODD/note/gadget_constraint_0320.txt");
+    ConstraintGraph graph = build_constraint_graph(tableau);
 
     print_constraint_graph_info(graph);
     
@@ -680,16 +657,10 @@ void reorder_n_degadgetize(Tableau& tableau) {
         return;
     }
     
-    spdlog::debug("Topological order of vertices:");
-    for (size_t i = 0; i < topological_order_opt.value().size(); ++i) {
-        spdlog::debug("  Vertex {} (original index {})", i, topological_order_opt.value()[i]);
-    }
     std::vector<size_t> const& topological_order = topological_order_opt.value();
     
-
     // Extract front StabilizerTableau
     StabilizerTableau front_st = *std::get_if<StabilizerTableau>(&tableau[0]);
-    
     // Extract back StabilizerTableau
     StabilizerTableau back_st = *std::get_if<StabilizerTableau>(&tableau[tableau.size() - 1]);
     
@@ -827,41 +798,131 @@ void reorder_n_degadgetize(Tableau& tableau) {
 
     spdlog::debug("Added {} PMCs and back StabilizerTableau. New tableau size: {}", pmcs.size(), new_tableau.size());
     // spdlog::debug("New tableau: {:b}", new_tableau);
-    // Re-establish CCC-PMC pairing after reordering (pairing pointers were invalidated)
-    spdlog::debug("Re-establishing CCC-PMC pairing...");
-    reestablish_hadamard_gadget_pairing(new_tableau);
-    
     std::sort(degadgetize_gadgets.begin(), degadgetize_gadgets.end(), 
               [&new_tableau](size_t a, size_t b) {
                   auto* ccc_a = std::get_if<ClassicalControlTableau>(&new_tableau[a]);
                   auto* ccc_b = std::get_if<ClassicalControlTableau>(&new_tableau[b]);
                   if (!ccc_a || !ccc_b) return false;
-                  return ccc_a->ancilla_qubit() > ccc_b->ancilla_qubit();
+                  return ccc_a->ancilla_qubit() < ccc_b->ancilla_qubit();
               });
 
 
-    // Track which ancilla qubits are being removed (in descending order)
+    std::vector<std::pair<size_t, size_t>> degadgetize_targets;  // (reference, ancilla)
+    degadgetize_targets.reserve(degadgetize_gadgets.size());
+    for (size_t ccc_index : degadgetize_gadgets) {
+        auto* ccc = std::get_if<ClassicalControlTableau>(&new_tableau[ccc_index]);
+        if (!ccc || !ccc->is_gadget()) {
+            continue;
+        }
+        degadgetize_targets.emplace_back(ccc->reference_qubit(), ccc->ancilla_qubit());
+    }
+
+    // Track which ancilla qubits are being removed
     std::set<size_t> removed_ancilla_qubits;
 
     
-    spdlog::debug("Starting degadgetization of {} gadgets...", degadgetize_gadgets.size());
     size_t degadgetized_count = 0;
-    for (size_t ccc_index : degadgetize_gadgets) {
-        auto pmc_index_opt = new_tableau.find_pmc_index(ccc_index);
-        if (!pmc_index_opt.has_value()) {
-            spdlog::error("CCC at index {} has no paired PMC, skipping degadgetization", ccc_index);
-            continue;
+    auto const move_pmc_to_following_ccc = [](Tableau& t, size_t ccc_index, size_t pmc_index) -> size_t {
+        auto const* ccc_ptr = std::get_if<ClassicalControlTableau>(&t[ccc_index]);
+        if (!ccc_ptr || !ccc_ptr->is_gadget()) {
+            throw std::logic_error("export error: expected CCC gadget while commuting PMC left");
+        }
+        for (size_t i = pmc_index; i > ccc_index + 1; --i) {
+            size_t const left_idx = i - 1;
+            auto* pmc_ptr = std::get_if<ClassicalControlTableau>(&t[pmc_index]);
+            if (!pmc_ptr || !pmc_ptr->is_classical_control()) {
+                throw std::logic_error("export error: expected PMC while commuting left");
+            }
+            if (auto* st_left = std::get_if<StabilizerTableau>(&t[left_idx])) {
+                swap(*st_left, *pmc_ptr);
+            } else if (auto* pr_left = std::get_if<std::vector<PauliRotation>>(&t[left_idx])) {
+                swap(*pr_left, *pmc_ptr);
+            } else if (auto* cct_left = std::get_if<ClassicalControlTableau>(&t[left_idx])) {
+                swap(*cct_left, *pmc_ptr);
+            } else {
+                throw std::logic_error("export error: unknown subtableau type while commuting PMC left");
+            }
+        }
+
+        if (pmc_index != ccc_index + 1) {
+            SubTableau pmc_sub = std::move(t[pmc_index]);
+            t.erase(t.begin() + static_cast<std::ptrdiff_t>(pmc_index));
+            t.insert(t.begin() + static_cast<std::ptrdiff_t>(ccc_index + 1), std::move(pmc_sub));
+        }
+        return ccc_index + 1;
+    };
+
+    auto const find_current_ccc_pmc_pair = [](Tableau& t, size_t target_reference, size_t target_ancilla)
+        -> std::optional<std::pair<size_t, size_t>> {
+        std::optional<size_t> ccc_index;
+        for (size_t idx = 0; idx < t.size(); ++idx) {
+            auto* cct = std::get_if<ClassicalControlTableau>(&t[idx]);
+            if (!cct || !cct->is_gadget()) {
+                continue;
+            }
+            if (cct->reference_qubit() == target_reference && cct->ancilla_qubit() == target_ancilla) {
+                ccc_index = idx;
+                break;
+            }
+        }
+        if (!ccc_index.has_value()) {
+            return std::nullopt;
+        }
+
+        for (size_t idx = ccc_index.value() + 1; idx < t.size(); ++idx) {
+            auto* cct = std::get_if<ClassicalControlTableau>(&t[idx]);
+            if (!cct || !cct->is_classical_control()) {
+                continue;
+            }
+            if (cct->reference_qubit() == target_reference && cct->ancilla_qubit() == target_ancilla) {
+                return std::make_pair(ccc_index.value(), idx);
+            }
+        }
+        return std::nullopt;
+    };
+
+    std::vector<std::pair<size_t, size_t>> degadgetize_exported_pairs;  // (reference, ancilla)
+    degadgetize_exported_pairs.reserve(degadgetize_targets.size());
+
+    // Pass 1: move PMCs only, then export pair identities for degadgetize pass.
+    for (auto const& [target_reference, target_ancilla] : degadgetize_targets) {
+        auto pair_indices = find_current_ccc_pmc_pair(new_tableau, target_reference, target_ancilla);
+        if (!pair_indices.has_value()) {
+            spdlog::error(
+                "export error: no CCC/PMC pairing found for gadget pair (ref={}, anc={}) before degadgetize",
+                target_reference,
+                target_ancilla);
+            throw std::logic_error("export error: missing CCC/PMC pairing for degadgetize target");
         }
         
-        // Get the ancilla qubit being removed
-        auto* ccc_ptr = std::get_if<ClassicalControlTableau>(&new_tableau[ccc_index]);
-        if (!ccc_ptr) continue;
-        size_t ancilla_qubit = ccc_ptr->ancilla_qubit();
-        removed_ancilla_qubits.insert(ancilla_qubit);
-        
-        hadamard_degadgetize(new_tableau, ccc_index, pmc_index_opt.value());
-        degadgetized_count++;
+        auto [resolved_ccc_index, pmc_index] = pair_indices.value();
 
+        // Move PMC back right after its paired gadget.
+        pmc_index = move_pmc_to_following_ccc(new_tableau, resolved_ccc_index, pmc_index);
+        degadgetize_exported_pairs.emplace_back(target_reference, target_ancilla);
+    }
+
+    spdlog::debug("Exported {} degadgetize pairs", degadgetize_exported_pairs.size());
+    spdlog::debug("New tableau: {:g}", new_tableau);
+
+    // Pass 2: resolve exported pairs on current tableau and apply degadgetize.
+    for (auto const& [target_reference, target_ancilla] : degadgetize_exported_pairs) {
+        auto pair_indices = find_current_ccc_pmc_pair(new_tableau, target_reference, target_ancilla);
+        if (!pair_indices.has_value()) {
+            spdlog::error(
+                "export error: no CCC/PMC pairing found for exported pair (ref={}, anc={}) before hadamard_degadgetize",
+                target_reference,
+                target_ancilla);
+            throw std::logic_error("export error: missing exported CCC/PMC pair for hadamard_degadgetize");
+        }
+        auto [resolved_ccc_index, pmc_index] = pair_indices.value();
+        auto* ccc_ptr = std::get_if<ClassicalControlTableau>(&new_tableau[resolved_ccc_index]);
+        if (!ccc_ptr || !ccc_ptr->is_gadget()) {
+            throw std::logic_error("export error: resolved CCC missing before hadamard_degadgetize");
+        }
+        removed_ancilla_qubits.insert(ccc_ptr->ancilla_qubit());
+        hadamard_degadgetize(new_tableau, resolved_ccc_index, pmc_index);
+        degadgetized_count++;
     }
     spdlog::debug("Completed degadgetization: {} gadgets processed", degadgetized_count);
     
@@ -878,6 +939,7 @@ void reorder_n_degadgetize(Tableau& tableau) {
     remove_identities(tableau);
     spdlog::debug("=== Finished reorder_n_degadgetize: final tableau size {} with {} qubits ({} ancillae) ===", 
                  tableau.size(), tableau.n_qubits(), tableau.n_ancilla());
+    spdlog::debug("Final tableau: {:b}", tableau);
 }
 
 
