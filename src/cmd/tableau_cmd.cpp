@@ -205,6 +205,9 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr, qsyn::qcir::QCi
             methods.add_parser("ancillaryTopt")
                 .description("Minimize the number of T gates in the tableau with the help of classical operations & ancillary qubits");
 
+            methods.add_parser("degadgetizationTest")
+                .description("Ancillary T-opt flow with degadgetization-assisted PMC commutation");
+
             methods.add_parser("unified")
                 .description("Run unified ancillary T-opt flow (H-gadgetize + classical-aware phase polynomial optimization)");
 
@@ -248,6 +251,7 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr, qsyn::qcir::QCi
                 phase_polynomial_optimization,
                 matroid_partition,
                 ancillary_t_opt,
+                degadgetization_test,
                 blockwise_ancillary_t_opt,
                 commute_test
             };
@@ -267,6 +271,8 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr, qsyn::qcir::QCi
                     return OptimizationMethod::phase_polynomial_optimization;
                 } else if (dvlab::str::is_prefix_of(method_str, "matpar")) {
                     return OptimizationMethod::matroid_partition;
+                } else if (dvlab::str::is_prefix_of(method_str, "degadgetizationTest")) {
+                    return OptimizationMethod::degadgetization_test;
                 } else if (dvlab::str::is_prefix_of(method_str, "unified")) {
                     return OptimizationMethod::ancillary_t_opt;
                 } else if (dvlab::str::is_prefix_of(method_str, "blockwiseAncillaryTopt")) {
@@ -355,6 +361,14 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr, qsyn::qcir::QCi
                             ? std::optional<std::string>{tableau_mgr.get()->get_filename()}
                             : std::optional<std::string>{qcir_mgr.get()->get_filename()});
                     tableau_mgr.get()->add_procedure("AncillaryTOpt");
+                    break;
+                case OptimizationMethod::degadgetization_test:
+                    minimize_ancillary_t_opt_with_degadgetization(
+                        *tableau_mgr.get(),
+                        qcir_mgr.empty()
+                            ? std::optional<std::string>{tableau_mgr.get()->get_filename()}
+                            : std::optional<std::string>{qcir_mgr.get()->get_filename()});
+                    tableau_mgr.get()->add_procedure("DegadgetizationTest");
                     break;
                 case OptimizationMethod::blockwise_ancillary_t_opt: {
                     auto const before_t = tableau_mgr.get()->n_pauli_rotations();

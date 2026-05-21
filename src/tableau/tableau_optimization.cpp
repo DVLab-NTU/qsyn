@@ -386,9 +386,10 @@ void collapse(Tableau& tableau) {
  *
  * @param tableau
  */
-void commute_and_merge_rotations(Tableau& tableau) {
+std::unordered_map<size_t, PmcUnifiedPrRelation> commute_and_merge_rotations(Tableau& tableau) {
+    std::unordered_map<size_t, PmcUnifiedPrRelation> pmc_to_unified_pr;
     if (tableau.is_empty()) {
-        return;
+        return pmc_to_unified_pr;
     }
 
     // Extract the last StabilizerTableau (Clifford) if it exists, to add it back at the end
@@ -433,8 +434,40 @@ void commute_and_merge_rotations(Tableau& tableau) {
                 pmc_idx);
             return;
         }
+        if (auto const* unified_pr = std::get_if<std::vector<PauliRotation>>(&tableau[unified_pr_idx]); unified_pr != nullptr) {
+            pmc_to_unified_pr[pmc->ancilla_qubit()].unified_pr_history.push_back(*unified_pr);
+        } else {
+            spdlog::error(
+                "zipper commute: expected unified PR at index {}, got non-PR while exporting map",
+                unified_pr_idx);
+        }
         // Move PMC to right after unified PR by adjacent swaps plus physical relocation.
-        swap_along(tableau, pmc_idx, unified_pr_idx);
+        swap_along(tableau, pmc_idx, unified_pr_idx-1);
+        
+        if (auto const* pmc_after = std::get_if<ClassicalControlTableau>(&tableau[unified_pr_idx-1]);
+            pmc_after != nullptr && pmc_after->is_classical_control()) {
+            auto const ancilla = pmc_after->ancilla_qubit();
+            auto const ops = extract_clifford_operators(pmc_after->operations());
+            auto& x_qubits = pmc_to_unified_pr[ancilla].x_qubits;
+            for (auto const& op : ops) {
+                auto const& [type, qubits] = op;
+                if (type != CliffordOperatorType::x) {
+                    continue;
+                }
+                size_t const q = qubits[0];
+                if (std::find(x_qubits.begin(), x_qubits.end(), q) == x_qubits.end()) {
+                    x_qubits.push_back(q);
+                }
+            }
+            spdlog::info(
+                "PMC before move (idx={}, ancilla={}):\n{}",
+                unified_pr_idx-1,
+                ancilla,
+                clifford_ops_to_string(ops));
+        }
+        swap_along(tableau, unified_pr_idx-1, unified_pr_idx);
+
+
         if (pmc_idx < unified_pr_idx) {
             --unified_pr_idx;
         }
@@ -501,7 +534,19 @@ void commute_and_merge_rotations(Tableau& tableau) {
             if (!pmc_between.has_value()) {
                 break;
             }
+            
             move_pmc_to_after_unified_pr(*pmc_between, unified_pr_idx);
+            size_t const moved_pmc_idx = unified_pr_idx + 1;
+            if (moved_pmc_idx < tableau.size()) {
+                if (auto const* pmc_after = std::get_if<ClassicalControlTableau>(&tableau[moved_pmc_idx]);
+                    pmc_after != nullptr && pmc_after->is_classical_control()) {
+                    spdlog::info(
+                        "PMC after move (idx={}, ancilla={}):\n{}",
+                        moved_pmc_idx,
+                        pmc_after->ancilla_qubit(),
+                        clifford_ops_to_string(extract_clifford_operators(pmc_after->operations())));
+                }
+            }
         }
         move_pr_to_before_unified_pr(*previous_pr, unified_pr_idx);
 
@@ -531,15 +576,11 @@ void commute_and_merge_rotations(Tableau& tableau) {
             pmc_move_count,
             pr_merge_count);
     }
+    return pmc_to_unified_pr;
 }
 
-void move_pmcs_with_reduced_PR(Tableau const& tableau) {
+void move_pmcs_with_reduced_PR(Tableau const& tableau, std::unordered_map<size_t, PmcUnifiedPrRelation> const& pmc_to_unified_pr) {
     Tableau working = tableau;
-    if (working.is_empty()) {
-        spdlog::warn("move_pmcs_with_reduced_PR: tableau is empty");
-        return;
-    }
-
     auto const info = properize_for_degadgetization(working);
     if (!info.is_valid) {
         spdlog::warn("move_pmcs_with_reduced_PR: tableau is not in expected canonical form");
@@ -598,32 +639,6 @@ void move_pmcs_with_reduced_PR(Tableau const& tableau) {
 
     auto pr_work = std::get<std::vector<PauliRotation>>(working[pr_idx]);
 
-    // Compute PR' by commuting PR through G=(CCCs|intermediate STs), but keep it diagnostic-only.
-    auto pr_prime = pr_work;
-    for (size_t i = pr_idx; i-- > 1;) {
-        std::visit(
-            dvlab::overloaded{
-                [&pr_prime](StabilizerTableau& st) {
-                    auto const ops = extract_clifford_operators(st);
-                    auto const adj = adjoint(ops);
-                    for (auto& rotation : pr_prime) {
-                        rotation.apply(adj);
-                    }
-                },
-                [&pr_prime](ClassicalControlTableau& cct) {
-                    if (!cct.is_gadget()) {
-                        return;
-                    }
-                    auto gadget_copy = cct;
-                    swap(gadget_copy, pr_prime);
-                },
-                [](std::vector<PauliRotation>&) {}},
-            working[i]);
-    }
-    spdlog::debug(
-        "move_pmcs_with_reduced_PR: computed PR' with {} columns",
-        pr_prime.size());
-
     std::vector<size_t> pmc_ancillae;
     pmc_ancillae.reserve(info.ccc_count);
     for (size_t i = pmc_begin; i < pmc_end; ++i) {
@@ -643,6 +658,7 @@ void move_pmcs_with_reduced_PR(Tableau const& tableau) {
         }
         size_t const pmc_idx = *pmc_idx_opt;
         auto* pmc = std::get_if<ClassicalControlTableau>(&working[pmc_idx]);
+    
         if (pmc == nullptr || !pmc->is_classical_control()) {
             spdlog::warn(
                 "move_pmcs_with_reduced_PR: expected PMC at index {}, skipping",
@@ -659,28 +675,42 @@ void move_pmcs_with_reduced_PR(Tableau const& tableau) {
         }
         size_t const gadget_idx = *gadget_idx_opt;
 
-        // Build PR_pmc(i,j): PR columns excluding those with ancilla-bit j set.
+        auto const relation_it = pmc_to_unified_pr.find(ancilla);
+        std::vector<size_t> const empty_x_qubits;
+        auto const& x_qubits =
+            (relation_it != pmc_to_unified_pr.end()) ? relation_it->second.x_qubits : empty_x_qubits;
+
+        // Build PR_pmc(i,j): terms having Z support on any x_qubit.
         std::vector<PauliRotation> pr_pmc_ij;
         std::vector<PauliRotation> pr_rest;
         pr_pmc_ij.reserve(pr_work.size());
         pr_rest.reserve(pr_work.size());
+        bool is_blocking = false;
+        std::vector<std::string> blocking_terms;
         for (auto& rotation : pr_work) {
-            if (ancilla < rotation.n_qubits() && rotation.is_z(ancilla)) {
+            bool has_z_on_any_x = false;
+            for (size_t const q : x_qubits) {
+                if (q < rotation.n_qubits() && rotation.is_z(q)) {
+                    has_z_on_any_x = true;
+                    if (rotation.is_z(ancilla)) {
+                        is_blocking = true;
+                        blocking_terms.push_back(rotation.to_bit_string());
+                    }
+                    break;
+                }
+            }
+            if(rotation.is_z(ancilla)) {
                 pr_rest.push_back(std::move(rotation));
-            } else {
+            }
+            else if (has_z_on_any_x) {
                 pr_pmc_ij.push_back(std::move(rotation));
+            } else {
+                pr_rest.push_back(std::move(rotation));
             }
         }
-
-        spdlog::info(
-            "move_pmcs_with_reduced_PR: PMC before swap(pr_pmc_ij, pmc) (ancilla={}):\n{}",
-            ancilla,
-            clifford_ops_to_string(extract_clifford_operators(pmc->operations())));
         swap(pr_pmc_ij, *pmc);
-        spdlog::info(
-            "move_pmcs_with_reduced_PR: PMC after swap(pr_pmc_ij, pmc) (ancilla={}):\n{}",
-            ancilla,
-            clifford_ops_to_string(extract_clifford_operators(pmc->operations())));
+        
+
 
         // Place PR columns back behind gadgets: PR_rest followed by transformed PR_pmc_ij.
         pr_work.clear();
@@ -693,12 +723,21 @@ void move_pmcs_with_reduced_PR(Tableau const& tableau) {
             std::make_move_iterator(pr_pmc_ij.begin()),
             std::make_move_iterator(pr_pmc_ij.end()));
 
+        // Physically move PMC in `working` to the position before PR (index pr_idx).
+        size_t pmc_front_idx = pmc_idx;
+        if (pmc_front_idx != pr_idx) {
+            SubTableau pmc_sub = std::move(working[pmc_front_idx]);
+            working.erase(
+                working.begin() + static_cast<std::ptrdiff_t>(pmc_front_idx),
+                working.begin() + static_cast<std::ptrdiff_t>(pmc_front_idx + 1));
+            working.insert(working.begin() + static_cast<std::ptrdiff_t>(pr_idx), std::move(pmc_sub));
+            pmc_front_idx = pr_idx;
+        }
+
         // Commute+move PMC to right behind its gadget using indexed swap_along.
         size_t const target_idx = gadget_idx + 1;
-        swap_along(working, pmc_idx, target_idx);
-        if (pmc_idx > pr_idx && target_idx <= pr_idx) {
-            ++pr_idx;
-        }
+        swap_along(working, pmc_front_idx, target_idx);
+        if (target_idx <= pr_idx) ++pr_idx;
         auto* moved_pmc = std::get_if<ClassicalControlTableau>(&working[target_idx]);
         if (moved_pmc == nullptr || !moved_pmc->is_classical_control()) {
             spdlog::error(
@@ -707,11 +746,37 @@ void move_pmcs_with_reduced_PR(Tableau const& tableau) {
                 ancilla);
             continue;
         }
+        auto const* gadget = std::get_if<ClassicalControlTableau>(&working[gadget_idx]);
+        size_t const reference_qubit = gadget->reference_qubit();
+        auto const moved_ops = extract_clifford_operators(moved_pmc->operations());
+        bool const is_single_x_on_reference =
+            moved_ops.size() == 1 &&
+            moved_ops.front().first == CliffordOperatorType::x &&
+            moved_ops.front().second[0] == reference_qubit;
 
-        spdlog::info(
-            "move_pmcs_with_reduced_PR: exported PMC' (ancilla={}):\n{}",
-            ancilla,
-            clifford_ops_to_string(extract_clifford_operators(moved_pmc->operations())));
+        if (!is_single_x_on_reference) {
+            spdlog::info(
+                " move_pmcs_with_reduced_PR: exported PMC final state (ancilla={}, ref_q={}, x_qubits=[{}], is_blocking={}):\n{}",
+                ancilla,
+                reference_qubit,
+                fmt::join(x_qubits, ","),
+                is_blocking,
+                clifford_ops_to_string(moved_ops));
+        }
+        else {
+            spdlog::info(
+                " move_pmcs_with_reduced_PR: exported PMC final state success (ancilla={}, ref_q={}, x_qubits={}, is_blocking={}):\n",
+                ancilla,
+                reference_qubit,
+                fmt::join(x_qubits, ","),
+                is_blocking);
+        }
+        if (is_blocking) {
+            spdlog::info(
+                " move_pmcs_with_reduced_PR: blocking pr_pmc_ij (ancilla={}):\n{}",
+                ancilla,
+                fmt::join(blocking_terms, "\n"));
+        }
     }
 }
 
@@ -1419,21 +1484,27 @@ CircuitStructureInfo properize_for_degadgetization(Tableau& tableau) {
  *
  * @param tableau
  */
-void minimize_ancillary_t_opt(Tableau& tableau, std::optional<std::string> export_filename) {
+void minimize_ancillary_t_opt_with_degadgetization(Tableau& tableau, std::optional<std::string> export_filename) {
     (void)export_filename;
     if (tableau.is_empty()) {
         return;
     }
     minimize_internal_hadamards_n_gadgetize(tableau);
     spdlog::debug("After minimize_internal_hadamards_n_gadgetize: {:g}", tableau);
-    commute_and_merge_rotations(tableau);
+    auto const pmc_to_unified_pr = commute_and_merge_rotations(tableau);
     spdlog::debug("After commute_and_merge_rotations: {:g}", tableau);
     optimize_phase_polynomial_with_classical(tableau, FastToddPhasePolynomialOptimizationStrategy{});
-    // auto const reverse_commuted_tableau = reverse_commute_pmcs_to_gadgets_for_test(tableau);
-    // spdlog::debug("reverse-commuted tableau for test: {:g}", reverse_commuted_tableau);
-    move_pmcs_with_reduced_PR(tableau);
-    // spdlog::debug("After phase polynomial optimization: {:g}", tableau);
+    move_pmcs_with_reduced_PR(tableau, pmc_to_unified_pr);
+}
 
+void minimize_ancillary_t_opt(Tableau& tableau, std::optional<std::string> export_filename) {
+    (void)export_filename;
+    if (tableau.is_empty()) {
+        return;
+    }
+    minimize_internal_hadamards_n_gadgetize(tableau);
+    auto const pmc_to_unified_pr = commute_and_merge_rotations(tableau);
+    optimize_phase_polynomial_with_classical(tableau, FastToddPhasePolynomialOptimizationStrategy{});
 }
 
 void blockwise_gadgetize_optimize(Tableau& tableau) {

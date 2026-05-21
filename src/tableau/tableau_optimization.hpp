@@ -25,7 +25,11 @@ void full_optimize(Tableau& tableau);
 
 void collapse(Tableau& tableau);
 void commute_classical(Tableau& tableau);
-void commute_and_merge_rotations(Tableau& tableau);
+struct PmcUnifiedPrRelation {
+    std::vector<size_t> x_qubits;
+    std::vector<std::vector<PauliRotation>> unified_pr_history;
+};
+std::unordered_map<size_t, PmcUnifiedPrRelation> commute_and_merge_rotations(Tableau& tableau);
 void collapse_with_classical(Tableau& tableau);
 
 void remove_identities(std::vector<PauliRotation>& rotation);
@@ -101,7 +105,7 @@ void sat_reorder(Tableau& tableau);
 
 void check_redundant_ancilla(Tableau& tableau);
 bool run_commute_test_from_file(std::filesystem::path const& txt_path);
-void move_pmcs_with_reduced_PR(Tableau const& tableau);
+void move_pmcs_with_reduced_PR(Tableau const& tableau, std::unordered_map<size_t, PmcUnifiedPrRelation> const& pmc_to_unified_pr);
 // Constraint graph for topological ordering constraints
 struct ConstraintGraph {
     // H-gadget pair structure for degadgetization
@@ -171,6 +175,7 @@ void swap_gadget_phase_slots(PauliRotation& r, size_t reference, size_t ancilla)
 
 // Classical T optimization: minimize internal H, gadgetize, commute classical, and optimize with FastTodd
 void minimize_ancillary_t_opt(Tableau& tableau, std::optional<std::string> export_filename = std::nullopt);
+void minimize_ancillary_t_opt_with_degadgetization(Tableau& tableau, std::optional<std::string> export_filename = std::nullopt);
 
 struct PhasePolynomialOptimizationStrategy {
     using Polynomial                               = std::vector<PauliRotation>;

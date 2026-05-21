@@ -656,11 +656,19 @@ void commute_through_pauli_rotation(StabilizerTableau& st, PauliRotation const& 
 void commute_through_pauli_rotations(StabilizerTableau& st, std::vector<PauliRotation> const& pauli_rotations, bool from_front) {
     if (from_front) {
         for (auto it = pauli_rotations.rbegin(); it != pauli_rotations.rend(); ++it) {
-            commute_through_pauli_rotation(st, *it, true);
+            // spdlog::info(
+            //     "passing PR: {}",
+            //     it->to_bit_string());
+            // commute_through_pauli_rotation(st, *it, true);
+            // spdlog::info(clifford_ops_to_string(extract_clifford_operators(st)));
         }
     } else {
         for (auto const& pauli_rotation : pauli_rotations) {
-            commute_through_pauli_rotation(st, pauli_rotation, false);
+            // spdlog::info(
+            //     "passing PR: {}",
+            //     pauli_rotation.to_bit_string());
+            // commute_through_pauli_rotation(st, pauli_rotation, false);
+            // spdlog::info(clifford_ops_to_string(extract_clifford_operators(st)));
         }
     }
 }

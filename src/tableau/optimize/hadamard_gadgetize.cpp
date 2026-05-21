@@ -395,7 +395,6 @@ void minimize_internal_hadamards_n_gadgetize(Tableau& tableau) {
     properize(tableau);
     minimize_internal_hadamards(tableau);
     // z_basisify_rotations_h_s_only(tableau);
-    spdlog::debug("Minimized tableau : {:g}", tableau);
     gadgetize_tableau(tableau);
     spdlog::debug("Done internal hadamard minimization and gadgetization");
 }
