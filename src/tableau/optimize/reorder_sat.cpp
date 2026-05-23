@@ -971,11 +971,6 @@ bool sat_reorder_export(Tableau& tableau, std::filesystem::path const& work_dir)
     }
 
     Tableau work_tableau = tableau;
-    auto const info = properize_for_degadgetization(work_tableau);
-    if (!info.is_valid) {
-        spdlog::error("sat_reorder_export: properize_for_degadgetization failed");
-        return false;
-    }
 
     std::filesystem::path const constraint = work_dir / "gadget_constraint.txt";
     if (!export_constraint_for_sat_reorder(work_tableau, constraint)) {
@@ -1097,12 +1092,6 @@ bool sat_reorder_apply(Tableau& tableau, std::filesystem::path const& ordering_p
     ParsedGadgetOrdering ord;
     if (!parse_gadget_ordering_file(ordering_path, ord, perr)) {
         spdlog::error("sat_reorder_apply: parse failed: {}", perr);
-        return false;
-    }
-
-    auto const info = properize_for_degadgetization(tableau);
-    if (!info.is_valid) {
-        spdlog::error("sat_reorder_apply: properize_for_degadgetization failed");
         return false;
     }
 

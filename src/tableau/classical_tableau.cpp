@@ -238,7 +238,7 @@ void swap(ClassicalControlTableau& cct, std::vector<PauliRotation>& pr) {
                 "swap(CCT,PR): non-diagonal PR with gadget CCT is unsupported; export should reject this case");
         }
     } else {
-        commute_through_pauli_rotations(cct.operations(), pr, false);
+        commute_through_pauli_rotations(cct.operations(), pr, false);        
     }
 }
 
@@ -310,6 +310,48 @@ void swap(ClassicalControlTableau& left, ClassicalControlTableau& right) {
     swap(left, right.operations());
 }
 
+void swap(std::variant<StabilizerTableau, std::vector<PauliRotation>, ClassicalControlTableau>& left,
+          std::variant<StabilizerTableau, std::vector<PauliRotation>, ClassicalControlTableau>& right) {
+    std::visit(
+        dvlab::overloaded{
+            [](ClassicalControlTableau& cct, StabilizerTableau& st) {
+                swap(cct, st);
+            },
+            [](StabilizerTableau& st, ClassicalControlTableau& cct) {
+                swap(st, cct);
+            },
+            [](ClassicalControlTableau& cct, std::vector<PauliRotation>& pr) {
+                swap(cct, pr);                
+            },
+            [](std::vector<PauliRotation>& pr, ClassicalControlTableau& cct) {
+                swap(pr, cct);
+            },
+            [](ClassicalControlTableau& left_cct, ClassicalControlTableau& right_cct) {
+                swap(left_cct, right_cct);
+            },
+            [](std::vector<PauliRotation>& pr, StabilizerTableau& st) {
+                auto const clifford_ops = extract_clifford_operators(st);
+                for (auto& rotation : pr) {
+                    rotation.apply(clifford_ops);
+                }
+            },
+            [](StabilizerTableau& st, std::vector<PauliRotation>& pr) {
+                auto const clifford_ops = extract_clifford_operators(adjoint(st));
+                for (auto& rotation : pr) {
+                    rotation.apply(clifford_ops);
+                }
+            },
+            [](std::vector<PauliRotation>& left_pr, std::vector<PauliRotation>& right_pr) {
+                left_pr.insert(left_pr.end(), right_pr.begin(), right_pr.end());
+                right_pr.clear();
+            },
+            [](auto&, auto&) {
+                throw std::logic_error("swap(variant,variant): unsupported swap pair");
+            }},
+        left,
+        right);
+}
+
 void swap_along(std::vector<std::variant<StabilizerTableau, std::vector<PauliRotation>, ClassicalControlTableau>>& tableau_vector,
                 size_t from_idx,
                 size_t to_idx) {
@@ -319,41 +361,6 @@ void swap_along(std::vector<std::variant<StabilizerTableau, std::vector<PauliRot
     if (from_idx == to_idx) {
         return;
     }
-    auto const apply_swap = [](SubTableau& left, SubTableau& right) {
-        std::visit(
-            dvlab::overloaded{
-                [](ClassicalControlTableau& cct, StabilizerTableau& st) {
-                    swap(cct, st);
-                },
-                [](StabilizerTableau& st, ClassicalControlTableau& cct) {
-                    swap(st, cct);
-                },
-                [](ClassicalControlTableau& cct, std::vector<PauliRotation>& pr) {
-                    swap(cct, pr);
-                },
-                [](std::vector<PauliRotation>& pr, ClassicalControlTableau& cct) {
-                    swap(pr, cct);
-                },
-                [](ClassicalControlTableau& left_cct, ClassicalControlTableau& right_cct) {
-                    swap(left_cct, right_cct);
-                },
-                [](std::vector<PauliRotation>& pr, StabilizerTableau& st) {
-                    auto const clifford_ops = extract_clifford_operators(st);
-                    for (auto& rotation : pr) {
-                        rotation.apply(clifford_ops);
-                    }
-                },
-                [](std::vector<PauliRotation>& left_pr, std::vector<PauliRotation>& right_pr) {
-                    left_pr.insert(left_pr.end(), right_pr.begin(), right_pr.end());
-                    right_pr.clear();
-                },
-                [](auto&, auto&) {
-                    throw std::logic_error("swap_along(indexed): unsupported swap pair");
-                }},
-            left,
-            right);
-    };
-
     auto const* target_pr = std::get_if<std::vector<PauliRotation>>(&tableau_vector[from_idx]);
     if (target_pr != nullptr && from_idx > to_idx) {
         throw std::logic_error("swap_along(indexed): PR target leftward move is unsupported");
@@ -362,12 +369,12 @@ void swap_along(std::vector<std::variant<StabilizerTableau, std::vector<PauliRot
     if (from_idx < to_idx) {
         // target is on the left, swap through [from_idx + 1, to_idx]
         for (size_t k = from_idx + 1; k <= to_idx; ++k) {
-            apply_swap(tableau_vector[from_idx], tableau_vector[k]);
+            swap(tableau_vector[from_idx], tableau_vector[k]);
         }
     } else {
         // target is on the right, swap through [to_idx, from_idx - 1]
-        for (size_t k = from_idx-1; k >= to_idx; --k) {
-            apply_swap(tableau_vector[k], tableau_vector[from_idx]);
+        for (size_t k = from_idx - 1; k >= to_idx; --k) {
+            swap(tableau_vector[k], tableau_vector[from_idx]);
         }
     }
 
@@ -377,70 +384,46 @@ void swap_along(std::vector<std::variant<StabilizerTableau, std::vector<PauliRot
 }
 
 void swap_along(Tableau& tableau, size_t from_idx, size_t to_idx) {
-    if (from_idx >= tableau.size() || to_idx >= tableau.size()) {
-        throw std::out_of_range("swap_along(indexed): from_idx/to_idx out of range");
+    std::vector<SubTableau> tableau_vector(tableau.begin(), tableau.end());
+    swap_along(tableau_vector, from_idx, to_idx);
+    tableau.erase(tableau.begin(), tableau.end());
+    tableau.insert(tableau.begin(), tableau_vector.begin(), tableau_vector.end());
+}
+
+std::variant<StabilizerTableau, std::vector<PauliRotation>, ClassicalControlTableau> swap_along_test(
+    std::vector<std::variant<StabilizerTableau, std::vector<PauliRotation>, ClassicalControlTableau>> const& tableau_vector,
+    size_t from_idx,
+    size_t to_idx) {
+    if (from_idx >= tableau_vector.size() || to_idx >= tableau_vector.size()) {
+        throw std::out_of_range("swap_along_test(indexed): from_idx/to_idx out of range");
     }
+
+    SubTableau target = tableau_vector[from_idx];
     if (from_idx == to_idx) {
-        return;
-    }
-
-    auto const apply_swap = [](SubTableau& left, SubTableau& right) {
-        std::visit(
-            dvlab::overloaded{
-                [](ClassicalControlTableau& cct, StabilizerTableau& st) {
-                    swap(cct, st);
-                },
-                [](StabilizerTableau& st, ClassicalControlTableau& cct) {
-                    swap(st, cct);
-                },
-                [](ClassicalControlTableau& cct, std::vector<PauliRotation>& pr) {
-                    swap(cct, pr);
-                },
-                [](std::vector<PauliRotation>& pr, ClassicalControlTableau& cct) {
-                    swap(pr, cct);
-                },
-                [](ClassicalControlTableau& left_cct, ClassicalControlTableau& right_cct) {
-                    swap(left_cct, right_cct);
-                },
-                [](std::vector<PauliRotation>& pr, StabilizerTableau& st) {
-                    auto const clifford_ops = extract_clifford_operators(st);
-                    for (auto& rotation : pr) {
-                        rotation.apply(clifford_ops);
-                    }
-                },
-                [](std::vector<PauliRotation>& left_pr, std::vector<PauliRotation>& right_pr) {
-                    left_pr.insert(left_pr.end(), right_pr.begin(), right_pr.end());
-                    right_pr.clear();
-                },
-                [](auto&, auto&) {
-                    throw std::logic_error("swap_along(indexed): unsupported swap pair");
-                }},
-            left,
-            right);
-    };
-
-    auto const* target_pr = std::get_if<std::vector<PauliRotation>>(&tableau[from_idx]);
-    if (target_pr != nullptr && from_idx > to_idx) {
-        throw std::logic_error("swap_along(indexed): PR target leftward move is unsupported");
+        return target;
     }
 
     if (from_idx < to_idx) {
-        // target is on the left, swap through [from_idx + 1, to_idx]
         for (size_t k = from_idx + 1; k <= to_idx; ++k) {
-            apply_swap(tableau[from_idx], tableau[k]);
+            SubTableau neighbor = tableau_vector[k];
+            swap(target, neighbor);
         }
     } else {
-        // target is on the right, swap through [to_idx, from_idx - 1]
         for (size_t k = from_idx; k-- > to_idx;) {
-            apply_swap(tableau[k], tableau[from_idx]);
+            SubTableau neighbor = tableau_vector[k];
+            swap(neighbor, target);
         }
     }
 
-    auto moved = std::move(tableau[from_idx]);
-    tableau.erase(
-        tableau.begin() + static_cast<std::ptrdiff_t>(from_idx),
-        tableau.begin() + static_cast<std::ptrdiff_t>(from_idx + 1));
-    tableau.insert(tableau.begin() + static_cast<std::ptrdiff_t>(to_idx), std::move(moved));
+    return target;
+}
+
+std::variant<StabilizerTableau, std::vector<PauliRotation>, ClassicalControlTableau> swap_along_test(
+    Tableau const& tableau,
+    size_t from_idx,
+    size_t to_idx) {
+    std::vector<SubTableau> tableau_vector(tableau.begin(), tableau.end());
+    return swap_along_test(tableau_vector, from_idx, to_idx);
 }
 
 StabilizerTableau reverse_n_prepend(CliffordOperatorString const& operations, size_t n_qubits) {
@@ -656,6 +639,7 @@ void commute_through_pauli_rotation(StabilizerTableau& st, PauliRotation const& 
 void commute_through_pauli_rotations(StabilizerTableau& st, std::vector<PauliRotation> const& pauli_rotations, bool from_front) {
     if (from_front) {
         for (auto it = pauli_rotations.rbegin(); it != pauli_rotations.rend(); ++it) {
+            commute_through_pauli_rotation(st, *it, true);
             // spdlog::info(
             //     "passing PR: {}",
             //     it->to_bit_string());
@@ -664,6 +648,7 @@ void commute_through_pauli_rotations(StabilizerTableau& st, std::vector<PauliRot
         }
     } else {
         for (auto const& pauli_rotation : pauli_rotations) {
+            commute_through_pauli_rotation(st, pauli_rotation, false);
             // spdlog::info(
             //     "passing PR: {}",
             //     pauli_rotation.to_bit_string());

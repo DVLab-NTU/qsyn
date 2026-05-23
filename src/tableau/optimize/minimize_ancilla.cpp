@@ -142,9 +142,7 @@ void apply_ops_to_z_bits(std::vector<uint8_t>& z_bits, std::vector<BinaryConstra
 void hadamard_degadgetize(Tableau& tableau, size_t ccc_index, size_t pmc_index);
 
 /**
- * @brief Export all H-gadget pairs (CCC-PMC pairs) from a tableau.
- *        Collects all CCCs and pairs them with PMCs.
- *        Assumes all pairs are already valid and checked.
+ * @brief Export validated H-gadget (CCC, PMC) pairs from a tableau.
  *
  * @param tableau The tableau to examine
  * @return Vector of HadamardGadgetPair structures containing pairing information
@@ -634,13 +632,7 @@ void reorder_n_degadgetize(Tableau& tableau) {
     // Save original qubit count
     size_t original_n_qubits = tableau.n_qubits();
     // spdlog::debug("Original tableau: {:g}", tableau);
-    auto structure_info = properize_for_degadgetization(tableau);
-    // spdlog::debug("Properized tableau: {:g}", tableau);
-    if (!structure_info.is_valid) {
-        spdlog::error("Invalid circuit structure in reorder_n_degadgetize");
-        return;
-    }
-    // spdlog::trace("Circuit after properize_for_degadgetization:\n{:b}", tableau);
+    // spdlog::debug("Input tableau: {:g}", tableau);
     
     ConstraintGraph graph = build_constraint_graph(tableau);
 

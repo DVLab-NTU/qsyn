@@ -35,11 +35,7 @@ enum class AncillaInitialState {
 };
 
 /**
- * @brief Measurement basis for an ancilla qubit.
- *
- * none — ancilla is not measured (e.g., a PMC that only has conditional ops)
- * Z    — standard computational-basis measurement
- * X    — Hadamard-basis measurement (emitted as H gate + measure in QASM)
+ * @brief Measurement basis enum for ancilla qubits.
  */
 enum class MeasurementType {
     none,

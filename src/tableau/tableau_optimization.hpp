@@ -9,12 +9,17 @@
 #include "./tableau.hpp"
 #include "tableau/pauli_rotation.hpp"
 #include "tableau/stabilizer_tableau.hpp"
+#include <algorithm>
+#include <array>
+#include <cstdint>
 #include <cstddef>
 #include <filesystem>
 #include <optional>
 #include <ranges>
 #include <string>
+#include <tuple>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 namespace qsyn {
@@ -29,6 +34,80 @@ struct PmcUnifiedPrRelation {
     std::vector<size_t> x_qubits;
     std::vector<std::vector<PauliRotation>> unified_pr_history;
 };
+
+struct SignatureTensor {
+    struct PairTerm {
+        size_t i{};
+        size_t j{};
+        static PairTerm canonical(size_t a, size_t b) {
+            return (a <= b) ? PairTerm{a, b} : PairTerm{b, a};
+        }
+        bool operator==(PairTerm const& rhs) const { return i == rhs.i && j == rhs.j; }
+    };
+
+    struct PairTermHash {
+        size_t operator()(PairTerm const& t) const {
+            return std::hash<size_t>{}(t.i) ^ (std::hash<size_t>{}(t.j) << 1);
+        }
+    };
+
+    struct TripleTerm {
+        size_t i{};
+        size_t j{};
+        size_t k{};
+        static TripleTerm canonical(size_t a, size_t b, size_t c) {
+            auto sorted = std::array<size_t, 3>{a, b, c};
+            std::ranges::sort(sorted);
+            return {sorted[0], sorted[1], sorted[2]};
+        }
+        bool operator==(TripleTerm const& rhs) const { return i == rhs.i && j == rhs.j && k == rhs.k; }
+    };
+
+    struct TripleTermHash {
+        size_t operator()(TripleTerm const& t) const {
+            return std::hash<size_t>{}(t.i) ^ (std::hash<size_t>{}(t.j) << 1) ^ (std::hash<size_t>{}(t.k) << 2);
+        }
+    };
+
+    size_t n_qubits = 0;
+    std::vector<uint8_t> linear_mod8;
+    std::unordered_map<PairTerm, uint8_t, PairTermHash> quadratic_mod4;
+    std::unordered_set<TripleTerm, TripleTermHash> cubic_mod2;
+
+    std::unordered_map<size_t, std::unordered_set<PairTerm, PairTermHash>> quadratic_by_qubit;
+    std::unordered_map<size_t, std::unordered_set<TripleTerm, TripleTermHash>> cubic_by_qubit;
+
+    struct TouchingTerms {
+        std::optional<uint8_t> linear_mod8;
+        std::vector<std::pair<PairTerm, uint8_t>> quadratic_terms;
+        std::vector<TripleTerm> cubic_terms;
+    };
+
+    bool equivalent(SignatureTensor const& other) const;
+    TouchingTerms get_touching(size_t qubit) const;
+    std::vector<std::pair<PairTerm, uint8_t>> get_quadratic_terms_touching(size_t qubit) const;
+    std::vector<TripleTerm> get_cubic_terms_touching(size_t qubit) const;
+};
+
+SignatureTensor get_signature(std::vector<PauliRotation> const& rotations);
+struct TouchingTermComparison {
+    size_t qubit = 0;
+    SignatureTensor::TouchingTerms unified_terms;
+    SignatureTensor::TouchingTerms reduced_terms;
+    bool equivalent = false;
+};
+
+struct SignatureComparisonResult {
+    size_t history_index = 0;
+    bool full_signature_equivalent = false;
+    std::vector<TouchingTermComparison> per_qubit_comparisons;
+};
+
+std::vector<SignatureComparisonResult> compare_pp(
+    std::vector<std::vector<PauliRotation>> const& unified_pr_history,
+    std::vector<PauliRotation> const& pr_pmc_ij,
+    std::vector<size_t> const& x_qubits);
+
 std::unordered_map<size_t, PmcUnifiedPrRelation> commute_and_merge_rotations(Tableau& tableau);
 void collapse_with_classical(Tableau& tableau);
 
@@ -49,12 +128,7 @@ void merge_rotations(Tableau& tableau);
 void minimize_internal_hadamards(Tableau& tableau);
 
 /**
- * @brief Rewrite Pauli rotations into Z-basis using only single-qubit H and S†.
- *
- * Intended for a tableau with a single \c std::vector<PauliRotation> block (after
- * \c merge_rotations). For each column, emits \c ST(adjoint(ops)), the fixed
- * diagonal-axis rotation, conjugates all following columns by \c ops, and emits one
- * trailing \c ST with the composed post-Clifford at the end of that block.
+ * @brief Rewrite one merged Pauli-rotation block into Z-basis using only H and S†.
  */
 void z_basisify_rotations_h_s_only(Tableau& tableau);
 
@@ -62,20 +136,10 @@ void z_basisify_rotations_h_s_only(Tableau& tableau);
 // to the end; implemented in ./optimize/hadamard_gadgetize.cpp
 void push_z_stabilizers(Tableau& tableau);
 
-void minimize_internal_hadamards_n_gadgetize(Tableau& tableau);
+std::unordered_map<size_t, PmcUnifiedPrRelation> minimize_internal_hadamards_n_gadgetize(Tableau& tableau);
 
 /**
- * @brief Block-wise ancillary-T optimization.
- *
- * After internal-H optimization produces windows of the form PR, ST, PR,
- * this pass processes each internal ST (one window at a time):
- * - gadgetize only that ST's H gates (CCC+PMC per H)
- * - commute+merge rotations inside the window
- * - run phase polynomial optimization (e.g., FastTodd) on the unified PR
- * - split out PR columns that are ancilla-free (I on all ancilla qubits),
- *   and move them after the PMCs:  CCCs, ST, PR', PMCs, PR_ancfree
- *
- * The circuit is updated in-place and may introduce ancilla qubits.
+ * @brief Run block-wise ancillary-T optimization on internal PR-ST-PR windows.
  */
 void blockwise_gadgetize_optimize(Tableau& tableau);
 
@@ -93,7 +157,7 @@ struct CircuitStructureInfo {
     bool is_valid;
 };
 
-CircuitStructureInfo properize_for_degadgetization(Tableau& tableau);
+CircuitStructureInfo inspect_degadgetization_structure(Tableau const& tableau);
 void reorder_n_degadgetize(Tableau& tableau);
 
 bool sat_reorder_export(Tableau& tableau, std::filesystem::path const& work_dir);
@@ -193,10 +257,7 @@ struct FastToddPhasePolynomialOptimizationStrategy : public PhasePolynomialOptim
 };
 
 /**
- * @brief FastTODD strategy copied from origin/feature/fastTODD.
- *
- * Kept as a separate strategy so callers can explicitly choose the reference
- * implementation without replacing the current in-tree FastTODD behavior.
+ * @brief Reference FastTODD strategy kept as an explicit selectable optimization mode.
  */
 struct FastToddReferencePhasePolynomialOptimizationStrategy : public PhasePolynomialOptimizationStrategy {
     std::pair<StabilizerTableau, Polynomial> optimize(StabilizerTableau const& clifford, Polynomial const& polynomial) const override;
@@ -229,8 +290,12 @@ struct NaiveMatroidPartitionStrategy : public MatroidPartitionStrategy {
 };
 
 inline bool is_phase_polynomial(std::vector<PauliRotation> const& polynomial) noexcept {
+    if (polynomial.empty()) {
+        return true;
+    }
+    size_t const n_qubits = polynomial.front().n_qubits();
     return std::ranges::all_of(polynomial, [](PauliRotation const& rotation) { return rotation.is_diagonal(); }) &&
-           std::ranges::all_of(polynomial, [n_qubits = polynomial.front().n_qubits()](PauliRotation const& rotation) { return rotation.n_qubits() == n_qubits; });
+           std::ranges::all_of(polynomial, [n_qubits](PauliRotation const& rotation) { return rotation.n_qubits() == n_qubits; });
 }
 
 std::optional<std::vector<std::vector<PauliRotation>>> matroid_partition(std::vector<PauliRotation> const& polynomial, MatroidPartitionStrategy const& strategy, size_t num_ancillae = 0);

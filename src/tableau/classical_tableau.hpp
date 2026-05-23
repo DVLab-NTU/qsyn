@@ -146,10 +146,18 @@ void swap(ClassicalControlTableau& cct, StabilizerTableau& st);
 void swap(StabilizerTableau& st, ClassicalControlTableau& cct);
 void swap(ClassicalControlTableau& cct, std::vector<PauliRotation>& pr);
 void swap(std::vector<PauliRotation>& pr, ClassicalControlTableau& cct);
-void swap_along(std::vector<std::variant<StabilizerTableau, std::vector<PauliRotation>, ClassicalControlTableau>>& tableau_vector,
-                size_t from_idx,
-                size_t to_idx);
+void swap(std::variant<StabilizerTableau, std::vector<PauliRotation>, ClassicalControlTableau>& left,
+          std::variant<StabilizerTableau, std::vector<PauliRotation>, ClassicalControlTableau>& right);
+void swap_along(std::vector<std::variant<StabilizerTableau, std::vector<PauliRotation>, ClassicalControlTableau>>& tableau_vector, size_t from_idx, size_t to_idx);
 void swap_along(Tableau& tableau, size_t from_idx, size_t to_idx);
+std::variant<StabilizerTableau, std::vector<PauliRotation>, ClassicalControlTableau> swap_along_test(
+    std::vector<std::variant<StabilizerTableau, std::vector<PauliRotation>, ClassicalControlTableau>> const& tableau_vector,
+    size_t from_idx,
+    size_t to_idx);
+std::variant<StabilizerTableau, std::vector<PauliRotation>, ClassicalControlTableau> swap_along_test(
+    Tableau const& tableau,
+    size_t from_idx,
+    size_t to_idx);
 
 bool check_swap(ClassicalControlTableau const& left, ClassicalControlTableau const& right);
 
