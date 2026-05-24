@@ -134,10 +134,10 @@ if(_gridsynth_use_pkgconfig)
         PkgConfig::PC_MPFR
         gmpxx)
 else()
-    # PRIVATE: do not export Homebrew include paths (would shadow qsyn's {fmt}).
+    # SYSTEM PRIVATE: external headers; also keeps clang-tidy off GMP/MPFR.
     target_include_directories(
         cppgridsynth
-        PRIVATE
+        SYSTEM PRIVATE
         ${GRIDSYNTH_GMP_INCLUDE}
         ${GRIDSYNTH_MPFR_INCLUDE})
     target_link_libraries(
