@@ -216,6 +216,8 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(Catch2)
 
+include(${CMAKE_SOURCE_DIR}/cmake/cppgridsynth.cmake)
+
 file(
   GLOB_RECURSE SOURCES
   RELATIVE ${CMAKE_SOURCE_DIR}
@@ -240,6 +242,9 @@ file(
     "src/qsyn/qsynrc.default")
 
 list(REMOVE_ITEM LIB_SOURCES ${APP_SOURCES})
+
+# Compiled inside cppgridsynth (needs GMP/MPFR), not libqsyn.a
+list(REMOVE_ITEM LIB_SOURCES src/qcir/gridsynth/gridsynth_adapter.cpp)
 
 file(
     GLOB_RECURSE TEST_SOURCES
@@ -292,6 +297,10 @@ target_link_libraries(
 if(COMPILER_SUPPORTS_WNOERROR_CAST_USER_DEFINED)
     target_compile_options(${QSYN_LIB_NAME}
                            PRIVATE -Wno-error=cast-user-defined)
+endif()
+
+if(QSYN_ENABLE_GRIDSYNTH)
+    qsyn_link_gridsynth(${QSYN_LIB_NAME})
 endif()
 
 # ----------------------------------------------------------------------------

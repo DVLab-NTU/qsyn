@@ -33,3 +33,9 @@ This document lists the third-party dependencies that `qsyn` uses as libraries, 
 
 - [pinam45/dynamic_bitset](https://github.com/pinam45/dynamic_bitset): A C++ dynamic bitset implementation
   - MIT License
+
+## Quantum synthesis (optional build)
+
+- [`cppgridsynth`](cppgridsynth/) (vendored): Clifford+T synthesis for `qcir gridsynth` (GridSynth algorithm)
+  - MIT License (see `cppgridsynth/LICENSE`)
+  - **System libraries at link time:** GMP and MPFR (not vendored; `brew install gmp mpfr` on macOS)
