@@ -18,6 +18,10 @@ wip/
 .cache/
 compile_commands.json
 
+# log files
+*.log
+!tests/**/ref/*.log
+
 # doxygen, sphinx, and other documentation files and folders
 docs/_build/
 docs/_doxygen/
