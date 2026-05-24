@@ -99,7 +99,6 @@ struct TouchingTermComparison {
 
 struct SignatureComparisonResult {
     size_t history_index = 0;
-    bool full_signature_equivalent = false;
     std::vector<TouchingTermComparison> per_qubit_comparisons;
 };
 
@@ -107,6 +106,35 @@ std::vector<SignatureComparisonResult> compare_pp(
     std::vector<std::vector<PauliRotation>> const& unified_pr_history,
     std::vector<PauliRotation> const& pr_pmc_ij,
     std::vector<size_t> const& x_qubits);
+
+struct BlockingSignatureInfo {
+    SignatureTensor signature;
+    bool ancilla_in_signature = false;
+    bool has_ancilla_x_overlap = false;
+};
+
+BlockingSignatureInfo analyze_blocking_signature(
+    std::vector<PauliRotation> const& pr_blocking,
+    std::vector<size_t> const& x_qubits,
+    size_t ancilla_qubit);
+
+/** PMC degadgetizable iff no PR column blocks ancilla against any PMC x-qubit. */
+struct PmcPrBlockingAnalysis {
+    size_t reference_qubit = 0;
+    size_t ancilla_qubit = 0;
+    std::vector<size_t> x_qubits;
+    std::vector<PauliRotation> pr_blocking;
+    bool is_degadgetizable = false;
+};
+
+std::vector<size_t> extract_pmc_x_qubits(ClassicalControlTableau const& pmc);
+std::vector<PauliRotation> find_pr_blocking_rotations(
+    std::vector<PauliRotation> const& pr,
+    size_t ancilla_qubit,
+    std::vector<size_t> const& x_qubits);
+PmcPrBlockingAnalysis analyze_pmc_pr_blocking(
+    ClassicalControlTableau const& pmc,
+    std::vector<PauliRotation> const& unified_pr);
 
 std::unordered_map<size_t, PmcUnifiedPrRelation> commute_and_merge_rotations(Tableau& tableau);
 void collapse_with_classical(Tableau& tableau);
@@ -127,9 +155,7 @@ void merge_rotations(Tableau& tableau);
 
 void minimize_internal_hadamards(Tableau& tableau);
 
-/**
- * @brief Rewrite one merged Pauli-rotation block into Z-basis using only H and S†.
- */
+/** Rewrite one merged Pauli-rotation block into Z-basis using only H and S†. */
 void z_basisify_rotations_h_s_only(Tableau& tableau);
 
 // Push non-H part of each intermediate Clifford through subsequent Pauli Rotations
@@ -138,9 +164,7 @@ void push_z_stabilizers(Tableau& tableau);
 
 std::unordered_map<size_t, PmcUnifiedPrRelation> minimize_internal_hadamards_n_gadgetize(Tableau& tableau);
 
-/**
- * @brief Run block-wise ancillary-T optimization on internal PR-ST-PR windows.
- */
+/** Run block-wise ancillary-T optimization on internal PR-ST-PR windows. */
 void blockwise_gadgetize_optimize(Tableau& tableau);
 
 // Internal helper called by the wrapper.
@@ -157,7 +181,9 @@ struct CircuitStructureInfo {
     bool is_valid;
 };
 
+/** Validate CCC/PMC/PR layout for degadgetization. */
 CircuitStructureInfo inspect_degadgetization_structure(Tableau const& tableau);
+/** Build constraint graph, reorder PRs/CCC, degadgetize graph-active gadgets. */
 void reorder_n_degadgetize(Tableau& tableau);
 
 bool sat_reorder_export(Tableau& tableau, std::filesystem::path const& work_dir);
@@ -172,7 +198,6 @@ bool run_commute_test_from_file(std::filesystem::path const& txt_path);
 void move_pmcs_with_reduced_PR(Tableau const& tableau, std::unordered_map<size_t, PmcUnifiedPrRelation> const& pmc_to_unified_pr);
 // Constraint graph for topological ordering constraints
 struct ConstraintGraph {
-    // H-gadget pair structure for degadgetization
     struct HadamardGadgetPair {
         size_t ccc_index;              // Index of CCC in tableau
         size_t pmc_index;              // Index of PMC in tableau
@@ -219,23 +244,31 @@ struct ConstraintGraph {
     
     // Add a directed edge from vertex u to vertex v
     void add_edge(size_t u, size_t v);
-    
-    // Get topological ordering (considering removed vertices)
-    std::optional<std::vector<size_t>> topological_sort() const;
-    
-    // Break cycles by removing HadamardGadget vertices
-    // Returns the number of vertices removed
+
+    /** Detach PR<->gadget edges; gadget-gadget ordering edges are kept. */
+    void disconnect_gadget_pr_edges(size_t gadget_idx);
+
+    /** Gadget topo order plus PR columns grouped by slot index (0..G). */
+    struct ReorderPlan {
+        std::vector<size_t> gadget_order;
+        std::vector<std::vector<size_t>> slot_to_prs;
+    };
+
+    /** Full-graph topo sort; returns nullopt if a cycle remains. */
+    std::optional<ReorderPlan> topological_sort() const;
+
+    /** Break PR-involved cycles by disconnecting PR edges; returns gadgets detached. */
     size_t break_cycles();
 };
 
-// Build constraint graph from tableau.
-ConstraintGraph build_constraint_graph(Tableau& tableau);
+/** Build gadget/PR constraint graph from tableau and eligibility set. */
+ConstraintGraph build_constraint_graph(
+    Tableau const& tableau,
+    std::vector<ConstraintGraph::HadamardGadgetPair> const& gadgets,
+    std::unordered_set<size_t> const& degadgetizable_gadget_indices);
 
-// Export all H-gadget pairs from tableau
+/** Export validated H-gadget (CCC, PMC) pairs from a tableau. */
 std::vector<ConstraintGraph::HadamardGadgetPair> export_hadamard_gadget_pairs(Tableau& tableau);
-
-/** Diagonal-phase PR through CCC: swap Pauli support on (reference, ancilla); refresh CZ flag. Defined in optimize/minimize_ancilla.cpp. */
-void swap_gadget_phase_slots(PauliRotation& r, size_t reference, size_t ancilla);
 
 // Classical T optimization: minimize internal H, gadgetize, commute classical, and optimize with FastTodd
 void minimize_ancillary_t_opt(Tableau& tableau, std::optional<std::string> export_filename = std::nullopt);
@@ -256,9 +289,7 @@ struct FastToddPhasePolynomialOptimizationStrategy : public PhasePolynomialOptim
     std::pair<StabilizerTableau, Polynomial> optimize(StabilizerTableau const& clifford, Polynomial const& polynomial) const override;
 };
 
-/**
- * @brief Reference FastTODD strategy kept as an explicit selectable optimization mode.
- */
+/** Reference FastTODD strategy as an explicit selectable optimization mode. */
 struct FastToddReferencePhasePolynomialOptimizationStrategy : public PhasePolynomialOptimizationStrategy {
     std::pair<StabilizerTableau, Polynomial> optimize(StabilizerTableau const& clifford, Polynomial const& polynomial) const override;
 };
@@ -281,10 +312,7 @@ struct MatroidPartitionStrategy {
     bool is_independent(Polynomial const& polynomial, size_t num_ancillae) const;
 };
 
-/**
- * @brief partitions the given polynomial by naively picking terms until the matroid independence condition is violated
- *
- */
+/** Naively partition the polynomial until matroid independence is violated. */
 struct NaiveMatroidPartitionStrategy : public MatroidPartitionStrategy {
     Partitions partition(Polynomial const& polynomial, size_t num_ancillae) const override;
 };

@@ -198,18 +198,10 @@ std::vector<SignatureComparisonResult> compare_pp(
     auto const reduced_signature = get_signature(pr_pmc_ij);
     for (size_t history_idx = 0; history_idx < unified_pr_history.size(); ++history_idx) {
         auto const& unified_pr = unified_pr_history[history_idx];
-        SubTableau const unified_pr_subtableau = unified_pr;
-        SubTableau const reduced_pr_subtableau = pr_pmc_ij;
-        spdlog::info(
-            "compare_pp PR matrices (history_idx={}):\n  unified_pr(:b):\n{:b}\n  reduced_pr_pmc_ij(:b):\n{:b}",
-            history_idx,
-            unified_pr_subtableau,
-            reduced_pr_subtableau);
         auto const unified_signature = get_signature(unified_pr);
 
         SignatureComparisonResult result;
         result.history_index = history_idx;
-        result.full_signature_equivalent = unified_signature.equivalent(reduced_signature);
         result.per_qubit_comparisons.reserve(x_qubits.size());
 
         for (size_t const qubit : x_qubits) {
@@ -225,6 +217,95 @@ std::vector<SignatureComparisonResult> compare_pp(
     }
 
     return comparison_results;
+}
+
+std::vector<size_t> extract_pmc_x_qubits(ClassicalControlTableau const& pmc) {
+    std::vector<size_t> x_qubits;
+    for (auto const& op : extract_clifford_operators(pmc.operations())) {
+        auto const& [type, qubits] = op;
+        if (type != CliffordOperatorType::x) {
+            continue;
+        }
+        size_t const q = qubits[0];
+        if (std::find(x_qubits.begin(), x_qubits.end(), q) == x_qubits.end()) {
+            x_qubits.push_back(q);
+        }
+    }
+    return x_qubits;
+}
+
+std::vector<PauliRotation> find_pr_blocking_rotations(
+    std::vector<PauliRotation> const& pr,
+    size_t ancilla_qubit,
+    std::vector<size_t> const& x_qubits) {
+    std::vector<PauliRotation> pr_blocking;
+    pr_blocking.reserve(pr.size());
+    for (auto const& rotation : pr) {
+        bool has_z_on_any_x = false;
+        for (size_t const q : x_qubits) {
+            if (q < rotation.n_qubits() && rotation.is_z(q)) {
+                has_z_on_any_x = true;
+                break;
+            }
+        }
+        if (rotation.is_z(ancilla_qubit) && has_z_on_any_x) {
+            pr_blocking.push_back(rotation);
+        }
+    }
+    return pr_blocking;
+}
+
+PmcPrBlockingAnalysis analyze_pmc_pr_blocking(
+    ClassicalControlTableau const& pmc,
+    std::vector<PauliRotation> const& unified_pr) {
+    PmcPrBlockingAnalysis analysis;
+    analysis.reference_qubit = pmc.reference_qubit();
+    analysis.ancilla_qubit   = pmc.ancilla_qubit();
+    analysis.x_qubits        = extract_pmc_x_qubits(pmc);
+    analysis.pr_blocking =
+        find_pr_blocking_rotations(unified_pr, analysis.ancilla_qubit, analysis.x_qubits);
+    analysis.is_degadgetizable = analysis.pr_blocking.empty();
+    return analysis;
+}
+
+BlockingSignatureInfo analyze_blocking_signature(
+    std::vector<PauliRotation> const& pr_blocking,
+    std::vector<size_t> const& x_qubits,
+    size_t ancilla_qubit) {
+    BlockingSignatureInfo info;
+    info.signature = get_signature(pr_blocking);
+
+    auto const touching_ancilla = info.signature.get_touching(ancilla_qubit);
+    info.ancilla_in_signature =
+        touching_ancilla.linear_mod8.has_value() ||
+        !touching_ancilla.quadratic_terms.empty() ||
+        !touching_ancilla.cubic_terms.empty();
+
+    if (!info.ancilla_in_signature) {
+        return info;
+    }
+
+    std::unordered_set<size_t> const x_set(x_qubits.begin(), x_qubits.end());
+
+    for (auto const& [term, coeff] : touching_ancilla.quadratic_terms) {
+        (void)coeff;
+        size_t const other = (term.i == ancilla_qubit) ? term.j : term.i;
+        if (x_set.contains(other)) {
+            info.has_ancilla_x_overlap = true;
+            return info;
+        }
+    }
+
+    for (auto const& term : touching_ancilla.cubic_terms) {
+        for (size_t const q : {term.i, term.j, term.k}) {
+            if (q != ancilla_qubit && x_set.contains(q)) {
+                info.has_ancilla_x_overlap = true;
+                return info;
+            }
+        }
+    }
+
+    return info;
 }
 
 void move_pmcs_with_reduced_PR(Tableau const& tableau, std::unordered_map<size_t, PmcUnifiedPrRelation> const& pmc_to_unified_pr) {
@@ -251,16 +332,6 @@ void move_pmcs_with_reduced_PR(Tableau const& tableau, std::unordered_map<size_t
     }
     size_t pr_idx = idx;
 
-    auto const find_gadget_index = [&](size_t ancilla) -> std::optional<size_t> {
-        for (size_t i = 1; i < pr_idx; ++i) {
-            auto const* cct = std::get_if<ClassicalControlTableau>(&working[i]);
-            if (cct != nullptr && cct->is_gadget() && cct->ancilla_qubit() == ancilla) {
-                return i;
-            }
-        }
-        return std::nullopt;
-    };
-
     while (pr_idx + 1 < working.size()) {
         size_t pmc_idx = pr_idx + 1;
         auto* pmc = std::get_if<ClassicalControlTableau>(&working[pmc_idx]);
@@ -270,14 +341,14 @@ void move_pmcs_with_reduced_PR(Tableau const& tableau, std::unordered_map<size_t
         }
         size_t const ancilla = pmc->ancilla_qubit();
 
-        auto gadget_idx_opt  = find_gadget_index(ancilla);
-        if (!gadget_idx_opt.has_value()) {
+        auto const pair_opt = find_gadget_pair(working, ancilla);
+        if (!pair_opt.has_value() || pair_opt->gadget_index >= pr_idx) {
             spdlog::error(
                 "move_pmcs_with_reduced_PR: missing gadget counterpart for ancilla {}",
                 ancilla);
             return;
         }
-        size_t const gadget_idx = *gadget_idx_opt;
+        size_t const gadget_idx = pair_opt->gadget_index;
 
         auto const relation_it = pmc_to_unified_pr.find(ancilla);
         std::vector<size_t> const empty_x_qubits;
@@ -292,205 +363,242 @@ void move_pmcs_with_reduced_PR(Tableau const& tableau, std::unordered_map<size_t
         }
         auto const unified_pr_original = *unified_pr;
 
-        // Build PR_pmc(i,j): terms having Z support on any x_qubit.
-        std::vector<PauliRotation> pr_pmc_ij;
-        std::vector<PauliRotation> pr_rest;
-        pr_pmc_ij.reserve(unified_pr->size());
-        pr_rest.reserve(unified_pr->size());
-        bool is_blocking = false;
-        std::vector<std::string> blocking_terms;
-        for (auto& rotation : *unified_pr) {
+        // Build BOTH splits of the unified PR:
+        //   pr_commuting / pr_commuting_rest: original rule (terms with Z on ancilla go to rest).
+        //   pr_ancilla   / pr_ancilla_rest:   ignore ancilla phase (Z-on-any-x_qubit goes to pr_ancilla).
+        // pr_blocking collects the set difference pr_ancilla \ pr_commuting: rotations whose
+        // Z-support hits BOTH the ancilla AND some x_qubit. These are the blocking terms.
+        std::vector<PauliRotation> pr_commuting;
+        std::vector<PauliRotation> pr_commuting_rest;
+        std::vector<PauliRotation> pr_ancilla;
+        std::vector<PauliRotation> pr_ancilla_rest;
+        std::vector<PauliRotation> pr_blocking;
+        pr_commuting.reserve(unified_pr_original.size());
+        pr_commuting_rest.reserve(unified_pr_original.size());
+        pr_ancilla.reserve(unified_pr_original.size());
+        pr_ancilla_rest.reserve(unified_pr_original.size());
+        pr_blocking.reserve(unified_pr_original.size());
+
+        for (auto const& rotation : unified_pr_original) {
             bool has_z_on_any_x = false;
             for (size_t const q : x_qubits) {
                 if (q < rotation.n_qubits() && rotation.is_z(q)) {
                     has_z_on_any_x = true;
-                    if (rotation.is_z(ancilla)) {
-                        is_blocking = true;
-                        blocking_terms.push_back(rotation.to_bit_string());
-                    }
                     break;
                 }
             }
-            // if (rotation.is_z(ancilla)) {
-            //     pr_rest.push_back(std::move(rotation));
-            // } else if (has_z_on_any_x) {
-            //     pr_pmc_ij.push_back(std::move(rotation));
-            // } else {
-            //     pr_rest.push_back(std::move(rotation));
-            // }
-            if (has_z_on_any_x) {
-                pr_pmc_ij.push_back(std::move(rotation));
+            bool const z_on_ancilla = rotation.is_z(ancilla);
+            if (z_on_ancilla) {
+                pr_commuting_rest.push_back(rotation);
+            } else if (has_z_on_any_x) {
+                pr_commuting.push_back(rotation);
             } else {
-                pr_rest.push_back(std::move(rotation));
+                pr_commuting_rest.push_back(rotation);
+            }
+            if (has_z_on_any_x) {
+                pr_ancilla.push_back(rotation);
+            } else {
+                pr_ancilla_rest.push_back(rotation);
             }
         }
-        std::optional<std::vector<SignatureComparisonResult>> comparisons_opt;
-        if (relation_it != pmc_to_unified_pr.end() &&
-            !relation_it->second.unified_pr_history.empty()) {
-            // Compute comparisons before moving PR columns out of pr_pmc_ij.
-            comparisons_opt.emplace(compare_pp(
-                relation_it->second.unified_pr_history,
-                pr_pmc_ij,
-                x_qubits));
+        pr_blocking = find_pr_blocking_rotations(unified_pr_original, ancilla, x_qubits);
+
+        auto const run_compare = [&](std::vector<PauliRotation> const& pr_split)
+            -> std::optional<std::vector<SignatureComparisonResult>> {
+            if (relation_it == pmc_to_unified_pr.end() ||
+                relation_it->second.unified_pr_history.empty()) {
+                return std::nullopt;
+            }
+            return compare_pp(relation_it->second.unified_pr_history, pr_split, x_qubits);
+        };
+        auto const cmp_commuting = run_compare(pr_commuting);
+        auto const cmp_ancilla   = run_compare(pr_ancilla);
+
+        struct CommuteOutcome {
+            Tableau working_after;
+            bool success = false;
+            size_t new_pr_idx = 0;
+            size_t reference_qubit = 0;
+            bool is_single_x_on_reference = false;
+            explicit CommuteOutcome(Tableau t) : working_after(std::move(t)) {}
+        };
+        auto const run_commute = [&](std::vector<PauliRotation> pr_split,
+                                     std::vector<PauliRotation> pr_rest) -> CommuteOutcome {
+            CommuteOutcome out{working};
+            Tableau& w = out.working_after;
+
+            w.erase(
+                w.begin() + static_cast<std::ptrdiff_t>(pr_idx),
+                w.begin() + static_cast<std::ptrdiff_t>(pr_idx + 1));
+            w.insert(
+                w.begin() + static_cast<std::ptrdiff_t>(pr_idx),
+                SubTableau{std::move(pr_rest)});
+            w.insert(
+                w.begin() + static_cast<std::ptrdiff_t>(pr_idx + 1),
+                SubTableau{std::move(pr_split)});
+
+            [[maybe_unused]] auto rest_pr_prime = swap_along_test(w, pr_idx, 1);
+
+            w.erase(
+                w.begin() + static_cast<std::ptrdiff_t>(pr_idx),
+                w.begin() + static_cast<std::ptrdiff_t>(pr_idx + 1));
+
+            size_t const target_idx = gadget_idx + 1;
+            swap_along(w, pr_idx + 1, target_idx);
+
+            size_t const pmc_ij_idx = pr_idx + 1;
+            if (pmc_ij_idx >= w.size()) {
+                return out;
+            }
+            w.erase(
+                w.begin() + static_cast<std::ptrdiff_t>(pmc_ij_idx),
+                w.begin() + static_cast<std::ptrdiff_t>(pmc_ij_idx + 1));
+            w.insert(
+                w.begin() + static_cast<std::ptrdiff_t>(pmc_ij_idx),
+                SubTableau{unified_pr_original});
+            out.new_pr_idx = pmc_ij_idx;
+
+            auto* moved_pmc = std::get_if<ClassicalControlTableau>(&w[target_idx]);
+            if (moved_pmc == nullptr || !moved_pmc->is_classical_control()) {
+                return out;
+            }
+            auto const* gadget = std::get_if<ClassicalControlTableau>(&w[gadget_idx]);
+            if (gadget == nullptr) {
+                return out;
+            }
+            out.reference_qubit = gadget->reference_qubit();
+            auto const ops = extract_clifford_operators(moved_pmc->operations());
+            out.is_single_x_on_reference =
+                ops.size() == 1 &&
+                ops.front().first == CliffordOperatorType::x &&
+                ops.front().second[0] == out.reference_qubit;
+            out.success = true;
+            return out;
+        };
+
+        auto commuting_out = run_commute(pr_commuting, pr_commuting_rest);
+        auto ancilla_out   = run_commute(pr_ancilla, pr_ancilla_rest);
+
+        size_t const reference_qubit =
+            commuting_out.success ? commuting_out.reference_qubit
+            : ancilla_out.success ? ancilla_out.reference_qubit
+                                  : 0;
+
+        auto const count_diff_terms = [](TouchingTermComparison const& per_qubit) -> std::pair<size_t, size_t> {
+            size_t unified_diff_terms = 0;
+            size_t reduced_diff_terms = 0;
+
+            if (per_qubit.unified_terms.linear_mod8 != per_qubit.reduced_terms.linear_mod8) {
+                if (per_qubit.unified_terms.linear_mod8.has_value()) ++unified_diff_terms;
+                if (per_qubit.reduced_terms.linear_mod8.has_value()) ++reduced_diff_terms;
+            }
+
+            std::unordered_map<SignatureTensor::PairTerm, uint8_t, SignatureTensor::PairTermHash> u_quad;
+            std::unordered_map<SignatureTensor::PairTerm, uint8_t, SignatureTensor::PairTermHash> r_quad;
+            for (auto const& [t, c] : per_qubit.unified_terms.quadratic_terms) u_quad[t] = c;
+            for (auto const& [t, c] : per_qubit.reduced_terms.quadratic_terms) r_quad[t] = c;
+            for (auto const& [t, c] : u_quad) {
+                auto const it = r_quad.find(t);
+                if (it == r_quad.end() || it->second != c) ++unified_diff_terms;
+            }
+            for (auto const& [t, c] : r_quad) {
+                auto const it = u_quad.find(t);
+                if (it == u_quad.end() || it->second != c) ++reduced_diff_terms;
+            }
+
+            std::unordered_set<SignatureTensor::TripleTerm, SignatureTensor::TripleTermHash> u_cubic(
+                per_qubit.unified_terms.cubic_terms.begin(),
+                per_qubit.unified_terms.cubic_terms.end());
+            std::unordered_set<SignatureTensor::TripleTerm, SignatureTensor::TripleTermHash> r_cubic(
+                per_qubit.reduced_terms.cubic_terms.begin(),
+                per_qubit.reduced_terms.cubic_terms.end());
+            for (auto const& t : u_cubic) if (!r_cubic.contains(t)) ++unified_diff_terms;
+            for (auto const& t : r_cubic) if (!u_cubic.contains(t)) ++reduced_diff_terms;
+
+            return {unified_diff_terms, reduced_diff_terms};
+        };
+
+        // Invariant: the ancilla variant always reduces to a single X on the reference qubit
+        // and matches the historical PR per-qubit. Anything else is a logic error.
+        if (!ancilla_out.is_single_x_on_reference) {
+            throw std::logic_error(fmt::format(
+                "move_pmcs_with_reduced_PR: ancilla variant did not reduce to single X on reference (ancilla={}, ref_q={})",
+                ancilla, reference_qubit));
         }
-
-        // Split unified PR in working: replace PR at pr_idx with [pr_rest][pr_pmc_ij].
-        working.erase(
-            working.begin() + static_cast<std::ptrdiff_t>(pr_idx),
-            working.begin() + static_cast<std::ptrdiff_t>(pr_idx + 1));
-        working.insert(
-            working.begin() + static_cast<std::ptrdiff_t>(pr_idx),
-            SubTableau{std::move(pr_rest)});
-        working.insert(
-            working.begin() + static_cast<std::ptrdiff_t>(pr_idx + 1),
-            SubTableau{std::move(pr_pmc_ij)});
-
-        auto rest_pr_prime = swap_along_test(working, pr_idx, 1);
-
-        // Remove rest_pr after computing rest_pr'. Then pr_pmc_ij is at pr_idx, PMC at pr_idx+1.
-        working.erase(
-            working.begin() + static_cast<std::ptrdiff_t>(pr_idx),
-            working.begin() + static_cast<std::ptrdiff_t>(pr_idx + 1));
-
-        // Commute+move PMC to right behind its gadget.
-        size_t const target_idx = gadget_idx + 1;
-        swap_along(working, pr_idx + 1, target_idx);
-
-        // Since PMC moved left of pr_pmc_ij, pr_pmc_ij shifts right by one.
-        size_t pmc_ij_idx = pr_idx + 1;
-        if (pmc_ij_idx >= working.size()) {
-            spdlog::error(
-                "move_pmcs_with_reduced_PR: invalid pr_pmc_ij index {} after moving PMC",
-                pmc_ij_idx);
-            return;
-        }
-
-        // Replace pr_pmc_ij with the original unified PR.
-        working.erase(
-            working.begin() + static_cast<std::ptrdiff_t>(pmc_ij_idx),
-            working.begin() + static_cast<std::ptrdiff_t>(pmc_ij_idx + 1));
-        working.insert(
-            working.begin() + static_cast<std::ptrdiff_t>(pmc_ij_idx),
-            SubTableau{unified_pr_original});
-        pr_idx = pmc_ij_idx;
-
-        auto* moved_pmc = std::get_if<ClassicalControlTableau>(&working[target_idx]);
-        if (moved_pmc == nullptr || !moved_pmc->is_classical_control()) {
-            spdlog::error(
-                "move_pmcs_with_reduced_PR: expected moved PMC at index {} for ancilla {}",
-                target_idx,
-                ancilla);
-            continue;
-        }
-        auto const* gadget = std::get_if<ClassicalControlTableau>(&working[gadget_idx]);
-        size_t const reference_qubit = gadget->reference_qubit();
-        auto const moved_ops = extract_clifford_operators(moved_pmc->operations());
-        bool const is_single_x_on_reference =
-            moved_ops.size() == 1 &&
-            moved_ops.front().first == CliffordOperatorType::x &&
-            moved_ops.front().second[0] == reference_qubit;
-
-        if (!is_single_x_on_reference) {
-            spdlog::info(
-                " move_pmcs_with_reduced_PR: exported PMC final state (ancilla={}, ref_q={}, x_qubits=[{}], is_blocking={}):\n{}",
-                ancilla,
-                reference_qubit,
-                fmt::join(x_qubits, ","),
-                is_blocking,
-                clifford_ops_to_string(moved_ops));
-        } else {
-            spdlog::info(
-                " move_pmcs_with_reduced_PR: exported PMC final state success (ancilla={}, ref_q={}, x_qubits={}, is_blocking={}):\n",
-                ancilla,
-                reference_qubit,
-                fmt::join(x_qubits, ","),
-                is_blocking);
-        }
-        bool rest_pr_prime_has_phase_on_ancilla = false;
-        if (auto const* rest_pr_prime_pr = std::get_if<std::vector<PauliRotation>>(&rest_pr_prime)) {
-            rest_pr_prime_has_phase_on_ancilla = std::ranges::any_of(
-                *rest_pr_prime_pr,
-                [ancilla](PauliRotation const& rotation) {
-                    return ancilla < rotation.n_qubits() && rotation.is_z(ancilla);
-                });
-        }
-        if (rest_pr_prime_has_phase_on_ancilla) {
-            spdlog::info(
-                "move_pmcs_with_reduced_PR: have phase on ancilla_qubit {}",
-                ancilla);
-        } else {
-            spdlog::info(
-                "move_pmcs_with_reduced_PR: no phase on ancilla_qubit {}",
-                ancilla);
-        }
-
-        if (comparisons_opt.has_value()) {
-            for (auto const& comparison : *comparisons_opt) {
+        if (cmp_ancilla.has_value()) {
+            for (auto const& comparison : *cmp_ancilla) {
                 for (auto const& per_qubit : comparison.per_qubit_comparisons) {
-                    size_t unified_diff_terms = 0;
-                    size_t reduced_diff_terms = 0;
-
-                    if (per_qubit.unified_terms.linear_mod8 != per_qubit.reduced_terms.linear_mod8) {
-                        if (per_qubit.unified_terms.linear_mod8.has_value()) ++unified_diff_terms;
-                        if (per_qubit.reduced_terms.linear_mod8.has_value()) ++reduced_diff_terms;
+                    if (!per_qubit.equivalent) {
+                        throw std::logic_error(fmt::format(
+                            "move_pmcs_with_reduced_PR: ancilla variant per-qubit equivalence failed (ancilla={}, qubit={})",
+                            ancilla, per_qubit.qubit));
                     }
-
-                    std::unordered_map<SignatureTensor::PairTerm, uint8_t, SignatureTensor::PairTermHash> unified_quad_map;
-                    std::unordered_map<SignatureTensor::PairTerm, uint8_t, SignatureTensor::PairTermHash> reduced_quad_map;
-                    for (auto const& [term, coeff] : per_qubit.unified_terms.quadratic_terms) {
-                        unified_quad_map[term] = coeff;
-                    }
-                    for (auto const& [term, coeff] : per_qubit.reduced_terms.quadratic_terms) {
-                        reduced_quad_map[term] = coeff;
-                    }
-                    for (auto const& [term, coeff] : unified_quad_map) {
-                        auto const it = reduced_quad_map.find(term);
-                        if (it == reduced_quad_map.end() || it->second != coeff) {
-                            ++unified_diff_terms;
-                        }
-                    }
-                    for (auto const& [term, coeff] : reduced_quad_map) {
-                        auto const it = unified_quad_map.find(term);
-                        if (it == unified_quad_map.end() || it->second != coeff) {
-                            ++reduced_diff_terms;
-                        }
-                    }
-
-                    std::unordered_set<SignatureTensor::TripleTerm, SignatureTensor::TripleTermHash> unified_cubic_set(
-                        per_qubit.unified_terms.cubic_terms.begin(),
-                        per_qubit.unified_terms.cubic_terms.end());
-                    std::unordered_set<SignatureTensor::TripleTerm, SignatureTensor::TripleTermHash> reduced_cubic_set(
-                        per_qubit.reduced_terms.cubic_terms.begin(),
-                        per_qubit.reduced_terms.cubic_terms.end());
-                    for (auto const& term : unified_cubic_set) {
-                        if (!reduced_cubic_set.contains(term)) {
-                            ++unified_diff_terms;
-                        }
-                    }
-                    for (auto const& term : reduced_cubic_set) {
-                        if (!unified_cubic_set.contains(term)) {
-                            ++reduced_diff_terms;
-                        }
-                    }
-
-                    spdlog::info(
-                        "compare_pp: ancilla={} history_idx={} qubit={} equivalent={} diff_terms(unified={}, reduced={})",
-                        ancilla,
-                        comparison.history_index,
-                        per_qubit.qubit,
-                        per_qubit.equivalent,
-                        unified_diff_terms,
-                        reduced_diff_terms);
-                    
                 }
             }
         }
-        if (is_blocking) {
+
+        bool const success =
+            commuting_out.is_single_x_on_reference && ancilla_out.is_single_x_on_reference;
+
+        spdlog::info(
+            "PMC({},{}): x_qubits:[{}] pr-blocking:{}",
+            reference_qubit,
+            ancilla,
+            fmt::join(x_qubits, ","),
+            pr_blocking.size());
+        spdlog::info(
+            "  reversing of classical control {}",
+            success ? "success" : "failed");
+
+        if (success) {
+            if (!pr_blocking.empty()) {
+                throw std::logic_error(fmt::format(
+                    "move_pmcs_with_reduced_PR: success but pr_blocking non-empty (ancilla={}, size={})",
+                    ancilla, pr_blocking.size()));
+            }
+            if (cmp_commuting.has_value()) {
+                for (auto const& comparison : *cmp_commuting) {
+                    for (auto const& per_qubit : comparison.per_qubit_comparisons) {
+                        if (!per_qubit.equivalent) {
+                            throw std::logic_error(fmt::format(
+                                "move_pmcs_with_reduced_PR: success but commuting per-qubit equivalence failed (ancilla={}, qubit={})",
+                                ancilla, per_qubit.qubit));
+                        }
+                    }
+                }
+            }
+        } else {
+            for (auto const& rotation : pr_blocking) {
+                spdlog::info("    pr_blocking: {}", rotation.to_bit_string());
+            }
+            auto const blocking_info = analyze_blocking_signature(pr_blocking, x_qubits, ancilla);
             spdlog::info(
-                " move_pmcs_with_reduced_PR: blocking pr_pmc_ij (ancilla={}):\n{}",
-                ancilla,
-                fmt::join(blocking_terms, "\n"));
+                "    pr_blocking signature: ancilla_in_signature={} has_ancilla_x_overlap={}",
+                blocking_info.ancilla_in_signature,
+                blocking_info.has_ancilla_x_overlap);
+            if (cmp_commuting.has_value()) {
+                for (auto const& comparison : *cmp_commuting) {
+                    for (auto const& per_qubit : comparison.per_qubit_comparisons) {
+                        auto const [unified_diff_terms, reduced_diff_terms] = count_diff_terms(per_qubit);
+                        spdlog::info(
+                            "    qubit={} equivalent={} diff_terms(unified={}, reduced={})",
+                            per_qubit.qubit,
+                            per_qubit.equivalent,
+                            unified_diff_terms,
+                            reduced_diff_terms);
+                    }
+                }
+            }
         }
+
+        if (!commuting_out.success) {
+            spdlog::error(
+                "move_pmcs_with_reduced_PR: commuting variant failed for ancilla {}",
+                ancilla);
+            return;
+        }
+        working = std::move(commuting_out.working_after);
+        pr_idx = commuting_out.new_pr_idx;
     }
 }
 
@@ -500,9 +608,9 @@ void minimize_ancillary_t_opt_with_degadgetization(Tableau& tableau, std::option
         return;
     }
     auto const pmc_to_unified_pr = minimize_internal_hadamards_n_gadgetize(tableau);
-    spdlog::debug("After minimize_internal_hadamards_n_gadgetize: {:g}", tableau);
     optimize_phase_polynomial_with_classical(tableau, FastToddPhasePolynomialOptimizationStrategy{});
-    move_pmcs_with_reduced_PR(tableau, pmc_to_unified_pr);
+    reorder_n_degadgetize(tableau);
+    spdlog::info("Tableau after optimization: {:g}", tableau);
 }
 
 }  // namespace experimental

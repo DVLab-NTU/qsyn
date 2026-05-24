@@ -13,6 +13,7 @@
 
 #include <cassert>
 #include <cstddef>
+#include <functional>
 
 namespace qsyn::experimental {
 
@@ -75,6 +76,55 @@ Tableau& Tableau::cx(size_t control, size_t target) noexcept {
             break;
     }
     return *this;
+}
+
+namespace {
+
+std::optional<GadgetPairIndices> find_gadget_pair_impl(
+    size_t size,
+    std::function<SubTableau const&(size_t)> const& at,
+    size_t ancilla_qubit) {
+    std::optional<size_t> gadget_index;
+    for (size_t idx = 0; idx < size; ++idx) {
+        auto const* cct = std::get_if<ClassicalControlTableau>(&at(idx));
+        if (cct == nullptr || !cct->is_gadget() || cct->ancilla_qubit() != ancilla_qubit) {
+            continue;
+        }
+        gadget_index = idx;
+        break;
+    }
+    if (!gadget_index.has_value()) {
+        return std::nullopt;
+    }
+
+    for (size_t idx = gadget_index.value() + 1; idx < size; ++idx) {
+        auto const* cct = std::get_if<ClassicalControlTableau>(&at(idx));
+        if (cct == nullptr || !cct->is_classical_control() || cct->ancilla_qubit() != ancilla_qubit) {
+            continue;
+        }
+        return GadgetPairIndices{gadget_index.value(), idx};
+    }
+    return std::nullopt;
+}
+
+}  // namespace
+
+std::optional<GadgetPairIndices> find_gadget_pair(
+    std::vector<SubTableau> const& subtableaux,
+    size_t ancilla_qubit) {
+    return find_gadget_pair_impl(
+        subtableaux.size(),
+        [&](size_t idx) -> SubTableau const& { return subtableaux[idx]; },
+        ancilla_qubit);
+}
+
+std::optional<GadgetPairIndices> find_gadget_pair(
+    Tableau const& tableau,
+    size_t ancilla_qubit) {
+    return find_gadget_pair_impl(
+        tableau.size(),
+        [&](size_t idx) -> SubTableau const& { return tableau[idx]; },
+        ancilla_qubit);
 }
 
 void adjoint_inplace(SubTableau& subtableau) {

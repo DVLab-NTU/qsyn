@@ -914,37 +914,16 @@ void properize_for_t_optimization(Tableau& tableau) {
         }
     }
 
-    auto const find_pmc_index = [&](size_t ancilla) -> std::optional<size_t> {
-        for (size_t i = 0; i < new_tableau.size(); ++i) {
-            auto const* cct = std::get_if<ClassicalControlTableau>(&new_tableau[i]);
-            if (cct != nullptr && cct->is_classical_control() && cct->ancilla_qubit() == ancilla) {
-                return i;
-            }
-        }
-        return std::nullopt;
-    };
-
-    auto const find_gadget_index = [&](size_t ancilla) -> std::optional<size_t> {
-        for (size_t i = 0; i < new_tableau.size(); ++i) {
-            auto const* cct = std::get_if<ClassicalControlTableau>(&new_tableau[i]);
-            if (cct != nullptr && cct->is_gadget() && cct->ancilla_qubit() == ancilla) {
-                return i;
-            }
-        }
-        return std::nullopt;
-    };
-
     for (size_t const ancilla : pmc_ancillae) {
-        auto pmc_idx_opt    = find_pmc_index(ancilla);
-        auto gadget_idx_opt = find_gadget_index(ancilla);
-        if (!pmc_idx_opt.has_value() || !gadget_idx_opt.has_value()) {
+        auto const pair_opt = find_gadget_pair(new_tableau, ancilla);
+        if (!pair_opt.has_value()) {
             spdlog::warn(
                 "reverse_commute_pmcs_to_gadgets_for_test: missing pair for ancilla {}",
                 ancilla);
             continue;
         }
-        size_t const pmc_idx    = *pmc_idx_opt;
-        size_t const gadget_idx = *gadget_idx_opt;
+        size_t const pmc_idx    = pair_opt->pmc_index;
+        size_t const gadget_idx = pair_opt->gadget_index;
         if (pmc_idx <= gadget_idx + 1) {
             continue;
         }

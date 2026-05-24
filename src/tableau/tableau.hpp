@@ -13,6 +13,7 @@
 #include <vector>
 #include <unordered_set>
 #include <unordered_map>
+#include <optional>
 #include <ranges>
 #include <stdexcept>
 #include <algorithm>
@@ -186,6 +187,12 @@ public:
         return _ancilla_initial_states;
     }
 
+    /** Clear ancilla initial states and measurement types (e.g. before rebuilding after degadgetization). */
+    void clear_ancilla_metadata() {
+        _ancilla_initial_states.clear();
+        _ancilla_measurement_types.clear();
+    }
+
     // ── Per-ancilla measurement type ──────────────────────────────────────────
     // Tracks which basis each ancilla is measured in (Z, X, or none).
     // Initially none for every ancilla; set explicitly by the gadgetization pass.
@@ -292,6 +299,21 @@ private:
     std::vector<std::pair<size_t, size_t>> _cct_pairing;  // CCT pairing structure - stores (ccc_index, pmc_index) pairs
 };
 
+/** Sub-tableau indices for a matched Hadamard-gadget CCC/PMC pair. */
+struct GadgetPairIndices {
+    size_t gadget_index;
+    size_t pmc_index;
+};
+
+/** Find CCC/PMC indices for the gadget on ancilla_qubit (unique per pair). */
+[[nodiscard]] std::optional<GadgetPairIndices> find_gadget_pair(
+    std::vector<SubTableau> const& subtableaux,
+    size_t ancilla_qubit);
+
+[[nodiscard]] std::optional<GadgetPairIndices> find_gadget_pair(
+    Tableau const& tableau,
+    size_t ancilla_qubit);
+
 void adjoint_inplace(SubTableau& subtableau);
 [[nodiscard]] SubTableau adjoint(SubTableau const& subtableau);
 
@@ -326,34 +348,10 @@ struct fmt::formatter<qsyn::experimental::SubTableau> {
                     return fmt::format_to(ctx.out(), "Clifford:\n{}\n", presentation == 'c' ? st.to_string() : st.to_bit_string());
                 },
                 [&](std::vector<qsyn::experimental::PauliRotation> const& pr) -> format_context::iterator {
-                    if (presentation == 'g') {
-                        std::string result = "Pauli Rotations:\n";
-                        for (auto const& rotation : pr) {
-                            if (rotation.is_CZ()) {
-                                std::vector<size_t> z_qubits;
-                                for (size_t i = 0; i < rotation.n_qubits(); ++i) {
-                                    if (rotation.is_z(i)) z_qubits.push_back(i);
-                                }
-                                if (z_qubits.size() == 2) {
-                                    if (rotation.phase() == dvlab::Phase(1)) {
-                                        result += fmt::format("cz q[{}], q[{}];\n", z_qubits[0], z_qubits[1]);
-                                    } else {
-                                        result += fmt::format("cz({}) q[{}], q[{}];\n", rotation.phase(), z_qubits[0], z_qubits[1]);
-                                    }
-                                }
-                                continue;
-                            }
-                            auto const [ops, target] = qsyn::experimental::extract_clifford_operators(rotation);
-                            result += qsyn::experimental::clifford_ops_to_string(ops);
-                            result += fmt::format("rz({}) q[{}];\n", rotation.phase(), target);
-                            result += qsyn::experimental::clifford_ops_to_string(qsyn::experimental::adjoint(ops));
-                        }
-                        return fmt::format_to(ctx.out(), "{}", result);
-                    }
-                    if (presentation == 'c')
+                    if (presentation == 'c') {
                         return fmt::format_to(ctx.out(), "Pauli Rotations:\n{:c}\n", fmt::join(pr, "\n"));
-                    else
-                        return fmt::format_to(ctx.out(), "Pauli Rotations:\n{:b}\n", fmt::join(pr, "\n"));
+                    }
+                    return fmt::format_to(ctx.out(), "Pauli Rotations:\n{:b}\n", fmt::join(pr, "\n"));
                 },
                 [&](qsyn::experimental::ClassicalControlTableau const& cct) -> format_context::iterator {
                     if (presentation == 'g') {

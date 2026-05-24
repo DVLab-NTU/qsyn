@@ -47,21 +47,6 @@ void refresh_cz_flag(PauliRotation& rotation) {
     }
 }
 
-/** Swap Z/I (or I) support between qubits a and b on a diagonal PauliRotation. */
-void swap_gadget_z_slots(PauliRotation& r, size_t a, size_t b) {
-    if (a == b) {
-        return;
-    }
-    std::vector<Pauli> pv(r.n_qubits(), Pauli::i);
-    for (size_t q = 0; q < r.n_qubits(); ++q) {
-        pv[q] = r.get_pauli_type(q);
-    }
-    std::swap(pv[a], pv[b]);
-    dvlab::Phase const ph = r.phase();
-    r      = PauliRotation(pv.begin(), pv.end(), ph);
-    refresh_cz_flag(r);
-}
-
 StabilizerTableau compose_stabilizer_tableau(StabilizerTableau const& first, StabilizerTableau const& second) {
     StabilizerTableau result = first;
     result.apply(extract_clifford_operators(second));
@@ -69,6 +54,23 @@ StabilizerTableau compose_stabilizer_tableau(StabilizerTableau const& first, Sta
 }
 
 }  // namespace
+
+void swap_gadget_phase_slots(PauliRotation& r, size_t reference, size_t ancilla) {
+    if (reference == ancilla) {
+        return;
+    }
+    if (!r.is_diagonal()) {
+        return;
+    }
+    std::vector<Pauli> pv(r.n_qubits(), Pauli::i);
+    for (size_t q = 0; q < r.n_qubits(); ++q) {
+        pv[q] = r.get_pauli_type(q);
+    }
+    std::swap(pv[reference], pv[ancilla]);
+    dvlab::Phase const ph = r.phase();
+    r                    = PauliRotation(pv.begin(), pv.end(), ph);
+    refresh_cz_flag(r);
+}
 
 bool check_swap(ClassicalControlTableau const& left, ClassicalControlTableau const& right) {
     if (left.is_gadget() || right.is_gadget()) {
@@ -228,7 +230,7 @@ void swap(ClassicalControlTableau& cct, std::vector<PauliRotation>& pr) {
             size_t const b = cct.ancilla_qubit();
             for (auto& r : pr) {
                 if (r.is_diagonal()) {
-                    swap_gadget_z_slots(r, a, b);
+                    swap_gadget_phase_slots(r, a, b);
                 }
             }
         } else {
@@ -260,7 +262,7 @@ void swap(std::vector<PauliRotation>& pr, ClassicalControlTableau& cct) {
         size_t const b = cct.ancilla_qubit();
         for (auto& r : pr) {
             if (r.is_diagonal()) {
-                swap_gadget_z_slots(r, a, b);
+                swap_gadget_phase_slots(r, a, b);
             }
         }
     }
@@ -361,11 +363,6 @@ void swap_along(std::vector<std::variant<StabilizerTableau, std::vector<PauliRot
     if (from_idx == to_idx) {
         return;
     }
-    auto const* target_pr = std::get_if<std::vector<PauliRotation>>(&tableau_vector[from_idx]);
-    if (target_pr != nullptr && from_idx > to_idx) {
-        throw std::logic_error("swap_along(indexed): PR target leftward move is unsupported");
-    }
-
     if (from_idx < to_idx) {
         // target is on the left, swap through [from_idx + 1, to_idx]
         for (size_t k = from_idx + 1; k <= to_idx; ++k) {

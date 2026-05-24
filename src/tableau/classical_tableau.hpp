@@ -167,6 +167,9 @@ StabilizerTableau commutation_through_clifford(StabilizerTableau const& classica
                                                StabilizerTableau const& clifford_block);
 StabilizerTableau reverse_n_prepend(CliffordOperatorString const& operations, size_t n_qubits);
 
+/** Swap Z-support between reference and ancilla on a diagonal PR (commute past Hadamard gadget). */
+void swap_gadget_phase_slots(PauliRotation& r, size_t reference, size_t ancilla);
+
 void commute_through_pauli_rotation(StabilizerTableau& st, PauliRotation const& pauli_rotation, bool from_front);
 void commute_through_pauli_rotations(StabilizerTableau& st, std::vector<PauliRotation> const& pauli_rotations, bool from_front);
 
