@@ -49,9 +49,10 @@ synthesize_rz(GridsynthRequest const& req) {
         cppgridsynth::MPFloat(req.theta_denom);
     cppgridsynth::MPFloat const epsilon(req.epsilon);
 
+    // Match pygridsynth/cppgridsynth gridsynth_gates(): no decompose_phase_gate().
+    // Global phase stays in circuit.phase(); W gates in gates_ are skipped in qsyn.
     auto circuit =
         cppgridsynth::gridsynth_circuit(theta, epsilon, {0}, cfg);
-    circuit.decompose_phase_gate();
 
     std::vector<SynthGate> out;
     out.reserve(circuit.size());
