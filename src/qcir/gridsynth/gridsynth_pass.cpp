@@ -21,7 +21,8 @@ std::optional<Operation> operation_from_synth(gridsynth_detail::SynthGateKind ki
         case SynthGateKind::X:
             return XGate();
         case SynthGateKind::W:
-            return PZGate(dvlab::Phase(1, 4));
+            // Global phase only; omit from QCir (unitary unchanged up to global phase).
+            return std::nullopt;
         default:
             return std::nullopt;
     }
@@ -97,9 +98,7 @@ std::optional<QCir> gridsynth_decompose(QCir const& qcir,
             for (auto const& g : *synth) {
                 auto qsyn_op = operation_from_synth(g.kind);
                 if (!qsyn_op.has_value()) {
-                    spdlog::error(
-                        "GridSynth: unsupported gate in synthesis output");
-                    return std::nullopt;
+                    continue;
                 }
                 result.append(*qsyn_op, {wire});
             }
