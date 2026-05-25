@@ -7,13 +7,13 @@ qsyn> qcir gate add rz -ph pi/8 0
 qsyn> qcir gridsynth --epsilon 1e-8
 
 qsyn> qcir print --stat
-QCir (1 qubits, 222 gates)
+QCir (1 qubits, 218 gates)
 Clifford   : 134
 └── H-gate : 84 (83 internal)
 2-qubit    : 0
-T-family   : 88
+T-family   : 84
 Others     : 0
-Depth      : 222
+Depth      : 218
 
 qsyn> quit -f
 
