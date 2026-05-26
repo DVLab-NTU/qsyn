@@ -11,8 +11,12 @@
 #include "util/dvlab_string.hpp"
 #include "util/util.hpp"
 #include <algorithm>
+#include <fmt/format.h>
 #include <limits>
+#include <optional>
 #include <spdlog/spdlog.h>
+#include <stdexcept>
+#include <string>
 #include <unordered_set>
 
 namespace qsyn::experimental {
@@ -236,11 +240,6 @@ void gadgetize_tableau(Tableau& tableau) {
     // An ST at index i is internal iff tableau[i-1] and tableau[i+1] are PRs.
     size_t internal_h_count = 0;
     for (size_t i = 0; i < n; ++i) {
-        if (std::holds_alternative<std::vector<PauliRotation>>(tableau[i])) {
-            const auto& pauli_rotations = std::get<std::vector<PauliRotation>>(tableau[i]);
-            // Print the count of columns (i.e., Pauli rotations applied in this block)
-            spdlog::debug("PauliRotation columns count: {}", pauli_rotations.size());
-        }
         if (!std::holds_alternative<StabilizerTableau>(tableau[i])) continue;
         if (i == 0 || i + 1 == n) continue;
         if (!is_pr(i - 1) || !is_pr(i + 1)) continue;
@@ -250,7 +249,6 @@ void gadgetize_tableau(Tableau& tableau) {
             std::count_if(ops.begin(), ops.end(), [](CliffordOperator const& op) {
                 return op.first == CliffordOperatorType::h;
             }));
-        spdlog::debug("Internal H count: {}", internal_h_count);
     }
 
     size_t const total_qubits = original_n_qubits + internal_h_count;
@@ -259,7 +257,6 @@ void gadgetize_tableau(Tableau& tableau) {
     // ─── Pass 2: rebuild tableau with all subtableaux pre-sized ──────────────
     std::vector<SubTableau> new_subtableaux;
     std::vector<std::pair<size_t, AncillaInitialState>> new_ancilla_states;
-    std::vector<std::pair<size_t, size_t>> gadget_pairs;
 
     for (size_t i = 0; i < n; ++i) {
         std::visit(
@@ -299,15 +296,11 @@ void gadgetize_tableau(Tableau& tableau) {
                         // Emit the CCC + PMC pair for this Hadamard gadget.
                         auto [ccc, pmc] = gadgetize_hadamard(qubit, ancilla_index, total_qubits);
 
-                        size_t const ccc_idx = new_subtableaux.size();
                         new_subtableaux.push_back(std::move(ccc));
-                        size_t const pmc_idx = new_subtableaux.size();
                         new_subtableaux.push_back(std::move(pmc));
 
-                        gadget_pairs.push_back({ccc_idx, pmc_idx});
                         new_ancilla_states.push_back({ancilla_index, AncillaInitialState::PLUS});
 
-                        spdlog::debug("Gadgetized H gate on qubit {} with ancilla {}", qubit, ancilla_index);
                         ++ancilla_index;
                     }
 
@@ -352,10 +345,6 @@ void gadgetize_tableau(Tableau& tableau) {
     for (auto const& [anc_idx, state] : new_ancilla_states) {
         tableau.add_ancilla_state(anc_idx, state);
         tableau.set_ancilla_measurement_type(anc_idx, MeasurementType::X);
-    }
-
-    for (auto const& [ccc_idx, pmc_idx] : gadget_pairs) {
-        spdlog::debug("Paired CCC at index {} with PMC at index {}", ccc_idx, pmc_idx);
     }
 }
 
@@ -631,67 +620,176 @@ void blockwise_gadgetize(Tableau& tableau) {
     }
 }
 
+namespace {
 
-/** Degadgetize one CCC/PMC pair and remove its ancilla qubit. */
-void hadamard_degadgetize(Tableau& tableau, size_t ccc_index, size_t pmc_index) {
+struct AncillaOperationBlocker {
+    size_t subtableau_index;
+    std::string kind;
+};
 
-    spdlog::debug("Degadgetizing CCC at index {} and PMC at index {}", ccc_index, pmc_index);
-    auto* ccc_ptr = std::get_if<ClassicalControlTableau>(&tableau[ccc_index]);
-    if (!ccc_ptr || !ccc_ptr->is_gadget()) {
-        spdlog::error("Element at index {} is not a CCC", ccc_index);
-        return;
+/** Return the first sub-tableau (not in skip_indices) that acts on ancilla_qubit. */
+std::optional<AncillaOperationBlocker> find_operation_on_ancilla(
+    Tableau const& tableau,
+    size_t ancilla_qubit,
+    std::unordered_set<size_t> const& skip_indices) {
+    for (size_t i = 0; i < tableau.size(); ++i) {
+        if (skip_indices.contains(i)) {
+            continue;
+        }
+
+        if (auto const* st = std::get_if<StabilizerTableau>(&tableau[i])) {
+            for (auto const& op : extract_clifford_operators(*st)) {
+                if (ClassicalControlTableau::clifford_touches_ancilla(op, ancilla_qubit)) {
+                    return AncillaOperationBlocker{i, "StabilizerTableau"};
+                }
+            }
+            continue;
+        }
+
+        if (auto const* pr = std::get_if<std::vector<PauliRotation>>(&tableau[i])) {
+            for (auto const& rotation : *pr) {
+                if (ancilla_qubit < rotation.n_qubits() && !rotation.is_i(ancilla_qubit)) {
+                    return AncillaOperationBlocker{i, "PauliRotation"};
+                }
+            }
+            continue;
+        }
+
+        if (auto const* cct = std::get_if<ClassicalControlTableau>(&tableau[i])) {
+            for (auto const& op : extract_clifford_operators(cct->operations())) {
+                if (ClassicalControlTableau::clifford_touches_ancilla(op, ancilla_qubit)) {
+                    std::string const kind = cct->is_gadget()
+                                                 ? "ClassicalControlTableau(Gadget)"
+                                                 : "ClassicalControlTableau(PMC)";
+                    return AncillaOperationBlocker{i, kind};
+                }
+            }
+        }
+    }
+    return std::nullopt;
+}
+
+void move_pmcs_adjacent_to_gadgets(Tableau& tableau, std::vector<size_t> const& ancilla_qubits) {
+    std::vector<size_t> ordered_ancillae = ancilla_qubits;
+    std::ranges::sort(ordered_ancillae, [&tableau](size_t lhs, size_t rhs) {
+        auto const lhs_pair = find_gadget_pair(tableau, lhs);
+        auto const rhs_pair = find_gadget_pair(tableau, rhs);
+        if (!lhs_pair.has_value()) {
+            return false;
+        }
+        if (!rhs_pair.has_value()) {
+            return true;
+        }
+        return lhs_pair->pmc_index > rhs_pair->pmc_index;
+    });
+
+    size_t moved_count = 0;
+    for (size_t const ancilla : ordered_ancillae) {
+        auto const pair_opt = find_gadget_pair(tableau, ancilla);
+        if (!pair_opt.has_value()) {
+            spdlog::warn("move_pmcs_adjacent_to_gadgets: missing CCC/PMC pair for ancilla {}",ancilla);
+            continue;
+        }
+        size_t const gadget_idx = pair_opt->gadget_index;
+        size_t const pmc_idx    = pair_opt->pmc_index;
+        size_t const target_idx = gadget_idx + 1;
+        if (pmc_idx <= target_idx) {
+            continue;
+        }
+        swap_along(tableau, pmc_idx, target_idx);
+        ++moved_count;
     }
 
-    auto* pmc_ptr = std::get_if<ClassicalControlTableau>(&tableau[pmc_index]);
-    if (!pmc_ptr || !pmc_ptr->is_classical_control()) {
-        spdlog::error("Element at index {} is not a PMC", pmc_index);
-        return;
+
+}
+
+std::optional<std::string> validate_degadgetize_pair(
+    Tableau const& tableau,
+    size_t ccc_index,
+    size_t pmc_index,
+    std::unordered_set<size_t> const& skip_subtableau_indices) {
+    if (pmc_index != ccc_index + 1) {
+        return fmt::format(
+            "PMC at index {} is not adjacent to CCC at index {}",
+            pmc_index,
+            ccc_index);
+    }
+
+    if (ccc_index >= tableau.size()) {
+        return fmt::format("CCC index {} out of range (tableau size {})", ccc_index, tableau.size());
+    }
+    if (pmc_index >= tableau.size()) {
+        return fmt::format("PMC index {} out of range (tableau size {})", pmc_index, tableau.size());
+    }
+
+    auto const* ccc_ptr = std::get_if<ClassicalControlTableau>(&tableau[ccc_index]);
+    if (ccc_ptr == nullptr || !ccc_ptr->is_gadget()) {
+        return fmt::format("sub-tableau at index {} is not a CCC", ccc_index);
+    }
+
+    auto const* pmc_ptr = std::get_if<ClassicalControlTableau>(&tableau[pmc_index]);
+    if (pmc_ptr == nullptr || !pmc_ptr->is_classical_control()) {
+        return fmt::format("sub-tableau at index {} is not a PMC", pmc_index);
     }
 
     if (ccc_ptr->ancilla_qubit() != pmc_ptr->ancilla_qubit()) {
-        spdlog::error("CCC at index {} and PMC at index {} have mismatched ancilla qubits ({} vs {})",
-                     ccc_index, pmc_index, ccc_ptr->ancilla_qubit(), pmc_ptr->ancilla_qubit());
-        return;
+        return fmt::format(
+            "CCC/PMC ancilla mismatch at indices {} and {} ({} vs {})",
+            ccc_index,
+            pmc_index,
+            ccc_ptr->ancilla_qubit(),
+            pmc_ptr->ancilla_qubit());
     }
 
     size_t const ccc_ref = ccc_ptr->reference_qubit();
     if (ccc_ref != pmc_ptr->reference_qubit()) {
-        spdlog::error("CCC at index {} and PMC at index {} have mismatched reference qubits ({} vs {})",
-                     ccc_index, pmc_index, ccc_ref, pmc_ptr->reference_qubit());
-        return;
+        return fmt::format(
+            "CCC/PMC reference mismatch at indices {} and {} ({} vs {})",
+            ccc_index,
+            pmc_index,
+            ccc_ref,
+            pmc_ptr->reference_qubit());
     }
 
-    size_t const target_pmc_index = ccc_index + 1;
-    if (pmc_index != target_pmc_index) {
-        swap_along(tableau, pmc_index, target_pmc_index);
-    }
-
-    auto* moved_pmc = std::get_if<ClassicalControlTableau>(&tableau[target_pmc_index]);
-    if (moved_pmc == nullptr || !moved_pmc->is_classical_control()) {
-        throw std::logic_error("hadamard_degadgetize: expected PMC immediately after CCC after swap_along");
-    }
-
-    auto const pmc_ops = extract_clifford_operators(moved_pmc->operations());
+    auto const pmc_ops = extract_clifford_operators(pmc_ptr->operations());
     bool const pmc_is_single_ref_x =
         pmc_ops.size() == 1 &&
         pmc_ops[0].first == CliffordOperatorType::x &&
         pmc_ops[0].second[0] == ccc_ref;
     if (!pmc_is_single_ref_x) {
-        spdlog::error(
-            "export error: hadamard_degadgetize requires PMC to be exactly one X on reference qubit {} "
-            "(ccc_idx={}, pmc_idx={}), but got:\n{}",
+        return fmt::format(
+            "PMC at index {} is not exactly one X on reference qubit {} (got {})",
+            pmc_index,
             ccc_ref,
-            ccc_index,
-            target_pmc_index,
             clifford_ops_to_string(pmc_ops));
-        throw std::logic_error("export error: hadamard_degadgetize PMC is not single X on reference");
     }
 
+    size_t const ancilla_qubit = ccc_ptr->ancilla_qubit();
+    if (auto const blocker = find_operation_on_ancilla(
+            tableau, ancilla_qubit, skip_subtableau_indices)) {
+        return fmt::format(
+            "ancilla {} still used by {} at index {}",
+            ancilla_qubit,
+            blocker->kind,
+            blocker->subtableau_index);
+    }
+
+    return std::nullopt;
+}
+
+void apply_degadgetize_pair(Tableau& tableau, size_t ccc_index) {
+    auto* ccc_ptr = std::get_if<ClassicalControlTableau>(&tableau[ccc_index]);
+    if (ccc_ptr == nullptr || !ccc_ptr->is_gadget()) {
+        throw std::logic_error(
+            fmt::format("apply_degadgetize_pair: expected CCC at index {}", ccc_index));
+    }
+
+    size_t const pmc_index        = ccc_index + 1;
     size_t const ancilla_qubit    = ccc_ptr->ancilla_qubit();
-    size_t const reference_qubit  = ccc_ref;
+    size_t const reference_qubit  = ccc_ptr->reference_qubit();
     size_t const insert_pos       = ccc_index;
 
-    tableau.erase(tableau.begin() + static_cast<std::ptrdiff_t>(target_pmc_index));
+    tableau.erase(tableau.begin() + static_cast<std::ptrdiff_t>(pmc_index));
     tableau.erase(tableau.begin() + static_cast<std::ptrdiff_t>(ccc_index));
 
     StabilizerTableau h_gate_tableau(tableau.n_qubits());
@@ -719,8 +817,86 @@ void hadamard_degadgetize(Tableau& tableau, size_t ccc_index, size_t pmc_index) 
     tableau.set_n_qubits(tableau.n_qubits() - 1);
     tableau.set_n_ancilla(tableau.n_ancilla() - 1);
 
-    spdlog::debug("Degadgetized CCC at index {}: removed ancilla qubit {}, replaced with H gate on qubit {}",
-                 ccc_index, ancilla_qubit, reference_qubit);
+    spdlog::debug(
+        "Degadgetized CCC at index {}: removed ancilla qubit {}, replaced with H gate on qubit {}",
+        ccc_index,
+        ancilla_qubit,
+        reference_qubit);
+}
+
+}  // namespace
+
+size_t hadamard_degadgetize(Tableau& tableau, std::vector<size_t> const& ancilla_candidates) {
+    if (ancilla_candidates.empty()) {
+        return 0;
+    }
+
+    move_pmcs_adjacent_to_gadgets(tableau, ancilla_candidates);
+    spdlog::info("tableau after PMC move: {:g}", tableau);
+    std::unordered_set<size_t> candidate_pair_indices;
+    for (size_t const ancilla : ancilla_candidates) {
+        if (auto const pair_indices = find_gadget_pair(tableau, ancilla)) {
+            candidate_pair_indices.insert(pair_indices->gadget_index);
+            candidate_pair_indices.insert(pair_indices->pmc_index);
+        }
+    }
+
+    std::vector<size_t> eligible_ancillae;
+    eligible_ancillae.reserve(ancilla_candidates.size());
+    for (size_t const ancilla : ancilla_candidates) {
+        auto const pair_indices = find_gadget_pair(tableau, ancilla);
+        if (!pair_indices.has_value()) {
+            spdlog::warn(
+                "hadamard_degadgetize: no CCC/PMC pairing for ancilla {}",
+                ancilla);
+            continue;
+        }
+
+        size_t const ccc_index = pair_indices->gadget_index;
+        size_t const pmc_index = pair_indices->pmc_index;
+        if (auto const error = validate_degadgetize_pair(
+                tableau, ccc_index, pmc_index, candidate_pair_indices)) {
+            spdlog::warn(
+                "hadamard_degadgetize: skipping ancilla {}: {}",
+                ancilla,
+                *error);
+            continue;
+        }
+        eligible_ancillae.push_back(ancilla);
+    }
+
+    spdlog::info(
+        "hadamard_degadgetize: {}/{} candidates eligible after PMC move",
+        eligible_ancillae.size(),
+        ancilla_candidates.size());
+
+    std::ranges::sort(eligible_ancillae, std::greater{});
+
+    size_t degadgetized_count = 0;
+    for (size_t const ancilla : eligible_ancillae) {
+        auto const pair_indices = find_gadget_pair(tableau, ancilla);
+        if (!pair_indices.has_value()) {
+            spdlog::warn(
+                "hadamard_degadgetize: no CCC/PMC pairing for ancilla {}",
+                ancilla);
+            continue;
+        }
+
+        size_t const ccc_index = pair_indices->gadget_index;
+        auto* ccc_ptr = std::get_if<ClassicalControlTableau>(&tableau[ccc_index]);
+        if (ccc_ptr == nullptr || !ccc_ptr->is_gadget()) {
+            spdlog::warn(
+                "hadamard_degadgetize: CCC missing at index {} for ancilla {}",
+                ccc_index,
+                ancilla);
+            continue;
+        }
+
+        apply_degadgetize_pair(tableau, ccc_index);
+        ++degadgetized_count;
+    }
+
+    return degadgetized_count;
 }
 
 

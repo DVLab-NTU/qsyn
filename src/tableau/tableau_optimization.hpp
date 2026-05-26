@@ -136,6 +136,27 @@ PmcPrBlockingAnalysis analyze_pmc_pr_blocking(
     ClassicalControlTableau const& pmc,
     std::vector<PauliRotation> const& unified_pr);
 
+/** Per-gadget PR pid lists for minimal SAT export (signature_check classification). */
+struct GadgetPrBlockLists {
+    size_t gid                   = 0;
+    size_t ancilla_qubit         = 0;
+    std::vector<size_t> block_left;   // g→PR (x-line Z only); SAT pid = G + pr_index
+    std::vector<size_t> block_right;  // PR→g (ancilla Z only)
+};
+
+struct SatSignatureExport {
+    size_t qubit_count   = 0;
+    size_t ancilla_count = 0;
+    size_t pauli_count   = 0;
+    /** Gadget gids in fixed schedule order (ancilla index ascending). */
+    std::vector<size_t> gadget_order;
+    /** Indexed by gid; size = |G|. */
+    std::vector<GadgetPrBlockLists> blocks_by_gid;
+};
+
+/** Classify unified PR columns vs each gadget; used by sat_reorder export. */
+SatSignatureExport compute_sat_signature_blocks(Tableau const& tableau);
+
 std::unordered_map<size_t, PmcUnifiedPrRelation> commute_and_merge_rotations(Tableau& tableau);
 void collapse_with_classical(Tableau& tableau);
 
@@ -185,6 +206,9 @@ struct CircuitStructureInfo {
 CircuitStructureInfo inspect_degadgetization_structure(Tableau const& tableau);
 /** Build constraint graph, reorder PRs/CCC, degadgetize graph-active gadgets. */
 void reorder_n_degadgetize(Tableau& tableau);
+
+/** Move PMCs, validate, and degadgetize the given ancilla candidates. Returns count applied. */
+size_t hadamard_degadgetize(Tableau& tableau, std::vector<size_t> const& ancilla_candidates);
 
 bool sat_reorder_export(Tableau& tableau, std::filesystem::path const& work_dir);
 bool sat_reorder_run_solver(std::filesystem::path const& work_dir, std::filesystem::path const& sat_formulation_py);

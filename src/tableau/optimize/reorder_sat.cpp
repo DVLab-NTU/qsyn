@@ -317,9 +317,6 @@ void log_and_export_spans(std::filesystem::path const& ordering_path, ParsedGadg
         spdlog::debug("sat_reorder_apply: no Span section in {}", ordering_path.string());
         return;
     }
-    for (auto const& [gid, mm] : ord.span_by_gid) {
-        spdlog::info("Span gid={} min_i={} max_i={}", gid, mm.first, mm.second);
-    }
     std::filesystem::path out_path = ordering_path;
     out_path += ".span";
     std::ofstream out(out_path);
@@ -338,7 +335,6 @@ void log_and_export_spans(std::filesystem::path const& ordering_path, ParsedGadg
         auto const& mm = ord.span_by_gid.at(gid);
         out << gid << ' ' << mm.first << ' ' << mm.second << '\n';
     }
-    spdlog::info("sat_reorder_apply: exported Span per gid to '{}'", out_path.string());
 }
 
 bool permute_pmcs_in_middle_for_sat_order(
@@ -449,7 +445,6 @@ bool permute_pmcs_in_middle_for_sat_order(
 
         // Walk blocks between target and source in reverse (closest-to-source first) and update the mover PMC.
         for (size_t k = p; k > t; --k) {
-            spdlog::debug("permute_pmcs_in_middle_for_sat_order: moving PMC gid {} past index {}", gid, k - 1);
             SubTableau& neighbor = middle[k - 1];
             if (auto* pr = std::get_if<std::vector<PauliRotation>>(&neighbor)) {
                 swap(*pr, mover);
@@ -493,59 +488,95 @@ bool permute_pmcs_in_middle_for_sat_order(
     return true;
 }
 
-bool validate_classical_controls_against_span_allowlist(
+std::unordered_set<size_t> allowed_ancillas_at_gap(
+    size_t gap_i,
+    AncillaOccupancyTableau const& ancilla_occupancy,
+    std::vector<ConstraintGraph::HadamardGadgetPair> const& gadgets,
+    bool use_physical_ancillae) {
+    std::unordered_set<size_t> allowed_ancillas;
+    if (gap_i >= ancilla_occupancy.occupied_gid_by_time_lane.size()) {
+        return allowed_ancillas;
+    }
+    auto const& occupancy_row = ancilla_occupancy.occupied_gid_by_time_lane[gap_i];
+    allowed_ancillas.reserve(occupancy_row.size());
+    for (int64_t occupied_gid : occupancy_row) {
+        if (occupied_gid < 0) {
+            continue;
+        }
+        size_t const gid = static_cast<size_t>(occupied_gid);
+        if (use_physical_ancillae) {
+            auto const qit = ancilla_occupancy.gid_to_physical_ancilla.find(gid);
+            if (qit == ancilla_occupancy.gid_to_physical_ancilla.end()) {
+                continue;
+            }
+            allowed_ancillas.insert(qit->second);
+        } else if (gid < gadgets.size()) {
+            allowed_ancillas.insert(gadgets[gid].ancilla_qubit);
+        }
+    }
+    return allowed_ancillas;
+}
+
+bool validate_middle_against_span_allowlist(
     std::vector<SubTableau> const& middle,
     size_t const G,
     ParsedGadgetOrdering const& ord,
-    AncillaOccupancyTableau const& ancilla_occupancy) {
+    std::vector<ConstraintGraph::HadamardGadgetPair> const& gadgets,
+    AncillaOccupancyTableau const& ancilla_occupancy,
+    size_t data_qubit_end,
+    size_t ancilla_qubit_hi,
+    bool use_physical_ancillae) {
     if (ancilla_occupancy.occupied_gid_by_time_lane.size() != G + 1) {
         spdlog::error(
-            "validate_classical_controls_against_span_allowlist: occupancy rows {} != G+1 {}",
+            "validate_middle_against_span_allowlist: occupancy rows {} != G+1 {}",
             ancilla_occupancy.occupied_gid_by_time_lane.size(),
             G + 1);
         return false;
     }
 
-    size_t const data_qubit_end = ord.qubit_count - ord.ancilla_count;  // ancillas are [data_qubit_end, qubit_count)
-    size_t gadgets_seen = 0;  // gap index i before current block
+    size_t gadgets_seen = 0;
 
     for (size_t idx = 0; idx < middle.size(); ++idx) {
-        auto const* cct = std::get_if<ClassicalControlTableau>(&middle[idx]);
-        if (cct == nullptr) {
-            continue;
-        }
-
         size_t const gap_i = gadgets_seen;
         if (gap_i > G) {
             spdlog::error(
-                "validate_classical_controls_against_span_allowlist: gap index {} > G {} at block {}",
+                "validate_middle_against_span_allowlist: gap index {} > G {} at block {}",
                 gap_i,
                 G,
                 idx);
             return false;
         }
 
-        if (cct->is_classical_control()) {
-            std::unordered_set<size_t> allowed_ancillas;
-            auto const& occupancy_row = ancilla_occupancy.occupied_gid_by_time_lane[gap_i];
-            allowed_ancillas.reserve(occupancy_row.size());
-            for (int64_t occupied_gid : occupancy_row) {
-                if (occupied_gid < 0) {
-                    continue;
-                }
-                size_t const gid = static_cast<size_t>(occupied_gid);
-                auto const qit = ancilla_occupancy.gid_to_physical_ancilla.find(gid);
-                if (qit == ancilla_occupancy.gid_to_physical_ancilla.end()) {
-                    spdlog::error(
-                        "validate_classical_controls_against_span_allowlist: occupied gid {} at gap {} missing "
-                        "physical ancilla assignment",
-                        gid,
-                        gap_i);
-                    return false;
-                }
-                allowed_ancillas.insert(qit->second);
-            }
+        auto const allowed_ancillas =
+            allowed_ancillas_at_gap(gap_i, ancilla_occupancy, gadgets, use_physical_ancillae);
 
+        if (auto const* pr_vec = std::get_if<std::vector<PauliRotation>>(&middle[idx])) {
+            for (auto const& rotation : *pr_vec) {
+                for (size_t q = data_qubit_end; q < ancilla_qubit_hi && q < rotation.n_qubits(); ++q) {
+                    if (rotation.is_i(q)) {
+                        continue;
+                    }
+                    if (allowed_ancillas.count(q) == 0) {
+                        spdlog::error(
+                            "sat_reorder_apply: span allowlist violation at middle[{}] PR, gap i={}, "
+                            "ancilla q={} touched outside active span (allowed count={})",
+                            idx,
+                            gap_i,
+                            q,
+                            allowed_ancillas.size());
+                        return false;
+                    }
+                }
+            }
+            continue;
+        }
+
+        auto const* cct = std::get_if<ClassicalControlTableau>(&middle[idx]);
+        if (cct == nullptr) {
+            continue;
+        }
+
+        if (cct->is_classical_control()) {
             auto const ops = extract_clifford_operators(cct->operations());
             for (auto const& [type, qubits] : ops) {
                 std::array<size_t, 2> used = {qubits[0], qubits[0]};
@@ -558,17 +589,28 @@ bool validate_classical_controls_against_span_allowlist(
 
                 for (size_t k = 0; k < used_count; ++k) {
                     size_t const q = used[k];
-                    if (q >= data_qubit_end && q < ord.qubit_count &&
+                    if (q >= data_qubit_end && q < ancilla_qubit_hi &&
                         allowed_ancillas.count(q) == 0) {
                         spdlog::error(
-                            "sat_reorder_apply: occupancy allowlist violation at middle[{}], gap i={}, ancilla q={} "
-                            "not allowed by active ancilla occupancy",
+                            "sat_reorder_apply: span allowlist violation at middle[{}] CCT, gap i={}, "
+                            "ancilla q={} touched outside active span",
                             idx,
                             gap_i,
                             q);
                         return false;
                     }
                 }
+            }
+
+            size_t const anc = cct->ancilla_qubit();
+            if (anc >= data_qubit_end && anc < ancilla_qubit_hi &&
+                allowed_ancillas.count(anc) == 0) {
+                spdlog::error(
+                    "sat_reorder_apply: span allowlist violation at middle[{}] CCT ancilla q={}, gap i={}",
+                    idx,
+                    anc,
+                    gap_i);
+                return false;
             }
         }
 
@@ -848,11 +890,14 @@ bool remap_middle_to_physical_ancillae(std::vector<SubTableau>& middle,
     return true;
 }
 
-bool exported_constraint_has_ops_section(std::filesystem::path const& path) {
+bool exported_signature_format_valid(std::filesystem::path const& path) {
     std::ifstream in(path);
     if (!in) {
         return false;
     }
+    bool seen_gadget_order = false;
+    bool seen_block_left   = false;
+    bool seen_block_right  = false;
     std::string line;
     while (std::getline(in, line)) {
         if (auto const hash = line.find('#'); hash != std::string::npos) {
@@ -864,100 +909,75 @@ bool exported_constraint_has_ops_section(std::filesystem::path const& path) {
         while (!line.empty() && (line.back() == ' ' || line.back() == '\t')) {
             line.pop_back();
         }
-        if (line == "ops") {
-            return true;
+        if (line == "gadget_order") {
+            seen_gadget_order = true;
+        } else if (line == "block_left") {
+            seen_block_left = true;
+        } else if (line == "block_right") {
+            seen_block_right = true;
         }
     }
-    return false;
+    return seen_gadget_order && seen_block_left && seen_block_right;
 }
 
-bool export_constraint_for_sat_reorder(Tableau const& tableau, std::filesystem::path const& path) {
-    Tableau tableau_copy = tableau;
-    auto gadgets = export_hadamard_gadget_pairs(tableau_copy);
-    std::vector<ConstraintGraph::PRInfo> all_prs;
-    size_t global_pr_counter = 0;
-    for (size_t idx = 0; idx < tableau.size(); ++idx) {
-        auto const* pr_vec = std::get_if<std::vector<PauliRotation>>(&tableau[idx]);
-        if (!pr_vec) continue;
-        for (size_t pr_idx = 0; pr_idx < pr_vec->size(); ++pr_idx) {
-            all_prs.push_back({idx, pr_idx, global_pr_counter, &(*pr_vec)[pr_idx]});
-            ++global_pr_counter;
-        }
-    }
-
+bool write_sat_signature_export(std::filesystem::path const& path, SatSignatureExport const& exp) {
     std::ofstream out(path);
     if (!out) {
         spdlog::error("sat_reorder_export: cannot open constraint file '{}'", path.string());
         return false;
     }
 
-    size_t const qubit_count = tableau.n_qubits();
-    size_t const ancilla_count = tableau.n_ancilla();
-    size_t const no_ref = std::numeric_limits<size_t>::max();
-    out << "qubit_count: " << qubit_count << "\n";
-    out << "ancilla_count: " << ancilla_count << "\n";
-    out << "gadget\n";
-    for (size_t g_idx = 0; g_idx < gadgets.size(); ++g_idx) {
-        auto const& gadget = gadgets[g_idx];
-        size_t const a = gadget.reference_qubit.value_or(no_ref);
-        size_t const b = gadget.ancilla_qubit;
-        out << g_idx << " " << a << " " << b << "\n";
-    }
+    out << "qubit_count: " << exp.qubit_count << "\n";
+    out << "ancilla_count: " << exp.ancilla_count << "\n";
+    out << "pauli_count: " << exp.pauli_count << "\n";
 
-    out << "ops\n";
-    std::unordered_map<size_t, size_t> ccc_index_to_gid;
-    ccc_index_to_gid.reserve(gadgets.size());
-    for (size_t gid = 0; gid < gadgets.size(); ++gid) {
-        ccc_index_to_gid[gadgets[gid].ccc_index] = gid;
-    }
-
-    for (size_t idx = 1; idx < tableau.size(); ++idx) {
-        if (std::holds_alternative<std::vector<PauliRotation>>(tableau[idx])) {
-            break;
+    out << "gadget_order\n";
+    for (size_t rank = 0; rank < exp.gadget_order.size(); ++rank) {
+        size_t const gid = exp.gadget_order[rank];
+        if (gid >= exp.blocks_by_gid.size()) {
+            spdlog::error("sat_reorder_export: gadget_order gid {} out of range", gid);
+            return false;
         }
-        if (auto const* cct = std::get_if<ClassicalControlTableau>(&tableau[idx])) {
-            if (!cct->is_gadget()) {
-                continue;
-            }
-            auto it = ccc_index_to_gid.find(idx);
-            if (it == ccc_index_to_gid.end()) {
-                spdlog::warn("sat_reorder_export: gadget CCT at index {} has no gid mapping", idx);
-                continue;
-            }
-            out << "gadget " << it->second << " " << cct->reference_qubit() << " " << cct->ancilla_qubit() << "\n";
+        out << rank << " " << gid << " " << exp.blocks_by_gid[gid].ancilla_qubit << "\n";
+    }
+
+    out << "block_left\n";
+    for (size_t gid = 0; gid < exp.blocks_by_gid.size(); ++gid) {
+        auto const& pids = exp.blocks_by_gid[gid].block_left;
+        if (pids.empty()) {
             continue;
         }
-        auto const* st = std::get_if<StabilizerTableau>(&tableau[idx]);
-        if (!st) {
-            continue;
+        out << gid;
+        for (size_t pid : pids) {
+            out << " " << pid;
         }
-        auto const ops = extract_clifford_operators(*st);
-        for (auto const& [type, qubits] : ops) {
-            if (type == CliffordOperatorType::cx) {
-                out << "cx " << qubits[0] << " " << qubits[1] << "\n";
-            }
-        }
+        out << "\n";
     }
 
-    out << "paulis\n";
-    for (size_t i = 0; i < all_prs.size(); ++i) {
-        auto const* pr = all_prs[i].pr_ptr;
-        std::string z_original(qubit_count, '0');
-        if (pr) {
-            std::string const full_bits = pr->to_bit_string();
-            if (full_bits.size() >= qubit_count) {
-                z_original = full_bits.substr(0, qubit_count);
-            } else {
-                std::copy(full_bits.begin(),
-                          full_bits.begin() + std::min(qubit_count, full_bits.size()),
-                          z_original.begin());
-            }
+    out << "block_right\n";
+    for (size_t gid = 0; gid < exp.blocks_by_gid.size(); ++gid) {
+        auto const& pids = exp.blocks_by_gid[gid].block_right;
+        if (pids.empty()) {
+            continue;
         }
-        out << i + gadgets.size() << " " << z_original << "\n";
+        out << gid;
+        for (size_t pid : pids) {
+            out << " " << pid;
+        }
+        out << "\n";
     }
-    spdlog::info("sat_reorder_export: wrote '{}' ({} gadgets, {} paulis)",
-                 path.string(), gadgets.size(), all_prs.size());
+
+    spdlog::info(
+        "sat_reorder_export: wrote '{}' ({} gadgets, {} paulis, signature format)",
+        path.string(),
+        exp.gadget_order.size(),
+        exp.pauli_count);
     return true;
+}
+
+bool export_constraint_for_sat_reorder(Tableau const& tableau, std::filesystem::path const& path) {
+    SatSignatureExport const exp = compute_sat_signature_blocks(tableau);
+    return write_sat_signature_export(path, exp);
 }
 
 }  // namespace
@@ -970,15 +990,14 @@ bool sat_reorder_export(Tableau& tableau, std::filesystem::path const& work_dir)
         return false;
     }
 
-    Tableau work_tableau = tableau;
-
     std::filesystem::path const constraint = work_dir / "gadget_constraint.txt";
-    if (!export_constraint_for_sat_reorder(work_tableau, constraint)) {
+    if (!export_constraint_for_sat_reorder(tableau, constraint)) {
         return false;
     }
-    if (!exported_constraint_has_ops_section(constraint)) {
+    if (!exported_signature_format_valid(constraint)) {
         spdlog::error(
-            "sat_reorder_export: exported constraint file '{}' missing required 'ops' section",
+            "sat_reorder_export: exported constraint file '{}' missing required signature sections "
+            "(gadget_order, block_left, block_right)",
             constraint.string());
         return false;
     }
@@ -1123,23 +1142,7 @@ bool sat_reorder_apply(Tableau& tableau, std::filesystem::path const& ordering_p
         spdlog::error("sat_reorder_apply: build_ancilla_occupancy_tableau failed: {}", occupancy_err);
         return false;
     }
-    for (auto const& interval : ancilla_intervals) {
-        auto const qit = ancilla_occupancy.gid_to_physical_ancilla.find(interval.gid);
-        if (qit != ancilla_occupancy.gid_to_physical_ancilla.end()) {
-            spdlog::info("ancilla allocation gid={} logical_q={} span=[{},{}] physical_q={}",
-                         interval.gid,
-                         interval.logical_ancilla_qubit,
-                         interval.min_gap_i,
-                         interval.max_gap_i,
-                         qit->second);
-        }
-    }
     auto const logical_to_physical = build_logical_to_physical_ancilla_map(ancilla_intervals, ancilla_occupancy);
-    for (auto const& [logical_q, physical_q] : logical_to_physical) {
-        if (logical_q != physical_q) {
-            spdlog::info("ancilla remap logical q{} -> physical q{}", logical_q, physical_q);
-        }
-    }
 
     std::unordered_map<size_t, ConstraintGraph::PRInfo> pr_vertex_to_info;
     size_t global_pr_counter = 0;
@@ -1260,18 +1263,50 @@ bool sat_reorder_apply(Tableau& tableau, std::filesystem::path const& ordering_p
         return false;
     }
 
-    size_t const sat_width_w      = ord.width_w > 0 ? ord.width_w : ord.ancilla_count;
-    size_t const data_qubits      = tableau.n_qubits() - tableau.n_ancilla();
-    size_t const target_n_qubits  = data_qubits + sat_width_w;
+    size_t const data_qubits     = tableau.n_qubits() - tableau.n_ancilla();
+    size_t const sat_width_w     = ord.width_w > 0 ? ord.width_w : ord.ancilla_count;
+    size_t const target_n_qubits = data_qubits + sat_width_w;
+    size_t const logical_ancilla_hi = ord.qubit_count;
+
+    if (!validate_middle_against_span_allowlist(
+            middle,
+            G,
+            ord,
+            gadgets,
+            ancilla_occupancy,
+            data_qubits,
+            logical_ancilla_hi,
+            false)) {
+        spdlog::error("sat_reorder_apply: span allowlist check failed (logical ancillas before minimization)");
+        return false;
+    }
+    spdlog::info(
+        "sat_reorder_apply: span allowlist OK — only gadgets active in Span touch ancillas at each gap");
+
     std::string remap_err;
     if (!remap_middle_to_physical_ancillae(middle, logical_to_physical, target_n_qubits, remap_err)) {
         spdlog::error("sat_reorder_apply: ancilla remap failed: {}", remap_err);
         return false;
     }
-   
-    if (!validate_classical_controls_against_span_allowlist(middle, G, ord, ancilla_occupancy)) {
+
+    if (!validate_middle_against_span_allowlist(
+            middle,
+            G,
+            ord,
+            gadgets,
+            ancilla_occupancy,
+            data_qubits,
+            target_n_qubits,
+            true)) {
+        spdlog::error("sat_reorder_apply: span allowlist check failed after ancilla minimization remap");
         return false;
     }
+    spdlog::info(
+        "sat_reorder_apply: ancilla minimization {} -> {} qubits ({} -> {} ancilla)",
+        tableau.n_qubits(),
+        target_n_qubits,
+        tableau.n_ancilla(),
+        sat_width_w);
 
     if (!temp_cccs.empty()) {
         spdlog::warn("sat_reorder_apply: {} unconsumed gadget(s) in queue (should be empty)", temp_cccs.size());
@@ -1287,7 +1322,6 @@ bool sat_reorder_apply(Tableau& tableau, std::filesystem::path const& ordering_p
 
     remove_identities(tableau);
     spdlog::info("sat_reorder_apply: done ({} elements)", tableau.size());
-    spdlog::info("sat_reorder_apply: tableau = {:b}", tableau);
     return true;
 }
 

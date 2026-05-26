@@ -205,11 +205,8 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr, qsyn::qcir::QCi
             methods.add_parser("ancillaryTopt")
                 .description("Minimize the number of T gates in the tableau with the help of classical operations & ancillary qubits");
 
-            methods.add_parser("degadgetizationTest")
-                .description("Ancillary T-opt flow with degadgetization-assisted PMC commutation");
-
             methods.add_parser("unified")
-                .description("Run unified ancillary T-opt flow (H-gadgetize + classical-aware phase polynomial optimization)");
+                .description("Alias for ancillaryTopt (H-gadgetize + classical-aware phase polynomial optimization)");
 
             methods.add_parser("blockwiseAncillaryTopt")
                 .description("Block-wise ancillary-T optimization (gadgetize/opt per internal H block)");
@@ -251,7 +248,6 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr, qsyn::qcir::QCi
                 phase_polynomial_optimization,
                 matroid_partition,
                 ancillary_t_opt,
-                degadgetization_test,
                 blockwise_ancillary_t_opt,
                 commute_test
             };
@@ -271,12 +267,11 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr, qsyn::qcir::QCi
                     return OptimizationMethod::phase_polynomial_optimization;
                 } else if (dvlab::str::is_prefix_of(method_str, "matpar")) {
                     return OptimizationMethod::matroid_partition;
-                } else if (dvlab::str::is_prefix_of(method_str, "degadgetizationTest")) {
-                    return OptimizationMethod::degadgetization_test;
-                } else if (dvlab::str::is_prefix_of(method_str, "unified")) {
-                    return OptimizationMethod::ancillary_t_opt;
                 } else if (dvlab::str::is_prefix_of(method_str, "blockwiseAncillaryTopt")) {
                     return OptimizationMethod::blockwise_ancillary_t_opt;
+                } else if (dvlab::str::is_prefix_of(method_str, "ancillaryTopt") ||
+                           dvlab::str::is_prefix_of(method_str, "unified")) {
+                    return OptimizationMethod::ancillary_t_opt;
                 } else if (dvlab::str::is_prefix_of(method_str, "test")) {
                     return OptimizationMethod::commute_test;
                 }
@@ -362,14 +357,6 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr, qsyn::qcir::QCi
                             : std::optional<std::string>{qcir_mgr.get()->get_filename()});
                     tableau_mgr.get()->add_procedure("AncillaryTOpt");
                     break;
-                case OptimizationMethod::degadgetization_test:
-                    minimize_ancillary_t_opt_with_degadgetization(
-                        *tableau_mgr.get(),
-                        qcir_mgr.empty()
-                            ? std::optional<std::string>{tableau_mgr.get()->get_filename()}
-                            : std::optional<std::string>{qcir_mgr.get()->get_filename()});
-                    tableau_mgr.get()->add_procedure("DegadgetizationTest");
-                    break;
                 case OptimizationMethod::blockwise_ancillary_t_opt: {
                     auto const before_t = tableau_mgr.get()->n_pauli_rotations();
                     auto const before_a = tableau_mgr.get()->ancilla_initial_states().size();
@@ -407,9 +394,12 @@ dvlab::Command tableau_minimize_q_cmd(TableauMgr& tableau_mgr) {
 
             auto methods = parser.add_subparsers("method").required(true);
             methods.add_parser("degadgetize")
-                .description("Degadgetize and minimize ancilla usage via constraint-graph-based reordering");
+                .description(
+                    "Post-T-opt degadgetization: constraint-graph reorder + degadgetize (shorthand: tableau m d)");
+            methods.add_parser("degadgetizationTest")
+                .description("Alias for degadgetize (legacy name from former tableau o d)");
             methods.add_parser("reorder")
-                .description("Run SAT-based gadget/Pauli reordering for qubit minimization");
+                .description("SAT-based gadget/PR reordering for ancilla minimization (shorthand: tableau m r)");
         },
         [&](ArgumentParser const& parser) {
             if (!dvlab::utils::mgr_has_data(tableau_mgr)) {
@@ -423,7 +413,8 @@ dvlab::Command tableau_minimize_q_cmd(TableauMgr& tableau_mgr) {
             };
 
             auto const method = std::invoke([&]() -> std::optional<QubitMinimizationMethod> {
-                if (dvlab::str::is_prefix_of(method_str, "degadgetize")) {
+                if (dvlab::str::is_prefix_of(method_str, "degadgetizationTest") ||
+                    dvlab::str::is_prefix_of(method_str, "degadgetize")) {
                     return QubitMinimizationMethod::degadgetize;
                 } else if (dvlab::str::is_prefix_of(method_str, "reorder")) {
                     return QubitMinimizationMethod::reorder;

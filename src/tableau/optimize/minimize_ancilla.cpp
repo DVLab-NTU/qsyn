@@ -108,9 +108,6 @@ void apply_ops_to_z_bits(std::vector<uint8_t>& z_bits, std::vector<BinaryConstra
 }
 
 
-// Forward declaration for hadamard_degadgetize (defined in hadamard_gadgetize.cpp)
-void hadamard_degadgetize(Tableau& tableau, size_t ccc_index, size_t pmc_index);
-
 /** Export validated H-gadget (CCC, PMC) pairs from a tableau. */
 std::vector<ConstraintGraph::HadamardGadgetPair> export_hadamard_gadget_pairs(Tableau& tableau) {
     std::vector<ConstraintGraph::HadamardGadgetPair> pairs;
@@ -1000,51 +997,7 @@ void reorder_n_degadgetize(Tableau& tableau) {
         slots_processed,
         num_gadgets);
 
-    [[maybe_unused]] std::set<size_t> removed_ancilla_qubits;
-
-    size_t degadgetized_count = 0;
-    while (!degadgetize_targets.empty()) {
-        size_t const target_ancilla = degadgetize_targets.front();
-        degadgetize_targets.erase(degadgetize_targets.begin());
-
-        auto const pair_indices = find_gadget_pair(tableau, target_ancilla);
-        if (!pair_indices.has_value()) {
-            spdlog::warn(
-                "Skipping degadgetize: no CCC/PMC pairing for ancilla {}",
-                target_ancilla);
-            continue;
-        }
-
-        size_t const resolved_ccc_index = pair_indices->gadget_index;
-        size_t const pmc_index          = pair_indices->pmc_index;
-
-        auto* ccc_ptr = std::get_if<ClassicalControlTableau>(&tableau[resolved_ccc_index]);
-        if (ccc_ptr == nullptr || !ccc_ptr->is_gadget()) {
-            spdlog::warn(
-                "Skipping degadgetize: CCC missing at index {} for ancilla {}",
-                resolved_ccc_index,
-                target_ancilla);
-            continue;
-        }
-
-        size_t const removed_ancilla = ccc_ptr->ancilla_qubit();
-        try {
-            hadamard_degadgetize(tableau, resolved_ccc_index, pmc_index);
-        } catch (std::exception const& ex) {
-            spdlog::warn(
-                "Skipping degadgetize for ancilla {}: {}",
-                target_ancilla,
-                ex.what());
-            continue;
-        }
-        removed_ancilla_qubits.insert(removed_ancilla);
-        for (auto& anc : degadgetize_targets) {
-            if (anc > removed_ancilla) {
-                --anc;
-            }
-        }
-        ++degadgetized_count;
-    }
+    size_t const degadgetized_count = hadamard_degadgetize(tableau, degadgetize_targets);
     spdlog::info(
         "degadgetization: {}/{} targets processed ({} qubits, {} ancillae remaining)",
         degadgetized_count,

@@ -4,6 +4,7 @@
 #include <fmt/core.h>
 #include <spdlog/spdlog.h>
 
+#include <numeric>
 #include <stdexcept>
 #include <unordered_map>
 #include <utility>
@@ -266,6 +267,129 @@ PmcPrBlockingAnalysis analyze_pmc_pr_blocking(
         find_pr_blocking_rotations(unified_pr, analysis.ancilla_qubit, analysis.x_qubits);
     analysis.is_degadgetizable = analysis.pr_blocking.empty();
     return analysis;
+}
+
+namespace {
+
+std::optional<size_t> find_unified_pr_index_for_sat(Tableau const& tableau) {
+    size_t idx = 1;
+    while (idx < tableau.size()) {
+        auto const* cct = std::get_if<ClassicalControlTableau>(&tableau[idx]);
+        if (cct != nullptr && cct->is_gadget()) {
+            ++idx;
+            continue;
+        }
+        if (std::holds_alternative<StabilizerTableau>(tableau[idx])) {
+            ++idx;
+            continue;
+        }
+        break;
+    }
+    if (idx < tableau.size() && std::holds_alternative<std::vector<PauliRotation>>(tableau[idx])) {
+        return idx;
+    }
+    return std::nullopt;
+}
+
+void classify_pr_for_gadget(
+    PauliRotation const& rotation,
+    size_t ancilla_qubit,
+    std::vector<size_t> const& x_qubits,
+    bool& in_block_left,
+    bool& in_block_right) {
+    in_block_left  = false;
+    in_block_right = false;
+    bool has_z_on_any_x = false;
+    for (size_t const q : x_qubits) {
+        if (q < rotation.n_qubits() && rotation.is_z(q)) {
+            has_z_on_any_x = true;
+            break;
+        }
+    }
+    bool const z_on_ancilla = rotation.is_z(ancilla_qubit);
+    if (z_on_ancilla && has_z_on_any_x) {
+        in_block_left  = true;
+        in_block_right = true;
+    } else if (z_on_ancilla) {
+        in_block_right = true;
+    } else if (has_z_on_any_x) {
+        in_block_left = true;
+    }
+}
+
+}  // namespace
+
+SatSignatureExport compute_sat_signature_blocks(Tableau const& tableau) {
+    SatSignatureExport out;
+    out.qubit_count   = tableau.n_qubits();
+    out.ancilla_count = tableau.n_ancilla();
+
+    Tableau tableau_copy = tableau;
+    auto gadgets         = export_hadamard_gadget_pairs(tableau_copy);
+    size_t const num_gadgets = gadgets.size();
+
+    std::vector<PauliRotation> unified_pr;
+    auto const pr_idx_opt = find_unified_pr_index_for_sat(tableau);
+    if (pr_idx_opt.has_value()) {
+        auto const* pr_vec = std::get_if<std::vector<PauliRotation>>(&tableau[*pr_idx_opt]);
+        if (pr_vec != nullptr) {
+            unified_pr = *pr_vec;
+        }
+    }
+    out.pauli_count = unified_pr.size();
+
+    out.blocks_by_gid.resize(num_gadgets);
+    for (size_t g_idx = 0; g_idx < num_gadgets; ++g_idx) {
+        out.blocks_by_gid[g_idx].gid           = g_idx;
+        out.blocks_by_gid[g_idx].ancilla_qubit = gadgets[g_idx].ancilla_qubit;
+    }
+
+    std::vector<size_t> gadget_rank_order(num_gadgets);
+    std::iota(gadget_rank_order.begin(), gadget_rank_order.end(), 0);
+    std::ranges::sort(gadget_rank_order, [&](size_t a, size_t b) {
+        if (gadgets[a].ancilla_qubit != gadgets[b].ancilla_qubit) {
+            return gadgets[a].ancilla_qubit < gadgets[b].ancilla_qubit;
+        }
+        return gadgets[a].ccc_index < gadgets[b].ccc_index;
+    });
+    out.gadget_order = gadget_rank_order;
+
+    for (size_t g_idx = 0; g_idx < num_gadgets; ++g_idx) {
+        auto const& gadget = gadgets[g_idx];
+        size_t const ancilla = gadget.ancilla_qubit;
+
+        std::vector<size_t> x_qubits;
+        auto const pair_opt = find_gadget_pair(tableau, ancilla);
+        if (pair_opt.has_value()) {
+            auto const* pmc =
+                std::get_if<ClassicalControlTableau>(&tableau[pair_opt->pmc_index]);
+            if (pmc != nullptr) {
+                x_qubits = extract_pmc_x_qubits(*pmc);
+            }
+        }
+
+        auto& lists = out.blocks_by_gid[g_idx];
+        for (size_t pr_idx = 0; pr_idx < unified_pr.size(); ++pr_idx) {
+            bool in_left  = false;
+            bool in_right = false;
+            classify_pr_for_gadget(unified_pr[pr_idx], ancilla, x_qubits, in_left, in_right);
+            size_t const pid = num_gadgets + pr_idx;
+            if (in_left) {
+                lists.block_left.push_back(pid);
+            }
+            if (in_right) {
+                lists.block_right.push_back(pid);
+            }
+        }
+        std::ranges::sort(lists.block_left);
+        std::ranges::sort(lists.block_right);
+    }
+
+    spdlog::info(
+        "compute_sat_signature_blocks: {} gadgets, {} PRs, fixed order by ancilla",
+        num_gadgets,
+        out.pauli_count);
+    return out;
 }
 
 BlockingSignatureInfo analyze_blocking_signature(
