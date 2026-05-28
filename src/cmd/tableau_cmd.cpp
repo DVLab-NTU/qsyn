@@ -145,6 +145,10 @@ dvlab::Command tableau_print_cmd(TableauMgr& tableau_mgr) {
             mutex.add_argument<bool>("-c", "--char")
                 .action(store_true)
                 .help("Print the tableau in character format");
+
+            mutex.add_argument<bool>("-g", "--gate")
+                .action(store_true)
+                .help("Print the tableau with extracted gate lists for Clifford segments");
         },
         [&](ArgumentParser const& parser) {
             if (!dvlab::utils::mgr_has_data(tableau_mgr)) {
@@ -156,6 +160,10 @@ dvlab::Command tableau_print_cmd(TableauMgr& tableau_mgr) {
             }
             if (parser.parsed("-c")) {
                 fmt::println("{:c}", *tableau_mgr.get());
+                return dvlab::CmdExecResult::done;
+            }
+            if (parser.parsed("-g")) {
+                fmt::println("{:g}", *tableau_mgr.get());
                 return dvlab::CmdExecResult::done;
             }
 

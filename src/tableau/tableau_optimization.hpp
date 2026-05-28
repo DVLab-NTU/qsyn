@@ -213,7 +213,8 @@ size_t hadamard_degadgetize(Tableau& tableau, std::vector<size_t> const& ancilla
 bool sat_reorder_export(Tableau& tableau, std::filesystem::path const& work_dir);
 bool sat_reorder_run_solver(std::filesystem::path const& work_dir, std::filesystem::path const& sat_formulation_py);
 /** Reorder PR blocks and CCCs per gadget_ordering; does not degadgetize (circuit stays gadgetized). */
-bool sat_reorder_apply(Tableau& tableau, std::filesystem::path const& ordering_path);
+bool sat_reorder_apply(Tableau& tableau,
+                       std::filesystem::path const& ordering_path);
 /** Export → Z3 (sat_formulation.py) → apply; on failure falls back to full reorder_n_degadgetize (with degadgetize). */
 void sat_reorder(Tableau& tableau);
 

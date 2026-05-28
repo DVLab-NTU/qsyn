@@ -346,6 +346,12 @@ void gadgetize_tableau(Tableau& tableau) {
         tableau.add_ancilla_state(anc_idx, state);
         tableau.set_ancilla_measurement_type(anc_idx, MeasurementType::X);
     }
+
+    spdlog::info(
+        "gadgetize_tableau: {} total qubits ({} data + {} ancilla) before minimization",
+        total_qubits,
+        original_n_qubits,
+        num_ancillae);
 }
 
 } // namespace
