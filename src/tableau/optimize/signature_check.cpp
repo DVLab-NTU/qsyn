@@ -369,10 +369,14 @@ SatSignatureExport compute_sat_signature_blocks(Tableau const& tableau) {
         }
 
         auto& lists = out.blocks_by_gid[g_idx];
+        bool         degadgetizable = true;
         for (size_t pr_idx = 0; pr_idx < unified_pr.size(); ++pr_idx) {
             bool in_left  = false;
             bool in_right = false;
             classify_pr_for_gadget(unified_pr[pr_idx], ancilla, x_qubits, in_left, in_right);
+            if (in_left && in_right) {
+                degadgetizable = false;
+            }
             size_t const pid = num_gadgets + pr_idx;
             if (in_left) {
                 lists.block_left.push_back(pid);
@@ -381,13 +385,19 @@ SatSignatureExport compute_sat_signature_blocks(Tableau const& tableau) {
                 lists.block_right.push_back(pid);
             }
         }
+        lists.degadgetizable = degadgetizable;
         std::ranges::sort(lists.block_left);
         std::ranges::sort(lists.block_right);
     }
 
+    size_t const degadgetizable_count = static_cast<size_t>(std::count_if(
+        out.blocks_by_gid.begin(),
+        out.blocks_by_gid.end(),
+        [](GadgetPrBlockLists const& b) { return b.degadgetizable; }));
     spdlog::info(
-        "compute_sat_signature_blocks: {} gadgets, {} PRs, fixed order by ancilla",
+        "compute_sat_signature_blocks: {} gadgets ({} degadgetizable), {} PRs, fixed order by ancilla",
         num_gadgets,
+        degadgetizable_count,
         out.pauli_count);
     return out;
 }

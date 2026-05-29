@@ -142,6 +142,8 @@ struct GadgetPrBlockLists {
     size_t ancilla_qubit         = 0;
     std::vector<size_t> block_left;   // g→PR (x-line Z only); SAT pid = G + pr_index
     std::vector<size_t> block_right;  // PR→g (ancilla Z only)
+    /** True iff no PR column blocks ancilla against any PMC x-qubit. */
+    bool degadgetizable = true;
 };
 
 struct SatSignatureExport {
