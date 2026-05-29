@@ -101,6 +101,12 @@ std::optional<QCir> gridsynth_decompose(QCir const& qcir,
             auto target = op.get_underlying<ControlGate>().get_target_operation();
             if (target.is<RZGate>()) {
                 ++skipped_crz;
+                spdlog::warn(
+                    "GridSynth: gate {} ({}) left unchanged; controlled-RZ is "
+                    "not decomposed (v1: rz only), so the output is not fully "
+                    "Clifford+T",
+                    gate->get_id(),
+                    op.get_repr());
             }
         }
 
