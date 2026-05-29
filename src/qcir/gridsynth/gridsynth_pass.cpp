@@ -67,15 +67,6 @@ std::optional<QCir> gridsynth_decompose(QCir const& qcir,
         auto const& op = gate->get_operation();
 
         if (auto rz = op.get_underlying_if<RZGate>()) {
-            if (gate->get_num_qubits() != 1) {
-                spdlog::error(
-                    "GridSynth: RZ gate {} acts on {} qubits; only "
-                    "single-qubit rz is supported",
-                    gate->get_id(),
-                    gate->get_num_qubits());
-                return std::nullopt;
-            }
-
             auto const wire = gate->get_qubit(0);
             auto request    = make_request(rz->get_phase(), opts);
 
