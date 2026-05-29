@@ -243,8 +243,19 @@ file(
 
 list(REMOVE_ITEM LIB_SOURCES ${APP_SOURCES})
 
-# Compiled inside cppgridsynth (needs GMP/MPFR), not libqsyn.a
-list(REMOVE_ITEM LIB_SOURCES src/qcir/gridsynth/gridsynth_adapter.cpp)
+if(QSYN_ENABLE_GRIDSYNTH)
+    # gridsynth_adapter.cpp is compiled inside cppgridsynth (needs GMP/MPFR),
+    # not libqsyn.a.
+    list(REMOVE_ITEM LIB_SOURCES src/qcir/gridsynth/gridsynth_adapter.cpp)
+else()
+    # GridSynth disabled: drop the pass (libqsyn.a) and command (executable) too,
+    # otherwise gridsynth_pass.cpp links against synthesize_rz(), which lives in
+    # the never-compiled adapter -> unresolved-symbol link error.
+    list(REMOVE_ITEM LIB_SOURCES
+        src/qcir/gridsynth/gridsynth_adapter.cpp
+        src/qcir/gridsynth/gridsynth_pass.cpp)
+    list(REMOVE_ITEM APP_SOURCES src/cmd/qcir/gridsynth.cpp)
+endif()
 
 file(
     GLOB_RECURSE TEST_SOURCES

@@ -84,7 +84,27 @@ endif()
 
 if(NOT _gridsynth_gmp_mpfr_ok)
     message(FATAL_ERROR
-        "GridSynth requires GMP and MPFR (pkg-config gmp mpfr, or CMake find_library).")
+        "GridSynth requires GMP and MPFR, but they were not found.\n"
+        "Install them and reconfigure:\n"
+        "  macOS  : brew install gmp mpfr\n"
+        "  Debian : sudo apt install libgmp-dev libmpfr-dev\n"
+        "  Fedora : sudo dnf install gmp-devel mpfr-devel\n"
+        "Or build without GridSynth: cmake -DQSYN_ENABLE_GRIDSYNTH=OFF ...")
+endif()
+
+# libgmpxx (GMP's C++ wrapper) has no reliable pkg-config module, so resolve it
+# directly in both the pkg-config and find_library branches. Linking it by its
+# full path avoids relying on libgmpxx being on the default linker search path.
+find_library(
+    GRIDSYNTH_GMPXX_LIB
+    NAMES gmpxx
+    HINTS ${_gridsynth_prefix_hints}
+    PATH_SUFFIXES lib)
+if(NOT GRIDSYNTH_GMPXX_LIB)
+    message(FATAL_ERROR
+        "GridSynth requires libgmpxx (GMP's C++ wrapper), which was not found. "
+        "It ships alongside GMP (macOS: brew install gmp; "
+        "Debian: apt install libgmp-dev; Fedora: dnf install gmp-c++).")
 endif()
 
 set(_cppgridsynth_sources
@@ -132,7 +152,7 @@ if(_gridsynth_use_pkgconfig)
         PRIVATE
         PkgConfig::PC_GMP
         PkgConfig::PC_MPFR
-        gmpxx)
+        ${GRIDSYNTH_GMPXX_LIB})
 else()
     # SYSTEM PRIVATE: external headers; also keeps clang-tidy off GMP/MPFR.
     target_include_directories(
