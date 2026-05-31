@@ -38,15 +38,9 @@ size_t theoretical_t_upper_bound(double epsilon, size_t slack = 8) {
     return static_cast<size_t>(std::ceil(3.0 * std::log2(1.0 / epsilon))) + slack;
 }
 
-std::vector<gsd::SynthGate> synthesize(Phase phase, std::string const& epsilon, int seed = 0) {
-    auto gates = gsd::synthesize_rz(make_request(phase, epsilon, seed));
-    REQUIRE(gates.has_value());
-    return *gates;
-}
-
 }  // namespace
 
-TEST_CASE("GridSynth T-count stays within 3·log₂(1/ε) bound", "[qcir][gridsynth][tcount]") {
+TEST_CASE("GridSynth T-count stays within 3 log2(1/eps) bound", "[qcir][gridsynth][tcount]") {
     auto const epsilon_str = GENERATE(
         std::string("1e-4"),
         std::string("1e-6"),
@@ -60,8 +54,9 @@ TEST_CASE("GridSynth T-count stays within 3·log₂(1/ε) bound", "[qcir][gridsy
         Phase(1, 32));
 
     double const epsilon = std::stod(epsilon_str);
-    auto const gates     = synthesize(theta, epsilon_str);
-    auto const t_count   = count_t_gates(gates);
+    auto const gates     = gsd::synthesize_rz(make_request(theta, epsilon_str));
+    REQUIRE(gates.has_value());
+    auto const t_count = count_t_gates(*gates);
     auto const bound     = theoretical_t_upper_bound(epsilon);
 
     INFO("epsilon=" << epsilon_str << " theta=" << theta.get_print_string()
@@ -76,7 +71,9 @@ TEST_CASE("GridSynth T-count grows with tighter epsilon", "[qcir][gridsynth][tco
     size_t prev_t = 0;
 
     for (auto const* eps : {"1e-4", "1e-6", "1e-8", "1e-10"}) {
-        auto const t = count_t_gates(synthesize(theta, eps));
+        auto const gates = gsd::synthesize_rz(make_request(theta, eps));
+        REQUIRE(gates.has_value());
+        auto const t = count_t_gates(*gates);
         REQUIRE(t >= prev_t);
         prev_t = t;
     }
@@ -89,7 +86,8 @@ TEST_CASE("GridSynth synthesis completes within reasonable time", "[qcir][gridsy
 
     auto const start = std::chrono::steady_clock::now();
     for (int i = 0; i < iterations; ++i) {
-        synthesize(theta, "1e-8", i);
+        auto const gates = gsd::synthesize_rz(make_request(theta, "1e-8", i));
+        REQUIRE(gates.has_value());
     }
     auto const ms = std::chrono::duration_cast<std::chrono::milliseconds>(
                         std::chrono::steady_clock::now() - start)
@@ -106,8 +104,9 @@ TEST_CASE("GridSynth repeated synthesis is stable", "[qcir][gridsynth][perf]") {
     Phase const theta(1, 64);
 
     for (int i = 0; i < iterations; ++i) {
-        auto const gates = synthesize(theta, "1e-6", i);
-        REQUIRE(count_t_gates(gates) > 0);
+        auto const gates = gsd::synthesize_rz(make_request(theta, "1e-6", i));
+        REQUIRE(gates.has_value());
+        REQUIRE(count_t_gates(*gates) > 0);
     }
 }
 

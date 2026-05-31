@@ -363,6 +363,10 @@ target_include_directories(
 target_link_libraries(
     ${CMAKE_PROJECT_NAME} PRIVATE ${QSYN_LIB_NAME})
 
+if(QSYN_ENABLE_GRIDSYNTH)
+    qsyn_link_gridsynth(${CMAKE_PROJECT_NAME})
+endif()
+
 target_link_libraries_system(
     ${CMAKE_PROJECT_NAME}
     PRIVATE

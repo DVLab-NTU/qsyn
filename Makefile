@@ -31,7 +31,11 @@ DEBUG_DIR := debug
 all: release
 .PHONY: all
 
-configure:
+ensure-gridsynth-deps:
+	@./scripts/ensure_gridsynth_deps.sh
+.PHONY: ensure-gridsynth-deps
+
+configure: ensure-gridsynth-deps
 	@mkdir -p $(RELEASE_DIR)
 	@cmake -S . -B $(RELEASE_DIR) \
 	--log-level=NOTICE \
@@ -41,7 +45,7 @@ configure:
 	-DCMAKE_CXX_COMPILER=$(CXX)
 .PHONY: configure
 
-configure-debug:
+configure-debug: ensure-gridsynth-deps
 	@mkdir -p $(DEBUG_DIR)
 	@cmake -S . -B $(DEBUG_DIR) \
 	--log-level=NOTICE \

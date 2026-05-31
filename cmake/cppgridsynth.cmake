@@ -20,6 +20,21 @@ if(NOT EXISTS "${QSYN_CPPEGRIDSYNTH_DIR}/include/cppgridsynth/gridsynth.hpp")
         "Ensure vendor/cppgridsynth is present in the qsyn tree.")
 endif()
 
+# Auto-install GMP/MPFR when missing (Makefile also runs scripts/ensure_gridsynth_deps.sh).
+execute_process(
+    COMMAND "${CMAKE_SOURCE_DIR}/scripts/ensure_gridsynth_deps.sh"
+    RESULT_VARIABLE _gridsynth_deps_result
+    OUTPUT_VARIABLE _gridsynth_deps_out
+    ERROR_VARIABLE _gridsynth_deps_err)
+if(NOT _gridsynth_deps_result EQUAL 0)
+    message(FATAL_ERROR
+        "GridSynth dependency setup failed (ensure_gridsynth_deps.sh):\n"
+        "${_gridsynth_deps_out}\n${_gridsynth_deps_err}")
+endif()
+if(_gridsynth_deps_out)
+    message(STATUS "${_gridsynth_deps_out}")
+endif()
+
 # Homebrew / MacPorts prefixes (MPFR pkg-config is often missing on macOS).
 set(_gridsynth_prefix_hints)
 if(APPLE)
@@ -149,7 +164,7 @@ target_compile_options(
 if(_gridsynth_use_pkgconfig)
     target_link_libraries(
         cppgridsynth
-        PRIVATE
+        PUBLIC
         PkgConfig::PC_GMP
         PkgConfig::PC_MPFR
         ${GRIDSYNTH_GMPXX_LIB})
@@ -162,7 +177,7 @@ else()
         ${GRIDSYNTH_MPFR_INCLUDE})
     target_link_libraries(
         cppgridsynth
-        PRIVATE
+        PUBLIC
         ${GRIDSYNTH_MPFR_LIB}
         ${GRIDSYNTH_GMP_LIB}
         ${GRIDSYNTH_GMPXX_LIB})
@@ -170,7 +185,8 @@ endif()
 
 function(qsyn_link_gridsynth target)
     target_compile_definitions(${target} PUBLIC QSYN_ENABLE_GRIDSYNTH=1)
-    target_link_libraries(${target} PRIVATE cppgridsynth::cppgridsynth)
+    # PUBLIC so final executables (qsyn, unit-test) inherit GMP/MPFR on Linux.
+    target_link_libraries(${target} PUBLIC cppgridsynth::cppgridsynth)
 endfunction()
 
 message(STATUS "GridSynth: cppgridsynth from ${QSYN_CPPEGRIDSYNTH_DIR}")
