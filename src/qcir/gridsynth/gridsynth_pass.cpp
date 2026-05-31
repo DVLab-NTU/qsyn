@@ -32,16 +32,16 @@ gridsynth_detail::GridsynthRequest make_request(dvlab::Phase const& phase,
                                                 GridsynthOptions const& opts) {
     auto const& r = phase.get_rational();
     gridsynth_detail::GridsynthRequest req;
-    req.theta_numer  = std::to_string(r.numerator());
-    req.theta_denom  = std::to_string(r.denominator());
-    req.epsilon      = opts.epsilon;
-    req.seed         = opts.seed;
-    req.dloop        = opts.dloop;
-    req.floop        = opts.floop;
-    req.dtimeout_ms  = opts.dtimeout_ms;
-    req.ftimeout_ms  = opts.ftimeout_ms;
-    req.verbose      = opts.verbose;
-    req.dps          = opts.dps;
+    req.theta_numer = std::to_string(r.numerator());
+    req.theta_denom = std::to_string(r.denominator());
+    req.epsilon     = opts.epsilon;
+    req.seed        = opts.seed;
+    req.dloop       = opts.dloop;
+    req.floop       = opts.floop;
+    req.dtimeout_ms = opts.dtimeout_ms;
+    req.ftimeout_ms = opts.ftimeout_ms;
+    req.verbose     = opts.verbose;
+    req.dps         = opts.dps;
     return req;
 }
 
@@ -60,7 +60,7 @@ std::optional<QCir> gridsynth_decompose(QCir const& qcir,
         result.set_gate_set(gs);
     }
 
-    size_t replaced = 0;
+    size_t replaced    = 0;
     size_t skipped_crz = 0;
 
     for (auto const& gate : qcir.get_gates()) {
@@ -75,9 +75,9 @@ std::optional<QCir> gridsynth_decompose(QCir const& qcir,
                 synth = gridsynth_detail::synthesize_rz(request);
             } catch (std::exception const& ex) {
                 spdlog::error("GridSynth failed on gate {} ({}): {}",
-                                gate->get_id(),
-                                op.get_repr(),
-                                ex.what());
+                              gate->get_id(),
+                              op.get_repr(),
+                              ex.what());
                 return std::nullopt;
             }
 
