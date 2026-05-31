@@ -74,11 +74,10 @@ To build `qsyn`, follow the instructions below:
 <details>
 <summary>For Linux Users</summary>
     
-You'll probably need to install `OpenBLAS` and `LAPACK` libraries. For Ubuntu, you can install them by running
+You'll probably need to install `OpenBLAS`, `LAPACK`, and (for GridSynth) `GMP`/`MPFR` libraries. For Ubuntu, you can install them by running
 
 ```sh
-sudo apt install libopenblas-dev
-sudo apt install liblapack-dev
+sudo apt install libopenblas-dev liblapack-dev libgmp-dev libmpfr-dev pkg-config
 ```
 
 If you are tech-savvy enough to be using a different Linux distribution, we're confident that you can figure out how to install these libraries 😉
@@ -103,10 +102,10 @@ brew install llvm
 
 After installation, `brew` will guide you to configure your environment to use LLVM `clang++` and its associated libraries.
 
-You would probably want to install `OpenBLAS` by running
+You would probably want to install `OpenBLAS` and `GMP/MPFR` (required for GridSynth) by running
 
 ```sh
-brew install openblas
+brew install openblas gmp mpfr
 ```
 
 Finally, run the following commands to build `qsyn`:

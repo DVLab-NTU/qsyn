@@ -1,5 +1,8 @@
 FROM dvlab/qsyn-env:latest AS builder
 
+RUN apt-get update && \
+    apt-get install -y libgmp-dev libmpfr-dev
+
 COPY . /app/qsyn
 
 WORKDIR /app
