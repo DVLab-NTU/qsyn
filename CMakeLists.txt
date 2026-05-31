@@ -433,3 +433,8 @@ if(COMPILER_SUPPORTS_WNO_RESTRICT)
         PRIVATE 
         -Wno-restrict)
 endif()
+
+if(QSYN_ENABLE_GRIDSYNTH)
+    qsyn_link_gridsynth(${UNIT_TEST_NAME})
+endif()
+

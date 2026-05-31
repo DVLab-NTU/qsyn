@@ -1,5 +1,6 @@
-# cmake folders
+# cmake folders / build trees (out-of-tree; keep repo-root Makefile)
 build/
+build-*/
 debug/
 qsyn*
 !src/qsyn*
