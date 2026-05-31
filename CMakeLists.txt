@@ -441,3 +441,7 @@ if(COMPILER_SUPPORTS_WNOERROR_CAST_USER_DEFINED)
     target_compile_options(${UNIT_TEST_NAME}
                            PRIVATE -Wno-error=cast-user-defined)
 endif()
+
+if(QSYN_ENABLE_GRIDSYNTH)
+    qsyn_link_gridsynth(${UNIT_TEST_NAME})
+endif()

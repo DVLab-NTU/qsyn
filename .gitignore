@@ -1,9 +1,9 @@
 # local env overrides (see .env.local.example)
 .env.local
 
-# cmake folders / build trees
+# cmake folders / build trees (out-of-tree; keep repo-root Makefile)
 build/
-build-lint/
+build-*/
 debug/
 qsyn*
 !src/qsyn*
