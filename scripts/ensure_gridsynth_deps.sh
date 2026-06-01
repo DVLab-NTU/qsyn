@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Ensure GMP/MPFR (and libgmpxx) are installed for GridSynth builds.
-# Called from the Makefile before configure and from cmake/cppgridsynth.cmake.
+# Missing deps: install immediately (no prompt). Linux uses sudo apt install.
 
 set -euo pipefail
 
@@ -19,10 +19,7 @@ has_gmp_mpfr() {
         fi
     fi
 
-    inc_dirs+=(
-        /usr/include
-        /usr/local/include
-    )
+    inc_dirs+=(/usr/include /usr/local/include)
     if command -v brew >/dev/null 2>&1; then
         local brew_prefix
         brew_prefix="$(brew --prefix 2>/dev/null || true)"
@@ -35,91 +32,59 @@ has_gmp_mpfr() {
     return 1
 }
 
+run_as_root() {
+    if [[ "$(id -u)" -eq 0 ]]; then
+        "$@"
+    elif command -v sudo >/dev/null 2>&1; then
+        sudo "$@"
+    else
+        echo "Error: need root or sudo to install GMP/MPFR." >&2
+        return 1
+    fi
+}
+
 install_linux() {
-    if command -v apt-get >/dev/null 2>&1; then
-        echo "GridSynth: installing libgmp-dev libmpfr-dev (apt)..."
-        if [[ "$(id -u)" -eq 0 ]]; then
-            apt-get update -qq
-            apt-get install -y libgmp-dev libmpfr-dev pkg-config
-        elif command -v sudo >/dev/null 2>&1; then
-            sudo apt-get update -qq
-            sudo apt-get install -y libgmp-dev libmpfr-dev pkg-config
-        else
-            echo "Error: run as root or install manually:" >&2
-            echo "  apt-get install -y libgmp-dev libmpfr-dev pkg-config" >&2
-            return 1
-        fi
-        return 0
+    export DEBIAN_FRONTEND=noninteractive
+
+    if command -v apt >/dev/null 2>&1 || command -v apt-get >/dev/null 2>&1; then
+        run_as_root apt install -y libgmp-dev libmpfr-dev pkg-config
+        return $?
     fi
 
     if command -v dnf >/dev/null 2>&1; then
-        echo "GridSynth: installing gmp-devel mpfr-devel (dnf)..."
-        if [[ "$(id -u)" -eq 0 ]]; then
-            dnf install -y gmp-devel mpfr-devel pkg-config
-        elif command -v sudo >/dev/null 2>&1; then
-            sudo dnf install -y gmp-devel mpfr-devel pkg-config
-        else
-            echo "Error: run as root or install manually:" >&2
-            echo "  dnf install -y gmp-devel mpfr-devel pkg-config" >&2
-            return 1
-        fi
-        return 0
+        run_as_root dnf install -y gmp-devel mpfr-devel pkg-config
+        return $?
     fi
 
     if command -v yum >/dev/null 2>&1; then
-        echo "GridSynth: installing gmp-devel mpfr-devel (yum)..."
-        if [[ "$(id -u)" -eq 0 ]]; then
-            yum install -y gmp-devel mpfr-devel pkg-config
-        elif command -v sudo >/dev/null 2>&1; then
-            sudo yum install -y gmp-devel mpfr-devel pkg-config
-        else
-            echo "Error: run as root or install manually:" >&2
-            echo "  yum install -y gmp-devel mpfr-devel pkg-config" >&2
-            return 1
-        fi
-        return 0
+        run_as_root yum install -y gmp-devel mpfr-devel pkg-config
+        return $?
     fi
 
-    echo "Error: unsupported Linux distro; install GMP/MPFR development packages manually." >&2
+    echo "Error: unsupported Linux distro; install GMP/MPFR dev packages manually." >&2
     return 1
 }
 
 install_macos() {
-    if ! command -v brew >/dev/null 2>&1; then
-        echo "Error: Homebrew required. Install from https://brew.sh then run:" >&2
-        echo "  brew install gmp mpfr" >&2
+    command -v brew >/dev/null 2>&1 || {
+        echo "Error: brew install gmp mpfr" >&2
         return 1
-    fi
-    echo "GridSynth: installing gmp mpfr (Homebrew)..."
+    }
     HOMEBREW_NO_AUTO_UPDATE=1 brew install gmp mpfr
 }
 
-install_deps() {
-    case "$(uname -s)" in
-        Linux) install_linux ;;
-        Darwin) install_macos ;;
-        *)
-            echo "Error: unsupported OS '$(uname -s)'. Install GMP and MPFR manually." >&2
-            return 1
-            ;;
-    esac
+has_gmp_mpfr && exit 0
+
+case "$(uname -s)" in
+    Linux) install_linux ;;
+    Darwin) install_macos ;;
+    *)
+        echo "Error: unsupported OS; install GMP/MPFR manually." >&2
+        exit 1
+        ;;
+esac
+
+has_gmp_mpfr || {
+    echo "Error: GMP/MPFR still missing after install." >&2
+    exit 1
 }
-
-if has_gmp_mpfr; then
-    exit 0
-fi
-
-echo "GridSynth requires GMP, MPFR, and libgmpxx; none detected."
-install_deps
-
-if has_gmp_mpfr; then
-    echo "GridSynth dependencies ready."
-    exit 0
-fi
-
-echo "Error: GMP/MPFR still not found after install attempt." >&2
-echo "  macOS  : brew install gmp mpfr" >&2
-echo "  Debian : sudo apt install libgmp-dev libmpfr-dev pkg-config" >&2
-echo "  Fedora : sudo dnf install gmp-devel mpfr-devel pkg-config" >&2
-echo "Or disable GridSynth: cmake -DQSYN_ENABLE_GRIDSYNTH=OFF ..." >&2
-exit 1

@@ -24,15 +24,12 @@ endif()
 execute_process(
     COMMAND "${CMAKE_SOURCE_DIR}/scripts/ensure_gridsynth_deps.sh"
     RESULT_VARIABLE _gridsynth_deps_result
-    OUTPUT_VARIABLE _gridsynth_deps_out
-    ERROR_VARIABLE _gridsynth_deps_err)
+    OUTPUT_QUIET
+    ERROR_QUIET)
 if(NOT _gridsynth_deps_result EQUAL 0)
     message(FATAL_ERROR
-        "GridSynth dependency setup failed (ensure_gridsynth_deps.sh):\n"
-        "${_gridsynth_deps_out}\n${_gridsynth_deps_err}")
-endif()
-if(_gridsynth_deps_out)
-    message(STATUS "${_gridsynth_deps_out}")
+        "GridSynth: could not install GMP/MPFR (ensure_gridsynth_deps.sh failed). "
+        "Try: sudo apt install -y libgmp-dev libmpfr-dev pkg-config")
 endif()
 
 # Homebrew / MacPorts prefixes (MPFR pkg-config is often missing on macOS).
