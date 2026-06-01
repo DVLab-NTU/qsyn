@@ -47,13 +47,13 @@ Command qcir_gridsynth_cmd(QCirMgr& qcir_mgr) {
                 }
 
                 GridsynthOptions opts;
-                opts.epsilon      = parser.get<std::string>("--epsilon");
-                opts.seed         = parser.get<int>("--seed");
-                opts.dloop        = parser.get<int>("--dloop");
-                opts.floop        = parser.get<int>("--floop");
-                opts.dtimeout_ms  = parser.get<double>("--dtimeout");
-                opts.ftimeout_ms  = parser.get<double>("--ftimeout");
-                opts.verbose      = parser.get<int>("--verbose");
+                opts.epsilon     = parser.get<std::string>("--epsilon");
+                opts.seed        = parser.get<int>("--seed");
+                opts.dloop       = parser.get<int>("--dloop");
+                opts.floop       = parser.get<int>("--floop");
+                opts.dtimeout_ms = parser.get<double>("--dtimeout");
+                opts.ftimeout_ms = parser.get<double>("--ftimeout");
+                opts.verbose     = parser.get<int>("--verbose");
                 if (parser.parsed("--dps")) {
                     opts.dps = parser.get<int>("--dps");
                 }
