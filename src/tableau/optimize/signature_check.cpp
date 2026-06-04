@@ -4,12 +4,17 @@
 #include <fmt/core.h>
 #include <spdlog/spdlog.h>
 
+#include <fstream>
 #include <numeric>
 #include <stdexcept>
 #include <unordered_map>
+#include <unordered_set>
 #include <utility>
 #include <vector>
 
+#include "convert/qcir_to_tableau.hpp"
+#include "qcir/qcir.hpp"
+#include "qcir/qcir_io.hpp"
 #include "tableau/classical_tableau.hpp"
 
 namespace qsyn {
@@ -271,7 +276,99 @@ PmcPrBlockingAnalysis analyze_pmc_pr_blocking(
 
 namespace {
 
-std::optional<size_t> find_unified_pr_index_for_sat(Tableau const& tableau) {
+bool column_has_z_on_ancilla(PauliRotation const& rotation, size_t ancilla_qubit) {
+    return ancilla_qubit < rotation.n_qubits() && rotation.is_z(ancilla_qubit);
+}
+
+/** Same layout as run_commute: pr_rest @ pr_idx, pr_split @ pr_idx+1. */
+void insert_pr_split_rest_at_idx(
+    Tableau& working,
+    size_t pr_idx,
+    std::vector<PauliRotation> pr_rest,
+    std::vector<PauliRotation> pr_split) {
+    working.erase(
+        working.begin() + static_cast<std::ptrdiff_t>(pr_idx),
+        working.begin() + static_cast<std::ptrdiff_t>(pr_idx + 1));
+    working.insert(
+        working.begin() + static_cast<std::ptrdiff_t>(pr_idx),
+        SubTableau{std::move(pr_rest)});
+    working.insert(
+        working.begin() + static_cast<std::ptrdiff_t>(pr_idx + 1),
+        SubTableau{std::move(pr_split)});
+}
+
+/** Column group at pr_idx (circuit-front slot), remainder @ pr_idx+1. */
+void insert_pr_group_front_at_idx(
+    Tableau& working,
+    size_t pr_idx,
+    std::vector<PauliRotation> pr_group,
+    std::vector<PauliRotation> pr_rest) {
+    working.erase(
+        working.begin() + static_cast<std::ptrdiff_t>(pr_idx),
+        working.begin() + static_cast<std::ptrdiff_t>(pr_idx + 1));
+    working.insert(
+        working.begin() + static_cast<std::ptrdiff_t>(pr_idx),
+        SubTableau{std::move(pr_group)});
+    working.insert(
+        working.begin() + static_cast<std::ptrdiff_t>(pr_idx + 1),
+        SubTableau{std::move(pr_rest)});
+}
+
+std::vector<PauliRotation> swap_along_test_to_circuit_front(
+    Tableau const& working,
+    size_t from_idx) {
+    if (from_idx >= working.size() || working.size() < 2) {
+        throw std::logic_error("swap_along_test_to_circuit_front: invalid tableau layout");
+    }
+    auto moved = swap_along_test(working, from_idx, 1);
+    if (auto* pr = std::get_if<std::vector<PauliRotation>>(&moved)) {
+        return *pr;
+    }
+    throw std::logic_error("swap_along_test_to_circuit_front: expected PR block");
+}
+
+}  // namespace
+
+char const* pr_column_block_kind_str(PrColumnBlockKind kind) {
+    switch (kind) {
+        case PrColumnBlockKind::x_only:
+            return "x_only";
+        case PrColumnBlockKind::ancilla_only:
+            return "ancilla_only";
+        case PrColumnBlockKind::x_and_ancilla:
+            return "x_and_ancilla";
+        case PrColumnBlockKind::other:
+        default:
+            return "other";
+    }
+}
+
+PrColumnBlockKind pr_column_block_kind_for_pmc(
+    PauliRotation const& rotation,
+    size_t ancilla_qubit,
+    std::vector<size_t> const& x_qubits) {
+    bool has_z_on_any_x = false;
+    for (size_t const q : x_qubits) {
+        if (q < rotation.n_qubits() && rotation.is_z(q)) {
+            has_z_on_any_x = true;
+            break;
+        }
+    }
+    bool const z_on_ancilla =
+        ancilla_qubit < rotation.n_qubits() && rotation.is_z(ancilla_qubit);
+    if (has_z_on_any_x && z_on_ancilla) {
+        return PrColumnBlockKind::x_and_ancilla;
+    }
+    if (has_z_on_any_x) {
+        return PrColumnBlockKind::x_only;
+    }
+    if (z_on_ancilla) {
+        return PrColumnBlockKind::ancilla_only;
+    }
+    return PrColumnBlockKind::other;
+}
+
+std::optional<size_t> find_unified_pr_block_index(Tableau const& tableau) {
     size_t idx = 1;
     while (idx < tableau.size()) {
         auto const* cct = std::get_if<ClassicalControlTableau>(&tableau[idx]);
@@ -291,33 +388,419 @@ std::optional<size_t> find_unified_pr_index_for_sat(Tableau const& tableau) {
     return std::nullopt;
 }
 
-void classify_pr_for_gadget(
-    PauliRotation const& rotation,
-    size_t ancilla_qubit,
-    std::vector<size_t> const& x_qubits,
-    bool& in_block_left,
-    bool& in_block_right) {
-    in_block_left  = false;
-    in_block_right = false;
-    bool has_z_on_any_x = false;
-    for (size_t const q : x_qubits) {
-        if (q < rotation.n_qubits() && rotation.is_z(q)) {
-            has_z_on_any_x = true;
+PrWholeBlockPhaseExport export_whole_pr_phases_after_swap_to_front(Tableau const& tableau) {
+    auto const pr_idx_opt = find_unified_pr_block_index(tableau);
+    if (!pr_idx_opt.has_value()) {
+        throw std::logic_error("export_whole_pr_phases_after_swap_to_front: no unified PR block");
+    }
+    size_t const pr_idx = *pr_idx_opt;
+    auto const* pr_before =
+        std::get_if<std::vector<PauliRotation>>(&tableau[pr_idx]);
+    if (pr_before == nullptr) {
+        throw std::logic_error("export_whole_pr_phases_after_swap_to_front: expected PR block");
+    }
+    PrWholeBlockPhaseExport out;
+    out.pr_idx = pr_idx;
+    out.before = *pr_before;
+    out.after  = swap_along_test_to_circuit_front(tableau, pr_idx);
+    if (out.after.size() != out.before.size()) {
+        spdlog::warn(
+            "export_whole_pr_phases_after_swap_to_front: column count changed {} -> {}",
+            out.before.size(),
+            out.after.size());
+    }
+    return out;
+}
+
+namespace {
+
+std::vector<PrAncillaColumnBlockRow> build_ancilla_column_block_rows(
+    Tableau const& tableau,
+    std::unordered_map<size_t, PmcUnifiedPrRelation> const& pmc_to_unified_pr,
+    PrWholeBlockPhaseExport const& pr_export) {
+    std::vector<PrAncillaColumnBlockRow> rows;
+    auto const pr_idx_opt = find_unified_pr_block_index(tableau);
+    if (!pr_idx_opt.has_value()) {
+        return rows;
+    }
+    size_t const pr_idx = *pr_idx_opt;
+
+    for (size_t pmc_idx = pr_idx + 1; pmc_idx < tableau.size(); ++pmc_idx) {
+        auto const* pmc = std::get_if<ClassicalControlTableau>(&tableau[pmc_idx]);
+        if (pmc == nullptr || !pmc->is_classical_control()) {
             break;
         }
+        size_t const ancilla = pmc->ancilla_qubit();
+
+        std::vector<size_t> const empty_x_qubits;
+        auto const relation_it = pmc_to_unified_pr.find(ancilla);
+        auto const& x_qubits =
+            (relation_it != pmc_to_unified_pr.end()) ? relation_it->second.x_qubits : empty_x_qubits;
+
+        size_t const n_cols = std::min(pr_export.before.size(), pr_export.after.size());
+        rows.reserve(rows.size() + n_cols);
+        for (size_t col = 0; col < n_cols; ++col) {
+            PrAncillaColumnBlockRow row;
+            row.ancilla_qubit = ancilla;
+            row.column_index  = col;
+            row.phase_before  = fmt::format("{}", pr_export.before[col].phase());
+            row.phase_after   = fmt::format("{}", pr_export.after[col].phase());
+            row.pauli_before  = pr_export.before[col].to_bit_string();
+            row.pauli_after   = pr_export.after[col].to_bit_string();
+            row.block_before =
+                pr_column_block_kind_for_pmc(pr_export.before[col], ancilla, x_qubits);
+            row.block_after =
+                pr_column_block_kind_for_pmc(pr_export.after[col], ancilla, x_qubits);
+            row.z_on_ancilla_before = column_has_z_on_ancilla(pr_export.before[col], ancilla);
+            row.z_on_ancilla_after  = column_has_z_on_ancilla(pr_export.after[col], ancilla);
+            rows.push_back(std::move(row));
+        }
     }
-    bool const z_on_ancilla = rotation.is_z(ancilla_qubit);
-    if (z_on_ancilla && has_z_on_any_x) {
-        in_block_left  = true;
-        in_block_right = true;
-    } else if (z_on_ancilla) {
-        in_block_right = true;
-    } else if (has_z_on_any_x) {
-        in_block_left = true;
+    return rows;
+}
+
+struct BlockKindCounts {
+    size_t x_only        = 0;
+    size_t ancilla_only  = 0;
+    size_t x_and_ancilla = 0;
+    size_t other         = 0;
+};
+
+BlockKindCounts count_blocks(std::vector<PrAncillaColumnBlockRow> const& rows, bool after) {
+    BlockKindCounts c;
+    for (auto const& row : rows) {
+        auto const kind = after ? row.block_after : row.block_before;
+        switch (kind) {
+            case PrColumnBlockKind::x_only:
+                ++c.x_only;
+                break;
+            case PrColumnBlockKind::ancilla_only:
+                ++c.ancilla_only;
+                break;
+            case PrColumnBlockKind::x_and_ancilla:
+                ++c.x_and_ancilla;
+                break;
+            case PrColumnBlockKind::other:
+            default:
+                ++c.other;
+                break;
+        }
     }
+    return c;
 }
 
 }  // namespace
+
+bool write_pr_whole_swap_phase_export_csv(
+    Tableau const& tableau,
+    std::unordered_map<size_t, PmcUnifiedPrRelation> const& pmc_to_unified_pr,
+    PrWholeBlockPhaseExport const& pr_export,
+    std::filesystem::path const& out_path) {
+    auto const rows = build_ancilla_column_block_rows(tableau, pmc_to_unified_pr, pr_export);
+    std::ofstream out{out_path};
+    if (!out) {
+        spdlog::error("write_pr_whole_swap_phase_export_csv: cannot open {}", out_path.string());
+        return false;
+    }
+    out << "ancilla_qubit,column_index,phase_before,phase_after,pauli_before,pauli_after,"
+           "block_before,block_after,z_ancilla_before,z_ancilla_after\n";
+    for (auto const& row : rows) {
+        out << row.ancilla_qubit << ',' << row.column_index << ','
+            << '"' << row.phase_before << '"' << ','
+            << '"' << row.phase_after << '"' << ','
+            << row.pauli_before << ',' << row.pauli_after << ','
+            << pr_column_block_kind_str(row.block_before) << ','
+            << pr_column_block_kind_str(row.block_after) << ','
+            << (row.z_on_ancilla_before ? 1 : 0) << ','
+            << (row.z_on_ancilla_after ? 1 : 0) << '\n';
+    }
+    spdlog::info(
+        "Wrote {} PR column rows (whole-block swap to idx 1) -> {}",
+        rows.size(),
+        out_path.string());
+    return true;
+}
+
+void log_pr_block_summary_per_ancilla(
+    Tableau const& tableau,
+    std::unordered_map<size_t, PmcUnifiedPrRelation> const& pmc_to_unified_pr,
+    PrWholeBlockPhaseExport const& pr_export) {
+    auto const all_rows = build_ancilla_column_block_rows(tableau, pmc_to_unified_pr, pr_export);
+    auto const pr_idx_opt = find_unified_pr_block_index(tableau);
+    if (!pr_idx_opt.has_value()) {
+        return;
+    }
+    size_t const pr_idx = *pr_idx_opt;
+
+    for (size_t pmc_idx = pr_idx + 1; pmc_idx < tableau.size(); ++pmc_idx) {
+        auto const* pmc = std::get_if<ClassicalControlTableau>(&tableau[pmc_idx]);
+        if (pmc == nullptr || !pmc->is_classical_control()) {
+            break;
+        }
+        size_t const ancilla = pmc->ancilla_qubit();
+
+        std::vector<PrAncillaColumnBlockRow> ancilla_rows;
+        for (auto const& row : all_rows) {
+            if (row.ancilla_qubit == ancilla) {
+                ancilla_rows.push_back(row);
+            }
+        }
+        auto const before = count_blocks(ancilla_rows, false);
+        auto const after  = count_blocks(ancilla_rows, true);
+        spdlog::info(
+            "whole-PR swap ancilla={} blocks before: x_only={} ancilla_only={} x_and_ancilla={} other={} | "
+            "after: x_only={} ancilla_only={} x_and_ancilla={} other={}",
+            ancilla,
+            before.x_only,
+            before.ancilla_only,
+            before.x_and_ancilla,
+            before.other,
+            after.x_only,
+            after.ancilla_only,
+            after.x_and_ancilla,
+            after.other);
+    }
+}
+
+UnifiedPrPmcSplit split_unified_pr_for_pmc(
+    std::vector<PauliRotation> const& unified_pr,
+    size_t ancilla_qubit,
+    std::vector<size_t> const& x_qubits) {
+    UnifiedPrPmcSplit split;
+    split.commuting.reserve(unified_pr.size());
+    split.commuting_rest.reserve(unified_pr.size());
+    split.ancilla_group.reserve(unified_pr.size());
+    split.ancilla_rest.reserve(unified_pr.size());
+
+    for (auto const& rotation : unified_pr) {
+        bool has_z_on_any_x = false;
+        for (size_t const q : x_qubits) {
+            if (q < rotation.n_qubits() && rotation.is_z(q)) {
+                has_z_on_any_x = true;
+                break;
+            }
+        }
+        bool const z_on_ancilla = rotation.is_z(ancilla_qubit);
+        if (z_on_ancilla) {
+            split.commuting_rest.push_back(rotation);
+        } else if (has_z_on_any_x) {
+            split.commuting.push_back(rotation);
+        } else {
+            split.commuting_rest.push_back(rotation);
+        }
+        if (has_z_on_any_x) {
+            split.ancilla_group.push_back(rotation);
+        } else {
+            split.ancilla_rest.push_back(rotation);
+        }
+    }
+    split.blocking = find_pr_blocking_rotations(unified_pr, ancilla_qubit, x_qubits);
+    return split;
+}
+
+PrGroupPushFrontZCheck check_pr_group_z_on_ancilla_after_push_front(
+    std::vector<PauliRotation> const& group,
+    std::vector<PauliRotation> const& rest,
+    Tableau const& tableau,
+    size_t pr_idx,
+    size_t ancilla_qubit,
+    std::string_view group_name) {
+    PrGroupPushFrontZCheck result;
+    result.group_name = std::string(group_name);
+    result.group_size = group.size();
+    if (group.empty()) {
+        result.all_z_on_ancilla = true;
+        return result;
+    }
+
+    if (pr_idx >= tableau.size() || tableau.size() < 2) {
+        throw std::logic_error("check_pr_group_z_on_ancilla_after_push_front: invalid tableau layout");
+    }
+    Tableau working = tableau;
+    insert_pr_group_front_at_idx(working, pr_idx, group, rest);
+    auto const group_after = swap_along_test_to_circuit_front(working, pr_idx);
+    for (size_t i = 0; i < group.size() && i < group_after.size(); ++i) {
+        if (column_has_z_on_ancilla(group_after[i], ancilla_qubit)) {
+            ++result.z_on_ancilla_count;
+        }
+    }
+    result.all_z_on_ancilla = (result.z_on_ancilla_count == result.group_size);
+    return result;
+}
+
+PrColumnThreeGroupSplit classify_pr_three_column_groups(
+    std::vector<PauliRotation> const& unified_pr,
+    size_t ancilla_qubit,
+    std::vector<size_t> const& x_qubits) {
+    PrColumnThreeGroupSplit groups;
+    groups.x_only.reserve(unified_pr.size());
+    groups.ancilla_only.reserve(unified_pr.size());
+    groups.x_and_ancilla.reserve(unified_pr.size());
+    groups.other.reserve(unified_pr.size());
+
+    for (auto const& rotation : unified_pr) {
+        bool has_z_on_any_x = false;
+        for (size_t const q : x_qubits) {
+            if (q < rotation.n_qubits() && rotation.is_z(q)) {
+                has_z_on_any_x = true;
+                break;
+            }
+        }
+        bool const z_on_ancilla = rotation.is_z(ancilla_qubit);
+        if (has_z_on_any_x && z_on_ancilla) {
+            groups.x_and_ancilla.push_back(rotation);
+        } else if (has_z_on_any_x) {
+            groups.x_only.push_back(rotation);
+        } else if (z_on_ancilla) {
+            groups.ancilla_only.push_back(rotation);
+        } else {
+            groups.other.push_back(rotation);
+        }
+    }
+    return groups;
+}
+
+namespace {
+
+constexpr char ADDER_8_QC_PATH[] =
+    "/home/ferayer/TODD/quantum-circuit-optimization/circuits/inputs/adder_8.qc";
+
+std::vector<PauliRotation> concat_pr_groups(
+    std::vector<PauliRotation> const& a,
+    std::vector<PauliRotation> const& b,
+    std::vector<PauliRotation> const& c) {
+    std::vector<PauliRotation> out;
+    out.reserve(a.size() + b.size() + c.size());
+    out.insert(out.end(), a.begin(), a.end());
+    out.insert(out.end(), b.begin(), b.end());
+    out.insert(out.end(), c.begin(), c.end());
+    return out;
+}
+
+}  // namespace
+
+void test_pr_column_groups_push_front_z_on_ancilla(
+    Tableau const& tableau,
+    std::unordered_map<size_t, PmcUnifiedPrRelation> const& pmc_to_unified_pr,
+    std::string_view circuit_label) {
+    Tableau working = tableau;
+    size_t idx      = 1;
+    while (idx < working.size()) {
+        auto const* cct = std::get_if<ClassicalControlTableau>(&working[idx]);
+        if (cct != nullptr && cct->is_gadget()) {
+            ++idx;
+            continue;
+        }
+        if (std::holds_alternative<StabilizerTableau>(working[idx])) {
+            ++idx;
+            continue;
+        }
+        break;
+    }
+    if (idx >= working.size() || !std::holds_alternative<std::vector<PauliRotation>>(working[idx])) {
+        spdlog::warn(
+            "test_pr_column_groups_push_front: [{}] no unified PR block",
+            circuit_label);
+        return;
+    }
+    size_t const pr_idx = idx;
+
+    for (size_t pmc_idx = pr_idx + 1; pmc_idx < working.size(); ++pmc_idx) {
+        auto* pmc = std::get_if<ClassicalControlTableau>(&working[pmc_idx]);
+        if (pmc == nullptr || !pmc->is_classical_control()) {
+            break;
+        }
+        size_t const ancilla = pmc->ancilla_qubit();
+
+        auto const relation_it = pmc_to_unified_pr.find(ancilla);
+        std::vector<size_t> const empty_x_qubits;
+        auto const& x_qubits =
+            (relation_it != pmc_to_unified_pr.end()) ? relation_it->second.x_qubits : empty_x_qubits;
+
+        auto* unified_pr = std::get_if<std::vector<PauliRotation>>(&working[pr_idx]);
+        if (unified_pr == nullptr) {
+            break;
+        }
+
+        auto const groups = classify_pr_three_column_groups(*unified_pr, ancilla, x_qubits);
+
+        auto const rest_for_x_only = concat_pr_groups(
+            groups.ancilla_only, groups.x_and_ancilla, groups.other);
+        auto const rest_for_ancilla_only = concat_pr_groups(
+            groups.x_only, groups.x_and_ancilla, groups.other);
+        auto const rest_for_x_and_ancilla = concat_pr_groups(
+            groups.x_only, groups.ancilla_only, groups.other);
+
+        PrSplitPushFrontTestReport report;
+        report.ancilla_qubit = ancilla;
+        report.x_qubits      = x_qubits;
+        report.x_only_check = check_pr_group_z_on_ancilla_after_push_front(
+            groups.x_only, rest_for_x_only, working, pr_idx, ancilla, "x_only");
+        report.ancilla_only_check = check_pr_group_z_on_ancilla_after_push_front(
+            groups.ancilla_only, rest_for_ancilla_only, working, pr_idx, ancilla, "ancilla_only");
+        report.x_and_ancilla_check = check_pr_group_z_on_ancilla_after_push_front(
+            groups.x_and_ancilla, rest_for_x_and_ancilla, working, pr_idx, ancilla, "x_and_ancilla");
+
+        spdlog::info(
+            "push-front Z@ancilla [{}] PMC ancilla={} x_qubits=[{}]: "
+            "x_only {}/{} (all={}) | ancilla_only {}/{} (all={}) | x_and_ancilla {}/{} (all={})",
+            circuit_label,
+            ancilla,
+            fmt::join(x_qubits, ","),
+            report.x_only_check.z_on_ancilla_count,
+            report.x_only_check.group_size,
+            report.x_only_check.all_z_on_ancilla,
+            report.ancilla_only_check.z_on_ancilla_count,
+            report.ancilla_only_check.group_size,
+            report.ancilla_only_check.all_z_on_ancilla,
+            report.x_and_ancilla_check.z_on_ancilla_count,
+            report.x_and_ancilla_check.group_size,
+            report.x_and_ancilla_check.all_z_on_ancilla);
+    }
+}
+
+bool test_adder_8_pr_push_front_z_on_ancilla_after_topt(
+    std::optional<std::filesystem::path> phase_export_path) {
+    auto const qcir_opt = qcir::from_file(ADDER_8_QC_PATH);
+    if (!qcir_opt.has_value()) {
+        spdlog::error("test_adder_8: cannot read {}", ADDER_8_QC_PATH);
+        return false;
+    }
+
+    auto qcir = *qcir_opt;
+    if (auto const basic = to_basic_gates(qcir); basic.has_value()) {
+        qcir = std::move(*basic);
+    }
+
+    auto const tableau_opt = to_tableau(qcir);
+    if (!tableau_opt.has_value()) {
+        spdlog::error("test_adder_8: to_tableau failed");
+        return false;
+    }
+
+    Tableau tableau = *tableau_opt;
+    tableau.set_filename("adder_8");
+
+    auto const pmc_to_unified_pr = minimize_internal_hadamards_n_gadgetize(tableau);
+    optimize_phase_polynomial_with_classical(tableau, FastToddPhasePolynomialOptimizationStrategy{});
+
+    spdlog::info(
+        "test_adder_8: whole PR block swap_along_test(pr_idx, 1) — no column split");
+    auto const pr_export = export_whole_pr_phases_after_swap_to_front(tableau);
+    spdlog::info(
+        "test_adder_8: unified PR at idx {}, {} columns",
+        pr_export.pr_idx,
+        pr_export.before.size());
+
+    std::filesystem::path const out_path =
+        phase_export_path.value_or(
+            "/home/ferayer/minimize_ancilla/results/pr_whole_swap_adder_8.csv");
+    if (!write_pr_whole_swap_phase_export_csv(tableau, pmc_to_unified_pr, pr_export, out_path)) {
+        return false;
+    }
+    log_pr_block_summary_per_ancilla(tableau, pmc_to_unified_pr, pr_export);
+    return true;
+}
 
 SatSignatureExport compute_sat_signature_blocks(Tableau const& tableau) {
     SatSignatureExport out;
@@ -329,11 +812,19 @@ SatSignatureExport compute_sat_signature_blocks(Tableau const& tableau) {
     size_t const num_gadgets = gadgets.size();
 
     std::vector<PauliRotation> unified_pr;
-    auto const pr_idx_opt = find_unified_pr_index_for_sat(tableau);
+    std::vector<PauliRotation> unified_pr_commuted_front;
+    auto const pr_idx_opt = find_unified_pr_block_index(tableau);
     if (pr_idx_opt.has_value()) {
         auto const* pr_vec = std::get_if<std::vector<PauliRotation>>(&tableau[*pr_idx_opt]);
         if (pr_vec != nullptr) {
             unified_pr = *pr_vec;
+            unified_pr_commuted_front = swap_along_test_to_circuit_front(tableau, *pr_idx_opt);
+            if (unified_pr_commuted_front.size() != unified_pr.size()) {
+                spdlog::warn(
+                    "compute_sat_signature_blocks: PR column count changed {} -> {} after front commute",
+                    unified_pr.size(),
+                    unified_pr_commuted_front.size());
+            }
         }
     }
     out.pauli_count = unified_pr.size();
@@ -355,29 +846,20 @@ SatSignatureExport compute_sat_signature_blocks(Tableau const& tableau) {
     out.gadget_order = gadget_rank_order;
 
     for (size_t g_idx = 0; g_idx < num_gadgets; ++g_idx) {
-        auto const& gadget = gadgets[g_idx];
-        size_t const ancilla = gadget.ancilla_qubit;
-
-        std::vector<size_t> x_qubits;
-        auto const pair_opt = find_gadget_pair(tableau, ancilla);
-        if (pair_opt.has_value()) {
-            auto const* pmc =
-                std::get_if<ClassicalControlTableau>(&tableau[pair_opt->pmc_index]);
-            if (pmc != nullptr) {
-                x_qubits = extract_pmc_x_qubits(*pmc);
-            }
-        }
-
-        auto& lists = out.blocks_by_gid[g_idx];
+        size_t const ancilla = gadgets[g_idx].ancilla_qubit;
+        auto&        lists   = out.blocks_by_gid[g_idx];
         bool         degadgetizable = true;
-        for (size_t pr_idx = 0; pr_idx < unified_pr.size(); ++pr_idx) {
-            bool in_left  = false;
-            bool in_right = false;
-            classify_pr_for_gadget(unified_pr[pr_idx], ancilla, x_qubits, in_left, in_right);
+
+        for (size_t col = 0; col < unified_pr.size(); ++col) {
+            bool const in_right =
+                ancilla < unified_pr[col].n_qubits() && unified_pr[col].is_z(ancilla);
+            bool const in_left = col < unified_pr_commuted_front.size() &&
+                                 ancilla < unified_pr_commuted_front[col].n_qubits() &&
+                                 unified_pr_commuted_front[col].is_z(ancilla);
             if (in_left && in_right) {
                 degadgetizable = false;
             }
-            size_t const pid = num_gadgets + pr_idx;
+            size_t const pid = num_gadgets + col;
             if (in_left) {
                 lists.block_left.push_back(pid);
             }
@@ -395,11 +877,239 @@ SatSignatureExport compute_sat_signature_blocks(Tableau const& tableau) {
         out.blocks_by_gid.end(),
         [](GadgetPrBlockLists const& b) { return b.degadgetizable; }));
     spdlog::info(
-        "compute_sat_signature_blocks: {} gadgets ({} degadgetizable), {} PRs, fixed order by ancilla",
+        "compute_sat_signature_blocks: {} gadgets ({} degadgetizable), {} PR columns "
+        "(block_right=Z@ancilla before, block_left=Z@ancilla after front commute)",
         num_gadgets,
         degadgetizable_count,
         out.pauli_count);
     return out;
+}
+
+namespace {
+
+std::vector<size_t> block_left_pids_to_column_indices(
+    std::vector<size_t> const& block_left_pids,
+    size_t num_gadgets) {
+    std::vector<size_t> cols;
+    cols.reserve(block_left_pids.size());
+    for (size_t const pid : block_left_pids) {
+        if (pid >= num_gadgets) {
+            cols.push_back(pid - num_gadgets);
+        }
+    }
+    std::ranges::sort(cols);
+    cols.erase(std::unique(cols.begin(), cols.end()), cols.end());
+    return cols;
+}
+
+std::pair<std::vector<PauliRotation>, std::vector<PauliRotation>> split_pr_by_column_indices(
+    std::vector<PauliRotation> const& unified_pr,
+    std::vector<size_t> const& column_indices) {
+    std::unordered_set<size_t> const idx_set(column_indices.begin(), column_indices.end());
+    std::vector<PauliRotation> group;
+    std::vector<PauliRotation> rest;
+    group.reserve(column_indices.size());
+    rest.reserve(unified_pr.size());
+    for (size_t i = 0; i < unified_pr.size(); ++i) {
+        if (idx_set.contains(i)) {
+            group.push_back(unified_pr[i]);
+        } else {
+            rest.push_back(unified_pr[i]);
+        }
+    }
+    return {std::move(group), std::move(rest)};
+}
+
+struct PmcCommuteOutcome {
+    bool success                    = false;
+    bool is_single_x_on_reference   = false;
+    size_t reference_qubit          = 0;
+    size_t pmc_op_count             = 0;
+};
+
+PmcCommuteOutcome run_pmc_commute_through_pr_split(
+    Tableau const& working,
+    size_t pr_idx,
+    std::vector<PauliRotation> const& unified_pr_original,
+    size_t gadget_idx,
+    std::vector<PauliRotation> pr_split,
+    std::vector<PauliRotation> pr_rest) {
+    PmcCommuteOutcome out;
+    if (pr_idx >= working.size() || working.size() < 2) {
+        return out;
+    }
+
+    Tableau w = working;
+    insert_pr_split_rest_at_idx(w, pr_idx, std::move(pr_rest), std::move(pr_split));
+    [[maybe_unused]] auto rest_pr_prime = swap_along_test_to_circuit_front(w, pr_idx);
+
+    w.erase(
+        w.begin() + static_cast<std::ptrdiff_t>(pr_idx),
+        w.begin() + static_cast<std::ptrdiff_t>(pr_idx + 1));
+
+    size_t const target_idx = gadget_idx + 1;
+    swap_along(w, pr_idx + 1, target_idx);
+
+    size_t const pmc_ij_idx = pr_idx + 1;
+    if (pmc_ij_idx >= w.size()) {
+        return out;
+    }
+    w.erase(
+        w.begin() + static_cast<std::ptrdiff_t>(pmc_ij_idx),
+        w.begin() + static_cast<std::ptrdiff_t>(pmc_ij_idx + 1));
+    w.insert(
+        w.begin() + static_cast<std::ptrdiff_t>(pmc_ij_idx),
+        SubTableau{unified_pr_original});
+
+    auto* moved_pmc = std::get_if<ClassicalControlTableau>(&w[target_idx]);
+    if (moved_pmc == nullptr || !moved_pmc->is_classical_control()) {
+        return out;
+    }
+    auto const* gadget = std::get_if<ClassicalControlTableau>(&w[gadget_idx]);
+    if (gadget == nullptr) {
+        return out;
+    }
+    out.reference_qubit = gadget->reference_qubit();
+    auto const ops      = extract_clifford_operators(moved_pmc->operations());
+    out.pmc_op_count    = ops.size();
+    out.is_single_x_on_reference =
+        ops.size() == 1 &&
+        ops.front().first == CliffordOperatorType::x &&
+        ops.front().second[0] == out.reference_qubit;
+    out.success = true;
+    return out;
+}
+
+std::unordered_map<size_t, std::pair<size_t, std::vector<size_t>>> build_ancilla_block_left_map(
+    SatSignatureExport const& sat_export) {
+    size_t const num_gadgets = sat_export.blocks_by_gid.size();
+    std::unordered_map<size_t, std::pair<size_t, std::vector<size_t>>> out;
+    for (auto const& lists : sat_export.blocks_by_gid) {
+        out[lists.ancilla_qubit] = {
+            lists.gid,
+            block_left_pids_to_column_indices(lists.block_left, num_gadgets)};
+    }
+    return out;
+}
+
+}  // namespace
+
+BlockLeftPmcTestReport test_move_pmcs_with_block_left(
+    Tableau const& tableau,
+    std::unordered_map<size_t, PmcUnifiedPrRelation> const& pmc_to_unified_pr) {
+    (void)pmc_to_unified_pr;
+    BlockLeftPmcTestReport report;
+
+    SatSignatureExport const sat_export = compute_sat_signature_blocks(tableau);
+    auto const ancilla_block_left       = build_ancilla_block_left_map(sat_export);
+
+    auto const pr_idx_opt = find_unified_pr_block_index(tableau);
+    if (!pr_idx_opt.has_value()) {
+        spdlog::warn("test_move_pmcs_with_block_left: no unified PR block");
+        return report;
+    }
+    size_t const pr_idx = *pr_idx_opt;
+    auto const* unified_pr =
+        std::get_if<std::vector<PauliRotation>>(&tableau[pr_idx]);
+    if (unified_pr == nullptr) {
+        spdlog::warn("test_move_pmcs_with_block_left: expected PR block at index {}", pr_idx);
+        return report;
+    }
+
+    for (size_t pmc_idx = pr_idx + 1; pmc_idx < tableau.size(); ++pmc_idx) {
+        auto const* pmc = std::get_if<ClassicalControlTableau>(&tableau[pmc_idx]);
+        if (pmc == nullptr || !pmc->is_classical_control()) {
+            break;
+        }
+        size_t const ancilla = pmc->ancilla_qubit();
+
+        auto const pair_opt = find_gadget_pair(tableau, ancilla);
+        if (!pair_opt.has_value() || pair_opt->gadget_index >= pr_idx) {
+            spdlog::warn(
+                "test_move_pmcs_with_block_left: missing gadget counterpart for ancilla {}",
+                ancilla);
+            continue;
+        }
+
+        auto const block_it = ancilla_block_left.find(ancilla);
+        size_t const gid =
+            block_it != ancilla_block_left.end() ? block_it->second.first : 0;
+        std::vector<size_t> const block_left_cols =
+            block_it != ancilla_block_left.end() ? block_it->second.second
+                                                 : std::vector<size_t>{};
+
+        auto const [pr_block_left, pr_rest] =
+            split_pr_by_column_indices(*unified_pr, block_left_cols);
+
+        auto const outcome = run_pmc_commute_through_pr_split(
+            tableau,
+            pr_idx,
+            *unified_pr,
+            pair_opt->gadget_index,
+            pr_block_left,
+            pr_rest);
+
+        BlockLeftPmcTestRow row;
+        row.ancilla_qubit               = ancilla;
+        row.gid                         = gid;
+        row.block_left_size             = block_left_cols.size();
+        row.commute_success             = outcome.success;
+        row.is_single_x_on_reference    = outcome.is_single_x_on_reference;
+        row.reference_qubit             = outcome.reference_qubit;
+        row.pmc_op_count                = outcome.pmc_op_count;
+        report.rows.push_back(row);
+
+        if (outcome.is_single_x_on_reference) {
+            ++report.single_x_count;
+        } else {
+            report.all_single_x = false;
+        }
+
+        spdlog::info(
+            "block_left commute test ancilla={} gid={} block_left={} cols commute_ok={} "
+            "single_X@ref={} (ref_q={}, pmc_ops={})",
+            ancilla,
+            gid,
+            block_left_cols.size(),
+            outcome.success,
+            outcome.is_single_x_on_reference,
+            outcome.reference_qubit,
+            outcome.pmc_op_count);
+    }
+
+    spdlog::info(
+        "test_move_pmcs_with_block_left: {}/{} PMCs reduced to single X on reference",
+        report.single_x_count,
+        report.rows.size());
+    return report;
+}
+
+bool test_adder_8_move_pmcs_block_left() {
+    auto const qcir_opt = qcir::from_file(ADDER_8_QC_PATH);
+    if (!qcir_opt.has_value()) {
+        spdlog::error("test_adder_8_block_left: cannot read {}", ADDER_8_QC_PATH);
+        return false;
+    }
+
+    auto qcir = *qcir_opt;
+    if (auto const basic = to_basic_gates(qcir); basic.has_value()) {
+        qcir = std::move(*basic);
+    }
+
+    auto const tableau_opt = to_tableau(qcir);
+    if (!tableau_opt.has_value()) {
+        spdlog::error("test_adder_8_block_left: to_tableau failed");
+        return false;
+    }
+
+    Tableau tableau = *tableau_opt;
+    tableau.set_filename("adder_8");
+
+    auto const pmc_to_unified_pr = minimize_internal_hadamards_n_gadgetize(tableau);
+    optimize_phase_polynomial_with_classical(tableau, FastToddPhasePolynomialOptimizationStrategy{});
+
+    auto const report = test_move_pmcs_with_block_left(tableau, pmc_to_unified_pr);
+    return report.all_single_x && !report.rows.empty();
 }
 
 BlockingSignatureInfo analyze_blocking_signature(
@@ -497,45 +1207,24 @@ void move_pmcs_with_reduced_PR(Tableau const& tableau, std::unordered_map<size_t
         }
         auto const unified_pr_original = *unified_pr;
 
-        // Build BOTH splits of the unified PR:
-        //   pr_commuting / pr_commuting_rest: original rule (terms with Z on ancilla go to rest).
-        //   pr_ancilla   / pr_ancilla_rest:   ignore ancilla phase (Z-on-any-x_qubit goes to pr_ancilla).
-        // pr_blocking collects the set difference pr_ancilla \ pr_commuting: rotations whose
-        // Z-support hits BOTH the ancilla AND some x_qubit. These are the blocking terms.
-        std::vector<PauliRotation> pr_commuting;
-        std::vector<PauliRotation> pr_commuting_rest;
-        std::vector<PauliRotation> pr_ancilla;
-        std::vector<PauliRotation> pr_ancilla_rest;
-        std::vector<PauliRotation> pr_blocking;
-        pr_commuting.reserve(unified_pr_original.size());
-        pr_commuting_rest.reserve(unified_pr_original.size());
-        pr_ancilla.reserve(unified_pr_original.size());
-        pr_ancilla_rest.reserve(unified_pr_original.size());
-        pr_blocking.reserve(unified_pr_original.size());
+        auto const split = split_unified_pr_for_pmc(unified_pr_original, ancilla, x_qubits);
+        auto& pr_commuting      = split.commuting;
+        auto& pr_commuting_rest = split.commuting_rest;
+        auto& pr_ancilla        = split.ancilla_group;
+        auto& pr_ancilla_rest    = split.ancilla_rest;
+        auto const& pr_blocking  = split.blocking;
 
-        for (auto const& rotation : unified_pr_original) {
-            bool has_z_on_any_x = false;
-            for (size_t const q : x_qubits) {
-                if (q < rotation.n_qubits() && rotation.is_z(q)) {
-                    has_z_on_any_x = true;
-                    break;
-                }
-            }
-            bool const z_on_ancilla = rotation.is_z(ancilla);
-            if (z_on_ancilla) {
-                pr_commuting_rest.push_back(rotation);
-            } else if (has_z_on_any_x) {
-                pr_commuting.push_back(rotation);
-            } else {
-                pr_commuting_rest.push_back(rotation);
-            }
-            if (has_z_on_any_x) {
-                pr_ancilla.push_back(rotation);
-            } else {
-                pr_ancilla_rest.push_back(rotation);
-            }
-        }
-        pr_blocking = find_pr_blocking_rotations(unified_pr_original, ancilla, x_qubits);
+        auto const zchk_commuting = check_pr_group_z_on_ancilla_after_push_front(
+            pr_commuting, pr_commuting_rest, working, pr_idx, ancilla, "commuting");
+        auto const zchk_ancilla = check_pr_group_z_on_ancilla_after_push_front(
+            pr_ancilla, pr_ancilla_rest, working, pr_idx, ancilla, "ancilla_group");
+        spdlog::debug(
+            "move_pmcs push-front Z@ancilla ancilla={}: commuting {}/{} ancilla_group {}/{}",
+            ancilla,
+            zchk_commuting.z_on_ancilla_count,
+            zchk_commuting.group_size,
+            zchk_ancilla.z_on_ancilla_count,
+            zchk_ancilla.group_size);
 
         auto const run_compare = [&](std::vector<PauliRotation> const& pr_split)
             -> std::optional<std::vector<SignatureComparisonResult>> {
@@ -561,17 +1250,9 @@ void move_pmcs_with_reduced_PR(Tableau const& tableau, std::unordered_map<size_t
             CommuteOutcome out{working};
             Tableau& w = out.working_after;
 
-            w.erase(
-                w.begin() + static_cast<std::ptrdiff_t>(pr_idx),
-                w.begin() + static_cast<std::ptrdiff_t>(pr_idx + 1));
-            w.insert(
-                w.begin() + static_cast<std::ptrdiff_t>(pr_idx),
-                SubTableau{std::move(pr_rest)});
-            w.insert(
-                w.begin() + static_cast<std::ptrdiff_t>(pr_idx + 1),
-                SubTableau{std::move(pr_split)});
+            insert_pr_split_rest_at_idx(w, pr_idx, std::move(pr_rest), std::move(pr_split));
 
-            [[maybe_unused]] auto rest_pr_prime = swap_along_test(w, pr_idx, 1);
+            [[maybe_unused]] auto rest_pr_prime = swap_along_test_to_circuit_front(w, pr_idx);
 
             w.erase(
                 w.begin() + static_cast<std::ptrdiff_t>(pr_idx),
@@ -743,7 +1424,15 @@ void minimize_ancillary_t_opt_with_degadgetization(Tableau& tableau, std::option
     }
     auto const pmc_to_unified_pr = minimize_internal_hadamards_n_gadgetize(tableau);
     optimize_phase_polynomial_with_classical(tableau, FastToddPhasePolynomialOptimizationStrategy{});
-    reorder_n_degadgetize(tableau);
+
+    std::string const label =
+        tableau.get_filename().empty() ? "tableau" : tableau.get_filename();
+    auto const pr_export = export_whole_pr_phases_after_swap_to_front(tableau);
+    std::filesystem::path const phase_csv =
+        fmt::format("/home/ferayer/minimize_ancilla/results/pr_whole_swap_{}.csv", label);
+    write_pr_whole_swap_phase_export_csv(tableau, pmc_to_unified_pr, pr_export, phase_csv);
+    log_pr_block_summary_per_ancilla(tableau, pmc_to_unified_pr, pr_export);
+
     spdlog::info("Tableau after optimization: {:g}", tableau);
 }
 

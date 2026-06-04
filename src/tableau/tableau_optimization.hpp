@@ -17,6 +17,7 @@
 #include <optional>
 #include <ranges>
 #include <string>
+#include <string_view>
 #include <tuple>
 #include <unordered_map>
 #include <unordered_set>
@@ -136,13 +137,127 @@ PmcPrBlockingAnalysis analyze_pmc_pr_blocking(
     ClassicalControlTableau const& pmc,
     std::vector<PauliRotation> const& unified_pr);
 
-/** Per-gadget PR pid lists for minimal SAT export (signature_check classification). */
+/** PR columns split for PMC commute (x-qubit Z vs ancilla Z); see signature_check.cpp. */
+struct UnifiedPrPmcSplit {
+    std::vector<PauliRotation> commuting;
+    std::vector<PauliRotation> commuting_rest;
+    std::vector<PauliRotation> ancilla_group;
+    std::vector<PauliRotation> ancilla_rest;
+    std::vector<PauliRotation> blocking;
+};
+
+UnifiedPrPmcSplit split_unified_pr_for_pmc(
+    std::vector<PauliRotation> const& unified_pr,
+    size_t ancilla_qubit,
+    std::vector<size_t> const& x_qubits);
+
+/** After swap_along_test(block, pr_idx, 1), count Z on ancilla in the group columns. */
+struct PrGroupPushFrontZCheck {
+    std::string group_name;
+    size_t group_size           = 0;
+    size_t z_on_ancilla_count   = 0;
+    bool all_z_on_ancilla       = false;
+};
+
+PrGroupPushFrontZCheck check_pr_group_z_on_ancilla_after_push_front(
+    std::vector<PauliRotation> const& group,
+    std::vector<PauliRotation> const& rest,
+    Tableau const& tableau,
+    size_t pr_idx,
+    size_t ancilla_qubit,
+    std::string_view group_name);
+
+/** PR columns grouped by Z support on PMC x-lines vs ancilla (for push-front experiments). */
+struct PrColumnThreeGroupSplit {
+    std::vector<PauliRotation> x_only;
+    std::vector<PauliRotation> ancilla_only;
+    std::vector<PauliRotation> x_and_ancilla;
+    std::vector<PauliRotation> other;
+};
+
+PrColumnThreeGroupSplit classify_pr_three_column_groups(
+    std::vector<PauliRotation> const& unified_pr,
+    size_t ancilla_qubit,
+    std::vector<size_t> const& x_qubits);
+
+struct PrSplitPushFrontTestReport {
+    size_t ancilla_qubit = 0;
+    std::vector<size_t> x_qubits;
+    PrGroupPushFrontZCheck x_only_check;
+    PrGroupPushFrontZCheck ancilla_only_check;
+    PrGroupPushFrontZCheck x_and_ancilla_check;
+};
+
+/** Push each column group to circuit front (swap_along_test to idx 1); log Z@ancilla counts. */
+void test_pr_column_groups_push_front_z_on_ancilla(
+    Tableau const& tableau,
+    std::unordered_map<size_t, PmcUnifiedPrRelation> const& pmc_to_unified_pr,
+    std::string_view circuit_label);
+
+/** Load adder_8.qc, run gadgetize + FastTODD, then run the three-group push-front test. */
+bool test_adder_8_pr_push_front_z_on_ancilla_after_topt(
+    std::optional<std::filesystem::path> phase_export_path = std::nullopt);
+
+/** Column block w.r.t. one PMC ancilla and its x-qubits (Z support, not phase angle). */
+enum class PrColumnBlockKind : std::uint8_t {
+    x_only,
+    ancilla_only,
+    x_and_ancilla,
+    other
+};
+
+char const* pr_column_block_kind_str(PrColumnBlockKind kind);
+
+PrColumnBlockKind pr_column_block_kind_for_pmc(
+    PauliRotation const& rotation,
+    size_t ancilla_qubit,
+    std::vector<size_t> const& x_qubits);
+
+/** Whole unified PR: swap_along_test(pr_idx, 1) with no column split / reorder. */
+struct PrWholeBlockPhaseExport {
+    size_t pr_idx = 0;
+    std::vector<PauliRotation> before;
+    std::vector<PauliRotation> after;
+};
+
+std::optional<size_t> find_unified_pr_block_index(Tableau const& tableau);
+
+PrWholeBlockPhaseExport export_whole_pr_phases_after_swap_to_front(Tableau const& tableau);
+
+/** Per (ancilla, column): phases + block kind before/after whole-PR swap to idx 1. */
+struct PrAncillaColumnBlockRow {
+    size_t ancilla_qubit         = 0;
+    size_t column_index          = 0;
+    std::string phase_before;
+    std::string phase_after;
+    std::string pauli_before;
+    std::string pauli_after;
+    PrColumnBlockKind block_before = PrColumnBlockKind::other;
+    PrColumnBlockKind block_after  = PrColumnBlockKind::other;
+    bool z_on_ancilla_before       = false;
+    bool z_on_ancilla_after        = false;
+};
+
+bool write_pr_whole_swap_phase_export_csv(
+    Tableau const& tableau,
+    std::unordered_map<size_t, PmcUnifiedPrRelation> const& pmc_to_unified_pr,
+    PrWholeBlockPhaseExport const& pr_export,
+    std::filesystem::path const& out_path);
+
+void log_pr_block_summary_per_ancilla(
+    Tableau const& tableau,
+    std::unordered_map<size_t, PmcUnifiedPrRelation> const& pmc_to_unified_pr,
+    PrWholeBlockPhaseExport const& pr_export);
+
+/** Per-gadget PR pid lists for minimal SAT export (whole-PR front commute). */
 struct GadgetPrBlockLists {
     size_t gid                   = 0;
     size_t ancilla_qubit         = 0;
-    std::vector<size_t> block_left;   // g→PR (x-line Z only); SAT pid = G + pr_index
-    std::vector<size_t> block_right;  // PR→g (ancilla Z only)
-    /** True iff no PR column blocks ancilla against any PMC x-qubit. */
+    /** PR column i after swap_along_test(pr_idx, 1) has Z on this gadget ancilla; pid = G + i. */
+    std::vector<size_t> block_left;
+    /** Unified PR column i before commute has Z on this gadget ancilla; pid = G + i. */
+    std::vector<size_t> block_right;
+    /** True iff no column index is in both block_left and block_right for this gadget. */
     bool degadgetizable = true;
 };
 
@@ -156,8 +271,33 @@ struct SatSignatureExport {
     std::vector<GadgetPrBlockLists> blocks_by_gid;
 };
 
-/** Classify unified PR columns vs each gadget; used by sat_reorder export. */
+/** Build SAT block_left/block_right from PR and PR after swap_along_test(pr_idx, 1). */
 SatSignatureExport compute_sat_signature_blocks(Tableau const& tableau);
+
+/** One PMC tested by commuting through its SAT block_left columns (independent trial per PMC). */
+struct BlockLeftPmcTestRow {
+    size_t ancilla_qubit         = 0;
+    size_t gid                   = 0;
+    size_t block_left_size       = 0;
+    bool commute_success         = false;
+    bool is_single_x_on_reference = false;
+    size_t reference_qubit       = 0;
+    size_t pmc_op_count          = 0;
+};
+
+struct BlockLeftPmcTestReport {
+    std::vector<BlockLeftPmcTestRow> rows;
+    size_t single_x_count = 0;
+    bool all_single_x     = true;
+};
+
+/** For each PMC, split unified PR by block_left and run move_pmcs-style commute; log single-X result. */
+BlockLeftPmcTestReport test_move_pmcs_with_block_left(
+    Tableau const& tableau,
+    std::unordered_map<size_t, PmcUnifiedPrRelation> const& pmc_to_unified_pr);
+
+/** adder_8.qc → gadgetize + FastTODD → test_move_pmcs_with_block_left. */
+bool test_adder_8_move_pmcs_block_left();
 
 std::unordered_map<size_t, PmcUnifiedPrRelation> commute_and_merge_rotations(Tableau& tableau);
 void collapse_with_classical(Tableau& tableau);
@@ -297,7 +437,7 @@ ConstraintGraph build_constraint_graph(
 /** Export validated H-gadget (CCC, PMC) pairs from a tableau. */
 std::vector<ConstraintGraph::HadamardGadgetPair> export_hadamard_gadget_pairs(Tableau& tableau);
 
-// Classical T optimization: minimize internal H, gadgetize, commute classical, and optimize with FastTodd
+// Classical T optimization: minimize internal H, gadgetize, commute classical, and optimize with FastTODD
 void minimize_ancillary_t_opt(Tableau& tableau, std::optional<std::string> export_filename = std::nullopt);
 void minimize_ancillary_t_opt_with_degadgetization(Tableau& tableau, std::optional<std::string> export_filename = std::nullopt);
 
@@ -312,18 +452,17 @@ struct ToddPhasePolynomialOptimizationStrategy : public PhasePolynomialOptimizat
     std::pair<StabilizerTableau, Polynomial> optimize(StabilizerTableau const& clifford, Polynomial const& polynomial) const override;
 };
 
+struct TohpePhasePolynomialOptimizationStrategy : public PhasePolynomialOptimizationStrategy {
+    std::pair<StabilizerTableau, Polynomial> optimize(StabilizerTableau const& clifford, Polynomial const& polynomial) const override;
+};
+
+/** FastTODD: loop { full TOHPE, one fast_todd step } until no move (Rust fast_todd); Clifford phase merged in optimize_phase_polynomial_with_classical. */
 struct FastToddPhasePolynomialOptimizationStrategy : public PhasePolynomialOptimizationStrategy {
     std::pair<StabilizerTableau, Polynomial> optimize(StabilizerTableau const& clifford, Polynomial const& polynomial) const override;
 };
 
-/** Reference FastTODD strategy as an explicit selectable optimization mode. */
-struct FastToddReferencePhasePolynomialOptimizationStrategy : public PhasePolynomialOptimizationStrategy {
-    std::pair<StabilizerTableau, Polynomial> optimize(StabilizerTableau const& clifford, Polynomial const& polynomial) const override;
-};
-
-struct TohpeOnlyPhasePolynomialOptimizationStrategy : public PhasePolynomialOptimizationStrategy {
-    std::pair<StabilizerTableau, Polynomial> optimize(StabilizerTableau const& clifford, Polynomial const& polynomial) const override;
-};
+/** Run fasttodd_once on a term table file (one Z bitstring per line). */
+std::vector<PauliRotation> fasttodd_from_term_bitstrings_file(std::string const& path);
 
 void optimize_phase_polynomial(StabilizerTableau& clifford, std::vector<PauliRotation>& polynomial, PhasePolynomialOptimizationStrategy const& strategy);
 void optimize_phase_polynomial(Tableau& tableau, PhasePolynomialOptimizationStrategy const& strategy);

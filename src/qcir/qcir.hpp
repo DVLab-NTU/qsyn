@@ -121,6 +121,10 @@ public:
 
     bool is_empty() const { return _qubits.empty() || _id_to_gates.empty(); }
 
+    bool have_measurement() const;
+    bool have_if_else() const;
+    bool has_classical() const { return have_measurement() || have_if_else(); }
+
     void set_filename(std::string f) { _filename = std::move(f); }
     void add_procedures(std::vector<std::string> const& ps) {
         _procedures.insert(_procedures.end(), ps.begin(), ps.end());

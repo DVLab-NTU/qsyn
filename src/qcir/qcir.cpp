@@ -189,6 +189,24 @@ std::vector<std::optional<size_t>> QCir::get_successors(std::optional<size_t> ga
     return _successors.at(*gate_id);
 }
 
+bool QCir::have_measurement() const {
+    for (auto const& [id, gate] : _id_to_gates) {
+        if (gate->get_operation().get_type() == "measure") {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool QCir::have_if_else() const {
+    for (auto const& [id, gate] : _id_to_gates) {
+        if (gate->get_classical_value().has_value()) {
+            return true;
+        }
+    }
+    return false;
+}
+
 void QCir::_set_predecessor(size_t gate_id, size_t pin, std::optional<size_t> pred) {
     if (!_id_to_gates.contains(gate_id)) return;
     if (pin >= get_gate(gate_id)->get_num_qubits()) return;

@@ -219,6 +219,20 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr, qsyn::qcir::QCi
             methods.add_parser("blockwiseAncillaryTopt")
                 .description("Block-wise ancillary-T optimization (gadgetize/opt per internal H block)");
 
+            auto adder8_parser = methods.add_parser("adder8pushfront")
+                                      .description(
+                                          "Load adder_8.qc, run gadgetize + FastTODD, swap whole PR to "
+                                          "idx 1, export per-column phases and block before/after per ancilla");
+            adder8_parser.add_argument<std::string>("--out")
+                .nargs(NArgsOption::optional)
+                .default_value("/home/ferayer/minimize_ancilla/results/pr_whole_swap_adder_8.csv")
+                .help("CSV path for per-column phase and block export");
+
+            methods.add_parser("adder8blockleft")
+                .description(
+                    "Load adder_8.qc, run gadgetize + FastTODD, commute each PMC through its "
+                    "SAT block_left columns (move_pmcs-style) and report single-X results");
+
             auto test_parser = methods.add_parser("test")
                                    .description("Run commute-text validation test and compare simulated PMC with ops section");
             test_parser.add_argument<std::string>("txt-file")
@@ -229,8 +243,8 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr, qsyn::qcir::QCi
 
             phasepoly_parser.add_argument<std::string>("strategy")
                 .default_value("todd")
-                .constraint(choices_allow_prefix({"todd"}))
-                .help("Phase polynomial optimization strategy");
+                .constraint(choices_allow_prefix({"todd", "fasttodd", "tohpe"}))
+                .help("Phase polynomial optimization strategy (todd, fasttodd, tohpe)");
 
             auto matpar_parser = methods.add_parser("matpar")
                                      .description("partition the Pauli rotations into simultaneously-implementable tableaux. This option requires all Pauli rotations to be diagonal");
@@ -257,7 +271,9 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr, qsyn::qcir::QCi
                 matroid_partition,
                 ancillary_t_opt,
                 blockwise_ancillary_t_opt,
-                commute_test
+                commute_test,
+                adder8_push_front_test,
+                adder8_block_left_test
             };
 
             auto method = std::invoke([&]() -> std::optional<OptimizationMethod> {
@@ -282,6 +298,10 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr, qsyn::qcir::QCi
                     return OptimizationMethod::ancillary_t_opt;
                 } else if (dvlab::str::is_prefix_of(method_str, "test")) {
                     return OptimizationMethod::commute_test;
+                } else if (dvlab::str::is_prefix_of(method_str, "adder8pushfront")) {
+                    return OptimizationMethod::adder8_push_front_test;
+                } else if (dvlab::str::is_prefix_of(method_str, "adder8blockleft")) {
+                    return OptimizationMethod::adder8_block_left_test;
                 }
                 return std::nullopt;
             });
@@ -291,6 +311,8 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr, qsyn::qcir::QCi
                 return dvlab::CmdExecResult::error;
             }
             if (*method != OptimizationMethod::commute_test &&
+                *method != OptimizationMethod::adder8_push_front_test &&
+                *method != OptimizationMethod::adder8_block_left_test &&
                 !dvlab::utils::mgr_has_data(tableau_mgr)) {
                 return dvlab::CmdExecResult::error;
             }
@@ -299,6 +321,12 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr, qsyn::qcir::QCi
                 auto const phasepoly_strategy_str = parser.get<std::string>("strategy");
 
                 auto const phasepoly_strategy = std::invoke([&]() -> std::unique_ptr<PhasePolynomialOptimizationStrategy> {
+                    if (dvlab::str::is_prefix_of(phasepoly_strategy_str, "fasttodd")) {
+                        return std::make_unique<FastToddPhasePolynomialOptimizationStrategy>();
+                    }
+                    if (dvlab::str::is_prefix_of(phasepoly_strategy_str, "tohpe")) {
+                        return std::make_unique<TohpePhasePolynomialOptimizationStrategy>();
+                    }
                     if (dvlab::str::is_prefix_of(phasepoly_strategy_str, "todd")) {
                         return std::make_unique<ToddPhasePolynomialOptimizationStrategy>();
                     }
@@ -376,6 +404,19 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr, qsyn::qcir::QCi
                     spdlog::debug("BlockwiseAncillaryTopt: end   (non-Clifford={}, ancilla={})",
                                   after_t, after_a);
                     tableau_mgr.get()->add_procedure("BlockwiseAncillaryTopt");
+                    break;
+                }
+                case OptimizationMethod::adder8_push_front_test: {
+                    auto const out_path = parser.get<std::string>("--out");
+                    if (!test_adder_8_pr_push_front_z_on_ancilla_after_topt(out_path)) {
+                        return dvlab::CmdExecResult::error;
+                    }
+                    break;
+                }
+                case OptimizationMethod::adder8_block_left_test: {
+                    if (!test_adder_8_move_pmcs_block_left()) {
+                        return dvlab::CmdExecResult::error;
+                    }
                     break;
                 }
                 case OptimizationMethod::commute_test: {
