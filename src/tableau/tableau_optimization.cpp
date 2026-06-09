@@ -914,16 +914,37 @@ void properize_for_t_optimization(Tableau& tableau) {
         }
     }
 
+    auto const find_pmc_index = [&](size_t ancilla) -> std::optional<size_t> {
+        for (size_t i = 0; i < new_tableau.size(); ++i) {
+            auto const* cct = std::get_if<ClassicalControlTableau>(&new_tableau[i]);
+            if (cct != nullptr && cct->is_classical_control() && cct->ancilla_qubit() == ancilla) {
+                return i;
+            }
+        }
+        return std::nullopt;
+    };
+
+    auto const find_gadget_index = [&](size_t ancilla) -> std::optional<size_t> {
+        for (size_t i = 0; i < new_tableau.size(); ++i) {
+            auto const* cct = std::get_if<ClassicalControlTableau>(&new_tableau[i]);
+            if (cct != nullptr && cct->is_gadget() && cct->ancilla_qubit() == ancilla) {
+                return i;
+            }
+        }
+        return std::nullopt;
+    };
+
     for (size_t const ancilla : pmc_ancillae) {
-        auto const pair_opt = find_gadget_pair(new_tableau, ancilla);
-        if (!pair_opt.has_value()) {
+        auto pmc_idx_opt    = find_pmc_index(ancilla);
+        auto gadget_idx_opt = find_gadget_index(ancilla);
+        if (!pmc_idx_opt.has_value() || !gadget_idx_opt.has_value()) {
             spdlog::warn(
                 "reverse_commute_pmcs_to_gadgets_for_test: missing pair for ancilla {}",
                 ancilla);
             continue;
         }
-        size_t const pmc_idx    = pair_opt->pmc_index;
-        size_t const gadget_idx = pair_opt->gadget_index;
+        size_t const pmc_idx    = *pmc_idx_opt;
+        size_t const gadget_idx = *gadget_idx_opt;
         if (pmc_idx <= gadget_idx + 1) {
             continue;
         }
@@ -938,9 +959,10 @@ void properize_for_t_optimization(Tableau& tableau) {
 
 }  // namespace
 
-// Structural checker used by degadgetization:
-// Check circuit is under the form {ST, (CCCs|intermediate STs)*, PR, (optional CX-ST), PMCs, ST}.
-CircuitStructureInfo inspect_degadgetization_structure(Tableau const& tableau) {
+// Structural checker/merger used by degadgetization:
+// Check circuit is under the form {ST, (CCCs|intermediate STs)*, PR1, (optional PR2), CXs, PMCs, ST}.
+// If PR2 exists, merge {PR1, PR2}; otherwise PR1 alone is fine.
+CircuitStructureInfo properize_for_degadgetization(Tableau& tableau) {
     CircuitStructureInfo info = {0, 0, false};
 
     if (tableau.is_empty()) {
@@ -958,13 +980,13 @@ CircuitStructureInfo inspect_degadgetization_structure(Tableau const& tableau) {
     // 1) Check that CCTs start from index 1 (index 0 must be ST).
     if (!std::holds_alternative<StabilizerTableau>(tableau[0])) {
         spdlog::error(
-            "inspect_degadgetization_structure: expected front StabilizerTableau at index 0, got {}",
+            "properize_for_degadgetization: expected front StabilizerTableau at index 0, got {}",
             get_subtableau_kind(tableau[0]));
         return info;
     }
 
     // Expected structure:
-    //   {ST0, (CCCs|intermediate STs)..., PR, (optional CXs-ST), PMCs..., ST_back}
+    //   {ST0, (CCCs|intermediate STs)..., PR1, (optional PR2), CXs(ST), PMCs..., ST_back}
     size_t idx = 1;
     size_t ccc_count = 0;
     while (idx < tableau.size()) {
@@ -982,11 +1004,18 @@ CircuitStructureInfo inspect_degadgetization_structure(Tableau const& tableau) {
     }
 
     if (idx >= tableau.size() || !std::holds_alternative<std::vector<PauliRotation>>(tableau[idx])) {
-        spdlog::error("inspect_degadgetization_structure: expected PR after gadget/intermediate-Clifford prefix at index {}, got {}",
+        spdlog::error("properize_for_degadgetization: expected PR1 after gadget/intermediate-Clifford prefix at index {}, got {}",
                       idx, idx < tableau.size() ? get_subtableau_kind(tableau[idx]) : "OutOfRange");
         return info;
     }
-    size_t const pr_idx = idx++;
+    size_t const pr1_idx = idx++;
+
+    bool has_pr2 = false;
+    size_t pr2_idx = std::numeric_limits<size_t>::max();
+    if (idx < tableau.size() && std::holds_alternative<std::vector<PauliRotation>>(tableau[idx])) {
+        has_pr2 = true;
+        pr2_idx = idx++;
+    }
 
     // Optional CX-only stabilizer block. Some flows have no explicit CX block here:
     //   {ST0, CCCs, PR, PMCs, ST_back}
@@ -999,13 +1028,13 @@ CircuitStructureInfo inspect_degadgetization_structure(Tableau const& tableau) {
     // Expect exactly ccc_count PMCs next, then a final back ST.
     for (size_t k = 0; k < ccc_count; ++k) {
         if (idx >= tableau.size()) {
-            spdlog::error("inspect_degadgetization_structure: expected {} PMCs after PR{}, but tableau ends early",
+            spdlog::error("properize_for_degadgetization: expected {} PMCs after PR{}, but tableau ends early",
                           ccc_count, has_cx_block ? "+CX block" : "");
             return info;
         }
         auto const* cct = std::get_if<ClassicalControlTableau>(&tableau[idx]);
         if (cct == nullptr || !cct->is_classical_control()) {
-            spdlog::error("inspect_degadgetization_structure: expected PMC at index {}, got {}",
+            spdlog::error("properize_for_degadgetization: expected PMC at index {}, got {}",
                           idx, get_subtableau_kind(tableau[idx]));
             return info;
         }
@@ -1013,15 +1042,34 @@ CircuitStructureInfo inspect_degadgetization_structure(Tableau const& tableau) {
     }
 
     if (idx >= tableau.size() || !std::holds_alternative<StabilizerTableau>(tableau[idx]) || idx != tableau.size() - 1) {
-        spdlog::error("inspect_degadgetization_structure: expected final back StabilizerTableau at last index {}, got {}",
+        spdlog::error("properize_for_degadgetization: expected final back StabilizerTableau at last index {}, got {}",
                       tableau.size() - 1, idx < tableau.size() ? get_subtableau_kind(tableau[idx]) : "OutOfRange");
         return info;
     }
 
+    auto& pr1 = std::get<std::vector<PauliRotation>>(tableau[pr1_idx]);
+    if (has_pr2) {
+        // Merge PR1 into PR2 (append PR2 to PR1, then keep a single PR block).
+        auto& pr2 = std::get<std::vector<PauliRotation>>(tableau[pr2_idx]);
+        pr1.insert(pr1.end(),
+                   std::make_move_iterator(pr2.begin()),
+                   std::make_move_iterator(pr2.end()));
+
+        // Remove the now-empty PR2 block.
+        tableau.erase(tableau.begin() + static_cast<std::ptrdiff_t>(pr2_idx));
+    }
+
     info.ccc_count       = ccc_count;
-    info.pr_column_count = std::get<std::vector<PauliRotation>>(tableau[pr_idx]).size();
+    info.pr_column_count = pr1.size();
     info.is_valid        = true;
+
+    remove_identities(tableau);
     return info;
+}
+
+CircuitStructureInfo inspect_degadgetization_structure(Tableau const& tableau) {
+    auto copy = tableau;
+    return properize_for_degadgetization(copy);
 }
 
 /**

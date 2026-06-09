@@ -280,8 +280,82 @@ inline bool is_single_qubit_pauli(Operation const& op) {
     return op == XGate() || op == YGate() || op == ZGate();
 }
 
-template <>
-inline std::optional<QCir> to_basic_gates(ControlGate const& op) {
+inline void append_cc_pauli_plane_flip(QCir& qcir, Operation const& target_op) {
+    if (target_op == XGate()) {
+        qcir.append(HGate(), {2});
+    } else if (target_op == YGate()) {
+        qcir.append(SXGate(), {2});
+    }
+}
+
+inline void append_cc_pauli_plane_unflip(QCir& qcir, Operation const& target_op) {
+    if (target_op == XGate()) {
+        qcir.append(HGate(), {2});
+    } else if (target_op == YGate()) {
+        qcir.append(SXdgGate(), {2});
+    }
+}
+
+inline void append_cc_pauli_core_cpp(QCir& qcir, Operation const& target_op) {
+    if (target_op == YGate()) {
+        // CCY: phase-polynomial CCZ core (no alternate TODD CCY path)
+        qcir.append(TGate(), {2});
+        qcir.append(CXGate(), {1, 2});
+        qcir.append(TdgGate(), {2});
+        qcir.append(CXGate(), {0, 2});
+        qcir.append(TGate(), {2});
+        qcir.append(CXGate(), {1, 2});
+        qcir.append(TdgGate(), {2});
+        qcir.append(TGate(), {1});
+        qcir.append(CXGate(), {0, 1});
+        qcir.append(TGate(), {0});
+        qcir.append(TdgGate(), {1});
+        qcir.append(CXGate(), {0, 1});
+        return;
+    }
+    // CCZ / CCX: C++ phase-polynomial decomposition (T on target qubit)
+    qcir.append(TGate(), {2});
+    qcir.append(CXGate(), {1, 2});
+    qcir.append(TdgGate(), {2});
+    qcir.append(CXGate(), {0, 2});
+    qcir.append(TGate(), {2});
+    qcir.append(CXGate(), {1, 2});
+    qcir.append(TdgGate(), {2});
+    qcir.append(TGate(), {1});
+    qcir.append(CXGate(), {0, 1});
+    qcir.append(TGate(), {0});
+    qcir.append(TdgGate(), {1});
+    qcir.append(CXGate(), {0, 1});
+}
+
+inline void append_cc_pauli_core_rust(QCir& qcir, Operation const& target_op) {
+    if (target_op == YGate()) {
+        append_cc_pauli_core_cpp(qcir, target_op);
+        return;
+    }
+    // CCZ / CCX: TODD-style decompose_tof layout (inline C++)
+    qcir.append(TGate(), {0});
+    qcir.append(TGate(), {1});
+    qcir.append(TGate(), {2});
+    qcir.append(CXGate(), {1, 0});
+    qcir.append(XGate(), {0});
+    qcir.append(TGate(), {0});
+    qcir.append(XGate(), {0});
+    qcir.append(CXGate(), {2, 0});
+    qcir.append(TGate(), {0});
+    qcir.append(CXGate(), {1, 0});
+    qcir.append(XGate(), {0});
+    qcir.append(TGate(), {0});
+    qcir.append(XGate(), {0});
+    qcir.append(CXGate(), {2, 0});
+    qcir.append(CXGate(), {2, 1});
+    qcir.append(XGate(), {1});
+    qcir.append(TGate(), {1});
+    qcir.append(XGate(), {1});
+    qcir.append(CXGate(), {2, 1});
+}
+
+inline std::optional<QCir> to_basic_gates(ControlGate const& op, CcDecomposition cc_method) {
     if (is_clifford(op)) {
         return as_qcir(op);
     }
@@ -294,34 +368,22 @@ inline std::optional<QCir> to_basic_gates(ControlGate const& op) {
     }
 
     QCir qcir{op.get_num_qubits()};
-    // flip the target to the Z rotation plane
-    if (target_op == XGate()) {
-        qcir.append(HGate(), {2});
-    } else if (target_op == YGate()) {
-        qcir.append(SXGate(), {2});
-    }
-    // optimal decomposition of CCZ
-    qcir.append(TGate(), {2});      // R_IIZ(pi/4)
-    qcir.append(CXGate(), {1, 2});  // qubit 2: IIZ -> IZZ
-    qcir.append(TdgGate(), {2});    // R_IZZ(-pi/4)
-    qcir.append(CXGate(), {0, 2});  // qubit 2: IZZ -> ZZZ
-    qcir.append(TGate(), {2});      // R_ZZZ(pi/4)
-    qcir.append(CXGate(), {1, 2});  // qubit 2: ZZZ -> ZIZ
-    qcir.append(TdgGate(), {2});    // R_ZIZ(-pi/4)
-    qcir.append(TGate(), {1});      // R_IZI(pi/4)
-    qcir.append(CXGate(), {0, 1});  // qubit 1: IZI -> ZZI
-    qcir.append(TGate(), {0});      // R_ZII(pi/4)
-    qcir.append(TdgGate(), {1});    // R_ZZI(-pi/4)
-    qcir.append(CXGate(), {0, 1});  // qubit 1: ZZI -> IZI
+    append_cc_pauli_plane_flip(qcir, target_op);
 
-    // flip the rotation plane back
-    if (target_op == XGate()) {
-        qcir.append(HGate(), {2});
-    } else if (target_op == YGate()) {
-        qcir.append(SXdgGate(), {2});
+    if (cc_method == CcDecomposition::Cpp) {
+        append_cc_pauli_core_cpp(qcir, target_op);
+    } else {
+        append_cc_pauli_core_rust(qcir, target_op);
     }
+
+    append_cc_pauli_plane_unflip(qcir, target_op);
 
     return qcir;
+}
+
+template <>
+inline std::optional<QCir> to_basic_gates(ControlGate const& op) {
+    return to_basic_gates(op, CcDecomposition::Rust);
 }
 
 class SwapGate {

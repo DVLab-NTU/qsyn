@@ -249,7 +249,6 @@ file(
 set(QSYN_LIB_NAME libqsyn.a)
 set(UNIT_TEST_NAME unit-test)
 
-
 # ----------------------------------------------------------------------------
 # config for qsyn-lib target
 # builds libqsyn.a
@@ -360,7 +359,7 @@ target_link_libraries(
     PRIVATE 
     lapack 
 # OpenMP::OpenMP_CXX 
-    ${BLAS_LIBRARIES} 
+    ${BLAS_LIBRARIES}
     ${LAPACK_LIBRARIES})
 
 # ----------------------------------------------------------------------------

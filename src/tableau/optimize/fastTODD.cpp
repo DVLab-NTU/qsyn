@@ -8,7 +8,10 @@
 
 #include <algorithm>
 #include <array>
+#include <cctype>
+#include <cstdlib>
 #include <cstddef>
+#include <cstdint>
 #include <fstream>
 #include <iterator>
 #include <optional>
@@ -211,7 +214,7 @@ struct IntegerVecHash {
     }
 };
 
-/** Pack term row bits like Rust BitVector::get_integer_vec (bit_vector.rs). */
+/** Pack term row bits for TODD-style bit-vector integer encoding. */
 IntegerVec row_to_integer_vec(dvlab::BooleanMatrix::Row const& row) {
     constexpr size_t BLOCK_SIZE = 256;
     size_t const     num_blocks = std::max<size_t>(1, (row.size() + BLOCK_SIZE - 1) / BLOCK_SIZE);
@@ -241,8 +244,47 @@ IntegerVec row_to_integer_vec(dvlab::BooleanMatrix::Row const& row) {
     return result;
 }
 
-/** Extended row for FastTODD/TOHPE: linear Z bits + Rust pop-extend quadratic block (t_opt.rs). */
-dvlab::BooleanMatrix::Row build_extended_row_rust(dvlab::BooleanMatrix::Row const& term_z, size_t n_qubits) {
+bool fasttodd_trace_enabled() {
+    static int const enabled = [] {
+        if (char const* v = std::getenv("QSYN_FASTTODD_TRACE")) {
+            return (v[0] == '1' || v[0] == 'y' || v[0] == 'Y') ? 1 : 0;
+        }
+        return 0;
+    }();
+    return enabled != 0;
+}
+
+std::string row_bits_string(dvlab::BooleanMatrix::Row const& row) {
+    std::string s;
+    s.reserve(row.size());
+    for (auto b : row) {
+        s.push_back(b ? '1' : '0');
+    }
+    return s;
+}
+
+void trace_dump_table(char const* tag, char const* backend, dvlab::BooleanMatrix const& table) {
+    if (!fasttodd_trace_enabled()) {
+        return;
+    }
+    fmt::print(stderr, "[{}-fasttodd] {} rows={}\n", backend, tag, table.num_rows());
+    for (size_t i = 0; i < table.num_rows(); ++i) {
+        fmt::print(stderr, "[{}-fasttodd]   term[{}] {}\n", backend, i, row_bits_string(table[i]));
+    }
+}
+
+void trace_chosen_move(char const* backend, size_t outer, size_t i, size_t j, int score,
+                       dvlab::BooleanMatrix::Row const& z, dvlab::BooleanMatrix::Row const& y,
+                       size_t rows_after) {
+    if (!fasttodd_trace_enabled()) {
+        return;
+    }
+    fmt::print(stderr, "[{}-fasttodd] outer={} pair=({},{}) score={} z={} y={} rows_after={}\n",
+               backend, outer, i, j, score, row_bits_string(z), row_bits_string(y), rows_after);
+}
+
+/** Extended row for FastTODD/TOHPE: linear Z bits + pop-extend quadratic block. */
+dvlab::BooleanMatrix::Row build_extended_row_todd(dvlab::BooleanMatrix::Row const& term_z, size_t n_qubits) {
     std::vector<unsigned char> row;
     row.reserve(n_qubits + (n_qubits * (n_qubits - 1)) / 2);
     for (size_t q = 0; q < n_qubits; ++q) {
@@ -405,7 +447,7 @@ Polynomial tohpe_once(Polynomial const& polynomial) {
     return from_boolean_matrix(dvlab::transpose(phase_poly_matrix_copy));
 }
 
-/** Full TOHPE pass on term table (Rust tohpe). */
+/** Full TOHPE pass on term table. */
 void tohpe_table_pass(dvlab::BooleanMatrix& table, size_t n_qubits, size_t max_moves = static_cast<size_t>(-1)) {
     if (table.num_rows() == 0) {
         return;
@@ -414,7 +456,7 @@ void tohpe_table_pass(dvlab::BooleanMatrix& table, size_t n_qubits, size_t max_m
     dvlab::BooleanMatrix extended_matrix;
     extended_matrix.reserve(table.num_rows(), n_qubits + (n_qubits * (n_qubits - 1)) / 2);
     for (size_t i = 0; i < table.num_rows(); ++i) {
-        extended_matrix.push_row(build_extended_row_rust(table[i], n_qubits));
+        extended_matrix.push_row(build_extended_row_todd(table[i], n_qubits));
     }
 
     dvlab::BooleanMatrix augmented_matrix = dvlab::identity(table.num_rows());
@@ -477,7 +519,7 @@ void tohpe_table_pass(dvlab::BooleanMatrix& table, size_t n_qubits, size_t max_m
         std::vector<unsigned char> to_update{y.begin(), y.begin() + static_cast<long>(n_terms)};
         if (y_parity) {
             table.push_zeros_row();
-            extended_matrix.push_row(build_extended_row_rust(dvlab::BooleanMatrix::Row(n_qubits, 0), n_qubits));
+            extended_matrix.push_row(build_extended_row_todd(dvlab::BooleanMatrix::Row(n_qubits, 0), n_qubits));
             augmented_matrix.push_zeros_column();
             augmented_matrix.push_zeros_row();
             augmented_matrix[augmented_matrix.num_rows() - 1][augmented_matrix.num_cols() - 1] = 1;
@@ -555,7 +597,7 @@ void tohpe_table_pass(dvlab::BooleanMatrix& table, size_t n_qubits, size_t max_m
         }
         for (auto const i : update_indices) {
             clear_column(i, extended_matrix, augmented_matrix, pivots);
-            extended_matrix[i] = build_extended_row_rust(table[i], n_qubits);
+            extended_matrix[i] = build_extended_row_todd(table[i], n_qubits);
             std::vector<unsigned char> bv(table.num_rows(), 0);
             bv[i] = 1;
             augmented_matrix[i].set_row(bv);
@@ -677,10 +719,11 @@ void proper_term_table(dvlab::BooleanMatrix& table) {
 }
 
 /**
- * One FastTODD step on term×qubit table (Rust fast_todd inner body).
+ * One FastTODD step on term×qubit table.
  * @return false when max_score == 0 (no move); true after applying best move.
  */
-bool fast_todd_table_step(dvlab::BooleanMatrix& table, size_t n_qubits) {
+bool fast_todd_table_step(dvlab::BooleanMatrix& table, size_t n_qubits, size_t outer_iter = 0,
+                          char const* backend = "cpp") {
     if (table.num_rows() == 0) {
         return false;
     }
@@ -688,7 +731,7 @@ bool fast_todd_table_step(dvlab::BooleanMatrix& table, size_t n_qubits) {
     dvlab::BooleanMatrix extended_matrix;
     extended_matrix.reserve(table.num_rows(), table.num_cols());
     for (size_t i = 0; i < table.num_rows(); ++i) {
-        extended_matrix.push_row(build_extended_row_rust(table[i], n_qubits));
+        extended_matrix.push_row(build_extended_row_todd(table[i], n_qubits));
     }
 
     dvlab::BooleanMatrix augmented_matrix = dvlab::identity(table.num_rows());
@@ -696,7 +739,7 @@ bool fast_todd_table_step(dvlab::BooleanMatrix& table, size_t n_qubits) {
     (void)kernel(extended_matrix, augmented_matrix, pivots);
     auto const col_to_row = invert_pivot_map(pivots);
 
-    // Rust BitVector columns use block-padded width (e.g. 2560 for 2556 logical ext bits).
+    // Extended columns use block-padded width (e.g. 2560 for 2556 logical ext bits).
     size_t const logical_ext = n_qubits + (n_qubits * (n_qubits - 1)) / 2;
     size_t const ext_width   = block_bit_width(logical_ext);
     for (size_t r = 0; r < extended_matrix.num_rows(); ++r) {
@@ -711,6 +754,8 @@ bool fast_todd_table_step(dvlab::BooleanMatrix& table, size_t n_qubits) {
     int                      max_score = 0;
     dvlab::BooleanMatrix::Row best_z(n_qubits, 0);
     dvlab::BooleanMatrix::Row best_y(table.num_rows(), 0);
+    size_t                   best_i = 0;
+    size_t                   best_j = 0;
     bool have_best = false;
 
     for (size_t i = 0; i < table.num_rows(); ++i) {
@@ -792,6 +837,8 @@ bool fast_todd_table_step(dvlab::BooleanMatrix& table, size_t n_qubits) {
                         max_score = score;
                         best_z    = dvlab::BooleanMatrix::Row(z.get_row());
                         best_y    = dvlab::BooleanMatrix::Row(y.get_row());
+                        best_i    = i;
+                        best_j    = j;
                         have_best = true;
                     }
                 }
@@ -800,6 +847,10 @@ bool fast_todd_table_step(dvlab::BooleanMatrix& table, size_t n_qubits) {
     }
 
     if (max_score <= 0 || !have_best) {
+        if (fasttodd_trace_enabled()) {
+            fmt::print(stderr, "[{}-fasttodd] outer={} stop score={} rows={}\n",
+                       backend, outer_iter, max_score, table.num_rows());
+        }
         return false;
     }
 
@@ -812,30 +863,45 @@ bool fast_todd_table_step(dvlab::BooleanMatrix& table, size_t n_qubits) {
         table.push_row(best_z);
     }
     proper_term_table(table);
+    trace_chosen_move(backend, outer_iter, best_i, best_j, max_score, best_z, best_y, table.num_rows());
     return true;
 }
 
 /**
- * Rust fast_todd parity: each iteration runs full tohpe() then one FastTODD table step;
+ * Each iteration runs full tohpe() then one FastTODD table step;
  * loop until max_score == 0 (fast_todd_table_step returns false).
  */
-Polynomial fasttodd_once(Polynomial const& polynomial) {
+Polynomial fasttodd_once(Polynomial const& polynomial, char const* backend) {
     if (polynomial.empty()) {
         return polynomial;
     }
 
-    auto       table      = dvlab::transpose(load_phase_poly_matrix(polynomial));
-    size_t const n_qubits = table.num_cols();
+    auto         table      = dvlab::transpose(load_phase_poly_matrix(polynomial));
+    size_t const n_qubits   = table.num_cols();
+    trace_dump_table("input", backend, table);
+    size_t outer = 0;
     while (true) {
         tohpe_table_pass(table, n_qubits);
         if (table.num_rows() == 0) {
             break;
         }
-        if (!fast_todd_table_step(table, n_qubits)) {
+        if (fasttodd_trace_enabled()) {
+            fmt::print(stderr, "[{}-fasttodd] outer={} after_tohpe rows={}\n", backend, outer, table.num_rows());
+        }
+        if (!fast_todd_table_step(table, n_qubits, outer, backend)) {
             break;
         }
+        ++outer;
+    }
+    if (fasttodd_trace_enabled()) {
+        fmt::print(stderr, "[{}-fasttodd] done outer_iters={} final_rows={}\n", backend, outer, table.num_rows());
+        trace_dump_table("output", backend, table);
     }
     return from_boolean_matrix(table);
+}
+
+Polynomial fasttodd_once(Polynomial const& polynomial) {
+    return fasttodd_once(polynomial, "cpp");
 }
 
 Polynomial polynomial_from_term_bitstrings_file(std::string const& path) {
@@ -874,6 +940,30 @@ Polynomial fasttodd_from_term_file_impl(std::string const& path) {
     }
     return fasttodd_once(poly);
 }
+
+/** Original C++ FastTODD optimize path (properize → fasttodd_once → Clifford correction). */
+std::optional<std::pair<StabilizerTableau, Polynomial>> fasttodd_optimize(
+    StabilizerTableau const& clifford,
+    Polynomial const&        polynomial) {
+    auto ret_clifford   = clifford;
+    auto ret_polynomial = polynomial;
+
+    properize(ret_clifford, ret_polynomial);
+
+    auto multi_linear_polynomial = MultiLinearPolynomial();
+    multi_linear_polynomial.add_rotations(ret_polynomial, false);
+
+    ret_polynomial = fasttodd_once(ret_polynomial);
+
+    multi_linear_polynomial.add_rotations(ret_polynomial, true);
+
+    if (auto clifford_ops = multi_linear_polynomial.extract_clifford_operators(); clifford_ops.has_value()) {
+        ret_clifford.apply(*clifford_ops);
+        return std::make_pair(std::move(ret_clifford), std::move(ret_polynomial));
+    }
+    return std::nullopt;
+}
+
 }  // namespace
 
 Polynomial fasttodd_from_term_bitstrings_file(std::string const& path) {
@@ -938,29 +1028,15 @@ std::pair<StabilizerTableau, Polynomial> FastToddPhasePolynomialOptimizationStra
     }
 
     auto const initial_t = polynomial.size();
-
-    auto ret_clifford   = clifford;
-    auto ret_polynomial = polynomial;
-
-    properize(ret_clifford, ret_polynomial);
-
-    auto multi_linear_polynomial = MultiLinearPolynomial();
-    multi_linear_polynomial.add_rotations(ret_polynomial, false);
-
-    ret_polynomial = fasttodd_once(ret_polynomial);
-
-    auto const final_t = ret_polynomial.size();
-
-    multi_linear_polynomial.add_rotations(ret_polynomial, true);
-
-    if (auto clifford_ops = multi_linear_polynomial.extract_clifford_operators(); clifford_ops.has_value()) {
-        ret_clifford.apply(*clifford_ops);
-        spdlog::info("FastTODD: T count {} -> {}", initial_t, final_t);
-    } else {
+    auto const result    = fasttodd_optimize(clifford, polynomial);
+    if (!result.has_value()) {
         spdlog::error("Failed to perform FastTODD optimization: the post-optimization polynomial does not have the same signature as the pre-optimization polynomial!!");
         return {clifford, polynomial};
     }
 
-    return {ret_clifford, ret_polynomial};
+    auto const final_t = result->second.size();
+    spdlog::info("FastTODD: T count {} -> {}", initial_t, final_t);
+    return *result;
 }
+
 }  // namespace qsyn::experimental

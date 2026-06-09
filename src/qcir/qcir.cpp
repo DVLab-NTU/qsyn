@@ -1540,7 +1540,16 @@ Operation adjoint(qcir::QCir const& qcir) {
 }
 
 std::optional<QCir> to_basic_gates(QCirGate const& gate) {
-    auto qcir = to_basic_gates(gate.get_operation());
+    return to_basic_gates(gate, CcDecomposition::Rust);
+}
+
+std::optional<QCir> to_basic_gates(QCirGate const& gate, CcDecomposition cc_decomp) {
+    std::optional<QCir> qcir;
+    if (auto const cg = gate.get_operation().get_underlying_if<ControlGate>()) {
+        qcir = to_basic_gates(*cg, cc_decomp);
+    } else {
+        qcir = to_basic_gates(gate.get_operation());
+    }
     if (!qcir.has_value()) {
         return std::nullopt;
     }
@@ -1560,9 +1569,13 @@ std::optional<QCir> to_basic_gates(QCirGate const& gate) {
 template <>
 // NOLINTNEXTLINE(readability-inconsistent-declaration-parameter-name)
 std::optional<QCir> to_basic_gates(qcir::QCir const& qcir) {
+    return to_basic_gates(qcir, CcDecomposition::Rust);
+}
+
+std::optional<QCir> to_basic_gates(qcir::QCir const& qcir, CcDecomposition cc_decomp) {
     auto new_qcir = QCir{qcir.get_num_qubits()};
     for (auto const& g : qcir.get_gates()) {
-        auto sub_qcir = to_basic_gates(*g);
+        auto sub_qcir = to_basic_gates(*g, cc_decomp);
         if (!sub_qcir.has_value()) {
             return std::nullopt;
         }

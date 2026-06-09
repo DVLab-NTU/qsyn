@@ -216,23 +216,6 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr, qsyn::qcir::QCi
             methods.add_parser("unified")
                 .description("Alias for ancillaryTopt (H-gadgetize + classical-aware phase polynomial optimization)");
 
-            methods.add_parser("blockwiseAncillaryTopt")
-                .description("Block-wise ancillary-T optimization (gadgetize/opt per internal H block)");
-
-            auto adder8_parser = methods.add_parser("adder8pushfront")
-                                      .description(
-                                          "Load adder_8.qc, run gadgetize + FastTODD, swap whole PR to "
-                                          "idx 1, export per-column phases and block before/after per ancilla");
-            adder8_parser.add_argument<std::string>("--out")
-                .nargs(NArgsOption::optional)
-                .default_value("/home/ferayer/minimize_ancilla/results/pr_whole_swap_adder_8.csv")
-                .help("CSV path for per-column phase and block export");
-
-            methods.add_parser("adder8blockleft")
-                .description(
-                    "Load adder_8.qc, run gadgetize + FastTODD, commute each PMC through its "
-                    "SAT block_left columns (move_pmcs-style) and report single-X results");
-
             auto test_parser = methods.add_parser("test")
                                    .description("Run commute-text validation test and compare simulated PMC with ops section");
             test_parser.add_argument<std::string>("txt-file")
@@ -270,10 +253,7 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr, qsyn::qcir::QCi
                 phase_polynomial_optimization,
                 matroid_partition,
                 ancillary_t_opt,
-                blockwise_ancillary_t_opt,
-                commute_test,
-                adder8_push_front_test,
-                adder8_block_left_test
+                commute_test
             };
 
             auto method = std::invoke([&]() -> std::optional<OptimizationMethod> {
@@ -291,17 +271,11 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr, qsyn::qcir::QCi
                     return OptimizationMethod::phase_polynomial_optimization;
                 } else if (dvlab::str::is_prefix_of(method_str, "matpar")) {
                     return OptimizationMethod::matroid_partition;
-                } else if (dvlab::str::is_prefix_of(method_str, "blockwiseAncillaryTopt")) {
-                    return OptimizationMethod::blockwise_ancillary_t_opt;
                 } else if (dvlab::str::is_prefix_of(method_str, "ancillaryTopt") ||
                            dvlab::str::is_prefix_of(method_str, "unified")) {
                     return OptimizationMethod::ancillary_t_opt;
                 } else if (dvlab::str::is_prefix_of(method_str, "test")) {
                     return OptimizationMethod::commute_test;
-                } else if (dvlab::str::is_prefix_of(method_str, "adder8pushfront")) {
-                    return OptimizationMethod::adder8_push_front_test;
-                } else if (dvlab::str::is_prefix_of(method_str, "adder8blockleft")) {
-                    return OptimizationMethod::adder8_block_left_test;
                 }
                 return std::nullopt;
             });
@@ -310,10 +284,7 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr, qsyn::qcir::QCi
                 spdlog::error("Unknown optimization method {}!!", method_str);
                 return dvlab::CmdExecResult::error;
             }
-            if (*method != OptimizationMethod::commute_test &&
-                *method != OptimizationMethod::adder8_push_front_test &&
-                *method != OptimizationMethod::adder8_block_left_test &&
-                !dvlab::utils::mgr_has_data(tableau_mgr)) {
+            if (*method != OptimizationMethod::commute_test && !dvlab::utils::mgr_has_data(tableau_mgr)) {
                 return dvlab::CmdExecResult::error;
             }
 
@@ -393,32 +364,6 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr, qsyn::qcir::QCi
                             : std::optional<std::string>{qcir_mgr.get()->get_filename()});
                     tableau_mgr.get()->add_procedure("AncillaryTOpt");
                     break;
-                case OptimizationMethod::blockwise_ancillary_t_opt: {
-                    auto const before_t = tableau_mgr.get()->n_pauli_rotations();
-                    auto const before_a = tableau_mgr.get()->ancilla_initial_states().size();
-                    spdlog::debug("BlockwiseAncillaryTopt: begin (non-Clifford={}, ancilla={})",
-                                  before_t, before_a);
-                    blockwise_gadgetize_optimize(*tableau_mgr.get());
-                    auto const after_t = tableau_mgr.get()->n_pauli_rotations();
-                    auto const after_a = tableau_mgr.get()->ancilla_initial_states().size();
-                    spdlog::debug("BlockwiseAncillaryTopt: end   (non-Clifford={}, ancilla={})",
-                                  after_t, after_a);
-                    tableau_mgr.get()->add_procedure("BlockwiseAncillaryTopt");
-                    break;
-                }
-                case OptimizationMethod::adder8_push_front_test: {
-                    auto const out_path = parser.get<std::string>("--out");
-                    if (!test_adder_8_pr_push_front_z_on_ancilla_after_topt(out_path)) {
-                        return dvlab::CmdExecResult::error;
-                    }
-                    break;
-                }
-                case OptimizationMethod::adder8_block_left_test: {
-                    if (!test_adder_8_move_pmcs_block_left()) {
-                        return dvlab::CmdExecResult::error;
-                    }
-                    break;
-                }
                 case OptimizationMethod::commute_test: {
                     auto const txt_file = parser.get<std::string>("txt-file");
                     if (!run_commute_test_from_file(txt_file)) {

@@ -456,7 +456,7 @@ struct TohpePhasePolynomialOptimizationStrategy : public PhasePolynomialOptimiza
     std::pair<StabilizerTableau, Polynomial> optimize(StabilizerTableau const& clifford, Polynomial const& polynomial) const override;
 };
 
-/** FastTODD: loop { full TOHPE, one fast_todd step } until no move (Rust fast_todd); Clifford phase merged in optimize_phase_polynomial_with_classical. */
+/** FastTODD: loop { full TOHPE, one fast_todd step } until no move; Clifford phase merged in optimize_phase_polynomial_with_classical. */
 struct FastToddPhasePolynomialOptimizationStrategy : public PhasePolynomialOptimizationStrategy {
     std::pair<StabilizerTableau, Polynomial> optimize(StabilizerTableau const& clifford, Polynomial const& polynomial) const override;
 };

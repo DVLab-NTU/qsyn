@@ -11,6 +11,7 @@
 #include "util/dvlab_string.hpp"
 #include "util/util.hpp"
 #include <algorithm>
+#include <cstdlib>
 #include <fmt/format.h>
 #include <limits>
 #include <optional>
@@ -22,6 +23,23 @@
 namespace qsyn::experimental {
 
 namespace {
+
+bool env_flag_enabled(char const* name, bool default_on) {
+    if (char const* v = std::getenv(name)) {
+        return !(v[0] == '0' || v[0] == 'n' || v[0] == 'N');
+    }
+    return default_on;
+}
+
+bool tableau_merge_rotations_enabled() {
+    static bool const enabled = env_flag_enabled("QSYN_TABLEAU_MERGE_ROTATIONS", true);
+    return enabled;
+}
+
+bool tableau_properize_enabled() {
+    static bool const enabled = env_flag_enabled("QSYN_TABLEAU_PROPERIZE", true);
+    return enabled;
+}
 
 std::pair<ClassicalControlTableau, ClassicalControlTableau>
 gadgetize_hadamard(size_t reference_qubit, size_t ancilla_index, size_t total_qubits);
@@ -367,11 +385,13 @@ void gadgetize_tableau(Tableau& tableau) {
 std::unordered_map<size_t, PmcUnifiedPrRelation> minimize_internal_hadamards_n_gadgetize(Tableau& tableau) {
     size_t count              = 0;
     size_t non_clifford_count = tableau.n_pauli_rotations();
-    // spdlog::debug("TMerge");
-    merge_rotations(tableau);
-    properize(tableau);
+    if (tableau_merge_rotations_enabled()) {
+        merge_rotations(tableau);
+    }
+    if (tableau_properize_enabled()) {
+        properize(tableau);
+    }
     minimize_internal_hadamards(tableau);
-    // z_basisify_rotations_h_s_only(tableau);
     gadgetize_tableau(tableau);
     auto pmc_to_unified_pr = commute_and_merge_rotations(tableau);
     spdlog::debug("Done internal hadamard minimization and gadgetization");

@@ -1982,8 +1982,7 @@ bool sat_reorder_apply(Tableau& tableau,
         spdlog::error("sat_reorder_apply: span check failed after reorder");
         return false;
     }
-    spdlog::info(
-        "sat_reorder_apply: span check passed (PR, CCC/gadget, and PMC blocks in schedule middle)");
+    spdlog::info("sat_reorder_apply: span check passed");
 
     size_t const orig_n_ancilla = tableau.n_ancilla();
 
@@ -1992,26 +1991,13 @@ bool sat_reorder_apply(Tableau& tableau,
     for (size_t const gid : ord.degadgetizable_gids) {
         degadgetize_ancillae.push_back(gadgets[gid].ancilla_qubit);
     }
-
-    size_t degadgetized_count = 0;
-    if (degadgetize_ancillae.empty()) {
-        spdlog::info(
-            "sat_reorder_apply: degadgetization passed (0 SMT-exported degadgetizable gadgets)");
-    } else {
-        degadgetized_count = hadamard_degadgetize(tableau, degadgetize_ancillae);
+    if (!degadgetize_ancillae.empty()) {
+        size_t const degadgetized =
+            hadamard_degadgetize(tableau, degadgetize_ancillae);
         spdlog::info(
             "sat_reorder_apply: degadgetized {}/{} SMT-exported degadgetizable gadgets",
-            degadgetized_count,
+            degadgetized,
             degadgetize_ancillae.size());
-        if (degadgetized_count == degadgetize_ancillae.size()) {
-            spdlog::info("sat_reorder_apply: degadgetization passed");
-        } else {
-            spdlog::warn(
-                "sat_reorder_apply: degadgetization failed ({}/{}; PMC must be single X on "
-                "reference after PMC move)",
-                degadgetized_count,
-                degadgetize_ancillae.size());
-        }
     }
 
     std::unordered_map<size_t, size_t> gid_to_current_ancilla;

@@ -9,6 +9,7 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <cstdint>
 #include <filesystem>
 #include <map>
 #include <memory>
@@ -35,6 +36,11 @@ namespace qsyn::qcir {
 
 class QCir;
 class Operation;
+
+enum class CcDecomposition : std::uint8_t {
+    Cpp,
+    Rust,
+};
 
 struct QubitInfo;
 
@@ -321,6 +327,9 @@ std::optional<QCir> to_basic_gates(QCirGate const& gate);
 template <>
 // NOLINTNEXTLINE(readability-inconsistent-declaration-parameter-name)
 std::optional<QCir> to_basic_gates(qcir::QCir const& qcir);
+
+std::optional<QCir> to_basic_gates(QCirGate const& gate, CcDecomposition cc_decomp);
+std::optional<QCir> to_basic_gates(qcir::QCir const& qcir, CcDecomposition cc_decomp);
 
 }  // namespace qsyn::qcir
 
