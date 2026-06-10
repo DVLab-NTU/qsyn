@@ -383,7 +383,7 @@ inline std::optional<QCir> to_basic_gates(ControlGate const& op, CcDecomposition
 
 template <>
 inline std::optional<QCir> to_basic_gates(ControlGate const& op) {
-    return to_basic_gates(op, CcDecomposition::Rust);
+    return to_basic_gates(op, CcDecomposition::Cpp);
 }
 
 class SwapGate {

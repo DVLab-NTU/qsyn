@@ -151,8 +151,6 @@ private:
 };
 
 void phase_teleport(QCir& qcir);
-void bb_merge(QCir& qcir);
-void fast_t_merge(QCir& qcir, std::optional<CcDecomposition> cc_decomp = std::nullopt);
 void optimize_2q_count(QCir& qcir,
                        double hadamard_insertion_ratio,
                        size_t max_lc_unfusions,

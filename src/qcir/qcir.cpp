@@ -1540,7 +1540,7 @@ Operation adjoint(qcir::QCir const& qcir) {
 }
 
 std::optional<QCir> to_basic_gates(QCirGate const& gate) {
-    return to_basic_gates(gate, CcDecomposition::Rust);
+    return to_basic_gates(gate, CcDecomposition::Cpp);
 }
 
 std::optional<QCir> to_basic_gates(QCirGate const& gate, CcDecomposition cc_decomp) {
@@ -1569,7 +1569,7 @@ std::optional<QCir> to_basic_gates(QCirGate const& gate, CcDecomposition cc_deco
 template <>
 // NOLINTNEXTLINE(readability-inconsistent-declaration-parameter-name)
 std::optional<QCir> to_basic_gates(qcir::QCir const& qcir) {
-    return to_basic_gates(qcir, CcDecomposition::Rust);
+    return to_basic_gates(qcir, CcDecomposition::Cpp);
 }
 
 std::optional<QCir> to_basic_gates(qcir::QCir const& qcir, CcDecomposition cc_decomp) {
