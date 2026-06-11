@@ -134,7 +134,6 @@ std::vector<ConstraintGraph::HadamardGadgetPair> export_hadamard_gadget_pairs(Ta
         pair.reference_qubit = cct->reference_qubit();
         pairs.push_back(pair);
     }
-    spdlog::info("export_hadamard_gadget_pairs: {} CCC/PMC pairs", pairs.size());
     return pairs;
 }
 

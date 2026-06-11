@@ -54,6 +54,33 @@ function(qsyn_bump_min_cmake project_source_dir min_ver)
   message(STATUS "Bumped cmake_minimum_required in ${project_source_dir}/CMakeLists.txt to >= ${min_ver}; now: '${_first_line}'")
 endfunction()
 
+function(qsyn_quiet_z3_codegen_logs z3_source_dir)
+  set(_scripts
+      "scripts/pyg2hpp.py"
+      "scripts/mk_install_tactic_cpp.py"
+      "scripts/mk_mem_initializer_cpp.py"
+      "scripts/mk_gparams_register_modules_cpp.py"
+      "scripts/mk_def_file.py"
+      "scripts/mk_consts_files.py"
+      "scripts/mk_pat_db.py"
+      "scripts/update_api.py")
+
+  foreach(_rel IN LISTS _scripts)
+    set(_path "${z3_source_dir}/${_rel}")
+    if(EXISTS "${_path}")
+      file(READ "${_path}" _orig)
+      set(_new "${_orig}")
+      string(REPLACE "logging.basicConfig(level=logging.INFO)"
+                     "logging.basicConfig(level=logging.WARNING)"
+                     _new
+                     "${_new}")
+      if(NOT _new STREQUAL _orig)
+        file(WRITE "${_path}" "${_new}")
+      endif()
+    endif()
+  endforeach()
+endfunction()
+
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(QSYN_PROJECT_NAME qsyn-debug)
 else()
@@ -192,6 +219,19 @@ FetchContent_Declare(
   GIT_TAG add-cmake-fetchcontent-support)
 FetchContent_MakeAvailable(cadical)
 
+FetchContent_Declare(
+  Z3
+  SYSTEM
+  GIT_REPOSITORY https://github.com/Z3Prover/z3.git
+  GIT_TAG z3-4.13.0
+  GIT_SHALLOW ON)
+set(Z3_BUILD_LIBZ3_SHARED OFF CACHE INTERNAL "")
+set(Z3_BUILD_EXECUTABLE OFF CACHE INTERNAL "")
+set(Z3_BUILD_TEST_EXECUTABLES OFF CACHE INTERNAL "")
+set(Z3_ENABLE_EXAMPLE_TARGETS OFF CACHE INTERNAL "")
+FetchContent_MakeAvailable(Z3)
+qsyn_quiet_z3_codegen_logs("${z3_SOURCE_DIR}")
+
 # --- libabc (patched for new CMake) ---
 FetchContent_Declare(
   libabc
@@ -265,6 +305,11 @@ target_include_directories(
 target_include_directories(
     ${QSYN_LIB_NAME} SYSTEM PRIVATE ${CMAKE_SOURCE_DIR}/vendor)
 
+target_include_directories(
+    ${QSYN_LIB_NAME} SYSTEM PRIVATE
+    ${z3_SOURCE_DIR}/src/api
+    ${z3_SOURCE_DIR}/src/api/c++)
+
 target_link_libraries_system(
     ${QSYN_LIB_NAME}
     PRIVATE
@@ -278,7 +323,8 @@ target_link_libraries_system(
     Microsoft.GSL::GSL
     sul::dynamic_bitset
     nlohmann_json::nlohmann_json
-    cadical::cadical)
+    cadical::cadical
+    libz3)
 target_link_libraries(
     ${QSYN_LIB_NAME} 
     PRIVATE 
@@ -390,7 +436,8 @@ target_link_libraries_system(
     PRIVATE
     fmt::fmt
     spdlog::spdlog
-    Microsoft.GSL::GSL)
+    Microsoft.GSL::GSL
+    sul::dynamic_bitset)
 
 target_compile_options(
     ${UNIT_TEST_NAME}

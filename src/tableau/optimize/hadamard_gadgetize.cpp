@@ -559,12 +559,6 @@ std::unordered_map<size_t, PmcUnifiedPrRelation> commute_and_merge_rotations(Tab
     if (last_clifford.has_value()) {
         tableau.push_back(std::move(last_clifford.value()));
     }
-    if (pmc_move_count > 0 || pr_merge_count > 0) {
-        spdlog::info(
-            "Zipper commutation complete. moved_pmcs={}, merged_prs={}",
-            pmc_move_count,
-            pr_merge_count);
-    }
     return pmc_to_unified_pr;
 }
 
@@ -852,13 +846,15 @@ void apply_degadgetize_pair(Tableau& tableau, size_t ccc_index) {
 
 }  // namespace
 
-size_t hadamard_degadgetize(Tableau& tableau, std::vector<size_t> const& ancilla_candidates) {
+size_t hadamard_degadgetize(Tableau& tableau,
+                            std::vector<size_t> const& ancilla_candidates,
+                            std::vector<size_t>* removed_ancillae) {
+    if (removed_ancillae != nullptr) {
+        removed_ancillae->clear();
+    }
     if (ancilla_candidates.empty()) {
         return 0;
     }
-
-    move_pmcs_adjacent_to_gadgets(tableau, ancilla_candidates);
-    spdlog::info("tableau after PMC move: {:g}", tableau);
     std::unordered_set<size_t> candidate_pair_indices;
     for (size_t const ancilla : ancilla_candidates) {
         if (auto const pair_indices = find_gadget_pair(tableau, ancilla)) {
@@ -919,6 +915,9 @@ size_t hadamard_degadgetize(Tableau& tableau, std::vector<size_t> const& ancilla
         }
 
         apply_degadgetize_pair(tableau, ccc_index);
+        if (removed_ancillae != nullptr) {
+            removed_ancillae->push_back(ancilla);
+        }
         ++degadgetized_count;
     }
 

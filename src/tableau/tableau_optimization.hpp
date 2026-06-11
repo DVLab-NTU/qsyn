@@ -7,6 +7,7 @@
 #pragma once
 
 #include "./tableau.hpp"
+#include "tableau/optimize/reorder_smt.hpp"
 #include "tableau/pauli_rotation.hpp"
 #include "tableau/stabilizer_tableau.hpp"
 #include <algorithm>
@@ -274,31 +275,6 @@ struct SatSignatureExport {
 /** Build SAT block_left/block_right from PR and PR after swap_along_test(pr_idx, 1). */
 SatSignatureExport compute_sat_signature_blocks(Tableau const& tableau);
 
-/** One PMC tested by commuting through its SAT block_left columns (independent trial per PMC). */
-struct BlockLeftPmcTestRow {
-    size_t ancilla_qubit         = 0;
-    size_t gid                   = 0;
-    size_t block_left_size       = 0;
-    bool commute_success         = false;
-    bool is_single_x_on_reference = false;
-    size_t reference_qubit       = 0;
-    size_t pmc_op_count          = 0;
-};
-
-struct BlockLeftPmcTestReport {
-    std::vector<BlockLeftPmcTestRow> rows;
-    size_t single_x_count = 0;
-    bool all_single_x     = true;
-};
-
-/** For each PMC, split unified PR by block_left and run move_pmcs-style commute; log single-X result. */
-BlockLeftPmcTestReport test_move_pmcs_with_block_left(
-    Tableau const& tableau,
-    std::unordered_map<size_t, PmcUnifiedPrRelation> const& pmc_to_unified_pr);
-
-/** adder_8.qc → gadgetize + FastTODD → test_move_pmcs_with_block_left. */
-bool test_adder_8_move_pmcs_block_left();
-
 std::unordered_map<size_t, PmcUnifiedPrRelation> commute_and_merge_rotations(Tableau& tableau);
 void collapse_with_classical(Tableau& tableau);
 
@@ -350,14 +326,13 @@ CircuitStructureInfo inspect_degadgetization_structure(Tableau const& tableau);
 void reorder_n_degadgetize(Tableau& tableau);
 
 /** Move PMCs, validate, and degadgetize the given ancilla candidates. Returns count applied. */
-size_t hadamard_degadgetize(Tableau& tableau, std::vector<size_t> const& ancilla_candidates);
+size_t hadamard_degadgetize(Tableau& tableau,
+                            std::vector<size_t> const& ancilla_candidates,
+                            std::vector<size_t>* removed_ancillae = nullptr);
 
-bool sat_reorder_export(Tableau& tableau, std::filesystem::path const& work_dir);
-bool sat_reorder_run_solver(std::filesystem::path const& work_dir, std::filesystem::path const& sat_formulation_py);
-/** Reorder PR blocks and CCCs per gadget_ordering; does not degadgetize (circuit stays gadgetized). */
-bool sat_reorder_apply(Tableau& tableau,
-                       std::filesystem::path const& ordering_path);
-/** Export → Z3 (sat_formulation.py) → apply; on failure falls back to full reorder_n_degadgetize (with degadgetize). */
+bool sat_reorder_apply_ordering(Tableau& tableau,
+                                ParsedGadgetOrdering const& ord);
+/** Build qsyn SAT signature → native Z3 SMT schedule → apply; on failure leaves the tableau unchanged. */
 void sat_reorder(Tableau& tableau);
 
 void check_redundant_ancilla(Tableau& tableau);
@@ -460,9 +435,6 @@ struct TohpePhasePolynomialOptimizationStrategy : public PhasePolynomialOptimiza
 struct FastToddPhasePolynomialOptimizationStrategy : public PhasePolynomialOptimizationStrategy {
     std::pair<StabilizerTableau, Polynomial> optimize(StabilizerTableau const& clifford, Polynomial const& polynomial) const override;
 };
-
-/** Run fasttodd_once on a term table file (one Z bitstring per line). */
-std::vector<PauliRotation> fasttodd_from_term_bitstrings_file(std::string const& path);
 
 void optimize_phase_polynomial(StabilizerTableau& clifford, std::vector<PauliRotation>& polynomial, PhasePolynomialOptimizationStrategy const& strategy);
 void optimize_phase_polynomial(Tableau& tableau, PhasePolynomialOptimizationStrategy const& strategy);

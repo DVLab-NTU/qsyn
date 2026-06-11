@@ -309,9 +309,6 @@ void insert_pr_group_front_at_idx(
     working.insert(
         working.begin() + static_cast<std::ptrdiff_t>(pr_idx),
         SubTableau{std::move(pr_group)});
-    working.insert(
-        working.begin() + static_cast<std::ptrdiff_t>(pr_idx + 1),
-        SubTableau{std::move(pr_rest)});
 }
 
 std::vector<PauliRotation> swap_along_test_to_circuit_front(
@@ -662,9 +659,6 @@ PrColumnThreeGroupSplit classify_pr_three_column_groups(
 
 namespace {
 
-constexpr char ADDER_8_QC_PATH[] =
-    "/home/ferayer/TODD/quantum-circuit-optimization/circuits/inputs/adder_8.qc";
-
 std::vector<PauliRotation> concat_pr_groups(
     std::vector<PauliRotation> const& a,
     std::vector<PauliRotation> const& b,
@@ -759,48 +753,7 @@ void test_pr_column_groups_push_front_z_on_ancilla(
     }
 }
 
-bool test_adder_8_pr_push_front_z_on_ancilla_after_topt(
-    std::optional<std::filesystem::path> phase_export_path) {
-    auto const qcir_opt = qcir::from_file(ADDER_8_QC_PATH);
-    if (!qcir_opt.has_value()) {
-        spdlog::error("test_adder_8: cannot read {}", ADDER_8_QC_PATH);
-        return false;
-    }
 
-    auto qcir = *qcir_opt;
-    if (auto const basic = to_basic_gates(qcir); basic.has_value()) {
-        qcir = std::move(*basic);
-    }
-
-    auto const tableau_opt = to_tableau(qcir);
-    if (!tableau_opt.has_value()) {
-        spdlog::error("test_adder_8: to_tableau failed");
-        return false;
-    }
-
-    Tableau tableau = *tableau_opt;
-    tableau.set_filename("adder_8");
-
-    auto const pmc_to_unified_pr = minimize_internal_hadamards_n_gadgetize(tableau);
-    optimize_phase_polynomial_with_classical(tableau, FastToddPhasePolynomialOptimizationStrategy{});
-
-    spdlog::info(
-        "test_adder_8: whole PR block swap_along_test(pr_idx, 1) — no column split");
-    auto const pr_export = export_whole_pr_phases_after_swap_to_front(tableau);
-    spdlog::info(
-        "test_adder_8: unified PR at idx {}, {} columns",
-        pr_export.pr_idx,
-        pr_export.before.size());
-
-    std::filesystem::path const out_path =
-        phase_export_path.value_or(
-            "/home/ferayer/minimize_ancilla/results/pr_whole_swap_adder_8.csv");
-    if (!write_pr_whole_swap_phase_export_csv(tableau, pmc_to_unified_pr, pr_export, out_path)) {
-        return false;
-    }
-    log_pr_block_summary_per_ancilla(tableau, pmc_to_unified_pr, pr_export);
-    return true;
-}
 
 SatSignatureExport compute_sat_signature_blocks(Tableau const& tableau) {
     SatSignatureExport out;
@@ -872,245 +825,12 @@ SatSignatureExport compute_sat_signature_blocks(Tableau const& tableau) {
         std::ranges::sort(lists.block_right);
     }
 
-    size_t const degadgetizable_count = static_cast<size_t>(std::count_if(
-        out.blocks_by_gid.begin(),
-        out.blocks_by_gid.end(),
-        [](GadgetPrBlockLists const& b) { return b.degadgetizable; }));
-    spdlog::info(
-        "compute_sat_signature_blocks: {} gadgets ({} degadgetizable), {} PR columns "
-        "(block_right=Z@ancilla before, block_left=Z@ancilla after front commute)",
-        num_gadgets,
-        degadgetizable_count,
-        out.pauli_count);
     return out;
 }
 
-namespace {
 
-std::vector<size_t> block_left_pids_to_column_indices(
-    std::vector<size_t> const& block_left_pids,
-    size_t num_gadgets) {
-    std::vector<size_t> cols;
-    cols.reserve(block_left_pids.size());
-    for (size_t const pid : block_left_pids) {
-        if (pid >= num_gadgets) {
-            cols.push_back(pid - num_gadgets);
-        }
-    }
-    std::ranges::sort(cols);
-    cols.erase(std::unique(cols.begin(), cols.end()), cols.end());
-    return cols;
-}
 
-std::pair<std::vector<PauliRotation>, std::vector<PauliRotation>> split_pr_by_column_indices(
-    std::vector<PauliRotation> const& unified_pr,
-    std::vector<size_t> const& column_indices) {
-    std::unordered_set<size_t> const idx_set(column_indices.begin(), column_indices.end());
-    std::vector<PauliRotation> group;
-    std::vector<PauliRotation> rest;
-    group.reserve(column_indices.size());
-    rest.reserve(unified_pr.size());
-    for (size_t i = 0; i < unified_pr.size(); ++i) {
-        if (idx_set.contains(i)) {
-            group.push_back(unified_pr[i]);
-        } else {
-            rest.push_back(unified_pr[i]);
-        }
-    }
-    return {std::move(group), std::move(rest)};
-}
 
-struct PmcCommuteOutcome {
-    bool success                    = false;
-    bool is_single_x_on_reference   = false;
-    size_t reference_qubit          = 0;
-    size_t pmc_op_count             = 0;
-};
-
-PmcCommuteOutcome run_pmc_commute_through_pr_split(
-    Tableau const& working,
-    size_t pr_idx,
-    std::vector<PauliRotation> const& unified_pr_original,
-    size_t gadget_idx,
-    std::vector<PauliRotation> pr_split,
-    std::vector<PauliRotation> pr_rest) {
-    PmcCommuteOutcome out;
-    if (pr_idx >= working.size() || working.size() < 2) {
-        return out;
-    }
-
-    Tableau w = working;
-    insert_pr_split_rest_at_idx(w, pr_idx, std::move(pr_rest), std::move(pr_split));
-    [[maybe_unused]] auto rest_pr_prime = swap_along_test_to_circuit_front(w, pr_idx);
-
-    w.erase(
-        w.begin() + static_cast<std::ptrdiff_t>(pr_idx),
-        w.begin() + static_cast<std::ptrdiff_t>(pr_idx + 1));
-
-    size_t const target_idx = gadget_idx + 1;
-    swap_along(w, pr_idx + 1, target_idx);
-
-    size_t const pmc_ij_idx = pr_idx + 1;
-    if (pmc_ij_idx >= w.size()) {
-        return out;
-    }
-    w.erase(
-        w.begin() + static_cast<std::ptrdiff_t>(pmc_ij_idx),
-        w.begin() + static_cast<std::ptrdiff_t>(pmc_ij_idx + 1));
-    w.insert(
-        w.begin() + static_cast<std::ptrdiff_t>(pmc_ij_idx),
-        SubTableau{unified_pr_original});
-
-    auto* moved_pmc = std::get_if<ClassicalControlTableau>(&w[target_idx]);
-    if (moved_pmc == nullptr || !moved_pmc->is_classical_control()) {
-        return out;
-    }
-    auto const* gadget = std::get_if<ClassicalControlTableau>(&w[gadget_idx]);
-    if (gadget == nullptr) {
-        return out;
-    }
-    out.reference_qubit = gadget->reference_qubit();
-    auto const ops      = extract_clifford_operators(moved_pmc->operations());
-    out.pmc_op_count    = ops.size();
-    out.is_single_x_on_reference =
-        ops.size() == 1 &&
-        ops.front().first == CliffordOperatorType::x &&
-        ops.front().second[0] == out.reference_qubit;
-    out.success = true;
-    return out;
-}
-
-std::unordered_map<size_t, std::pair<size_t, std::vector<size_t>>> build_ancilla_block_left_map(
-    SatSignatureExport const& sat_export) {
-    size_t const num_gadgets = sat_export.blocks_by_gid.size();
-    std::unordered_map<size_t, std::pair<size_t, std::vector<size_t>>> out;
-    for (auto const& lists : sat_export.blocks_by_gid) {
-        out[lists.ancilla_qubit] = {
-            lists.gid,
-            block_left_pids_to_column_indices(lists.block_left, num_gadgets)};
-    }
-    return out;
-}
-
-}  // namespace
-
-BlockLeftPmcTestReport test_move_pmcs_with_block_left(
-    Tableau const& tableau,
-    std::unordered_map<size_t, PmcUnifiedPrRelation> const& pmc_to_unified_pr) {
-    (void)pmc_to_unified_pr;
-    BlockLeftPmcTestReport report;
-
-    SatSignatureExport const sat_export = compute_sat_signature_blocks(tableau);
-    auto const ancilla_block_left       = build_ancilla_block_left_map(sat_export);
-
-    auto const pr_idx_opt = find_unified_pr_block_index(tableau);
-    if (!pr_idx_opt.has_value()) {
-        spdlog::warn("test_move_pmcs_with_block_left: no unified PR block");
-        return report;
-    }
-    size_t const pr_idx = *pr_idx_opt;
-    auto const* unified_pr =
-        std::get_if<std::vector<PauliRotation>>(&tableau[pr_idx]);
-    if (unified_pr == nullptr) {
-        spdlog::warn("test_move_pmcs_with_block_left: expected PR block at index {}", pr_idx);
-        return report;
-    }
-
-    for (size_t pmc_idx = pr_idx + 1; pmc_idx < tableau.size(); ++pmc_idx) {
-        auto const* pmc = std::get_if<ClassicalControlTableau>(&tableau[pmc_idx]);
-        if (pmc == nullptr || !pmc->is_classical_control()) {
-            break;
-        }
-        size_t const ancilla = pmc->ancilla_qubit();
-
-        auto const pair_opt = find_gadget_pair(tableau, ancilla);
-        if (!pair_opt.has_value() || pair_opt->gadget_index >= pr_idx) {
-            spdlog::warn(
-                "test_move_pmcs_with_block_left: missing gadget counterpart for ancilla {}",
-                ancilla);
-            continue;
-        }
-
-        auto const block_it = ancilla_block_left.find(ancilla);
-        size_t const gid =
-            block_it != ancilla_block_left.end() ? block_it->second.first : 0;
-        std::vector<size_t> const block_left_cols =
-            block_it != ancilla_block_left.end() ? block_it->second.second
-                                                 : std::vector<size_t>{};
-
-        auto const [pr_block_left, pr_rest] =
-            split_pr_by_column_indices(*unified_pr, block_left_cols);
-
-        auto const outcome = run_pmc_commute_through_pr_split(
-            tableau,
-            pr_idx,
-            *unified_pr,
-            pair_opt->gadget_index,
-            pr_block_left,
-            pr_rest);
-
-        BlockLeftPmcTestRow row;
-        row.ancilla_qubit               = ancilla;
-        row.gid                         = gid;
-        row.block_left_size             = block_left_cols.size();
-        row.commute_success             = outcome.success;
-        row.is_single_x_on_reference    = outcome.is_single_x_on_reference;
-        row.reference_qubit             = outcome.reference_qubit;
-        row.pmc_op_count                = outcome.pmc_op_count;
-        report.rows.push_back(row);
-
-        if (outcome.is_single_x_on_reference) {
-            ++report.single_x_count;
-        } else {
-            report.all_single_x = false;
-        }
-
-        spdlog::info(
-            "block_left commute test ancilla={} gid={} block_left={} cols commute_ok={} "
-            "single_X@ref={} (ref_q={}, pmc_ops={})",
-            ancilla,
-            gid,
-            block_left_cols.size(),
-            outcome.success,
-            outcome.is_single_x_on_reference,
-            outcome.reference_qubit,
-            outcome.pmc_op_count);
-    }
-
-    spdlog::info(
-        "test_move_pmcs_with_block_left: {}/{} PMCs reduced to single X on reference",
-        report.single_x_count,
-        report.rows.size());
-    return report;
-}
-
-bool test_adder_8_move_pmcs_block_left() {
-    auto const qcir_opt = qcir::from_file(ADDER_8_QC_PATH);
-    if (!qcir_opt.has_value()) {
-        spdlog::error("test_adder_8_block_left: cannot read {}", ADDER_8_QC_PATH);
-        return false;
-    }
-
-    auto qcir = *qcir_opt;
-    if (auto const basic = to_basic_gates(qcir); basic.has_value()) {
-        qcir = std::move(*basic);
-    }
-
-    auto const tableau_opt = to_tableau(qcir);
-    if (!tableau_opt.has_value()) {
-        spdlog::error("test_adder_8_block_left: to_tableau failed");
-        return false;
-    }
-
-    Tableau tableau = *tableau_opt;
-    tableau.set_filename("adder_8");
-
-    auto const pmc_to_unified_pr = minimize_internal_hadamards_n_gadgetize(tableau);
-    optimize_phase_polynomial_with_classical(tableau, FastToddPhasePolynomialOptimizationStrategy{});
-
-    auto const report = test_move_pmcs_with_block_left(tableau, pmc_to_unified_pr);
-    return report.all_single_x && !report.rows.empty();
-}
 
 BlockingSignatureInfo analyze_blocking_signature(
     std::vector<PauliRotation> const& pr_blocking,

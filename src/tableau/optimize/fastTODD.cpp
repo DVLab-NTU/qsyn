@@ -12,7 +12,6 @@
 #include <cstdlib>
 #include <cstddef>
 #include <cstdint>
-#include <fstream>
 #include <iterator>
 #include <optional>
 #include <ranges>
@@ -904,43 +903,6 @@ Polynomial fasttodd_once(Polynomial const& polynomial) {
     return fasttodd_once(polynomial, "cpp");
 }
 
-Polynomial polynomial_from_term_bitstrings_file(std::string const& path) {
-    std::ifstream in(path);
-    if (!in) {
-        spdlog::error("Cannot open term file: {}", path);
-        return {};
-    }
-    std::vector<std::string> lines;
-    for (std::string line; std::getline(in, line);) {
-        if (line.empty()) {
-            continue;
-        }
-        lines.push_back(line);
-    }
-    if (lines.empty()) {
-        return {};
-    }
-    size_t const n_qubits = lines.front().size();
-    dvlab::BooleanMatrix table;
-    table.reserve(lines.size(), n_qubits);
-    for (auto const& line : lines) {
-        dvlab::BooleanMatrix::Row row(n_qubits, 0);
-        for (size_t i = 0; i < n_qubits && i < line.size(); ++i) {
-            row[i] = (line[i] == '1') ? 1 : 0;
-        }
-        table.push_row(row);
-    }
-    return from_boolean_matrix(table);
-}
-
-Polynomial fasttodd_from_term_file_impl(std::string const& path) {
-    auto poly = polynomial_from_term_bitstrings_file(path);
-    if (poly.empty()) {
-        return poly;
-    }
-    return fasttodd_once(poly);
-}
-
 /** Original C++ FastTODD optimize path (properize → fasttodd_once → Clifford correction). */
 std::optional<std::pair<StabilizerTableau, Polynomial>> fasttodd_optimize(
     StabilizerTableau const& clifford,
@@ -965,10 +927,6 @@ std::optional<std::pair<StabilizerTableau, Polynomial>> fasttodd_optimize(
 }
 
 }  // namespace
-
-Polynomial fasttodd_from_term_bitstrings_file(std::string const& path) {
-    return fasttodd_from_term_file_impl(path);
-}
 
 std::pair<StabilizerTableau, Polynomial> TohpePhasePolynomialOptimizationStrategy::optimize(StabilizerTableau const& clifford, Polynomial const& polynomial) const {
     if (polynomial.empty()) {
