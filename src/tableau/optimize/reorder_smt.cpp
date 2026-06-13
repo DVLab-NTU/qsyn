@@ -328,6 +328,26 @@ AncillaScheduleResult build_result(AncillaSmtInstance const& inst, size_t const 
         }
     }
 
+    SatSignatureExport sig_for_overlap;
+    sig_for_overlap.pauli_count = inst.pauli_count;
+    sig_for_overlap.blocks_by_gid.resize(G);
+    for (size_t gid = 0; gid < G; ++gid) {
+        sig_for_overlap.blocks_by_gid[gid].gid         = gid;
+        sig_for_overlap.blocks_by_gid[gid].block_left  = inst.block_left[gid];
+        sig_for_overlap.blocks_by_gid[gid].block_right = inst.block_right[gid];
+    }
+    auto const overlap = compute_gadget_overlap_constraints(sig_for_overlap);
+    for (size_t const gid :
+         collect_lower_ancilla_overlap_excluded_gids(inst.gadget_ancilla_qubit, overlap)) {
+        if (result.degadgetizable_gids.erase(gid) == 0) {
+            continue;
+        }
+        if (result.span_by_gid.count(gid) == 0) {
+            size_t const rank = rank_by_gid.at(gid);
+            result.span_by_gid.emplace(gid, std::pair<size_t, size_t>{rank, rank});
+        }
+    }
+
     return result;
 }
 
@@ -1645,6 +1665,30 @@ std::unordered_map<size_t, size_t> build_logical_to_physical_ancilla_map(
     return logical_to_physical;
 }
 
+void log_smt_gadget_spans(ParsedGadgetOrdering const& ord) {
+    size_t const G = ord.gadget_order_gids.size();
+    spdlog::info(
+        "sat_reorder_apply: SMT gadget spans ({} gadgets, width={}):",
+        G,
+        ord.width_w);
+    for (size_t gid = 0; gid < G; ++gid) {
+        if (ord.degadgetizable_gids.count(gid) != 0) {
+            spdlog::info("sat_reorder_apply:   g{}: degadgetizable", gid);
+            continue;
+        }
+        auto const it = ord.span_by_gid.find(gid);
+        if (it != ord.span_by_gid.end()) {
+            spdlog::info(
+                "sat_reorder_apply:   g{}: t=[{},{}]",
+                gid,
+                it->second.first,
+                it->second.second);
+        } else {
+            spdlog::info("sat_reorder_apply:   g{}: (no span)", gid);
+        }
+    }
+}
+
 void log_ancilla_lane_remap_intervals(
     AncillaOccupancyTableau const&          occupancy,
     std::unordered_map<size_t, size_t> const& gid_to_current_ancilla) {
@@ -1869,6 +1913,10 @@ AncillaSmtInstance build_ancilla_smt_instance(SatSignatureExport const& sig) {
     }
 
     build_signature_reduction(inst);
+
+    auto const overlap = compute_gadget_overlap_constraints(sig);
+    inst.max_column_overlap = overlap.max_overlap_among_columns();
+
     return inst;
 }
 
@@ -1933,21 +1981,83 @@ AncillaScheduleResult solve_ancilla_schedule(AncillaSmtInstance const& inst) {
         return {.ok = false, .error = "empty gadget order"};
     }
 
-    auto log_width_result = [](size_t const w, bool const ok) {
+    size_t const max_overlap = inst.max_column_overlap;
+    size_t const hi_cap      = inst.ancilla_count;
+
+    spdlog::info(
+        "solve_ancilla_schedule: max_column_overlap={} (minimum achievable width)",
+        max_overlap);
+
+    auto log_width_result = [](size_t const w, bool const ok, char const* note = nullptr) {
+        if (note != nullptr) {
+            spdlog::info("solve_ancilla_schedule: width={} {} ({})", w, ok ? "SAT" : "UNSAT", note);
+            return;
+        }
         spdlog::info("solve_ancilla_schedule: width={} {}", w, ok ? "SAT" : "UNSAT");
     };
 
-    size_t lo = 0;
-    size_t hi = G;
     std::optional<size_t> best_w;
     PosMap best_pos;
 
+    size_t lo = 0;
+    size_t hi = hi_cap;
+    std::optional<WidthSolve> probe;
+
+    if (max_overlap > 0) {
+        size_t const probe_w = max_overlap - 1;
+        probe = solve_width(inst, probe_w);
+        log_width_result(probe_w, probe->ok, "max_overlap-1 probe");
+
+        if (probe->ok) {
+            spdlog::info(
+                "solve_ancilla_schedule: max_overlap-1={} works (SAT); searching [1, {}]",
+                probe_w,
+                max_overlap - 1);
+            best_w   = probe_w;
+            best_pos = probe->pos_map;
+            lo       = 1;
+            hi       = max_overlap - 1;
+        } else {
+            spdlog::info(
+                "solve_ancilla_schedule: max_overlap-1={} does not work (UNSAT); searching [{}, {}]",
+                probe_w,
+                max_overlap,
+                hi_cap);
+            lo = max_overlap;
+            hi = hi_cap;
+        }
+    } else {
+        spdlog::info(
+            "solve_ancilla_schedule: max_column_overlap=0; searching [0, {}]",
+            hi_cap);
+        lo = 0;
+        hi = hi_cap;
+    }
+
+    if (lo > hi) {
+        if (best_w.has_value()) {
+            return build_result(inst, *best_w, best_pos);
+        }
+        return {
+            .ok    = false,
+            .error = fmt::format(
+                "SMT search range empty (max_column_overlap={} ancilla_count={})",
+                max_overlap,
+                hi_cap),
+        };
+    }
+
     while (lo <= hi) {
         size_t const mid = lo + (hi - lo) / 2;
-        auto r = solve_width(inst, mid);
-        log_width_result(mid, r.ok);
+        WidthSolve r;
+        if (probe.has_value() && max_overlap > 0 && mid == max_overlap - 1) {
+            r = *probe;
+        } else {
+            r = solve_width(inst, mid);
+            log_width_result(mid, r.ok);
+        }
         if (r.ok) {
-            best_w = mid;
+            best_w   = mid;
             best_pos = std::move(r.pos_map);
             if (mid == 0) {
                 break;
@@ -1959,7 +2069,10 @@ AncillaScheduleResult solve_ancilla_schedule(AncillaSmtInstance const& inst) {
     }
 
     if (!best_w.has_value()) {
-        return {.ok = false, .error = "SMT UNSAT even at full width"};
+        return {
+            .ok    = false,
+            .error = fmt::format("SMT UNSAT even at ancilla_count={}", hi_cap),
+        };
     }
     return build_result(inst, *best_w, best_pos);
 }
@@ -2044,6 +2157,7 @@ bool sat_reorder_apply_ordering(Tableau& tableau,
         orig_n_ancilla,
         sat_width_w,
         ord.degadgetizable_gids.size());
+    log_smt_gadget_spans(ord);
 
     if (expected_reorder_count > 0) {
         if (!validate_tableau_schedule_spans(
@@ -2082,6 +2196,18 @@ bool sat_reorder_apply_ordering(Tableau& tableau,
                 removed_ancillae.end()) {
                 removed_gids.insert(gid);
             }
+        }
+        if (!removed_gids.empty()) {
+            std::vector<size_t> sorted_removed(removed_gids.begin(), removed_gids.end());
+            std::sort(sorted_removed.begin(), sorted_removed.end());
+            std::vector<std::string> removed_gid_entries;
+            removed_gid_entries.reserve(sorted_removed.size());
+            for (size_t const gid : sorted_removed) {
+                removed_gid_entries.push_back(fmt::format("g{}", gid));
+            }
+            spdlog::info(
+                "sat_reorder_apply: removed gids: {}",
+                fmt::join(removed_gid_entries, ", "));
         }
     }
 
@@ -2169,6 +2295,7 @@ bool sat_reorder_apply_ordering(Tableau& tableau,
 void sat_reorder(Tableau& tableau) {
     try {
         SatSignatureExport const sig = compute_sat_signature_blocks(tableau);
+        log_sat_reorder_preprocess(sig);
         AncillaSmtInstance inst = build_ancilla_smt_instance(sig);
         AncillaScheduleResult const result = solve_ancilla_schedule(inst);
         if (!result.ok) {

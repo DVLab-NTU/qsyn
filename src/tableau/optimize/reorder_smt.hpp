@@ -40,6 +40,8 @@ struct AncillaSmtInstance {
     size_t qubit_count   = 0;
     size_t ancilla_count = 0;
     size_t pauli_count   = 0;
+    /** Max gadgets sharing a PR bridge column; lower bound on achievable width. */
+    size_t max_column_overlap = 0;
 
     /** Fixed pi from qsyn export, indexed by rank. */
     std::vector<size_t> gadget_order_gids;

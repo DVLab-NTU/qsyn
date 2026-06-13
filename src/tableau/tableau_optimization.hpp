@@ -258,7 +258,10 @@ struct GadgetPrBlockLists {
     std::vector<size_t> block_left;
     /** Unified PR column i before commute has Z on this gadget ancilla; pid = G + i. */
     std::vector<size_t> block_right;
-    /** True iff no column index is in both block_left and block_right for this gadget. */
+    /**
+     * True iff no column is in both block_left and block_right for this gadget,
+     * and the gadget has no overlap with any gadget on a lower ancilla qubit.
+     */
     bool degadgetizable = true;
 };
 
@@ -274,6 +277,36 @@ struct SatSignatureExport {
 
 /** Build SAT block_left/block_right from PR and PR after swap_along_test(pr_idx, 1). */
 SatSignatureExport compute_sat_signature_blocks(Tableau const& tableau);
+
+/**
+ * Gadget overlap from PR bridge columns: for column i and gadgets a < b,
+ * block_right(i,a) & block_left(i,b) implies a and b must overlap in schedule.
+ */
+struct GadgetOverlapConstraints {
+    size_t gadget_count = 0;
+    /** Sorted unique overlapping gadget gids for each gid. */
+    std::vector<std::vector<size_t>> overlap_neighbors;
+    /** Bridge PR column indices per (gid, other_gid). */
+    std::vector<std::unordered_map<size_t, std::vector<size_t>>> bridge_columns_by_neighbor;
+    /**
+     * Per PR column: number of distinct gadgets involved in any bridge
+     * block_right(col,a) & block_left(col,b) overlap from that column.
+     */
+    std::vector<size_t> overlap_gadget_count_by_column;
+
+    [[nodiscard]] size_t overlapping_pair_count() const;
+    [[nodiscard]] size_t max_overlap_among_columns() const;
+    [[nodiscard]] size_t max_overlap_among_gadgets() const;
+};
+
+GadgetOverlapConstraints compute_gadget_overlap_constraints(SatSignatureExport const& sig);
+
+/** Gadget gids excluded from degadgetization: overlap a gadget on a lower ancilla qubit. */
+std::unordered_set<size_t> collect_lower_ancilla_overlap_excluded_gids(
+    std::vector<size_t> const&      gadget_ancilla_qubit,
+    GadgetOverlapConstraints const& overlap);
+
+void log_sat_reorder_preprocess(SatSignatureExport const& sig);
 
 std::unordered_map<size_t, PmcUnifiedPrRelation> commute_and_merge_rotations(Tableau& tableau);
 void collapse_with_classical(Tableau& tableau);
