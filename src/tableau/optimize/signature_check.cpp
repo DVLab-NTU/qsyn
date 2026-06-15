@@ -1345,7 +1345,12 @@ void minimize_ancillary_t_opt_with_degadgetization(Tableau& tableau, std::option
         return;
     }
     auto const pmc_to_unified_pr = minimize_internal_hadamards_n_gadgetize(tableau);
-    optimize_phase_polynomial_with_classical(tableau, FastToddPhasePolynomialOptimizationStrategy{});
+    if (has_gadget_ancillae(tableau)) {
+        optimize_phase_polynomial_with_classical(tableau, FastToddPhasePolynomialOptimizationStrategy{});
+    } else {
+        spdlog::info("minimize_ancillary_t_opt: no gadget ancilla; using standard FastTODD");
+        optimize_phase_polynomial(tableau, FastToddPhasePolynomialOptimizationStrategy{});
+    }
 
     std::string const label =
         tableau.get_filename().empty() ? "tableau" : tableau.get_filename();

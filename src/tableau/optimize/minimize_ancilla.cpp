@@ -846,6 +846,10 @@ void pad_subtableaux_to_n_qubits(Tableau& tableau) {
 
 
 void reorder_n_degadgetize(Tableau& tableau) {
+    if (!has_gadget_ancillae(tableau)) {
+        spdlog::info("reorder_n_degadgetize: skipped (no gadget ancilla)");
+        return;
+    }
     auto const structure = inspect_degadgetization_structure(tableau);
     if (!structure.is_valid) {
         spdlog::error("reorder_n_degadgetize: invalid degadgetization structure");

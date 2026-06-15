@@ -446,6 +446,11 @@ ConstraintGraph build_constraint_graph(
 /** Export validated H-gadget (CCC, PMC) pairs from a tableau. */
 std::vector<ConstraintGraph::HadamardGadgetPair> export_hadamard_gadget_pairs(Tableau& tableau);
 
+/** True when H-gadgetization introduced ancilla qubits (classical-aware T-opt / reorder apply). */
+inline bool has_gadget_ancillae(Tableau const& tableau) {
+    return tableau.n_ancilla() > 0;
+}
+
 // Classical T optimization: minimize internal H, gadgetize, commute classical, and optimize with FastTODD
 void minimize_ancillary_t_opt(Tableau& tableau, std::optional<std::string> export_filename = std::nullopt);
 void minimize_ancillary_t_opt_with_degadgetization(Tableau& tableau, std::optional<std::string> export_filename = std::nullopt);

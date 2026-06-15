@@ -2300,6 +2300,10 @@ bool sat_reorder_apply_ordering(Tableau& tableau,
 }
 
 void sat_reorder(Tableau& tableau) {
+    if (!has_gadget_ancillae(tableau)) {
+        spdlog::info("sat_reorder: skipped (no gadget ancilla)");
+        return;
+    }
     try {
         SatSignatureExport const sig = compute_sat_signature_blocks(tableau);
         log_sat_reorder_preprocess(sig);
