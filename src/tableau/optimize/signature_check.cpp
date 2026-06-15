@@ -5,6 +5,7 @@
 #include <spdlog/spdlog.h>
 
 #include <fstream>
+#include <limits>
 #include <numeric>
 #include <set>
 #include <stdexcept>
@@ -886,6 +887,78 @@ size_t GadgetOverlapConstraints::max_overlap_among_gadgets() const {
     return max_n;
 }
 
+namespace {
+
+size_t count_left_after_ancilla(
+    SatSignatureExport const& sig,
+    std::vector<size_t> const& left_gids,
+    size_t const ancilla) {
+    size_t count = 0;
+    for (size_t const gid : left_gids) {
+        if (sig.blocks_by_gid[gid].ancilla_qubit >= ancilla) {
+            ++count;
+        }
+    }
+    return count;
+}
+
+size_t count_right_before_ancilla(
+    SatSignatureExport const& sig,
+    std::vector<size_t> const& right_gids,
+    size_t const ancilla) {
+    size_t count = 0;
+    for (size_t const gid : right_gids) {
+        if (sig.blocks_by_gid[gid].ancilla_qubit <= ancilla) {
+            ++count;
+        }
+    }
+    return count;
+}
+
+size_t column_overlap_extent(
+    SatSignatureExport const& sig,
+    std::vector<size_t> const& right_gids,
+    std::vector<size_t> const& left_gids,
+    size_t* from_min_right = nullptr,
+    size_t* from_max_left  = nullptr,
+    size_t* min_right_ancilla = nullptr,
+    size_t* max_left_ancilla  = nullptr) {
+    size_t overlap_from_min_right = 0;
+    size_t overlap_from_max_left  = 0;
+
+    if (!right_gids.empty()) {
+        size_t min_anc = std::numeric_limits<size_t>::max();
+        for (size_t const gid : right_gids) {
+            min_anc = std::min(min_anc, sig.blocks_by_gid[gid].ancilla_qubit);
+        }
+        overlap_from_min_right = count_left_after_ancilla(sig, left_gids, min_anc);
+        if (min_right_ancilla != nullptr) {
+            *min_right_ancilla = min_anc;
+        }
+    }
+
+    if (!left_gids.empty()) {
+        size_t max_anc = 0;
+        for (size_t const gid : left_gids) {
+            max_anc = std::max(max_anc, sig.blocks_by_gid[gid].ancilla_qubit);
+        }
+        overlap_from_max_left = count_right_before_ancilla(sig, right_gids, max_anc);
+        if (max_left_ancilla != nullptr) {
+            *max_left_ancilla = max_anc;
+        }
+    }
+
+    if (from_min_right != nullptr) {
+        *from_min_right = overlap_from_min_right;
+    }
+    if (from_max_left != nullptr) {
+        *from_max_left = overlap_from_max_left;
+    }
+    return std::max(overlap_from_min_right, overlap_from_max_left);
+}
+
+}  // namespace
+
 GadgetOverlapConstraints compute_gadget_overlap_constraints(SatSignatureExport const& sig) {
     size_t const G = sig.blocks_by_gid.size();
     GadgetOverlapConstraints out;
@@ -911,21 +984,19 @@ GadgetOverlapConstraints compute_gadget_overlap_constraints(SatSignatureExport c
                 left_gids.push_back(gid);
             }
         }
-        std::set<size_t> gadgets_in_column_overlap;
         for (size_t const a : right_gids) {
             for (size_t const b : left_gids) {
                 if (a >= b) {
                     continue;
                 }
-                gadgets_in_column_overlap.insert(a);
-                gadgets_in_column_overlap.insert(b);
                 neighbor_sets[a].insert(b);
                 neighbor_sets[b].insert(a);
                 out.bridge_columns_by_neighbor[a][b].push_back(col);
                 out.bridge_columns_by_neighbor[b][a].push_back(col);
             }
         }
-        out.overlap_gadget_count_by_column[col] = gadgets_in_column_overlap.size();
+        out.overlap_gadget_count_by_column[col] =
+            column_overlap_extent(sig, right_gids, left_gids);
     }
 
     for (size_t gid = 0; gid < G; ++gid) {
@@ -956,56 +1027,6 @@ void log_sat_reorder_preprocess(SatSignatureExport const& sig) {
         spdlog::info(
             "sat_reorder_preprocess:   {}",
             fmt::join(degadgetizable_entries, ", "));
-    }
-
-    auto const overlap = compute_gadget_overlap_constraints(sig);
-    spdlog::info(
-        "sat_reorder_preprocess: {} overlapping gadget pairs from {} PR columns",
-        overlap.overlapping_pair_count(),
-        sig.pauli_count);
-
-    size_t const max_col_overlap = overlap.max_overlap_among_columns();
-    size_t       max_col         = 0;
-    for (size_t col = 0; col < overlap.overlap_gadget_count_by_column.size(); ++col) {
-        if (overlap.overlap_gadget_count_by_column[col] == max_col_overlap) {
-            max_col = col;
-            break;
-        }
-    }
-    size_t const max_gadget_overlap = overlap.max_overlap_among_gadgets();
-    size_t       max_gid            = 0;
-    for (size_t gid = 0; gid < G; ++gid) {
-        if (overlap.overlap_neighbors[gid].size() == max_gadget_overlap) {
-            max_gid = gid;
-            break;
-        }
-    }
-    spdlog::info(
-        "sat_reorder_preprocess: max overlap among columns={} (col {})",
-        max_col_overlap,
-        max_col);
-    spdlog::info(
-        "sat_reorder_preprocess: max overlap among gadgets={} (g{})",
-        max_gadget_overlap,
-        max_gid);
-
-    for (size_t gid = 0; gid < G; ++gid) {
-        auto const& neighbors = overlap.overlap_neighbors[gid];
-        if (neighbors.empty()) {
-            continue;
-        }
-        spdlog::info(
-            "sat_reorder_preprocess:   g{}: {} overlaps",
-            gid,
-            neighbors.size());
-        std::vector<std::string> entries;
-        entries.reserve(neighbors.size());
-        for (size_t const other : neighbors) {
-            entries.push_back(fmt::format("g{}", other));
-        }
-        spdlog::info(
-            "sat_reorder_preprocess:     {}",
-            fmt::join(entries, ", "));
     }
 }
 

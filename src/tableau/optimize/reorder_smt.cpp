@@ -2001,30 +2001,35 @@ AncillaScheduleResult solve_ancilla_schedule(AncillaSmtInstance const& inst) {
 
     size_t lo = 0;
     size_t hi = hi_cap;
-    std::optional<WidthSolve> probe;
+    std::optional<WidthSolve> probe_below;
+    std::optional<WidthSolve> probe_at_max;
 
     if (max_overlap > 0) {
         size_t const probe_w = max_overlap - 1;
-        probe = solve_width(inst, probe_w);
-        log_width_result(probe_w, probe->ok, "max_overlap-1 probe");
+        probe_below = solve_width(inst, probe_w);
+        log_width_result(probe_w, probe_below->ok, "max_overlap-1 probe");
 
-        if (probe->ok) {
+        if (!probe_below->ok) {
             spdlog::info(
-                "solve_ancilla_schedule: max_overlap-1={} works (SAT); searching [1, {}]",
+                "solve_ancilla_schedule: max_overlap-1={} UNSAT; trying width={}",
                 probe_w,
-                max_overlap - 1);
-            best_w   = probe_w;
-            best_pos = probe->pos_map;
-            lo       = 1;
-            hi       = max_overlap - 1;
-        } else {
-            spdlog::info(
-                "solve_ancilla_schedule: max_overlap-1={} does not work (UNSAT); searching [{}, {}]",
-                probe_w,
-                max_overlap,
-                hi_cap);
-            lo = max_overlap;
+                max_overlap);
+            probe_at_max = solve_width(inst, max_overlap);
+            log_width_result(max_overlap, probe_at_max->ok);
+
+            if (probe_at_max->ok) {
+                best_w   = max_overlap;
+                best_pos = probe_at_max->pos_map;
+                lo       = max_overlap;
+            } else {
+                lo = max_overlap + 1;
+            }
             hi = hi_cap;
+        } else {
+            best_w   = probe_w;
+            best_pos = probe_below->pos_map;
+            lo       = 0;
+            hi       = probe_w;
         }
     } else {
         spdlog::info(
@@ -2050,8 +2055,10 @@ AncillaScheduleResult solve_ancilla_schedule(AncillaSmtInstance const& inst) {
     while (lo <= hi) {
         size_t const mid = lo + (hi - lo) / 2;
         WidthSolve r;
-        if (probe.has_value() && max_overlap > 0 && mid == max_overlap - 1) {
-            r = *probe;
+        if (probe_below.has_value() && max_overlap > 0 && mid == max_overlap - 1) {
+            r = *probe_below;
+        } else if (probe_at_max.has_value() && max_overlap > 0 && mid == max_overlap) {
+            r = *probe_at_max;
         } else {
             r = solve_width(inst, mid);
             log_width_result(mid, r.ok);

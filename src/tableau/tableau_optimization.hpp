@@ -289,8 +289,9 @@ struct GadgetOverlapConstraints {
     /** Bridge PR column indices per (gid, other_gid). */
     std::vector<std::unordered_map<size_t, std::vector<size_t>>> bridge_columns_by_neighbor;
     /**
-     * Per PR column: number of distinct gadgets involved in any bridge
-     * block_right(col,a) & block_left(col,b) overlap from that column.
+     * Per PR column: max of
+     *   (block_left gadgets at/after min-ancilla block_right gadget, inclusive),
+     *   (block_right gadgets at/before max-ancilla block_left gadget, inclusive).
      */
     std::vector<size_t> overlap_gadget_count_by_column;
 
