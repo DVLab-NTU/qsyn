@@ -41,20 +41,158 @@ bool contains_pid(std::vector<size_t> const& pids, size_t const pid) {
     return std::find(pids.begin(), pids.end(), pid) != pids.end();
 }
 
-PauliClassKind classify_signature_class(AncillaSmtInstance const& inst, size_t const sample_pid) {
+std::unordered_map<size_t, size_t> build_rank_by_gid(std::vector<size_t> const& ordered_gids) {
+    std::unordered_map<size_t, size_t> rank_by_gid;
+    rank_by_gid.reserve(ordered_gids.size());
+    for (size_t rank = 0; rank < ordered_gids.size(); ++rank) {
+        rank_by_gid.emplace(ordered_gids[rank], rank);
+    }
+    return rank_by_gid;
+}
+
+struct GapInterval {
+    size_t lo = 0;
+    size_t hi = 0;
+
+    [[nodiscard]] bool valid() const {
+        return lo <= hi;
+    }
+};
+
+GapInterval compute_gap_interval(AncillaSmtInstance const& inst, size_t const rep) {
+    size_t const G = inst.reduction.G;
+    auto const rank_by_gid = build_rank_by_gid(inst.gadget_order_gids);
+
+    size_t lo = 0;
+    size_t hi = G;
     bool has_left  = false;
     bool has_right = false;
-    for (size_t gid = 0; gid < inst.block_left.size(); ++gid) {
-        has_left  = has_left || contains_pid(inst.block_left[gid], sample_pid);
-        has_right = has_right || contains_pid(inst.block_right[gid], sample_pid);
+
+    for (size_t gid = 0; gid < G; ++gid) {
+        size_t const rank = rank_by_gid.at(gid);
+        if (contains_pid(inst.block_left[gid], rep)) {
+            has_left = true;
+            lo       = std::max(lo, rank + 1);
+        }
+        if (contains_pid(inst.block_right[gid], rep)) {
+            has_right = true;
+            hi        = std::min(hi, rank);
+        }
     }
+
     if (!has_left) {
-        return PauliClassKind::Fix0;
+        lo = 0;
     }
     if (!has_right) {
-        return PauliClassKind::FixG;
+        hi = G;
     }
-    return PauliClassKind::Sat;
+
+    return {lo, hi};
+}
+
+bool class_has_zero_overlap(PauliEquivClass const& eq,
+                            size_t const G,
+                            GadgetOverlapConstraints const& overlap) {
+    for (size_t const pid : eq.members) {
+        if (pid < G) {
+            return false;
+        }
+        size_t const col = pid - G;
+        if (col >= overlap.overlap_gadget_count_by_column.size()) {
+            return false;
+        }
+        if (overlap.overlap_gadget_count_by_column[col] != 0) {
+            return false;
+        }
+    }
+    return true;
+}
+
+std::optional<size_t> compute_fix_pos(AncillaSmtInstance const& inst,
+                                    PauliEquivClass const& eq,
+                                    GadgetOverlapConstraints const& overlap) {
+    if (!class_has_zero_overlap(eq, inst.reduction.G, overlap)) {
+        return std::nullopt;
+    }
+    auto const interval = compute_gap_interval(inst, eq.rep);
+    if (!interval.valid()) {
+        return std::nullopt;
+    }
+    return interval.hi;
+}
+
+void log_fix_pos_summary(AncillaSmtInstance const& inst) {
+    size_t const n_classes = inst.reduction.classes.size();
+    size_t const n_fix     = inst.reduction.fixed_gap_by_rep.size();
+    size_t const n_sat     = inst.reduction.sat_reps.size();
+
+    if (n_sat == 0) {
+        spdlog::info(
+            "sat_reorder_preprocess: all Clifford phase columns have fixed positions ({}/{} Fix(pos), 0 Sat)",
+            n_fix,
+            n_classes);
+        spdlog::info("sat_reorder_preprocess: column gap search skipped; scheduling gadgets only");
+    } else {
+        spdlog::info(
+            "sat_reorder_preprocess: Clifford phase columns: {}/{} Fix(pos), {} Sat (not all fixed)",
+            n_fix,
+            n_classes,
+            n_sat);
+    }
+
+    for (auto const& eq : inst.reduction.classes) {
+        if (inst.reduction.kind_by_rep.at(eq.rep) != PauliClassKind::Fix) {
+            continue;
+        }
+        auto const interval = compute_gap_interval(inst, eq.rep);
+        spdlog::debug(
+            "sat_reorder_preprocess: Fix(pos) rep={} lo={} hi={} pos={}",
+            eq.rep,
+            interval.lo,
+            interval.hi,
+            inst.reduction.fixed_gap_by_rep.at(eq.rep));
+    }
+}
+
+void apply_fix_pos_classification(AncillaSmtInstance& inst,
+                                  GadgetOverlapConstraints const& overlap) {
+    auto& red = inst.reduction;
+    red.sat_reps.clear();
+    red.kind_by_rep.clear();
+    red.fixed_gap_by_rep.clear();
+
+    for (auto& eq : red.classes) {
+        if (auto const pos = compute_fix_pos(inst, eq, overlap)) {
+            eq.kind = PauliClassKind::Fix;
+            red.kind_by_rep.emplace(eq.rep, PauliClassKind::Fix);
+            red.fixed_gap_by_rep.emplace(eq.rep, *pos);
+        } else {
+            eq.kind = PauliClassKind::Sat;
+            red.kind_by_rep.emplace(eq.rep, PauliClassKind::Sat);
+            red.sat_reps.push_back(eq.rep);
+            auto const interval = compute_gap_interval(inst, eq.rep);
+            if (class_has_zero_overlap(eq, red.G, overlap) && !interval.valid()) {
+                spdlog::error(
+                    "apply_fix_pos_classification: overlap=0 but invalid gap interval for rep {} (lo={} hi={})",
+                    eq.rep,
+                    interval.lo,
+                    interval.hi);
+            }
+        }
+    }
+
+    auto const kind_order = [](PauliClassKind kind) {
+        return kind == PauliClassKind::Fix ? 0 : 1;
+    };
+    std::sort(red.classes.begin(), red.classes.end(), [&](auto const& lhs, auto const& rhs) {
+        if (kind_order(lhs.kind) != kind_order(rhs.kind)) {
+            return kind_order(lhs.kind) < kind_order(rhs.kind);
+        }
+        return lhs.rep < rhs.rep;
+    });
+    std::sort(red.sat_reps.begin(), red.sat_reps.end());
+
+    log_fix_pos_summary(inst);
 }
 
 int signature_code(AncillaSmtInstance const& inst, size_t const pid, size_t const gid) {
@@ -96,35 +234,16 @@ void build_signature_reduction(AncillaSmtInstance& inst) {
         PauliEquivClass eq;
         eq.members = pids;
         eq.rep     = rep;
-        eq.kind    = classify_signature_class(inst, rep);
+        eq.kind    = PauliClassKind::Sat;
         reduction.classes.push_back(eq);
-        reduction.kind_by_rep.emplace(rep, eq.kind);
-        if (eq.kind == PauliClassKind::Sat) {
-            reduction.sat_reps.push_back(rep);
-        }
         for (size_t pid : pids) {
             reduction.pid_to_rep.emplace(pid, rep);
         }
     }
 
-    auto const kind_order = [](PauliClassKind kind) {
-        switch (kind) {
-            case PauliClassKind::Fix0:
-                return 0;
-            case PauliClassKind::Sat:
-                return 1;
-            case PauliClassKind::FixG:
-                return 2;
-        }
-        return 3;
-    };
-    std::sort(reduction.classes.begin(), reduction.classes.end(), [&](auto const& lhs, auto const& rhs) {
-        if (kind_order(lhs.kind) != kind_order(rhs.kind)) {
-            return kind_order(lhs.kind) < kind_order(rhs.kind);
-        }
+    std::sort(reduction.classes.begin(), reduction.classes.end(), [](auto const& lhs, auto const& rhs) {
         return lhs.rep < rhs.rep;
     });
-    std::sort(reduction.sat_reps.begin(), reduction.sat_reps.end());
 
     inst.reduction = std::move(reduction);
 }
@@ -163,15 +282,6 @@ z3::expr rep_gap_cmp(z3::context& ctx,
         throw std::logic_error("missing Z3 pos variable for SAT Pauli class");
     }
     return lt ? it->second < static_cast<int>(cut) : it->second > static_cast<int>(cut);
-}
-
-std::unordered_map<size_t, size_t> build_rank_by_gid(std::vector<size_t> const& ordered_gids) {
-    std::unordered_map<size_t, size_t> rank_by_gid;
-    rank_by_gid.reserve(ordered_gids.size());
-    for (size_t rank = 0; rank < ordered_gids.size(); ++rank) {
-        rank_by_gid.emplace(ordered_gids[rank], rank);
-    }
-    return rank_by_gid;
 }
 
 bool clause_good_at_gap(AncillaSmtInstance const& inst,
@@ -1853,15 +1963,9 @@ size_t PauliColumnReduction::rep_for(size_t const pid) const {
 }
 
 std::optional<size_t> PauliColumnReduction::fixed_gap_for_rep(size_t const rep) const {
-    auto const it = kind_by_rep.find(rep);
-    if (it == kind_by_rep.end()) {
-        throw std::out_of_range("unknown Pauli class rep");
-    }
-    if (it->second == PauliClassKind::Fix0) {
-        return 0;
-    }
-    if (it->second == PauliClassKind::FixG) {
-        return G;
+    auto const it = fixed_gap_by_rep.find(rep);
+    if (it != fixed_gap_by_rep.end()) {
+        return it->second;
     }
     return std::nullopt;
 }
@@ -1916,6 +2020,7 @@ AncillaSmtInstance build_ancilla_smt_instance(SatSignatureExport const& sig) {
 
     auto const overlap = compute_gadget_overlap_constraints(sig);
     inst.max_column_overlap = overlap.max_overlap_among_columns();
+    apply_fix_pos_classification(inst, overlap);
 
     return inst;
 }
@@ -2018,12 +2123,12 @@ AncillaScheduleResult solve_ancilla_schedule(AncillaSmtInstance const& inst) {
             log_width_result(max_overlap, probe_at_max->ok);
 
             if (probe_at_max->ok) {
-                best_w   = max_overlap;
-                best_pos = probe_at_max->pos_map;
-                lo       = max_overlap;
-            } else {
-                lo = max_overlap + 1;
+                spdlog::info(
+                    "solve_ancilla_schedule: minimum width = max_column_overlap={}",
+                    max_overlap);
+                return build_result(inst, max_overlap, probe_at_max->pos_map);
             }
+            lo = max_overlap + 1;
             hi = hi_cap;
         } else {
             best_w   = probe_w;

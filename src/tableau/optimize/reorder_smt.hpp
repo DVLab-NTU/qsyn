@@ -14,8 +14,7 @@ namespace qsyn::experimental {
 struct SatSignatureExport;
 
 enum class PauliClassKind : std::uint8_t {
-    Fix0,
-    FixG,
+    Fix,
     Sat
 };
 
@@ -31,6 +30,7 @@ struct PauliColumnReduction {
     std::unordered_map<size_t, size_t>         pid_to_rep;
     std::vector<size_t>                        sat_reps;
     std::unordered_map<size_t, PauliClassKind> kind_by_rep;
+    std::unordered_map<size_t, size_t>         fixed_gap_by_rep;
 
     [[nodiscard]] size_t rep_for(size_t pid) const;
     [[nodiscard]] std::optional<size_t> fixed_gap_for_rep(size_t rep) const;
