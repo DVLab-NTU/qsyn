@@ -71,7 +71,9 @@ public:
           _reference_qubit(0),
           _operations(n_qubits),
           _type(CCTType::ClassicalControl),
-          _measurement_type(MeasurementType::none) {
+          _measurement_type(MeasurementType::none),
+          _classical_bit_id(std::nullopt),
+          _span_start_index(std::nullopt) {
         initialize_classical_control(*this);
     }
 
@@ -80,7 +82,9 @@ public:
           _reference_qubit(reference_qubit),
           _operations(n_qubits),
           _type(CCTType::ClassicalControl),
-          _measurement_type(MeasurementType::none) {
+          _measurement_type(MeasurementType::none),
+          _classical_bit_id(std::nullopt),
+          _span_start_index(std::nullopt) {
         initialize_classical_control(*this);
     }
 
@@ -89,7 +93,9 @@ public:
           _reference_qubit(reference_qubit),
           _operations(n_qubits),
           _type(type),
-          _measurement_type(MeasurementType::none) {
+          _measurement_type(MeasurementType::none),
+          _classical_bit_id(std::nullopt),
+          _span_start_index(std::nullopt) {
         if (type == CCTType::Gadget) {
             initialize_gadget(*this);
         } else {
@@ -113,6 +119,15 @@ public:
 
     MeasurementType measurement_type() const { return _measurement_type; }
     void set_measurement_type(MeasurementType t) { _measurement_type = t; }
+    bool has_classical_bit_id() const { return _classical_bit_id.has_value(); }
+    size_t classical_bit_id() const { return _classical_bit_id.value(); }
+    void set_classical_bit_id(size_t id) { _classical_bit_id = id; }
+    void clear_classical_bit_id() { _classical_bit_id.reset(); }
+
+    bool has_span_start_index() const { return _span_start_index.has_value(); }
+    size_t span_start_index() const { return _span_start_index.value(); }
+    void set_span_start_index(size_t idx) { _span_start_index = idx; }
+    void clear_span_start_index() { _span_start_index.reset(); }
 
     void add_gate(CliffordOperator const& op);
 
@@ -140,6 +155,8 @@ private:
     StabilizerTableau _operations;
     CCTType _type;
     MeasurementType _measurement_type;
+    std::optional<size_t> _classical_bit_id;
+    std::optional<size_t> _span_start_index;
 };
 
 void swap(ClassicalControlTableau& cct, StabilizerTableau& st);

@@ -9,6 +9,7 @@
 
 #include <cassert>
 #include <queue>
+#include <set>
 #include <stack>
 #include <unordered_set>
 
@@ -146,7 +147,7 @@ std::vector<QCirGate*> topo_sort_with_classical(QCir const& qcir) {
         seen_gates.insert(gate->get_id());
 
         auto const& predecessors = qcir.get_predecessors(gate->get_id());
-        std::unordered_set<size_t> unique_preds;
+        std::set<size_t> unique_preds;
         for (auto const& pred : predecessors) {
             if (pred.has_value()) {
                 unique_preds.insert(*pred);
@@ -171,7 +172,7 @@ std::vector<QCirGate*> topo_sort_with_classical(QCir const& qcir) {
         topo_order.push_back(gate);
 
         auto const& successors = qcir.get_successors(gate->get_id());
-        std::unordered_set<size_t> unique_succs;
+        std::set<size_t> unique_succs;
         for (auto const& succ_id : successors) {
             if (succ_id.has_value()) {
                 unique_succs.insert(*succ_id);
@@ -225,6 +226,9 @@ void QCir::reset() {
     _id_to_gates.clear();
     _predecessors.clear();
     _successors.clear();
+    _measurement_producer_by_cbit.clear();
+    _last_consumer_by_cbit.clear();
+    _measurement_gate_order.clear();
 
     _gate_id = 0;
     _dirty   = true;

@@ -451,8 +451,13 @@ inline bool has_gadget_ancillae(Tableau const& tableau) {
     return tableau.n_ancilla() > 0;
 }
 
+enum class FastToddTieSearchMode : std::uint8_t;
+
 // Classical T optimization: minimize internal H, gadgetize, commute classical, and optimize with FastTODD
-void minimize_ancillary_t_opt(Tableau& tableau, std::optional<std::string> export_filename = std::nullopt);
+void minimize_ancillary_t_opt(Tableau& tableau,
+                              std::optional<std::string> export_filename = std::nullopt,
+                              bool enable_tie_search = false,
+                              std::optional<FastToddTieSearchMode> tie_search_mode = std::nullopt);
 void minimize_ancillary_t_opt_with_degadgetization(Tableau& tableau, std::optional<std::string> export_filename = std::nullopt);
 
 struct PhasePolynomialOptimizationStrategy {
@@ -469,6 +474,50 @@ struct ToddPhasePolynomialOptimizationStrategy : public PhasePolynomialOptimizat
 struct TohpePhasePolynomialOptimizationStrategy : public PhasePolynomialOptimizationStrategy {
     std::pair<StabilizerTableau, Polynomial> optimize(StabilizerTableau const& clifford, Polynomial const& polynomial) const override;
 };
+
+enum class FastToddTieLevel : std::uint8_t {
+    tohpe,
+    outer
+};
+
+enum class FastToddTieSearchMode : std::uint8_t {
+    original,
+    all_random,
+    random_target_only,
+    force_prefix_random_target
+};
+
+struct FastToddTieStepTarget {
+    FastToddTieLevel level      = FastToddTieLevel::outer;
+    size_t           step_index = 0;
+};
+
+struct FastToddTieControl {
+    bool enabled = false;
+    FastToddTieSearchMode mode = FastToddTieSearchMode::random_target_only;
+    std::optional<FastToddTieStepTarget> target_random_step = std::nullopt;
+    std::unordered_map<size_t, size_t>   forced_tohpe_choice_by_step;
+    std::unordered_map<size_t, size_t>   forced_outer_choice_by_step;
+    std::optional<std::uint64_t>         random_seed = std::nullopt;
+};
+
+struct FastToddTieStepDecision {
+    size_t step_index   = 0;
+    size_t tie_count    = 0;
+    size_t chosen_index = 0;
+};
+
+struct FastToddTieRunReport {
+    size_t initial_term_count = 0;
+    size_t final_term_count = 0;
+    size_t tohpe_step_count = 0;
+    size_t outer_step_count = 0;
+    std::vector<FastToddTieStepDecision> tohpe_decisions;
+    std::vector<FastToddTieStepDecision> outer_decisions;
+};
+
+void set_fasttodd_tie_control(std::optional<FastToddTieControl> control);
+std::optional<FastToddTieRunReport> consume_fasttodd_tie_run_report();
 
 /** FastTODD: loop { full TOHPE, one fast_todd step } until no move; Clifford phase merged in optimize_phase_polynomial_with_classical. */
 struct FastToddPhasePolynomialOptimizationStrategy : public PhasePolynomialOptimizationStrategy {

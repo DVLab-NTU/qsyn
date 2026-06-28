@@ -96,7 +96,9 @@ ClassicalControlTableau::ClassicalControlTableau(CCTType type, size_t ancilla_qu
       _reference_qubit(reference_qubit),
       _operations(min_qubit_width(ancilla_qubit, reference_qubit)),
       _type(type),
-      _measurement_type(MeasurementType::none) {
+      _measurement_type(MeasurementType::none),
+      _classical_bit_id(std::nullopt),
+      _span_start_index(std::nullopt) {
     if (type == CCTType::Gadget) {
         initialize_gadget(*this);
     } else {

@@ -443,6 +443,14 @@ private:
  */
 enum class MeasurementBasis { Z, X };
 
+class ResetGate {
+public:
+    ResetGate() = default;
+    std::string get_type() const { return "reset"; }
+    std::string get_repr() const { return "reset"; }
+    size_t get_num_qubits() const { return 1; }
+};
+
 class MeasurementGate {
 public:
     MeasurementGate() : _basis(MeasurementBasis::Z) {}
@@ -482,6 +490,16 @@ inline bool is_clifford(MeasurementGate const& /* op */) {
     return false; 
 }
 
+inline Operation adjoint(ResetGate const& /* op */) {
+    // Reset is non-unitary; return identity placeholder.
+    return IdGate();
+}
+
+inline bool is_clifford(ResetGate const& /* op */) {
+    // Reset is not a Clifford gate.
+    return false;
+}
+
 inline std::optional<QCir> to_basic_gates(UGate const& op ) {
     // Create a new circuit with 1 qubit
     QCir circuit(1);
@@ -496,6 +514,11 @@ inline std::optional<QCir> to_basic_gates(UGate const& op ) {
 inline std::optional<QCir> to_basic_gates(MeasurementGate const& /* op */) {
     // Measurement cannot be decomposed into basic gates
     // It's a non-unitary operation that collapses the quantum state
+    return std::nullopt;
+}
+
+inline std::optional<QCir> to_basic_gates(ResetGate const& /* op */) {
+    // Reset cannot be decomposed into unitary basic gates.
     return std::nullopt;
 }
 

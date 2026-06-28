@@ -159,6 +159,12 @@ bool append_to_tableau(qcir::MeasurementGate const& /* op */, experimental::Tabl
 }
 
 template <>
+bool append_to_tableau(qcir::ResetGate const& /* op */, experimental::Tableau& /* tableau */, QubitIdList const& /* qubits */) {
+    spdlog::warn("Reset gate cannot be represented in stabilizer tableau");
+    return false;
+}
+
+template <>
 bool append_to_tableau(qcir::SwapGate const& /* op */, experimental::Tableau& tableau, QubitIdList const& qubits) {
     tableau.swap(qubits[0], qubits[1]);
     return true;

@@ -92,6 +92,28 @@ public:
         return _n_ancilla;
     }
 
+    void set_export_ancilla_count(size_t count) {
+        _export_ancilla_count = count;
+    }
+    size_t export_ancilla_count() const {
+        return _export_ancilla_count.value_or(_n_ancilla);
+    }
+
+    void set_export_ancilla_depth(size_t depth) {
+        _export_ancilla_depth = depth;
+    }
+    size_t export_ancilla_depth() const {
+        return _export_ancilla_depth.value_or(_n_ancilla);
+    }
+
+    void set_export_classical_bit_count(size_t count) {
+        _export_classical_bit_count = count;
+    }
+    size_t export_classical_bit_count() const {
+        return _export_classical_bit_count.value_or(export_ancilla_count());
+    }
+
+
     auto n_cliffords() const {
         return std::count_if(_subtableaux.begin(), _subtableaux.end(), [](auto const& subtableau) { return std::holds_alternative<StabilizerTableau>(subtableau); });
     }
@@ -297,6 +319,9 @@ private:
     std::vector<std::pair<size_t, AncillaInitialState>> _ancilla_initial_states;
     std::unordered_map<size_t, MeasurementType> _ancilla_measurement_types;  // ancilla_index → Z/X/none
     std::vector<std::pair<size_t, size_t>> _cct_pairing;  // CCT pairing structure - stores (ccc_index, pmc_index) pairs
+    std::optional<size_t> _export_ancilla_count;
+    std::optional<size_t> _export_ancilla_depth;
+    std::optional<size_t> _export_classical_bit_count;
 };
 
 /** Sub-tableau indices for a matched Hadamard-gadget CCC/PMC pair. */

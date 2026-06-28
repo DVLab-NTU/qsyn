@@ -43,6 +43,11 @@ std::optional<QTensor<double>> to_tensor(MeasurementGate const& /* op */) {
 }
 
 template <>
+std::optional<QTensor<double>> to_tensor(ResetGate const& /* op */) {
+    return std::nullopt;
+}
+
+template <>
 std::optional<QTensor<double>> to_tensor(SwapGate const& /* op */) {
     auto tensor = QTensor<double>{{1.0, 0.0, 0.0, 0.0},
                                   {0.0, 0.0, 1.0, 0.0},

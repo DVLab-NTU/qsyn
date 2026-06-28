@@ -98,6 +98,9 @@ public:
         std::swap(_id_to_gates, other._id_to_gates);
         std::swap(_predecessors, other._predecessors);
         std::swap(_successors, other._successors);
+        std::swap(_measurement_producer_by_cbit, other._measurement_producer_by_cbit);
+        std::swap(_last_consumer_by_cbit, other._last_consumer_by_cbit);
+        std::swap(_measurement_gate_order, other._measurement_gate_order);
     }
 
     friend void swap(QCir& a, QCir& b) noexcept { a.swap(b); }
@@ -174,6 +177,7 @@ public:
     // Classical bit management
     void add_classical_bits(size_t num);
     void add_classical_bit();
+    size_t allocate_fresh_classical_bit();
     void push_classical_bit();
     void insert_classical_bit(size_t id);
     void set_classical_value(size_t id, bool value);
@@ -280,12 +284,20 @@ private:
                          std::vector<std::optional<size_t>> const& succs);
     void _connect(size_t gid1, size_t gid2, QubitIdType qubit);
     void _connect_classical(size_t measurement_gate_id, size_t if_else_gate_id, QubitIdType measurement_qubit, QubitIdType if_else_qubit);
+    void _connect_dependency(size_t from_gate_id, size_t to_gate_id);
+    void _register_measurement_epoch(size_t classical_bit_id, size_t measurement_gate_id);
+    void _register_classical_consumer(size_t classical_bit_id, size_t consumer_gate_id);
     
     // Validation methods
     bool _validate_qubit_gate_addition(QubitIdList const& qubits, std::string const& gate_type) const;
     bool _validate_measurement_gate(QubitIdType qubit_id, size_t classical_bit_id) const;
     bool _validate_if_else_gate(QubitIdList const& qubits, size_t classical_bit_id) const;
     bool _validate_if_else_gate_all_bits(QubitIdList const& qubits) const;
+
+    // Per-classical-bit epoch bookkeeping.
+    std::unordered_map<size_t, size_t> _measurement_producer_by_cbit;
+    std::unordered_map<size_t, size_t> _last_consumer_by_cbit;
+    std::vector<size_t> _measurement_gate_order;
 };
 
 std::unordered_map<std::string, size_t>

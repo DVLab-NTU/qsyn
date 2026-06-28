@@ -22,6 +22,7 @@ std::optional<Operation> str_to_basic_operation(std::string str, std::vector<dvl
         if (str == "h") return HGate();
         if (str == "swap") return SwapGate();
         if (str == "ecr") return ECRGate();
+        if (str == "reset") return ResetGate();
         if (str == "measure" || str == "m") return MeasurementGate();
         if (str == "if_else" || str == "if") return IfElseGate(IdGate(), 0, 0); // Placeholder
 

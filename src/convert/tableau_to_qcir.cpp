@@ -10,6 +10,8 @@
 #include <gsl/narrow>
 #include <random>
 #include <stack>
+#include <unordered_map>
+#include <unordered_set>
 #include <tl/adjacent.hpp>
 #include <tl/enumerate.hpp>
 #include <tl/to.hpp>
@@ -60,6 +62,51 @@ std::pair<std::optional<size_t>, std::optional<size_t>> parse_condition_expressi
 
 namespace {
 
+void remove_ancilla_from_reset_schedule(
+    std::unordered_map<size_t, std::vector<size_t>>& reset_ancillae_by_pmc_index,
+    size_t ancilla_qubit) {
+    for (auto& [_, ancillae] : reset_ancillae_by_pmc_index) {
+        ancillae.erase(
+            std::remove(ancillae.begin(), ancillae.end(), ancilla_qubit),
+            ancillae.end());
+    }
+}
+
+std::unordered_set<size_t> collect_qubits(qcir::QCir const& qcir) {
+    std::unordered_set<size_t> qubits;
+    for (auto const* gate : qcir.get_gates()) {
+        for (size_t const q : gate->get_qubits()) {
+            qubits.insert(q);
+        }
+    }
+    return qubits;
+}
+
+void flush_reset_if_measured(
+    qcir::QCir& qcir,
+    size_t qubit,
+    std::unordered_set<size_t> const& plus_after_reset_ancilla,
+    std::unordered_map<size_t, std::vector<size_t>>& reset_ancillae_by_pmc_index) {
+    auto* last_gate = qcir.get_last_gate(qubit);
+    if (last_gate == nullptr || last_gate->get_operation().get_type() != "measure") {
+        return;
+    }
+    qcir.append(qcir::ResetGate(), {qubit});
+    if (plus_after_reset_ancilla.contains(qubit)) {
+        qcir.append(qcir::HGate(), {qubit});
+    }
+    remove_ancilla_from_reset_schedule(reset_ancillae_by_pmc_index, qubit);
+}
+
+void flush_resets_before_qcir_use(
+    qcir::QCir& qcir,
+    qcir::QCir const& fragment,
+    std::unordered_set<size_t> const& plus_after_reset_ancilla,
+    std::unordered_map<size_t, std::vector<size_t>>& reset_ancillae_by_pmc_index) {
+    for (size_t const qubit : collect_qubits(fragment)) {
+        flush_reset_if_measured(qcir, qubit, plus_after_reset_ancilla, reset_ancillae_by_pmc_index);
+    }
+}
 
 void add_clifford_gate(qcir::QCir& qcir, CliffordOperator const& op) {
     using COT                  = CliffordOperatorType;
@@ -154,6 +201,88 @@ void add_classical_controlled_clifford_gate(qcir::QCir& qcir, CliffordOperator c
             qcir.append(qcir::ECRGate(), {qubits[0], qubits[1]}, classical_bit, classical_value);
             break;
     }
+}
+
+bool append_cct_to_qcir(
+    qcir::QCir& qcir,
+    ClassicalControlTableau const& cct,
+    StabilizerTableauSynthesisStrategy const& cct_strategy,
+    size_t n_qubits,
+    std::optional<size_t> classical_bit_override = std::nullopt,
+    bool append_reset = true) {
+    size_t const ancilla_qubit = cct.ancilla_qubit();
+    if (ancilla_qubit >= n_qubits) {
+        spdlog::error("Ancilla qubit {} is out of range for n_qubits {}", ancilla_qubit, n_qubits);
+        return false;
+    }
+
+    // ponytail: default NONE -> X to keep CCT conversion runnable until per-CCT
+    // measurement typing is fully propagated; upgrade path is explicit CCT typing.
+    auto measurement_type = cct.measurement_type();
+    if (measurement_type == MeasurementType::none) {
+        measurement_type = MeasurementType::X;
+    }
+
+    std::optional<size_t> classical_bit_opt = classical_bit_override;
+    if (!classical_bit_opt.has_value() && cct.has_classical_bit_id()) {
+        classical_bit_opt = cct.classical_bit_id();
+    }
+    size_t classical_bit = 0;
+    if (classical_bit_opt.has_value()) {
+        classical_bit = *classical_bit_opt;
+        if (classical_bit >= qcir.get_num_classical_bits()) {
+            spdlog::error(
+                "Classical bit {} is out of range for QCir classical pool size {}",
+                classical_bit,
+                qcir.get_num_classical_bits());
+            return false;
+        }
+    } else {
+        classical_bit = qcir.allocate_fresh_classical_bit();
+    }
+    switch (measurement_type) {
+        case MeasurementType::none:
+            break;
+        case MeasurementType::Z:
+            qcir.append(qcir::MeasurementGate(qcir::MeasurementBasis::Z), ancilla_qubit, classical_bit);
+            break;
+        case MeasurementType::X:
+            qcir.append(qcir::MeasurementGate(qcir::MeasurementBasis::X), ancilla_qubit, classical_bit);
+            break;
+    }
+
+    if (!qcir.is_classical_measured(classical_bit)) {
+        spdlog::error("Classical bit {} was not marked as measured after measurement gate", classical_bit);
+        return false;
+    }
+
+    auto const clifford_ops = extract_clifford_operators(cct.operations(), cct_strategy);
+    for (auto const& op : clifford_ops) {
+        if (stop_requested()) {
+            return false;
+        }
+        add_classical_controlled_clifford_gate(qcir, op, classical_bit, 1);
+    }
+
+    if (append_reset) {
+        // Enforce measure -> (if-else)* -> reset on reused ancilla lines.
+        qcir.append(qcir::ResetGate(), {ancilla_qubit});
+    }
+    return true;
+}
+
+bool append_gadget_cct_to_qcir(
+    qcir::QCir& qcir,
+    ClassicalControlTableau const& cct,
+    StabilizerTableauSynthesisStrategy const& cct_strategy) {
+    auto const clifford_ops = extract_clifford_operators(cct.operations(), cct_strategy);
+    for (auto const& op : clifford_ops) {
+        if (stop_requested()) {
+            return false;
+        }
+        add_clifford_gate(qcir, op);
+    }
+    return true;
 }
 
 }
@@ -666,61 +795,17 @@ std::optional<qcir::QCir> to_qcir(
         return std::nullopt;
     }
 
-    size_t ancilla_qubit = cct.ancilla_qubit();  // This is the ancilla qubit
-    size_t classical_bit = ancilla_qubit;  // Use same index for classical bit
-    // Note: cct.reference_qubit() contains the reference qubit where H was applied (for reference/debugging)
-
-    // Validate ancilla qubit is in range
-    if (ancilla_qubit >= n_qubits) {
-        spdlog::error("Ancilla qubit {} is out of range for n_qubits {}", ancilla_qubit, n_qubits);
-        return std::nullopt;
-    }
-
-    // Create QCir with enough qubits and classical bits
-    // We need at least classical_bit + 1 classical bits
-    qcir::QCir qcir{n_qubits, n_qubits};
-    
-    // Validate enough classical bits
-    if (classical_bit >= qcir.get_num_classical_bits()) {
-        spdlog::error("Classical bit {} is out of range for circuit with {} classical bits", 
-                     classical_bit, qcir.get_num_classical_bits());
-        return std::nullopt;
-    }
-    
-    // Emit the measurement gate according to the CCT's measurement_type.
-    // none → skip (no measurement gate emitted, classical bit stays unmeasured)
-    // Z    → standard computational-basis measure
-    // X    → Hadamard-basis measure (gate carries basis; writer emits H before measure)
-    switch (cct.measurement_type()) {
-        case MeasurementType::none:
-            break;  // no measurement gate
-        case MeasurementType::Z:
-            qcir.append(qcir::MeasurementGate(qcir::MeasurementBasis::Z), ancilla_qubit, classical_bit);
-            break;
-        case MeasurementType::X:
-            qcir.append(qcir::MeasurementGate(qcir::MeasurementBasis::X), ancilla_qubit, classical_bit);
-            break;
-    }
-
-    if (cct.measurement_type() != MeasurementType::none && !qcir.is_classical_measured(classical_bit)) {
-        spdlog::error("Classical bit {} was not marked as measured after measurement gate", classical_bit);
-        return std::nullopt;
-    }
-    
-    // Step 2: Extract clifford operators using the provided synthesis strategy
-    // These operations reference the original qubit(s), not the ancilla
-    auto clifford_ops = extract_clifford_operators(cct.operations(), cct_strategy);
-    
-    // Step 3: Apply each operator as a classical controlled gate
-    // The operations are applied to their target qubits (original qubits), controlled by the classical bit
-    for (auto const& op : clifford_ops) {
-        if (stop_requested()) {
+    size_t const n_classical_bits = cct.has_classical_bit_id() ? (cct.classical_bit_id() + 1) : 0;
+    qcir::QCir qcir{n_qubits, n_classical_bits};
+    if (cct.is_gadget()) {
+        if (!append_gadget_cct_to_qcir(qcir, cct, cct_strategy)) {
             return std::nullopt;
         }
-        
-        add_classical_controlled_clifford_gate(qcir, op, classical_bit, 1);
+        return qcir;
     }
-    
+    if (!append_cct_to_qcir(qcir, cct, cct_strategy, n_qubits)) {
+        return std::nullopt;
+    }
     return qcir;
 }
 
@@ -741,7 +826,15 @@ std::optional<qcir::QCir> to_qcir(Tableau const& tableau, StabilizerTableauSynth
         return std::nullopt;
     }
     
-    qcir::QCir qcir{n_qubits, n_qubits};
+    qcir::QCir qcir{n_qubits, tableau.export_classical_bit_count()};
+    std::unordered_set<size_t> ancilla_with_reset_epochs;
+    for (auto const& subtableau : tableau) {
+        auto const* cct = std::get_if<ClassicalControlTableau>(&subtableau);
+        if (cct != nullptr && cct->is_classical_control()) {
+            ancilla_with_reset_epochs.insert(cct->ancilla_qubit());
+        }
+    }
+    std::unordered_set<size_t> plus_after_reset_ancilla;
 
     // Set initial state metadata for ancilla qubits
     if (tableau.n_ancilla() > 0) {
@@ -752,13 +845,23 @@ std::optional<qcir::QCir> to_qcir(Tableau const& tableau, StabilizerTableauSynth
             }
 
             if (ancilla_index >= n_qubits) {
-                spdlog::error("Ancilla index {} is out of range for n_qubits {}", ancilla_index, n_qubits);
-                return std::nullopt;
+                spdlog::warn(
+                    "Skipping stale ancilla metadata index {} (n_qubits={})",
+                    ancilla_index,
+                    n_qubits);
+                continue;
             }
 
             qcir.set_qubit_type(ancilla_index, qcir::QubitType::ancilla);
 
-            switch (initial_state) {
+            auto effective_state = initial_state;
+            if (initial_state == qsyn::experimental::AncillaInitialState::PLUS &&
+                ancilla_with_reset_epochs.contains(ancilla_index)) {
+                effective_state = qsyn::experimental::AncillaInitialState::ZERO;
+                plus_after_reset_ancilla.insert(ancilla_index);
+            }
+
+            switch (effective_state) {
                 case qsyn::experimental::AncillaInitialState::ZERO:
                     qcir.set_initial_state(ancilla_index, qcir::QubitInitialState::zero);
                     break;
@@ -775,35 +878,122 @@ std::optional<qcir::QCir> to_qcir(Tableau const& tableau, StabilizerTableauSynth
         }
     }
     
+    std::unordered_map<size_t, std::vector<size_t>> reset_ancillae_by_pmc_index;
+    auto emit_resets_at_epoch_start = [&](size_t pmc_epoch_index) -> bool {
+        auto it = reset_ancillae_by_pmc_index.find(pmc_epoch_index);
+        if (it == reset_ancillae_by_pmc_index.end()) {
+            return true;
+        }
+        auto& ancillae = it->second;
+        std::sort(ancillae.begin(), ancillae.end());
+        ancillae.erase(std::unique(ancillae.begin(), ancillae.end()), ancillae.end());
+        for (size_t const ancilla_qubit : ancillae) {
+            if (ancilla_qubit >= n_qubits) {
+                spdlog::error(
+                    "Reset ancilla qubit {} is out of range for n_qubits {}",
+                    ancilla_qubit,
+                    n_qubits);
+                return false;
+            }
+            qcir.append(qcir::ResetGate(), {ancilla_qubit});
+            if (plus_after_reset_ancilla.contains(ancilla_qubit)) {
+                qcir.append(qcir::HGate(), {ancilla_qubit});
+            }
+        }
+        return true;
+    };
+
+    for (auto const& subtableau : tableau) {
+        auto const* cct = std::get_if<ClassicalControlTableau>(&subtableau);
+        if (cct == nullptr || !cct->is_classical_control()) {
+            continue;
+        }
+        size_t const span_start = cct->has_span_start_index() ? cct->span_start_index() : 0;
+        reset_ancillae_by_pmc_index[span_start].push_back(cct->ancilla_qubit());
+    }
+
+    size_t pmc_epoch_index = 0;
+    if (!emit_resets_at_epoch_start(0)) {
+        return std::nullopt;
+    }
     for (size_t i = 0; i < tableau.size(); ++i) {
         spdlog::debug("Converting subtableau {} to qcir", i);
         auto const& subtableau = tableau[i];
         if (stop_requested()) {
             return std::nullopt;
         }
-        auto const qc_fragment =
-            std::visit(
-                dvlab::overloaded{
-                    [&st_strategy](StabilizerTableau const& st) { return to_qcir(st, st_strategy); },
-                    [&pr_strategy](std::vector<PauliRotation> const& pr) { return to_qcir(pr, pr_strategy); },
-                    [&cct_strategy,n_qubits](ClassicalControlTableau const& cct) { return to_qcir(cct, cct_strategy,n_qubits);
-                }},
-                subtableau);
-        if (!qc_fragment) {
-            spdlog::error("Failed to convert subtableau to qcir");
+        if (auto const* st = std::get_if<StabilizerTableau>(&subtableau)) {
+            auto const qc_fragment = to_qcir(*st, st_strategy);
+            if (!qc_fragment) {
+                spdlog::error("Failed to convert stabilizer subtableau to qcir");
+                return std::nullopt;
+            }
+            if (qc_fragment->get_num_qubits() > n_qubits) {
+                spdlog::error("Fragment has {} qubits but expected at most {} qubits",
+                              qc_fragment->get_num_qubits(),
+                              n_qubits);
+                return std::nullopt;
+            }
+            auto padded_fragment = *qc_fragment;
+            if (padded_fragment.get_num_qubits() < n_qubits) {
+                padded_fragment.add_qubits(n_qubits - padded_fragment.get_num_qubits());
+            }
+            flush_resets_before_qcir_use(
+                qcir, padded_fragment, plus_after_reset_ancilla, reset_ancillae_by_pmc_index);
+            qcir.compose(padded_fragment);
+            continue;
+        }
+        if (auto const* pr = std::get_if<std::vector<PauliRotation>>(&subtableau)) {
+            auto const qc_fragment = to_qcir(*pr, pr_strategy);
+            if (!qc_fragment) {
+                spdlog::error("Failed to convert pauli-rotation subtableau to qcir");
+                return std::nullopt;
+            }
+            if (qc_fragment->get_num_qubits() > n_qubits) {
+                spdlog::error("Fragment has {} qubits but expected at most {} qubits",
+                              qc_fragment->get_num_qubits(),
+                              n_qubits);
+                return std::nullopt;
+            }
+            auto padded_fragment = *qc_fragment;
+            if (padded_fragment.get_num_qubits() < n_qubits) {
+                padded_fragment.add_qubits(n_qubits - padded_fragment.get_num_qubits());
+            }
+            flush_resets_before_qcir_use(
+                qcir, padded_fragment, plus_after_reset_ancilla, reset_ancillae_by_pmc_index);
+            qcir.compose(padded_fragment);
+            continue;
+        }
+        auto const* cct = std::get_if<ClassicalControlTableau>(&subtableau);
+        if (cct == nullptr) {
+            spdlog::error("Unsupported subtableau variant at index {}", i);
             return std::nullopt;
         }
-        
-        // Validate fragment has correct number of qubits
-        if (qc_fragment->get_num_qubits() != n_qubits) {
-            spdlog::error("Fragment has {} qubits but expected {} qubits", 
-                         qc_fragment->get_num_qubits(), n_qubits);
+        if (cct->is_classical_control()) {
+            size_t classical_bit = cct->has_classical_bit_id() ? cct->classical_bit_id() : pmc_epoch_index;
+            if (!append_cct_to_qcir(
+                    qcir,
+                    *cct,
+                    cct_strategy,
+                    n_qubits,
+                    classical_bit,
+                    false)) {
+                spdlog::error("Failed to convert CCT subtableau to qcir");
+                return std::nullopt;
+            }
+            ++pmc_epoch_index;
+            if (!emit_resets_at_epoch_start(pmc_epoch_index)) {
+                return std::nullopt;
+            }
+            continue;
+        }
+        flush_reset_if_measured(
+            qcir, cct->ancilla_qubit(), plus_after_reset_ancilla, reset_ancillae_by_pmc_index);
+        if (!append_gadget_cct_to_qcir(qcir, *cct, cct_strategy)) {
+            spdlog::error("Failed to convert gadget CCT subtableau to qcir");
             return std::nullopt;
         }
-        
-        qcir.compose(*qc_fragment);
     }
-
     return qcir;
 }
 

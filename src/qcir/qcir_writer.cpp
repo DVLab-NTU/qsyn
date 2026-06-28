@@ -145,6 +145,12 @@ std::string to_qasm(QCir const& qcir) {
             qasm += fmt::format("measure q[{}] -> c[{}];\n", qubits[0], cbit);
             continue;
         }
+
+        // Handle reset gates.
+        if (gate->get_operation().get_type() == "reset") {
+            qasm += fmt::format("reset q[{}];\n", qubits[0]);
+            continue;
+        }
         
         // Handle if-else gates independently
         if (repr.find("if") == 0) {

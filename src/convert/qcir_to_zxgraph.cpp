@@ -438,6 +438,11 @@ std::optional<ZXGraph> to_zxgraph(qcir::MeasurementGate const& op) {
 }
 
 template <>
+std::optional<ZXGraph> to_zxgraph(qcir::ResetGate const& /* op */) {
+    return std::nullopt;
+}
+
+template <>
 std::optional<ZXGraph> to_zxgraph(qcir::IfElseGate const& op) {
     // Only single-bit, value-1 conditions are representable as ZX annotations.
     if (op.checks_all_bits()) {

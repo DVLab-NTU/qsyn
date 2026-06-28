@@ -83,6 +83,12 @@ struct ParsedGadgetOrdering {
 };
 
 AncillaSmtInstance build_ancilla_smt_instance(SatSignatureExport const& sig);
+struct AncillaScheduleSolveOptions {
+    std::optional<size_t> start_width = std::nullopt;
+    bool stop_if_start_unsat = false;
+};
+AncillaScheduleResult solve_ancilla_schedule(AncillaSmtInstance const& inst,
+                                             AncillaScheduleSolveOptions const& options);
 AncillaScheduleResult solve_ancilla_schedule(AncillaSmtInstance const& inst);
 
 void finalize_parsed_gadget_ordering(ParsedGadgetOrdering& ord, std::string& err);

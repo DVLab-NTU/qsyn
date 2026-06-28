@@ -210,11 +210,35 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr, qsyn::qcir::QCi
             methods.add_parser("gadgetH")
                 .description("Minimize the number of Hadamard gates using H gadgets (ancilla qubits and measurements)");
 
-            methods.add_parser("ancillaryTopt")
+            auto ancillary_parser = methods.add_parser("ancillaryTopt")
                 .description("Minimize the number of T gates in the tableau with the help of classical operations & ancillary qubits");
+            ancillary_parser.add_argument<bool>("--tie-search")
+                .action(store_true)
+                .help("Enable recursive FastTODD tied-move exploration with SAT width probing");
+            ancillary_parser.add_argument<std::string>("--tie-search-mode")
+                .default_value("target-random")
+                .constraint(choices_allow_prefix({
+                    "original",
+                    "all-random",
+                    "target-random",
+                    "force-prefix-target-random",
+                }))
+                .help("Tie-search mode: original, all-random, target-random, or force-prefix-target-random");
 
-            methods.add_parser("unified")
+            auto unified_parser = methods.add_parser("unified")
                 .description("Alias for ancillaryTopt (H-gadgetize + classical-aware phase polynomial optimization)");
+            unified_parser.add_argument<bool>("--tie-search")
+                .action(store_true)
+                .help("Enable recursive FastTODD tied-move exploration with SAT width probing");
+            unified_parser.add_argument<std::string>("--tie-search-mode")
+                .default_value("target-random")
+                .constraint(choices_allow_prefix({
+                    "original",
+                    "all-random",
+                    "target-random",
+                    "force-prefix-target-random",
+                }))
+                .help("Tie-search mode: original, all-random, target-random, or force-prefix-target-random");
 
             auto test_parser = methods.add_parser("test")
                                    .description("Run commute-text validation test and compare simulated PMC with ops section");
@@ -356,14 +380,37 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr, qsyn::qcir::QCi
                     }
                     tableau_mgr.get()->add_procedure("MatroidPartition");
                     break;
-                case OptimizationMethod::ancillary_t_opt:
+                case OptimizationMethod::ancillary_t_opt: {
+                    auto const tie_search_mode_str = parser.get<std::string>("--tie-search-mode");
+                    auto const tie_search_mode = std::invoke([&]() -> std::optional<FastToddTieSearchMode> {
+                        if (dvlab::str::is_prefix_of(tie_search_mode_str, "original")) {
+                            return FastToddTieSearchMode::original;
+                        }
+                        if (dvlab::str::is_prefix_of(tie_search_mode_str, "all-random")) {
+                            return FastToddTieSearchMode::all_random;
+                        }
+                        if (dvlab::str::is_prefix_of(tie_search_mode_str, "target-random")) {
+                            return FastToddTieSearchMode::random_target_only;
+                        }
+                        if (dvlab::str::is_prefix_of(tie_search_mode_str, "force-prefix-target-random")) {
+                            return FastToddTieSearchMode::force_prefix_random_target;
+                        }
+                        return std::nullopt;
+                    });
+                    if (!tie_search_mode.has_value()) {
+                        spdlog::error("Unknown tie-search mode {}!!", tie_search_mode_str);
+                        return dvlab::CmdExecResult::error;
+                    }
                     minimize_ancillary_t_opt(
                         *tableau_mgr.get(),
                         qcir_mgr.empty()
                             ? std::optional<std::string>{tableau_mgr.get()->get_filename()}
-                            : std::optional<std::string>{qcir_mgr.get()->get_filename()});
+                            : std::optional<std::string>{qcir_mgr.get()->get_filename()},
+                        parser.parsed("--tie-search"),
+                        tie_search_mode);
                     tableau_mgr.get()->add_procedure("AncillaryTOpt");
                     break;
+                }
                 case OptimizationMethod::commute_test: {
                     auto const txt_file = parser.get<std::string>("txt-file");
                     if (!run_commute_test_from_file(txt_file)) {

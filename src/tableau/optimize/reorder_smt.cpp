@@ -461,6 +461,24 @@ AncillaScheduleResult build_result(AncillaSmtInstance const& inst, size_t const 
     return result;
 }
 
+void clamp_span_start_indices(ParsedGadgetOrdering& ord) {
+    size_t clamped = 0;
+    for (auto& [gid, span] : ord.span_by_gid) {
+        if (ord.degadgetizable_gids.count(gid) != 0) {
+            continue;
+        }
+        if (span.first > gid) {
+            span.first = gid;
+            ++clamped;
+        }
+    }
+    if (clamped != 0) {
+        spdlog::info(
+            "sat_reorder: clamped span start to gid for {} non-degadgetizable gadget(s)",
+            clamped);
+    }
+}
+
 struct AncillaInterval {
     size_t gid                   = 0;
     size_t logical_ancilla_qubit = 0;
@@ -1842,6 +1860,36 @@ void log_ancilla_lane_remap_intervals(
     }
 }
 
+void assign_pmc_export_ids_and_spans(
+    Tableau& tableau,
+    std::vector<size_t> const& pmc_gids_in_topological_order,
+    std::unordered_map<size_t, std::pair<size_t, size_t>> const& span_by_gid) {
+    size_t pmc_rank = 0;
+    for (auto& subtableau : tableau) {
+        auto* cct = std::get_if<ClassicalControlTableau>(&subtableau);
+        if (cct == nullptr) {
+            continue;
+        }
+        if (!cct->is_classical_control()) {
+            cct->clear_classical_bit_id();
+            cct->clear_span_start_index();
+            continue;
+        }
+        cct->set_classical_bit_id(pmc_rank);
+        if (pmc_rank < pmc_gids_in_topological_order.size()) {
+            size_t const gid = pmc_gids_in_topological_order[pmc_rank];
+            if (auto const it = span_by_gid.find(gid); it != span_by_gid.end()) {
+                cct->set_span_start_index(it->second.first);
+            } else {
+                cct->clear_span_start_index();
+            }
+        } else {
+            cct->clear_span_start_index();
+        }
+        ++pmc_rank;
+    }
+}
+
 size_t remap_qubit(size_t q, std::unordered_map<size_t, size_t> const& logical_to_physical) {
     auto const map_it = logical_to_physical.find(q);
     return (map_it != logical_to_physical.end()) ? map_it->second : q;
@@ -1907,6 +1955,10 @@ void remap_cct_qubits_preserve_type(ClassicalControlTableau&                  cc
     size_t const new_ancilla = remap_qubit(cct.ancilla_qubit(), logical_to_physical);
     size_t const new_ref     = remap_qubit(cct.reference_qubit(), logical_to_physical);
     CCTType const cct_type   = cct.is_gadget() ? CCTType::Gadget : CCTType::ClassicalControl;
+    auto const has_classical_bit_id = cct.has_classical_bit_id();
+    auto const has_span_start_index = cct.has_span_start_index();
+    size_t const classical_bit_id   = has_classical_bit_id ? cct.classical_bit_id() : 0;
+    size_t const span_start_index   = has_span_start_index ? cct.span_start_index() : 0;
 
     auto       ops_old = extract_clifford_operators(cct.operations());
     remap_clifford_ops_inplace(ops_old, logical_to_physical);
@@ -1916,6 +1968,12 @@ void remap_cct_qubits_preserve_type(ClassicalControlTableau&                  cc
     rebuilt.operations().apply(ops_old);
     if (!cct.is_gadget()) {
         rebuilt.set_measurement_type(cct.measurement_type());
+    }
+    if (has_classical_bit_id) {
+        rebuilt.set_classical_bit_id(classical_bit_id);
+    }
+    if (has_span_start_index) {
+        rebuilt.set_span_start_index(span_start_index);
     }
     cct = std::move(rebuilt);
 }
@@ -2045,6 +2103,7 @@ void finalize_parsed_gadget_ordering(ParsedGadgetOrdering& ord, std::string& err
         err = "empty Span section but not all gadgets are degadgetizable";
         return;
     }
+    clamp_span_start_indices(ord);
     if (ord.occupied_gadget_gap_time.empty() && G > 0) {
         size_t const num_gap_times = G + 1;
         ord.occupied_gadget_gap_time.assign(G, std::vector<std::uint8_t>(num_gap_times, 0));
@@ -2080,7 +2139,8 @@ ParsedGadgetOrdering to_parsed_ordering(AncillaSmtInstance const& inst,
     return ord;
 }
 
-AncillaScheduleResult solve_ancilla_schedule(AncillaSmtInstance const& inst) {
+AncillaScheduleResult solve_ancilla_schedule(AncillaSmtInstance const& inst,
+                                             AncillaScheduleSolveOptions const& options) {
     size_t const G = inst.gadget_order_gids.size();
     if (G == 0) {
         return {.ok = false, .error = "empty gadget order"};
@@ -2103,13 +2163,41 @@ AncillaScheduleResult solve_ancilla_schedule(AncillaSmtInstance const& inst) {
 
     std::optional<size_t> best_w;
     PosMap best_pos;
-
     size_t lo = 0;
     size_t hi = hi_cap;
     std::optional<WidthSolve> probe_below;
     std::optional<WidthSolve> probe_at_max;
 
-    if (max_overlap > 0) {
+    if (options.start_width.has_value()) {
+        size_t const start_w = *options.start_width;
+        if (start_w > hi_cap) {
+            return {
+                .ok = false,
+                .error = fmt::format("start width {} exceeds ancilla_count={}", start_w, hi_cap),
+            };
+        }
+
+        auto const start_probe = solve_width(inst, start_w);
+        log_width_result(start_w, start_probe.ok, "start-width probe");
+        if (!start_probe.ok) {
+            if (options.stop_if_start_unsat) {
+                return {
+                    .ok = false,
+                    .error = fmt::format("start width {} UNSAT", start_w),
+                };
+            }
+            lo = start_w + 1;
+            hi = hi_cap;
+        } else {
+            best_w   = start_w;
+            best_pos = start_probe.pos_map;
+            if (start_w == 0) {
+                return build_result(inst, start_w, best_pos);
+            }
+            lo = 0;
+            hi = start_w - 1;
+        }
+    } else if (max_overlap > 0) {
         size_t const probe_w = max_overlap - 1;
         probe_below = solve_width(inst, probe_w);
         log_width_result(probe_w, probe_below->ok, "max_overlap-1 probe");
@@ -2187,6 +2275,10 @@ AncillaScheduleResult solve_ancilla_schedule(AncillaSmtInstance const& inst) {
         };
     }
     return build_result(inst, *best_w, best_pos);
+}
+
+AncillaScheduleResult solve_ancilla_schedule(AncillaSmtInstance const& inst) {
+    return solve_ancilla_schedule(inst, AncillaScheduleSolveOptions{});
 }
 
 bool sat_reorder_apply_ordering(Tableau& tableau,
@@ -2323,20 +2415,20 @@ bool sat_reorder_apply_ordering(Tableau& tableau,
         }
     }
 
+    std::unordered_map<size_t, size_t> gid_to_current_ancilla;
+    std::string                        ancilla_refresh_err;
+    if (!build_post_degadgetize_gid_ancillae(
+            gadgets,
+            removed_gids,
+            removed_ancillae,
+            gid_to_current_ancilla,
+            ancilla_refresh_err)) {
+        spdlog::error("sat_reorder_apply: post-degadgetize ancilla refresh failed: {}", ancilla_refresh_err);
+        return false;
+    }
+
     size_t reorder_reduction = 0;
     if (expected_reorder_count > 0) {
-        std::unordered_map<size_t, size_t> gid_to_current_ancilla;
-        std::string                        ancilla_refresh_err;
-        if (!build_post_degadgetize_gid_ancillae(
-                gadgets,
-                removed_gids,
-                removed_ancillae,
-                gid_to_current_ancilla,
-                ancilla_refresh_err)) {
-            spdlog::error("sat_reorder_apply: post-degadgetize ancilla refresh failed: {}", ancilla_refresh_err);
-            return false;
-        }
-
         size_t const data_qubits_post  = tableau.n_qubits() - tableau.n_ancilla();
         size_t const ancilla_base_post = data_qubits_post;
         size_t const schedule_end_post = tableau.size() - 1;
@@ -2386,11 +2478,37 @@ bool sat_reorder_apply_ordering(Tableau& tableau,
     }
 
     remove_identities(tableau);
+    tableau.set_n_ancilla(sat_width_w);
+    tableau.set_n_qubits(data_qubits + sat_width_w);
     size_t const total_reduction =
         orig_n_ancilla >= tableau.n_ancilla() ? (orig_n_ancilla - tableau.n_ancilla()) : 0;
     size_t const degadgetize_reduction =
         std::min(total_reduction, degadgetized_count);
     reorder_reduction = total_reduction > degadgetize_reduction ? (total_reduction - degadgetize_reduction) : 0;
+
+    size_t const export_ancilla_count =
+        orig_n_ancilla >= degadgetized_count ? (orig_n_ancilla - degadgetized_count) : 0;
+    tableau.set_export_ancilla_count(export_ancilla_count);
+    tableau.set_export_ancilla_depth(tableau.n_ancilla());
+
+    std::vector<size_t> pmc_gids_in_topological_order;
+    pmc_gids_in_topological_order.reserve(ord.gadget_order_gids.size());
+    for (size_t const gid : ord.gadget_order_gids) {
+        if (removed_gids.count(gid) == 0) {
+            pmc_gids_in_topological_order.push_back(gid);
+        }
+    }
+    size_t const export_classical_bit_count =
+        std::max(export_ancilla_count, pmc_gids_in_topological_order.size());
+    if (export_classical_bit_count != export_ancilla_count) {
+        spdlog::warn(
+            "sat_reorder_apply: classical pool widened from ancilla_count {} to {} to cover PMC order",
+            export_ancilla_count,
+            export_classical_bit_count);
+    }
+    tableau.set_export_classical_bit_count(export_classical_bit_count);
+    assign_pmc_export_ids_and_spans(tableau, pmc_gids_in_topological_order, ord.span_by_gid);
+
     spdlog::info("sat_reorder_apply: resulting width={}", tableau.n_ancilla());
     spdlog::info(
         "sat_reorder_apply: reduction by reorder count: {}, degadgetize count: {}",

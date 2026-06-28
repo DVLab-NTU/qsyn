@@ -116,6 +116,10 @@ QCir::QCir(QCir const& other) {
                              views::transform(
                                  [](QCirGate* g) { return g->get_id(); }));
 
+    _measurement_producer_by_cbit = other._measurement_producer_by_cbit;
+    _last_consumer_by_cbit        = other._last_consumer_by_cbit;
+    _measurement_gate_order       = other._measurement_gate_order;
+
     this->set_filename(other._filename);
     this->add_procedures(other._procedures);
 }
@@ -275,6 +279,32 @@ void QCir::_connect_classical(size_t measurement_gate_id, size_t if_else_gate_id
     _predecessors[if_else_gate_id].push_back(measurement_gate_id);
 }
 
+void QCir::_connect_dependency(size_t from_gate_id, size_t to_gate_id) {
+    if (!_id_to_gates.contains(from_gate_id) || !_id_to_gates.contains(to_gate_id)) {
+        return;
+    }
+    _successors[from_gate_id].push_back(to_gate_id);
+    _predecessors[to_gate_id].push_back(from_gate_id);
+}
+
+void QCir::_register_measurement_epoch(size_t classical_bit_id, size_t measurement_gate_id) {
+    if (!_measurement_gate_order.empty()) {
+        _connect_dependency(_measurement_gate_order.back(), measurement_gate_id);
+    }
+    _measurement_producer_by_cbit[classical_bit_id] = measurement_gate_id;
+    _last_consumer_by_cbit[classical_bit_id]        = measurement_gate_id;
+    _measurement_gate_order.push_back(measurement_gate_id);
+}
+
+void QCir::_register_classical_consumer(size_t classical_bit_id, size_t consumer_gate_id) {
+    auto const it = _last_consumer_by_cbit.find(classical_bit_id);
+    if (it == _last_consumer_by_cbit.end()) {
+        return;
+    }
+    _connect_dependency(it->second, consumer_gate_id);
+    _last_consumer_by_cbit[classical_bit_id] = consumer_gate_id;
+}
+
 
 //------------------------------------------------------------------------
 //   Validation methods
@@ -295,8 +325,12 @@ bool QCir::_validate_qubit_gate_addition(QubitIdList const& qubits, std::string 
         }
         
         auto* last_gate = _qubits[qubit_id].get_last_gate();
-        if (last_gate != nullptr && last_gate->get_operation().get_type() == "measure") {
-            spdlog::error("Cannot add gate {} to qubit {}: qubit has measurement gate as last gate", gate_type, qubit_id);
+        if (last_gate != nullptr && last_gate->get_operation().get_type() == "measure" &&
+            gate_type != "reset") {
+            spdlog::error(
+                "Cannot add gate {} to qubit {}: measurement must be followed by reset before reuse",
+                gate_type,
+                qubit_id);
             return false;
         }
     }
@@ -792,6 +826,11 @@ void QCir::add_classical_bit() {
     add_classical_bits(1);
 }
 
+size_t QCir::allocate_fresh_classical_bit() {
+    add_classical_bit();
+    return _classical_bits.size() - 1;
+}
+
 /**
  * @brief Push a single classical bit to the end
  */
@@ -1087,6 +1126,12 @@ size_t QCir::append(Operation const& op, QubitIdList const& bits) {
     auto* g = _id_to_gates[_gate_id].get();
     _gate_id++;
 
+    // Capture predecessor on reset target before rewiring.
+    QCirGate* prior_gate_on_reset_qubit = nullptr;
+    if (op.get_type() == "reset" && bits.size() == 1) {
+        prior_gate_on_reset_qubit = _qubits[bits[0]].get_last_gate();
+    }
+
     // Connect to predecessor gates on each qubit
     for (auto const& qb : g->get_qubits()) {
         DVLAB_ASSERT(qb < _qubits.size(), fmt::format("Qubit {} not found!!", qb));
@@ -1097,6 +1142,18 @@ size_t QCir::append(Operation const& op, QubitIdList const& bits) {
         }
         _qubits[qb].set_last_gate(g);
     }
+
+    if (op.get_type() == "reset" && bits.size() == 1 && prior_gate_on_reset_qubit != nullptr &&
+        prior_gate_on_reset_qubit->get_operation().get_type() == "measure" &&
+        prior_gate_on_reset_qubit->has_classical_bits() &&
+        !prior_gate_on_reset_qubit->get_classical_bits().empty()) {
+        size_t const cbit = prior_gate_on_reset_qubit->get_classical_bits()[0];
+        auto const   it   = _last_consumer_by_cbit.find(cbit);
+        if (it != _last_consumer_by_cbit.end()) {
+            _connect_dependency(it->second, g->get_id());
+        }
+    }
+
     _dirty = true;
     return g->get_id();
 }
@@ -1132,6 +1189,7 @@ size_t QCir::append(Operation const& op, QubitIdType qubit_id, size_t classical_
         
         // Mark classical bit as measured and link to measurement gate
         measure_qubit_to_classical(qubit_id, classical_bit_id);
+        _register_measurement_epoch(classical_bit_id, g->get_id());
         
         _dirty = true;
         return g->get_id();
@@ -1212,6 +1270,7 @@ size_t QCir::append(Operation const& op, QubitIdList const& bits, ClassicalBitId
                 _connect_classical(measurement_gate->get_id(), g->get_id(), measured_qubit, if_else_qubit);
         }
     }
+    _register_classical_consumer(classical_bit, g->get_id());
     
     _dirty = true;
     return g->get_id();
@@ -1262,6 +1321,7 @@ size_t QCir::append(Operation const& op, QubitIdList const& bits, size_t classic
                     _connect_classical(measurement_gate->get_id(), g->get_id(), measured_qubit, if_else_qubit);
             }
         }
+        _register_classical_consumer(i, g->get_id());
     }
     
     _dirty = true;
