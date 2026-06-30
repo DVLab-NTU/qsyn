@@ -8,6 +8,9 @@
 #include "./tableau_cmd.hpp"
 
 #include <cstdint>
+#include <cstdlib>
+#include <optional>
+#include <string>
 
 #include "argparse/arg_parser.hpp"
 #include "argparse/arg_type.hpp"
@@ -215,7 +218,7 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr, qsyn::qcir::QCi
             ancillary_parser.add_argument<bool>("--tie-search")
                 .action(store_true)
                 .help("Enable recursive FastTODD tied-move exploration with SAT width probing");
-            ancillary_parser.add_argument<std::string>("--tie-search-mode")
+            ancillary_parser.add_argument<std::string>("--tie-search-mode", "-tie-search")
                 .default_value("target-random")
                 .constraint(choices_allow_prefix({
                     "original",
@@ -224,13 +227,25 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr, qsyn::qcir::QCi
                     "force-prefix-target-random",
                 }))
                 .help("Tie-search mode: original, all-random, target-random, or force-prefix-target-random");
+            ancillary_parser.add_argument<size_t>("-m", "--merge-rotations")
+                .nargs(NArgsOption::optional)
+                .help("Override QSYN_TABLEAU_MERGE_ROTATIONS (0/1)");
+            ancillary_parser.add_argument<size_t>("-p", "--properize")
+                .nargs(NArgsOption::optional)
+                .help("Override QSYN_TABLEAU_PROPERIZE (0/1)");
+            ancillary_parser.add_argument<size_t>("--cycle", "-cycle")
+                .nargs(NArgsOption::optional)
+                .help("Override tie-search max trials (M)");
+            ancillary_parser.add_argument<size_t>("--early-stop", "--early_stop", "-early_stop")
+                .nargs(NArgsOption::optional)
+                .help("Override tie-search patience (N)");
 
             auto unified_parser = methods.add_parser("unified")
                 .description("Alias for ancillaryTopt (H-gadgetize + classical-aware phase polynomial optimization)");
             unified_parser.add_argument<bool>("--tie-search")
                 .action(store_true)
                 .help("Enable recursive FastTODD tied-move exploration with SAT width probing");
-            unified_parser.add_argument<std::string>("--tie-search-mode")
+            unified_parser.add_argument<std::string>("--tie-search-mode", "-tie-search")
                 .default_value("target-random")
                 .constraint(choices_allow_prefix({
                     "original",
@@ -239,6 +254,18 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr, qsyn::qcir::QCi
                     "force-prefix-target-random",
                 }))
                 .help("Tie-search mode: original, all-random, target-random, or force-prefix-target-random");
+            unified_parser.add_argument<size_t>("-m", "--merge-rotations")
+                .nargs(NArgsOption::optional)
+                .help("Override QSYN_TABLEAU_MERGE_ROTATIONS (0/1)");
+            unified_parser.add_argument<size_t>("-p", "--properize")
+                .nargs(NArgsOption::optional)
+                .help("Override QSYN_TABLEAU_PROPERIZE (0/1)");
+            unified_parser.add_argument<size_t>("--cycle", "-cycle")
+                .nargs(NArgsOption::optional)
+                .help("Override tie-search max trials (M)");
+            unified_parser.add_argument<size_t>("--early-stop", "--early_stop", "-early_stop")
+                .nargs(NArgsOption::optional)
+                .help("Override tie-search patience (N)");
 
             auto test_parser = methods.add_parser("test")
                                    .description("Run commute-text validation test and compare simulated PMC with ops section");
@@ -381,6 +408,69 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr, qsyn::qcir::QCi
                     tableau_mgr.get()->add_procedure("MatroidPartition");
                     break;
                 case OptimizationMethod::ancillary_t_opt: {
+                    auto const set_env_override = [](char const* key, std::string const& value) {
+                        if (setenv(key, value.c_str(), 1) != 0) {
+                            spdlog::warn("Failed to set env {}={}", key, value);
+                        }
+                    };
+                    auto const validate_binary_flag = [](char const* name, size_t value) {
+                        if (value > 1) {
+                            spdlog::error("{} expects 0/1, got {}", name, value);
+                            return false;
+                        }
+                        return true;
+                    };
+                    auto const scoped_env_restore = [&]() {
+                        std::vector<std::pair<std::string, std::optional<std::string>>> saved;
+                        auto save_env = [&](char const* key) {
+                            if (char const* value = std::getenv(key)) {
+                                saved.emplace_back(key, std::string{value});
+                            } else {
+                                saved.emplace_back(key, std::nullopt);
+                            }
+                        };
+                        save_env("QSYN_TABLEAU_MERGE_ROTATIONS");
+                        save_env("QSYN_TABLEAU_PROPERIZE");
+                        save_env("QSYN_FASTTODD_TIE_SEARCH");
+                        save_env("QSYN_FASTTODD_TIE_SEARCH_MODE");
+                        save_env("QSYN_FASTTODD_TIE_SEARCH_MAX_TRIALS");
+                        save_env("QSYN_FASTTODD_TIE_SEARCH_PATIENCE");
+                        return saved;
+                    };
+                    struct EnvRestoreGuard {
+                        std::vector<std::pair<std::string, std::optional<std::string>>> saved;
+                        ~EnvRestoreGuard() {
+                            for (auto const& [key, value] : saved) {
+                                if (value.has_value()) {
+                                    setenv(key.c_str(), value->c_str(), 1);
+                                } else {
+                                    unsetenv(key.c_str());
+                                }
+                            }
+                        }
+                    };
+                    EnvRestoreGuard env_guard{scoped_env_restore()};
+
+                    if (parser.parsed("--merge-rotations")) {
+                        auto const value = parser.get<size_t>("--merge-rotations");
+                        if (!validate_binary_flag("--merge-rotations", value)) {
+                            return dvlab::CmdExecResult::error;
+                        }
+                        set_env_override("QSYN_TABLEAU_MERGE_ROTATIONS", std::to_string(value));
+                    }
+                    if (parser.parsed("--properize")) {
+                        auto const value = parser.get<size_t>("--properize");
+                        if (!validate_binary_flag("--properize", value)) {
+                            return dvlab::CmdExecResult::error;
+                        }
+                        set_env_override("QSYN_TABLEAU_PROPERIZE", std::to_string(value));
+                    }
+                    if (parser.parsed("--cycle")) {
+                        set_env_override("QSYN_FASTTODD_TIE_SEARCH_MAX_TRIALS", std::to_string(parser.get<size_t>("--cycle")));
+                    }
+                    if (parser.parsed("--early-stop")) {
+                        set_env_override("QSYN_FASTTODD_TIE_SEARCH_PATIENCE", std::to_string(parser.get<size_t>("--early-stop")));
+                    }
                     auto const tie_search_mode_str = parser.get<std::string>("--tie-search-mode");
                     auto const tie_search_mode = std::invoke([&]() -> std::optional<FastToddTieSearchMode> {
                         if (dvlab::str::is_prefix_of(tie_search_mode_str, "original")) {
@@ -401,12 +491,18 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr, qsyn::qcir::QCi
                         spdlog::error("Unknown tie-search mode {}!!", tie_search_mode_str);
                         return dvlab::CmdExecResult::error;
                     }
+                    bool const enable_tie_search =
+                        parser.parsed("--tie-search") || parser.parsed("--tie-search-mode");
+                    if (enable_tie_search) {
+                        set_env_override("QSYN_FASTTODD_TIE_SEARCH", "1");
+                        set_env_override("QSYN_FASTTODD_TIE_SEARCH_MODE", tie_search_mode_str);
+                    }
                     minimize_ancillary_t_opt(
                         *tableau_mgr.get(),
                         qcir_mgr.empty()
                             ? std::optional<std::string>{tableau_mgr.get()->get_filename()}
                             : std::optional<std::string>{qcir_mgr.get()->get_filename()},
-                        parser.parsed("--tie-search"),
+                        enable_tie_search,
                         tie_search_mode);
                     tableau_mgr.get()->add_procedure("AncillaryTOpt");
                     break;
