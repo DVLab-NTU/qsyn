@@ -494,21 +494,6 @@ std::optional<size_t> gid_rank_in_gadget_order(ParsedGadgetOrdering const& ord, 
     return std::nullopt;
 }
 
-size_t export_gadget_ccc_rank_for_span_start(
-    ParsedGadgetOrdering const& ord,
-    std::unordered_set<size_t> const& removed_gids,
-    size_t span_start) {
-    size_t rank = 0;
-    size_t const G = ord.gadget_order_gids.size();
-    for (size_t slot = 0; slot < span_start && slot < G; ++slot) {
-        size_t const gid = ord.gadget_order_gids[slot];
-        if (removed_gids.count(gid) == 0) {
-            ++rank;
-        }
-    }
-    return rank;
-}
-
 std::unordered_set<size_t> ancillae_touched_by_cct_ops(
     ClassicalControlTableau const& cct,
     size_t const                   data_qubit_end,
@@ -1937,79 +1922,6 @@ bool remap_middle_to_physical_ancillae(std::vector<SubTableau>& middle,
 
 }  // namespace
 
-std::vector<ResetPlacement> compute_reset_placements(
-    ParsedGadgetOrdering const& ord,
-    std::vector<size_t> const&  pmc_gids_in_topological_order,
-    std::vector<size_t> const&  pmc_ancilla_qubits) {
-    std::vector<ResetPlacement> placements;
-    if (pmc_gids_in_topological_order.size() != pmc_ancilla_qubits.size()) {
-        spdlog::error(
-            "compute_reset_placements: gid/ancilla size mismatch ({} vs {})",
-            pmc_gids_in_topological_order.size(),
-            pmc_ancilla_qubits.size());
-        return placements;
-    }
-
-    placements.reserve(pmc_gids_in_topological_order.size());
-    for (size_t i = 0; i < pmc_gids_in_topological_order.size(); ++i) {
-        size_t const gid     = pmc_gids_in_topological_order[i];
-        size_t const ancilla = pmc_ancilla_qubits[i];
-
-        auto const span_it = ord.span_by_gid.find(gid);
-        if (span_it == ord.span_by_gid.end()) {
-            continue;
-        }
-
-        size_t const span_start = span_it->second.first;
-        size_t const span_end   = span_it->second.second;
-        (void)span_end;  // span.end drives PMC placement in sat_reorder; reset uses span.start only.
-        placements.push_back(ResetPlacement{
-            .ancilla_qubit = ancilla,
-            .anchor        = ResetAnchor::BeforeGadgetCcc,
-            .index         = span_start,
-        });
-        spdlog::debug(
-            "reset_schedule: g{} anc=q{} span=[{},{}] -> before_ccc@{}",
-            gid,
-            ancilla,
-            span_start,
-            span_end,
-            span_start);
-    }
-    return placements;
-}
-
-bool assign_export_reset_placements(
-    Tableau&                    tableau,
-    ParsedGadgetOrdering const& ord,
-    std::unordered_set<size_t> const& removed_gids) {
-    std::vector<size_t> pmc_gids_in_topological_order;
-    pmc_gids_in_topological_order.reserve(ord.gadget_order_gids.size());
-    for (size_t const gid : ord.gadget_order_gids) {
-        if (removed_gids.count(gid) == 0) {
-            pmc_gids_in_topological_order.push_back(gid);
-        }
-    }
-    auto const pmc_ancilla_qubits = collect_pmc_ancilla_qubits_in_order(tableau);
-    if (pmc_gids_in_topological_order.size() != pmc_ancilla_qubits.size()) {
-        spdlog::error(
-            "assign_export_reset_placements: pmc gid/ancilla size mismatch ({} vs {})",
-            pmc_gids_in_topological_order.size(),
-            pmc_ancilla_qubits.size());
-        return false;
-    }
-    auto placements = compute_reset_placements(
-        ord, pmc_gids_in_topological_order, pmc_ancilla_qubits);
-    for (auto& placement : placements) {
-        if (placement.anchor == ResetAnchor::BeforeGadgetCcc) {
-            placement.index =
-                export_gadget_ccc_rank_for_span_start(ord, removed_gids, placement.index);
-        }
-    }
-    tableau.set_export_reset_placements(std::move(placements));
-    return true;
-}
-
 size_t PauliColumnReduction::rep_for(size_t const pid) const {
     auto const it = pid_to_rep.find(pid);
     if (it == pid_to_rep.end()) {
@@ -2463,27 +2375,9 @@ bool sat_reorder_apply_ordering(Tableau& tableau,
     tableau.set_export_ancilla_count(export_ancilla_count);
     tableau.set_export_ancilla_depth(tableau.n_ancilla());
 
-    std::vector<size_t> pmc_gids_in_topological_order;
-    pmc_gids_in_topological_order.reserve(ord.gadget_order_gids.size());
-    for (size_t const gid : ord.gadget_order_gids) {
-        if (removed_gids.count(gid) == 0) {
-            pmc_gids_in_topological_order.push_back(gid);
-        }
-    }
-    size_t const export_classical_bit_count =
-        std::max(export_ancilla_count, pmc_gids_in_topological_order.size());
-    if (export_classical_bit_count != export_ancilla_count) {
-        spdlog::warn(
-            "sat_reorder_apply: classical pool widened from ancilla_count {} to {} to cover PMC order",
-            export_ancilla_count,
-            export_classical_bit_count);
-    }
+    size_t const export_classical_bit_count = collect_pmc_ancilla_qubits_in_order(tableau).size();
     tableau.set_export_classical_bit_count(export_classical_bit_count);
     assign_pmc_export_ids(tableau);
-
-    if (!assign_export_reset_placements(tableau, ord, removed_gids)) {
-        return false;
-    }
 
     size_t const span_count = G - ord.degadgetizable_gids.size();
     spdlog::info(

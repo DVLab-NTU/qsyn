@@ -1154,19 +1154,19 @@ TieSearchOutcome run_tie_search_baseline(Tableau const& gadgetized_tableau,
     return outcome;
 }
 
-TieSearchOutcome run_all_random_tie_search_trial(Tableau const& base_tableau,
-                                                 std::string const& preprocess_id,
-                                                 size_t best_t,
-                                                 size_t best_width,
-                                                 std::uint64_t seed) {
+TieSearchOutcome run_tie_search_trial(Tableau const& base_tableau,
+                                      std::string const& preprocess_id,
+                                      FastToddTieControl control,
+                                      std::optional<FastToddTieStepTarget> target,
+                                      size_t best_t,
+                                      size_t best_width,
+                                      std::uint64_t seed) {
     TieSearchOutcome outcome{.ok = false, .tableau = base_tableau, .preprocess_id = preprocess_id};
-    FastToddTieControl run_control;
-    run_control.enabled              = true;
-    run_control.mode                 = FastToddTieSearchMode::all_random;
-    run_control.target_random_step   = std::nullopt;
-    run_control.random_seed          = seed;
+    control.enabled            = true;
+    control.target_random_step = target;
+    control.random_seed        = seed;
 
-    set_fasttodd_tie_control(run_control);
+    set_fasttodd_tie_control(control);
     optimize_phase_polynomial_with_classical(outcome.tableau, FastToddPhasePolynomialOptimizationStrategy{});
     auto report = consume_fasttodd_tie_run_report();
     set_fasttodd_tie_control(std::nullopt);
@@ -1204,6 +1204,85 @@ TieSearchOutcome run_all_random_tie_search_trial(Tableau const& base_tableau,
     return outcome;
 }
 
+bool has_tie_decisions(FastToddTieRunReport const& report) {
+    return !report.tohpe_decisions.empty() || !report.outer_decisions.empty();
+}
+
+void apply_decision_prefix(FastToddTieControl&             control,
+                           FastToddTieRunReport const&     report,
+                           FastToddTieLevel                level,
+                           size_t                          prefix_len) {
+    auto const& decisions =
+        level == FastToddTieLevel::tohpe ? report.tohpe_decisions : report.outer_decisions;
+    auto& forced = level == FastToddTieLevel::tohpe ? control.forced_tohpe_choice_by_step
+                                                    : control.forced_outer_choice_by_step;
+    prefix_len = std::min(prefix_len, decisions.size());
+    for (size_t i = 0; i < prefix_len; ++i) {
+        forced[decisions[i].step_index] = decisions[i].chosen_index;
+    }
+}
+
+void apply_random_prefix_from_report(FastToddTieControl&     control,
+                                     FastToddTieRunReport const& report,
+                                     std::mt19937_64&         rng) {
+    control.forced_tohpe_choice_by_step.clear();
+    control.forced_outer_choice_by_step.clear();
+    if (!report.tohpe_decisions.empty()) {
+        std::uniform_int_distribution<size_t> dist(0, report.tohpe_decisions.size());
+        apply_decision_prefix(control, report, FastToddTieLevel::tohpe, dist(rng));
+    }
+    if (!report.outer_decisions.empty()) {
+        std::uniform_int_distribution<size_t> dist(0, report.outer_decisions.size());
+        apply_decision_prefix(control, report, FastToddTieLevel::outer, dist(rng));
+    }
+}
+
+std::optional<FastToddTieStepTarget> pick_random_target_step(FastToddTieRunReport const& report,
+                                                             std::mt19937_64&            rng) {
+    struct Candidate {
+        FastToddTieLevel level;
+        size_t           step_index;
+    };
+    std::vector<Candidate> candidates;
+    candidates.reserve(report.tohpe_decisions.size() + report.outer_decisions.size());
+    for (auto const& d : report.tohpe_decisions) {
+        if (d.tie_count > 1) {
+            candidates.push_back({FastToddTieLevel::tohpe, d.step_index});
+        }
+    }
+    for (auto const& d : report.outer_decisions) {
+        if (d.tie_count > 1) {
+            candidates.push_back({FastToddTieLevel::outer, d.step_index});
+        }
+    }
+    if (candidates.empty()) {
+        if (report.outer_step_count > 0) {
+            return FastToddTieStepTarget{.level = FastToddTieLevel::outer, .step_index = 0};
+        }
+        if (report.tohpe_step_count > 0) {
+            return FastToddTieStepTarget{.level = FastToddTieLevel::tohpe, .step_index = 0};
+        }
+        return std::nullopt;
+    }
+    std::uniform_int_distribution<size_t> dist(0, candidates.size() - 1);
+    auto const& pick = candidates[dist(rng)];
+    return FastToddTieStepTarget{.level = pick.level, .step_index = pick.step_index};
+}
+
+char const* tie_mode_label(FastToddTieSearchMode mode) {
+    switch (mode) {
+        case FastToddTieSearchMode::original:
+            return "original";
+        case FastToddTieSearchMode::all_random:
+            return "all-random";
+        case FastToddTieSearchMode::random_target_only:
+            return "target-random";
+        case FastToddTieSearchMode::force_prefix_random_target:
+            return "force-prefix-target-random";
+    }
+    return "unknown";
+}
+
 void tie_search_preprocess_self_check() {
     auto const configs = all_tableau_preprocess_configs();
     assert(configs.size() == 8);
@@ -1214,8 +1293,13 @@ void tie_search_preprocess_self_check() {
     assert(ids.size() == 8);
 }
 
+void tie_search_phase2_self_check() {
+    assert(10 / 2 == 5);
+}
+
 std::optional<TieSearchOutcome> run_preprocess_aware_tie_search(qcir::QCir const& source) {
     tie_search_preprocess_self_check();
+    tie_search_phase2_self_check();
 
     size_t const patience_n = read_size_t_env("QSYN_FASTTODD_TIE_SEARCH_PATIENCE", 10);
     size_t const max_trials = read_size_t_env("QSYN_FASTTODD_TIE_SEARCH_MAX_TRIALS", 50);
@@ -1304,17 +1388,41 @@ std::optional<TieSearchOutcome> run_preprocess_aware_tie_search(qcir::QCir const
             }
             size_t non_improving = 0;
             size_t tries         = 0;
+            size_t alternate_turn = 0;
+            bool   run_force_prefix_next = false;
             while (non_improving < patience_n && tries < max_trials) {
                 ++tries;
-                TieSearchOutcome trial = run_all_random_tie_search_trial(
+                FastToddTieControl control;
+                std::optional<FastToddTieStepTarget> target = std::nullopt;
+                if (run_force_prefix_next && has_tie_decisions(global_best.report)) {
+                    control.mode = FastToddTieSearchMode::force_prefix_random_target;
+                    apply_random_prefix_from_report(control, global_best.report, rng);
+                    run_force_prefix_next = false;
+                } else if (non_improving > patience_n / 2) {
+                    if (alternate_turn % 2 == 0) {
+                        control.mode = FastToddTieSearchMode::random_target_only;
+                        target       = pick_random_target_step(global_best.report, rng);
+                    } else {
+                        control.mode = FastToddTieSearchMode::all_random;
+                    }
+                    ++alternate_turn;
+                } else {
+                    control.mode = FastToddTieSearchMode::random_target_only;
+                    target       = pick_random_target_step(global_best.report, rng);
+                }
+
+                TieSearchOutcome trial = run_tie_search_trial(
                     cand.gadgetized,
                     cand.config.id(),
+                    control,
+                    target,
                     global_best.t_count,
                     global_best.sat_width,
                     rng());
                 spdlog::info(
-                    "tie search phase2: candidate={} trial={}/{} global T={} ancilla={}",
+                    "tie search phase2: candidate={} mode={} trial={}/{} global T={} ancilla={}",
                     cand.config.id(),
+                    tie_mode_label(control.mode),
                     tries,
                     max_trials,
                     global_best.t_count,
@@ -1337,8 +1445,10 @@ std::optional<TieSearchOutcome> run_preprocess_aware_tie_search(qcir::QCir const
                     break;
                 }
                 if (is_improving(trial, global_best)) {
-                    global_best   = std::move(trial);
-                    non_improving = 0;
+                    global_best            = std::move(trial);
+                    non_improving          = 0;
+                    run_force_prefix_next  = true;
+                    alternate_turn         = 0;
                     spdlog::info(
                         "tie search phase2: improved config={} T={} ancilla={}",
                         global_best.preprocess_id,

@@ -320,12 +320,15 @@ size_t choose_controlled_tie_index(FastToddTieRuntime& runtime,
     if (auto const it = forced.find(step_index); it != forced.end() && it->second < tie_count) {
         return it->second;
     }
-    if ((runtime.mode == FastToddTieSearchMode::random_target_only ||
-         runtime.mode == FastToddTieSearchMode::force_prefix_random_target) &&
+    if ((runtime.mode == FastToddTieSearchMode::random_target_only) &&
         runtime.target_random_step.has_value() &&
         runtime.target_random_step->level == level &&
         runtime.target_random_step->step_index == step_index &&
         tie_count > 1) {
+        std::uniform_int_distribution<size_t> dist(0, tie_count - 1);
+        return dist(runtime.rng);
+    }
+    if (runtime.mode == FastToddTieSearchMode::force_prefix_random_target && tie_count > 1) {
         std::uniform_int_distribution<size_t> dist(0, tie_count - 1);
         return dist(runtime.rng);
     }

@@ -114,16 +114,6 @@ public:
         return _export_classical_bit_count.value_or(export_ancilla_count());
     }
 
-    void set_export_reset_placements(std::vector<ResetPlacement> placements) {
-        _export_reset_placements = std::move(placements);
-    }
-    std::vector<ResetPlacement> const& export_reset_placements() const {
-        return _export_reset_placements;
-    }
-    void clear_export_reset_placements() {
-        _export_reset_placements.clear();
-    }
-
     auto n_cliffords() const {
         return std::count_if(_subtableaux.begin(), _subtableaux.end(), [](auto const& subtableau) { return std::holds_alternative<StabilizerTableau>(subtableau); });
     }
@@ -223,7 +213,6 @@ public:
     void clear_ancilla_metadata() {
         _ancilla_initial_states.clear();
         _ancilla_measurement_types.clear();
-        clear_export_reset_placements();
     }
 
     // ── Per-ancilla measurement type ──────────────────────────────────────────
@@ -333,7 +322,6 @@ private:
     std::optional<size_t> _export_ancilla_count;
     std::optional<size_t> _export_ancilla_depth;
     std::optional<size_t> _export_classical_bit_count;
-    std::vector<ResetPlacement> _export_reset_placements;
 };
 
 /** Sub-tableau indices for a matched Hadamard-gadget CCC/PMC pair. */
