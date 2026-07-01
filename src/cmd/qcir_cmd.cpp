@@ -322,13 +322,13 @@ dvlab::Command qcir_print_cmd(QCirMgr const& qcir_mgr) {
             if (parser.parsed("--gate")) {
                 auto gate_ids = parser.get<std::vector<size_t>>("--gate");
                 qcir_mgr.get()->print_gates(parser.parsed("--verbose"), gate_ids);
-            } else if (parser.parsed("--diagram"))
+            } else if (parser.parsed("--diagram")) {
                 if (parser.parsed("--verbose")) {
                     qcir_mgr.get()->draw(QCirDrawerType::text);
                 } else {
                     qcir_mgr.get()->print_circuit_diagram();
                 }
-            else if (parser.parsed("--statistics")) {
+            } else if (parser.parsed("--statistics")) {
                 qcir_mgr.get()->print_qcir();
                 qcir_mgr.get()->print_gate_statistics(parser.parsed("--verbose"));
                 fmt::println("Depth      : {}", qcir_mgr.get()->calculate_depth());

@@ -87,7 +87,7 @@ size_t simplify(ZXGraph& g, Rule const& rule) {
  */
 template <typename Rule>
 requires std::is_base_of<ZXRuleTemplate<typename Rule::MatchType>, Rule>::value
-size_t hadamard_simplify(ZXGraph& g, Rule rule) {
+size_t hadamard_simplify(ZXGraph& g, Rule const& rule) {
     std::vector<size_t> match_counts;
 
     while (!stop_requested()) {

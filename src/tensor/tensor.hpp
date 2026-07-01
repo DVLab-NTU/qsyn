@@ -232,6 +232,7 @@ Tensor<U> operator/(Tensor<U> lhs, Tensor<U> const& rhs) {
 template <typename DT>
 std::vector<size_t> Tensor<DT>::shape() const {
     std::vector<size_t> shape;
+    shape.reserve(dimension());
     for (size_t i = 0; i < dimension(); ++i) {
         shape.emplace_back(_tensor.shape(i));
     }

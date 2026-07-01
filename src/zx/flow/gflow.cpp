@@ -79,11 +79,12 @@ void GFlow::_initialize() {  // NOLINT(readability-make-member-function-const) m
             if (_zxgraph->is_gadget_leaf(v)) {
                 _measurement_planes[v] = MP::not_a_qubit;
                 _taken.insert(v);
-            } else if (_zxgraph->is_gadget_axel(v))
+            } else if (_zxgraph->is_gadget_axel(v)) {
                 _measurement_planes[v] = v->has_n_pi_phase() ? MP::yz
                                          : v->phase().denominator() == 2
                                              ? MP::xz
                                              : MP::error;
+            }
             assert(_measurement_planes[v] != MP::error);
         }
     }

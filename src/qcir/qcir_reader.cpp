@@ -29,11 +29,11 @@ namespace qsyn::qcir {
 std::optional<QCir> from_file(std::filesystem::path const& filepath) {
     auto const extension = filepath.extension();
 
-    if (extension == ".qasm")
+    if (extension == ".qasm") {
         return qcir::from_qasm(filepath);
-    else if (extension == ".qc")
+    } else if (extension == ".qc") {
         return qcir::from_qc(filepath);
-    else {
+    } else {
         spdlog::error("File format \"{}\" is not supported!!", extension);
         return std::nullopt;
     }
@@ -159,9 +159,9 @@ std::optional<QCir> from_qc(std::filesystem::path const& filepath) {
                     n_qubit++;
                 }
             }
-        } else if (line.find('#') == 0 || line.empty())
+        } else if (line.find('#') == 0 || line.empty()) {
             continue;
-        else if (line.find("BEGIN") == 0 || line.find("begin") == 0) {
+        } else if (line.find("BEGIN") == 0 || line.find("begin") == 0) {
             qcir.add_qubits(n_qubit);
         } else if (line.find("END") == 0 || line.find("end") == 0) {
             return qcir;

@@ -96,7 +96,7 @@ std::string Trie::shortest_unique_prefix(std::string_view word) const {
         if (itr->frequency == 1) break;
     }
 
-    return std::string{word.begin(), word.begin() + pos};
+    return std::string{word.substr(0, pos)};
 }
 
 size_t Trie::frequency(std::string_view prefix) const {

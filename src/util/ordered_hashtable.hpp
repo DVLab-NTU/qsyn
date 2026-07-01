@@ -52,10 +52,14 @@ public:
 
     template <typename VecIterType>
     class OTableIterator {
+        using _itr_val_ref_t = decltype(std::declval<VecIterType>()->value());
+
     public:
         using value_type        = Value;
         using difference_type   = std::ptrdiff_t;
         using iterator_category = std::bidirectional_iterator_tag;
+        using reference         = std::conditional_t<std::is_const_v<std::remove_reference_t<_itr_val_ref_t>>, value_type const, value_type>&;
+
         OTableIterator() {}
         OTableIterator(VecIterType const& itr, VecIterType const& begin, VecIterType const& end) : _itr(itr), _begin(begin), _end(end) {}
 
@@ -92,11 +96,16 @@ public:
 
         bool is_valid() const noexcept { return *(this->_itr) != std::nullopt; }
 
-        value_type& operator*() noexcept { return (value_type&)this->_itr->value(); }
-        value_type& operator*() const noexcept { return (value_type&)this->_itr->value(); }
+        // reinterpret_cast is intentional: stored_type (e.g. pair<Key, T>) and value_type
+        // (e.g. pair<Key const, T>) are layout-identical but not statically convertible.
+        // This is the same technique used by libstdc++/libc++ for unordered_map iterators.
+        // `reference` already carries the correct const-ness from VecIterType, so no
+        // qualifiers are stripped by either overload.
+        reference operator*() noexcept { return reinterpret_cast<reference>(this->_itr->value()); }        // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+        reference operator*() const noexcept { return reinterpret_cast<reference>(this->_itr->value()); }  // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
 
-        value_type* operator->() noexcept { return (value_type*)&(this->_itr->value()); }
-        value_type* operator->() const noexcept { return (value_type*)&(this->_itr->value()); }
+        auto* operator->() noexcept { return &(**this); }
+        auto* operator->() const noexcept { return &(**this); }
 
     private:
         VecIterType _itr;

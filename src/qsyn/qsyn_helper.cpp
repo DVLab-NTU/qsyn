@@ -43,7 +43,7 @@ void create_default_qsynrc(dvlab::CommandLineInterface& cli, std::filesystem::pa
     namespace fs = std::filesystem;
 
     if (!fs::is_directory(qsynrc_path.parent_path()) && !fs::create_directories(qsynrc_path.parent_path())) {
-        spdlog::critical("Cannot create directory {}", qsynrc_path.parent_path());
+        spdlog::critical("Cannot create directory {}", qsynrc_path.parent_path().string());
         return;
     }
     // clang-format off
@@ -115,7 +115,7 @@ bool read_qsynrc_file(dvlab::CommandLineInterface& cli, std::filesystem::path qs
     cli.clear_history();
 
     if (result == dvlab::CmdExecResult::error) {
-        spdlog::critical("Some errors occurred while reading the qsynrc file from {}", qsynrc_path);
+        spdlog::critical("Some errors occurred while reading the qsynrc file from {}", qsynrc_path.string());
         return false;
     }
 

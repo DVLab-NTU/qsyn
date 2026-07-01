@@ -735,9 +735,9 @@ void Device::print_path(QubitIdType src, QubitIdType dest) const {
         }
     }
     std::vector<PhysicalQubit> const& path = get_path(src, dest);
-    if (path.front().get_id() != src && path.back().get_id() != dest)
+    if (path.front().get_id() != src && path.back().get_id() != dest) {
         fmt::println("No path between {} and {}", src, dest);
-    else {
+    } else {
         fmt::println("Path from {} to {}:", src, dest);
         size_t cnt = 0;
         for (auto& v : path) {

@@ -59,6 +59,7 @@ std::vector<QubitIdType> BasePlacer::place_and_assign(Device& device) {
  */
 std::vector<QubitIdType> RandomPlacer::_place(Device& device) const {
     std::vector<QubitIdType> assign;
+    assign.reserve(device.get_num_qubits());
     for (size_t i = 0; i < device.get_num_qubits(); ++i)
         assign.emplace_back(i);
 
@@ -76,6 +77,7 @@ std::vector<QubitIdType> RandomPlacer::_place(Device& device) const {
  */
 std::vector<QubitIdType> StaticPlacer::_place(Device& device) const {
     std::vector<QubitIdType> assign;
+    assign.reserve(device.get_num_qubits());
     for (size_t i = 0; i < device.get_num_qubits(); ++i)
         assign.emplace_back(i);
 

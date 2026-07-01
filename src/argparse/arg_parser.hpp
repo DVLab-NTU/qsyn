@@ -49,6 +49,7 @@ public:
 
     size_t size() const noexcept;
 
+    SubParsers::MapType& get_subparsers();
     SubParsers::MapType const& get_subparsers() const;
     std::string const& get_help() const;
     std::string const& get_dest() const;

@@ -10,6 +10,7 @@
 #include <charconv>
 #include <concepts>
 #include <exception>
+#include <iterator>
 #include <limits>
 #include <optional>
 #include <ranges>
@@ -79,7 +80,7 @@ namespace views {
 template <typename DelimT>
 requires std::convertible_to<DelimT, std::string_view> || std::convertible_to<DelimT, char>
 inline auto split_to_string_views(std::string_view str, DelimT delim) {
-    return std::views::split(str, delim) | std::views::transform([](auto&& rng) { return std::string_view(&*rng.begin(), std::ranges::distance(rng)); });
+    return std::views::split(str, delim) | std::views::transform([](auto&& rng) { return std::string_view(std::ranges::data(rng), std::ranges::distance(rng)); });
 }
 
 /**
@@ -202,7 +203,7 @@ namespace detail {
 template <typename T>
 requires std::integral<T>
 std::from_chars_result from_chars_wrapper(std::string_view str, T& val) {
-    return std::from_chars(str.data(), str.data() + str.size(), val);
+    return std::from_chars(str.data(), std::to_address(str.end()), val);
 }
 
 template <typename T>
@@ -212,13 +213,13 @@ std::from_chars_result from_chars_wrapper(std::string_view str, T& val) {
     try {
         if constexpr (std::is_same_v<T, float>) {
             val = std::stof(std::string{str}, &pos);
-            return {str.data() + pos, std::errc{}};
+            return {std::next(str.data(), pos), std::errc{}};
         } else if constexpr (std::is_same_v<T, double>) {
             val = std::stod(std::string{str}, &pos);
-            return {str.data() + pos, std::errc{}};
+            return {std::next(str.data(), pos), std::errc{}};
         } else if constexpr (std::is_same_v<T, long double>) {
             val = std::stold(std::string{str}, &pos);
-            return {str.data() + pos, std::errc{}};
+            return {std::next(str.data(), pos), std::errc{}};
         }
     } catch (std::invalid_argument const& e) {
         return {str.data(), std::errc::invalid_argument};
@@ -231,7 +232,7 @@ std::from_chars_result from_chars_wrapper(std::string_view str, T& val) {
 #else
 template <typename T>
 std::from_chars_result from_chars_wrapper(std::string_view str, T& val) {
-    return std::from_chars(str.data(), str.data() + str.size(), val);
+    return std::from_chars(str.data(), std::to_address(str.end()), val);
 }
 
 #endif
@@ -243,7 +244,7 @@ inline std::optional<T> from_string(std::string_view str) {
     T result;
 
     auto [ptr, ec] = detail::from_chars_wrapper<T>(str, result);
-    if (ec == std::errc{} && ptr == str.data() + str.size()) {
+    if (ec == std::errc{} && ptr == std::to_address(str.end())) {
         return result;
     } else {
         // perror(std::make_error_code(ec).message().c_str());

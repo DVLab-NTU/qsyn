@@ -75,13 +75,20 @@ To build `qsyn`, follow the instructions below:
 
 <details>
 <summary>For Linux Users</summary>
-    
-You'll probably need to install `OpenBLAS` and `LAPACK` libraries. For Ubuntu, you can install them by running
 
-```sh
-sudo apt install libopenblas-dev
-sudo apt install liblapack-dev
-```
+You'll probably need to install `OpenBLAS` and `LAPACK` libraries.
+- For Ubuntu, you can install them by running
+  ```sh
+  sudo apt install libopenblas-dev
+  sudo apt install liblapack-dev
+  ```
+- For Fedora, you can install them by running
+  ```sh
+  sudo dnf install openblas-devel
+  sudo dnf install lapack-devel
+  ```
+- For openSUSE, you can read [this wiki page](https://en.opensuse.org/openSUSE:Science_Linear_algebra_libraries).
+- For other distros, you might be interested in [OpenBLAS install.md](https://github.com/OpenMathLib/OpenBLAS/blob/develop/docs/install.md).
 
 If you are tech-savvy enough to be using a different Linux distribution, we're confident that you can figure out how to install these libraries 😉
 
@@ -97,7 +104,7 @@ This uses the default compiler (gcc/g++) and triggers the CMake build. To overri
 
 <details>
 <summary>For MacOS Users</summary>
-    
+
 Since Qsyn uses C++20 features not fully supported by Apple Clang, install a C++20-capable compiler. Options:
 
 1. **LLVM (clang++)** via Homebrew:
@@ -332,26 +339,26 @@ This architecture is central to qsyn’s flexibility and extensibility. It segre
 ### Data Access and Utilities
 
 `qsyn` provides various data representations for quantum logic. `<dt>` stands for any data representation type, including quantum circuits, ZX diagrams, Tableau, etc.
-| Command | Description |
-| :----- | :---- |
-| `<dt>` list | list all `<dt>`s |
-| `<dt>` checkout | switch focus between `<dt>`s |  
- | `<dt>` print | print `<dt>` information |
-| `<dt>` <new \| delete> | add a new/delete a `<dt>` |
-| `<dt>` <read \| write> | read and write `<dt>` |
-| `<dt>` equiv | verify equivalence of two `<dt>`s |
-| `<dt>` draw | render visualization of `<dt>` |
-| convert `<dt1>` `<dt2>` | convert from `<dt1>` to `<dt2>` |
+| Command                 | Description                       |
+| :---------------------- | :-------------------------------- |
+| `<dt>` list             | list all `<dt>`s                  |
+| `<dt>` checkout         | switch focus between `<dt>`s      |
+| `<dt>` print            | print `<dt>` information          |
+| `<dt>` <new \| delete>  | add a new/delete a `<dt>`         |
+| `<dt>` <read \| write>  | read and write `<dt>`             |
+| `<dt>` equiv            | verify equivalence of two `<dt>`s |
+| `<dt>` draw             | render visualization of `<dt>`    |
+| convert `<dt1>` `<dt2>` | convert from `<dt1>` to `<dt2>`   |
 
 There are also some extra utilities:
-| Command | Description |
-| :----- | :---- |
-| alias | set or unset aliases |
-| help | display helps to commands |
+| Command | Description                    |
+| :------ | :----------------------------- |
+| alias   | set or unset aliases           |
+| help    | display helps to commands      |
 | history | show or export command history |
-| logger | control log levels |
-| set | set or unset variables |
-| usage | show time/memory usage |
+| logger  | control log levels             |
+| set     | set or unset variables         |
+| usage   | show time/memory usage         |
 
 ## License
 
@@ -363,7 +370,7 @@ Certain functions of `qsyn` is enabled by a series of third-party libraries. For
 ## Resources
 
 * Quantum circuit benchmark: [qsyn-benchmark](https://github.com/DVLab-NTU/qsyn-benchmark)
- 
+
 ## Reference
 If you are using Qsyn for your research, it will be greatly appreciated if you cite this publication:
 
