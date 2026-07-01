@@ -119,6 +119,7 @@ QCir::QCir(QCir const& other) {
     _measurement_producer_by_cbit = other._measurement_producer_by_cbit;
     _last_consumer_by_cbit        = other._last_consumer_by_cbit;
     _measurement_gate_order       = other._measurement_gate_order;
+    _export_schedule_width        = other._export_schedule_width;
 
     this->set_filename(other._filename);
     this->add_procedures(other._procedures);

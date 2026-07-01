@@ -10,7 +10,9 @@
 #include <spdlog/spdlog.h>
 
 #include <algorithm>
+#include <cassert>
 #include <chrono>
+#include <cstdlib>
 #include <filesystem>
 #include <fstream>
 #include <functional>
@@ -27,6 +29,8 @@
 #include <variant>
 #include <vector>
 
+#include "convert/qcir_to_tableau.hpp"
+#include "qcir/qcir.hpp"
 #include "tableau/classical_tableau.hpp"
 #include "tableau/pauli_rotation.hpp"
 #include "tableau/stabilizer_tableau.hpp"
@@ -190,7 +194,7 @@ void full_optimize(Tableau& tableau) {
         spdlog::debug("Internal-H-opt");
         minimize_internal_hadamards(tableau);
         spdlog::debug("Phase polynomial optimization");
-        optimize_phase_polynomial(tableau, ToddPhasePolynomialOptimizationStrategy{});
+        optimize_phase_polynomial(tableau, FastToddPhasePolynomialOptimizationStrategy{});
         spdlog::info("{}: Reduced the number of non-Clifford gates from {} to {}.", ++count, non_clifford_count, tableau.n_pauli_rotations());
     } while (non_clifford_count > tableau.n_pauli_rotations());
     minimize_internal_hadamards(tableau);
@@ -696,7 +700,9 @@ void optimize_phase_polynomial(Tableau& tableau, PhasePolynomialOptimizationStra
  * @param tableau
  * @param strategy
  */
-void optimize_phase_polynomial_with_classical(Tableau& tableau, PhasePolynomialOptimizationStrategy const& strategy) {
+void optimize_phase_polynomial_with_classical(Tableau& tableau,
+                                              PhasePolynomialOptimizationStrategy const& strategy,
+                                              size_t* fasttodd_t_count) {
     // One or more PR blocks: always run phase-polynomial optimization (e.g. FastTODD) on the *last* PR block.
     // With a single PR, that is the only block; with two (PR1, PR2), that is PR2.
     std::vector<size_t> pr_indices;
@@ -730,6 +736,9 @@ void optimize_phase_polynomial_with_classical(Tableau& tableau, PhasePolynomialO
         auto& clifford_ref = std::get<StabilizerTableau>(tableau[pr_row - 1]);
         auto& pr           = std::get<std::vector<PauliRotation>>(tableau[pr_row]);
         optimize_phase_polynomial(clifford_ref, pr, strategy);
+        if (fasttodd_t_count != nullptr) {
+            *fasttodd_t_count = pr.size();
+        }
         auto phase_columns = stabilizers_to_pauli_identical_cx_conjugation(clifford_ref);
         pr.insert(pr.end(), phase_columns.begin(), phase_columns.end());
         clifford_ref = StabilizerTableau{clifford_ref.n_qubits()};
@@ -1006,6 +1015,49 @@ CircuitStructureInfo inspect_degadgetization_structure(Tableau const& tableau) {
     return properize_for_degadgetization(copy);
 }
 
+std::string TableauPreprocessConfig::id() const {
+    char const decomp_ch = decomp == qcir::CcDecomposition::Rust ? 'r' : 'c';
+    return fmt::format(
+        "mr{}_pr{}_{}",
+        merge_rotations ? 1 : 0,
+        properize ? 1 : 0,
+        decomp_ch);
+}
+
+std::vector<TableauPreprocessConfig> all_tableau_preprocess_configs() {
+    std::vector<TableauPreprocessConfig> configs;
+    configs.reserve(8);
+    for (bool const mr : {false, true}) {
+        for (bool const pr : {false, true}) {
+            for (qcir::CcDecomposition const decomp :
+                 {qcir::CcDecomposition::Cpp, qcir::CcDecomposition::Rust}) {
+                configs.push_back(TableauPreprocessConfig{
+                    .decomp = decomp,
+                    .merge_rotations = mr,
+                    .properize = pr,
+                });
+            }
+        }
+    }
+    return configs;
+}
+
+std::optional<Tableau> prepare_gadgetized_tableau(qcir::QCir const& source,
+                                                  TableauPreprocessConfig const& cfg) {
+    auto const basic = qcir::to_basic_gates(source, cfg.decomp);
+    if (!basic.has_value()) {
+        spdlog::error("tie search: to_basic_gates failed for config {}", cfg.id());
+        return std::nullopt;
+    }
+    auto tab = to_tableau(*basic);
+    if (!tab.has_value()) {
+        spdlog::error("tie search: to_tableau failed for config {}", cfg.id());
+        return std::nullopt;
+    }
+    minimize_internal_hadamards_n_gadgetize(*tab, cfg.merge_rotations, cfg.properize);
+    return tab;
+}
+
 namespace {
 
 bool tie_search_enabled_from_env() {
@@ -1013,45 +1065,6 @@ bool tie_search_enabled_from_env() {
         return value[0] == '1' || value[0] == 'y' || value[0] == 'Y';
     }
     return false;
-}
-
-bool tie_search_random_all_steps_enabled_from_env() {
-    if (char const* value = std::getenv("QSYN_FASTTODD_TIE_SEARCH_RANDOM_ALL_STEPS")) {
-        return value[0] == '1' || value[0] == 'y' || value[0] == 'Y';
-    }
-    return false;
-}
-
-std::optional<FastToddTieSearchMode> parse_tie_search_mode(std::string_view mode) {
-    if (mode == "original") {
-        return FastToddTieSearchMode::original;
-    }
-    if (mode == "all-random") {
-        return FastToddTieSearchMode::all_random;
-    }
-    if (mode == "target-random") {
-        return FastToddTieSearchMode::random_target_only;
-    }
-    if (mode == "force-prefix-target-random") {
-        return FastToddTieSearchMode::force_prefix_random_target;
-    }
-    return std::nullopt;
-}
-
-FastToddTieSearchMode tie_search_mode_from_env() {
-    if (char const* value = std::getenv("QSYN_FASTTODD_TIE_SEARCH_MODE")) {
-        auto const parsed = parse_tie_search_mode(value);
-        if (parsed.has_value()) {
-            return *parsed;
-        }
-        spdlog::warn(
-            "QSYN_FASTTODD_TIE_SEARCH_MODE='{}' invalid, fallback=target-random", value);
-    }
-    // Backward-compatible flag support.
-    if (tie_search_random_all_steps_enabled_from_env()) {
-        return FastToddTieSearchMode::all_random;
-    }
-    return FastToddTieSearchMode::random_target_only;
 }
 
 size_t read_size_t_env(char const* key, size_t fallback) {
@@ -1066,18 +1079,26 @@ size_t read_size_t_env(char const* key, size_t fallback) {
 }
 
 struct TieSearchOutcome {
-    bool                  ok = false;
-    bool                  early_unsat = false;
-    size_t                t_count = 0;
-    size_t                sat_width = 0;
-    Tableau               tableau{0};
-    FastToddTieRunReport  report;
+    bool                 ok = false;
+    bool                 early_unsat = false;
+    size_t               t_count = 0;
+    size_t               sat_width = 0;
+    Tableau              tableau{0};
+    std::string          preprocess_id;
+    FastToddTieRunReport report;
+};
+
+struct PreprocessTieCandidate {
+    TableauPreprocessConfig config;
+    Tableau                 gadgetized;
+    TieSearchOutcome        baseline;
 };
 
 std::optional<size_t> solve_sat_min_width(Tableau const& tableau,
                                           std::optional<size_t> start_width,
                                           bool stop_if_start_unsat,
-                                          bool* start_unsat) {
+                                          bool* start_unsat,
+                                          bool quiet) {
     if (start_unsat != nullptr) {
         *start_unsat = false;
     }
@@ -1085,9 +1106,11 @@ std::optional<size_t> solve_sat_min_width(Tableau const& tableau,
     AncillaSmtInstance inst = build_ancilla_smt_instance(sig);
     AncillaScheduleResult const schedule = solve_ancilla_schedule(
         inst, AncillaScheduleSolveOptions{
-            .start_width = start_width,
-            .stop_if_start_unsat = stop_if_start_unsat,
-        });
+                  .start_width = start_width,
+                  .stop_if_start_unsat = stop_if_start_unsat,
+                  .linear_search_below_start = start_width.has_value() && stop_if_start_unsat,
+                  .quiet = quiet,
+              });
     if (!schedule.ok) {
         if (start_width.has_value() && stop_if_start_unsat && start_unsat != nullptr) {
             *start_unsat = true;
@@ -1095,24 +1118,6 @@ std::optional<size_t> solve_sat_min_width(Tableau const& tableau,
         return std::nullopt;
     }
     return schedule.width_w;
-}
-
-bool dominates(std::pair<size_t, size_t> const& lhs, std::pair<size_t, size_t> const& rhs) {
-    return lhs.first <= rhs.first && lhs.second <= rhs.second &&
-           (lhs.first < rhs.first || lhs.second < rhs.second);
-}
-
-void pareto_insert(std::vector<std::pair<size_t, size_t>>& pareto,
-                   std::pair<size_t, size_t> const point) {
-    if (std::ranges::any_of(pareto, [&](auto const& cur) { return dominates(cur, point); })) {
-        return;
-    }
-    pareto.erase(
-        std::remove_if(
-            pareto.begin(), pareto.end(),
-            [&](auto const& cur) { return dominates(point, cur); }),
-        pareto.end());
-    pareto.push_back(point);
 }
 
 bool is_improving(TieSearchOutcome const& trial, TieSearchOutcome const& best) {
@@ -1125,35 +1130,41 @@ bool is_improving(TieSearchOutcome const& trial, TieSearchOutcome const& best) {
     return false;
 }
 
-std::optional<size_t> chosen_index_for_step(FastToddTieRunReport const& report,
-                                            FastToddTieLevel const level,
-                                            size_t const step_index) {
-    auto const& decisions = level == FastToddTieLevel::tohpe
-        ? report.tohpe_decisions
-        : report.outer_decisions;
-    for (auto const& decision : decisions) {
-        if (decision.step_index == step_index) {
-            return decision.chosen_index;
-        }
+TieSearchOutcome run_tie_search_baseline(Tableau const& gadgetized_tableau,
+                                         std::string preprocess_id,
+                                         std::optional<size_t> skip_smt_if_t_above) {
+    TieSearchOutcome outcome{.ok = false, .tableau = gadgetized_tableau, .preprocess_id = std::move(preprocess_id)};
+    optimize_phase_polynomial_with_classical(
+        outcome.tableau, FastToddPhasePolynomialOptimizationStrategy{}, &outcome.t_count);
+
+    if (skip_smt_if_t_above.has_value() && outcome.t_count > *skip_smt_if_t_above) {
+        return outcome;
     }
-    return std::nullopt;
+
+    if (!has_gadget_ancillae(outcome.tableau)) {
+        outcome.sat_width = outcome.tableau.n_ancilla();
+        outcome.ok        = true;
+        return outcome;
+    }
+
+    Tableau reordered = outcome.tableau;
+    sat_reorder(reordered);
+    outcome.sat_width = reordered.n_ancilla();
+    outcome.ok        = true;
+    return outcome;
 }
 
-size_t step_count_for_level(FastToddTieRunReport const& report, FastToddTieLevel const level) {
-    return level == FastToddTieLevel::tohpe ? report.tohpe_step_count : report.outer_step_count;
-}
-
-TieSearchOutcome run_tie_search_trial(Tableau const& base_tableau,
-                                      FastToddTieControl const& control,
-                                      std::optional<FastToddTieStepTarget> target,
-                                      size_t best_t,
-                                      size_t best_width,
-                                      std::uint64_t seed) {
-    TieSearchOutcome outcome{.ok = false, .tableau = base_tableau};
-    FastToddTieControl run_control = control;
-    run_control.enabled = true;
-    run_control.target_random_step = target;
-    run_control.random_seed = seed;
+TieSearchOutcome run_all_random_tie_search_trial(Tableau const& base_tableau,
+                                                 std::string const& preprocess_id,
+                                                 size_t best_t,
+                                                 size_t best_width,
+                                                 std::uint64_t seed) {
+    TieSearchOutcome outcome{.ok = false, .tableau = base_tableau, .preprocess_id = preprocess_id};
+    FastToddTieControl run_control;
+    run_control.enabled              = true;
+    run_control.mode                 = FastToddTieSearchMode::all_random;
+    run_control.target_random_step   = std::nullopt;
+    run_control.random_seed          = seed;
 
     set_fasttodd_tie_control(run_control);
     optimize_phase_polynomial_with_classical(outcome.tableau, FastToddPhasePolynomialOptimizationStrategy{});
@@ -1164,7 +1175,7 @@ TieSearchOutcome run_tie_search_trial(Tableau const& base_tableau,
         spdlog::error("tie search: missing FastTODD tie report");
         return outcome;
     }
-    outcome.report = *report;
+    outcome.report  = *report;
     outcome.t_count = outcome.report.final_term_count > 0
         ? outcome.report.final_term_count
         : outcome.tableau.n_pauli_rotations();
@@ -1177,108 +1188,192 @@ TieSearchOutcome run_tie_search_trial(Tableau const& base_tableau,
     std::optional<size_t> start_width = std::nullopt;
     bool stop_if_start_unsat = false;
     if (outcome.t_count == best_t) {
-        start_width = best_width > 0 ? best_width - 1 : 0;
+        start_width         = best_width > 0 ? best_width - 1 : 0;
         stop_if_start_unsat = true;
     }
 
     auto const sat_width = solve_sat_min_width(
-        outcome.tableau, start_width, stop_if_start_unsat, &start_unsat);
+        outcome.tableau, start_width, stop_if_start_unsat, &start_unsat, true);
     if (!sat_width.has_value()) {
         outcome.early_unsat = start_unsat;
         return outcome;
     }
 
     outcome.sat_width = *sat_width;
-    outcome.ok = true;
+    outcome.ok        = true;
     return outcome;
 }
 
-void optimize_phase_polynomial_with_classical_tie_search(
-    Tableau& tableau,
-    std::optional<FastToddTieSearchMode> tie_search_mode_override) {
+void tie_search_preprocess_self_check() {
+    auto const configs = all_tableau_preprocess_configs();
+    assert(configs.size() == 8);
+    std::unordered_set<std::string> ids;
+    for (auto const& cfg : configs) {
+        ids.insert(cfg.id());
+    }
+    assert(ids.size() == 8);
+}
+
+std::optional<TieSearchOutcome> run_preprocess_aware_tie_search(qcir::QCir const& source) {
+    tie_search_preprocess_self_check();
+
     size_t const patience_n = read_size_t_env("QSYN_FASTTODD_TIE_SEARCH_PATIENCE", 10);
     size_t const max_trials = read_size_t_env("QSYN_FASTTODD_TIE_SEARCH_MAX_TRIALS", 50);
     std::mt19937_64 rng{std::random_device{}()};
 
-    FastToddTieControl tie_control;
-    tie_control.mode = tie_search_mode_override.value_or(tie_search_mode_from_env());
-    TieSearchOutcome best = run_tie_search_trial(
-        tableau, tie_control, std::nullopt,
-        std::numeric_limits<size_t>::max(),
-        std::numeric_limits<size_t>::max(),
-        rng());
-    if (!best.ok) {
-        spdlog::warn("tie search: baseline run failed, fallback to standard FastTODD");
-        optimize_phase_polynomial_with_classical(tableau, FastToddPhasePolynomialOptimizationStrategy{});
-        return;
+    std::vector<PreprocessTieCandidate> phase1;
+    phase1.reserve(8);
+    size_t running_best_t = std::numeric_limits<size_t>::max();
+
+    for (auto const& cfg : all_tableau_preprocess_configs()) {
+        auto gadgetized = prepare_gadgetized_tableau(source, cfg);
+        if (!gadgetized.has_value()) {
+            continue;
+        }
+        std::optional<size_t> skip_smt_if_t_above =
+            running_best_t != std::numeric_limits<size_t>::max()
+                ? std::optional{running_best_t}
+                : std::nullopt;
+        auto baseline = run_tie_search_baseline(*gadgetized, cfg.id(), skip_smt_if_t_above);
+        if (!baseline.ok) {
+            if (skip_smt_if_t_above.has_value() && baseline.t_count > *skip_smt_if_t_above) {
+                spdlog::info(
+                    "tie search phase1: config={} T={} skip SMT (best T={})",
+                    cfg.id(),
+                    baseline.t_count,
+                    *skip_smt_if_t_above);
+            } else {
+                spdlog::warn("tie search phase1: config={} baseline failed", cfg.id());
+            }
+            continue;
+        }
+        running_best_t = std::min(running_best_t, baseline.t_count);
+        spdlog::info(
+            "tie search phase1: config={} T={} ancilla={}",
+            cfg.id(),
+            baseline.t_count,
+            baseline.sat_width);
+        phase1.push_back(PreprocessTieCandidate{
+            .config = cfg,
+            .gadgetized = *gadgetized,
+            .baseline = std::move(baseline),
+        });
     }
 
-    std::vector<std::pair<size_t, size_t>> pareto;
-    pareto_insert(pareto, {best.t_count, best.sat_width});
+    if (phase1.empty()) {
+        spdlog::error("tie search: no successful preprocess baseline");
+        return std::nullopt;
+    }
+    assert(!phase1.empty());
 
-    std::array<FastToddTieLevel, 2> const levels = {
-        FastToddTieLevel::tohpe, FastToddTieLevel::outer};
-    for (auto const level : levels) {
-        size_t step_index = 0;
-        while (step_index < step_count_for_level(best.report, level)) {
+    size_t min_t = phase1.front().baseline.t_count;
+    for (auto const& cand : phase1) {
+        min_t = std::min(min_t, cand.baseline.t_count);
+    }
+
+    std::vector<PreprocessTieCandidate> pool;
+    pool.reserve(phase1.size());
+    for (auto& cand : phase1) {
+        if (cand.baseline.t_count == min_t) {
+            pool.push_back(std::move(cand));
+        }
+    }
+    assert(!pool.empty());
+
+    spdlog::info("tie search phase1: min_T={} pool_size={}", min_t, pool.size());
+
+    TieSearchOutcome global_best = pool.front().baseline;
+    for (auto const& cand : pool) {
+        if (is_improving(cand.baseline, global_best)) {
+            global_best = cand.baseline;
+        }
+    }
+
+    // ponytail: width=0 at min_T is the ancilla floor; upgrade path: configurable width threshold via env.
+    auto const at_width_floor = [&](TieSearchOutcome const& o) {
+        return o.t_count == min_t && o.sat_width == 0;
+    };
+
+    if (at_width_floor(global_best)) {
+        spdlog::info("tie search: min_T={} width=0 after phase1, skip phase2", min_t);
+    } else {
+        bool phase2_done = false;
+        for (auto const& cand : pool) {
+            if (phase2_done) {
+                break;
+            }
             size_t non_improving = 0;
-            size_t tries = 0;
+            size_t tries         = 0;
             while (non_improving < patience_n && tries < max_trials) {
-                auto const target = FastToddTieStepTarget{.level = level, .step_index = step_index};
-                TieSearchOutcome trial = run_tie_search_trial(
-                    tableau, tie_control, target, best.t_count, best.sat_width, rng());
                 ++tries;
+                TieSearchOutcome trial = run_all_random_tie_search_trial(
+                    cand.gadgetized,
+                    cand.config.id(),
+                    global_best.t_count,
+                    global_best.sat_width,
+                    rng());
+                spdlog::info(
+                    "tie search phase2: candidate={} trial={}/{} global T={} ancilla={}",
+                    cand.config.id(),
+                    tries,
+                    max_trials,
+                    global_best.t_count,
+                    global_best.sat_width);
 
                 if (!trial.ok) {
                     ++non_improving;
-                    spdlog::info(
-                        "tie search: level={} step={} try={}/{} stop={} (non-improving)",
-                        level == FastToddTieLevel::tohpe ? "tohpe" : "outer",
-                        step_index, tries, max_trials,
-                        trial.early_unsat ? "start-width-unsat" : "eval-fail");
                     continue;
                 }
-
-                pareto_insert(pareto, {trial.t_count, trial.sat_width});
-                if (is_improving(trial, best)) {
-                    if (tie_control.mode == FastToddTieSearchMode::force_prefix_random_target) {
-                        if (auto const chosen = chosen_index_for_step(trial.report, level, step_index);
-                            chosen.has_value()) {
-                            if (level == FastToddTieLevel::tohpe) {
-                                tie_control.forced_tohpe_choice_by_step[step_index] = *chosen;
-                            } else {
-                                tie_control.forced_outer_choice_by_step[step_index] = *chosen;
-                            }
-                        }
+                if (at_width_floor(trial)) {
+                    if (is_improving(trial, global_best)) {
+                        global_best = std::move(trial);
+                        spdlog::info(
+                            "tie search phase2: improved config={} T={} width=0",
+                            global_best.preprocess_id,
+                            global_best.t_count);
                     }
-                    best = std::move(trial);
+                    spdlog::info("tie search: min_T={} width=0, early stop phase2", min_t);
+                    phase2_done = true;
+                    break;
+                }
+                if (is_improving(trial, global_best)) {
+                    global_best   = std::move(trial);
                     non_improving = 0;
                     spdlog::info(
-                        "tie search: improved at level={} step={} -> T={} width={} pareto={}",
-                        level == FastToddTieLevel::tohpe ? "tohpe" : "outer",
-                        step_index, best.t_count, best.sat_width, pareto.size());
+                        "tie search phase2: improved config={} T={} ancilla={}",
+                        global_best.preprocess_id,
+                        global_best.t_count,
+                        global_best.sat_width);
                 } else {
                     ++non_improving;
                 }
             }
-            ++step_index;
+            assert(tries <= max_trials);
+            assert(non_improving <= patience_n);
         }
     }
 
+    sat_reorder(global_best.tableau);
     spdlog::info(
-        "tie search: final best T={} width={} pareto_points={}",
-        best.t_count, best.sat_width, pareto.size());
-    // ponytail: commit the best T-opt route once, then run reorder on that exact tableau.
-    tableau = std::move(best.tableau);
-    size_t const pr_after_topt = tableau.n_pauli_rotations();
-    size_t const anc_before_reorder = tableau.n_ancilla();
-    sat_reorder(tableau);
-    spdlog::info(
-        "tie search: reorder on best route finished (PR={}, ancilla {} -> {})",
-        pr_after_topt, anc_before_reorder, tableau.n_ancilla());
+        "tie search done: best_config={} T={} ancilla={}",
+        global_best.preprocess_id,
+        global_best.t_count,
+        global_best.sat_width);
+    return global_best;
 }
 
 }  // namespace
+
+bool minimize_ancillary_t_opt_from_qcir(qcir::QCir const& source,
+                                        Tableau& tableau_out) {
+    auto const best = run_preprocess_aware_tie_search(source);
+    if (!best.has_value()) {
+        return false;
+    }
+    tableau_out = std::move(best->tableau);
+    spdlog::info("tie search: optimized tableau ready; run convert tableau qcir to export");
+    return true;
+}
 
 /**
  * @brief Run classical ancillary-T optimization with gadgetization and FastTODD phase optimization.
@@ -1286,20 +1381,19 @@ void optimize_phase_polynomial_with_classical_tie_search(
  * @param tableau
  */
 void minimize_ancillary_t_opt(Tableau& tableau,
-                              std::optional<std::string> export_filename,
-                              bool enable_tie_search,
-                              std::optional<FastToddTieSearchMode> tie_search_mode) {
+                              std::optional<std::string> export_filename) {
     (void)export_filename;
     if (tableau.is_empty()) {
         return;
     }
+    if (tie_search_enabled_from_env()) {
+        spdlog::warn(
+            "QSYN_FASTTODD_TIE_SEARCH is set but tie-search requires QCir; "
+            "use minimize_ancillary_t_opt_from_qcir via tableau o ancillaryTopt -tie-search after qc read");
+    }
     [[maybe_unused]] auto const pmc_to_unified_pr = minimize_internal_hadamards_n_gadgetize(tableau);
     if (has_gadget_ancillae(tableau)) {
-        if (enable_tie_search || tie_search_enabled_from_env()) {
-            optimize_phase_polynomial_with_classical_tie_search(tableau, tie_search_mode);
-        } else {
-            optimize_phase_polynomial_with_classical(tableau, FastToddPhasePolynomialOptimizationStrategy{});
-        }
+        optimize_phase_polynomial_with_classical(tableau, FastToddPhasePolynomialOptimizationStrategy{});
     } else {
         spdlog::info("minimize_ancillary_t_opt: no gadget ancilla; using standard FastTODD");
         optimize_phase_polynomial(tableau, FastToddPhasePolynomialOptimizationStrategy{});

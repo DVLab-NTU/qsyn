@@ -62,50 +62,52 @@ std::pair<std::optional<size_t>, std::optional<size_t>> parse_condition_expressi
 
 namespace {
 
-void remove_ancilla_from_reset_schedule(
-    std::unordered_map<size_t, std::vector<size_t>>& reset_ancillae_by_pmc_index,
-    size_t ancilla_qubit) {
-    for (auto& [_, ancillae] : reset_ancillae_by_pmc_index) {
-        ancillae.erase(
-            std::remove(ancillae.begin(), ancillae.end(), ancilla_qubit),
-            ancillae.end());
+struct ResetExportSchedule {
+    std::unordered_map<size_t, std::vector<size_t>> before_gadget_ccc;
+};
+
+ResetExportSchedule build_reset_export_schedule(std::vector<ResetPlacement> const& placements) {
+    ResetExportSchedule schedule;
+    for (auto const& placement : placements) {
+        if (placement.anchor != ResetAnchor::BeforeGadgetCcc) {
+            spdlog::warn(
+                "export reset placement for ancilla q{} uses unsupported anchor; expected BeforeGadgetCcc",
+                placement.ancilla_qubit);
+            continue;
+        }
+        schedule.before_gadget_ccc[placement.index].push_back(placement.ancilla_qubit);
     }
+    return schedule;
 }
 
-std::unordered_set<size_t> collect_qubits(qcir::QCir const& qcir) {
-    std::unordered_set<size_t> qubits;
-    for (auto const* gate : qcir.get_gates()) {
-        for (size_t const q : gate->get_qubits()) {
-            qubits.insert(q);
+bool emit_scheduled_resets(
+    qcir::QCir& qcir,
+    size_t n_qubits,
+    std::unordered_map<size_t, std::vector<size_t>>& bucket,
+    size_t key,
+    std::unordered_set<size_t> const& plus_after_reset_ancilla) {
+    auto it = bucket.find(key);
+    if (it == bucket.end()) {
+        return true;
+    }
+    auto& ancillae = it->second;
+    std::sort(ancillae.begin(), ancillae.end());
+    ancillae.erase(std::unique(ancillae.begin(), ancillae.end()), ancillae.end());
+    for (size_t const ancilla_qubit : ancillae) {
+        if (ancilla_qubit >= n_qubits) {
+            spdlog::error(
+                "Reset ancilla qubit {} is out of range for n_qubits {}",
+                ancilla_qubit,
+                n_qubits);
+            return false;
+        }
+        qcir.append(qcir::ResetGate(), {ancilla_qubit});
+        if (plus_after_reset_ancilla.contains(ancilla_qubit)) {
+            qcir.append(qcir::HGate(), {ancilla_qubit});
         }
     }
-    return qubits;
-}
-
-void flush_reset_if_measured(
-    qcir::QCir& qcir,
-    size_t qubit,
-    std::unordered_set<size_t> const& plus_after_reset_ancilla,
-    std::unordered_map<size_t, std::vector<size_t>>& reset_ancillae_by_pmc_index) {
-    auto* last_gate = qcir.get_last_gate(qubit);
-    if (last_gate == nullptr || last_gate->get_operation().get_type() != "measure") {
-        return;
-    }
-    qcir.append(qcir::ResetGate(), {qubit});
-    if (plus_after_reset_ancilla.contains(qubit)) {
-        qcir.append(qcir::HGate(), {qubit});
-    }
-    remove_ancilla_from_reset_schedule(reset_ancillae_by_pmc_index, qubit);
-}
-
-void flush_resets_before_qcir_use(
-    qcir::QCir& qcir,
-    qcir::QCir const& fragment,
-    std::unordered_set<size_t> const& plus_after_reset_ancilla,
-    std::unordered_map<size_t, std::vector<size_t>>& reset_ancillae_by_pmc_index) {
-    for (size_t const qubit : collect_qubits(fragment)) {
-        flush_reset_if_measured(qcir, qubit, plus_after_reset_ancilla, reset_ancillae_by_pmc_index);
-    }
+    bucket.erase(it);
+    return true;
 }
 
 void add_clifford_gate(qcir::QCir& qcir, CliffordOperator const& op) {
@@ -209,7 +211,7 @@ bool append_cct_to_qcir(
     StabilizerTableauSynthesisStrategy const& cct_strategy,
     size_t n_qubits,
     std::optional<size_t> classical_bit_override = std::nullopt,
-    bool append_reset = true) {
+    bool append_reset = false) {
     size_t const ancilla_qubit = cct.ancilla_qubit();
     if (ancilla_qubit >= n_qubits) {
         spdlog::error("Ancilla qubit {} is out of range for n_qubits {}", ancilla_qubit, n_qubits);
@@ -803,7 +805,7 @@ std::optional<qcir::QCir> to_qcir(
         }
         return qcir;
     }
-    if (!append_cct_to_qcir(qcir, cct, cct_strategy, n_qubits)) {
+    if (!append_cct_to_qcir(qcir, cct, cct_strategy, n_qubits, std::nullopt, true)) {
         return std::nullopt;
     }
     return qcir;
@@ -825,7 +827,7 @@ std::optional<qcir::QCir> to_qcir(Tableau const& tableau, StabilizerTableauSynth
         spdlog::error("Tableau has 0 qubits");
         return std::nullopt;
     }
-    
+
     qcir::QCir qcir{n_qubits, tableau.export_classical_bit_count()};
     std::unordered_set<size_t> ancilla_with_reset_epochs;
     for (auto const& subtableau : tableau) {
@@ -835,6 +837,11 @@ std::optional<qcir::QCir> to_qcir(Tableau const& tableau, StabilizerTableauSynth
         }
     }
     std::unordered_set<size_t> plus_after_reset_ancilla;
+    ResetExportSchedule reset_schedule = build_reset_export_schedule(tableau.export_reset_placements());
+    auto emit_resets_before_gadget_ccc = [&](size_t gadget_ccc_rank) -> bool {
+        return emit_scheduled_resets(
+            qcir, n_qubits, reset_schedule.before_gadget_ccc, gadget_ccc_rank, plus_after_reset_ancilla);
+    };
 
     // Set initial state metadata for ancilla qubits
     if (tableau.n_ancilla() > 0) {
@@ -845,10 +852,6 @@ std::optional<qcir::QCir> to_qcir(Tableau const& tableau, StabilizerTableauSynth
             }
 
             if (ancilla_index >= n_qubits) {
-                spdlog::warn(
-                    "Skipping stale ancilla metadata index {} (n_qubits={})",
-                    ancilla_index,
-                    n_qubits);
                 continue;
             }
 
@@ -877,45 +880,9 @@ std::optional<qcir::QCir> to_qcir(Tableau const& tableau, StabilizerTableauSynth
             }
         }
     }
-    
-    std::unordered_map<size_t, std::vector<size_t>> reset_ancillae_by_pmc_index;
-    auto emit_resets_at_epoch_start = [&](size_t pmc_epoch_index) -> bool {
-        auto it = reset_ancillae_by_pmc_index.find(pmc_epoch_index);
-        if (it == reset_ancillae_by_pmc_index.end()) {
-            return true;
-        }
-        auto& ancillae = it->second;
-        std::sort(ancillae.begin(), ancillae.end());
-        ancillae.erase(std::unique(ancillae.begin(), ancillae.end()), ancillae.end());
-        for (size_t const ancilla_qubit : ancillae) {
-            if (ancilla_qubit >= n_qubits) {
-                spdlog::error(
-                    "Reset ancilla qubit {} is out of range for n_qubits {}",
-                    ancilla_qubit,
-                    n_qubits);
-                return false;
-            }
-            qcir.append(qcir::ResetGate(), {ancilla_qubit});
-            if (plus_after_reset_ancilla.contains(ancilla_qubit)) {
-                qcir.append(qcir::HGate(), {ancilla_qubit});
-            }
-        }
-        return true;
-    };
-
-    for (auto const& subtableau : tableau) {
-        auto const* cct = std::get_if<ClassicalControlTableau>(&subtableau);
-        if (cct == nullptr || !cct->is_classical_control()) {
-            continue;
-        }
-        size_t const span_start = cct->has_span_start_index() ? cct->span_start_index() : 0;
-        reset_ancillae_by_pmc_index[span_start].push_back(cct->ancilla_qubit());
-    }
 
     size_t pmc_epoch_index = 0;
-    if (!emit_resets_at_epoch_start(0)) {
-        return std::nullopt;
-    }
+    size_t gadget_ccc_rank = 0;
     for (size_t i = 0; i < tableau.size(); ++i) {
         spdlog::debug("Converting subtableau {} to qcir", i);
         auto const& subtableau = tableau[i];
@@ -938,8 +905,6 @@ std::optional<qcir::QCir> to_qcir(Tableau const& tableau, StabilizerTableauSynth
             if (padded_fragment.get_num_qubits() < n_qubits) {
                 padded_fragment.add_qubits(n_qubits - padded_fragment.get_num_qubits());
             }
-            flush_resets_before_qcir_use(
-                qcir, padded_fragment, plus_after_reset_ancilla, reset_ancillae_by_pmc_index);
             qcir.compose(padded_fragment);
             continue;
         }
@@ -959,8 +924,6 @@ std::optional<qcir::QCir> to_qcir(Tableau const& tableau, StabilizerTableauSynth
             if (padded_fragment.get_num_qubits() < n_qubits) {
                 padded_fragment.add_qubits(n_qubits - padded_fragment.get_num_qubits());
             }
-            flush_resets_before_qcir_use(
-                qcir, padded_fragment, plus_after_reset_ancilla, reset_ancillae_by_pmc_index);
             qcir.compose(padded_fragment);
             continue;
         }
@@ -982,18 +945,18 @@ std::optional<qcir::QCir> to_qcir(Tableau const& tableau, StabilizerTableauSynth
                 return std::nullopt;
             }
             ++pmc_epoch_index;
-            if (!emit_resets_at_epoch_start(pmc_epoch_index)) {
-                return std::nullopt;
-            }
             continue;
         }
-        flush_reset_if_measured(
-            qcir, cct->ancilla_qubit(), plus_after_reset_ancilla, reset_ancillae_by_pmc_index);
+        if (!emit_resets_before_gadget_ccc(gadget_ccc_rank)) {
+            return std::nullopt;
+        }
         if (!append_gadget_cct_to_qcir(qcir, *cct, cct_strategy)) {
             spdlog::error("Failed to convert gadget CCT subtableau to qcir");
             return std::nullopt;
         }
+        ++gadget_ccc_rank;
     }
+    qcir.set_export_schedule_width(tableau.export_ancilla_depth());
     return qcir;
 }
 

@@ -7,6 +7,7 @@
 #pragma once
 
 #include "./tableau.hpp"
+#include "qcir/qcir.hpp"
 #include "tableau/optimize/reorder_smt.hpp"
 #include "tableau/pauli_rotation.hpp"
 #include "tableau/stabilizer_tableau.hpp"
@@ -336,6 +337,10 @@ void z_basisify_rotations_h_s_only(Tableau& tableau);
 void push_z_stabilizers(Tableau& tableau);
 
 std::unordered_map<size_t, PmcUnifiedPrRelation> minimize_internal_hadamards_n_gadgetize(Tableau& tableau);
+std::unordered_map<size_t, PmcUnifiedPrRelation> minimize_internal_hadamards_n_gadgetize(
+    Tableau& tableau,
+    bool do_merge_rotations,
+    bool do_properize);
 
 /** Run block-wise ancillary-T optimization on internal PR-ST-PR windows. */
 void blockwise_gadgetize_optimize(Tableau& tableau);
@@ -453,11 +458,24 @@ inline bool has_gadget_ancillae(Tableau const& tableau) {
 
 enum class FastToddTieSearchMode : std::uint8_t;
 
+struct TableauPreprocessConfig {
+    qcir::CcDecomposition decomp = qcir::CcDecomposition::Cpp;
+    bool                 merge_rotations = true;
+    bool                 properize         = true;
+
+    std::string id() const;
+};
+
+std::vector<TableauPreprocessConfig> all_tableau_preprocess_configs();
+std::optional<Tableau>               prepare_gadgetized_tableau(qcir::QCir const& source,
+                                                                TableauPreprocessConfig const& cfg);
+
 // Classical T optimization: minimize internal H, gadgetize, commute classical, and optimize with FastTODD
 void minimize_ancillary_t_opt(Tableau& tableau,
-                              std::optional<std::string> export_filename = std::nullopt,
-                              bool enable_tie_search = false,
-                              std::optional<FastToddTieSearchMode> tie_search_mode = std::nullopt);
+                              std::optional<std::string> export_filename = std::nullopt);
+/** QCir-first tie-search: 8 preprocess baselines, then all-random trials; writes optimized tableau only. */
+bool minimize_ancillary_t_opt_from_qcir(qcir::QCir const& source,
+                                        Tableau& tableau_out);
 void minimize_ancillary_t_opt_with_degadgetization(Tableau& tableau, std::optional<std::string> export_filename = std::nullopt);
 
 struct PhasePolynomialOptimizationStrategy {
@@ -526,7 +544,9 @@ struct FastToddPhasePolynomialOptimizationStrategy : public PhasePolynomialOptim
 
 void optimize_phase_polynomial(StabilizerTableau& clifford, std::vector<PauliRotation>& polynomial, PhasePolynomialOptimizationStrategy const& strategy);
 void optimize_phase_polynomial(Tableau& tableau, PhasePolynomialOptimizationStrategy const& strategy);
-void optimize_phase_polynomial_with_classical(Tableau& tableau, PhasePolynomialOptimizationStrategy const& strategy);
+void optimize_phase_polynomial_with_classical(Tableau& tableau,
+                                              PhasePolynomialOptimizationStrategy const& strategy,
+                                              size_t* fasttodd_t_count = nullptr);
 
 struct MatroidPartitionStrategy {
     using Polynomial                    = std::vector<PauliRotation>;

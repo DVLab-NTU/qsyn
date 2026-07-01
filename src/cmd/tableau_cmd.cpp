@@ -199,7 +199,7 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr, qsyn::qcir::QCi
             auto methods = parser.add_subparsers("method").required(true);
 
             methods.add_parser("full")
-                .description("Perform tmerge, hopt, phasepoly until the T-count stops decreasing");
+                .description("Perform tmerge, hopt, FastTODD until the T-count stops decreasing");
 
             methods.add_parser("collapse")
                 .description("Collapse the tableau into a canonical form");
@@ -215,18 +215,9 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr, qsyn::qcir::QCi
 
             auto ancillary_parser = methods.add_parser("ancillaryTopt")
                 .description("Minimize the number of T gates in the tableau with the help of classical operations & ancillary qubits");
-            ancillary_parser.add_argument<bool>("--tie-search")
+            ancillary_parser.add_argument<bool>("--tie-search", "-tie-search")
                 .action(store_true)
-                .help("Enable recursive FastTODD tied-move exploration with SAT width probing");
-            ancillary_parser.add_argument<std::string>("--tie-search-mode", "-tie-search")
-                .default_value("target-random")
-                .constraint(choices_allow_prefix({
-                    "original",
-                    "all-random",
-                    "target-random",
-                    "force-prefix-target-random",
-                }))
-                .help("Tie-search mode: original, all-random, target-random, or force-prefix-target-random");
+                .help("QCir-first tie-search: 8 preprocess baselines, then all-random trials (requires qc read; then convert tableau qcir)");
             ancillary_parser.add_argument<size_t>("-m", "--merge-rotations")
                 .nargs(NArgsOption::optional)
                 .help("Override QSYN_TABLEAU_MERGE_ROTATIONS (0/1)");
@@ -242,18 +233,9 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr, qsyn::qcir::QCi
 
             auto unified_parser = methods.add_parser("unified")
                 .description("Alias for ancillaryTopt (H-gadgetize + classical-aware phase polynomial optimization)");
-            unified_parser.add_argument<bool>("--tie-search")
+            unified_parser.add_argument<bool>("--tie-search", "-tie-search")
                 .action(store_true)
-                .help("Enable recursive FastTODD tied-move exploration with SAT width probing");
-            unified_parser.add_argument<std::string>("--tie-search-mode", "-tie-search")
-                .default_value("target-random")
-                .constraint(choices_allow_prefix({
-                    "original",
-                    "all-random",
-                    "target-random",
-                    "force-prefix-target-random",
-                }))
-                .help("Tie-search mode: original, all-random, target-random, or force-prefix-target-random");
+                .help("QCir-first tie-search: 8 preprocess baselines, then all-random trials (requires qc read; then convert tableau qcir)");
             unified_parser.add_argument<size_t>("-m", "--merge-rotations")
                 .nargs(NArgsOption::optional)
                 .help("Override QSYN_TABLEAU_MERGE_ROTATIONS (0/1)");
@@ -335,8 +317,17 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr, qsyn::qcir::QCi
                 spdlog::error("Unknown optimization method {}!!", method_str);
                 return dvlab::CmdExecResult::error;
             }
-            if (*method != OptimizationMethod::commute_test && !dvlab::utils::mgr_has_data(tableau_mgr)) {
-                return dvlab::CmdExecResult::error;
+            if (*method != OptimizationMethod::commute_test) {
+                bool const enable_tie_search =
+                    (*method == OptimizationMethod::ancillary_t_opt) && parser.parsed("--tie-search");
+                if (enable_tie_search) {
+                    if (!dvlab::utils::mgr_has_data(qcir_mgr)) {
+                        spdlog::error("tie-search requires QCir; run qc read first");
+                        return dvlab::CmdExecResult::error;
+                    }
+                } else if (!dvlab::utils::mgr_has_data(tableau_mgr)) {
+                    return dvlab::CmdExecResult::error;
+                }
             }
 
             auto const do_phase_polynomial_optimization = [&]() {
@@ -431,8 +422,6 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr, qsyn::qcir::QCi
                         };
                         save_env("QSYN_TABLEAU_MERGE_ROTATIONS");
                         save_env("QSYN_TABLEAU_PROPERIZE");
-                        save_env("QSYN_FASTTODD_TIE_SEARCH");
-                        save_env("QSYN_FASTTODD_TIE_SEARCH_MODE");
                         save_env("QSYN_FASTTODD_TIE_SEARCH_MAX_TRIALS");
                         save_env("QSYN_FASTTODD_TIE_SEARCH_PATIENCE");
                         return saved;
@@ -471,39 +460,31 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr, qsyn::qcir::QCi
                     if (parser.parsed("--early-stop")) {
                         set_env_override("QSYN_FASTTODD_TIE_SEARCH_PATIENCE", std::to_string(parser.get<size_t>("--early-stop")));
                     }
-                    auto const tie_search_mode_str = parser.get<std::string>("--tie-search-mode");
-                    auto const tie_search_mode = std::invoke([&]() -> std::optional<FastToddTieSearchMode> {
-                        if (dvlab::str::is_prefix_of(tie_search_mode_str, "original")) {
-                            return FastToddTieSearchMode::original;
-                        }
-                        if (dvlab::str::is_prefix_of(tie_search_mode_str, "all-random")) {
-                            return FastToddTieSearchMode::all_random;
-                        }
-                        if (dvlab::str::is_prefix_of(tie_search_mode_str, "target-random")) {
-                            return FastToddTieSearchMode::random_target_only;
-                        }
-                        if (dvlab::str::is_prefix_of(tie_search_mode_str, "force-prefix-target-random")) {
-                            return FastToddTieSearchMode::force_prefix_random_target;
-                        }
-                        return std::nullopt;
-                    });
-                    if (!tie_search_mode.has_value()) {
-                        spdlog::error("Unknown tie-search mode {}!!", tie_search_mode_str);
-                        return dvlab::CmdExecResult::error;
-                    }
-                    bool const enable_tie_search =
-                        parser.parsed("--tie-search") || parser.parsed("--tie-search-mode");
+                    bool const enable_tie_search = parser.parsed("--tie-search");
                     if (enable_tie_search) {
-                        set_env_override("QSYN_FASTTODD_TIE_SEARCH", "1");
-                        set_env_override("QSYN_FASTTODD_TIE_SEARCH_MODE", tie_search_mode_str);
+                        if (parser.parsed("--merge-rotations") || parser.parsed("--properize")) {
+                            spdlog::warn("tie-search ignores -m/-p; all 8 preprocess configs are tried internally");
+                        }
+                        Tableau optimized{0};
+                        if (!minimize_ancillary_t_opt_from_qcir(*qcir_mgr.get(), optimized)) {
+                            return dvlab::CmdExecResult::error;
+                        }
+                        if (tableau_mgr.empty()) {
+                            tableau_mgr.add(tableau_mgr.get_next_id(), std::make_unique<Tableau>(std::move(optimized)));
+                        } else {
+                            *tableau_mgr.get() = std::move(optimized);
+                        }
+                        if (!qcir_mgr.get()->get_filename().empty()) {
+                            tableau_mgr.get()->set_filename(qcir_mgr.get()->get_filename());
+                        }
+                        tableau_mgr.get()->add_procedure("AncillaryTOptTieSearch");
+                        break;
                     }
                     minimize_ancillary_t_opt(
                         *tableau_mgr.get(),
                         qcir_mgr.empty()
                             ? std::optional<std::string>{tableau_mgr.get()->get_filename()}
-                            : std::optional<std::string>{qcir_mgr.get()->get_filename()},
-                        enable_tie_search,
-                        tie_search_mode);
+                            : std::optional<std::string>{qcir_mgr.get()->get_filename()});
                     tableau_mgr.get()->add_procedure("AncillaryTOpt");
                     break;
                 }

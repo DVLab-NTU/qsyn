@@ -382,13 +382,14 @@ void gadgetize_tableau(Tableau& tableau) {
 
 
 
-std::unordered_map<size_t, PmcUnifiedPrRelation> minimize_internal_hadamards_n_gadgetize(Tableau& tableau) {
-    size_t count              = 0;
-    size_t non_clifford_count = tableau.n_pauli_rotations();
-    if (tableau_merge_rotations_enabled()) {
+std::unordered_map<size_t, PmcUnifiedPrRelation> minimize_internal_hadamards_n_gadgetize(
+    Tableau& tableau,
+    bool do_merge_rotations,
+    bool do_properize) {
+    if (do_merge_rotations) {
         merge_rotations(tableau);
     }
-    if (tableau_properize_enabled()) {
+    if (do_properize) {
         properize(tableau);
     }
     minimize_internal_hadamards(tableau);
@@ -396,6 +397,13 @@ std::unordered_map<size_t, PmcUnifiedPrRelation> minimize_internal_hadamards_n_g
     auto pmc_to_unified_pr = commute_and_merge_rotations(tableau);
     spdlog::debug("Done internal hadamard minimization and gadgetization");
     return pmc_to_unified_pr;
+}
+
+std::unordered_map<size_t, PmcUnifiedPrRelation> minimize_internal_hadamards_n_gadgetize(Tableau& tableau) {
+    return minimize_internal_hadamards_n_gadgetize(
+        tableau,
+        tableau_merge_rotations_enabled(),
+        tableau_properize_enabled());
 }
 
 /**
@@ -887,7 +895,7 @@ size_t hadamard_degadgetize(Tableau& tableau,
         eligible_ancillae.push_back(ancilla);
     }
 
-    spdlog::info(
+    spdlog::debug(
         "hadamard_degadgetize: {}/{} candidates eligible after PMC move",
         eligible_ancillae.size(),
         ancilla_candidates.size());

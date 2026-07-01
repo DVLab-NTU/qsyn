@@ -82,10 +82,33 @@ struct ParsedGadgetOrdering {
     std::vector<std::vector<std::uint8_t>> occupied_gadget_gap_time;
 };
 
+enum class ResetAnchor : std::uint8_t {
+    PmcEpoch,
+    BeforeGadgetCcc,
+};
+
+struct ResetPlacement {
+    size_t      ancilla_qubit = 0;
+    ResetAnchor anchor        = ResetAnchor::PmcEpoch;
+    size_t      index         = 0;
+};
+
+std::vector<ResetPlacement> compute_reset_placements(
+    ParsedGadgetOrdering const& ord,
+    std::vector<size_t> const&  pmc_gids_in_topological_order,
+    std::vector<size_t> const&  pmc_ancilla_qubits);
+
+bool assign_export_reset_placements(
+    Tableau& tableau,
+    ParsedGadgetOrdering const& ord,
+    std::unordered_set<size_t> const& removed_gids);
+
 AncillaSmtInstance build_ancilla_smt_instance(SatSignatureExport const& sig);
 struct AncillaScheduleSolveOptions {
     std::optional<size_t> start_width = std::nullopt;
     bool stop_if_start_unsat = false;
+    bool linear_search_below_start = false;
+    bool quiet = false;
 };
 AncillaScheduleResult solve_ancilla_schedule(AncillaSmtInstance const& inst,
                                              AncillaScheduleSolveOptions const& options);

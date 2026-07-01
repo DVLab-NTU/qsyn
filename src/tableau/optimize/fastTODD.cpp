@@ -1184,7 +1184,9 @@ std::pair<StabilizerTableau, Polynomial> FastToddPhasePolynomialOptimizationStra
     }
 
     auto const final_t = result->second.size();
-    spdlog::info("FastTODD: T count {} -> {}", initial_t, final_t);
+    if (!g_fasttodd_tie_control.has_value() || !g_fasttodd_tie_control->enabled) {
+        spdlog::info("FastTODD: T count {} -> {}", initial_t, final_t);
+    }
     return *result;
 }
 

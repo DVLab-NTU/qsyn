@@ -101,6 +101,7 @@ public:
         std::swap(_measurement_producer_by_cbit, other._measurement_producer_by_cbit);
         std::swap(_last_consumer_by_cbit, other._last_consumer_by_cbit);
         std::swap(_measurement_gate_order, other._measurement_gate_order);
+        std::swap(_export_schedule_width, other._export_schedule_width);
     }
 
     friend void swap(QCir& a, QCir& b) noexcept { a.swap(b); }
@@ -197,6 +198,10 @@ public:
     size_t get_num_classical_unknown_bits() const;
     bool measure_qubit_to_classical(QubitIdType qubit_id, size_t classical_bit_id);
     std::string get_qubit_type_summary() const;
+
+    void set_export_schedule_width(size_t width) { _export_schedule_width = width; }
+    std::optional<size_t> export_schedule_width() const { return _export_schedule_width; }
+    void clear_export_schedule_width() { _export_schedule_width.reset(); }
     
     size_t append(Operation const& op, QubitIdList const& bits);
     size_t append(Operation const& op, QubitIdType qubit_id, size_t classical_bit_id);
@@ -298,6 +303,7 @@ private:
     std::unordered_map<size_t, size_t> _measurement_producer_by_cbit;
     std::unordered_map<size_t, size_t> _last_consumer_by_cbit;
     std::vector<size_t> _measurement_gate_order;
+    std::optional<size_t> _export_schedule_width;
 };
 
 std::unordered_map<std::string, size_t>
