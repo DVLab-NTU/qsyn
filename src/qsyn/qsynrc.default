@@ -49,4 +49,6 @@ alias q quit
 // lazy-man synthesis
 alias qzq "convert qcir zx; zx optimize --full; convert zx qcir; qcir optimize"
 alias qtablq "convert qcir tabl; tabl optimize full; convert tabl qcir; qcir optimize"
+// CPF product pipeline (U3+CX -> ZYZ+CX -> Tableau+CPF -> Gray-synth); same as `qcpfq`
+alias qcpfq "qcir cpf-pipeline -r"
 )"

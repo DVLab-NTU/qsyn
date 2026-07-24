@@ -1,0 +1,10 @@
+benchmark=Ising-3D-30
+tier=F_gt_0.99
+method=zero-sweep-heuristic
+f_target=0.99
+approx_fidelity=0.9901661068187558
+pauli_rot_after=51
+qco_t=1656
+qco_clifford=1784
+gridsynth_epsilon=0.001
+status=ok

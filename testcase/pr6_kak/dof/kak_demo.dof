@@ -1,0 +1,31 @@
+// PR-6 demo: qcir synthesize on 1-qubit (ZYZ) and 2-qubit (KAK) inputs.
+//
+// usage: build/qsyn -f testcase/pr6_kak/dof/kak_demo.dof
+
+// (1) Single-qubit U3 -> single U3 (ZYZ).
+qcir read testcase/pr6_kak/qasm/u3_general.qasm
+qcir synthesize
+qcir checkout 1
+qcir print -g
+qcir equiv 0
+qcir delete 0
+qcir delete 1
+
+// (2) H-CX-H sandwich = CZ. KAK should produce an equivalent circuit.
+qcir read testcase/pr6_kak/qasm/h_cx_h.qasm
+qcir synthesize
+qcir checkout 3
+qcir print -g
+qcir equiv 2
+qcir delete 2
+qcir delete 3
+
+// (3) Non-trivial 2-qubit random circuit. KAK should produce an equivalent
+//     U3+CNOT circuit (6 CNOTs centre + 4 outer U3s = up to ~10 gates).
+qcir read testcase/pr6_kak/qasm/two_qubit_random.qasm
+qcir synthesize
+qcir checkout 5
+qcir print -g
+qcir equiv 4
+
+quit -f

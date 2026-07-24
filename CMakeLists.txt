@@ -385,6 +385,10 @@ target_link_libraries(
     ${UNIT_TEST_NAME} PRIVATE ${QSYN_LIB_NAME})
 target_link_libraries(
     ${UNIT_TEST_NAME} PRIVATE Catch2::Catch2WithMain)
+target_link_libraries_system(
+    ${UNIT_TEST_NAME}
+    PRIVATE
+    sul::dynamic_bitset)
 
 target_link_libraries_system(
     ${UNIT_TEST_NAME}

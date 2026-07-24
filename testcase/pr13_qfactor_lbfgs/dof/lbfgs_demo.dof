@@ -1,0 +1,15 @@
+// PR-B demo: `qcir synthesize --three-cnot-kak --three-cnot-lbfgs` on a
+// generic 2-qubit unitary. The 3-CNOT QFactor ansatz is the optimal
+// gate count for a 2-qubit SU(4) (proven by Vidal & Dawson 2004), so a
+// successful run should leave the output at exactly 3 CXs.
+//
+// usage:
+//   build/qsyn -q testcase/pr13_qfactor_lbfgs/dof/lbfgs_demo.dof
+
+qcir read testcase/pr13_qfactor_lbfgs/qasm/hard_two_qubit.qasm
+qcir print --stat
+qcir synthesize -r --three-cnot-kak --three-cnot-restarts 2 --three-cnot-lbfgs
+qcir print --stat
+qcir equiv 0
+
+quit -f

@@ -1,0 +1,10 @@
+benchmark=H2O
+tier=F_gt_0.999
+method=zero-sweep-heuristic
+f_target=0.999
+approx_fidelity=0.9990076666495717
+pauli_rot_after=99
+qco_t=3216
+qco_clifford=3703
+gridsynth_epsilon=0.001
+status=ok

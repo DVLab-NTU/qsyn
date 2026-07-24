@@ -1,0 +1,57 @@
+// PR-4 / PR-5 demo: --trace-replay  +  tableau optimize cpf-global
+//
+// usage: build/qsyn -f testcase/pr4_global_fold/dof/cpf_global_demo.dof
+
+// (1) H-sandwich pair: expect one X rotation after cpf-global.
+qcir read testcase/pr4_global_fold/qasm/h_sandwich_pair.qasm
+convert qcir tableau --trace-replay
+tableau print -c
+tableau optimize cpf-global
+tableau print -c
+
+tableau delete 0
+qcir delete 0
+
+// (2) X on CX target cancels: expect zero rotations after cpf-global.
+qcir read testcase/pr4_global_fold/qasm/cx_x_target_cancel.qasm
+convert qcir tableau --trace-replay
+tableau print -c
+tableau optimize cpf-global
+tableau print -c
+
+tableau delete 1
+qcir delete 1
+
+// (2b) X on CX target with non-cancelling sign: expect one X rotation.
+qcir read testcase/pr4_global_fold/qasm/cx_z_pair.qasm
+convert qcir tableau --trace-replay
+tableau print -c
+tableau optimize cpf-global
+tableau print -c
+
+tableau delete 2
+qcir delete 2
+
+// (3) Z on CX control: expect a single Z rotation with twice the phase.
+qcir read testcase/pr4_global_fold/qasm/cx_x_sign_flip.qasm
+convert qcir tableau --trace-replay
+tableau print -c
+tableau optimize cpf-global
+tableau print -c
+
+tableau delete 3
+qcir delete 3
+
+// (4) Round-trip comparison: identical circuit with the default (collapse)
+//     tableau builder vs --trace-replay + cpf-full. Both should produce
+//     functionally equivalent tableaux.
+qcir read testcase/pr4_global_fold/qasm/h_sandwich_pair.qasm
+convert qcir tableau                  // default to_tableau (collapsed)
+tableau print -c
+
+qcir read testcase/pr4_global_fold/qasm/h_sandwich_pair.qasm
+convert qcir tableau --trace-replay
+tableau optimize cpf-full
+tableau print -c
+
+quit -f

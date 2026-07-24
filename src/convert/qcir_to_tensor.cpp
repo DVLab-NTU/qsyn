@@ -84,6 +84,20 @@ std::optional<QTensor<double>> to_tensor(RYGate const& op) {
     return QTensor<double>::rygate(op.get_phase());
 }
 
+// U(theta, phi, lambda) = RZ(phi) * RY(theta) * RZ(lambda)
+// (QASM 2.0 convention; lambda is applied to the state first.) Note that the
+// `feat/parser_update` branch had the order reversed; the bug is fixed here.
+template <>
+std::optional<QTensor<double>> to_tensor(UGate const& op) {
+    auto const rz_lambda = QTensor<double>::rzgate(op.get_lambda());
+    auto const ry_theta  = QTensor<double>::rygate(op.get_theta());
+    auto const rz_phi    = QTensor<double>::rzgate(op.get_phi());
+    // tensordot(A, B, {1}, {0}) performs matrix multiplication A * B.
+    auto tmp = tensordot(ry_theta, rz_lambda, {1}, {0});  // RY(theta) * RZ(lambda)
+    tmp      = tensordot(rz_phi, tmp, {1}, {0});          // RZ(phi) * (RY * RZ)
+    return tmp;
+}
+
 template <>
 std::optional<QTensor<double>> to_tensor(ControlGate const& op) {
     if (auto target_tensor = to_tensor(op.get_target_operation())) {

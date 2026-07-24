@@ -1,0 +1,24 @@
+// PR-8 QFactor-lite demo.
+// Steps:
+//   1. Load a "target" and a "perturbed" circuit with the same gate
+//      topology but different angles.
+//   2. Use `qcir instantiate --target <target-id>` on the perturbed
+//      circuit; the residual should drop below the tolerance.
+//   3. Confirm equivalence after tuning.
+
+qcir read testcase/pr8_qfactor/qasm/u3_random.qasm     // becomes QCir 0
+qcir read testcase/pr8_qfactor/qasm/u3_perturbed.qasm  // becomes QCir 1
+qcir checkout 1
+qcir equiv 0
+qcir instantiate --target 0 --max-iter 400 --tol 1e-9
+qcir equiv 0
+
+// 2-qubit polish.
+qcir read testcase/pr8_qfactor/qasm/two_qubit_ansatz_target.qasm     // QCir 2
+qcir read testcase/pr8_qfactor/qasm/two_qubit_ansatz_perturbed.qasm  // QCir 3
+qcir checkout 3
+qcir equiv 2
+qcir instantiate --target 2 --max-iter 800 --tol 1e-9
+qcir equiv 2
+
+quit -f

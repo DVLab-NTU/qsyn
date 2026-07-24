@@ -1,0 +1,18 @@
+// PR-7 demo: qcir synthesize on 3-qubit inputs (QSD dispatch).
+//
+// usage: build/qsyn -f testcase/pr7_qsd/dof/qsd_demo.dof
+
+// (1) GHZ-preparing circuit. After QSD/synthesise, the new circuit must
+//     still be unitarily equivalent.
+qcir read testcase/pr7_qsd/qasm/three_qubit_ghz.qasm
+qcir synthesize
+qcir equiv 0
+qcir delete 0
+qcir delete 1
+
+// (2) Mixed non-Clifford 3-qubit circuit.
+qcir read testcase/pr7_qsd/qasm/three_qubit_mixed.qasm
+qcir synthesize
+qcir equiv 2
+
+quit -f

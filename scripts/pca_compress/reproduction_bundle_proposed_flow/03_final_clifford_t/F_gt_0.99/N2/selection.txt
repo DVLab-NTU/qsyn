@@ -1,0 +1,10 @@
+benchmark=N2
+tier=F_gt_0.99
+method=zero-sweep-heuristic
+f_target=0.99
+approx_fidelity=0.9902163612360578
+pauli_rot_after=19
+qco_t=602
+qco_clifford=690
+gridsynth_epsilon=0.001
+status=ok

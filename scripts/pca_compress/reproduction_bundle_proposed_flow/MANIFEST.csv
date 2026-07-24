@@ -1,0 +1,53 @@
+stage,tier,benchmark,method,setting,approx_fidelity,pauli_rot,qco_t,qco_clifford,note
+original,,LiH,none,pyscf_lih_bk_hf,1,630,,,PySCF LiH sto3g active-space(6orb) + Bravyi-Kitaev; dt=0.05
+original,,H2O,none,fast_baseline_no_phase_fold,1,1085,,,cpf_cache/fast; no slow phase folding
+original,,N2,none,fast_baseline_no_phase_fold,1,2950,,,cpf_cache/fast; no slow phase folding
+original,,H2S,none,fast_baseline_no_phase_fold,1,4581,,,cpf_cache/fast; no slow phase folding
+original,,CO2,none,fast_baseline_no_phase_fold,1,16153,,,cpf_cache/fast; no slow phase folding
+original,,Ising-2D-30,none,fast_baseline_no_phase_fold,1,79,,,cpf_cache/fast; no slow phase folding
+original,,Ising-2D-60,none,fast_baseline_no_phase_fold,1,164,,,cpf_cache/fast; no slow phase folding
+original,,Ising-3D-30,none,fast_baseline_no_phase_fold,1,89,,,cpf_cache/fast; no slow phase folding
+original,,Ising-3D-60,none,fast_baseline_no_phase_fold,1,193,,,cpf_cache/fast; no slow phase folding
+original,,Heisenberg-2D-30,none,fast_baseline_no_phase_fold,1,147,,,cpf_cache/fast; no slow phase folding
+original,,Heisenberg-2D-60,none,fast_baseline_no_phase_fold,1,312,,,cpf_cache/fast; no slow phase folding
+original,,Heisenberg-3D-30,none,fast_baseline_no_phase_fold,1,177,,,cpf_cache/fast; no slow phase folding
+original,,Heisenberg-3D-60,none,fast_baseline_no_phase_fold,1,399,,,cpf_cache/fast; no slow phase folding
+heuristic+final,F_gt_0.999,LiH,zero-sweep-heuristic,F>=0.999,0.999045308707,6,200,222,LiH+BK(hf); drop=624 snap=0
+heuristic+final,F_gt_0.99,LiH,zero-sweep-heuristic,F>=0.99,0.995518423692,0,0,0,LiH+BK(hf); drop=630 snap=0
+heuristic+final,F_gt_0.9,LiH,zero-sweep-heuristic,F>=0.9,0.995518423692,0,0,0,LiH+BK(hf); drop=630 snap=0
+heuristic+final,F_gt_0.999,Ising-2D-30,zero-sweep-heuristic,F>=0.999,0.999093469406,73,2362,2937,fast; drop=6 snap=0
+heuristic+final,F_gt_0.99,Ising-2D-30,zero-sweep-heuristic,F>=0.99,0.990105145884,44,1448,1522,fast; drop=35 snap=0
+heuristic+final,F_gt_0.9,Ising-2D-30,zero-sweep-heuristic,F>=0.9,0.933935056074,0,0,0,fast; drop=79 snap=0
+heuristic+final,F_gt_0.999,Ising-3D-30,zero-sweep-heuristic,F>=0.999,0.999003463788,82,2622,3142,fast; drop=7 snap=0
+heuristic+final,F_gt_0.99,Ising-3D-30,zero-sweep-heuristic,F>=0.99,0.990166106819,51,1656,1784,fast; drop=38 snap=0
+heuristic+final,F_gt_0.9,Ising-3D-30,zero-sweep-heuristic,F>=0.9,0.931284866821,0,0,0,fast; drop=89 snap=0
+heuristic+final,F_gt_0.999,Heisenberg-2D-30,zero-sweep-heuristic,F>=0.999,0.999077490491,139,4442,5006,fast; drop=8 snap=0
+heuristic+final,F_gt_0.99,Heisenberg-2D-30,zero-sweep-heuristic,F>=0.99,0.990195381584,94,3030,3545,fast; drop=53 snap=0
+heuristic+final,F_gt_0.9,Heisenberg-2D-30,zero-sweep-heuristic,F>=0.9,0.949845228302,0,0,0,fast; drop=147 snap=0
+heuristic+final,F_gt_0.999,Heisenberg-3D-30,zero-sweep-heuristic,F>=0.999,0.999113500369,169,5372,6039,fast; drop=8 snap=0
+heuristic+final,F_gt_0.99,Heisenberg-3D-30,zero-sweep-heuristic,F>=0.99,0.990026530618,118,3730,4235,fast; drop=59 snap=0
+heuristic+final,F_gt_0.9,Heisenberg-3D-30,zero-sweep-heuristic,F>=0.9,0.942178269044,0,0,0,fast; drop=177 snap=0
+heuristic+final,F_gt_0.999,Ising-2D-60,zero-sweep-heuristic,F>=0.999,0.999082080487,158,5040,5984,fast; drop=6 snap=0
+heuristic+final,F_gt_0.99,Ising-2D-60,zero-sweep-heuristic,F>=0.99,0.990236322661,119,3840,4268,fast; drop=45 snap=0
+heuristic+final,F_gt_0.9,Ising-2D-60,zero-sweep-heuristic,F>=0.9,0.901294164021,14,464,475,fast; drop=150 snap=0
+heuristic+final,F_gt_0.999,Ising-3D-60,zero-sweep-heuristic,F>=0.999,0.999027678002,186,5888,7110,fast; drop=7 snap=0
+heuristic+final,F_gt_0.99,Ising-3D-60,zero-sweep-heuristic,F>=0.99,0.99009301535,145,4658,5291,fast; drop=48 snap=0
+heuristic+final,F_gt_0.9,Ising-3D-60,zero-sweep-heuristic,F>=0.9,0.900981267955,19,616,633,fast; drop=174 snap=0
+heuristic+final,F_gt_0.999,H2O,zero-sweep-heuristic,F>=0.999,0.99900766665,99,3216,3703,fast; drop=986 snap=0
+heuristic+final,F_gt_0.99,H2O,zero-sweep-heuristic,F>=0.99,0.991349920939,11,364,404,fast; drop=1074 snap=0
+heuristic+final,F_gt_0.9,H2O,zero-sweep-heuristic,F>=0.9,0.945326986756,0,0,8,fast; drop=1083 snap=2
+heuristic+final,F_gt_0.999,Heisenberg-2D-60,zero-sweep-heuristic,F>=0.999,0.999087790487,304,9644,10776,fast; drop=8 snap=0
+heuristic+final,F_gt_0.99,Heisenberg-2D-60,zero-sweep-heuristic,F>=0.99,0.99013981551,249,7876,8918,fast; drop=63 snap=0
+heuristic+final,F_gt_0.9,Heisenberg-2D-60,zero-sweep-heuristic,F>=0.9,0.900473967832,1,34,37,fast; drop=311 snap=0
+heuristic+final,F_gt_0.999,Heisenberg-3D-60,zero-sweep-heuristic,F>=0.999,0.999097979374,390,12408,13904,fast; drop=9 snap=0
+heuristic+final,F_gt_0.99,Heisenberg-3D-60,zero-sweep-heuristic,F>=0.99,0.990078460592,332,10554,12031,fast; drop=67 snap=0
+heuristic+final,F_gt_0.9,Heisenberg-3D-60,zero-sweep-heuristic,F>=0.9,0.900472302032,48,1568,1791,fast; drop=351 snap=0
+heuristic+final,F_gt_0.999,N2,zero-sweep-heuristic,F>=0.999,0.999002800511,225,6740,8038,fast; drop=2725 snap=0
+heuristic+final,F_gt_0.99,N2,zero-sweep-heuristic,F>=0.99,0.990216361236,19,602,690,fast; drop=2931 snap=0
+heuristic+final,F_gt_0.9,N2,zero-sweep-heuristic,F>=0.9,0.916114687074,3,96,107,fast; drop=2946 snap=1
+heuristic+final,F_gt_0.999,H2S,zero-sweep-heuristic,F>=0.999,0.999000356136,346,10932,13746,fast; drop=4235 snap=0
+heuristic+final,F_gt_0.99,H2S,zero-sweep-heuristic,F>=0.99,0.990252993479,84,2728,3576,fast; drop=4497 snap=0
+heuristic+final,F_gt_0.9,H2S,zero-sweep-heuristic,F>=0.9,0.90579634647,10,332,385,fast; drop=4571 snap=0
+heuristic+final,F_gt_0.999,CO2,zero-sweep-heuristic,F>=0.999,0.999001780783,887,27948,40179,fast; drop=15266 snap=0
+heuristic+final,F_gt_0.99,CO2,zero-sweep-heuristic,F>=0.99,0.990007574503,73,2144,2799,fast; drop=16080 snap=0
+heuristic+final,F_gt_0.9,CO2,zero-sweep-heuristic,F>=0.9,0.901470062203,7,238,278,fast; drop=16146 snap=0

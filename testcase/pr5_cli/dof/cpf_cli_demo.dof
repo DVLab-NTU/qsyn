@@ -1,0 +1,29 @@
+// PR-5 CLI demo: exercise all three new tableau optimize sub-commands
+// (`cpf-merge`, `cpf-global`, `cpf-full`) plus the new
+// `convert qcir tableau --trace-replay` option.
+//
+// Layout:
+//   tableau 0 = trace-replay of cpf_cli_demo.qasm (baseline)
+//   tableau 1 = same, after `cpf-merge` (one propagation pass)
+//   tableau 2 = same, after `cpf-global` (fixpoint)
+//   tableau 3 = same, after `cpf-full` (cpf-global + full_optimize)
+
+qcir read testcase/pr5_cli/qasm/cpf_cli_demo.qasm
+convert qcir tableau --trace-replay
+tableau print
+
+tableau copy
+tableau optimize cpf-merge
+tableau print
+
+tableau checkout 1
+tableau copy
+tableau optimize cpf-global
+tableau print
+
+tableau checkout 1
+tableau copy
+tableau optimize cpf-full
+tableau print
+
+quit -f

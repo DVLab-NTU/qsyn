@@ -342,4 +342,71 @@ inline std::optional<QCir> to_basic_gates(SwapGate const& /* op */) {
     return qcir;
 }
 
+// -----------------------------------------------------------------------
+// UGate -- arbitrary single-qubit unitary parameterised by (theta, phi, lambda)
+//
+// QASM 2.0 convention (Qiskit):
+//   U(theta, phi, lambda) = RZ(phi) * RY(theta) * RZ(lambda)
+//                         (rightmost gate applied first to the state)
+//
+// In a QCir gate stream, gates are applied left-to-right, so the equivalent
+// in-order decomposition is `RZ(lambda) -> RY(theta) -> RZ(phi)`. This is
+// exactly what `to_basic_gates(UGate)` emits below.
+// -----------------------------------------------------------------------
+class UGate {
+public:
+    UGate(dvlab::Phase theta, dvlab::Phase phi, dvlab::Phase lambda)
+        : _theta(theta), _phi(phi), _lambda(lambda) {}
+
+    std::string get_type() const { return "u"; }
+    std::string get_repr() const {
+        return fmt::format("u({} {} {})",
+                           _theta.get_print_string(),
+                           _phi.get_print_string(),
+                           _lambda.get_print_string());
+    }
+    size_t get_num_qubits() const { return 1; }
+
+    auto get_theta() const { return _theta; }
+    auto get_phi() const { return _phi; }
+    auto get_lambda() const { return _lambda; }
+
+    void set_theta(dvlab::Phase theta) { _theta = theta; }
+    void set_phi(dvlab::Phase phi) { _phi = phi; }
+    void set_lambda(dvlab::Phase lambda) { _lambda = lambda; }
+
+private:
+    dvlab::Phase _theta;
+    dvlab::Phase _phi;
+    dvlab::Phase _lambda;
+};
+
+// adjoint(U(theta, phi, lambda)) = U(-theta, -lambda, -phi)
+// because (RZ(phi) RY(theta) RZ(lambda))^dagger
+//       = RZ(-lambda) RY(-theta) RZ(-phi)
+//       = U(-theta, -lambda, -phi).
+inline Operation adjoint(UGate const& op) {
+    return UGate(-op.get_theta(), -op.get_lambda(), -op.get_phi());
+}
+
+// A U gate is Clifford iff all three angles are integer multiples of pi/2.
+// `dvlab::Phase` is rational in units of pi, normalised to (-1, 1], so the
+// Clifford predicate is `denominator() <= 2`.
+inline bool is_clifford(UGate const& op) {
+    return op.get_theta().denominator() <= 2 &&
+           op.get_phi().denominator() <= 2 &&
+           op.get_lambda().denominator() <= 2;
+}
+
+// ZYZ basic-gate expansion. The append order below corresponds to applying
+// RZ(lambda) first to the state, matching the QASM convention above.
+template <>
+inline std::optional<QCir> to_basic_gates(UGate const& op) {
+    QCir qcir{1};
+    qcir.append(RZGate(op.get_lambda()), {0});
+    qcir.append(RYGate(op.get_theta()), {0});
+    qcir.append(RZGate(op.get_phi()), {0});
+    return qcir;
+}
+
 }  // namespace qsyn::qcir

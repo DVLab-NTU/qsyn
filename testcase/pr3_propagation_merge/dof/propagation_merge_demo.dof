@@ -1,0 +1,25 @@
+// Reads the four sample circuits and prints their tableau form. The
+// per-class outcomes are documented in the directory README.md; the
+// CLI-level invocation of `propagation_merge` ships in PR-5.
+
+qcir read testcase/pr3_propagation_merge/qasm/same_pauli.qasm
+convert qcir tableau
+tableau print -c
+tableau delete
+qcir delete
+
+qcir read testcase/pr3_propagation_merge/qasm/h_z_h.qasm
+convert qcir tableau
+tableau print -c
+tableau delete
+qcir delete
+
+qcir read testcase/pr3_propagation_merge/qasm/cx_negate.qasm
+convert qcir tableau
+tableau print -c
+tableau delete
+qcir delete
+
+qcir read testcase/pr3_propagation_merge/qasm/blocked.qasm
+convert qcir tableau
+tableau print -c

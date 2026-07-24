@@ -17,6 +17,7 @@
 #include <string>
 
 #include "./qcir/optimizer_cmd.hpp"
+#include "cmd/qcir/cpf_pipeline_cmds.hpp"
 #include "./qcir/oracle_cmd.hpp"
 #include "argparse/arg_parser.hpp"
 #include "argparse/arg_type.hpp"
@@ -655,8 +656,12 @@ Command qcir_equiv_cmd(QCirMgr& qcir_mgr) {
 };
 
 Command qcir_to_basic_cmd(QCirMgr& qcir_mgr);
+Command qcir_synthesize_cmd(QCirMgr& qcir_mgr);
+Command qcir_instantiate_cmd(QCirMgr& qcir_mgr);
+Command qcir_cpf_optimize_cmd(QCirMgr& qcir_mgr);
 
-Command qcir_cmd(QCirMgr& qcir_mgr) {
+Command qcir_cmd(QCirMgr& qcir_mgr, qsyn::device::DeviceMgr& device_mgr,
+                 experimental::TableauMgr& tableau_mgr) {
     auto cmd = dvlab::utils::mgr_root_cmd(qcir_mgr);
 
     cmd.add_subcommand("qcir-cmd-group", dvlab::utils::mgr_list_cmd(qcir_mgr));
@@ -679,12 +684,25 @@ Command qcir_cmd(QCirMgr& qcir_mgr) {
     cmd.add_subcommand("qcir-cmd-group", qcir_oracle_cmd(qcir_mgr));
     cmd.add_subcommand("qcir-cmd-group", qcir_equiv_cmd(qcir_mgr));
     cmd.add_subcommand("qcir-cmd-group", qcir_to_basic_cmd(qcir_mgr));
+    cmd.add_subcommand("qcir-cmd-group", qcir_synthesize_cmd(qcir_mgr));
+    cmd.add_subcommand("qcir-cmd-group", qcir_instantiate_cmd(qcir_mgr));
+    cmd.add_subcommand("qcir-cmd-group", qcir_cpf_optimize_cmd(qcir_mgr));
+    cmd.add_subcommand("qcir-cmd-group", qcir_to_u3cx_cmd(qcir_mgr, device_mgr));
+    cmd.add_subcommand("qcir-cmd-group", qcir_to_zyz_cmd(qcir_mgr));
+    cmd.add_subcommand("qcir-cmd-group", qcir_to_tableau_cmd(qcir_mgr, tableau_mgr));
+    cmd.add_subcommand("qcir-cmd-group", qcir_from_tableau_cmd(qcir_mgr, tableau_mgr));
+    cmd.add_subcommand("qcir-cmd-group", qcir_cpf_pipeline_cmd(qcir_mgr, device_mgr));
     return cmd;
 }
 
-bool add_qcir_cmds(dvlab::CommandLineInterface& cli, QCirMgr& qcir_mgr) {
-    if (!cli.add_command(qcir_cmd(qcir_mgr))) {
+bool add_qcir_cmds(dvlab::CommandLineInterface& cli, QCirMgr& qcir_mgr,
+                   qsyn::device::DeviceMgr& device_mgr, experimental::TableauMgr& tableau_mgr) {
+    if (!cli.add_command(qcir_cmd(qcir_mgr, device_mgr, tableau_mgr))) {
         spdlog::error("Registering \"qcir\" commands fails... exiting");
+        return false;
+    }
+    if (!add_qcpfq_cmd(cli, qcir_mgr, device_mgr)) {
+        spdlog::error("Registering \"qcpfq\" command fails... exiting");
         return false;
     }
     return true;

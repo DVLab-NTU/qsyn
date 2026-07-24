@@ -25,6 +25,7 @@
 #include "convert/zxgraph_to_tensor.hpp"
 #include "extractor/extract.hpp"
 #include "qcir/qcir.hpp"
+#include "tableau/cpf/trace_replay.hpp"
 #include "tableau/stabilizer_tableau.hpp"
 #include "tensor/decomposer.hpp"
 #include "tensor/solovay_kitaev.hpp"
@@ -64,6 +65,10 @@ Command convert_from_qcir_cmd(
             auto to_tableau =
                 subparsers.add_parser("tableau")
                     .description("convert from QCir to Tableau");
+
+            to_tableau.add_argument<bool>("--trace-replay")
+                .action(store_true)
+                .help("Preserve the original Clifford / non-Clifford gate segmentation as interleaved subtableaux. Required input form for `tableau optimize cpf-{global,full}`.");
         },
         [&](ArgumentParser const& parser) {
             if (!dvlab::utils::mgr_has_data(qcir_mgr)) return CmdExecResult::error;
@@ -97,15 +102,20 @@ Command convert_from_qcir_cmd(
                 return CmdExecResult::done;
             }
             if (to_type == "tableau") {
-                spdlog::info("Converting to QCir {} to Tableau {}...", qcir_mgr.focused_id(), tableau_mgr.get_next_id());
-                auto tableau = experimental::to_tableau(*qcir_mgr.get());
+                bool const trace_replay = parser.parsed("--trace-replay");
+                spdlog::info("Converting to QCir {} to Tableau {} ({})...",
+                             qcir_mgr.focused_id(), tableau_mgr.get_next_id(),
+                             trace_replay ? "trace-replay" : "default");
+                auto tableau = trace_replay
+                                   ? experimental::cpf::trace_replay(*qcir_mgr.get())
+                                   : experimental::to_tableau(*qcir_mgr.get());
 
                 if (tableau.has_value()) {
                     tableau_mgr.add(tableau_mgr.get_next_id(), std::make_unique<experimental::Tableau>(std::move(tableau.value())));
 
                     tableau_mgr.get()->set_filename(qcir_mgr.get()->get_filename());
                     tableau_mgr.get()->add_procedures(qcir_mgr.get()->get_procedures());
-                    tableau_mgr.get()->add_procedure("QC2TABL");
+                    tableau_mgr.get()->add_procedure(trace_replay ? "QC2TABL-Trace" : "QC2TABL");
                 }
                 return CmdExecResult::done;
             }

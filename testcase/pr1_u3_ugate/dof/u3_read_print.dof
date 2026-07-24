@@ -1,0 +1,11 @@
+qcir read testcase/pr1_u3_ugate/qasm/u_general.qasm
+qcir print --stat
+qcir delete
+qcir read testcase/pr1_u3_ugate/qasm/u_clifford.qasm
+qcir print --stat
+qcir delete
+qcir read testcase/pr1_u3_ugate/qasm/u2_basis.qasm
+qcir print --stat
+qcir delete
+qcir read testcase/pr1_u3_ugate/qasm/u1_alias.qasm
+qcir print --stat

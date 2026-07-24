@@ -299,6 +299,37 @@ ZXGraph create_ry_zx_form(dvlab::Phase const& ph) {
     return g;
 }
 
+/**
+ * @brief ZXGraph of U(theta, phi, lambda) = RZ(phi) * RY(theta) * RZ(lambda).
+ *        The inner RY is realised as S . RX(theta) . Sdg.
+ *        The diagram reads left-to-right as: RZ(lambda) -> Sdg -> RX(theta)
+ *        -> S -> RZ(phi), matching the QCir gate-stream order.
+ *
+ * @return ZXGraph
+ */
+ZXGraph create_u_zx_form(dvlab::Phase const& theta,
+                         dvlab::Phase const& phi,
+                         dvlab::Phase const& lambda) {
+    ZXGraph g;
+
+    ZXVertex* in  = g.add_input(0);
+    ZXVertex* rzl = g.add_vertex(VertexType::z, lambda, static_cast<float>(0));
+    ZXVertex* sdg = g.add_vertex(VertexType::z, dvlab::Phase(-1, 2), static_cast<float>(0));
+    ZXVertex* rx  = g.add_vertex(VertexType::x, theta, static_cast<float>(0));
+    ZXVertex* s   = g.add_vertex(VertexType::z, dvlab::Phase(1, 2), static_cast<float>(0));
+    ZXVertex* rzp = g.add_vertex(VertexType::z, phi, static_cast<float>(0));
+    ZXVertex* out = g.add_output(0);
+
+    g.add_edge(in, rzl, EdgeType::simple);
+    g.add_edge(rzl, sdg, EdgeType::simple);
+    g.add_edge(sdg, rx, EdgeType::simple);
+    g.add_edge(rx, s, EdgeType::simple);
+    g.add_edge(s, rzp, EdgeType::simple);
+    g.add_edge(rzp, out, EdgeType::simple);
+
+    return g;
+}
+
 }  // namespace
 
 template <>
@@ -353,6 +384,11 @@ std::optional<ZXGraph> to_zxgraph(qcir::RXGate const& op) {
 template <>
 std::optional<ZXGraph> to_zxgraph(qcir::RYGate const& op) {
     return create_ry_zx_form(op.get_phase());
+}
+
+template <>
+std::optional<ZXGraph> to_zxgraph(qcir::UGate const& op) {
+    return create_u_zx_form(op.get_theta(), op.get_phi(), op.get_lambda());
 }
 
 template <>

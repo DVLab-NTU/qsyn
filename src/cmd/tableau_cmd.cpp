@@ -8,12 +8,17 @@
 #include "./tableau_cmd.hpp"
 
 #include <cstdint>
+#include <fstream>
+#include <sstream>
 
 #include "argparse/arg_parser.hpp"
 #include "argparse/arg_type.hpp"
 #include "argparse/argument.hpp"
 #include "cli/cli.hpp"
 #include "cmd/tableau_mgr.hpp"
+#include "tableau/cpf/global_fold.hpp"
+#include "tableau/cpf/pauli_compress.hpp"
+#include "tableau/cpf/propagation_merge.hpp"
 #include "tableau/pauli_rotation.hpp"
 #include "tableau/stabilizer_tableau.hpp"
 #include "tableau/tableau_optimization.hpp"
@@ -68,6 +73,83 @@ dvlab::Command tableau_new_cmd(TableauMgr& tableau_mgr) {
 
             tableau_mgr.add(id, std::make_unique<Tableau>(n_qubits));
 
+            return dvlab::CmdExecResult::done;
+        }};
+}
+
+dvlab::Command tableau_read_pauli_cmd(TableauMgr& tableau_mgr) {
+    return dvlab::Command{
+        "read-pauli",
+        [&](ArgumentParser& parser) {
+            parser.description(
+                "Build a canonical [Clifford | PauliRotation[]] tableau directly "
+                "from a Pauli list file (the `from-pauli-list` fast path). Each "
+                "non-empty, non-comment line is `<pauli_string> <angle>`, where "
+                "<angle> is the radian value in the exp(i * angle * P) convention.");
+
+            parser.add_argument<std::string>("filepath")
+                .help("Path to the Pauli list file");
+
+            parser.add_argument<size_t>("id")
+                .nargs(NArgsOption::optional)
+                .help("the ID of the Tableau");
+
+            parser.add_argument<bool>("-r", "--replace")
+                .action(store_true)
+                .help("if specified, replace the current Tableau; otherwise create a new one");
+        },
+        [&](ArgumentParser const& parser) {
+            auto const filepath = parser.get<std::string>("filepath");
+
+            std::ifstream ifs(filepath);
+            if (!ifs.is_open()) {
+                spdlog::error("Cannot open file {}!!", filepath);
+                return dvlab::CmdExecResult::error;
+            }
+
+            std::vector<std::pair<std::string, double>> rotations;
+            size_t n_qubits = 0;
+            std::string line;
+            size_t line_no = 0;
+            while (std::getline(ifs, line)) {
+                ++line_no;
+                if (auto const hash = line.find('#'); hash != std::string::npos) {
+                    line.erase(hash);
+                }
+                std::istringstream iss(line);
+                std::string pauli;
+                double angle = 0.0;
+                if (!(iss >> pauli)) continue;  // blank line
+                if (!(iss >> angle)) {
+                    spdlog::error("Malformed Pauli list at line {}: missing angle", line_no);
+                    return dvlab::CmdExecResult::error;
+                }
+                if (n_qubits == 0) {
+                    n_qubits = pauli.size();
+                } else if (pauli.size() != n_qubits) {
+                    spdlog::error("Inconsistent Pauli length at line {} (expected {}, got {})", line_no, n_qubits, pauli.size());
+                    return dvlab::CmdExecResult::error;
+                }
+                rotations.emplace_back(std::move(pauli), angle);
+            }
+
+            if (n_qubits == 0) {
+                spdlog::error("No Pauli rotations found in {}!!", filepath);
+                return dvlab::CmdExecResult::error;
+            }
+
+            auto tableau = cpf::from_pauli_list(n_qubits, rotations);
+
+            auto const id = parser.parsed("id") ? parser.get<size_t>("id") : tableau_mgr.get_next_id();
+            if (tableau_mgr.is_id(id)) {
+                if (!parser.parsed("--replace")) {
+                    spdlog::error("Tableau {} already exists!! Please specify `--replace` to replace if needed", id);
+                    return dvlab::CmdExecResult::error;
+                }
+                tableau_mgr.set_by_id(id, std::make_unique<Tableau>(std::move(tableau)));
+                return dvlab::CmdExecResult::done;
+            }
+            tableau_mgr.add(id, std::make_unique<Tableau>(std::move(tableau)));
             return dvlab::CmdExecResult::done;
         }};
 }
@@ -217,6 +299,26 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr) {
                 .default_value("naive")
                 .constraint(choices_allow_prefix({"naive"}))
                 .help("Matroid partitioning strategy");
+
+            methods.add_parser("cpf-merge")
+                .description("Continuous Phase Folding: run a single propagation-merge pass across each Clifford segment");
+
+            methods.add_parser("cpf-global")
+                .description("Continuous Phase Folding: iterate propagation_merge + within-block fusion until fixpoint. Most effective on tableaux built with `convert qcir tableau --trace-replay`");
+
+            methods.add_parser("cpf-full")
+                .description("Continuous Phase Folding: cpf-global + tmerge + hopt + phasepoly. The continuous-angle counterpart of `optimize full`");
+
+            auto pauli_compress_parser = methods.add_parser("pauli-compress")
+                                             .description("Pauli-rotation compression: collapse + D-merge + F-cancel + (optional) greedy Clifford-snap under an L2 budget. Ports compress_ncf's HYBRID method onto the Tableau.");
+
+            pauli_compress_parser.add_argument<double>("-l", "--l2")
+                .default_value(0.0)
+                .help("L2 budget for lossy Clifford snapping (0 => lossless merge + cancel only)");
+
+            pauli_compress_parser.add_argument<bool>("--no-absorb")
+                .action(store_true)
+                .help("keep rotations snapped to a non-zero Clifford angle in the rotation block instead of folding them into the leading Clifford");
         },
         [&](ArgumentParser const& parser) {
             if (!dvlab::utils::mgr_has_data(tableau_mgr)) {
@@ -231,10 +333,20 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr) {
                 t_merge,
                 internal_h_opt,
                 phase_polynomial_optimization,
-                matroid_partition
+                matroid_partition,
+                cpf_merge,
+                cpf_global,
+                cpf_full,
+                pauli_compress
             };
 
+            // NOTE: prefix matching used elsewhere in this file conflicts
+            // for the three `cpf-*` names; do exact matches first.
             auto method = std::invoke([&]() -> std::optional<OptimizationMethod> {
+                if (method_str == "cpf-merge")      return OptimizationMethod::cpf_merge;
+                if (method_str == "cpf-global")     return OptimizationMethod::cpf_global;
+                if (method_str == "cpf-full")       return OptimizationMethod::cpf_full;
+                if (method_str == "pauli-compress") return OptimizationMethod::pauli_compress;
                 if (dvlab::str::is_prefix_of(method_str, "full")) {
                     return OptimizationMethod::full;
                 } else if (dvlab::str::is_prefix_of(method_str, "collapse")) {
@@ -314,6 +426,48 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr) {
                     }
                     tableau_mgr.get()->add_procedure("MatroidPartition");
                     break;
+                case OptimizationMethod::cpf_merge: {
+                    auto const stats = cpf::propagation_merge(*tableau_mgr.get());
+                    spdlog::info("cpf-merge: {} same-Pauli + {} propagation merges, {} zero rotations removed in {} passes",
+                                 stats.n_same_pauli, stats.n_propagation, stats.n_removed_zero, stats.n_passes);
+                    tableau_mgr.get()->add_procedure("CPF-Merge");
+                    break;
+                }
+                case OptimizationMethod::cpf_global: {
+                    auto const stats = cpf::global_fold(*tableau_mgr.get());
+                    spdlog::info("cpf-global: {} local + {} propagation merges, {} rotations removed in {} passes "
+                                 "(left {} Clifford-angle rotations for `cpf-full`/`tmerge` to absorb)",
+                                 stats.n_local_merges, stats.n_propagation_merges, stats.n_rotations_removed,
+                                 stats.n_passes, stats.n_clifford_angle_left);
+                    tableau_mgr.get()->add_procedure("CPF-Global");
+                    break;
+                }
+                case OptimizationMethod::cpf_full: {
+                    auto const stats = cpf::global_fold(*tableau_mgr.get());
+                    spdlog::info("cpf-full[1/2] cpf-global: {} local + {} propagation merges, {} rotations removed in {} passes "
+                                 "(left {} Clifford-angle rotations)",
+                                 stats.n_local_merges, stats.n_propagation_merges, stats.n_rotations_removed,
+                                 stats.n_passes, stats.n_clifford_angle_left);
+                    // Hand off to the existing T-count-driven pipeline for
+                    // the structural / Clifford-side cleanup. `full_optimize`
+                    // calls collapse + merge_rotations + minimize_internal_hadamards
+                    // + ToddPhasePolynomialOptimizationStrategy in a loop.
+                    full_optimize(*tableau_mgr.get());
+                    spdlog::info("cpf-full[2/2] full_optimize completed.");
+                    tableau_mgr.get()->add_procedure("CPF-Full");
+                    break;
+                }
+                case OptimizationMethod::pauli_compress: {
+                    cpf::PauliCompressOptions opts;
+                    opts.l2_budget      = parser.get<double>("--l2");
+                    opts.absorb_clifford = !parser.parsed("--no-absorb");
+                    auto const stats    = cpf::pauli_compress(*tableau_mgr.get(), opts);
+                    spdlog::info("pauli-compress: {} -> {} rotations ({} merged, {} cancelled, {} snapped to 0, {} snapped to Clifford, L2 used {:.4g})",
+                                 stats.n_before, stats.n_after, stats.n_merged, stats.n_cancelled,
+                                 stats.n_snapped_zero, stats.n_snapped_clifford, stats.l2_used);
+                    tableau_mgr.get()->add_procedure("PauliCompress");
+                    break;
+                }
             }
 
             return dvlab::CmdExecResult::done;
@@ -325,6 +479,7 @@ dvlab::Command tableau_cmd(TableauMgr& tableau_mgr) {
 
     cmd.add_subcommand("tableau-cmd-group", dvlab::utils::mgr_list_cmd(tableau_mgr));
     cmd.add_subcommand("tableau-cmd-group", tableau_new_cmd(tableau_mgr));
+    cmd.add_subcommand("tableau-cmd-group", tableau_read_pauli_cmd(tableau_mgr));
     cmd.add_subcommand("tableau-cmd-group", dvlab::utils::mgr_delete_cmd(tableau_mgr));
     cmd.add_subcommand("tableau-cmd-group", dvlab::utils::mgr_checkout_cmd(tableau_mgr));
     cmd.add_subcommand("tableau-cmd-group", dvlab::utils::mgr_copy_cmd(tableau_mgr));

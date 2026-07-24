@@ -254,6 +254,18 @@ bool append_to_tableau(qcir::RYGate const& op, experimental::Tableau& tableau, Q
     return true;
 }
 
+// U(theta, phi, lambda) = RZ(phi) * RY(theta) * RZ(lambda) as a matrix; in
+// QCir gate-stream order this is `RZ(lambda) -> RY(theta) -> RZ(phi)`. Each
+// component is fed into the existing rotation paths.
+template <>
+bool append_to_tableau(qcir::UGate const& op, experimental::Tableau& tableau, QubitIdList const& qubits) {
+    bool ok = true;
+    ok &= append_to_tableau(qcir::RZGate(op.get_lambda()), tableau, qubits);
+    ok &= append_to_tableau(qcir::RYGate(op.get_theta()), tableau, qubits);
+    ok &= append_to_tableau(qcir::RZGate(op.get_phi()), tableau, qubits);
+    return ok;
+}
+
 template <>
 bool append_to_tableau(qcir::ControlGate const& op, experimental::Tableau& tableau, QubitIdList const& qubits) {
     if (auto target_op = op.get_target_operation().get_underlying_if<qcir::PXGate>()) {

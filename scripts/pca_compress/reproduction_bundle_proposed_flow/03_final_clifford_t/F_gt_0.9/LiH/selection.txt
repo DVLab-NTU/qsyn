@@ -1,0 +1,13 @@
+benchmark=LiH
+tier=F_gt_0.9
+method=zero-sweep-heuristic
+mapping=bravyi_kitaev
+ham_model=hf_active_space
+source=pyscf+qiskit-nature LiH_hf_bravyi_kitaev
+f_target=0.9
+approx_fidelity=0.9955184236915604
+pauli_rot_after=0
+qco_t=0
+qco_clifford=0
+gridsynth_epsilon=0.001
+status=ok

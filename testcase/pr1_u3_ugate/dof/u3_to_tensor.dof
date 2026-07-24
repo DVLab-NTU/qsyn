@@ -1,0 +1,3 @@
+qcir read testcase/pr1_u3_ugate/qasm/u_zyz_equiv.qasm
+convert qcir tensor
+tensor print

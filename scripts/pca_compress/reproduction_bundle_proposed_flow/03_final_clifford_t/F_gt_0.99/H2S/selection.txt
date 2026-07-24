@@ -1,0 +1,10 @@
+benchmark=H2S
+tier=F_gt_0.99
+method=zero-sweep-heuristic
+f_target=0.99
+approx_fidelity=0.9902529934790522
+pauli_rot_after=84
+qco_t=2728
+qco_clifford=3576
+gridsynth_epsilon=0.001
+status=ok

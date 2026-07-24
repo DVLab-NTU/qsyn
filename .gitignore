@@ -33,3 +33,21 @@ docs/doc-coverage.info
 
 perf.data
 perf.data.old
+
+# CPF branch: local experimental QASM artifacts (do not commit)
+/de_*.qasm
+/de_vqe_*.png
+/de_vqe_*.pdf
+/output_vqe.*
+/latex_error.log
+/my_qc/
+
+# paulicompress / pca_compress local artifacts
+**/__pycache__/
+*.pyc
+/out/
+scripts/pca_compress/results_pc_axis/
+scripts/pca_compress/**/dump/
+scripts/pca_compress/**/*.log
+scripts/paulicompress/**/__pycache__/
+

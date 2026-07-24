@@ -365,7 +365,10 @@ std::pair<StabilizerTableau, Polynomial> ToddPhasePolynomialOptimizationStrategy
     }
 
     if (std::ranges::any_of(polynomial, [](PauliRotation const& rotation) { return 4 % rotation.phase().denominator() != 0; })) {
-        spdlog::error("Failed to perform TODD optimization: the polynomial contains a non-4th-root-of-unity phase!!");
+        // Non-fatal: TODD is only defined for 4th-root-of-unity phases. Demote
+        // to debug so synthesis pipelines that legitimately feed continuous
+        // rotations (e.g. KAK output) do not spam the user log.
+        spdlog::debug("Skipping TODD optimization: polynomial contains a non-4th-root-of-unity phase.");
         return {clifford, polynomial};
     }
 

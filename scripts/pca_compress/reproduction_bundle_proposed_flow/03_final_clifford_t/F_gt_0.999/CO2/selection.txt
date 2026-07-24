@@ -1,0 +1,10 @@
+benchmark=CO2
+tier=F_gt_0.999
+method=zero-sweep-heuristic
+f_target=0.999
+approx_fidelity=0.9990017807832549
+pauli_rot_after=887
+qco_t=27948
+qco_clifford=40179
+gridsynth_epsilon=0.001
+status=ok

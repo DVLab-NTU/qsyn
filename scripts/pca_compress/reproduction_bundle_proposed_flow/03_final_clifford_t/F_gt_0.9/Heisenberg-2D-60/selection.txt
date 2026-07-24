@@ -1,0 +1,10 @@
+benchmark=Heisenberg-2D-60
+tier=F_gt_0.9
+method=zero-sweep-heuristic
+f_target=0.9
+approx_fidelity=0.9004739678319554
+pauli_rot_after=1
+qco_t=34
+qco_clifford=37
+gridsynth_epsilon=0.001
+status=ok

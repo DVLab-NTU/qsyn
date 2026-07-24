@@ -1,0 +1,2 @@
+LiH updated to PySCF LiH (sto-3g, active space 6 orbitals) + Bravyi–Kitaev.
+Source cache: results_pc_axis/pipeline_v8/ham_cache/LiH_hf_bravyi_kitaev.json

@@ -1,0 +1,29 @@
+// PR-9 end-to-end CPF demo.
+//
+// For each input:
+//   1. Read the circuit.
+//   2. Snapshot gate count (`qcir print --statistics`).
+//   3. Run `qcir cpf-optimize` (adds a new QCir to the manager).
+//   4. Print the optimised statistics + `qcir equiv` against original.
+//   5. Compare against `--no-full` to isolate CPF-only savings.
+
+qcir read testcase/pr9_cpf_full/qasm/cpf_chain.qasm
+qcir print --statistics
+qcir cpf-optimize
+qcir print --statistics
+qcir equiv 1
+
+// Same circuit, CPF-only (no full_optimize structural cleanup).
+qcir checkout 1
+qcir cpf-optimize --no-full
+qcir print --statistics
+qcir equiv 1
+
+// Three-qubit Clifford-T mix.
+qcir read testcase/pr9_cpf_full/qasm/clifford_t_mix.qasm
+qcir print --statistics
+qcir cpf-optimize
+qcir print --statistics
+qcir equiv 4
+
+quit -f

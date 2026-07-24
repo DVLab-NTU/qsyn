@@ -11,7 +11,9 @@
 #include <cstddef>
 #include <fstream>
 #include <optional>
+#include <sstream>
 #include <string>
+#include <vector>
 
 #include "./basic_gate_type.hpp"
 #include "./qcir.hpp"
@@ -70,20 +72,34 @@ std::optional<QCir> from_qasm(std::filesystem::path const& filepath) {
         str = dvlab::str::trim_spaces(dvlab::str::trim_comments(str));
         if (str.empty()) continue;
         std::string type;
-        auto const type_end   = str_get_token(str, type);
-        std::string phase_str = "0";
-        if (str_get_token(str, phase_str, 0, '(') != std::string::npos) {
+        auto const type_end = str_get_token(str, type);
+
+        // Extract the parenthesised parameter list (if any). Multi-parameter
+        // gates such as `u(theta, phi, lambda)` are supported by splitting on
+        // commas after the parenthesis stripping.
+        std::string params_str;
+        bool has_paren = false;
+        if (str_get_token(str, params_str, 0, '(') != std::string::npos) {
             auto const stop = str_get_token(str, type, 0, '(');
-            str_get_token(str, phase_str, stop + 1, ')');
-        } else
-            phase_str = "0";
+            str_get_token(str, params_str, stop + 1, ')');
+            has_paren = true;
+        }
         if (type == "creg" || type == "qreg" || type.empty()) {
             continue;
+        }
+
+        // Qubit operands: scan the substring after the (optional) parameter
+        // block. When a gate has parameters, the qubit list starts right
+        // after the closing parenthesis.
+        size_t qubit_scan_start = type_end;
+        if (has_paren) {
+            auto const close = str.find(')');
+            if (close != std::string::npos) qubit_scan_start = close + 1;
         }
         QubitIdList qubit_ids;
         std::string token;
         std::string qubit_id_str;
-        size_t n = str_get_token(str, token, type_end, ',');
+        size_t n = str_get_token(str, token, qubit_scan_start, ',');
         while (!token.empty()) {
             str_get_token(token, qubit_id_str, str_get_token(token, qubit_id_str, 0, '[') + 1, ']');
             auto qubit_id_num = dvlab::str::from_string<unsigned>(qubit_id_str);
@@ -105,13 +121,27 @@ std::optional<QCir> from_qasm(std::filesystem::path const& filepath) {
             continue;
         }
 
-        auto phase = dvlab::Phase::from_string(phase_str);
-        if (!phase.has_value()) {
-            spdlog::error("invalid phase on line {}!!", str);
-            return std::nullopt;
+        // Parse 1-, 2-, or 3-argument parameter lists. Empty parameter list is
+        // treated as a single zero phase to keep backward compatibility with
+        // the previous single-parameter logic.
+        std::vector<dvlab::Phase> phases;
+        if (!has_paren) {
+            phases.emplace_back(0);
+        } else {
+            std::stringstream params_ss(params_str);
+            std::string one_param;
+            while (std::getline(params_ss, one_param, ',')) {
+                one_param   = dvlab::str::trim_spaces(one_param);
+                auto parsed = dvlab::Phase::from_string(one_param);
+                if (!parsed.has_value()) {
+                    spdlog::error("invalid phase \"{}\" on line {}!!", one_param, str);
+                    return std::nullopt;
+                }
+                phases.emplace_back(*parsed);
+            }
         }
 
-        if (auto op = str_to_operation(type, {*phase}); op.has_value()) {
+        if (auto op = str_to_operation(type, phases); op.has_value()) {
             qcir.append(*op, qubit_ids);
             continue;
         }

@@ -1,0 +1,32 @@
+// PR-A demo: retarget_to_u3_cx hardening + 3-CNOT QFactor KAK (opt-in).
+//
+// usage:
+//   build/qsyn -q testcase/pr12_retarget_3cnot/dof/retarget_demo.dof
+//
+// Expectation:
+//   (1) `qcir to-u3cx -r` on a CZ/SWAP-mixed circuit produces a circuit
+//       whose gate type histogram contains only `u` and `cx`.
+//   (2) Same input remains unitarily equivalent.
+//   (3) `qcir to-u3cx --three-cnot-kak -r` on a generic 2-qubit unitary
+//       produces a circuit with <= 3 CX gates (3-CNOT QFactor ansatz).
+//       (May be slow with the coordinate-descent instantiator; PR-B
+//       speeds this up via LBFGS.)
+//
+// Driven manually with `qcir print --stat` for visual inspection.
+
+qcir read testcase/pr12_retarget_3cnot/qasm/cz_swap_ecr_mix.qasm
+qcir print --stat
+qcir to-u3cx -r
+qcir print --stat
+qcir equiv 0
+
+// NOTE -- the 3-CNOT KAK QFactor path (--three-cnot-kak) is currently slow
+// because the qfactor instantiator uses coordinate descent. PR-B replaces
+// that minimiser with LBFGS; once that lands, re-enable this block:
+//
+//   qcir delete 0
+//   qcir read testcase/pr12_retarget_3cnot/qasm/two_qubit_random.qasm
+//   qcir to-u3cx -r --three-cnot-kak --three-cnot-restarts 2
+//   qcir equiv 0
+
+quit -f

@@ -1,0 +1,32 @@
+// PR-C demo: native QSearch / LEAP synthesisers.
+//
+// usage:
+//   build/qsyn -q testcase/pr14_qsearch_native/dof/qsearch_demo.dof
+//
+// Expectations:
+//   (1) `qcir synthesize --qsearch-native` on a 2-qubit CZ should
+//       converge in <=3 CXs (likely 1 with the SimpleLayerGenerator).
+//   (2) Output must be unitarily equivalent to the input.
+
+// (1) QSearch on a CZ-equivalent 2-qubit circuit (optimal: 1 CX).
+qcir read testcase/pr14_qsearch_native/qasm/two_qubit_cz.qasm
+qcir print --stat
+qcir synthesize --qsearch-native --qsearch-max-depth 3 --qsearch-inst-iters 30
+qcir print --stat
+qcir equiv 0
+
+// (2) LEAP on a generic 2-qubit unitary (optimal: 3 CXs).
+qcir read testcase/pr13_qfactor_lbfgs/qasm/hard_two_qubit.qasm
+qcir synthesize --leap-native --qsearch-max-depth 6 --qsearch-inst-iters 30
+qcir print --stat
+qcir equiv 2
+
+// (3) 3-qubit GHZ through the full to-u3cx pipeline using QSearchNative.
+// `to-u3cx` first partitions the input, then runs the native QSearch on
+// each block. 2 CXs is optimal for GHZ.
+qcir read testcase/pr14_qsearch_native/qasm/three_qubit_ghz.qasm
+qcir to-u3cx --qsearch-native --opt-level 1
+qcir print --stat
+qcir equiv 4
+
+quit -f

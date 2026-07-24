@@ -1,0 +1,24 @@
+// PR-10: CPF product pipeline -- step-by-step + qcpfq shortcut.
+qcir read testcase/pr10_pipeline/qasm/cpf_demo.qasm
+qcir copy
+qcir checkout 1
+
+qcir to-u3cx -r
+qcir print --statistics
+
+qcir to-zyz -r
+qcir print --statistics
+
+qcir to-tableau --fold
+tableau print
+
+qcir from-tableau -r
+qcir print --statistics
+qcir equiv 0
+
+qcir delete
+qcir read testcase/pr10_pipeline/qasm/cpf_demo.qasm
+qcpfq
+qcir equiv 0
+
+quit -f

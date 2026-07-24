@@ -40,12 +40,22 @@ std::optional<Operation> str_to_basic_operation(std::string str, std::vector<dvl
         if (str == "tydg") return TYdgGate();
     }
     if (params.size() == 1) {
-        if (str == "p" || str == "pz") return PZGate(params[0]);
+        // `u1(lambda)` is an alias for `p(lambda)` in QASM 2.0.
+        if (str == "p" || str == "pz" || str == "u1") return PZGate(params[0]);
         if (str == "px") return PXGate(params[0]);
         if (str == "py") return PYGate(params[0]);
         if (str == "rz") return RZGate(params[0]);
         if (str == "rx") return RXGate(params[0]);
         if (str == "ry") return RYGate(params[0]);
+    }
+    if (params.size() == 2) {
+        // `u2(phi, lambda) = U(pi/2, phi, lambda)` in QASM 2.0.
+        if (str == "u2") return UGate(dvlab::Phase(1, 2), params[0], params[1]);
+    }
+    if (params.size() == 3) {
+        // QASM 2.0 spelling variants: `u`, `u3`, `U`, `U3`. Lower-casing is done
+        // at the top of this function, so we only need to check the lowered forms.
+        if (str == "u" || str == "u3") return UGate(params[0], params[1], params[2]);
     }
 
     return std::nullopt;

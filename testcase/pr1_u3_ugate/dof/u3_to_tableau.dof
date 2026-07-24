@@ -1,0 +1,3 @@
+qcir read testcase/pr1_u3_ugate/qasm/u_general.qasm
+convert qcir tableau
+tableau print -c
