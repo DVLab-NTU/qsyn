@@ -1,33 +1,28 @@
 # paulicompress — thesis core Proposed Synthesis Flow
 
-Open-source lab entry for the **core** of
+Open-source lab entry for
 *A PCA-Inspired Scalable Pauli Rotation Minimization Algorithm…*
-(Ch. 3 flow + Ch. 4 zero-sweep + Ch. 5 Gridsynth/`qzq`).
+(Ch. 3 flow + Ch. 4 Heuristic compress + Ch. 5 Gridsynth/`qzq`).
 
-## Thesis coverage (this branch)
+## Proposed Flow (main path — matches thesis slide)
 
-| Thesis piece | In branch? | How |
-|---|---|---|
-| Ch.3 Proposed Flow (fast/slow) | **yes** | `cli.py run` / `all` |
-| Ch.4 zero-sweep F-cost + prefix multi-F* | **yes** | `cli.py zero-sweep` (default compress) |
-| Ch.5 Gridsynth ε + `qzq` QCO | **yes** | wired in `flow.py` |
-| 13 NCF benchmarks prepare | **yes** | `cli.py prepare` + pickles |
-| Packaged proposed circuits (check) | **yes** | `reproduction_bundle_proposed_flow/` |
-| Methods A–E / HYBRID grid sweeps | **no** | not required for core claim |
-| Track B mapping ablation | **no** | |
-| NCF fusion baseline repro | **no** | |
-| Full Table 6.x recompute | **partial** | re-run core flow; tables need extra drivers |
+```
+Hamiltonian Circuits
+        │
+        ├──────────────► Phase Folding ──┐   (slow only)
+        │                                │
+        └────────────────────────────────┼──► Pauli Compression (Heuristic = zero-sweep)
+                                         │
+                                         ▼
+                              Gridsynth → Qsyn QCO (qzq) → Clifford+T
+```
 
-Everything this CLI can run maps to the thesis **proposed** stack (not external NCF-fusion experiments).
+| Mode | Phase Folding | Pauli Compression | Backend |
+|------|---------------|-------------------|---------|
+| **fast** | no | Heuristic (`zero-sweep`) | Gridsynth + `qzq` |
+| **slow** | yes (`to-zyz` → `to-tableau --fold`) | Heuristic (`zero-sweep`) | Gridsynth + `qzq` |
 
-## Routes
-
-| mode | pipeline |
-|------|----------|
-| **fast** | `.pauli` → **zero-sweep (F*)** → Gridsynth → **`qzq`** |
-| **slow** | `.qasm` → **to-zyz** → **to-tableau --fold** (PauliDAG) → **zero-sweep** → Gridsynth → **`qzq`** |
-
-Optional: `--compress cpp-l2` uses Qsyn `pauli-compress -l` (L2 surrogate; not the thesis F-cost planner).
+**Methods A–E** are optional research tools (ablations / grids), not the default Proposed Flow compress.
 
 ## Setup
 
@@ -35,28 +30,92 @@ Optional: `--compress cpp-l2` uses Qsyn `pauli-compress -l` (L2 surrogate; not t
 git clone <repo> -b paulicompress && cd qsyn
 make -j$(nproc)
 pip install -r scripts/paulicompress/requirements.txt
+# optional (regen ham_cache only): pip install qiskit-nature pyscf
 ```
 
-## Commands
+## Main commands
 
 ```bash
-# 1) multi-F* zero-sweep only (Stage 1–3 of the heuristic slide)
+# prepare Hamiltonian .pauli / .qasm
 python3 scripts/paulicompress/cli.py prepare --out out/01_original_benchmarks --bench LiH
-python3 scripts/paulicompress/cli.py zero-sweep \
-    --pauli out/01_original_benchmarks/LiH/LiH.pauli \
-    --tiers 0.999 0.99 0.9
 
-# 2) end-to-end proposed flow (fast + slow)
-python3 scripts/paulicompress/cli.py all --bench LiH --fidelity 0.99 --eps 1e-3
-
-# 3) single mode
+# Proposed Flow — fast (no Phase Folding)
 python3 scripts/paulicompress/cli.py run --mode fast --bench LiH \
     --bench-root out/01_original_benchmarks --fidelity 0.99 --eps 1e-3
+
+# Proposed Flow — slow (with Phase Folding)
+python3 scripts/paulicompress/cli.py run --mode slow --bench LiH \
+    --bench-root out/01_original_benchmarks --fidelity 0.99 --eps 1e-3
+
+# both modes (default compress = zero-sweep Heuristic)
+python3 scripts/paulicompress/cli.py all --bench LiH --fidelity 0.99 --eps 1e-3
+
+# same stages via composable pipeline (defaults also Heuristic)
+python3 scripts/paulicompress/cli.py pipeline \
+    --pauli out/01_original_benchmarks/LiH/LiH.pauli \
+    --compress zero-sweep --fidelity 0.99 --gridsynth --qzq
+python3 scripts/paulicompress/cli.py pipeline \
+    --pauli out/01_original_benchmarks/LiH/LiH.pauli \
+    --qasm  out/01_original_benchmarks/LiH/LiH.qasm \
+    --phase-fold --compress zero-sweep --fidelity 0.99 --gridsynth --qzq
 ```
+
+`--compress` default on `run` / `all` / `pipeline`: **`zero-sweep`** (Heuristic).  
+Optional: `none` | `methods-ae` | `cpp-l2`.
+
+## Research / exploration (not the main slide path)
+
+```bash
+# Heuristic-only multi-F* query
+python3 scripts/paulicompress/cli.py zero-sweep \
+    --pauli out/01_original_benchmarks/LiH/LiH.pauli --tiers 0.999 0.99 0.9
+
+# Methods A–E grid + experiment_best
+python3 scripts/paulicompress/cli.py methods-sweep \
+    --bench LiH --stage hamiltonian --tiers 0.999 0.99 0.9
+python3 scripts/paulicompress/cli.py compare-phase-fold --bench LiH H2O N2 H2S CO2
+
+# JW / BK / Parity mapping ablation
+python3 scripts/paulicompress/cli.py prepare-mapping --bench LiH \
+    --mapping jordan_wigner bravyi_kitaev parity
+python3 scripts/paulicompress/cli.py mapping-compress --bench LiH \
+    --mapping jw bk parity --tiers 0.999 0.99 0.9
+
+# Opt into A–E on the full CT pipeline when exploring
+python3 scripts/paulicompress/cli.py run --mode fast --bench LiH \
+    --compress methods-ae --fidelity 0.99
+
+# NCF pathway synthesis-fidelity audit (∏ |Tr|/d per fused unitary)
+python3 scripts/paulicompress/cli.py ncf-fidelity \
+    --bench LiH --methods gridsyn ncf1
+```
+
+See [`ncf_fidelity/README.md`](ncf_fidelity/README.md).
+
+## Thesis coverage
+
+| Piece | In branch? | Role |
+|---|---|---|
+| Proposed Flow fast/slow + Heuristic + Gridsynth/`qzq` | **yes — main** | `run` / `all` / `pipeline` |
+| Methods A–E / `experiment_best` | **yes — research** | `methods-sweep` / `--compress methods-ae` |
+| JW/BK/Parity mappings | **yes — research** | `prepare-mapping` / `mapping-compress` |
+| NCF pathway product-fidelity audit | **yes — research** | `ncf-fidelity` |
+| HYBRID / RECURSIVE / full NCF fusion stack | **partial** | fidelity audit only; no Trasyn/Synthetiq vendored |
+
+## Developer modules
+
+| Module | Role |
+|--------|------|
+| `zero_sweep.py` | Heuristic F-cost compress (**default Proposed Flow**) |
+| `flow.py` | fast/slow + composable `run_pipeline` |
+| `methods_ae.py` / `experiment_best.py` | Methods A–E research grid |
+| `hamiltonian_mappings.py` | JW/BK/Parity (+ `baselines/ham_cache/`) |
+| `baselines.py` | `hamiltonian` / `after_phase_fold` loaders |
+| `gridsynth_qco.py` | Gridsynth + `qzq` |
+| `ncf_fidelity/` | NCF fused-unitary product fidelity (`∏ F_k`) |
 
 ## Layout
 
-- CLI / zero-sweep: `scripts/paulicompress/`
+- Lab CLI: `scripts/paulicompress/`
 - Benchmark sources: `scripts/pca_compress/benchmark_circuit/`
 - Reference bundle: `scripts/pca_compress/reproduction_bundle_proposed_flow/`
-- Experiment dumps (`results_pc_axis/`) stay gitignored

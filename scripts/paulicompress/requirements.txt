@@ -1,3 +1,11 @@
 # Optional Python deps for scripts/paulicompress
 pygridsynth>=1.0
 mpmath>=1.3
+numpy>=1.22
+
+# Optional: regenerate JW/BK/Parity Hamiltonians when ham_cache is missing
+# (shipped baselines/ham_cache/*.json cover LiH/H2O/N2/H2S/CO2 without these)
+# qiskit-nature>=0.7
+# pyscf>=2.0
+
+# ncf-fidelity (2q pathway): needs external Synthetiq binary via NCF_SYNTHETIQ_DIR

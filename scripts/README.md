@@ -11,18 +11,21 @@ Lab-facing entry point on the **`paulicompress`** branch:
 ```bash
 make -j$(nproc)
 pip install -r scripts/paulicompress/requirements.txt
-python3 scripts/paulicompress/cli.py zero-sweep --pauli …/LiH.pauli --tiers 0.999 0.99 0.9
+# Proposed Flow (Heuristic = zero-sweep): fast / slow
 python3 scripts/paulicompress/cli.py all --bench LiH --fidelity 0.99 --eps 1e-3
+python3 scripts/paulicompress/cli.py run --mode fast --bench LiH --fidelity 0.99
+python3 scripts/paulicompress/cli.py run --mode slow --bench LiH --fidelity 0.99
 ```
 
-See [`paulicompress/README.md`](paulicompress/README.md): thesis **zero-sweep
-(F-cost)** + **fast/slow** Proposed Flow → Gridsynth → `qzq`.
+See [`paulicompress/README.md`](paulicompress/README.md): main path is
+**Heuristic (zero-sweep)** + optional Phase Folding (slow) + Gridsynth/`qzq`.
+Methods A–E and JW/BK/Parity are research extras.
 
 ## Tools
 
 | Script | Purpose | PR |
 | --- | --- | --- |
-| `paulicompress/cli.py` | Prepare Paulihedral benchmarks + run fast/slow Proposed Flow | paulicompress |
+| `paulicompress/cli.py` | Proposed Flow + Methods A–E / experiment_best + phase-fold compare | paulicompress |
 | `verify_equiv.py` | Exact unitary equivalence between two QASM 2.0 files (up to a single global phase). Drop-in external sibling of `qcir equiv`. | PR-10 |
 | `bqskit_compare.py` | Re-compile a baseline circuit through BQSKit (U3 + CNOT target) and report gate / CNOT / depth counts side-by-side with the qsyn candidate. | PR-10 |
 | `cpf_bench.py` | Drive `qcir cpf-optimize` over every `.qasm` in a directory, verify equivalence, optionally include the BQSKit recompile, and emit a Markdown report (default sink: `docs/benchmark_results.md`). | PR-11 |

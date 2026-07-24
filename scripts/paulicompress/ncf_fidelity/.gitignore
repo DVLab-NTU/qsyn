@@ -1,0 +1,6 @@
+# Generated outputs (do not commit)
+results/
+circuits/
+tools/
+**/__pycache__/
+*.pyc
