@@ -92,7 +92,8 @@ include(scripts/cmake/target_link_libraries_system.cmake)
 
 # find_package(OpenMP REQUIRED)
 
-set(BLA_VENDER OpenBLAS)
+# Prefer OpenBLAS (provides zuncsd). Typo BLA_VENDER was ignored by FindBLAS.
+set(BLA_VENDOR OpenBLAS CACHE STRING "BLAS vendor to search for")
 find_package(BLAS REQUIRED)
 find_package(LAPACK REQUIRED)
 
