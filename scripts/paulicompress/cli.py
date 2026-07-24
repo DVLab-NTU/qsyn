@@ -6,7 +6,7 @@ Main Proposed Flow (slide):
               → Gridsynth → qzq → Clifford+T
 
   fast = no Phase Folding; slow = with Phase Folding.
-  Methods A–E are optional research tools (--compress methods-ae).
+  Methods A–E / HYBRID / RECURSIVE are optional research tools (--compress methods-ae).
 
 Examples
 --------
@@ -177,7 +177,7 @@ def main(argv: list[str] | None = None) -> None:
 
     p_ms = sub.add_parser(
         "methods-sweep",
-        help="Methods A–E grid sweep + experiment_best at F* tiers",
+        help="A–E / HYBRID / RECURSIVE grid + experiment_best at F* tiers",
     )
     src = p_ms.add_mutually_exclusive_group(required=True)
     src.add_argument("--pauli", type=Path, help="Arbitrary .pauli input")

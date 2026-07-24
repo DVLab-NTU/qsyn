@@ -1,7 +1,8 @@
-"""F* grid sweep over Methods A–E + ``experiment_best`` aggregation.
+"""F* grid sweep over Methods A–E + HYBRID/RECURSIVE + ``experiment_best``.
 
 ``experiment_best(F*)`` = minimum non-Clifford Pauli-rotation count among all
-A–E (and lossless D/F) grid points with ``F_approx >= F*``.
+A–E / HYBRID / RECURSIVE (and lossless D/F) grid points with
+``F_approx >= F*``.
 
 This is the aggregator used for thesis / slide fold-ablation tables
 (Hamiltonian → optional Phase Folding → Pauli Compression).
@@ -21,6 +22,11 @@ from methods_ae import (
     method_D_merge,
     method_E_clifford,
     method_F_cancel,
+)
+from methods_hybrid import (
+    DEFAULT_HYBRID_TOPK_FRAC,
+    method_HYBRID,
+    method_RECURSIVE,
 )
 from pauli_list import PauliCircuit, coeff_error
 
@@ -100,7 +106,7 @@ class ExperimentBest:
 
 @dataclass
 class MethodsAePlan:
-    """Winning A–E circuit at a single F* (for end-to-end synthesis)."""
+    """Winning A–E / HYBRID / RECURSIVE circuit at a single F*."""
 
     name: str
     n_qubits: int
@@ -191,11 +197,14 @@ def sweep_methods_ae(
     l2_budgets: Sequence[float] = DEFAULT_L2_BUDGETS,
     topk_fracs: Sequence[float] = DEFAULT_TOPK_FRACS,
     adaptive_eps: bool = True,
+    include_hybrid: bool = True,
+    hybrid_topk_frac: float = DEFAULT_HYBRID_TOPK_FRAC,
 ) -> SweepResult:
-    """Run Methods A–E (+ lossless D/F) on ``pc`` and collect sweep points."""
+    """Run Methods A–E (+ optional HYBRID/RECURSIVE) and collect sweep points."""
     baseline = pc
     n_before = count_nonclifford(baseline)
     points: List[SweepPoint] = []
+    competitor_l2: List[float] = []
 
     points.append(
         _record(baseline, n_before, "D-merge", "lossless", method_D_merge(pc))
@@ -209,50 +218,133 @@ def sweep_methods_ae(
         all_eps = sorted(set(float(e) for e in all_eps) | set(adaptive_eps_values(pc)))
 
     for eps in all_eps:
-        points.append(
-            _record(
-                baseline,
-                n_before,
-                "A-truncate",
-                f"eps={eps:g}",
-                method_A_truncate(pc, eps),
-            )
+        comp_a = method_A_truncate(pc, eps)
+        pa = _record(
+            baseline,
+            n_before,
+            "A-truncate",
+            f"eps={eps:g}",
+            comp_a,
         )
+        points.append(pa)
+        competitor_l2.append(pa.l2_err)
         comp_e, nab = method_E_clifford(pc, eps)
-        points.append(
-            _record(
-                baseline,
-                n_before,
-                "E-clifford",
-                f"eps={eps:g}",
-                comp_e,
-                note=f"absorbed={nab}",
-            )
+        pe = _record(
+            baseline,
+            n_before,
+            "E-clifford",
+            f"eps={eps:g}",
+            comp_e,
+            note=f"absorbed={nab}",
         )
+        points.append(pe)
+        competitor_l2.append(pe.l2_err)
 
     n_unique = method_D_merge(pc).n_rot
     for frac in topk_fracs:
         k = max(1, int(round(float(frac) * n_unique))) if n_unique else 0
-        points.append(
-            _record(
-                baseline,
-                n_before,
-                "B-topk",
-                f"k={k}({frac:g})",
-                method_B_topk(pc, k),
-            )
+        pb = _record(
+            baseline,
+            n_before,
+            "B-topk",
+            f"k={k}({frac:g})",
+            method_B_topk(pc, k),
         )
+        points.append(pb)
+        competitor_l2.append(pb.l2_err)
 
     for bud in l2_budgets:
-        points.append(
-            _record(
-                baseline,
-                n_before,
-                "C-budget",
-                f"l2<={bud:g}",
-                method_C_budget(pc, float(bud)),
-            )
+        pc_c = method_C_budget(pc, float(bud))
+        pc_pt = _record(
+            baseline,
+            n_before,
+            "C-budget",
+            f"l2<={bud:g}",
+            pc_c,
         )
+        points.append(pc_pt)
+        competitor_l2.append(pc_pt.l2_err)
+
+    if include_hybrid:
+        matched = [c * (1.0 + 1e-9) + 1e-15 for c in competitor_l2]
+        hybrid_budgets = sorted(
+            set(float(b) for b in l2_budgets) | set(matched)
+        )
+        topk_h = float(hybrid_topk_frac)
+        for bud in hybrid_budgets:
+            setting = f"l2<={bud:g};topk={topk_h:g};eps_a=0"
+            comp_h, st_h = method_HYBRID(pc, bud, eps_a=0.0, topk_frac=topk_h)
+            points.append(
+                _record(
+                    baseline,
+                    n_before,
+                    "HYBRID",
+                    setting,
+                    comp_h,
+                    note=(
+                        f"k={st_h['k_cap']},mand_drop={st_h['mandatory_drops']},"
+                        f"opt_drop={st_h['optional_drops']},snap={st_h['snapped']},"
+                        f"l2={st_h['l2_used']:.3g}"
+                    ),
+                )
+            )
+            comp_r, st_r = method_RECURSIVE(
+                pc, bud, eps_a=0.0, topk_frac=topk_h
+            )
+            points.append(
+                _record(
+                    baseline,
+                    n_before,
+                    "RECURSIVE",
+                    setting,
+                    comp_r,
+                    note=(
+                        f"iters={st_r['iters']},topk={topk_h:g},"
+                        f"l2={st_r['l2_used']:.3g}"
+                    ),
+                )
+            )
+            # Also match each A-eps as eps_a with topk=1 (compress_ncf style).
+        for eps in all_eps:
+            a_comp = method_A_truncate(pc, float(eps))
+            _, bud_a, _ = coeff_error(baseline.rotations, a_comp.rotations)
+            if bud_a <= 0:
+                continue
+            bud_n = bud_a * (1.0 + 1e-9) + 1e-15
+            setting_eps = f"eps={eps:g};topk=1"
+            comp_h, st_h = method_HYBRID(
+                pc, bud_n, eps_a=float(eps), topk_frac=1.0
+            )
+            points.append(
+                _record(
+                    baseline,
+                    n_before,
+                    "HYBRID",
+                    setting_eps,
+                    comp_h,
+                    note=(
+                        f"budget={bud_a:.3g},eps_a={eps:g},topk=1,"
+                        f"k={st_h['k_cap']},snap={st_h['snapped']},"
+                        f"l2={st_h['l2_used']:.3g}"
+                    ),
+                )
+            )
+            comp_r, st_r = method_RECURSIVE(
+                pc, bud_n, eps_a=float(eps), topk_frac=1.0
+            )
+            points.append(
+                _record(
+                    baseline,
+                    n_before,
+                    "RECURSIVE",
+                    setting_eps,
+                    comp_r,
+                    note=(
+                        f"budget={bud_a:.3g},topk=1,iters={st_r['iters']},"
+                        f"l2={st_r['l2_used']:.3g}"
+                    ),
+                )
+            )
 
     return SweepResult(
         name=pc.name,
@@ -270,19 +362,23 @@ def plan_methods_ae(
     l2_budgets: Sequence[float] = DEFAULT_L2_BUDGETS,
     topk_fracs: Sequence[float] = DEFAULT_TOPK_FRACS,
     adaptive_eps: bool = True,
+    include_hybrid: bool = True,
+    hybrid_topk_frac: float = DEFAULT_HYBRID_TOPK_FRAC,
 ) -> MethodsAePlan:
-    """Pick the A–E grid winner at ``F*`` and return its compressed circuit."""
+    """Pick the A–E / HYBRID / RECURSIVE grid winner at ``F*``."""
     sweep = sweep_methods_ae(
         pc,
         eps_list=eps_list,
         l2_budgets=l2_budgets,
         topk_fracs=topk_fracs,
         adaptive_eps=adaptive_eps,
+        include_hybrid=include_hybrid,
+        hybrid_topk_frac=hybrid_topk_frac,
     )
     best = sweep.experiment_best(f_target)
     if best is None or best.compressed is None:
         raise RuntimeError(
-            f"no Methods A–E point satisfies F_approx >= {f_target} "
+            f"no Methods A–E/HYBRID/RECURSIVE point satisfies F_approx >= {f_target} "
             f"for circuit {pc.name!r} (n_rot_before={sweep.n_rot_before})"
         )
     return MethodsAePlan(

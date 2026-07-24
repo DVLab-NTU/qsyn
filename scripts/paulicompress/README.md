@@ -70,7 +70,7 @@ Optional: `none` | `methods-ae` | `cpp-l2`.
 python3 scripts/paulicompress/cli.py zero-sweep \
     --pauli out/01_original_benchmarks/LiH/LiH.pauli --tiers 0.999 0.99 0.9
 
-# Methods A–E grid + experiment_best
+# Methods A–E / HYBRID / RECURSIVE grid + experiment_best
 python3 scripts/paulicompress/cli.py methods-sweep \
     --bench LiH --stage hamiltonian --tiers 0.999 0.99 0.9
 python3 scripts/paulicompress/cli.py compare-phase-fold --bench LiH H2O N2 H2S CO2
@@ -97,10 +97,10 @@ See [`ncf_fidelity/README.md`](ncf_fidelity/README.md).
 | Piece | In branch? | Role |
 |---|---|---|
 | Proposed Flow fast/slow + Heuristic + Gridsynth/`qzq` | **yes — main** | `run` / `all` / `pipeline` |
-| Methods A–E / `experiment_best` | **yes — research** | `methods-sweep` / `--compress methods-ae` |
+| Methods A–E / HYBRID / RECURSIVE / `experiment_best` | **yes — research** | `methods-sweep` / `--compress methods-ae` |
 | JW/BK/Parity mappings | **yes — research** | `prepare-mapping` / `mapping-compress` |
 | NCF pathway product-fidelity audit | **yes — research** | `ncf-fidelity` |
-| HYBRID / RECURSIVE / full NCF fusion stack | **partial** | fidelity audit only; no Trasyn/Synthetiq vendored |
+| Full NCF fusion (Trasyn/Synthetiq vendored) | **no** | fidelity audit only; binaries optional via env |
 
 ## Developer modules
 
@@ -108,7 +108,7 @@ See [`ncf_fidelity/README.md`](ncf_fidelity/README.md).
 |--------|------|
 | `zero_sweep.py` | Heuristic F-cost compress (**default Proposed Flow**) |
 | `flow.py` | fast/slow + composable `run_pipeline` |
-| `methods_ae.py` / `experiment_best.py` | Methods A–E research grid |
+| `methods_ae.py` / `methods_hybrid.py` / `experiment_best.py` | A–E + HYBRID/RECURSIVE research grid |
 | `hamiltonian_mappings.py` | JW/BK/Parity (+ `baselines/ham_cache/`) |
 | `baselines.py` | `hamiltonian` / `after_phase_fold` loaders |
 | `gridsynth_qco.py` | Gridsynth + `qzq` |
