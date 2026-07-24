@@ -14,10 +14,10 @@
 namespace qsyn::experimental::cpf::pauli_dag {
 
 struct StaqFoldStats {
-    std::size_t n_passes             = 0;
-    std::size_t n_merges             = 0;
-    std::size_t n_rotations_before   = 0;
-    std::size_t n_rotations_after    = 0;
+    std::size_t n_passes           = 0;
+    std::size_t n_merges           = 0;
+    std::size_t n_rotations_before = 0;
+    std::size_t n_rotations_after  = 0;
 };
 
 // One rotation at `index` is pushed backward through the timeline, merging

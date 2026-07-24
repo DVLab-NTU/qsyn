@@ -26,7 +26,7 @@ std::size_t local_merge_all_blocks(Tableau& tableau) {
         if (rot == nullptr) continue;
         auto const before = rot->size();
         merge_rotations(*rot);  // does a same-Pauli sweep + remove_identities
-        auto const after  = rot->size();
+        auto const after = rot->size();
         if (after < before) fused += (before - after);
     }
     return fused;

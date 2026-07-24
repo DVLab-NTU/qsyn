@@ -40,7 +40,7 @@ qcir::Operation cx_op() {
 }  // namespace
 
 qcir::QCir build_root_ansatz(std::size_t n_qubits) {
-    qcir::QCir   root{n_qubits};
+    qcir::QCir root{n_qubits};
     std::mt19937 rng{0xC0FFEEu};
     for (std::size_t q = 0; q < n_qubits; ++q) {
         root.append(u3_random(rng), {static_cast<qsyn::QubitIdType>(q)});

@@ -29,28 +29,28 @@ namespace {
 //
 // In particular, when `C` is the identity the returned `ops` is empty and
 // this function is the identity on `P`.
-[[nodiscard]] PauliProduct propagate_through(PauliProduct const&      p,
+[[nodiscard]] PauliProduct propagate_through(PauliProduct const& p,
                                              StabilizerTableau const& c) {
-    auto       result = p;
-    auto const ops    = extract_clifford_operators(c);
+    auto result    = p;
+    auto const ops = extract_clifford_operators(c);
     result.apply(ops);
     return result;
 }
 
 }  // namespace
 
-SegmentReport classify_segment(PauliRotation const&     left,
+SegmentReport classify_segment(PauliRotation const& left,
                                StabilizerTableau const& intermediate,
-                               PauliRotation const&     right) {
+                               PauliRotation const& right) {
     auto const intermediate_is_identity = intermediate.is_identity();
 
     // Forward-propagate `P_L` through the intermediate Clifford.
-    auto       propagated = propagate_through(left.pauli_product(), intermediate);
-    auto const sign       = propagated.is_neg() ? -1 : +1;
+    auto propagated = propagate_through(left.pauli_product(), intermediate);
+    auto const sign = propagated.is_neg() ? -1 : +1;
     if (propagated.is_neg()) propagated.negate();
 
     MergeClass klass = MergeClass::blocked;
-    int        s     = 0;
+    int s            = 0;
     if (propagated == right.pauli_product()) {
         if (intermediate_is_identity && sign == 1) {
             klass = MergeClass::same_pauli;
@@ -79,13 +79,13 @@ namespace {
 //
 // Returns true if a merge took place.
 bool try_merge_boundary(std::vector<PauliRotation>& left_block,
-                        StabilizerTableau const&    intermediate,
+                        StabilizerTableau const& intermediate,
                         std::vector<PauliRotation>& right_block,
-                        PropagationMergeStats&      stats) {
+                        PropagationMergeStats& stats) {
     if (left_block.empty() || right_block.empty()) return false;
 
-    auto&      left      = left_block.back();
-    auto&      right     = right_block.front();
+    auto& left  = left_block.back();
+    auto& right = right_block.front();
 
     // Cheap pre-screen: if `left` is already zero-phase it cannot
     // contribute anything to `right` even if the segment is mergeable.
@@ -96,7 +96,7 @@ bool try_merge_boundary(std::vector<PauliRotation>& left_block,
         return true;
     }
 
-    auto const report    = classify_segment(left, intermediate, right);
+    auto const report = classify_segment(left, intermediate, right);
     if (report.klass == MergeClass::blocked) return false;
 
     if (merge_log_enabled()) {
@@ -149,8 +149,8 @@ PropagationMergeStats propagation_merge(Tableau& tableau) {
     PropagationMergeStats stats;
     if (tableau.is_empty()) return stats;
 
-    auto const n_qubits  = tableau.n_qubits();
-    auto const identity  = StabilizerTableau{n_qubits};
+    auto const n_qubits = tableau.n_qubits();
+    auto const identity = StabilizerTableau{n_qubits};
 
     bool changed = true;
     while (changed) {
@@ -167,14 +167,14 @@ PropagationMergeStats propagation_merge(Tableau& tableau) {
         // We re-index each scan so that we can mutate the tableau without
         // tripping over invalidated iterators.
         for (std::size_t i = 0; i + 1 < tableau.size();) {
-            auto*       left_block        = std::get_if<std::vector<PauliRotation>>(&tableau[i]);
-            auto const* mid_clifford      = (i + 2 < tableau.size())
-                                                ? std::get_if<StabilizerTableau>(&tableau[i + 1])
-                                                : nullptr;
-            auto*       right_block_with_c = (mid_clifford != nullptr)
-                                                ? std::get_if<std::vector<PauliRotation>>(&tableau[i + 2])
-                                                : nullptr;
-            auto*       right_block_no_c   = std::get_if<std::vector<PauliRotation>>(&tableau[i + 1]);
+            auto* left_block         = std::get_if<std::vector<PauliRotation>>(&tableau[i]);
+            auto const* mid_clifford = (i + 2 < tableau.size())
+                                           ? std::get_if<StabilizerTableau>(&tableau[i + 1])
+                                           : nullptr;
+            auto* right_block_with_c = (mid_clifford != nullptr)
+                                           ? std::get_if<std::vector<PauliRotation>>(&tableau[i + 2])
+                                           : nullptr;
+            auto* right_block_no_c   = std::get_if<std::vector<PauliRotation>>(&tableau[i + 1]);
 
             bool merged_here = false;
 
@@ -200,7 +200,7 @@ PropagationMergeStats propagation_merge(Tableau& tableau) {
         // adjacent identity Cliffords / empty rotation lists, etc.
         auto const n_rot_before = tableau.n_pauli_rotations();
         remove_identities(tableau);
-        auto const n_rot_after  = tableau.n_pauli_rotations();
+        auto const n_rot_after = tableau.n_pauli_rotations();
         if (n_rot_after < n_rot_before) {
             stats.n_removed_zero += (n_rot_before - n_rot_after);
         }

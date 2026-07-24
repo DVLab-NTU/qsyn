@@ -33,7 +33,7 @@ std::array<double, 3> read_u(qcir::UGate const& u) {
 void write_u(qcir::QCirGate* g, std::uint8_t which, double new_val) {
     auto const u_opt = g->get_operation().get_underlying_if<qcir::UGate>();
     if (!u_opt.has_value()) return;
-    auto cur = read_u(*u_opt);
+    auto cur   = read_u(*u_opt);
     cur[which] = new_val;
     g->set_operation(
         qcir::Operation{qcir::UGate(to_phase(cur[0]), to_phase(cur[1]), to_phase(cur[2]))});
@@ -42,15 +42,15 @@ void write_u(qcir::QCirGate* g, std::uint8_t which, double new_val) {
 }  // namespace
 
 void CostFunction::gradient(std::vector<double> const& x,
-                            std::vector<double>&       out_grad,
-                            double                     fd_step) {
+                            std::vector<double>& out_grad,
+                            double fd_step) {
     auto const n = n_params();
     out_grad.assign(n, 0.0);
 
     // Forward differences: 1 + n evaluations, robust but expensive.
     // The line search in LBFGS dominates anyway, so simplicity wins
     // until we plumb analytic envelope gradients.
-    double const f0 = evaluate(x);
+    double const f0                 = evaluate(x);
     std::vector<double> x_perturbed = x;
     for (std::size_t i = 0; i < n; ++i) {
         double const saved = x_perturbed[i];
@@ -84,8 +84,8 @@ std::vector<double> QCirHilbertSchmidtCost::snapshot_current() const {
     for (auto const& h : _params) {
         if (h.gate != prev) {
             auto const u_opt = h.gate->get_operation().get_underlying_if<qcir::UGate>();
-            cache = u_opt.has_value() ? read_u(*u_opt) : std::array<double, 3>{};
-            prev  = h.gate;
+            cache            = u_opt.has_value() ? read_u(*u_opt) : std::array<double, 3>{};
+            prev             = h.gate;
         }
         x.push_back(cache[h.which]);
     }
@@ -99,10 +99,10 @@ void QCirHilbertSchmidtCost::apply(std::vector<double> const& x) {
     // write all three components in one set_operation call instead of
     // three.  Saves two operation copies per UGate.
     for (std::size_t i = 0; i + 2 < _params.size(); i += 3) {
-        auto*       gate = _params[i].gate;
-        double const t   = x[i + 0];
-        double const p   = x[i + 1];
-        double const l   = x[i + 2];
+        auto* gate     = _params[i].gate;
+        double const t = x[i + 0];
+        double const p = x[i + 1];
+        double const l = x[i + 2];
         gate->set_operation(
             qcir::Operation{qcir::UGate(to_phase(t), to_phase(p), to_phase(l))});
     }

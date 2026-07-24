@@ -46,7 +46,7 @@ namespace {
 // form.
 std::pair<StabilizerTableau*, std::vector<PauliRotation>*>
 locate_clifford_and_rotations(Tableau& tableau) {
-    StabilizerTableau* clifford          = nullptr;
+    StabilizerTableau* clifford           = nullptr;
     std::vector<PauliRotation>* rotations = nullptr;
     for (auto& sub : tableau) {
         if (auto* st = std::get_if<StabilizerTableau>(&sub); st != nullptr && clifford == nullptr) {
@@ -63,10 +63,10 @@ locate_clifford_and_rotations(Tableau& tableau) {
 // "coefficient" cost of the snap, defined consistently with
 // compress_ncf.py: cost = |theta - theta_nearest| / 2.
 std::pair<dvlab::Phase, double> nearest_clifford(dvlab::Phase const& phase) {
-    auto const rad = phase_to_radians(phase);            // (-pi, pi]
-    auto const x   = rad / std::numbers::pi;             // (-1, 1] in units of pi
+    auto const rad = phase_to_radians(phase);  // (-pi, pi]
+    auto const x   = rad / std::numbers::pi;   // (-1, 1] in units of pi
     auto const k   = static_cast<dvlab::Phase::IntegralType>(std::llround(2.0 * x));
-    dvlab::Phase const nearest(k, 2);                    // k * pi/2, normalised mod 2pi
+    dvlab::Phase const nearest(k, 2);  // k * pi/2, normalised mod 2pi
     auto const cost = std::abs(rad - phase_to_radians(nearest)) / 2.0;
     return {nearest, cost};
 }
@@ -135,8 +135,8 @@ PauliCompressStats pauli_compress(Tableau& tableau, PauliCompressOptions const& 
         }
         std::ranges::sort(candidates, [](auto const& a, auto const& b) { return a.cost < b.cost; });
 
-        double sumsq                 = 0.0;
-        auto const budget_sq         = opts.l2_budget * opts.l2_budget;
+        double sumsq         = 0.0;
+        auto const budget_sq = opts.l2_budget * opts.l2_budget;
         std::vector<bool> drop(rotations->size(), false);
         for (auto const& cand : candidates) {
             auto const next_sumsq = sumsq + cand.cost * cand.cost;

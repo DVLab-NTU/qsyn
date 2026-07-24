@@ -18,12 +18,12 @@ namespace qsyn::experimental::cpf::pauli_dag {
 namespace {
 
 [[nodiscard]] PauliRotation rotation_in_frame(PauliRotation const& r,
-                                            StabilizerTableau const& prefix) {
+                                              StabilizerTableau const& prefix) {
     return commute_left(r, prefix);
 }
 
 [[nodiscard]] bool can_reach_merge(PauliRotation const& later, PauliRotation const& earlier,
-                                 StabilizerTableau const& between) {
+                                   StabilizerTableau const& between) {
     auto moving = commute_left(later, between);
     return try_merge_into_earlier(moving, earlier).has_value();
 }
@@ -111,7 +111,7 @@ namespace {
 [[nodiscard]] std::vector<std::pair<std::size_t, std::size_t>>
 select_max_matching_edges(PauliDagGraph const& graph) {
     auto const& edges = graph.merge_edges;
-    auto const  n     = edges.size();
+    auto const n      = edges.size();
     if (n == 0) return {};
 
     auto try_mask = [&](unsigned long long mask) -> std::optional<std::vector<std::pair<std::size_t, std::size_t>>> {

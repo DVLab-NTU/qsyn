@@ -32,7 +32,7 @@ std::vector<UnitaryRegion> quick_partition(QCir const& circuit, size_t block_siz
     if (block_size < 2) block_size = 2;
 
     std::vector<UnitaryRegion> regions;
-    UnitaryRegion              cur;
+    UnitaryRegion cur;
 
     for (auto const* gate : circuit.get_gates()) {
         auto const gate_qs = gate_qubit_set(*gate);
@@ -95,7 +95,7 @@ std::vector<UnitaryRegion> split_entangling_boundaries(UnitaryRegion const& regi
     };
 
     std::vector<UnitaryRegion> out;
-    UnitaryRegion              cur;
+    UnitaryRegion cur;
 
     auto flush = [&]() {
         if (!cur.gates.empty()) out.push_back(std::move(cur));
@@ -123,7 +123,7 @@ std::vector<UnitaryRegion> scan_partition(QCir const& circuit, size_t block_size
     if (block_size < 2) block_size = 2;
 
     auto const& gates = circuit.get_gates();
-    auto const  n     = gates.size();
+    auto const n      = gates.size();
     if (n == 0) return {};
 
     std::vector<bool> used(n, false);
@@ -147,9 +147,9 @@ std::vector<UnitaryRegion> scan_partition(QCir const& circuit, size_t block_size
     };
 
     for (;;) {
-        int          best_score = -1;
-        size_t       best_s = 0, best_e = 0;
-        bool         found  = false;
+        int best_score = -1;
+        size_t best_s = 0, best_e = 0;
+        bool found = false;
 
         for (size_t start = 0; start < n; ++start) {
             if (used[start]) continue;
@@ -202,7 +202,7 @@ std::vector<UnitaryRegion> partition_circuit(QCir const& circuit, size_t block_s
                 }
                 QCir slice{region.qubits.size()};
                 std::map<QubitIdType, QubitIdType> to_local;
-                size_t                             next = 0;
+                size_t next = 0;
                 for (auto q : region.qubits) to_local[q] = static_cast<QubitIdType>(next++);
 
                 std::vector<QCirGate const*> slice_to_orig;
@@ -215,7 +215,7 @@ std::vector<UnitaryRegion> partition_circuit(QCir const& circuit, size_t block_s
                 }
 
                 auto const& slice_gates = slice.get_gates();
-                auto        sub         = scan_partition(slice, block_size);
+                auto sub                = scan_partition(slice, block_size);
                 for (auto const& part : sub) {
                     UnitaryRegion global;
                     for (auto const* lg : part.gates) {

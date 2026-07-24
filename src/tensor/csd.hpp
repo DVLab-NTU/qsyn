@@ -10,19 +10,18 @@
 #include <complex>
 #include <optional>
 #include <vector>
-
 #include <xtensor/containers/xtensor.hpp>
 
 namespace qsyn::tensor::csd {
 
-using c64 = std::complex<double>;
+using c64  = std::complex<double>;
 using cmat = xt::xtensor<c64, 2>;
 
 struct CossinSeparate {
-    cmat                u1;  // p x p
-    cmat                u2;  // (m-p) x (m-p)
-    cmat                v1h; // q x q  (V1^dag from LAPACK V1t)
-    cmat                v2h; // (m-q) x (m-q)
+    cmat u1;   // p x p
+    cmat u2;   // (m-p) x (m-p)
+    cmat v1h;  // q x q  (V1^dag from LAPACK V1t)
+    cmat v2h;  // (m-q) x (m-q)
     std::vector<double> theta;
 };
 

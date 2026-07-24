@@ -17,26 +17,26 @@
 namespace qsyn::experimental::cpf {
 
 struct GraphFoldStats {
-    std::size_t n_nodes              = 0;
-    std::size_t n_merge_edges        = 0;
-    std::size_t n_component_merges   = 0;
+    std::size_t n_nodes            = 0;
+    std::size_t n_merge_edges      = 0;
+    std::size_t n_component_merges = 0;
 };
 
 struct DagFoldStats {
-    pauli_dag::StaqFoldStats        staq{};
-    GraphFoldStats                  graph{};
-    pauli_dag::GlobalPruneStats     global{};
-    GlobalFoldStats                 local{};
-    std::size_t                     n_passes = 0;
+    pauli_dag::StaqFoldStats staq{};
+    GraphFoldStats graph{};
+    pauli_dag::GlobalPruneStats global{};
+    GlobalFoldStats local{};
+    std::size_t n_passes = 0;
 };
 
 struct DagFoldOptions {
-    bool run_staq             = true;
-    bool run_graph_merge      = true;
-    bool use_matching_merge   = false;
-    bool run_global_prune     = true;
-    bool run_global_fold      = true;
-    std::size_t max_passes    = 8;
+    bool run_staq           = true;
+    bool run_graph_merge    = true;
+    bool use_matching_merge = false;
+    bool run_global_prune   = true;
+    bool run_global_fold    = true;
+    std::size_t max_passes  = 8;
 };
 
 // Full pipeline on a Tableau:

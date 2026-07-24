@@ -33,15 +33,15 @@ namespace qsyn::tensor::opt {
 // Minimal scalar cost function in n-dim real space.
 class CostFunction {
 public:
-    virtual ~CostFunction()                                          = default;
-    [[nodiscard]] virtual std::size_t n_params() const               = 0;
+    virtual ~CostFunction()                                             = default;
+    [[nodiscard]] virtual std::size_t n_params() const                  = 0;
     [[nodiscard]] virtual double evaluate(std::vector<double> const& x) = 0;
 
     // Forward finite-difference gradient. Subclasses can override with
     // an analytic version. Writes into `out_grad` (resized to n_params).
     virtual void gradient(std::vector<double> const& x,
-                          std::vector<double>&       out_grad,
-                          double                     fd_step = 1e-4);
+                          std::vector<double>& out_grad,
+                          double fd_step = 1e-4);
 };
 
 // Cost function for "make this QCir reproduce that unitary":
@@ -73,11 +73,11 @@ public:
 private:
     struct Handle {
         qcir::QCirGate* gate;
-        std::uint8_t    which;  // 0 = theta, 1 = phi, 2 = lambda
+        std::uint8_t which;  // 0 = theta, 1 = phi, 2 = lambda
     };
 
-    qcir::QCir&         _ansatz;
-    QTensor<double>     _target;
+    qcir::QCir& _ansatz;
+    QTensor<double> _target;
     std::vector<Handle> _params;
 
     void apply(std::vector<double> const& x);

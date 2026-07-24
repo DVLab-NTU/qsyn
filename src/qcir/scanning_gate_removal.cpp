@@ -103,7 +103,7 @@ QCir scanning_gate_removal_workflow(QCir const& compiled, tensor::QTensor<double
     QCir cur = compiled;
     for (int pass = 0; pass < opt.max_passes; ++pass) {
         auto const before = cur.get_num_gates();
-        auto       next   = scanning_gate_removal_pass(cur, target_unitary, opt);
+        auto next         = scanning_gate_removal_pass(cur, target_unitary, opt);
         if (next.get_num_gates() == before) break;
         cur = std::move(next);
     }
@@ -112,7 +112,7 @@ QCir scanning_gate_removal_workflow(QCir const& compiled, tensor::QTensor<double
 }
 
 [[nodiscard]] QCir topology_align_cx(QCir const& circ, tensor::QTensor<double> const& target,
-                                   ScanningGateRemovalOptions const& opt) {
+                                     ScanningGateRemovalOptions const& opt) {
     if (opt.coupling.all_to_all) return circ;
 
     QCir out{circ.get_num_qubits()};

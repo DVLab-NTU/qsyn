@@ -22,8 +22,8 @@ namespace qsyn::qcir {
 
 enum class BlockSynthEngine {
     Native,
-    QSearch,        // External BQSKit QSearch (subprocess).
-    Leap,           // External BQSKit LEAP   (subprocess).
+    QSearch,  // External BQSKit QSearch (subprocess).
+    Leap,     // External BQSKit LEAP   (subprocess).
     QFast,
     QPredict,
     QSearchNative,  // PR-C native QSearch (no external subprocess).
@@ -32,22 +32,22 @@ enum class BlockSynthEngine {
 
 struct U3CxCompileOptions {
     // BQSKit QuickPartitioner block size (max distinct qubits per unitary region).
-    size_t max_block_qubits = 3;
+    size_t max_block_qubits              = 3;
     PartitionStrategy partition_strategy = PartitionStrategy::QuickScan;
-    bool              partition_merge_regions = true;
+    bool partition_merge_regions         = true;
     // After partition, split at CX/entangling boundaries (native KAK path).
     bool partition_at_entangling = true;
     // Use monolithic to_tensor + QSD when n_qubits <= this (2^n matrix fits in RAM).
     size_t monolithic_max_qubits = 4;
     // External full compile via `scripts/bqskit_u3cx_compile.py`.  --bqskit is an alias.
-    bool use_u3syn = false;
+    bool use_u3syn  = false;
     bool use_bqskit = false;
     // Per-block QSearch/LEAP via `scripts/bqskit_block_synth.py` (falls back to native).
-    bool use_qsearch = false;
-    bool use_qfast   = false;
+    bool use_qsearch  = false;
+    bool use_qfast    = false;
     bool use_qpredict = false;
     // Try QSearch per block when bqskit_block_synth.py exists (before native).
-    bool prefer_qsearch_blocks = false;
+    bool prefer_qsearch_blocks    = false;
     BlockSynthEngine block_engine = BlockSynthEngine::Native;
     CouplingConstraints coupling{};
     bool use_device_coupling = false;
@@ -56,26 +56,26 @@ struct U3CxCompileOptions {
     // Try the 3-CNOT QFactor-instantiated ansatz for 2-qubit blocks.
     // Off by default (slow with coordinate descent); becomes practical
     // after PR-B lands a real LBFGS minimizer.
-    bool   try_three_cnot_kak  = false;
-    int    three_cnot_restarts = 1;
+    bool try_three_cnot_kak = false;
+    int three_cnot_restarts = 1;
     // PR-B opt-in: use the LBFGS minimiser whenever QFactor is invoked
     // (both the 3-CNOT KAK ansatz and the post-synthesis polish pass).
     // Order of magnitude fewer to_tensor evaluations than coordinate
     // descent on dense parameter sets.
-    bool   qfactor_use_lbfgs   = false;
+    bool qfactor_use_lbfgs = false;
     // Convenience alias kept for callers that only care about the KAK
     // path. `qfactor_use_lbfgs` overrides this when set.
-    bool   three_cnot_use_lbfgs = false;
+    bool three_cnot_use_lbfgs = false;
     // Maps to BQSKit compile(optimization_level=...); native path uses 1–3 only.
-    int optimization_level = 1;
-    int  bqskit_opt_level = 1;
-    bool force_monolithic = false;
+    int optimization_level   = 1;
+    int bqskit_opt_level     = 1;
+    bool force_monolithic    = false;
     double synthesis_epsilon = 1e-8;
     // Use QFAST for blocks with at least this many qubits (when use_qfast).
     size_t qfast_min_qubits = 4;
     // Permutation-Aware Synthesis for 2..pas_max_qubits blocks (BQSKit PAS).
-    bool   use_pas           = false;
-    size_t pas_max_qubits    = 4;
+    bool use_pas          = false;
+    size_t pas_max_qubits = 4;
 };
 
 [[nodiscard]] BlockSynthEngine effective_block_engine(U3CxCompileOptions const& opt);
@@ -94,6 +94,6 @@ struct U3CxCompileOptions {
 
 // Partitioned or monolithic compile to U3+CX.
 [[nodiscard]] std::optional<QCir> compile_to_u3_cnot_impl(QCir const& src,
-                                                         U3CxCompileOptions const& opt = {});
+                                                          U3CxCompileOptions const& opt = {});
 
 }  // namespace qsyn::qcir

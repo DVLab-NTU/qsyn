@@ -5,13 +5,13 @@
 
 #pragma once
 
+#include <fmt/core.h>
+
 #include <cstdlib>
 #include <fstream>
 #include <mutex>
 #include <optional>
 #include <string>
-
-#include <fmt/core.h>
 
 #include "tableau/pauli_rotation.hpp"
 

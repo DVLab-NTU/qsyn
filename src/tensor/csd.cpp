@@ -92,7 +92,7 @@ cossin_separate(cmat const& unitary) {
     std::vector<c64> v1t(static_cast<size_t>(q * q));
     std::vector<c64> v2t(static_cast<size_t>((m - q) * (m - q)));
 
-    char job = 'Y';
+    char job   = 'Y';
     char trans = 'N';
     char signs = 'L';
 

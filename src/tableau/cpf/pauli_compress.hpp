@@ -46,18 +46,18 @@ Tableau from_pauli_list(size_t n_qubits,
                         std::vector<std::pair<std::string, double>> const& rotations);
 
 struct PauliCompressOptions {
-    double l2_budget       = 0.0;    // L2 budget for lossy Clifford snapping; 0 => lossless (merge + cancel only)
-    bool absorb_clifford   = true;   // fold rotations snapped to a non-zero Clifford angle into the leading Clifford
+    double l2_budget     = 0.0;   // L2 budget for lossy Clifford snapping; 0 => lossless (merge + cancel only)
+    bool absorb_clifford = true;  // fold rotations snapped to a non-zero Clifford angle into the leading Clifford
 };
 
 struct PauliCompressStats {
-    size_t n_before          = 0;
-    size_t n_after           = 0;
-    size_t n_merged          = 0;   // rotations removed by D-merge
-    size_t n_cancelled       = 0;   // rotations removed by F-cancel (zero phase)
-    size_t n_snapped_zero    = 0;   // rotations snapped to 0 (dropped)
-    size_t n_snapped_clifford = 0;  // rotations snapped to a non-zero Clifford angle
-    double l2_used           = 0.0; // realized L2 cost of the snapping
+    size_t n_before           = 0;
+    size_t n_after            = 0;
+    size_t n_merged           = 0;    // rotations removed by D-merge
+    size_t n_cancelled        = 0;    // rotations removed by F-cancel (zero phase)
+    size_t n_snapped_zero     = 0;    // rotations snapped to 0 (dropped)
+    size_t n_snapped_clifford = 0;    // rotations snapped to a non-zero Clifford angle
+    double l2_used            = 0.0;  // realized L2 cost of the snapping
 };
 
 /**

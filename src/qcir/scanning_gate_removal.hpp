@@ -15,9 +15,9 @@ namespace qsyn::qcir {
 
 struct ScanningGateRemovalOptions {
     double synthesis_epsilon = 1e-8;
-    int    max_passes        = 8;
-    bool   remove_u3         = true;
-    bool   remove_cx         = true;
+    int max_passes           = 8;
+    bool remove_u3           = true;
+    bool remove_cx           = true;
     CouplingConstraints coupling{};
 };
 

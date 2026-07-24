@@ -17,11 +17,11 @@
 #include <string>
 
 #include "./qcir/optimizer_cmd.hpp"
-#include "cmd/qcir/cpf_pipeline_cmds.hpp"
 #include "./qcir/oracle_cmd.hpp"
 #include "argparse/arg_parser.hpp"
 #include "argparse/arg_type.hpp"
 #include "cli/cli.hpp"
+#include "cmd/qcir/cpf_pipeline_cmds.hpp"
 #include "cmd/qcir_mgr.hpp"
 #include "qcir/basic_gate_type.hpp"
 #include "qcir/qcir.hpp"

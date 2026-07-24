@@ -5,14 +5,15 @@
   Copyright    [ Copyright(c) 2024 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <algorithm>
 #include <fmt/core.h>
 #include <spdlog/spdlog.h>
 
+#include <algorithm>
+
 #include "cli/cli.hpp"
+#include "cmd/device_mgr.hpp"
 #include "cmd/qcir_mgr.hpp"
 #include "cmd/tableau_mgr.hpp"
-#include "cmd/device_mgr.hpp"
 #include "qcir/coupling_constraints.hpp"
 #include "qcir/cpf_pipeline.hpp"
 #include "qcir/qcir.hpp"
@@ -103,8 +104,9 @@ void add_u3cx_compile_args(dvlab::argparse::ArgumentParser& parser) {
         .help("Per-block LEAP synthesis (bqskit_block_synth.py).");
     parser.add_argument<bool>("--qsearch-native")
         .action(dvlab::argparse::store_true)
-        .help("(PR-C) Per-block QSearch implemented natively in qsyn "
-              "(no external bqskit subprocess).");
+        .help(
+            "(PR-C) Per-block QSearch implemented natively in qsyn "
+            "(no external bqskit subprocess).");
     parser.add_argument<bool>("--leap-native")
         .action(dvlab::argparse::store_true)
         .help("(PR-C) Per-block LEAP implemented natively in qsyn.");
@@ -128,8 +130,9 @@ void add_u3cx_compile_args(dvlab::argparse::ArgumentParser& parser) {
         .help("1=qfactor polish, 2=+gate removal, 3=+resynthesis (native). Passed to --u3syn.");
     parser.add_argument<bool>("--three-cnot-kak")
         .action(dvlab::argparse::store_true)
-        .help("(Experimental) try the 3-CNOT QFactor-instantiated ansatz for 2-qubit "
-              "blocks; slow under coordinate descent, fast after PR-B's LBFGS lands.");
+        .help(
+            "(Experimental) try the 3-CNOT QFactor-instantiated ansatz for 2-qubit "
+            "blocks; slow under coordinate descent, fast after PR-B's LBFGS lands.");
     parser.add_argument<int>("--three-cnot-restarts")
         .default_value(1)
         .help("Number of random restarts for the 3-CNOT QFactor ansatz.");
@@ -138,26 +141,28 @@ void add_u3cx_compile_args(dvlab::argparse::ArgumentParser& parser) {
         .help("Deprecated alias for --lbfgs (kept for backwards compat).");
     parser.add_argument<bool>("--lbfgs")
         .action(dvlab::argparse::store_true)
-        .help("PR-B: drive every QFactor instantiation pass (3-CNOT KAK and "
-              "post-synthesis polish) with the LBFGS minimiser instead of "
-              "coordinate descent. Roughly 10x fewer to_tensor evaluations "
-              "on dense U3 parameter sets; recommended whenever --three-cnot-kak "
-              "is set, or when opt-level >= 1 needs to polish a non-trivial "
-              "block.");
+        .help(
+            "PR-B: drive every QFactor instantiation pass (3-CNOT KAK and "
+            "post-synthesis polish) with the LBFGS minimiser instead of "
+            "coordinate descent. Roughly 10x fewer to_tensor evaluations "
+            "on dense U3 parameter sets; recommended whenever --three-cnot-kak "
+            "is set, or when opt-level >= 1 needs to polish a non-trivial "
+            "block.");
     parser.add_argument<bool>("--pas")
         .action(dvlab::argparse::store_true)
-        .help("Permutation-Aware Synthesis: try all qubit permutations for "
-              "2-4 qubit blocks and pick the fewest CX.");
+        .help(
+            "Permutation-Aware Synthesis: try all qubit permutations for "
+            "2-4 qubit blocks and pick the fewest CX.");
 }
 
 void apply_u3cx_options(dvlab::argparse::ArgumentParser const& parser, U3CxCompileOptions& u3,
                         qsyn::device::DeviceMgr const* device_mgr = nullptr,
-                        size_t n_qubits = 0) {
-    u3.use_u3syn        = parser.parsed("--u3syn") || parser.parsed("--bqskit");
-    u3.use_bqskit       = u3.use_u3syn;
-    u3.use_qsearch      = parser.parsed("--qsearch");
-    u3.use_qfast        = parser.parsed("--qfast");
-    u3.use_qpredict     = parser.parsed("--qpredict");
+                        size_t n_qubits                           = 0) {
+    u3.use_u3syn    = parser.parsed("--u3syn") || parser.parsed("--bqskit");
+    u3.use_bqskit   = u3.use_u3syn;
+    u3.use_qsearch  = parser.parsed("--qsearch");
+    u3.use_qfast    = parser.parsed("--qfast");
+    u3.use_qpredict = parser.parsed("--qpredict");
     if (parser.parsed("--leap-native")) {
         u3.block_engine = BlockSynthEngine::LeapNative;
     } else if (parser.parsed("--qsearch-native")) {
@@ -177,10 +182,10 @@ void apply_u3cx_options(dvlab::argparse::ArgumentParser const& parser, U3CxCompi
         u3.optimization_level = parser.get<int>("--opt-level");
         u3.bqskit_opt_level   = u3.optimization_level;
     }
-    u3.try_three_cnot_kak    = parser.parsed("--three-cnot-kak");
-    u3.three_cnot_restarts   = parser.get<int>("--three-cnot-restarts");
-    u3.three_cnot_use_lbfgs  = parser.parsed("--three-cnot-lbfgs");
-    u3.qfactor_use_lbfgs     = parser.parsed("--lbfgs") || u3.three_cnot_use_lbfgs;
+    u3.try_three_cnot_kak   = parser.parsed("--three-cnot-kak");
+    u3.three_cnot_restarts  = parser.get<int>("--three-cnot-restarts");
+    u3.three_cnot_use_lbfgs = parser.parsed("--three-cnot-lbfgs");
+    u3.qfactor_use_lbfgs    = parser.parsed("--lbfgs") || u3.three_cnot_use_lbfgs;
     if (parser.parsed("--device-topology") && device_mgr != nullptr &&
         dvlab::utils::mgr_has_data(*device_mgr) && n_qubits > 0) {
         u3.use_device_coupling = true;
@@ -190,8 +195,8 @@ void apply_u3cx_options(dvlab::argparse::ArgumentParser const& parser, U3CxCompi
 }
 
 void apply_u3cx_compile_args(dvlab::argparse::ArgumentParser const& parser, CpfPipelineOptions& opt,
-                           qsyn::device::DeviceMgr const* device_mgr = nullptr,
-                           size_t n_qubits = 0) {
+                             qsyn::device::DeviceMgr const* device_mgr = nullptr,
+                             size_t n_qubits                           = 0) {
     apply_u3cx_options(parser, opt.u3cx, device_mgr, n_qubits);
 }
 
@@ -200,8 +205,8 @@ CmdExecResult run_pipeline_on_focused(QCirMgr& qcir_mgr, qsyn::device::DeviceMgr
     if (!dvlab::utils::mgr_has_data(qcir_mgr)) return CmdExecResult::error;
 
     CpfPipelineOptions opt;
-    opt.skip_u3cx         = parser.parsed("--skip-u3cx");
-    opt.run_cpf_fold      = !parser.parsed("--no-fold");
+    opt.skip_u3cx    = parser.parsed("--skip-u3cx");
+    opt.run_cpf_fold = !parser.parsed("--no-fold");
     apply_cpf_fold_strategy_arg(parser, opt);
     opt.run_full_optimize = parser.parsed("--full");
     opt.prefer_graysynth  = !parser.parsed("--naive-rotation");
@@ -212,8 +217,8 @@ CmdExecResult run_pipeline_on_focused(QCirMgr& qcir_mgr, qsyn::device::DeviceMgr
     apply_u3cx_compile_args(parser, opt, &device_mgr, qcir_mgr.get()->get_num_qubits());
 
     CpfPipelineStats stats;
-    auto const&        src = *qcir_mgr.get();
-    auto               out = run_cpf_pipeline(src, stats, opt);
+    auto const& src = *qcir_mgr.get();
+    auto out        = run_cpf_pipeline(src, stats, opt);
     if (!out.has_value()) return CmdExecResult::error;
 
     log_pipeline_stats(stats);
@@ -278,8 +283,9 @@ Command qcir_to_tableau_cmd(QCirMgr& qcir_mgr, experimental::TableauMgr& tableau
                     .help("Skip lossless pauli-compress (D-merge + F-cancel) after collapse.");
                 parser.add_argument<bool>("-r", "--replace")
                     .action(store_true)
-                    .help("Replace the focused Tableau if one is already checked out "
-                          "(otherwise add a new Tableau).");
+                    .help(
+                        "Replace the focused Tableau if one is already checked out "
+                        "(otherwise add a new Tableau).");
             },
             [&](ArgumentParser const& parser) -> CmdExecResult {
                 if (!dvlab::utils::mgr_has_data(qcir_mgr)) return CmdExecResult::error;
@@ -418,8 +424,8 @@ bool add_qcpfq_cmd(dvlab::CommandLineInterface& cli, QCirMgr& qcir_mgr,
              if (!dvlab::utils::mgr_has_data(qcir_mgr)) return CmdExecResult::error;
 
              CpfPipelineOptions opt;
-             opt.skip_u3cx         = parser.parsed("--skip-u3cx");
-             opt.run_cpf_fold      = !parser.parsed("--no-fold");
+             opt.skip_u3cx    = parser.parsed("--skip-u3cx");
+             opt.run_cpf_fold = !parser.parsed("--no-fold");
              apply_cpf_fold_strategy_arg(parser, opt);
              opt.run_full_optimize = parser.parsed("--full");
              opt.prefer_graysynth  = !parser.parsed("--naive-rotation");
@@ -430,7 +436,7 @@ bool add_qcpfq_cmd(dvlab::CommandLineInterface& cli, QCirMgr& qcir_mgr,
              apply_u3cx_compile_args(parser, opt, &device_mgr, qcir_mgr.get()->get_num_qubits());
 
              CpfPipelineStats stats;
-             auto               out = run_cpf_pipeline(*qcir_mgr.get(), stats, opt);
+             auto out = run_cpf_pipeline(*qcir_mgr.get(), stats, opt);
              if (!out.has_value()) return CmdExecResult::error;
 
              log_pipeline_stats(stats);

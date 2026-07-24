@@ -105,13 +105,13 @@ QTensor<double> apply_qubit_permutation(QTensor<double> const& U,
     }
 
     tensor::TensorShape const shape{dim, dim};
-    QTensor<double>           out{shape};
+    QTensor<double> out{shape};
     // U'_{p(r), p(c)} = U_{r, c}   where p() is the basis-index remap.
     for (std::size_t r = 0; r < dim; ++r) {
         std::size_t const pr = permute_basis_index(r, perm);
         for (std::size_t c = 0; c < dim; ++c) {
             std::size_t const pc = permute_basis_index(c, perm);
-            out(pr, pc) = U(r, c);
+            out(pr, pc)          = U(r, c);
         }
     }
     return out;
@@ -119,8 +119,8 @@ QTensor<double> apply_qubit_permutation(QTensor<double> const& U,
 
 std::optional<qcir::QCir>
 pas_synthesize(QTensor<double> const& target,
-               BaseSynth const&       base_synth,
-               PasOptions const&      opt) {
+               BaseSynth const& base_synth,
+               PasOptions const& opt) {
     auto const n = extract_n_qubits(target);
     if (n == 0) {
         spdlog::error("pas_synthesize: target must be a 2^n x 2^n unitary.");
@@ -138,19 +138,19 @@ pas_synthesize(QTensor<double> const& target,
     std::vector<std::size_t> identity(n);
     std::iota(identity.begin(), identity.end(), 0);
 
-    std::optional<qcir::QCir>     best;
-    std::vector<std::size_t>      best_perm = identity;
-    std::size_t                   best_cx   = std::numeric_limits<std::size_t>::max();
-    std::size_t                   tries     = 0;
+    std::optional<qcir::QCir> best;
+    std::vector<std::size_t> best_perm = identity;
+    std::size_t best_cx                = std::numeric_limits<std::size_t>::max();
+    std::size_t tries                  = 0;
 
     auto const t_start = std::chrono::steady_clock::now();
 
     std::vector<std::size_t> perm = identity;
     do {
         ++tries;
-        auto const t_one = std::chrono::steady_clock::now();
+        auto const t_one    = std::chrono::steady_clock::now();
         auto const permuted = apply_qubit_permutation(target, perm);
-        auto       result   = base_synth(permuted);
+        auto result         = base_synth(permuted);
         auto const dt_ms    = std::chrono::duration_cast<std::chrono::milliseconds>(
                                std::chrono::steady_clock::now() - t_one)
                                .count();

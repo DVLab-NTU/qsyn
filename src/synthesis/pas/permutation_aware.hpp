@@ -47,7 +47,7 @@ struct PasOptions {
     // Insert physical SWAPs at the block boundary to realise the
     // permutation. When false the caller is responsible for tracking
     // / absorbing the permutation elsewhere.
-    bool        insert_boundary_swaps = true;
+    bool insert_boundary_swaps = true;
     // 0 = silent, 1 = summary, 2 = per-permutation residual / CX.
     std::size_t verbosity = 0;
 };
@@ -61,8 +61,8 @@ using BaseSynth = std::function<std::optional<qcir::QCir>(QTensor<double> const&
 // is invoked at most n! times.
 [[nodiscard]] std::optional<qcir::QCir>
 pas_synthesize(QTensor<double> const& target,
-               BaseSynth const&       base_synth,
-               PasOptions const&      opt = {});
+               BaseSynth const& base_synth,
+               PasOptions const& opt = {});
 
 // Apply a qubit permutation to a 2^n x 2^n unitary matrix.
 // `perm[i]` = the new index of qubit i (i.e. P|i_{n-1} ... i_0> =

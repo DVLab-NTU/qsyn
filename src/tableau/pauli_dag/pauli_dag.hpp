@@ -14,11 +14,10 @@
 #include <variant>
 #include <vector>
 
-#include "util/phase.hpp"
-
 #include "tableau/pauli_rotation.hpp"
 #include "tableau/stabilizer_tableau.hpp"
 #include "tableau/tableau.hpp"
+#include "util/phase.hpp"
 
 namespace qsyn::experimental::cpf::pauli_dag {
 
@@ -26,18 +25,18 @@ using PauliLabelKey = std::string;  // `PauliProduct::to_bit_string()` (sign-nor
 
 struct FoldTermsResult {
     std::unordered_map<PauliLabelKey, dvlab::Phase> pruned;
-    std::size_t                                     n_merged            = 0;
-    std::size_t                                     n_removed_zero      = 0;
-    std::size_t                                     n_removed_clifford  = 0;
+    std::size_t n_merged           = 0;
+    std::size_t n_removed_zero     = 0;
+    std::size_t n_removed_clifford = 0;
 };
 
 struct GlobalPruneStats {
-    std::size_t n_terms_before          = 0;
-    std::size_t n_terms_after           = 0;
-    std::size_t n_merged_global         = 0;
-    std::size_t n_removed_zero          = 0;
-    std::size_t n_removed_clifford      = 0;
-    std::size_t n_rotations_pruned      = 0;
+    std::size_t n_terms_before     = 0;
+    std::size_t n_terms_after      = 0;
+    std::size_t n_merged_global    = 0;
+    std::size_t n_removed_zero     = 0;
+    std::size_t n_removed_clifford = 0;
+    std::size_t n_rotations_pruned = 0;
 };
 
 // Ordered Clifford / rotation stream mirroring staq's `circuit_callback` and
@@ -45,12 +44,12 @@ struct GlobalPruneStats {
 using PauliDagEntry = std::variant<StabilizerTableau, PauliRotation>;
 
 struct PauliDag {
-    std::size_t                n_qubits = 0;
+    std::size_t n_qubits = 0;
     std::vector<PauliDagEntry> entries;
 };
 
 [[nodiscard]] PauliDag from_tableau(Tableau const& tableau);
-[[nodiscard]] Tableau  to_tableau(PauliDag const& dag);
+[[nodiscard]] Tableau to_tableau(PauliDag const& dag);
 
 // Sum phases per Pauli label across the whole stream (CPF `cpf_global`).
 [[nodiscard]] std::unordered_map<PauliLabelKey, dvlab::Phase>
@@ -63,7 +62,7 @@ fold_terms(std::unordered_map<PauliLabelKey, dvlab::Phase> const& raw);
 // Labels present in `raw` but absent from `fold_terms(...).pruned`.
 [[nodiscard]] std::unordered_set<PauliLabelKey>
 globally_removed_labels(std::unordered_map<PauliLabelKey, dvlab::Phase> const& raw,
-                        FoldTermsResult const&                         folded);
+                        FoldTermsResult const& folded);
 
 // Drop rotation nodes whose Pauli class was globally pruned; keep Clifford
 // structure and surviving rotations with their original angles (Python replay).

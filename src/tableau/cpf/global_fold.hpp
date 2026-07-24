@@ -18,15 +18,15 @@
 namespace qsyn::experimental::cpf {
 
 struct GlobalFoldStats {
-    std::size_t n_passes               = 0;  // outer fixpoint iterations
-    std::size_t n_local_merges         = 0;  // same-block PauliRotation merges
-    std::size_t n_propagation_merges   = 0;  // cross-Clifford merges via `propagation_merge`
-    std::size_t n_rotations_removed    = 0;  // identity rotations dropped overall
-    std::size_t n_segments_collapsed   = 0;  // Stab/rot blocks that became empty and got pruned
+    std::size_t n_passes             = 0;  // outer fixpoint iterations
+    std::size_t n_local_merges       = 0;  // same-block PauliRotation merges
+    std::size_t n_propagation_merges = 0;  // cross-Clifford merges via `propagation_merge`
+    std::size_t n_rotations_removed  = 0;  // identity rotations dropped overall
+    std::size_t n_segments_collapsed = 0;  // Stab/rot blocks that became empty and got pruned
     // Clifford-angle rotations (pi/2 multiples) that survived the final
     // fixpoint and are candidates for absorption by `full_optimize` /
     // `absorb_clifford_rotations`. Mirrors Python `cpf_angles::is_clifford_angle`.
-    std::size_t n_clifford_angle_left  = 0;
+    std::size_t n_clifford_angle_left = 0;
 };
 
 // Iterate the following until the tableau structure stops changing:

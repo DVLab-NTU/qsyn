@@ -18,13 +18,13 @@
 #include <vector>
 
 #include "convert/qcir_to_tensor.hpp"
+#include "device/device.hpp"
 #include "qcir/basic_gate_type.hpp"
+#include "qcir/coupling_constraints.hpp"
 #include "qcir/qcir_equiv.hpp"
 #include "qcir/qcir_io.hpp"
-#include "qcir/coupling_constraints.hpp"
 #include "qcir/quick_partitioner.hpp"
 #include "qcir/scanning_gate_removal.hpp"
-#include "device/device.hpp"
 #include "synthesis/pas/permutation_aware.hpp"
 #include "synthesis/search/qsearch.hpp"
 #include "tensor/kak.hpp"
@@ -70,21 +70,29 @@ namespace {
 
 [[nodiscard]] char const* block_engine_name(BlockSynthEngine e) {
     switch (e) {
-        case BlockSynthEngine::QSearch:       return "qsearch";
-        case BlockSynthEngine::Leap:          return "leap";
-        case BlockSynthEngine::QFast:         return "qfast";
-        case BlockSynthEngine::QPredict:      return "qpredict";
-        case BlockSynthEngine::QSearchNative: return "qsearch-native";
-        case BlockSynthEngine::LeapNative:    return "leap-native";
-        default:                              return "native";
+        case BlockSynthEngine::QSearch:
+            return "qsearch";
+        case BlockSynthEngine::Leap:
+            return "leap";
+        case BlockSynthEngine::QFast:
+            return "qfast";
+        case BlockSynthEngine::QPredict:
+            return "qpredict";
+        case BlockSynthEngine::QSearchNative:
+            return "qsearch-native";
+        case BlockSynthEngine::LeapNative:
+            return "leap-native";
+        default:
+            return "native";
     }
 }
 
 [[nodiscard]] bool validate_synthesis_flags(U3CxCompileOptions const& opt) {
     if (use_external_u3syn(opt) &&
         (opt.use_qsearch || opt.use_qfast || opt.use_qpredict)) {
-        spdlog::warn("circuit_compile: --qsearch/--qfast/--qpredict ignored with --u3syn "
-                     "(full BQSKit compile already includes block synthesis).");
+        spdlog::warn(
+            "circuit_compile: --qsearch/--qfast/--qpredict ignored with --u3syn "
+            "(full BQSKit compile already includes block synthesis).");
     }
     (void)opt;
     return true;
@@ -112,7 +120,7 @@ namespace {
 [[nodiscard]] QCir apply_native_optimization(QCir const& compiled,
                                              tensor::QTensor<double> const& target,
                                              U3CxCompileOptions const& opt) {
-    QCir cur = compiled;
+    QCir cur         = compiled;
     auto const level = std::clamp(opt.optimization_level, 1, 3);
 
     if (level >= 1) {
@@ -146,7 +154,7 @@ namespace {
 // while preserving the compiled unitary; stop when gate count stops decreasing.
 [[nodiscard]] QCir native_resynthesis(QCir const& compiled, tensor::QTensor<double> const& target,
                                       U3CxCompileOptions const& opt) {
-    QCir cur = compiled;
+    QCir cur                           = compiled;
     constexpr std::size_t k_max_rounds = 3;
 
     U3CxCompileOptions inner = opt;
@@ -154,7 +162,7 @@ namespace {
 
     for (std::size_t round = 0; round < k_max_rounds; ++round) {
         std::size_t const before = cur.get_num_gates();
-        auto              next   = compile_partitioned(cur, inner);
+        auto next                = compile_partitioned(cur, inner);
         if (!next.has_value()) {
             spdlog::debug("circuit_compile: resynthesis round {} failed.", round);
             break;
@@ -208,7 +216,7 @@ namespace {
 }
 
 [[nodiscard]] std::optional<QCir> compile_via_bqskit_block(QCir const& src, BlockSynthEngine engine,
-                                                         int opt_level, size_t block_size) {
+                                                           int opt_level, size_t block_size) {
     auto script = find_bqskit_block_script();
     if (!script.has_value()) return std::nullopt;
 
@@ -287,7 +295,7 @@ synthesize_block(QCir const& block, std::map<QubitIdType, QubitIdType> const& to
                  U3CxCompileOptions const& opt) {
     if (block.get_num_gates() == 0) return QCir{static_cast<size_t>(to_local.size())};
 
-    auto const n_local = to_local.size();
+    auto const n_local    = to_local.size();
     auto try_block_engine = [&](BlockSynthEngine engine) -> std::optional<QCir> {
         return compile_via_bqskit_block(block, engine, effective_opt_level(opt), opt.max_block_qubits);
     };
@@ -375,8 +383,8 @@ synthesize_block(QCir const& block, std::map<QubitIdType, QubitIdType> const& to
             if (engine == BlockSynthEngine::LeapNative) {
                 synthesis::search::LeapOptions lopt;
                 static_cast<synthesis::search::QSearchOptions&>(lopt) = sopt;
-                lopt.prefix_freeze_period = std::max<std::size_t>(2, n_local);
-                native = synthesis::search::leap_synthesize(*tensor_opt, lopt);
+                lopt.prefix_freeze_period                             = std::max<std::size_t>(2, n_local);
+                native                                                = synthesis::search::leap_synthesize(*tensor_opt, lopt);
             } else {
                 native = synthesis::search::qsearch_synthesize(*tensor_opt, sopt);
             }
@@ -386,7 +394,7 @@ synthesize_block(QCir const& block, std::map<QubitIdType, QubitIdType> const& to
         }
     }
 
-    bool const lbfgs_for_kak         = opt.qfactor_use_lbfgs || opt.three_cnot_use_lbfgs;
+    bool const lbfgs_for_kak = opt.qfactor_use_lbfgs || opt.three_cnot_use_lbfgs;
     tensor::qsd::QSDOptions qsd_opt;
     qsd_opt.inter_round_gate_removal = opt.qsd_inter_round_scan;
     qsd_opt.synthesis_epsilon        = opt.synthesis_epsilon;
@@ -442,7 +450,7 @@ synthesize_block(QCir const& block, std::map<QubitIdType, QubitIdType> const& to
     qsd_opt.try_three_cnot_qfactor   = opt.try_three_cnot_kak;
     qsd_opt.three_cnot_restarts      = opt.three_cnot_restarts;
     qsd_opt.three_cnot_use_lbfgs     = opt.qfactor_use_lbfgs || opt.three_cnot_use_lbfgs;
-    auto synth = tensor::qsd::synthesize(*tensor_opt, qsd_opt);
+    auto synth                       = tensor::qsd::synthesize(*tensor_opt, qsd_opt);
     if (!synth.has_value()) return std::nullopt;
     return retarget_to_u3_cx(*synth);
 }
@@ -452,7 +460,7 @@ synthesize_block(QCir const& block, std::map<QubitIdType, QubitIdType> const& to
     if (region.gates.empty()) return true;
 
     std::map<QubitIdType, QubitIdType> to_local;
-    size_t                             next = 0;
+    size_t next = 0;
     for (auto q : region.qubits) to_local[q] = static_cast<QubitIdType>(next++);
 
     if (region.gates.size() == 1) {
@@ -539,7 +547,7 @@ namespace {
     if (!ctrl.has_value()) return false;
     if (ctrl->get_num_ctrls() != 1) return false;
     auto const& targ = ctrl->get_target_operation();
-    auto const  px   = targ.get_underlying_if<PXGate>();
+    auto const px    = targ.get_underlying_if<PXGate>();
     return px.has_value() && px->get_phase() == dvlab::Phase(1);  // X = PX(π).
 }
 
@@ -555,7 +563,7 @@ namespace {
     auto u3 = tensor::kak::single_qubit_synthesize(*tens);
     if (!u3.has_value() || u3->get_num_gates() != 1) return std::nullopt;
     auto const& g = u3->get_gates().front();
-    auto const  u = g->get_operation().get_underlying_if<UGate>();
+    auto const u  = g->get_operation().get_underlying_if<UGate>();
     if (!u.has_value()) return std::nullopt;
     return *u;
 }
@@ -646,7 +654,7 @@ std::optional<QCir> compile_to_u3_cnot_impl(QCir const& src, U3CxCompileOptions 
 
     if (use_external_u3syn(opt)) {
         auto const bq_level = effective_opt_level(opt);
-        auto       out      = compile_via_bqskit(src, bq_level);
+        auto out            = compile_via_bqskit(src, bq_level);
         if (out.has_value()) {
             out->add_procedure("U3Syn-BQSKit");
         }
@@ -682,8 +690,9 @@ std::optional<QCir> compile_to_u3_cnot_impl(QCir const& src, U3CxCompileOptions 
     // Run one more retarget pass to guarantee it.
     *out = retarget_to_u3_cx(*out);
     if (!circuit_is_u3_cx_only(*out)) {
-        spdlog::error("compile_to_u3_cnot_impl: output contains non-U3+CX gate(s); "
-                      "this indicates an unsupported input gate type or a bug in retarget_to_u3_cx.");
+        spdlog::error(
+            "compile_to_u3_cnot_impl: output contains non-U3+CX gate(s); "
+            "this indicates an unsupported input gate type or a bug in retarget_to_u3_cx.");
     }
     return out;
 }

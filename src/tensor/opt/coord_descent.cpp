@@ -17,9 +17,9 @@
 
 namespace qsyn::tensor::opt {
 
-MinimizeResult CoordinateDescentMinimizer::minimize(CostFunction&              f,
+MinimizeResult CoordinateDescentMinimizer::minimize(CostFunction& f,
                                                     std::vector<double> const& x0,
-                                                    MinimizeOptions const&     opt) {
+                                                    MinimizeOptions const& opt) {
     MinimizeResult res;
     res.x             = x0;
     res.initial_value = f.evaluate(res.x);
@@ -36,19 +36,19 @@ MinimizeResult CoordinateDescentMinimizer::minimize(CostFunction&              f
                      n, res.initial_value);
     }
 
-    double      step       = opt.cd_initial_step;
-    double      best       = res.initial_value;
-    std::size_t pass       = 0;
+    double step      = opt.cd_initial_step;
+    double best      = res.initial_value;
+    std::size_t pass = 0;
 
     while (pass < opt.max_iterations && best > opt.tolerance && step >= opt.cd_min_step) {
         bool improved = false;
         for (std::size_t i = 0; i < n; ++i) {
             double const saved = res.x[i];
 
-            res.x[i] = saved + step;
+            res.x[i]            = saved + step;
             double const f_plus = f.evaluate(res.x);
 
-            res.x[i] = saved - step;
+            res.x[i]             = saved - step;
             double const f_minus = f.evaluate(res.x);
 
             if (f_plus < best - 1e-15 && f_plus <= f_minus) {

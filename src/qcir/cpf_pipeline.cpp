@@ -7,24 +7,24 @@
 
 #include "./cpf_pipeline.hpp"
 
+#include <fmt/format.h>
+#include <spdlog/spdlog.h>
+
 #include <algorithm>
 #include <cctype>
 #include <limits>
 #include <ranges>
-#include <spdlog/spdlog.h>
-
-#include <fmt/format.h>
 #include <variant>
 
 #include "convert/qcir_to_tensor.hpp"
 #include "convert/tableau_to_qcir.hpp"
-#include "tableau/cpf/trace_replay.hpp"
+#include "qcir/basic_gate_type.hpp"
+#include "qcir/circuit_compile.hpp"
 #include "tableau/cpf/pauli_compress.hpp"
+#include "tableau/cpf/trace_replay.hpp"
 #include "tableau/pauli_dag/dag_fold.hpp"
 #include "tableau/stabilizer_tableau.hpp"
 #include "tableau/tableau_optimization.hpp"
-#include "qcir/circuit_compile.hpp"
-#include "qcir/basic_gate_type.hpp"
 
 namespace qsyn::qcir {
 
@@ -90,7 +90,7 @@ namespace {
 
 void log_qcir_gate_type_counts(QCir const& qcir, std::string_view step) {
     if (qcir.is_empty()) return;
-    auto const stat = get_gate_statistics(qcir);
+    auto const stat                           = get_gate_statistics(qcir);
     static constexpr std::string_view k_agg[] = {
         "clifford", "1-qubit", "2-qubit", "h-internal", "t-family"};
     spdlog::info("cpf-pipeline step {} QCir: {} gates", step, qcir.get_num_gates());
@@ -205,7 +205,7 @@ void canonicalize_cpf_tableau(experimental::Tableau& tableau, CpfPipelineStats& 
 
 void apply_lossless_pauli_compress(experimental::Tableau& tableau, CpfPipelineStats& stats,
                                    CpfPipelineOptions const& opt) {
-    stats.ran_lossless_pauli_compress = opt.run_lossless_pauli_compress;
+    stats.ran_lossless_pauli_compress    = opt.run_lossless_pauli_compress;
     stats.rotations_after_pauli_compress = stats.rotations_after_collapse;
 
     if (!opt.run_lossless_pauli_compress) {
@@ -213,9 +213,9 @@ void apply_lossless_pauli_compress(experimental::Tableau& tableau, CpfPipelineSt
     }
 
     experimental::cpf::PauliCompressOptions pc_opt;
-    pc_opt.l2_budget     = 0.0;
-    pc_opt.absorb_clifford = true;
-    stats.pauli_compress_stats = experimental::cpf::pauli_compress(tableau, pc_opt);
+    pc_opt.l2_budget                     = 0.0;
+    pc_opt.absorb_clifford               = true;
+    stats.pauli_compress_stats           = experimental::cpf::pauli_compress(tableau, pc_opt);
     stats.rotations_after_pauli_compress = tableau.n_pauli_rotations();
     stats.cliffords_after_collapse       = tableau.n_cliffords();
 }
@@ -240,7 +240,7 @@ void log_cpf_pipeline_step_counts(CpfPipelineStats const& stats, bool ran_fold) 
 std::optional<QCir> synthesize_tableau_to_qcir(experimental::Tableau const& tableau,
                                                CpfPipelineStats& stats,
                                                CpfPipelineOptions const& opt) {
-    experimental::HOptSynthesisStrategy                 st_strategy;
+    experimental::HOptSynthesisStrategy st_strategy;
     experimental::GraySynthPauliRotationsSynthesisStrategy gray_strategy;
     experimental::NaivePauliRotationsSynthesisStrategy naive_strategy;
 
@@ -305,10 +305,10 @@ std::optional<QCir> run_cpf_pipeline_round(QCir const& src, CpfPipelineStats& st
     auto tableau = build_cpf_tableau(*zyz);
     if (!tableau.has_value()) return std::nullopt;
 
-    stats.rotations_after_trace_replay   = tableau->n_pauli_rotations();
-    stats.cliffords_after_trace_replay   = tableau->n_cliffords();
-    stats.cliffords                      = stats.cliffords_after_trace_replay;
-    stats.rotations_before_fold          = stats.rotations_after_trace_replay;
+    stats.rotations_after_trace_replay = tableau->n_pauli_rotations();
+    stats.cliffords_after_trace_replay = tableau->n_cliffords();
+    stats.cliffords                    = stats.cliffords_after_trace_replay;
+    stats.rotations_before_fold        = stats.rotations_after_trace_replay;
     log_tableau_pauli_rotations(*tableau, "trace_replay");
 
     apply_cpf_fold(*tableau, stats, opt);
@@ -342,30 +342,30 @@ std::optional<QCir> run_cpf_pipeline(QCir const& src, CpfPipelineStats& stats,
     cur.add_procedures(src.get_procedures());
 
     std::size_t const max_rounds = std::max<std::size_t>(1, opt.max_rounds);
-    std::size_t       prev_rots  = std::numeric_limits<std::size_t>::max();
+    std::size_t prev_rots        = std::numeric_limits<std::size_t>::max();
 
     for (std::size_t rnd = 0; rnd < max_rounds; ++rnd) {
         CpfPipelineStats round_stats;
-        auto             out = run_cpf_pipeline_round(cur, round_stats, opt);
+        auto out = run_cpf_pipeline_round(cur, round_stats, opt);
         if (!out.has_value()) return std::nullopt;
 
-        stats.rotations_after_trace_replay = round_stats.rotations_after_trace_replay;
-        stats.rotations_before_fold        = round_stats.rotations_before_fold;
-        stats.rotations_after_fold         = round_stats.rotations_after_fold;
-        stats.rotations_after_collapse     = round_stats.rotations_after_collapse;
+        stats.rotations_after_trace_replay   = round_stats.rotations_after_trace_replay;
+        stats.rotations_before_fold          = round_stats.rotations_before_fold;
+        stats.rotations_after_fold           = round_stats.rotations_after_fold;
+        stats.rotations_after_collapse       = round_stats.rotations_after_collapse;
         stats.rotations_after_pauli_compress = round_stats.rotations_after_pauli_compress;
-        stats.cliffords_after_trace_replay = round_stats.cliffords_after_trace_replay;
-        stats.cliffords_after_collapse     = round_stats.cliffords_after_collapse;
-        stats.cliffords                    = round_stats.cliffords;
-        stats.fold_stats                   = round_stats.fold_stats;
-        stats.dag_fold_stats               = round_stats.dag_fold_stats;
-        stats.pauli_compress_stats         = round_stats.pauli_compress_stats;
-        stats.used_dag_fold                = round_stats.used_dag_fold;
-        stats.ran_cpf_fold                 = round_stats.ran_cpf_fold;
-        stats.ran_lossless_pauli_compress  = round_stats.ran_lossless_pauli_compress;
-        stats.used_graysynth_per_block     = round_stats.used_graysynth_per_block;
-        stats.used_naive_fallback          = round_stats.used_naive_fallback;
-        stats.n_rounds                     = rnd + 1;
+        stats.cliffords_after_trace_replay   = round_stats.cliffords_after_trace_replay;
+        stats.cliffords_after_collapse       = round_stats.cliffords_after_collapse;
+        stats.cliffords                      = round_stats.cliffords;
+        stats.fold_stats                     = round_stats.fold_stats;
+        stats.dag_fold_stats                 = round_stats.dag_fold_stats;
+        stats.pauli_compress_stats           = round_stats.pauli_compress_stats;
+        stats.used_dag_fold                  = round_stats.used_dag_fold;
+        stats.ran_cpf_fold                   = round_stats.ran_cpf_fold;
+        stats.ran_lossless_pauli_compress    = round_stats.ran_lossless_pauli_compress;
+        stats.used_graysynth_per_block       = round_stats.used_graysynth_per_block;
+        stats.used_naive_fallback            = round_stats.used_naive_fallback;
+        stats.n_rounds                       = rnd + 1;
 
         out->add_procedure(rnd == 0 ? "CPF-Pipeline" : fmt::format("CPF-Round-{}", rnd + 1));
 

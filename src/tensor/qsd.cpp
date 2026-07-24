@@ -11,7 +11,6 @@
 
 #include <cmath>
 #include <numbers>
-
 #include <xtensor-blas/xlinalg.hpp>
 #include <xtensor/containers/xarray.hpp>
 #include <xtensor/views/xview.hpp>
@@ -43,7 +42,7 @@ qubit_count_from_shape(QTensor<double> const& mat) {
 
 cmat qtensor_to_cmat(QTensor<double> const& mat) {
     auto const dim = mat.shape()[0];
-    cmat out = xt::zeros<c64>({dim, dim});
+    cmat out       = xt::zeros<c64>({dim, dim});
     for (size_t r = 0; r < dim; ++r)
         for (size_t c = 0; c < dim; ++c)
             out(r, c) = mat(r, c);
@@ -58,7 +57,7 @@ QTensor<double> cmat_to_qtensor(cmat const& m) {
     // followed by an out-of-bounds assertion failure in the Decomposer
     // fallback path.
     TensorShape const shape{dim, dim};
-    QTensor<double>   out{shape};
+    QTensor<double> out{shape};
     for (size_t r = 0; r < dim; ++r)
         for (size_t c = 0; c < dim; ++c)
             out(r, c) = m(r, c);
@@ -86,7 +85,7 @@ QCir multiplex_ry(size_t n_qubits, std::vector<double> const& angles) {
     QCir qc{n_qubits};
     if (n_qubits == 0 || angles.empty()) return qc;
 
-    size_t const msb = n_qubits - 1;
+    size_t const msb    = n_qubits - 1;
     auto const n_angles = angles.size();
 
     for (size_t j = 0; j < n_angles; ++j) {
@@ -278,7 +277,7 @@ std::optional<QCir> synthesize(QTensor<double> const& matrix, QSDOptions const& 
         kopt.three_cnot_restarts    = opt.three_cnot_restarts;
         kopt.three_cnot_use_lbfgs   = opt.three_cnot_use_lbfgs;
         kopt.three_cnot_epsilon     = opt.synthesis_epsilon * 100;
-        auto kak_result = kak::two_qubit_synthesize(matrix, kopt);
+        auto kak_result             = kak::two_qubit_synthesize(matrix, kopt);
         if (kak_result.has_value()) return kak_result;
 
         spdlog::warn("qsd::synthesize: KAK failed for 2-qubit input; falling back to gray-code decomposer.");

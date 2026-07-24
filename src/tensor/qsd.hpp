@@ -47,16 +47,16 @@ using qcir::QCir;
 //
 struct QSDOptions {
     // BQSKit FullQSDPass: ScanningGateRemovalPass between decomposition rounds.
-    bool   inter_round_gate_removal = false;
-    double synthesis_epsilon        = 1e-8;
+    bool inter_round_gate_removal = false;
+    double synthesis_epsilon      = 1e-8;
     // Forwarded to `kak::two_qubit_synthesize`. Off by default because
     // the 3-CNOT QFactor candidate is slow under coordinate descent.
-    bool   try_three_cnot_qfactor   = false;
-    int    three_cnot_restarts      = 1;
+    bool try_three_cnot_qfactor = false;
+    int three_cnot_restarts     = 1;
     // Use LBFGS minimiser (PR-B) for the 3-CNOT QFactor ansatz instead
     // of coordinate descent. Roughly an order of magnitude fewer
     // to_tensor calls on the 24-parameter ansatz.
-    bool   three_cnot_use_lbfgs     = false;
+    bool three_cnot_use_lbfgs = false;
 };
 
 // Returns std::nullopt if all strategies fail.

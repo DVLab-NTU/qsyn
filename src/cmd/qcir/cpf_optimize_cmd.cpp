@@ -5,9 +5,10 @@
   Copyright    [ Copyright(c) 2024 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <algorithm>
 #include <fmt/core.h>
 #include <spdlog/spdlog.h>
+
+#include <algorithm>
 
 #include "cli/cli.hpp"
 #include "cmd/qcir_mgr.hpp"
@@ -72,17 +73,17 @@ Command qcir_cpf_optimize_cmd(QCirMgr& qcir_mgr) {
             if (!dvlab::utils::mgr_has_data(qcir_mgr)) return CmdExecResult::error;
 
             CpfPipelineOptions opt;
-            opt.skip_u3cx          = parser.parsed("--skip-u3cx");
-            opt.run_cpf_fold       = true;
-            opt.use_dag_fold       = !parser.parsed("--no-dag-fold");
+            opt.skip_u3cx    = parser.parsed("--skip-u3cx");
+            opt.run_cpf_fold = true;
+            opt.use_dag_fold = !parser.parsed("--no-dag-fold");
             if (parser.parsed("--fold-strategy")) {
                 opt.fold_strategy = parse_cpf_fold_strategy(parser.get<std::string>("--fold-strategy"));
                 if (opt.fold_strategy != CpfFoldStrategy::global_only) {
                     opt.use_dag_fold = true;
                 }
             }
-            opt.run_full_optimize  = parser.parsed("--full");
-            opt.prefer_graysynth   = !parser.parsed("--naive-rotation");
+            opt.run_full_optimize = parser.parsed("--full");
+            opt.prefer_graysynth  = !parser.parsed("--naive-rotation");
             if (parser.parsed("--no-pauli-compress")) {
                 opt.run_lossless_pauli_compress = false;
             }
@@ -91,7 +92,7 @@ Command qcir_cpf_optimize_cmd(QCirMgr& qcir_mgr) {
             }
 
             CpfPipelineStats stats;
-            auto               out = run_cpf_pipeline(*qcir_mgr.get(), stats, opt);
+            auto out = run_cpf_pipeline(*qcir_mgr.get(), stats, opt);
             if (!out.has_value()) return CmdExecResult::error;
 
             spdlog::info("cpf-optimize: rotations {} -> {} ({} rounds{})",
@@ -101,10 +102,10 @@ Command qcir_cpf_optimize_cmd(QCirMgr& qcir_mgr) {
             log_cpf_pipeline_step_counts(stats, stats.ran_cpf_fold);
             // Machine-readable line for scripts/cpf_bench.py (works with -q).
             fmt::print("cpf-optimize: strategy {} rotations {} -> {}\n",
-                        parser.parsed("--fold-strategy")
-                            ? parser.get<std::string>("--fold-strategy")
-                            : (parser.parsed("--no-dag-fold") ? "global" : "dag"),
-                        stats.rotations_after_trace_replay, stats.rotations_after_pauli_compress);
+                       parser.parsed("--fold-strategy")
+                           ? parser.get<std::string>("--fold-strategy")
+                           : (parser.parsed("--no-dag-fold") ? "global" : "dag"),
+                       stats.rotations_after_trace_replay, stats.rotations_after_pauli_compress);
 
             out->set_filename(qcir_mgr.get()->get_filename());
             out->add_procedures(qcir_mgr.get()->get_procedures());

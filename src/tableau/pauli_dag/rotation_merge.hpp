@@ -10,10 +10,9 @@
 #include <optional>
 #include <utility>
 
-#include "util/phase.hpp"
-
 #include "tableau/pauli_rotation.hpp"
 #include "tableau/stabilizer_tableau.hpp"
+#include "util/phase.hpp"
 
 namespace qsyn::experimental::cpf::pauli_dag {
 
@@ -27,6 +26,6 @@ try_merge_into_earlier(PauliRotation const& later, PauliRotation const& earlier)
 
 // R(θ,P) with C on the left: C·R(θ,P) = R(θ,P')·C  =>  P' = C P C†
 [[nodiscard]] PauliRotation commute_left(PauliRotation const& r,
-                                        StabilizerTableau const& c);
+                                         StabilizerTableau const& c);
 
 }  // namespace qsyn::experimental::cpf::pauli_dag

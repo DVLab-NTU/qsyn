@@ -27,8 +27,8 @@ namespace qsyn::tensor::kak {
 
 namespace {
 
-using xt::xtensor;
 using std::numbers::pi;
+using xt::xtensor;
 
 using cmat44 = xt::xtensor<c64, 2>;
 using cmat22 = xt::xtensor<c64, 2>;
@@ -46,10 +46,10 @@ cmat44 const& magic_basis() {
         constexpr double s = 1.0 / std::numbers::sqrt2;
         c64 const I{0, 1};
         return cmat44{
-            {s,      0.,     0.,      I * s},
-            {0.,     I * s,  s,       0.   },
-            {0.,     I * s, -c64(s),  0.   },
-            {s,      0.,     0.,     -I * s}};
+            {s, 0., 0., I * s},
+            {0., I * s, s, 0.},
+            {0., I * s, -c64(s), 0.},
+            {s, 0., 0., -I * s}};
     }();
     return M;
 }
@@ -125,8 +125,8 @@ factor_tensor_product(cmat44 const& K) {
         A /= std::sqrt(detA);
         B /= std::sqrt(detB);
 
-        auto const R  = kron22(A, B);
-        double err    = 0;
+        auto const R = kron22(A, B);
+        double err   = 0;
         for (size_t i = 0; i < 4; ++i)
             for (size_t j = 0; j < 4; ++j)
                 err += std::abs(K(i, j) - R(i, j));
@@ -146,7 +146,7 @@ factor_tensor_product(cmat44 const& K) {
             auto const aj  = bj / 2;
             auto const bri = bi % 2;
             auto const bcj = bj % 2;
-            cmat22 A = xt::zeros<c64>({2, 2});
+            cmat22 A       = xt::zeros<c64>({2, 2});
             for (size_t r = 0; r < 2; ++r)
                 for (size_t c = 0; c < 2; ++c)
                     A(r, c) = K(2 * r + bri, 2 * c + bcj);
@@ -162,8 +162,8 @@ factor_tensor_product(cmat44 const& K) {
             if (std::abs(detA) < 1e-12 || std::abs(detB) < 1e-12) continue;
             A /= std::sqrt(detA);
             B /= std::sqrt(detB);
-            auto const R  = kron22(A, B);
-            double err    = 0;
+            auto const R = kron22(A, B);
+            double err   = 0;
             for (size_t i = 0; i < 4; ++i)
                 for (size_t j = 0; j < 4; ++j)
                     err += std::abs(K(i, j) - R(i, j));
@@ -202,7 +202,7 @@ factor_tensor_product(cmat44 const& K) {
 // Randomly perturb every UGate's three parameters with a uniform offset
 // in [-amp, amp].  Deterministic given a fixed `seed`.
 void randomise_u_params(QCir& qc, std::uint32_t seed, double amp) {
-    std::minstd_rand                       rng{seed};
+    std::minstd_rand rng{seed};
     std::uniform_real_distribution<double> dist{-amp, amp};
     for (auto* gate : qc.get_gates()) {
         auto const u_opt = gate->get_operation().get_underlying_if<qcir::UGate>();
@@ -253,8 +253,8 @@ try_three_cnot_synthesize(QTensor<double> const& matrix, double epsilon,
     // 24-parameter ansatz is non-convex so a single shot occasionally
     // gets trapped at a local minimum. Single restart is the cheap
     // default; callers can request more via TwoQubitSynthesizeOptions.
-    QCir                            best;
-    double                          best_residual = std::numeric_limits<double>::infinity();
+    QCir best;
+    double best_residual = std::numeric_limits<double>::infinity();
     static constexpr std::array<std::uint32_t, 4> seeds{12345, 67890, 246810, 9876543};
 
     for (int trial = 0; trial < n_restarts; ++trial) {
@@ -297,9 +297,9 @@ single_qubit_synthesize(QTensor<double> const& matrix) {
     auto const c = matrix(1, 0);
     auto const d = matrix(1, 1);
 
-    double const init_beta = (std::abs(a) > 1.0) ? 0.0 : std::acos(std::abs(a));
+    double const init_beta                      = (std::abs(a) > 1.0) ? 0.0 : std::acos(std::abs(a));
     std::array<double, 4> const beta_candidates = {init_beta, pi - init_beta,
-                                                    pi + init_beta, 2 * pi - init_beta};
+                                                   pi + init_beta, 2 * pi - init_beta};
 
     for (auto const beta : beta_candidates) {
         c64 const cos_b{std::cos(beta) + 1e-9, 0};
@@ -321,15 +321,15 @@ single_qubit_synthesize(QTensor<double> const& matrix) {
             gamma = std::arg(d1 / c1);
         }
 
-        c64 const alpha_plus = std::exp(c64{0, 0.5 * (alpha + gamma)});
+        c64 const alpha_plus  = std::exp(c64{0, 0.5 * (alpha + gamma)});
         c64 const alpha_minus = std::exp(c64{0, 0.5 * (alpha - gamma)});
 
         phi = (std::abs(a) < 1e-4) ? std::arg(c1 / alpha_minus) : std::arg(a1 * alpha_plus);
 
         // Reconstruct and check residual.
         c64 const e_iphi = std::exp(c64{0, phi});
-        c64 const r00 = e_iphi * std::exp(c64{0, -0.5 * (alpha + gamma)}) * c64{std::cos(beta), 0};
-        c64 const r01 = -e_iphi * std::exp(c64{0, -0.5 * (alpha - gamma)}) * c64{std::sin(beta), 0};
+        c64 const r00    = e_iphi * std::exp(c64{0, -0.5 * (alpha + gamma)}) * c64{std::cos(beta), 0};
+        c64 const r01    = -e_iphi * std::exp(c64{0, -0.5 * (alpha - gamma)}) * c64{std::sin(beta), 0};
 
         if (std::abs(r00 - a) < 1e-5 && std::abs(r01 - b) < 1e-5) {
             // Build U(theta, phi_zyz, lambda_zyz) where theta = 2*beta
@@ -411,14 +411,14 @@ kak_decompose(QTensor<double> const& matrix) {
         return std::nullopt;
     }
 
-    auto const U  = to_cmat44(matrix);
-    auto const&  M  = magic_basis();
-    auto const&  Md = magic_basis_dagger();
+    auto const U   = to_cmat44(matrix);
+    auto const& M  = magic_basis();
+    auto const& Md = magic_basis_dagger();
 
     // Strip global phase -> SU(4).
-    auto const detU = xt::linalg::det(U);
+    auto const detU  = xt::linalg::det(U);
     auto const phase = std::pow(detU, 0.25);
-    cmat44 const Us = U / phase;
+    cmat44 const Us  = U / phase;
 
     // Transform into magic basis.
     cmat44 const Um = xt::linalg::dot(xt::linalg::dot(Md, Us), M);
@@ -431,11 +431,11 @@ kak_decompose(QTensor<double> const& matrix) {
     // simultaneously diagonalisable via the same O - true for unitary
     // symmetric M2) diagonalises Im(M2).  We jitter the combination to
     // avoid eigenvalue degeneracies.
-    rmat44 M2_real = xt::real(M2);
-    rmat44 M2_imag = xt::imag(M2);
+    rmat44 M2_real     = xt::real(M2);
+    rmat44 M2_imag     = xt::imag(M2);
     rmat44 const combo = 0.6 * M2_real + 0.4 * M2_imag;
 
-    auto eig_pair = xt::linalg::eigh(combo);
+    auto eig_pair  = xt::linalg::eigh(combo);
     rmat44 const O = std::get<1>(eig_pair);  // 4x4 real orthogonal
 
     // Diagonalise M2 -- the diagonal entries give us e^{2i theta_k}.
@@ -447,7 +447,7 @@ kak_decompose(QTensor<double> const& matrix) {
     }
 
     // Force det(O) = +1 so that O^T is in SO(4) and maps to SU(2) x SU(2).
-    auto detO = xt::linalg::det(O);
+    auto detO       = xt::linalg::det(O);
     cmat44 O_signed = O;
     if (detO < 0) {
         // flip the first column to make det positive; absorb the sign into
@@ -482,14 +482,14 @@ kak_decompose(QTensor<double> const& matrix) {
     //   t3 =  a + b - c
     // Solving the 3x3 sub-system (t0..t2):
     KAKResult res;
-    res.a = ( thetas[0] - thetas[1] - thetas[2] + thetas[3]) * 0.25;
+    res.a = (thetas[0] - thetas[1] - thetas[2] + thetas[3]) * 0.25;
     res.b = (-thetas[0] + thetas[1] - thetas[2] + thetas[3]) * 0.25;
-    res.c = ( thetas[0] + thetas[1] - thetas[2] - thetas[3]) * 0.25;
+    res.c = (thetas[0] + thetas[1] - thetas[2] - thetas[3]) * 0.25;
 
-    res.A1 = flatten_cmat22(K1_factored->first);
-    res.B1 = flatten_cmat22(K1_factored->second);
-    res.A2 = flatten_cmat22(K2_factored->first);
-    res.B2 = flatten_cmat22(K2_factored->second);
+    res.A1           = flatten_cmat22(K1_factored->first);
+    res.B1           = flatten_cmat22(K1_factored->second);
+    res.A2           = flatten_cmat22(K2_factored->first);
+    res.B2           = flatten_cmat22(K2_factored->second);
     res.global_phase = phase;
 
     return res;

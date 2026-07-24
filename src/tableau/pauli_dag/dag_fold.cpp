@@ -43,7 +43,7 @@ void log_zero_phase_rotations(Tableau const& tableau) {
             suffix = extract_clifford_operators(tmp);
             continue;
         }
-        auto const* rot = std::get_if<PauliRotation>(&flat[i]);
+        auto const* rot  = std::get_if<PauliRotation>(&flat[i]);
         PauliRotation rc = *rot;
         auto const phase = rc.phase();
         rc.apply(suffix);
@@ -90,14 +90,14 @@ DagFoldStats dag_fold(Tableau& tableau, DagFoldOptions const& opt) {
         }
 
         bool const do_graph_merge = opt.run_graph_merge && rots_before <= graph_merge_max_rotations;
-        std::size_t graph_merges = 0;
+        std::size_t graph_merges  = 0;
         if (do_graph_merge) {
-            auto graph = pauli_dag::build_pauli_dag_graph(timeline);
+            auto graph                = pauli_dag::build_pauli_dag_graph(timeline);
             stats.graph.n_nodes       = graph.nodes.size();
             stats.graph.n_merge_edges = graph.merge_edges.size();
-            graph_merges = opt.use_matching_merge
-                               ? pauli_dag::max_matching_merge(timeline, graph)
-                               : pauli_dag::graph_component_merge(timeline, graph);
+            graph_merges              = opt.use_matching_merge
+                                            ? pauli_dag::max_matching_merge(timeline, graph)
+                                            : pauli_dag::graph_component_merge(timeline, graph);
             stats.graph.n_component_merges += graph_merges;
         }
 

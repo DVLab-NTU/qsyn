@@ -11,10 +11,10 @@ namespace qsyn::experimental::cpf::pauli_dag {
 
 namespace {
 
-[[nodiscard]] PauliProduct propagate_through(PauliProduct const&      p,
+[[nodiscard]] PauliProduct propagate_through(PauliProduct const& p,
                                              StabilizerTableau const& c) {
-    auto       result = p;
-    auto const ops    = extract_clifford_operators(c);
+    auto result    = p;
+    auto const ops = extract_clifford_operators(c);
     result.apply(ops);
     return result;
 }

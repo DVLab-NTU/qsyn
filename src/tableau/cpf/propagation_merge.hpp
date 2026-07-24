@@ -37,17 +37,17 @@ enum class MergeClass : std::uint8_t {
 //   theta_r' = theta_r + sign * theta_l                 (mergeable cases)
 //   sign     = 0                                        (blocked)
 struct SegmentReport {
-    MergeClass   klass;
-    int          sign;
+    MergeClass klass;
+    int sign;
     PauliProduct propagated_pauli;  // C * P_L * C^dagger (sign-stripped)
 };
 
 // Classify the segment `[left, intermediate, right]`. Pass an identity
 // StabilizerTableau when no Clifford sits between `left` and `right`.
 [[nodiscard]] SegmentReport classify_segment(
-    PauliRotation const&     left,
+    PauliRotation const& left,
     StabilizerTableau const& intermediate,
-    PauliRotation const&     right);
+    PauliRotation const& right);
 
 struct PropagationMergeStats {
     std::size_t n_same_pauli{0};

@@ -30,16 +30,16 @@ namespace qsyn::synthesis::search {
 // A leaf of the search tree: a partial ansatz plus its current
 // residual (1 - cosine_similarity) against the target unitary.
 struct Candidate {
-    qcir::QCir   circuit;
-    double       residual    = 1.0;
+    qcir::QCir circuit;
+    double residual = 1.0;
     // Cost used by Heuristic to order the frontier. Computed once at
     // push-time and cached so the priority queue doesn't have to
     // re-evaluate the heuristic on each comparison.
-    double       priority    = 0.0;
+    double priority = 0.0;
     // Depth = number of "layers" appended so far (1 layer == 1 CX
     // building block in the SimpleLayerGenerator). Used by LEAP and
     // various heuristics that penalise circuit depth.
-    std::size_t  depth       = 0;
+    std::size_t depth = 0;
 };
 
 // Strict-weak ordering for std::priority_queue. We want the *smallest*

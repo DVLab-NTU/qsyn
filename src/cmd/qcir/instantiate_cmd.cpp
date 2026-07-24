@@ -52,8 +52,9 @@ Command qcir_instantiate_cmd(QCirMgr& qcir_mgr) {
 
             auto src = parser.add_mutually_exclusive_group().required(false);
             src.add_argument<size_t>("-t", "--target")
-                .help("ID of the QCir whose tensor is used as the target. "
-                      "Defaults to comparing the focused circuit against itself.");
+                .help(
+                    "ID of the QCir whose tensor is used as the target. "
+                    "Defaults to comparing the focused circuit against itself.");
             src.add_argument<bool>("--self")
                 .action(store_true)
                 .help("Use the focused QCir's own tensor as the target (default).");
@@ -78,7 +79,7 @@ Command qcir_instantiate_cmd(QCirMgr& qcir_mgr) {
 
             QCir const* target_qcir = &ansatz;
             if (parser.parsed("--target")) {
-                auto const tid = parser.get<size_t>("--target");
+                auto const tid    = parser.get<size_t>("--target");
                 auto const* maybe = qcir_mgr.find_by_id(tid);
                 if (maybe == nullptr) {
                     spdlog::error("instantiate: QCir id {} not found.", tid);

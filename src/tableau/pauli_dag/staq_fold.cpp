@@ -20,7 +20,7 @@ namespace qsyn::experimental::cpf::pauli_dag {
 namespace {
 
 thread_local std::vector<int>* tls_entry_ids = nullptr;
-thread_local int tls_pass_tag               = 0;
+thread_local int tls_pass_tag                = 0;
 
 [[nodiscard]] std::string ops_between(std::vector<TimelineEntry> const& entries,
                                       std::size_t earlier_idx,
@@ -105,8 +105,8 @@ bool fold_rotation_at(std::vector<TimelineEntry>& entries, std::size_t index) {
         (tls_entry_ids != nullptr && index < tls_entry_ids->size()) ? (*tls_entry_ids)[index] : -1;
 
     PauliRotation moving = *cur;
-    std::size_t   pos    = index;
-    bool          merged = false;
+    std::size_t pos      = index;
+    bool merged          = false;
 
     CliffordOperatorString barrier_ops;
 
@@ -122,10 +122,10 @@ bool fold_rotation_at(std::vector<TimelineEntry>& entries, std::size_t index) {
             if (auto const m = try_merge_into_earlier(moving, *earlier)) {
                 int const dst_id =
                     (tls_entry_ids != nullptr && pos < tls_entry_ids->size()) ? (*tls_entry_ids)[pos]
-                                                                             : -1;
-                auto const& p_l = moving.pauli_product();
-                auto const& p_e = earlier->pauli_product();
-                int sign        = 1;
+                                                                              : -1;
+                auto const& p_l   = moving.pauli_product();
+                auto const& p_e   = earlier->pauli_product();
+                int sign          = 1;
                 char const* klass = "same_pauli";
                 if (p_l != p_e) {
                     sign  = -1;
@@ -162,9 +162,9 @@ bool fold_rotation_at(std::vector<TimelineEntry>& entries, std::size_t index) {
                 }
                 merged = true;
                 // Continue folding the merged rotation further left.
-                moving      = m->second;
-                index       = pos;
-                pos         = index;
+                moving = m->second;
+                index  = pos;
+                pos    = index;
                 barrier_ops.clear();
                 src_id = dst_id;  // further chained merges start from destination
                 continue;

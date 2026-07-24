@@ -33,22 +33,22 @@ enum class CpfFoldStrategy {
 [[nodiscard]] CpfFoldStrategy parse_cpf_fold_strategy(std::string const& name);
 
 struct CpfPipelineStats {
-    std::size_t rotations_after_trace_replay = 0;
-    std::size_t rotations_before_fold      = 0;
-    std::size_t rotations_after_fold       = 0;
-    std::size_t rotations_after_collapse   = 0;
+    std::size_t rotations_after_trace_replay   = 0;
+    std::size_t rotations_before_fold          = 0;
+    std::size_t rotations_after_fold           = 0;
+    std::size_t rotations_after_collapse       = 0;
     std::size_t rotations_after_pauli_compress = 0;
-    std::size_t cliffords_after_trace_replay = 0;
-    std::size_t cliffords_after_collapse   = 0;
-    std::size_t cliffords                  = 0;
-    std::size_t n_rounds                   = 1;
+    std::size_t cliffords_after_trace_replay   = 0;
+    std::size_t cliffords_after_collapse       = 0;
+    std::size_t cliffords                      = 0;
+    std::size_t n_rounds                       = 1;
     experimental::cpf::GlobalFoldStats fold_stats{};
-    experimental::cpf::DagFoldStats  dag_fold_stats{};
-    bool                              used_dag_fold            = false;
-    bool                              ran_cpf_fold             = false;
-    bool                              used_graysynth_per_block = false;
-    bool                              used_naive_fallback      = false;
-    bool                              ran_lossless_pauli_compress = false;
+    experimental::cpf::DagFoldStats dag_fold_stats{};
+    bool used_dag_fold               = false;
+    bool ran_cpf_fold                = false;
+    bool used_graysynth_per_block    = false;
+    bool used_naive_fallback         = false;
+    bool ran_lossless_pauli_compress = false;
     experimental::cpf::PauliCompressStats pauli_compress_stats{};
 };
 
@@ -101,7 +101,7 @@ void canonicalize_cpf_tableau(experimental::Tableau& tableau, CpfPipelineStats& 
 
 // Step 3d -- lossless pauli-compress (D-merge + F-cancel) on canonical tableau.
 void apply_lossless_pauli_compress(experimental::Tableau& tableau, CpfPipelineStats& stats,
-                                 CpfPipelineOptions const& opt);
+                                   CpfPipelineOptions const& opt);
 
 // Log per-step Pauli-rotation counts (trace_replay / fold / collapse / pauli-compress).
 void log_cpf_pipeline_step_counts(CpfPipelineStats const& stats, bool ran_fold);

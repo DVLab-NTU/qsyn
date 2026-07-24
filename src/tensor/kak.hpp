@@ -35,14 +35,14 @@ using c64 = std::complex<double>;
 //     U = global_phase * (A1 \otimes B1) * exp(i (a XX + b YY + c ZZ))
 //                                        * (A2 \otimes B2)
 struct KAKResult {
-    std::array<c64, 4>  A1{};  // 2x2 row-major SU(2)
-    std::array<c64, 4>  B1{};
-    std::array<c64, 4>  A2{};
-    std::array<c64, 4>  B2{};
-    double              a{};   // Cartan invariant on XX
-    double              b{};   // Cartan invariant on YY
-    double              c{};   // Cartan invariant on ZZ
-    c64                 global_phase{1, 0};
+    std::array<c64, 4> A1{};  // 2x2 row-major SU(2)
+    std::array<c64, 4> B1{};
+    std::array<c64, 4> A2{};
+    std::array<c64, 4> B2{};
+    double a{};  // Cartan invariant on XX
+    double b{};  // Cartan invariant on YY
+    double c{};  // Cartan invariant on ZZ
+    c64 global_phase{1, 0};
 };
 
 // Synthesise an arbitrary single-qubit unitary into a single U3 (ZYZ) gate.
@@ -71,23 +71,23 @@ single_qubit_synthesize(QTensor<double> const& matrix);
 // up after PR-B lands a real LBFGS minimizer.
 [[nodiscard]] std::optional<QCir>
 try_three_cnot_synthesize(QTensor<double> const& matrix,
-                          double      epsilon        = 1e-6,
-                          int         n_restarts     = 1,
+                          double epsilon             = 1e-6,
+                          int n_restarts             = 1,
                           std::size_t max_iterations = 150,
-                          bool        use_lbfgs      = false);
+                          bool use_lbfgs             = false);
 
 struct TwoQubitSynthesizeOptions {
     // When true, also try the 3-CNOT QFactor-instantiated ansatz and
     // pick the lowest-CX result among the analytic + numerical
     // candidates.  Off by default until PR-B speeds up instantiation.
-    bool   try_three_cnot_qfactor   = false;
+    bool try_three_cnot_qfactor     = false;
     double three_cnot_epsilon       = 1e-6;
-    int    three_cnot_restarts      = 1;
+    int three_cnot_restarts         = 1;
     std::size_t three_cnot_max_iter = 150;
     // When true, use the LBFGS minimiser instead of coordinate descent
     // when running the 3-CNOT QFactor instantiation. PR-B's LBFGS is
     // typically ~10x fewer tensor evaluations on the 24-param ansatz.
-    bool   three_cnot_use_lbfgs     = false;
+    bool three_cnot_use_lbfgs = false;
 };
 
 // Glue routine: KAK decompose `matrix`, then emit the full circuit using

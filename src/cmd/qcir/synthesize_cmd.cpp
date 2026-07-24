@@ -52,47 +52,54 @@ Command qcir_synthesize_cmd(QCirMgr& qcir_mgr) {
                 .help("Replace the focused QCir in-place with the synthesised one");
             parser.add_argument<bool>("--three-cnot-kak")
                 .action(store_true)
-                .help("(Experimental) try the 3-CNOT QFactor-instantiated ansatz "
-                      "for 2-qubit blocks; slow with the coordinate-descent "
-                      "instantiator (replaced by LBFGS in PR-B).");
+                .help(
+                    "(Experimental) try the 3-CNOT QFactor-instantiated ansatz "
+                    "for 2-qubit blocks; slow with the coordinate-descent "
+                    "instantiator (replaced by LBFGS in PR-B).");
             parser.add_argument<int>("--three-cnot-restarts")
                 .default_value(1)
                 .help("Number of random restarts for the 3-CNOT QFactor ansatz.");
             parser.add_argument<bool>("--three-cnot-lbfgs")
                 .action(store_true)
-                .help("Use LBFGS (PR-B) instead of coordinate descent for the "
-                      "3-CNOT QFactor ansatz. Order of magnitude fewer "
-                      "to_tensor evaluations on the 24-parameter ansatz.");
+                .help(
+                    "Use LBFGS (PR-B) instead of coordinate descent for the "
+                    "3-CNOT QFactor ansatz. Order of magnitude fewer "
+                    "to_tensor evaluations on the 24-parameter ansatz.");
             // ---- PR-C: native QSearch / LEAP ----
             parser.add_argument<bool>("--qsearch-native")
                 .action(store_true)
-                .help("(PR-C) Use the native QSearch best-first search to "
-                      "synthesise the target unitary instead of QSD/KAK. "
-                      "Outputs a U3+CX circuit and respects --qsearch-* "
-                      "tuning flags below.");
+                .help(
+                    "(PR-C) Use the native QSearch best-first search to "
+                    "synthesise the target unitary instead of QSD/KAK. "
+                    "Outputs a U3+CX circuit and respects --qsearch-* "
+                    "tuning flags below.");
             parser.add_argument<bool>("--leap-native")
                 .action(store_true)
-                .help("(PR-C) Use the native LEAP (prefix-freeze QSearch) "
-                      "synthesiser. Recommended for >=3-qubit targets where "
-                      "plain QSearch's frontier blows up.");
+                .help(
+                    "(PR-C) Use the native LEAP (prefix-freeze QSearch) "
+                    "synthesiser. Recommended for >=3-qubit targets where "
+                    "plain QSearch's frontier blows up.");
             parser.add_argument<int>("--qsearch-max-depth")
                 .default_value(6)
-                .help("Max number of CX-layers the native QSearch / LEAP "
-                      "frontier may add (default 6).");
+                .help(
+                    "Max number of CX-layers the native QSearch / LEAP "
+                    "frontier may add (default 6).");
             parser.add_argument<int>("--qsearch-max-iters")
                 .default_value(256)
-                .help("Max number of frontier pops in native QSearch / LEAP "
-                      "(default 256).");
+                .help(
+                    "Max number of frontier pops in native QSearch / LEAP "
+                    "(default 256).");
             parser.add_argument<int>("--qsearch-inst-iters")
                 .default_value(60)
-                .help("QFactor budget per child instantiation in native "
-                      "QSearch / LEAP (default 60).");
+                .help(
+                    "QFactor budget per child instantiation in native "
+                    "QSearch / LEAP (default 60).");
         },
         [&](ArgumentParser const& parser) -> CmdExecResult {
             if (!dvlab::utils::mgr_has_data(qcir_mgr)) return CmdExecResult::error;
 
             auto const& src = *qcir_mgr.get();
-            auto const  n   = src.get_num_qubits();
+            auto const n    = src.get_num_qubits();
 
             auto tensor_opt = to_tensor(src);
             if (!tensor_opt.has_value()) {
@@ -119,7 +126,7 @@ Command qcir_synthesize_cmd(QCirMgr& qcir_mgr) {
                 if (use_leap) {
                     synthesis::search::LeapOptions lopt;
                     static_cast<synthesis::search::QSearchOptions&>(lopt) = qopt;
-                    synth = synthesis::search::leap_synthesize(*tensor_opt, lopt);
+                    synth                                                 = synthesis::search::leap_synthesize(*tensor_opt, lopt);
                 } else {
                     synth = synthesis::search::qsearch_synthesize(*tensor_opt, qopt);
                 }
@@ -128,7 +135,7 @@ Command qcir_synthesize_cmd(QCirMgr& qcir_mgr) {
                 qsd_opt.try_three_cnot_qfactor = parser.parsed("--three-cnot-kak");
                 qsd_opt.three_cnot_restarts    = parser.get<int>("--three-cnot-restarts");
                 qsd_opt.three_cnot_use_lbfgs   = parser.parsed("--three-cnot-lbfgs");
-                synth = tensor::qsd::synthesize(*tensor_opt, qsd_opt);
+                synth                          = tensor::qsd::synthesize(*tensor_opt, qsd_opt);
             }
             spdlog::info("synthesize: produced a {}-qubit circuit ({} qubits target).", n, n);
 
@@ -139,9 +146,9 @@ Command qcir_synthesize_cmd(QCirMgr& qcir_mgr) {
 
             synth->set_filename(src.get_filename());
             synth->add_procedures(src.get_procedures());
-            synth->add_procedure(use_leap ? "Synthesize-LeapNative"
-                                          : use_qsearch ? "Synthesize-QSearchNative"
-                                                        : "Synthesize");
+            synth->add_procedure(use_leap      ? "Synthesize-LeapNative"
+                                 : use_qsearch ? "Synthesize-QSearchNative"
+                                               : "Synthesize");
 
             if (parser.parsed("--replace")) {
                 *qcir_mgr.get() = std::move(*synth);

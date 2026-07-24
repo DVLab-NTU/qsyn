@@ -67,7 +67,7 @@ QFactorResult instantiate(qcir::QCir& ansatz,
     auto const kind  = (opt.strategy == QFactorStrategy::LBFGS)
                            ? opt::MinimizerKind::LBFGS
                            : opt::MinimizerKind::CoordinateDescent;
-    auto       minimizer = opt::make_minimizer(kind);
+    auto minimizer   = opt::make_minimizer(kind);
 
     auto m_res = minimizer->minimize(cost, x0, m_opt);
 

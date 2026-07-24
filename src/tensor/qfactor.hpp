@@ -43,37 +43,37 @@ struct QFactorOptions {
     // Hard cap on outer iterations (passes for coord-descent, iter for LBFGS).
     std::size_t max_iterations = 200;
     // Stop early if the cosine-distance residual drops below this.
-    double      tolerance      = 1e-8;
+    double tolerance = 1e-8;
     // Initial step size, in radians, used for the +/- probe. Halved every
     // pass that produces no improvement. (Coord-descent only.)
-    double      initial_step   = 0.4;
+    double initial_step = 0.4;
     // Multiplicative factor applied to the step on each stagnant pass.
-    double      step_shrink    = 0.5;
+    double step_shrink = 0.5;
     // Floor below which the step is considered "exhausted" and the
     // search terminates.
-    double      min_step       = 1e-9;
+    double min_step = 1e-9;
     // 0 = quiet, 1 = summary log line, 2 = per-pass progress.
-    std::size_t verbosity      = 1;
+    std::size_t verbosity = 1;
     // Which numerical optimiser to use.
-    QFactorStrategy strategy   = QFactorStrategy::CoordinateDescent;
+    QFactorStrategy strategy = QFactorStrategy::CoordinateDescent;
     // LBFGS history length; ignored when strategy = CoordinateDescent.
-    std::size_t lbfgs_history  = 7;
+    std::size_t lbfgs_history = 7;
     // Finite-difference step used by LBFGS gradient.
-    double      lbfgs_fd_step  = 1e-4;
+    double lbfgs_fd_step = 1e-4;
 };
 
 struct QFactorResult {
     // Residual at iteration 0 (before any tuning).
-    double      initial_residual = 0.0;
+    double initial_residual = 0.0;
     // Residual at the last accepted pass.
-    double      final_residual   = 0.0;
+    double final_residual = 0.0;
     // Number of outer coordinate-descent passes that ran.
-    std::size_t n_passes         = 0;
+    std::size_t n_passes = 0;
     // True when `final_residual <= tolerance`.
-    bool        converged        = false;
+    bool converged = false;
     // Number of UGate parameters discovered (3 per UGate).  Zero means
     // there is nothing to tune and the routine is a no-op.
-    std::size_t n_parameters     = 0;
+    std::size_t n_parameters = 0;
 };
 
 // Tune every UGate in `ansatz` (in place) so that

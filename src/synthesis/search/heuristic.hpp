@@ -24,7 +24,7 @@ namespace qsyn::synthesis::search {
 
 class Heuristic {
 public:
-    virtual ~Heuristic() = default;
+    virtual ~Heuristic()                                           = default;
     [[nodiscard]] virtual double priority(double residual,
                                           std::size_t depth) const = 0;
 };

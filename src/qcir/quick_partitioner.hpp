@@ -16,15 +16,15 @@
 namespace qsyn::qcir {
 
 enum class PartitionStrategy {
-    Quick,       // BQSKit QuickPartitioner only
-    Scan,        // ScanPartitioner-lite (maximize MQ gates per region)
-    QuickScan,   // Quick + merge + scan refinement (default)
+    Quick,      // BQSKit QuickPartitioner only
+    Scan,       // ScanPartitioner-lite (maximize MQ gates per region)
+    QuickScan,  // Quick + merge + scan refinement (default)
 };
 
 // One contiguous unitary region (topological gate order preserved).
 struct UnitaryRegion {
     std::vector<QCirGate const*> gates;
-    std::set<QubitIdType>        qubits;
+    std::set<QubitIdType> qubits;
 };
 
 // BQSKit QuickPartitioner: single forward scan, bin gates while

@@ -24,7 +24,7 @@ namespace {
 
 PauliDag from_tableau(Tableau const& tableau) {
     auto const tl = build_timeline(tableau);
-    PauliDag   dag;
+    PauliDag dag;
     dag.n_qubits = tl.n_qubits;
     dag.entries  = tl.entries;
     return dag;
@@ -82,7 +82,7 @@ FoldTermsResult fold_terms(std::unordered_map<PauliLabelKey, dvlab::Phase> const
 
 std::unordered_set<PauliLabelKey>
 globally_removed_labels(std::unordered_map<PauliLabelKey, dvlab::Phase> const& raw,
-                        FoldTermsResult const&                         folded) {
+                        FoldTermsResult const& folded) {
     std::unordered_set<PauliLabelKey> removed;
     for (auto const& [key, _] : raw) {
         if (folded.pruned.find(key) == folded.pruned.end()) {
@@ -94,15 +94,15 @@ globally_removed_labels(std::unordered_map<PauliLabelKey, dvlab::Phase> const& r
 
 GlobalPruneStats global_prune_pass(Tableau& tableau) {
     GlobalPruneStats stats;
-    auto const dag = from_tableau(tableau);
-    auto const raw = accumulate_global_terms(dag);
+    auto const dag       = from_tableau(tableau);
+    auto const raw       = accumulate_global_terms(dag);
     stats.n_terms_before = raw.size();
 
-    auto const folded  = fold_terms(raw);
-    stats.n_merged_global        = folded.n_merged;
-    stats.n_removed_zero         = folded.n_removed_zero;
-    stats.n_removed_clifford     = folded.n_removed_clifford;
-    stats.n_terms_after          = folded.pruned.size();
+    auto const folded        = fold_terms(raw);
+    stats.n_merged_global    = folded.n_merged;
+    stats.n_removed_zero     = folded.n_removed_zero;
+    stats.n_removed_clifford = folded.n_removed_clifford;
+    stats.n_terms_after      = folded.pruned.size();
 
     auto const removed = globally_removed_labels(raw, folded);
 

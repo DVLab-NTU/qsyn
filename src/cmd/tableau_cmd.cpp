@@ -343,9 +343,9 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr) {
             // NOTE: prefix matching used elsewhere in this file conflicts
             // for the three `cpf-*` names; do exact matches first.
             auto method = std::invoke([&]() -> std::optional<OptimizationMethod> {
-                if (method_str == "cpf-merge")      return OptimizationMethod::cpf_merge;
-                if (method_str == "cpf-global")     return OptimizationMethod::cpf_global;
-                if (method_str == "cpf-full")       return OptimizationMethod::cpf_full;
+                if (method_str == "cpf-merge") return OptimizationMethod::cpf_merge;
+                if (method_str == "cpf-global") return OptimizationMethod::cpf_global;
+                if (method_str == "cpf-full") return OptimizationMethod::cpf_full;
                 if (method_str == "pauli-compress") return OptimizationMethod::pauli_compress;
                 if (dvlab::str::is_prefix_of(method_str, "full")) {
                     return OptimizationMethod::full;
@@ -435,19 +435,21 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr) {
                 }
                 case OptimizationMethod::cpf_global: {
                     auto const stats = cpf::global_fold(*tableau_mgr.get());
-                    spdlog::info("cpf-global: {} local + {} propagation merges, {} rotations removed in {} passes "
-                                 "(left {} Clifford-angle rotations for `cpf-full`/`tmerge` to absorb)",
-                                 stats.n_local_merges, stats.n_propagation_merges, stats.n_rotations_removed,
-                                 stats.n_passes, stats.n_clifford_angle_left);
+                    spdlog::info(
+                        "cpf-global: {} local + {} propagation merges, {} rotations removed in {} passes "
+                        "(left {} Clifford-angle rotations for `cpf-full`/`tmerge` to absorb)",
+                        stats.n_local_merges, stats.n_propagation_merges, stats.n_rotations_removed,
+                        stats.n_passes, stats.n_clifford_angle_left);
                     tableau_mgr.get()->add_procedure("CPF-Global");
                     break;
                 }
                 case OptimizationMethod::cpf_full: {
                     auto const stats = cpf::global_fold(*tableau_mgr.get());
-                    spdlog::info("cpf-full[1/2] cpf-global: {} local + {} propagation merges, {} rotations removed in {} passes "
-                                 "(left {} Clifford-angle rotations)",
-                                 stats.n_local_merges, stats.n_propagation_merges, stats.n_rotations_removed,
-                                 stats.n_passes, stats.n_clifford_angle_left);
+                    spdlog::info(
+                        "cpf-full[1/2] cpf-global: {} local + {} propagation merges, {} rotations removed in {} passes "
+                        "(left {} Clifford-angle rotations)",
+                        stats.n_local_merges, stats.n_propagation_merges, stats.n_rotations_removed,
+                        stats.n_passes, stats.n_clifford_angle_left);
                     // Hand off to the existing T-count-driven pipeline for
                     // the structural / Clifford-side cleanup. `full_optimize`
                     // calls collapse + merge_rotations + minimize_internal_hadamards
@@ -459,9 +461,9 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr) {
                 }
                 case OptimizationMethod::pauli_compress: {
                     cpf::PauliCompressOptions opts;
-                    opts.l2_budget      = parser.get<double>("--l2");
+                    opts.l2_budget       = parser.get<double>("--l2");
                     opts.absorb_clifford = !parser.parsed("--no-absorb");
-                    auto const stats    = cpf::pauli_compress(*tableau_mgr.get(), opts);
+                    auto const stats     = cpf::pauli_compress(*tableau_mgr.get(), opts);
                     spdlog::info("pauli-compress: {} -> {} rotations ({} merged, {} cancelled, {} snapped to 0, {} snapped to Clifford, L2 used {:.4g})",
                                  stats.n_before, stats.n_after, stats.n_merged, stats.n_cancelled,
                                  stats.n_snapped_zero, stats.n_snapped_clifford, stats.l2_used);

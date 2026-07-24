@@ -32,7 +32,7 @@ Timeline build_timeline(Tableau const& tableau) {
 Tableau rebuild_tableau(Timeline const& timeline) {
     Tableau tab{timeline.n_qubits};
     std::vector<PauliRotation> cur_rots;
-    auto                       flush_rots = [&]() {
+    auto flush_rots = [&]() {
         if (!cur_rots.empty()) {
             tab.emplace_back(std::move(cur_rots));
             cur_rots.clear();

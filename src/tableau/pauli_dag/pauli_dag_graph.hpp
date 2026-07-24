@@ -12,26 +12,25 @@
 #include <utility>
 #include <vector>
 
-#include "tableau/pauli_rotation.hpp"
-
 #include "./timeline.hpp"
+#include "tableau/pauli_rotation.hpp"
 
 namespace qsyn::experimental::cpf::pauli_dag {
 
 // Rotation node in the circuit-order frame: Pauli label after pushing past
 // all Cliffords strictly before this gate in the timeline.
 struct PauliDagNode {
-    std::size_t   timeline_index = 0;
+    std::size_t timeline_index = 0;
     PauliRotation rotation{{Pauli::i}, dvlab::Phase{0}};
-    std::string   label_key;
+    std::string label_key;
 };
 
 // Directed acyclic graph: edge a -> b (a before b) means b's unitary depends on
 // the relative order with a (cannot swap past a non-commuting region).
 // `merge_pair` lists undirected pairs that staq `try_merge` would fuse.
 struct PauliDagGraph {
-    std::size_t                              n_qubits = 0;
-    std::vector<PauliDagNode>                nodes;
+    std::size_t n_qubits = 0;
+    std::vector<PauliDagNode> nodes;
     std::vector<std::pair<std::size_t, std::size_t>> dependency_edges;
     std::vector<std::pair<std::size_t, std::size_t>> merge_edges;
 };

@@ -30,7 +30,7 @@ namespace qsyn::tensor::opt {
 namespace {
 
 double dot(std::vector<double> const& a, std::vector<double> const& b) {
-    double s = 0.0;
+    double s     = 0.0;
     auto const n = std::min(a.size(), b.size());
     for (std::size_t i = 0; i < n; ++i) s += a[i] * b[i];
     return s;
@@ -44,9 +44,9 @@ double inf_norm(std::vector<double> const& v) {
 
 }  // namespace
 
-MinimizeResult LBFGSMinimizer::minimize(CostFunction&              f,
+MinimizeResult LBFGSMinimizer::minimize(CostFunction& f,
                                         std::vector<double> const& x0,
-                                        MinimizeOptions const&     opt) {
+                                        MinimizeOptions const& opt) {
     MinimizeResult res;
     res.x = x0;
 
@@ -78,10 +78,10 @@ MinimizeResult LBFGSMinimizer::minimize(CostFunction&              f,
     // History of (s_k = x_{k+1}-x_k) and (y_k = g_{k+1}-g_k) plus the
     // cached rho_k = 1 / (y_k . s_k) for the two-loop recursion.
     std::deque<std::vector<double>> S, Y;
-    std::deque<double>              Rho;
+    std::deque<double> Rho;
 
-    double f_cur = res.final_value;
-    bool   converged_local = false;
+    double f_cur         = res.final_value;
+    bool converged_local = false;
 
     for (std::size_t k = 0; k < opt.max_iterations; ++k) {
         // ---- Two-loop recursion to compute d = -H_k * g ----
@@ -139,7 +139,7 @@ MinimizeResult LBFGSMinimizer::minimize(CostFunction&              f,
         }
         double step    = opt.ls_initial;
         double f_trial = f_cur;
-        bool   ls_ok   = false;
+        bool ls_ok     = false;
         for (std::size_t ls = 0; ls < opt.ls_max_steps; ++ls) {
             for (std::size_t j = 0; j < n; ++j) x_trial[j] = res.x[j] + step * d[j];
             f_trial = f.evaluate(x_trial);
