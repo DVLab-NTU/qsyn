@@ -1,107 +1,62 @@
-# paulicompress (Proposed Synthesis Flow)
+# paulicompress — thesis core Proposed Synthesis Flow
 
-Open-source helper branch for lab members: turn Hamiltonian-simulation
-benchmarks into Clifford+T via **PauliCompress (heuristic)** + **Gridsynth** +
-**qsyn `qzq`**.
+Open-source lab entry for the **core** of
+*A PCA-Inspired Scalable Pauli Rotation Minimization Algorithm…*
+(Ch. 3 flow + Ch. 4 zero-sweep + Ch. 5 Gridsynth/`qzq`).
+
+## Thesis coverage (this branch)
+
+| Thesis piece | In branch? | How |
+|---|---|---|
+| Ch.3 Proposed Flow (fast/slow) | **yes** | `cli.py run` / `all` |
+| Ch.4 zero-sweep F-cost + prefix multi-F* | **yes** | `cli.py zero-sweep` (default compress) |
+| Ch.5 Gridsynth ε + `qzq` QCO | **yes** | wired in `flow.py` |
+| 13 NCF benchmarks prepare | **yes** | `cli.py prepare` + pickles |
+| Packaged proposed circuits (check) | **yes** | `reproduction_bundle_proposed_flow/` |
+| Methods A–E / HYBRID grid sweeps | **no** | not required for core claim |
+| Track B mapping ablation | **no** | |
+| NCF fusion baseline repro | **no** | |
+| Full Table 6.x recompute | **partial** | re-run core flow; tables need extra drivers |
+
+Everything this CLI can run maps to the thesis **proposed** stack (not external NCF-fusion experiments).
 
 ## Routes
 
 | mode | pipeline |
 |------|----------|
-| **fast** | Hamiltonian `.pauli` → `tableau read-pauli` → **`pauli-compress -l`** → Gridsynth → **`qzq`** |
-| **slow** | Hamiltonian `.qasm` → **`to-zyz`** → **`to-tableau --fold`** (trace_replay → **dag_fold** → collapse) → **`pauli-compress -l`** → Gridsynth → **`qzq`** |
+| **fast** | `.pauli` → **zero-sweep (F*)** → Gridsynth → **`qzq`** |
+| **slow** | `.qasm` → **to-zyz** → **to-tableau --fold** (PauliDAG) → **zero-sweep** → Gridsynth → **`qzq`** |
 
-`pauli-compress` is the in-tree heuristic (lossless merge/cancel, then greedy
-Clifford-snap under an L2 budget). Default budget from fidelity target:
-
-```
-B_L2 = sqrt(-2 ln F*)     # e.g. F*=0.99 → B_L2 ≈ 0.1418
-```
+Optional: `--compress cpp-l2` uses Qsyn `pauli-compress -l` (L2 surrogate; not the thesis F-cost planner).
 
 ## Setup
 
 ```bash
-git clone <this-repo> -b paulicompress
-cd qsyn
-make -j$(nproc)                          # builds CPF + pauli-compress into ./build/qsyn
-pip install pygridsynth mpmath           # Gridsynth
-# molecule pickles already under scripts/pca_compress/benchmark_circuit/source/
+git clone <repo> -b paulicompress && cd qsyn
+make -j$(nproc)
+pip install -r scripts/paulicompress/requirements.txt
 ```
 
-## One-liner (recommended)
+## Commands
 
 ```bash
-# prepare LiH + run both fast and slow (F*=0.99, Gridsynth ε=1e-3)
+# 1) multi-F* zero-sweep only (Stage 1–3 of the heuristic slide)
+python3 scripts/paulicompress/cli.py prepare --out out/01_original_benchmarks --bench LiH
+python3 scripts/paulicompress/cli.py zero-sweep \
+    --pauli out/01_original_benchmarks/LiH/LiH.pauli \
+    --tiers 0.999 0.99 0.9
+
+# 2) end-to-end proposed flow (fast + slow)
 python3 scripts/paulicompress/cli.py all --bench LiH --fidelity 0.99 --eps 1e-3
+
+# 3) single mode
+python3 scripts/paulicompress/cli.py run --mode fast --bench LiH \
+    --bench-root out/01_original_benchmarks --fidelity 0.99 --eps 1e-3
 ```
 
-Outputs:
+## Layout
 
-```
-out/01_original_benchmarks/LiH/{LiH.pauli,LiH.qasm}
-out/flow/fast/LiH/{after_pauli_compress.qasm,after_gridsynth.qasm,clifford_t.qasm,summary.json}
-out/flow/slow/LiH/...
-```
-
-## Step-by-step
-
-```bash
-# 1) Paulihedral / lattice → 01_original layout
-python3 scripts/paulicompress/cli.py prepare \
-    --out out/01_original_benchmarks \
-    --bench LiH Ising-2D-30
-
-# 2a) fast
-python3 scripts/paulicompress/cli.py run --mode fast \
-    --bench LiH --bench-root out/01_original_benchmarks \
-    --fidelity 0.99 --eps 1e-3 --out out/flow
-
-# 2b) slow
-python3 scripts/paulicompress/cli.py run --mode slow \
-    --bench LiH --bench-root out/01_original_benchmarks \
-    --fidelity 0.99 --eps 1e-3 --out out/flow
-```
-
-Smoke without QCO:
-
-```bash
-python3 scripts/paulicompress/cli.py run --mode fast \
-    --bench Ising-2D-30 --bench-root out/01_original_benchmarks \
-    --fidelity 0.99 --eps 1e-3 --skip-qzq --out out/flow
-```
-
-## Equivalent qsyn dofiles (for debugging)
-
-**fast**
-
-```text
-tableau read-pauli "LiH.pauli"
-tableau optimize pauli-compress -l 0.1418
-convert tableau qcir
-qcir write "after_pauli_compress.qasm"
-```
-
-**slow**
-
-```text
-qcir read "LiH.qasm"
-qcir to-zyz -r
-qcir to-tableau --fold -r
-tableau optimize pauli-compress -l 0.1418
-convert tableau qcir
-qcir write "after_pauli_compress.qasm"
-```
-
-Then Gridsynth (Python) + QCO:
-
-```text
-qcir read "after_gridsynth.qasm"
-qzq
-qcir write "clifford_t.qasm"
-```
-
-## Layout notes
-
-- Benchmark sources: `scripts/pca_compress/benchmark_circuit/` (Paulihedral pickles + generator).
-- Reference packaged circuits (optional): `scripts/pca_compress/reproduction_bundle_proposed_flow/`.
-- Heavy experiment dumps under `scripts/pca_compress/results_pc_axis/` are **not** part of this public flow (gitignored).
+- CLI / zero-sweep: `scripts/paulicompress/`
+- Benchmark sources: `scripts/pca_compress/benchmark_circuit/`
+- Reference bundle: `scripts/pca_compress/reproduction_bundle_proposed_flow/`
+- Experiment dumps (`results_pc_axis/`) stay gitignored

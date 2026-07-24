@@ -10,12 +10,13 @@ Lab-facing entry point on the **`paulicompress`** branch:
 
 ```bash
 make -j$(nproc)
-pip install pygridsynth mpmath
+pip install -r scripts/paulicompress/requirements.txt
+python3 scripts/paulicompress/cli.py zero-sweep --pauli …/LiH.pauli --tiers 0.999 0.99 0.9
 python3 scripts/paulicompress/cli.py all --bench LiH --fidelity 0.99 --eps 1e-3
 ```
 
-See [`paulicompress/README.md`](paulicompress/README.md) for **fast** /
-**slow** routes (PauliCompress heuristic → Gridsynth → `qzq`).
+See [`paulicompress/README.md`](paulicompress/README.md): thesis **zero-sweep
+(F-cost)** + **fast/slow** Proposed Flow → Gridsynth → `qzq`.
 
 ## Tools
 
