@@ -8,6 +8,8 @@
 
 # Qsyn: A Developer-Friendly Quantum Circuit Synthesis Framework for NISQ Era and Beyond
 
+> **Local NCF work:** see [PROVENANCE.md](PROVENANCE.md) and [docs/NCF_PROGRAM.md](docs/NCF_PROGRAM.md).
+
 ![](https://i.imgur.com/wKg5cQO.jpg)
 
 <!-- ![example branch parameter](https://github.com/DVLab-NTU/qsyn/actions/workflows/build-and-test.yml/badge.svg) -->
