@@ -13,6 +13,7 @@ set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 include(FetchContent)
+include(CheckCXXCompilerFlag)
 set(FETCHCONTENT_UPDATES_DISCONNECTED TRUE)
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -252,6 +253,15 @@ target_compile_options(
 target_compile_options(
     ${CMAKE_PROJECT_NAME} PRIVATE -Wno-missing-field-initializers)
 
+# GCC may flag false-positive maybe-uninitialized in xtl/xtensor templates
+# (e.g. xt::linalg::det) even when those headers are SYSTEM includes.
+check_cxx_compiler_flag(
+    -Wno-error=maybe-uninitialized COMPILER_SUPPORTS_WNOERROR_MAYBE_UNINITIALIZED)
+if(COMPILER_SUPPORTS_WNOERROR_MAYBE_UNINITIALIZED)
+    target_compile_options(
+        ${CMAKE_PROJECT_NAME} PRIVATE -Wno-error=maybe-uninitialized)
+endif()
+
 target_include_directories(
     ${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/src)
 
@@ -322,3 +332,8 @@ target_compile_options(
     ${UNIT_TEST_NAME}
     PRIVATE 
     -Wno-missing-field-initializers)
+
+if(COMPILER_SUPPORTS_WNOERROR_MAYBE_UNINITIALIZED)
+    target_compile_options(
+        ${UNIT_TEST_NAME} PRIVATE -Wno-error=maybe-uninitialized)
+endif()
