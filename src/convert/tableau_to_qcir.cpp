@@ -16,6 +16,8 @@
 
 #include <cmath>
 #include <complex>
+#include <set>
+#include <unordered_map>
 
 #include "qcir/basic_gate_type.hpp"
 #include "qcir/qcir.hpp"
@@ -332,6 +334,73 @@ std::optional<size_t> ncf_single_qubit_support(std::vector<PauliRotation> const&
     return common_qubit;
 }
 
+/**
+ * @brief Canonical forward Clifford shell C for NCF export: S(ancilla) then sorted CNOT ladder.
+ *        Single-qubit H/S on the fold pivot are omitted (emitted in the inner rotation block).
+ */
+CliffordOperatorString ncf_canonicalize_forward_clifford(
+    CliffordOperatorString const& ops,
+    size_t pivot) {
+    using COT = CliffordOperatorType;
+
+    std::vector<std::pair<size_t, size_t>> cx_edges;
+    std::unordered_map<size_t, int> non_pivot_s_phase;
+
+    for (auto const& [type, qubits] : ops) {
+        switch (type) {
+            case COT::cx:
+                cx_edges.emplace_back(qubits[0], qubits[1]);
+                break;
+            case COT::s:
+                if (qubits[0] != pivot) {
+                    ++non_pivot_s_phase[qubits[0]];
+                }
+                break;
+            case COT::sdg:
+                if (qubits[0] != pivot) {
+                    --non_pivot_s_phase[qubits[0]];
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    std::set<std::pair<size_t, size_t>> seen;
+    std::vector<std::pair<size_t, size_t>> unique_cx;
+    for (auto const& edge : cx_edges) {
+        if (seen.insert(edge).second) {
+            unique_cx.push_back(edge);
+        }
+    }
+    std::ranges::sort(unique_cx);
+
+    std::optional<size_t> ancilla;
+    for (auto const& [q, phase] : non_pivot_s_phase) {
+        if (phase % 2 != 0) {
+            ancilla = q;
+            break;
+        }
+    }
+    if (!ancilla && unique_cx.size() > 1) {
+        bool star_from_pivot = std::ranges::all_of(unique_cx, [&](auto const& edge) {
+            return edge.first == pivot;
+        });
+        if (star_from_pivot) {
+            ancilla = std::ranges::max_element(unique_cx, {}, &std::pair<size_t, size_t>::second)->second;
+        }
+    }
+
+    CliffordOperatorString shell;
+    if (ancilla) {
+        shell.emplace_back(COT::s, std::array<size_t, 2>{*ancilla, 0});
+    }
+    for (auto const& [control, target] : unique_cx) {
+        shell.emplace_back(COT::cx, std::array<size_t, 2>{control, target});
+    }
+    return shell;
+}
+
 // exp(i theta * P) as 2x2 matrix for P in {X,Y,Z}. Convention: rotation is exp(i theta P).
 void pauli_exp_matrix(Pauli P, double theta, std::complex<double> out[2][2]) {
     using namespace std::complex_literals;
@@ -400,30 +469,38 @@ std::optional<qcir::QCir> NcfMergePauliRotationsSynthesisStrategy::synthesize(st
     }
     size_t const qubit = *qubit_opt;
     qcir::QCir qcir(rotations.front().n_qubits());
-    for (auto const& r : rotations) {
+    for (size_t ri = 0; ri < rotations.size(); ++ri) {
+        auto const& r = rotations[ri];
         // After tableau optimize ncf, rotations in a group are already conjugated to a single qubit.
         // Emit them explicitly without merging/decomposing:
         //   Z: rz(θ)
         //   X: h; rz(θ); h
         //   Y: sdg; h; rz(θ); h; s
         //
-        // This matches the expected gate-listing style such as b.qasm.
-        auto const p = r.get_pauli_type(qubit);
-        if (p == Pauli::x) {
-            qcir.append(qcir::HGate(), qsyn::QubitIdList{qubit});
-            qcir.append(qcir::RZGate(r.phase()), qsyn::QubitIdList{qubit});
-            qcir.append(qcir::HGate(), qsyn::QubitIdList{qubit});
-        } else if (p == Pauli::y) {
-            qcir.append(qcir::SdgGate(), qsyn::QubitIdList{qubit});
-            qcir.append(qcir::HGate(), qsyn::QubitIdList{qubit});
-            qcir.append(qcir::RZGate(r.phase()), qsyn::QubitIdList{qubit});
-            qcir.append(qcir::HGate(), qsyn::QubitIdList{qubit});
-            qcir.append(qcir::SGate(), qsyn::QubitIdList{qubit});
-        } else {
-            // Treat identity as no-op; Z as rz(θ).
-            if (p == Pauli::z) {
+        // Anti-pair blocks map the second anticommuting term to X on the pivot, but the
+        // hyperbolic gadget is the Y chain S†·H·Rz·H·S (see NCF paper / debug canonical form).
+        auto emit_pauli = [&](Pauli p) {
+            if (p == Pauli::x) {
+                qcir.append(qcir::HGate(), qsyn::QubitIdList{qubit});
+                qcir.append(qcir::RZGate(r.phase()), qsyn::QubitIdList{qubit});
+                qcir.append(qcir::HGate(), qsyn::QubitIdList{qubit});
+            } else if (p == Pauli::y) {
+                qcir.append(qcir::SdgGate(), qsyn::QubitIdList{qubit});
+                qcir.append(qcir::HGate(), qsyn::QubitIdList{qubit});
+                qcir.append(qcir::RZGate(r.phase()), qsyn::QubitIdList{qubit});
+                qcir.append(qcir::HGate(), qsyn::QubitIdList{qubit});
+                qcir.append(qcir::SGate(), qsyn::QubitIdList{qubit});
+            } else if (p == Pauli::z) {
                 qcir.append(qcir::RZGate(r.phase()), qsyn::QubitIdList{qubit});
             }
+        };
+
+        auto p = r.get_pauli_type(qubit);
+        if (ri == 1 && rotations.size() == 2 &&
+            rotations[0].get_pauli_type(qubit) == Pauli::z && p == Pauli::x) {
+            emit_pauli(Pauli::y);
+        } else {
+            emit_pauli(p);
         }
     }
     return qcir;
@@ -897,7 +974,14 @@ std::optional<qcir::QCir> to_qcir_ncf_sequential(Tableau const& tableau, Stabili
             }
         };
 
-        for (auto const* g : in.get_gates()) {
+        std::vector<qcir::QCirGate const*> gate_list;
+        if (in.preserve_append_order()) {
+            gate_list = in.get_gates_in_append_order();
+        } else {
+            gate_list.assign(in.get_gates().begin(), in.get_gates().end());
+        }
+
+        for (auto const* g : gate_list) {
             auto const qs   = g->get_qubits();
             auto const repr = g->get_operation().get_repr();
 
@@ -918,6 +1002,7 @@ std::optional<qcir::QCir> to_qcir_ncf_sequential(Tableau const& tableau, Stabili
         for (qsyn::QubitIdType q = 0; q < pending_h.size(); ++q) {
             flush_h(q);
         }
+        out.set_preserve_append_order(in.preserve_append_order());
         return out;
     };
 
@@ -931,6 +1016,27 @@ std::optional<qcir::QCir> to_qcir_ncf_sequential(Tableau const& tableau, Stabili
         // Prefer direct ops emission if present (NCF direct-ops mode).
         if (auto const& maybe_ops = tableau.get_block_ops(idx); maybe_ops.has_value()) {
             qcir::QCir c{tableau.n_qubits()};
+
+            // NCF blocks alternate [C†][R][C]. Emit symmetric shells: S(ancilla)+CX in C,
+            // reverse CX + S†(ancilla) in C† (mirror of C).
+            bool const is_ncf_c_dagger = idx >= 1 && (idx % 3 == 1);
+            bool const is_ncf_c        = idx >= 3 && (idx % 3 == 0);
+            if (is_ncf_c_dagger || is_ncf_c) {
+                size_t const rot_idx = is_ncf_c_dagger ? idx + 1 : idx - 1;
+                size_t const c_idx   = is_ncf_c ? idx : idx + 2;
+                if (rot_idx < n && c_idx < n &&
+                    std::holds_alternative<std::vector<PauliRotation>>(tableau[rot_idx]) &&
+                    tableau.get_block_ops(c_idx).has_value()) {
+                    auto const& rots        = std::get<std::vector<PauliRotation>>(tableau[rot_idx]);
+                    auto const& forward_ops = *tableau.get_block_ops(c_idx);
+                    if (auto const pivot = ncf_single_qubit_support(rots)) {
+                        auto const shell = ncf_canonicalize_forward_clifford(forward_ops, *pivot);
+                        emit_ops(c, is_ncf_c_dagger ? adjoint(shell) : shell);
+                        return c;
+                    }
+                }
+            }
+
             emit_ops(c, *maybe_ops);
             return c;
         }
@@ -950,6 +1056,7 @@ std::optional<qcir::QCir> to_qcir_ncf_sequential(Tableau const& tableau, Stabili
         if (!frag) return std::nullopt;
         qcir.compose(*frag);
     }
+    qcir.set_preserve_append_order(true);
     return simplify_cancel_hh(qcir);
 }
 
