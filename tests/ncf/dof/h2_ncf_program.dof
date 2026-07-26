@@ -1,0 +1,7 @@
+tableau from-terms ../data/h2_jw_sto3g.json --use-coeff
+tableau optimize collapse
+tableau optimize ncf
+ncf print --summary
+ncf print --blocks
+ncf analyze commute
+ncf block print 0 --view stats

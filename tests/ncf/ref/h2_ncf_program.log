@@ -1,0 +1,63 @@
+Loaded 14 Pauli terms (jordan_wigner, sto-3g, H2) → Tableau 0
+  #0 ZIII  angle=?  coeff=0.137165729
+  #1 IZII  angle=?  coeff=0.137165729
+  #2 IIZI  angle=?  coeff=-0.130362921
+  #3 IIIZ  angle=?  coeff=-0.130362921
+  #4 ZZII  angle=?  coeff=0.156600625
+  #5 YXXY  angle=?  coeff=0.0491976459
+  #6 YYXX  angle=?  coeff=-0.0491976459
+  #7 XXYY  angle=?  coeff=-0.0491976459
+  #8 XYYX  angle=?  coeff=0.0491976459
+  #9 ZIZI  angle=?  coeff=0.106229045
+  #10 ZIIZ  angle=?  coeff=0.155426691
+  #11 IZZI  angle=?  coeff=0.155426691
+  #12 IZIZ  angle=?  coeff=0.106229045
+  #13 IIZZ  angle=?  coeff=0.163267687
+Try: tableau optimize collapse && tableau optimize ncf
+[warn]     NCF graph iter 0: vertices = 14
+[NCF fusion report]
+  Pauli terms (before):     14   (indices #0–#13)
+  NCF blocks (after):       10
+  Synthesis: before=naive  after=ncf
+  Cost BEFORE NCF:
+    CX: 36  RZ: 0  H: 16  S: 0  Sdg: 0  clifford: 68  total: 82  depth: 52
+  Cost AFTER NCF:
+    CX: 36  RZ: 14  H: 8  S: 8  Sdg: 8  clifford: 60  total: 74  depth: 62
+  Delta (after − before):
+    CX: 0  RZ: 14  clifford: -8  total: -8
+NcfProgram 0 ready — try: ncf print --summary
+[NCF fusion report]
+  Pauli terms (before):     14   (indices #0–#13)
+  NCF blocks (after):       10
+  Synthesis: before=naive  after=ncf
+  Cost BEFORE NCF:
+    CX: 36  RZ: 0  H: 16  S: 0  Sdg: 0  clifford: 68  total: 82  depth: 52
+  Cost AFTER NCF:
+    CX: 36  RZ: 14  H: 8  S: 8  Sdg: 8  clifford: 60  total: 74  depth: 62
+  Delta (after − before):
+    CX: 0  RZ: 14  clifford: -8  total: -8
+[NCF fusion report]
+  Pauli terms (before):     14   (indices #0–#13)
+  NCF blocks (after):       10
+  Synthesis: before=naive  after=ncf
+  Cost BEFORE NCF:
+    CX: 36  RZ: 0  H: 16  S: 0  Sdg: 0  clifford: 68  total: 82  depth: 52
+  Cost AFTER NCF:
+    CX: 36  RZ: 14  H: 8  S: 8  Sdg: 8  clifford: 60  total: 74  depth: 62
+  Delta (after − before):
+    CX: 0  RZ: 14  clifford: -8  total: -8
+Block 0: cx_prefix=3 cx_suffix=3 cx_total=6 inner_rz=2 hs=8
+Block 1: cx_prefix=3 cx_suffix=3 cx_total=6 inner_rz=2 hs=8
+Block 2: cx_prefix=3 cx_suffix=3 cx_total=6 inner_rz=2 hs=8
+Block 3: cx_prefix=3 cx_suffix=3 cx_total=6 inner_rz=2 hs=8
+Block 4: cx_prefix=1 cx_suffix=1 cx_total=2 inner_rz=1 hs=0
+Block 5: cx_prefix=1 cx_suffix=1 cx_total=2 inner_rz=1 hs=0
+Block 6: cx_prefix=1 cx_suffix=1 cx_total=2 inner_rz=1 hs=0
+Block 7: cx_prefix=1 cx_suffix=1 cx_total=2 inner_rz=1 hs=0
+Block 8: cx_prefix=1 cx_suffix=1 cx_total=2 inner_rz=1 hs=0
+Block 9: cx_prefix=1 cx_suffix=1 cx_total=2 inner_rz=1 hs=0
+layer: 0
+layer: 1
+layer: 2
+layer: 3, 4, 5, 6, 7, 8, 9
+Block 0: cx_prefix=3 cx_suffix=3 cx_total=6 inner_rz=2 hs=8
