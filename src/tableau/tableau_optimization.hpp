@@ -42,14 +42,23 @@ void merge_rotations(Tableau& tableau);
 
 void minimize_internal_hadamards(Tableau& tableau);
 
+struct NcfFusionOptions {
+    /// When true, pick anti-commuting pairs with maximum Paulihedral letter overlap first
+    /// (same non-I Pauli on the same qubit).  Searches all anti-commuting active pairs,
+    /// not only generator pairs.
+    bool overlap_priority = false;
+    bool all_merges       = false;
+    size_t max_cases      = 0;
+};
+
 /**
  * @brief Non-Clifford Fusion (NCF): partition Pauli rotations into groups that can be
  *        conjugated to act on 1 or 2 qubits, then replace the rotation list by blocks
  *        [C†][R'][C] so that each R' can be synthesized as a single U3 or two-qubit unitary.
  *        See https://arxiv.org/abs/2510.13573
  */
-void ncf_fusion(Tableau& tableau);
-std::vector<Tableau> ncf_fusion_all(Tableau const& tableau, size_t max_cases = 0);
+void ncf_fusion(Tableau& tableau, NcfFusionOptions const& options = {});
+std::vector<Tableau> ncf_fusion_all(Tableau const& tableau, NcfFusionOptions const& options = {});
 
 struct PhasePolynomialOptimizationStrategy {
     using Polynomial                               = std::vector<PauliRotation>;

@@ -7,6 +7,7 @@
 #include "./tableau_optimization.hpp"
 
 #include <fmt/core.h>
+#include <fmt/ranges.h>
 #include <spdlog/spdlog.h>
 
 #include <algorithm>
@@ -18,6 +19,7 @@
 #include <string>
 #include <tl/adjacent.hpp>
 #include <tl/to.hpp>
+#include <unordered_map>
 #include <unordered_set>
 #include <variant>
 #include <vector>
@@ -545,60 +547,242 @@ MatroidPartitionStrategy::Partitions NaiveMatroidPartitionStrategy::partition(Ma
 
 namespace {
 
+size_t paulihedral_overlap(PauliProduct const& a, PauliProduct const& b) {
+    size_t const width = std::max(a.n_qubits(), b.n_qubits());
+    size_t overlap     = 0;
+    for (size_t q = 0; q < width; ++q) {
+        if (a.is_i(q) || b.is_i(q)) continue;
+        if (a.get_pauli_type(q) == b.get_pauli_type(q)) ++overlap;
+    }
+    return overlap;
+}
+
+size_t paulihedral_chain_score(PauliProduct const& a, PauliProduct const& b,
+                               std::vector<PauliRotation> const& rotations,
+                               std::vector<size_t> const& active, size_t i, size_t j) {
+    size_t score = 0;
+    for (size_t k : active) {
+        if (k == i || k == j) continue;
+        score += std::max(paulihedral_overlap(a, rotations[k].pauli_product()),
+                          paulihedral_overlap(b, rotations[k].pauli_product()));
+    }
+    return score;
+}
+
 /**
- * @brief Partition rotations into single-qubit NCF groups: anticommuting pairs
- *        (and their product if present), then remaining as singletons.
+ * @brief Partition rotations with graph + generator guided NCF grouping.
+ *
+ * Procedure (iterative on unpartitioned terms):
+ *  1) Build commuting / anti-commuting graphs.
+ *  2) Run Gaussian elimination over Pauli symplectic vectors to get generator indices.
+ *  3) Enumerate anti-commuting generator pairs in index order (default), or all
+ *     anti-commuting active pairs ranked by Paulihedral overlap (--overlap-priority).
+ *  4) Pick the first / highest-overlap pair; if their generated product exists and is
+ *     unpartitioned, group {i,j,k}, otherwise group {i,j}.
+ *  5) If no anti-commuting generator pair exists, remaining terms are mutually commuting
+ *     and are emitted as singletons.
  */
-std::vector<std::vector<size_t>> ncf_partition_single_qubit_groups(std::vector<PauliRotation> const& rotations) {
+std::vector<std::vector<size_t>> ncf_partition_single_qubit_groups(std::vector<PauliRotation> const& rotations,
+                                                                   NcfFusionOptions const& options) {
     size_t const n = rotations.size();
     std::vector<std::vector<size_t>> groups;
-    std::unordered_set<size_t> used;
+    std::vector<bool> used(n, false);
 
-    auto const product_matches = [&](size_t i, size_t j, size_t& out_k) -> bool {
-        PauliProduct p = rotations[i].pauli_product() * rotations[j].pauli_product();
-        for (size_t k = 0; k < n; ++k) {
-            if (k == i || k == j) continue;
-            if (p == rotations[k].pauli_product()) {
-                out_k = k;
-                return true;
-            }
-            p.negate();
-            if (p == rotations[k].pauli_product()) {
-                out_k = k;
-                return true;
-            }
-            p.negate();
+    auto const bit_key = [&](PauliProduct const& p) {
+        return p.to_bit_string();
+    };
+    auto const row_bits = [&](PauliProduct const& p) {
+        std::vector<uint8_t> row(2 * p.n_qubits(), 0);
+        for (size_t q = 0; q < p.n_qubits(); ++q) {
+            row[q]                = p.is_z_set(q) ? 1 : 0;
+            row[q + p.n_qubits()] = p.is_x_set(q) ? 1 : 0;
         }
-        return false;
+        return row;
     };
 
+    std::unordered_map<std::string, std::vector<size_t>> key_to_indices;
+    key_to_indices.reserve(n);
     for (size_t i = 0; i < n; ++i) {
-        if (used.contains(i)) continue;
-        bool grouped = false;
-        for (size_t j = i + 1; j < n; ++j) {
-            if (used.contains(j)) continue;
-            if (!rotations[i].is_commutative(rotations[j])) {
-                size_t k = 0;
-                if (product_matches(i, j, k) && !used.contains(k)) {
-                    groups.push_back({i, j, k});
-                    used.insert(i);
-                    used.insert(j);
-                    used.insert(k);
-                } else {
-                    groups.push_back({i, j});
-                    used.insert(i);
-                    used.insert(j);
-                }
-                grouped = true;
-                break;
+        key_to_indices[bit_key(rotations[i].pauli_product())].push_back(i);
+    }
+
+    auto const find_unpartitioned_product = [&](size_t i, size_t j) -> std::optional<size_t> {
+        PauliProduct p = rotations[i].pauli_product() * rotations[j].pauli_product();
+        auto try_key   = [&](PauliProduct const& pp) -> std::optional<size_t> {
+            auto it = key_to_indices.find(bit_key(pp));
+            if (it == key_to_indices.end()) return std::nullopt;
+            for (size_t idx : it->second) {
+                if (!used[idx] && idx != i && idx != j) return idx;
+            }
+            return std::nullopt;
+        };
+        if (auto k = try_key(p)) return k;
+        p.negate();
+        return try_key(p);
+    };
+
+    auto has_unpartitioned = [&]() {
+        return std::ranges::any_of(std::views::iota(size_t{0}, n), [&](size_t i) { return !used[i]; });
+    };
+
+    size_t iter = 0;
+    while (has_unpartitioned()) {
+        std::vector<size_t> active{};
+        active.reserve(n);
+        for (size_t i = 0; i < n; ++i) {
+            if (!used[i]) active.push_back(i);
+        }
+
+        // Build commuting / anti-commuting graph adjacency on the active set.
+        std::vector<std::vector<bool>> anti_adj(active.size(), std::vector<bool>(active.size(), false));
+        for (size_t a = 0; a < active.size(); ++a) {
+            for (size_t b = a + 1; b < active.size(); ++b) {
+                bool anti = !rotations[active[a]].is_commutative(rotations[active[b]]);
+                anti_adj[a][b] = anti;
+                anti_adj[b][a] = anti;
             }
         }
-        if (!grouped) {
-            groups.push_back({i});
-            used.insert(i);
+
+        // Print commutation graphs on current unpartitioned vertices.
+        spdlog::warn("NCF graph iter {}: vertices = {}", iter, active.size());
+        for (size_t ai = 0; ai < active.size(); ++ai) {
+            auto idx = active[ai];
+            spdlog::warn("  v#{}: {}", idx, rotations[idx].to_string('+'));
         }
+        std::vector<std::string> anti_edges{};
+        std::vector<std::string> comm_edges{};
+        for (size_t a = 0; a < active.size(); ++a) {
+            for (size_t b = a + 1; b < active.size(); ++b) {
+                auto const u = active[a];
+                auto const v = active[b];
+                if (anti_adj[a][b]) {
+                    anti_edges.push_back(fmt::format("({}, {})", u, v));
+                } else {
+                    comm_edges.push_back(fmt::format("({}, {})", u, v));
+                }
+            }
+        }
+        spdlog::warn("  anti-comm edges: {}", anti_edges.empty() ? std::string{"<none>"} : fmt::format("{}", fmt::join(anti_edges, ", ")));
+        spdlog::warn("  commuting edges: {}", comm_edges.empty() ? std::string{"<none>"} : fmt::format("{}", fmt::join(comm_edges, ", ")));
+
+        // Gaussian elimination over GF(2) on symplectic rows to select generator indices.
+        std::vector<size_t> generators{};
+        std::vector<std::vector<uint8_t>> basis_rows{};
+        std::vector<int> pivots(2 * rotations.front().n_qubits(), -1);
+        for (size_t idx : active) {
+            auto v = row_bits(rotations[idx].pauli_product());
+            for (size_t col = 0; col < v.size(); ++col) {
+                if (!v[col]) continue;
+                if (pivots[col] == -1) {
+                    pivots[col] = gsl::narrow<int>(basis_rows.size());
+                    basis_rows.push_back(v);
+                    generators.push_back(idx);
+                    goto next_row;
+                }
+                auto const& b = basis_rows[gsl::narrow<size_t>(pivots[col])];
+                for (size_t k = 0; k < v.size(); ++k) v[k] ^= b[k];
+            }
+        next_row:;
+        }
+
+        // Extract anti-commuting pairs: generator order (default) or Paulihedral overlap priority.
+        std::optional<std::pair<size_t, size_t>> picked_pair = std::nullopt;
+        size_t best_overlap                                    = 0;
+        size_t best_chain                                      = 0;
+
+        auto consider_pair = [&](size_t i, size_t j) {
+            auto const [lo, hi] = std::minmax(i, j);
+            if (options.overlap_priority) {
+                size_t const ov    = paulihedral_overlap(rotations[i].pauli_product(), rotations[j].pauli_product());
+                size_t const chain = paulihedral_chain_score(rotations[i].pauli_product(), rotations[j].pauli_product(),
+                                                             rotations, active, i, j);
+                if (!picked_pair.has_value() || ov > best_overlap ||
+                    (ov == best_overlap && chain > best_chain) ||
+                    (ov == best_overlap && chain == best_chain && lo < picked_pair->first) ||
+                    (ov == best_overlap && chain == best_chain && lo == picked_pair->first && hi < picked_pair->second)) {
+                    picked_pair  = {lo, hi};
+                    best_overlap = ov;
+                    best_chain   = chain;
+                }
+            } else if (!picked_pair.has_value()) {
+                picked_pair = {lo, hi};
+            }
+        };
+
+        if (options.overlap_priority) {
+            for (size_t a = 0; a < active.size(); ++a) {
+                for (size_t b = a + 1; b < active.size(); ++b) {
+                    if (anti_adj[a][b]) consider_pair(active[a], active[b]);
+                }
+            }
+        } else {
+            for (size_t gi = 0; gi < generators.size() && !picked_pair.has_value(); ++gi) {
+                size_t const i = generators[gi];
+                auto pos_i_it  = std::ranges::find(active, i);
+                if (pos_i_it == active.end()) continue;
+                size_t const ai = std::distance(active.begin(), pos_i_it);
+                for (size_t gj = gi + 1; gj < generators.size(); ++gj) {
+                    size_t const j = generators[gj];
+                    auto pos_j_it  = std::ranges::find(active, j);
+                    if (pos_j_it == active.end()) continue;
+                    size_t const aj = std::distance(active.begin(), pos_j_it);
+                    if (anti_adj[ai][aj]) {
+                        consider_pair(i, j);
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (picked_pair.has_value() && options.overlap_priority) {
+            auto const [i, j] = *picked_pair;
+            spdlog::warn("NCF graph iter {}: overlap-priority pick ({}, {}) overlap={} chain={}", iter, i, j,
+                         paulihedral_overlap(rotations[i].pauli_product(), rotations[j].pauli_product()),
+                         paulihedral_chain_score(rotations[i].pauli_product(), rotations[j].pauli_product(), rotations,
+                                                 active, i, j));
+        }
+
+        if (!picked_pair.has_value()) {
+            // Remaining unpartitioned terms are mutually commuting; partition them into
+            // packs of size <= q (logical qubit count), as requested by the NCF policy.
+            size_t const q = rotations.empty() ? 0 : rotations.front().n_qubits();
+            size_t const pack_size = std::max<size_t>(1, q);
+            for (size_t start = 0; start < active.size(); start += pack_size) {
+                std::vector<size_t> pack{};
+                for (size_t t = start; t < std::min(active.size(), start + pack_size); ++t) {
+                    pack.push_back(active[t]);
+                    used[active[t]] = true;
+                }
+                groups.push_back(std::move(pack));
+            }
+            break;
+        }
+
+        auto const [i, j] = *picked_pair;
+        if (auto k = find_unpartitioned_product(i, j); k.has_value()) {
+            spdlog::warn("NCF graph iter {}: picked anti-pair ({}, {}) with product {}", iter, i, j, *k);
+            groups.push_back({i, j, *k});
+            used[i]  = true;
+            used[j]  = true;
+            used[*k] = true;
+        } else {
+            spdlog::warn("NCF graph iter {}: picked anti-pair ({}, {}) with no unpartitioned product", iter, i, j);
+            groups.push_back({i, j});
+            used[i] = true;
+            used[j] = true;
+        }
+        ++iter;
     }
     return groups;
+}
+
+bool ncf_pairwise_commutative(std::vector<PauliRotation> const& all_rotations, std::vector<size_t> const& indices) {
+    for (size_t i = 0; i < indices.size(); ++i) {
+        for (size_t j = i + 1; j < indices.size(); ++j) {
+            if (!all_rotations[indices[i]].is_commutative(all_rotations[indices[j]])) return false;
+        }
+    }
+    return true;
 }
 
 /**
@@ -737,7 +921,7 @@ CliffordOperatorString ncf_build_single_rotation_conjugation(std::vector<PauliRo
 
 }  // namespace
 
-void ncf_fusion(Tableau& tableau) {
+void ncf_fusion(Tableau& tableau, NcfFusionOptions const& options) {
     if (tableau.is_empty()) return;
     collapse(tableau);
     if (tableau.size() < 2) return;
@@ -751,7 +935,7 @@ void ncf_fusion(Tableau& tableau) {
 
     if (all_rotations.empty()) return;
 
-    std::vector<std::vector<size_t>> const groups = ncf_partition_single_qubit_groups(all_rotations);
+    std::vector<std::vector<size_t>> const groups = ncf_partition_single_qubit_groups(all_rotations, options);
 
     Tableau new_tableau(n_qubits);
     new_tableau.erase(new_tableau.begin(), new_tableau.end());
@@ -759,40 +943,47 @@ void ncf_fusion(Tableau& tableau) {
 
     size_t group_number = 0;
     for (auto const& indices : groups) {
-        auto const label_orig = [&]() {
-            std::string s;
-            for (size_t k = 0; k < indices.size(); ++k) {
-                if (k > 0) s += ", ";
-                s += "#" + std::to_string(indices[k]);
+        bool const commuting_pack = indices.size() > 1 && ncf_pairwise_commutative(all_rotations, indices);
+        auto emit_one_block       = [&](std::vector<size_t> const& block_indices, std::string const& label_suffix) {
+            auto const label_orig = [&]() {
+                std::string s;
+                for (size_t k = 0; k < block_indices.size(); ++k) {
+                    if (k > 0) s += ", ";
+                    s += "#" + std::to_string(block_indices[k]);
+                }
+                return s;
+            }();
+
+            std::vector<PauliRotation> group_rotations;
+            group_rotations.reserve(block_indices.size());
+            for (size_t idx : block_indices) {
+                group_rotations.push_back(all_rotations[idx]);
             }
-            return s;
-        }();
 
-        std::vector<PauliRotation> group_rotations;
-        group_rotations.reserve(indices.size());
-        for (size_t idx : indices) {
-            group_rotations.push_back(all_rotations[idx]);
+            // For commuting packs, emit each term as a singleton [C†][R'][C] block.
+            CliffordOperatorString ops = (block_indices.size() == 1) ? ncf_build_single_rotation_conjugation(group_rotations)
+                                                                     : ncf_build_single_qubit_conjugation(group_rotations);
+
+            StabilizerTableau c_dagger(n_qubits);
+            c_dagger.apply(adjoint(ops));
+            new_tableau.push_back(SubTableau{std::move(c_dagger)});
+            new_tableau.set_block_ops(new_tableau.size() - 1, adjoint(ops));
+
+            new_tableau.push_back(SubTableau{std::move(group_rotations)});
+            new_tableau.set_block_label(new_tableau.size() - 1, "NCF group " + std::to_string(group_number) + label_suffix + " (original " + label_orig + ")");
+
+            StabilizerTableau c_tableau(n_qubits);
+            c_tableau.apply(ops);
+            new_tableau.push_back(SubTableau{std::move(c_tableau)});
+            new_tableau.set_block_ops(new_tableau.size() - 1, ops);
+            ++group_number;
+        };
+
+        if (commuting_pack) {
+            for (size_t idx : indices) emit_one_block({idx}, " commuting-pack");
+        } else {
+            emit_one_block(indices, "");
         }
-
-        // Even for singleton groups, wrap them as [C†][R’][C] so that -r ncf can always emit RZ
-        // on one qubit (instead of falling back to naive synthesis, which emits p(...) / z).
-        CliffordOperatorString ops = (indices.size() == 1) ? ncf_build_single_rotation_conjugation(group_rotations)
-                                                         : ncf_build_single_qubit_conjugation(group_rotations);
-
-        StabilizerTableau c_dagger(n_qubits);
-        c_dagger.apply(adjoint(ops));
-        new_tableau.push_back(SubTableau{std::move(c_dagger)});
-        new_tableau.set_block_ops(new_tableau.size() - 1, adjoint(ops));
-
-        new_tableau.push_back(SubTableau{std::move(group_rotations)});
-        new_tableau.set_block_label(new_tableau.size() - 1, "NCF group " + std::to_string(group_number) + " (original " + label_orig + ")");
-
-        StabilizerTableau c_tableau(n_qubits);
-        c_tableau.apply(ops);
-        new_tableau.push_back(SubTableau{std::move(c_tableau)});
-        new_tableau.set_block_ops(new_tableau.size() - 1, ops);
-
-        ++group_number;
     }
 
     tableau = std::move(new_tableau);
@@ -852,48 +1043,57 @@ Tableau ncf_build_tableau_from_groups(
 
     size_t block_number = 0;
     for (auto const& indices : final_groups) {
-        std::vector<PauliRotation> group_rotations{};
-        group_rotations.reserve(indices.size());
-        for (size_t idx : indices) {
-            group_rotations.push_back(all_rotations[idx]);
-        }
-        auto ops_opt = ncf_try_build_conjugation(group_rotations);
-        if (!ops_opt) {
-            continue;
-        }
-        auto const& ops = *ops_opt;
-
-        auto const label_orig = [&]() {
-            std::string s;
-            for (size_t k = 0; k < indices.size(); ++k) {
-                if (k > 0) s += ", ";
-                s += "#" + std::to_string(indices[k]);
+        bool const commuting_pack = indices.size() > 1 && ncf_pairwise_commutative(all_rotations, indices);
+        auto emit_case_block      = [&](std::vector<size_t> const& block_indices, std::string const& label_suffix) {
+            std::vector<PauliRotation> group_rotations{};
+            group_rotations.reserve(block_indices.size());
+            for (size_t idx : block_indices) {
+                group_rotations.push_back(all_rotations[idx]);
             }
-            return s;
-        }();
+            auto ops_opt = ncf_try_build_conjugation(group_rotations);
+            if (!ops_opt) {
+                return;
+            }
+            auto const& ops = *ops_opt;
 
-        StabilizerTableau c_dagger(n_qubits);
-        c_dagger.apply(adjoint(ops));
-        out.push_back(SubTableau{std::move(c_dagger)});
-        out.set_block_ops(out.size() - 1, adjoint(ops));
+            auto const label_orig = [&]() {
+                std::string s;
+                for (size_t k = 0; k < block_indices.size(); ++k) {
+                    if (k > 0) s += ", ";
+                    s += "#" + std::to_string(block_indices[k]);
+                }
+                return s;
+            }();
 
-        out.push_back(SubTableau{std::move(group_rotations)});
-        out.set_block_label(
-            out.size() - 1,
-            "NCF case " + std::to_string(case_number) + " block " + std::to_string(block_number) + " (original " + label_orig + ")");
+            StabilizerTableau c_dagger(n_qubits);
+            c_dagger.apply(adjoint(ops));
+            out.push_back(SubTableau{std::move(c_dagger)});
+            out.set_block_ops(out.size() - 1, adjoint(ops));
 
-        StabilizerTableau c_tableau(n_qubits);
-        c_tableau.apply(ops);
-        out.push_back(SubTableau{std::move(c_tableau)});
-        out.set_block_ops(out.size() - 1, ops);
-        ++block_number;
+            out.push_back(SubTableau{std::move(group_rotations)});
+            out.set_block_label(
+                out.size() - 1,
+                "NCF case " + std::to_string(case_number) + " block " + std::to_string(block_number) + label_suffix + " (original " + label_orig + ")");
+
+            StabilizerTableau c_tableau(n_qubits);
+            c_tableau.apply(ops);
+            out.push_back(SubTableau{std::move(c_tableau)});
+            out.set_block_ops(out.size() - 1, ops);
+            ++block_number;
+        };
+
+        if (commuting_pack) {
+            for (size_t idx : indices) emit_case_block({idx}, " commuting-pack");
+        } else {
+            emit_case_block(indices, "");
+        }
     }
     return out;
 }
 
 }  // namespace
 
-std::vector<Tableau> ncf_fusion_all(Tableau const& input_tableau, size_t max_cases) {
+std::vector<Tableau> ncf_fusion_all(Tableau const& input_tableau, NcfFusionOptions const& options) {
     auto tableau = input_tableau;
     std::vector<Tableau> result{};
 
@@ -915,52 +1115,172 @@ std::vector<Tableau> ncf_fusion_all(Tableau const& input_tableau, size_t max_cas
         return result;
     }
 
-    auto const base_groups = ncf_partition_single_qubit_groups(all_rotations);
-    std::vector<std::vector<std::vector<std::vector<size_t>>>> per_group_choices{};
-    per_group_choices.reserve(base_groups.size());
-    for (auto const& g : base_groups) {
-        per_group_choices.push_back(ncf_group_merge_choices(g));
-    }
+    auto find_unpartitioned_product = [&](std::vector<bool> const& used, size_t i, size_t j) -> std::optional<size_t> {
+        PauliProduct p = all_rotations[i].pauli_product() * all_rotations[j].pauli_product();
+        auto match = [&](PauliProduct const& pp) -> std::optional<size_t> {
+            for (size_t k = 0; k < all_rotations.size(); ++k) {
+                if (used[k] || k == i || k == j) continue;
+                if (all_rotations[k].pauli_product() == pp) return k;
+            }
+            return std::nullopt;
+        };
+        if (auto k = match(p)) return k;
+        p.negate();
+        return match(p);
+    };
 
-    std::vector<size_t> choice_idx(per_group_choices.size(), 0);
-    bool done = per_group_choices.empty();
-    size_t case_number = 0;
-    while (!done) {
-        std::vector<std::vector<size_t>> final_groups{};
-        bool valid_case = true;
-        for (size_t gi = 0; gi < per_group_choices.size(); ++gi) {
-            auto const& choice = per_group_choices[gi][choice_idx[gi]];
-            for (auto const& block : choice) {
-                std::vector<PauliRotation> probe{};
-                for (size_t idx : block) probe.push_back(all_rotations[idx]);
-                auto probe_copy = probe;
-                if (!ncf_try_build_conjugation(probe_copy)) {
-                    valid_case = false;
-                    break;
+    auto partition_key = [](std::vector<std::vector<size_t>> groups) {
+        for (auto& g : groups) std::ranges::sort(g);
+        std::ranges::sort(groups);
+        std::string key{};
+        for (auto const& g : groups) {
+            key += "[";
+            for (size_t i = 0; i < g.size(); ++i) {
+                if (i > 0) key += ",";
+                key += std::to_string(g[i]);
+            }
+            key += "]";
+        }
+        return key;
+    };
+
+    std::vector<std::vector<std::vector<size_t>>> base_partitions{};
+    std::unordered_set<std::string> seen_base{};
+    std::function<void(std::vector<bool>&, std::vector<std::vector<size_t>>&)> dfs =
+        [&](std::vector<bool>& used, std::vector<std::vector<size_t>>& groups) {
+            std::vector<size_t> active{};
+            for (size_t i = 0; i < all_rotations.size(); ++i) {
+                if (!used[i]) active.push_back(i);
+            }
+            if (active.empty()) {
+                auto key = partition_key(groups);
+                if (!seen_base.contains(key)) {
+                    seen_base.insert(key);
+                    base_partitions.push_back(groups);
                 }
-                final_groups.push_back(block);
+                return;
             }
-            if (!valid_case) break;
-        }
-        if (valid_case) {
-            result.push_back(ncf_build_tableau_from_groups(n_qubits, front_clifford, all_rotations, final_groups, case_number));
-            ++case_number;
-            if (max_cases > 0 && result.size() >= max_cases) break;
+
+            std::vector<std::pair<size_t, size_t>> anti_pairs{};
+            for (size_t a = 0; a < active.size(); ++a) {
+                for (size_t b = a + 1; b < active.size(); ++b) {
+                    size_t const i = active[a];
+                    size_t const j = active[b];
+                    if (!all_rotations[i].is_commutative(all_rotations[j])) {
+                        anti_pairs.emplace_back(i, j);
+                    }
+                }
+            }
+
+            if (anti_pairs.empty()) {
+                groups.push_back(active);
+                auto key = partition_key(groups);
+                if (!seen_base.contains(key)) {
+                    seen_base.insert(key);
+                    base_partitions.push_back(groups);
+                }
+                groups.pop_back();
+                return;
+            }
+
+            if (options.overlap_priority) {
+                std::ranges::sort(anti_pairs, [&](auto const& lhs, auto const& rhs) {
+                    auto const& [li, lj] = lhs;
+                    auto const& [ri, rj] = rhs;
+                    size_t const lov =
+                        paulihedral_overlap(all_rotations[li].pauli_product(), all_rotations[lj].pauli_product());
+                    size_t const rov =
+                        paulihedral_overlap(all_rotations[ri].pauli_product(), all_rotations[rj].pauli_product());
+                    if (lov != rov) return lov > rov;
+                    size_t const lchain = paulihedral_chain_score(all_rotations[li].pauli_product(),
+                                                                  all_rotations[lj].pauli_product(), all_rotations,
+                                                                  active, li, lj);
+                    size_t const rchain = paulihedral_chain_score(all_rotations[ri].pauli_product(),
+                                                                  all_rotations[rj].pauli_product(), all_rotations,
+                                                                  active, ri, rj);
+                    if (lchain != rchain) return lchain > rchain;
+                    return lhs < rhs;
+                });
+            }
+
+            for (auto const& [i, j] : anti_pairs) {
+                std::vector<size_t> block{i, j};
+                if (auto k = find_unpartitioned_product(used, i, j)) block.push_back(*k);
+                std::ranges::sort(block);
+
+                for (auto idx : block) used[idx] = true;
+                groups.push_back(block);
+                dfs(used, groups);
+                groups.pop_back();
+                for (auto idx : block) used[idx] = false;
+            }
+        };
+
+    std::vector<bool> used(all_rotations.size(), false);
+    std::vector<std::vector<size_t>> current_groups{};
+    dfs(used, current_groups);
+
+    size_t case_number = 0;
+    for (auto const& base_groups : base_partitions) {
+        std::vector<std::vector<std::vector<std::vector<size_t>>>> per_group_choices{};
+        per_group_choices.reserve(base_groups.size());
+        for (auto const& g : base_groups) {
+            per_group_choices.push_back(ncf_group_merge_choices(g));
         }
 
-        for (size_t i = choice_idx.size(); i-- > 0;) {
-            ++choice_idx[i];
-            if (choice_idx[i] < per_group_choices[i].size()) break;
-            choice_idx[i] = 0;
-            if (i == 0) {
-                done = true;
+        std::vector<size_t> choice_idx(per_group_choices.size(), 0);
+        bool done = per_group_choices.empty();
+        while (!done) {
+            std::vector<std::vector<size_t>> final_groups{};
+            bool valid_case = true;
+            for (size_t gi = 0; gi < per_group_choices.size(); ++gi) {
+                auto const& choice = per_group_choices[gi][choice_idx[gi]];
+                for (auto const& block : choice) {
+                    if (block.size() > 1 && ncf_pairwise_commutative(all_rotations, block)) {
+                        for (size_t idx : block) {
+                            std::vector<PauliRotation> probe{all_rotations[idx]};
+                            auto probe_copy = probe;
+                            if (!ncf_try_build_conjugation(probe_copy)) {
+                                valid_case = false;
+                                break;
+                            }
+                        }
+                        if (!valid_case) break;
+                        final_groups.push_back(block);
+                        continue;
+                    }
+                    std::vector<PauliRotation> probe{};
+                    for (size_t idx : block) probe.push_back(all_rotations[idx]);
+                    auto probe_copy = probe;
+                    if (!ncf_try_build_conjugation(probe_copy)) {
+                        valid_case = false;
+                        break;
+                    }
+                    final_groups.push_back(block);
+                }
+                if (!valid_case) break;
+            }
+            if (valid_case) {
+                result.push_back(ncf_build_tableau_from_groups(n_qubits, front_clifford, all_rotations, final_groups, case_number));
+                ++case_number;
+                if (options.max_cases > 0 && result.size() >= options.max_cases) break;
+            }
+
+            for (size_t i = choice_idx.size(); i-- > 0;) {
+                ++choice_idx[i];
+                if (choice_idx[i] < per_group_choices[i].size()) break;
+                choice_idx[i] = 0;
+                if (i == 0) {
+                    done = true;
+                }
             }
         }
+        if (options.max_cases > 0 && result.size() >= options.max_cases) break;
     }
 
     if (result.empty()) {
         auto fallback = tableau;
-        ncf_fusion(fallback);
+        ncf_fusion(fallback, options);
         result.push_back(std::move(fallback));
     }
     spdlog::info("NCF enumerate: generated {} candidate merge cases.", result.size());
