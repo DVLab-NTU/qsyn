@@ -11,14 +11,52 @@
 #include <fstream>
 #include <string>
 
+#include "./basic_gate_type.hpp"
 #include "./operation.hpp"
 #include "./qcir.hpp"
 #include "./qcir_gate.hpp"
 #include "./qcir_io.hpp"
+#include "util/phase.hpp"
 #include "util/sysdep.hpp"
 #include "util/tmp_files.hpp"
 
 namespace qsyn::qcir {
+
+namespace {
+
+std::string rotation_qasm_repr(std::string_view gate, dvlab::Phase const& phase) {
+    return fmt::format("{}({})", gate, dvlab::Phase::phase_to_d(phase));
+}
+
+std::string operation_to_qasm_repr(Operation const& op) {
+    if (auto inner = op.get_underlying_if<ControlGate>()) {
+        return std::string(inner->get_num_ctrls(), 'c') + operation_to_qasm_repr(inner->get_target_operation());
+    }
+    if (auto inner = op.get_underlying_if<RZGate>()) {
+        return rotation_qasm_repr("rz", inner->get_phase());
+    }
+    if (auto inner = op.get_underlying_if<RXGate>()) {
+        return rotation_qasm_repr("rx", inner->get_phase());
+    }
+    if (auto inner = op.get_underlying_if<RYGate>()) {
+        return rotation_qasm_repr("ry", inner->get_phase());
+    }
+
+    auto repr = op.get_repr();
+    size_t pos = 0;
+    constexpr auto pi_char_len = 2u;  // UTF-8 "π"
+    while ((pos = repr.find("π", pos)) != std::string::npos) {
+        if (pos == 0 || !std::isdigit(repr[pos - 1])) {
+            repr.replace(pos, pi_char_len, "pi");
+        } else {
+            repr.replace(pos, pi_char_len, "*pi");
+        }
+        pos += 2;
+    }
+    return repr;
+}
+
+}  // namespace
 
 /**
  * @brief Write QASM
@@ -101,23 +139,22 @@ std::string to_qasm(QCir const& qcir) {
     qasm += "include \"qelib1.inc\";\n";
     qasm += fmt::format("qreg q[{}];\n", qcir.get_num_qubits());
 
-    for (auto const* gate : qcir.get_gates()) {
-        using namespace std::literals;
+    auto const append_gate = [&](QCirGate const* gate) {
         auto const qubits = gate->get_qubits();
-        auto repr         = gate->get_operation().get_repr();
-        // if encountering "π", replace it with "pi"
-        size_t pos = 0;
-        while ((pos = repr.find("π"s, pos)) != std::string::npos) {
-            if (pos == 0 || !std::isdigit(repr[pos - 1])) {
-                repr.replace(pos, "π"s.size(), "pi");
-            } else {
-                repr.replace(pos, "π"s.size(), "*pi");
-            }
-        }
-
+        auto const repr   = operation_to_qasm_repr(gate->get_operation());
         qasm += fmt::format("{} {};\n",
                             repr,
                             fmt::join(qubits | std::views::transform([](auto pin) { return fmt::format("q[{}]", pin); }), ", "));
+    };
+
+    if (qcir.preserve_append_order()) {
+        for (auto const* gate : qcir.get_gates_in_append_order()) {
+            append_gate(gate);
+        }
+    } else {
+        for (auto const* gate : qcir.get_gates()) {
+            append_gate(gate);
+        }
     }
     return qasm;
 }
