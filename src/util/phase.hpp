@@ -37,7 +37,7 @@ public:
     constexpr Phase(IntegralType n, IntegralType d) : _rational(n, d) { normalize(); }
     template <class T>
     requires std::floating_point<T>
-    Phase(T f, T eps = 1e-4) : _rational(f / std::numbers::pi_v<T>, eps / std::numbers::pi_v<T>) { normalize(); }
+    Phase(T f, T eps = 1e-4) : _rational(f / std::numbers::pi_v<T>, eps / std::numbers::pi_v<T>), _exact_radians(static_cast<double>(f)) { normalize(); }
 
     friend std::ostream& operator<<(std::ostream& os, Phase const& p);
     constexpr Phase operator+() const;
@@ -64,7 +64,12 @@ public:
 
     template <class T>
     requires std::floating_point<T>
-    constexpr static T phase_to_floating_point(Phase const& p) { return std::numbers::pi_v<T> * Rational::rational_to_floating_point<T>(p._rational); }
+    constexpr static T phase_to_floating_point(Phase const& p) {
+        if (p._exact_radians.has_value()) {
+            return static_cast<T>(*p._exact_radians);
+        }
+        return std::numbers::pi_v<T> * Rational::rational_to_floating_point<T>(p._rational);
+    }
 
     constexpr static float phase_to_f(Phase const& p) { return phase_to_floating_point<float>(p); }
     constexpr static double phase_to_d(Phase const& p) { return phase_to_floating_point<double>(p); }
@@ -103,14 +108,29 @@ public:
 
 private:
     dvlab::Rational _rational;
+    std::optional<double> _exact_radians;
 };
 
 constexpr Phase& Phase::operator*=(unitless auto const& rhs) {
+    if constexpr (std::same_as<std::remove_cvref_t<decltype(rhs)>, Rational>) {
+        if (_exact_radians.has_value()) {
+            *_exact_radians *= Rational::rational_to_d(rhs);
+        }
+    } else if (_exact_radians.has_value()) {
+        *_exact_radians *= static_cast<double>(rhs);
+    }
     this->_rational *= rhs;
     normalize();
     return *this;
 }
 constexpr Phase& Phase::operator/=(unitless auto const& rhs) {
+    if constexpr (std::same_as<std::remove_cvref_t<decltype(rhs)>, Rational>) {
+        if (_exact_radians.has_value()) {
+            *_exact_radians /= Rational::rational_to_d(rhs);
+        }
+    } else if (_exact_radians.has_value()) {
+        *_exact_radians /= static_cast<double>(rhs);
+    }
     this->_rational /= rhs;
     normalize();
     return *this;
@@ -132,15 +152,23 @@ constexpr Phase Phase::operator+() const {
 }
 
 constexpr Phase Phase::operator-() const {
-    return Phase(-_rational.numerator(), _rational.denominator());
+    Phase p;
+    p._rational = Rational(-_rational.numerator(), _rational.denominator());
+    if (_exact_radians.has_value()) {
+        p._exact_radians = -(*_exact_radians);
+    }
+    p.normalize();
+    return p;
 }
 
 constexpr Phase& Phase::operator+=(Phase const& rhs) {
+    _exact_radians = std::nullopt;
     this->_rational += rhs._rational;
     normalize();
     return *this;
 }
 constexpr Phase& Phase::operator-=(Phase const& rhs) {
+    _exact_radians = std::nullopt;
     this->_rational -= rhs._rational;
     normalize();
     return *this;
@@ -196,15 +224,21 @@ bool Phase::str_to_phase(std::string_view str, Phase& p) {
 
     bool do_division = false;
 
+    bool has_pi = false;
     for (size_t i = 0; i < number_strings.size(); ++i) {
         do_division = (i != 0 && operators[i - 1] == '/');
 
-        if (dvlab::str::tolower_string(number_strings[i]) == "pi") {
+        auto const token = dvlab::str::tolower_string(number_strings[i]);
+        if (token == "pi" || token == "-pi") {
+            has_pi = true;
+        }
+
+        if (token == "pi") {
             if (do_division)
                 n_pis -= 1;
             else
                 n_pis += 1;
-        } else if (dvlab::str::tolower_string(number_strings[i]) == "-pi") {
+        } else if (token == "-pi") {
             numerator *= -1;
             if (do_division)
                 n_pis -= 1;
@@ -228,6 +262,10 @@ bool Phase::str_to_phase(std::string_view str, Phase& p) {
     dvlab::Rational const tmp_rational(temp_float * std::pow(std::numbers::pi_v<T>, n_pis - 1), 1e-4 / std::numbers::pi_v<T>);
 
     p = Phase(numerator, denominator) * tmp_rational;
+    if (!has_pi) {
+        p._exact_radians = static_cast<double>(
+            (static_cast<T>(numerator) / static_cast<T>(denominator)) * temp_float * std::pow(std::numbers::pi_v<T>, n_pis));
+    }
 
     return true;
 }
