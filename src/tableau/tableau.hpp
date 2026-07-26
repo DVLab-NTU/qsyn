@@ -251,6 +251,9 @@ void adjoint_inplace(SubTableau& subtableau);
 void adjoint_inplace(Tableau& tableau);
 [[nodiscard]] Tableau adjoint(Tableau const& tableau);
 
+/** @brief True if tableau is [Stab][C†][R][C]… (post-NCF shape). */
+[[nodiscard]] bool has_ncf_canonical_shape(Tableau const& tableau);
+
 }  // namespace experimental
 
 }  // namespace qsyn
