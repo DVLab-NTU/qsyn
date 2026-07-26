@@ -23,6 +23,7 @@
 #include "cmd/device_mgr.hpp"
 #include "cmd/qcir_mgr.hpp"
 #include "cmd/tableau_mgr.hpp"
+#include "cmd/ncf_mgr.hpp"
 #include "cmd/tensor_mgr.hpp"
 #include "cmd/zxgraph_mgr.hpp"
 
@@ -41,6 +42,7 @@ qsyn::qcir::QCirMgr qcir_mgr{"QCir"};
 qsyn::tensor::TensorMgr tensor_mgr{"Tensor"};
 qsyn::zx::ZXGraphMgr zxgraph_mgr{"ZXGraph"};
 qsyn::experimental::TableauMgr tableau_mgr{"Tableau"};
+qsyn::experimental::NcfMgr ncf_mgr{"NcfProgram"};
 // NOLINTEND(readability-identifier-naming)
 
 std::string const version_str = fmt::format(
@@ -60,7 +62,7 @@ int main(int argc, char** argv) {
         return;
     });
 
-    if (!qsyn::initialize_qsyn(cli, device_mgr, qcir_mgr, tensor_mgr, zxgraph_mgr, tableau_mgr)) {
+    if (!qsyn::initialize_qsyn(cli, device_mgr, qcir_mgr, tensor_mgr, zxgraph_mgr, tableau_mgr, ncf_mgr)) {
         return -1;
     }
 

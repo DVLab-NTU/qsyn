@@ -8,15 +8,18 @@
 #include "./tableau_cmd.hpp"
 
 #include <cstdint>
+#include <filesystem>
 
 #include "argparse/arg_parser.hpp"
 #include "argparse/arg_type.hpp"
 #include "argparse/argument.hpp"
 #include "cli/cli.hpp"
 #include "cmd/tableau_mgr.hpp"
+#include "cmd/ncf_mgr.hpp"
 #include "convert/qcir_to_tensor.hpp"
 #include "convert/tableau_to_qcir.hpp"
 #include "tableau/pauli_rotation.hpp"
+#include "tableau/pauli_terms_io.hpp"
 #include "tableau/stabilizer_tableau.hpp"
 #include "tableau/tableau.hpp"
 #include "tableau/tableau_optimization.hpp"
@@ -196,6 +199,62 @@ dvlab::Command tableau_from_pauli_cmd(TableauMgr& tableau_mgr) {
         }};
 }
 
+dvlab::Command tableau_from_terms_cmd(TableauMgr& tableau_mgr) {
+    return dvlab::Command{
+        "from-terms",
+        [&](ArgumentParser& parser) {
+            parser.description("Load numbered Pauli Hamiltonian terms from a .json or .terms file (PySCF export)");
+
+            parser.add_argument<std::string>("filepath")
+                .help("Path to terms file (.json or .terms)");
+
+            parser.add_argument<size_t>("id")
+                .nargs(NArgsOption::optional)
+                .help("ID of the Tableau to create/replace");
+
+            parser.add_argument<bool>("-r", "--replace")
+                .action(store_true)
+                .help("If specified, replace the existing Tableau with the same ID");
+
+            parser.add_argument<bool>("--use-coeff")
+                .action(store_true)
+                .help("Use coeff field as rotation angle (multiply by --scale)");
+
+            parser.add_argument<double>("--scale")
+                .default_value(1.0)
+                .help("Scale factor applied to coeff/angle values");
+        },
+        [&](ArgumentParser const& parser) {
+            auto const path = parser.get<std::string>("filepath");
+            auto file_opt   = load_pauli_terms_file(path);
+            if (!file_opt) return dvlab::CmdExecResult::error;
+
+            PauliTermsLoadOptions options;
+            options.use_coeff = parser.get<bool>("--use-coeff");
+            options.scale     = parser.get<double>("--scale");
+
+            auto pairs_opt = to_pauli_phase_pairs(*file_opt, options);
+            if (!pairs_opt) return dvlab::CmdExecResult::error;
+
+            auto tableau = make_tableau_from_pauli_terms(*pairs_opt);
+            tableau.set_filename(std::filesystem::path{path}.filename().string());
+            tableau.add_procedure("from-terms");
+
+            auto const id = parser.parsed("id") ? parser.get<size_t>("id") : tableau_mgr.get_next_id();
+            if (tableau_mgr.is_id(id)) {
+                if (!parser.parsed("--replace")) {
+                    spdlog::error("Tableau {} already exists!! Please specify `--replace` to replace if needed", id);
+                    return dvlab::CmdExecResult::error;
+                }
+                tableau_mgr.set_by_id(id, std::make_unique<Tableau>(std::move(tableau)));
+            } else {
+                tableau_mgr.add(id, std::make_unique<Tableau>(std::move(tableau)));
+            }
+            print_pauli_terms_loaded(*file_opt, id);
+            return dvlab::CmdExecResult::done;
+        }};
+}
+
 dvlab::Command tableau_append_cmd(TableauMgr& tableau_mgr) {
     return dvlab::Command{
         "append",
@@ -372,7 +431,7 @@ dvlab::Command tableau_equiv_cmd(TableauMgr& tableau_mgr) {
         }};
 }
 
-dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr) {
+dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr, NcfMgr& ncf_mgr) {
     return dvlab::Command{
         "optimize",
         [&](ArgumentParser& parser) {
@@ -400,6 +459,9 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr) {
             ncf_parser.add_argument<size_t>("--max-cases")
                 .default_value(0)
                 .help("Maximum number of enumerated NCF cases (0 = no limit)");
+            ncf_parser.add_argument<bool>("--overlap-priority")
+                .action(store_true)
+                .help("Pick anti-commuting NCF pairs with maximum Paulihedral Pauli-string overlap first (ASPLOS'22 metric)");
 
             methods.add_parser("equiv")
                 .description("Lightweight optimization for equivalence checking (tmerge + hopt only, no phase polynomial / TODD); safe for arbitrary phases");
@@ -516,10 +578,14 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr) {
                     minimize_internal_hadamards(*tableau_mgr.get());
                     tableau_mgr.get()->add_procedure("InternalHOpt");
                     break;
-                case OptimizationMethod::ncf_fusion:
+                case OptimizationMethod::ncf_fusion: {
+                    auto pre_ncf = std::make_unique<Tableau>(*tableau_mgr.get());
+                    NcfFusionOptions ncf_options{};
+                    ncf_options.overlap_priority = parser.parsed("--overlap-priority");
                     if (parser.parsed("--all-merges")) {
-                        auto const max_cases = parser.get<size_t>("--max-cases");
-                        auto cases           = ncf_fusion_all(*tableau_mgr.get(), max_cases);
+                        ncf_options.all_merges = true;
+                        ncf_options.max_cases  = parser.get<size_t>("--max-cases");
+                        auto cases             = ncf_fusion_all(*tableau_mgr.get(), ncf_options);
                         if (cases.empty()) {
                             spdlog::error("NCF enumerate produced no candidates.");
                             return dvlab::CmdExecResult::error;
@@ -534,10 +600,13 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr) {
                         }
                         spdlog::info("NCF enumerate: case 0 kept in current Tableau ID {}", tableau_mgr.focused_id());
                     } else {
-                        ncf_fusion(*tableau_mgr.get());
-                        tableau_mgr.get()->add_procedure("NCF");
+                        ncf_fusion(*tableau_mgr.get(), ncf_options);
+                        tableau_mgr.get()->add_procedure(
+                            ncf_options.overlap_priority ? "NCF-overlap-priority" : "NCF");
                     }
+                    register_ncf_from_tableau(ncf_mgr, tableau_mgr, pre_ncf.get());
                     break;
+                }
                 case OptimizationMethod::equiv:
                     optimize_for_equiv(*tableau_mgr.get());
                     tableau_mgr.get()->add_procedure("OptimizeForEquiv");
@@ -558,12 +627,13 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr) {
         }};
 }
 
-dvlab::Command tableau_cmd(TableauMgr& tableau_mgr) {
+dvlab::Command tableau_cmd(TableauMgr& tableau_mgr, NcfMgr& ncf_mgr) {
     auto cmd = dvlab::utils::mgr_root_cmd(tableau_mgr);
 
     cmd.add_subcommand("tableau-cmd-group", dvlab::utils::mgr_list_cmd(tableau_mgr));
     cmd.add_subcommand("tableau-cmd-group", tableau_new_cmd(tableau_mgr));
     cmd.add_subcommand("tableau-cmd-group", tableau_from_pauli_cmd(tableau_mgr));
+    cmd.add_subcommand("tableau-cmd-group", tableau_from_terms_cmd(tableau_mgr));
     cmd.add_subcommand("tableau-cmd-group", dvlab::utils::mgr_delete_cmd(tableau_mgr));
     cmd.add_subcommand("tableau-cmd-group", dvlab::utils::mgr_checkout_cmd(tableau_mgr));
     cmd.add_subcommand("tableau-cmd-group", dvlab::utils::mgr_copy_cmd(tableau_mgr));
@@ -571,13 +641,13 @@ dvlab::Command tableau_cmd(TableauMgr& tableau_mgr) {
     cmd.add_subcommand("tableau-cmd-group", tableau_adjoint_cmd(tableau_mgr));
     cmd.add_subcommand("tableau-cmd-group", tableau_print_cmd(tableau_mgr));
     cmd.add_subcommand("tableau-cmd-group", tableau_equiv_cmd(tableau_mgr));
-    cmd.add_subcommand("tableau-cmd-group", tableau_optimization_cmd(tableau_mgr));
+    cmd.add_subcommand("tableau-cmd-group", tableau_optimization_cmd(tableau_mgr, ncf_mgr));
 
     return cmd;
 }
 
-bool add_tableau_command(dvlab::CommandLineInterface& cli, TableauMgr& tableau_mgr) {
-    return cli.add_command(tableau_cmd(tableau_mgr));
+bool add_tableau_command(dvlab::CommandLineInterface& cli, TableauMgr& tableau_mgr, NcfMgr& ncf_mgr) {
+    return cli.add_command(tableau_cmd(tableau_mgr, ncf_mgr));
 }
 
 }  // namespace qsyn::experimental

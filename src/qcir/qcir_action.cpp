@@ -29,8 +29,11 @@ QCir& QCir::compose(QCir const& other) {
     if (get_num_qubits() < other.get_num_qubits()) {
         add_qubits(other.get_num_qubits() - get_num_qubits());
     }
-    for (auto& targ_gate : other.get_gates()) {
-        append(*targ_gate);
+    for (auto const* targ_gate : other.get_gates_in_append_order()) {
+        append(targ_gate->get_operation(), targ_gate->get_qubits());
+    }
+    if (other.preserve_append_order()) {
+        set_preserve_append_order(true);
     }
     return *this;
 }

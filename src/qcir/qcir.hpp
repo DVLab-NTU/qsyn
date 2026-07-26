@@ -108,6 +108,19 @@ public:
         return _gate_list;
     }
 
+    /** When true, QASM export uses gate append order instead of topological sort. */
+    void set_preserve_append_order(bool preserve = true) { _preserve_append_order = preserve; }
+    bool preserve_append_order() const { return _preserve_append_order; }
+
+    std::vector<QCirGate const*> get_gates_in_append_order() const {
+        std::vector<QCirGate const*> gates;
+        gates.reserve(_id_to_gates.size());
+        for (auto const& [id, gate] : _id_to_gates) {
+            gates.push_back(gate.get());
+        }
+        return gates;
+    }
+
     QCirGate* get_gate(std::optional<size_t> gid) const;
     std::string get_filename() const { return _filename; }
     std::vector<std::string> const& get_procedures() const { return _procedures; }
@@ -199,6 +212,7 @@ private:
                                                 // get_gates() to ensure the cache
                                                 // is up-to-date.
     bool mutable _dirty = true;                 // mark if the topological order is dirty
+    bool _preserve_append_order = false;
 
     void _update_topological_order() const;
 
