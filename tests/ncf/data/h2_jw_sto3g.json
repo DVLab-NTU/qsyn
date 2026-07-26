@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "molecule": "H2",
+  "basis": "sto-3g",
+  "encoding": "jordan_wigner",
+  "n_qubits": 4,
+  "terms": [
+    {"id": 0, "pauli": "ZIII", "coeff": 0.13716572937099508},
+    {"id": 1, "pauli": "IZII", "coeff": 0.13716572937099503},
+    {"id": 2, "pauli": "IIZI", "coeff": -0.13036292057109103},
+    {"id": 3, "pauli": "IIIZ", "coeff": -0.13036292057109103},
+    {"id": 4, "pauli": "ZZII", "coeff": 0.15660062488237947},
+    {"id": 5, "pauli": "YXXY", "coeff": 0.049197645871367546},
+    {"id": 6, "pauli": "YYXX", "coeff": -0.049197645871367546},
+    {"id": 7, "pauli": "XXYY", "coeff": -0.049197645871367546},
+    {"id": 8, "pauli": "XYYX", "coeff": 0.049197645871367546},
+    {"id": 9, "pauli": "ZIZI", "coeff": 0.10622904490856078},
+    {"id": 10, "pauli": "ZIIZ", "coeff": 0.15542669077992832},
+    {"id": 11, "pauli": "IZZI", "coeff": 0.15542669077992832},
+    {"id": 12, "pauli": "IZIZ", "coeff": 0.10622904490856078},
+    {"id": 13, "pauli": "IIZZ", "coeff": 0.16326768673564343}
+  ]
+}
