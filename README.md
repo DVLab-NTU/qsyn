@@ -8,7 +8,7 @@
 
 # Qsyn: A Developer-Friendly Quantum Circuit Synthesis Framework for NISQ Era and Beyond
 
-> **Local NCF work:** see [PROVENANCE.md](PROVENANCE.md) and [docs/NCF_PROGRAM.md](docs/NCF_PROGRAM.md).
+> **Local NCF work:** paper [arXiv:2510.13573](https://arxiv.org/abs/2510.13573); docs [NCF_docs/README_NCF.md](NCF_docs/README_NCF.md), [PROVENANCE.md](PROVENANCE.md).
 
 ![](https://i.imgur.com/wKg5cQO.jpg)
 

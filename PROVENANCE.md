@@ -34,5 +34,6 @@
 
 Everything else under `src/` (qcir, zx, duostra, …), `vendor/`, cmake, docker.
 
-NCF usage docs: [docs/NCF_PROGRAM.md](docs/NCF_PROGRAM.md).
+NCF paper: [arXiv:2510.13573](https://arxiv.org/abs/2510.13573).  
+NCF usage docs: [NCF_docs/README_NCF.md](NCF_docs/README_NCF.md).
 Experiment sandbox that drives this binary: `/home/chenying/Hamiltonian Simulation`.

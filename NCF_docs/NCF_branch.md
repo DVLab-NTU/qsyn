@@ -2,6 +2,7 @@
 
 `NcfProgram` is a first-class qsyn object (managed like `Tableau` / `QCir`) that holds Non-Clifford Fusion (NCF) block metadata for checkout and inspection — without requiring JSON export as the primary workflow.
 
+Paper: [arXiv:2510.13573](https://arxiv.org/abs/2510.13573) (Non-Clifford Fusion).  
 File map for `src/ncf/` (what each source does + matching commands): [`src/ncf/README.md`](../src/ncf/README.md).
 
 ## Quick start (H₂ example)
