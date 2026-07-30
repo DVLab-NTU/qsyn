@@ -1,0 +1,43 @@
+==== h2_jw_four ====
+h2_jw_four,4,14,2,5,7,0.500000,0,/home/chenying/qsyn/out/ncf2q_10cases/h2_jw_four/h2_jw_four_before_2qncf_clifford_rz.qasm,/home/chenying/qsyn/out/ncf2q_10cases/h2_jw_four/h2_jw_four_after_2qncf_clifford_rz.qasm,ok
+  anti=2 singletons=5 Num_u=7 elapsed=0s status=ok
+==== LiH_frz_JW ====
+LiH_frz_JW,10,144,26,1,27,0.812500,15,/home/chenying/qsyn/out/ncf2q_10cases/LiH_frz_JW/LiH_frz_JW_before_2qncf_clifford_rz.qasm,/home/chenying/qsyn/out/ncf2q_10cases/LiH_frz_JW/LiH_frz_JW_after_2qncf_clifford_rz.qasm,ok
+  anti=26 singletons=1 Num_u=27 elapsed=15s status=ok
+==== Be2-JW-6 ====
+Be2-JW-6,6,61,11,3,14,0.770492,1,/home/chenying/qsyn/out/ncf2q_10cases/Be2-JW-6/Be2-JW-6_before_2qncf_clifford_rz.qasm,/home/chenying/qsyn/out/ncf2q_10cases/Be2-JW-6/Be2-JW-6_after_2qncf_clifford_rz.qasm,ok
+  anti=11 singletons=3 Num_u=14 elapsed=1s status=ok
+==== BH-JW-10 ====
+BH-JW-10,10,275,52,5,57,0.792727,23,/home/chenying/qsyn/out/ncf2q_10cases/BH-JW-10/BH-JW-10_before_2qncf_clifford_rz.qasm,/home/chenying/qsyn/out/ncf2q_10cases/BH-JW-10/BH-JW-10_after_2qncf_clifford_rz.qasm,ok
+  anti=52 singletons=5 Num_u=57 elapsed=23s status=ok
+==== uccsd_10 ====
+uccsd_10,10,664,136,0,136,0.795181,79,/home/chenying/qsyn/out/ncf2q_10cases/uccsd_10/uccsd_10_before_2qncf_clifford_rz.qasm,/home/chenying/qsyn/out/ncf2q_10cases/uccsd_10/uccsd_10_after_2qncf_clifford_rz.qasm,ok
+  anti=136 singletons=0 Num_u=136 elapsed=79s status=ok
+==== OH-JW10 ====
+OH-JW10,10,275,52,5,57,0.792727,25,/home/chenying/qsyn/out/ncf2q_10cases/OH-JW10/OH-JW10_before_2qncf_clifford_rz.qasm,/home/chenying/qsyn/out/ncf2q_10cases/OH-JW10/OH-JW10_after_2qncf_clifford_rz.qasm,ok
+  anti=52 singletons=5 Num_u=57 elapsed=25s status=ok
+==== OH-JW12 ====
+OH-JW12,12,630,113,9,122,0.806349,109,/home/chenying/qsyn/out/ncf2q_10cases/OH-JW12/OH-JW12_before_2qncf_clifford_rz.qasm,/home/chenying/qsyn/out/ncf2q_10cases/OH-JW12/OH-JW12_after_2qncf_clifford_rz.qasm,ok
+  anti=113 singletons=9 Num_u=122 elapsed=109s status=ok
+==== H2O_frz_JW_sto3g ====
+H2O_frz_JW_sto3g,12,640,119,0,119,0.814063,191,/home/chenying/qsyn/out/ncf2q_10cases/H2O_frz_JW_sto3g/H2O_frz_JW_sto3g_before_2qncf_clifford_rz.qasm,/home/chenying/qsyn/out/ncf2q_10cases/H2O_frz_JW_sto3g/H2O_frz_JW_sto3g_after_2qncf_clifford_rz.qasm,ok
+  anti=119 singletons=0 Num_u=119 elapsed=191s status=ok
+==== Li2-JW14 ====
+Li2-JW14,14,669,129,7,136,0.796712,267,/home/chenying/qsyn/out/ncf2q_10cases/Li2-JW14/Li2-JW14_before_2qncf_clifford_rz.qasm,/home/chenying/qsyn/out/ncf2q_10cases/Li2-JW14/Li2-JW14_after_2qncf_clifford_rz.qasm,ok
+  anti=129 singletons=7 Num_u=136 elapsed=267s status=ok
+==== NH-JW-14 ====
+NH-JW-14,14,1085,202,6,208,0.808295,528,/home/chenying/qsyn/out/ncf2q_10cases/NH-JW-14/NH-JW-14_before_2qncf_clifford_rz.qasm,/home/chenying/qsyn/out/ncf2q_10cases/NH-JW-14/NH-JW-14_after_2qncf_clifford_rz.qasm,ok
+  anti=202 singletons=6 Num_u=208 elapsed=528s status=ok
+
+Wrote /home/chenying/qsyn/out/ncf2q_10cases/summary.csv
+case              n_qubits  n_terms  n_anti_groups  n_singletons  Num_unitaries  merge_ratio  elapsed_s  before_qasm                                                                                            after_qasm                                                                                            status
+h2_jw_four        4         14       2              5             7              0.500000     0          /home/chenying/qsyn/out/ncf2q_10cases/h2_jw_four/h2_jw_four_before_2qncf_clifford_rz.qasm              /home/chenying/qsyn/out/ncf2q_10cases/h2_jw_four/h2_jw_four_after_2qncf_clifford_rz.qasm              ok
+LiH_frz_JW        10        144      26             1             27             0.812500     15         /home/chenying/qsyn/out/ncf2q_10cases/LiH_frz_JW/LiH_frz_JW_before_2qncf_clifford_rz.qasm              /home/chenying/qsyn/out/ncf2q_10cases/LiH_frz_JW/LiH_frz_JW_after_2qncf_clifford_rz.qasm              ok
+Be2-JW-6          6         61       11             3             14             0.770492     1          /home/chenying/qsyn/out/ncf2q_10cases/Be2-JW-6/Be2-JW-6_before_2qncf_clifford_rz.qasm                  /home/chenying/qsyn/out/ncf2q_10cases/Be2-JW-6/Be2-JW-6_after_2qncf_clifford_rz.qasm                  ok
+BH-JW-10          10        275      52             5             57             0.792727     23         /home/chenying/qsyn/out/ncf2q_10cases/BH-JW-10/BH-JW-10_before_2qncf_clifford_rz.qasm                  /home/chenying/qsyn/out/ncf2q_10cases/BH-JW-10/BH-JW-10_after_2qncf_clifford_rz.qasm                  ok
+uccsd_10          10        664      136            0             136            0.795181     79         /home/chenying/qsyn/out/ncf2q_10cases/uccsd_10/uccsd_10_before_2qncf_clifford_rz.qasm                  /home/chenying/qsyn/out/ncf2q_10cases/uccsd_10/uccsd_10_after_2qncf_clifford_rz.qasm                  ok
+OH-JW10           10        275      52             5             57             0.792727     25         /home/chenying/qsyn/out/ncf2q_10cases/OH-JW10/OH-JW10_before_2qncf_clifford_rz.qasm                    /home/chenying/qsyn/out/ncf2q_10cases/OH-JW10/OH-JW10_after_2qncf_clifford_rz.qasm                    ok
+OH-JW12           12        630      113            9             122            0.806349     109        /home/chenying/qsyn/out/ncf2q_10cases/OH-JW12/OH-JW12_before_2qncf_clifford_rz.qasm                    /home/chenying/qsyn/out/ncf2q_10cases/OH-JW12/OH-JW12_after_2qncf_clifford_rz.qasm                    ok
+H2O_frz_JW_sto3g  12        640      119            0             119            0.814063     191        /home/chenying/qsyn/out/ncf2q_10cases/H2O_frz_JW_sto3g/H2O_frz_JW_sto3g_before_2qncf_clifford_rz.qasm  /home/chenying/qsyn/out/ncf2q_10cases/H2O_frz_JW_sto3g/H2O_frz_JW_sto3g_after_2qncf_clifford_rz.qasm  ok
+Li2-JW14          14        669      129            7             136            0.796712     267        /home/chenying/qsyn/out/ncf2q_10cases/Li2-JW14/Li2-JW14_before_2qncf_clifford_rz.qasm                  /home/chenying/qsyn/out/ncf2q_10cases/Li2-JW14/Li2-JW14_after_2qncf_clifford_rz.qasm                  ok
+NH-JW-14          14        1085     202            6             208            0.808295     528        /home/chenying/qsyn/out/ncf2q_10cases/NH-JW-14/NH-JW-14_before_2qncf_clifford_rz.qasm                  /home/chenying/qsyn/out/ncf2q_10cases/NH-JW-14/NH-JW-14_after_2qncf_clifford_rz.qasm                  ok

@@ -45,10 +45,15 @@ void minimize_internal_hadamards(Tableau& tableau);
 struct NcfFusionOptions {
     /// When true, pick anti-commuting pairs with maximum Paulihedral letter overlap first
     /// (same non-I Pauli on the same qubit).  Searches all anti-commuting active pairs,
-    /// not only generator pairs.
+    /// not only generator pairs.  (1-qubit grouping only.)
     bool overlap_priority = false;
     bool all_merges       = false;
     size_t max_cases      = 0;
+    /// Paper §IV-A2 two-qubit grouping (grading + Table III) instead of 1-qubit peel.
+    bool two_qubit = false;
+    /// Sliding-window size (paper: w=4 for 1q, w=128 for 2q).  0 → use the paper default
+    /// for the selected mode.
+    size_t window_w = 0;
 };
 
 /**
@@ -56,6 +61,10 @@ struct NcfFusionOptions {
  *        conjugated to act on 1 or 2 qubits, then replace the rotation list by blocks
  *        [C†][R'][C] so that each R' can be synthesized as a single U3 or two-qubit unitary.
  *        See https://arxiv.org/abs/2510.13573
+ *
+ *        With ``two_qubit=true``, uses the paper Two-qubit Grouping (grading + Table III +
+ *        sliding window).  Conjugation still emits Clifford + local RZ gadgets — it does
+ *        **not** synthesize fused 2-qubit unitaries into Clifford+T.
  */
 void ncf_fusion(Tableau& tableau, NcfFusionOptions const& options = {});
 std::vector<Tableau> ncf_fusion_all(Tableau const& tableau, NcfFusionOptions const& options = {});

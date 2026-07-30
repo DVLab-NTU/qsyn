@@ -49,10 +49,19 @@ ncf write <path.json>
 
 | Flag | Meaning |
 |------|---------|
-| (default) | Greedy NCF: peel anti-commuting **generator** pairs (then optional product), emit `[C†][R'][C]` |
-| `--all-merges` | Enumerate many peel orders / merge-vs-split cases; each case → its own tableau ID |
+| (default) | Greedy **1-qubit** NCF: peel anti-commuting **generator** pairs (then optional product), emit `[C†][R'][C]` |
+| `--two-qubit` | Paper §IV-A2 **two-qubit** grouping: grading (+3 product / +1 generated) + Table III + sliding window (default **w=128**) |
+| `--window W` | Override sliding-window size (`0` = paper default: 4 for 1q, 128 for 2q) |
+| `--all-merges` | Enumerate many peel orders / merge-vs-split cases; each case → its own tableau ID (1q) |
 | `--max-cases N` | Cap how many enumerated cases to keep (`0` = unlimited); used with `--all-merges` |
-| `--overlap-priority` | Change **which** anti-pair is peeled next (see below) |
+| `--overlap-priority` | Change **which** anti-pair is peeled next in **1q** mode (see below) |
+
+**2-qubit mode notes**
+
+- Leftover mutually commuting Paulis become **singletons** (one RZ job each).
+- Conjugation folds each anti-group onto ≤2 qubits and emits **Clifford + RZ** gadgets.
+- Does **not** synthesize fused 2-qubit unitaries into Clifford+T (no Synthetiq).
+- Example: `NCF_dofile/H2_ncf2q.do`
 
 ### `--overlap-priority` (Paulihedral overlap)
 

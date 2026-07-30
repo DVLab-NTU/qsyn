@@ -1,0 +1,7 @@
+[warn]       block 0: multi size=5 idxs=[0, 6, 3, 4, 7] (singleton_count_in_block=0)
+[warn]       block 1: multi size=4 idxs=[1, 8, 10, 12] (singleton_count_in_block=0)
+[warn]       block 2: SINGLETON size=1 idx=2 (singleton_count_in_block=1)
+[warn]       block 3: SINGLETON size=1 idx=5 (singleton_count_in_block=1)
+[warn]       block 4: SINGLETON size=1 idx=9 (singleton_count_in_block=1)
+[warn]       block 5: SINGLETON size=1 idx=11 (singleton_count_in_block=1)
+[warn]       block 6: SINGLETON size=1 idx=13 (singleton_count_in_block=1)

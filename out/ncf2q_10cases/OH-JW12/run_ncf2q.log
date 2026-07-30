@@ -1,0 +1,1163 @@
+qsyn v0.8.0 - Copyright © 2022-2026, DVLab NTUEE.
+Licensed under Apache 2.0 License. Release build.
+qsyn> tableau from-terms /home/chenying/qsyn/out/ncf2q_10cases/OH-JW12/OH-JW12.json --use-coeff
+Loaded 630 Pauli terms (OH-JW12) → Tableau 0
+  #0 IIIIIIIIIIIZ  angle=?  coeff=-0.0163043875
+  #1 IIIIIIIIIIZI  angle=?  coeff=-0.0163043875
+  #2 IIIIIIIIIIZZ  angle=?  coeff=0.16819356
+  #3 IIIIIIIIIXIX  angle=?  coeff=-0.0293737933
+  #4 IIIIIIIIIXZX  angle=?  coeff=-0.102795955
+  #5 IIIIIIIIIYIY  angle=?  coeff=-0.0293737933
+  #6 IIIIIIIIIYZY  angle=?  coeff=-0.102795955
+  #7 IIIIIIIIIZII  angle=?  coeff=0.146845831
+  #8 IIIIIIIIIZIZ  angle=?  coeff=0.0891525305
+  #9 IIIIIIIIIZZI  angle=?  coeff=0.100388175
+  #10 IIIIIIIIXIXI  angle=?  coeff=-0.00981429708
+  #11 IIIIIIIIXXYY  angle=?  coeff=-0.0112356448
+  #12 IIIIIIIIXYYX  angle=?  coeff=0.0112356448
+  #13 IIIIIIIIXZXI  angle=?  coeff=-0.102795955
+  #14 IIIIIIIIXZXZ  angle=?  coeff=-0.0293737933
+  #15 IIIIIIIIYIYI  angle=?  coeff=-0.00981429708
+  #16 IIIIIIIIYXXY  angle=?  coeff=0.0112356448
+  #17 IIIIIIIIYYXX  angle=?  coeff=-0.0112356448
+  #18 IIIIIIIIYZYI  angle=?  coeff=-0.102795955
+  #19 IIIIIIIIYZYZ  angle=?  coeff=-0.0293737933
+  #20 IIIIIIIIZIII  angle=?  coeff=0.146845831
+  #21 IIIIIIIIZIIZ  angle=?  coeff=0.100388175
+  #22 IIIIIIIIZIZI  angle=?  coeff=0.0891525305
+  #23 IIIIIIIIZXZX  angle=?  coeff=-0.00981429708
+  #24 IIIIIIIIZYZY  angle=?  coeff=-0.00981429708
+  #25 IIIIIIIIZZII  angle=?  coeff=0.0884099873
+  #26 IIIIIIIZIIII  angle=?  coeff=0.714014235
+  #27 IIIIIIIZIIIZ  angle=?  coeff=0.115918805
+  #28 IIIIIIIZIIZI  angle=?  coeff=0.120416269
+  #29 IIIIIIIZIXZX  angle=?  coeff=-0.0230061712
+  #30 IIIIIIIZIYZY  angle=?  coeff=-0.0230061712
+  #31 IIIIIIIZIZII  angle=?  coeff=0.0844868592
+  #32 IIIIIIIZXZXI  angle=?  coeff=-0.0253193904
+  #33 IIIIIIIZYZYI  angle=?  coeff=-0.0253193904
+  #34 IIIIIIIZZIII  angle=?  coeff=0.0869807053
+  #35 IIIIIIXXIIYY  angle=?  coeff=-0.00449746386
+  #36 IIIIIIXXIXXI  angle=?  coeff=-0.00231321923
+  #37 IIIIIIXXYYII  angle=?  coeff=-0.00249384614
+  #38 IIIIIIXXYZZY  angle=?  coeff=-0.00231321923
+  #39 IIIIIIXYIIYX  angle=?  coeff=0.00449746386
+  #40 IIIIIIXYIYXI  angle=?  coeff=-0.00231321923
+  #41 IIIIIIXYYXII  angle=?  coeff=0.00249384614
+  #42 IIIIIIXYYZZX  angle=?  coeff=0.00231321923
+  #43 IIIIIIYXIIXY  angle=?  coeff=0.00449746386
+  #44 IIIIIIYXIXYI  angle=?  coeff=-0.00231321923
+  #45 IIIIIIYXXYII  angle=?  coeff=0.00249384614
+  #46 IIIIIIYXXZZY  angle=?  coeff=0.00231321923
+  #47 IIIIIIYYIIXX  angle=?  coeff=-0.00449746386
+  #48 IIIIIIYYIYYI  angle=?  coeff=-0.00231321923
+  #49 IIIIIIYYXXII  angle=?  coeff=-0.00249384614
+  #50 IIIIIIYYXZZX  angle=?  coeff=-0.00231321923
+  #51 IIIIIIZIIIII  angle=?  coeff=0.714014235
+  #52 IIIIIIZIIIIZ  angle=?  coeff=0.120416269
+  #53 IIIIIIZIIIZI  angle=?  coeff=0.115918805
+  #54 IIIIIIZIIXZX  angle=?  coeff=-0.0253193904
+  #55 IIIIIIZIIYZY  angle=?  coeff=-0.0253193904
+  #56 IIIIIIZIIZII  angle=?  coeff=0.0869807053
+  #57 IIIIIIZIXZXI  angle=?  coeff=-0.0230061712
+  #58 IIIIIIZIYZYI  angle=?  coeff=-0.0230061712
+  #59 IIIIIIZIZIII  angle=?  coeff=0.0844868592
+  #60 IIIIIIZZIIII  angle=?  coeff=0.200636843
+  #61 IIIIIZIIIIII  angle=?  coeff=0.702657312
+  #62 IIIIIZIIIIIZ  angle=?  coeff=0.115029248
+  #63 IIIIIZIIIIZI  angle=?  coeff=0.119481316
+  #64 IIIIIZIIIXZX  angle=?  coeff=-0.022590074
+  #65 IIIIIZIIIYZY  angle=?  coeff=-0.022590074
+  #66 IIIIIZIIIZII  angle=?  coeff=0.0840728213
+  #67 IIIIIZIIXZXI  angle=?  coeff=-0.0247567148
+  #68 IIIIIZIIYZYI  angle=?  coeff=-0.0247567148
+  #69 IIIIIZIIZIII  angle=?  coeff=0.0865380231
+  #70 IIIIIZIZIIII  angle=?  coeff=0.168141713
+  #71 IIIIIZZIIIII  angle=?  coeff=0.177920411
+  #72 IIIIXXIIIIYY  angle=?  coeff=-0.0044520689
+  #73 IIIIXXIIIXXI  angle=?  coeff=-0.0021666408
+  #74 IIIIXXIIYYII  angle=?  coeff=-0.00246520173
+  #75 IIIIXXIIYZZY  angle=?  coeff=-0.0021666408
+  #76 IIIIXXYYIIII  angle=?  coeff=-0.00977869798
+  #77 IIIIXYIIIIYX  angle=?  coeff=0.0044520689
+  #78 IIIIXYIIIYXI  angle=?  coeff=-0.0021666408
+  #79 IIIIXYIIYXII  angle=?  coeff=0.00246520173
+  #80 IIIIXYIIYZZX  angle=?  coeff=0.0021666408
+  #81 IIIIXYYXIIII  angle=?  coeff=0.00977869798
+  #82 IIIIYXIIIIXY  angle=?  coeff=0.0044520689
+  #83 IIIIYXIIIXYI  angle=?  coeff=-0.0021666408
+  #84 IIIIYXIIXYII  angle=?  coeff=0.00246520173
+  #85 IIIIYXIIXZZY  angle=?  coeff=0.0021666408
+  #86 IIIIYXXYIIII  angle=?  coeff=0.00977869798
+  #87 IIIIYYIIIIXX  angle=?  coeff=-0.0044520689
+  #88 IIIIYYIIIYYI  angle=?  coeff=-0.0021666408
+  #89 IIIIYYIIXXII  angle=?  coeff=-0.00246520173
+  #90 IIIIYYIIXZZX  angle=?  coeff=-0.0021666408
+  #91 IIIIYYXXIIII  angle=?  coeff=-0.00977869798
+  #92 IIIIZIIIIIII  angle=?  coeff=0.702657312
+  #93 IIIIZIIIIIIZ  angle=?  coeff=0.119481316
+  #94 IIIIZIIIIIZI  angle=?  coeff=0.115029248
+  #95 IIIIZIIIIXZX  angle=?  coeff=-0.0247567148
+  #96 IIIIZIIIIYZY  angle=?  coeff=-0.0247567148
+  #97 IIIIZIIIIZII  angle=?  coeff=0.0865380231
+  #98 IIIIZIIIXZXI  angle=?  coeff=-0.022590074
+  #99 IIIIZIIIYZYI  angle=?  coeff=-0.022590074
+  #100 IIIIZIIIZIII  angle=?  coeff=0.0840728213
+  #101 IIIIZIIZIIII  angle=?  coeff=0.177920411
+  #102 IIIIZIZIIIII  angle=?  coeff=0.168141713
+  #103 IIIIZZIIIIII  angle=?  coeff=0.194457875
+  #104 IIIXIZZZZXII  angle=?  coeff=0.0192112957
+  #105 IIIXIZZZZZZX  angle=?  coeff=0.0202304354
+  #106 IIIXXYZZYIII  angle=?  coeff=0.000889169961
+  #107 IIIXXYZZZZYI  angle=?  coeff=0.00089005433
+  #108 IIIXYYZZXIII  angle=?  coeff=-0.000889169961
+  #109 IIIXYYZZZZXI  angle=?  coeff=-0.00089005433
+  #110 IIIXZIZZZXII  angle=?  coeff=0.0183221258
+  #111 IIIXZIZZZZZX  angle=?  coeff=0.0193403811
+  #112 IIIXZZIZZXII  angle=?  coeff=0.019759527
+  #113 IIIXZZIZZZZX  angle=?  coeff=0.0210368991
+  #114 IIIXZZXYYIII  angle=?  coeff=0.00086745424
+  #115 IIIXZZXYZZYI  angle=?  coeff=0.000953095554
+  #116 IIIXZZYYXIII  angle=?  coeff=-0.00086745424
+  #117 IIIXZZYYZZXI  angle=?  coeff=-0.000953095554
+  #118 IIIXZZZIZXII  angle=?  coeff=0.0188920727
+  #119 IIIXZZZIZZZX  angle=?  coeff=0.0200838035
+  #120 IIIXZZZZIXII  angle=?  coeff=-0.00352996267
+  #121 IIIXZZZZIZZX  angle=?  coeff=-0.00812825935
+  #122 IIIXZZZZXIXX  angle=?  coeff=-0.00320786845
+  #123 IIIXZZZZXYYI  angle=?  coeff=0.00248199268
+  #124 IIIXZZZZYIYX  angle=?  coeff=-0.00320786845
+  #125 IIIXZZZZYYXI  angle=?  coeff=-0.00248199268
+  #126 IIIXZZZZZIZX  angle=?  coeff=-0.010610252
+  #127 IIIXZZZZZXII  angle=?  coeff=0.0938718005
+  #128 IIIXZZZZZXIZ  angle=?  coeff=0.000696092926
+  #129 IIIXZZZZZXZI  angle=?  coeff=-0.00251177552
+  #130 IIIXZZZZZZIX  angle=?  coeff=-0.0280710024
+  #131 IIIXZZZZZZZX  angle=?  coeff=0.12487202
+  #132 IIIYIZZZZYII  angle=?  coeff=0.0192112957
+  #133 IIIYIZZZZZZY  angle=?  coeff=0.0202304354
+  #134 IIIYXXZZYIII  angle=?  coeff=-0.000889169961
+  #135 IIIYXXZZZZYI  angle=?  coeff=-0.00089005433
+  #136 IIIYYXZZXIII  angle=?  coeff=0.000889169961
+  #137 IIIYYXZZZZXI  angle=?  coeff=0.00089005433
+  #138 IIIYZIZZZYII  angle=?  coeff=0.0183221258
+  #139 IIIYZIZZZZZY  angle=?  coeff=0.0193403811
+  #140 IIIYZZIZZYII  angle=?  coeff=0.019759527
+  #141 IIIYZZIZZZZY  angle=?  coeff=0.0210368991
+  #142 IIIYZZXXYIII  angle=?  coeff=-0.00086745424
+  #143 IIIYZZXXZZYI  angle=?  coeff=-0.000953095554
+  #144 IIIYZZYXXIII  angle=?  coeff=0.00086745424
+  #145 IIIYZZYXZZXI  angle=?  coeff=0.000953095554
+  #146 IIIYZZZIZYII  angle=?  coeff=0.0188920727
+  #147 IIIYZZZIZZZY  angle=?  coeff=0.0200838035
+  #148 IIIYZZZZIYII  angle=?  coeff=-0.00352996267
+  #149 IIIYZZZZIZZY  angle=?  coeff=-0.00812825935
+  #150 IIIYZZZZXIXY  angle=?  coeff=-0.00320786845
+  #151 IIIYZZZZXXYI  angle=?  coeff=-0.00248199268
+  #152 IIIYZZZZYIYY  angle=?  coeff=-0.00320786845
+  #153 IIIYZZZZYXXI  angle=?  coeff=0.00248199268
+  #154 IIIYZZZZZIZY  angle=?  coeff=-0.010610252
+  #155 IIIYZZZZZYII  angle=?  coeff=0.0938718005
+  #156 IIIYZZZZZYIZ  angle=?  coeff=0.000696092926
+  #157 IIIYZZZZZYZI  angle=?  coeff=-0.00251177552
+  #158 IIIYZZZZZZIY  angle=?  coeff=-0.0280710024
+  #159 IIIYZZZZZZZY  angle=?  coeff=0.12487202
+  #160 IIIZIIIIIIII  angle=?  coeff=0.715585417
+  #161 IIIZIIIIIIIZ  angle=?  coeff=0.107641073
+  #162 IIIZIIIIIIZI  angle=?  coeff=0.13707337
+  #163 IIIZIIIIIXZX  angle=?  coeff=-0.0158333462
+  #164 IIIZIIIIIYZY  angle=?  coeff=-0.0158333462
+  #165 IIIZIIIIIZII  angle=?  coeff=0.0809458978
+  #166 IIIZIIIIXZXI  angle=?  coeff=-0.0277696091
+  #167 IIIZIIIIYZYI  angle=?  coeff=-0.0277696091
+  #168 IIIZIIIIZIII  angle=?  coeff=0.0898059309
+  #169 IIIZIIIZIIII  angle=?  coeff=0.156518566
+  #170 IIIZIIZIIIII  angle=?  coeff=0.167165637
+  #171 IIIZIZIIIIII  angle=?  coeff=0.154399284
+  #172 IIIZZIIIIIII  angle=?  coeff=0.164900712
+  #173 IIXIZZZZXIII  angle=?  coeff=0.0177530865
+  #174 IIXIZZZZZZXI  angle=?  coeff=0.0139542093
+  #175 IIXXIIIIIIYY  angle=?  coeff=-0.029432297
+  #176 IIXXIIIIIXXI  angle=?  coeff=-0.0119362629
+  #177 IIXXIIIIYYII  angle=?  coeff=-0.00886003311
+  #178 IIXXIIIIYZZY  angle=?  coeff=-0.0119362629
+  #179 IIXXIIYYIIII  angle=?  coeff=-0.0106470703
+  #180 IIXXYYIIIIII  angle=?  coeff=-0.0105014282
+  #181 IIXYIIIIIIYX  angle=?  coeff=0.029432297
+  #182 IIXYIIIIIYXI  angle=?  coeff=-0.0119362629
+  #183 IIXYIIIIYXII  angle=?  coeff=0.00886003311
+  #184 IIXYIIIIYZZX  angle=?  coeff=0.0119362629
+  #185 IIXYIIYXIIII  angle=?  coeff=0.0106470703
+  #186 IIXYYXIIIIII  angle=?  coeff=0.0105014282
+  #187 IIXZIZZZXIII  angle=?  coeff=0.0183221258
+  #188 IIXZIZZZZZXI  angle=?  coeff=0.0193403811
+  #189 IIXZXXZZZXII  angle=?  coeff=-0.000889169961
+  #190 IIXZXXZZZZZX  angle=?  coeff=-0.00089005433
+  #191 IIXZXYZZZYII  angle=?  coeff=-0.000889169961
+  #192 IIXZXYZZZZZY  angle=?  coeff=-0.00089005433
+  #193 IIXZZIZZXIII  angle=?  coeff=0.0192112957
+  #194 IIXZZIZZZZXI  angle=?  coeff=0.0202304354
+  #195 IIXZZZIZXIII  angle=?  coeff=0.0188920727
+  #196 IIXZZZIZZZXI  angle=?  coeff=0.0200838035
+  #197 IIXZZZXXZXII  angle=?  coeff=-0.00086745424
+  #198 IIXZZZXXZZZX  angle=?  coeff=-0.000953095554
+  #199 IIXZZZXYZYII  angle=?  coeff=-0.00086745424
+  #200 IIXZZZXYZZZY  angle=?  coeff=-0.000953095554
+  #201 IIXZZZZIXIII  angle=?  coeff=0.019759527
+  #202 IIXZZZZIZZXI  angle=?  coeff=0.0210368991
+  #203 IIXZZZZZIZXI  angle=?  coeff=-0.010610252
+  #204 IIXZZZZZXIII  angle=?  coeff=0.0938718005
+  #205 IIXZZZZZXIIZ  angle=?  coeff=-0.00251177552
+  #206 IIXZZZZZXIZI  angle=?  coeff=0.000696092926
+  #207 IIXZZZZZXXZX  angle=?  coeff=-0.00248199268
+  #208 IIXZZZZZXYZY  angle=?  coeff=-0.00248199268
+  #209 IIXZZZZZXZII  angle=?  coeff=-0.00352996267
+  #210 IIXZZZZZZIXI  angle=?  coeff=-0.00812825935
+  #211 IIXZZZZZZXYY  angle=?  coeff=-0.00320786845
+  #212 IIXZZZZZZYYX  angle=?  coeff=0.00320786845
+  #213 IIXZZZZZZZXI  angle=?  coeff=0.12487202
+  #214 IIXZZZZZZZXZ  angle=?  coeff=-0.0280710024
+  #215 IIYIZZZZYIII  angle=?  coeff=0.0177530865
+  #216 IIYIZZZZZZYI  angle=?  coeff=0.0139542093
+  #217 IIYXIIIIIIXY  angle=?  coeff=0.029432297
+  #218 IIYXIIIIIXYI  angle=?  coeff=-0.0119362629
+  #219 IIYXIIIIXYII  angle=?  coeff=0.00886003311
+  #220 IIYXIIIIXZZY  angle=?  coeff=0.0119362629
+  #221 IIYXIIXYIIII  angle=?  coeff=0.0106470703
+  #222 IIYXXYIIIIII  angle=?  coeff=0.0105014282
+  #223 IIYYIIIIIIXX  angle=?  coeff=-0.029432297
+  #224 IIYYIIIIIYYI  angle=?  coeff=-0.0119362629
+  #225 IIYYIIIIXXII  angle=?  coeff=-0.00886003311
+  #226 IIYYIIIIXZZX  angle=?  coeff=-0.0119362629
+  #227 IIYYIIXXIIII  angle=?  coeff=-0.0106470703
+  #228 IIYYXXIIIIII  angle=?  coeff=-0.0105014282
+  #229 IIYZIZZZYIII  angle=?  coeff=0.0183221258
+  #230 IIYZIZZZZZYI  angle=?  coeff=0.0193403811
+  #231 IIYZYXZZZXII  angle=?  coeff=-0.000889169961
+  #232 IIYZYXZZZZZX  angle=?  coeff=-0.00089005433
+  #233 IIYZYYZZZYII  angle=?  coeff=-0.000889169961
+  #234 IIYZYYZZZZZY  angle=?  coeff=-0.00089005433
+  #235 IIYZZIZZYIII  angle=?  coeff=0.0192112957
+  #236 IIYZZIZZZZYI  angle=?  coeff=0.0202304354
+  #237 IIYZZZIZYIII  angle=?  coeff=0.0188920727
+  #238 IIYZZZIZZZYI  angle=?  coeff=0.0200838035
+  #239 IIYZZZYXZXII  angle=?  coeff=-0.00086745424
+  #240 IIYZZZYXZZZX  angle=?  coeff=-0.000953095554
+  #241 IIYZZZYYZYII  angle=?  coeff=-0.00086745424
+  #242 IIYZZZYYZZZY  angle=?  coeff=-0.000953095554
+  #243 IIYZZZZIYIII  angle=?  coeff=0.019759527
+  #244 IIYZZZZIZZYI  angle=?  coeff=0.0210368991
+  #245 IIYZZZZZIZYI  angle=?  coeff=-0.010610252
+  #246 IIYZZZZZYIII  angle=?  coeff=0.0938718005
+  #247 IIYZZZZZYIIZ  angle=?  coeff=-0.00251177552
+  #248 IIYZZZZZYIZI  angle=?  coeff=0.000696092926
+  #249 IIYZZZZZYXZX  angle=?  coeff=-0.00248199268
+  #250 IIYZZZZZYYZY  angle=?  coeff=-0.00248199268
+  #251 IIYZZZZZYZII  angle=?  coeff=-0.00352996267
+  #252 IIYZZZZZZIYI  angle=?  coeff=-0.00812825935
+  #253 IIYZZZZZZXXY  angle=?  coeff=0.00320786845
+  #254 IIYZZZZZZYXX  angle=?  coeff=-0.00320786845
+  #255 IIYZZZZZZZYI  angle=?  coeff=0.12487202
+  #256 IIYZZZZZZZYZ  angle=?  coeff=-0.0280710024
+  #257 IIZIIIIIIIII  angle=?  coeff=0.715585417
+  #258 IIZIIIIIIIIZ  angle=?  coeff=0.13707337
+  #259 IIZIIIIIIIZI  angle=?  coeff=0.107641073
+  #260 IIZIIIIIIXZX  angle=?  coeff=-0.0277696091
+  #261 IIZIIIIIIYZY  angle=?  coeff=-0.0277696091
+  #262 IIZIIIIIIZII  angle=?  coeff=0.0898059309
+  #263 IIZIIIIIXZXI  angle=?  coeff=-0.0158333462
+  #264 IIZIIIIIYZYI  angle=?  coeff=-0.0158333462
+  #265 IIZIIIIIZIII  angle=?  coeff=0.0809458978
+  #266 IIZIIIIZIIII  angle=?  coeff=0.167165637
+  #267 IIZIIIZIIIII  angle=?  coeff=0.156518566
+  #268 IIZIIZIIIIII  angle=?  coeff=0.164900712
+  #269 IIZIZIIIIIII  angle=?  coeff=0.154399284
+  #270 IIZXZZZZZXII  angle=?  coeff=0.0177530865
+  #271 IIZXZZZZZZZX  angle=?  coeff=0.0139542093
+  #272 IIZYZZZZZYII  angle=?  coeff=0.0177530865
+  #273 IIZYZZZZZZZY  angle=?  coeff=0.0139542093
+  #274 IIZZIIIIIIII  angle=?  coeff=0.177694306
+  #275 IXIXIIIIIIII  angle=?  coeff=0.00853963768
+  #276 IXIZZZZZZXII  angle=?  coeff=0.0152430875
+  #277 IXIZZZZZZZZX  angle=?  coeff=-0.00175871504
+  #278 IXXIIIIIIIXX  angle=?  coeff=-0.0107439879
+  #279 IXXIIIIIIYYI  angle=?  coeff=-0.00463809436
+  #280 IXXIIIIIXXII  angle=?  coeff=-0.00579691732
+  #281 IXXIIIIIXZZX  angle=?  coeff=-0.0051488246
+  #282 IXXIIIXXIIII  angle=?  coeff=0.00824501748
+  #283 IXXIXXIIIIII  angle=?  coeff=0.00801253946
+  #284 IXXYZZZZYIII  angle=?  coeff=-0.00532784875
+  #285 IXXYZZZZZZYI  angle=?  coeff=-0.0220039444
+  #286 IXYIIIIIIIYX  angle=?  coeff=-0.0107439879
+  #287 IXYIIIIIIYXI  angle=?  coeff=0.00463809436
+  #288 IXYIIIIIYXII  angle=?  coeff=-0.00579691732
+  #289 IXYIIIIIYZZX  angle=?  coeff=-0.0051488246
+  #290 IXYIIIYXIIII  angle=?  coeff=0.00824501748
+  #291 IXYIYXIIIIII  angle=?  coeff=0.00801253946
+  #292 IXYYZZZZXIII  angle=?  coeff=0.00532784875
+  #293 IXYYZZZZZZXI  angle=?  coeff=0.0220039444
+  #294 IXZIZZZZZXII  angle=?  coeff=0.0205709362
+  #295 IXZIZZZZZZZX  angle=?  coeff=0.0202452294
+  #296 IXZXIIIIIIII  angle=?  coeff=0.0717854115
+  #297 IXZXIIIIIIIZ  angle=?  coeff=-0.0138655269
+  #298 IXZXIIIIIIZI  angle=?  coeff=-0.0246095147
+  #299 IXZXIIIIIXZX  angle=?  coeff=-0.000698779947
+  #300 IXZXIIIIIYZY  angle=?  coeff=-0.000188049703
+  #301 IXZXIIIIIZII  angle=?  coeff=-0.00627660633
+  #302 IXZXIIIIXZXI  angle=?  coeff=0.00445004465
+  #303 IXZXIIIIYZYI  angle=?  coeff=0.00445004465
+  #304 IXZXIIIIZIII  angle=?  coeff=-0.0120735236
+  #305 IXZXIIIZIIII  angle=?  coeff=0.00224660015
+  #306 IXZXIIZIIIII  angle=?  coeff=0.0104916176
+  #307 IXZXIZIIIIII  angle=?  coeff=0.00205226879
+  #308 IXZXZIIIIIII  angle=?  coeff=0.0100648082
+  #309 IXZYIIIIIYZX  angle=?  coeff=-0.000510730244
+  #310 IXZZIZZZZXII  angle=?  coeff=0.0222575175
+  #311 IXZZIZZZZZZX  angle=?  coeff=0.01464435
+  #312 IXZZXYZZYIII  angle=?  coeff=0.00468521008
+  #313 IXZZXYZZZZYI  angle=?  coeff=0.00895054362
+  #314 IXZZYYZZXIII  angle=?  coeff=-0.00468521008
+  #315 IXZZYYZZZZXI  angle=?  coeff=-0.00895054362
+  #316 IXZZZIZZZXII  angle=?  coeff=0.0175723074
+  #317 IXZZZIZZZZZX  angle=?  coeff=0.00569380637
+  #318 IXZZZZIZZXII  angle=?  coeff=0.0229708785
+  #319 IXZZZZIZZZZX  angle=?  coeff=0.0151239189
+  #320 IXZZZZXYYIII  angle=?  coeff=0.00509864408
+  #321 IXZZZZXYZZYI  angle=?  coeff=0.0090780265
+  #322 IXZZZZYYXIII  angle=?  coeff=-0.00509864408
+  #323 IXZZZZYYZZXI  angle=?  coeff=-0.0090780265
+  #324 IXZZZZZIZXII  angle=?  coeff=0.0178722345
+  #325 IXZZZZZIZZZX  angle=?  coeff=0.00604589239
+  #326 IXZZZZZZIXII  angle=?  coeff=0.00348846816
+  #327 IXZZZZZZIZZX  angle=?  coeff=-0.00121663256
+  #328 IXZZZZZZXIXX  angle=?  coeff=-0.00123593076
+  #329 IXZZZZZZXYYI  angle=?  coeff=0.00449865511
+  #330 IXZZZZZZYIYX  angle=?  coeff=-0.00123593076
+  #331 IXZZZZZZYYXI  angle=?  coeff=-0.00449865511
+  #332 IXZZZZZZZIZX  angle=?  coeff=-0.00571528767
+  #333 IXZZZZZZZXII  angle=?  coeff=0.0821221312
+  #334 IXZZZZZZZXIZ  angle=?  coeff=0.00849308429
+  #335 IXZZZZZZZXZI  angle=?  coeff=0.00725715353
+  #336 IXZZZZZZZZIX  angle=?  coeff=-0.0140346468
+  #337 IXZZZZZZZZZX  angle=?  coeff=0.0721213141
+  #338 IYIYIIIIIIII  angle=?  coeff=0.00853963768
+  #339 IYIZZZZZZYII  angle=?  coeff=0.0152430875
+  #340 IYIZZZZZZZZY  angle=?  coeff=-0.00175871504
+  #341 IYXIIIIIIIXY  angle=?  coeff=-0.0107439879
+  #342 IYXIIIIIIXYI  angle=?  coeff=0.00463809436
+  #343 IYXIIIIIXYII  angle=?  coeff=-0.00579691732
+  #344 IYXIIIIIXZZY  angle=?  coeff=-0.0051488246
+  #345 IYXIIIXYIIII  angle=?  coeff=0.00824501748
+  #346 IYXIXYIIIIII  angle=?  coeff=0.00801253946
+  #347 IYXXZZZZYIII  angle=?  coeff=0.00532784875
+  #348 IYXXZZZZZZYI  angle=?  coeff=0.0220039444
+  #349 IYYIIIIIIIYY  angle=?  coeff=-0.0107439879
+  #350 IYYIIIIIIXXI  angle=?  coeff=-0.00463809436
+  #351 IYYIIIIIYYII  angle=?  coeff=-0.00579691732
+  #352 IYYIIIIIYZZY  angle=?  coeff=-0.0051488246
+  #353 IYYIIIYYIIII  angle=?  coeff=0.00824501748
+  #354 IYYIYYIIIIII  angle=?  coeff=0.00801253946
+  #355 IYYXZZZZXIII  angle=?  coeff=-0.00532784875
+  #356 IYYXZZZZZZXI  angle=?  coeff=-0.0220039444
+  #357 IYZIZZZZZYII  angle=?  coeff=0.0205709362
+  #358 IYZIZZZZZZZY  angle=?  coeff=0.0202452294
+  #359 IYZXIIIIIXZY  angle=?  coeff=-0.000510730244
+  #360 IYZYIIIIIIII  angle=?  coeff=0.0717854115
+  #361 IYZYIIIIIIIZ  angle=?  coeff=-0.0138655269
+  #362 IYZYIIIIIIZI  angle=?  coeff=-0.0246095147
+  #363 IYZYIIIIIXZX  angle=?  coeff=-0.000188049703
+  #364 IYZYIIIIIYZY  angle=?  coeff=-0.000698779947
+  #365 IYZYIIIIIZII  angle=?  coeff=-0.00627660633
+  #366 IYZYIIIIXZXI  angle=?  coeff=0.00445004465
+  #367 IYZYIIIIYZYI  angle=?  coeff=0.00445004465
+  #368 IYZYIIIIZIII  angle=?  coeff=-0.0120735236
+  #369 IYZYIIIZIIII  angle=?  coeff=0.00224660015
+  #370 IYZYIIZIIIII  angle=?  coeff=0.0104916176
+  #371 IYZYIZIIIIII  angle=?  coeff=0.00205226879
+  #372 IYZYZIIIIIII  angle=?  coeff=0.0100648082
+  #373 IYZZIZZZZYII  angle=?  coeff=0.0222575175
+  #374 IYZZIZZZZZZY  angle=?  coeff=0.01464435
+  #375 IYZZXXZZYIII  angle=?  coeff=-0.00468521008
+  #376 IYZZXXZZZZYI  angle=?  coeff=-0.00895054362
+  #377 IYZZYXZZXIII  angle=?  coeff=0.00468521008
+  #378 IYZZYXZZZZXI  angle=?  coeff=0.00895054362
+  #379 IYZZZIZZZYII  angle=?  coeff=0.0175723074
+  #380 IYZZZIZZZZZY  angle=?  coeff=0.00569380637
+  #381 IYZZZZIZZYII  angle=?  coeff=0.0229708785
+  #382 IYZZZZIZZZZY  angle=?  coeff=0.0151239189
+  #383 IYZZZZXXYIII  angle=?  coeff=-0.00509864408
+  #384 IYZZZZXXZZYI  angle=?  coeff=-0.0090780265
+  #385 IYZZZZYXXIII  angle=?  coeff=0.00509864408
+  #386 IYZZZZYXZZXI  angle=?  coeff=0.0090780265
+  #387 IYZZZZZIZYII  angle=?  coeff=0.0178722345
+  #388 IYZZZZZIZZZY  angle=?  coeff=0.00604589239
+  #389 IYZZZZZZIYII  angle=?  coeff=0.00348846816
+  #390 IYZZZZZZIZZY  angle=?  coeff=-0.00121663256
+  #391 IYZZZZZZXIXY  angle=?  coeff=-0.00123593076
+  #392 IYZZZZZZXXYI  angle=?  coeff=-0.00449865511
+  #393 IYZZZZZZYIYY  angle=?  coeff=-0.00123593076
+  #394 IYZZZZZZYXXI  angle=?  coeff=0.00449865511
+  #395 IYZZZZZZZIZY  angle=?  coeff=-0.00571528767
+  #396 IYZZZZZZZYII  angle=?  coeff=0.0821221312
+  #397 IYZZZZZZZYIZ  angle=?  coeff=0.00849308429
+  #398 IYZZZZZZZYZI  angle=?  coeff=0.00725715353
+  #399 IYZZZZZZZZIY  angle=?  coeff=-0.0140346468
+  #400 IYZZZZZZZZZY  angle=?  coeff=0.0721213141
+  #401 IZIIIIIIIIII  angle=?  coeff=1.04578071
+  #402 IZIIIIIIIIIZ  angle=?  coeff=0.124025354
+  #403 IZIIIIIIIIZI  angle=?  coeff=0.137483518
+  #404 IZIIIIIIIXZX  angle=?  coeff=-0.0216862622
+  #405 IZIIIIIIIYZY  angle=?  coeff=-0.0216862622
+  #406 IZIIIIIIIZII  angle=?  coeff=0.0849114161
+  #407 IZIIIIIIXZXI  angle=?  coeff=-0.0293480526
+  #408 IZIIIIIIYZYI  angle=?  coeff=-0.0293480526
+  #409 IZIIIIIIZIII  angle=?  coeff=0.0937636202
+  #410 IZIIIIIZIIII  angle=?  coeff=0.15131078
+  #411 IZIIIIZIIIII  angle=?  coeff=0.186405433
+  #412 IZIIIZIIIIII  angle=?  coeff=0.149039895
+  #413 IZIIZIIIIIII  angle=?  coeff=0.183722648
+  #414 IZIXZZZZZXII  angle=?  coeff=0.0137137432
+  #415 IZIXZZZZZZZX  angle=?  coeff=0.0117391424
+  #416 IZIYZZZZZYII  angle=?  coeff=0.0137137432
+  #417 IZIYZZZZZZZY  angle=?  coeff=0.0117391424
+  #418 IZIZIIIIIIII  angle=?  coeff=0.137074005
+  #419 IZXZZZZZXIII  angle=?  coeff=0.0195259074
+  #420 IZXZZZZZZZXI  angle=?  coeff=0.0127983437
+  #421 IZYZZZZZYIII  angle=?  coeff=0.0195259074
+  #422 IZYZZZZZZZYI  angle=?  coeff=0.0127983437
+  #423 IZZIIIIIIIII  angle=?  coeff=0.174193285
+  #424 XIXIIIIIIIII  angle=?  coeff=-0.00569647267
+  #425 XIZZZZZZXIII  angle=?  coeff=0.025717006
+  #426 XIZZZZZZZZXI  angle=?  coeff=0.0123300963
+  #427 XXIIIIIIIIYY  angle=?  coeff=-0.0134581646
+  #428 XXIIIIIIIXXI  angle=?  coeff=-0.00766179046
+  #429 XXIIIIIIYYII  angle=?  coeff=-0.00885220407
+  #430 XXIIIIIIYZZY  angle=?  coeff=-0.00766179046
+  #431 XXIIIIYYIIII  angle=?  coeff=-0.0350946528
+  #432 XXIIYYIIIIII  angle=?  coeff=-0.0346827531
+  #433 XXIXZZZZXIII  angle=?  coeff=0.00581216426
+  #434 XXIXZZZZZZXI  angle=?  coeff=0.00105920135
+  #435 XXYYIIIIIIII  angle=?  coeff=-0.0371192801
+  #436 XXYZZZZZZYII  angle=?  coeff=0.00581216426
+  #437 XXYZZZZZZZZY  angle=?  coeff=0.00105920135
+  #438 XYIIIIIIIIYX  angle=?  coeff=0.0134581646
+  #439 XYIIIIIIIYXI  angle=?  coeff=-0.00766179046
+  #440 XYIIIIIIYXII  angle=?  coeff=0.00885220407
+  #441 XYIIIIIIYZZX  angle=?  coeff=0.00766179046
+  #442 XYIIIIYXIIII  angle=?  coeff=0.0350946528
+  #443 XYIIYXIIIIII  angle=?  coeff=0.0346827531
+  #444 XYIYZZZZXIII  angle=?  coeff=0.00581216426
+  #445 XYIYZZZZZZXI  angle=?  coeff=0.00105920135
+  #446 XYYXIIIIIIII  angle=?  coeff=0.0371192801
+  #447 XYYZZZZZZXII  angle=?  coeff=-0.00581216426
+  #448 XYYZZZZZZZZX  angle=?  coeff=-0.00105920135
+  #449 XZIZZZZZXIII  angle=?  coeff=0.0205709362
+  #450 XZIZZZZZZZXI  angle=?  coeff=0.0202452294
+  #451 XZXIIIIIIIII  angle=?  coeff=0.0717854115
+  #452 XZXIIIIIIIIZ  angle=?  coeff=-0.0246095147
+  #453 XZXIIIIIIIZI  angle=?  coeff=-0.0138655269
+  #454 XZXIIIIIIXZX  angle=?  coeff=0.00445004465
+  #455 XZXIIIIIIYZY  angle=?  coeff=0.00445004465
+  #456 XZXIIIIIIZII  angle=?  coeff=-0.0120735236
+  #457 XZXIIIIIXZXI  angle=?  coeff=-0.000698779947
+  #458 XZXIIIIIYZYI  angle=?  coeff=-0.000188049703
+  #459 XZXIIIIIZIII  angle=?  coeff=-0.00627660633
+  #460 XZXIIIIZIIII  angle=?  coeff=0.0104916176
+  #461 XZXIIIZIIIII  angle=?  coeff=0.00224660015
+  #462 XZXIIZIIIIII  angle=?  coeff=0.0100648082
+  #463 XZXIZIIIIIII  angle=?  coeff=0.00205226879
+  #464 XZXXZZZZZXII  angle=?  coeff=0.00532784875
+  #465 XZXXZZZZZZZX  angle=?  coeff=0.0220039444
+  #466 XZXYZZZZZYII  angle=?  coeff=0.00532784875
+  #467 XZXYZZZZZZZY  angle=?  coeff=0.0220039444
+  #468 XZXZIIIIIIII  angle=?  coeff=0.00853963768
+  #469 XZYIIIIIYZXI  angle=?  coeff=-0.000510730244
+  #470 XZZIZZZZXIII  angle=?  coeff=0.0152430875
+  #471 XZZIZZZZZZXI  angle=?  coeff=-0.00175871504
+  #472 XZZXIIIIIIYY  angle=?  coeff=-0.0107439879
+  #473 XZZXIIIIIXXI  angle=?  coeff=-0.0051488246
+  #474 XZZXIIIIYYII  angle=?  coeff=-0.00579691732
+  #475 XZZXIIIIYZZY  angle=?  coeff=-0.00463809436
+  #476 XZZXIIYYIIII  angle=?  coeff=0.00824501748
+  #477 XZZXYYIIIIII  angle=?  coeff=0.00801253946
+  #478 XZZYIIIIIIYX  angle=?  coeff=0.0107439879
+  #479 XZZYIIIIIYXI  angle=?  coeff=-0.0051488246
+  #480 XZZYIIIIYXII  angle=?  coeff=0.00579691732
+  #481 XZZYIIIIYZZX  angle=?  coeff=0.00463809436
+  #482 XZZYIIYXIIII  angle=?  coeff=-0.00824501748
+  #483 XZZYYXIIIIII  angle=?  coeff=-0.00801253946
+  #484 XZZZIZZZXIII  angle=?  coeff=0.0175723074
+  #485 XZZZIZZZZZXI  angle=?  coeff=0.00569380637
+  #486 XZZZXXZZZXII  angle=?  coeff=-0.00468521008
+  #487 XZZZXXZZZZZX  angle=?  coeff=-0.00895054362
+  #488 XZZZXYZZZYII  angle=?  coeff=-0.00468521008
+  #489 XZZZXYZZZZZY  angle=?  coeff=-0.00895054362
+  #490 XZZZZIZZXIII  angle=?  coeff=0.0222575175
+  #491 XZZZZIZZZZXI  angle=?  coeff=0.01464435
+  #492 XZZZZZIZXIII  angle=?  coeff=0.0178722345
+  #493 XZZZZZIZZZXI  angle=?  coeff=0.00604589239
+  #494 XZZZZZXXZXII  angle=?  coeff=-0.00509864408
+  #495 XZZZZZXXZZZX  angle=?  coeff=-0.0090780265
+  #496 XZZZZZXYZYII  angle=?  coeff=-0.00509864408
+  #497 XZZZZZXYZZZY  angle=?  coeff=-0.0090780265
+  #498 XZZZZZZIXIII  angle=?  coeff=0.0229708785
+  #499 XZZZZZZIZZXI  angle=?  coeff=0.0151239189
+  #500 XZZZZZZZIZXI  angle=?  coeff=-0.00571528767
+  #501 XZZZZZZZXIII  angle=?  coeff=0.0821221312
+  #502 XZZZZZZZXIIZ  angle=?  coeff=0.00725715353
+  #503 XZZZZZZZXIZI  angle=?  coeff=0.00849308429
+  #504 XZZZZZZZXXZX  angle=?  coeff=-0.00449865511
+  #505 XZZZZZZZXYZY  angle=?  coeff=-0.00449865511
+  #506 XZZZZZZZXZII  angle=?  coeff=0.00348846816
+  #507 XZZZZZZZZIXI  angle=?  coeff=-0.00121663256
+  #508 XZZZZZZZZXYY  angle=?  coeff=-0.00123593076
+  #509 XZZZZZZZZYYX  angle=?  coeff=0.00123593076
+  #510 XZZZZZZZZZXI  angle=?  coeff=0.0721213141
+  #511 XZZZZZZZZZXZ  angle=?  coeff=-0.0140346468
+  #512 YIYIIIIIIIII  angle=?  coeff=-0.00569647267
+  #513 YIZZZZZZYIII  angle=?  coeff=0.025717006
+  #514 YIZZZZZZZZYI  angle=?  coeff=0.0123300963
+  #515 YXIIIIIIIIXY  angle=?  coeff=0.0134581646
+  #516 YXIIIIIIIXYI  angle=?  coeff=-0.00766179046
+  #517 YXIIIIIIXYII  angle=?  coeff=0.00885220407
+  #518 YXIIIIIIXZZY  angle=?  coeff=0.00766179046
+  #519 YXIIIIXYIIII  angle=?  coeff=0.0350946528
+  #520 YXIIXYIIIIII  angle=?  coeff=0.0346827531
+  #521 YXIXZZZZYIII  angle=?  coeff=0.00581216426
+  #522 YXIXZZZZZZYI  angle=?  coeff=0.00105920135
+  #523 YXXYIIIIIIII  angle=?  coeff=0.0371192801
+  #524 YXXZZZZZZYII  angle=?  coeff=-0.00581216426
+  #525 YXXZZZZZZZZY  angle=?  coeff=-0.00105920135
+  #526 YYIIIIIIIIXX  angle=?  coeff=-0.0134581646
+  #527 YYIIIIIIIYYI  angle=?  coeff=-0.00766179046
+  #528 YYIIIIIIXXII  angle=?  coeff=-0.00885220407
+  #529 YYIIIIIIXZZX  angle=?  coeff=-0.00766179046
+  #530 YYIIIIXXIIII  angle=?  coeff=-0.0350946528
+  #531 YYIIXXIIIIII  angle=?  coeff=-0.0346827531
+  #532 YYIYZZZZYIII  angle=?  coeff=0.00581216426
+  #533 YYIYZZZZZZYI  angle=?  coeff=0.00105920135
+  #534 YYXXIIIIIIII  angle=?  coeff=-0.0371192801
+  #535 YYXZZZZZZXII  angle=?  coeff=0.00581216426
+  #536 YYXZZZZZZZZX  angle=?  coeff=0.00105920135
+  #537 YZIZZZZZYIII  angle=?  coeff=0.0205709362
+  #538 YZIZZZZZZZYI  angle=?  coeff=0.0202452294
+  #539 YZXIIIIIXZYI  angle=?  coeff=-0.000510730244
+  #540 YZYIIIIIIIII  angle=?  coeff=0.0717854115
+  #541 YZYIIIIIIIIZ  angle=?  coeff=-0.0246095147
+  #542 YZYIIIIIIIZI  angle=?  coeff=-0.0138655269
+  #543 YZYIIIIIIXZX  angle=?  coeff=0.00445004465
+  #544 YZYIIIIIIYZY  angle=?  coeff=0.00445004465
+  #545 YZYIIIIIIZII  angle=?  coeff=-0.0120735236
+  #546 YZYIIIIIXZXI  angle=?  coeff=-0.000188049703
+  #547 YZYIIIIIYZYI  angle=?  coeff=-0.000698779947
+  #548 YZYIIIIIZIII  angle=?  coeff=-0.00627660633
+  #549 YZYIIIIZIIII  angle=?  coeff=0.0104916176
+  #550 YZYIIIZIIIII  angle=?  coeff=0.00224660015
+  #551 YZYIIZIIIIII  angle=?  coeff=0.0100648082
+  #552 YZYIZIIIIIII  angle=?  coeff=0.00205226879
+  #553 YZYXZZZZZXII  angle=?  coeff=0.00532784875
+  #554 YZYXZZZZZZZX  angle=?  coeff=0.0220039444
+  #555 YZYYZZZZZYII  angle=?  coeff=0.00532784875
+  #556 YZYYZZZZZZZY  angle=?  coeff=0.0220039444
+  #557 YZYZIIIIIIII  angle=?  coeff=0.00853963768
+  #558 YZZIZZZZYIII  angle=?  coeff=0.0152430875
+  #559 YZZIZZZZZZYI  angle=?  coeff=-0.00175871504
+  #560 YZZXIIIIIIXY  angle=?  coeff=0.0107439879
+  #561 YZZXIIIIIXYI  angle=?  coeff=-0.0051488246
+  #562 YZZXIIIIXYII  angle=?  coeff=0.00579691732
+  #563 YZZXIIIIXZZY  angle=?  coeff=0.00463809436
+  #564 YZZXIIXYIIII  angle=?  coeff=-0.00824501748
+  #565 YZZXXYIIIIII  angle=?  coeff=-0.00801253946
+  #566 YZZYIIIIIIXX  angle=?  coeff=-0.0107439879
+  #567 YZZYIIIIIYYI  angle=?  coeff=-0.0051488246
+  #568 YZZYIIIIXXII  angle=?  coeff=-0.00579691732
+  #569 YZZYIIIIXZZX  angle=?  coeff=-0.00463809436
+  #570 YZZYIIXXIIII  angle=?  coeff=0.00824501748
+  #571 YZZYXXIIIIII  angle=?  coeff=0.00801253946
+  #572 YZZZIZZZYIII  angle=?  coeff=0.0175723074
+  #573 YZZZIZZZZZYI  angle=?  coeff=0.00569380637
+  #574 YZZZYXZZZXII  angle=?  coeff=-0.00468521008
+  #575 YZZZYXZZZZZX  angle=?  coeff=-0.00895054362
+  #576 YZZZYYZZZYII  angle=?  coeff=-0.00468521008
+  #577 YZZZYYZZZZZY  angle=?  coeff=-0.00895054362
+  #578 YZZZZIZZYIII  angle=?  coeff=0.0222575175
+  #579 YZZZZIZZZZYI  angle=?  coeff=0.01464435
+  #580 YZZZZZIZYIII  angle=?  coeff=0.0178722345
+  #581 YZZZZZIZZZYI  angle=?  coeff=0.00604589239
+  #582 YZZZZZYXZXII  angle=?  coeff=-0.00509864408
+  #583 YZZZZZYXZZZX  angle=?  coeff=-0.0090780265
+  #584 YZZZZZYYZYII  angle=?  coeff=-0.00509864408
+  #585 YZZZZZYYZZZY  angle=?  coeff=-0.0090780265
+  #586 YZZZZZZIYIII  angle=?  coeff=0.0229708785
+  #587 YZZZZZZIZZYI  angle=?  coeff=0.0151239189
+  #588 YZZZZZZZIZYI  angle=?  coeff=-0.00571528767
+  #589 YZZZZZZZYIII  angle=?  coeff=0.0821221312
+  #590 YZZZZZZZYIIZ  angle=?  coeff=0.00725715353
+  #591 YZZZZZZZYIZI  angle=?  coeff=0.00849308429
+  #592 YZZZZZZZYXZX  angle=?  coeff=-0.00449865511
+  #593 YZZZZZZZYYZY  angle=?  coeff=-0.00449865511
+  #594 YZZZZZZZYZII  angle=?  coeff=0.00348846816
+  #595 YZZZZZZZZIYI  angle=?  coeff=-0.00121663256
+  #596 YZZZZZZZZXXY  angle=?  coeff=0.00123593076
+  #597 YZZZZZZZZYXX  angle=?  coeff=-0.00123593076
+  #598 YZZZZZZZZZYI  angle=?  coeff=0.0721213141
+  #599 YZZZZZZZZZYZ  angle=?  coeff=-0.0140346468
+  #600 ZIIIIIIIIIII  angle=?  coeff=1.04578071
+  #601 ZIIIIIIIIIIZ  angle=?  coeff=0.137483518
+  #602 ZIIIIIIIIIZI  angle=?  coeff=0.124025354
+  #603 ZIIIIIIIIXZX  angle=?  coeff=-0.0293480526
+  #604 ZIIIIIIIIYZY  angle=?  coeff=-0.0293480526
+  #605 ZIIIIIIIIZII  angle=?  coeff=0.0937636202
+  #606 ZIIIIIIIXZXI  angle=?  coeff=-0.0216862622
+  #607 ZIIIIIIIYZYI  angle=?  coeff=-0.0216862622
+  #608 ZIIIIIIIZIII  angle=?  coeff=0.0849114161
+  #609 ZIIIIIIZIIII  angle=?  coeff=0.186405433
+  #610 ZIIIIIZIIIII  angle=?  coeff=0.15131078
+  #611 ZIIIIZIIIIII  angle=?  coeff=0.183722648
+  #612 ZIIIZIIIIIII  angle=?  coeff=0.149039895
+  #613 ZIIXZZZZZXII  angle=?  coeff=0.0195259074
+  #614 ZIIXZZZZZZZX  angle=?  coeff=0.0127983437
+  #615 ZIIYZZZZZYII  angle=?  coeff=0.0195259074
+  #616 ZIIYZZZZZZZY  angle=?  coeff=0.0127983437
+  #617 ZIIZIIIIIIII  angle=?  coeff=0.174193285
+  #618 ZIXZZZZZXIII  angle=?  coeff=0.0137137432
+  #619 ZIXZZZZZZZXI  angle=?  coeff=0.0117391424
+  #620 ZIYZZZZZYIII  angle=?  coeff=0.0137137432
+  #621 ZIYZZZZZZZYI  angle=?  coeff=0.0117391424
+  #622 ZIZIIIIIIIII  angle=?  coeff=0.137074005
+  #623 ZXZXIIIIIIII  angle=?  coeff=-0.00569647267
+  #624 ZXZZZZZZZXII  angle=?  coeff=0.025717006
+  #625 ZXZZZZZZZZZX  angle=?  coeff=0.0123300963
+  #626 ZYZYIIIIIIII  angle=?  coeff=-0.00569647267
+  #627 ZYZZZZZZZYII  angle=?  coeff=0.025717006
+  #628 ZYZZZZZZZZZY  angle=?  coeff=0.0123300963
+  #629 ZZIIIIIIIIII  angle=?  coeff=0.194448329
+Try: tableau optimize collapse && tableau optimize ncf
+
+qsyn> tableau optimize collapse
+
+qsyn> tableau copy 1
+
+qsyn> tableau checkout 1
+
+qsyn> convert tableau qcir -r naive
+
+qsyn> qcir write /home/chenying/qsyn/out/ncf2q_10cases/OH-JW12/OH-JW12_before_2qncf_clifford_rz.qasm
+
+qsyn> tableau checkout 0
+
+qsyn> tableau optimize ncf --two-qubit --window 128
+[warn]     NCF-2q: group size=7 idxs=[0, 3, 1, 10, 2, 4, 11]
+[warn]     NCF-2q: group size=7 idxs=[5, 7, 6, 15, 9, 16, 18]
+[warn]     NCF-2q: group size=5 idxs=[8, 35, 12, 14, 36]
+[warn]     NCF-2q: group size=7 idxs=[13, 20, 61, 72, 67, 69, 75]
+[warn]     NCF-2q: group size=8 idxs=[17, 19, 21, 27, 23, 29, 33, 34]
+[warn]     NCF-2q: group size=5 idxs=[22, 37, 24, 25, 38]
+[warn]     NCF-2q: group size=5 idxs=[26, 39, 30, 43, 48]
+[warn]     NCF-2q: group size=5 idxs=[28, 32, 41, 44, 45]
+[warn]     NCF-2q: group size=6 idxs=[31, 42, 47, 50, 58, 59]
+[warn]     NCF-2q: group size=5 idxs=[40, 51, 49, 53, 57]
+[warn]     NCF-2q: group size=6 idxs=[46, 54, 52, 62, 64, 71]
+[warn]     NCF-2q: group size=8 idxs=[55, 56, 104, 132, 133, 164, 165, 170]
+[warn]     NCF-2q: group size=7 idxs=[63, 68, 73, 84, 74, 98, 100]
+[warn]     NCF-2q: group size=8 idxs=[65, 66, 85, 134, 89, 138, 139, 154]
+[warn]     NCF-2q: group size=6 idxs=[70, 77, 76, 87, 81, 94]
+[warn]     NCF-2q: group size=7 idxs=[78, 79, 88, 105, 99, 122, 130]
+[warn]     NCF-2q: group size=4 idxs=[80, 91, 82, 83]
+[warn]     NCF-2q: group size=5 idxs=[86, 90, 92, 106, 111]
+[warn]     NCF-2q: group size=6 idxs=[93, 95, 96, 127, 97, 131]
+[warn]     NCF-2q: group size=5 idxs=[101, 107, 110, 135, 171]
+[warn]     NCF-2q: group size=5 idxs=[102, 108, 109, 173, 174]
+[warn]     NCF-2q: group size=7 idxs=[112, 113, 140, 215, 163, 249, 251]
+[warn]     NCF-2q: group size=6 idxs=[114, 115, 116, 141, 149, 150]
+[warn]     NCF-2q: group size=5 idxs=[117, 120, 118, 119, 121]
+[warn]     NCF-2q: group size=5 idxs=[123, 124, 172, 216, 230]
+[warn]     NCF-2q: group size=8 idxs=[125, 129, 175, 217, 220, 259, 263, 270]
+[warn]     NCF-2q: group size=5 idxs=[126, 128, 136, 146, 147]
+[warn]     NCF-2q: group size=5 idxs=[137, 142, 143, 152, 158]
+[warn]     NCF-2q: group size=7 idxs=[144, 145, 148, 176, 153, 177, 203]
+[warn]     NCF-2q: group size=6 idxs=[151, 157, 155, 160, 162, 167]
+[warn]     NCF-2q: group size=7 idxs=[156, 161, 178, 182, 184, 207, 210]
+[warn]     NCF-2q: group size=5 idxs=[159, 166, 168, 187, 188]
+[warn]     NCF-2q: group size=6 idxs=[169, 180, 179, 189, 185, 197]
+[warn]     NCF-2q: group size=6 idxs=[181, 191, 186, 223, 212, 254]
+[warn]     NCF-2q: group size=6 idxs=[183, 190, 208, 224, 253, 264]
+[warn]     NCF-2q: group size=5 idxs=[192, 195, 193, 194, 196]
+[warn]     NCF-2q: group size=5 idxs=[198, 204, 201, 202, 213]
+[warn]     NCF-2q: group size=5 idxs=[199, 200, 218, 275, 321]
+[warn]     NCF-2q: group size=5 idxs=[205, 214, 206, 236, 268]
+[warn]     NCF-2q: group size=6 idxs=[209, 219, 276, 338, 304, 414]
+[warn]     NCF-2q: group size=5 idxs=[211, 225, 228, 234, 250]
+[warn]     NCF-2q: group size=5 idxs=[221, 226, 227, 242, 247]
+[warn]     NCF-2q: group size=5 idxs=[222, 231, 271, 277, 294]
+[warn]     NCF-2q: group size=5 idxs=[229, 238, 232, 278, 319]
+[warn]     NCF-2q: group size=5 idxs=[233, 237, 245, 279, 326]
+[warn]     NCF-2q: group size=7 idxs=[235, 239, 240, 280, 281, 316, 317]
+[warn]     NCF-2q: group size=6 idxs=[241, 246, 257, 339, 343, 396]
+[warn]     NCF-2q: group size=6 idxs=[243, 244, 265, 340, 390, 391]
+[warn]     NCF-2q: group size=7 idxs=[248, 258, 260, 341, 342, 393, 394]
+[warn]     NCF-2q: group size=6 idxs=[252, 262, 261, 285, 300, 301]
+[warn]     NCF-2q: group size=5 idxs=[255, 266, 269, 283, 291]
+[warn]     NCF-2q: group size=5 idxs=[256, 267, 272, 282, 290]
+[warn]     NCF-2q: group size=6 idxs=[273, 274, 292, 424, 430, 433]
+[warn]     NCF-2q: group size=6 idxs=[284, 286, 297, 344, 417, 420]
+[warn]     NCF-2q: group size=7 idxs=[287, 288, 289, 349, 352, 402, 405]
+[warn]     NCF-2q: group size=6 idxs=[293, 298, 299, 350, 398, 416]
+[warn]     NCF-2q: group size=7 idxs=[295, 309, 296, 357, 333, 365, 404]
+[warn]     NCF-2q: group size=4 idxs=[302, 310, 303, 312]
+[warn]     NCF-2q: group size=4 idxs=[305, 311, 307, 313]
+[warn]     NCF-2q: group size=5 idxs=[306, 314, 315, 322, 323]
+[warn]     NCF-2q: group size=4 idxs=[308, 318, 320, 325]
+[warn]     NCF-2q: group size=5 idxs=[324, 327, 328, 347, 348]
+[warn]     NCF-2q: group size=4 idxs=[329, 330, 331, 351]
+[warn]     NCF-2q: group size=5 idxs=[332, 334, 359, 425, 444]
+[warn]     NCF-2q: group size=5 idxs=[335, 336, 345, 361, 364]
+[warn]     NCF-2q: group size=7 idxs=[337, 363, 360, 426, 415, 428, 478]
+[warn]     NCF-2q: group size=5 idxs=[346, 353, 374, 427, 485]
+[warn]     NCF-2q: group size=5 idxs=[354, 358, 356, 362, 376]
+[warn]     NCF-2q: group size=7 idxs=[355, 367, 401, 512, 514, 540, 598]
+[warn]     NCF-2q: group size=6 idxs=[366, 368, 395, 429, 505, 508]
+[warn]     NCF-2q: group size=5 idxs=[369, 373, 371, 431, 482]
+[warn]     NCF-2q: group size=5 idxs=[370, 375, 377, 432, 484]
+[warn]     NCF-2q: group size=5 idxs=[372, 379, 406, 513, 594]
+[warn]     NCF-2q: group size=5 idxs=[378, 381, 380, 515, 579]
+[warn]     NCF-2q: group size=5 idxs=[382, 387, 383, 436, 460]
+[warn]     NCF-2q: group size=6 idxs=[384, 389, 385, 516, 580, 588]
+[warn]     NCF-2q: group size=5 idxs=[386, 392, 397, 437, 454]
+[warn]     NCF-2q: group size=6 idxs=[388, 403, 399, 438, 410, 511]
+[warn]     NCF-2q: group size=5 idxs=[400, 407, 409, 439, 440]
+[warn]     NCF-2q: group size=6 idxs=[408, 419, 422, 441, 423, 448]
+[warn]     NCF-2q: group size=5 idxs=[411, 434, 418, 442, 445]
+[warn]     NCF-2q: group size=5 idxs=[412, 435, 456, 517, 568]
+[warn]     NCF-2q: group size=5 idxs=[413, 446, 443, 466, 488]
+[warn]     NCF-2q: group size=5 idxs=[421, 449, 450, 457, 459]
+[warn]     NCF-2q: group size=6 idxs=[447, 455, 464, 526, 566, 599]
+[warn]     NCF-2q: group size=5 idxs=[451, 469, 458, 537, 591]
+[warn]     NCF-2q: group size=6 idxs=[452, 465, 467, 473, 468, 509]
+[warn]     NCF-2q: group size=5 idxs=[453, 470, 461, 538, 619]
+[warn]     NCF-2q: group size=5 idxs=[462, 471, 472, 483, 489]
+[warn]     NCF-2q: group size=5 idxs=[463, 474, 477, 486, 506]
+[warn]     NCF-2q: group size=5 idxs=[475, 479, 481, 541, 557]
+[warn]     NCF-2q: group size=4 idxs=[476, 480, 487, 490]
+[warn]     NCF-2q: group size=4 idxs=[491, 492, 493, 494]
+[warn]     NCF-2q: group size=6 idxs=[495, 500, 503, 542, 546, 618]
+[warn]     NCF-2q: group size=5 idxs=[496, 497, 499, 502, 504]
+[warn]     NCF-2q: group size=4 idxs=[498, 507, 501, 519]
+[warn]     NCF-2q: group size=5 idxs=[510, 600, 520, 589, 606]
+[warn]     NCF-2q: group size=6 idxs=[518, 521, 523, 529, 525, 536]
+[warn]     NCF-2q: group size=5 idxs=[522, 528, 527, 532, 533]
+[warn]     NCF-2q: group size=5 idxs=[524, 530, 535, 544, 585]
+[warn]     NCF-2q: group size=4 idxs=[531, 539, 534, 543]
+[warn]     NCF-2q: group size=5 idxs=[545, 553, 547, 558, 562]
+[warn]     NCF-2q: group size=5 idxs=[548, 559, 563, 567, 593]
+[warn]     NCF-2q: group size=6 idxs=[549, 560, 555, 556, 561, 587]
+[warn]     NCF-2q: group size=5 idxs=[550, 565, 564, 574, 582]
+[warn]     NCF-2q: group size=5 idxs=[551, 569, 554, 570, 578]
+[warn]     NCF-2q: group size=5 idxs=[552, 572, 571, 620, 622]
+[warn]     NCF-2q: group size=4 idxs=[573, 583, 575, 581]
+[warn]     NCF-2q: group size=6 idxs=[576, 577, 590, 601, 592, 603]
+[warn]     NCF-2q: group size=5 idxs=[584, 596, 595, 604, 605]
+[warn]     NCF-2q: group size=4 idxs=[586, 597, 602, 607]
+[warn]     NCF-2q: group size=6 idxs=[613, 614, 617, 623, 624, 625]
+[warn]     NCF-2q: group size=5 idxs=[615, 616, 626, 627, 628]
+[warn]     NCF-2q partition: n_terms=630 anti_groups=113 singletons=9 Num_unitaries=122 window=128
+[warn]       block 0: multi size=7 idxs=[0, 3, 1, 10, 2, 4, 11] (singleton_count_in_block=0)
+[warn]       block 1: multi size=7 idxs=[5, 7, 6, 15, 9, 16, 18] (singleton_count_in_block=0)
+[warn]       block 2: multi size=5 idxs=[8, 35, 12, 14, 36] (singleton_count_in_block=0)
+[warn]       block 3: multi size=7 idxs=[13, 20, 61, 72, 67, 69, 75] (singleton_count_in_block=0)
+[warn]       block 4: multi size=8 idxs=[17, 19, 21, 27, 23, 29, 33, 34] (singleton_count_in_block=0)
+[warn]       block 5: multi size=5 idxs=[22, 37, 24, 25, 38] (singleton_count_in_block=0)
+[warn]       block 6: multi size=5 idxs=[26, 39, 30, 43, 48] (singleton_count_in_block=0)
+[warn]       block 7: multi size=5 idxs=[28, 32, 41, 44, 45] (singleton_count_in_block=0)
+[warn]       block 8: multi size=6 idxs=[31, 42, 47, 50, 58, 59] (singleton_count_in_block=0)
+[warn]       block 9: multi size=5 idxs=[40, 51, 49, 53, 57] (singleton_count_in_block=0)
+[warn]       block 10: multi size=6 idxs=[46, 54, 52, 62, 64, 71] (singleton_count_in_block=0)
+[warn]       block 11: multi size=8 idxs=[55, 56, 104, 132, 133, 164, 165, 170] (singleton_count_in_block=0)
+[warn]       block 12: multi size=7 idxs=[63, 68, 73, 84, 74, 98, 100] (singleton_count_in_block=0)
+[warn]       block 13: multi size=8 idxs=[65, 66, 85, 134, 89, 138, 139, 154] (singleton_count_in_block=0)
+[warn]       block 14: multi size=6 idxs=[70, 77, 76, 87, 81, 94] (singleton_count_in_block=0)
+[warn]       block 15: multi size=7 idxs=[78, 79, 88, 105, 99, 122, 130] (singleton_count_in_block=0)
+[warn]       block 16: multi size=4 idxs=[80, 91, 82, 83] (singleton_count_in_block=0)
+[warn]       block 17: multi size=5 idxs=[86, 90, 92, 106, 111] (singleton_count_in_block=0)
+[warn]       block 18: multi size=6 idxs=[93, 95, 96, 127, 97, 131] (singleton_count_in_block=0)
+[warn]       block 19: multi size=5 idxs=[101, 107, 110, 135, 171] (singleton_count_in_block=0)
+[warn]       block 20: multi size=5 idxs=[102, 108, 109, 173, 174] (singleton_count_in_block=0)
+[warn]       block 21: multi size=7 idxs=[112, 113, 140, 215, 163, 249, 251] (singleton_count_in_block=0)
+[warn]       block 22: multi size=6 idxs=[114, 115, 116, 141, 149, 150] (singleton_count_in_block=0)
+[warn]       block 23: multi size=5 idxs=[117, 120, 118, 119, 121] (singleton_count_in_block=0)
+[warn]       block 24: multi size=5 idxs=[123, 124, 172, 216, 230] (singleton_count_in_block=0)
+[warn]       block 25: multi size=8 idxs=[125, 129, 175, 217, 220, 259, 263, 270] (singleton_count_in_block=0)
+[warn]       block 26: multi size=5 idxs=[126, 128, 136, 146, 147] (singleton_count_in_block=0)
+[warn]       block 27: multi size=5 idxs=[137, 142, 143, 152, 158] (singleton_count_in_block=0)
+[warn]       block 28: multi size=7 idxs=[144, 145, 148, 176, 153, 177, 203] (singleton_count_in_block=0)
+[warn]       block 29: multi size=6 idxs=[151, 157, 155, 160, 162, 167] (singleton_count_in_block=0)
+[warn]       block 30: multi size=7 idxs=[156, 161, 178, 182, 184, 207, 210] (singleton_count_in_block=0)
+[warn]       block 31: multi size=5 idxs=[159, 166, 168, 187, 188] (singleton_count_in_block=0)
+[warn]       block 32: multi size=6 idxs=[169, 180, 179, 189, 185, 197] (singleton_count_in_block=0)
+[warn]       block 33: multi size=6 idxs=[181, 191, 186, 223, 212, 254] (singleton_count_in_block=0)
+[warn]       block 34: multi size=6 idxs=[183, 190, 208, 224, 253, 264] (singleton_count_in_block=0)
+[warn]       block 35: multi size=5 idxs=[192, 195, 193, 194, 196] (singleton_count_in_block=0)
+[warn]       block 36: multi size=5 idxs=[198, 204, 201, 202, 213] (singleton_count_in_block=0)
+[warn]       block 37: multi size=5 idxs=[199, 200, 218, 275, 321] (singleton_count_in_block=0)
+[warn]       block 38: multi size=5 idxs=[205, 214, 206, 236, 268] (singleton_count_in_block=0)
+[warn]       block 39: multi size=6 idxs=[209, 219, 276, 338, 304, 414] (singleton_count_in_block=0)
+[warn]       block 40: multi size=5 idxs=[211, 225, 228, 234, 250] (singleton_count_in_block=0)
+[warn]       block 41: multi size=5 idxs=[221, 226, 227, 242, 247] (singleton_count_in_block=0)
+[warn]       block 42: multi size=5 idxs=[222, 231, 271, 277, 294] (singleton_count_in_block=0)
+[warn]       block 43: multi size=5 idxs=[229, 238, 232, 278, 319] (singleton_count_in_block=0)
+[warn]       block 44: multi size=5 idxs=[233, 237, 245, 279, 326] (singleton_count_in_block=0)
+[warn]       block 45: multi size=7 idxs=[235, 239, 240, 280, 281, 316, 317] (singleton_count_in_block=0)
+[warn]       block 46: multi size=6 idxs=[241, 246, 257, 339, 343, 396] (singleton_count_in_block=0)
+[warn]       block 47: multi size=6 idxs=[243, 244, 265, 340, 390, 391] (singleton_count_in_block=0)
+[warn]       block 48: multi size=7 idxs=[248, 258, 260, 341, 342, 393, 394] (singleton_count_in_block=0)
+[warn]       block 49: multi size=6 idxs=[252, 262, 261, 285, 300, 301] (singleton_count_in_block=0)
+[warn]       block 50: multi size=5 idxs=[255, 266, 269, 283, 291] (singleton_count_in_block=0)
+[warn]       block 51: multi size=5 idxs=[256, 267, 272, 282, 290] (singleton_count_in_block=0)
+[warn]       block 52: multi size=6 idxs=[273, 274, 292, 424, 430, 433] (singleton_count_in_block=0)
+[warn]       block 53: multi size=6 idxs=[284, 286, 297, 344, 417, 420] (singleton_count_in_block=0)
+[warn]       block 54: multi size=7 idxs=[287, 288, 289, 349, 352, 402, 405] (singleton_count_in_block=0)
+[warn]       block 55: multi size=6 idxs=[293, 298, 299, 350, 398, 416] (singleton_count_in_block=0)
+[warn]       block 56: multi size=7 idxs=[295, 309, 296, 357, 333, 365, 404] (singleton_count_in_block=0)
+[warn]       block 57: multi size=4 idxs=[302, 310, 303, 312] (singleton_count_in_block=0)
+[warn]       block 58: multi size=4 idxs=[305, 311, 307, 313] (singleton_count_in_block=0)
+[warn]       block 59: multi size=5 idxs=[306, 314, 315, 322, 323] (singleton_count_in_block=0)
+[warn]       block 60: multi size=4 idxs=[308, 318, 320, 325] (singleton_count_in_block=0)
+[warn]       block 61: multi size=5 idxs=[324, 327, 328, 347, 348] (singleton_count_in_block=0)
+[warn]       block 62: multi size=4 idxs=[329, 330, 331, 351] (singleton_count_in_block=0)
+[warn]       block 63: multi size=5 idxs=[332, 334, 359, 425, 444] (singleton_count_in_block=0)
+[warn]       block 64: multi size=5 idxs=[335, 336, 345, 361, 364] (singleton_count_in_block=0)
+[warn]       block 65: multi size=7 idxs=[337, 363, 360, 426, 415, 428, 478] (singleton_count_in_block=0)
+[warn]       block 66: multi size=5 idxs=[346, 353, 374, 427, 485] (singleton_count_in_block=0)
+[warn]       block 67: multi size=5 idxs=[354, 358, 356, 362, 376] (singleton_count_in_block=0)
+[warn]       block 68: multi size=7 idxs=[355, 367, 401, 512, 514, 540, 598] (singleton_count_in_block=0)
+[warn]       block 69: multi size=6 idxs=[366, 368, 395, 429, 505, 508] (singleton_count_in_block=0)
+[warn]       block 70: multi size=5 idxs=[369, 373, 371, 431, 482] (singleton_count_in_block=0)
+[warn]       block 71: multi size=5 idxs=[370, 375, 377, 432, 484] (singleton_count_in_block=0)
+[warn]       block 72: multi size=5 idxs=[372, 379, 406, 513, 594] (singleton_count_in_block=0)
+[warn]       block 73: multi size=5 idxs=[378, 381, 380, 515, 579] (singleton_count_in_block=0)
+[warn]       block 74: multi size=5 idxs=[382, 387, 383, 436, 460] (singleton_count_in_block=0)
+[warn]       block 75: multi size=6 idxs=[384, 389, 385, 516, 580, 588] (singleton_count_in_block=0)
+[warn]       block 76: multi size=5 idxs=[386, 392, 397, 437, 454] (singleton_count_in_block=0)
+[warn]       block 77: multi size=6 idxs=[388, 403, 399, 438, 410, 511] (singleton_count_in_block=0)
+[warn]       block 78: multi size=5 idxs=[400, 407, 409, 439, 440] (singleton_count_in_block=0)
+[warn]       block 79: multi size=6 idxs=[408, 419, 422, 441, 423, 448] (singleton_count_in_block=0)
+[warn]       block 80: multi size=5 idxs=[411, 434, 418, 442, 445] (singleton_count_in_block=0)
+[warn]       block 81: multi size=5 idxs=[412, 435, 456, 517, 568] (singleton_count_in_block=0)
+[warn]       block 82: multi size=5 idxs=[413, 446, 443, 466, 488] (singleton_count_in_block=0)
+[warn]       block 83: multi size=5 idxs=[421, 449, 450, 457, 459] (singleton_count_in_block=0)
+[warn]       block 84: multi size=6 idxs=[447, 455, 464, 526, 566, 599] (singleton_count_in_block=0)
+[warn]       block 85: multi size=5 idxs=[451, 469, 458, 537, 591] (singleton_count_in_block=0)
+[warn]       block 86: multi size=6 idxs=[452, 465, 467, 473, 468, 509] (singleton_count_in_block=0)
+[warn]       block 87: multi size=5 idxs=[453, 470, 461, 538, 619] (singleton_count_in_block=0)
+[warn]       block 88: multi size=5 idxs=[462, 471, 472, 483, 489] (singleton_count_in_block=0)
+[warn]       block 89: multi size=5 idxs=[463, 474, 477, 486, 506] (singleton_count_in_block=0)
+[warn]       block 90: multi size=5 idxs=[475, 479, 481, 541, 557] (singleton_count_in_block=0)
+[warn]       block 91: multi size=4 idxs=[476, 480, 487, 490] (singleton_count_in_block=0)
+[warn]       block 92: multi size=4 idxs=[491, 492, 493, 494] (singleton_count_in_block=0)
+[warn]       block 93: multi size=6 idxs=[495, 500, 503, 542, 546, 618] (singleton_count_in_block=0)
+[warn]       block 94: multi size=5 idxs=[496, 497, 499, 502, 504] (singleton_count_in_block=0)
+[warn]       block 95: multi size=4 idxs=[498, 507, 501, 519] (singleton_count_in_block=0)
+[warn]       block 96: multi size=5 idxs=[510, 600, 520, 589, 606] (singleton_count_in_block=0)
+[warn]       block 97: multi size=6 idxs=[518, 521, 523, 529, 525, 536] (singleton_count_in_block=0)
+[warn]       block 98: multi size=5 idxs=[522, 528, 527, 532, 533] (singleton_count_in_block=0)
+[warn]       block 99: multi size=5 idxs=[524, 530, 535, 544, 585] (singleton_count_in_block=0)
+[warn]       block 100: multi size=4 idxs=[531, 539, 534, 543] (singleton_count_in_block=0)
+[warn]       block 101: multi size=5 idxs=[545, 553, 547, 558, 562] (singleton_count_in_block=0)
+[warn]       block 102: multi size=5 idxs=[548, 559, 563, 567, 593] (singleton_count_in_block=0)
+[warn]       block 103: multi size=6 idxs=[549, 560, 555, 556, 561, 587] (singleton_count_in_block=0)
+[warn]       block 104: multi size=5 idxs=[550, 565, 564, 574, 582] (singleton_count_in_block=0)
+[warn]       block 105: multi size=5 idxs=[551, 569, 554, 570, 578] (singleton_count_in_block=0)
+[warn]       block 106: multi size=5 idxs=[552, 572, 571, 620, 622] (singleton_count_in_block=0)
+[warn]       block 107: multi size=4 idxs=[573, 583, 575, 581] (singleton_count_in_block=0)
+[warn]       block 108: multi size=6 idxs=[576, 577, 590, 601, 592, 603] (singleton_count_in_block=0)
+[warn]       block 109: multi size=5 idxs=[584, 596, 595, 604, 605] (singleton_count_in_block=0)
+[warn]       block 110: multi size=4 idxs=[586, 597, 602, 607] (singleton_count_in_block=0)
+[warn]       block 111: multi size=6 idxs=[613, 614, 617, 623, 624, 625] (singleton_count_in_block=0)
+[warn]       block 112: multi size=5 idxs=[615, 616, 626, 627, 628] (singleton_count_in_block=0)
+[warn]       block 113: SINGLETON size=1 idx=60 (singleton_count_in_block=1)
+[warn]       block 114: SINGLETON size=1 idx=103 (singleton_count_in_block=1)
+[warn]       block 115: SINGLETON size=1 idx=608 (singleton_count_in_block=1)
+[warn]       block 116: SINGLETON size=1 idx=609 (singleton_count_in_block=1)
+[warn]       block 117: SINGLETON size=1 idx=610 (singleton_count_in_block=1)
+[warn]       block 118: SINGLETON size=1 idx=611 (singleton_count_in_block=1)
+[warn]       block 119: SINGLETON size=1 idx=612 (singleton_count_in_block=1)
+[warn]       block 120: SINGLETON size=1 idx=621 (singleton_count_in_block=1)
+[warn]       block 121: SINGLETON size=1 idx=629 (singleton_count_in_block=1)
+[warn]     NCF: total singletons = 9
+[warn]     NCF: block 0 size=7 singleton_count_in_block=0
+[warn]     NCF: block 1 size=7 singleton_count_in_block=0
+[warn]     NCF: block 2 size=5 singleton_count_in_block=0
+[warn]     NCF: block 3 size=7 singleton_count_in_block=0
+[warn]     NCF: block 4 size=8 singleton_count_in_block=0
+[warn]     NCF: block 5 size=5 singleton_count_in_block=0
+[warn]     NCF: block 6 size=5 singleton_count_in_block=0
+[warn]     NCF: block 7 size=5 singleton_count_in_block=0
+[warn]     NCF: block 8 size=6 singleton_count_in_block=0
+[warn]     NCF: block 9 size=5 singleton_count_in_block=0
+[warn]     NCF: block 10 size=6 singleton_count_in_block=0
+[warn]     NCF: block 11 size=8 singleton_count_in_block=0
+[warn]     NCF: block 12 size=7 singleton_count_in_block=0
+[warn]     NCF: block 13 size=8 singleton_count_in_block=0
+[warn]     NCF: block 14 size=6 singleton_count_in_block=0
+[warn]     NCF: block 15 size=7 singleton_count_in_block=0
+[warn]     NCF: block 16 size=4 singleton_count_in_block=0
+[warn]     NCF: block 17 size=5 singleton_count_in_block=0
+[warn]     NCF: block 18 size=6 singleton_count_in_block=0
+[warn]     NCF: block 19 size=5 singleton_count_in_block=0
+[warn]     NCF: block 20 size=5 singleton_count_in_block=0
+[warn]     NCF: block 21 size=7 singleton_count_in_block=0
+[warn]     NCF: block 22 size=6 singleton_count_in_block=0
+[warn]     NCF: block 23 size=5 singleton_count_in_block=0
+[warn]     NCF: block 24 size=5 singleton_count_in_block=0
+[warn]     NCF: block 25 size=8 singleton_count_in_block=0
+[warn]     NCF: block 26 size=5 singleton_count_in_block=0
+[warn]     NCF: block 27 size=5 singleton_count_in_block=0
+[warn]     NCF: block 28 size=7 singleton_count_in_block=0
+[warn]     NCF: block 29 size=6 singleton_count_in_block=0
+[warn]     NCF: block 30 size=7 singleton_count_in_block=0
+[warn]     NCF: block 31 size=5 singleton_count_in_block=0
+[warn]     NCF: block 32 size=6 singleton_count_in_block=0
+[warn]     NCF: block 33 size=6 singleton_count_in_block=0
+[warn]     NCF: block 34 size=6 singleton_count_in_block=0
+[warn]     NCF: block 35 size=5 singleton_count_in_block=0
+[warn]     NCF: block 36 size=5 singleton_count_in_block=0
+[warn]     NCF: block 37 size=5 singleton_count_in_block=0
+[warn]     NCF: block 38 size=5 singleton_count_in_block=0
+[warn]     NCF: block 39 size=6 singleton_count_in_block=0
+[warn]     NCF: block 40 size=5 singleton_count_in_block=0
+[warn]     NCF: block 41 size=5 singleton_count_in_block=0
+[warn]     NCF: block 42 size=5 singleton_count_in_block=0
+[warn]     NCF: block 43 size=5 singleton_count_in_block=0
+[warn]     NCF: block 44 size=5 singleton_count_in_block=0
+[warn]     NCF: block 45 size=7 singleton_count_in_block=0
+[warn]     NCF: block 46 size=6 singleton_count_in_block=0
+[warn]     NCF: block 47 size=6 singleton_count_in_block=0
+[warn]     NCF: block 48 size=7 singleton_count_in_block=0
+[warn]     NCF: block 49 size=6 singleton_count_in_block=0
+[warn]     NCF: block 50 size=5 singleton_count_in_block=0
+[warn]     NCF: block 51 size=5 singleton_count_in_block=0
+[warn]     NCF: block 52 size=6 singleton_count_in_block=0
+[warn]     NCF: block 53 size=6 singleton_count_in_block=0
+[warn]     NCF: block 54 size=7 singleton_count_in_block=0
+[warn]     NCF: block 55 size=6 singleton_count_in_block=0
+[warn]     NCF: block 56 size=7 singleton_count_in_block=0
+[warn]     NCF: block 57 size=4 singleton_count_in_block=0
+[warn]     NCF: block 58 size=4 singleton_count_in_block=0
+[warn]     NCF: block 59 size=5 singleton_count_in_block=0
+[warn]     NCF: block 60 size=4 singleton_count_in_block=0
+[warn]     NCF: block 61 size=5 singleton_count_in_block=0
+[warn]     NCF: block 62 size=4 singleton_count_in_block=0
+[warn]     NCF: block 63 size=5 singleton_count_in_block=0
+[warn]     NCF: block 64 size=5 singleton_count_in_block=0
+[warn]     NCF: block 65 size=7 singleton_count_in_block=0
+[warn]     NCF: block 66 size=5 singleton_count_in_block=0
+[warn]     NCF: block 67 size=5 singleton_count_in_block=0
+[warn]     NCF: block 68 size=7 singleton_count_in_block=0
+[warn]     NCF: block 69 size=6 singleton_count_in_block=0
+[warn]     NCF: block 70 size=5 singleton_count_in_block=0
+[warn]     NCF: block 71 size=5 singleton_count_in_block=0
+[warn]     NCF: block 72 size=5 singleton_count_in_block=0
+[warn]     NCF: block 73 size=5 singleton_count_in_block=0
+[warn]     NCF: block 74 size=5 singleton_count_in_block=0
+[warn]     NCF: block 75 size=6 singleton_count_in_block=0
+[warn]     NCF: block 76 size=5 singleton_count_in_block=0
+[warn]     NCF: block 77 size=6 singleton_count_in_block=0
+[warn]     NCF: block 78 size=5 singleton_count_in_block=0
+[warn]     NCF: block 79 size=6 singleton_count_in_block=0
+[warn]     NCF: block 80 size=5 singleton_count_in_block=0
+[warn]     NCF: block 81 size=5 singleton_count_in_block=0
+[warn]     NCF: block 82 size=5 singleton_count_in_block=0
+[warn]     NCF: block 83 size=5 singleton_count_in_block=0
+[warn]     NCF: block 84 size=6 singleton_count_in_block=0
+[warn]     NCF: block 85 size=5 singleton_count_in_block=0
+[warn]     NCF: block 86 size=6 singleton_count_in_block=0
+[warn]     NCF: block 87 size=5 singleton_count_in_block=0
+[warn]     NCF: block 88 size=5 singleton_count_in_block=0
+[warn]     NCF: block 89 size=5 singleton_count_in_block=0
+[warn]     NCF: block 90 size=5 singleton_count_in_block=0
+[warn]     NCF: block 91 size=4 singleton_count_in_block=0
+[warn]     NCF: block 92 size=4 singleton_count_in_block=0
+[warn]     NCF: block 93 size=6 singleton_count_in_block=0
+[warn]     NCF: block 94 size=5 singleton_count_in_block=0
+[warn]     NCF: block 95 size=4 singleton_count_in_block=0
+[warn]     NCF: block 96 size=5 singleton_count_in_block=0
+[warn]     NCF: block 97 size=6 singleton_count_in_block=0
+[warn]     NCF: block 98 size=5 singleton_count_in_block=0
+[warn]     NCF: block 99 size=5 singleton_count_in_block=0
+[warn]     NCF: block 100 size=4 singleton_count_in_block=0
+[warn]     NCF: block 101 size=5 singleton_count_in_block=0
+[warn]     NCF: block 102 size=5 singleton_count_in_block=0
+[warn]     NCF: block 103 size=6 singleton_count_in_block=0
+[warn]     NCF: block 104 size=5 singleton_count_in_block=0
+[warn]     NCF: block 105 size=5 singleton_count_in_block=0
+[warn]     NCF: block 106 size=5 singleton_count_in_block=0
+[warn]     NCF: block 107 size=4 singleton_count_in_block=0
+[warn]     NCF: block 108 size=6 singleton_count_in_block=0
+[warn]     NCF: block 109 size=5 singleton_count_in_block=0
+[warn]     NCF: block 110 size=4 singleton_count_in_block=0
+[warn]     NCF: block 111 size=6 singleton_count_in_block=0
+[warn]     NCF: block 112 size=5 singleton_count_in_block=0
+[warn]     NCF: block 113 size=1 singleton_count_in_block=1
+[warn]     NCF: block 114 size=1 singleton_count_in_block=1
+[warn]     NCF: block 115 size=1 singleton_count_in_block=1
+[warn]     NCF: block 116 size=1 singleton_count_in_block=1
+[warn]     NCF: block 117 size=1 singleton_count_in_block=1
+[warn]     NCF: block 118 size=1 singleton_count_in_block=1
+[warn]     NCF: block 119 size=1 singleton_count_in_block=1
+[warn]     NCF: block 120 size=1 singleton_count_in_block=1
+[warn]     NCF: block 121 size=1 singleton_count_in_block=1
+[warn]     NCF fusion (2q): partitioned into 122 groups (630 total Pauli rotations).
+[NCF fusion report]
+  Pauli terms (before):     630   (indices #0–#629)
+  NCF blocks (after):       122
+  Synthesis: before=naive  after=ncf
+  Cost BEFORE NCF:
+    CX: 6708  RZ: 0  H: 1680  S: 0  Sdg: 0  clifford: 10068  total: 10698  depth: 8398
+  Cost AFTER NCF:
+    CX: 106854  RZ: 630  H: 3408  S: 3173  Sdg: 3173  clifford: 117058  total: 117688  depth: 48268
+  Delta (after − before):
+    CX: 100146  RZ: 630  clifford: 106990  total: 106990
+NcfProgram 0 ready — try: ncf print --summary
+
+qsyn> ncf print --blocks
+[NCF fusion report]
+  Pauli terms (before):     630   (indices #0–#629)
+  NCF blocks (after):       122
+  Synthesis: before=naive  after=ncf
+  Cost BEFORE NCF:
+    CX: 6708  RZ: 0  H: 1680  S: 0  Sdg: 0  clifford: 10068  total: 10698  depth: 8398
+  Cost AFTER NCF:
+    CX: 106854  RZ: 630  H: 3408  S: 3173  Sdg: 3173  clifford: 117058  total: 117688  depth: 48268
+  Delta (after − before):
+    CX: 100146  RZ: 630  clifford: 106990  total: 106990
+Block 0: cx_prefix=2 cx_suffix=2 cx_total=4 inner_rz=7 hs=0
+Block 1: cx_prefix=142 cx_suffix=142 cx_total=284 inner_rz=7 hs=34
+Block 2: cx_prefix=295 cx_suffix=295 cx_total=590 inner_rz=5 hs=146
+Block 3: cx_prefix=26 cx_suffix=26 cx_total=52 inner_rz=7 hs=8
+Block 4: cx_prefix=51 cx_suffix=51 cx_total=102 inner_rz=8 hs=14
+Block 5: cx_prefix=7 cx_suffix=7 cx_total=14 inner_rz=5 hs=4
+Block 6: cx_prefix=180 cx_suffix=180 cx_total=360 inner_rz=5 hs=60
+Block 7: cx_prefix=64 cx_suffix=64 cx_total=128 inner_rz=5 hs=20
+Block 8: cx_prefix=18 cx_suffix=18 cx_total=36 inner_rz=6 hs=14
+Block 9: cx_prefix=40 cx_suffix=40 cx_total=80 inner_rz=5 hs=10
+Block 10: cx_prefix=43 cx_suffix=43 cx_total=86 inner_rz=6 hs=10
+Block 11: cx_prefix=20 cx_suffix=20 cx_total=40 inner_rz=8 hs=10
+Block 12: cx_prefix=79 cx_suffix=79 cx_total=158 inner_rz=7 hs=16
+Block 13: cx_prefix=130 cx_suffix=130 cx_total=260 inner_rz=8 hs=58
+Block 14: cx_prefix=113 cx_suffix=113 cx_total=226 inner_rz=6 hs=30
+Block 15: cx_prefix=104 cx_suffix=104 cx_total=208 inner_rz=7 hs=20
+Block 16: cx_prefix=236 cx_suffix=236 cx_total=472 inner_rz=4 hs=86
+Block 17: cx_prefix=133 cx_suffix=133 cx_total=266 inner_rz=5 hs=46
+Block 18: cx_prefix=609 cx_suffix=609 cx_total=1218 inner_rz=6 hs=214
+Block 19: cx_prefix=87 cx_suffix=87 cx_total=174 inner_rz=5 hs=18
+Block 20: cx_prefix=259 cx_suffix=259 cx_total=518 inner_rz=5 hs=94
+Block 21: cx_prefix=90 cx_suffix=90 cx_total=180 inner_rz=7 hs=38
+Block 22: cx_prefix=441 cx_suffix=441 cx_total=882 inner_rz=6 hs=172
+Block 23: cx_prefix=52 cx_suffix=52 cx_total=104 inner_rz=5 hs=12
+Block 24: cx_prefix=280 cx_suffix=280 cx_total=560 inner_rz=5 hs=80
+Block 25: cx_prefix=181 cx_suffix=181 cx_total=362 inner_rz=8 hs=66
+Block 26: cx_prefix=95 cx_suffix=95 cx_total=190 inner_rz=5 hs=32
+Block 27: cx_prefix=287 cx_suffix=287 cx_total=574 inner_rz=5 hs=128
+Block 28: cx_prefix=583 cx_suffix=583 cx_total=1166 inner_rz=7 hs=180
+Block 29: cx_prefix=12 cx_suffix=12 cx_total=24 inner_rz=6 hs=22
+Block 30: cx_prefix=198 cx_suffix=198 cx_total=396 inner_rz=7 hs=104
+Block 31: cx_prefix=296 cx_suffix=296 cx_total=592 inner_rz=5 hs=124
+Block 32: cx_prefix=124 cx_suffix=124 cx_total=248 inner_rz=6 hs=54
+Block 33: cx_prefix=148 cx_suffix=148 cx_total=296 inner_rz=6 hs=42
+Block 34: cx_prefix=104 cx_suffix=104 cx_total=208 inner_rz=6 hs=34
+Block 35: cx_prefix=184 cx_suffix=184 cx_total=368 inner_rz=5 hs=68
+Block 36: cx_prefix=129 cx_suffix=129 cx_total=258 inner_rz=5 hs=44
+Block 37: cx_prefix=266 cx_suffix=266 cx_total=532 inner_rz=5 hs=92
+Block 38: cx_prefix=16 cx_suffix=16 cx_total=32 inner_rz=5 hs=22
+Block 39: cx_prefix=387 cx_suffix=387 cx_total=774 inner_rz=6 hs=118
+Block 40: cx_prefix=245 cx_suffix=245 cx_total=490 inner_rz=5 hs=68
+Block 41: cx_prefix=242 cx_suffix=242 cx_total=484 inner_rz=5 hs=82
+Block 42: cx_prefix=351 cx_suffix=351 cx_total=702 inner_rz=5 hs=142
+Block 43: cx_prefix=274 cx_suffix=274 cx_total=548 inner_rz=5 hs=102
+Block 44: cx_prefix=114 cx_suffix=114 cx_total=228 inner_rz=5 hs=34
+Block 45: cx_prefix=208 cx_suffix=208 cx_total=416 inner_rz=7 hs=72
+Block 46: cx_prefix=109 cx_suffix=109 cx_total=218 inner_rz=6 hs=58
+Block 47: cx_prefix=690 cx_suffix=690 cx_total=1380 inner_rz=6 hs=240
+Block 48: cx_prefix=188 cx_suffix=188 cx_total=376 inner_rz=7 hs=62
+Block 49: cx_prefix=148 cx_suffix=148 cx_total=296 inner_rz=6 hs=38
+Block 50: cx_prefix=15 cx_suffix=15 cx_total=30 inner_rz=5 hs=6
+Block 51: cx_prefix=107 cx_suffix=107 cx_total=214 inner_rz=5 hs=28
+Block 52: cx_prefix=174 cx_suffix=174 cx_total=348 inner_rz=6 hs=54
+Block 53: cx_prefix=298 cx_suffix=298 cx_total=596 inner_rz=6 hs=104
+Block 54: cx_prefix=365 cx_suffix=365 cx_total=730 inner_rz=7 hs=116
+Block 55: cx_prefix=170 cx_suffix=170 cx_total=340 inner_rz=6 hs=80
+Block 56: cx_prefix=180 cx_suffix=180 cx_total=360 inner_rz=7 hs=64
+Block 57: cx_prefix=102 cx_suffix=102 cx_total=204 inner_rz=4 hs=30
+Block 58: cx_prefix=132 cx_suffix=132 cx_total=264 inner_rz=4 hs=48
+Block 59: cx_prefix=151 cx_suffix=151 cx_total=302 inner_rz=5 hs=44
+Block 60: cx_prefix=318 cx_suffix=318 cx_total=636 inner_rz=4 hs=116
+Block 61: cx_prefix=405 cx_suffix=405 cx_total=810 inner_rz=5 hs=144
+Block 62: cx_prefix=175 cx_suffix=175 cx_total=350 inner_rz=4 hs=64
+Block 63: cx_prefix=200 cx_suffix=200 cx_total=400 inner_rz=5 hs=62
+Block 64: cx_prefix=110 cx_suffix=110 cx_total=220 inner_rz=5 hs=54
+Block 65: cx_prefix=148 cx_suffix=148 cx_total=296 inner_rz=7 hs=40
+Block 66: cx_prefix=299 cx_suffix=299 cx_total=598 inner_rz=5 hs=110
+Block 67: cx_prefix=446 cx_suffix=446 cx_total=892 inner_rz=5 hs=176
+Block 68: cx_prefix=629 cx_suffix=629 cx_total=1258 inner_rz=7 hs=220
+Block 69: cx_prefix=183 cx_suffix=183 cx_total=366 inner_rz=6 hs=72
+Block 70: cx_prefix=141 cx_suffix=141 cx_total=282 inner_rz=5 hs=70
+Block 71: cx_prefix=82 cx_suffix=82 cx_total=164 inner_rz=5 hs=26
+Block 72: cx_prefix=186 cx_suffix=186 cx_total=372 inner_rz=5 hs=100
+Block 73: cx_prefix=425 cx_suffix=425 cx_total=850 inner_rz=5 hs=146
+Block 74: cx_prefix=244 cx_suffix=244 cx_total=488 inner_rz=5 hs=108
+Block 75: cx_prefix=158 cx_suffix=158 cx_total=316 inner_rz=6 hs=74
+Block 76: cx_prefix=266 cx_suffix=266 cx_total=532 inner_rz=5 hs=82
+Block 77: cx_prefix=30 cx_suffix=30 cx_total=60 inner_rz=6 hs=4
+Block 78: cx_prefix=197 cx_suffix=197 cx_total=394 inner_rz=5 hs=58
+Block 79: cx_prefix=234 cx_suffix=234 cx_total=468 inner_rz=6 hs=78
+Block 80: cx_prefix=22 cx_suffix=22 cx_total=44 inner_rz=5 hs=16
+Block 81: cx_prefix=264 cx_suffix=264 cx_total=528 inner_rz=5 hs=102
+Block 82: cx_prefix=171 cx_suffix=171 cx_total=342 inner_rz=5 hs=64
+Block 83: cx_prefix=206 cx_suffix=206 cx_total=412 inner_rz=5 hs=76
+Block 84: cx_prefix=1485 cx_suffix=1485 cx_total=2970 inner_rz=6 hs=554
+Block 85: cx_prefix=118 cx_suffix=118 cx_total=236 inner_rz=5 hs=26
+Block 86: cx_prefix=826 cx_suffix=826 cx_total=1652 inner_rz=6 hs=298
+Block 87: cx_prefix=131 cx_suffix=131 cx_total=262 inner_rz=5 hs=44
+Block 88: cx_prefix=549 cx_suffix=549 cx_total=1098 inner_rz=5 hs=182
+Block 89: cx_prefix=295 cx_suffix=295 cx_total=590 inner_rz=5 hs=88
+Block 90: cx_prefix=68 cx_suffix=68 cx_total=136 inner_rz=5 hs=44
+Block 91: cx_prefix=630 cx_suffix=630 cx_total=1260 inner_rz=4 hs=210
+Block 92: cx_prefix=183 cx_suffix=183 cx_total=366 inner_rz=4 hs=66
+Block 93: cx_prefix=204 cx_suffix=204 cx_total=408 inner_rz=6 hs=48
+Block 94: cx_prefix=338 cx_suffix=338 cx_total=676 inner_rz=5 hs=126
+Block 95: cx_prefix=39 cx_suffix=39 cx_total=78 inner_rz=4 hs=26
+Block 96: cx_prefix=47 cx_suffix=47 cx_total=94 inner_rz=5 hs=10
+Block 97: cx_prefix=229 cx_suffix=229 cx_total=458 inner_rz=6 hs=106
+Block 98: cx_prefix=120 cx_suffix=120 cx_total=240 inner_rz=5 hs=34
+Block 99: cx_prefix=429 cx_suffix=429 cx_total=858 inner_rz=5 hs=140
+Block 100: cx_prefix=603 cx_suffix=603 cx_total=1206 inner_rz=4 hs=186
+Block 101: cx_prefix=397 cx_suffix=397 cx_total=794 inner_rz=5 hs=128
+Block 102: cx_prefix=527 cx_suffix=527 cx_total=1054 inner_rz=5 hs=148
+Block 103: cx_prefix=754 cx_suffix=754 cx_total=1508 inner_rz=6 hs=236
+Block 104: cx_prefix=1049 cx_suffix=1049 cx_total=2098 inner_rz=5 hs=398
+Block 105: cx_prefix=117 cx_suffix=117 cx_total=234 inner_rz=5 hs=24
+Block 106: cx_prefix=61 cx_suffix=61 cx_total=122 inner_rz=5 hs=42
+Block 107: cx_prefix=153 cx_suffix=153 cx_total=306 inner_rz=4 hs=78
+Block 108: cx_prefix=281 cx_suffix=281 cx_total=562 inner_rz=6 hs=104
+Block 109: cx_prefix=163 cx_suffix=163 cx_total=326 inner_rz=5 hs=38
+Block 110: cx_prefix=102 cx_suffix=102 cx_total=204 inner_rz=4 hs=34
+Block 111: cx_prefix=144 cx_suffix=144 cx_total=288 inner_rz=6 hs=56
+Block 112: cx_prefix=212 cx_suffix=212 cx_total=424 inner_rz=5 hs=62
+Block 113: cx_prefix=1 cx_suffix=1 cx_total=2 inner_rz=1 hs=0
+Block 114: cx_prefix=1 cx_suffix=1 cx_total=2 inner_rz=1 hs=0
+Block 115: cx_prefix=1 cx_suffix=1 cx_total=2 inner_rz=1 hs=0
+Block 116: cx_prefix=1 cx_suffix=1 cx_total=2 inner_rz=1 hs=0
+Block 117: cx_prefix=1 cx_suffix=1 cx_total=2 inner_rz=1 hs=0
+Block 118: cx_prefix=1 cx_suffix=1 cx_total=2 inner_rz=1 hs=0
+Block 119: cx_prefix=1 cx_suffix=1 cx_total=2 inner_rz=1 hs=0
+Block 120: cx_prefix=9 cx_suffix=9 cx_total=18 inner_rz=1 hs=0
+Block 121: cx_prefix=1 cx_suffix=1 cx_total=2 inner_rz=1 hs=0
+
+qsyn> convert tableau qcir -r ncf
+
+qsyn> qcir write /home/chenying/qsyn/out/ncf2q_10cases/OH-JW12/OH-JW12_after_2qncf_clifford_rz.qasm
+
+qsyn> 
+[warn]     The -f/--file option is deprecated and will be removed in the future.
+[warn]     To run a script file with commands printing, use the -v flag with a filepath.
+[warn]     To run a script file silently, simply supply the filepath.

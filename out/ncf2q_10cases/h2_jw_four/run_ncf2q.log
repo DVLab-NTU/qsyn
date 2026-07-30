@@ -1,0 +1,91 @@
+qsyn v0.8.0 - Copyright © 2022-2026, DVLab NTUEE.
+Licensed under Apache 2.0 License. Release build.
+qsyn> tableau from-terms /home/chenying/qsyn/out/ncf2q_10cases/h2_jw_four/h2_jw_four.json --use-coeff
+Loaded 14 Pauli terms (h2_jw_four) → Tableau 0
+  #0 IIIZ  angle=?  coeff=-0.130362921
+  #1 IIZI  angle=?  coeff=-0.130362921
+  #2 IIZZ  angle=?  coeff=0.163267687
+  #3 IZII  angle=?  coeff=0.137165729
+  #4 IZIZ  angle=?  coeff=0.106229045
+  #5 IZZI  angle=?  coeff=0.155426691
+  #6 XXYY  angle=?  coeff=-0.0491976459
+  #7 XYYX  angle=?  coeff=0.0491976459
+  #8 YXXY  angle=?  coeff=0.0491976459
+  #9 YYXX  angle=?  coeff=-0.0491976459
+  #10 ZIII  angle=?  coeff=0.137165729
+  #11 ZIIZ  angle=?  coeff=0.155426691
+  #12 ZIZI  angle=?  coeff=0.106229045
+  #13 ZZII  angle=?  coeff=0.156600625
+Try: tableau optimize collapse && tableau optimize ncf
+
+qsyn> tableau optimize collapse
+
+qsyn> tableau copy 1
+
+qsyn> tableau checkout 1
+
+qsyn> convert tableau qcir -r naive
+
+qsyn> qcir write /home/chenying/qsyn/out/ncf2q_10cases/h2_jw_four/h2_jw_four_before_2qncf_clifford_rz.qasm
+
+qsyn> tableau checkout 0
+
+qsyn> tableau optimize ncf --two-qubit --window 128
+[warn]     NCF-2q: group size=5 idxs=[0, 6, 3, 4, 7]
+[warn]     NCF-2q: group size=4 idxs=[1, 8, 10, 12]
+[warn]     NCF-2q partition: n_terms=14 anti_groups=2 singletons=5 Num_unitaries=7 window=0
+[warn]       block 0: multi size=5 idxs=[0, 6, 3, 4, 7] (singleton_count_in_block=0)
+[warn]       block 1: multi size=4 idxs=[1, 8, 10, 12] (singleton_count_in_block=0)
+[warn]       block 2: SINGLETON size=1 idx=2 (singleton_count_in_block=1)
+[warn]       block 3: SINGLETON size=1 idx=5 (singleton_count_in_block=1)
+[warn]       block 4: SINGLETON size=1 idx=9 (singleton_count_in_block=1)
+[warn]       block 5: SINGLETON size=1 idx=11 (singleton_count_in_block=1)
+[warn]       block 6: SINGLETON size=1 idx=13 (singleton_count_in_block=1)
+[warn]     NCF: total singletons = 5
+[warn]     NCF: block 0 size=5 singleton_count_in_block=0
+[warn]     NCF: block 1 size=4 singleton_count_in_block=0
+[warn]     NCF: block 2 size=1 singleton_count_in_block=1
+[warn]     NCF: block 3 size=1 singleton_count_in_block=1
+[warn]     NCF: block 4 size=1 singleton_count_in_block=1
+[warn]     NCF: block 5 size=1 singleton_count_in_block=1
+[warn]     NCF: block 6 size=1 singleton_count_in_block=1
+[warn]     NCF fusion (2q): partitioned into 7 groups (14 total Pauli rotations).
+[NCF fusion report]
+  Pauli terms (before):     14   (indices #0–#13)
+  NCF blocks (after):       7
+  Synthesis: before=naive  after=ncf
+  Cost BEFORE NCF:
+    CX: 36  RZ: 0  H: 16  S: 0  Sdg: 0  clifford: 68  total: 82  depth: 56
+  Cost AFTER NCF:
+    CX: 32  RZ: 14  H: 2  S: 3  Sdg: 3  clifford: 44  total: 58  depth: 50
+  Delta (after − before):
+    CX: -4  RZ: 14  clifford: -24  total: -24
+NcfProgram 0 ready — try: ncf print --summary
+
+qsyn> ncf print --blocks
+[NCF fusion report]
+  Pauli terms (before):     14   (indices #0–#13)
+  NCF blocks (after):       7
+  Synthesis: before=naive  after=ncf
+  Cost BEFORE NCF:
+    CX: 36  RZ: 0  H: 16  S: 0  Sdg: 0  clifford: 68  total: 82  depth: 56
+  Cost AFTER NCF:
+    CX: 32  RZ: 14  H: 2  S: 3  Sdg: 3  clifford: 44  total: 58  depth: 50
+  Delta (after − before):
+    CX: -4  RZ: 14  clifford: -24  total: -24
+Block 0: cx_prefix=3 cx_suffix=3 cx_total=6 inner_rz=5 hs=2
+Block 1: cx_prefix=3 cx_suffix=3 cx_total=6 inner_rz=4 hs=4
+Block 2: cx_prefix=1 cx_suffix=1 cx_total=2 inner_rz=1 hs=0
+Block 3: cx_prefix=1 cx_suffix=1 cx_total=2 inner_rz=1 hs=0
+Block 4: cx_prefix=3 cx_suffix=3 cx_total=6 inner_rz=1 hs=4
+Block 5: cx_prefix=1 cx_suffix=1 cx_total=2 inner_rz=1 hs=0
+Block 6: cx_prefix=1 cx_suffix=1 cx_total=2 inner_rz=1 hs=0
+
+qsyn> convert tableau qcir -r ncf
+
+qsyn> qcir write /home/chenying/qsyn/out/ncf2q_10cases/h2_jw_four/h2_jw_four_after_2qncf_clifford_rz.qasm
+
+qsyn> 
+[warn]     The -f/--file option is deprecated and will be removed in the future.
+[warn]     To run a script file with commands printing, use the -v flag with a filepath.
+[warn]     To run a script file silently, simply supply the filepath.

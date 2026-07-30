@@ -26,6 +26,7 @@ NcfBlockKind kind_from_indices(std::vector<size_t> const& idx) {
     if (idx.size() == 1) return NcfBlockKind::singleton;
     if (idx.size() == 2) return NcfBlockKind::anti_pair;
     if (idx.size() == 3) return NcfBlockKind::anti_triple;
+    if (idx.size() >= 4) return NcfBlockKind::anti_multi;
     return NcfBlockKind::unknown;
 }
 

@@ -1,0 +1,79 @@
+{
+  "version": 1,
+  "molecule": "h2_jw_four",
+  "basis": "",
+  "encoding": "",
+  "n_qubits": 4,
+  "terms": [
+    {
+      "id": 0,
+      "pauli": "IIIZ",
+      "coeff": -0.1303629206
+    },
+    {
+      "id": 1,
+      "pauli": "IIZI",
+      "coeff": -0.1303629206
+    },
+    {
+      "id": 2,
+      "pauli": "IIZZ",
+      "coeff": 0.1632676867
+    },
+    {
+      "id": 3,
+      "pauli": "IZII",
+      "coeff": 0.1371657294
+    },
+    {
+      "id": 4,
+      "pauli": "IZIZ",
+      "coeff": 0.1062290449
+    },
+    {
+      "id": 5,
+      "pauli": "IZZI",
+      "coeff": 0.1554266908
+    },
+    {
+      "id": 6,
+      "pauli": "XXYY",
+      "coeff": -0.0491976459
+    },
+    {
+      "id": 7,
+      "pauli": "XYYX",
+      "coeff": 0.0491976459
+    },
+    {
+      "id": 8,
+      "pauli": "YXXY",
+      "coeff": 0.0491976459
+    },
+    {
+      "id": 9,
+      "pauli": "YYXX",
+      "coeff": -0.0491976459
+    },
+    {
+      "id": 10,
+      "pauli": "ZIII",
+      "coeff": 0.1371657294
+    },
+    {
+      "id": 11,
+      "pauli": "ZIIZ",
+      "coeff": 0.1554266908
+    },
+    {
+      "id": 12,
+      "pauli": "ZIZI",
+      "coeff": 0.1062290449
+    },
+    {
+      "id": 13,
+      "pauli": "ZZII",
+      "coeff": 0.1566006249
+    }
+  ]
+}

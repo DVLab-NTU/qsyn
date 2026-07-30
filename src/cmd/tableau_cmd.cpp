@@ -452,7 +452,7 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr, NcfMgr& ncf_mgr
                 .description("Minimize the number of Hadamard gates and internal Hadamard gates in the tableau");
 
             auto ncf_parser = methods.add_parser("ncf")
-                                  .description("Non-Clifford Fusion: partition Pauli rotations into groups that conjugate to 1-qubit, then emit [C†][R'][C] blocks (see arXiv:2510.13573)");
+                                  .description("Non-Clifford Fusion: partition Pauli rotations into groups that conjugate to 1-qubit (default) or 2-qubit (--two-qubit), then emit [C†][R'][C] Clifford+RZ blocks (see arXiv:2510.13573). Does not synthesize fused unitaries into Clifford+T.");
             ncf_parser.add_argument<bool>("--all-merges")
                 .action(store_true)
                 .help("Enumerate all valid partial-merge cases (merge all / none / subset-by-group) and store each case as a separate tableau ID");
@@ -461,7 +461,13 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr, NcfMgr& ncf_mgr
                 .help("Maximum number of enumerated NCF cases (0 = no limit)");
             ncf_parser.add_argument<bool>("--overlap-priority")
                 .action(store_true)
-                .help("Pick anti-commuting NCF pairs with maximum Paulihedral Pauli-string overlap first (ASPLOS'22 metric)");
+                .help("Pick anti-commuting NCF pairs with maximum Paulihedral Pauli-string overlap first (ASPLOS'22 metric; 1-qubit mode)");
+            ncf_parser.add_argument<bool>("--two-qubit")
+                .action(store_true)
+                .help("Paper §IV-A2 two-qubit grouping: grading system + Table III + sliding window (default w=128)");
+            ncf_parser.add_argument<size_t>("--window")
+                .default_value(0)
+                .help("Sliding-window size w (0 = paper default: 4 for 1q, 128 for 2q)");
 
             methods.add_parser("equiv")
                 .description("Lightweight optimization for equivalence checking (tmerge + hopt only, no phase polynomial / TODD); safe for arbitrary phases");
@@ -582,6 +588,8 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr, NcfMgr& ncf_mgr
                     auto pre_ncf = std::make_unique<Tableau>(*tableau_mgr.get());
                     NcfFusionOptions ncf_options{};
                     ncf_options.overlap_priority = parser.parsed("--overlap-priority");
+                    ncf_options.two_qubit        = parser.parsed("--two-qubit");
+                    ncf_options.window_w         = parser.get<size_t>("--window");
                     if (parser.parsed("--all-merges")) {
                         ncf_options.all_merges = true;
                         ncf_options.max_cases  = parser.get<size_t>("--max-cases");
@@ -601,8 +609,15 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr, NcfMgr& ncf_mgr
                         spdlog::info("NCF enumerate: case 0 kept in current Tableau ID {}", tableau_mgr.focused_id());
                     } else {
                         ncf_fusion(*tableau_mgr.get(), ncf_options);
-                        tableau_mgr.get()->add_procedure(
-                            ncf_options.overlap_priority ? "NCF-overlap-priority" : "NCF");
+                        std::string proc = "NCF";
+                        if (ncf_options.two_qubit) {
+                            proc = ncf_options.window_w == 0
+                                       ? "NCF-2q-w128"
+                                       : fmt::format("NCF-2q-w{}", ncf_options.window_w);
+                        } else if (ncf_options.overlap_priority) {
+                            proc = "NCF-overlap-priority";
+                        }
+                        tableau_mgr.get()->add_procedure(proc);
                     }
                     register_ncf_from_tableau(ncf_mgr, tableau_mgr, pre_ncf.get());
                     break;

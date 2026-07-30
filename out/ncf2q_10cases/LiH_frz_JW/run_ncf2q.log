@@ -1,0 +1,305 @@
+qsyn v0.8.0 - Copyright © 2022-2026, DVLab NTUEE.
+Licensed under Apache 2.0 License. Release build.
+qsyn> tableau from-terms /home/chenying/qsyn/out/ncf2q_10cases/LiH_frz_JW/LiH_frz_JW.json --use-coeff
+Loaded 144 Pauli terms (LiH_frz_JW) → Tableau 0
+  #0 IIIIIXYIII  angle=?  coeff=0.05
+  #1 IIIIIXZYII  angle=?  coeff=0.05
+  #2 IIIIIXZZYI  angle=?  coeff=0.05
+  #3 IIIIIXZZZY  angle=?  coeff=0.05
+  #4 IIIIIYXIII  angle=?  coeff=-0.05
+  #5 IIIIIYZXII  angle=?  coeff=-0.05
+  #6 IIIIIYZZXI  angle=?  coeff=-0.05
+  #7 IIIIIYZZZX  angle=?  coeff=-0.05
+  #8 XXIIIXYIII  angle=?  coeff=0.0125
+  #9 XXIIIXZYII  angle=?  coeff=0.0125
+  #10 XXIIIXZZYI  angle=?  coeff=0.0125
+  #11 XXIIIXZZZY  angle=?  coeff=0.0125
+  #12 XXIIIYXIII  angle=?  coeff=-0.0125
+  #13 XXIIIYZXII  angle=?  coeff=-0.0125
+  #14 XXIIIYZZXI  angle=?  coeff=-0.0125
+  #15 XXIIIYZZZX  angle=?  coeff=-0.0125
+  #16 XYIIIIIIII  angle=?  coeff=0.05
+  #17 XYIIIXXIII  angle=?  coeff=0.0125
+  #18 XYIIIXZXII  angle=?  coeff=0.0125
+  #19 XYIIIXZZXI  angle=?  coeff=0.0125
+  #20 XYIIIXZZZX  angle=?  coeff=0.0125
+  #21 XYIIIYYIII  angle=?  coeff=0.0125
+  #22 XYIIIYZYII  angle=?  coeff=0.0125
+  #23 XYIIIYZZYI  angle=?  coeff=0.0125
+  #24 XYIIIYZZZY  angle=?  coeff=0.0125
+  #25 XZXIIXYIII  angle=?  coeff=0.0125
+  #26 XZXIIXZYII  angle=?  coeff=0.0125
+  #27 XZXIIXZZYI  angle=?  coeff=0.0125
+  #28 XZXIIXZZZY  angle=?  coeff=0.0125
+  #29 XZXIIYXIII  angle=?  coeff=-0.0125
+  #30 XZXIIYZXII  angle=?  coeff=-0.0125
+  #31 XZXIIYZZXI  angle=?  coeff=-0.0125
+  #32 XZXIIYZZZX  angle=?  coeff=-0.0125
+  #33 XZYIIIIIII  angle=?  coeff=0.05
+  #34 XZYIIXXIII  angle=?  coeff=0.0125
+  #35 XZYIIXZXII  angle=?  coeff=0.0125
+  #36 XZYIIXZZXI  angle=?  coeff=0.0125
+  #37 XZYIIXZZZX  angle=?  coeff=0.0125
+  #38 XZYIIYYIII  angle=?  coeff=0.0125
+  #39 XZYIIYZYII  angle=?  coeff=0.0125
+  #40 XZYIIYZZYI  angle=?  coeff=0.0125
+  #41 XZYIIYZZZY  angle=?  coeff=0.0125
+  #42 XZZXIXYIII  angle=?  coeff=0.0125
+  #43 XZZXIXZYII  angle=?  coeff=0.0125
+  #44 XZZXIXZZYI  angle=?  coeff=0.0125
+  #45 XZZXIXZZZY  angle=?  coeff=0.0125
+  #46 XZZXIYXIII  angle=?  coeff=-0.0125
+  #47 XZZXIYZXII  angle=?  coeff=-0.0125
+  #48 XZZXIYZZXI  angle=?  coeff=-0.0125
+  #49 XZZXIYZZZX  angle=?  coeff=-0.0125
+  #50 XZZYIIIIII  angle=?  coeff=0.05
+  #51 XZZYIXXIII  angle=?  coeff=0.0125
+  #52 XZZYIXZXII  angle=?  coeff=0.0125
+  #53 XZZYIXZZXI  angle=?  coeff=0.0125
+  #54 XZZYIXZZZX  angle=?  coeff=0.0125
+  #55 XZZYIYYIII  angle=?  coeff=0.0125
+  #56 XZZYIYZYII  angle=?  coeff=0.0125
+  #57 XZZYIYZZYI  angle=?  coeff=0.0125
+  #58 XZZYIYZZZY  angle=?  coeff=0.0125
+  #59 XZZZXXYIII  angle=?  coeff=0.0125
+  #60 XZZZXXZYII  angle=?  coeff=0.0125
+  #61 XZZZXXZZYI  angle=?  coeff=0.0125
+  #62 XZZZXXZZZY  angle=?  coeff=0.0125
+  #63 XZZZXYXIII  angle=?  coeff=-0.0125
+  #64 XZZZXYZXII  angle=?  coeff=-0.0125
+  #65 XZZZXYZZXI  angle=?  coeff=-0.0125
+  #66 XZZZXYZZZX  angle=?  coeff=-0.0125
+  #67 XZZZYIIIII  angle=?  coeff=0.05
+  #68 XZZZYXXIII  angle=?  coeff=0.0125
+  #69 XZZZYXZXII  angle=?  coeff=0.0125
+  #70 XZZZYXZZXI  angle=?  coeff=0.0125
+  #71 XZZZYXZZZX  angle=?  coeff=0.0125
+  #72 XZZZYYYIII  angle=?  coeff=0.0125
+  #73 XZZZYYZYII  angle=?  coeff=0.0125
+  #74 XZZZYYZZYI  angle=?  coeff=0.0125
+  #75 XZZZYYZZZY  angle=?  coeff=0.0125
+  #76 YXIIIIIIII  angle=?  coeff=-0.05
+  #77 YXIIIXXIII  angle=?  coeff=-0.0125
+  #78 YXIIIXZXII  angle=?  coeff=-0.0125
+  #79 YXIIIXZZXI  angle=?  coeff=-0.0125
+  #80 YXIIIXZZZX  angle=?  coeff=-0.0125
+  #81 YXIIIYYIII  angle=?  coeff=-0.0125
+  #82 YXIIIYZYII  angle=?  coeff=-0.0125
+  #83 YXIIIYZZYI  angle=?  coeff=-0.0125
+  #84 YXIIIYZZZY  angle=?  coeff=-0.0125
+  #85 YYIIIXYIII  angle=?  coeff=0.0125
+  #86 YYIIIXZYII  angle=?  coeff=0.0125
+  #87 YYIIIXZZYI  angle=?  coeff=0.0125
+  #88 YYIIIXZZZY  angle=?  coeff=0.0125
+  #89 YYIIIYXIII  angle=?  coeff=-0.0125
+  #90 YYIIIYZXII  angle=?  coeff=-0.0125
+  #91 YYIIIYZZXI  angle=?  coeff=-0.0125
+  #92 YYIIIYZZZX  angle=?  coeff=-0.0125
+  #93 YZXIIIIIII  angle=?  coeff=-0.05
+  #94 YZXIIXXIII  angle=?  coeff=-0.0125
+  #95 YZXIIXZXII  angle=?  coeff=-0.0125
+  #96 YZXIIXZZXI  angle=?  coeff=-0.0125
+  #97 YZXIIXZZZX  angle=?  coeff=-0.0125
+  #98 YZXIIYYIII  angle=?  coeff=-0.0125
+  #99 YZXIIYZYII  angle=?  coeff=-0.0125
+  #100 YZXIIYZZYI  angle=?  coeff=-0.0125
+  #101 YZXIIYZZZY  angle=?  coeff=-0.0125
+  #102 YZYIIXYIII  angle=?  coeff=0.0125
+  #103 YZYIIXZYII  angle=?  coeff=0.0125
+  #104 YZYIIXZZYI  angle=?  coeff=0.0125
+  #105 YZYIIXZZZY  angle=?  coeff=0.0125
+  #106 YZYIIYXIII  angle=?  coeff=-0.0125
+  #107 YZYIIYZXII  angle=?  coeff=-0.0125
+  #108 YZYIIYZZXI  angle=?  coeff=-0.0125
+  #109 YZYIIYZZZX  angle=?  coeff=-0.0125
+  #110 YZZXIIIIII  angle=?  coeff=-0.05
+  #111 YZZXIXXIII  angle=?  coeff=-0.0125
+  #112 YZZXIXZXII  angle=?  coeff=-0.0125
+  #113 YZZXIXZZXI  angle=?  coeff=-0.0125
+  #114 YZZXIXZZZX  angle=?  coeff=-0.0125
+  #115 YZZXIYYIII  angle=?  coeff=-0.0125
+  #116 YZZXIYZYII  angle=?  coeff=-0.0125
+  #117 YZZXIYZZYI  angle=?  coeff=-0.0125
+  #118 YZZXIYZZZY  angle=?  coeff=-0.0125
+  #119 YZZYIXYIII  angle=?  coeff=0.0125
+  #120 YZZYIXZYII  angle=?  coeff=0.0125
+  #121 YZZYIXZZYI  angle=?  coeff=0.0125
+  #122 YZZYIXZZZY  angle=?  coeff=0.0125
+  #123 YZZYIYXIII  angle=?  coeff=-0.0125
+  #124 YZZYIYZXII  angle=?  coeff=-0.0125
+  #125 YZZYIYZZXI  angle=?  coeff=-0.0125
+  #126 YZZYIYZZZX  angle=?  coeff=-0.0125
+  #127 YZZZXIIIII  angle=?  coeff=-0.05
+  #128 YZZZXXXIII  angle=?  coeff=-0.0125
+  #129 YZZZXXZXII  angle=?  coeff=-0.0125
+  #130 YZZZXXZZXI  angle=?  coeff=-0.0125
+  #131 YZZZXXZZZX  angle=?  coeff=-0.0125
+  #132 YZZZXYYIII  angle=?  coeff=-0.0125
+  #133 YZZZXYZYII  angle=?  coeff=-0.0125
+  #134 YZZZXYZZYI  angle=?  coeff=-0.0125
+  #135 YZZZXYZZZY  angle=?  coeff=-0.0125
+  #136 YZZZYXYIII  angle=?  coeff=0.0125
+  #137 YZZZYXZYII  angle=?  coeff=0.0125
+  #138 YZZZYXZZYI  angle=?  coeff=0.0125
+  #139 YZZZYXZZZY  angle=?  coeff=0.0125
+  #140 YZZZYYXIII  angle=?  coeff=-0.0125
+  #141 YZZZYYZXII  angle=?  coeff=-0.0125
+  #142 YZZZYYZZXI  angle=?  coeff=-0.0125
+  #143 YZZZYYZZZX  angle=?  coeff=-0.0125
+Try: tableau optimize collapse && tableau optimize ncf
+
+qsyn> tableau optimize collapse
+
+qsyn> tableau copy 1
+
+qsyn> tableau checkout 1
+
+qsyn> convert tableau qcir -r naive
+
+qsyn> qcir write /home/chenying/qsyn/out/ncf2q_10cases/LiH_frz_JW/LiH_frz_JW_before_2qncf_clifford_rz.qasm
+
+qsyn> tableau checkout 0
+
+qsyn> tableau optimize ncf --two-qubit --window 128
+[warn]     NCF-2q: group size=6 idxs=[0, 1, 4, 17, 21, 22]
+[warn]     NCF-2q: group size=6 idxs=[2, 3, 5, 18, 23, 24]
+[warn]     NCF-2q: group size=6 idxs=[6, 7, 14, 19, 15, 20]
+[warn]     NCF-2q: group size=6 idxs=[8, 9, 10, 25, 26, 27]
+[warn]     NCF-2q: group size=6 idxs=[11, 16, 28, 76, 88, 93]
+[warn]     NCF-2q: group size=6 idxs=[12, 13, 29, 34, 30, 35]
+[warn]     NCF-2q: group size=6 idxs=[31, 32, 46, 94, 113, 114]
+[warn]     NCF-2q: group size=6 idxs=[33, 42, 50, 102, 110, 119]
+[warn]     NCF-2q: group size=6 idxs=[36, 37, 38, 85, 91, 92]
+[warn]     NCF-2q: group size=6 idxs=[39, 40, 43, 86, 44, 87]
+[warn]     NCF-2q: group size=6 idxs=[41, 51, 56, 103, 106, 122]
+[warn]     NCF-2q: group size=5 idxs=[45, 55, 47, 95, 101]
+[warn]     NCF-2q: group size=6 idxs=[48, 49, 53, 96, 54, 97]
+[warn]     NCF-2q: group size=5 idxs=[52, 63, 57, 104, 107]
+[warn]     NCF-2q: group size=4 idxs=[58, 59, 60, 61]
+[warn]     NCF-2q: group size=5 idxs=[62, 67, 77, 127, 139]
+[warn]     NCF-2q: group size=6 idxs=[64, 65, 66, 78, 79, 80]
+[warn]     NCF-2q: group size=6 idxs=[68, 69, 73, 120, 123, 124]
+[warn]     NCF-2q: group size=6 idxs=[70, 71, 74, 121, 125, 126]
+[warn]     NCF-2q: group size=6 idxs=[72, 75, 81, 115, 84, 118]
+[warn]     NCF-2q: group size=6 idxs=[82, 83, 99, 116, 100, 117]
+[warn]     NCF-2q: group size=6 idxs=[89, 90, 111, 128, 112, 129]
+[warn]     NCF-2q: group size=4 idxs=[98, 105, 108, 109]
+[warn]     NCF-2q: group size=4 idxs=[130, 131, 132, 133]
+[warn]     NCF-2q: group size=4 idxs=[134, 135, 136, 137]
+[warn]     NCF-2q: group size=4 idxs=[140, 141, 142, 143]
+[warn]     NCF-2q partition: n_terms=144 anti_groups=26 singletons=1 Num_unitaries=27 window=128
+[warn]       block 0: multi size=6 idxs=[0, 1, 4, 17, 21, 22] (singleton_count_in_block=0)
+[warn]       block 1: multi size=6 idxs=[2, 3, 5, 18, 23, 24] (singleton_count_in_block=0)
+[warn]       block 2: multi size=6 idxs=[6, 7, 14, 19, 15, 20] (singleton_count_in_block=0)
+[warn]       block 3: multi size=6 idxs=[8, 9, 10, 25, 26, 27] (singleton_count_in_block=0)
+[warn]       block 4: multi size=6 idxs=[11, 16, 28, 76, 88, 93] (singleton_count_in_block=0)
+[warn]       block 5: multi size=6 idxs=[12, 13, 29, 34, 30, 35] (singleton_count_in_block=0)
+[warn]       block 6: multi size=6 idxs=[31, 32, 46, 94, 113, 114] (singleton_count_in_block=0)
+[warn]       block 7: multi size=6 idxs=[33, 42, 50, 102, 110, 119] (singleton_count_in_block=0)
+[warn]       block 8: multi size=6 idxs=[36, 37, 38, 85, 91, 92] (singleton_count_in_block=0)
+[warn]       block 9: multi size=6 idxs=[39, 40, 43, 86, 44, 87] (singleton_count_in_block=0)
+[warn]       block 10: multi size=6 idxs=[41, 51, 56, 103, 106, 122] (singleton_count_in_block=0)
+[warn]       block 11: multi size=5 idxs=[45, 55, 47, 95, 101] (singleton_count_in_block=0)
+[warn]       block 12: multi size=6 idxs=[48, 49, 53, 96, 54, 97] (singleton_count_in_block=0)
+[warn]       block 13: multi size=5 idxs=[52, 63, 57, 104, 107] (singleton_count_in_block=0)
+[warn]       block 14: multi size=4 idxs=[58, 59, 60, 61] (singleton_count_in_block=0)
+[warn]       block 15: multi size=5 idxs=[62, 67, 77, 127, 139] (singleton_count_in_block=0)
+[warn]       block 16: multi size=6 idxs=[64, 65, 66, 78, 79, 80] (singleton_count_in_block=0)
+[warn]       block 17: multi size=6 idxs=[68, 69, 73, 120, 123, 124] (singleton_count_in_block=0)
+[warn]       block 18: multi size=6 idxs=[70, 71, 74, 121, 125, 126] (singleton_count_in_block=0)
+[warn]       block 19: multi size=6 idxs=[72, 75, 81, 115, 84, 118] (singleton_count_in_block=0)
+[warn]       block 20: multi size=6 idxs=[82, 83, 99, 116, 100, 117] (singleton_count_in_block=0)
+[warn]       block 21: multi size=6 idxs=[89, 90, 111, 128, 112, 129] (singleton_count_in_block=0)
+[warn]       block 22: multi size=4 idxs=[98, 105, 108, 109] (singleton_count_in_block=0)
+[warn]       block 23: multi size=4 idxs=[130, 131, 132, 133] (singleton_count_in_block=0)
+[warn]       block 24: multi size=4 idxs=[134, 135, 136, 137] (singleton_count_in_block=0)
+[warn]       block 25: multi size=4 idxs=[140, 141, 142, 143] (singleton_count_in_block=0)
+[warn]       block 26: SINGLETON size=1 idx=138 (singleton_count_in_block=1)
+[warn]     NCF: total singletons = 1
+[warn]     NCF: block 0 size=6 singleton_count_in_block=0
+[warn]     NCF: block 1 size=6 singleton_count_in_block=0
+[warn]     NCF: block 2 size=6 singleton_count_in_block=0
+[warn]     NCF: block 3 size=6 singleton_count_in_block=0
+[warn]     NCF: block 4 size=6 singleton_count_in_block=0
+[warn]     NCF: block 5 size=6 singleton_count_in_block=0
+[warn]     NCF: block 6 size=6 singleton_count_in_block=0
+[warn]     NCF: block 7 size=6 singleton_count_in_block=0
+[warn]     NCF: block 8 size=6 singleton_count_in_block=0
+[warn]     NCF: block 9 size=6 singleton_count_in_block=0
+[warn]     NCF: block 10 size=6 singleton_count_in_block=0
+[warn]     NCF: block 11 size=5 singleton_count_in_block=0
+[warn]     NCF: block 12 size=6 singleton_count_in_block=0
+[warn]     NCF: block 13 size=5 singleton_count_in_block=0
+[warn]     NCF: block 14 size=4 singleton_count_in_block=0
+[warn]     NCF: block 15 size=5 singleton_count_in_block=0
+[warn]     NCF: block 16 size=6 singleton_count_in_block=0
+[warn]     NCF: block 17 size=6 singleton_count_in_block=0
+[warn]     NCF: block 18 size=6 singleton_count_in_block=0
+[warn]     NCF: block 19 size=6 singleton_count_in_block=0
+[warn]     NCF: block 20 size=6 singleton_count_in_block=0
+[warn]     NCF: block 21 size=6 singleton_count_in_block=0
+[warn]     NCF: block 22 size=4 singleton_count_in_block=0
+[warn]     NCF: block 23 size=4 singleton_count_in_block=0
+[warn]     NCF: block 24 size=4 singleton_count_in_block=0
+[warn]     NCF: block 25 size=4 singleton_count_in_block=0
+[warn]     NCF: block 26 size=1 singleton_count_in_block=1
+[warn]     NCF fusion (2q): partitioned into 27 groups (144 total Pauli rotations).
+[NCF fusion report]
+  Pauli terms (before):     144   (indices #0–#143)
+  NCF blocks (after):       27
+  Synthesis: before=naive  after=ncf
+  Cost BEFORE NCF:
+    CX: 1616  RZ: 0  H: 544  S: 0  Sdg: 0  clifford: 2704  total: 2848  depth: 2047
+  Cost AFTER NCF:
+    CX: 19864  RZ: 144  H: 858  S: 705  Sdg: 705  clifford: 22256  total: 22400  depth: 10648
+  Delta (after − before):
+    CX: 18248  RZ: 144  clifford: 19552  total: 19552
+NcfProgram 0 ready — try: ncf print --summary
+
+qsyn> ncf print --blocks
+[NCF fusion report]
+  Pauli terms (before):     144   (indices #0–#143)
+  NCF blocks (after):       27
+  Synthesis: before=naive  after=ncf
+  Cost BEFORE NCF:
+    CX: 1616  RZ: 0  H: 544  S: 0  Sdg: 0  clifford: 2704  total: 2848  depth: 2047
+  Cost AFTER NCF:
+    CX: 19864  RZ: 144  H: 858  S: 705  Sdg: 705  clifford: 22256  total: 22400  depth: 10648
+  Delta (after − before):
+    CX: 18248  RZ: 144  clifford: 19552  total: 19552
+Block 0: cx_prefix=10 cx_suffix=10 cx_total=20 inner_rz=6 hs=12
+Block 1: cx_prefix=78 cx_suffix=78 cx_total=156 inner_rz=6 hs=28
+Block 2: cx_prefix=514 cx_suffix=514 cx_total=1028 inner_rz=6 hs=202
+Block 3: cx_prefix=157 cx_suffix=157 cx_total=314 inner_rz=6 hs=92
+Block 4: cx_prefix=21 cx_suffix=21 cx_total=42 inner_rz=6 hs=8
+Block 5: cx_prefix=58 cx_suffix=58 cx_total=116 inner_rz=6 hs=24
+Block 6: cx_prefix=302 cx_suffix=302 cx_total=604 inner_rz=6 hs=118
+Block 7: cx_prefix=12 cx_suffix=12 cx_total=24 inner_rz=6 hs=16
+Block 8: cx_prefix=143 cx_suffix=143 cx_total=286 inner_rz=6 hs=64
+Block 9: cx_prefix=219 cx_suffix=219 cx_total=438 inner_rz=6 hs=114
+Block 10: cx_prefix=176 cx_suffix=176 cx_total=352 inner_rz=6 hs=102
+Block 11: cx_prefix=297 cx_suffix=297 cx_total=594 inner_rz=5 hs=118
+Block 12: cx_prefix=151 cx_suffix=151 cx_total=302 inner_rz=6 hs=88
+Block 13: cx_prefix=365 cx_suffix=365 cx_total=730 inner_rz=5 hs=134
+Block 14: cx_prefix=268 cx_suffix=268 cx_total=536 inner_rz=4 hs=142
+Block 15: cx_prefix=155 cx_suffix=155 cx_total=310 inner_rz=5 hs=68
+Block 16: cx_prefix=149 cx_suffix=149 cx_total=298 inner_rz=6 hs=52
+Block 17: cx_prefix=367 cx_suffix=367 cx_total=734 inner_rz=6 hs=172
+Block 18: cx_prefix=214 cx_suffix=214 cx_total=428 inner_rz=6 hs=56
+Block 19: cx_prefix=124 cx_suffix=124 cx_total=248 inner_rz=6 hs=66
+Block 20: cx_prefix=225 cx_suffix=225 cx_total=450 inner_rz=6 hs=98
+Block 21: cx_prefix=236 cx_suffix=236 cx_total=472 inner_rz=6 hs=112
+Block 22: cx_prefix=56 cx_suffix=56 cx_total=112 inner_rz=4 hs=32
+Block 23: cx_prefix=142 cx_suffix=142 cx_total=284 inner_rz=4 hs=52
+Block 24: cx_prefix=145 cx_suffix=145 cx_total=290 inner_rz=4 hs=64
+Block 25: cx_prefix=360 cx_suffix=360 cx_total=720 inner_rz=4 hs=136
+Block 26: cx_prefix=8 cx_suffix=8 cx_total=16 inner_rz=1 hs=2
+
+qsyn> convert tableau qcir -r ncf
+
+qsyn> qcir write /home/chenying/qsyn/out/ncf2q_10cases/LiH_frz_JW/LiH_frz_JW_after_2qncf_clifford_rz.qasm
+
+qsyn> 
+[warn]     The -f/--file option is deprecated and will be removed in the future.
+[warn]     To run a script file with commands printing, use the -v flag with a filepath.
+[warn]     To run a script file silently, simply supply the filepath.

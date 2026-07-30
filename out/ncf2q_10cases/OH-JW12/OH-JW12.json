@@ -1,0 +1,3159 @@
+{
+  "version": 1,
+  "molecule": "OH-JW12",
+  "basis": "",
+  "encoding": "",
+  "n_qubits": 12,
+  "terms": [
+    {
+      "id": 0,
+      "pauli": "IIIIIIIIIIIZ",
+      "coeff": -0.01630438747156296
+    },
+    {
+      "id": 1,
+      "pauli": "IIIIIIIIIIZI",
+      "coeff": -0.01630438747156296
+    },
+    {
+      "id": 2,
+      "pauli": "IIIIIIIIIIZZ",
+      "coeff": 0.16819356018711087
+    },
+    {
+      "id": 3,
+      "pauli": "IIIIIIIIIXIX",
+      "coeff": -0.029373793342239274
+    },
+    {
+      "id": 4,
+      "pauli": "IIIIIIIIIXZX",
+      "coeff": -0.10279595507623233
+    },
+    {
+      "id": 5,
+      "pauli": "IIIIIIIIIYIY",
+      "coeff": -0.029373793342239274
+    },
+    {
+      "id": 6,
+      "pauli": "IIIIIIIIIYZY",
+      "coeff": -0.10279595507623233
+    },
+    {
+      "id": 7,
+      "pauli": "IIIIIIIIIZII",
+      "coeff": 0.14684583149579597
+    },
+    {
+      "id": 8,
+      "pauli": "IIIIIIIIIZIZ",
+      "coeff": 0.08915253049952594
+    },
+    {
+      "id": 9,
+      "pauli": "IIIIIIIIIZZI",
+      "coeff": 0.10038817530451725
+    },
+    {
+      "id": 10,
+      "pauli": "IIIIIIIIXIXI",
+      "coeff": -0.00981429707979982
+    },
+    {
+      "id": 11,
+      "pauli": "IIIIIIIIXXYY",
+      "coeff": -0.01123564480499132
+    },
+    {
+      "id": 12,
+      "pauli": "IIIIIIIIXYYX",
+      "coeff": 0.01123564480499132
+    },
+    {
+      "id": 13,
+      "pauli": "IIIIIIIIXZXI",
+      "coeff": -0.10279595507623236
+    },
+    {
+      "id": 14,
+      "pauli": "IIIIIIIIXZXZ",
+      "coeff": -0.029373793342239274
+    },
+    {
+      "id": 15,
+      "pauli": "IIIIIIIIYIYI",
+      "coeff": -0.00981429707979982
+    },
+    {
+      "id": 16,
+      "pauli": "IIIIIIIIYXXY",
+      "coeff": 0.01123564480499132
+    },
+    {
+      "id": 17,
+      "pauli": "IIIIIIIIYYXX",
+      "coeff": -0.01123564480499132
+    },
+    {
+      "id": 18,
+      "pauli": "IIIIIIIIYZYI",
+      "coeff": -0.10279595507623236
+    },
+    {
+      "id": 19,
+      "pauli": "IIIIIIIIYZYZ",
+      "coeff": -0.029373793342239274
+    },
+    {
+      "id": 20,
+      "pauli": "IIIIIIIIZIII",
+      "coeff": 0.1468458314957961
+    },
+    {
+      "id": 21,
+      "pauli": "IIIIIIIIZIIZ",
+      "coeff": 0.10038817530451725
+    },
+    {
+      "id": 22,
+      "pauli": "IIIIIIIIZIZI",
+      "coeff": 0.08915253049952594
+    },
+    {
+      "id": 23,
+      "pauli": "IIIIIIIIZXZX",
+      "coeff": -0.00981429707979982
+    },
+    {
+      "id": 24,
+      "pauli": "IIIIIIIIZYZY",
+      "coeff": -0.00981429707979982
+    },
+    {
+      "id": 25,
+      "pauli": "IIIIIIIIZZII",
+      "coeff": 0.08840998728157666
+    },
+    {
+      "id": 26,
+      "pauli": "IIIIIIIZIIII",
+      "coeff": 0.714014235110835
+    },
+    {
+      "id": 27,
+      "pauli": "IIIIIIIZIIIZ",
+      "coeff": 0.11591880546894995
+    },
+    {
+      "id": 28,
+      "pauli": "IIIIIIIZIIZI",
+      "coeff": 0.1204162693305404
+    },
+    {
+      "id": 29,
+      "pauli": "IIIIIIIZIXZX",
+      "coeff": -0.023006171152644167
+    },
+    {
+      "id": 30,
+      "pauli": "IIIIIIIZIYZY",
+      "coeff": -0.023006171152644167
+    },
+    {
+      "id": 31,
+      "pauli": "IIIIIIIZIZII",
+      "coeff": 0.08448685918768703
+    },
+    {
+      "id": 32,
+      "pauli": "IIIIIIIZXZXI",
+      "coeff": -0.025319390379807266
+    },
+    {
+      "id": 33,
+      "pauli": "IIIIIIIZYZYI",
+      "coeff": -0.025319390379807266
+    },
+    {
+      "id": 34,
+      "pauli": "IIIIIIIZZIII",
+      "coeff": 0.0869807053289413
+    },
+    {
+      "id": 35,
+      "pauli": "IIIIIIXXIIYY",
+      "coeff": -0.004497463861590456
+    },
+    {
+      "id": 36,
+      "pauli": "IIIIIIXXIXXI",
+      "coeff": -0.0023132192271631056
+    },
+    {
+      "id": 37,
+      "pauli": "IIIIIIXXYYII",
+      "coeff": -0.0024938461412542614
+    },
+    {
+      "id": 38,
+      "pauli": "IIIIIIXXYZZY",
+      "coeff": -0.0023132192271631056
+    },
+    {
+      "id": 39,
+      "pauli": "IIIIIIXYIIYX",
+      "coeff": 0.004497463861590456
+    },
+    {
+      "id": 40,
+      "pauli": "IIIIIIXYIYXI",
+      "coeff": -0.0023132192271631056
+    },
+    {
+      "id": 41,
+      "pauli": "IIIIIIXYYXII",
+      "coeff": 0.0024938461412542614
+    },
+    {
+      "id": 42,
+      "pauli": "IIIIIIXYYZZX",
+      "coeff": 0.0023132192271631056
+    },
+    {
+      "id": 43,
+      "pauli": "IIIIIIYXIIXY",
+      "coeff": 0.004497463861590456
+    },
+    {
+      "id": 44,
+      "pauli": "IIIIIIYXIXYI",
+      "coeff": -0.0023132192271631056
+    },
+    {
+      "id": 45,
+      "pauli": "IIIIIIYXXYII",
+      "coeff": 0.0024938461412542614
+    },
+    {
+      "id": 46,
+      "pauli": "IIIIIIYXXZZY",
+      "coeff": 0.0023132192271631056
+    },
+    {
+      "id": 47,
+      "pauli": "IIIIIIYYIIXX",
+      "coeff": -0.004497463861590456
+    },
+    {
+      "id": 48,
+      "pauli": "IIIIIIYYIYYI",
+      "coeff": -0.0023132192271631056
+    },
+    {
+      "id": 49,
+      "pauli": "IIIIIIYYXXII",
+      "coeff": -0.0024938461412542614
+    },
+    {
+      "id": 50,
+      "pauli": "IIIIIIYYXZZX",
+      "coeff": -0.0023132192271631056
+    },
+    {
+      "id": 51,
+      "pauli": "IIIIIIZIIIII",
+      "coeff": 0.7140142351108352
+    },
+    {
+      "id": 52,
+      "pauli": "IIIIIIZIIIIZ",
+      "coeff": 0.1204162693305404
+    },
+    {
+      "id": 53,
+      "pauli": "IIIIIIZIIIZI",
+      "coeff": 0.11591880546894995
+    },
+    {
+      "id": 54,
+      "pauli": "IIIIIIZIIXZX",
+      "coeff": -0.025319390379807266
+    },
+    {
+      "id": 55,
+      "pauli": "IIIIIIZIIYZY",
+      "coeff": -0.025319390379807266
+    },
+    {
+      "id": 56,
+      "pauli": "IIIIIIZIIZII",
+      "coeff": 0.0869807053289413
+    },
+    {
+      "id": 57,
+      "pauli": "IIIIIIZIXZXI",
+      "coeff": -0.023006171152644167
+    },
+    {
+      "id": 58,
+      "pauli": "IIIIIIZIYZYI",
+      "coeff": -0.023006171152644167
+    },
+    {
+      "id": 59,
+      "pauli": "IIIIIIZIZIII",
+      "coeff": 0.08448685918768703
+    },
+    {
+      "id": 60,
+      "pauli": "IIIIIIZZIIII",
+      "coeff": 0.20063684297199944
+    },
+    {
+      "id": 61,
+      "pauli": "IIIIIZIIIIII",
+      "coeff": 0.7026573121424474
+    },
+    {
+      "id": 62,
+      "pauli": "IIIIIZIIIIIZ",
+      "coeff": 0.11502924756380138
+    },
+    {
+      "id": 63,
+      "pauli": "IIIIIZIIIIZI",
+      "coeff": 0.11948131646162001
+    },
+    {
+      "id": 64,
+      "pauli": "IIIIIZIIIXZX",
+      "coeff": -0.022590073989852976
+    },
+    {
+      "id": 65,
+      "pauli": "IIIIIZIIIYZY",
+      "coeff": -0.022590073989852976
+    },
+    {
+      "id": 66,
+      "pauli": "IIIIIZIIIZII",
+      "coeff": 0.084072821319897
+    },
+    {
+      "id": 67,
+      "pauli": "IIIIIZIIXZXI",
+      "coeff": -0.024756714789427838
+    },
+    {
+      "id": 68,
+      "pauli": "IIIIIZIIYZYI",
+      "coeff": -0.024756714789427838
+    },
+    {
+      "id": 69,
+      "pauli": "IIIIIZIIZIII",
+      "coeff": 0.08653802305077513
+    },
+    {
+      "id": 70,
+      "pauli": "IIIIIZIZIIII",
+      "coeff": 0.16814171321456084
+    },
+    {
+      "id": 71,
+      "pauli": "IIIIIZZIIIII",
+      "coeff": 0.17792041119800472
+    },
+    {
+      "id": 72,
+      "pauli": "IIIIXXIIIIYY",
+      "coeff": -0.004452068897818635
+    },
+    {
+      "id": 73,
+      "pauli": "IIIIXXIIIXXI",
+      "coeff": -0.0021666407995748586
+    },
+    {
+      "id": 74,
+      "pauli": "IIIIXXIIYYII",
+      "coeff": -0.0024652017308781286
+    },
+    {
+      "id": 75,
+      "pauli": "IIIIXXIIYZZY",
+      "coeff": -0.0021666407995748586
+    },
+    {
+      "id": 76,
+      "pauli": "IIIIXXYYIIII",
+      "coeff": -0.009778697983443886
+    },
+    {
+      "id": 77,
+      "pauli": "IIIIXYIIIIYX",
+      "coeff": 0.004452068897818635
+    },
+    {
+      "id": 78,
+      "pauli": "IIIIXYIIIYXI",
+      "coeff": -0.0021666407995748586
+    },
+    {
+      "id": 79,
+      "pauli": "IIIIXYIIYXII",
+      "coeff": 0.0024652017308781286
+    },
+    {
+      "id": 80,
+      "pauli": "IIIIXYIIYZZX",
+      "coeff": 0.0021666407995748586
+    },
+    {
+      "id": 81,
+      "pauli": "IIIIXYYXIIII",
+      "coeff": 0.009778697983443886
+    },
+    {
+      "id": 82,
+      "pauli": "IIIIYXIIIIXY",
+      "coeff": 0.004452068897818635
+    },
+    {
+      "id": 83,
+      "pauli": "IIIIYXIIIXYI",
+      "coeff": -0.0021666407995748586
+    },
+    {
+      "id": 84,
+      "pauli": "IIIIYXIIXYII",
+      "coeff": 0.0024652017308781286
+    },
+    {
+      "id": 85,
+      "pauli": "IIIIYXIIXZZY",
+      "coeff": 0.0021666407995748586
+    },
+    {
+      "id": 86,
+      "pauli": "IIIIYXXYIIII",
+      "coeff": 0.009778697983443886
+    },
+    {
+      "id": 87,
+      "pauli": "IIIIYYIIIIXX",
+      "coeff": -0.004452068897818635
+    },
+    {
+      "id": 88,
+      "pauli": "IIIIYYIIIYYI",
+      "coeff": -0.0021666407995748586
+    },
+    {
+      "id": 89,
+      "pauli": "IIIIYYIIXXII",
+      "coeff": -0.0024652017308781286
+    },
+    {
+      "id": 90,
+      "pauli": "IIIIYYIIXZZX",
+      "coeff": -0.0021666407995748586
+    },
+    {
+      "id": 91,
+      "pauli": "IIIIYYXXIIII",
+      "coeff": -0.009778697983443886
+    },
+    {
+      "id": 92,
+      "pauli": "IIIIZIIIIIII",
+      "coeff": 0.7026573121424475
+    },
+    {
+      "id": 93,
+      "pauli": "IIIIZIIIIIIZ",
+      "coeff": 0.11948131646162001
+    },
+    {
+      "id": 94,
+      "pauli": "IIIIZIIIIIZI",
+      "coeff": 0.11502924756380138
+    },
+    {
+      "id": 95,
+      "pauli": "IIIIZIIIIXZX",
+      "coeff": -0.024756714789427838
+    },
+    {
+      "id": 96,
+      "pauli": "IIIIZIIIIYZY",
+      "coeff": -0.024756714789427838
+    },
+    {
+      "id": 97,
+      "pauli": "IIIIZIIIIZII",
+      "coeff": 0.08653802305077513
+    },
+    {
+      "id": 98,
+      "pauli": "IIIIZIIIXZXI",
+      "coeff": -0.022590073989852976
+    },
+    {
+      "id": 99,
+      "pauli": "IIIIZIIIYZYI",
+      "coeff": -0.022590073989852976
+    },
+    {
+      "id": 100,
+      "pauli": "IIIIZIIIZIII",
+      "coeff": 0.084072821319897
+    },
+    {
+      "id": 101,
+      "pauli": "IIIIZIIZIIII",
+      "coeff": 0.17792041119800472
+    },
+    {
+      "id": 102,
+      "pauli": "IIIIZIZIIIII",
+      "coeff": 0.16814171321456084
+    },
+    {
+      "id": 103,
+      "pauli": "IIIIZZIIIIII",
+      "coeff": 0.19445787506162937
+    },
+    {
+      "id": 104,
+      "pauli": "IIIXIZZZZXII",
+      "coeff": 0.019211295742728788
+    },
+    {
+      "id": 105,
+      "pauli": "IIIXIZZZZZZX",
+      "coeff": 0.02023043539274834
+    },
+    {
+      "id": 106,
+      "pauli": "IIIXXYZZYIII",
+      "coeff": 0.0008891699605663621
+    },
+    {
+      "id": 107,
+      "pauli": "IIIXXYZZZZYI",
+      "coeff": 0.0008900543296058849
+    },
+    {
+      "id": 108,
+      "pauli": "IIIXYYZZXIII",
+      "coeff": -0.0008891699605663621
+    },
+    {
+      "id": 109,
+      "pauli": "IIIXYYZZZZXI",
+      "coeff": -0.0008900543296058849
+    },
+    {
+      "id": 110,
+      "pauli": "IIIXZIZZZXII",
+      "coeff": 0.018322125782162427
+    },
+    {
+      "id": 111,
+      "pauli": "IIIXZIZZZZZX",
+      "coeff": 0.019340381063142453
+    },
+    {
+      "id": 112,
+      "pauli": "IIIXZZIZZXII",
+      "coeff": 0.019759526973139107
+    },
+    {
+      "id": 113,
+      "pauli": "IIIXZZIZZZZX",
+      "coeff": 0.021036899090205508
+    },
+    {
+      "id": 114,
+      "pauli": "IIIXZZXYYIII",
+      "coeff": 0.0008674542398674122
+    },
+    {
+      "id": 115,
+      "pauli": "IIIXZZXYZZYI",
+      "coeff": 0.0009530955541506469
+    },
+    {
+      "id": 116,
+      "pauli": "IIIXZZYYXIII",
+      "coeff": -0.0008674542398674122
+    },
+    {
+      "id": 117,
+      "pauli": "IIIXZZYYZZXI",
+      "coeff": -0.0009530955541506469
+    },
+    {
+      "id": 118,
+      "pauli": "IIIXZZZIZXII",
+      "coeff": 0.018892072733271696
+    },
+    {
+      "id": 119,
+      "pauli": "IIIXZZZIZZZX",
+      "coeff": 0.020083803536054858
+    },
+    {
+      "id": 120,
+      "pauli": "IIIXZZZZIXII",
+      "coeff": -0.0035299626725931905
+    },
+    {
+      "id": 121,
+      "pauli": "IIIXZZZZIZZX",
+      "coeff": -0.008128259351033555
+    },
+    {
+      "id": 122,
+      "pauli": "IIIXZZZZXIXX",
+      "coeff": -0.003207868450771387
+    },
+    {
+      "id": 123,
+      "pauli": "IIIXZZZZXYYI",
+      "coeff": 0.0024819926813851832
+    },
+    {
+      "id": 124,
+      "pauli": "IIIXZZZZYIYX",
+      "coeff": -0.003207868450771387
+    },
+    {
+      "id": 125,
+      "pauli": "IIIXZZZZYYXI",
+      "coeff": -0.0024819926813851832
+    },
+    {
+      "id": 126,
+      "pauli": "IIIXZZZZZIZX",
+      "coeff": -0.010610252032418738
+    },
+    {
+      "id": 127,
+      "pauli": "IIIXZZZZZXII",
+      "coeff": 0.09387180051759893
+    },
+    {
+      "id": 128,
+      "pauli": "IIIXZZZZZXIZ",
+      "coeff": 0.0006960929264155783
+    },
+    {
+      "id": 129,
+      "pauli": "IIIXZZZZZXZI",
+      "coeff": -0.0025117755243558083
+    },
+    {
+      "id": 130,
+      "pauli": "IIIXZZZZZZIX",
+      "coeff": -0.02807100240283794
+    },
+    {
+      "id": 131,
+      "pauli": "IIIXZZZZZZZX",
+      "coeff": 0.12487201984502996
+    },
+    {
+      "id": 132,
+      "pauli": "IIIYIZZZZYII",
+      "coeff": 0.019211295742728788
+    },
+    {
+      "id": 133,
+      "pauli": "IIIYIZZZZZZY",
+      "coeff": 0.02023043539274834
+    },
+    {
+      "id": 134,
+      "pauli": "IIIYXXZZYIII",
+      "coeff": -0.0008891699605663621
+    },
+    {
+      "id": 135,
+      "pauli": "IIIYXXZZZZYI",
+      "coeff": -0.0008900543296058849
+    },
+    {
+      "id": 136,
+      "pauli": "IIIYYXZZXIII",
+      "coeff": 0.0008891699605663621
+    },
+    {
+      "id": 137,
+      "pauli": "IIIYYXZZZZXI",
+      "coeff": 0.0008900543296058849
+    },
+    {
+      "id": 138,
+      "pauli": "IIIYZIZZZYII",
+      "coeff": 0.018322125782162427
+    },
+    {
+      "id": 139,
+      "pauli": "IIIYZIZZZZZY",
+      "coeff": 0.019340381063142453
+    },
+    {
+      "id": 140,
+      "pauli": "IIIYZZIZZYII",
+      "coeff": 0.019759526973139107
+    },
+    {
+      "id": 141,
+      "pauli": "IIIYZZIZZZZY",
+      "coeff": 0.021036899090205508
+    },
+    {
+      "id": 142,
+      "pauli": "IIIYZZXXYIII",
+      "coeff": -0.0008674542398674122
+    },
+    {
+      "id": 143,
+      "pauli": "IIIYZZXXZZYI",
+      "coeff": -0.0009530955541506469
+    },
+    {
+      "id": 144,
+      "pauli": "IIIYZZYXXIII",
+      "coeff": 0.0008674542398674122
+    },
+    {
+      "id": 145,
+      "pauli": "IIIYZZYXZZXI",
+      "coeff": 0.0009530955541506469
+    },
+    {
+      "id": 146,
+      "pauli": "IIIYZZZIZYII",
+      "coeff": 0.018892072733271696
+    },
+    {
+      "id": 147,
+      "pauli": "IIIYZZZIZZZY",
+      "coeff": 0.020083803536054858
+    },
+    {
+      "id": 148,
+      "pauli": "IIIYZZZZIYII",
+      "coeff": -0.0035299626725931905
+    },
+    {
+      "id": 149,
+      "pauli": "IIIYZZZZIZZY",
+      "coeff": -0.008128259351033555
+    },
+    {
+      "id": 150,
+      "pauli": "IIIYZZZZXIXY",
+      "coeff": -0.003207868450771387
+    },
+    {
+      "id": 151,
+      "pauli": "IIIYZZZZXXYI",
+      "coeff": -0.0024819926813851832
+    },
+    {
+      "id": 152,
+      "pauli": "IIIYZZZZYIYY",
+      "coeff": -0.003207868450771387
+    },
+    {
+      "id": 153,
+      "pauli": "IIIYZZZZYXXI",
+      "coeff": 0.0024819926813851832
+    },
+    {
+      "id": 154,
+      "pauli": "IIIYZZZZZIZY",
+      "coeff": -0.010610252032418738
+    },
+    {
+      "id": 155,
+      "pauli": "IIIYZZZZZYII",
+      "coeff": 0.09387180051759893
+    },
+    {
+      "id": 156,
+      "pauli": "IIIYZZZZZYIZ",
+      "coeff": 0.0006960929264155783
+    },
+    {
+      "id": 157,
+      "pauli": "IIIYZZZZZYZI",
+      "coeff": -0.0025117755243558083
+    },
+    {
+      "id": 158,
+      "pauli": "IIIYZZZZZZIY",
+      "coeff": -0.02807100240283794
+    },
+    {
+      "id": 159,
+      "pauli": "IIIYZZZZZZZY",
+      "coeff": 0.12487201984502996
+    },
+    {
+      "id": 160,
+      "pauli": "IIIZIIIIIIII",
+      "coeff": 0.7155854170451138
+    },
+    {
+      "id": 161,
+      "pauli": "IIIZIIIIIIIZ",
+      "coeff": 0.10764107303766371
+    },
+    {
+      "id": 162,
+      "pauli": "IIIZIIIIIIZI",
+      "coeff": 0.13707337004418815
+    },
+    {
+      "id": 163,
+      "pauli": "IIIZIIIIIXZX",
+      "coeff": -0.015833346156384744
+    },
+    {
+      "id": 164,
+      "pauli": "IIIZIIIIIYZY",
+      "coeff": -0.015833346156384744
+    },
+    {
+      "id": 165,
+      "pauli": "IIIZIIIIIZII",
+      "coeff": 0.08094589780907649
+    },
+    {
+      "id": 166,
+      "pauli": "IIIZIIIIXZXI",
+      "coeff": -0.027769609088014593
+    },
+    {
+      "id": 167,
+      "pauli": "IIIZIIIIYZYI",
+      "coeff": -0.027769609088014593
+    },
+    {
+      "id": 168,
+      "pauli": "IIIZIIIIZIII",
+      "coeff": 0.0898059309171054
+    },
+    {
+      "id": 169,
+      "pauli": "IIIZIIIZIIII",
+      "coeff": 0.1565185663152971
+    },
+    {
+      "id": 170,
+      "pauli": "IIIZIIZIIIII",
+      "coeff": 0.16716563656966005
+    },
+    {
+      "id": 171,
+      "pauli": "IIIZIZIIIIII",
+      "coeff": 0.154399283886728
+    },
+    {
+      "id": 172,
+      "pauli": "IIIZZIIIIIII",
+      "coeff": 0.16490071204336268
+    },
+    {
+      "id": 173,
+      "pauli": "IIXIZZZZXIII",
+      "coeff": 0.017753086510763363
+    },
+    {
+      "id": 174,
+      "pauli": "IIXIZZZZZZXI",
+      "coeff": 0.013954209327829942
+    },
+    {
+      "id": 175,
+      "pauli": "IIXXIIIIIIYY",
+      "coeff": -0.029432297006524447
+    },
+    {
+      "id": 176,
+      "pauli": "IIXXIIIIIXXI",
+      "coeff": -0.011936262931629851
+    },
+    {
+      "id": 177,
+      "pauli": "IIXXIIIIYYII",
+      "coeff": -0.008860033108028907
+    },
+    {
+      "id": 178,
+      "pauli": "IIXXIIIIYZZY",
+      "coeff": -0.01193626293162985
+    },
+    {
+      "id": 179,
+      "pauli": "IIXXIIYYIIII",
+      "coeff": -0.010647070254362954
+    },
+    {
+      "id": 180,
+      "pauli": "IIXXYYIIIIII",
+      "coeff": -0.010501428156634685
+    },
+    {
+      "id": 181,
+      "pauli": "IIXYIIIIIIYX",
+      "coeff": 0.029432297006524447
+    },
+    {
+      "id": 182,
+      "pauli": "IIXYIIIIIYXI",
+      "coeff": -0.011936262931629851
+    },
+    {
+      "id": 183,
+      "pauli": "IIXYIIIIYXII",
+      "coeff": 0.008860033108028907
+    },
+    {
+      "id": 184,
+      "pauli": "IIXYIIIIYZZX",
+      "coeff": 0.01193626293162985
+    },
+    {
+      "id": 185,
+      "pauli": "IIXYIIYXIIII",
+      "coeff": 0.010647070254362954
+    },
+    {
+      "id": 186,
+      "pauli": "IIXYYXIIIIII",
+      "coeff": 0.010501428156634685
+    },
+    {
+      "id": 187,
+      "pauli": "IIXZIZZZXIII",
+      "coeff": 0.018322125782162427
+    },
+    {
+      "id": 188,
+      "pauli": "IIXZIZZZZZXI",
+      "coeff": 0.019340381063142453
+    },
+    {
+      "id": 189,
+      "pauli": "IIXZXXZZZXII",
+      "coeff": -0.0008891699605663622
+    },
+    {
+      "id": 190,
+      "pauli": "IIXZXXZZZZZX",
+      "coeff": -0.0008900543296058848
+    },
+    {
+      "id": 191,
+      "pauli": "IIXZXYZZZYII",
+      "coeff": -0.0008891699605663622
+    },
+    {
+      "id": 192,
+      "pauli": "IIXZXYZZZZZY",
+      "coeff": -0.0008900543296058848
+    },
+    {
+      "id": 193,
+      "pauli": "IIXZZIZZXIII",
+      "coeff": 0.019211295742728788
+    },
+    {
+      "id": 194,
+      "pauli": "IIXZZIZZZZXI",
+      "coeff": 0.02023043539274834
+    },
+    {
+      "id": 195,
+      "pauli": "IIXZZZIZXIII",
+      "coeff": 0.018892072733271696
+    },
+    {
+      "id": 196,
+      "pauli": "IIXZZZIZZZXI",
+      "coeff": 0.020083803536054858
+    },
+    {
+      "id": 197,
+      "pauli": "IIXZZZXXZXII",
+      "coeff": -0.0008674542398674122
+    },
+    {
+      "id": 198,
+      "pauli": "IIXZZZXXZZZX",
+      "coeff": -0.0009530955541506469
+    },
+    {
+      "id": 199,
+      "pauli": "IIXZZZXYZYII",
+      "coeff": -0.0008674542398674122
+    },
+    {
+      "id": 200,
+      "pauli": "IIXZZZXYZZZY",
+      "coeff": -0.0009530955541506469
+    },
+    {
+      "id": 201,
+      "pauli": "IIXZZZZIXIII",
+      "coeff": 0.019759526973139107
+    },
+    {
+      "id": 202,
+      "pauli": "IIXZZZZIZZXI",
+      "coeff": 0.021036899090205508
+    },
+    {
+      "id": 203,
+      "pauli": "IIXZZZZZIZXI",
+      "coeff": -0.010610252032418738
+    },
+    {
+      "id": 204,
+      "pauli": "IIXZZZZZXIII",
+      "coeff": 0.09387180051759897
+    },
+    {
+      "id": 205,
+      "pauli": "IIXZZZZZXIIZ",
+      "coeff": -0.0025117755243558083
+    },
+    {
+      "id": 206,
+      "pauli": "IIXZZZZZXIZI",
+      "coeff": 0.0006960929264155783
+    },
+    {
+      "id": 207,
+      "pauli": "IIXZZZZZXXZX",
+      "coeff": -0.0024819926813851832
+    },
+    {
+      "id": 208,
+      "pauli": "IIXZZZZZXYZY",
+      "coeff": -0.0024819926813851832
+    },
+    {
+      "id": 209,
+      "pauli": "IIXZZZZZXZII",
+      "coeff": -0.00352996267259319
+    },
+    {
+      "id": 210,
+      "pauli": "IIXZZZZZZIXI",
+      "coeff": -0.008128259351033555
+    },
+    {
+      "id": 211,
+      "pauli": "IIXZZZZZZXYY",
+      "coeff": -0.0032078684507713864
+    },
+    {
+      "id": 212,
+      "pauli": "IIXZZZZZZYYX",
+      "coeff": 0.0032078684507713864
+    },
+    {
+      "id": 213,
+      "pauli": "IIXZZZZZZZXI",
+      "coeff": 0.12487201984502999
+    },
+    {
+      "id": 214,
+      "pauli": "IIXZZZZZZZXZ",
+      "coeff": -0.02807100240283794
+    },
+    {
+      "id": 215,
+      "pauli": "IIYIZZZZYIII",
+      "coeff": 0.017753086510763363
+    },
+    {
+      "id": 216,
+      "pauli": "IIYIZZZZZZYI",
+      "coeff": 0.013954209327829942
+    },
+    {
+      "id": 217,
+      "pauli": "IIYXIIIIIIXY",
+      "coeff": 0.029432297006524447
+    },
+    {
+      "id": 218,
+      "pauli": "IIYXIIIIIXYI",
+      "coeff": -0.011936262931629851
+    },
+    {
+      "id": 219,
+      "pauli": "IIYXIIIIXYII",
+      "coeff": 0.008860033108028907
+    },
+    {
+      "id": 220,
+      "pauli": "IIYXIIIIXZZY",
+      "coeff": 0.01193626293162985
+    },
+    {
+      "id": 221,
+      "pauli": "IIYXIIXYIIII",
+      "coeff": 0.010647070254362954
+    },
+    {
+      "id": 222,
+      "pauli": "IIYXXYIIIIII",
+      "coeff": 0.010501428156634685
+    },
+    {
+      "id": 223,
+      "pauli": "IIYYIIIIIIXX",
+      "coeff": -0.029432297006524447
+    },
+    {
+      "id": 224,
+      "pauli": "IIYYIIIIIYYI",
+      "coeff": -0.011936262931629851
+    },
+    {
+      "id": 225,
+      "pauli": "IIYYIIIIXXII",
+      "coeff": -0.008860033108028907
+    },
+    {
+      "id": 226,
+      "pauli": "IIYYIIIIXZZX",
+      "coeff": -0.01193626293162985
+    },
+    {
+      "id": 227,
+      "pauli": "IIYYIIXXIIII",
+      "coeff": -0.010647070254362954
+    },
+    {
+      "id": 228,
+      "pauli": "IIYYXXIIIIII",
+      "coeff": -0.010501428156634685
+    },
+    {
+      "id": 229,
+      "pauli": "IIYZIZZZYIII",
+      "coeff": 0.018322125782162427
+    },
+    {
+      "id": 230,
+      "pauli": "IIYZIZZZZZYI",
+      "coeff": 0.019340381063142453
+    },
+    {
+      "id": 231,
+      "pauli": "IIYZYXZZZXII",
+      "coeff": -0.0008891699605663622
+    },
+    {
+      "id": 232,
+      "pauli": "IIYZYXZZZZZX",
+      "coeff": -0.0008900543296058848
+    },
+    {
+      "id": 233,
+      "pauli": "IIYZYYZZZYII",
+      "coeff": -0.0008891699605663622
+    },
+    {
+      "id": 234,
+      "pauli": "IIYZYYZZZZZY",
+      "coeff": -0.0008900543296058848
+    },
+    {
+      "id": 235,
+      "pauli": "IIYZZIZZYIII",
+      "coeff": 0.019211295742728788
+    },
+    {
+      "id": 236,
+      "pauli": "IIYZZIZZZZYI",
+      "coeff": 0.02023043539274834
+    },
+    {
+      "id": 237,
+      "pauli": "IIYZZZIZYIII",
+      "coeff": 0.018892072733271696
+    },
+    {
+      "id": 238,
+      "pauli": "IIYZZZIZZZYI",
+      "coeff": 0.020083803536054858
+    },
+    {
+      "id": 239,
+      "pauli": "IIYZZZYXZXII",
+      "coeff": -0.0008674542398674122
+    },
+    {
+      "id": 240,
+      "pauli": "IIYZZZYXZZZX",
+      "coeff": -0.0009530955541506469
+    },
+    {
+      "id": 241,
+      "pauli": "IIYZZZYYZYII",
+      "coeff": -0.0008674542398674122
+    },
+    {
+      "id": 242,
+      "pauli": "IIYZZZYYZZZY",
+      "coeff": -0.0009530955541506469
+    },
+    {
+      "id": 243,
+      "pauli": "IIYZZZZIYIII",
+      "coeff": 0.019759526973139107
+    },
+    {
+      "id": 244,
+      "pauli": "IIYZZZZIZZYI",
+      "coeff": 0.021036899090205508
+    },
+    {
+      "id": 245,
+      "pauli": "IIYZZZZZIZYI",
+      "coeff": -0.010610252032418738
+    },
+    {
+      "id": 246,
+      "pauli": "IIYZZZZZYIII",
+      "coeff": 0.09387180051759897
+    },
+    {
+      "id": 247,
+      "pauli": "IIYZZZZZYIIZ",
+      "coeff": -0.0025117755243558083
+    },
+    {
+      "id": 248,
+      "pauli": "IIYZZZZZYIZI",
+      "coeff": 0.0006960929264155783
+    },
+    {
+      "id": 249,
+      "pauli": "IIYZZZZZYXZX",
+      "coeff": -0.0024819926813851832
+    },
+    {
+      "id": 250,
+      "pauli": "IIYZZZZZYYZY",
+      "coeff": -0.0024819926813851832
+    },
+    {
+      "id": 251,
+      "pauli": "IIYZZZZZYZII",
+      "coeff": -0.00352996267259319
+    },
+    {
+      "id": 252,
+      "pauli": "IIYZZZZZZIYI",
+      "coeff": -0.008128259351033555
+    },
+    {
+      "id": 253,
+      "pauli": "IIYZZZZZZXXY",
+      "coeff": 0.0032078684507713864
+    },
+    {
+      "id": 254,
+      "pauli": "IIYZZZZZZYXX",
+      "coeff": -0.0032078684507713864
+    },
+    {
+      "id": 255,
+      "pauli": "IIYZZZZZZZYI",
+      "coeff": 0.12487201984502999
+    },
+    {
+      "id": 256,
+      "pauli": "IIYZZZZZZZYZ",
+      "coeff": -0.02807100240283794
+    },
+    {
+      "id": 257,
+      "pauli": "IIZIIIIIIIII",
+      "coeff": 0.7155854170451136
+    },
+    {
+      "id": 258,
+      "pauli": "IIZIIIIIIIIZ",
+      "coeff": 0.13707337004418815
+    },
+    {
+      "id": 259,
+      "pauli": "IIZIIIIIIIZI",
+      "coeff": 0.10764107303766371
+    },
+    {
+      "id": 260,
+      "pauli": "IIZIIIIIIXZX",
+      "coeff": -0.027769609088014593
+    },
+    {
+      "id": 261,
+      "pauli": "IIZIIIIIIYZY",
+      "coeff": -0.027769609088014593
+    },
+    {
+      "id": 262,
+      "pauli": "IIZIIIIIIZII",
+      "coeff": 0.0898059309171054
+    },
+    {
+      "id": 263,
+      "pauli": "IIZIIIIIXZXI",
+      "coeff": -0.015833346156384744
+    },
+    {
+      "id": 264,
+      "pauli": "IIZIIIIIYZYI",
+      "coeff": -0.015833346156384744
+    },
+    {
+      "id": 265,
+      "pauli": "IIZIIIIIZIII",
+      "coeff": 0.08094589780907649
+    },
+    {
+      "id": 266,
+      "pauli": "IIZIIIIZIIII",
+      "coeff": 0.16716563656966005
+    },
+    {
+      "id": 267,
+      "pauli": "IIZIIIZIIIII",
+      "coeff": 0.1565185663152971
+    },
+    {
+      "id": 268,
+      "pauli": "IIZIIZIIIIII",
+      "coeff": 0.16490071204336268
+    },
+    {
+      "id": 269,
+      "pauli": "IIZIZIIIIIII",
+      "coeff": 0.154399283886728
+    },
+    {
+      "id": 270,
+      "pauli": "IIZXZZZZZXII",
+      "coeff": 0.017753086510763363
+    },
+    {
+      "id": 271,
+      "pauli": "IIZXZZZZZZZX",
+      "coeff": 0.013954209327829942
+    },
+    {
+      "id": 272,
+      "pauli": "IIZYZZZZZYII",
+      "coeff": 0.017753086510763363
+    },
+    {
+      "id": 273,
+      "pauli": "IIZYZZZZZZZY",
+      "coeff": 0.013954209327829942
+    },
+    {
+      "id": 274,
+      "pauli": "IIZZIIIIIIII",
+      "coeff": 0.17769430641204495
+    },
+    {
+      "id": 275,
+      "pauli": "IXIXIIIIIIII",
+      "coeff": 0.008539637683954026
+    },
+    {
+      "id": 276,
+      "pauli": "IXIZZZZZZXII",
+      "coeff": 0.015243087459653838
+    },
+    {
+      "id": 277,
+      "pauli": "IXIZZZZZZZZX",
+      "coeff": -0.001758715038245397
+    },
+    {
+      "id": 278,
+      "pauli": "IXXIIIIIIIXX",
+      "coeff": -0.010743987872799222
+    },
+    {
+      "id": 279,
+      "pauli": "IXXIIIIIIYYI",
+      "coeff": -0.004638094355491095
+    },
+    {
+      "id": 280,
+      "pauli": "IXXIIIIIXXII",
+      "coeff": -0.005796917318102551
+    },
+    {
+      "id": 281,
+      "pauli": "IXXIIIIIXZZX",
+      "coeff": -0.005148824599448166
+    },
+    {
+      "id": 282,
+      "pauli": "IXXIIIXXIIII",
+      "coeff": 0.008245017484930901
+    },
+    {
+      "id": 283,
+      "pauli": "IXXIXXIIIIII",
+      "coeff": 0.00801253945712227
+    },
+    {
+      "id": 284,
+      "pauli": "IXXYZZZZYIII",
+      "coeff": -0.005327848750085615
+    },
+    {
+      "id": 285,
+      "pauli": "IXXYZZZZZZYI",
+      "coeff": -0.0220039444447223
+    },
+    {
+      "id": 286,
+      "pauli": "IXYIIIIIIIYX",
+      "coeff": -0.010743987872799222
+    },
+    {
+      "id": 287,
+      "pauli": "IXYIIIIIIYXI",
+      "coeff": 0.004638094355491095
+    },
+    {
+      "id": 288,
+      "pauli": "IXYIIIIIYXII",
+      "coeff": -0.005796917318102551
+    },
+    {
+      "id": 289,
+      "pauli": "IXYIIIIIYZZX",
+      "coeff": -0.005148824599448166
+    },
+    {
+      "id": 290,
+      "pauli": "IXYIIIYXIIII",
+      "coeff": 0.008245017484930901
+    },
+    {
+      "id": 291,
+      "pauli": "IXYIYXIIIIII",
+      "coeff": 0.00801253945712227
+    },
+    {
+      "id": 292,
+      "pauli": "IXYYZZZZXIII",
+      "coeff": 0.005327848750085615
+    },
+    {
+      "id": 293,
+      "pauli": "IXYYZZZZZZXI",
+      "coeff": 0.0220039444447223
+    },
+    {
+      "id": 294,
+      "pauli": "IXZIZZZZZXII",
+      "coeff": 0.020570936209739453
+    },
+    {
+      "id": 295,
+      "pauli": "IXZIZZZZZZZX",
+      "coeff": 0.020245229406476897
+    },
+    {
+      "id": 296,
+      "pauli": "IXZXIIIIIIII",
+      "coeff": 0.07178541151345438
+    },
+    {
+      "id": 297,
+      "pauli": "IXZXIIIIIIIZ",
+      "coeff": -0.013865526859223473
+    },
+    {
+      "id": 298,
+      "pauli": "IXZXIIIIIIZI",
+      "coeff": -0.02460951473202269
+    },
+    {
+      "id": 299,
+      "pauli": "IXZXIIIIIXZX",
+      "coeff": -0.0006987799467175147
+    },
+    {
+      "id": 300,
+      "pauli": "IXZXIIIIIYZY",
+      "coeff": -0.00018804970276044275
+    },
+    {
+      "id": 301,
+      "pauli": "IXZXIIIIIZII",
+      "coeff": -0.006276606325732279
+    },
+    {
+      "id": 302,
+      "pauli": "IXZXIIIIXZXI",
+      "coeff": 0.004450044652730652
+    },
+    {
+      "id": 303,
+      "pauli": "IXZXIIIIYZYI",
+      "coeff": 0.004450044652730652
+    },
+    {
+      "id": 304,
+      "pauli": "IXZXIIIIZIII",
+      "coeff": -0.012073523643834828
+    },
+    {
+      "id": 305,
+      "pauli": "IXZXIIIZIIII",
+      "coeff": 0.0022466001537111207
+    },
+    {
+      "id": 306,
+      "pauli": "IXZXIIZIIIII",
+      "coeff": 0.010491617638642023
+    },
+    {
+      "id": 307,
+      "pauli": "IXZXIZIIIIII",
+      "coeff": 0.002052268788399991
+    },
+    {
+      "id": 308,
+      "pauli": "IXZXZIIIIIII",
+      "coeff": 0.01006480824552226
+    },
+    {
+      "id": 309,
+      "pauli": "IXZYIIIIIYZX",
+      "coeff": -0.000510730243957072
+    },
+    {
+      "id": 310,
+      "pauli": "IXZZIZZZZXII",
+      "coeff": 0.022257517459912696
+    },
+    {
+      "id": 311,
+      "pauli": "IXZZIZZZZZZX",
+      "coeff": 0.014644349989405062
+    },
+    {
+      "id": 312,
+      "pauli": "IXZZXYZZYIII",
+      "coeff": 0.0046852100823878305
+    },
+    {
+      "id": 313,
+      "pauli": "IXZZXYZZZZYI",
+      "coeff": 0.008950543619770775
+    },
+    {
+      "id": 314,
+      "pauli": "IXZZYYZZXIII",
+      "coeff": -0.0046852100823878305
+    },
+    {
+      "id": 315,
+      "pauli": "IXZZYYZZZZXI",
+      "coeff": -0.008950543619770775
+    },
+    {
+      "id": 316,
+      "pauli": "IXZZZIZZZXII",
+      "coeff": 0.01757230737752486
+    },
+    {
+      "id": 317,
+      "pauli": "IXZZZIZZZZZX",
+      "coeff": 0.0056938063696342885
+    },
+    {
+      "id": 318,
+      "pauli": "IXZZZZIZZXII",
+      "coeff": 0.02297087853054956
+    },
+    {
+      "id": 319,
+      "pauli": "IXZZZZIZZZZX",
+      "coeff": 0.015123918891989427
+    },
+    {
+      "id": 320,
+      "pauli": "IXZZZZXYYIII",
+      "coeff": 0.005098644078766212
+    },
+    {
+      "id": 321,
+      "pauli": "IXZZZZXYZZYI",
+      "coeff": 0.009078026503780454
+    },
+    {
+      "id": 322,
+      "pauli": "IXZZZZYYXIII",
+      "coeff": -0.005098644078766212
+    },
+    {
+      "id": 323,
+      "pauli": "IXZZZZYYZZXI",
+      "coeff": -0.009078026503780454
+    },
+    {
+      "id": 324,
+      "pauli": "IXZZZZZIZXII",
+      "coeff": 0.017872234451783348
+    },
+    {
+      "id": 325,
+      "pauli": "IXZZZZZIZZZX",
+      "coeff": 0.0060458923882089725
+    },
+    {
+      "id": 326,
+      "pauli": "IXZZZZZZIXII",
+      "coeff": 0.0034884681581951295
+    },
+    {
+      "id": 327,
+      "pauli": "IXZZZZZZIZZX",
+      "coeff": -0.0012166325633552306
+    },
+    {
+      "id": 328,
+      "pauli": "IXZZZZZZXIXX",
+      "coeff": -0.0012359307625088155
+    },
+    {
+      "id": 329,
+      "pauli": "IXZZZZZZXYYI",
+      "coeff": 0.004498655109550102
+    },
+    {
+      "id": 330,
+      "pauli": "IXZZZZZZYIYX",
+      "coeff": -0.0012359307625088155
+    },
+    {
+      "id": 331,
+      "pauli": "IXZZZZZZYYXI",
+      "coeff": -0.004498655109550102
+    },
+    {
+      "id": 332,
+      "pauli": "IXZZZZZZZIZX",
+      "coeff": -0.005715287672905333
+    },
+    {
+      "id": 333,
+      "pauli": "IXZZZZZZZXII",
+      "coeff": 0.0821221312411883
+    },
+    {
+      "id": 334,
+      "pauli": "IXZZZZZZZXIZ",
+      "coeff": 0.008493084288129695
+    },
+    {
+      "id": 335,
+      "pauli": "IXZZZZZZZXZI",
+      "coeff": 0.00725715352562088
+    },
+    {
+      "id": 336,
+      "pauli": "IXZZZZZZZZIX",
+      "coeff": -0.014034646779407668
+    },
+    {
+      "id": 337,
+      "pauli": "IXZZZZZZZZZX",
+      "coeff": 0.07212131409405566
+    },
+    {
+      "id": 338,
+      "pauli": "IYIYIIIIIIII",
+      "coeff": 0.008539637683954026
+    },
+    {
+      "id": 339,
+      "pauli": "IYIZZZZZZYII",
+      "coeff": 0.015243087459653838
+    },
+    {
+      "id": 340,
+      "pauli": "IYIZZZZZZZZY",
+      "coeff": -0.001758715038245397
+    },
+    {
+      "id": 341,
+      "pauli": "IYXIIIIIIIXY",
+      "coeff": -0.010743987872799222
+    },
+    {
+      "id": 342,
+      "pauli": "IYXIIIIIIXYI",
+      "coeff": 0.004638094355491095
+    },
+    {
+      "id": 343,
+      "pauli": "IYXIIIIIXYII",
+      "coeff": -0.005796917318102551
+    },
+    {
+      "id": 344,
+      "pauli": "IYXIIIIIXZZY",
+      "coeff": -0.005148824599448166
+    },
+    {
+      "id": 345,
+      "pauli": "IYXIIIXYIIII",
+      "coeff": 0.008245017484930901
+    },
+    {
+      "id": 346,
+      "pauli": "IYXIXYIIIIII",
+      "coeff": 0.00801253945712227
+    },
+    {
+      "id": 347,
+      "pauli": "IYXXZZZZYIII",
+      "coeff": 0.005327848750085615
+    },
+    {
+      "id": 348,
+      "pauli": "IYXXZZZZZZYI",
+      "coeff": 0.0220039444447223
+    },
+    {
+      "id": 349,
+      "pauli": "IYYIIIIIIIYY",
+      "coeff": -0.010743987872799222
+    },
+    {
+      "id": 350,
+      "pauli": "IYYIIIIIIXXI",
+      "coeff": -0.004638094355491095
+    },
+    {
+      "id": 351,
+      "pauli": "IYYIIIIIYYII",
+      "coeff": -0.005796917318102551
+    },
+    {
+      "id": 352,
+      "pauli": "IYYIIIIIYZZY",
+      "coeff": -0.005148824599448166
+    },
+    {
+      "id": 353,
+      "pauli": "IYYIIIYYIIII",
+      "coeff": 0.008245017484930901
+    },
+    {
+      "id": 354,
+      "pauli": "IYYIYYIIIIII",
+      "coeff": 0.00801253945712227
+    },
+    {
+      "id": 355,
+      "pauli": "IYYXZZZZXIII",
+      "coeff": -0.005327848750085615
+    },
+    {
+      "id": 356,
+      "pauli": "IYYXZZZZZZXI",
+      "coeff": -0.0220039444447223
+    },
+    {
+      "id": 357,
+      "pauli": "IYZIZZZZZYII",
+      "coeff": 0.020570936209739453
+    },
+    {
+      "id": 358,
+      "pauli": "IYZIZZZZZZZY",
+      "coeff": 0.020245229406476897
+    },
+    {
+      "id": 359,
+      "pauli": "IYZXIIIIIXZY",
+      "coeff": -0.000510730243957072
+    },
+    {
+      "id": 360,
+      "pauli": "IYZYIIIIIIII",
+      "coeff": 0.07178541151345438
+    },
+    {
+      "id": 361,
+      "pauli": "IYZYIIIIIIIZ",
+      "coeff": -0.013865526859223473
+    },
+    {
+      "id": 362,
+      "pauli": "IYZYIIIIIIZI",
+      "coeff": -0.02460951473202269
+    },
+    {
+      "id": 363,
+      "pauli": "IYZYIIIIIXZX",
+      "coeff": -0.00018804970276044275
+    },
+    {
+      "id": 364,
+      "pauli": "IYZYIIIIIYZY",
+      "coeff": -0.0006987799467175147
+    },
+    {
+      "id": 365,
+      "pauli": "IYZYIIIIIZII",
+      "coeff": -0.006276606325732279
+    },
+    {
+      "id": 366,
+      "pauli": "IYZYIIIIXZXI",
+      "coeff": 0.004450044652730652
+    },
+    {
+      "id": 367,
+      "pauli": "IYZYIIIIYZYI",
+      "coeff": 0.004450044652730652
+    },
+    {
+      "id": 368,
+      "pauli": "IYZYIIIIZIII",
+      "coeff": -0.012073523643834828
+    },
+    {
+      "id": 369,
+      "pauli": "IYZYIIIZIIII",
+      "coeff": 0.0022466001537111207
+    },
+    {
+      "id": 370,
+      "pauli": "IYZYIIZIIIII",
+      "coeff": 0.010491617638642023
+    },
+    {
+      "id": 371,
+      "pauli": "IYZYIZIIIIII",
+      "coeff": 0.002052268788399991
+    },
+    {
+      "id": 372,
+      "pauli": "IYZYZIIIIIII",
+      "coeff": 0.01006480824552226
+    },
+    {
+      "id": 373,
+      "pauli": "IYZZIZZZZYII",
+      "coeff": 0.022257517459912696
+    },
+    {
+      "id": 374,
+      "pauli": "IYZZIZZZZZZY",
+      "coeff": 0.014644349989405062
+    },
+    {
+      "id": 375,
+      "pauli": "IYZZXXZZYIII",
+      "coeff": -0.0046852100823878305
+    },
+    {
+      "id": 376,
+      "pauli": "IYZZXXZZZZYI",
+      "coeff": -0.008950543619770775
+    },
+    {
+      "id": 377,
+      "pauli": "IYZZYXZZXIII",
+      "coeff": 0.0046852100823878305
+    },
+    {
+      "id": 378,
+      "pauli": "IYZZYXZZZZXI",
+      "coeff": 0.008950543619770775
+    },
+    {
+      "id": 379,
+      "pauli": "IYZZZIZZZYII",
+      "coeff": 0.01757230737752486
+    },
+    {
+      "id": 380,
+      "pauli": "IYZZZIZZZZZY",
+      "coeff": 0.0056938063696342885
+    },
+    {
+      "id": 381,
+      "pauli": "IYZZZZIZZYII",
+      "coeff": 0.02297087853054956
+    },
+    {
+      "id": 382,
+      "pauli": "IYZZZZIZZZZY",
+      "coeff": 0.015123918891989427
+    },
+    {
+      "id": 383,
+      "pauli": "IYZZZZXXYIII",
+      "coeff": -0.005098644078766212
+    },
+    {
+      "id": 384,
+      "pauli": "IYZZZZXXZZYI",
+      "coeff": -0.009078026503780454
+    },
+    {
+      "id": 385,
+      "pauli": "IYZZZZYXXIII",
+      "coeff": 0.005098644078766212
+    },
+    {
+      "id": 386,
+      "pauli": "IYZZZZYXZZXI",
+      "coeff": 0.009078026503780454
+    },
+    {
+      "id": 387,
+      "pauli": "IYZZZZZIZYII",
+      "coeff": 0.017872234451783348
+    },
+    {
+      "id": 388,
+      "pauli": "IYZZZZZIZZZY",
+      "coeff": 0.0060458923882089725
+    },
+    {
+      "id": 389,
+      "pauli": "IYZZZZZZIYII",
+      "coeff": 0.0034884681581951295
+    },
+    {
+      "id": 390,
+      "pauli": "IYZZZZZZIZZY",
+      "coeff": -0.0012166325633552306
+    },
+    {
+      "id": 391,
+      "pauli": "IYZZZZZZXIXY",
+      "coeff": -0.0012359307625088155
+    },
+    {
+      "id": 392,
+      "pauli": "IYZZZZZZXXYI",
+      "coeff": -0.004498655109550102
+    },
+    {
+      "id": 393,
+      "pauli": "IYZZZZZZYIYY",
+      "coeff": -0.0012359307625088155
+    },
+    {
+      "id": 394,
+      "pauli": "IYZZZZZZYXXI",
+      "coeff": 0.004498655109550102
+    },
+    {
+      "id": 395,
+      "pauli": "IYZZZZZZZIZY",
+      "coeff": -0.005715287672905333
+    },
+    {
+      "id": 396,
+      "pauli": "IYZZZZZZZYII",
+      "coeff": 0.0821221312411883
+    },
+    {
+      "id": 397,
+      "pauli": "IYZZZZZZZYIZ",
+      "coeff": 0.008493084288129695
+    },
+    {
+      "id": 398,
+      "pauli": "IYZZZZZZZYZI",
+      "coeff": 0.00725715352562088
+    },
+    {
+      "id": 399,
+      "pauli": "IYZZZZZZZZIY",
+      "coeff": -0.014034646779407668
+    },
+    {
+      "id": 400,
+      "pauli": "IYZZZZZZZZZY",
+      "coeff": 0.07212131409405566
+    },
+    {
+      "id": 401,
+      "pauli": "IZIIIIIIIIII",
+      "coeff": 1.0457807135524824
+    },
+    {
+      "id": 402,
+      "pauli": "IZIIIIIIIIIZ",
+      "coeff": 0.12402535354174814
+    },
+    {
+      "id": 403,
+      "pauli": "IZIIIIIIIIZI",
+      "coeff": 0.13748351812879644
+    },
+    {
+      "id": 404,
+      "pauli": "IZIIIIIIIXZX",
+      "coeff": -0.021686262184444454
+    },
+    {
+      "id": 405,
+      "pauli": "IZIIIIIIIYZY",
+      "coeff": -0.021686262184444454
+    },
+    {
+      "id": 406,
+      "pauli": "IZIIIIIIIZII",
+      "coeff": 0.0849114161382871
+    },
+    {
+      "id": 407,
+      "pauli": "IZIIIIIIXZXI",
+      "coeff": -0.02934805264347308
+    },
+    {
+      "id": 408,
+      "pauli": "IZIIIIIIYZYI",
+      "coeff": -0.02934805264347308
+    },
+    {
+      "id": 409,
+      "pauli": "IZIIIIIIZIII",
+      "coeff": 0.09376362021162093
+    },
+    {
+      "id": 410,
+      "pauli": "IZIIIIIZIIII",
+      "coeff": 0.15131078005490106
+    },
+    {
+      "id": 411,
+      "pauli": "IZIIIIZIIIII",
+      "coeff": 0.18640543281439426
+    },
+    {
+      "id": 412,
+      "pauli": "IZIIIZIIIIII",
+      "coeff": 0.14903989539439394
+    },
+    {
+      "id": 413,
+      "pauli": "IZIIZIIIIIII",
+      "coeff": 0.18372264848016556
+    },
+    {
+      "id": 414,
+      "pauli": "IZIXZZZZZXII",
+      "coeff": 0.013713743156641162
+    },
+    {
+      "id": 415,
+      "pauli": "IZIXZZZZZZZX",
+      "coeff": 0.01173914238979017
+    },
+    {
+      "id": 416,
+      "pauli": "IZIYZZZZZYII",
+      "coeff": 0.013713743156641162
+    },
+    {
+      "id": 417,
+      "pauli": "IZIYZZZZZZZY",
+      "coeff": 0.01173914238979017
+    },
+    {
+      "id": 418,
+      "pauli": "IZIZIIIIIIII",
+      "coeff": 0.13707400484135826
+    },
+    {
+      "id": 419,
+      "pauli": "IZXZZZZZXIII",
+      "coeff": 0.01952590741915314
+    },
+    {
+      "id": 420,
+      "pauli": "IZXZZZZZZZXI",
+      "coeff": 0.012798343740593857
+    },
+    {
+      "id": 421,
+      "pauli": "IZYZZZZZYIII",
+      "coeff": 0.01952590741915314
+    },
+    {
+      "id": 422,
+      "pauli": "IZYZZZZZZZYI",
+      "coeff": 0.012798343740593857
+    },
+    {
+      "id": 423,
+      "pauli": "IZZIIIIIIIII",
+      "coeff": 0.17419328493865566
+    },
+    {
+      "id": 424,
+      "pauli": "XIXIIIIIIIII",
+      "coeff": -0.0056964726669846855
+    },
+    {
+      "id": 425,
+      "pauli": "XIZZZZZZXIII",
+      "coeff": 0.02571700604703537
+    },
+    {
+      "id": 426,
+      "pauli": "XIZZZZZZZZXI",
+      "coeff": 0.012330096302110315
+    },
+    {
+      "id": 427,
+      "pauli": "XXIIIIIIIIYY",
+      "coeff": -0.013458164587048318
+    },
+    {
+      "id": 428,
+      "pauli": "XXIIIIIIIXXI",
+      "coeff": -0.007661790459028632
+    },
+    {
+      "id": 429,
+      "pauli": "XXIIIIIIYYII",
+      "coeff": -0.00885220407333385
+    },
+    {
+      "id": 430,
+      "pauli": "XXIIIIIIYZZY",
+      "coeff": -0.007661790459028631
+    },
+    {
+      "id": 431,
+      "pauli": "XXIIIIYYIIII",
+      "coeff": -0.03509465275949319
+    },
+    {
+      "id": 432,
+      "pauli": "XXIIYYIIIIII",
+      "coeff": -0.03468275308577163
+    },
+    {
+      "id": 433,
+      "pauli": "XXIXZZZZXIII",
+      "coeff": 0.005812164262511981
+    },
+    {
+      "id": 434,
+      "pauli": "XXIXZZZZZZXI",
+      "coeff": 0.001059201350803689
+    },
+    {
+      "id": 435,
+      "pauli": "XXYYIIIIIIII",
+      "coeff": -0.03711928009729742
+    },
+    {
+      "id": 436,
+      "pauli": "XXYZZZZZZYII",
+      "coeff": 0.005812164262511981
+    },
+    {
+      "id": 437,
+      "pauli": "XXYZZZZZZZZY",
+      "coeff": 0.001059201350803689
+    },
+    {
+      "id": 438,
+      "pauli": "XYIIIIIIIIYX",
+      "coeff": 0.013458164587048318
+    },
+    {
+      "id": 439,
+      "pauli": "XYIIIIIIIYXI",
+      "coeff": -0.007661790459028632
+    },
+    {
+      "id": 440,
+      "pauli": "XYIIIIIIYXII",
+      "coeff": 0.00885220407333385
+    },
+    {
+      "id": 441,
+      "pauli": "XYIIIIIIYZZX",
+      "coeff": 0.007661790459028631
+    },
+    {
+      "id": 442,
+      "pauli": "XYIIIIYXIIII",
+      "coeff": 0.03509465275949319
+    },
+    {
+      "id": 443,
+      "pauli": "XYIIYXIIIIII",
+      "coeff": 0.03468275308577163
+    },
+    {
+      "id": 444,
+      "pauli": "XYIYZZZZXIII",
+      "coeff": 0.005812164262511981
+    },
+    {
+      "id": 445,
+      "pauli": "XYIYZZZZZZXI",
+      "coeff": 0.001059201350803689
+    },
+    {
+      "id": 446,
+      "pauli": "XYYXIIIIIIII",
+      "coeff": 0.03711928009729742
+    },
+    {
+      "id": 447,
+      "pauli": "XYYZZZZZZXII",
+      "coeff": -0.005812164262511981
+    },
+    {
+      "id": 448,
+      "pauli": "XYYZZZZZZZZX",
+      "coeff": -0.001059201350803689
+    },
+    {
+      "id": 449,
+      "pauli": "XZIZZZZZXIII",
+      "coeff": 0.020570936209739453
+    },
+    {
+      "id": 450,
+      "pauli": "XZIZZZZZZZXI",
+      "coeff": 0.020245229406476897
+    },
+    {
+      "id": 451,
+      "pauli": "XZXIIIIIIIII",
+      "coeff": 0.0717854115134544
+    },
+    {
+      "id": 452,
+      "pauli": "XZXIIIIIIIIZ",
+      "coeff": -0.02460951473202269
+    },
+    {
+      "id": 453,
+      "pauli": "XZXIIIIIIIZI",
+      "coeff": -0.013865526859223473
+    },
+    {
+      "id": 454,
+      "pauli": "XZXIIIIIIXZX",
+      "coeff": 0.004450044652730652
+    },
+    {
+      "id": 455,
+      "pauli": "XZXIIIIIIYZY",
+      "coeff": 0.004450044652730652
+    },
+    {
+      "id": 456,
+      "pauli": "XZXIIIIIIZII",
+      "coeff": -0.012073523643834828
+    },
+    {
+      "id": 457,
+      "pauli": "XZXIIIIIXZXI",
+      "coeff": -0.0006987799467175147
+    },
+    {
+      "id": 458,
+      "pauli": "XZXIIIIIYZYI",
+      "coeff": -0.00018804970276044275
+    },
+    {
+      "id": 459,
+      "pauli": "XZXIIIIIZIII",
+      "coeff": -0.006276606325732279
+    },
+    {
+      "id": 460,
+      "pauli": "XZXIIIIZIIII",
+      "coeff": 0.010491617638642023
+    },
+    {
+      "id": 461,
+      "pauli": "XZXIIIZIIIII",
+      "coeff": 0.0022466001537111207
+    },
+    {
+      "id": 462,
+      "pauli": "XZXIIZIIIIII",
+      "coeff": 0.01006480824552226
+    },
+    {
+      "id": 463,
+      "pauli": "XZXIZIIIIIII",
+      "coeff": 0.002052268788399991
+    },
+    {
+      "id": 464,
+      "pauli": "XZXXZZZZZXII",
+      "coeff": 0.005327848750085615
+    },
+    {
+      "id": 465,
+      "pauli": "XZXXZZZZZZZX",
+      "coeff": 0.0220039444447223
+    },
+    {
+      "id": 466,
+      "pauli": "XZXYZZZZZYII",
+      "coeff": 0.005327848750085615
+    },
+    {
+      "id": 467,
+      "pauli": "XZXYZZZZZZZY",
+      "coeff": 0.0220039444447223
+    },
+    {
+      "id": 468,
+      "pauli": "XZXZIIIIIIII",
+      "coeff": 0.008539637683954026
+    },
+    {
+      "id": 469,
+      "pauli": "XZYIIIIIYZXI",
+      "coeff": -0.000510730243957072
+    },
+    {
+      "id": 470,
+      "pauli": "XZZIZZZZXIII",
+      "coeff": 0.015243087459653838
+    },
+    {
+      "id": 471,
+      "pauli": "XZZIZZZZZZXI",
+      "coeff": -0.001758715038245397
+    },
+    {
+      "id": 472,
+      "pauli": "XZZXIIIIIIYY",
+      "coeff": -0.010743987872799218
+    },
+    {
+      "id": 473,
+      "pauli": "XZZXIIIIIXXI",
+      "coeff": -0.005148824599448166
+    },
+    {
+      "id": 474,
+      "pauli": "XZZXIIIIYYII",
+      "coeff": -0.005796917318102551
+    },
+    {
+      "id": 475,
+      "pauli": "XZZXIIIIYZZY",
+      "coeff": -0.004638094355491095
+    },
+    {
+      "id": 476,
+      "pauli": "XZZXIIYYIIII",
+      "coeff": 0.008245017484930901
+    },
+    {
+      "id": 477,
+      "pauli": "XZZXYYIIIIII",
+      "coeff": 0.00801253945712227
+    },
+    {
+      "id": 478,
+      "pauli": "XZZYIIIIIIYX",
+      "coeff": 0.010743987872799218
+    },
+    {
+      "id": 479,
+      "pauli": "XZZYIIIIIYXI",
+      "coeff": -0.005148824599448166
+    },
+    {
+      "id": 480,
+      "pauli": "XZZYIIIIYXII",
+      "coeff": 0.005796917318102551
+    },
+    {
+      "id": 481,
+      "pauli": "XZZYIIIIYZZX",
+      "coeff": 0.004638094355491095
+    },
+    {
+      "id": 482,
+      "pauli": "XZZYIIYXIIII",
+      "coeff": -0.008245017484930901
+    },
+    {
+      "id": 483,
+      "pauli": "XZZYYXIIIIII",
+      "coeff": -0.00801253945712227
+    },
+    {
+      "id": 484,
+      "pauli": "XZZZIZZZXIII",
+      "coeff": 0.01757230737752486
+    },
+    {
+      "id": 485,
+      "pauli": "XZZZIZZZZZXI",
+      "coeff": 0.0056938063696342885
+    },
+    {
+      "id": 486,
+      "pauli": "XZZZXXZZZXII",
+      "coeff": -0.00468521008238783
+    },
+    {
+      "id": 487,
+      "pauli": "XZZZXXZZZZZX",
+      "coeff": -0.008950543619770775
+    },
+    {
+      "id": 488,
+      "pauli": "XZZZXYZZZYII",
+      "coeff": -0.00468521008238783
+    },
+    {
+      "id": 489,
+      "pauli": "XZZZXYZZZZZY",
+      "coeff": -0.008950543619770775
+    },
+    {
+      "id": 490,
+      "pauli": "XZZZZIZZXIII",
+      "coeff": 0.022257517459912696
+    },
+    {
+      "id": 491,
+      "pauli": "XZZZZIZZZZXI",
+      "coeff": 0.014644349989405062
+    },
+    {
+      "id": 492,
+      "pauli": "XZZZZZIZXIII",
+      "coeff": 0.017872234451783348
+    },
+    {
+      "id": 493,
+      "pauli": "XZZZZZIZZZXI",
+      "coeff": 0.0060458923882089725
+    },
+    {
+      "id": 494,
+      "pauli": "XZZZZZXXZXII",
+      "coeff": -0.005098644078766211
+    },
+    {
+      "id": 495,
+      "pauli": "XZZZZZXXZZZX",
+      "coeff": -0.009078026503780454
+    },
+    {
+      "id": 496,
+      "pauli": "XZZZZZXYZYII",
+      "coeff": -0.005098644078766211
+    },
+    {
+      "id": 497,
+      "pauli": "XZZZZZXYZZZY",
+      "coeff": -0.009078026503780454
+    },
+    {
+      "id": 498,
+      "pauli": "XZZZZZZIXIII",
+      "coeff": 0.02297087853054956
+    },
+    {
+      "id": 499,
+      "pauli": "XZZZZZZIZZXI",
+      "coeff": 0.015123918891989427
+    },
+    {
+      "id": 500,
+      "pauli": "XZZZZZZZIZXI",
+      "coeff": -0.005715287672905333
+    },
+    {
+      "id": 501,
+      "pauli": "XZZZZZZZXIII",
+      "coeff": 0.0821221312411883
+    },
+    {
+      "id": 502,
+      "pauli": "XZZZZZZZXIIZ",
+      "coeff": 0.00725715352562088
+    },
+    {
+      "id": 503,
+      "pauli": "XZZZZZZZXIZI",
+      "coeff": 0.008493084288129695
+    },
+    {
+      "id": 504,
+      "pauli": "XZZZZZZZXXZX",
+      "coeff": -0.004498655109550102
+    },
+    {
+      "id": 505,
+      "pauli": "XZZZZZZZXYZY",
+      "coeff": -0.004498655109550102
+    },
+    {
+      "id": 506,
+      "pauli": "XZZZZZZZXZII",
+      "coeff": 0.0034884681581951295
+    },
+    {
+      "id": 507,
+      "pauli": "XZZZZZZZZIXI",
+      "coeff": -0.0012166325633552306
+    },
+    {
+      "id": 508,
+      "pauli": "XZZZZZZZZXYY",
+      "coeff": -0.0012359307625088157
+    },
+    {
+      "id": 509,
+      "pauli": "XZZZZZZZZYYX",
+      "coeff": 0.0012359307625088157
+    },
+    {
+      "id": 510,
+      "pauli": "XZZZZZZZZZXI",
+      "coeff": 0.07212131409405566
+    },
+    {
+      "id": 511,
+      "pauli": "XZZZZZZZZZXZ",
+      "coeff": -0.014034646779407666
+    },
+    {
+      "id": 512,
+      "pauli": "YIYIIIIIIIII",
+      "coeff": -0.0056964726669846855
+    },
+    {
+      "id": 513,
+      "pauli": "YIZZZZZZYIII",
+      "coeff": 0.02571700604703537
+    },
+    {
+      "id": 514,
+      "pauli": "YIZZZZZZZZYI",
+      "coeff": 0.012330096302110315
+    },
+    {
+      "id": 515,
+      "pauli": "YXIIIIIIIIXY",
+      "coeff": 0.013458164587048318
+    },
+    {
+      "id": 516,
+      "pauli": "YXIIIIIIIXYI",
+      "coeff": -0.007661790459028632
+    },
+    {
+      "id": 517,
+      "pauli": "YXIIIIIIXYII",
+      "coeff": 0.00885220407333385
+    },
+    {
+      "id": 518,
+      "pauli": "YXIIIIIIXZZY",
+      "coeff": 0.007661790459028631
+    },
+    {
+      "id": 519,
+      "pauli": "YXIIIIXYIIII",
+      "coeff": 0.03509465275949319
+    },
+    {
+      "id": 520,
+      "pauli": "YXIIXYIIIIII",
+      "coeff": 0.03468275308577163
+    },
+    {
+      "id": 521,
+      "pauli": "YXIXZZZZYIII",
+      "coeff": 0.005812164262511981
+    },
+    {
+      "id": 522,
+      "pauli": "YXIXZZZZZZYI",
+      "coeff": 0.001059201350803689
+    },
+    {
+      "id": 523,
+      "pauli": "YXXYIIIIIIII",
+      "coeff": 0.03711928009729742
+    },
+    {
+      "id": 524,
+      "pauli": "YXXZZZZZZYII",
+      "coeff": -0.005812164262511981
+    },
+    {
+      "id": 525,
+      "pauli": "YXXZZZZZZZZY",
+      "coeff": -0.001059201350803689
+    },
+    {
+      "id": 526,
+      "pauli": "YYIIIIIIIIXX",
+      "coeff": -0.013458164587048318
+    },
+    {
+      "id": 527,
+      "pauli": "YYIIIIIIIYYI",
+      "coeff": -0.007661790459028632
+    },
+    {
+      "id": 528,
+      "pauli": "YYIIIIIIXXII",
+      "coeff": -0.00885220407333385
+    },
+    {
+      "id": 529,
+      "pauli": "YYIIIIIIXZZX",
+      "coeff": -0.007661790459028631
+    },
+    {
+      "id": 530,
+      "pauli": "YYIIIIXXIIII",
+      "coeff": -0.03509465275949319
+    },
+    {
+      "id": 531,
+      "pauli": "YYIIXXIIIIII",
+      "coeff": -0.03468275308577163
+    },
+    {
+      "id": 532,
+      "pauli": "YYIYZZZZYIII",
+      "coeff": 0.005812164262511981
+    },
+    {
+      "id": 533,
+      "pauli": "YYIYZZZZZZYI",
+      "coeff": 0.001059201350803689
+    },
+    {
+      "id": 534,
+      "pauli": "YYXXIIIIIIII",
+      "coeff": -0.03711928009729742
+    },
+    {
+      "id": 535,
+      "pauli": "YYXZZZZZZXII",
+      "coeff": 0.005812164262511981
+    },
+    {
+      "id": 536,
+      "pauli": "YYXZZZZZZZZX",
+      "coeff": 0.001059201350803689
+    },
+    {
+      "id": 537,
+      "pauli": "YZIZZZZZYIII",
+      "coeff": 0.020570936209739453
+    },
+    {
+      "id": 538,
+      "pauli": "YZIZZZZZZZYI",
+      "coeff": 0.020245229406476897
+    },
+    {
+      "id": 539,
+      "pauli": "YZXIIIIIXZYI",
+      "coeff": -0.000510730243957072
+    },
+    {
+      "id": 540,
+      "pauli": "YZYIIIIIIIII",
+      "coeff": 0.0717854115134544
+    },
+    {
+      "id": 541,
+      "pauli": "YZYIIIIIIIIZ",
+      "coeff": -0.02460951473202269
+    },
+    {
+      "id": 542,
+      "pauli": "YZYIIIIIIIZI",
+      "coeff": -0.013865526859223473
+    },
+    {
+      "id": 543,
+      "pauli": "YZYIIIIIIXZX",
+      "coeff": 0.004450044652730652
+    },
+    {
+      "id": 544,
+      "pauli": "YZYIIIIIIYZY",
+      "coeff": 0.004450044652730652
+    },
+    {
+      "id": 545,
+      "pauli": "YZYIIIIIIZII",
+      "coeff": -0.012073523643834828
+    },
+    {
+      "id": 546,
+      "pauli": "YZYIIIIIXZXI",
+      "coeff": -0.00018804970276044275
+    },
+    {
+      "id": 547,
+      "pauli": "YZYIIIIIYZYI",
+      "coeff": -0.0006987799467175147
+    },
+    {
+      "id": 548,
+      "pauli": "YZYIIIIIZIII",
+      "coeff": -0.006276606325732279
+    },
+    {
+      "id": 549,
+      "pauli": "YZYIIIIZIIII",
+      "coeff": 0.010491617638642023
+    },
+    {
+      "id": 550,
+      "pauli": "YZYIIIZIIIII",
+      "coeff": 0.0022466001537111207
+    },
+    {
+      "id": 551,
+      "pauli": "YZYIIZIIIIII",
+      "coeff": 0.01006480824552226
+    },
+    {
+      "id": 552,
+      "pauli": "YZYIZIIIIIII",
+      "coeff": 0.002052268788399991
+    },
+    {
+      "id": 553,
+      "pauli": "YZYXZZZZZXII",
+      "coeff": 0.005327848750085615
+    },
+    {
+      "id": 554,
+      "pauli": "YZYXZZZZZZZX",
+      "coeff": 0.0220039444447223
+    },
+    {
+      "id": 555,
+      "pauli": "YZYYZZZZZYII",
+      "coeff": 0.005327848750085615
+    },
+    {
+      "id": 556,
+      "pauli": "YZYYZZZZZZZY",
+      "coeff": 0.0220039444447223
+    },
+    {
+      "id": 557,
+      "pauli": "YZYZIIIIIIII",
+      "coeff": 0.008539637683954026
+    },
+    {
+      "id": 558,
+      "pauli": "YZZIZZZZYIII",
+      "coeff": 0.015243087459653838
+    },
+    {
+      "id": 559,
+      "pauli": "YZZIZZZZZZYI",
+      "coeff": -0.001758715038245397
+    },
+    {
+      "id": 560,
+      "pauli": "YZZXIIIIIIXY",
+      "coeff": 0.010743987872799218
+    },
+    {
+      "id": 561,
+      "pauli": "YZZXIIIIIXYI",
+      "coeff": -0.005148824599448166
+    },
+    {
+      "id": 562,
+      "pauli": "YZZXIIIIXYII",
+      "coeff": 0.005796917318102551
+    },
+    {
+      "id": 563,
+      "pauli": "YZZXIIIIXZZY",
+      "coeff": 0.004638094355491095
+    },
+    {
+      "id": 564,
+      "pauli": "YZZXIIXYIIII",
+      "coeff": -0.008245017484930901
+    },
+    {
+      "id": 565,
+      "pauli": "YZZXXYIIIIII",
+      "coeff": -0.00801253945712227
+    },
+    {
+      "id": 566,
+      "pauli": "YZZYIIIIIIXX",
+      "coeff": -0.010743987872799218
+    },
+    {
+      "id": 567,
+      "pauli": "YZZYIIIIIYYI",
+      "coeff": -0.005148824599448166
+    },
+    {
+      "id": 568,
+      "pauli": "YZZYIIIIXXII",
+      "coeff": -0.005796917318102551
+    },
+    {
+      "id": 569,
+      "pauli": "YZZYIIIIXZZX",
+      "coeff": -0.004638094355491095
+    },
+    {
+      "id": 570,
+      "pauli": "YZZYIIXXIIII",
+      "coeff": 0.008245017484930901
+    },
+    {
+      "id": 571,
+      "pauli": "YZZYXXIIIIII",
+      "coeff": 0.00801253945712227
+    },
+    {
+      "id": 572,
+      "pauli": "YZZZIZZZYIII",
+      "coeff": 0.01757230737752486
+    },
+    {
+      "id": 573,
+      "pauli": "YZZZIZZZZZYI",
+      "coeff": 0.0056938063696342885
+    },
+    {
+      "id": 574,
+      "pauli": "YZZZYXZZZXII",
+      "coeff": -0.00468521008238783
+    },
+    {
+      "id": 575,
+      "pauli": "YZZZYXZZZZZX",
+      "coeff": -0.008950543619770775
+    },
+    {
+      "id": 576,
+      "pauli": "YZZZYYZZZYII",
+      "coeff": -0.00468521008238783
+    },
+    {
+      "id": 577,
+      "pauli": "YZZZYYZZZZZY",
+      "coeff": -0.008950543619770775
+    },
+    {
+      "id": 578,
+      "pauli": "YZZZZIZZYIII",
+      "coeff": 0.022257517459912696
+    },
+    {
+      "id": 579,
+      "pauli": "YZZZZIZZZZYI",
+      "coeff": 0.014644349989405062
+    },
+    {
+      "id": 580,
+      "pauli": "YZZZZZIZYIII",
+      "coeff": 0.017872234451783348
+    },
+    {
+      "id": 581,
+      "pauli": "YZZZZZIZZZYI",
+      "coeff": 0.0060458923882089725
+    },
+    {
+      "id": 582,
+      "pauli": "YZZZZZYXZXII",
+      "coeff": -0.005098644078766211
+    },
+    {
+      "id": 583,
+      "pauli": "YZZZZZYXZZZX",
+      "coeff": -0.009078026503780454
+    },
+    {
+      "id": 584,
+      "pauli": "YZZZZZYYZYII",
+      "coeff": -0.005098644078766211
+    },
+    {
+      "id": 585,
+      "pauli": "YZZZZZYYZZZY",
+      "coeff": -0.009078026503780454
+    },
+    {
+      "id": 586,
+      "pauli": "YZZZZZZIYIII",
+      "coeff": 0.02297087853054956
+    },
+    {
+      "id": 587,
+      "pauli": "YZZZZZZIZZYI",
+      "coeff": 0.015123918891989427
+    },
+    {
+      "id": 588,
+      "pauli": "YZZZZZZZIZYI",
+      "coeff": -0.005715287672905333
+    },
+    {
+      "id": 589,
+      "pauli": "YZZZZZZZYIII",
+      "coeff": 0.0821221312411883
+    },
+    {
+      "id": 590,
+      "pauli": "YZZZZZZZYIIZ",
+      "coeff": 0.00725715352562088
+    },
+    {
+      "id": 591,
+      "pauli": "YZZZZZZZYIZI",
+      "coeff": 0.008493084288129695
+    },
+    {
+      "id": 592,
+      "pauli": "YZZZZZZZYXZX",
+      "coeff": -0.004498655109550102
+    },
+    {
+      "id": 593,
+      "pauli": "YZZZZZZZYYZY",
+      "coeff": -0.004498655109550102
+    },
+    {
+      "id": 594,
+      "pauli": "YZZZZZZZYZII",
+      "coeff": 0.0034884681581951295
+    },
+    {
+      "id": 595,
+      "pauli": "YZZZZZZZZIYI",
+      "coeff": -0.0012166325633552306
+    },
+    {
+      "id": 596,
+      "pauli": "YZZZZZZZZXXY",
+      "coeff": 0.0012359307625088157
+    },
+    {
+      "id": 597,
+      "pauli": "YZZZZZZZZYXX",
+      "coeff": -0.0012359307625088157
+    },
+    {
+      "id": 598,
+      "pauli": "YZZZZZZZZZYI",
+      "coeff": 0.07212131409405566
+    },
+    {
+      "id": 599,
+      "pauli": "YZZZZZZZZZYZ",
+      "coeff": -0.014034646779407666
+    },
+    {
+      "id": 600,
+      "pauli": "ZIIIIIIIIIII",
+      "coeff": 1.0457807135524824
+    },
+    {
+      "id": 601,
+      "pauli": "ZIIIIIIIIIIZ",
+      "coeff": 0.13748351812879644
+    },
+    {
+      "id": 602,
+      "pauli": "ZIIIIIIIIIZI",
+      "coeff": 0.12402535354174814
+    },
+    {
+      "id": 603,
+      "pauli": "ZIIIIIIIIXZX",
+      "coeff": -0.02934805264347308
+    },
+    {
+      "id": 604,
+      "pauli": "ZIIIIIIIIYZY",
+      "coeff": -0.02934805264347308
+    },
+    {
+      "id": 605,
+      "pauli": "ZIIIIIIIIZII",
+      "coeff": 0.09376362021162093
+    },
+    {
+      "id": 606,
+      "pauli": "ZIIIIIIIXZXI",
+      "coeff": -0.021686262184444454
+    },
+    {
+      "id": 607,
+      "pauli": "ZIIIIIIIYZYI",
+      "coeff": -0.021686262184444454
+    },
+    {
+      "id": 608,
+      "pauli": "ZIIIIIIIZIII",
+      "coeff": 0.0849114161382871
+    },
+    {
+      "id": 609,
+      "pauli": "ZIIIIIIZIIII",
+      "coeff": 0.18640543281439426
+    },
+    {
+      "id": 610,
+      "pauli": "ZIIIIIZIIIII",
+      "coeff": 0.15131078005490106
+    },
+    {
+      "id": 611,
+      "pauli": "ZIIIIZIIIIII",
+      "coeff": 0.18372264848016556
+    },
+    {
+      "id": 612,
+      "pauli": "ZIIIZIIIIIII",
+      "coeff": 0.14903989539439394
+    },
+    {
+      "id": 613,
+      "pauli": "ZIIXZZZZZXII",
+      "coeff": 0.01952590741915314
+    },
+    {
+      "id": 614,
+      "pauli": "ZIIXZZZZZZZX",
+      "coeff": 0.012798343740593857
+    },
+    {
+      "id": 615,
+      "pauli": "ZIIYZZZZZYII",
+      "coeff": 0.01952590741915314
+    },
+    {
+      "id": 616,
+      "pauli": "ZIIYZZZZZZZY",
+      "coeff": 0.012798343740593857
+    },
+    {
+      "id": 617,
+      "pauli": "ZIIZIIIIIIII",
+      "coeff": 0.17419328493865566
+    },
+    {
+      "id": 618,
+      "pauli": "ZIXZZZZZXIII",
+      "coeff": 0.013713743156641162
+    },
+    {
+      "id": 619,
+      "pauli": "ZIXZZZZZZZXI",
+      "coeff": 0.01173914238979017
+    },
+    {
+      "id": 620,
+      "pauli": "ZIYZZZZZYIII",
+      "coeff": 0.013713743156641162
+    },
+    {
+      "id": 621,
+      "pauli": "ZIYZZZZZZZYI",
+      "coeff": 0.01173914238979017
+    },
+    {
+      "id": 622,
+      "pauli": "ZIZIIIIIIIII",
+      "coeff": 0.13707400484135826
+    },
+    {
+      "id": 623,
+      "pauli": "ZXZXIIIIIIII",
+      "coeff": -0.0056964726669846855
+    },
+    {
+      "id": 624,
+      "pauli": "ZXZZZZZZZXII",
+      "coeff": 0.02571700604703537
+    },
+    {
+      "id": 625,
+      "pauli": "ZXZZZZZZZZZX",
+      "coeff": 0.012330096302110315
+    },
+    {
+      "id": 626,
+      "pauli": "ZYZYIIIIIIII",
+      "coeff": -0.0056964726669846855
+    },
+    {
+      "id": 627,
+      "pauli": "ZYZZZZZZZYII",
+      "coeff": 0.02571700604703537
+    },
+    {
+      "id": 628,
+      "pauli": "ZYZZZZZZZZZY",
+      "coeff": 0.012330096302110315
+    },
+    {
+      "id": 629,
+      "pauli": "ZZIIIIIIIIII",
+      "coeff": 0.1944483285067519
+    }
+  ]
+}

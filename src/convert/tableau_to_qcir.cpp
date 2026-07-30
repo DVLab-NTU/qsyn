@@ -334,6 +334,22 @@ std::optional<size_t> ncf_single_qubit_support(std::vector<PauliRotation> const&
     return common_qubit;
 }
 
+// Max Pauli weight over the block; used to allow ≤2-local NCF-2q emission as Clifford+RZ.
+size_t ncf_block_support_width(std::vector<PauliRotation> const& rotations) {
+    if (rotations.empty()) return 0;
+    auto const n_qubits = rotations.front().n_qubits();
+    size_t width        = 0;
+    for (size_t q = 0; q < n_qubits; ++q) {
+        for (auto const& r : rotations) {
+            if (r.get_pauli_type(q) != Pauli::i) {
+                ++width;
+                break;
+            }
+        }
+    }
+    return width;
+}
+
 /**
  * @brief Canonical forward Clifford shell C for NCF export: S(ancilla) then sorted CNOT ladder.
  *        Single-qubit H/S on the fold pivot are omitted (emitted in the inner rotation block).
@@ -464,46 +480,65 @@ void zyz_decompose(std::complex<double> const u[2][2], double& phi, double& thet
 std::optional<qcir::QCir> NcfMergePauliRotationsSynthesisStrategy::synthesize(std::vector<PauliRotation> const& rotations) const {
     if (rotations.empty()) return qcir::QCir{0};
     auto const qubit_opt = ncf_single_qubit_support(rotations);
-    if (!qubit_opt) {
-        return NaivePauliRotationsSynthesisStrategy{}.synthesize(rotations);
-    }
-    size_t const qubit = *qubit_opt;
-    qcir::QCir qcir(rotations.front().n_qubits());
-    for (size_t ri = 0; ri < rotations.size(); ++ri) {
-        auto const& r = rotations[ri];
-        // After tableau optimize ncf, rotations in a group are already conjugated to a single qubit.
-        // Emit them explicitly without merging/decomposing:
-        //   Z: rz(θ)
-        //   X: h; rz(θ); h
-        //   Y: sdg; h; rz(θ); h; s
-        //
-        // Anti-pair blocks map the second anticommuting term to X on the pivot, but the
-        // hyperbolic gadget is the Y chain S†·H·Rz·H·S (see NCF paper / debug canonical form).
-        auto emit_pauli = [&](Pauli p) {
-            if (p == Pauli::x) {
-                qcir.append(qcir::HGate(), qsyn::QubitIdList{qubit});
-                qcir.append(qcir::RZGate(r.phase()), qsyn::QubitIdList{qubit});
-                qcir.append(qcir::HGate(), qsyn::QubitIdList{qubit});
-            } else if (p == Pauli::y) {
-                qcir.append(qcir::SdgGate(), qsyn::QubitIdList{qubit});
-                qcir.append(qcir::HGate(), qsyn::QubitIdList{qubit});
-                qcir.append(qcir::RZGate(r.phase()), qsyn::QubitIdList{qubit});
-                qcir.append(qcir::HGate(), qsyn::QubitIdList{qubit});
-                qcir.append(qcir::SGate(), qsyn::QubitIdList{qubit});
-            } else if (p == Pauli::z) {
-                qcir.append(qcir::RZGate(r.phase()), qsyn::QubitIdList{qubit});
-            }
-        };
+    if (qubit_opt) {
+        size_t const qubit = *qubit_opt;
+        qcir::QCir qcir(rotations.front().n_qubits());
+        for (size_t ri = 0; ri < rotations.size(); ++ri) {
+            auto const& r = rotations[ri];
+            // After tableau optimize ncf, rotations in a group are already conjugated to a single qubit.
+            // Emit them explicitly without merging/decomposing:
+            //   Z: rz(θ)
+            //   X: h; rz(θ); h
+            //   Y: sdg; h; rz(θ); h; s
+            //
+            // Anti-pair blocks map the second anticommuting term to X on the pivot, but the
+            // hyperbolic gadget is the Y chain S†·H·Rz·H·S (see NCF paper / debug canonical form).
+            auto emit_pauli = [&](Pauli p) {
+                if (p == Pauli::x) {
+                    qcir.append(qcir::HGate(), qsyn::QubitIdList{qubit});
+                    qcir.append(qcir::RZGate(r.phase()), qsyn::QubitIdList{qubit});
+                    qcir.append(qcir::HGate(), qsyn::QubitIdList{qubit});
+                } else if (p == Pauli::y) {
+                    qcir.append(qcir::SdgGate(), qsyn::QubitIdList{qubit});
+                    qcir.append(qcir::HGate(), qsyn::QubitIdList{qubit});
+                    qcir.append(qcir::RZGate(r.phase()), qsyn::QubitIdList{qubit});
+                    qcir.append(qcir::HGate(), qsyn::QubitIdList{qubit});
+                    qcir.append(qcir::SGate(), qsyn::QubitIdList{qubit});
+                } else if (p == Pauli::z) {
+                    qcir.append(qcir::RZGate(r.phase()), qsyn::QubitIdList{qubit});
+                }
+            };
 
-        auto p = r.get_pauli_type(qubit);
-        if (ri == 1 && rotations.size() == 2 &&
-            rotations[0].get_pauli_type(qubit) == Pauli::z && p == Pauli::x) {
-            emit_pauli(Pauli::y);
-        } else {
-            emit_pauli(p);
+            auto p = r.get_pauli_type(qubit);
+            if (ri == 1 && rotations.size() == 2 &&
+                rotations[0].get_pauli_type(qubit) == Pauli::z && p == Pauli::x) {
+                emit_pauli(Pauli::y);
+            } else {
+                emit_pauli(p);
+            }
         }
+        return qcir;
     }
-    return qcir;
+
+    // 2-qubit NCF: conjugated block supported on ≤2 qubits. Emit each Pauli as a
+    // Clifford sandwich + rz (no fused 2q unitary, no Clifford+T synthesis).
+    if (ncf_block_support_width(rotations) <= 2) {
+        qcir::QCir qcir(rotations.front().n_qubits());
+        for (auto const& r : rotations) {
+            auto [ops, qubit] = extract_clifford_operators(r);
+            for (auto const& op : ops) {
+                add_clifford_gate(qcir, op);
+            }
+            qcir.append(qcir::RZGate(r.phase()), {qubit});
+            adjoint_inplace(ops);
+            for (auto const& op : ops) {
+                add_clifford_gate(qcir, op);
+            }
+        }
+        return qcir;
+    }
+
+    return NaivePauliRotationsSynthesisStrategy{}.synthesize(rotations);
 }
 
 namespace {

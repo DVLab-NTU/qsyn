@@ -22,6 +22,7 @@ NcfBlockKind kind_from_size(size_t n) {
     if (n == 1) return NcfBlockKind::singleton;
     if (n == 2) return NcfBlockKind::anti_pair;
     if (n == 3) return NcfBlockKind::anti_triple;
+    if (n >= 4) return NcfBlockKind::anti_multi;
     return NcfBlockKind::unknown;
 }
 

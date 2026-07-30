@@ -1,0 +1,168 @@
+qsyn v0.8.0 - Copyright © 2022-2026, DVLab NTUEE.
+Licensed under Apache 2.0 License. Release build.
+qsyn> tableau from-terms /home/chenying/qsyn/out/ncf2q_10cases/Be2-JW-6/Be2-JW-6.json --use-coeff
+Loaded 61 Pauli terms (Be2-JW-6) → Tableau 0
+  #0 IIIIIZ  angle=?  coeff=0.149701435
+  #1 IIIIZI  angle=?  coeff=0.149701435
+  #2 IIIIZZ  angle=?  coeff=0.0596086679
+  #3 IIIZII  angle=?  coeff=0.195168104
+  #4 IIIZIZ  angle=?  coeff=0.0449039801
+  #5 IIIZZI  angle=?  coeff=0.0594529106
+  #6 IIXXYY  angle=?  coeff=-0.0145489305
+  #7 IIXYYX  angle=?  coeff=0.0145489305
+  #8 IIYXXY  angle=?  coeff=0.0145489305
+  #9 IIYYXX  angle=?  coeff=-0.0145489305
+  #10 IIZIII  angle=?  coeff=0.195168104
+  #11 IIZIIZ  angle=?  coeff=0.0594529106
+  #12 IIZIZI  angle=?  coeff=0.0449039801
+  #13 IIZZII  angle=?  coeff=0.0637346578
+  #14 IXIZZX  angle=?  coeff=0.00126220974
+  #15 IXXYYI  angle=?  coeff=-0.0119224736
+  #16 IXYYXI  angle=?  coeff=0.0119224736
+  #17 IXZIZX  angle=?  coeff=0.0131846834
+  #18 IXZZIX  angle=?  coeff=0.0039184745
+  #19 IXZZZX  angle=?  coeff=0.0246602384
+  #20 IYIZZY  angle=?  coeff=0.00126220974
+  #21 IYXXYI  angle=?  coeff=0.0119224736
+  #22 IYYXXI  angle=?  coeff=-0.0119224736
+  #23 IYZIZY  angle=?  coeff=0.0131846834
+  #24 IYZZIY  angle=?  coeff=0.0039184745
+  #25 IYZZZY  angle=?  coeff=0.0246602384
+  #26 IZIIII  angle=?  coeff=0.272786296
+  #27 IZIIIZ  angle=?  coeff=0.0528345406
+  #28 IZIIZI  angle=?  coeff=0.0633968883
+  #29 IZIZII  angle=?  coeff=0.0486979648
+  #30 IZZIII  angle=?  coeff=0.0644443041
+  #31 XIZZXI  angle=?  coeff=0.0141318317
+  #32 XXIIYY  angle=?  coeff=-0.0105623477
+  #33 XXYYII  angle=?  coeff=-0.0157463393
+  #34 XYIIYX  angle=?  coeff=0.0105623477
+  #35 XYYXII  angle=?  coeff=0.0157463393
+  #36 XZIZXI  angle=?  coeff=0.0131846834
+  #37 XZXXZX  angle=?  coeff=0.0119224736
+  #38 XZXYZY  angle=?  coeff=0.0119224736
+  #39 XZZIXI  angle=?  coeff=0.00126220974
+  #40 XZZZXI  angle=?  coeff=0.0246602384
+  #41 XZZZXZ  angle=?  coeff=0.0039184745
+  #42 YIZZYI  angle=?  coeff=0.0141318317
+  #43 YXIIXY  angle=?  coeff=0.0105623477
+  #44 YXXYII  angle=?  coeff=0.0157463393
+  #45 YYIIXX  angle=?  coeff=-0.0105623477
+  #46 YYXXII  angle=?  coeff=-0.0157463393
+  #47 YZIZYI  angle=?  coeff=0.0131846834
+  #48 YZYXZX  angle=?  coeff=0.0119224736
+  #49 YZYYZY  angle=?  coeff=0.0119224736
+  #50 YZZIYI  angle=?  coeff=0.00126220974
+  #51 YZZZYI  angle=?  coeff=0.0246602384
+  #52 YZZZYZ  angle=?  coeff=0.0039184745
+  #53 ZIIIII  angle=?  coeff=0.272786296
+  #54 ZIIIIZ  angle=?  coeff=0.0633968883
+  #55 ZIIIZI  angle=?  coeff=0.0528345406
+  #56 ZIIZII  angle=?  coeff=0.0644443041
+  #57 ZIZIII  angle=?  coeff=0.0486979648
+  #58 ZXZZZX  angle=?  coeff=0.0141318317
+  #59 ZYZZZY  angle=?  coeff=0.0141318317
+  #60 ZZIIII  angle=?  coeff=0.0809133241
+Try: tableau optimize collapse && tableau optimize ncf
+
+qsyn> tableau optimize collapse
+
+qsyn> tableau copy 1
+
+qsyn> tableau checkout 1
+
+qsyn> convert tableau qcir -r naive
+
+qsyn> qcir write /home/chenying/qsyn/out/ncf2q_10cases/Be2-JW-6/Be2-JW-6_before_2qncf_clifford_rz.qasm
+
+qsyn> tableau checkout 0
+
+qsyn> tableau optimize ncf --two-qubit --window 128
+[warn]     NCF-2q: group size=6 idxs=[0, 6, 1, 14, 2, 15]
+[warn]     NCF-2q: group size=6 idxs=[3, 7, 4, 16, 17, 19]
+[warn]     NCF-2q: group size=6 idxs=[5, 31, 8, 42, 55, 56]
+[warn]     NCF-2q: group size=6 idxs=[9, 10, 11, 20, 21, 25]
+[warn]     NCF-2q: group size=6 idxs=[12, 32, 18, 28, 30, 41]
+[warn]     NCF-2q: group size=5 idxs=[22, 26, 23, 43, 50]
+[warn]     NCF-2q: group size=5 idxs=[24, 29, 27, 33, 35]
+[warn]     NCF-2q: group size=5 idxs=[34, 38, 36, 46, 54]
+[warn]     NCF-2q: group size=5 idxs=[37, 40, 39, 48, 57]
+[warn]     NCF-2q: group size=4 idxs=[44, 45, 47, 53]
+[warn]     NCF-2q: group size=4 idxs=[49, 51, 52, 60]
+[warn]     NCF-2q partition: n_terms=61 anti_groups=11 singletons=3 Num_unitaries=14 window=0
+[warn]       block 0: multi size=6 idxs=[0, 6, 1, 14, 2, 15] (singleton_count_in_block=0)
+[warn]       block 1: multi size=6 idxs=[3, 7, 4, 16, 17, 19] (singleton_count_in_block=0)
+[warn]       block 2: multi size=6 idxs=[5, 31, 8, 42, 55, 56] (singleton_count_in_block=0)
+[warn]       block 3: multi size=6 idxs=[9, 10, 11, 20, 21, 25] (singleton_count_in_block=0)
+[warn]       block 4: multi size=6 idxs=[12, 32, 18, 28, 30, 41] (singleton_count_in_block=0)
+[warn]       block 5: multi size=5 idxs=[22, 26, 23, 43, 50] (singleton_count_in_block=0)
+[warn]       block 6: multi size=5 idxs=[24, 29, 27, 33, 35] (singleton_count_in_block=0)
+[warn]       block 7: multi size=5 idxs=[34, 38, 36, 46, 54] (singleton_count_in_block=0)
+[warn]       block 8: multi size=5 idxs=[37, 40, 39, 48, 57] (singleton_count_in_block=0)
+[warn]       block 9: multi size=4 idxs=[44, 45, 47, 53] (singleton_count_in_block=0)
+[warn]       block 10: multi size=4 idxs=[49, 51, 52, 60] (singleton_count_in_block=0)
+[warn]       block 11: SINGLETON size=1 idx=13 (singleton_count_in_block=1)
+[warn]       block 12: SINGLETON size=1 idx=58 (singleton_count_in_block=1)
+[warn]       block 13: SINGLETON size=1 idx=59 (singleton_count_in_block=1)
+[warn]     NCF: total singletons = 3
+[warn]     NCF: block 0 size=6 singleton_count_in_block=0
+[warn]     NCF: block 1 size=6 singleton_count_in_block=0
+[warn]     NCF: block 2 size=6 singleton_count_in_block=0
+[warn]     NCF: block 3 size=6 singleton_count_in_block=0
+[warn]     NCF: block 4 size=6 singleton_count_in_block=0
+[warn]     NCF: block 5 size=5 singleton_count_in_block=0
+[warn]     NCF: block 6 size=5 singleton_count_in_block=0
+[warn]     NCF: block 7 size=5 singleton_count_in_block=0
+[warn]     NCF: block 8 size=5 singleton_count_in_block=0
+[warn]     NCF: block 9 size=4 singleton_count_in_block=0
+[warn]     NCF: block 10 size=4 singleton_count_in_block=0
+[warn]     NCF: block 11 size=1 singleton_count_in_block=1
+[warn]     NCF: block 12 size=1 singleton_count_in_block=1
+[warn]     NCF: block 13 size=1 singleton_count_in_block=1
+[warn]     NCF fusion (2q): partitioned into 14 groups (61 total Pauli rotations).
+[NCF fusion report]
+  Pauli terms (before):     61   (indices #0–#60)
+  NCF blocks (after):       14
+  Synthesis: before=naive  after=ncf
+  Cost BEFORE NCF:
+    CX: 310  RZ: 0  H: 120  S: 0  Sdg: 0  clifford: 550  total: 611  depth: 446
+  Cost AFTER NCF:
+    CX: 1278  RZ: 61  H: 114  S: 71  Sdg: 71  clifford: 1572  total: 1633  depth: 1046
+  Delta (after − before):
+    CX: 968  RZ: 61  clifford: 1022  total: 1022
+NcfProgram 0 ready — try: ncf print --summary
+
+qsyn> ncf print --blocks
+[NCF fusion report]
+  Pauli terms (before):     61   (indices #0–#60)
+  NCF blocks (after):       14
+  Synthesis: before=naive  after=ncf
+  Cost BEFORE NCF:
+    CX: 310  RZ: 0  H: 120  S: 0  Sdg: 0  clifford: 550  total: 611  depth: 446
+  Cost AFTER NCF:
+    CX: 1278  RZ: 61  H: 114  S: 71  Sdg: 71  clifford: 1572  total: 1633  depth: 1046
+  Delta (after − before):
+    CX: 968  RZ: 61  clifford: 1022  total: 1022
+Block 0: cx_prefix=29 cx_suffix=29 cx_total=58 inner_rz=6 hs=22
+Block 1: cx_prefix=11 cx_suffix=11 cx_total=22 inner_rz=6 hs=6
+Block 2: cx_prefix=19 cx_suffix=19 cx_total=38 inner_rz=6 hs=12
+Block 3: cx_prefix=5 cx_suffix=5 cx_total=10 inner_rz=6 hs=4
+Block 4: cx_prefix=26 cx_suffix=26 cx_total=52 inner_rz=6 hs=24
+Block 5: cx_prefix=35 cx_suffix=35 cx_total=70 inner_rz=5 hs=22
+Block 6: cx_prefix=29 cx_suffix=29 cx_total=58 inner_rz=5 hs=18
+Block 7: cx_prefix=99 cx_suffix=99 cx_total=198 inner_rz=5 hs=66
+Block 8: cx_prefix=49 cx_suffix=49 cx_total=98 inner_rz=5 hs=24
+Block 9: cx_prefix=26 cx_suffix=26 cx_total=52 inner_rz=4 hs=22
+Block 10: cx_prefix=13 cx_suffix=13 cx_total=26 inner_rz=4 hs=4
+Block 11: cx_prefix=1 cx_suffix=1 cx_total=2 inner_rz=1 hs=0
+Block 12: cx_prefix=5 cx_suffix=5 cx_total=10 inner_rz=1 hs=4
+Block 13: cx_prefix=5 cx_suffix=5 cx_total=10 inner_rz=1 hs=0
+
+qsyn> convert tableau qcir -r ncf
+
+qsyn> qcir write /home/chenying/qsyn/out/ncf2q_10cases/Be2-JW-6/Be2-JW-6_after_2qncf_clifford_rz.qasm
+
+qsyn> 
+[warn]     The -f/--file option is deprecated and will be removed in the future.
+[warn]     To run a script file with commands printing, use the -v flag with a filepath.
+[warn]     To run a script file silently, simply supply the filepath.

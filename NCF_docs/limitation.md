@@ -62,7 +62,7 @@ Circuit can be converted to ZX (`convert qcir zx`), then ZX simplification and e
 | **tmerge** | Merge rotations that share the same rotation plane (same Pauli). | No phase restriction. |
 | **hopt** | Minimize Hadamard count and internal Hadamards. | No phase restriction. |
 | **phasepoly** | Phase polynomial optimization (TODD). Strategy: `todd`. | **Same as full: phases must be 4th roots of unity.** |
-| **ncf** | **Non-Clifford Fusion (NCF).** Partition Pauli rotations into groups that conjugate to 1 (or 2) qubits; replace by blocks [C†][R'][C]. Ref: [arXiv:2510.13573](https://arxiv.org/abs/2510.13573). | Works with **arbitrary phases**. Intended for reducing T-count/depth and for compatibility with arbitrary-angle circuits (e.g. Hamiltonian simulation). |
+| **ncf** | **Non-Clifford Fusion (NCF).** Partition Pauli rotations into groups that conjugate to 1 (default) or 2 (`--two-qubit`) qubits; replace by blocks [C†][R'][C]. Ref: [arXiv:2510.13573](https://arxiv.org/abs/2510.13573). | Works with **arbitrary phases**. 2q mode uses paper grading + Table III + window (default w=128). Emits Clifford+RZ; does **not** synthesize fused 2q unitaries to Clifford+T. |
 | **equiv** | Lightweight optimization for equivalence checking: **tmerge + hopt only**, no phase polynomial / TODD. | **Safe for arbitrary phases.** Use this when comparing circuits with non-π/4 rotations (e.g. before/after NCF or Hamiltonian). |
 | **matpar** | Matroid partition: partition Pauli rotations into simultaneously implementable tableaux (with optional ancillae). Strategy: `naive`. | **Requires all Pauli rotations to be diagonal** (phase polynomial form). |
 

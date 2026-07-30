@@ -16,7 +16,14 @@
 
 namespace qsyn::experimental {
 
-enum class NcfBlockKind { singleton, anti_pair, anti_triple, commuting_singleton, unknown };
+enum class NcfBlockKind {
+    singleton,
+    anti_pair,
+    anti_triple,
+    anti_multi,  ///< 2-qubit NCF group with size ≥ 4 (≤ 15)
+    commuting_singleton,
+    unknown
+};
 
 struct NcfCxEdge {
     size_t control = 0;
