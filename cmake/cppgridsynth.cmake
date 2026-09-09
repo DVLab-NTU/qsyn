@@ -20,104 +20,7 @@ if(NOT EXISTS "${QSYN_CPPEGRIDSYNTH_DIR}/include/cppgridsynth/gridsynth.hpp")
         "Ensure vendor/cppgridsynth is present in the qsyn tree.")
 endif()
 
-# Auto-install GMP/MPFR when missing (Makefile also runs scripts/ensure_gridsynth_deps.sh).
-execute_process(
-    COMMAND "${CMAKE_SOURCE_DIR}/scripts/ensure_gridsynth_deps.sh"
-    RESULT_VARIABLE _gridsynth_deps_result
-    OUTPUT_QUIET
-    ERROR_QUIET)
-if(NOT _gridsynth_deps_result EQUAL 0)
-    message(FATAL_ERROR
-        "GridSynth: could not install GMP/MPFR (ensure_gridsynth_deps.sh failed). "
-        "Try: sudo apt install -y libgmp-dev libmpfr-dev pkg-config")
-endif()
-
-# Homebrew / MacPorts prefixes (MPFR pkg-config is often missing on macOS).
-set(_gridsynth_prefix_hints)
-if(APPLE)
-    foreach(_brew_bin /opt/homebrew/bin/brew /usr/local/bin/brew)
-        if(EXISTS "${_brew_bin}")
-            execute_process(
-                COMMAND "${_brew_bin}" --prefix
-                OUTPUT_VARIABLE _brew_prefix
-                OUTPUT_STRIP_TRAILING_WHITESPACE)
-            list(APPEND _gridsynth_prefix_hints "${_brew_prefix}")
-            break()
-        endif()
-    endforeach()
-    list(APPEND _gridsynth_prefix_hints /opt/homebrew /usr/local /opt/local)
-endif()
-
-find_package(PkgConfig QUIET)
-set(_gridsynth_gmp_mpfr_ok FALSE)
-if(PkgConfig_FOUND)
-    pkg_check_modules(PC_GMP IMPORTED_TARGET gmp)
-    pkg_check_modules(PC_MPFR IMPORTED_TARGET mpfr)
-    if(PC_GMP_FOUND AND PC_MPFR_FOUND)
-        set(_gridsynth_gmp_mpfr_ok TRUE)
-        set(_gridsynth_use_pkgconfig TRUE)
-    endif()
-endif()
-
-if(NOT _gridsynth_gmp_mpfr_ok)
-    find_path(
-        GRIDSYNTH_GMP_INCLUDE
-        NAMES gmp.h
-        HINTS ${_gridsynth_prefix_hints}
-        PATH_SUFFIXES include)
-    find_library(
-        GRIDSYNTH_GMP_LIB
-        NAMES gmp
-        HINTS ${_gridsynth_prefix_hints}
-        PATH_SUFFIXES lib)
-    find_path(
-        GRIDSYNTH_MPFR_INCLUDE
-        NAMES mpfr.h
-        HINTS ${_gridsynth_prefix_hints}
-        PATH_SUFFIXES include)
-    find_library(
-        GRIDSYNTH_MPFR_LIB
-        NAMES mpfr
-        HINTS ${_gridsynth_prefix_hints}
-        PATH_SUFFIXES lib)
-    find_library(
-        GRIDSYNTH_GMPXX_LIB
-        NAMES gmpxx
-        HINTS ${_gridsynth_prefix_hints}
-        PATH_SUFFIXES lib)
-    if(GRIDSYNTH_GMP_INCLUDE
-       AND GRIDSYNTH_GMP_LIB
-       AND GRIDSYNTH_MPFR_INCLUDE
-       AND GRIDSYNTH_MPFR_LIB
-       AND GRIDSYNTH_GMPXX_LIB)
-        set(_gridsynth_gmp_mpfr_ok TRUE)
-    endif()
-endif()
-
-if(NOT _gridsynth_gmp_mpfr_ok)
-    message(FATAL_ERROR
-        "GridSynth requires GMP and MPFR, but they were not found.\n"
-        "Install them and reconfigure:\n"
-        "  macOS  : brew install gmp mpfr\n"
-        "  Debian : sudo apt install libgmp-dev libmpfr-dev\n"
-        "  Fedora : sudo dnf install gmp-devel mpfr-devel\n"
-        "Or build without GridSynth: cmake -DQSYN_ENABLE_GRIDSYNTH=OFF ...")
-endif()
-
-# libgmpxx (GMP's C++ wrapper) has no reliable pkg-config module, so resolve it
-# directly in both the pkg-config and find_library branches. Linking it by its
-# full path avoids relying on libgmpxx being on the default linker search path.
-find_library(
-    GRIDSYNTH_GMPXX_LIB
-    NAMES gmpxx
-    HINTS ${_gridsynth_prefix_hints}
-    PATH_SUFFIXES lib)
-if(NOT GRIDSYNTH_GMPXX_LIB)
-    message(FATAL_ERROR
-        "GridSynth requires libgmpxx (GMP's C++ wrapper), which was not found. "
-        "It ships alongside GMP (macOS: brew install gmp; "
-        "Debian: apt install libgmp-dev; Fedora: dnf install gmp-c++).")
-endif()
+include(${CMAKE_CURRENT_LIST_DIR}/gridsynth-deps/dependencies.cmake)
 
 set(_cppgridsynth_sources
     ${CMAKE_SOURCE_DIR}/src/qcir/gridsynth/gridsynth_adapter.cpp
@@ -158,27 +61,8 @@ target_compile_options(
     -Wextra
     -Wno-unused-parameter)
 
-if(_gridsynth_use_pkgconfig)
-    target_link_libraries(
-        cppgridsynth
-        PUBLIC
-        PkgConfig::PC_GMP
-        PkgConfig::PC_MPFR
-        ${GRIDSYNTH_GMPXX_LIB})
-else()
-    # SYSTEM PRIVATE: external headers; also keeps clang-tidy off GMP/MPFR.
-    target_include_directories(
-        cppgridsynth
-        SYSTEM PRIVATE
-        ${GRIDSYNTH_GMP_INCLUDE}
-        ${GRIDSYNTH_MPFR_INCLUDE})
-    target_link_libraries(
-        cppgridsynth
-        PUBLIC
-        ${GRIDSYNTH_MPFR_LIB}
-        ${GRIDSYNTH_GMP_LIB}
-        ${GRIDSYNTH_GMPXX_LIB})
-endif()
+target_include_directories(cppgridsynth SYSTEM PRIVATE ${GRIDSYNTH_INCLUDE_DIRS})
+target_link_libraries(cppgridsynth PUBLIC ${GRIDSYNTH_LIBRARIES})
 
 function(qsyn_link_gridsynth target)
     target_compile_definitions(${target} PUBLIC QSYN_ENABLE_GRIDSYNTH=1)

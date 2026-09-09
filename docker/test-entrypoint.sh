@@ -44,6 +44,8 @@ echo "CC: $CC_COMPILER ($($CC_COMPILER --version | head -1))"
 echo "CXX: $CXX_COMPILER ($($CXX_COMPILER --version | head -1))"
 echo "==============================="
 
+python3 /app/qsyn/tests/gridsynth_deps.py || exit 1
+
 # Explicitly specify compiler to ensure deterministic builds
 # This overrides any CMake cache and ensures we use the compiler
 # specified in the Dockerfile (gcc/g++ or clang/clang++)
