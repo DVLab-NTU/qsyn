@@ -73,6 +73,16 @@ Visualization functionalities of `qsyn` depend at runtime on the following depen
 
 To build `qsyn`, follow the instructions below:
 
+With GridSynth enabled, CMake checks GMP/MPFR headers and libraries and automatically
+installs missing development packages using the platform package manager. It then
+checks compilation and linking with the selected C++ compiler. Compiler/linker
+errors are reported without treating them as missing packages. To prepare these
+dependencies separately, run `make ensure-gridsynth-deps` or
+`./scripts/ensure_gridsynth_deps.sh` (which also accepts CMake `-D` options).
+Use `-DQSYN_ENABLE_GRIDSYNTH=OFF` when configuring CMake to skip GridSynth and its
+dependency checks. The dependency regression check is `python3 tests/gridsynth_deps.py`
+on a machine with CMake, a C++ compiler, and GMP/MPFR development packages installed.
+
 <details>
 <summary>For Linux Users</summary>
     

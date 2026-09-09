@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 #include "cppgridsynth/loop_controller.hpp"
+#include <cmath>
 
 namespace cppgridsynth {
 

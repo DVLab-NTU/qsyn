@@ -1,6 +1,7 @@
 #! /usr/bin/env bash
 
 # in /app
+python3 /app/qsyn/tests/gridsynth_deps.py || exit 1
 cmake -B /app/build -S /app/qsyn || exit 1
 if ! cmake --build /app/build --parallel "$(nproc)"; then
     echo "=== Build failed; last verbose output (single-threaded) ==="
