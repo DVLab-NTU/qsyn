@@ -250,7 +250,10 @@ struct fmt::formatter<dvlab::Phase> {
 
     constexpr auto parse(format_parse_context& ctx) -> format_parse_context::iterator {
         auto it = ctx.begin(), end = ctx.end();
-        if (it != end && (*it == 'f' || *it == 'e')) presentation = *it++;
+        if (it != end && (*it == 'f' || *it == 'e')) {
+            presentation = *it;
+            it           = std::next(it);
+        }
         if (it != end && *it != '}') detail::throw_format_error("invalid format");
         return it;
     }

@@ -360,8 +360,14 @@ struct fmt::formatter<qsyn::experimental::PauliProduct> {
 
     constexpr auto parse(format_parse_context& ctx) {
         auto it = ctx.begin(), end = ctx.end();
-        if (it != end && (*it == '+' || *it == '-' || *it == ' ')) signedness = *it++;
-        if (it != end && (*it == 'c' || *it == 'b')) presentation = *it++;
+        if (it != end && (*it == '+' || *it == '-' || *it == ' ')) {
+            signedness = *it;
+            it         = std::next(it);
+        }
+        if (it != end && (*it == 'c' || *it == 'b')) {
+            presentation = *it;
+            it           = std::next(it);
+        }
         if (it != end && *it != '}') detail::throw_format_error("invalid format");
         return it;
     }
@@ -383,8 +389,14 @@ struct fmt::formatter<qsyn::experimental::PauliRotation> {
 
     constexpr auto parse(format_parse_context& ctx) {
         auto it = ctx.begin(), end = ctx.end();
-        if (it != end && (*it == '+' || *it == '-' || *it == ' ')) signedness = *it++;
-        if (it != end && (*it == 'c' || *it == 'b')) presentation = *it++;
+        if (it != end && (*it == '+' || *it == '-' || *it == ' ')) {
+            signedness = *it;
+            it         = std::next(it);
+        }
+        if (it != end && (*it == 'c' || *it == 'b')) {
+            presentation = *it;
+            it           = std::next(it);
+        }
         if (it != end && *it != '}') detail::throw_format_error("invalid format");
         return it;
     }

@@ -103,6 +103,10 @@ public:
         // FIXME - check if the subtableau has the same number of qubits
         _subtableaux.push_back(subtableau);
     }
+    auto push_back(SubTableau&& subtableau) {
+        // FIXME - check if the subtableau has the same number of qubits
+        _subtableaux.push_back(std::move(subtableau));
+    }
 
     template <typename... Args>
     auto emplace_back(Args&&... args) {
@@ -159,7 +163,10 @@ struct fmt::formatter<qsyn::experimental::SubTableau> {
     char presentation = 'c';
     constexpr auto parse(format_parse_context& ctx) {
         auto it = ctx.begin(), end = ctx.end();
-        if (it != end && (*it == 'c' || *it == 'b')) presentation = *it++;
+        if (it != end && (*it == 'c' || *it == 'b')) {
+            presentation = *it;
+            it           = std::next(it);
+        }
         if (it != end && *it != '}') detail::throw_format_error("invalid format");
         return it;
     }
@@ -188,7 +195,10 @@ struct fmt::formatter<qsyn::experimental::Tableau> {
     char presentation = 'c';
     constexpr auto parse(format_parse_context& ctx) {
         auto it = ctx.begin(), end = ctx.end();
-        if (it != end && (*it == 'c' || *it == 'b')) presentation = *it++;
+        if (it != end && (*it == 'c' || *it == 'b')) {
+            presentation = *it;
+            it           = std::next(it);
+        }
         if (it != end && *it != '}') detail::throw_format_error("invalid format");
         return it;
     }

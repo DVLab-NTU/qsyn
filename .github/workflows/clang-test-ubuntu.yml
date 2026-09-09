@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
       - name: Build the test docker image
         run: docker build -t qsyn-test-clang -f docker/clang-test.Dockerfile .
       - name: Run the test docker image

@@ -79,7 +79,7 @@ std::optional<DepGraph> from_xag_cuts(XAG const& xag, std::map<XAGNodeID, XAGCut
     };
 
     std::vector<XAGNodeID> optimal_cone_tips = optimal_cut |
-                                               views::filter([&is_input](auto const entry) { return !is_input(entry.first); }) |
+                                               views::filter([&is_input](auto const& entry) { return !is_input(entry.first); }) |
                                                views::keys |
                                                tl::to<std::vector>();
 

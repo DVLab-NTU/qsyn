@@ -159,8 +159,9 @@ Command convert_from_zx_cmd(zx::ZXGraphMgr& zxgraph_mgr, QCirMgr& qcir_mgr, tens
                         zxgraph_mgr.add(zxgraph_mgr.get_next_id(), std::make_unique<zx::ZXGraph>(std::move(target)));
                         zxgraph_mgr.get()->add_procedure("ZX2QC-Unpermuted");
                         qcir_mgr.get()->add_procedure("ZX2QC-Unpermuted");
-                    } else
+                    } else {
                         qcir_mgr.get()->add_procedure("ZX2QC");
+                    }
 
                     assert(std::ranges::all_of(qcir_mgr.get()->get_gates(), [&](auto* gate) { return gate->get_id() == qcir_mgr.get()->get_gate(gate->get_id())->get_id(); }));
                 }

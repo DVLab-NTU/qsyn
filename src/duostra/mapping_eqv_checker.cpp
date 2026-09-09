@@ -33,8 +33,9 @@ MappingEquivalenceChecker::MappingEquivalenceChecker(QCir* phy, QCir* log, Devic
     if (init.empty()) {
         auto placer = get_placer(placer_type);
         init        = placer->place_and_assign(_device);
-    } else
+    } else {
         _device.place(init);
+    }
     for (auto const& [i, qubit] : tl::views::enumerate(_logical->get_qubits())) {
         _dependency[i] = _reverse ? qubit.get_last_gate() : qubit.get_first_gate();
     }
@@ -63,8 +64,9 @@ bool MappingEquivalenceChecker::check() {
             }
         } else if (phys_gate->get_num_qubits() > 1) {
             return false;
-        } else if (!execute_single(phys_gate))
+        } else if (!execute_single(phys_gate)) {
             return false;
+        }
     }
     // REVIEW - check remaining gates in logical are swaps
     check_remaining();
