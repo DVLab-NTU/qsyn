@@ -13,11 +13,6 @@ if [ ! -x "$(command -v parallel)" ]; then
     exit 1
 fi
 
-format_one() {
-    clang-format -i "$1"
-}
-export -f format_one
-
 lint_one() {
     clang-tidy -p build-lint "$1" --quiet 2>&1 \
         | grep -v -E "warnings? generated" \
@@ -28,12 +23,11 @@ lint_one() {
 }
 export -f lint_one
 
-FILES=$(find ./src -regex '.*\.[ch]pp' -type f)
 CPPS=$(find ./src -regex '.*\.cpp' -type f)
 
 # NOTE:
 # We intentionally do NOT auto-run clang-format here.
-# GitHub CI runs clang-format (v16) separately for style checks.
+# GitHub CI runs make format-check separately for style checks.
 # Keeping LINT to clang-tidy only avoids local version drift reformatting code.
 echo "Generating compile commands..."
 # Use Apple clang for the lint build to avoid toolchain/header

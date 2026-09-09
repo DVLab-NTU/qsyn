@@ -95,10 +95,15 @@ test-update:
 	./scripts/RUN_TESTS -u
 .PHONY: test-update
 
-# run clang-format and clang-tidy on the source code
+# run clang-tidy on the source code
 lint:
 	./scripts/LINT
 .PHONY: lint
+
+format-check:
+	find ./src -type f \( -name '*.h' -o -name '*.cpp' -o -name '*.hpp' -o -name '*.tpp' \) \
+		-exec pipx run --spec clang-format==21.1.8 clang-format --dry-run --Werror {} +
+.PHONY: format-check
 
 clean:
 	rm -rf build

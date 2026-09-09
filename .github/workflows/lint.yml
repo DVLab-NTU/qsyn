@@ -16,31 +16,5 @@ jobs:
       - name: Check out Git repository
         uses: actions/checkout@v7
 
-      - name: run clang-format
-        uses: DoozyX/clang-format-lint-action@bcb4eb2cb0d707ee4f3e5cc3b456eb075f12cf73 # v0.20
-        with:
-          source: "./src"
-          exclude: "./vendor ./tests"
-          extensions: "h,cpp,hpp,tpp"
-          clangFormatVersion: 16
-
-      # - name: clang-format lint
-      #   run: |
-      #     clang-format-16 --version
-      #     mkdir -p tmp_
-      #     find ./src -type d | xargs -I {} mkdir -p tmp_/{}
-      #     find ./src -regex ".*\.\(h\|cpp\)" -type f | xargs -I {} sh -c 'cp "$1" tmp_/"$1"' -- {}
-      #     cp .clang-format tmp_
-      #     cd tmp_
-      #     find ./src -regex ".*\.\(h\|cpp\)" -type f | xargs -I {} sh -c 'clang-format-16 "$1" > "$1"\ \(Reformatted\)' -- {}
-      #     find ./src -regex ".*\.\(h\|cpp\)" -type f | xargs -I {} sh -c 'cp "$1" "$1"\ \(Original\)' -- {}
-      #     find . -regex ".*\.\(h\|cpp\)" -type f | xargs -I {} sh -c 'colordiff -u "$1"\ \(Original\) "$1"\ \(Reformatted\)' -- {}
-      #     cd ..
-      #     rm -rf tmp_
-      # uses: DoozyX/clang-format-lint-action@v0.15
-      # with:
-      #   source: './src'
-      #   exclude: './vender ./tests'
-      #   extensions: 'h,cpp'
-      #   clangFormatVersion: 15
-      # style: '.clang-format'
+      - name: Check source formatting
+        run: make format-check

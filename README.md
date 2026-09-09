@@ -37,6 +37,22 @@ Some of the future work for Qsyn includes:
 - **C++**: C++20. We support compilation with (1) **g++-11** or above or (2) **clang++-16** or above. We regularly perform build tests for the two compilers.
 - **BLAS/LAPACK**: OpenBLAS and LAPACK are required (see platform-specific steps below).
 
+### Source formatting
+
+CI and local formatting checks use clang-format **21.1.8** with the repository's
+`.clang-format`. Install [pipx](https://pipx.pypa.io/stable/installation/), then run
+from the repository root:
+
+```sh
+make format-check
+```
+
+This checks `.h`, `.cpp`, `.hpp`, and `.tpp` files under `src` without modifying
+them. pipx downloads the pinned formatter into an isolated environment on first use.
+To format a changed file, run
+`pipx run --spec clang-format==21.1.8 clang-format -i path/to/file.cpp`.
+`make lint` runs clang-tidy separately.
+
 ### Installation
 
 Clone the repository to your local machine by running
