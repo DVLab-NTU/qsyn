@@ -1,0 +1,67 @@
+logger off
+qcir delete --all
+tensor delete --all
+qcir new
+qcir qubit add 1
+qcir gate add rz -ph pi/16 0
+qcir copy
+qcir checkout 0
+convert qcir tensor
+qcir checkout 1
+qcir gridsynth --epsilon 1e-6 --seed 0
+convert qcir tensor
+tensor equiv 0 1 -e 1e-4
+qcir equiv 0 1
+qcir delete --all
+tensor delete --all
+qcir new
+qcir qubit add 1
+qcir gate add rz -ph pi/32 0
+qcir copy
+qcir checkout 0
+convert qcir tensor
+qcir checkout 1
+qcir gridsynth --epsilon 1e-8 --seed 0
+convert qcir tensor
+tensor equiv 0 1 -e 1e-5
+qcir equiv 0 1
+qcir delete --all
+tensor delete --all
+qcir new
+qcir qubit add 1
+qcir gate add rz -ph pi/64 0
+qcir copy
+qcir checkout 0
+convert qcir tensor
+qcir checkout 1
+qcir gridsynth --epsilon 1e-10 --seed 0
+convert qcir tensor
+tensor equiv 0 1 -e 1e-6
+qcir equiv 0 1
+qcir delete --all
+tensor delete --all
+qcir new
+qcir qubit add 1
+qcir gate add rz -ph pi/12 0
+qcir copy
+qcir checkout 0
+convert qcir tensor
+qcir checkout 1
+qcir gridsynth --epsilon 1e-7 --seed 0
+convert qcir tensor
+tensor equiv 0 1 -e 1e-4
+qcir equiv 0 1
+qcir delete --all
+tensor delete --all
+qcir new
+qcir qubit add 1
+qcir gate add rz -ph pi/8 0
+qcir copy
+qcir checkout 0
+convert qcir tensor
+qcir checkout 1
+qcir gridsynth --epsilon 1e-8 --seed 0
+convert qcir tensor
+tensor equiv 0 1 -e 1e-5
+qcir equiv 0 1
+quit -f

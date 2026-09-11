@@ -216,6 +216,8 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(Catch2)
 
+include(${CMAKE_SOURCE_DIR}/cmake/cppgridsynth.cmake)
+
 file(
   GLOB_RECURSE SOURCES
   RELATIVE ${CMAKE_SOURCE_DIR}
@@ -240,6 +242,20 @@ file(
     "src/qsyn/qsynrc.default")
 
 list(REMOVE_ITEM LIB_SOURCES ${APP_SOURCES})
+
+if(QSYN_ENABLE_GRIDSYNTH)
+    # gridsynth_adapter.cpp is compiled inside cppgridsynth (needs GMP/MPFR),
+    # not libqsyn.a.
+    list(REMOVE_ITEM LIB_SOURCES src/qcir/gridsynth/gridsynth_adapter.cpp)
+else()
+    # GridSynth disabled: drop the pass (libqsyn.a) and command (executable) too,
+    # otherwise gridsynth_pass.cpp links against synthesize_rz(), which lives in
+    # the never-compiled adapter -> unresolved-symbol link error.
+    list(REMOVE_ITEM LIB_SOURCES
+        src/qcir/gridsynth/gridsynth_adapter.cpp
+        src/qcir/gridsynth/gridsynth_pass.cpp)
+    list(REMOVE_ITEM APP_SOURCES src/cmd/qcir/gridsynth.cpp)
+endif()
 
 file(
     GLOB_RECURSE TEST_SOURCES
@@ -294,6 +310,10 @@ if(COMPILER_SUPPORTS_WNOERROR_CAST_USER_DEFINED)
                            PRIVATE -Wno-error=cast-user-defined)
 endif()
 
+if(QSYN_ENABLE_GRIDSYNTH)
+    qsyn_link_gridsynth(${QSYN_LIB_NAME})
+endif()
+
 # ----------------------------------------------------------------------------
 # config for qsyn target
 # builds qsyn executable
@@ -342,6 +362,10 @@ target_include_directories(
 
 target_link_libraries(
     ${CMAKE_PROJECT_NAME} PRIVATE ${QSYN_LIB_NAME})
+
+if(QSYN_ENABLE_GRIDSYNTH)
+    qsyn_link_gridsynth(${CMAKE_PROJECT_NAME})
+endif()
 
 target_link_libraries_system(
     ${CMAKE_PROJECT_NAME}
@@ -420,4 +444,8 @@ endif()
 if(COMPILER_SUPPORTS_WNOERROR_CAST_USER_DEFINED)
     target_compile_options(${UNIT_TEST_NAME}
                            PRIVATE -Wno-error=cast-user-defined)
+endif()
+
+if(QSYN_ENABLE_GRIDSYNTH)
+    qsyn_link_gridsynth(${UNIT_TEST_NAME})
 endif()

@@ -73,14 +73,23 @@ Visualization functionalities of `qsyn` depend at runtime on the following depen
 
 To build `qsyn`, follow the instructions below:
 
+With GridSynth enabled, CMake checks GMP/MPFR headers and libraries and automatically
+installs missing development packages using the platform package manager. It then
+checks compilation and linking with the selected C++ compiler. Compiler/linker
+errors are reported without treating them as missing packages. To prepare these
+dependencies separately, run `make ensure-gridsynth-deps` or
+`./scripts/ensure_gridsynth_deps.sh` (which also accepts CMake `-D` options).
+Use `-DQSYN_ENABLE_GRIDSYNTH=OFF` when configuring CMake to skip GridSynth and its
+dependency checks. The dependency regression check is `python3 tests/gridsynth_deps.py`
+on a machine with CMake, a C++ compiler, and GMP/MPFR development packages installed.
+
 <details>
 <summary>For Linux Users</summary>
     
-You'll probably need to install `OpenBLAS` and `LAPACK` libraries. For Ubuntu, you can install them by running
+You'll probably need to install `OpenBLAS`, `LAPACK`, and (for GridSynth) `GMP`/`MPFR` libraries. For Ubuntu, you can install them by running
 
 ```sh
-sudo apt install libopenblas-dev
-sudo apt install liblapack-dev
+sudo apt install libopenblas-dev liblapack-dev libgmp-dev libmpfr-dev pkg-config
 ```
 
 If you are tech-savvy enough to be using a different Linux distribution, we're confident that you can figure out how to install these libraries 😉
@@ -119,10 +128,10 @@ Since Qsyn uses C++20 features not fully supported by Apple Clang, install a C++
    ```
    (Replace `15` with your installed GCC version if different.)
 
-Install **OpenBLAS**:
+Install **OpenBLAS** and **GMP/MPFR** (required for GridSynth):
 
 ```sh
-brew install openblas
+brew install openblas gmp mpfr
 ```
 
 Then build:
