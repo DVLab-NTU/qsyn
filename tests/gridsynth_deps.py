@@ -84,6 +84,7 @@ def main():
         assert not marker.exists()
 
         mpfr_lib = prefix / "usr/lib" / Path(cache["GRIDSYNTH_MPFR_LIB"]).name
+        mpfr_lib.unlink()
         mpfr_lib.write_text("not a library\n")
         output = configure("broken-link", *options, "-DCMAKE_TRY_COMPILE_TARGET_TYPE=STATIC_LIBRARY", succeeds=False)
         assert "compile/link check failed" in output, output

@@ -1,14 +1,15 @@
 #ifdef QSYN_ENABLE_GRIDSYNTH
 
+#include <algorithm>
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
-
-#include <algorithm>
 #include <chrono>
 #include <cmath>
+#include <stdexcept>
 #include <string>
 
 #include "qcir/gridsynth/gridsynth_adapter.hpp"
+#include "qcir/gridsynth/gridsynth_pass.hpp"
 #include "util/phase.hpp"
 
 using dvlab::Phase;
@@ -57,7 +58,7 @@ TEST_CASE("GridSynth T-count stays within 3 log2(1/eps) bound", "[qcir][gridsynt
     auto const gates     = gsd::synthesize_rz(make_request(theta, epsilon_str));
     REQUIRE(gates.has_value());
     auto const t_count = count_t_gates(*gates);
-    auto const bound     = theoretical_t_upper_bound(epsilon);
+    auto const bound   = theoretical_t_upper_bound(epsilon);
 
     INFO("epsilon=" << epsilon_str << " theta=" << theta.get_print_string()
                     << " T=" << t_count << " bound=" << bound);
@@ -108,6 +109,45 @@ TEST_CASE("GridSynth repeated synthesis is stable", "[qcir][gridsynth][perf]") {
         REQUIRE(gates.has_value());
         REQUIRE(count_t_gates(*gates) > 0);
     }
+}
+
+TEST_CASE("GridSynth rejects invalid options", "[qcir][gridsynth]") {
+    auto request = make_request(Phase(1, 8), "not-a-number");
+    REQUIRE_THROWS_AS(gsd::synthesize_rz(request), std::invalid_argument);
+
+    request.epsilon = "0";
+    REQUIRE_THROWS_AS(gsd::synthesize_rz(request), std::invalid_argument);
+
+    request.epsilon = "2";
+    REQUIRE_THROWS_AS(gsd::synthesize_rz(request), std::invalid_argument);
+
+    request.epsilon = "1e-6";
+    request.dps     = 0;
+    REQUIRE_THROWS_AS(gsd::synthesize_rz(request), std::invalid_argument);
+
+    request.dps   = std::nullopt;
+    request.dloop = 0;
+    REQUIRE_THROWS_AS(gsd::synthesize_rz(request), std::invalid_argument);
+
+    request.dloop       = 10;
+    request.dtimeout_ms = 0.0;
+    REQUIRE_THROWS_AS(gsd::synthesize_rz(request), std::invalid_argument);
+}
+
+TEST_CASE("GridSynth decomposition preserves circuit metadata", "[qcir][gridsynth]") {
+    qsyn::qcir::QCir circuit{1};
+    circuit.set_filename("input-circuit");
+    circuit.add_procedure("loaded");
+    circuit.set_gate_set("test-gates");
+
+    qsyn::qcir::GridsynthOptions options;
+    options.epsilon = "1e-6";
+    auto result     = qsyn::qcir::gridsynth_decompose(circuit, options);
+
+    REQUIRE(result.has_value());
+    CHECK(result->get_filename() == "input-circuit");
+    CHECK(result->get_procedures() == circuit.get_procedures());
+    CHECK(result->get_gate_set() == "test-gates");
 }
 
 #endif  // QSYN_ENABLE_GRIDSYNTH
