@@ -20,6 +20,9 @@ RUN apt install -y \
     diffutils \
     patch \
     parallel \
+    libgmp10 \
+    libgmpxx4ldbl \
+    libmpfr6 \
     libopenblas-dev \
     liblapack-dev \
     libreadline-dev \

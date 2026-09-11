@@ -1,5 +1,6 @@
 #include "qcir/gridsynth/gridsynth_adapter.hpp"
 
+#include <cmath>
 #include <stdexcept>
 
 #include "cppgridsynth/gridsynth.hpp"
@@ -32,6 +33,23 @@ SynthGateKind kind_from_cppgridsynth(cppgridsynth::GateKind k) {
 
 std::optional<std::vector<SynthGate>>
 synthesize_rz(GridsynthRequest const& req) {
+    if (req.dps && *req.dps <= 0) {
+        throw std::invalid_argument("dps must be greater than zero");
+    }
+    if (req.dloop <= 0 || req.floop <= 0) {
+        throw std::invalid_argument("loop limits must be greater than zero");
+    }
+    if (!std::isfinite(req.dtimeout_ms) || !std::isfinite(req.ftimeout_ms) ||
+        req.dtimeout_ms == 0.0 || req.ftimeout_ms == 0.0) {
+        throw std::invalid_argument(
+            "timeouts must be finite and either negative (disabled) or greater than zero");
+    }
+
+    cppgridsynth::MPFloat const epsilon(req.epsilon);
+    if (!epsilon.is_finite() || epsilon <= 0 || epsilon >= 2) {
+        throw std::invalid_argument("epsilon must be a number strictly between zero and two");
+    }
+
     cppgridsynth::GridsynthConfig cfg;
     cfg.seed        = req.seed;
     cfg.dloop       = req.dloop;
@@ -47,7 +65,6 @@ synthesize_rz(GridsynthRequest const& req) {
     cppgridsynth::MPFloat const theta =
         pi * cppgridsynth::MPFloat(req.theta_numer) /
         cppgridsynth::MPFloat(req.theta_denom);
-    cppgridsynth::MPFloat const epsilon(req.epsilon);
 
     // Match pygridsynth/cppgridsynth gridsynth_gates(): no decompose_phase_gate().
     // Global phase stays in circuit.phase(); W gates in gates_ are skipped in qsyn.

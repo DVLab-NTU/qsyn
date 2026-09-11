@@ -17,6 +17,9 @@ FROM debian:bookworm-slim AS runner
 RUN apt update
 
 RUN apt install -y \
+    libgmp10 \
+    libgmpxx4ldbl \
+    libmpfr6 \
     libopenblas-dev \
     liblapack-dev \
     libreadline-dev \
