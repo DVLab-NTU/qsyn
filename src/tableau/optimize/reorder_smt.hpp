@@ -12,6 +12,7 @@
 namespace qsyn::experimental {
 
 struct SatSignatureExport;
+class Tableau;
 
 enum class PauliClassKind : std::uint8_t {
     Fix,
@@ -93,8 +94,30 @@ AncillaScheduleResult solve_ancilla_schedule(AncillaSmtInstance const& inst,
                                              AncillaScheduleSolveOptions const& options);
 AncillaScheduleResult solve_ancilla_schedule(AncillaSmtInstance const& inst);
 
+/** Derive column_slot / spans / degadgetizable from a solved class→gap map. */
+AncillaScheduleResult schedule_from_pos_map(
+    AncillaSmtInstance const& inst,
+    size_t width_w,
+    std::unordered_map<size_t, size_t> const& pos_map);
+
 void finalize_parsed_gadget_ordering(ParsedGadgetOrdering& ord, std::string& err);
 ParsedGadgetOrdering to_parsed_ordering(AncillaSmtInstance const& inst,
                                         AncillaScheduleResult const& result);
+
+/** Text export of precomputed blocks + derived reduction for external ILP. */
+bool write_ancilla_ilp_instance(std::string const& path, AncillaSmtInstance const& inst);
+/** Parse Python ILP result: width + pos_class rep→gap. */
+bool read_ancilla_ilp_result(std::string const& path,
+                             size_t& width_w,
+                             std::unordered_map<size_t, size_t>& pos_map,
+                             std::string& err);
+
+/** Export current tableau's ILP instance to ``path``. */
+void ilp_reorder_export(Tableau& tableau, std::string const& path);
+/**
+ * Rebuild instance from tableau, load ILP ``pos_class`` result, derive schedule, apply.
+ * After-process matches sat_reorder (spans, degadgetize, ancilla remap).
+ */
+bool ilp_reorder_apply(Tableau& tableau, std::string const& result_path);
 
 }  // namespace qsyn::experimental

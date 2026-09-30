@@ -131,6 +131,20 @@ public:
         return count;
     }
 
+    auto t_count() const {
+        size_t count = 0;
+        for (auto const& subtableau : _subtableaux) {
+            if (auto const* rotations = std::get_if<std::vector<PauliRotation>>(&subtableau)) {
+                for (auto const& rotation : *rotations) {
+                    if (rotation.phase().denominator() > 2) {
+                        ++count;
+                    }
+                }
+            }
+        }
+        return count;
+    }
+
     auto is_empty() const {
         return _subtableaux.empty();
     }

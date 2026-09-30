@@ -939,5 +939,11 @@ std::optional<qcir::QCir> to_qcir(Tableau const& tableau, StabilizerTableauSynth
     return qcir;
 }
 
+std::optional<qcir::QCir> tableau_to_qcir_hopt_naive(Tableau const& tableau) {
+    HOptSynthesisStrategy clifford_strategy;
+    NaivePauliRotationsSynthesisStrategy rotation_strategy;
+    return to_qcir(tableau, clifford_strategy, rotation_strategy, clifford_strategy);
+}
+
 }  // namespace qsyn::experimental
 

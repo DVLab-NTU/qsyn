@@ -372,7 +372,12 @@ size_t hadamard_degadgetize(Tableau& tableau,
 bool sat_reorder_apply_ordering(Tableau& tableau,
                                 ParsedGadgetOrdering const& ord);
 /** Build qsyn SAT signature → native Z3 SMT schedule → apply; on failure leaves the tableau unchanged. */
-void sat_reorder(Tableau& tableau);
+void sat_reorder(Tableau& tableau, bool quiet = false);
+
+/** Export precomputed + derived ancilla-scheduling instance for external ILP. */
+void ilp_reorder_export(Tableau& tableau, std::string const& path);
+/** Load external ILP result, derive spans/degadgetizable, run sat_reorder after-process. */
+bool ilp_reorder_apply(Tableau& tableau, std::string const& result_path);
 
 void check_redundant_ancilla(Tableau& tableau);
 bool run_commute_test_from_file(std::filesystem::path const& txt_path);
@@ -470,12 +475,75 @@ std::vector<TableauPreprocessConfig> all_tableau_preprocess_configs();
 std::optional<Tableau>               prepare_gadgetized_tableau(qcir::QCir const& source,
                                                                 TableauPreprocessConfig const& cfg);
 
+void log_topt_stage(std::string_view cmd, std::string_view stage,
+                    size_t t_before, size_t t_after, size_t a_before, size_t a_after,
+                    bool with_t = true);
+
 // Classical T optimization: minimize internal H, gadgetize, commute classical, and optimize with FastTODD
 void minimize_ancillary_t_opt(Tableau& tableau,
                               std::optional<std::string> export_filename = std::nullopt);
-/** QCir-first tie-search: 8 preprocess baselines, then all-random trials; writes optimized tableau only. */
+/**
+ * QCir-first A/T tie-search (CLI: tie-search): det FastTODD over preprocesses → pool → SMT baselines;
+ * then phase2 by QSYN_FASTTODD_TIE_SEARCH_PHASE2 (default previous_best,all_random).
+ * Patience defaults to max(60, ceil(2.5 * current best A_min)); all_random uses half.
+ * Optional: QSYN_FASTTODD_TIE_SEARCH_PREPROCESS=<id>, ALL_PREPROCESS=1 (pool beyond min-T).
+ * No required total-step cap M (optional QSYN_FASTTODD_TIE_SEARCH_MAX_TRIALS safety only).
+ * Metric: A/T = A / (T_no_gadget - T_with_gadget). (Thesis: Block.T = T_no_gadget.)
+ */
 bool minimize_ancillary_t_opt_from_qcir(qcir::QCir const& source,
                                         Tableau& tableau_out);
+
+/**
+ * One-shot path probe (env-driven; for batch scripts).
+ * QSYN_TIE_PATH_PROBE=1
+ * QSYN_TIE_PATH_PROBE_MODE=oneshot|subtree|hunt|level_sample
+ * QSYN_FASTTODD_TIE_SEARCH_PREPROCESS=<id>  (required)
+ * QSYN_TIE_PATH_PROBE_SEED=<u64>
+ * QSYN_TIE_PATH_PROBE_KIND=all_random|previous_best  (oneshot; default all_random)
+ * QSYN_TIE_PATH_PROBE_FORCE=<tohpe:step:idx:tc,...>  (subtree)
+ * QSYN_TIE_PATH_PROBE_PREFIX_LEN=<k>                 (subtree: force first k multi-way)
+ * QSYN_TIE_PATH_PROBE_ANCESTOR_K=<d>                 (subtree default prefix = p-d; 1=parent)
+ * QSYN_TIE_PATH_PROBE_THESIS_A=<A>                   (good iff A<=this; default 9)
+ * QSYN_TIE_PATH_PROBE_STEP1=<i,j,...>                (level_sample: assigned step-1 indices)
+ * QSYN_TIE_PATH_PROBE_OUT=<path.jsonl>               (level_sample leaf log)
+ * QSYN_TIE_PATH_PROBE_WORKER=<id>                    (level_sample log tag)
+ * QSYN_TIE_PATH_PROBE_MAX_LEAVES=<n>                 (level_sample cap; 0=unlimited)
+ * Always full min-A SMT (no A_max prune). Prints PATH_PROBE ... line.
+ */
+bool run_tie_path_probe_from_qcir(qcir::QCir const& source, Tableau& tableau_out);
+
+/** Per-repeat stats for T-only tie-search (no SMT / no ancilla minimization). */
+struct TOnlyTieSearchStats {
+    size_t phase1_min_t       = 0;
+    size_t final_t            = 0;
+    size_t last_t_reduce_step = 0;  // 0 = min T already at phase1; else 1-based phase2 trial of last strict T drop
+    size_t phase2_trials      = 0;
+    std::string best_config;
+};
+
+/** Aggregate over independent T-only tie-search repeats. */
+struct TOnlyTieSearchAggregate {
+    size_t min_t                              = 0;
+    size_t max_t                              = 0;
+    double avg_final_t                        = 0;
+    double avg_last_t_reduce_step             = 0;
+    double avg_last_t_reduce_step_at_min_t    = 0;
+    size_t n_hit_min_t                        = 0;
+    size_t repeats                            = 0;
+    std::vector<TOnlyTieSearchStats> per_repeat;
+};
+
+/**
+ * T-count-only preprocess-aware tie-search: Phase 0/1 FastTODD baselines, then random-tie
+ * FastTODD trials. No SMT / sat_reorder. Patience N and max trials M from
+ * QSYN_FASTTODD_TIE_SEARCH_PATIENCE / QSYN_FASTTODD_TIE_SEARCH_MAX_TRIALS.
+ * When repeats > 1, runs independent seeds and logs the average last T-reduction step.
+ */
+bool minimize_t_opt_tie_search_from_qcir(qcir::QCir const& source,
+                                         Tableau& tableau_out,
+                                         size_t repeats = 1,
+                                         TOnlyTieSearchAggregate* aggregate_out = nullptr);
+
 void minimize_ancillary_t_opt_with_degadgetization(Tableau& tableau, std::optional<std::string> export_filename = std::nullopt);
 
 struct PhasePolynomialOptimizationStrategy {

@@ -17,6 +17,8 @@
 #include <z3++.h>
 
 #include <algorithm>
+#include <chrono>
+#include <cstdlib>
 #include <cstdint>
 #include <deque>
 #include <fstream>
@@ -24,6 +26,7 @@
 #include <map>
 #include <optional>
 #include <set>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
@@ -372,6 +375,23 @@ WidthSolve solve_width(AncillaSmtInstance const& inst, size_t const w) {
             for (size_t i = 0; i <= G; ++i) {
                 if (i > rank_r) {
                     solver.add(hard[i][gr_gid] >= hard[i][gl_gid]);
+                }
+            }
+        }
+    }
+
+    // PMC chain lower bound: bad(i,a)=1 forces ≥ (i-a) live ancillae at gap i
+    // (gid-numeric implication), so width ≤ w ⇒ bad(i,a)=0 whenever i-a > w.
+    // Set QSYN_DISABLE_PMC_LB=1 to disable (A/B timing).
+    static bool const disable_pmc_lb = [] {
+        char const* env = std::getenv("QSYN_DISABLE_PMC_LB");
+        return env != nullptr && env[0] == '1' && env[1] == '\0';
+    }();
+    if (!disable_pmc_lb) {
+        for (size_t a = 0; a < G; ++a) {
+            for (size_t i = 0; i <= G; ++i) {
+                if (i > a && (i - a) > w) {
+                    solver.add(hard[i][a] == 0);
                 }
             }
         }
@@ -2050,6 +2070,17 @@ ParsedGadgetOrdering to_parsed_ordering(AncillaSmtInstance const& inst,
 
 AncillaScheduleResult solve_ancilla_schedule(AncillaSmtInstance const& inst,
                                              AncillaScheduleSolveOptions const& options) {
+    auto const search_t0 = std::chrono::steady_clock::now();
+    auto const log_search_ms = [&] {
+        if (options.quiet) {
+            return;
+        }
+        auto const ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+                            std::chrono::steady_clock::now() - search_t0)
+                            .count();
+        spdlog::debug("solve_ancilla_schedule: search_ms={}", ms);
+    };
+
     size_t const G = inst.gadget_order_gids.size();
     if (G == 0) {
         return {.ok = false, .error = "empty gadget order"};
@@ -2059,7 +2090,7 @@ AncillaScheduleResult solve_ancilla_schedule(AncillaSmtInstance const& inst,
     size_t const hi_cap      = inst.ancilla_count;
 
     if (!options.quiet) {
-        spdlog::info(
+        spdlog::debug(
             "solve_ancilla_schedule: max_column_overlap={} (minimum achievable width)",
             max_overlap);
     }
@@ -2068,11 +2099,8 @@ AncillaScheduleResult solve_ancilla_schedule(AncillaSmtInstance const& inst,
         if (options.quiet) {
             return;
         }
-        if (note != nullptr) {
-            spdlog::info("solve_ancilla_schedule: width={} {} ({})", w, ok ? "SAT" : "UNSAT", note);
-            return;
-        }
-        spdlog::info("solve_ancilla_schedule: width={} {}", w, ok ? "SAT" : "UNSAT");
+        (void)note;
+        spdlog::warn("reorder: W={} {}", w, ok ? "SAT" : "UNSAT");
     };
 
     std::optional<size_t> best_w;
@@ -2105,6 +2133,7 @@ AncillaScheduleResult solve_ancilla_schedule(AncillaSmtInstance const& inst,
             best_w   = start_w;
             best_pos = start_probe.pos_map;
             if (start_w == 0) {
+                log_search_ms();
                 return build_result(inst, start_w, best_pos);
             }
             lo = 0;
@@ -2123,6 +2152,7 @@ AncillaScheduleResult solve_ancilla_schedule(AncillaSmtInstance const& inst,
             best_w   = probe_w;
             best_pos = probe_below->pos_map;
             if (probe_w == 0) {
+                log_search_ms();
                 return build_result(inst, probe_w, best_pos);
             }
             lo = 0;
@@ -2138,6 +2168,7 @@ AncillaScheduleResult solve_ancilla_schedule(AncillaSmtInstance const& inst,
 
     if (lo > hi) {
         if (best_w.has_value()) {
+            log_search_ms();
             return build_result(inst, *best_w, best_pos);
         }
         return {
@@ -2162,6 +2193,7 @@ AncillaScheduleResult solve_ancilla_schedule(AncillaSmtInstance const& inst,
             best_w   = next_w;
             best_pos = std::move(r.pos_map);
         }
+        log_search_ms();
         return build_result(inst, *best_w, best_pos);
     }
 
@@ -2193,6 +2225,7 @@ AncillaScheduleResult solve_ancilla_schedule(AncillaSmtInstance const& inst,
         };
     }
 
+    log_search_ms();
     return build_result(inst, *best_w, best_pos);
 }
 
@@ -2380,7 +2413,7 @@ bool sat_reorder_apply_ordering(Tableau& tableau,
     assign_pmc_export_ids(tableau);
 
     size_t const span_count = G - ord.degadgetizable_gids.size();
-    spdlog::info(
+    spdlog::debug(
         "sat_reorder: success width={} degadgetize={}/{} spans={} ancilla {} -> {}",
         tableau.n_ancilla(),
         degadgetized_count,
@@ -2391,14 +2424,15 @@ bool sat_reorder_apply_ordering(Tableau& tableau,
     return true;
 }
 
-void sat_reorder(Tableau& tableau) {
+void sat_reorder(Tableau& tableau, bool quiet) {
     if (!has_gadget_ancillae(tableau)) {
         return;
     }
     try {
         SatSignatureExport const sig = compute_sat_signature_blocks(tableau);
         AncillaSmtInstance inst = build_ancilla_smt_instance(sig);
-        AncillaScheduleResult const result = solve_ancilla_schedule(inst);
+        AncillaScheduleResult const result =
+            solve_ancilla_schedule(inst, AncillaScheduleSolveOptions{.quiet = quiet});
         if (!result.ok) {
             spdlog::error("sat_reorder: {}", result.error);
             return;
@@ -2409,6 +2443,238 @@ void sat_reorder(Tableau& tableau) {
         }
     } catch (std::exception const& e) {
         spdlog::error("sat_reorder: {}", e.what());
+    }
+}
+
+AncillaScheduleResult schedule_from_pos_map(
+    AncillaSmtInstance const& inst,
+    size_t const width_w,
+    std::unordered_map<size_t, size_t> const& pos_map) {
+    return build_result(inst, width_w, pos_map);
+}
+
+namespace {
+
+void write_pid_block_section(std::ostream& out,
+                             char const* header,
+                             std::vector<std::vector<size_t>> const& blocks) {
+    out << header << '\n';
+    for (size_t gid = 0; gid < blocks.size(); ++gid) {
+        out << gid;
+        for (size_t const pid : blocks[gid]) {
+            out << ' ' << pid;
+        }
+        out << '\n';
+    }
+}
+
+void write_rep_block_section(std::ostream& out,
+                             char const* header,
+                             AncillaSmtInstance const& inst,
+                             std::vector<std::vector<size_t>> const& blocks) {
+    out << header << '\n';
+    for (size_t gid = 0; gid < blocks.size(); ++gid) {
+        out << gid;
+        for (size_t const rep : distinct_reps_in_block(blocks[gid], inst.reduction)) {
+            out << ' ' << rep;
+        }
+        out << '\n';
+    }
+}
+
+}  // namespace
+
+bool write_ancilla_ilp_instance(std::string const& path, AncillaSmtInstance const& inst) {
+    std::ofstream out(path);
+    if (!out) {
+        spdlog::error("write_ancilla_ilp_instance: cannot open {}", path);
+        return false;
+    }
+
+    size_t const G = inst.gadget_order_gids.size();
+    out << "# ancilla_ilp_instance 1\n";
+    out << "qubit_count: " << inst.qubit_count << '\n';
+    out << "ancilla_count: " << inst.ancilla_count << '\n';
+    out << "pauli_count: " << inst.pauli_count << '\n';
+    out << "max_column_overlap: " << inst.max_column_overlap << '\n';
+
+    out << "gadget_order\n";
+    for (size_t rank = 0; rank < G; ++rank) {
+        size_t const gid = inst.gadget_order_gids[rank];
+        out << rank << ' ' << gid << ' ' << inst.gadget_ancilla_qubit[gid] << '\n';
+    }
+
+    write_pid_block_section(out, "block_left", inst.block_left);
+    write_pid_block_section(out, "block_right", inst.block_right);
+    write_rep_block_section(out, "block_left_reps", inst, inst.block_left);
+    write_rep_block_section(out, "block_right_reps", inst, inst.block_right);
+
+    out << "fixed_gap\n";
+    std::vector<size_t> fixed_reps;
+    fixed_reps.reserve(inst.reduction.fixed_gap_by_rep.size());
+    for (auto const& [rep, _] : inst.reduction.fixed_gap_by_rep) {
+        fixed_reps.push_back(rep);
+    }
+    std::sort(fixed_reps.begin(), fixed_reps.end());
+    for (size_t const rep : fixed_reps) {
+        out << rep << ' ' << inst.reduction.fixed_gap_by_rep.at(rep) << '\n';
+    }
+
+    out << "sat_reps\n";
+    for (size_t const rep : inst.reduction.sat_reps) {
+        out << rep << '\n';
+    }
+
+    out << "pid_to_rep\n";
+    size_t const pid_lo = G;
+    size_t const pid_hi = G + inst.pauli_count;
+    for (size_t pid = pid_lo; pid < pid_hi; ++pid) {
+        out << pid << ' ' << inst.reduction.rep_for(pid) << '\n';
+    }
+
+    return static_cast<bool>(out);
+}
+
+bool read_ancilla_ilp_result(std::string const& path,
+                             size_t& width_w,
+                             std::unordered_map<size_t, size_t>& pos_map,
+                             std::string& err) {
+    err.clear();
+    pos_map.clear();
+    std::ifstream in(path);
+    if (!in) {
+        err = fmt::format("cannot open {}", path);
+        return false;
+    }
+
+    bool seen_width = false;
+    std::string mode;
+    std::string line;
+    size_t line_no = 0;
+    while (std::getline(in, line)) {
+        ++line_no;
+        auto const hash = line.find('#');
+        if (hash != std::string::npos) {
+            line.resize(hash);
+        }
+        // trim
+        while (!line.empty() && (line.back() == ' ' || line.back() == '\t' || line.back() == '\r')) {
+            line.pop_back();
+        }
+        size_t start = 0;
+        while (start < line.size() && (line[start] == ' ' || line[start] == '\t')) {
+            ++start;
+        }
+        line = line.substr(start);
+        if (line.empty()) {
+            continue;
+        }
+
+        if (line.rfind("width:", 0) == 0) {
+            width_w     = static_cast<size_t>(std::stoll(line.substr(6)));
+            seen_width  = true;
+            mode.clear();
+            continue;
+        }
+        if (line == "pos_class") {
+            mode = "pos_class";
+            continue;
+        }
+        if (line.rfind("status:", 0) == 0) {
+            mode.clear();
+            continue;
+        }
+
+        if (mode == "pos_class") {
+            std::istringstream iss(line);
+            size_t rep = 0;
+            size_t gap = 0;
+            if (!(iss >> rep >> gap)) {
+                err = fmt::format("{}:{}: expected 'rep gap'", path, line_no);
+                return false;
+            }
+            pos_map[rep] = gap;
+            continue;
+        }
+
+        err = fmt::format("{}:{}: unexpected line '{}'", path, line_no, line);
+        return false;
+    }
+
+    if (!seen_width) {
+        err = fmt::format("{}: missing width:", path);
+        return false;
+    }
+    if (pos_map.empty()) {
+        err = fmt::format("{}: empty pos_class", path);
+        return false;
+    }
+    return true;
+}
+
+void ilp_reorder_export(Tableau& tableau, std::string const& path) {
+    if (!has_gadget_ancillae(tableau)) {
+        spdlog::warn("ilp_reorder_export: tableau has no gadget ancillae");
+        return;
+    }
+    try {
+        SatSignatureExport const sig = compute_sat_signature_blocks(tableau);
+        AncillaSmtInstance const inst = build_ancilla_smt_instance(sig);
+        if (!write_ancilla_ilp_instance(path, inst)) {
+            return;
+        }
+        spdlog::info(
+            "ilp_reorder_export: wrote {} (G={} pauli={} sat_reps={} fixed={})",
+            path,
+            inst.gadget_order_gids.size(),
+            inst.pauli_count,
+            inst.reduction.sat_reps.size(),
+            inst.reduction.fixed_gap_by_rep.size());
+    } catch (std::exception const& e) {
+        spdlog::error("ilp_reorder_export: {}", e.what());
+    }
+}
+
+bool ilp_reorder_apply(Tableau& tableau, std::string const& result_path) {
+    if (!has_gadget_ancillae(tableau)) {
+        spdlog::warn("ilp_reorder_apply: tableau has no gadget ancillae");
+        return false;
+    }
+    try {
+        size_t width_w = 0;
+        PosMap pos_map;
+        std::string err;
+        if (!read_ancilla_ilp_result(result_path, width_w, pos_map, err)) {
+            spdlog::error("ilp_reorder_apply: {}", err);
+            return false;
+        }
+
+        SatSignatureExport const sig = compute_sat_signature_blocks(tableau);
+        AncillaSmtInstance inst      = build_ancilla_smt_instance(sig);
+
+        // Ensure every class has a gap (fill fixed if the ILP file omitted them).
+        for (auto const& cls : inst.reduction.classes) {
+            if (pos_map.count(cls.rep) != 0) {
+                continue;
+            }
+            if (auto const fixed = inst.reduction.fixed_gap_for_rep(cls.rep); fixed.has_value()) {
+                pos_map.emplace(cls.rep, *fixed);
+                continue;
+            }
+            spdlog::error("ilp_reorder_apply: missing pos_class for SAT rep {}", cls.rep);
+            return false;
+        }
+
+        AncillaScheduleResult const result = schedule_from_pos_map(inst, width_w, pos_map);
+        if (!result.ok) {
+            spdlog::error("ilp_reorder_apply: {}", result.error);
+            return false;
+        }
+        ParsedGadgetOrdering const ord = to_parsed_ordering(inst, result);
+        return sat_reorder_apply_ordering(tableau, ord);
+    } catch (std::exception const& e) {
+        spdlog::error("ilp_reorder_apply: {}", e.what());
+        return false;
     }
 }
 

@@ -63,6 +63,9 @@ std::optional<qcir::QCir> to_qcir(
     PauliRotationsSynthesisStrategy const& pr_strategy,
     StabilizerTableauSynthesisStrategy const& cct_strategy);
 
+/** Default convert tableau qcir strategies: hopt Clifford, naive rotations. */
+std::optional<qcir::QCir> tableau_to_qcir_hopt_naive(Tableau const& tableau);
+
 }  // namespace experimental
 
 }  // namespace qsyn

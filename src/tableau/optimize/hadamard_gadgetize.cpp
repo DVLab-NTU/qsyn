@@ -365,7 +365,7 @@ void gadgetize_tableau(Tableau& tableau) {
         tableau.set_ancilla_measurement_type(anc_idx, MeasurementType::X);
     }
 
-    spdlog::info(
+    spdlog::debug(
         "gadgetize_tableau: {} total qubits ({} data + {} ancilla) before minimization",
         total_qubits,
         original_n_qubits,

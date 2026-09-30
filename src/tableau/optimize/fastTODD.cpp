@@ -254,6 +254,16 @@ bool fasttodd_trace_enabled() {
     return enabled != 0;
 }
 
+bool fasttodd_progress_enabled() {
+    static int const enabled = [] {
+        if (char const* v = std::getenv("QSYN_FASTTODD_PROGRESS")) {
+            return (v[0] == '1' || v[0] == 'y' || v[0] == 'Y') ? 1 : 0;
+        }
+        return 0;
+    }();
+    return enabled != 0;
+}
+
 bool env_enabled(char const* value) {
     return value != nullptr && (value[0] == '1' || value[0] == 'y' || value[0] == 'Y');
 }
@@ -1056,15 +1066,31 @@ Polynomial fasttodd_once(Polynomial const& polynomial, char const* backend) {
 
     size_t outer = 0;
     while (true) {
+        auto const before_tohpe = table.num_rows();
         tohpe_table_pass(table, n_qubits, static_cast<size_t>(-1), tie_runtime_ptr);
+        if (fasttodd_progress_enabled() && table.num_rows() < before_tohpe) {
+            spdlog::info(
+                "FastTODD progress: iteration={} T count {} -> {} (TOHPE)",
+                outer,
+                before_tohpe,
+                table.num_rows());
+        }
         if (table.num_rows() == 0) {
             break;
         }
         if (fasttodd_trace_enabled()) {
             fmt::print(stderr, "[{}-fasttodd] outer={} after_tohpe rows={}\n", backend, outer, table.num_rows());
         }
+        auto const before_fasttodd = table.num_rows();
         if (!fast_todd_table_step(table, n_qubits, outer, backend, tie_runtime_ptr)) {
             break;
+        }
+        if (fasttodd_progress_enabled() && table.num_rows() < before_fasttodd) {
+            spdlog::info(
+                "FastTODD progress: iteration={} T count {} -> {} (FastTODD)",
+                outer,
+                before_fasttodd,
+                table.num_rows());
         }
         ++outer;
     }
@@ -1188,7 +1214,7 @@ std::pair<StabilizerTableau, Polynomial> FastToddPhasePolynomialOptimizationStra
 
     auto const final_t = result->second.size();
     if (!g_fasttodd_tie_control.has_value() || !g_fasttodd_tie_control->enabled) {
-        spdlog::info("FastTODD: T count {} -> {}", initial_t, final_t);
+        spdlog::debug("FastTODD: T count {} -> {}", initial_t, final_t);
     }
     return *result;
 }

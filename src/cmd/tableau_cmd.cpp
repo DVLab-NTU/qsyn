@@ -7,10 +7,12 @@
 
 #include "./tableau_cmd.hpp"
 
+#include <algorithm>
 #include <cstdint>
 #include <cstdlib>
 #include <optional>
 #include <string>
+#include <string_view>
 
 #include "argparse/arg_parser.hpp"
 #include "argparse/arg_type.hpp"
@@ -31,6 +33,8 @@ using namespace dvlab::argparse;
 
 namespace qsyn::experimental {
 
+std::optional<qcir::QCir> tableau_to_qcir_hopt_naive(Tableau const& tableau);
+
 ArgType<size_t>::ConstraintType valid_tableau_qubit_id(TableauMgr const& tableau_mgr) {
     return [&tableau_mgr](size_t const& id) -> bool {
         if (id < tableau_mgr.get()->n_qubits()) return true;
@@ -40,6 +44,10 @@ ArgType<size_t>::ConstraintType valid_tableau_qubit_id(TableauMgr const& tableau
 }
 
 dvlab::Command tableau_new_cmd(TableauMgr& tableau_mgr) {
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
     return dvlab::Command{
         "new",
         [&](ArgumentParser& parser) {
@@ -66,14 +74,31 @@ dvlab::Command tableau_new_cmd(TableauMgr& tableau_mgr) {
                     spdlog::error("Tableau {} already exists!! Please specify `--replace` to replace if needed", id);
                     return dvlab::CmdExecResult::error;
                 }
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
                 tableau_mgr.set_by_id(id, std::make_unique<Tableau>(n_qubits));
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
                 return dvlab::CmdExecResult::done;
             }
 
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
             tableau_mgr.add(id, std::make_unique<Tableau>(n_qubits));
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
 
             return dvlab::CmdExecResult::done;
         }};
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
 }
 
 dvlab::Command tableau_append_cmd(TableauMgr& tableau_mgr) {
@@ -210,44 +235,11 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr, qsyn::qcir::QCi
             methods.add_parser("hopt")
                 .description("Minimize the number of Hadamard gates and internal Hadamard gates in the tableau");
 
-            methods.add_parser("gadgetH")
-                .description("Minimize the number of Hadamard gates using H gadgets (ancilla qubits and measurements)");
+            methods.add_parser("unify")
+                .description("T-opt with H-gadgetize: gadgetize then FastTODD (no SMT reorder)");
 
-            auto ancillary_parser = methods.add_parser("ancillaryTopt")
-                .description("Minimize the number of T gates in the tableau with the help of classical operations & ancillary qubits");
-            ancillary_parser.add_argument<bool>("--tie-search", "-tie-search")
-                .action(store_true)
-                .help("QCir-first tie-search: 8 preprocess baselines, then all-random trials (requires qc read; then convert tableau qcir)");
-            ancillary_parser.add_argument<size_t>("-m", "--merge-rotations")
-                .nargs(NArgsOption::optional)
-                .help("Override QSYN_TABLEAU_MERGE_ROTATIONS (0/1)");
-            ancillary_parser.add_argument<size_t>("-p", "--properize")
-                .nargs(NArgsOption::optional)
-                .help("Override QSYN_TABLEAU_PROPERIZE (0/1)");
-            ancillary_parser.add_argument<size_t>("--cycle", "-cycle")
-                .nargs(NArgsOption::optional)
-                .help("Override tie-search max trials (M)");
-            ancillary_parser.add_argument<size_t>("--early-stop", "--early_stop", "-early_stop")
-                .nargs(NArgsOption::optional)
-                .help("Override tie-search patience (N)");
-
-            auto unified_parser = methods.add_parser("unified")
-                .description("Alias for ancillaryTopt (H-gadgetize + classical-aware phase polynomial optimization)");
-            unified_parser.add_argument<bool>("--tie-search", "-tie-search")
-                .action(store_true)
-                .help("QCir-first tie-search: 8 preprocess baselines, then all-random trials (requires qc read; then convert tableau qcir)");
-            unified_parser.add_argument<size_t>("-m", "--merge-rotations")
-                .nargs(NArgsOption::optional)
-                .help("Override QSYN_TABLEAU_MERGE_ROTATIONS (0/1)");
-            unified_parser.add_argument<size_t>("-p", "--properize")
-                .nargs(NArgsOption::optional)
-                .help("Override QSYN_TABLEAU_PROPERIZE (0/1)");
-            unified_parser.add_argument<size_t>("--cycle", "-cycle")
-                .nargs(NArgsOption::optional)
-                .help("Override tie-search max trials (M)");
-            unified_parser.add_argument<size_t>("--early-stop", "--early_stop", "-early_stop")
-                .nargs(NArgsOption::optional)
-                .help("Override tie-search patience (N)");
+            methods.add_parser("reorder")
+                .description("SMT-based gadget/PR reordering for ancilla minimization; runs unify first if needed");
 
             auto test_parser = methods.add_parser("test")
                                    .description("Run commute-text validation test and compare simulated PMC with ops section");
@@ -282,10 +274,10 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr, qsyn::qcir::QCi
                 collapse,
                 t_merge,
                 internal_h_opt,
-                internal_h_opt_gadgetize,
+                unify_t_opt,
+                reorder,
                 phase_polynomial_optimization,
                 matroid_partition,
-                ancillary_t_opt,
                 commute_test
             };
 
@@ -296,17 +288,16 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr, qsyn::qcir::QCi
                     return OptimizationMethod::collapse;
                 } else if (dvlab::str::is_prefix_of(method_str, "tmerge")) {
                     return OptimizationMethod::t_merge;
-                } else if (dvlab::str::is_prefix_of(method_str, "gadgetH")) {
-                    return OptimizationMethod::internal_h_opt_gadgetize;
                 } else if (dvlab::str::is_prefix_of(method_str, "hopt")) {
                     return OptimizationMethod::internal_h_opt;
+                } else if (dvlab::str::is_prefix_of(method_str, "unify")) {
+                    return OptimizationMethod::unify_t_opt;
+                } else if (dvlab::str::is_prefix_of(method_str, "reorder")) {
+                    return OptimizationMethod::reorder;
                 } else if (dvlab::str::is_prefix_of(method_str, "phasepoly")) {
                     return OptimizationMethod::phase_polynomial_optimization;
                 } else if (dvlab::str::is_prefix_of(method_str, "matpar")) {
                     return OptimizationMethod::matroid_partition;
-                } else if (dvlab::str::is_prefix_of(method_str, "ancillaryTopt") ||
-                           dvlab::str::is_prefix_of(method_str, "unified")) {
-                    return OptimizationMethod::ancillary_t_opt;
                 } else if (dvlab::str::is_prefix_of(method_str, "test")) {
                     return OptimizationMethod::commute_test;
                 }
@@ -317,17 +308,8 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr, qsyn::qcir::QCi
                 spdlog::error("Unknown optimization method {}!!", method_str);
                 return dvlab::CmdExecResult::error;
             }
-            if (*method != OptimizationMethod::commute_test) {
-                bool const enable_tie_search =
-                    (*method == OptimizationMethod::ancillary_t_opt) && parser.parsed("--tie-search");
-                if (enable_tie_search) {
-                    if (!dvlab::utils::mgr_has_data(qcir_mgr)) {
-                        spdlog::error("tie-search requires QCir; run qc read first");
-                        return dvlab::CmdExecResult::error;
-                    }
-                } else if (!dvlab::utils::mgr_has_data(tableau_mgr)) {
-                    return dvlab::CmdExecResult::error;
-                }
+            if (*method != OptimizationMethod::commute_test && !dvlab::utils::mgr_has_data(tableau_mgr)) {
+                return dvlab::CmdExecResult::error;
             }
 
             auto const do_phase_polynomial_optimization = [&]() {
@@ -346,6 +328,23 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr, qsyn::qcir::QCi
                     return nullptr;
                 });
                 optimize_phase_polynomial(*tableau_mgr.get(), *phasepoly_strategy);
+            };
+
+            auto const apply_unify = [&]() {
+                auto& tableau = *tableau_mgr.get();
+                minimize_ancillary_t_opt(
+                    tableau,
+                    qcir_mgr.empty()
+                        ? std::optional<std::string>{tableau.get_filename()}
+                        : std::optional<std::string>{qcir_mgr.get()->get_filename()});
+                tableau.add_procedure("UnifyTOpt");
+            };
+
+            auto const unify_already_applied = [&]() {
+                auto const procedures = tableau_mgr.get()->get_procedures();
+                return std::ranges::any_of(procedures, [](std::string const& procedure) {
+                    return procedure == "UnifyTOpt" || procedure == "UnifiedTOpt";
+                });
             };
 
             auto const do_matroid_partition = [&]() {
@@ -384,10 +383,23 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr, qsyn::qcir::QCi
                     minimize_internal_hadamards(*tableau_mgr.get());
                     tableau_mgr.get()->add_procedure("InternalHOpt");
                     break;
-                case OptimizationMethod::internal_h_opt_gadgetize:
-                    minimize_internal_hadamards_n_gadgetize(*tableau_mgr.get());
-                    tableau_mgr.get()->add_procedure("InternalHOptGadgetize");
+                case OptimizationMethod::unify_t_opt:
+                    apply_unify();
                     break;
+                case OptimizationMethod::reorder: {
+                    auto& tableau = *tableau_mgr.get();
+                    if (!unify_already_applied()) {
+                        apply_unify();
+                    }
+                    size_t const t0 = tableau.n_pauli_rotations();
+                    size_t const a0 = tableau.n_ancilla();
+                    sat_reorder(tableau);
+                    tableau.add_procedure("SatReorder");
+                    log_topt_stage("reorder", "SMT width search",
+                                   t0, tableau.n_pauli_rotations(), a0, tableau.n_ancilla(),
+                                   /*with_t=*/false);
+                    break;
+                }
                 case OptimizationMethod::phase_polynomial_optimization:
                     do_phase_polynomial_optimization();
                     tableau_mgr.get()->add_procedure("PhasePolyOpt");
@@ -398,96 +410,6 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr, qsyn::qcir::QCi
                     }
                     tableau_mgr.get()->add_procedure("MatroidPartition");
                     break;
-                case OptimizationMethod::ancillary_t_opt: {
-                    auto const set_env_override = [](char const* key, std::string const& value) {
-                        if (setenv(key, value.c_str(), 1) != 0) {
-                            spdlog::warn("Failed to set env {}={}", key, value);
-                        }
-                    };
-                    auto const validate_binary_flag = [](char const* name, size_t value) {
-                        if (value > 1) {
-                            spdlog::error("{} expects 0/1, got {}", name, value);
-                            return false;
-                        }
-                        return true;
-                    };
-                    auto const scoped_env_restore = [&]() {
-                        std::vector<std::pair<std::string, std::optional<std::string>>> saved;
-                        auto save_env = [&](char const* key) {
-                            if (char const* value = std::getenv(key)) {
-                                saved.emplace_back(key, std::string{value});
-                            } else {
-                                saved.emplace_back(key, std::nullopt);
-                            }
-                        };
-                        save_env("QSYN_TABLEAU_MERGE_ROTATIONS");
-                        save_env("QSYN_TABLEAU_PROPERIZE");
-                        save_env("QSYN_FASTTODD_TIE_SEARCH_MAX_TRIALS");
-                        save_env("QSYN_FASTTODD_TIE_SEARCH_PATIENCE");
-                        return saved;
-                    };
-                    struct EnvRestoreGuard {
-                        std::vector<std::pair<std::string, std::optional<std::string>>> saved;
-                        ~EnvRestoreGuard() {
-                            for (auto const& [key, value] : saved) {
-                                if (value.has_value()) {
-                                    setenv(key.c_str(), value->c_str(), 1);
-                                } else {
-                                    unsetenv(key.c_str());
-                                }
-                            }
-                        }
-                    };
-                    EnvRestoreGuard env_guard{scoped_env_restore()};
-
-                    if (parser.parsed("--merge-rotations")) {
-                        auto const value = parser.get<size_t>("--merge-rotations");
-                        if (!validate_binary_flag("--merge-rotations", value)) {
-                            return dvlab::CmdExecResult::error;
-                        }
-                        set_env_override("QSYN_TABLEAU_MERGE_ROTATIONS", std::to_string(value));
-                    }
-                    if (parser.parsed("--properize")) {
-                        auto const value = parser.get<size_t>("--properize");
-                        if (!validate_binary_flag("--properize", value)) {
-                            return dvlab::CmdExecResult::error;
-                        }
-                        set_env_override("QSYN_TABLEAU_PROPERIZE", std::to_string(value));
-                    }
-                    if (parser.parsed("--cycle")) {
-                        set_env_override("QSYN_FASTTODD_TIE_SEARCH_MAX_TRIALS", std::to_string(parser.get<size_t>("--cycle")));
-                    }
-                    if (parser.parsed("--early-stop")) {
-                        set_env_override("QSYN_FASTTODD_TIE_SEARCH_PATIENCE", std::to_string(parser.get<size_t>("--early-stop")));
-                    }
-                    bool const enable_tie_search = parser.parsed("--tie-search");
-                    if (enable_tie_search) {
-                        if (parser.parsed("--merge-rotations") || parser.parsed("--properize")) {
-                            spdlog::warn("tie-search ignores -m/-p; all 8 preprocess configs are tried internally");
-                        }
-                        Tableau optimized{0};
-                        if (!minimize_ancillary_t_opt_from_qcir(*qcir_mgr.get(), optimized)) {
-                            return dvlab::CmdExecResult::error;
-                        }
-                        if (tableau_mgr.empty()) {
-                            tableau_mgr.add(tableau_mgr.get_next_id(), std::make_unique<Tableau>(std::move(optimized)));
-                        } else {
-                            *tableau_mgr.get() = std::move(optimized);
-                        }
-                        if (!qcir_mgr.get()->get_filename().empty()) {
-                            tableau_mgr.get()->set_filename(qcir_mgr.get()->get_filename());
-                        }
-                        tableau_mgr.get()->add_procedure("AncillaryTOptTieSearch");
-                        break;
-                    }
-                    minimize_ancillary_t_opt(
-                        *tableau_mgr.get(),
-                        qcir_mgr.empty()
-                            ? std::optional<std::string>{tableau_mgr.get()->get_filename()}
-                            : std::optional<std::string>{qcir_mgr.get()->get_filename()});
-                    tableau_mgr.get()->add_procedure("AncillaryTOpt");
-                    break;
-                }
                 case OptimizationMethod::commute_test: {
                     auto const txt_file = parser.get<std::string>("txt-file");
                     if (!run_commute_test_from_file(txt_file)) {
@@ -504,57 +426,129 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr, qsyn::qcir::QCi
         }};
 }
 
-dvlab::Command tableau_minimize_q_cmd(TableauMgr& tableau_mgr) {
+dvlab::Command tableau_tie_search_cmd(TableauMgr& tableau_mgr, qsyn::qcir::QCirMgr& qcir_mgr, std::string_view name) {
     return dvlab::Command{
-        "minimize_q",
+        name,
         [&](ArgumentParser& parser) {
-            parser.description("Minimize qubit usage in gadgetized tableaux");
-
-            auto methods = parser.add_subparsers("method").required(true);
-            methods.add_parser("degadgetize")
-                .description(
-                    "Post-T-opt degadgetization: constraint-graph reorder + degadgetize (shorthand: tableau m d)");
-            methods.add_parser("degadgetizationTest")
-                .description("Alias for degadgetize (legacy name from former tableau o d)");
-            methods.add_parser("reorder")
-                .description("SAT-based gadget/PR reordering for ancilla minimization (shorthand: tableau m r)");
+            parser.description(
+                "runs the tie-search algorithm to co-optimize T and ancilla count. "
+                "Measurement gates as well as ancilla will be added for optimization.");
+            parser.add_argument<size_t>("--cycle", "-cycle")
+                .nargs(NArgsOption::optional)
+                .help("Optional safety cap on total phase-2 shots (default: unlimited)");
+            parser.add_argument<size_t>("--early-stop", "--early_stop", "-early_stop")
+                .nargs(NArgsOption::optional)
+                .help("Fixed tie-search patience override; all_random uses N/2 (default: dynamic max(60, ceil(2.5*A_min)) for the current best)");
+            auto t_only_cmds = parser.add_subparsers("t-only-mode").required(false);
+            auto add_t_only = [&](std::string_view name) {
+                auto t_only_parser = t_only_cmds.add_parser(name);
+                t_only_parser.description("Minimize T-count only (skip SMT/ancilla). Tracks last T-reduction step.");
+                t_only_parser.add_argument<size_t>("--repeats")
+                    .nargs(NArgsOption::optional)
+                    .help("Independent repeats (default 1). Logs avg last T-reduction step.");
+            };
+            add_t_only("-t-only");
+            add_t_only("--t-only");
         },
         [&](ArgumentParser const& parser) {
-            if (!dvlab::utils::mgr_has_data(tableau_mgr)) {
+            if (!dvlab::utils::mgr_has_data(qcir_mgr)) {
+                spdlog::error("tie-search requires QCir; run qc read first");
                 return dvlab::CmdExecResult::error;
             }
 
-            auto const method_str = parser.get<std::string>("method");
-            enum struct QubitMinimizationMethod : std::uint8_t {
-                degadgetize,
-                reorder
-            };
-
-            auto const method = std::invoke([&]() -> std::optional<QubitMinimizationMethod> {
-                if (dvlab::str::is_prefix_of(method_str, "degadgetizationTest") ||
-                    dvlab::str::is_prefix_of(method_str, "degadgetize")) {
-                    return QubitMinimizationMethod::degadgetize;
-                } else if (dvlab::str::is_prefix_of(method_str, "reorder")) {
-                    return QubitMinimizationMethod::reorder;
+            auto const set_env_override = [](char const* key, std::string const& value) {
+                if (setenv(key, value.c_str(), 1) != 0) {
+                    spdlog::warn("Failed to set env {}={}", key, value);
                 }
-                return std::nullopt;
-            });
+            };
+            auto const scoped_env_restore = [&]() {
+                std::vector<std::pair<std::string, std::optional<std::string>>> saved;
+                auto save_env = [&](char const* key) {
+                    if (char const* value = std::getenv(key)) {
+                        saved.emplace_back(key, std::string{value});
+                    } else {
+                        saved.emplace_back(key, std::nullopt);
+                    }
+                };
+                save_env("QSYN_FASTTODD_TIE_SEARCH_MAX_TRIALS");
+                save_env("QSYN_FASTTODD_TIE_SEARCH_PATIENCE");
+                return saved;
+            };
+            struct EnvRestoreGuard {
+                std::vector<std::pair<std::string, std::optional<std::string>>> saved;
+                ~EnvRestoreGuard() {
+                    for (auto const& [key, value] : saved) {
+                        if (value.has_value()) {
+                            setenv(key.c_str(), value->c_str(), 1);
+                        } else {
+                            unsetenv(key.c_str());
+                        }
+                    }
+                }
+            };
+            EnvRestoreGuard env_guard{scoped_env_restore()};
 
-            if (!method) {
-                spdlog::error("Unknown qubit minimization method {}!!", method_str);
+            if (parser.parsed("--cycle")) {
+                set_env_override("QSYN_FASTTODD_TIE_SEARCH_MAX_TRIALS", std::to_string(parser.get<size_t>("--cycle")));
+            }
+            if (parser.parsed("--early-stop")) {
+                set_env_override("QSYN_FASTTODD_TIE_SEARCH_PATIENCE", std::to_string(parser.get<size_t>("--early-stop")));
+            }
+
+            bool const t_only = parser.get_activated_subparser().has_value();
+            size_t const repeats =
+                t_only && parser.parsed("--repeats") ? parser.get<size_t>("--repeats") : size_t{1};
+            if (t_only && !parser.parsed("--cycle")) {
+                set_env_override("QSYN_FASTTODD_TIE_SEARCH_MAX_TRIALS", "1000");
+            }
+            if (t_only && !parser.parsed("--early-stop")) {
+                set_env_override("QSYN_FASTTODD_TIE_SEARCH_PATIENCE", "100");
+            }
+
+            Tableau optimized{0};
+            bool ok = false;
+            if (t_only) {
+                TOnlyTieSearchAggregate agg;
+                ok = minimize_t_opt_tie_search_from_qcir(*qcir_mgr.get(), optimized, repeats, &agg);
+                if (ok) {
+                    spdlog::info(
+                        "t-only tie search csv: repeats={} min_T={} max_T={} avg_T={:.6f} "
+                        "avg_last_t_reduce_step={:.6f} avg_last_t_reduce_step_at_min_T={:.6f} hit_min_T={}",
+                        agg.repeats,
+                        agg.min_t,
+                        agg.max_t,
+                        agg.avg_final_t,
+                        agg.avg_last_t_reduce_step,
+                        agg.avg_last_t_reduce_step_at_min_t,
+                        agg.n_hit_min_t);
+                }
+            } else {
+                ok = minimize_ancillary_t_opt_from_qcir(*qcir_mgr.get(), optimized);
+            }
+            if (!ok) {
                 return dvlab::CmdExecResult::error;
             }
 
-            switch (*method) {
-                case QubitMinimizationMethod::degadgetize:
-                    reorder_n_degadgetize(*tableau_mgr.get());
-                    tableau_mgr.get()->add_procedure("MinimizeQDegadgetize");
-                    break;
-                case QubitMinimizationMethod::reorder:
-                    sat_reorder(*tableau_mgr.get());
-                    tableau_mgr.get()->add_procedure("MinimizeQReorder");
-                    break;
+            if (tableau_mgr.empty()) {
+                tableau_mgr.add(tableau_mgr.get_next_id(), std::make_unique<Tableau>(std::move(optimized)));
+            } else {
+                *tableau_mgr.get() = std::move(optimized);
             }
+            if (!qcir_mgr.get()->get_filename().empty()) {
+                tableau_mgr.get()->set_filename(qcir_mgr.get()->get_filename());
+            }
+            tableau_mgr.get()->add_procedure(t_only ? "TOnlyTieSearch" : "TieSearch");
+
+            spdlog::debug("Converting Tableau {} to QCir {}...", tableau_mgr.focused_id(), qcir_mgr.get_next_id());
+            auto qcir = tableau_to_qcir_hopt_naive(*tableau_mgr.get());
+            if (!qcir.has_value()) {
+                spdlog::error("tie-search: tableau-to-qcir conversion failed");
+                return dvlab::CmdExecResult::error;
+            }
+            qcir_mgr.add(qcir_mgr.get_next_id(), std::make_unique<qcir::QCir>(std::move(qcir.value())));
+            qcir_mgr.get()->set_filename(tableau_mgr.get()->get_filename());
+            qcir_mgr.get()->add_procedures(tableau_mgr.get()->get_procedures());
+            qcir_mgr.get()->add_procedure("TABL2QC");
             return dvlab::CmdExecResult::done;
         }};
 }
@@ -571,13 +565,13 @@ dvlab::Command tableau_cmd(TableauMgr& tableau_mgr, qsyn::qcir::QCirMgr& qcir_mg
     cmd.add_subcommand("tableau-cmd-group", tableau_adjoint_cmd(tableau_mgr));
     cmd.add_subcommand("tableau-cmd-group", tableau_print_cmd(tableau_mgr));
     cmd.add_subcommand("tableau-cmd-group", tableau_optimization_cmd(tableau_mgr, qcir_mgr));
-    cmd.add_subcommand("tableau-cmd-group", tableau_minimize_q_cmd(tableau_mgr));
 
     return cmd;
 }
 
 bool add_tableau_command(dvlab::CommandLineInterface& cli, TableauMgr& tableau_mgr, qsyn::qcir::QCirMgr& qcir_mgr) {
-    return cli.add_command(tableau_cmd(tableau_mgr, qcir_mgr));
+    return cli.add_command(tableau_cmd(tableau_mgr, qcir_mgr)) &&
+           cli.add_command(tableau_tie_search_cmd(tableau_mgr, qcir_mgr, "tie-search"));
 }
 
 }  // namespace qsyn::experimental

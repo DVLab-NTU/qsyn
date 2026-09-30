@@ -1,0 +1,6 @@
+tableau -h
+tableau o -h
+tie-search -h
+tableau o re
+tie-search
+quit -f

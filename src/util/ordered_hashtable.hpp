@@ -92,11 +92,19 @@ public:
 
         bool is_valid() const noexcept { return *(this->_itr) != std::nullopt; }
 
+        // GCC 15 -Wcast-user-defined: pair<K,V> → pair<K const,V>& is a layout pun, not pair's converting ctor.
+#if defined(__GNUC__) && !defined(__clang__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-user-defined"
+#endif
         value_type& operator*() noexcept { return (value_type&)this->_itr->value(); }
         value_type& operator*() const noexcept { return (value_type&)this->_itr->value(); }
 
         value_type* operator->() noexcept { return (value_type*)&(this->_itr->value()); }
         value_type* operator->() const noexcept { return (value_type*)&(this->_itr->value()); }
+#if defined(__GNUC__) && !defined(__clang__)
+#pragma GCC diagnostic pop
+#endif
 
     private:
         VecIterType _itr;

@@ -562,6 +562,18 @@ std::optional<QCir> from_qc(std::filesystem::path const& filepath) {
             std::string type, qubit_label;
             QubitIdList qubit_ids;
             size_t pos = str_get_token(line, type, 0);
+
+            // Legacy QC files use a trailing '*' to denote an adjoint and
+            // call the S gate P. Normalize those spellings to Qsyn's gate
+            // names before constructing the operation.
+            if (type == "T*" || type == "t*") {
+                type = "tdg";
+            } else if (type == "P*" || type == "p*") {
+                type = "sdg";
+            } else if (type == "P" || type == "p") {
+                type = "s";
+            }
+
             while (pos != std::string::npos) {
                 pos = str_get_token(line, qubit_label, pos);
                 if (std::ranges::count(qubit_labels, qubit_label)) {
