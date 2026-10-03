@@ -34,7 +34,7 @@
 #include <utility>
 #include <vector>
 
-namespace qsyn::experimental {
+namespace qsyn::tableau {
 
 namespace {
 
@@ -2678,4 +2678,4 @@ bool ilp_reorder_apply(Tableau& tableau, std::string const& result_path) {
     }
 }
 
-}  // namespace qsyn::experimental
+}  // namespace qsyn::tableau

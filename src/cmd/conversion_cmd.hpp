@@ -14,6 +14,6 @@
 
 namespace qsyn {
 
-bool add_conversion_cmds(dvlab::CommandLineInterface& cli, qcir::QCirMgr& qcir_mgr, tensor::TensorMgr& tensor_mgr, zx::ZXGraphMgr& zxgraph_mgr, experimental::TableauMgr& tableau_mgr);
+bool add_conversion_cmds(dvlab::CommandLineInterface& cli, qcir::QCirMgr& qcir_mgr, tensor::TensorMgr& tensor_mgr, zx::ZXGraphMgr& zxgraph_mgr, tableau::TableauMgr& tableau_mgr);
 
 }

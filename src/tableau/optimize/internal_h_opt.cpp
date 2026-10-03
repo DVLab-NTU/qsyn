@@ -10,7 +10,7 @@
 #include "tableau/stabilizer_tableau.hpp"
 #include "spdlog/spdlog.h"
 
-namespace qsyn::experimental {
+namespace qsyn::tableau {
 
 namespace {
 
@@ -259,4 +259,4 @@ void z_basisify_rotations_h_s_only(Tableau& tableau) {
     remove_identities(tableau);
 }
 
-}  // namespace qsyn::experimental
+}  // namespace qsyn::tableau

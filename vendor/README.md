@@ -22,8 +22,6 @@ This document lists the third-party dependencies that `qsyn` uses as libraries, 
   - MIT License
 - [`gabime/spdlog`](https://github.com/gabime/spdlog): Fast C++ logging library
   - MIT License
-- [`seleznevae/libfort`](https://github.com/seleznevae/libfort): Pretty table printers
-  - MIT License
 - [`p-ranav/unicode_display_width`](https://github.com/p-ranav/unicode_display_width): Aid counting string display width
   - MIT License
 - [`aminnj/cpptqdm`](https://github.com/aminnj/cpptqdm/tree/04c733fd38cdc1763d7bc19f8ff3a8fb6e95e2e9): pretty progress bar printing

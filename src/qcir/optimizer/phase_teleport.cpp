@@ -86,9 +86,9 @@ bool is_single_qubit_rotation(Operation const& op) {
     return (op.is<PZGate>() || op.is<RZGate>() || op.is<PXGate>() || op.is<RXGate>() || op.is<PYGate>() || op.is<RYGate>());
 }
 
-std::optional<std::pair<experimental::PauliRotationTableau, std::vector<size_t>>>
+std::optional<std::pair<tableau::PauliRotationTableau, std::vector<size_t>>>
 to_tableau_with_gate_ids(QCir const& qcir) {
-    experimental::Tableau tabl{qcir.get_num_qubits()};
+    tableau::Tableau tabl{qcir.get_num_qubits()};
     std::vector<size_t> gate_ids;
 
     for (auto const& gate : qcir.get_gates()) {
@@ -114,7 +114,7 @@ to_tableau_with_gate_ids(QCir const& qcir) {
         }
     }
 
-    return std::make_pair(std::get<experimental::PauliRotationTableau>(tabl.back()), gate_ids);
+    return std::make_pair(std::get<tableau::PauliRotationTableau>(tabl.back()), gate_ids);
 }
 
 /**
@@ -124,7 +124,7 @@ to_tableau_with_gate_ids(QCir const& qcir) {
  * @param gate_ids
  */
 void remove_identities_teleport(
-    experimental::PauliRotationTableau& rotations,
+    tableau::PauliRotationTableau& rotations,
     std::vector<size_t>& gate_ids) {
     for (size_t i = 0; i < rotations.size(); ++i) {
         if (rotations[i].phase() == dvlab::Phase(0)) {
@@ -152,7 +152,7 @@ void remove_identities_teleport(
  */
 sul::dynamic_bitset<> get_negated_phases(
     QCir const& qcir,
-    experimental::PauliRotationTableau const& rotations,
+    tableau::PauliRotationTableau const& rotations,
     std::vector<size_t> const& gate_ids) {
     sul::dynamic_bitset<> negated(rotations.size(), false);
 
@@ -172,7 +172,7 @@ sul::dynamic_bitset<> get_negated_phases(
  */
 void merge_rotations_teleport(
     QCir& qcir,
-    experimental::PauliRotationTableau& rotations,
+    tableau::PauliRotationTableau& rotations,
     std::vector<size_t>& gate_ids) {
     auto const negated = get_negated_phases(qcir, rotations, gate_ids);
 
@@ -181,7 +181,7 @@ void merge_rotations_teleport(
             continue;
         }
         for (size_t j = i + 1; j < rotations.size(); ++j) {
-            if (!experimental::is_commutative(rotations[i], rotations[j])) {
+            if (!tableau::is_commutative(rotations[i], rotations[j])) {
                 break;
             }
             if (rotations[i].pauli_product() == rotations[j].pauli_product()) {
@@ -223,10 +223,10 @@ void merge_rotations_teleport(
  * @brief Conjugation view specifically for phase teleport optimization, and not for general use.
  *
  */
-class ConjugationView : public experimental::PauliProductTrait<ConjugationView> {
+class ConjugationView : public tableau::PauliProductTrait<ConjugationView> {
 public:
     ConjugationView(
-        experimental::PauliRotationTableau& rotations,
+        tableau::PauliRotationTableau& rotations,
         size_t upto) : _rotations{rotations}, _upto{upto} {}
 
     ConjugationView& h(size_t qubit) noexcept override {
@@ -251,7 +251,7 @@ public:
     }
 
 private:
-    std::reference_wrapper<experimental::PauliRotationTableau> _rotations;
+    std::reference_wrapper<tableau::PauliRotationTableau> _rotations;
     size_t _upto;
 };
 
@@ -262,7 +262,7 @@ private:
  * @param gate_ids
  */
 void remove_clifford_rotations_teleport(
-    experimental::PauliRotationTableau& rotations,
+    tableau::PauliRotationTableau& rotations,
     std::vector<size_t>& gate_ids) {
     for (size_t i = 0; i < rotations.size(); ++i) {
         if (rotations[i].phase().denominator() >= 2 || rotations[i].phase() == dvlab::Phase(0)) {
@@ -271,7 +271,7 @@ void remove_clifford_rotations_teleport(
 
         auto conjugation_view = ConjugationView{rotations, i};
 
-        auto [ops, qubit] = experimental::extract_clifford_operators(rotations[i]);
+        auto [ops, qubit] = tableau::extract_clifford_operators(rotations[i]);
 
         conjugation_view.apply(ops);
 

@@ -21,7 +21,7 @@
 
 namespace qsyn {
 
-namespace experimental {
+namespace tableau {
 
 bool SignatureTensor::equivalent(SignatureTensor const& other) const {
     return n_qubits == other.n_qubits &&
@@ -1363,6 +1363,6 @@ void minimize_ancillary_t_opt_with_degadgetization(Tableau& tableau, std::option
     spdlog::info("Tableau after optimization: {:g}", tableau);
 }
 
-}  // namespace experimental
+}  // namespace tableau
 
 }  // namespace qsyn

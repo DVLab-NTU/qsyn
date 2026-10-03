@@ -17,7 +17,7 @@
 
 namespace qsyn {
 
-namespace experimental {
+namespace tableau {
 
 std::optional<CliffordOperatorType> to_clifford_operator_type(std::string_view str) noexcept {
     if (str == "h") return CliffordOperatorType::h;
@@ -136,7 +136,7 @@ PauliProduct& PauliProduct::operator*=(PauliProduct const& rhs) {
     // calculate the sign
     uint8_t power_of_i = 0;
     for (size_t i = 0; i < n_qubits(); ++i) {
-        power_of_i += qsyn::experimental::power_of_i(get_pauli_type(i), rhs.get_pauli_type(i));
+        power_of_i += qsyn::tableau::power_of_i(get_pauli_type(i), rhs.get_pauli_type(i));
     }
     if ((power_of_i % 4) >> 1 == 1) {
         _bitset.flip(_r_idx());
@@ -366,6 +366,6 @@ void PauliProduct::remove_ancilla_qubit(size_t qubit) {
     _bitset.resize(2 * (n_qubits() - 1) + 1);
 }
 
-}  // namespace experimental
+}  // namespace tableau
 
 }  // namespace qsyn

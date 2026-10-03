@@ -6,6 +6,7 @@
 #include <cstddef>
 #include <ranges>
 #include <type_traits>
+#include <unordered_map>
 
 #include "util/ordered_hashmap.hpp"
 #include "util/ordered_hashset.hpp"
@@ -97,41 +98,54 @@ public:
     size_t remove_vertex(Vertex v) {
         auto n = _vertex_attributes.erase(v);
         // remove all edges connected to v
-        for (auto dst : _out_neighbors[v]) {
-            _in_neighbors[dst].erase(v);
-            if constexpr (has_edge_attr) {
-                _edge_attributes.erase(Edge{v, dst});
-            } else {
-                --_edge_attributes;
+        auto out_it = _out_neighbors.find(v);
+        if (out_it != _out_neighbors.end()) {
+            for (auto dst : out_it->second) {
+                auto in_it = _in_neighbors.find(dst);
+                if (in_it != _in_neighbors.end()) {
+                    in_it->second.erase(v);
+                }
+                if constexpr (has_edge_attr) {
+                    _edge_attributes.erase(Edge{v, dst});
+                } else {
+                    --_edge_attributes;
+                }
             }
-        }
-        for (auto src : _in_neighbors[v]) {
-            _out_neighbors[src].erase(v);
-            if constexpr (has_edge_attr) {
-                _edge_attributes.erase(Edge{src, v});
-            } else {
-                --_edge_attributes;
-            }
+            _out_neighbors.erase(out_it);
         }
 
-        _out_neighbors.erase(v);
-        _in_neighbors.erase(v);
+        auto in_it = _in_neighbors.find(v);
+        if (in_it != _in_neighbors.end()) {
+            for (auto src : in_it->second) {
+                auto out_it2 = _out_neighbors.find(src);
+                if (out_it2 != _out_neighbors.end()) {
+                    out_it2->second.erase(v);
+                }
+                if constexpr (has_edge_attr) {
+                    _edge_attributes.erase(Edge{src, v});
+                } else {
+                    --_edge_attributes;
+                }
+            }
+            _in_neighbors.erase(in_it);
+        }
 
         return n;
     }
 
     std::enable_if_t<is_edge_attr_default_constructible || !has_edge_attr, Edge>
     add_edge(Vertex src, Vertex dst) {
-        Edge e = {src, dst};
-
-        if constexpr (has_edge_attr) {
-            _edge_attributes[e] = EdgeAttr{};
-        } else {
-            ++_edge_attributes;
-        }
         _out_neighbors[src].insert(dst);
         _in_neighbors[dst].insert(src);
-        return e;
+
+        if constexpr (has_edge_attr) {
+            Edge e              = {src, dst};
+            _edge_attributes[e] = EdgeAttr{};
+            return e;
+        } else {
+            ++_edge_attributes;
+            return Edge{src, dst};
+        }
     }
 
     std::enable_if_t<is_edge_attr_default_constructible || !has_edge_attr, Edge>
@@ -139,22 +153,21 @@ public:
         return add_edge(e.src, e.dst);
     }
 
-    std::enable_if_t<has_edge_attr, Edge>
-    add_edge(
-        Vertex src,
-        Vertex dst,
-        EdgeAttr const& attr) {
-        Edge e              = {src, dst};
-        _edge_attributes[e] = attr;
+    // add_edge(src, dst, attr) with attribute
+    template <typename EA = EdgeAttr>
+    auto add_edge(Vertex src, Vertex dst, EA const& attr)
+        -> std::enable_if_t<has_edge_attr && !std::is_same_v<EA, void>, Edge> {
+        Edge e = {src, dst};
         _out_neighbors[src].insert(dst);
         _in_neighbors[dst].insert(src);
+        _edge_attributes[e] = attr;
         return e;
     }
 
-    std::enable_if_t<has_edge_attr, Edge>
-    add_edge(
-        Edge e,
-        EdgeAttr const& attr) {
+    // add_edge(Edge e, attr) with attribute
+    template <typename EA = EdgeAttr>
+    auto add_edge(Edge e, EA const& attr)
+        -> std::enable_if_t<has_edge_attr && !std::is_same_v<EA, void>, Edge> {
         return add_edge(e.src, e.dst, attr);
     }
 
@@ -190,8 +203,6 @@ public:
                 _vertex_attributes.end());
         }
     }
-
-    // TODO: add correct edge range for no-edge-attr case
 
     auto in_edges(Vertex v) const {
         return _in_neighbors.at(v) |
@@ -261,23 +272,27 @@ public:
         return vertex_attr(v);
     }
 
-    std::enable_if_t<has_edge_attr, EdgeAttr const&>
-    edge_attr(Edge e) const {
+    template <typename T = EdgeAttr>
+    requires(has_edge_attr && !std::is_void_v<T>)
+    T const& edge_attr(Edge e) const {
         return _edge_attributes.at(e);
     }
 
-    std::enable_if_t<has_edge_attr, EdgeAttr&>
-    edge_attr(Edge e) {
+    template <typename T = EdgeAttr>
+    requires(has_edge_attr && !std::is_void_v<T>)
+    T& edge_attr(Edge e) {
         return _edge_attributes.at(e);
     }
 
-    std::enable_if_t<has_edge_attr, EdgeAttr const&>
-    operator[](Edge e) const {
+    template <typename T = EdgeAttr>
+    requires(has_edge_attr && !std::is_void_v<T>)
+    T const& operator[](Edge e) const {
         return edge_attr(e);
     }
 
-    std::enable_if_t<has_edge_attr, EdgeAttr&>
-    operator[](Edge e) {
+    template <typename T = EdgeAttr>
+    requires(has_edge_attr && !std::is_void_v<T>)
+    T& operator[](Edge e) {
         return edge_attr(e);
     }
 
@@ -287,12 +302,18 @@ public:
 
         for (auto v : vertices()) {
             if (!other.has_vertex(v)) return false;
-            if (vertex_attr(v) != other.vertex_attr(v)) return false;
+            if constexpr (has_vertex_attr) {
+                if (vertex_attr(v) != other.vertex_attr(v)) return false;
+            }
         }
 
-        for (auto e : _edge_attributes | std::views::keys) {
-            if (!other.has_edge(e)) return false;
-            if (edge_attr(e) != other.edge_attr(e)) return false;
+        for (auto const& v : vertices()) {
+            for (auto const& e : out_edges(v)) {
+                if (!other.has_edge(e)) return false;
+                if constexpr (has_edge_attr) {
+                    if (edge_attr(e) != other.edge_attr(e)) return false;
+                }
+            }
         }
         return true;
     }
@@ -315,9 +336,11 @@ private:
     VertexAttributes _vertex_attributes;
 
     struct EdgeHash {
-        std::size_t operator()(Edge const& edge) const {
-            return std::hash<Vertex>{}(edge.src) ^
-                   std::hash<Vertex>{}(edge.dst);
+        std::size_t operator()(Edge const& edge) const noexcept {
+            std::size_t h1 = std::hash<Vertex>{}(edge.src);
+            std::size_t h2 = std::hash<Vertex>{}(edge.dst);
+            h1 ^= h2 + 0x9e3779b97f4a7c15ull + (h1 << 6) + (h1 >> 2);
+            return h1;
         }
     };
 

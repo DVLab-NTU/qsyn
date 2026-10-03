@@ -19,7 +19,7 @@
 
 namespace qsyn {
 
-namespace experimental {
+namespace tableau {
 
 /**
  * @brief Kind of ClassicalControlTableau: Hadamard gadget (pre-measurement) vs classical-controlled Cliffords.
@@ -201,6 +201,6 @@ bool test_classical_equivalence(ClassicalControlTableau const& cct_old, std::vec
 bool test_classical_equivalence_reverse(ClassicalControlTableau const& cct_old, StabilizerTableau const& tableau, ClassicalControlTableau const& cct_new);
 bool test_classical_equivalence_reverse(ClassicalControlTableau const& cct_old, std::vector<PauliRotation> const& tableau, ClassicalControlTableau const& cct_new);
 
-}  // namespace experimental
+}  // namespace tableau
 
 }  // namespace qsyn

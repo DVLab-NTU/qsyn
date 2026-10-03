@@ -14,13 +14,13 @@
 
 namespace qsyn {
 
-namespace experimental {
+namespace tableau {
 
 std::optional<Tableau> to_tableau(qcir::QCir const& qcir);
 
-}  // namespace experimental
+}  // namespace tableau
 
 template <>
-bool append_to_tableau(qcir::QCir const& op, experimental::Tableau& tableau, QubitIdList const& qubits);
+bool append_to_tableau(qcir::QCir const& op, tableau::Tableau& tableau, QubitIdList const& qubits);
 
 }  // namespace qsyn

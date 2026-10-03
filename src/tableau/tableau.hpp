@@ -28,7 +28,7 @@
 
 namespace qsyn {
 
-namespace experimental {
+namespace tableau {
 
 using SubTableau = std::variant<
     StabilizerTableau,           // Clifford operations (non-conditional)
@@ -359,11 +359,11 @@ void adjoint_inplace(SubTableau& subtableau);
 void adjoint_inplace(Tableau& tableau);
 [[nodiscard]] Tableau adjoint(Tableau const& tableau);
 
-}  // namespace experimental
+}  // namespace tableau
 
 }  // namespace qsyn
 template <>
-struct fmt::formatter<qsyn::experimental::SubTableau> {
+struct fmt::formatter<qsyn::tableau::SubTableau> {
     char presentation = 'c';
     constexpr auto parse(format_parse_context& ctx) {
         auto it = ctx.begin(), end = ctx.end();
@@ -373,39 +373,39 @@ struct fmt::formatter<qsyn::experimental::SubTableau> {
     }
 
     template <typename FormatContext>
-    auto format(qsyn::experimental::SubTableau const& subtableau, FormatContext& ctx) const -> format_context::iterator {
+    auto format(qsyn::tableau::SubTableau const& subtableau, FormatContext& ctx) const -> format_context::iterator {
         // NOTE - cannot use run-time formatting to choose between 'c', 'b', and 'g'
         //        because the format function may be called in compile-time
         return std::visit(
             dvlab::overloaded{
-                [&](qsyn::experimental::StabilizerTableau const& st) -> format_context::iterator {
+                [&](qsyn::tableau::StabilizerTableau const& st) -> format_context::iterator {
                     if (presentation == 'g') {
-                        auto const ops = qsyn::experimental::extract_clifford_operators(
-                            st, qsyn::experimental::HOptSynthesisStrategy{qsyn::experimental::HOptSynthesisStrategy::Mode::staircase});
-                        return fmt::format_to(ctx.out(), "Clifford:\n{}", qsyn::experimental::clifford_ops_to_string(ops));
+                        auto const ops = qsyn::tableau::extract_clifford_operators(
+                            st, qsyn::tableau::HOptSynthesisStrategy{qsyn::tableau::HOptSynthesisStrategy::Mode::staircase});
+                        return fmt::format_to(ctx.out(), "Clifford:\n{}", qsyn::tableau::clifford_ops_to_string(ops));
                     }
                     return fmt::format_to(ctx.out(), "Clifford:\n{}\n", presentation == 'c' ? st.to_string() : st.to_bit_string());
                 },
-                [&](std::vector<qsyn::experimental::PauliRotation> const& pr) -> format_context::iterator {
+                [&](std::vector<qsyn::tableau::PauliRotation> const& pr) -> format_context::iterator {
                     if (presentation == 'c') {
                         return fmt::format_to(ctx.out(), "Pauli Rotations:\n{:c}\n", fmt::join(pr, "\n"));
                     }
                     return fmt::format_to(ctx.out(), "Pauli Rotations:\n{:b}\n", fmt::join(pr, "\n"));
                 },
-                [&](qsyn::experimental::ClassicalControlTableau const& cct) -> format_context::iterator {
+                [&](qsyn::tableau::ClassicalControlTableau const& cct) -> format_context::iterator {
                     if (presentation == 'g') {
-                        auto const ops = qsyn::experimental::extract_clifford_operators(cct.operations());
+                        auto const ops = qsyn::tableau::extract_clifford_operators(cct.operations());
                         if (cct.is_gadget()) {
                             auto result = fmt::format_to(
                                 ctx.out(),
                                 "Gadget (ancilla qubit[{}], reference qubit[{}]):\n",
                                 cct.ancilla_qubit(),
                                 cct.reference_qubit());
-                            return fmt::format_to(result, "  Operations:\n{}", qsyn::experimental::clifford_ops_to_string(ops));
+                            return fmt::format_to(result, "  Operations:\n{}", qsyn::tableau::clifford_ops_to_string(ops));
                         }
                         auto result = fmt::format_to(
                             ctx.out(), "Classical Control (ancilla qubit[{}] controls):\n", cct.ancilla_qubit());
-                        return fmt::format_to(result, "  Operations:\n{}", qsyn::experimental::clifford_ops_to_string(ops));
+                        return fmt::format_to(result, "  Operations:\n{}", qsyn::tableau::clifford_ops_to_string(ops));
                     }
                     if (cct.is_gadget()) {
                         auto result = fmt::format_to(
@@ -430,7 +430,7 @@ struct fmt::formatter<qsyn::experimental::SubTableau> {
 };
 
 template <>
-struct fmt::formatter<qsyn::experimental::Tableau> {
+struct fmt::formatter<qsyn::tableau::Tableau> {
     char presentation = 'c';
     constexpr auto parse(format_parse_context& ctx) {
         auto it = ctx.begin(), end = ctx.end();
@@ -440,7 +440,7 @@ struct fmt::formatter<qsyn::experimental::Tableau> {
     }
 
     template <typename FormatContext>
-    auto format(qsyn::experimental::Tableau const& tableau, FormatContext& ctx) const {
+    auto format(qsyn::tableau::Tableau const& tableau, FormatContext& ctx) const {
         auto out = ctx.out();
         bool first = true;
         for (auto const& subtableau : tableau) {

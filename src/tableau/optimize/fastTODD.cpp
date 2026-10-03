@@ -33,10 +33,10 @@
 
 extern bool stop_requested();
 
-namespace qsyn::experimental {
+namespace qsyn::tableau {
 using namespace todd;
 using namespace signature;
-using namespace qsyn::experimental;
+using namespace qsyn::tableau;
 
 namespace {
 
@@ -1219,4 +1219,4 @@ std::pair<StabilizerTableau, Polynomial> FastToddPhasePolynomialOptimizationStra
     return *result;
 }
 
-}  // namespace qsyn::experimental
+}  // namespace qsyn::tableau

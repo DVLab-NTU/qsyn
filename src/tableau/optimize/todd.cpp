@@ -20,7 +20,7 @@
 
 extern bool stop_requested();
 
-namespace qsyn::experimental {
+namespace qsyn::tableau {
 
 namespace todd {
 using Polynomial = std::vector<PauliRotation>;
@@ -298,4 +298,4 @@ std::pair<StabilizerTableau, Polynomial> ToddPhasePolynomialOptimizationStrategy
     return {ret_clifford, ret_polynomial};
 }
 
-}  // namespace qsyn::experimental
+}  // namespace qsyn::tableau

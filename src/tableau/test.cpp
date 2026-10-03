@@ -16,7 +16,7 @@
 #include <string_view>
 #include <vector>
 
-namespace qsyn::experimental {
+namespace qsyn::tableau {
 
 namespace {
 
@@ -299,4 +299,4 @@ bool run_commute_test_from_file(std::filesystem::path const& txt_path) {
     return true;
 }
 
-}  // namespace qsyn::experimental
+}  // namespace qsyn::tableau

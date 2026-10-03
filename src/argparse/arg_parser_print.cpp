@@ -9,7 +9,6 @@
 
 #include <algorithm>
 #include <cstring>
-#include <fort.hpp>
 #include <numeric>
 #include <ranges>
 #include <tl/enumerate.hpp>
@@ -18,6 +17,7 @@
 #include "./argparse.hpp"
 #include "unicode/display_width.hpp"
 #include "util/dvlab_string.hpp"
+#include "util/tabler.hpp"
 #include "util/terminal_attributes.hpp"
 #include "util/text_format.hpp"
 #include "util/util.hpp"
@@ -194,27 +194,35 @@ std::string wrap_text(std::string_view str, size_t max_help_width) {
  *
  * @param arg
  */
-void tabulate_help_string(ArgumentParser const& parser, fort::utf8_table& table, size_t max_help_string_width, Argument const& arg) {
+void tabulate_help_string(ArgumentParser const& parser, Tabler& table, size_t max_help_string_width, Argument const& arg) {
     auto usage_string = arg.get_usage().value_or(metavar_styled(arg.get_metavar()));
 
-    table << type_styled(arg.get_nargs().upper > 0 ? arg.get_type_string() : "flag");
+    std::vector<std::string> row;
+    row.reserve(4);
+
+    row.emplace_back(type_styled(arg.get_nargs().upper > 0 ? arg.get_type_string() : "flag"));
     if (arg.is_option()) {
         if (arg.get_nargs().upper > 0) {
-            table << styled_option_name_and_aliases(parser, arg) << usage_string;
+            row.emplace_back(styled_option_name_and_aliases(parser, arg));
+            row.emplace_back(usage_string);
         } else {
-            table << styled_option_name_and_aliases(parser, arg) << "";
+            row.emplace_back(styled_option_name_and_aliases(parser, arg));
+            row.emplace_back("");
         }
     } else {
-        table << usage_string << "";
+        row.emplace_back(usage_string);
+        row.emplace_back("");
     }
 
-    table << wrap_text(arg.get_help(), max_help_string_width) << fort::endr;
+    row.emplace_back(wrap_text(arg.get_help(), max_help_string_width));
+    table.add_row(row);
 }
 
-fort::utf8_table create_parser_help_table() {
-    fort::utf8_table table;
-    table.set_border_style(FT_EMPTY_STYLE);
-    table.set_left_margin(1);
+Tabler create_parser_help_table() {
+    Tabler table;
+    table.left_margin()        = 1;
+    table.cell_left_padding()  = 1;
+    table.cell_right_padding() = 1;
     return table;
 }
 
@@ -272,15 +280,6 @@ void ArgumentParser::print_summary() const {
  *
  */
 void ArgumentParser::print_help() const {
-    ft_set_u8strwid_func(
-        [](void const* beg, void const* end, size_t* width) -> int {
-            std::string const tmp_str(static_cast<const char*>(beg), static_cast<const char*>(end));
-
-            *width = unicode::display_width(tmp_str);
-
-            return 0;
-        });
-
     print_usage();
 
     if (!get_description().empty()) {
@@ -331,7 +330,11 @@ void ArgumentParser::print_help() const {
         auto table = detail::create_parser_help_table();
         for (auto& [_, parser] : _pimpl->subparsers->get_subparsers()) {
             if (!parser.get_description().empty()) {
-                table.write_ln("  " + detail::styled_parser_name(parser), detail::wrap_text(parser.get_description(), max_help_string_width));
+                std::vector<std::string> row;
+                row.reserve(2);
+                row.emplace_back("  " + detail::styled_parser_name(parser));
+                row.emplace_back(detail::wrap_text(parser.get_description(), max_help_string_width));
+                table.add_row(row);
             }
         }
 

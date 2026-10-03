@@ -25,7 +25,7 @@
 #include <unordered_map>
 #include <vector>
 
-namespace qsyn::experimental {
+namespace qsyn::tableau {
 
 struct BinaryConstraintOp {
     enum class Kind {
@@ -1024,5 +1024,5 @@ void reorder_n_degadgetize(Tableau& tableau) {
 }
 
 
-}  // namespace qsyn::experimental
+}  // namespace qsyn::tableau
 

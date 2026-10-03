@@ -20,7 +20,7 @@
 #include <string>
 #include <unordered_set>
 
-namespace qsyn::experimental {
+namespace qsyn::tableau {
 
 namespace {
 
@@ -933,6 +933,6 @@ size_t hadamard_degadgetize(Tableau& tableau,
 }
 
 
-}  // namespace qsyn::experimental
+}  // namespace qsyn::tableau
 
 

@@ -31,7 +31,7 @@
 
 using namespace dvlab::argparse;
 
-namespace qsyn::experimental {
+namespace qsyn::tableau {
 
 std::optional<qcir::QCir> tableau_to_qcir_hopt_naive(Tableau const& tableau);
 
@@ -336,7 +336,7 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr, qsyn::qcir::QCi
                     tableau,
                     qcir_mgr.empty()
                         ? std::optional<std::string>{tableau.get_filename()}
-                        : std::optional<std::string>{qcir_mgr.get()->get_filename()});
+                        : std::optional<std::string>{qcir_mgr.get_filename()});
                 tableau.add_procedure("UnifyTOpt");
             };
 
@@ -373,15 +373,15 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr, qsyn::qcir::QCi
                     break;
                 case OptimizationMethod::collapse:
                     collapse(*tableau_mgr.get());
-                    tableau_mgr.get()->add_procedure("collapse");
+                    tableau_mgr.add_procedure("collapse");
                     break;
                 case OptimizationMethod::t_merge:
                     merge_rotations(*tableau_mgr.get());
-                    tableau_mgr.get()->add_procedure("MergeT");
+                    tableau_mgr.add_procedure("MergeT");
                     break;
                 case OptimizationMethod::internal_h_opt:
                     minimize_internal_hadamards(*tableau_mgr.get());
-                    tableau_mgr.get()->add_procedure("InternalHOpt");
+                    tableau_mgr.add_procedure("InternalHOpt");
                     break;
                 case OptimizationMethod::unify_t_opt:
                     apply_unify();
@@ -402,13 +402,13 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr, qsyn::qcir::QCi
                 }
                 case OptimizationMethod::phase_polynomial_optimization:
                     do_phase_polynomial_optimization();
-                    tableau_mgr.get()->add_procedure("PhasePolyOpt");
+                    tableau_mgr.add_procedure("PhasePolyOpt");
                     break;
                 case OptimizationMethod::matroid_partition:
                     if (!do_matroid_partition()) {
                         return dvlab::CmdExecResult::error;
                     }
-                    tableau_mgr.get()->add_procedure("MatroidPartition");
+                    tableau_mgr.add_procedure("MatroidPartition");
                     break;
                 case OptimizationMethod::commute_test: {
                     auto const txt_file = parser.get<std::string>("txt-file");
@@ -534,10 +534,10 @@ dvlab::Command tableau_tie_search_cmd(TableauMgr& tableau_mgr, qsyn::qcir::QCirM
             } else {
                 *tableau_mgr.get() = std::move(optimized);
             }
-            if (!qcir_mgr.get()->get_filename().empty()) {
-                tableau_mgr.get()->set_filename(qcir_mgr.get()->get_filename());
+            if (!qcir_mgr.get_filename().empty()) {
+                tableau_mgr.set_filename(qcir_mgr.get_filename());
             }
-            tableau_mgr.get()->add_procedure(t_only ? "TOnlyTieSearch" : "TieSearch");
+            tableau_mgr.add_procedure(t_only ? "TOnlyTieSearch" : "TieSearch");
 
             spdlog::debug("Converting Tableau {} to QCir {}...", tableau_mgr.focused_id(), qcir_mgr.get_next_id());
             auto qcir = tableau_to_qcir_hopt_naive(*tableau_mgr.get());
@@ -546,9 +546,9 @@ dvlab::Command tableau_tie_search_cmd(TableauMgr& tableau_mgr, qsyn::qcir::QCirM
                 return dvlab::CmdExecResult::error;
             }
             qcir_mgr.add(qcir_mgr.get_next_id(), std::make_unique<qcir::QCir>(std::move(qcir.value())));
-            qcir_mgr.get()->set_filename(tableau_mgr.get()->get_filename());
-            qcir_mgr.get()->add_procedures(tableau_mgr.get()->get_procedures());
-            qcir_mgr.get()->add_procedure("TABL2QC");
+            qcir_mgr.set_filename(tableau_mgr.get_filename());
+            qcir_mgr.add_procedures(tableau_mgr.get_procedures());
+            qcir_mgr.add_procedure("TABL2QC");
             return dvlab::CmdExecResult::done;
         }};
 }
@@ -574,4 +574,4 @@ bool add_tableau_command(dvlab::CommandLineInterface& cli, TableauMgr& tableau_m
            cli.add_command(tableau_tie_search_cmd(tableau_mgr, qcir_mgr, "tie-search"));
 }
 
-}  // namespace qsyn::experimental
+}  // namespace qsyn::tableau

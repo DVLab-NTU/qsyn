@@ -21,7 +21,7 @@
 #include <numbers>
 #include "spdlog/spdlog.h"
 
-namespace qsyn::experimental {
+namespace qsyn::tableau {
 
 namespace {
 
@@ -818,4 +818,4 @@ bool test_classical_equivalence_reverse(ClassicalControlTableau const& cct_old,
     return test_eq(SubTableau{cct_old}, SubTableau{ta}, SubTableau{cct_new}, true);
 }
 
-}  // namespace qsyn::experimental
+}  // namespace qsyn::tableau

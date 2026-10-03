@@ -52,7 +52,7 @@ ZXGraph::ZXGraph(ZXVertexList const& vertices,
     }
 }
 
-ZXGraph::ZXGraph(ZXGraph const& other) : _filename{other._filename}, _procedures{other._procedures}, _next_v_id(other._next_v_id) {
+ZXGraph::ZXGraph(ZXGraph const& other) : _next_v_id(other._next_v_id) {
     std::unordered_map<ZXVertex*, ZXVertex*> old_to_new_vertex_map;
 
     for (auto& v : other.get_vertices()) {

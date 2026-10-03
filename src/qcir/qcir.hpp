@@ -90,9 +90,7 @@ public:
     void swap(QCir& other) noexcept {
         std::swap(_gate_id, other._gate_id);
         std::swap(_dirty, other._dirty);
-        std::swap(_filename, other._filename);
         std::swap(_gate_set, other._gate_set);
-        std::swap(_procedures, other._procedures);
         std::swap(_qubits, other._qubits);
         std::swap(_gate_list, other._gate_list);
         std::swap(_id_to_gates, other._id_to_gates);
@@ -125,8 +123,6 @@ public:
     }
 
     QCirGate* get_gate(std::optional<size_t> gid) const;
-    std::string get_filename() const { return _filename; }
-    std::vector<std::string> const& get_procedures() const { return _procedures; }
     std::string get_gate_set() const { return _gate_set; }
 
     bool is_empty() const { return _qubits.empty() || _id_to_gates.empty(); }
@@ -135,11 +131,6 @@ public:
     bool have_if_else() const;
     bool has_classical() const { return have_measurement() || have_if_else(); }
 
-    void set_filename(std::string f) { _filename = std::move(f); }
-    void add_procedures(std::vector<std::string> const& ps) {
-        _procedures.insert(_procedures.end(), ps.begin(), ps.end());
-    }
-    void add_procedure(std::string const& p) { _procedures.emplace_back(p); }
     void set_gate_set(std::string g) { _gate_set = std::move(g); }
 
     void reset();
@@ -256,13 +247,11 @@ public:
 
     // additional APIs to make qcir::QCir an qcir::Operation
     std::string get_type() const { return "qcir"; }
-    std::string get_repr() const { return _filename; }
+    std::string get_repr() const { return "qcir"; }
 
 private:
     size_t _gate_id = 0;
-    std::string _filename;
     std::string _gate_set;
-    std::vector<std::string> _procedures;
     std::vector<QCirQubit> _qubits;
     std::vector<QCirBit> _classical_bits;
     dvlab::utils::ordered_hashmap<size_t, std::unique_ptr<QCirGate>> _id_to_gates;

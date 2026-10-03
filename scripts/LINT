@@ -1,5 +1,62 @@
 #!/usr/bin/env bash
 
+# Default versions (empty means use default command)
+CLANG_FORMAT_CMD="clang-format"
+CLANG_TIDY_CMD="clang-tidy"
+
+# Parse command-line arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --clang-format-version|-f)
+            if [ -n "$2" ] && [ "${2:0:1}" != "-" ]; then
+                CLANG_FORMAT_CMD="clang-format-$2"
+                shift 2
+            else
+                echo "Error: --clang-format-version requires a version number"
+                exit 1
+            fi
+            ;;
+        --clang-tidy-version|-t)
+            if [ -n "$2" ] && [ "${2:0:1}" != "-" ]; then
+                CLANG_TIDY_CMD="clang-tidy-$2"
+                shift 2
+            else
+                echo "Error: --clang-tidy-version requires a version number"
+                exit 1
+            fi
+            ;;
+        --help|-h)
+            echo "Usage: $0 [OPTIONS]"
+            echo ""
+            echo "Options:"
+            echo "  --clang-format-version, -f VERSION  Specify clang-format version (e.g., 15, 16)"
+            echo "  --clang-tidy-version, -t VERSION    Specify clang-tidy version (e.g., 15, 16)"
+            echo "  --help, -h                          Show this help message"
+            echo ""
+            echo "Examples:"
+            echo "  $0 -f 15 -t 15    # Use clang-format-15 and clang-tidy-15"
+            echo "  $0 -f 16           # Use clang-format-16 and default clang-tidy"
+            exit 0
+            ;;
+        *)
+            echo "Unknown option: $1"
+            echo "Use --help for usage information"
+            exit 1
+            ;;
+    esac
+done
+
+# Verify that the specified commands exist
+if [ ! -x "$(command -v "$CLANG_FORMAT_CMD")" ]; then
+    echo "Error: $CLANG_FORMAT_CMD is not installed or not found in PATH"
+    exit 1
+fi
+
+if [ ! -x "$(command -v "$CLANG_TIDY_CMD")" ]; then
+    echo "Error: $CLANG_TIDY_CMD is not installed or not found in PATH"
+    exit 1
+fi
+
 function num_procs() {
     if [ "$(uname)" == "Darwin" ]; then
         sysctl -n hw.logicalcpu
@@ -14,19 +71,16 @@ if [ ! -x "$(command -v parallel)" ]; then
 fi
 
 format_one() {
-    clang-format -i "$1"
+    "$CLANG_FORMAT_CMD" -i "$1"
 }
 export -f format_one
+export CLANG_FORMAT_CMD
 
 lint_one() {
-    clang-tidy -p build-lint "$1" --quiet 2>&1 \
-        | grep -v -E "warnings? generated" \
-        | grep -v -E "file not found \[clang-diagnostic-error\]" \
-        | grep -v -E "^Error while processing .*\.$" \
-        | grep -v -E "^[[:space:]]*[0-9]+ \\|[[:space:]]*#include <" \
-        | grep -v -E "^[[:space:]]*\\|[[:space:]]*\\^~+"
+    "$CLANG_TIDY_CMD" -p build "$1" --quiet 2>&1 | grep -v -E "warnings? generated"
 }
 export -f lint_one
+export CLANG_TIDY_CMD
 
 FILES=$(find ./src -regex '.*\.[ch]pp' -type f)
 CPPS=$(find ./src -regex '.*\.cpp' -type f)

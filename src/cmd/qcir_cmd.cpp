@@ -146,7 +146,7 @@ dvlab::Command qcir_read_cmd(QCirMgr& qcir_mgr) {
             } else {
                 qcir_mgr.set(std::make_unique<QCir>(std::move(*qcir)));
             }
-            qcir_mgr.get()->set_filename(std::filesystem::path{filepath}.stem());
+            qcir_mgr.set_filename(std::filesystem::path{filepath}.stem());
             return CmdExecResult::done;
         }};
 }
@@ -592,9 +592,9 @@ dvlab::Command qcir_translate_cmd(QCirMgr& qcir_mgr) {
                     spdlog::error("Translation fails!!");
                     return CmdExecResult::error;
                 }
-                std::string const filename = qcir_mgr.get()->get_filename();
+                std::string const filename = qcir_mgr.get_filename();
                 qcir_mgr.set(std::make_unique<QCir>(*std::move(translated_qcir)));
-                qcir_mgr.get()->set_filename(filename);
+                qcir_mgr.set_filename(filename);
                 return CmdExecResult::done;
             }};
 }

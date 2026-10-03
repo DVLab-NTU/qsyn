@@ -258,7 +258,7 @@ Command zxgraph_read_cmd(ZXGraphMgr& zxgraph_mgr) {
                 } else {
                     zxgraph_mgr.add(zxgraph_mgr.get_next_id(), std::make_unique<ZXGraph>(std::move(graph.value())));
                 }
-                zxgraph_mgr.get()->set_filename(std::filesystem::path{filepath}.stem());
+                zxgraph_mgr.set_filename(std::filesystem::path{filepath}.stem());
                 return CmdExecResult::done;
             }};
 }

@@ -115,14 +115,10 @@ QCir::QCir(QCir const& other) {
                              other.get_gates() |
                              views::transform(
                                  [](QCirGate* g) { return g->get_id(); }));
-
     _measurement_producer_by_cbit = other._measurement_producer_by_cbit;
     _last_consumer_by_cbit        = other._last_consumer_by_cbit;
     _measurement_gate_order       = other._measurement_gate_order;
     _export_schedule_width        = other._export_schedule_width;
-
-    this->set_filename(other._filename);
-    this->add_procedures(other._procedures);
 }
 /**
  * @brief Get Gate.
@@ -1585,13 +1581,13 @@ QCir::get_last_gate(QubitIdType qubit) const {
 }
 
 bool is_clifford(qcir::QCir const& qcir) {
-    auto tabl = experimental::to_tableau(qcir);
+    auto tabl = tableau::to_tableau(qcir);
     if (!tabl.has_value()) {
         return false;
     }
-    experimental::collapse(*tabl);
+    tableau::collapse(*tabl);
 
-    return (tabl->size() == 1) && std::holds_alternative<experimental::StabilizerTableau>(tabl->front());
+    return (tabl->size() == 1) && std::holds_alternative<tableau::StabilizerTableau>(tabl->front());
 }
 
 Operation adjoint(qcir::QCir const& qcir) {

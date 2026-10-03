@@ -9,7 +9,7 @@
 #include <utility>
 #include <vector>
 
-namespace qsyn::experimental {
+namespace qsyn::tableau {
 
 struct SatSignatureExport;
 class Tableau;
@@ -120,4 +120,4 @@ void ilp_reorder_export(Tableau& tableau, std::string const& path);
  */
 bool ilp_reorder_apply(Tableau& tableau, std::string const& result_path);
 
-}  // namespace qsyn::experimental
+}  // namespace qsyn::tableau

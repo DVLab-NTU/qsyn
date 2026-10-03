@@ -15,7 +15,7 @@
 #include <cstddef>
 #include <functional>
 
-namespace qsyn::experimental {
+namespace qsyn::tableau {
 
 Tableau& Tableau::h(size_t qubit) noexcept {
     for (auto& subtableau : _subtableaux | std::views::reverse) {
@@ -161,4 +161,4 @@ Tableau adjoint(Tableau const& tableau) {
 }
 
 
-}  // namespace qsyn::experimental
+}  // namespace qsyn::tableau

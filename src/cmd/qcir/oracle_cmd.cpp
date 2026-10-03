@@ -117,9 +117,9 @@ Command qcir_oracle_cmd(QCirMgr& qcir_mgr) {
             if (qcir.has_value()) {
                 qcir_mgr.add(qcir_mgr.get_next_id(), std::make_unique<QCir>(std::move(qcir.value())));
                 if (parser.parsed("--xag")) {
-                    qcir_mgr.get()->set_filename(parser.get<std::string>("--xag"));
+                    qcir_mgr.set_filename(parser.get<std::string>("--xag"));
                 } else if (parser.parsed("--tt")) {
-                    qcir_mgr.get()->set_filename(parser.get<std::string>("--tt"));
+                    qcir_mgr.set_filename(parser.get<std::string>("--tt"));
                 }
             }
 

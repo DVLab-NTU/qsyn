@@ -89,13 +89,6 @@ public:
     template <typename U>
     friend bool is_equivalent(QTensor<U> const& t1, QTensor<U> const& t2, U eps /* = 1e-6*/);
 
-    void set_filename(std::string const& f) { _filename = f; }
-    void add_procedures(std::vector<std::string> const& ps) { _procedures.insert(_procedures.end(), ps.begin(), ps.end()); }
-    void add_procedure(std::string_view p) { _procedures.emplace_back(p); }
-
-    std::string get_filename() const { return _filename; }
-    std::vector<std::string> const& get_procedures() const { return _procedures; }
-
     QTensor<T> to_matrix();
     QTensor<T> to_matrix(TensorAxisList const& out, TensorAxisList const& in) { return Tensor<std::complex<T>>::to_matrix(out, in); }
 

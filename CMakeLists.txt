@@ -20,6 +20,13 @@ if(APPLE AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     set(CMAKE_OSX_ARCHITECTURES "" CACHE STRING "Architectures for OS X (cleared for GCC)" FORCE)
 endif()
 
+# Set BLA_VENDOR before project() so it's available during initialization
+# On macOS, we need to specify OpenBLAS explicitly
+# On Linux, we'll use pkg-config instead (see find_package(BLAS) below)
+if(NOT CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    set(BLA_VENDOR OpenBLAS CACHE STRING "BLAS vendor to search for")
+endif()
+
 include(FetchContent)
 include(CheckCXXCompilerFlag)
 set(FETCHCONTENT_UPDATES_DISCONNECTED TRUE)
@@ -119,9 +126,34 @@ include(scripts/cmake/target_link_libraries_system.cmake)
 
 # find_package(OpenMP REQUIRED)
 
-set(BLA_VENDER OpenBLAS)
-find_package(BLAS REQUIRED)
-find_package(LAPACK REQUIRED)
+# Use pkg-config to find BLAS and LAPACK on Linux where it's available and reliable
+# On macOS, OpenBLAS from Homebrew doesn't provide pkg-config files, so use FindBLAS instead
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    find_package(PkgConfig)
+    if(PKG_CONFIG_FOUND)
+        pkg_check_modules(BLAS IMPORTED_TARGET blas)
+        pkg_check_modules(LAPACK IMPORTED_TARGET lapack)
+        if(BLAS_FOUND AND LAPACK_FOUND)
+            # Set variables expected by the rest of the build
+            set(BLAS_LIBRARIES PkgConfig::BLAS)
+            set(LAPACK_LIBRARIES PkgConfig::LAPACK)
+        endif()
+    endif()
+endif()
+
+# If pkg-config didn't find BLAS/LAPACK (or we're not on Linux), use CMake's find_package
+if(NOT BLAS_FOUND OR NOT LAPACK_FOUND)
+    find_package(BLAS REQUIRED)
+    find_package(LAPACK REQUIRED)
+endif()
+
+# Ensure BLAS_LIBRARIES and LAPACK_LIBRARIES are set
+if(NOT BLAS_LIBRARIES)
+    set(BLAS_LIBRARIES ${BLAS_openblas_LIBRARY})
+endif()
+if(NOT LAPACK_LIBRARIES)
+    set(LAPACK_LIBRARIES ${LAPACK_openblas_LIBRARY})
+endif()
 
 FetchContent_Declare(
     xtl
@@ -143,26 +175,6 @@ FetchContent_Declare(
     GIT_REPOSITORY https://github.com/xtensor-stack/xtensor-blas.git
     GIT_TAG 0.22.0)
 FetchContent_MakeAvailable(xtensor-blas)
-
-# --- libfort (patched for new CMake) ---
-FetchContent_Declare(
-    libfort
-    SYSTEM
-    GIT_REPOSITORY https://github.com/seleznevae/libfort.git
-    GIT_TAG v0.4.2
-    GIT_SHALLOW ON
-)
-
-# turn off libfort's own tests
-set(FORT_ENABLE_TESTING OFF CACHE INTERNAL "")
-
-FetchContent_GetProperties(libfort)
-if(NOT libfort_POPULATED)
-  FetchContent_Populate(libfort)
-endif()
-# Always bump (even if already populated from a previous configure)
-qsyn_bump_min_cmake("${libfort_SOURCE_DIR}" 3.10)
-add_subdirectory("${libfort_SOURCE_DIR}" "${libfort_BINARY_DIR}" SYSTEM)
 
 FetchContent_Declare(
     fmt
@@ -233,6 +245,7 @@ FetchContent_MakeAvailable(Z3)
 qsyn_quiet_z3_codegen_logs("${z3_SOURCE_DIR}")
 
 # --- libabc (patched for new CMake) ---
+set(READLINE_FOUND FALSE CACHE BOOL "Disable readline in libabc")
 FetchContent_Declare(
   libabc
   SYSTEM
@@ -317,7 +330,6 @@ target_link_libraries_system(
     xtl
     xtensor
     xtensor-blas
-    libfort::fort
     fmt::fmt
     spdlog::spdlog
     Microsoft.GSL::GSL
@@ -328,7 +340,6 @@ target_link_libraries_system(
 target_link_libraries(
     ${QSYN_LIB_NAME} 
     PRIVATE 
-    lapack 
 # OpenMP::OpenMP_CXX 
     ${BLAS_LIBRARIES}
     ${LAPACK_LIBRARIES})
@@ -360,6 +371,13 @@ target_compile_options(
 # compilers are being too paranoid about missing field initializers
 target_compile_options(
     ${CMAKE_PROJECT_NAME} PRIVATE -Wno-missing-field-initializers)
+
+# GCC-specific: disable -Wmaybe-uninitialized (has false positives with templates)
+check_cxx_compiler_flag(-Wno-maybe-uninitialized COMPILER_SUPPORTS_WNO_MAYBE_UNINITIALIZED)
+if(COMPILER_SUPPORTS_WNO_MAYBE_UNINITIALIZED)
+    target_compile_options(
+        ${CMAKE_PROJECT_NAME} PRIVATE -Wno-maybe-uninitialized)
+endif()
 
 # GCC 12+ is too strict about restrict warnings in std::string operations.
 # Only apply when the compiler actually supports the flag.
@@ -395,7 +413,6 @@ target_link_libraries_system(
     xtl
     xtensor
     xtensor-blas
-    libfort::fort
     fmt::fmt
     spdlog::spdlog
     Microsoft.GSL::GSL
@@ -403,7 +420,6 @@ target_link_libraries_system(
 target_link_libraries(
     ${CMAKE_PROJECT_NAME} 
     PRIVATE 
-    lapack 
 # OpenMP::OpenMP_CXX 
     ${BLAS_LIBRARIES}
     ${LAPACK_LIBRARIES})
@@ -450,7 +466,15 @@ target_compile_options(
     PRIVATE 
     -Wno-missing-field-initializers)
 
-# GCC 12+ is too strict about restrict warnings in std::string operations.
+# GCC-specific: disable -Wmaybe-uninitialized (has false positives with templates)
+if(COMPILER_SUPPORTS_WNO_MAYBE_UNINITIALIZED)
+    target_compile_options(
+        ${UNIT_TEST_NAME}
+        PRIVATE 
+        -Wno-maybe-uninitialized)
+endif()
+
+# GCC 12+ is too strict about restrict warnings in std::string operations
 # Only apply to GCC, as Clang doesn't support this flag.
 if(COMPILER_SUPPORTS_WNO_RESTRICT)
     target_compile_options(

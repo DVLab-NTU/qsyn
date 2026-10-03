@@ -68,9 +68,10 @@ Command qcir_optimize_cmd(QCirMgr& qcir_mgr) {
                 if (!dvlab::utils::mgr_has_data(qcir_mgr)) return CmdExecResult::error;
                 Optimizer optimizer;
                 std::optional<QCir> result;
-                std::string procedure_str{};
+                std::string const filename          = qcir_mgr.get_filename();
+                std::vector<std::string> procedures = qcir_mgr.get_procedures();
 
-                enum class Strategy {
+                enum struct Strategy : std::uint8_t {
                     basic,
                     teleport,
                     blaqsmith
@@ -90,21 +91,22 @@ Command qcir_optimize_cmd(QCirMgr& qcir_mgr) {
                 switch (strategy) {
                     case Strategy::teleport:
                         phase_teleport(*qcir_mgr.get());
-                        procedure_str = "Phase Teleport";
+                        procedures.emplace_back("Phase Teleport");
                         break;
                     case Strategy::blaqsmith:
                         optimize_2q_count(*qcir_mgr.get(), parser.get<double>("--init-temp"), 2, 2);
-                        procedure_str = "Blaqsmith";
+                        procedures.emplace_back("Blaqsmith");
+
                         break;
                     case Strategy::basic: {
                         if (parser.get<bool>("--tech") || !qcir_mgr.get()->get_gate_set().empty()) {
-                            result        = optimizer.trivial_optimization(*qcir_mgr.get());
-                            procedure_str = "Tech Optimize";
+                            result = optimizer.trivial_optimization(*qcir_mgr.get());
+                            procedures.emplace_back("Tech Optimize");
                         } else {
-                            result        = optimizer.basic_optimization(*qcir_mgr.get(), {.doSwap          = !parser.get<bool>("--physical"),
-                                                                                           .maxIter         = 1000,
-                                                                                           .printStatistics = parser.get<bool>("--statistics")});
-                            procedure_str = "Optimize";
+                            result = optimizer.basic_optimization(*qcir_mgr.get(), {.doSwap          = !parser.get<bool>("--physical"),
+                                                                                    .maxIter         = 1000,
+                                                                                    .printStatistics = parser.get<bool>("--statistics")});
+                            procedures.emplace_back("Optimize");
                         }
                         if (result == std::nullopt) {
                             spdlog::error("Fail to optimize circuit.");
@@ -119,9 +121,10 @@ Command qcir_optimize_cmd(QCirMgr& qcir_mgr) {
                     }
                 }
                 if (stop_requested()) {
-                    procedure_str += "[INT]";
+                    procedures.emplace_back("[INT]");
                 }
-                qcir_mgr.get()->add_procedure(procedure_str);
+                qcir_mgr.set_filename(filename);
+                qcir_mgr.set_procedures(procedures);
 
                 return CmdExecResult::done;
             }};

@@ -40,7 +40,7 @@ qsyn::device::DeviceMgr device_mgr{"Device"};
 qsyn::qcir::QCirMgr qcir_mgr{"QCir"};
 qsyn::tensor::TensorMgr tensor_mgr{"Tensor"};
 qsyn::zx::ZXGraphMgr zxgraph_mgr{"ZXGraph"};
-qsyn::experimental::TableauMgr tableau_mgr{"Tableau"};
+qsyn::tableau::TableauMgr tableau_mgr{"Tableau"};
 // NOLINTEND(readability-identifier-naming)
 
 std::string const version_str = fmt::format(

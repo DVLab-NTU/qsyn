@@ -23,14 +23,16 @@ using TensorMgr = dvlab::utils::DataStructureManager<QTensor<double>>;
 }  // namespace qsyn::tensor
 
 template <>
-inline std::string dvlab::utils::data_structure_info_string(qsyn::tensor::QTensor<double> const& tensor) {
+inline std::string dvlab::utils::data_structure_info_string(dvlab::utils::DataStructureManager<qsyn::tensor::QTensor<double>> const& mgr, size_t id) {
+    auto* tensor = mgr.find_by_id(id);
+    if (!tensor) return {};
     return fmt::format("{:<19} #Dim: {}   {}",
-                       tensor.get_filename().substr(0, 19),
-                       tensor.dimension(),
-                       fmt::join(tensor.get_procedures(), " ➔ "));
+                       mgr.get_filename(id).substr(0, 19),
+                       tensor->dimension(),
+                       fmt::join(mgr.get_procedures(id), " ➔ "));
 }
 
 template <>
-inline std::string dvlab::utils::data_structure_name(qsyn::tensor::QTensor<double> const& tensor) {
-    return tensor.get_filename();
+inline std::string dvlab::utils::data_structure_name(dvlab::utils::DataStructureManager<qsyn::tensor::QTensor<double>> const& mgr, size_t id) {
+    return mgr.get_filename(id);
 }

@@ -13,12 +13,13 @@ jobs:
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v3
-      - name: Download llvm-clang, parallel and coreutils
+      - name: Download llvm-clang, parallel, coreutils and OpenBLAS
         run: |
-          brew install llvm@18 parallel coreutils
+          brew install llvm@18 parallel coreutils openblas
           echo 'export PATH="$(brew --prefix)/opt/llvm@18/bin:$PATH"' >> /Users/runner/.bash_profile
-          echo 'export LDFLAGS="-L$(brew --prefix)/opt/llvm@18/lib"' >> /Users/runner/.bash_profile
-          echo 'export CPPFLAGS="-I$(brew --prefix)/opt/llvm@18/include"' >> /Users/runner/.bash_profile
+          echo 'export LDFLAGS="-L$(brew --prefix)/opt/llvm@18/lib -L$(brew --prefix)/opt/openblas/lib $LDFLAGS"' >> /Users/runner/.bash_profile
+          echo 'export CPPFLAGS="-I$(brew --prefix)/opt/llvm@18/include -I$(brew --prefix)/opt/openblas/include $CPPFLAGS"' >> /Users/runner/.bash_profile
+          echo 'export CMAKE_PREFIX_PATH="$(brew --prefix)/opt/openblas:$CMAKE_PREFIX_PATH"' >> /Users/runner/.bash_profile
 
       - name: Build and test qsyn
         run: |

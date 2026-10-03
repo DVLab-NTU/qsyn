@@ -10,10 +10,10 @@
 #include "tableau/pauli_rotation.hpp"
 #include "util/boolean_matrix.hpp"
 
-namespace qsyn::experimental {
-using qsyn::experimental::CliffordOperatorString;
-using qsyn::experimental::CliffordOperatorType;
-using qsyn::experimental::PauliRotation;
+namespace qsyn::tableau {
+using qsyn::tableau::CliffordOperatorString;
+using qsyn::tableau::CliffordOperatorType;
+using qsyn::tableau::PauliRotation;
 namespace todd {
 using Polynomial = std::vector<PauliRotation>;
 dvlab::BooleanMatrix get_row_products(dvlab::BooleanMatrix const& matrix);
@@ -146,4 +146,4 @@ private:
     std::unordered_set<std::tuple<size_t, size_t, size_t>, TripleHash> _cubic_terms;
 };
 }  // namespace signature
-}  // namespace qsyn::experimental
+}  // namespace qsyn::tableau

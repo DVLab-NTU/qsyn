@@ -9,37 +9,75 @@
 #include <fmt/format.h>
 #include <spdlog/spdlog.h>
 
+#include <map>
 #include <memory>
 #include <string>
-
-#include "./ordered_hashmap.hpp"
+#include <vector>
 
 namespace dvlab {
 
 namespace utils {
 
+// Forward declaration of DataStructureManager (without requires clause for now)
 template <typename T>
-std::string data_structure_info_string(T const& t);
+class DataStructureManager;
+
+// Forward declarations for function templates
+template <typename T>
+std::string data_structure_info_string(DataStructureManager<T> const& mgr, size_t id);
 
 template <typename T>
-std::string data_structure_name(T const& t);
+std::string data_structure_name(DataStructureManager<T> const& mgr, size_t id);
 
 template <typename T>
-concept manager_manageable = requires {
-    { data_structure_info_string(std::declval<T>()) } -> std::convertible_to<std::string>;
-    { data_structure_name(std::declval<T>()) } -> std::convertible_to<std::string>;
+struct ManagerItemAndAttrs {  // NOLINT(cppcoreguidelines-special-member-functions)
+                              // : copy-swap idiom
+    std::unique_ptr<T> data;
+    std::string filename;
+    std::vector<std::string> procedures;
+
+    ManagerItemAndAttrs() : data{nullptr} {}
+
+    ManagerItemAndAttrs(std::unique_ptr<T> d)
+        : data{std::move(d)} {}
+
+    ManagerItemAndAttrs(std::unique_ptr<T> d, std::string f, std::vector<std::string> p)
+        : data{std::move(d)}, filename{std::move(f)}, procedures{std::move(p)} {}
+
+    ManagerItemAndAttrs(ManagerItemAndAttrs const& other)
+        : data{other.data ? std::make_unique<T>(*other.data) : nullptr},
+          filename{other.filename},
+          procedures{other.procedures} {}
+
+    ManagerItemAndAttrs(ManagerItemAndAttrs&& other) noexcept = default;
+
+    ~ManagerItemAndAttrs() = default;
+
+    ManagerItemAndAttrs& operator=(ManagerItemAndAttrs copy) {
+        swap(copy);
+        return *this;
+    }
+
+    void swap(ManagerItemAndAttrs& other) noexcept {
+        std::swap(data, other.data);
+        std::swap(filename, other.filename);
+        std::swap(procedures, other.procedures);
+    }
+
+    friend void swap(ManagerItemAndAttrs& a, ManagerItemAndAttrs& b) noexcept {
+        a.swap(b);
+    }
 };
 
 template <typename T>
-requires manager_manageable<T>
 class DataStructureManager {  // NOLINT(hicpp-special-member-functions, cppcoreguidelines-special-member-functions) : copy-swap idiom
 public:
     DataStructureManager(std::string_view name) : _type_name{name} {}
     virtual ~DataStructureManager() = default;
 
     DataStructureManager(DataStructureManager const& other) : _next_id{other._next_id}, _focused_id{other._focused_id} {
-        for (auto& [id, data] : other._list) {
-            _list.emplace(id, std::make_unique<T>(*data));
+        for (auto& [id, item] : other._list) {
+            _list.emplace(id, item);
         }
     }
     DataStructureManager(DataStructureManager&& other) noexcept = default;
@@ -69,13 +107,18 @@ public:
 
     size_t get_next_id() const { return _next_id; }
 
-    T* get() const { return size() ? _list.at(_focused_id).get() : nullptr; }
+    T* get() const { return size() ? _list.at(_focused_id).data.get() : nullptr; }
 
     void set_by_id(size_t id, std::unique_ptr<T> t) {
         if (_list.contains(id)) {
             spdlog::info("Note: Replacing {} {}...", _type_name, id);
+            // Preserve filename and procedures when replacing
+            auto filename   = _list.at(id).filename;
+            auto procedures = _list.at(id).procedures;
+            _list.insert_or_assign(id, ManagerItemAndAttrs<T>{std::move(t), std::move(filename), std::move(procedures)});
+        } else {
+            _list.insert_or_assign(id, ManagerItemAndAttrs<T>{std::move(t)});
         }
-        _list.insert_or_assign(id, std::move(t));
     }
 
     void set(std::unique_ptr<T> t) {
@@ -87,7 +130,7 @@ public:
     size_t focused_id() const { return _focused_id; }
 
     T* add(size_t id) {
-        _list.emplace(id, std::make_unique<T>());
+        _list.emplace(id, ManagerItemAndAttrs<T>{std::make_unique<T>()});
         _focused_id = id;
         if (id == _next_id || _next_id < id) _next_id = id + 1;
 
@@ -97,7 +140,7 @@ public:
     }
 
     T* add(size_t id, std::unique_ptr<T> t) {
-        _list.emplace(id, std::move(t));
+        _list.emplace(id, ManagerItemAndAttrs<T>{std::move(t)});
         _focused_id = id;
         if (id == _next_id || _next_id < id) _next_id = id + 1;
 
@@ -140,10 +183,12 @@ public:
             spdlog::error("Cannot copy {0}: The {0} list is empty!!", _type_name);
             return;
         }
-        auto copy = std::make_unique<T>(*get());
+        auto const& source_item = _list.at(_focused_id);
+        auto copy_data          = std::make_unique<T>(*source_item.data);
+        ManagerItemAndAttrs<T> copy_item{std::move(copy_data), source_item.filename, source_item.procedures};
 
         if (_next_id <= new_id) _next_id = new_id + 1;
-        _list.insert_or_assign(new_id, std::move(copy));
+        _list.insert_or_assign(new_id, std::move(copy_item));
 
         spdlog::info("Successfully copied {0} {1} to {0} {2}", _type_name, _focused_id, new_id);
         checkout(new_id);
@@ -154,21 +199,21 @@ public:
             _print_id_does_not_exist_error_msg();
             return nullptr;
         }
-        return _list.at(id).get();
+        return _list.at(id).data.get();
     }
 
     void print_manager() const {
         fmt::println("-> #{}: {}", _type_name, this->size());
         if (this->size()) {
-            auto name = data_structure_name(*get());
+            auto name = data_structure_name(*this, _focused_id);
             fmt::println("-> Now focused on: {} {}{}", _type_name, _focused_id, name.empty() ? "" : fmt::format(" ({})", name));
         }
     }
 
     void print_list() const {
         if (this->size()) {
-            for (auto& [id, data] : _list) {
-                fmt::println("{} {}    {}", (id == _focused_id ? "★" : " "), id, data_structure_info_string(*data.get()));
+            for (auto& [id, item] : _list) {
+                fmt::println("{} {}    {}", (id == _focused_id ? "★" : " "), id, data_structure_info_string(*this, id));
             }
         } else {
             fmt::println("The {} list is empty", _type_name);
@@ -177,7 +222,7 @@ public:
 
     void print_focus() const {
         if (this->size()) {
-            auto name = data_structure_name(*get());
+            auto name = data_structure_name(*this, _focused_id);
             fmt::println("-> Now focused on: {} {}{}", _type_name, _focused_id, name.empty() ? "" : fmt::format(" ({})", name));
         } else {
             fmt::println("The {} list is empty", _type_name);
@@ -186,15 +231,109 @@ public:
 
     std::string get_type_name() const { return _type_name; }
 
+    // Filename access methods
+    std::string get_filename(size_t id) const {
+        if (!is_id(id)) {
+            _print_id_does_not_exist_error_msg();
+            return {};
+        }
+        return _list.at(id).filename;
+    }
+
+    std::string get_filename() const {
+        return size() ? get_filename(_focused_id) : std::string{};
+    }
+
+    void set_filename(size_t id, std::string const& filename) {
+        if (!is_id(id)) {
+            _print_id_does_not_exist_error_msg();
+            return;
+        }
+        _list.at(id).filename = filename;
+    }
+
+    void set_filename(std::string const& filename) {
+        if (size()) {
+            set_filename(_focused_id, filename);
+        }
+    }
+
+    // Procedures access methods
+    std::vector<std::string> const& get_procedures(size_t id) const {
+        if (!is_id(id)) {
+            _print_id_does_not_exist_error_msg();
+            static std::vector<std::string> const empty;
+            return empty;
+        }
+        return _list.at(id).procedures;
+    }
+
+    std::vector<std::string> const& get_procedures() const {
+        if (size()) {
+            return get_procedures(_focused_id);
+        }
+        static std::vector<std::string> const empty;
+        return empty;
+    }
+
+    void add_procedure(size_t id, std::string procedure) {
+        if (!is_id(id)) {
+            _print_id_does_not_exist_error_msg();
+            return;
+        }
+        _list.at(id).procedures.push_back(std::move(procedure));
+    }
+
+    void add_procedure(std::string procedure) {
+        if (size()) {
+            add_procedure(_focused_id, std::move(procedure));
+        }
+    }
+
+    void add_procedures(size_t id, std::vector<std::string> const& procedures) {
+        if (!is_id(id)) {
+            _print_id_does_not_exist_error_msg();
+            return;
+        }
+        _list.at(id).procedures.insert(_list.at(id).procedures.end(), procedures.begin(), procedures.end());
+    }
+
+    void add_procedures(std::vector<std::string> const& procedures) {
+        if (size()) {
+            add_procedures(_focused_id, procedures);
+        }
+    }
+
+    void set_procedures(size_t id, std::vector<std::string> const& procedures) {
+        if (!is_id(id)) {
+            _print_id_does_not_exist_error_msg();
+            return;
+        }
+        _list.at(id).procedures = procedures;
+    }
+
+    void set_procedures(std::vector<std::string> const& procedures) {
+        if (size()) {
+            set_procedures(_focused_id, procedures);
+        }
+    }
+
 private:
     size_t _next_id    = 0;
     size_t _focused_id = 0;
-    ordered_hashmap<size_t, std::unique_ptr<T>> _list;
+    std::map<size_t, ManagerItemAndAttrs<T>> _list;
     std::string _type_name;
 
     void _print_id_does_not_exist_error_msg() const {
         fmt::println(stderr, "Error: The ID provided does not exist!!");
     }
+};
+
+// Concept definition - must come after DataStructureManager is defined
+template <typename T>
+concept manager_manageable = requires {
+    { data_structure_info_string(std::declval<DataStructureManager<T> const&>(), std::declval<size_t>()) } -> std::convertible_to<std::string>;
+    { data_structure_name(std::declval<DataStructureManager<T> const&>(), std::declval<size_t>()) } -> std::convertible_to<std::string>;
 };
 
 }  // namespace utils

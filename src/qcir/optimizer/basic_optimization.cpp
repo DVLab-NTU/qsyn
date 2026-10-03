@@ -111,8 +111,6 @@ QCir Optimizer::_parse_once(QCir const& qcir, bool reversed, bool do_minimize_cz
     }
 
     QCir result = _build_from_storage(qcir.get_num_qubits(), reversed);
-    result.set_filename(qcir.get_filename());
-    result.add_procedures(qcir.get_procedures());
 
     for (size_t t = 0; t < _xs.size(); ++t) {
         if (!_xs[t]) continue;

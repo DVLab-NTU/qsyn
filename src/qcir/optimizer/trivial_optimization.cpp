@@ -32,8 +32,6 @@ std::optional<QCir> Optimizer::trivial_optimization(QCir const& qcir) {
     reset(qcir);
     QCir result{qcir.get_num_qubits()};
 
-    result.set_filename(qcir.get_filename());
-    result.add_procedures(qcir.get_procedures());
     result.set_gate_set(qcir.get_gate_set());
 
     for (auto gate : qcir.get_gates()) {
@@ -164,7 +162,6 @@ size_t match_gate_sequence(std::vector<Operation> const& type_seq,
 QCir replace_single_qubit_gate_sequence(QCir& qcir, QubitIdType qubit, size_t gate_num,
                                         size_t seq_len, std::vector<Operation> const& seq) {
     QCir replaced;
-    replaced.add_procedures(qcir.get_procedures());
     replaced.add_qubits(qcir.get_num_qubits());
     replaced.set_gate_set(qcir.get_gate_set());
 

@@ -44,7 +44,8 @@ void symbolic_reduce(ZXGraph& g);
 void partition_reduce(ZXGraph& g, size_t n_partitions);
 void causal_flow_opt(ZXGraph& g,
                      size_t max_lcomp_unfusions,
-                     size_t max_pivot_unfusions);
+                     size_t max_pivot_unfusions,
+                     size_t max_spider_arity = 20);
 void redundant_hadamard_insertion(ZXGraph& g, double prob);
 
 void to_z_graph(ZXGraph& g);

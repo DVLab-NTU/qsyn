@@ -256,6 +256,8 @@ Command duostra_cmd(qcir::QCirMgr& qcir_mgr, device::DeviceMgr& device_mgr) {
                            //                            }
                            // #endif
                            qcir::QCir* logical_qcir = qcir_mgr.get();
+                           auto filename            = qcir_mgr.get_filename();
+                           auto procedures          = qcir_mgr.get_procedures();
                            Duostra duo{logical_qcir,
                                        *device_mgr.get(),
                                        DUOSTRA_CONFIG,
@@ -272,9 +274,9 @@ Command duostra_cmd(qcir::QCirMgr& qcir_mgr, device::DeviceMgr& device_mgr) {
                            auto const id = qcir_mgr.get_next_id();
                            qcir_mgr.add(id, std::move(duo.get_physical_circuit()));
 
-                           qcir_mgr.get()->set_filename(logical_qcir->get_filename());
-                           qcir_mgr.get()->add_procedures(logical_qcir->get_procedures());
-                           qcir_mgr.get()->add_procedure("Duostra");
+                           qcir_mgr.set_filename(filename);
+                           qcir_mgr.add_procedures(procedures);
+                           qcir_mgr.add_procedure("Duostra");
 
                            return CmdExecResult::done;
                        }};

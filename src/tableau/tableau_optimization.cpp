@@ -42,7 +42,7 @@
 
 namespace qsyn {
 
-namespace experimental {
+namespace tableau {
 
 namespace {
 
@@ -2880,6 +2880,6 @@ MatroidPartitionStrategy::Partitions NaiveMatroidPartitionStrategy::partition(Ma
     return matroids;
 }
 
-}  // namespace experimental
+}  // namespace tableau
 
 }  // namespace qsyn

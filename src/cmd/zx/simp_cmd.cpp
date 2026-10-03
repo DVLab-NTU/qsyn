@@ -101,7 +101,7 @@ Command zxgraph_optimize_cmd(zx::ZXGraphMgr& zxgraph_mgr) {
                     procedure_str += "[INT]";
                 }
 
-                zxgraph_mgr.get()->add_procedure(procedure_str);
+                zxgraph_mgr.add_procedure(procedure_str);
                 return CmdExecResult::done;
             }};
 }

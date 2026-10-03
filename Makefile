@@ -99,7 +99,11 @@ test-update:
 
 # run clang-format and clang-tidy on the source code
 lint:
-	./scripts/LINT
+	@if [ -z "$(ARGS)" ]; then \
+		./scripts/LINT; \
+	else \
+		./scripts/LINT $(ARGS); \
+	fi
 .PHONY: lint
 
 clean:

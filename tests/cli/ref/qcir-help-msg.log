@@ -1,0 +1,31 @@
+qsyn> qcir --help
+Usage: qcir [-h] [list | checkout | new | delete | copy | compose | tensor-product | read | write | print | draw | adjoint | gate | qubit | optimize | translate | oracle | equiv | to-basic] ...
+
+Description:
+  QCir commands
+
+Options:
+  flag  -h, --help    show this help message 
+
+Subcommands:
+[list | checkout | new | delete | copy | compose | tensor-product | read | write | print | draw | adjoint | gate | qubit | optimize | translate | oracle | equiv | to-basic]  
+    list            List all QCirs                                                                                                                                                                                               
+    checkout        Checkout to QCir with the ID specified                                                                                                                                                                       
+    new             Create a new QCir                                                                                                                                                                                            
+    delete          Delete a QCir from the list                                                                                                                                                                                  
+    copy            Copy a QCir                                                                                                                                                                                                  
+    compose         compose a QCir                                                                                                                                                                                               
+    tensor-product  tensor a QCir                                                                                                                                                                                                
+    read            read a circuit and construct the corresponding netlist                                                                                                                                                       
+    write           write QCir to a QASM file                                                                                                                                                                                    
+    print           print info of QCir                                                                                                                                                                                           
+    draw            draw a QCir. This command relies on qiskit and pdflatex to be present in the system                                                                                                                          
+    adjoint         transform the QCir to its adjoint, i.e., reverse the order of gates and replace each gate with its adjoint version                                                                                           
+    gate            gate commands                                                                                                                                                                                                
+    qubit           qubit commands                                                                                                                                                                                               
+    optimize        optimize QCir                                                                                                                                                                                                
+    translate       translate the circuit into a specific gate set                                                                                                                                                               
+    oracle          synthesize a boolean oracle                                                                                                                                                                                  
+    equiv           check if two circuits are equivalent. A Tableau-based method is used to check the equivalence. If that fails, and the circuits are small enough, also verify the equivalence are through tensor calculation. 
+    to-basic        Convert the QCir to use only basic gates                                                                                                                                                                     
+
