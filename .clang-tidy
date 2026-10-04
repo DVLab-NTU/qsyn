@@ -34,8 +34,7 @@ Checks: >
   -readability-avoid-nested-conditional-operator,
   -readability-math-missing-parentheses,
 WarningsAsErrors: ""
-# Only diagnose headers under src/ (excludes GMP/MPFR and other system/vendor includes).
-HeaderFilterRegex: ".*/src/.*"
+HeaderFilterRegex: ".*"
 FormatStyle: none
 CheckOptions:
   - { key: readability-identifier-naming.VariableCase, value: lower_case }

@@ -27,10 +27,6 @@ DEBUG_DIR := debug
 all: release
 .PHONY: all
 
-ensure-gridsynth-deps:
-	@CXX="$(CXX)" ./scripts/ensure_gridsynth_deps.sh
-.PHONY: ensure-gridsynth-deps
-
 configure:
 	@mkdir -p $(RELEASE_DIR)
 	@cmake -S . -B $(RELEASE_DIR) \
