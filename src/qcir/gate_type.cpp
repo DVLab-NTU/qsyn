@@ -10,8 +10,6 @@
 #include "qcir/qcir_translate.hpp"
 #include "util/dvlab_string.hpp"
 
-
-
 namespace qsyn::qcir {
 
 namespace {
@@ -24,7 +22,7 @@ std::optional<Operation> str_to_basic_operation(std::string str, std::vector<dvl
         if (str == "ecr") return ECRGate();
         if (str == "reset") return ResetGate();
         if (str == "measure" || str == "m") return MeasurementGate();
-        if (str == "if_else" || str == "if") return IfElseGate(IdGate(), 0, 0); // Placeholder
+        if (str == "if_else" || str == "if") return IfElseGate(IdGate(), 0, 0);  // Placeholder
 
         if (str == "z") return ZGate();
         if (str == "s") return SGate();
@@ -53,7 +51,7 @@ std::optional<Operation> str_to_basic_operation(std::string str, std::vector<dvl
         if (str == "ry") return RYGate(params[0]);
     }
     if (params.size() == 2) {
-        if (str == "u2" || str == "U2" ) return UGate(dvlab::Phase(1, 2), params[0], params[1]);
+        if (str == "u2" || str == "U2") return UGate(dvlab::Phase(1, 2), params[0], params[1]);
     }
     if (params.size() == 3) {
         if (str == "u3" || str == "U" || str == "U3" || str == "u") return UGate(params[0], params[1], params[2]);

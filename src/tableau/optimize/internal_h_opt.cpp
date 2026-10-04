@@ -8,7 +8,6 @@
 #include "spdlog/spdlog.h"
 #include "tableau/pauli_rotation.hpp"
 #include "tableau/stabilizer_tableau.hpp"
-#include "spdlog/spdlog.h"
 
 namespace qsyn::tableau {
 
@@ -24,43 +23,43 @@ void apply_clifford(Tableau& tableau, CliffordOperatorString const& clifford, si
         return;
     }
 
-dvlab::match(
-    tableau.back(),
-    [&](StabilizerTableau& subtableau) {
-        subtableau.apply(clifford);
-    },
-    [&](std::vector<PauliRotation>& subtableau) {
-        // check if the clifford can be inserted before the rotations
+    dvlab::match(
+        tableau.back(),
+        [&](StabilizerTableau& subtableau) {
+            subtableau.apply(clifford);
+        },
+        [&](std::vector<PauliRotation>& subtableau) {
+            // check if the clifford can be inserted before the rotations
 
-        // suppose the Pauli rotation is R_P(θ), and the clifford is C, then we have
-        // C R_P(θ) = R_P(θ) C if and only if CPC^† = P
-        auto copy_rotations = subtableau;
-        for (auto& rotation : copy_rotations) {
-            rotation.apply(clifford);
-        }
+            // suppose the Pauli rotation is R_P(θ), and the clifford is C, then we have
+            // C R_P(θ) = R_P(θ) C if and only if CPC^† = P
+            auto copy_rotations = subtableau;
+            for (auto& rotation : copy_rotations) {
+                rotation.apply(clifford);
+            }
 
-        // Case I: some rotations does not commute with the clifford
-        if (copy_rotations != subtableau) {
-            tableau.push_back(StabilizerTableau{n_qubits}.apply(clifford));
+            // Case I: some rotations does not commute with the clifford
+            if (copy_rotations != subtableau) {
+                tableau.push_back(StabilizerTableau{n_qubits}.apply(clifford));
+                return;
+            }
+
+            // Case II: all rotations commute with the clifford, and the second-to-last element is a clifford
+            if (tableau.size() > 1 && std::holds_alternative<StabilizerTableau>(tableau[tableau.size() - 2])) {
+                std::get<StabilizerTableau>(tableau[tableau.size() - 2]).apply(clifford);
+                return;
+            }
+
+            // Case III: all rotations commute with the clifford, and the second-to-last element is a list of rotations
+            assert(tableau.size() > 0);
+            tableau.insert(std::prev(tableau.end()), StabilizerTableau{n_qubits}.apply(clifford));
             return;
-        }
-
-        // Case II: all rotations commute with the clifford, and the second-to-last element is a clifford
-        if (tableau.size() > 1 && std::holds_alternative<StabilizerTableau>(tableau[tableau.size() - 2])) {
-            std::get<StabilizerTableau>(tableau[tableau.size() - 2]).apply(clifford);
-            return;
-        }
-
-        // Case III: all rotations commute with the clifford, and the second-to-last element is a list of rotations
-        assert(tableau.size() > 0);
-        tableau.insert(std::prev(tableau.end()), StabilizerTableau{n_qubits}.apply(clifford));
-        return;
-    },
-    [&](ClassicalControlTableau& /* cct */) {
-        // If the last element is a ClassicalControlTableau, push a new StabilizerTableau
-        // with the clifford applied
-        assert(false);
-    });
+        },
+        [&](ClassicalControlTableau& /* cct */) {
+            // If the last element is a ClassicalControlTableau, push a new StabilizerTableau
+            // with the clifford applied
+            assert(false);
+        });
 }
 
 void implement_into_tableau(Tableau& tableau, StabilizerTableau& context, size_t qubit, dvlab::Phase const& phase) {
@@ -68,7 +67,7 @@ void implement_into_tableau(Tableau& tableau, StabilizerTableau& context, size_t
     CliffordOperatorString clifford{};
 
     auto stabilizer = std::ref(context.stabilizer(qubit));
-    auto ctrl = gsl::narrow<size_t>(
+    auto ctrl       = gsl::narrow<size_t>(
         std::ranges::distance(
             qubit_range.begin(),
             std::ranges::find_if(qubit_range, [&stabilizer](size_t i) {
@@ -92,22 +91,21 @@ void implement_into_tableau(Tableau& tableau, StabilizerTableau& context, size_t
         clifford.emplace_back(CliffordOperatorType::h, std::array{ctrl, 0ul});
     }
 
-
     apply_clifford(tableau, clifford, context.n_qubits());
 
-dvlab::match(
-    tableau.back(),
-    [&](StabilizerTableau& /* subtableau */) {
-        tableau.push_back(std::vector{PauliRotation{stabilizer, phase}});
-    },
-    [&](std::vector<PauliRotation>& subtableau) {
-        subtableau.push_back(PauliRotation{stabilizer, phase});
-    },
-    [&](ClassicalControlTableau& /* cct */) {
-        // If the last element is a ClassicalControlTableau, push a new StabilizerTableau
-        // followed by the PauliRotation
-        assert(false);
-    });
+    dvlab::match(
+        tableau.back(),
+        [&](StabilizerTableau& /* subtableau */) {
+            tableau.push_back(std::vector{PauliRotation{stabilizer, phase}});
+        },
+        [&](std::vector<PauliRotation>& subtableau) {
+            subtableau.push_back(PauliRotation{stabilizer, phase});
+        },
+        [&](ClassicalControlTableau& /* cct */) {
+            // If the last element is a ClassicalControlTableau, push a new StabilizerTableau
+            // followed by the PauliRotation
+            assert(false);
+        });
 }
 
 [[nodiscard]] CliffordOperatorString z_basisify_ops_h_s_only(PauliRotation const& r) {
@@ -176,7 +174,6 @@ void minimize_internal_hadamards(Tableau& tableau) {
     }
     collapse(tableau);
 
-    
     auto context        = StabilizerTableau{tableau.n_qubits()};
     auto final_clifford = StabilizerTableau{tableau.n_qubits()};
 
@@ -213,7 +210,7 @@ void z_basisify_rotations_h_s_only(Tableau& tableau) {
             CliffordOperatorString trailing_ops{};
 
             for (size_t i = 0; i < rots.size(); ++i) {
-                auto& rot = rots[i];
+                auto& rot      = rots[i];
                 auto const ops = z_basisify_ops_h_s_only(rot);
 
                 if (ops.empty()) {

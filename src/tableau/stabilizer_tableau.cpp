@@ -8,6 +8,7 @@
 #include "./stabilizer_tableau.hpp"
 
 #include <fmt/core.h>
+
 #include <ranges>
 #include <sstream>
 #include <sul/dynamic_bitset.hpp>
@@ -907,4 +908,3 @@ void StabilizerTableau::remove_ancilla_qubit(size_t qubit) {
 }
 
 }  // namespace qsyn::tableau
-

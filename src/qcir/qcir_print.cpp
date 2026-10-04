@@ -204,13 +204,13 @@ void QCir::print_circuit_diagram(spdlog::level::level_enum lvl) const {
 
 void QCir::print_qcir_info() const {
     auto stat = get_gate_statistics(*this);
-    
+
     // Count measurement gates
     size_t measurement_gates = 0;
     if (stat.contains("measure")) {
         measurement_gates = stat.at("measure");
     }
-    
+
     size_t const classical_count = get_num_classical_bits();
     size_t const width           = export_schedule_width().value_or(0);
 

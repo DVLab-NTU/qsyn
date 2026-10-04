@@ -7,13 +7,15 @@
  */
 
 #include "./tableau.hpp"
-#include "./classical_tableau.hpp"
-#include <spdlog/spdlog.h>
+
 #include <fmt/core.h>
+#include <spdlog/spdlog.h>
 
 #include <cassert>
 #include <cstddef>
 #include <functional>
+
+#include "./classical_tableau.hpp"
 
 namespace qsyn::tableau {
 
@@ -159,6 +161,5 @@ Tableau adjoint(Tableau const& tableau) {
     adjoint_inplace(adjoint_tableau);
     return adjoint_tableau;
 }
-
 
 }  // namespace qsyn::tableau

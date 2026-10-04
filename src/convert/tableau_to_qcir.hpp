@@ -11,10 +11,10 @@
 #include <vector>
 
 #include "qcir/qcir.hpp"
+#include "tableau/classical_tableau.hpp"
 #include "tableau/pauli_rotation.hpp"
 #include "tableau/stabilizer_tableau.hpp"
 #include "tableau/tableau.hpp"
-#include "tableau/classical_tableau.hpp"
 #include "util/graph/dag_peeler.hpp"
 #include "util/graph/digraph.hpp"
 

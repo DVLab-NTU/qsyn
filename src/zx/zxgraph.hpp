@@ -138,9 +138,9 @@ private:
               measurement_id(measurement_id), conditional_on(conditional_on) {}
         size_t id;
         VertexType type;
-        QubitIdType qubit;          // for boundary vertices, this is the qubit id;
-                                    // for non-boundary vertices, this is a dummy value
-                                    // that may be used to mark temporary information
+        QubitIdType qubit;  // for boundary vertices, this is the qubit id;
+                            // for non-boundary vertices, this is a dummy value
+                            // that may be used to mark temporary information
         Phase phase;
         float row;
         float col;

@@ -235,7 +235,7 @@ bool ZXGraph::set_measurement_id(ZXVertex* v, size_t measurement_id) {
  * @return ZXVertex* new vertex, or nullptr on conflict
  */
 ZXVertex* ZXGraph::add_vertex(VertexType vt, Phase phase, float row, float col,
-                               ClassicalAnnotation annotation) {
+                              ClassicalAnnotation annotation) {
     auto* v = add_vertex(vt, phase, row, col);
     if (!v) return nullptr;
 

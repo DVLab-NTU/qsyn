@@ -345,7 +345,7 @@ void collapse_with_classical(Tableau& tableau) {
             break;
         }
     }
-    
+
     // Step 3: If tableau is empty after extracting PMCs, just return PMCs
     if (tableau.is_empty()) {
         tableau = Tableau{n_qubits};
@@ -354,7 +354,7 @@ void collapse_with_classical(Tableau& tableau) {
         }
         return;
     }
-    
+
     // Step 4: Convert CCCs to STs (treat CCCs as stabilizers for collapse)
     // Replace each CCC with its internal StabilizerTableau
     for (auto& subtableau : tableau) {
@@ -362,21 +362,19 @@ void collapse_with_classical(Tableau& tableau) {
             if (cct->is_gadget()) {
                 // Replace gadget block with its internal StabilizerTableau
                 StabilizerTableau ccc_st = cct->operations();
-                subtableau = std::move(ccc_st);
+                subtableau               = std::move(ccc_st);
             }
         }
     }
-    
+
     // Step 5: Apply normal collapse to the non-PMC part
     collapse(tableau);
-    
+
     // Step 6: Add PMCs back at the end
     for (auto& cct : pmc_ccts) {
         tableau.push_back(std::move(cct));
     }
 }
-
-
 
 /**
  * @brief remove the Pauli rotations that evaluate to identity.
@@ -553,9 +551,8 @@ void properize(StabilizerTableau& clifford, std::vector<PauliRotation>& rotation
 }
 
 void properize(Tableau& tableau) {
-    
     for (auto& subtableau : tableau) {
-        if( std::holds_alternative<ClassicalControlTableau>(subtableau)) {
+        if (std::holds_alternative<ClassicalControlTableau>(subtableau)) {
             assert(false && "Classical related circuits should not be using this method");
         }
     }
@@ -662,8 +659,6 @@ void optimize_phase_polynomial(StabilizerTableau& clifford, std::vector<PauliRot
         return;
     }
 
-
-
     std::tie(clifford, polynomial) = strategy.optimize(clifford, polynomial);
 }
 
@@ -689,14 +684,12 @@ void optimize_phase_polynomial(Tableau& tableau, PhasePolynomialOptimizationStra
             optimize_phase_polynomial(last_clifford.get(), *pr, strategy);
         } else if (auto cct = std::get_if<ClassicalControlTableau>(&subtableau)) {
             break;
-        }
-        else {
+        } else {
             last_clifford = std::get<StabilizerTableau>(subtableau);
         }
     }
     remove_identities(tableau);
 }
-
 
 /**
  * @brief Reduce the number of terms for all phase polynomials in the tableau.
@@ -746,10 +739,8 @@ void optimize_phase_polynomial_with_classical(Tableau& tableau,
         auto phase_columns = stabilizers_to_pauli_identical_cx_conjugation(clifford_ref);
         pr.insert(pr.end(), phase_columns.begin(), phase_columns.end());
         clifford_ref = StabilizerTableau{clifford_ref.n_qubits()};
-
     }
     remove_identities(tableau);
-
 }
 
 namespace {
@@ -769,7 +760,7 @@ void properize_for_t_optimization(Tableau& tableau) {
         return "Unknown";
     };
 
-    size_t pr2_idx    = tableau.size();
+    size_t pr2_idx = tableau.size();
     StabilizerTableau pending_st{tableau.n_qubits()};
     bool has_pending = false;
 
@@ -811,8 +802,8 @@ void properize_for_t_optimization(Tableau& tableau) {
 
     if (has_pending) {
         auto [st_prime, phase_cols] = stabilizers_to_pauli(pending_st);  // CXs, PR1
-        cx_only = std::move(st_prime);
-        pr1     = std::move(phase_cols);
+        cx_only                     = std::move(st_prime);
+        pr1                         = std::move(phase_cols);
 
         // Move CXs to after {PR1, PR2} by conjugating PR1 and PR2 with adjoint(CXs).
         auto const st_ops  = extract_clifford_operators(*cx_only);
@@ -934,7 +925,7 @@ CircuitStructureInfo properize_for_degadgetization(Tableau& tableau) {
 
     // Expected structure:
     //   {ST0, (CCCs|intermediate STs)..., PR1, (optional PR2), CXs(ST), PMCs..., ST_back}
-    size_t idx = 1;
+    size_t idx       = 1;
     size_t ccc_count = 0;
     while (idx < tableau.size()) {
         auto const* cct = std::get_if<ClassicalControlTableau>(&tableau[idx]);
@@ -957,7 +948,7 @@ CircuitStructureInfo properize_for_degadgetization(Tableau& tableau) {
     }
     size_t const pr1_idx = idx++;
 
-    bool has_pr2 = false;
+    bool has_pr2   = false;
     size_t pr2_idx = std::numeric_limits<size_t>::max();
     if (idx < tableau.size() && std::holds_alternative<std::vector<PauliRotation>>(tableau[idx])) {
         has_pr2 = true;
@@ -1036,9 +1027,9 @@ std::vector<TableauPreprocessConfig> all_tableau_preprocess_configs() {
             for (qcir::CcDecomposition const decomp :
                  {qcir::CcDecomposition::Cpp, qcir::CcDecomposition::Rust}) {
                 configs.push_back(TableauPreprocessConfig{
-                    .decomp = decomp,
+                    .decomp          = decomp,
                     .merge_rotations = mr,
-                    .properize = pr,
+                    .properize       = pr,
                 });
             }
         }
@@ -1131,7 +1122,8 @@ Phase2Kinds read_phase2_kinds_env() {
 }
 
 /** Phase-2 path family: previous_best ≈ old B; all_random ≈ old C. */
-enum class TiePathKind : std::uint8_t { all_random, previous_best };
+enum class TiePathKind : std::uint8_t { all_random,
+                                        previous_best };
 
 char const* tie_path_kind_label(TiePathKind kind) {
     switch (kind) {
@@ -1144,28 +1136,28 @@ char const* tie_path_kind_label(TiePathKind kind) {
 }
 
 struct TieSearchOutcome {
-    bool                 ok = false;
-    bool                 early_unsat = false;
-    size_t               t_count = 0;
-    size_t               sat_width = 0;
-    size_t               pre_t = 0;  // Pauli-term count before FastTODD (size proxy)
-    size_t               pre_a = 0;  // ancilla count before FastTODD
-    Tableau              tableau{0};
-    std::string          preprocess_id;
+    bool ok          = false;
+    bool early_unsat = false;
+    size_t t_count   = 0;
+    size_t sat_width = 0;
+    size_t pre_t     = 0;  // Pauli-term count before FastTODD (size proxy)
+    size_t pre_a     = 0;  // ancilla count before FastTODD
+    Tableau tableau{0};
+    std::string preprocess_id;
     FastToddTieRunReport report;
-    TiePathKind          path_kind = TiePathKind::all_random;
+    TiePathKind path_kind = TiePathKind::all_random;
 };
 
 struct TieStepRef {
-    FastToddTieLevel level      = FastToddTieLevel::tohpe;
-    size_t           step_index = 0;
-    size_t           chosen_index = 0;
+    FastToddTieLevel level = FastToddTieLevel::tohpe;
+    size_t step_index      = 0;
+    size_t chosen_index    = 0;
 };
 
 struct PreprocessTieCandidate {
     TableauPreprocessConfig config;
-    Tableau                 gadgetized;
-    TieSearchOutcome        baseline;
+    Tableau gadgetized;
+    TieSearchOutcome baseline;
 };
 
 std::optional<size_t> solve_sat_min_width(Tableau const& tableau,
@@ -1176,14 +1168,14 @@ std::optional<size_t> solve_sat_min_width(Tableau const& tableau,
     if (start_unsat != nullptr) {
         *start_unsat = false;
     }
-    SatSignatureExport const sig = compute_sat_signature_blocks(tableau);
-    AncillaSmtInstance inst = build_ancilla_smt_instance(sig);
+    SatSignatureExport const sig         = compute_sat_signature_blocks(tableau);
+    AncillaSmtInstance inst              = build_ancilla_smt_instance(sig);
     AncillaScheduleResult const schedule = solve_ancilla_schedule(
         inst, AncillaScheduleSolveOptions{
-                  .start_width = start_width,
-                  .stop_if_start_unsat = stop_if_start_unsat,
+                  .start_width               = start_width,
+                  .stop_if_start_unsat       = stop_if_start_unsat,
                   .linear_search_below_start = start_width.has_value() && stop_if_start_unsat,
-                  .quiet = quiet,
+                  .quiet                     = quiet,
               });
     if (!schedule.ok) {
         if (start_width.has_value() && stop_if_start_unsat && start_unsat != nullptr) {
@@ -1324,12 +1316,12 @@ void force_tie_prefix(FastToddTieControl& control,
 
 TieSearchOutcome run_det_fasttodd_only(Tableau const& gadgetized_tableau, std::string preprocess_id) {
     TieSearchOutcome outcome{
-        .ok = false,
-        .pre_t = gadgetized_tableau.n_pauli_rotations(),
-        .pre_a = gadgetized_tableau.n_ancilla(),
-        .tableau = gadgetized_tableau,
+        .ok            = false,
+        .pre_t         = gadgetized_tableau.n_pauli_rotations(),
+        .pre_a         = gadgetized_tableau.n_ancilla(),
+        .tableau       = gadgetized_tableau,
         .preprocess_id = std::move(preprocess_id),
-        .path_kind = TiePathKind::all_random};
+        .path_kind     = TiePathKind::all_random};
     // Capture original-path decisions for later previous_best forcing.
     FastToddTieControl control;
     control.enabled = true;
@@ -1392,12 +1384,12 @@ TieSearchOutcome run_tie_search_trial_at(Tableau const& base_tableau,
                                          FastToddTieRunReport const* best_report,
                                          size_t force_prefix_len) {
     TieSearchOutcome outcome{
-        .ok = false,
-        .pre_t = base_tableau.n_pauli_rotations(),
-        .pre_a = base_tableau.n_ancilla(),
-        .tableau = base_tableau,
+        .ok            = false,
+        .pre_t         = base_tableau.n_pauli_rotations(),
+        .pre_a         = base_tableau.n_ancilla(),
+        .tableau       = base_tableau,
         .preprocess_id = preprocess_id,
-        .path_kind = path_kind};
+        .path_kind     = path_kind};
     FastToddTieControl control;
     control.enabled     = true;
     control.mode        = FastToddTieSearchMode::all_random;
@@ -1418,13 +1410,13 @@ TieSearchOutcome run_tie_search_trial_at(Tableau const& base_tableau,
     }
     outcome.report  = *report;
     outcome.t_count = outcome.report.final_term_count > 0
-        ? outcome.report.final_term_count
-        : outcome.tableau.n_pauli_rotations();
+                          ? outcome.report.final_term_count
+                          : outcome.tableau.n_pauli_rotations();
 
     // Keep the phase-1 minimum as a fixed ceiling, even if later T improves.
     if (outcome.t_count > phase1_t_limit) {
         spdlog::debug("tie search shot: kind={} config={} T={} skip SMT (phase1_T_limit={})",
-                     tie_path_kind_label(path_kind), preprocess_id, outcome.t_count, phase1_t_limit);
+                      tie_path_kind_label(path_kind), preprocess_id, outcome.t_count, phase1_t_limit);
         return outcome;
     }
 
@@ -1458,23 +1450,23 @@ bool has_tie_decisions(FastToddTieRunReport const& report) {
     return !report.tohpe_decisions.empty() || !report.outer_decisions.empty();
 }
 
-void apply_decision_prefix(FastToddTieControl&             control,
-                           FastToddTieRunReport const&     report,
-                           FastToddTieLevel                level,
-                           size_t                          prefix_len) {
+void apply_decision_prefix(FastToddTieControl& control,
+                           FastToddTieRunReport const& report,
+                           FastToddTieLevel level,
+                           size_t prefix_len) {
     auto const& decisions =
         level == FastToddTieLevel::tohpe ? report.tohpe_decisions : report.outer_decisions;
     auto& forced = level == FastToddTieLevel::tohpe ? control.forced_tohpe_choice_by_step
                                                     : control.forced_outer_choice_by_step;
-    prefix_len = std::min(prefix_len, decisions.size());
+    prefix_len   = std::min(prefix_len, decisions.size());
     for (size_t i = 0; i < prefix_len; ++i) {
         forced[decisions[i].step_index] = decisions[i].chosen_index;
     }
 }
 
-void apply_random_prefix_from_report(FastToddTieControl&     control,
+void apply_random_prefix_from_report(FastToddTieControl& control,
                                      FastToddTieRunReport const& report,
-                                     std::mt19937_64&         rng) {
+                                     std::mt19937_64& rng) {
     control.forced_tohpe_choice_by_step.clear();
     control.forced_outer_choice_by_step.clear();
     if (!report.tohpe_decisions.empty()) {
@@ -1488,10 +1480,10 @@ void apply_random_prefix_from_report(FastToddTieControl&     control,
 }
 
 std::optional<FastToddTieStepTarget> pick_random_target_step(FastToddTieRunReport const& report,
-                                                             std::mt19937_64&            rng) {
+                                                             std::mt19937_64& rng) {
     struct Candidate {
         FastToddTieLevel level;
-        size_t           step_index;
+        size_t step_index;
     };
     std::vector<Candidate> candidates;
     candidates.reserve(report.tohpe_decisions.size() + report.outer_decisions.size());
@@ -1559,13 +1551,13 @@ std::optional<TieSearchOutcome> run_preprocess_aware_tie_search(qcir::QCir const
     tie_search_at_metric_self_check();
 
     // 0 = no hard shot cap; only early-stop N ends each phase.
-    size_t const max_trials = read_size_t_env("QSYN_FASTTODD_TIE_SEARCH_MAX_TRIALS", 0);
-    Phase2Kinds const phase2 = read_phase2_kinds_env();
-    bool const all_preprocess = read_truthy_env("QSYN_FASTTODD_TIE_SEARCH_ALL_PREPROCESS");
+    size_t const max_trials    = read_size_t_env("QSYN_FASTTODD_TIE_SEARCH_MAX_TRIALS", 0);
+    Phase2Kinds const phase2   = read_phase2_kinds_env();
+    bool const all_preprocess  = read_truthy_env("QSYN_FASTTODD_TIE_SEARCH_ALL_PREPROCESS");
     char const* pin_preprocess = std::getenv("QSYN_FASTTODD_TIE_SEARCH_PREPROCESS");
     std::string const pin_id =
         (pin_preprocess != nullptr && pin_preprocess[0] != '\0') ? std::string{pin_preprocess}
-                                                                : std::string{};
+                                                                 : std::string{};
     // Fixed by default so experiments can replay the same tie-search sequence.
     auto const seed = read_size_t_env("QSYN_FASTTODD_TIE_SEARCH_SEED", 1);
     spdlog::debug("tie search seed: {}", seed);
@@ -1679,9 +1671,9 @@ std::optional<TieSearchOutcome> run_preprocess_aware_tie_search(qcir::QCir const
         return read_size_t_env("QSYN_FASTTODD_TIE_SEARCH_PATIENCE",
                                auto_tie_search_patience(global_best.sat_width));
     };
-    size_t patience_n = refresh_patience();
+    size_t patience_n          = refresh_patience();
     size_t all_random_patience = std::max<size_t>(1, patience_n / 2);
-    auto log_patience = [&]() {
+    auto log_patience          = [&]() {
         spdlog::debug(
             "tie search patience: N={} all_random_N={} A_min={} source={}",
             patience_n,
@@ -1691,7 +1683,7 @@ std::optional<TieSearchOutcome> run_preprocess_aware_tie_search(qcir::QCir const
     };
     log_patience();
     // Seed previous_best from phase1 det path; hybrid always starts with previous_best.
-    global_best.path_kind = TiePathKind::previous_best;
+    global_best.path_kind           = TiePathKind::previous_best;
     size_t const t_after_preprocess = global_best.t_count;
     size_t const a_after_preprocess = global_best.sat_width;
     log_topt_stage("tie-search", "preprocess selection",
@@ -1730,20 +1722,20 @@ std::optional<TieSearchOutcome> run_preprocess_aware_tie_search(qcir::QCir const
 
         auto refresh_pb_pivot = [&](size_t& x, size_t& p, size_t& shots_per_pivot, size_t& pivot_used) {
             auto const tie_steps = collect_tie_steps(global_best.report);
-            p               = std::max<size_t>(1, tie_steps.size());
-            shots_per_pivot = std::max<size_t>(1, patience_n / p);
-            x               = p;
-            pivot_used      = 0;
+            p                    = std::max<size_t>(1, tie_steps.size());
+            shots_per_pivot      = std::max<size_t>(1, patience_n / p);
+            x                    = p;
+            pivot_used           = 0;
         };
 
         auto run_phase = [&](TiePathKind kind) -> bool /*continue_search*/ {
             size_t phase_patience =
                 kind == TiePathKind::all_random ? all_random_patience : patience_n;
-            size_t non_improving = 0;
-            size_t x = 1;
-            size_t p = 1;
+            size_t non_improving   = 0;
+            size_t x               = 1;
+            size_t p               = 1;
             size_t shots_per_pivot = 1;
-            size_t pivot_used = 0;
+            size_t pivot_used      = 0;
             if (kind == TiePathKind::previous_best) {
                 refresh_pb_pivot(x, p, shots_per_pivot, pivot_used);
             }
@@ -1757,7 +1749,7 @@ std::optional<TieSearchOutcome> run_preprocess_aware_tie_search(qcir::QCir const
                 max_trials == 0 ? std::string("unlimited") : std::to_string(max_trials));
 
             while (non_improving < phase_patience && under_cap()) {
-                size_t force_prefix_len = 0;
+                size_t force_prefix_len            = 0;
                 PreprocessTieCandidate const* cand = nullptr;
                 if (kind == TiePathKind::previous_best) {
                     force_prefix_len = x;
@@ -1770,7 +1762,7 @@ std::optional<TieSearchOutcome> run_preprocess_aware_tie_search(qcir::QCir const
                 }
 
                 ++tries;
-                shots_used = tries;
+                shots_used             = tries;
                 TieSearchOutcome trial = run_tie_search_trial_at(
                     cand->gadgetized,
                     cand->config.id(),
@@ -1801,10 +1793,11 @@ std::optional<TieSearchOutcome> run_preprocess_aware_tie_search(qcir::QCir const
                     global_best          = std::move(trial);
                     last_at_improve_step = tries;
                     non_improving        = 0;
-                    patience_n = refresh_patience();
-                    all_random_patience = std::max<size_t>(1, patience_n / 2);
-                    phase_patience = kind == TiePathKind::all_random
-                        ? all_random_patience : patience_n;
+                    patience_n           = refresh_patience();
+                    all_random_patience  = std::max<size_t>(1, patience_n / 2);
+                    phase_patience       = kind == TiePathKind::all_random
+                                               ? all_random_patience
+                                               : patience_n;
                     log_patience();
                     spdlog::debug(
                         "tie search phase2: improved step={} kind={} config={} T={} A={}",
@@ -1925,9 +1918,9 @@ std::vector<ParsedChoice> parse_multi_choices(std::string const& s) {
     std::vector<ParsedChoice> out;
     size_t i = 0;
     while (i < s.size()) {
-        size_t const comma = s.find(',', i);
+        size_t const comma    = s.find(',', i);
         std::string const tok = s.substr(i, comma == std::string::npos ? std::string::npos : comma - i);
-        i = comma == std::string::npos ? s.size() : comma + 1;
+        i                     = comma == std::string::npos ? s.size() : comma + 1;
         if (tok.empty()) {
             continue;
         }
@@ -1941,10 +1934,10 @@ std::vector<ParsedChoice> parse_multi_choices(std::string const& s) {
         }
         ParsedChoice c;
         auto const level = tok.substr(0, p1);
-        c.level         = (level == "outer") ? FastToddTieLevel::outer : FastToddTieLevel::tohpe;
-        c.step_index    = static_cast<size_t>(std::stoull(tok.substr(p1 + 1, p2 - p1 - 1)));
-        c.chosen_index  = static_cast<size_t>(std::stoull(tok.substr(p2 + 1, p3 - p2 - 1)));
-        c.tie_count     = static_cast<size_t>(std::stoull(tok.substr(p3 + 1)));
+        c.level          = (level == "outer") ? FastToddTieLevel::outer : FastToddTieLevel::tohpe;
+        c.step_index     = static_cast<size_t>(std::stoull(tok.substr(p1 + 1, p2 - p1 - 1)));
+        c.chosen_index   = static_cast<size_t>(std::stoull(tok.substr(p2 + 1, p3 - p2 - 1)));
+        c.tie_count      = static_cast<size_t>(std::stoull(tok.substr(p3 + 1)));
         out.push_back(c);
     }
     return out;
@@ -1955,7 +1948,7 @@ unsigned __int128 remaining_product_ancestor(std::vector<ParsedChoice> const& ch
     if (choices.empty() || back == 0) {
         return 1;
     }
-    size_t const n = std::min(back, choices.size());
+    size_t const n         = std::min(back, choices.size());
     unsigned __int128 prod = 1;
     for (size_t k = choices.size() - n; k < choices.size(); ++k) {
         prod *= std::max<size_t>(1, choices[k].tie_count);
@@ -2017,7 +2010,7 @@ TieSearchOutcome run_full_smt_random_path(Tableau const& gadgetized,
     }
     outcome.report  = *report;
     outcome.t_count = outcome.report.final_term_count > 0 ? outcome.report.final_term_count
-                                                         : outcome.tableau.n_pauli_rotations();
+                                                          : outcome.tableau.n_pauli_rotations();
     // Full min-A SMT (no A_max prune) so bad paths are observable.
     if (!apply_sat_width(outcome, /*start_width=*/std::nullopt, /*stop_if_start_unsat=*/false)) {
         return outcome;
@@ -2107,7 +2100,7 @@ TieSearchOutcome run_forced_path(Tableau const& gadgetized,
     FastToddTieControl control;
     control.enabled = true;
     // Unforced steps take index 0 so a prefix uniquely determines the suffix.
-    control.mode    = FastToddTieSearchMode::original;
+    control.mode = FastToddTieSearchMode::original;
     for (auto const& c : forces) {
         if (c.level == FastToddTieLevel::tohpe) {
             control.forced_tohpe_choice_by_step[c.step_index] = c.chosen_index;
@@ -2125,7 +2118,7 @@ TieSearchOutcome run_forced_path(Tableau const& gadgetized,
     }
     outcome.report  = *report;
     outcome.t_count = outcome.report.final_term_count > 0 ? outcome.report.final_term_count
-                                                         : outcome.tableau.n_pauli_rotations();
+                                                          : outcome.tableau.n_pauli_rotations();
     if (!do_smt) {
         outcome.ok = true;
         return outcome;
@@ -2147,10 +2140,10 @@ void run_level_sample(Tableau const& gadgetized,
             for (auto const& d : decs) {
                 if (d.tie_count > 1) {
                     out.push_back(ParsedChoice{
-                        .level = level,
-                        .step_index = d.step_index,
+                        .level        = level,
+                        .step_index   = d.step_index,
                         .chosen_index = d.chosen_index,
-                        .tie_count = d.tie_count,
+                        .tie_count    = d.tie_count,
                     });
                 }
             }
@@ -2165,11 +2158,11 @@ void run_level_sample(Tableau const& gadgetized,
         tableau_out = original.tableau;
         return;
     }
-    size_t const p = det_steps.size();
-    auto const first = det_steps.front();
-    std::uint64_t const seed = read_size_t_env("QSYN_TIE_PATH_PROBE_SEED", 1);
-    size_t const max_leaves = read_size_t_env("QSYN_TIE_PATH_PROBE_MAX_LEAVES", 0);
-    char const* out_c = std::getenv("QSYN_TIE_PATH_PROBE_OUT");
+    size_t const p             = det_steps.size();
+    auto const first           = det_steps.front();
+    std::uint64_t const seed   = read_size_t_env("QSYN_TIE_PATH_PROBE_SEED", 1);
+    size_t const max_leaves    = read_size_t_env("QSYN_TIE_PATH_PROBE_MAX_LEAVES", 0);
+    char const* out_c          = std::getenv("QSYN_TIE_PATH_PROBE_OUT");
     std::string const out_path = (out_c != nullptr && out_c[0] != '\0') ? std::string{out_c} : std::string{};
     std::ofstream out;
     if (!out_path.empty()) {
@@ -2180,7 +2173,7 @@ void run_level_sample(Tableau const& gadgetized,
             return;
         }
     }
-    char const* worker_c = std::getenv("QSYN_TIE_PATH_PROBE_WORKER");
+    char const* worker_c     = std::getenv("QSYN_TIE_PATH_PROBE_WORKER");
     std::string const worker = (worker_c != nullptr) ? std::string{worker_c} : std::string{"0"};
 
     std::vector<size_t> assigned = parse_size_list(std::getenv("QSYN_TIE_PATH_PROBE_STEP1"));
@@ -2211,8 +2204,8 @@ void run_level_sample(Tableau const& gadgetized,
         if (leaf.ok) {
             ++n_ok;
         }
-        double const at = leaf.ok ? at_score(block_t, leaf.t_count, leaf.sat_width)
-                                  : std::numeric_limits<double>::infinity();
+        double const at        = leaf.ok ? at_score(block_t, leaf.t_count, leaf.sat_width)
+                                         : std::numeric_limits<double>::infinity();
         std::string const line = fmt::format(
             "{{\"w\":\"{}\",\"prefix\":\"{}\",\"T\":{},\"A\":{},\"AT\":{:.6f},\"k\":{},\"ok\":{}}}\n",
             worker,
@@ -2242,29 +2235,29 @@ void run_level_sample(Tableau const& gadgetized,
                 return;
             }
             // Discover next multi-way step under this prefix (FastTODD, no SMT).
-            auto probe = run_forced_path(gadgetized, pin_id, forces, /*do_smt=*/false);
+            auto probe       = run_forced_path(gadgetized, pin_id, forces, /*do_smt=*/false);
             auto const steps = multi_from(probe.report);
             if (!probe.ok || steps.size() <= forces.size()) {
                 auto leaf = run_forced_path(gadgetized, pin_id, forces, /*do_smt=*/true);
                 write_leaf(forces, leaf);
                 return;
             }
-            auto const next = steps[forces.size()];
-            double const frac = level_sample_frac(k, p);
+            auto const next     = steps[forces.size()];
+            double const frac   = level_sample_frac(k, p);
             size_t const n_take = std::max<size_t>(
                 1, static_cast<size_t>(std::ceil(frac * static_cast<double>(next.tie_count))));
             std::mt19937_64 rng{mix_prefix_seed(seed, forces)};
-            auto const children = sample_without_replacement(n_take, next.tie_count, rng);
+            auto const children      = sample_without_replacement(n_take, next.tie_count, rng);
             bool const at_leaf_depth = k >= p;
             for (size_t idx : children) {
                 if (stop) {
                     return;
                 }
                 ParsedChoice child{
-                    .level         = next.level,
-                    .step_index    = next.step_index,
-                    .chosen_index  = idx,
-                    .tie_count     = next.tie_count};
+                    .level        = next.level,
+                    .step_index   = next.step_index,
+                    .chosen_index = idx,
+                    .tie_count    = next.tie_count};
                 auto child_forces = forces;
                 child_forces.push_back(child);
                 if (at_leaf_depth) {
@@ -2309,9 +2302,9 @@ bool run_tie_path_probe_from_qcir(qcir::QCir const& source, Tableau& tableau_out
         return false;
     }
     std::string const pin_id{pin};
-    char const* mode_c = std::getenv("QSYN_TIE_PATH_PROBE_MODE");
+    char const* mode_c     = std::getenv("QSYN_TIE_PATH_PROBE_MODE");
     std::string const mode = (mode_c == nullptr || mode_c[0] == '\0') ? "oneshot" : mode_c;
-    std::uint64_t seed = read_size_t_env("QSYN_TIE_PATH_PROBE_SEED", 0);
+    std::uint64_t seed     = read_size_t_env("QSYN_TIE_PATH_PROBE_SEED", 0);
     if (seed == 0) {
         seed = std::random_device{}();
     }
@@ -2357,8 +2350,8 @@ bool run_tie_path_probe_from_qcir(qcir::QCir const& source, Tableau& tableau_out
             spdlog::error("PATH_PROBE subtree: need QSYN_TIE_PATH_PROBE_FORCE");
             return false;
         }
-        force_str         = fc;
-        force_parsed      = parse_multi_choices(force_str);
+        force_str        = fc;
+        force_parsed     = parse_multi_choices(force_str);
         force_prefix_len = read_size_t_env("QSYN_TIE_PATH_PROBE_PREFIX_LEN", 0);
         // Ancestor depth back: 1=parent, 2=grandparent, ... Default parent if unset.
         size_t const anc_back = read_size_t_env("QSYN_TIE_PATH_PROBE_ANCESTOR_K", 1);
@@ -2371,16 +2364,16 @@ bool run_tie_path_probe_from_qcir(qcir::QCir const& source, Tableau& tableau_out
         // previous_best walk with full SMT until A<=thesis or HUNT_N shots (for rare goods).
         size_t const hunt_n = std::max<size_t>(1, read_size_t_env("QSYN_TIE_PATH_PROBE_HUNT_N", 200));
         std::mt19937_64 rng{seed};
-        trial             = original;
-        trial.path_kind   = TiePathKind::previous_best;
-        size_t tries      = 0;
+        trial              = original;
+        trial.path_kind    = TiePathKind::previous_best;
+        size_t tries       = 0;
         size_t non_improve = 0;
         while (tries < hunt_n && trial.sat_width > thesis_a && non_improve < hunt_n) {
-            auto const steps = collect_tie_steps(trial.report);
-            size_t const p   = std::max<size_t>(1, steps.size());
-            size_t const x   = std::uniform_int_distribution<size_t>(1, p)(rng);
+            auto const steps              = collect_tie_steps(trial.report);
+            size_t const p                = std::max<size_t>(1, steps.size());
+            size_t const x                = std::uniform_int_distribution<size_t>(1, p)(rng);
             std::uint64_t const shot_seed = rng();
-            auto cand = run_full_smt_random_path(
+            auto cand                     = run_full_smt_random_path(
                 *gadgetized, pin_id, shot_seed, TiePathKind::previous_best, &trial.report, x, nullptr);
             ++tries;
             if (!cand.ok) {
@@ -2388,7 +2381,7 @@ bool run_tie_path_probe_from_qcir(qcir::QCir const& source, Tableau& tableau_out
                 continue;
             }
             // Improve by A/T, then T, then A (match tie-search ranking).
-            bool better = false;
+            bool better          = false;
             double const cand_at = at_score(block_t, cand.t_count, cand.sat_width);
             double const best_at = at_score(block_t, trial.t_count, trial.sat_width);
             if (cand_at < best_at) {
@@ -2400,8 +2393,8 @@ bool run_tie_path_probe_from_qcir(qcir::QCir const& source, Tableau& tableau_out
                 better = true;
             }
             if (better) {
-                trial        = std::move(cand);
-                non_improve  = 0;
+                trial            = std::move(cand);
+                non_improve      = 0;
                 force_prefix_len = x;
                 spdlog::info(
                     "PATH_PROBE hunt: seed={} step={} T={} A={} (target thesis_A={})",
@@ -2421,7 +2414,7 @@ bool run_tie_path_probe_from_qcir(qcir::QCir const& source, Tableau& tableau_out
             (kind_c == nullptr || kind_c[0] == '\0') ? "all_random" : kind_c;
         TiePathKind kind = TiePathKind::all_random;
         if (kind_s == "previous_best" || kind_s == "B" || kind_s == "b") {
-            kind = TiePathKind::previous_best;
+            kind             = TiePathKind::previous_best;
             auto const steps = collect_tie_steps(original.report);
             size_t const p   = std::max<size_t>(1, steps.size());
             // Random pivot depth on the original path (still a random suffix).
@@ -2594,7 +2587,7 @@ bool minimize_t_opt_tie_search_from_qcir(qcir::QCir const& source,
 
         Tableau best_tab{0};
         std::string best_cfg;
-        size_t cur_best_t = phase1_min_t;
+        size_t cur_best_t   = phase1_min_t;
         bool have_incumbent = false;
         for (auto& entry : phase1) {
             if (entry.t_count != phase1_min_t) {
@@ -2682,10 +2675,10 @@ bool minimize_t_opt_tie_search_from_qcir(qcir::QCir const& source,
     }
 
     // Aggregate
-    agg.min_t = agg.per_repeat.front().final_t;
-    agg.max_t = agg.per_repeat.front().final_t;
-    double sum_t = 0;
-    double sum_step = 0;
+    agg.min_t              = agg.per_repeat.front().final_t;
+    agg.max_t              = agg.per_repeat.front().final_t;
+    double sum_t           = 0;
+    double sum_step        = 0;
     double sum_step_at_min = 0;
     for (auto const& st : agg.per_repeat) {
         agg.min_t = std::min(agg.min_t, st.final_t);
@@ -2699,7 +2692,7 @@ bool minimize_t_opt_tie_search_from_qcir(qcir::QCir const& source,
             sum_step_at_min += static_cast<double>(st.last_t_reduce_step);
         }
     }
-    agg.avg_final_t = sum_t / static_cast<double>(repeats);
+    agg.avg_final_t            = sum_t / static_cast<double>(repeats);
     agg.avg_last_t_reduce_step = sum_step / static_cast<double>(repeats);
     agg.avg_last_t_reduce_step_at_min_t =
         agg.n_hit_min_t > 0 ? sum_step_at_min / static_cast<double>(agg.n_hit_min_t) : 0.0;
@@ -2753,8 +2746,8 @@ void minimize_ancillary_t_opt(Tableau& tableau,
             "QSYN_FASTTODD_TIE_SEARCH is set but tie-search requires QCir; "
             "use minimize_ancillary_t_opt_from_qcir via tie-search after qc read");
     }
-    size_t const t0 = tableau.t_count();
-    size_t const a0 = tableau.n_ancilla();
+    size_t const t0                               = tableau.t_count();
+    size_t const a0                               = tableau.n_ancilla();
     [[maybe_unused]] auto const pmc_to_unified_pr = minimize_internal_hadamards_n_gadgetize(tableau);
     if (has_gadget_ancillae(tableau)) {
         optimize_phase_polynomial_with_classical(tableau, FastToddPhasePolynomialOptimizationStrategy{});

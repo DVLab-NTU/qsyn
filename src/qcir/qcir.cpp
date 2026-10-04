@@ -55,7 +55,7 @@ QCir::QCir(QCir const& other) {
         _qubits[i].set_ancilla_state(other._qubits[i].get_ancilla_state());
         _qubits[i].set_initial_state(other._qubits[i].get_initial_state());
     }
-    
+
     // Copy classical bit states (but not measurement gates - will be re-established)
     for (size_t i = 0; i < other._classical_bits.size(); ++i) {
         if (other._classical_bits[i].has_value()) {
@@ -69,7 +69,7 @@ QCir::QCir(QCir const& other) {
         if (gate->has_classical_bits()) {
             auto const& classical_bits = gate->get_classical_bits();
             auto const classical_value = gate->get_classical_value();
-            
+
             if (gate->get_operation().get_type() == "measure" && classical_bits.size() == 1) {
                 // Measurement gate
                 _id_to_gates.emplace(gate->get_id(), std::make_unique<QCirGate>(gate->get_id(), gate->get_operation(), gate->get_qubits(), classical_bits));
@@ -81,12 +81,12 @@ QCir::QCir(QCir const& other) {
                     _id_to_gates.emplace(gate->get_id(), std::make_unique<QCirGate>(gate->get_id(), gate->get_operation(), gate->get_qubits(), *classical_value));
                 }
             } else {
-        _id_to_gates.emplace(gate->get_id(), std::make_unique<QCirGate>(gate->get_id(), gate->get_operation(), gate->get_qubits()));
+                _id_to_gates.emplace(gate->get_id(), std::make_unique<QCirGate>(gate->get_id(), gate->get_operation(), gate->get_qubits()));
             }
         } else {
             _id_to_gates.emplace(gate->get_id(), std::make_unique<QCirGate>(gate->get_id(), gate->get_operation(), gate->get_qubits()));
         }
-        
+
         _predecessors.emplace(gate->get_id(), std::vector<std::optional<size_t>>(gate->get_num_qubits(), std::nullopt));
         _successors.emplace(gate->get_id(), std::vector<std::optional<size_t>>(gate->get_num_qubits(), std::nullopt));
         auto* new_gate = _id_to_gates.at(gate->get_id()).get();
@@ -100,7 +100,7 @@ QCir::QCir(QCir const& other) {
             }
             _qubits[qb].set_last_gate(new_gate);
         }
-        
+
         // Re-establish classical bit measurement linkage
         if (new_gate->get_operation().get_type() == "measure" && new_gate->has_classical_bits()) {
             auto const& classical_bits = new_gate->get_classical_bits();
@@ -109,9 +109,9 @@ QCir::QCir(QCir const& other) {
             }
         }
     }
-    _gate_id = other.get_gates().empty()
-                   ? 0
-                   : 1 + std::ranges::max(
+    _gate_id                      = other.get_gates().empty()
+                                        ? 0
+                                        : 1 + std::ranges::max(
                              other.get_gates() |
                              views::transform(
                                  [](QCirGate* g) { return g->get_id(); }));
@@ -250,28 +250,28 @@ void QCir::_connect_classical(size_t measurement_gate_id, size_t if_else_gate_id
     if (!_id_to_gates.contains(measurement_gate_id) || !_id_to_gates.contains(if_else_gate_id)) {
         return;
     }
-    
+
     auto* measurement_gate = get_gate(measurement_gate_id);
-    auto* if_else_gate = get_gate(if_else_gate_id);
-    
+    auto* if_else_gate     = get_gate(if_else_gate_id);
+
     if (!measurement_gate || !if_else_gate) {
         return;
     }
-    
+
     // Get the pins for both qubits
     auto pin1 = measurement_gate->get_pin_by_qubit(measurement_qubit);
     auto pin2 = if_else_gate->get_pin_by_qubit(if_else_qubit);
-    
+
     if (pin1 == std::nullopt || pin2 == std::nullopt) {
-        spdlog::error("Qubit {} not found in measurement gate {} or qubit {} not found in if-else gate {}", 
-                     measurement_qubit, measurement_gate_id, if_else_qubit, if_else_gate_id);
+        spdlog::error("Qubit {} not found in measurement gate {} or qubit {} not found in if-else gate {}",
+                      measurement_qubit, measurement_gate_id, if_else_qubit, if_else_gate_id);
         return;
     }
-    
+
     // For classical dependencies, we need to add extra pins beyond the qubit pins
     // Extend the successors vector for the measurement gate to accommodate classical dependencies
     _successors[measurement_gate_id].push_back(if_else_gate_id);
-    
+
     // Extend the predecessors vector for the if-else gate
     _predecessors[if_else_gate_id].push_back(measurement_gate_id);
 }
@@ -302,14 +302,13 @@ void QCir::_register_classical_consumer(size_t classical_bit_id, size_t consumer
     _last_consumer_by_cbit[classical_bit_id] = consumer_gate_id;
 }
 
-
 //------------------------------------------------------------------------
 //   Validation methods
 //------------------------------------------------------------------------
 
 /**
  * @brief Validate that qubits can have gates added (not measured)
- * 
+ *
  * @param qubits List of qubits to check
  * @param gate_type Type of gate being added
  * @return true if valid, false otherwise
@@ -320,7 +319,7 @@ bool QCir::_validate_qubit_gate_addition(QubitIdList const& qubits, std::string 
             spdlog::error("Qubit ID {} not found!!", qubit_id);
             return false;
         }
-        
+
         auto* last_gate = _qubits[qubit_id].get_last_gate();
         if (last_gate != nullptr && last_gate->get_operation().get_type() == "measure" &&
             gate_type != "reset") {
@@ -336,7 +335,7 @@ bool QCir::_validate_qubit_gate_addition(QubitIdList const& qubits, std::string 
 
 /**
  * @brief Validate measurement gate addition
- * 
+ *
  * @param qubit_id Qubit to measure
  * @param classical_bit_id Classical bit to store result
  * @return true if valid, false otherwise
@@ -346,30 +345,30 @@ bool QCir::_validate_measurement_gate(QubitIdType qubit_id, size_t classical_bit
     if (!_validate_qubit_gate_addition({qubit_id}, "measure")) {
         return false;
     }
-    
+
     // Check classical bit ID is valid
     if (classical_bit_id >= _classical_bits.size()) {
         spdlog::error("Classical bit ID {} not found!!", classical_bit_id);
         return false;
     }
-    
+
     // Check if classical bit already has a value or is measured
     if (_classical_bits[classical_bit_id].has_value()) {
         spdlog::error("Cannot measure to classical bit {}: bit already has a value", classical_bit_id);
         return false;
     }
-    
+
     if (_classical_bits[classical_bit_id].is_measured()) {
         spdlog::error("Cannot measure to classical bit {}: bit already measured", classical_bit_id);
         return false;
     }
-    
+
     return true;
 }
 
 /**
  * @brief Validate if-else gate addition (single classical bit)
- * 
+ *
  * @param qubits Qubits the gate operates on
  * @param classical_bit_id Classical bit for condition
  * @return true if valid, false otherwise
@@ -379,27 +378,27 @@ bool QCir::_validate_if_else_gate(QubitIdList const& qubits, size_t classical_bi
     if (!_validate_qubit_gate_addition(qubits, "if-else")) {
         return false;
     }
-    
+
     // Check classical bit ID is valid
     if (classical_bit_id >= _classical_bits.size()) {
-        spdlog::error("Classical bit ID {} not found!! Circuit has {} classical bits", 
-                     classical_bit_id, _classical_bits.size());
+        spdlog::error("Classical bit ID {} not found!! Circuit has {} classical bits",
+                      classical_bit_id, _classical_bits.size());
         return false;
     }
-    
+
     // Check if classical bit is determined (has value or measured)
     if (!_classical_bits[classical_bit_id].is_determined()) {
-        spdlog::error("Cannot add if-else gate: classical bit {} is not determined (has_value={}, is_measured={})", 
-                     classical_bit_id, _classical_bits[classical_bit_id].has_value(), _classical_bits[classical_bit_id].is_measured());
+        spdlog::error("Cannot add if-else gate: classical bit {} is not determined (has_value={}, is_measured={})",
+                      classical_bit_id, _classical_bits[classical_bit_id].has_value(), _classical_bits[classical_bit_id].is_measured());
         return false;
     }
-    
+
     return true;
 }
 
 /**
  * @brief Validate if-else gate addition (all classical bits)
- * 
+ *
  * @param qubits Qubits the gate operates on
  * @return true if valid, false otherwise
  */
@@ -408,13 +407,13 @@ bool QCir::_validate_if_else_gate_all_bits(QubitIdList const& qubits) const {
     if (!_validate_qubit_gate_addition(qubits, "if-else")) {
         return false;
     }
-    
+
     // Check if circuit has any classical bits
     if (_classical_bits.empty()) {
         spdlog::error("Cannot add if-else gate checking all bits: circuit has no classical bits");
         return false;
     }
-    
+
     // Check if all classical bits are determined (has value or measured)
     for (size_t i = 0; i < _classical_bits.size(); ++i) {
         if (!_classical_bits[i].is_determined()) {
@@ -422,7 +421,7 @@ bool QCir::_validate_if_else_gate_all_bits(QubitIdList const& qubits) const {
             return false;
         }
     }
-    
+
     return true;
 }
 
@@ -768,8 +767,8 @@ std::vector<QubitIdType> QCir::get_dirty_ancilla_qubits() const {
  * @return number of ancilla qubits
  */
 size_t QCir::get_num_ancilla_qubits() const {
-    return std::count_if(_qubits.begin(), _qubits.end(), 
-                        [](const QCirQubit& q) { return q.is_ancilla(); });
+    return std::count_if(_qubits.begin(), _qubits.end(),
+                         [](const QCirQubit& q) { return q.is_ancilla(); });
 }
 
 /**
@@ -787,8 +786,8 @@ size_t QCir::get_num_data_qubits() const {
  * @return number of clean ancilla qubits
  */
 size_t QCir::get_num_clean_ancilla_qubits() const {
-    return std::count_if(_qubits.begin(), _qubits.end(), 
-                        [](const QCirQubit& q) { return q.is_clean_ancilla(); });
+    return std::count_if(_qubits.begin(), _qubits.end(),
+                         [](const QCirQubit& q) { return q.is_clean_ancilla(); });
 }
 
 /**
@@ -797,8 +796,8 @@ size_t QCir::get_num_clean_ancilla_qubits() const {
  * @return number of dirty ancilla qubits
  */
 size_t QCir::get_num_dirty_ancilla_qubits() const {
-    return std::count_if(_qubits.begin(), _qubits.end(), 
-                        [](const QCirQubit& q) { return q.is_dirty_ancilla(); });
+    return std::count_if(_qubits.begin(), _qubits.end(),
+                         [](const QCirQubit& q) { return q.is_dirty_ancilla(); });
 }
 
 //------------------------------------------------------------------------
@@ -1022,8 +1021,8 @@ size_t QCir::get_num_classical_bits() const {
  * @return number of classical zero bits
  */
 size_t QCir::get_num_classical_zero_bits() const {
-    return std::count_if(_classical_bits.begin(), _classical_bits.end(), 
-                        [](const QCirBit& b) { return b.is_zero(); });
+    return std::count_if(_classical_bits.begin(), _classical_bits.end(),
+                         [](const QCirBit& b) { return b.is_zero(); });
 }
 
 /**
@@ -1032,8 +1031,8 @@ size_t QCir::get_num_classical_zero_bits() const {
  * @return number of classical one bits
  */
 size_t QCir::get_num_classical_one_bits() const {
-    return std::count_if(_classical_bits.begin(), _classical_bits.end(), 
-                        [](const QCirBit& b) { return b.is_one(); });
+    return std::count_if(_classical_bits.begin(), _classical_bits.end(),
+                         [](const QCirBit& b) { return b.is_one(); });
 }
 
 /**
@@ -1042,8 +1041,8 @@ size_t QCir::get_num_classical_one_bits() const {
  * @return number of classical unknown bits
  */
 size_t QCir::get_num_classical_unknown_bits() const {
-    return std::count_if(_classical_bits.begin(), _classical_bits.end(), 
-                        [](const QCirBit& b) { return b.is_unknown(); });
+    return std::count_if(_classical_bits.begin(), _classical_bits.end(),
+                         [](const QCirBit& b) { return b.is_unknown(); });
 }
 
 /**
@@ -1059,24 +1058,22 @@ bool QCir::measure_qubit_to_classical(QubitIdType qubit_id, size_t classical_bit
         spdlog::error("Qubit ID {} not found!!", qubit_id);
         return false;
     }
-    
+
     if (classical_bit_id >= _classical_bits.size()) {
         spdlog::error("Classical bit ID {} not found!!", classical_bit_id);
         return false;
     }
-    
+
     // Get the measurement gate that was just added
     auto* measurement_gate = _id_to_gates[_gate_id - 1].get();
-    
+
     // Mark classical bit as measured (without setting a value)
     mark_classical_as_measured(classical_bit_id, measurement_gate);
-    
+
     // Map qubit to classical bit for measurement
     // spdlog::info("Mapped qubit {} to classical bit {} for measurement", qubit_id, classical_bit_id);
     return true;
 }
-
-
 
 /**
  * @brief Get summary of qubit types in the circuit
@@ -1084,22 +1081,21 @@ bool QCir::measure_qubit_to_classical(QubitIdType qubit_id, size_t classical_bit
  * @return string summary of qubit distribution
  */
 std::string QCir::get_qubit_type_summary() const {
-    size_t data_count = get_num_data_qubits();
-    size_t ancilla_count = get_num_ancilla_qubits();
-    size_t classical_count = get_num_classical_bits();
-    size_t clean_ancilla_count = get_num_clean_ancilla_qubits();
-    size_t dirty_ancilla_count = get_num_dirty_ancilla_qubits();
-    size_t classical_zero_count = get_num_classical_zero_bits();
-    size_t classical_one_count = get_num_classical_one_bits();
+    size_t data_count              = get_num_data_qubits();
+    size_t ancilla_count           = get_num_ancilla_qubits();
+    size_t classical_count         = get_num_classical_bits();
+    size_t clean_ancilla_count     = get_num_clean_ancilla_qubits();
+    size_t dirty_ancilla_count     = get_num_dirty_ancilla_qubits();
+    size_t classical_zero_count    = get_num_classical_zero_bits();
+    size_t classical_one_count     = get_num_classical_one_bits();
     size_t classical_unknown_count = get_num_classical_unknown_bits();
-    
+
     return fmt::format(
         "Circuit Summary:\n"
         "  Quantum qubits: {} ({} data, {} ancilla: {} clean, {} dirty)\n"
         "  Classical bits: {} ({} zero, {} one, {} unknown)",
         _qubits.size(), data_count, ancilla_count, clean_ancilla_count, dirty_ancilla_count,
-        classical_count, classical_zero_count, classical_one_count, classical_unknown_count
-    );
+        classical_count, classical_zero_count, classical_one_count, classical_unknown_count);
 }
 
 size_t QCir::append(Operation const& op, QubitIdList const& bits) {
@@ -1107,12 +1103,12 @@ size_t QCir::append(Operation const& op, QubitIdList const& bits) {
     DVLAB_ASSERT(
         op.get_num_qubits() == bits.size(),
         fmt::format("Operation {} requires {} qubits, but {} qubits are given.", op.get_repr(), op.get_num_qubits(), bits.size()));
-    
+
     // All gates must pass qubit validation
     if (!_validate_qubit_gate_addition(bits, op.get_type())) {
         throw std::runtime_error(fmt::format("Invalid gate addition: qubit validation failed for gate type {}", op.get_type()));
     }
-    
+
     // Create the gate
     _id_to_gates.emplace(_gate_id, std::make_unique<QCirGate>(_gate_id, op, bits));
     _predecessors.emplace(_gate_id, std::vector<std::optional<size_t>>(bits.size(), std::nullopt));
@@ -1145,7 +1141,7 @@ size_t QCir::append(Operation const& op, QubitIdList const& bits) {
         prior_gate_on_reset_qubit->has_classical_bits() &&
         !prior_gate_on_reset_qubit->get_classical_bits().empty()) {
         size_t const cbit = prior_gate_on_reset_qubit->get_classical_bits()[0];
-        auto const   it   = _last_consumer_by_cbit.find(cbit);
+        auto const it     = _last_consumer_by_cbit.find(cbit);
         if (it != _last_consumer_by_cbit.end()) {
             _connect_dependency(it->second, g->get_id());
         }
@@ -1162,11 +1158,11 @@ size_t QCir::append(Operation const& op, QubitIdType qubit_id, size_t classical_
         if (!_validate_measurement_gate(qubit_id, classical_bit_id)) {
             throw std::runtime_error(fmt::format("Invalid measurement gate addition: validation failed for measuring qubit {} to classical bit {}", qubit_id, classical_bit_id));
         }
-        
+
         // Create qubit list and classical bit list for the measurement gate
-        QubitIdList bits = {qubit_id};
+        QubitIdList bits                  = {qubit_id};
         ClassicalBitIdList classical_bits = {classical_bit_id};
-        
+
         _id_to_gates.emplace(_gate_id, std::make_unique<QCirGate>(_gate_id, op, bits, classical_bits));
         _predecessors.emplace(_gate_id, std::vector<std::optional<size_t>>(bits.size(), std::nullopt));
         _successors.emplace(_gate_id, std::vector<std::optional<size_t>>(bits.size(), std::nullopt));
@@ -1183,11 +1179,11 @@ size_t QCir::append(Operation const& op, QubitIdType qubit_id, size_t classical_
             _qubits[qubit_id].set_first_gate(g);
         }
         _qubits[qubit_id].set_last_gate(g);
-        
+
         // Mark classical bit as measured and link to measurement gate
         measure_qubit_to_classical(qubit_id, classical_bit_id);
         _register_measurement_epoch(classical_bit_id, g->get_id());
-        
+
         _dirty = true;
         return g->get_id();
     } else {
@@ -1226,17 +1222,17 @@ size_t QCir::prepend(Operation const& op, QubitIdList const& bits) {
 size_t QCir::append(Operation const& op, QubitIdList const& bits, ClassicalBitIdType classical_bit, size_t classical_value) {
     // Create an if-else gate with single classical bit condition
     IfElseGate if_else_op(op, classical_bit, classical_value);
-    
+
     // Validate operation qubit count
     DVLAB_ASSERT(
         if_else_op.get_num_qubits() == bits.size(),
         fmt::format("Operation {} requires {} qubits, but {} qubits are given.", if_else_op.get_repr(), if_else_op.get_num_qubits(), bits.size()));
-    
+
     // Validate if-else gate addition (includes qubit and classical bit validation)
     if (!_validate_if_else_gate(bits, classical_bit)) {
         throw std::runtime_error(fmt::format("Invalid if-else gate addition: validation failed for classical bit {} and qubits {}", classical_bit, fmt::join(bits, ", ")));
     }
-    
+
     // Create the gate
     _id_to_gates.emplace(_gate_id, std::make_unique<QCirGate>(_gate_id, if_else_op, bits, classical_bit, classical_value));
     _predecessors.emplace(_gate_id, std::vector<std::optional<size_t>>(bits.size(), std::nullopt));
@@ -1257,18 +1253,18 @@ size_t QCir::append(Operation const& op, QubitIdList const& bits, ClassicalBitId
         }
         _qubits[qb].set_last_gate(g);
     }
-    
+
     // Connect to classical dependency: if-else gate depends on measurement gate
     if (_classical_bits[classical_bit].is_measured()) {
         auto* measurement_gate = _classical_bits[classical_bit].get_measurement_gate();
         if (measurement_gate != nullptr && !measurement_gate->get_qubits().empty()) {
             QubitIdType measured_qubit = measurement_gate->get_qubits()[0];
-            QubitIdType if_else_qubit = g->get_qubits()[0];
-                _connect_classical(measurement_gate->get_id(), g->get_id(), measured_qubit, if_else_qubit);
+            QubitIdType if_else_qubit  = g->get_qubits()[0];
+            _connect_classical(measurement_gate->get_id(), g->get_id(), measured_qubit, if_else_qubit);
         }
     }
     _register_classical_consumer(classical_bit, g->get_id());
-    
+
     _dirty = true;
     return g->get_id();
 }
@@ -1276,17 +1272,17 @@ size_t QCir::append(Operation const& op, QubitIdList const& bits, ClassicalBitId
 size_t QCir::append(Operation const& op, QubitIdList const& bits, size_t classical_value) {
     // Create an if-else gate checking all classical bits
     IfElseGate if_else_op(op, classical_value);
-    
+
     // Validate operation qubit count
     DVLAB_ASSERT(
         if_else_op.get_num_qubits() == bits.size(),
         fmt::format("Operation {} requires {} qubits, but {} qubits are given.", if_else_op.get_repr(), if_else_op.get_num_qubits(), bits.size()));
-    
+
     // Validate if-else gate addition (includes qubit and all classical bits validation)
     if (!_validate_if_else_gate_all_bits(bits)) {
         throw std::runtime_error(fmt::format("Invalid if-else gate addition: validation failed for checking all classical bits with qubits {}", fmt::join(bits, ", ")));
     }
-    
+
     // Create the gate
     _id_to_gates.emplace(_gate_id, std::make_unique<QCirGate>(_gate_id, if_else_op, bits, classical_value));
     _predecessors.emplace(_gate_id, std::vector<std::optional<size_t>>(bits.size(), std::nullopt));
@@ -1307,44 +1303,44 @@ size_t QCir::append(Operation const& op, QubitIdList const& bits, size_t classic
         }
         _qubits[qb].set_last_gate(g);
     }
-    
+
     // Connect to classical dependencies: if-else gate depends on all measurement gates
     for (size_t i = 0; i < _classical_bits.size(); ++i) {
         if (_classical_bits[i].is_measured()) {
             auto* measurement_gate = _classical_bits[i].get_measurement_gate();
             if (measurement_gate != nullptr && !measurement_gate->get_qubits().empty()) {
                 QubitIdType measured_qubit = measurement_gate->get_qubits()[0];
-                QubitIdType if_else_qubit = g->get_qubits()[0];
-                    _connect_classical(measurement_gate->get_id(), g->get_id(), measured_qubit, if_else_qubit);
+                QubitIdType if_else_qubit  = g->get_qubits()[0];
+                _connect_classical(measurement_gate->get_id(), g->get_id(), measured_qubit, if_else_qubit);
             }
         }
         _register_classical_consumer(i, g->get_id());
     }
-    
+
     _dirty = true;
     return g->get_id();
 }
 
 size_t QCir::append(QCirGate const& gate) {
-    auto const& op = gate.get_operation();
+    auto const& op    = gate.get_operation();
     auto const qubits = gate.get_qubits();
-    
+
     // Handle gates with classical bits
     if (gate.has_classical_bits()) {
         auto const& classical_bits = gate.get_classical_bits();
         auto const classical_value = gate.get_classical_value();
-        
+
         // Check if this is a measurement gate (has classical bits but no classical value)
         if (op.get_type() == "measure" && classical_bits.size() == 1 && !classical_value.has_value()) {
             DVLAB_ASSERT(qubits.size() == 1, "Measurement gate must have exactly one qubit");
             return append(op, qubits[0], classical_bits[0]);
         }
-        
+
         // Check if this is an if-else gate (has classical value)
         if (auto if_else_op = op.get_underlying_if<IfElseGate>(); if_else_op) {
             // Extract the underlying operation from the IfElseGate
             auto const& underlying_op = if_else_op->get_operation();
-            
+
             // If-else gate with all classical bits
             if (classical_bits.empty() && classical_value.has_value()) {
                 return append(underlying_op, qubits, *classical_value);
@@ -1354,12 +1350,12 @@ size_t QCir::append(QCirGate const& gate) {
                 return append(underlying_op, qubits, classical_bits[0], *classical_value);
             }
         }
-        
+
         // If we have classical bits but didn't match above cases, log warning
-        spdlog::warn("Gate with classical bits not handled properly: type={}, classical_bits.size()={}, has_value={}", 
-                    op.get_type(), classical_bits.size(), classical_value.has_value());
+        spdlog::warn("Gate with classical bits not handled properly: type={}, classical_bits.size()={}, has_value={}",
+                     op.get_type(), classical_bits.size(), classical_value.has_value());
     }
-    
+
     // Regular gate without classical bits
     return append(op, qubits);
 }

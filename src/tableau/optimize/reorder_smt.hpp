@@ -21,17 +21,17 @@ enum class PauliClassKind : std::uint8_t {
 
 struct PauliEquivClass {
     std::vector<size_t> members;
-    PauliClassKind      kind = PauliClassKind::Sat;
-    size_t              rep  = 0;
+    PauliClassKind kind = PauliClassKind::Sat;
+    size_t rep          = 0;
 };
 
 struct PauliColumnReduction {
-    size_t                                      G = 0;
-    std::vector<PauliEquivClass>               classes;
-    std::unordered_map<size_t, size_t>         pid_to_rep;
-    std::vector<size_t>                        sat_reps;
+    size_t G = 0;
+    std::vector<PauliEquivClass> classes;
+    std::unordered_map<size_t, size_t> pid_to_rep;
+    std::vector<size_t> sat_reps;
     std::unordered_map<size_t, PauliClassKind> kind_by_rep;
-    std::unordered_map<size_t, size_t>         fixed_gap_by_rep;
+    std::unordered_map<size_t, size_t> fixed_gap_by_rep;
 
     [[nodiscard]] size_t rep_for(size_t pid) const;
     [[nodiscard]] std::optional<size_t> fixed_gap_for_rep(size_t rep) const;
@@ -56,13 +56,13 @@ struct AncillaSmtInstance {
 };
 
 struct AncillaScheduleResult {
-    bool        ok      = false;
-    size_t      width_w = 0;
+    bool ok        = false;
+    size_t width_w = 0;
     std::string error;
 
-    std::vector<size_t>                        gadget_order_gids;
-    std::unordered_map<size_t, size_t>         column_slot;
-    std::unordered_set<size_t>                 degadgetizable_gids;
+    std::vector<size_t> gadget_order_gids;
+    std::unordered_map<size_t, size_t> column_slot;
+    std::unordered_set<size_t> degadgetizable_gids;
     std::unordered_map<size_t, std::pair<size_t, size_t>> span_by_gid;
 };
 
@@ -86,9 +86,9 @@ struct ParsedGadgetOrdering {
 AncillaSmtInstance build_ancilla_smt_instance(SatSignatureExport const& sig);
 struct AncillaScheduleSolveOptions {
     std::optional<size_t> start_width = std::nullopt;
-    bool stop_if_start_unsat = false;
-    bool linear_search_below_start = false;
-    bool quiet = false;
+    bool stop_if_start_unsat          = false;
+    bool linear_search_below_start    = false;
+    bool quiet                        = false;
 };
 AncillaScheduleResult solve_ancilla_schedule(AncillaSmtInstance const& inst,
                                              AncillaScheduleSolveOptions const& options);

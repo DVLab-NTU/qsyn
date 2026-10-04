@@ -4,13 +4,8 @@
  * @copyright Copyright(c) 2024 DVLab, GIEE, NTU, Taiwan
  */
 
-#include "../tableau_optimization.hpp"
-#include "../classical_tableau.hpp"
-#include "tableau/pauli_rotation.hpp"
-#include "tableau/stabilizer_tableau.hpp"
-#include "tableau/tableau.hpp"
-#include <spdlog/spdlog.h>
 #include <fmt/format.h>
+#include <spdlog/spdlog.h>
 
 #include <algorithm>
 #include <fstream>
@@ -20,10 +15,16 @@
 #include <optional>
 #include <ranges>
 #include <set>
-#include <sul/dynamic_bitset.hpp>
 #include <string_view>
+#include <sul/dynamic_bitset.hpp>
 #include <unordered_map>
 #include <vector>
+
+#include "../classical_tableau.hpp"
+#include "../tableau_optimization.hpp"
+#include "tableau/pauli_rotation.hpp"
+#include "tableau/stabilizer_tableau.hpp"
+#include "tableau/tableau.hpp"
 
 namespace qsyn::tableau {
 
@@ -54,8 +55,8 @@ std::vector<BinaryConstraintOp> extract_ops_for_pr_reverse_apply(
             }
             ops.push_back(BinaryConstraintOp{
                 .kind = BinaryConstraintOp::Kind::SwapAB,
-                .q0 = cct->reference_qubit(),
-                .q1 = cct->ancilla_qubit(),
+                .q0   = cct->reference_qubit(),
+                .q1   = cct->ancilla_qubit(),
             });
             continue;
         }
@@ -71,8 +72,8 @@ std::vector<BinaryConstraintOp> extract_ops_for_pr_reverse_apply(
             }
             ops.push_back(BinaryConstraintOp{
                 .kind = BinaryConstraintOp::Kind::CxCT,
-                .q0 = qubits[0],
-                .q1 = qubits[1],
+                .q0   = qubits[0],
+                .q1   = qubits[1],
             });
         }
     }
@@ -85,7 +86,7 @@ std::vector<BinaryConstraintOp> extract_ops_for_pr_reverse_apply(
 std::vector<uint8_t> extract_z_bits(PauliRotation const& pr, size_t qubit_count) {
     std::vector<uint8_t> z_bits(qubit_count, 0);
     std::string const bit_string = pr.to_bit_string();
-    size_t k = 0;
+    size_t k                     = 0;
     for (char c : bit_string) {
         if (c == '0' || c == '1') {
             if (k >= qubit_count) {
@@ -106,7 +107,6 @@ void apply_ops_to_z_bits(std::vector<uint8_t>& z_bits, std::vector<BinaryConstra
         }
     }
 }
-
 
 /** Export validated H-gadget (CCC, PMC) pairs from a tableau. */
 std::vector<ConstraintGraph::HadamardGadgetPair> export_hadamard_gadget_pairs(Tableau& tableau) {
@@ -217,7 +217,9 @@ std::optional<ConstraintGraph::ReorderPlan> ConstraintGraph::topological_sort() 
     plan.slot_to_prs.assign(num_gadgets + 1, {});
 
     // Full-graph DFS post-order (removed gadgets still enforce gadget-gadget order).
-    enum class Color : uint8_t { WHITE, GRAY, BLACK };
+    enum class Color : uint8_t { WHITE,
+                                 GRAY,
+                                 BLACK };
     std::vector<Color> color(vertices.size(), Color::WHITE);
     std::vector<size_t> postorder;
     std::vector<size_t> stack_path;
@@ -269,7 +271,7 @@ std::optional<ConstraintGraph::ReorderPlan> ConstraintGraph::topological_sort() 
 
     if (back_edge_witness.has_value()) {
         auto const [from, to] = *back_edge_witness;
-        auto type_name = [](VertexType t) {
+        auto type_name        = [](VertexType t) {
             return t == VertexType::GADGET ? "GADGET" : "PR";
         };
         spdlog::error(
@@ -363,204 +365,206 @@ size_t ConstraintGraph::break_cycles() {
 
     // Repeat enumerate-and-greedy-break until DFS finds no cycles.
     for (size_t iteration = 0; iteration < vertices.size() + 1; ++iteration) {
-    size_t num_cycles = 0;
-    // Per cycle: gadgets that have a PR<->gadget edge to a PR also in that cycle
-    std::vector<std::set<size_t>> cycle_pr_gadgets;
-    // Map from gadget vertex index to set of cycle indices it appears in (PR-adjacent only)
-    std::unordered_map<size_t, std::set<size_t>> gadget_to_cycles;
-    
-    auto gadget_has_pr_edge_in_cycle =
-        [&](size_t gadget_v, std::unordered_set<size_t> const& cycle_vertices) {
-            if (gadget_v >= vertices.size() || vertices[gadget_v].type != VertexType::GADGET) {
+        size_t num_cycles = 0;
+        // Per cycle: gadgets that have a PR<->gadget edge to a PR also in that cycle
+        std::vector<std::set<size_t>> cycle_pr_gadgets;
+        // Map from gadget vertex index to set of cycle indices it appears in (PR-adjacent only)
+        std::unordered_map<size_t, std::set<size_t>> gadget_to_cycles;
+
+        auto gadget_has_pr_edge_in_cycle =
+            [&](size_t gadget_v, std::unordered_set<size_t> const& cycle_vertices) {
+                if (gadget_v >= vertices.size() || vertices[gadget_v].type != VertexType::GADGET) {
+                    return false;
+                }
+                for (size_t u : outgoing_edges[gadget_v]) {
+                    if (u < vertices.size() && vertices[u].type == VertexType::PR &&
+                        cycle_vertices.count(u) != 0) {
+                        return true;
+                    }
+                }
+                for (size_t from : incoming_edges[gadget_v]) {
+                    if (from < vertices.size() && vertices[from].type == VertexType::PR &&
+                        cycle_vertices.count(from) != 0) {
+                        return true;
+                    }
+                }
                 return false;
+            };
+
+        // Track visited vertices for cycle detection
+        enum class Color { WHITE,
+                           GRAY,
+                           BLACK };
+        std::vector<Color> color(vertices.size(), Color::WHITE);
+        std::vector<size_t> current_path;
+        std::unordered_map<size_t, size_t> path_index;  // vertex -> index in current_path
+
+        // Helper function to extract cycle from path when back edge is found
+        auto extract_cycle = [&](size_t cycle_start_idx) {
+            std::vector<size_t> cycle;
+            for (size_t i = cycle_start_idx; i < current_path.size(); ++i) {
+                cycle.push_back(current_path[i]);
             }
-            for (size_t u : outgoing_edges[gadget_v]) {
-                if (u < vertices.size() && vertices[u].type == VertexType::PR &&
-                    cycle_vertices.count(u) != 0) {
-                    return true;
+            cycle.push_back(current_path[cycle_start_idx]);  // Close the cycle
+
+            size_t const cycle_id = num_cycles++;
+
+            std::unordered_set<size_t> cycle_vertices;
+            for (size_t v : cycle) {
+                cycle_vertices.insert(v);
+            }
+
+            std::set<size_t> pr_gadgets;
+            for (size_t v : cycle_vertices) {
+                if (!gadget_has_pr_edge_in_cycle(v, cycle_vertices)) {
+                    continue;
                 }
+                pr_gadgets.insert(v);
+                gadget_to_cycles[v].insert(cycle_id);
             }
-            for (size_t from : incoming_edges[gadget_v]) {
-                if (from < vertices.size() && vertices[from].type == VertexType::PR &&
-                    cycle_vertices.count(from) != 0) {
-                    return true;
-                }
-            }
-            return false;
+            cycle_pr_gadgets.push_back(std::move(pr_gadgets));
         };
-    
-    // Track visited vertices for cycle detection
-    enum class Color { WHITE, GRAY, BLACK };
-    std::vector<Color> color(vertices.size(), Color::WHITE);
-    std::vector<size_t> current_path;
-    std::unordered_map<size_t, size_t> path_index;  // vertex -> index in current_path
-    
-    // Helper function to extract cycle from path when back edge is found
-    auto extract_cycle = [&](size_t cycle_start_idx) {
-        std::vector<size_t> cycle;
-        for (size_t i = cycle_start_idx; i < current_path.size(); ++i) {
-            cycle.push_back(current_path[i]);
-        }
-        cycle.push_back(current_path[cycle_start_idx]);  // Close the cycle
 
-        size_t const cycle_id = num_cycles++;
+        // Full-graph DFS; removed gadgets still participate in gadget-gadget paths.
+        std::function<void(size_t)> dfs = [&](size_t v) {
+            if (v >= vertices.size()) {
+                return;
+            }
 
-        std::unordered_set<size_t> cycle_vertices;
-        for (size_t v : cycle) {
-            cycle_vertices.insert(v);
-        }
+            color[v]      = Color::GRAY;
+            path_index[v] = current_path.size();
+            current_path.push_back(v);
 
-        std::set<size_t> pr_gadgets;
-        for (size_t v : cycle_vertices) {
-            if (!gadget_has_pr_edge_in_cycle(v, cycle_vertices)) {
-                continue;
-            }
-            pr_gadgets.insert(v);
-            gadget_to_cycles[v].insert(cycle_id);
-        }
-        cycle_pr_gadgets.push_back(std::move(pr_gadgets));
-    };
-    
-    // Full-graph DFS; removed gadgets still participate in gadget-gadget paths.
-    std::function<void(size_t)> dfs = [&](size_t v) {
-        if (v >= vertices.size()) {
-            return;
-        }
-        
-        color[v] = Color::GRAY;
-        path_index[v] = current_path.size();
-        current_path.push_back(v);
-        
-        for (size_t u : outgoing_edges[v]) {
-            if (u >= vertices.size()) {
-                continue;
-            }
-            
-            if (color[u] == Color::GRAY) {
-                // Back edge found - cycle detected
-                // Extract cycle from u's position in path to current position
-                extract_cycle(path_index[u]);
-            } else if (color[u] == Color::WHITE) {
-                dfs(u);
-            }
-        }
-        
-        current_path.pop_back();
-        path_index.erase(v);
-        color[v] = Color::BLACK;
-    };
-    
-    // Start DFS from each gadget, then PR, to capture all cycles.
-    for (size_t i = 0; i < vertices.size(); ++i) {
-        if (vertices[i].type != VertexType::GADGET) {
-            continue;
-        }
-        
-        if (color[i] == Color::WHITE) {
-            current_path.clear();
-            path_index.clear();
-            dfs(i);
-        }
-    }
-    for (size_t i = 0; i < vertices.size(); ++i) {
-        if (vertices[i].type != VertexType::PR) {
-            continue;
-        }
-        
-        if (color[i] == Color::WHITE) {
-            current_path.clear();
-            path_index.clear();
-            dfs(i);
-        }
-    }
-    
-    // Track which cycles are still active (not yet broken)
-    std::set<size_t> active_cycles;
-    for (size_t i = 0; i < num_cycles; ++i) {
-        active_cycles.insert(i);
-    }
-    
-    // Helper function to break cycles by disconnecting PR <-> gadget edges
-    // for the selected gadget, then marking all its cycles as resolved.
-    auto disconnect_pr_edges_and_cycles = [&](size_t gadget_idx) {
-        disconnect_gadget_pr_edges(gadget_idx);
-        ++total_removed;
+            for (size_t u : outgoing_edges[v]) {
+                if (u >= vertices.size()) {
+                    continue;
+                }
 
-        // Remove all cycles containing this gadget from active cycles
-        auto cycles_to_remove = gadget_to_cycles[gadget_idx];
-        for (size_t cycle_id : cycles_to_remove) {
-            active_cycles.erase(cycle_id);
-            if (cycle_id >= cycle_pr_gadgets.size()) {
-                continue;
-            }
-            for (size_t v : cycle_pr_gadgets[cycle_id]) {
-                auto it = gadget_to_cycles.find(v);
-                if (it != gadget_to_cycles.end()) {
-                    it->second.erase(cycle_id);
+                if (color[u] == Color::GRAY) {
+                    // Back edge found - cycle detected
+                    // Extract cycle from u's position in path to current position
+                    extract_cycle(path_index[u]);
+                } else if (color[u] == Color::WHITE) {
+                    dfs(u);
                 }
             }
-        }
-        
-        // Remove the gadget from cycle-coverage bookkeeping
-        gadget_to_cycles.erase(gadget_idx);
-    };
-    
-    // First pass: if a cycle has exactly one PR-adjacent gadget, disconnect it.
-    std::set<size_t> cycles_to_check = active_cycles;  // Copy to iterate safely
-    for (size_t cycle_id : cycles_to_check) {
-        if (active_cycles.count(cycle_id) == 0 || cycle_id >= cycle_pr_gadgets.size()) {
-            continue;
-        }
 
-        auto const& pr_gadgets = cycle_pr_gadgets[cycle_id];
-        if (pr_gadgets.size() != 1) {
-            continue;
-        }
+            current_path.pop_back();
+            path_index.erase(v);
+            color[v] = Color::BLACK;
+        };
 
-        size_t const gadget_idx = *pr_gadgets.begin();
-        if (gadget_idx < vertices.size() && !vertices[gadget_idx].removed &&
-            vertices[gadget_idx].type == VertexType::GADGET) {
-            disconnect_pr_edges_and_cycles(gadget_idx);
-        }
-    }
-    
-    // Greedy: disconnect PR edges on the non-removed gadget in the most cycles.
-    while (!active_cycles.empty()) {
-        // Find the non-removed gadget that appears in the most active cycles
-        size_t max_count = 0;
-        size_t vertex_to_remove = std::numeric_limits<size_t>::max();
-        
-        for (auto const& [gadget_idx, cycle_set] : gadget_to_cycles) {
-            if (gadget_idx >= vertices.size() || vertices[gadget_idx].removed ||
-                vertices[gadget_idx].type != VertexType::GADGET) {
+        // Start DFS from each gadget, then PR, to capture all cycles.
+        for (size_t i = 0; i < vertices.size(); ++i) {
+            if (vertices[i].type != VertexType::GADGET) {
                 continue;
             }
-            // Count how many active cycles this gadget appears in
-            size_t active_count = 0;
-            for (size_t cycle_id : cycle_set) {
-                if (active_cycles.count(cycle_id) > 0) {
-                    active_count++;
-                }
-            }
-            
-            if (active_count > max_count) {
-                max_count = active_count;
-                vertex_to_remove = gadget_idx;
+
+            if (color[i] == Color::WHITE) {
+                current_path.clear();
+                path_index.clear();
+                dfs(i);
             }
         }
-        
-        // If no gadget found, break to avoid infinite loop
-        if (vertex_to_remove == std::numeric_limits<size_t>::max()) {
+        for (size_t i = 0; i < vertices.size(); ++i) {
+            if (vertices[i].type != VertexType::PR) {
+                continue;
+            }
+
+            if (color[i] == Color::WHITE) {
+                current_path.clear();
+                path_index.clear();
+                dfs(i);
+            }
+        }
+
+        // Track which cycles are still active (not yet broken)
+        std::set<size_t> active_cycles;
+        for (size_t i = 0; i < num_cycles; ++i) {
+            active_cycles.insert(i);
+        }
+
+        // Helper function to break cycles by disconnecting PR <-> gadget edges
+        // for the selected gadget, then marking all its cycles as resolved.
+        auto disconnect_pr_edges_and_cycles = [&](size_t gadget_idx) {
+            disconnect_gadget_pr_edges(gadget_idx);
+            ++total_removed;
+
+            // Remove all cycles containing this gadget from active cycles
+            auto cycles_to_remove = gadget_to_cycles[gadget_idx];
+            for (size_t cycle_id : cycles_to_remove) {
+                active_cycles.erase(cycle_id);
+                if (cycle_id >= cycle_pr_gadgets.size()) {
+                    continue;
+                }
+                for (size_t v : cycle_pr_gadgets[cycle_id]) {
+                    auto it = gadget_to_cycles.find(v);
+                    if (it != gadget_to_cycles.end()) {
+                        it->second.erase(cycle_id);
+                    }
+                }
+            }
+
+            // Remove the gadget from cycle-coverage bookkeeping
+            gadget_to_cycles.erase(gadget_idx);
+        };
+
+        // First pass: if a cycle has exactly one PR-adjacent gadget, disconnect it.
+        std::set<size_t> cycles_to_check = active_cycles;  // Copy to iterate safely
+        for (size_t cycle_id : cycles_to_check) {
+            if (active_cycles.count(cycle_id) == 0 || cycle_id >= cycle_pr_gadgets.size()) {
+                continue;
+            }
+
+            auto const& pr_gadgets = cycle_pr_gadgets[cycle_id];
+            if (pr_gadgets.size() != 1) {
+                continue;
+            }
+
+            size_t const gadget_idx = *pr_gadgets.begin();
+            if (gadget_idx < vertices.size() && !vertices[gadget_idx].removed &&
+                vertices[gadget_idx].type == VertexType::GADGET) {
+                disconnect_pr_edges_and_cycles(gadget_idx);
+            }
+        }
+
+        // Greedy: disconnect PR edges on the non-removed gadget in the most cycles.
+        while (!active_cycles.empty()) {
+            // Find the non-removed gadget that appears in the most active cycles
+            size_t max_count        = 0;
+            size_t vertex_to_remove = std::numeric_limits<size_t>::max();
+
+            for (auto const& [gadget_idx, cycle_set] : gadget_to_cycles) {
+                if (gadget_idx >= vertices.size() || vertices[gadget_idx].removed ||
+                    vertices[gadget_idx].type != VertexType::GADGET) {
+                    continue;
+                }
+                // Count how many active cycles this gadget appears in
+                size_t active_count = 0;
+                for (size_t cycle_id : cycle_set) {
+                    if (active_cycles.count(cycle_id) > 0) {
+                        active_count++;
+                    }
+                }
+
+                if (active_count > max_count) {
+                    max_count        = active_count;
+                    vertex_to_remove = gadget_idx;
+                }
+            }
+
+            // If no gadget found, break to avoid infinite loop
+            if (vertex_to_remove == std::numeric_limits<size_t>::max()) {
+                break;
+            }
+
+            // Disconnect PR<->gadget edges for this gadget
+            disconnect_pr_edges_and_cycles(vertex_to_remove);
+        }
+
+        if (num_cycles == 0) {
             break;
         }
-        
-        // Disconnect PR<->gadget edges for this gadget
-        disconnect_pr_edges_and_cycles(vertex_to_remove);
-    }
-
-    if (num_cycles == 0) {
-        break;
-    }
     }  // end of outer iteration loop
 
     spdlog::info("break_cycles: {} gadgets disconnected from PR constraints", total_removed);
@@ -653,8 +657,8 @@ ConstraintGraph build_constraint_graph(
     auto const reverse_ops = extract_ops_for_pr_reverse_apply(tableau);
 
     for (auto const& pr_info : all_prs) {
-        auto const& pr         = *pr_info.pr_ptr;
-        size_t const pr_vertex = num_gadgets + pr_info.global_pr_index;
+        auto const& pr                      = *pr_info.pr_ptr;
+        size_t const pr_vertex              = num_gadgets + pr_info.global_pr_index;
         std::vector<uint8_t> after_cccs_pr  = extract_z_bits(pr, tableau.n_qubits());
         std::vector<uint8_t> before_cccs_pr = after_cccs_pr;
         apply_ops_to_z_bits(before_cccs_pr, reverse_ops);
@@ -663,7 +667,7 @@ ConstraintGraph build_constraint_graph(
             if (g_idx >= gadgets.size()) {
                 continue;
             }
-            auto const& gadget       = gadgets[g_idx];
+            auto const& gadget         = gadgets[g_idx];
             size_t const ancilla_qubit = gadget.ancilla_qubit;
 
             for (size_t const x_qubit : gadget_x_qubits[g_idx]) {
@@ -681,7 +685,6 @@ ConstraintGraph build_constraint_graph(
             }
         }
     }
-
 
     size_t edge_count = 0;
     for (auto const& out : graph.outgoing_edges) {
@@ -843,8 +846,6 @@ void pad_subtableaux_to_n_qubits(Tableau& tableau) {
 
 }  // namespace
 
-
-
 void reorder_n_degadgetize(Tableau& tableau) {
     if (!has_gadget_ancillae(tableau)) {
         spdlog::info("reorder_n_degadgetize: skipped (no gadget ancilla)");
@@ -868,18 +869,18 @@ void reorder_n_degadgetize(Tableau& tableau) {
 
     graph.break_cycles();
 
-    auto degadgetize_targets = collect_degadgetize_targets_from_graph(graph, gadgets);
+    auto degadgetize_targets              = collect_degadgetize_targets_from_graph(graph, gadgets);
     size_t const degadgetize_target_count = degadgetize_targets.size();
     std::ranges::sort(degadgetize_targets);
 
     auto const reorder_plan_opt = graph.topological_sort();
-    
+
     if (!reorder_plan_opt.has_value()) {
         spdlog::error("Topological sort failed - PR slot assignment infeasible");
         return;
     }
     ConstraintGraph::ReorderPlan const& reorder_plan = reorder_plan_opt.value();
-    size_t const num_gadgets = gadgets.size();
+    size_t const num_gadgets                         = gadgets.size();
 
     auto const initial_unified_pr_idx_opt = find_unified_pr_index(tableau);
     if (!initial_unified_pr_idx_opt.has_value()) {
@@ -887,7 +888,7 @@ void reorder_n_degadgetize(Tableau& tableau) {
         return;
     }
     size_t const initial_unified_pr_idx = initial_unified_pr_idx_opt.value();
-    size_t slots_processed               = 0;
+    size_t slots_processed              = 0;
 
     // Iterate slots 0..G-1: extract slot's rotations from the residual unified PR,
     // insert as a SubTableau at that block's current index, then swap_along leftward
@@ -1020,9 +1021,6 @@ void reorder_n_degadgetize(Tableau& tableau) {
 
     pad_subtableaux_to_n_qubits(tableau);
     remove_identities(tableau);
-    
 }
 
-
 }  // namespace qsyn::tableau
-

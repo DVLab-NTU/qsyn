@@ -8,22 +8,23 @@
 
 #pragma once
 
-#include <tl/fold.hpp>
-#include <variant>
-#include <vector>
-#include <unordered_set>
-#include <unordered_map>
-#include <optional>
-#include <ranges>
-#include <stdexcept>
-#include <algorithm>
-#include <numeric>
 #include <fmt/core.h>
 #include <fmt/format.h>
 
-#include "./stabilizer_tableau.hpp"
+#include <algorithm>
+#include <numeric>
+#include <optional>
+#include <ranges>
+#include <stdexcept>
+#include <tl/fold.hpp>
+#include <unordered_map>
+#include <unordered_set>
+#include <variant>
+#include <vector>
+
 #include "./classical_tableau.hpp"
 #include "./optimize/reorder_smt.hpp"
+#include "./stabilizer_tableau.hpp"
 #include "util/util.hpp"
 
 namespace qsyn {
@@ -34,7 +35,7 @@ using SubTableau = std::variant<
     StabilizerTableau,           // Clifford operations (non-conditional)
     std::vector<PauliRotation>,  // Non-Clifford rotations
     ClassicalControlTableau      // Classical control operations
->;
+    >;
 
 class Tableau : public PauliProductTrait<Tableau> {
 public:
@@ -88,7 +89,7 @@ public:
     void set_n_ancilla(size_t n_ancilla) {
         _n_ancilla = n_ancilla;
     }
-    
+
     auto n_ancilla() const {
         return _n_ancilla;
     }
@@ -163,7 +164,7 @@ public:
         return _subtableaux.erase(first, last);
     }
 
-    template<typename Range>
+    template <typename Range>
     auto erase(Range const& range) {
         return _subtableaux.erase(range);
     }
@@ -240,41 +241,41 @@ public:
 
     /**
      * @brief Get the CCT pairing vector (ccc_index, pmc_index pairs)
-     * 
+     *
      * @return const reference to the pairing vector
      */
     std::vector<std::pair<size_t, size_t>> const& cct_pairing() const {
         return _cct_pairing;
     }
-    
+
     /**
      * @brief Get the CCT pairing vector (ccc_index, pmc_index pairs)
-     * 
+     *
      * @return reference to the pairing vector
      */
     std::vector<std::pair<size_t, size_t>>& cct_pairing() {
         return _cct_pairing;
     }
-    
+
     /**
      * @brief Set the CCT pairing vector
-     * 
+     *
      * @param pairing Vector of (ccc_index, pmc_index) pairs
      */
     void set_cct_pairing(std::vector<std::pair<size_t, size_t>> const& pairing) {
         _cct_pairing = pairing;
     }
-    
+
     /**
      * @brief Clear the CCT pairing vector
      */
     void clear_cct_pairing() {
         _cct_pairing.clear();
     }
-    
+
     /**
      * @brief Find the PMC index paired with a given CCC index
-     * 
+     *
      * @param ccc_index Index of the CCC in the tableau
      * @return Optional PMC index if found, std::nullopt otherwise
      */
@@ -286,10 +287,10 @@ public:
         }
         return std::nullopt;
     }
-    
+
     /**
      * @brief Find the CCC index paired with a given PMC index
-     * 
+     *
      * @param pmc_index Index of the PMC in the tableau
      * @return Optional CCC index if found, std::nullopt otherwise
      */
@@ -312,7 +313,7 @@ private:
     std::size_t _n_ancilla;  // Number of ancilla qubits (last _n_ancilla qubits are ancillae)
     std::vector<std::pair<size_t, AncillaInitialState>> _ancilla_initial_states;
     std::unordered_map<size_t, MeasurementType> _ancilla_measurement_types;  // ancilla_index → Z/X/none
-    std::vector<std::pair<size_t, size_t>> _cct_pairing;  // CCT pairing structure - stores (ccc_index, pmc_index) pairs
+    std::vector<std::pair<size_t, size_t>> _cct_pairing;                     // CCT pairing structure - stores (ccc_index, pmc_index) pairs
     std::optional<size_t> _export_ancilla_count;
     std::optional<size_t> _export_ancilla_depth;
     std::optional<size_t> _export_classical_bit_count;
@@ -395,14 +396,14 @@ struct fmt::formatter<qsyn::tableau::SubTableau> {
                             cct.reference_qubit());
                         result = fmt::format_to(result, "  Operations:\n");
                         result = fmt::format_to(result, "  {}\n",
-                            presentation == 'c' ? cct.operations().to_string() : cct.operations().to_bit_string());
+                                                presentation == 'c' ? cct.operations().to_string() : cct.operations().to_bit_string());
                         return result;
                     }
                     auto result =
                         fmt::format_to(ctx.out(), "Classical Control (ancilla qubit[{}] controls):\n", cct.ancilla_qubit());
                     result = fmt::format_to(result, "  Operations:\n");
                     result = fmt::format_to(result, "  {}\n",
-                        presentation == 'c' ? cct.operations().to_string() : cct.operations().to_bit_string());
+                                            presentation == 'c' ? cct.operations().to_string() : cct.operations().to_bit_string());
                     return result;
                 }},
             subtableau);
@@ -421,7 +422,7 @@ struct fmt::formatter<qsyn::tableau::Tableau> {
 
     template <typename FormatContext>
     auto format(qsyn::tableau::Tableau const& tableau, FormatContext& ctx) const {
-        auto out = ctx.out();
+        auto out   = ctx.out();
         bool first = true;
         for (auto const& subtableau : tableau) {
             if (!first) out = fmt::format_to(out, "\n");

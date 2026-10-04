@@ -8,13 +8,14 @@
 #pragma once
 
 #include <algorithm>
-#include <cstddef>
 #include <cassert>
-#include <stdexcept>
+#include <cstddef>
 #include <optional>
+#include <stdexcept>
 #include <variant>
-#include "./stabilizer_tableau.hpp"
+
 #include "./pauli_rotation.hpp"
+#include "./stabilizer_tableau.hpp"
 #include "util/util.hpp"
 
 namespace qsyn {
@@ -115,7 +116,6 @@ public:
 
     bool is_gadget() const { return _type == CCTType::Gadget; }
     bool is_classical_control() const { return _type == CCTType::ClassicalControl; }
-
 
     MeasurementType measurement_type() const { return _measurement_type; }
     void set_measurement_type(MeasurementType t) { _measurement_type = t; }

@@ -11,22 +11,22 @@
 #include <gsl/narrow>
 #include <random>
 #include <stack>
-#include <unordered_map>
-#include <unordered_set>
 #include <tl/adjacent.hpp>
 #include <tl/enumerate.hpp>
 #include <tl/to.hpp>
+#include <unordered_map>
+#include <unordered_set>
 
 #include "qcir/basic_gate_type.hpp"
-#include "qcir/qcir.hpp"
 #include "qcir/operation.hpp"
+#include "qcir/qcir.hpp"
+#include "spdlog/spdlog.h"
 #include "tableau/classical_tableau.hpp"
 #include "tableau/stabilizer_tableau.hpp"
 #include "util/graph/digraph.hpp"
 #include "util/graph/minimum_spanning_arborescence.hpp"
 #include "util/phase.hpp"
 #include "util/util.hpp"
-#include "spdlog/spdlog.h"
 
 extern bool stop_requested();
 
@@ -34,27 +34,27 @@ namespace qsyn::tableau {
 
 /**
  * @brief Parse a condition expression to extract classical bit and value
- * 
+ *
  * @param condition_expr Condition expression like "c[0]==1" or "c[1]==0"
  * @return std::pair<std::optional<size_t>, std::optional<size_t>> (classical_bit, value)
  */
 std::pair<std::optional<size_t>, std::optional<size_t>> parse_condition_expression(std::string const& condition_expr) {
     // Simple parser for "c[bit]==value" format
     size_t bracket_start = condition_expr.find('[');
-    size_t bracket_end = condition_expr.find(']');
-    size_t eq_pos = condition_expr.find("==");
-    
+    size_t bracket_end   = condition_expr.find(']');
+    size_t eq_pos        = condition_expr.find("==");
+
     if (bracket_start == std::string::npos || bracket_end == std::string::npos || eq_pos == std::string::npos) {
         return {std::nullopt, std::nullopt};
     }
-    
+
     if (bracket_start >= bracket_end || bracket_end >= eq_pos) {
         return {std::nullopt, std::nullopt};
     }
-    
+
     try {
         size_t classical_bit = std::stoul(condition_expr.substr(bracket_start + 1, bracket_end - bracket_start - 1));
-        size_t value = std::stoul(condition_expr.substr(eq_pos + 2));
+        size_t value         = std::stoul(condition_expr.substr(eq_pos + 2));
         return {classical_bit, value};
     } catch (std::exception const&) {
         return {std::nullopt, std::nullopt};
@@ -65,7 +65,7 @@ namespace {
 
 struct AncillaPmcStats {
     std::unordered_map<size_t, size_t> total_epochs_by_ancilla;
-    size_t                             total_classical_bits = 0;
+    size_t total_classical_bits = 0;
 };
 
 AncillaPmcStats count_pmc_epochs_by_ancilla(Tableau const& tableau) {
@@ -134,7 +134,7 @@ void add_clifford_gate(qcir::QCir& qcir, CliffordOperator const& op) {
 
 /**
  * @brief Add a classical controlled clifford gate to QCir
- * 
+ *
  * @param qcir The QCir to add the gate to
  * @param op The clifford operator to wrap in classical control
  * @param classical_bit The classical bit to control on
@@ -189,7 +189,7 @@ bool append_cct_to_qcir(
     StabilizerTableauSynthesisStrategy const& cct_strategy,
     size_t n_qubits,
     std::optional<size_t> classical_bit_override = std::nullopt,
-    bool append_reset = false) {
+    bool append_reset                            = false) {
     size_t const ancilla_qubit = cct.ancilla_qubit();
     if (ancilla_qubit >= n_qubits) {
         spdlog::error("Ancilla qubit {} is out of range for n_qubits {}", ancilla_qubit, n_qubits);
@@ -265,7 +265,7 @@ bool append_gadget_cct_to_qcir(
     return true;
 }
 
-}
+}  // namespace
 
 namespace detail {
 
@@ -477,7 +477,6 @@ std::optional<qcir::QCir> NaivePauliRotationsSynthesisStrategy::synthesize(std::
     return qcir;
 }
 
-
 /**
  * @brief convert a Pauli rotation to a QCir. This is a naive implementation.
  *
@@ -492,7 +491,7 @@ std::optional<qcir::QCir> to_qcir(
 
 /**
  * @brief convert a ClassicalControlTableau to a QCir.
- * 
+ *
  * This function implements the cct_strategy:
  * 1. Adds a measurement gate that measures the ancilla qubit to a classical bit
  * 2. Extracts clifford operators from cct.operations() using the provided synthesis strategy
@@ -533,9 +532,8 @@ std::optional<qcir::QCir> to_qcir(
  * @return qcir::QCir
  */
 std::optional<qcir::QCir> to_qcir(Tableau const& tableau, StabilizerTableauSynthesisStrategy const& st_strategy, PauliRotationsSynthesisStrategy const& pr_strategy, StabilizerTableauSynthesisStrategy const& cct_strategy) {
-
     size_t n_qubits = tableau.n_qubits();
-    
+
     // Validate tableau has qubits
     if (n_qubits == 0) {
         spdlog::error("Tableau has 0 qubits");
@@ -694,4 +692,3 @@ std::optional<qcir::QCir> to_qcir(
 }
 
 }  // namespace qsyn::tableau
-

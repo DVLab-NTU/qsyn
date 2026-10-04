@@ -129,7 +129,7 @@ void QCirGate::set_qubits(QubitIdList qubits) {
 }
 
 bool QCirGate::operator==(QCirGate const& rhs) const {
-    return *_operation == *rhs._operation && _qubits == rhs._qubits && 
+    return *_operation == *rhs._operation && _qubits == rhs._qubits &&
            _classical_bits == rhs._classical_bits && _has_classical_bits == rhs._has_classical_bits &&
            _classical_value == rhs._classical_value;
 }

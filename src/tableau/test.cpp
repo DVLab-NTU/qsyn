@@ -1,6 +1,3 @@
-#include "./classical_tableau.hpp"
-#include "./tableau.hpp"
-
 #include <fmt/core.h>
 #include <spdlog/spdlog.h>
 
@@ -16,14 +13,17 @@
 #include <string_view>
 #include <vector>
 
+#include "./classical_tableau.hpp"
+#include "./tableau.hpp"
+
 namespace qsyn::tableau {
 
 namespace {
 
 struct ParsedCommuteTestCase {
-    size_t n_qubits = 0;
+    size_t n_qubits      = 0;
     size_t pmc_reference = 0;
-    size_t pmc_ancilla = 0;
+    size_t pmc_ancilla   = 0;
     CliffordOperatorString expected_ops;
     std::vector<SubTableau> commute_members;
 };
@@ -56,7 +56,7 @@ std::string to_lower_copy(std::string s) {
 
 std::string normalize_phase_token(std::string token) {
     static std::string const pi_utf8 = "\xCF\x80";
-    size_t pos = 0;
+    size_t pos                       = 0;
     while ((pos = token.find(pi_utf8, pos)) != std::string::npos) {
         token.replace(pos, pi_utf8.size(), "pi");
         pos += 2;
@@ -99,7 +99,7 @@ std::optional<ClassicalControlTableau> parse_gadget_line(std::string const& line
         return std::nullopt;
     }
     size_t const reference = static_cast<size_t>(std::stoull(match[1].str()));
-    size_t const ancilla = static_cast<size_t>(std::stoull(match[2].str()));
+    size_t const ancilla   = static_cast<size_t>(std::stoull(match[2].str()));
     return ClassicalControlTableau{ancilla, reference, n_qubits, CCTType::Gadget};
 }
 
@@ -161,9 +161,9 @@ ParsedCommuteTestCase parse_commute_test_file(std::filesystem::path const& txt_p
     static std::regex const pmc_re{R"(^PMC\s*\(\s*(\d+)\s*,\s*(\d+)\s*\)\s*$)"};
 
     ParsedCommuteTestCase parsed;
-    bool has_qubits = false;
-    bool has_pmc = false;
-    bool has_ops = false;
+    bool has_qubits      = false;
+    bool has_pmc         = false;
+    bool has_ops         = false;
     ParseSection section = ParseSection::none;
     std::vector<CliffordOperator> pending_st_ops;
 
@@ -177,13 +177,13 @@ ParsedCommuteTestCase parse_commute_test_file(std::filesystem::path const& txt_p
         std::smatch match;
         if (std::regex_match(line, match, qubits_re)) {
             parsed.n_qubits = static_cast<size_t>(std::stoull(match[1].str()));
-            has_qubits = true;
+            has_qubits      = true;
             continue;
         }
         if (std::regex_match(line, match, pmc_re)) {
             parsed.pmc_reference = static_cast<size_t>(std::stoull(match[1].str()));
-            parsed.pmc_ancilla = static_cast<size_t>(std::stoull(match[2].str()));
-            has_pmc = true;
+            parsed.pmc_ancilla   = static_cast<size_t>(std::stoull(match[2].str()));
+            has_pmc              = true;
             continue;
         }
         if (line == "ops:") {
@@ -281,7 +281,7 @@ bool run_commute_test_from_file(std::filesystem::path const& txt_path) {
         return false;
     }
 
-    auto const initial_ops_string = clifford_ops_to_string(parsed.expected_ops);
+    auto const initial_ops_string   = clifford_ops_to_string(parsed.expected_ops);
     auto const simulated_ops_string = clifford_ops_to_string(extract_clifford_operators(simulated_pmc.operations()));
     fmt::println("Commute test file: {}", txt_path.string());
     fmt::println("PMC(reference={}, ancilla={})", parsed.pmc_reference, parsed.pmc_ancilla);

@@ -331,7 +331,7 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr, qsyn::qcir::QCi
             };
 
             auto const apply_unify = [&]() {
-                auto& tableau = *tableau_mgr.get();
+                auto& tableau          = *tableau_mgr.get();
                 auto const export_name = !qcir_mgr.get_filename().empty()
                                              ? qcir_mgr.get_filename()
                                              : tableau_mgr.get_filename();
@@ -441,7 +441,7 @@ dvlab::Command tableau_tie_search_cmd(TableauMgr& tableau_mgr, qsyn::qcir::QCirM
                 .nargs(NArgsOption::optional)
                 .help("Fixed tie-search patience override; all_random uses N/2 (default: dynamic max(60, ceil(2.5*A_min)) for the current best)");
             auto t_only_cmds = parser.add_subparsers("t-only-mode").required(false);
-            auto add_t_only = [&](std::string_view name) {
+            auto add_t_only  = [&](std::string_view name) {
                 auto t_only_parser = t_only_cmds.add_parser(name);
                 t_only_parser.description("Minimize T-count only (skip SMT/ancilla). Tracks last T-reduction step.");
                 t_only_parser.add_argument<size_t>("--repeats")

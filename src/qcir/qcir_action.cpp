@@ -32,12 +32,12 @@ QCir& QCir::compose(QCir const& other) {
     if (get_num_qubits() < other.get_num_qubits()) {
         add_qubits(other.get_num_qubits() - get_num_qubits());
     }
-    
+
     // Ensure enough classical bits
     if (get_num_classical_bits() < other.get_num_classical_bits()) {
         add_classical_bits(other.get_num_classical_bits() - get_num_classical_bits());
     }
-    
+
     // Copy classical bit states from other circuit
     for (size_t i = 0; i < other.get_num_classical_bits(); ++i) {
         auto const& other_bit = other.get_classical_bits()[i];
@@ -46,7 +46,7 @@ QCir& QCir::compose(QCir const& other) {
         }
         // Note: Don't copy measurement state - gates will establish that
     }
-    
+
     // Append gates from other circuit
     for (auto& targ_gate : other.get_gates()) {
         append(*targ_gate);
@@ -209,7 +209,7 @@ void QCir::_update_topological_order() const {
         return;
 
     _gate_list = have_if_else() ? topo_sort_with_classical(*this)
-                               : topo_sort_wire_dfs(*this);
+                                : topo_sort_wire_dfs(*this);
     assert(_gate_list.size() == get_num_gates());
 
     _dirty = false;

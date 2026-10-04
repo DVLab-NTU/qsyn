@@ -307,7 +307,7 @@ ZXGraph create_u_zx_form(dvlab::Phase const& theta, dvlab::Phase const& phi, dvl
     ZXVertex* sdg = g.add_vertex(VertexType::z, dvlab::Phase(-1, 2), static_cast<float>(0));
     ZXVertex* rx  = g.add_vertex(VertexType::x, theta, static_cast<float>(0));
     ZXVertex* s   = g.add_vertex(VertexType::z, dvlab::Phase(1, 2), static_cast<float>(0));
-    ZXVertex* rz2  = g.add_vertex(VertexType::z, phi, static_cast<float>(0));
+    ZXVertex* rz2 = g.add_vertex(VertexType::z, phi, static_cast<float>(0));
     ZXVertex* out = g.add_output(0);
 
     g.add_edge(in, rz1, EdgeType::simple);
@@ -318,10 +318,9 @@ ZXGraph create_u_zx_form(dvlab::Phase const& theta, dvlab::Phase const& phi, dvl
     g.add_edge(rz2, out, EdgeType::simple);
 
     return g;
+}
 
-}  
-
-}// namespace
+}  // namespace
 
 template <>
 std::optional<ZXGraph> to_zxgraph(qcir::IdGate const& /* op */) {
@@ -432,8 +431,8 @@ std::optional<ZXGraph> to_zxgraph(qcir::MeasurementGate const& op) {
     auto const vtype  = op.is_x_basis() ? VertexType::x : VertexType::z;
     auto* meas_spider = subgraph.add_vertex(vtype, dvlab::Phase{}, 0.f, 1.f);
     auto* out_bdry    = subgraph.add_output(0);
-    subgraph.add_edge(in_bdry,     meas_spider, EdgeType::simple);
-    subgraph.add_edge(meas_spider, out_bdry,    EdgeType::simple);
+    subgraph.add_edge(in_bdry, meas_spider, EdgeType::simple);
+    subgraph.add_edge(meas_spider, out_bdry, EdgeType::simple);
     return subgraph;
 }
 
@@ -446,9 +445,10 @@ template <>
 std::optional<ZXGraph> to_zxgraph(qcir::IfElseGate const& op) {
     // Only single-bit, value-1 conditions are representable as ZX annotations.
     if (op.checks_all_bits()) {
-        spdlog::warn("IfElseGate: multi-bit condition (if c=={}) is not "
-                     "representable in ZXGraph annotations",
-                     op.get_classical_value());
+        spdlog::warn(
+            "IfElseGate: multi-bit condition (if c=={}) is not "
+            "representable in ZXGraph annotations",
+            op.get_classical_value());
         return std::nullopt;
     }
     if (op.get_classical_value() != 1) {

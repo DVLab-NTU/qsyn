@@ -441,7 +441,8 @@ private:
  *     Written to QASM as:  h q[i];  measure q[i] -> c[j];
  *     When reading QASM the default is always Z.
  */
-enum class MeasurementBasis { Z, X };
+enum class MeasurementBasis { Z,
+                              X };
 
 class ResetGate {
 public:
@@ -479,15 +480,15 @@ inline bool is_clifford(UGate const& op) {
 }
 
 // Measurement gate functions
-inline Operation adjoint(MeasurementGate const& /* op */) { 
+inline Operation adjoint(MeasurementGate const& /* op */) {
     // Measurement is not reversible, so adjoint is not defined
     // Return identity as a placeholder
-    return IdGate(); 
+    return IdGate();
 }
 
-inline bool is_clifford(MeasurementGate const& /* op */) { 
+inline bool is_clifford(MeasurementGate const& /* op */) {
     // Measurement is not a Clifford gate
-    return false; 
+    return false;
 }
 
 inline Operation adjoint(ResetGate const& /* op */) {
@@ -500,14 +501,14 @@ inline bool is_clifford(ResetGate const& /* op */) {
     return false;
 }
 
-inline std::optional<QCir> to_basic_gates(UGate const& op ) {
+inline std::optional<QCir> to_basic_gates(UGate const& op) {
     // Create a new circuit with 1 qubit
     QCir circuit(1);
-    
+
     // Add gates in reverse order (since they're applied from right to left in matrix multiplication)
-    circuit.append(RZGate(op.get_lambda()), {0});   // RZ(λ)
-    circuit.append(RYGate(op.get_theta()), {0});    // RY(θ)
-    circuit.append(RZGate(op.get_phi()), {0});      // RZ(φ)
+    circuit.append(RZGate(op.get_lambda()), {0});  // RZ(λ)
+    circuit.append(RYGate(op.get_theta()), {0});   // RY(θ)
+    circuit.append(RZGate(op.get_phi()), {0});     // RZ(φ)
     return circuit;
 }
 
@@ -524,7 +525,7 @@ inline std::optional<QCir> to_basic_gates(ResetGate const& /* op */) {
 
 /**
  * @brief If-else gate that conditionally applies an operation based on classical bit value
- * 
+ *
  * Two types:
  * 1. Single classical bit: if(c[0]==1) {operation} - checks one specific bit
  * 2. All classical bits: if(c==5) {operation} - checks all bits as combined value
@@ -534,13 +535,13 @@ public:
     // Constructor for single classical bit
     IfElseGate(Operation const& operation, ClassicalBitIdType classical_bit, size_t classical_value)
         : _operation(operation), _classical_bit(classical_bit), _classical_value(classical_value), _check_all_bits(false) {}
-    
+
     // Constructor for all classical bits
     IfElseGate(Operation const& operation, size_t classical_value)
         : _operation(operation), _classical_bit(0), _classical_value(classical_value), _check_all_bits(true) {}
-    
+
     std::string get_type() const { return "if_else"; }
-    std::string get_repr() const { 
+    std::string get_repr() const {
         if (_check_all_bits) {
             return fmt::format("if(c=={}) {}", _classical_value, _operation.get_repr());
         } else {
@@ -548,7 +549,7 @@ public:
         }
     }
     size_t get_num_qubits() const { return _operation.get_num_qubits(); }
-    
+
     Operation const& get_operation() const { return _operation; }
     ClassicalBitIdType get_classical_bit() const { return _classical_bit; }
     size_t get_classical_value() const { return _classical_value; }
@@ -561,7 +562,7 @@ private:
     bool _check_all_bits;  // true for if(c==value), false for if(c[bit]==value)
 };
 
-inline Operation adjoint(IfElseGate const& op) { 
+inline Operation adjoint(IfElseGate const& op) {
     if (op.checks_all_bits()) {
         return IfElseGate(adjoint(op.get_operation()), op.get_classical_value());
     } else {
@@ -569,7 +570,7 @@ inline Operation adjoint(IfElseGate const& op) {
     }
 }
 
-inline bool is_clifford(IfElseGate const& op) { 
+inline bool is_clifford(IfElseGate const& op) {
     return is_clifford(op.get_operation());
 }
 
@@ -579,6 +580,4 @@ inline std::optional<QCir> to_basic_gates(IfElseGate const& /* op */) {
     return std::nullopt;
 }
 
-
 }  // namespace qsyn::qcir
-

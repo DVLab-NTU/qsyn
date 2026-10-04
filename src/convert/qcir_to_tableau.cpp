@@ -7,6 +7,8 @@
 
 #include "./qcir_to_tableau.hpp"
 
+#include <spdlog/spdlog.h>
+
 #include <gsl/narrow>
 #include <ranges>
 #include <span>
@@ -15,8 +17,6 @@
 #include <tl/to.hpp>
 #include <unordered_map>
 #include <variant>
-
-#include <spdlog/spdlog.h>
 
 #include "qcir/basic_gate_type.hpp"
 #include "qcir/qcir_gate.hpp"
@@ -338,8 +338,6 @@ bool append_to_tableau(qcir::IfElseGate const& /* op */, tableau::Tableau& /* ta
     spdlog::warn("If-else gate cannot be represented in stabilizer tableau");
     return false;
 }
-
-
 
 namespace tableau {
 

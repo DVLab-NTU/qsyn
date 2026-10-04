@@ -131,7 +131,7 @@ std::string to_qasm(QCir const& qcir) {
         using namespace std::literals;
         auto const qubits = gate->get_qubits();
         auto repr         = gate->get_operation().get_repr();
-        
+
         // Handle measurement gates — emit basis-appropriate QASM.
         // X-basis: prefix with an H gate so the qubit is rotated before
         // the standard Z-basis measurement instruction.
@@ -151,7 +151,7 @@ std::string to_qasm(QCir const& qcir) {
             qasm += fmt::format("reset q[{}];\n", qubits[0]);
             continue;
         }
-        
+
         // Handle if-else gates independently
         if (repr.find("if") == 0) {
             // If-else gates need qubit targets appended
@@ -163,7 +163,7 @@ std::string to_qasm(QCir const& qcir) {
             qasm += fmt::format("{} {};\n", repr, qubit_str);
             continue;
         }
-        
+
         // if encountering "π", replace it with "pi"
         size_t pos = 0;
         while ((pos = repr.find("π"s, pos)) != std::string::npos) {

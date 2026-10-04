@@ -40,7 +40,7 @@ Command qcir_to_basic_cmd(QCirMgr& qcir_mgr) {
                     .help("CCX/CCZ decomposition: r/rust or c/cpp (default: c++)");
             },
             [&](ArgumentParser const& parser) -> CmdExecResult {
-                auto decomp = CcDecomposition::Cpp;
+                auto decomp           = CcDecomposition::Cpp;
                 auto const decomp_str = parser.get<std::string>("-d");
                 if (!decomp_str.empty()) {
                     auto const parsed = parse_cc_decomposition(decomp_str);

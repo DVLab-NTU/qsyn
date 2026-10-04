@@ -107,12 +107,11 @@ std::optional<QTensor<double>> to_tensor(ControlGate const& op) {
 
 template <>
 std::optional<QTensor<double>> to_tensor(UGate const& op) {
-
-    QTensor<double> rz_phi = QTensor<double>::rzgate(op.get_phi());
-    QTensor<double> ry_theta = QTensor<double>::rygate(op.get_theta());
+    QTensor<double> rz_phi    = QTensor<double>::rzgate(op.get_phi());
+    QTensor<double> ry_theta  = QTensor<double>::rygate(op.get_theta());
     QTensor<double> rz_lambda = QTensor<double>::rzgate(op.get_lambda());
-    QTensor<double> u = tensordot(ry_theta, rz_phi, {1}, {0});
-    u = tensordot(rz_lambda, u, {1}, {0});
+    QTensor<double> u         = tensordot(ry_theta, rz_phi, {1}, {0});
+    u                         = tensordot(rz_lambda, u, {1}, {0});
     return u;
 }
 

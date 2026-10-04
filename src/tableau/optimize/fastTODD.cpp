@@ -9,9 +9,9 @@
 #include <algorithm>
 #include <array>
 #include <cctype>
-#include <cstdlib>
 #include <cstddef>
 #include <cstdint>
+#include <cstdlib>
 #include <iterator>
 #include <optional>
 #include <random>
@@ -62,8 +62,8 @@ void pad_row_to_width(dvlab::BooleanMatrix::Row& row, size_t width) {
  * @return null
  */
 dvlab::BooleanMatrix::Row kernel(
-    dvlab::BooleanMatrix&               matrix,
-    dvlab::BooleanMatrix&               augmented_matrix,
+    dvlab::BooleanMatrix& matrix,
+    dvlab::BooleanMatrix& augmented_matrix,
     std::unordered_map<size_t, size_t>& pivots) {
     for (auto i : std::views::iota(0ul, matrix.num_rows())) {
         if (pivots.contains(i)) continue;
@@ -217,7 +217,7 @@ struct IntegerVecHash {
 /** Pack term row bits for TODD-style bit-vector integer encoding. */
 IntegerVec row_to_integer_vec(dvlab::BooleanMatrix::Row const& row) {
     constexpr size_t BLOCK_SIZE = 256;
-    size_t const     num_blocks = std::max<size_t>(1, (row.size() + BLOCK_SIZE - 1) / BLOCK_SIZE);
+    size_t const num_blocks     = std::max<size_t>(1, (row.size() + BLOCK_SIZE - 1) / BLOCK_SIZE);
     std::vector<std::array<int32_t, 8>> blocks(num_blocks);
     for (size_t bit = 0; bit < row.size(); ++bit) {
         if (!row[bit]) {
@@ -303,17 +303,17 @@ std::mt19937_64& fasttodd_rng() {
     return rng;
 }
 
-std::optional<FastToddTieControl>   g_fasttodd_tie_control;
+std::optional<FastToddTieControl> g_fasttodd_tie_control;
 std::optional<FastToddTieRunReport> g_fasttodd_tie_run_report;
 
 struct FastToddTieRuntime {
-    bool enabled = false;
-    FastToddTieSearchMode mode = FastToddTieSearchMode::random_target_only;
+    bool enabled                                            = false;
+    FastToddTieSearchMode mode                              = FastToddTieSearchMode::random_target_only;
     std::optional<FastToddTieStepTarget> target_random_step = std::nullopt;
-    std::unordered_map<size_t, size_t>   forced_tohpe_choice_by_step;
-    std::unordered_map<size_t, size_t>   forced_outer_choice_by_step;
-    std::mt19937_64                      rng{0};
-    FastToddTieRunReport                 report;
+    std::unordered_map<size_t, size_t> forced_tohpe_choice_by_step;
+    std::unordered_map<size_t, size_t> forced_outer_choice_by_step;
+    std::mt19937_64 rng{0};
+    FastToddTieRunReport report;
 };
 
 size_t choose_controlled_tie_index(FastToddTieRuntime& runtime,
@@ -325,8 +325,8 @@ size_t choose_controlled_tie_index(FastToddTieRuntime& runtime,
     }
 
     auto const& forced = level == FastToddTieLevel::tohpe
-        ? runtime.forced_tohpe_choice_by_step
-        : runtime.forced_outer_choice_by_step;
+                             ? runtime.forced_tohpe_choice_by_step
+                             : runtime.forced_outer_choice_by_step;
     if (auto const it = forced.find(step_index); it != forced.end() && it->second < tie_count) {
         return it->second;
     }
@@ -355,8 +355,8 @@ void record_controlled_decision(FastToddTieRuntime& runtime,
                                 size_t const tie_count,
                                 size_t const chosen_index) {
     FastToddTieStepDecision const decision{
-        .step_index = step_index,
-        .tie_count = tie_count,
+        .step_index   = step_index,
+        .tie_count    = tie_count,
         .chosen_index = chosen_index,
     };
     if (level == FastToddTieLevel::tohpe) {
@@ -571,7 +571,7 @@ Polynomial tohpe_once(Polynomial const& polynomial) {
 /** Full TOHPE pass on term table. */
 void tohpe_table_pass(dvlab::BooleanMatrix& table,
                       size_t n_qubits,
-                      size_t max_moves = static_cast<size_t>(-1),
+                      size_t max_moves                = static_cast<size_t>(-1),
                       FastToddTieRuntime* tie_runtime = nullptr) {
     if (table.num_rows() == 0) {
         return;
@@ -594,7 +594,7 @@ void tohpe_table_pass(dvlab::BooleanMatrix& table,
             break;
         }
 
-        std::unordered_map<IntegerVec, int, IntegerVecHash>                          score_map{};
+        std::unordered_map<IntegerVec, int, IntegerVecHash> score_map{};
         std::unordered_map<IntegerVec, dvlab::BooleanMatrix::Row, IntegerVecHash> z_map{};
         auto const y_parity = y.sum() % 2;
         for (auto i : std::views::iota(0ul, n_terms)) {
@@ -609,8 +609,8 @@ void tohpe_table_pass(dvlab::BooleanMatrix& table,
             if (!y[i]) continue;
             for (auto j : std::views::iota(0ul, n_terms)) {
                 if (y[j]) continue;
-                auto const z   = table[i] + table[j];
-                auto const key = row_to_integer_vec(z);
+                auto const z        = table[i] + table[j];
+                auto const key      = row_to_integer_vec(z);
                 auto [it, inserted] = score_map.try_emplace(key, 2);
                 if (inserted) {
                     z_map.try_emplace(key, z);
@@ -642,7 +642,7 @@ void tohpe_table_pass(dvlab::BooleanMatrix& table,
         size_t chosen_idx = 0;
         if (tie_runtime != nullptr && tie_runtime->enabled) {
             size_t const step_index = tie_runtime->report.tohpe_step_count;
-            chosen_idx = choose_controlled_tie_index(
+            chosen_idx              = choose_controlled_tie_index(
                 *tie_runtime, FastToddTieLevel::tohpe, step_index, tied_max.size());
             record_controlled_decision(
                 *tie_runtime, FastToddTieLevel::tohpe, step_index, tied_max.size(), chosen_idx);
@@ -750,7 +750,7 @@ Polynomial tohpe_once_iteration(Polynomial const& polynomial, size_t max_moves =
         return polynomial;
     }
     auto const n_qubits = polynomial.front().n_qubits();
-    auto       table    = dvlab::transpose(load_phase_poly_matrix(polynomial));
+    auto table          = dvlab::transpose(load_phase_poly_matrix(polynomial));
     tohpe_table_pass(table, n_qubits, max_moves);
     return from_boolean_matrix(table);
 }
@@ -765,12 +765,12 @@ std::unordered_map<size_t, size_t> invert_pivot_map(std::unordered_map<size_t, s
 }
 
 void fold_pivot_columns(
-    dvlab::BooleanMatrix::Row&                col,
-    dvlab::BooleanMatrix::Row&                aug_col,
-    size_t                                    pivot_col,
+    dvlab::BooleanMatrix::Row& col,
+    dvlab::BooleanMatrix::Row& aug_col,
+    size_t pivot_col,
     std::unordered_map<size_t, size_t> const& col_to_row,
-    dvlab::BooleanMatrix const&               matrix,
-    dvlab::BooleanMatrix const&               augmented_matrix) {
+    dvlab::BooleanMatrix const& matrix,
+    dvlab::BooleanMatrix const& augmented_matrix) {
     auto const it = col_to_row.find(pivot_col);
     if (it == col_to_row.end()) {
         return;
@@ -828,7 +828,7 @@ int score_fast_todd_move(
 
 void proper_term_table(dvlab::BooleanMatrix& table) {
     std::unordered_map<IntegerVec, size_t, IntegerVecHash> seen;
-    std::vector<size_t>                                    to_remove;
+    std::vector<size_t> to_remove;
     for (size_t i = 0; i < table.num_rows(); ++i) {
         size_t const first_one =
             std::distance(table[i].begin(), std::find(table[i].begin(), table[i].end(), true));
@@ -858,7 +858,7 @@ void proper_term_table(dvlab::BooleanMatrix& table) {
  * @return false when max_score == 0 (no move); true after applying best move.
  */
 bool fast_todd_table_step(dvlab::BooleanMatrix& table, size_t n_qubits, size_t outer_iter = 0,
-                          char const* backend = "cpp",
+                          char const* backend             = "cpp",
                           FastToddTieRuntime* tie_runtime = nullptr) {
     if (table.num_rows() == 0) {
         return false;
@@ -890,11 +890,11 @@ bool fast_todd_table_step(dvlab::BooleanMatrix& table, size_t n_qubits, size_t o
     struct ScoredMove {
         dvlab::BooleanMatrix::Row z;
         dvlab::BooleanMatrix::Row y;
-        size_t                    i = 0;
-        size_t                    j = 0;
+        size_t i = 0;
+        size_t j = 0;
     };
 
-    int                     max_score = 0;
+    int max_score = 0;
     std::vector<ScoredMove> best_moves;
 
     for (size_t i = 0; i < table.num_rows(); ++i) {
@@ -970,8 +970,8 @@ bool fast_todd_table_step(dvlab::BooleanMatrix& table, size_t n_qubits, size_t o
                     }
                 } else if (i < augmented_r_mat[k].size() && j < augmented_r_mat[k].size() &&
                            augmented_r_mat[k][i] != augmented_r_mat[k][j]) {
-                    auto const y     = augmented_r_mat[k];
-                    int const  score = score_fast_todd_move(table, z, y, term_index);
+                    auto const y    = augmented_r_mat[k];
+                    int const score = score_fast_todd_move(table, z, y, term_index);
                     if (score > max_score) {
                         max_score = score;
                         best_moves.clear();
@@ -996,11 +996,11 @@ bool fast_todd_table_step(dvlab::BooleanMatrix& table, size_t n_qubits, size_t o
         return false;
     }
 
-    size_t chosen_idx = 0;
+    size_t chosen_idx         = 0;
     bool controlled_tie_break = false;
     if (tie_runtime != nullptr && tie_runtime->enabled) {
         size_t const step_index = tie_runtime->report.outer_step_count;
-        chosen_idx = choose_controlled_tie_index(
+        chosen_idx              = choose_controlled_tie_index(
             *tie_runtime, FastToddTieLevel::outer, step_index, best_moves.size());
         record_controlled_decision(
             *tie_runtime, FastToddTieLevel::outer, step_index, best_moves.size(), chosen_idx);
@@ -1017,8 +1017,7 @@ bool fast_todd_table_step(dvlab::BooleanMatrix& table, size_t n_qubits, size_t o
         fmt::print(stderr,
                    "[{}-fasttodd] outer={} max_score={} tied_moves={} tie_break={}\n",
                    backend, outer_iter, max_score, best_moves.size(),
-                   controlled_tie_break ? "scripted" :
-                   (fasttodd_random_tie_break_enabled() ? "random" : "first"));
+                   controlled_tie_break ? "scripted" : (fasttodd_random_tie_break_enabled() ? "random" : "first"));
     }
 
     for (size_t l = 0; l < table.num_rows(); ++l) {
@@ -1043,8 +1042,8 @@ Polynomial fasttodd_once(Polynomial const& polynomial, char const* backend) {
         return polynomial;
     }
 
-    auto         table      = dvlab::transpose(load_phase_poly_matrix(polynomial));
-    size_t const n_qubits   = table.num_cols();
+    auto table            = dvlab::transpose(load_phase_poly_matrix(polynomial));
+    size_t const n_qubits = table.num_cols();
     trace_dump_table("input", backend, table);
 
     FastToddTieRuntime tie_runtime;
@@ -1061,7 +1060,7 @@ Polynomial fasttodd_once(Polynomial const& polynomial, char const* backend) {
             tie_runtime.rng.seed(std::random_device{}());
         }
         tie_runtime.report.initial_term_count = table.num_rows();
-        tie_runtime_ptr = &tie_runtime;
+        tie_runtime_ptr                       = &tie_runtime;
     }
 
     size_t outer = 0;
@@ -1116,7 +1115,7 @@ Polynomial fasttodd_once(Polynomial const& polynomial) {
 /** Original C++ FastTODD optimize path (properize → fasttodd_once → Clifford correction). */
 std::optional<std::pair<StabilizerTableau, Polynomial>> fasttodd_optimize(
     StabilizerTableau const& clifford,
-    Polynomial const&        polynomial) {
+    Polynomial const& polynomial) {
     auto ret_clifford   = clifford;
     auto ret_polynomial = polynomial;
 
@@ -1143,7 +1142,7 @@ void set_fasttodd_tie_control(std::optional<FastToddTieControl> control) {
 }
 
 std::optional<FastToddTieRunReport> consume_fasttodd_tie_run_report() {
-    auto out = g_fasttodd_tie_run_report;
+    auto out                  = g_fasttodd_tie_run_report;
     g_fasttodd_tie_run_report = std::nullopt;
     return out;
 }

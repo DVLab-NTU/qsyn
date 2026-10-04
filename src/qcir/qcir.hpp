@@ -19,9 +19,9 @@
 #include <utility>
 #include <vector>
 
+#include "qcir/qcir_bit.hpp"
 #include "qcir/qcir_gate.hpp"
 #include "qcir/qcir_qubit.hpp"
-#include "qcir/qcir_bit.hpp"
 #include "qsyn/qsyn_type.hpp"
 #include "spdlog/common.h"
 #include "util/ordered_hashmap.hpp"
@@ -74,8 +74,8 @@ public:
     using QubitIdType = qsyn::QubitIdType;
     QCir() {}
     QCir(size_t n_qubits) { add_qubits(n_qubits); }
-    QCir(size_t n_qubits, size_t n_classical_bits) { 
-        add_qubits(n_qubits); 
+    QCir(size_t n_qubits, size_t n_classical_bits) {
+        add_qubits(n_qubits);
         add_classical_bits(n_classical_bits);
     }
     ~QCir() = default;
@@ -141,7 +141,7 @@ public:
     void insert_qubit(QubitIdType id);
     void add_qubits(size_t num);
     bool remove_qubit(QubitIdType qid);
-    
+
     // Ancilla qubit management
     void add_ancilla_qubits(size_t num, AncillaState state = AncillaState::clean);
     void add_ancilla_qubit(AncillaState state = AncillaState::clean);
@@ -165,7 +165,7 @@ public:
     size_t get_num_data_qubits() const;
     size_t get_num_clean_ancilla_qubits() const;
     size_t get_num_dirty_ancilla_qubits() const;
-    
+
     // Classical bit management
     void add_classical_bits(size_t num);
     void add_classical_bit();
@@ -193,7 +193,7 @@ public:
     void set_export_schedule_width(size_t width) { _export_schedule_width = width; }
     std::optional<size_t> export_schedule_width() const { return _export_schedule_width; }
     void clear_export_schedule_width() { _export_schedule_width.reset(); }
-    
+
     size_t append(Operation const& op, QubitIdList const& bits);
     size_t append(Operation const& op, QubitIdType qubit_id, size_t classical_bit_id);
     size_t append(Operation const& op, QubitIdList const& bits, ClassicalBitIdType classical_bit, size_t classical_value);
@@ -281,7 +281,7 @@ private:
     void _connect_dependency(size_t from_gate_id, size_t to_gate_id);
     void _register_measurement_epoch(size_t classical_bit_id, size_t measurement_gate_id);
     void _register_classical_consumer(size_t classical_bit_id, size_t consumer_gate_id);
-    
+
     // Validation methods
     bool _validate_qubit_gate_addition(QubitIdList const& qubits, std::string const& gate_type) const;
     bool _validate_measurement_gate(QubitIdType qubit_id, size_t classical_bit_id) const;

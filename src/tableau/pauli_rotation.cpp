@@ -8,9 +8,9 @@
 #include "pauli_rotation.hpp"
 
 #include <ranges>
-#include <vector>
 #include <tl/adjacent.hpp>
 #include <tl/to.hpp>
+#include <vector>
 
 #include "util/boolean_matrix.hpp"
 #include "util/dvlab_string.hpp"
@@ -280,16 +280,16 @@ PauliRotation& PauliRotation::cx(size_t control, size_t target) noexcept {
 }
 
 PauliRotation PauliRotation::make_linear(size_t n_qubits, size_t qubit, dvlab::Phase const& phase) {
-    auto pauli_vec = std::vector<Pauli>(n_qubits, Pauli::i);
+    auto pauli_vec   = std::vector<Pauli>(n_qubits, Pauli::i);
     pauli_vec[qubit] = Pauli::z;
     return PauliRotation(pauli_vec, phase);
 }
 
 PauliRotation PauliRotation::make_CZ(size_t n_qubits, size_t a, size_t b) {
-    auto pauli_vec   = std::vector<Pauli>(n_qubits, Pauli::i);
-    pauli_vec[a]     = Pauli::z;
-    pauli_vec[b]     = Pauli::z;
-    auto rotation    = PauliRotation(pauli_vec, dvlab::Phase(0));
+    auto pauli_vec = std::vector<Pauli>(n_qubits, Pauli::i);
+    pauli_vec[a]   = Pauli::z;
+    pauli_vec[b]   = Pauli::z;
+    auto rotation  = PauliRotation(pauli_vec, dvlab::Phase(0));
     rotation.set_is_CZ(true);
     return rotation;
 }
@@ -339,7 +339,7 @@ size_t matrix_rank(std::vector<PauliRotation> const& rotations) {
  */
 size_t PauliProduct::add_ancilla_qubit() {
     size_t new_qubit = n_qubits();
-    size_t old_size = _bitset.size();
+    size_t old_size  = _bitset.size();
     _bitset.resize(old_size + 2);
     _bitset[old_size + 1] = _bitset[old_size - 1];
     _bitset[old_size - 1] = false;
@@ -354,9 +354,9 @@ void PauliProduct::remove_ancilla_qubit(size_t qubit) {
     if (qubit >= n_qubits()) {
         return;
     }
-    
+
     size_t x_idx = qubit + n_qubits();
-    
+
     for (size_t i = qubit; i < x_idx - 1; ++i) {
         _bitset[i] = _bitset[i + 1];
     }

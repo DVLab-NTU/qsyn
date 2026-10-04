@@ -1,9 +1,7 @@
-#include "../tableau_optimization.hpp"
-
-#include <algorithm>
 #include <fmt/core.h>
 #include <spdlog/spdlog.h>
 
+#include <algorithm>
 #include <fstream>
 #include <limits>
 #include <numeric>
@@ -14,6 +12,7 @@
 #include <utility>
 #include <vector>
 
+#include "../tableau_optimization.hpp"
 #include "convert/qcir_to_tableau.hpp"
 #include "qcir/qcir.hpp"
 #include "qcir/qcir_io.hpp"
@@ -36,7 +35,7 @@ SignatureTensor::TouchingTerms SignatureTensor::get_touching(size_t qubit) const
         touching.linear_mod8 = linear_mod8[qubit];
     }
     touching.quadratic_terms = get_quadratic_terms_touching(qubit);
-    touching.cubic_terms = get_cubic_terms_touching(qubit);
+    touching.cubic_terms     = get_cubic_terms_touching(qubit);
     return touching;
 }
 
@@ -119,8 +118,8 @@ SignatureTensor get_signature(std::vector<PauliRotation> const& rotations) {
         if (k_mod4 != 0) {
             for (size_t a = 0; a < z_support.size(); ++a) {
                 for (size_t b = a + 1; b < z_support.size(); ++b) {
-                    auto const term = SignatureTensor::PairTerm::canonical(z_support[a], z_support[b]);
-                    auto const it   = signature.quadratic_mod4.find(term);
+                    auto const term         = SignatureTensor::PairTerm::canonical(z_support[a], z_support[b]);
+                    auto const it           = signature.quadratic_mod4.find(term);
                     uint8_t const old_coeff = (it == signature.quadratic_mod4.end()) ? 0 : it->second;
                     uint8_t const new_coeff = static_cast<uint8_t>((old_coeff + k_mod4) % 4);
                     if (new_coeff == 0) {
@@ -205,7 +204,7 @@ std::vector<SignatureComparisonResult> compare_pp(
 
     auto const reduced_signature = get_signature(pr_pmc_ij);
     for (size_t history_idx = 0; history_idx < unified_pr_history.size(); ++history_idx) {
-        auto const& unified_pr = unified_pr_history[history_idx];
+        auto const& unified_pr       = unified_pr_history[history_idx];
         auto const unified_signature = get_signature(unified_pr);
 
         SignatureComparisonResult result;
@@ -214,10 +213,10 @@ std::vector<SignatureComparisonResult> compare_pp(
 
         for (size_t const qubit : x_qubits) {
             TouchingTermComparison per_qubit;
-            per_qubit.qubit = qubit;
+            per_qubit.qubit         = qubit;
             per_qubit.unified_terms = unified_signature.get_touching(qubit);
             per_qubit.reduced_terms = reduced_signature.get_touching(qubit);
-            per_qubit.equivalent = touching_terms_equivalent(per_qubit.unified_terms, per_qubit.reduced_terms);
+            per_qubit.equivalent    = touching_terms_equivalent(per_qubit.unified_terms, per_qubit.reduced_terms);
             result.per_qubit_comparisons.push_back(std::move(per_qubit));
         }
 
@@ -524,7 +523,7 @@ void log_pr_block_summary_per_ancilla(
     Tableau const& tableau,
     std::unordered_map<size_t, PmcUnifiedPrRelation> const& pmc_to_unified_pr,
     PrWholeBlockPhaseExport const& pr_export) {
-    auto const all_rows = build_ancilla_column_block_rows(tableau, pmc_to_unified_pr, pr_export);
+    auto const all_rows   = build_ancilla_column_block_rows(tableau, pmc_to_unified_pr, pr_export);
     auto const pr_idx_opt = find_unified_pr_block_index(tableau);
     if (!pr_idx_opt.has_value()) {
         return;
@@ -730,7 +729,7 @@ void test_pr_column_groups_push_front_z_on_ancilla(
         PrSplitPushFrontTestReport report;
         report.ancilla_qubit = ancilla;
         report.x_qubits      = x_qubits;
-        report.x_only_check = check_pr_group_z_on_ancilla_after_push_front(
+        report.x_only_check  = check_pr_group_z_on_ancilla_after_push_front(
             groups.x_only, rest_for_x_only, working, pr_idx, ancilla, "x_only");
         report.ancilla_only_check = check_pr_group_z_on_ancilla_after_push_front(
             groups.ancilla_only, rest_for_ancilla_only, working, pr_idx, ancilla, "ancilla_only");
@@ -755,15 +754,13 @@ void test_pr_column_groups_push_front_z_on_ancilla(
     }
 }
 
-
-
 SatSignatureExport compute_sat_signature_blocks(Tableau const& tableau) {
     SatSignatureExport out;
     out.qubit_count   = tableau.n_qubits();
     out.ancilla_count = tableau.n_ancilla();
 
-    Tableau tableau_copy = tableau;
-    auto gadgets         = export_hadamard_gadget_pairs(tableau_copy);
+    Tableau tableau_copy     = tableau;
+    auto gadgets             = export_hadamard_gadget_pairs(tableau_copy);
     size_t const num_gadgets = gadgets.size();
 
     std::vector<PauliRotation> unified_pr;
@@ -772,7 +769,7 @@ SatSignatureExport compute_sat_signature_blocks(Tableau const& tableau) {
     if (pr_idx_opt.has_value()) {
         auto const* pr_vec = std::get_if<std::vector<PauliRotation>>(&tableau[*pr_idx_opt]);
         if (pr_vec != nullptr) {
-            unified_pr = *pr_vec;
+            unified_pr                = *pr_vec;
             unified_pr_commuted_front = swap_along_test_to_circuit_front(tableau, *pr_idx_opt);
             if (unified_pr_commuted_front.size() != unified_pr.size()) {
                 spdlog::warn(
@@ -802,8 +799,8 @@ SatSignatureExport compute_sat_signature_blocks(Tableau const& tableau) {
 
     for (size_t g_idx = 0; g_idx < num_gadgets; ++g_idx) {
         size_t const ancilla = gadgets[g_idx].ancilla_qubit;
-        auto&        lists   = out.blocks_by_gid[g_idx];
-        bool         degadgetizable = true;
+        auto& lists          = out.blocks_by_gid[g_idx];
+        bool degadgetizable  = true;
 
         for (size_t col = 0; col < unified_pr.size(); ++col) {
             bool const in_right =
@@ -841,7 +838,7 @@ SatSignatureExport compute_sat_signature_blocks(Tableau const& tableau) {
 }
 
 std::unordered_set<size_t> collect_lower_ancilla_overlap_excluded_gids(
-    std::vector<size_t> const&      gadget_ancilla_qubit,
+    std::vector<size_t> const& gadget_ancilla_qubit,
     GadgetOverlapConstraints const& overlap) {
     std::unordered_set<size_t> excluded;
     for (size_t gid = 0; gid < overlap.gadget_count; ++gid) {
@@ -919,8 +916,8 @@ size_t column_overlap_extent(
     SatSignatureExport const& sig,
     std::vector<size_t> const& right_gids,
     std::vector<size_t> const& left_gids,
-    size_t* from_min_right = nullptr,
-    size_t* from_max_left  = nullptr,
+    size_t* from_min_right    = nullptr,
+    size_t* from_max_left     = nullptr,
     size_t* min_right_ancilla = nullptr,
     size_t* max_left_ancilla  = nullptr) {
     size_t overlap_from_min_right = 0;
@@ -1030,10 +1027,6 @@ void log_sat_reorder_preprocess(SatSignatureExport const& sig) {
     }
 }
 
-
-
-
-
 BlockingSignatureInfo analyze_blocking_signature(
     std::vector<PauliRotation> const& pr_blocking,
     std::vector<size_t> const& x_qubits,
@@ -1100,7 +1093,7 @@ void move_pmcs_with_reduced_PR(Tableau const& tableau, std::unordered_map<size_t
 
     while (pr_idx + 1 < working.size()) {
         size_t pmc_idx = pr_idx + 1;
-        auto* pmc = std::get_if<ClassicalControlTableau>(&working[pmc_idx]);
+        auto* pmc      = std::get_if<ClassicalControlTableau>(&working[pmc_idx]);
 
         if (pmc == nullptr || !pmc->is_classical_control()) {
             break;
@@ -1129,12 +1122,12 @@ void move_pmcs_with_reduced_PR(Tableau const& tableau, std::unordered_map<size_t
         }
         auto const unified_pr_original = *unified_pr;
 
-        auto const split = split_unified_pr_for_pmc(unified_pr_original, ancilla, x_qubits);
+        auto const split        = split_unified_pr_for_pmc(unified_pr_original, ancilla, x_qubits);
         auto& pr_commuting      = split.commuting;
         auto& pr_commuting_rest = split.commuting_rest;
         auto& pr_ancilla        = split.ancilla_group;
-        auto& pr_ancilla_rest    = split.ancilla_rest;
-        auto const& pr_blocking  = split.blocking;
+        auto& pr_ancilla_rest   = split.ancilla_rest;
+        auto const& pr_blocking = split.blocking;
 
         auto const zchk_commuting = check_pr_group_z_on_ancilla_after_push_front(
             pr_commuting, pr_commuting_rest, working, pr_idx, ancilla, "commuting");
@@ -1161,9 +1154,9 @@ void move_pmcs_with_reduced_PR(Tableau const& tableau, std::unordered_map<size_t
 
         struct CommuteOutcome {
             Tableau working_after;
-            bool success = false;
-            size_t new_pr_idx = 0;
-            size_t reference_qubit = 0;
+            bool success                  = false;
+            size_t new_pr_idx             = 0;
+            size_t reference_qubit        = 0;
             bool is_single_x_on_reference = false;
             explicit CommuteOutcome(Tableau t) : working_after(std::move(t)) {}
         };
@@ -1204,7 +1197,7 @@ void move_pmcs_with_reduced_PR(Tableau const& tableau, std::unordered_map<size_t
                 return out;
             }
             out.reference_qubit = gadget->reference_qubit();
-            auto const ops = extract_clifford_operators(moved_pmc->operations());
+            auto const ops      = extract_clifford_operators(moved_pmc->operations());
             out.is_single_x_on_reference =
                 ops.size() == 1 &&
                 ops.front().first == CliffordOperatorType::x &&
@@ -1249,8 +1242,10 @@ void move_pmcs_with_reduced_PR(Tableau const& tableau, std::unordered_map<size_t
             std::unordered_set<SignatureTensor::TripleTerm, SignatureTensor::TripleTermHash> r_cubic(
                 per_qubit.reduced_terms.cubic_terms.begin(),
                 per_qubit.reduced_terms.cubic_terms.end());
-            for (auto const& t : u_cubic) if (!r_cubic.contains(t)) ++unified_diff_terms;
-            for (auto const& t : r_cubic) if (!u_cubic.contains(t)) ++reduced_diff_terms;
+            for (auto const& t : u_cubic)
+                if (!r_cubic.contains(t)) ++unified_diff_terms;
+            for (auto const& t : r_cubic)
+                if (!u_cubic.contains(t)) ++reduced_diff_terms;
 
             return {unified_diff_terms, reduced_diff_terms};
         };
@@ -1335,7 +1330,7 @@ void move_pmcs_with_reduced_PR(Tableau const& tableau, std::unordered_map<size_t
             return;
         }
         working = std::move(commuting_out.working_after);
-        pr_idx = commuting_out.new_pr_idx;
+        pr_idx  = commuting_out.new_pr_idx;
     }
 }
 

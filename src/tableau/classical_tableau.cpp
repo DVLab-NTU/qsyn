@@ -5,21 +5,23 @@
  * @copyright Copyright (c) 2024
  */
 
+#include "./classical_tableau.hpp"
+
 #include <algorithm>
 #include <cassert>
+#include <numbers>
 #include <ranges>
 #include <stdexcept>
 #include <string_view>
-#include <vector>
 #include <variant>
-#include "./classical_tableau.hpp"
-#include "./stabilizer_tableau.hpp"
+#include <vector>
+
 #include "./pauli_rotation.hpp"
-#include "./tableau_optimization.hpp"
+#include "./stabilizer_tableau.hpp"
 #include "./tableau.hpp"
-#include "util/phase.hpp"
-#include <numbers>
+#include "./tableau_optimization.hpp"
 #include "spdlog/spdlog.h"
+#include "util/phase.hpp"
 
 namespace qsyn::tableau {
 
@@ -68,7 +70,7 @@ void swap_gadget_phase_slots(PauliRotation& r, size_t reference, size_t ancilla)
     }
     std::swap(pv[reference], pv[ancilla]);
     dvlab::Phase const ph = r.phase();
-    r                    = PauliRotation(pv.begin(), pv.end(), ph);
+    r                     = PauliRotation(pv.begin(), pv.end(), ph);
     refresh_cz_flag(r);
 }
 
@@ -88,8 +90,6 @@ bool check_swap(ClassicalControlTableau const& left, ClassicalControlTableau con
     rl.apply(extract_clifford_operators(left.operations()));
     return (lr == rl);
 }
-
-
 
 ClassicalControlTableau::ClassicalControlTableau(CCTType type, size_t ancilla_qubit, size_t reference_qubit)
     : _ancilla_qubit(ancilla_qubit),
@@ -163,9 +163,9 @@ void ClassicalControlTableau::set_qubits(size_t ancilla_qubit, size_t reference_
     }
 
     size_t const required_n_qubits = std::max(_operations.n_qubits(), min_qubit_width(ancilla_qubit, reference_qubit));
-    _ancilla_qubit   = ancilla_qubit;
-    _reference_qubit = reference_qubit;
-    _operations = StabilizerTableau{required_n_qubits};
+    _ancilla_qubit                 = ancilla_qubit;
+    _reference_qubit               = reference_qubit;
+    _operations                    = StabilizerTableau{required_n_qubits};
     _operations.s(_ancilla_qubit);
     _operations.s(_reference_qubit);
     _operations.cx(_reference_qubit, _ancilla_qubit);
@@ -177,7 +177,7 @@ void ClassicalControlTableau::set_qubits(size_t ancilla_qubit, size_t reference_
 
 void initialize_gadget(ClassicalControlTableau& cct) {
     assert(cct.is_gadget());
-    size_t const n  = cct.operations().n_qubits();
+    size_t const n   = cct.operations().n_qubits();
     size_t const anc = cct.ancilla_qubit();
     size_t const ref = cct.reference_qubit();
     auto& st         = cct.operations();
@@ -193,7 +193,7 @@ void initialize_gadget(ClassicalControlTableau& cct) {
 
 void initialize_classical_control(ClassicalControlTableau& cct) {
     assert(cct.is_classical_control());
-    size_t const n = cct.operations().n_qubits();
+    size_t const n   = cct.operations().n_qubits();
     cct.operations() = StabilizerTableau{n};
 }
 
@@ -242,7 +242,7 @@ void swap(ClassicalControlTableau& cct, std::vector<PauliRotation>& pr) {
                 "swap(CCT,PR): non-diagonal PR with gadget CCT is unsupported; export should reject this case");
         }
     } else {
-        commute_through_pauli_rotations(cct.operations(), pr, false);        
+        commute_through_pauli_rotations(cct.operations(), pr, false);
     }
 }
 
@@ -267,8 +267,7 @@ void swap(std::vector<PauliRotation>& pr, ClassicalControlTableau& cct) {
                 swap_gadget_phase_slots(r, a, b);
             }
         }
-    }
-    else {
+    } else {
         spdlog::error(
             "swap(PR,CCT): non-diagonal PR with gadget CCT is unsupported; export should reject this case");
         throw std::logic_error(
@@ -325,7 +324,7 @@ void swap(std::variant<StabilizerTableau, std::vector<PauliRotation>, ClassicalC
                 swap(st, cct);
             },
             [](ClassicalControlTableau& cct, std::vector<PauliRotation>& pr) {
-                swap(cct, pr);                
+                swap(cct, pr);
             },
             [](std::vector<PauliRotation>& pr, ClassicalControlTableau& cct) {
                 swap(pr, cct);
@@ -435,7 +434,6 @@ StabilizerTableau reverse_n_prepend(CliffordOperatorString const& operations, si
 
 StabilizerTableau commutation_through_clifford(StabilizerTableau const& classical_clifford,
                                                StabilizerTableau const& clifford_block) {
-
     Tableau result_tableau = Tableau(clifford_block.n_qubits());
 
     result_tableau.push_back(adjoint(clifford_block));
@@ -452,7 +450,6 @@ StabilizerTableau commutation_through_clifford(StabilizerTableau const& classica
 
     return std::get<StabilizerTableau>(result_tableau.front());
 }
-
 
 std::pair<CliffordOperatorString, size_t> pauli_to_CXT(PauliRotation pauli_rotation) {
     std::vector<size_t> c;
@@ -633,7 +630,6 @@ void commute_through_pauli_rotation(StabilizerTableau& st, PauliRotation const& 
 
     st = commutation_through_clifford(st, adjoint(cx_stabilizer));
 }
-
 
 void commute_through_pauli_rotations(StabilizerTableau& st, std::vector<PauliRotation> const& pauli_rotations, bool from_front) {
     if (from_front) {

@@ -4,21 +4,23 @@
  * @copyright Copyright(c) 2024 DVLab, GIEE, NTU, Taiwan
  */
 
-#include "../tableau_optimization.hpp"
+#include <fmt/format.h>
+#include <spdlog/spdlog.h>
+
+#include <algorithm>
+#include <cstdlib>
+#include <limits>
+#include <optional>
+#include <stdexcept>
+#include <string>
+#include <unordered_set>
+
 #include "../classical_tableau.hpp"
+#include "../tableau_optimization.hpp"
 #include "tableau/pauli_rotation.hpp"
 #include "tableau/stabilizer_tableau.hpp"
 #include "util/dvlab_string.hpp"
 #include "util/util.hpp"
-#include <algorithm>
-#include <cstdlib>
-#include <fmt/format.h>
-#include <limits>
-#include <optional>
-#include <spdlog/spdlog.h>
-#include <stdexcept>
-#include <string>
-#include <unordered_set>
 
 namespace qsyn::tableau {
 
@@ -94,11 +96,10 @@ GadgetizedWindow gadgetize_one_internal_window(
     std::vector<PauliRotation> pr_right,
     size_t total_qubits,
     size_t ancilla_start_index) {
-
     GadgetizedWindow w;
     auto const h_count = count_h_gates(st_mid);
-    w.total_qubits = total_qubits;
-    w.new_ancillae = h_count;
+    w.total_qubits     = total_qubits;
+    w.new_ancillae     = h_count;
 
     pad_to_qubits(pr_left, total_qubits);
     pad_to_qubits(pr_right, total_qubits);
@@ -124,7 +125,7 @@ GadgetizedWindow gadgetize_one_internal_window(
         }
 
         size_t const qubit = op.second[0];
-        auto [ccc, pmc] = gadgetize_hadamard(qubit, ancilla_index, w.total_qubits);
+        auto [ccc, pmc]    = gadgetize_hadamard(qubit, ancilla_index, w.total_qubits);
 
         size_t const ccc_idx = w.subtableaux.size();
         w.subtableaux.emplace_back(std::move(ccc));
@@ -149,12 +150,11 @@ GadgetizedWindow gadgetize_one_internal_window(
 std::pair<std::vector<PauliRotation>, std::vector<PauliRotation>> split_by_ancilla_support(
     std::vector<PauliRotation> const& pr,
     size_t data_n_qubits) {
-
     std::vector<PauliRotation> uses_ancilla;
     std::vector<PauliRotation> ancilla_free;
     uses_ancilla.reserve(pr.size());
     ancilla_free.reserve(pr.size());
-    
+
     for (auto const& rot : pr) {
         bool touches_ancilla = false;
         for (size_t q = data_n_qubits; q < rot.n_qubits(); ++q) {
@@ -170,7 +170,6 @@ std::pair<std::vector<PauliRotation>, std::vector<PauliRotation>> split_by_ancil
     return {std::move(uses_ancilla), std::move(ancilla_free)};
 }
 
-
 /**
  * @brief Verify CT·PR ≡ C_H·PR·CT' by collapsing CT|PR|adjoint(C_H|PR|CT').
  *
@@ -185,7 +184,6 @@ std::pair<std::vector<PauliRotation>, std::vector<PauliRotation>> split_by_ancil
     std::vector<PauliRotation> const& pr,
     StabilizerTableau const& c_h,
     StabilizerTableau const& c_rest_prime) {
-
     size_t const n = ct_orig.n_qubits();
 
     // LHS: CT | PR
@@ -201,8 +199,8 @@ std::pair<std::vector<PauliRotation>, std::vector<PauliRotation>> split_by_ancil
 
     // Build LHS | adjoint(RHS) — should collapse to identity if the step is correct
     Tableau combined(n);
-    for (auto const& sub : lhs)           combined.push_back(sub);
-    for (auto const& sub : adjoint(rhs))  combined.push_back(sub);
+    for (auto const& sub : lhs) combined.push_back(sub);
+    for (auto const& sub : adjoint(rhs)) combined.push_back(sub);
 
     full_optimize(combined);
     remove_identities(combined);
@@ -215,12 +213,11 @@ std::pair<std::vector<PauliRotation>, std::vector<PauliRotation>> split_by_ancil
  * @param reference_qubit The qubit where H gate originally was (a)
  * @param ancilla_index   The ancilla qubit for the gadget (b)
  * @param total_qubits    Pre-computed n_data + total_ancilla_count
- * @return std::pair<ClassicalControlTableau, ClassicalControlTableau> 
+ * @return std::pair<ClassicalControlTableau, ClassicalControlTableau>
  *         First: CCC (pre-measurement), Second: PMC (post-measurement)
  */
 std::pair<ClassicalControlTableau, ClassicalControlTableau>
 gadgetize_hadamard(size_t reference_qubit, size_t ancilla_index, size_t total_qubits) {
-
     ClassicalControlTableau ccc(CCTType::Gadget, ancilla_index, reference_qubit);
     pad_to_qubits(ccc, total_qubits);
 
@@ -231,11 +228,7 @@ gadgetize_hadamard(size_t reference_qubit, size_t ancilla_index, size_t total_qu
     return {std::move(ccc), std::move(pmc)};
 }
 
-  // namespace
-
-
-
-
+// namespace
 
 /**
  * @brief Gadgetize internal-H windows using a two-pass count-then-rebuild flow.
@@ -243,12 +236,9 @@ gadgetize_hadamard(size_t reference_qubit, size_t ancilla_index, size_t total_qu
  * @param tableau
  */
 
-
-
-
 void gadgetize_tableau(Tableau& tableau) {
     size_t const original_n_qubits = tableau.n_qubits();
-    size_t const n                  = tableau.size();
+    size_t const n                 = tableau.size();
 
     auto const is_pr = [&](size_t i) {
         return std::holds_alternative<std::vector<PauliRotation>>(tableau[i]);
@@ -308,8 +298,6 @@ void gadgetize_tableau(Tableau& tableau) {
                             new_subtableaux.push_back(std::move(st_before));
                             pending.clear();
                         }
-
-
 
                         // Emit the CCC + PMC pair for this Hadamard gadget.
                         auto [ccc, pmc] = gadgetize_hadamard(qubit, ancilla_index, total_qubits);
@@ -372,15 +360,13 @@ void gadgetize_tableau(Tableau& tableau) {
         num_ancillae);
 }
 
-} // namespace
+}  // namespace
 
 /**
  * @brief Minimize internal Hadamards, gadgetize H gates, commute classical operations, and optimize.
  *
  * @param tableau
  */
-
-
 
 std::unordered_map<size_t, PmcUnifiedPrRelation> minimize_internal_hadamards_n_gadgetize(
     Tableau& tableau,
@@ -495,7 +481,7 @@ std::unordered_map<size_t, PmcUnifiedPrRelation> commute_and_merge_rotations(Tab
             std::optional<size_t> pmc_idx;
             for (size_t idx = last_pr_idx; idx > *previous_pr + 1; --idx) {
                 size_t const actual_idx = idx - 1;
-                auto const* cct = std::get_if<ClassicalControlTableau>(&tableau[actual_idx]);
+                auto const* cct         = std::get_if<ClassicalControlTableau>(&tableau[actual_idx]);
                 if (cct != nullptr && cct->is_classical_control()) {
                     pmc_idx = actual_idx;
                     break;
@@ -526,8 +512,8 @@ std::unordered_map<size_t, PmcUnifiedPrRelation> commute_and_merge_rotations(Tab
             if (auto const* pmc_before = std::get_if<ClassicalControlTableau>(&tableau[last_pr_idx - 1]);
                 pmc_before != nullptr && pmc_before->is_classical_control()) {
                 auto const ancilla = pmc_before->ancilla_qubit();
-                auto const ops = extract_clifford_operators(pmc_before->operations());
-                auto& x_qubits = pmc_to_unified_pr[ancilla].x_qubits;
+                auto const ops     = extract_clifford_operators(pmc_before->operations());
+                auto& x_qubits     = pmc_to_unified_pr[ancilla].x_qubits;
                 for (auto const& op : ops) {
                     auto const& [type, qubits] = op;
                     if (type != CliffordOperatorType::x) {
@@ -547,7 +533,7 @@ std::unordered_map<size_t, PmcUnifiedPrRelation> commute_and_merge_rotations(Tab
 
         move_pr_to_before_last_pr(*previous_pr, last_pr_idx);
 
-        auto* left_pr = std::get_if<std::vector<PauliRotation>>(&tableau[last_pr_idx - 1]);
+        auto* left_pr  = std::get_if<std::vector<PauliRotation>>(&tableau[last_pr_idx - 1]);
         auto* right_pr = std::get_if<std::vector<PauliRotation>>(&tableau[last_pr_idx]);
         if (left_pr == nullptr || right_pr == nullptr) {
             throw std::logic_error("zipper commute: expected adjacent PR blocks during merge");
@@ -575,8 +561,6 @@ void blockwise_gadgetize(Tableau& tableau) {
         return;
     }
 
-
-
     bool changed = true;
     while (changed) {
         changed = false;
@@ -585,7 +569,7 @@ void blockwise_gadgetize(Tableau& tableau) {
             auto* st_ptr = std::get_if<StabilizerTableau>(&tableau[mid]);
             if (!st_ptr) continue;
 
-            auto* pr_left_ptr = std::get_if<std::vector<PauliRotation>>(&tableau[mid - 1]);
+            auto* pr_left_ptr  = std::get_if<std::vector<PauliRotation>>(&tableau[mid - 1]);
             auto* pr_right_ptr = std::get_if<std::vector<PauliRotation>>(&tableau[mid + 1]);
             if (!pr_left_ptr || !pr_right_ptr) continue;
 
@@ -597,7 +581,6 @@ void blockwise_gadgetize(Tableau& tableau) {
             size_t const new_total_qubits = old_total_qubits + h_count;
             spdlog::debug("Blockwise gadgetize: old_total_qubits={}, new_total_qubits={}", old_total_qubits, new_total_qubits);
 
-
             GadgetizedWindow w = gadgetize_one_internal_window(
                 *pr_left_ptr, *st_ptr, *pr_right_ptr,
                 new_total_qubits, old_total_qubits);
@@ -608,7 +591,7 @@ void blockwise_gadgetize(Tableau& tableau) {
             for (auto& sub : w.subtableaux) {
                 local.push_back(std::move(sub));
             }
-            
+
             commute_and_merge_rotations(local);
             spdlog::debug("Local tableau after commute and merge: {:g}", local);
             optimize_phase_polynomial_with_classical(local, FastToddPhasePolynomialOptimizationStrategy{});
@@ -620,7 +603,7 @@ void blockwise_gadgetize(Tableau& tableau) {
                 if (!pr) continue;
 
                 auto [uses_anc, anc_free] = split_by_ancilla_support(*pr, tableau.n_qubits());
-                *pr = std::move(uses_anc);
+                *pr                       = std::move(uses_anc);
 
                 if (!anc_free.empty()) {
                     size_t insert_pos = local.size();
@@ -640,7 +623,6 @@ void blockwise_gadgetize(Tableau& tableau) {
             auto insert_it = tableau.begin() + (mid - 1);
             tableau.erase(tableau.begin() + (mid - 1), tableau.begin() + (mid + 2));
             tableau.insert(insert_it, local.begin(), local.end());
-
 
             changed = true;
             break;
@@ -715,7 +697,7 @@ void move_pmcs_adjacent_to_gadgets(Tableau& tableau, std::vector<size_t> const& 
     for (size_t const ancilla : ordered_ancillae) {
         auto const pair_opt = find_gadget_pair(tableau, ancilla);
         if (!pair_opt.has_value()) {
-            spdlog::warn("move_pmcs_adjacent_to_gadgets: missing CCC/PMC pair for ancilla {}",ancilla);
+            spdlog::warn("move_pmcs_adjacent_to_gadgets: missing CCC/PMC pair for ancilla {}", ancilla);
             continue;
         }
         size_t const gadget_idx = pair_opt->gadget_index;
@@ -727,8 +709,6 @@ void move_pmcs_adjacent_to_gadgets(Tableau& tableau, std::vector<size_t> const& 
         swap_along(tableau, pmc_idx, target_idx);
         ++moved_count;
     }
-
-
 }
 
 std::optional<std::string> validate_degadgetize_pair(
@@ -812,10 +792,10 @@ void apply_degadgetize_pair(Tableau& tableau, size_t ccc_index) {
             fmt::format("apply_degadgetize_pair: expected CCC at index {}", ccc_index));
     }
 
-    size_t const pmc_index        = ccc_index + 1;
-    size_t const ancilla_qubit    = ccc_ptr->ancilla_qubit();
-    size_t const reference_qubit  = ccc_ptr->reference_qubit();
-    size_t const insert_pos       = ccc_index;
+    size_t const pmc_index       = ccc_index + 1;
+    size_t const ancilla_qubit   = ccc_ptr->ancilla_qubit();
+    size_t const reference_qubit = ccc_ptr->reference_qubit();
+    size_t const insert_pos      = ccc_index;
 
     tableau.erase(tableau.begin() + static_cast<std::ptrdiff_t>(pmc_index));
     tableau.erase(tableau.begin() + static_cast<std::ptrdiff_t>(ccc_index));
@@ -913,7 +893,7 @@ size_t hadamard_degadgetize(Tableau& tableau,
         }
 
         size_t const ccc_index = pair_indices->gadget_index;
-        auto* ccc_ptr = std::get_if<ClassicalControlTableau>(&tableau[ccc_index]);
+        auto* ccc_ptr          = std::get_if<ClassicalControlTableau>(&tableau[ccc_index]);
         if (ccc_ptr == nullptr || !ccc_ptr->is_gadget()) {
             spdlog::warn(
                 "hadamard_degadgetize: CCC missing at index {} for ancilla {}",
@@ -932,7 +912,4 @@ size_t hadamard_degadgetize(Tableau& tableau,
     return degadgetized_count;
 }
 
-
 }  // namespace qsyn::tableau
-
-

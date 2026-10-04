@@ -6,15 +6,10 @@
 
 #pragma once
 
-#include "./tableau.hpp"
-#include "qcir/qcir.hpp"
-#include "tableau/optimize/reorder_smt.hpp"
-#include "tableau/pauli_rotation.hpp"
-#include "tableau/stabilizer_tableau.hpp"
 #include <algorithm>
 #include <array>
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 #include <filesystem>
 #include <optional>
 #include <ranges>
@@ -24,6 +19,12 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
+
+#include "./tableau.hpp"
+#include "qcir/qcir.hpp"
+#include "tableau/optimize/reorder_smt.hpp"
+#include "tableau/pauli_rotation.hpp"
+#include "tableau/stabilizer_tableau.hpp"
 
 namespace qsyn {
 
@@ -112,7 +113,7 @@ std::vector<SignatureComparisonResult> compare_pp(
 
 struct BlockingSignatureInfo {
     SignatureTensor signature;
-    bool ancilla_in_signature = false;
+    bool ancilla_in_signature  = false;
     bool has_ancilla_x_overlap = false;
 };
 
@@ -124,7 +125,7 @@ BlockingSignatureInfo analyze_blocking_signature(
 /** PMC degadgetizable iff no PR column blocks ancilla against any PMC x-qubit. */
 struct PmcPrBlockingAnalysis {
     size_t reference_qubit = 0;
-    size_t ancilla_qubit = 0;
+    size_t ancilla_qubit   = 0;
     std::vector<size_t> x_qubits;
     std::vector<PauliRotation> pr_blocking;
     bool is_degadgetizable = false;
@@ -156,9 +157,9 @@ UnifiedPrPmcSplit split_unified_pr_for_pmc(
 /** After swap_along_test(block, pr_idx, 1), count Z on ancilla in the group columns. */
 struct PrGroupPushFrontZCheck {
     std::string group_name;
-    size_t group_size           = 0;
-    size_t z_on_ancilla_count   = 0;
-    bool all_z_on_ancilla       = false;
+    size_t group_size         = 0;
+    size_t z_on_ancilla_count = 0;
+    bool all_z_on_ancilla     = false;
 };
 
 PrGroupPushFrontZCheck check_pr_group_z_on_ancilla_after_push_front(
@@ -228,8 +229,8 @@ PrWholeBlockPhaseExport export_whole_pr_phases_after_swap_to_front(Tableau const
 
 /** Per (ancilla, column): phases + block kind before/after whole-PR swap to idx 1. */
 struct PrAncillaColumnBlockRow {
-    size_t ancilla_qubit         = 0;
-    size_t column_index          = 0;
+    size_t ancilla_qubit = 0;
+    size_t column_index  = 0;
     std::string phase_before;
     std::string phase_after;
     std::string pauli_before;
@@ -253,8 +254,8 @@ void log_pr_block_summary_per_ancilla(
 
 /** Per-gadget PR pid lists for minimal SAT export (whole-PR front commute). */
 struct GadgetPrBlockLists {
-    size_t gid                   = 0;
-    size_t ancilla_qubit         = 0;
+    size_t gid           = 0;
+    size_t ancilla_qubit = 0;
     /** PR column i after swap_along_test(pr_idx, 1) has Z on this gadget ancilla; pid = G + i. */
     std::vector<size_t> block_left;
     /** Unified PR column i before commute has Z on this gadget ancilla; pid = G + i. */
@@ -305,7 +306,7 @@ GadgetOverlapConstraints compute_gadget_overlap_constraints(SatSignatureExport c
 
 /** Gadget gids excluded from degadgetization: overlap a gadget on a lower ancilla qubit. */
 std::unordered_set<size_t> collect_lower_ancilla_overlap_excluded_gids(
-    std::vector<size_t> const&      gadget_ancilla_qubit,
+    std::vector<size_t> const& gadget_ancilla_qubit,
     GadgetOverlapConstraints const& overlap);
 
 void log_sat_reorder_preprocess(SatSignatureExport const& sig);
@@ -385,12 +386,12 @@ void move_pmcs_with_reduced_PR(Tableau const& tableau, std::unordered_map<size_t
 // Constraint graph for topological ordering constraints
 struct ConstraintGraph {
     struct HadamardGadgetPair {
-        size_t ccc_index;              // Index of CCC in tableau
-        size_t pmc_index;              // Index of PMC in tableau
-        size_t ancilla_qubit;          // Ancilla qubit (b)
+        size_t ccc_index;                       // Index of CCC in tableau
+        size_t pmc_index;                       // Index of PMC in tableau
+        size_t ancilla_qubit;                   // Ancilla qubit (b)
         std::optional<size_t> reference_qubit;  // Reference qubit (a)
     };
-    
+
     // PR information structure
     struct PRInfo {
         size_t tableau_index;
@@ -398,36 +399,36 @@ struct ConstraintGraph {
         size_t global_pr_index;
         PauliRotation const* pr_ptr;
     };
-    
+
     // Vertex types
     enum class VertexType {
         GADGET,  // Represents a gadget (CCC)
         PR       // Represents a Pauli rotation
     };
-    
+
     struct Vertex {
         VertexType type;
         size_t id;  // Sequential vertex ID (0, 1, 2, ...) - gadgets first, then PRs
         HadamardGadgetPair hadamard_gadget_pair;
         PRInfo pr_info;
         bool removed;  // Whether this vertex is removed (for cycle breaking)
-        
+
         Vertex(VertexType t, size_t i) : type(t), id(i), removed(false) {}
-        Vertex(VertexType t, size_t i, HadamardGadgetPair const& hg) 
+        Vertex(VertexType t, size_t i, HadamardGadgetPair const& hg)
             : type(t), id(i), hadamard_gadget_pair(hg), removed(false) {}
-        Vertex(VertexType t, size_t i, PRInfo const& pr) 
+        Vertex(VertexType t, size_t i, PRInfo const& pr)
             : type(t), id(i), pr_info(pr), removed(false) {}
     };
-    
+
     std::vector<Vertex> vertices;
     std::vector<std::vector<size_t>> outgoing_edges;  // outgoing_edges[i] = list of vertex indices that vertex i points to
     std::vector<std::vector<size_t>> incoming_edges;  // incoming_edges[i] = list of vertex indices that point to vertex i
-    
+
     // Unified vertex creation: auto-detects type from input
     // Returns the sequential vertex ID (same as vertex index in vertices array)
     size_t create_vertex(HadamardGadgetPair const& hg);
     size_t create_vertex(PRInfo const& pr);
-    
+
     // Add a directed edge from vertex u to vertex v
     void add_edge(size_t u, size_t v);
 
@@ -465,15 +466,15 @@ enum class FastToddTieSearchMode : std::uint8_t;
 
 struct TableauPreprocessConfig {
     qcir::CcDecomposition decomp = qcir::CcDecomposition::Cpp;
-    bool                 merge_rotations = true;
-    bool                 properize         = true;
+    bool merge_rotations         = true;
+    bool properize               = true;
 
     std::string id() const;
 };
 
 std::vector<TableauPreprocessConfig> all_tableau_preprocess_configs();
-std::optional<Tableau>               prepare_gadgetized_tableau(qcir::QCir const& source,
-                                                                TableauPreprocessConfig const& cfg);
+std::optional<Tableau> prepare_gadgetized_tableau(qcir::QCir const& source,
+                                                  TableauPreprocessConfig const& cfg);
 
 void log_topt_stage(std::string_view cmd, std::string_view stage,
                     size_t t_before, size_t t_after, size_t a_before, size_t a_after,
@@ -523,13 +524,13 @@ struct TOnlyTieSearchStats {
 
 /** Aggregate over independent T-only tie-search repeats. */
 struct TOnlyTieSearchAggregate {
-    size_t min_t                              = 0;
-    size_t max_t                              = 0;
-    double avg_final_t                        = 0;
-    double avg_last_t_reduce_step             = 0;
-    double avg_last_t_reduce_step_at_min_t    = 0;
-    size_t n_hit_min_t                        = 0;
-    size_t repeats                            = 0;
+    size_t min_t                           = 0;
+    size_t max_t                           = 0;
+    double avg_final_t                     = 0;
+    double avg_last_t_reduce_step          = 0;
+    double avg_last_t_reduce_step_at_min_t = 0;
+    size_t n_hit_min_t                     = 0;
+    size_t repeats                         = 0;
     std::vector<TOnlyTieSearchStats> per_repeat;
 };
 
@@ -541,7 +542,7 @@ struct TOnlyTieSearchAggregate {
  */
 bool minimize_t_opt_tie_search_from_qcir(qcir::QCir const& source,
                                          Tableau& tableau_out,
-                                         size_t repeats = 1,
+                                         size_t repeats                         = 1,
                                          TOnlyTieSearchAggregate* aggregate_out = nullptr);
 
 void minimize_ancillary_t_opt_with_degadgetization(Tableau& tableau, std::optional<std::string> export_filename = std::nullopt);
@@ -574,17 +575,17 @@ enum class FastToddTieSearchMode : std::uint8_t {
 };
 
 struct FastToddTieStepTarget {
-    FastToddTieLevel level      = FastToddTieLevel::outer;
-    size_t           step_index = 0;
+    FastToddTieLevel level = FastToddTieLevel::outer;
+    size_t step_index      = 0;
 };
 
 struct FastToddTieControl {
-    bool enabled = false;
-    FastToddTieSearchMode mode = FastToddTieSearchMode::random_target_only;
+    bool enabled                                            = false;
+    FastToddTieSearchMode mode                              = FastToddTieSearchMode::random_target_only;
     std::optional<FastToddTieStepTarget> target_random_step = std::nullopt;
-    std::unordered_map<size_t, size_t>   forced_tohpe_choice_by_step;
-    std::unordered_map<size_t, size_t>   forced_outer_choice_by_step;
-    std::optional<std::uint64_t>         random_seed = std::nullopt;
+    std::unordered_map<size_t, size_t> forced_tohpe_choice_by_step;
+    std::unordered_map<size_t, size_t> forced_outer_choice_by_step;
+    std::optional<std::uint64_t> random_seed = std::nullopt;
 };
 
 struct FastToddTieStepDecision {
@@ -595,9 +596,9 @@ struct FastToddTieStepDecision {
 
 struct FastToddTieRunReport {
     size_t initial_term_count = 0;
-    size_t final_term_count = 0;
-    size_t tohpe_step_count = 0;
-    size_t outer_step_count = 0;
+    size_t final_term_count   = 0;
+    size_t tohpe_step_count   = 0;
+    size_t outer_step_count   = 0;
     std::vector<FastToddTieStepDecision> tohpe_decisions;
     std::vector<FastToddTieStepDecision> outer_decisions;
 };
