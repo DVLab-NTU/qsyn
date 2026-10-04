@@ -1,0 +1,154 @@
+qsyn> logger off
+
+qsyn> qcir delete --all
+
+qsyn> tensor delete --all
+
+qsyn> qcir new
+
+qsyn> qcir qubit add 1
+
+qsyn> qcir gate add rz -ph pi/16 0
+
+qsyn> qcir copy
+
+qsyn> qcir checkout 0
+
+qsyn> convert qcir tensor
+
+qsyn> qcir checkout 1
+
+qsyn> qcir gridsynth --epsilon 1e-6 --seed 0
+
+qsyn> convert qcir tensor
+
+qsyn> tensor equiv 0 1 -e 1e-4
+Equivalent
+- Global Norm : 1
+- Global Phase: π/4
+
+qsyn> qcir equiv 0 1
+The two circuits are equivalent!!
+
+qsyn> qcir delete --all
+
+qsyn> tensor delete --all
+
+qsyn> qcir new
+
+qsyn> qcir qubit add 1
+
+qsyn> qcir gate add rz -ph pi/32 0
+
+qsyn> qcir copy
+
+qsyn> qcir checkout 0
+
+qsyn> convert qcir tensor
+
+qsyn> qcir checkout 1
+
+qsyn> qcir gridsynth --epsilon 1e-8 --seed 0
+
+qsyn> convert qcir tensor
+
+qsyn> tensor equiv 0 1 -e 1e-5
+Equivalent
+- Global Norm : 1
+- Global Phase: π
+
+qsyn> qcir equiv 0 1
+The two circuits are equivalent!!
+
+qsyn> qcir delete --all
+
+qsyn> tensor delete --all
+
+qsyn> qcir new
+
+qsyn> qcir qubit add 1
+
+qsyn> qcir gate add rz -ph pi/64 0
+
+qsyn> qcir copy
+
+qsyn> qcir checkout 0
+
+qsyn> convert qcir tensor
+
+qsyn> qcir checkout 1
+
+qsyn> qcir gridsynth --epsilon 1e-10 --seed 0
+
+qsyn> convert qcir tensor
+
+qsyn> tensor equiv 0 1 -e 1e-6
+Equivalent
+- Global Norm : 1
+- Global Phase: π
+
+qsyn> qcir equiv 0 1
+The two circuits are equivalent!!
+
+qsyn> qcir delete --all
+
+qsyn> tensor delete --all
+
+qsyn> qcir new
+
+qsyn> qcir qubit add 1
+
+qsyn> qcir gate add rz -ph pi/12 0
+
+qsyn> qcir copy
+
+qsyn> qcir checkout 0
+
+qsyn> convert qcir tensor
+
+qsyn> qcir checkout 1
+
+qsyn> qcir gridsynth --epsilon 1e-7 --seed 0
+
+qsyn> convert qcir tensor
+
+qsyn> tensor equiv 0 1 -e 1e-4
+Equivalent
+- Global Norm : 1
+- Global Phase: 0
+
+qsyn> qcir equiv 0 1
+The two circuits are equivalent!!
+
+qsyn> qcir delete --all
+
+qsyn> tensor delete --all
+
+qsyn> qcir new
+
+qsyn> qcir qubit add 1
+
+qsyn> qcir gate add rz -ph pi/8 0
+
+qsyn> qcir copy
+
+qsyn> qcir checkout 0
+
+qsyn> convert qcir tensor
+
+qsyn> qcir checkout 1
+
+qsyn> qcir gridsynth --epsilon 1e-8 --seed 0
+
+qsyn> convert qcir tensor
+
+qsyn> tensor equiv 0 1 -e 1e-5
+Equivalent
+- Global Norm : 1
+- Global Phase: π
+
+qsyn> qcir equiv 0 1
+The two circuits are equivalent!!
+
+qsyn> quit -f
+
