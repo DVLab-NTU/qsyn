@@ -1,5 +1,6 @@
-# cmake folders
+# cmake folders / build trees (out-of-tree; keep repo-root Makefile)
 build/
+build-*/
 debug/
 qsyn*
 !src/qsyn*
@@ -17,6 +18,10 @@ wip/
 # vim configuration files and folders
 .cache/
 compile_commands.json
+
+# log files
+*.log
+!tests/**/ref/*.log
 
 # doxygen, sphinx, and other documentation files and folders
 docs/_build/
