@@ -1340,7 +1340,6 @@ void move_pmcs_with_reduced_PR(Tableau const& tableau, std::unordered_map<size_t
 }
 
 void minimize_ancillary_t_opt_with_degadgetization(Tableau& tableau, std::optional<std::string> export_filename) {
-    (void)export_filename;
     if (tableau.is_empty()) {
         return;
     }
@@ -1353,7 +1352,7 @@ void minimize_ancillary_t_opt_with_degadgetization(Tableau& tableau, std::option
     }
 
     std::string const label =
-        tableau.get_filename().empty() ? "tableau" : tableau.get_filename();
+        (!export_filename || export_filename->empty()) ? "tableau" : *export_filename;
     auto const pr_export = export_whole_pr_phases_after_swap_to_front(tableau);
     std::filesystem::path const phase_csv =
         fmt::format("/home/ferayer/minimize_ancilla/results/pr_whole_swap_{}.csv", label);

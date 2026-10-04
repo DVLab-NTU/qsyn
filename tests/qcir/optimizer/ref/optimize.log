@@ -1,7 +1,7 @@
 qsyn> qcir read benchmark/SABRE/large/adr4_197.qasm
 
 qsyn> qcir print --statistics
-QCir (16 qubits, 3439 gates)
+QCir (16 qubits, 16 classical bits, 3439 gates)
 Clifford   : 1941
 └── H-gate : 428 (417 internal)
 2-qubit    : 1498

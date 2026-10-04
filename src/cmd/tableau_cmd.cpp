@@ -332,16 +332,17 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr, qsyn::qcir::QCi
 
             auto const apply_unify = [&]() {
                 auto& tableau = *tableau_mgr.get();
+                auto const export_name = !qcir_mgr.get_filename().empty()
+                                             ? qcir_mgr.get_filename()
+                                             : tableau_mgr.get_filename();
                 minimize_ancillary_t_opt(
                     tableau,
-                    qcir_mgr.empty()
-                        ? std::optional<std::string>{tableau.get_filename()}
-                        : std::optional<std::string>{qcir_mgr.get_filename()});
-                tableau.add_procedure("UnifyTOpt");
+                    export_name.empty() ? std::nullopt : std::optional<std::string>{export_name});
+                tableau_mgr.add_procedure("UnifyTOpt");
             };
 
             auto const unify_already_applied = [&]() {
-                auto const procedures = tableau_mgr.get()->get_procedures();
+                auto const& procedures = tableau_mgr.get_procedures();
                 return std::ranges::any_of(procedures, [](std::string const& procedure) {
                     return procedure == "UnifyTOpt" || procedure == "UnifiedTOpt";
                 });
@@ -394,7 +395,7 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr, qsyn::qcir::QCi
                     size_t const t0 = tableau.n_pauli_rotations();
                     size_t const a0 = tableau.n_ancilla();
                     sat_reorder(tableau);
-                    tableau.add_procedure("SatReorder");
+                    tableau_mgr.add_procedure("SatReorder");
                     log_topt_stage("reorder", "SMT width search",
                                    t0, tableau.n_pauli_rotations(), a0, tableau.n_ancilla(),
                                    /*with_t=*/false);
@@ -416,7 +417,7 @@ dvlab::Command tableau_optimization_cmd(TableauMgr& tableau_mgr, qsyn::qcir::QCi
                         return dvlab::CmdExecResult::error;
                     }
                     if (!tableau_mgr.empty()) {
-                        tableau_mgr.get()->add_procedure("CommuteTest");
+                        tableau_mgr.add_procedure("CommuteTest");
                     }
                     break;
                 }

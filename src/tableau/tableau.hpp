@@ -186,24 +186,6 @@ public:
         return _subtableaux[idx];
     }
 
-    auto get_filename() const {
-        return _filename;
-    }
-    auto set_filename(std::string const& filename) {
-        _filename = filename;
-    }
-
-    auto get_procedures() const {
-        return _procedures;
-    }
-    auto add_procedure(std::string const& procedure) {
-        _procedures.push_back(procedure);
-    }
-    auto add_procedures(std::vector<std::string> const& procedures) {
-        _procedures.insert(_procedures.end(), procedures.begin(), procedures.end());
-    }
-
-    
     /**
      * @brief Add an ancilla initial state to the tableau
      *
@@ -328,8 +310,6 @@ private:
     std::vector<SubTableau> _subtableaux;
     std::size_t _n_qubits;
     std::size_t _n_ancilla;  // Number of ancilla qubits (last _n_ancilla qubits are ancillae)
-    std::string _filename;
-    std::vector<std::string> _procedures;
     std::vector<std::pair<size_t, AncillaInitialState>> _ancilla_initial_states;
     std::unordered_map<size_t, MeasurementType> _ancilla_measurement_types;  // ancilla_index → Z/X/none
     std::vector<std::pair<size_t, size_t>> _cct_pairing;  // CCT pairing structure - stores (ccc_index, pmc_index) pairs

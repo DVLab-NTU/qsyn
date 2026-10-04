@@ -36,6 +36,13 @@ std::string format_ancilla_depth_suffix(size_t width) {
     return fmt::format(", ancilla depth : {}", width);
 }
 
+std::string format_measurement_gates_suffix(size_t measurement_gates) {
+    if (measurement_gates == 0) {
+        return {};
+    }
+    return fmt::format(", {} measurement gates", measurement_gates);
+}
+
 }  // namespace
 
 /**
@@ -208,14 +215,14 @@ void QCir::print_qcir_info() const {
     size_t const width           = export_schedule_width().value_or(0);
 
     fmt::println(
-        "QCir ({} qubits{}{}, {} gates, {} 2-qubits gates, {} T-gates, {} measurement gates, {} depths)",
+        "QCir ({} qubits{}{}, {} gates, {} 2-qubits gates, {} T-gates{}, {} depths)",
         get_num_qubits(),
         format_classical_bits_suffix(classical_count),
         format_ancilla_depth_suffix(width),
         get_num_gates(),
         stat.at("2-qubit"),
         stat.at("t-family"),
-        measurement_gates,
+        format_measurement_gates_suffix(measurement_gates),
         calculate_depth());
 }
 
