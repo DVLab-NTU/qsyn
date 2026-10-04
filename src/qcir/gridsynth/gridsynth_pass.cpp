@@ -55,8 +55,6 @@ std::optional<QCir> gridsynth_decompose(QCir const& qcir,
     }
 
     QCir result{qcir.get_num_qubits()};
-    result.set_filename(qcir.get_filename());
-    result.add_procedures(qcir.get_procedures());
     if (auto const& gs = qcir.get_gate_set(); !gs.empty()) {
         result.set_gate_set(gs);
     }
