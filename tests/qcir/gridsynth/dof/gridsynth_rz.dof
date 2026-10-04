@@ -1,0 +1,6 @@
+qcir new
+qcir qubit add 1
+qcir gate add rz -ph pi/8 0
+qcir gridsynth --epsilon 1e-8
+qcir print --stat
+quit -f

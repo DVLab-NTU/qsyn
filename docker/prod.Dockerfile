@@ -1,5 +1,8 @@
 FROM dvlab/qsyn-env:latest AS builder
 
+RUN apt-get update && \
+    apt-get install -y libgmp-dev libmpfr-dev
+
 COPY . /app/qsyn
 
 WORKDIR /app
@@ -14,6 +17,9 @@ FROM debian:bookworm-slim AS runner
 RUN apt update
 
 RUN apt install -y \
+    libgmp10 \
+    libgmpxx4ldbl \
+    libmpfr6 \
     libopenblas-dev \
     liblapack-dev \
     libreadline-dev \

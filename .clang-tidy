@@ -46,7 +46,8 @@ Checks: >
   -readability-use-std-min-max,
   -readability-math-missing-parentheses,
 WarningsAsErrors: ""
-HeaderFilterRegex: ".*"
+# Only diagnose headers under src/ (excludes GMP/MPFR and other system/vendor includes).
+HeaderFilterRegex: ".*/src/.*"
 FormatStyle: none
 CheckOptions:
   - { key: readability-identifier-naming.VariableCase, value: lower_case }

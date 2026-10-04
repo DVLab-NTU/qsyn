@@ -1,5 +1,5 @@
 qsyn> qcir --help
-Usage: qcir [-h] [list | checkout | new | delete | copy | compose | tensor-product | read | write | print | draw | adjoint | gate | qubit | optimize | translate | oracle | equiv | to-basic] ...
+Usage: qcir [-h] [list | checkout | new | delete | copy | compose | tensor-product | read | write | print | draw | adjoint | gate | qubit | optimize | translate | oracle | equiv | to-basic | gridsynth] ...
 
 Description:
   QCir commands
@@ -8,7 +8,7 @@ Options:
   flag  -h, --help    show this help message 
 
 Subcommands:
-[list | checkout | new | delete | copy | compose | tensor-product | read | write | print | draw | adjoint | gate | qubit | optimize | translate | oracle | equiv | to-basic]  
+[list | checkout | new | delete | copy | compose | tensor-product | read | write | print | draw | adjoint | gate | qubit | optimize | translate | oracle | equiv | to-basic | gridsynth]  
     list            List all QCirs                                                                                                                                                                                               
     checkout        Checkout to QCir with the ID specified                                                                                                                                                                       
     new             Create a new QCir                                                                                                                                                                                            
@@ -28,4 +28,5 @@ Subcommands:
     oracle          synthesize a boolean oracle                                                                                                                                                                                  
     equiv           check if two circuits are equivalent. A Tableau-based method is used to check the equivalence. If that fails, and the circuits are small enough, also verify the equivalence are through tensor calculation. 
     to-basic        Convert the QCir to use only basic gates                                                                                                                                                                     
+    gridsynth       Decompose RZ gates into Clifford+T sequences (GridSynth)                                                                                                                                                     
 
