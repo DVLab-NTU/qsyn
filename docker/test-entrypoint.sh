@@ -44,8 +44,6 @@ echo "CC: $CC_COMPILER ($($CC_COMPILER --version | head -1))"
 echo "CXX: $CXX_COMPILER ($($CXX_COMPILER --version | head -1))"
 echo "==============================="
 
-python3 /app/qsyn/tests/gridsynth_deps.py || exit 1
-
 # Explicitly specify compiler to ensure deterministic builds
 # This overrides any CMake cache and ensures we use the compiler
 # specified in the Dockerfile (gcc/g++ or clang/clang++)
@@ -61,12 +59,7 @@ grep -E "CMAKE_(C|CXX)_COMPILER:" /app/build/CMakeCache.txt || true
 echo "================================"
 echo ""
 
-if ! cmake --build /app/build --parallel "$(nproc)"; then
-    echo "=== Build failed; last verbose output (single-threaded) ==="
-    cmake --build /app/build --parallel 1 --verbose 2>&1 | tail -80
-    exit 1
-fi
-
+cmake --build /app/build --parallel "$(nproc)"
 
 cd /app/qsyn || exit 1
 /app/build/qsyn-unit-test || exit 1

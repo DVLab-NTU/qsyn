@@ -1,8 +1,5 @@
 FROM dvlab/qsyn-env:latest AS builder
 
-RUN apt-get update && \
-    apt-get install -y libgmp-dev libmpfr-dev
-
 COPY . /app/qsyn
 
 WORKDIR /app
@@ -20,9 +17,6 @@ RUN apt install -y \
     diffutils \
     patch \
     parallel \
-    libgmp10 \
-    libgmpxx4ldbl \
-    libmpfr6 \
     libopenblas-dev \
     liblapack-dev \
     libreadline-dev \
