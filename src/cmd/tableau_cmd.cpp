@@ -44,7 +44,7 @@ ArgType<size_t>::ConstraintType valid_tableau_qubit_id(TableauMgr const& tableau
 }
 
 dvlab::Command tableau_new_cmd(TableauMgr& tableau_mgr) {
-#if defined(__GNUC__)
+#if defined(__GNUC__) && !defined(__clang__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #endif
@@ -74,29 +74,29 @@ dvlab::Command tableau_new_cmd(TableauMgr& tableau_mgr) {
                     spdlog::error("Tableau {} already exists!! Please specify `--replace` to replace if needed", id);
                     return dvlab::CmdExecResult::error;
                 }
-#if defined(__GNUC__)
+#if defined(__GNUC__) && !defined(__clang__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #endif
                 tableau_mgr.set_by_id(id, std::make_unique<Tableau>(n_qubits));
-#if defined(__GNUC__)
+#if defined(__GNUC__) && !defined(__clang__)
 #pragma GCC diagnostic pop
 #endif
                 return dvlab::CmdExecResult::done;
             }
 
-#if defined(__GNUC__)
+#if defined(__GNUC__) && !defined(__clang__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #endif
             tableau_mgr.add(id, std::make_unique<Tableau>(n_qubits));
-#if defined(__GNUC__)
+#if defined(__GNUC__) && !defined(__clang__)
 #pragma GCC diagnostic pop
 #endif
 
             return dvlab::CmdExecResult::done;
         }};
-#if defined(__GNUC__)
+#if defined(__GNUC__) && !defined(__clang__)
 #pragma GCC diagnostic pop
 #endif
 }
