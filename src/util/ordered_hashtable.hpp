@@ -92,8 +92,8 @@ public:
 
         bool is_valid() const noexcept { return *(this->_itr) != std::nullopt; }
 
-        // GCC 15 -Wcast-user-defined: pair<K,V> → pair<K const,V>& is a layout pun, not pair's converting ctor.
-#if defined(__GNUC__) && !defined(__clang__)
+        // ponytail: GCC 15 -Wcast-user-defined; older GCC treats the name as -Werror=pragmas.
+#if defined(__GNUC__) && !defined(__clang__) && (__GNUC__ >= 15)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-user-defined"
 #endif
@@ -102,7 +102,7 @@ public:
 
         value_type* operator->() noexcept { return (value_type*)&(this->_itr->value()); }
         value_type* operator->() const noexcept { return (value_type*)&(this->_itr->value()); }
-#if defined(__GNUC__) && !defined(__clang__)
+#if defined(__GNUC__) && !defined(__clang__) && (__GNUC__ >= 15)
 #pragma GCC diagnostic pop
 #endif
 
