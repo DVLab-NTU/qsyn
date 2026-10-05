@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "qcir/qcir.hpp"
+#include "tableau/classical_tableau.hpp"
 #include "tableau/pauli_rotation.hpp"
 #include "tableau/stabilizer_tableau.hpp"
 #include "tableau/tableau.hpp"
@@ -197,10 +198,21 @@ std::optional<qcir::QCir> to_qcir(
     PauliRotationTableau const& rotations,
     PauliRotationsSynthesisStrategy const& strategy);
 std::optional<qcir::QCir> to_qcir(
+    ClassicalControlTableau const& cct,
+    StabilizerTableauSynthesisStrategy const& cct_strategy, size_t n_qubits);
+std::optional<qcir::QCir> to_qcir(
+    Tableau const& tableau,
+    StabilizerTableauSynthesisStrategy const& st_strategy,
+    PauliRotationsSynthesisStrategy const& pr_strategy,
+    StabilizerTableauSynthesisStrategy const& cct_strategy);
+std::optional<qcir::QCir> to_qcir(
     Tableau const& tableau,
     StabilizerTableauSynthesisStrategy const& st_strategy,
     PauliRotationsSynthesisStrategy const& pr_strategy,
     SynthesisType synthesis_type = SynthesisType::eager);
+
+/** Default convert tableau qcir strategies: hopt Clifford, naive rotations. */
+std::optional<qcir::QCir> tableau_to_qcir_hopt_naive(Tableau const& tableau);
 
 }  // namespace tableau
 

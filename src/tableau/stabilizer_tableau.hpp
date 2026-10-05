@@ -11,6 +11,7 @@
 #include <fmt/format.h>
 
 #include <cstddef>
+#include <optional>
 #include <string>
 
 #include "tableau/pauli_rotation.hpp"
@@ -103,6 +104,9 @@ public:
             });
     }
 
+    size_t add_ancilla_qubit();
+    void remove_ancilla_qubit(size_t qubit);
+
 private:
     std::vector<PauliProduct> _stabilizers;
 };
@@ -174,6 +178,26 @@ CliffordOperatorString extract_clifford_operators(
     StabilizerTableauSynthesisStrategy const& strategy =
         HOptSynthesisStrategy{});
 
+void print_clifford_operator_string(CliffordOperatorString const& operations);
+
+inline std::string clifford_ops_to_string(CliffordOperatorString const& ops) {
+    std::string result;
+    for (auto const& [type, qubits] : ops) {
+        switch (type) {
+            case CliffordOperatorType::cx:
+            case CliffordOperatorType::cz:
+            case CliffordOperatorType::swap:
+            case CliffordOperatorType::ecr:
+                result += fmt::format("{} q[{}], q[{}];\n", to_string(type), qubits[0], qubits[1]);
+                break;
+            default:
+                result += fmt::format("{} q[{}];\n", to_string(type), qubits[0]);
+                break;
+        }
+    }
+    return result;
+}
+
 }  // namespace tableau
 
 }  // namespace qsyn
@@ -183,7 +207,7 @@ struct fmt::formatter<qsyn::tableau::StabilizerTableau> {
     char presentation = 'c';
     constexpr auto parse(format_parse_context& ctx) {
         auto it = ctx.begin(), end = ctx.end();
-        if (it != end && (*it == 'c' || *it == 'b'))
+        if (it != end && (*it == 'c' || *it == 'b' || *it == 'g'))
             presentation = *it++;
         if (it != end && *it != '}')
             detail::throw_format_error("invalid format");
@@ -193,6 +217,10 @@ struct fmt::formatter<qsyn::tableau::StabilizerTableau> {
     template <typename FormatContext>
     auto format(qsyn::tableau::StabilizerTableau const& tableau,
                 FormatContext& ctx) const {
+        if (presentation == 'g') {
+            auto const ops = qsyn::tableau::extract_clifford_operators(tableau);
+            return format_to(ctx.out(), "{}", qsyn::tableau::clifford_ops_to_string(ops));
+        }
         return presentation == 'c'
                    ? format_to(ctx.out(), "{}", tableau.to_string())
                    : format_to(ctx.out(), "{}", tableau.to_bit_string());

@@ -3,7 +3,7 @@ qsyn> qcir read benchmark/SABRE/large/cm82a_208.qasm
 qsyn> device read benchmark/topology/guadalupe_16.layout 
 
 qsyn> qcir print --statistics
-QCir (16 qubits, 650 gates)
+QCir (16 qubits, 16 classical bits, 650 gates)
 Clifford   : 370
 └── H-gate : 80 (75 internal)
 2-qubit    : 283

@@ -7,6 +7,8 @@
 
 #include "./qcir_to_tableau.hpp"
 
+#include <spdlog/spdlog.h>
+
 #include <gsl/narrow>
 #include <ranges>
 #include <span>
@@ -148,6 +150,21 @@ bool append_to_tableau(qcir::HGate const& /* op */, tableau::Tableau& tableau, Q
 }
 
 template <>
+bool append_to_tableau(qcir::MeasurementGate const& /* op */, tableau::Tableau& tableau, QubitIdList const& qubits) {
+    // Measurement is a non-unitary operation that cannot be represented in a stabilizer tableau
+    // The tableau represents unitary Clifford operations, but measurement collapses the state
+    // Return false to indicate this operation cannot be converted to tableau form
+    spdlog::warn("Measurement gate cannot be represented in stabilizer tableau");
+    return false;
+}
+
+template <>
+bool append_to_tableau(qcir::ResetGate const& /* op */, tableau::Tableau& /* tableau */, QubitIdList const& /* qubits */) {
+    spdlog::warn("Reset gate cannot be represented in stabilizer tableau");
+    return false;
+}
+
+template <>
 bool append_to_tableau(qcir::SwapGate const& /* op */, tableau::Tableau& tableau, QubitIdList const& qubits) {
     tableau.swap(qubits[0], qubits[1]);
     return true;
@@ -255,6 +272,19 @@ bool append_to_tableau(qcir::RYGate const& op, tableau::Tableau& tableau, QubitI
 }
 
 template <>
+bool append_to_tableau(qcir::UGate const& op, tableau::Tableau& tableau, QubitIdList const& qubits) {
+    bool ret = true;
+    qcir::RZGate rz_lambda(op.get_lambda());
+    qcir::RYGate ry_theta(op.get_theta());
+    qcir::RZGate rz_phi(op.get_phi());
+
+    ret &= append_to_tableau(rz_lambda, tableau, qubits);
+    ret &= append_to_tableau(ry_theta, tableau, qubits);
+    ret &= append_to_tableau(rz_phi, tableau, qubits);
+    return ret;
+}
+
+template <>
 bool append_to_tableau(qcir::ControlGate const& op, tableau::Tableau& tableau, QubitIdList const& qubits) {
     if (auto target_op = op.get_target_operation().get_underlying_if<qcir::PXGate>()) {
         if (op.get_num_qubits() == 2 && target_op->get_phase() == dvlab::Phase(1)) {
@@ -300,10 +330,41 @@ bool append_to_tableau(qcir::ControlGate const& op, tableau::Tableau& tableau, Q
     return false;
 }
 
+template <>
+bool append_to_tableau(qcir::IfElseGate const& /* op */, tableau::Tableau& /* tableau */, QubitIdList const& /* qubits */) {
+    // If-else gates represent conditional operations based on classical bit values
+    // They cannot be represented in a stabilizer tableau as tableaus only handle unitary operations
+    // Return false to indicate this operation cannot be converted to tableau form
+    spdlog::warn("If-else gate cannot be represented in stabilizer tableau");
+    return false;
+}
+
 namespace tableau {
 
 std::optional<Tableau> to_tableau(qcir::QCir const& qcir) {
     Tableau result{qcir.get_num_qubits()};
+
+    // Apply initial state preparation for each qubit before processing gates.
+    // The tableau starts in |0...0⟩; non-zero initial states need explicit operations.
+    for (size_t i = 0; i < qcir.get_num_qubits(); ++i) {
+        switch (qcir.get_initial_state(i)) {
+            case qcir::QubitInitialState::zero:
+                break;  // already |0⟩ — nothing to do
+            case qcir::QubitInitialState::one:
+                // |1⟩ = X|0⟩
+                result.x(i);
+                break;
+            case qcir::QubitInitialState::plus:
+                // |+⟩ = H|0⟩
+                result.h(i);
+                break;
+            case qcir::QubitInitialState::minus:
+                // |−⟩ = H·X|0⟩
+                result.x(i);
+                result.h(i);
+                break;
+        }
+    }
 
     for (auto const& gate : qcir.get_gates()) {
         if (stop_requested()) {

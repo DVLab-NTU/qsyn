@@ -12,6 +12,14 @@ set(CMAKE_CXX_FLAGS "")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
+# On Apple Silicon with Homebrew GCC, the default CMake OSX architectures
+# may include x86, which GCC does not support and will emit a warning for
+# every compilation. Clear architectures in that case to keep the build
+# output clean while still producing a correct arm64 binary.
+if(APPLE AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    set(CMAKE_OSX_ARCHITECTURES "" CACHE STRING "Architectures for OS X (cleared for GCC)" FORCE)
+endif()
+
 # Set BLA_VENDOR before project() so it's available during initialization
 # On macOS, we need to specify OpenBLAS explicitly
 # On Linux, we'll use pkg-config instead (see find_package(BLAS) below)
@@ -53,6 +61,33 @@ function(qsyn_bump_min_cmake project_source_dir min_ver)
   message(STATUS "Bumped cmake_minimum_required in ${project_source_dir}/CMakeLists.txt to >= ${min_ver}; now: '${_first_line}'")
 endfunction()
 
+function(qsyn_quiet_z3_codegen_logs z3_source_dir)
+  set(_scripts
+      "scripts/pyg2hpp.py"
+      "scripts/mk_install_tactic_cpp.py"
+      "scripts/mk_mem_initializer_cpp.py"
+      "scripts/mk_gparams_register_modules_cpp.py"
+      "scripts/mk_def_file.py"
+      "scripts/mk_consts_files.py"
+      "scripts/mk_pat_db.py"
+      "scripts/update_api.py")
+
+  foreach(_rel IN LISTS _scripts)
+    set(_path "${z3_source_dir}/${_rel}")
+    if(EXISTS "${_path}")
+      file(READ "${_path}" _orig)
+      set(_new "${_orig}")
+      string(REPLACE "logging.basicConfig(level=logging.INFO)"
+                     "logging.basicConfig(level=logging.WARNING)"
+                     _new
+                     "${_new}")
+      if(NOT _new STREQUAL _orig)
+        file(WRITE "${_path}" "${_new}")
+      endif()
+    endif()
+  endforeach()
+endfunction()
+
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(QSYN_PROJECT_NAME qsyn-debug)
 else()
@@ -64,27 +99,20 @@ project(
     LANGUAGES CXX
     VERSION 0.8.1)
 
-# Link the correct unwind library for Clang18 on Apple Silicon
-# Assumes that Homebrew is used to install LLVM
-# https://github.com/llvm/llvm-project/issues/92121#issuecomment-2307947170
+# Homebrew llvm@N is .../opt/llvm@N/bin/clang++; do not use `which clang++`
+# (macos-latest also has llvm@20 unlinked as the default brew llvm).
 if(CMAKE_SYSTEM_NAME MATCHES "Darwin"
     AND CMAKE_SYSTEM_PROCESSOR MATCHES "arm64"
     AND CMAKE_CXX_COMPILER_ID MATCHES "Clang"
     AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 18)
-    message(
-        STATUS 
-        "Setting the correct unwind library for Clang18 on Apple Silicon")
-# the clang should be installed at .../bin/clang++
-# get the path to clang and remove the /bin/clang++
-    execute_process(
-        COMMAND which clang++
-        OUTPUT_VARIABLE CLANG_PATH
-        OUTPUT_STRIP_TRAILING_WHITESPACE)
-    string(REGEX REPLACE "/bin/clang\\+\\+" "" BREW_PREFIX ${CLANG_PATH})
-    message(STATUS "BREW_PREFIX: ${BREW_PREFIX}")
-    link_libraries(${BREW_PREFIX}/lib/libunwind.dylib)
-    set(CMAKE_EXE_LINKER_FLAGS  
-        "${CMAKE_EXE_LINKER_FLAGS} -L${BREW_PREFIX}/lib/c++")
+    get_filename_component(_clang_bin "${CMAKE_CXX_COMPILER}" DIRECTORY)
+    get_filename_component(_llvm_prefix "${_clang_bin}" DIRECTORY)
+    if(EXISTS "${_llvm_prefix}/lib/libunwind.dylib")
+        message(STATUS "Apple Silicon Clang>=18: unwind from ${_llvm_prefix}")
+        link_libraries("${_llvm_prefix}/lib/libunwind.dylib")
+        set(CMAKE_EXE_LINKER_FLAGS
+            "${CMAKE_EXE_LINKER_FLAGS} -L${_llvm_prefix}/lib/c++")
+    endif()
 endif()
 
 include(scripts/cmake/target_link_libraries_system.cmake)
@@ -196,6 +224,19 @@ FetchContent_Declare(
   GIT_TAG add-cmake-fetchcontent-support)
 FetchContent_MakeAvailable(cadical)
 
+FetchContent_Declare(
+  Z3
+  SYSTEM
+  GIT_REPOSITORY https://github.com/Z3Prover/z3.git
+  GIT_TAG z3-4.15.4
+  GIT_SHALLOW ON)
+set(Z3_BUILD_LIBZ3_SHARED OFF CACHE INTERNAL "")
+set(Z3_BUILD_EXECUTABLE OFF CACHE INTERNAL "")
+set(Z3_BUILD_TEST_EXECUTABLES OFF CACHE INTERNAL "")
+set(Z3_ENABLE_EXAMPLE_TARGETS OFF CACHE INTERNAL "")
+FetchContent_MakeAvailable(Z3)
+qsyn_quiet_z3_codegen_logs("${z3_SOURCE_DIR}")
+
 # --- libabc (patched for new CMake) ---
 set(READLINE_FOUND FALSE CACHE BOOL "Disable readline in libabc")
 FetchContent_Declare(
@@ -270,7 +311,6 @@ file(
 set(QSYN_LIB_NAME libqsyn.a)
 set(UNIT_TEST_NAME unit-test)
 
-
 # ----------------------------------------------------------------------------
 # config for qsyn-lib target
 # builds libqsyn.a
@@ -287,6 +327,11 @@ target_include_directories(
 target_include_directories(
     ${QSYN_LIB_NAME} SYSTEM PRIVATE ${CMAKE_SOURCE_DIR}/vendor)
 
+target_include_directories(
+    ${QSYN_LIB_NAME} SYSTEM PRIVATE
+    ${z3_SOURCE_DIR}/src/api
+    ${z3_SOURCE_DIR}/src/api/c++)
+
 target_link_libraries_system(
     ${QSYN_LIB_NAME}
     PRIVATE
@@ -299,7 +344,8 @@ target_link_libraries_system(
     Microsoft.GSL::GSL
     sul::dynamic_bitset
     nlohmann_json::nlohmann_json
-    cadical::cadical)
+    cadical::cadical
+    libz3)
 target_link_libraries(
     ${QSYN_LIB_NAME} 
     PRIVATE 
@@ -307,6 +353,10 @@ target_link_libraries(
     ${BLAS_LIBRARIES}
     ${LAPACK_LIBRARIES})
 
+if(COMPILER_SUPPORTS_WNOERROR_CAST_USER_DEFINED)
+    target_compile_options(${QSYN_LIB_NAME}
+                           PRIVATE -Wno-error=cast-user-defined)
+endif()
 if(QSYN_ENABLE_GRIDSYNTH)
     qsyn_link_gridsynth(${QSYN_LIB_NAME})
 endif()
@@ -340,12 +390,22 @@ if(COMPILER_SUPPORTS_WNO_MAYBE_UNINITIALIZED)
         ${CMAKE_PROJECT_NAME} PRIVATE -Wno-maybe-uninitialized)
 endif()
 
-# GCC 12+ is too strict about restrict warnings in std::string operations
-# Only apply to GCC, as Clang doesn't support this flag
+# GCC 12+ is too strict about restrict warnings in std::string operations.
+# Only apply when the compiler actually supports the flag.
 check_cxx_compiler_flag(-Wno-restrict COMPILER_SUPPORTS_WNO_RESTRICT)
 if(COMPILER_SUPPORTS_WNO_RESTRICT)
-    target_compile_options(
-        ${CMAKE_PROJECT_NAME} PRIVATE -Wno-restrict)
+    target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wno-restrict)
+endif()
+
+# GCC 15+ treats C-style casts in ordered_hashtable as -Werror=cast-user-defined.
+# Clang does not have this warning group; passing the flag with -Werror fails the build.
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    check_cxx_compiler_flag(
+        -Wno-error=cast-user-defined COMPILER_SUPPORTS_WNOERROR_CAST_USER_DEFINED)
+endif()
+if(COMPILER_SUPPORTS_WNOERROR_CAST_USER_DEFINED)
+    target_compile_options(${CMAKE_PROJECT_NAME}
+                           PRIVATE -Wno-error=cast-user-defined)
 endif()
 
 target_include_directories(
@@ -377,7 +437,7 @@ target_link_libraries(
     ${CMAKE_PROJECT_NAME} 
     PRIVATE 
 # OpenMP::OpenMP_CXX 
-    ${BLAS_LIBRARIES} 
+    ${BLAS_LIBRARIES}
     ${LAPACK_LIBRARIES})
 
 # ----------------------------------------------------------------------------
@@ -408,7 +468,8 @@ target_link_libraries_system(
     PRIVATE
     fmt::fmt
     spdlog::spdlog
-    Microsoft.GSL::GSL)
+    Microsoft.GSL::GSL
+    sul::dynamic_bitset)
 
 target_compile_options(
     ${UNIT_TEST_NAME}
@@ -430,7 +491,7 @@ if(COMPILER_SUPPORTS_WNO_MAYBE_UNINITIALIZED)
 endif()
 
 # GCC 12+ is too strict about restrict warnings in std::string operations
-# Only apply to GCC, as Clang doesn't support this flag
+# Only apply to GCC, as Clang doesn't support this flag.
 if(COMPILER_SUPPORTS_WNO_RESTRICT)
     target_compile_options(
         ${UNIT_TEST_NAME}
@@ -438,6 +499,14 @@ if(COMPILER_SUPPORTS_WNO_RESTRICT)
         -Wno-restrict)
 endif()
 
+# GCC 15+ treats the C-style cast in ordered_hashtable iterator dereference
+# as -Werror=cast-user-defined when building unit tests. Relax this to a
+# warning so the test target can still be built while keeping the warning
+# visible in the output.
+if(COMPILER_SUPPORTS_WNOERROR_CAST_USER_DEFINED)
+    target_compile_options(${UNIT_TEST_NAME}
+                           PRIVATE -Wno-error=cast-user-defined)
+endif()
 if(QSYN_ENABLE_GRIDSYNTH)
     qsyn_link_gridsynth(${UNIT_TEST_NAME})
 endif()

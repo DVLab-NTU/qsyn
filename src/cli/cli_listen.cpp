@@ -86,15 +86,17 @@ int get_char(std::istream& istr) {
             if (combo == char(ctrl_key_int)) {
                 auto const key = mygetc(istr);
                 if ((key >= char(ctrl_key_begin)) && (key <= char(ctrl_key_end))) {
-                    if (mygetc(istr) == ctrl_key_dummy)
+                    if (mygetc(istr) == ctrl_key_dummy) {
                         return int(key) + ctrl_key_flag;
-                    else
+                    } else {
                         return undefined_key;
+                    }
                 } else if ((key >= char(arrow_key_begin)) &&
-                           (key <= char(arrow_key_end)))
+                           (key <= char(arrow_key_end))) {
                     return int(key) + arrow_key_flag;
-                else
+                } else {
                     return undefined_key;
+                }
             } else if (combo == 'b') {
                 return prev_word_key;
             } else if (combo == 'f') {
@@ -373,9 +375,10 @@ void dvlab::CommandLineInterface::_retrieve_history(size_t index) {
         if (_history_idx == _history.size()) {  // move away from new input
             _temp_command_stored = true;
             _history.emplace_back(_read_buffer, CmdExecResult::done);
-        } else if (_temp_command_stored && _history_idx == _history.size() - 1)
+        } else if (_temp_command_stored && _history_idx == _history.size() - 1) {
             _history.back().input = _read_buffer;  // => update it
-    } else if (index > _history_idx) {             // move down
+        }
+    } else if (index > _history_idx) {  // move down
         if (_history_idx == _history.size() - _temp_command_stored ? 1 : 0) {
             detail::beep();
             return;
@@ -405,7 +408,7 @@ size_t dvlab::CommandLineInterface::_prev_matching_history(size_t count) {
     return targ_idx;
 }
 
-size_t dvlab::CommandLineInterface::_next_matching_history(size_t count) {
+size_t dvlab::CommandLineInterface::_next_matching_history(size_t count) const {
     if (count == 0) return _history_idx;
     auto const prefix = _temp_command_stored ? _history.back().input : _read_buffer;
     size_t targ_idx   = _history_idx;

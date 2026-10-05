@@ -1,0 +1,2 @@
+/home/ferayer/qsyn/__cmake_systeminformation/CMakeFiles/edit_cache.dir
+/home/ferayer/qsyn/__cmake_systeminformation/CMakeFiles/rebuild_cache.dir

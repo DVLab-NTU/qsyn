@@ -151,14 +151,14 @@ constexpr Rational Rational::operator-() const {
 // a/b + c/d  = (ad + bc) / bd
 // We adopt for this more complex expression (instead of (ad + bc / bd)) so as to minimize the risk of overflow when multiplying numbers
 constexpr Rational& Rational::operator+=(Rational const& rhs) {
-    _numerator   = _numerator * rhs._denominator + _denominator * rhs._numerator;
+    _numerator   = (_numerator * rhs._denominator) + (_denominator * rhs._numerator);
     _denominator = _denominator * rhs._denominator;
     assert(_denominator != 0);
     reduce();
     return *this;
 }
 constexpr Rational& Rational::operator-=(Rational const& rhs) {
-    _numerator   = _numerator * rhs._denominator - _denominator * rhs._numerator;
+    _numerator   = (_numerator * rhs._denominator) - (_denominator * rhs._numerator);
     _denominator = _denominator * rhs._denominator;
     assert(_denominator != 0);
     reduce();

@@ -1,0 +1,67 @@
+qsyn> tableau -h
+Usage: tableau [-h] [list | new | delete | checkout | copy | append | adjoint | print | optimize] ...
+
+Description:
+  Tableau commands
+
+Options:
+  flag  -h, --help    show this help message 
+
+Subcommands:
+[list | new | delete | checkout | copy | append | adjoint | print | optimize]  
+    list      List all Tableaus                         
+    new       Create a new tableau                      
+    delete    Delete a Tableau from the list            
+    checkout  Checkout to Tableau with the ID specified 
+    copy      Copy a Tableau                            
+    append    Append a gate to a tableau                
+    adjoint   transform the tableau to its adjoint      
+    print     Print the tableau                         
+    optimize  Optimize the tableau                      
+
+qsyn> tableau o -h
+Usage: tableau optimize [-h] (full | collapse | tmerge | hopt | unify | reorder | test | phasepoly | matpar) ...
+
+Description:
+  Optimize the tableau
+
+Options:
+  flag  -h, --help    show this help message 
+
+Subcommands:
+(full | collapse | tmerge | hopt | unify | reorder | test | phasepoly | matpar)  
+    full       Perform tmerge, hopt, FastTODD until the T-count stops decreasing                                                                 
+    collapse   Collapse the tableau into a canonical form                                                                                        
+    tmerge     Merge rotations of the same rotation plane                                                                                        
+    hopt       Minimize the number of Hadamard gates and internal Hadamard gates in the tableau                                                  
+    unify      T-opt with H-gadgetize: gadgetize then FastTODD (no SMT reorder)                                                                  
+    reorder    SMT-based gadget/PR reordering for ancilla minimization; runs unify first if needed                                               
+    test       Run commute-text validation test and compare simulated PMC with ops section                                                       
+    phasepoly  Reduce the number of terms for phase polynomials in the Tableau                                                                   
+    matpar     partition the Pauli rotations into simultaneously-implementable tableaux. This option requires all Pauli rotations to be diagonal 
+
+qsyn> tie-search -h
+Usage: tie-search [-h] [--cycle [<size_t CYCLE>]] [--early-stop [<size_t EARLY-STOP>]] [-t-only | --t-only] ...
+
+Description:
+  runs the tie-search algorithm to co-optimize T and ancilla count. Measurement gates as well as ancilla will be added for optimization.
+
+Options:
+  flag    -h, --help                                           show this help message                                                                                                   
+  size_t  --cycle, -cycle                          CYCLE       Optional safety cap on total phase-2 shots (default: unlimited)                                                          
+  size_t  --early-stop, --early_stop, -early_stop  EARLY-STOP  Fixed tie-search patience override; all_random uses N/2 (default: dynamic max(60, ceil(2.5*A_min)) for the current best) 
+
+Subcommands:
+[-t-only | --t-only]  
+    -t-only   Minimize T-count only (skip SMT/ancilla). Tracks last T-reduction step. 
+    --t-only  Minimize T-count only (skip SMT/ancilla). Tracks last T-reduction step. 
+
+qsyn> tableau o re
+[error]    Tableau list is empty. Please create a Tableau first!!
+
+qsyn> tie-search
+[error]    QCir list is empty. Please create a QCir first!!
+[error]    tie-search requires QCir; run qc read first
+
+qsyn> quit -f
+

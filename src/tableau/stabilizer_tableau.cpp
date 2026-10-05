@@ -7,7 +7,10 @@
 
 #include "./stabilizer_tableau.hpp"
 
+#include <fmt/core.h>
+
 #include <ranges>
+#include <sstream>
 #include <sul/dynamic_bitset.hpp>
 #include <tl/adjacent.hpp>
 #include <tl/to.hpp>
@@ -851,6 +854,57 @@ synthesize_h_free_mr(StabilizerTableau tableau) {
     handle_negatives(tableau, ops);
 
     return adjoint(ops);
+}
+
+void print_clifford_operator_string(CliffordOperatorString const& operations) {
+    std::stringstream ss;
+    for (auto const& op : operations) {
+        auto const& [type, qubits] = op;
+        if (type == CliffordOperatorType::cx) {
+            ss << "cx q[" << qubits[0] << "], q[" << qubits[1] << "];\n";
+        } else if (type == CliffordOperatorType::s) {
+            ss << "s q[" << qubits[0] << "];\n";
+        } else if (type == CliffordOperatorType::sdg) {
+            ss << "sdg q[" << qubits[0] << "];\n";
+        } else if (type == CliffordOperatorType::x) {
+            ss << "x q[" << qubits[0] << "];\n";
+        } else if (type == CliffordOperatorType::y) {
+            ss << "y q[" << qubits[0] << "];\n";
+        } else if (type == CliffordOperatorType::z) {
+            ss << "z q[" << qubits[0] << "];\n";
+        } else {
+            ss << "Classical operation: not seen\n";
+        }
+    }
+    fmt::print("{}\n", ss.str());
+}
+
+size_t StabilizerTableau::add_ancilla_qubit() {
+    size_t new_qubit = n_qubits();
+    for (auto& stabilizer : _stabilizers) {
+        std::string extended_str = stabilizer.to_string();
+        extended_str += 'I';
+        stabilizer = PauliProduct(extended_str);
+    }
+    std::string z_stabilizer_str(n_qubits() + 1, 'I');
+    z_stabilizer_str[new_qubit] = 'Z';
+    _stabilizers.insert(_stabilizers.begin() + new_qubit, PauliProduct(z_stabilizer_str));
+    std::string x_destabilizer_str(n_qubits() + 1, 'I');
+    x_destabilizer_str[new_qubit] = 'X';
+    _stabilizers.emplace_back(PauliProduct(x_destabilizer_str));
+    return new_qubit;
+}
+
+void StabilizerTableau::remove_ancilla_qubit(size_t qubit) {
+    if (qubit >= n_qubits()) {
+        return;
+    }
+    for (auto& stabilizer : _stabilizers) {
+        stabilizer.remove_ancilla_qubit(qubit);
+    }
+    size_t destabilizer_pos = n_qubits() + qubit;
+    _stabilizers.erase(_stabilizers.begin() + destabilizer_pos, _stabilizers.begin() + destabilizer_pos + 1);
+    _stabilizers.erase(_stabilizers.begin() + qubit, _stabilizers.begin() + qubit + 1);
 }
 
 }  // namespace qsyn::tableau

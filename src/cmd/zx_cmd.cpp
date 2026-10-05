@@ -154,17 +154,17 @@ Command zxgraph_print_cmd(ZXGraphMgr const& zxgraph_mgr) {
                     fmt::println("{:<29} {}", "#T-gate:", t_count(*zxgraph_mgr.get()));
                     fmt::println("{:<29} {}", "#Non-(Clifford+T)-gate: ", non_clifford_t_count(*zxgraph_mgr.get()));
                     fmt::println("{:<29} {}", "#Non-Clifford-gate: ", non_clifford_count(*zxgraph_mgr.get()));
-                } else if (parser.parsed("--io"))
+                } else if (parser.parsed("--io")) {
                     zxgraph_mgr.get()->print_io();
-                else if (parser.parsed("--list"))
+                } else if (parser.parsed("--list")) {
                     zxgraph_mgr.print_list();
-                else if (parser.parsed("--inputs"))
+                } else if (parser.parsed("--inputs")) {
                     zxgraph_mgr.get()->print_inputs();
-                else if (parser.parsed("--outputs"))
+                } else if (parser.parsed("--outputs")) {
                     zxgraph_mgr.get()->print_outputs();
-                else if (parser.parsed("--gadgets"))
+                } else if (parser.parsed("--gadgets")) {
                     zxgraph_mgr.get()->print_gadgets();
-                else if (parser.parsed("--vertices")) {
+                } else if (parser.parsed("--vertices")) {
                     auto vids = parser.get<std::vector<size_t>>("--vertices");
                     if (vids.empty())
                         zxgraph_mgr.get()->print_vertices();

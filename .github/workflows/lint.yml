@@ -19,7 +19,7 @@ jobs:
       - name: run clang-format
         uses: DoozyX/clang-format-lint-action@v0.16.2
         with:
-          sources: "./src"
+          source: "./src"
           exclude: "./vendor ./tests"
           extensions: "h,cpp,hpp,tpp"
           clangFormatVersion: 16

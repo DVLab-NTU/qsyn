@@ -8,27 +8,47 @@
 
 #pragma once
 
-#include <tl/fold.hpp>
-#include <variant>
+#include <fmt/core.h>
+#include <fmt/format.h>
 
+#include <algorithm>
+#include <numeric>
+#include <optional>
+#include <ranges>
+#include <stdexcept>
+#include <tl/fold.hpp>
+#include <unordered_map>
+#include <unordered_set>
+#include <variant>
+#include <vector>
+
+#include "./classical_tableau.hpp"
+#include "./optimize/reorder_smt.hpp"
 #include "./stabilizer_tableau.hpp"
+#include "util/util.hpp"
 
 namespace qsyn {
 
 namespace tableau {
 
-using SubTableau = std::variant<StabilizerTableau, std::vector<PauliRotation>>;
+using SubTableau = std::variant<
+    StabilizerTableau,           // Clifford operations (non-conditional)
+    std::vector<PauliRotation>,  // Non-Clifford rotations
+    ClassicalControlTableau      // Classical control operations
+    >;
 
 class Tableau : public PauliProductTrait<Tableau> {
 public:
-    Tableau(size_t n_qubits) : _subtableaux{StabilizerTableau{n_qubits}}, _n_qubits{n_qubits} {}
+    Tableau(size_t n_qubits) : _subtableaux{StabilizerTableau{n_qubits}}, _n_qubits{n_qubits}, _n_ancilla{0} {}
     Tableau(std::initializer_list<SubTableau> subtableaux)
         : _subtableaux{subtableaux},
           _n_qubits(
               dvlab::match(
                   _subtableaux.front(),
                   [](StabilizerTableau const& st) { return st.n_qubits(); },
-                  [](std::vector<PauliRotation> const& pr) { return pr.front().n_qubits(); })) {}
+                  [](std::vector<PauliRotation> const& pr) { return pr.front().n_qubits(); },
+                  [](ClassicalControlTableau const& cct) { return cct.operations().n_qubits(); })),
+          _n_ancilla{0} {}
 
     auto begin() const {
         return _subtableaux.begin();
@@ -63,18 +83,67 @@ public:
     auto n_qubits() const {
         return _n_qubits;
     }
+    void set_n_qubits(size_t n_qubits) {
+        _n_qubits = n_qubits;
+    }
+    void set_n_ancilla(size_t n_ancilla) {
+        _n_ancilla = n_ancilla;
+    }
+
+    auto n_ancilla() const {
+        return _n_ancilla;
+    }
+
+    void set_export_ancilla_count(size_t count) {
+        _export_ancilla_count = count;
+    }
+    size_t export_ancilla_count() const {
+        return _export_ancilla_count.value_or(_n_ancilla);
+    }
+
+    void set_export_ancilla_depth(size_t depth) {
+        _export_ancilla_depth = depth;
+    }
+    size_t export_ancilla_depth() const {
+        return _export_ancilla_depth.value_or(_n_ancilla);
+    }
+
+    void set_export_classical_bit_count(size_t count) {
+        _export_classical_bit_count = count;
+    }
+    size_t export_classical_bit_count() const {
+        return _export_classical_bit_count.value_or(export_ancilla_count());
+    }
+
     auto n_cliffords() const {
-        return std::ranges::count_if(_subtableaux, [](auto const& subtableau) { return std::holds_alternative<StabilizerTableau>(subtableau); });
+        return std::count_if(_subtableaux.begin(), _subtableaux.end(), [](auto const& subtableau) { return std::holds_alternative<StabilizerTableau>(subtableau); });
     }
     auto n_pauli_rotations() const {
-        return tl::fold_left(_subtableaux, size_t{0}, [](size_t acc, auto const& subtableau) {
-            return acc + dvlab::match(
-                             subtableau,
-                             [](StabilizerTableau const&) { return 0ul; },
-                             [](std::vector<PauliRotation> const& rotations) {
-                                 return rotations.size();
-                             });
-        });
+        size_t count = 0;
+        for (auto const& subtableau : _subtableaux) {
+            count += dvlab::match(
+                subtableau,
+                [](StabilizerTableau const&) { return 0ul; },
+                [](std::vector<PauliRotation> const& rotations) {
+                    return rotations.size();
+                },
+                [](ClassicalControlTableau const&) { return 0ul; });
+        }
+        return count;
+    }
+
+    auto t_count() const {
+        size_t count = 0;
+        for (auto const& subtableau : _subtableaux) {
+            if (auto const* rotations = std::get_if<std::vector<PauliRotation>>(&subtableau)) {
+                for (auto const& rotation : *rotations) {
+                    if (rotation.phase().denominator() > 2) {
+                        ++count;
+                    }
+                }
+            }
+        }
+        return count;
     }
 
     auto is_empty() const {
@@ -95,7 +164,8 @@ public:
         return _subtableaux.erase(first, last);
     }
 
-    auto erase(std::ranges::range auto const& range) {
+    template <typename Range>
+    auto erase(Range const& range) {
         return _subtableaux.erase(range);
     }
 
@@ -117,6 +187,122 @@ public:
         return _subtableaux[idx];
     }
 
+    /**
+     * @brief Add an ancilla initial state to the tableau
+     *
+     * @param ancilla_index The index of the ancilla qubit
+     * @param state The initial state of the ancilla qubit
+     */
+    void add_ancilla_state(size_t ancilla_index, AncillaInitialState state) {
+        _ancilla_initial_states.push_back({ancilla_index, state});
+    }
+
+    /**
+     * @brief Get the vector of ancilla initial states (as pairs of <ancilla_index, state>)
+     *
+     * @return const reference to the vector of pairs
+     */
+    std::vector<std::pair<size_t, AncillaInitialState>> const& ancilla_initial_states() const {
+        return _ancilla_initial_states;
+    }
+
+    /** Clear ancilla initial states and measurement types (e.g. before rebuilding after degadgetization). */
+    void clear_ancilla_metadata() {
+        _ancilla_initial_states.clear();
+        _ancilla_measurement_types.clear();
+    }
+
+    // ── Per-ancilla measurement type ──────────────────────────────────────────
+    // Tracks which basis each ancilla is measured in (Z, X, or none).
+    // Initially none for every ancilla; set explicitly by the gadgetization pass.
+
+    /**
+     * @brief Set the measurement type for ancilla qubit `ancilla_index`.
+     *
+     * @param ancilla_index  index of the ancilla qubit
+     * @param mtype          Z, X, or none
+     */
+    void set_ancilla_measurement_type(size_t ancilla_index, MeasurementType mtype) {
+        _ancilla_measurement_types[ancilla_index] = mtype;
+    }
+
+    /**
+     * @brief Get the measurement type for ancilla qubit `ancilla_index`.
+     *        Returns MeasurementType::none if not explicitly set.
+     */
+    MeasurementType get_ancilla_measurement_type(size_t ancilla_index) const {
+        auto it = _ancilla_measurement_types.find(ancilla_index);
+        return it != _ancilla_measurement_types.end() ? it->second : MeasurementType::none;
+    }
+
+    std::unordered_map<size_t, MeasurementType> const& ancilla_measurement_types() const {
+        return _ancilla_measurement_types;
+    }
+
+    /**
+     * @brief Get the CCT pairing vector (ccc_index, pmc_index pairs)
+     *
+     * @return const reference to the pairing vector
+     */
+    std::vector<std::pair<size_t, size_t>> const& cct_pairing() const {
+        return _cct_pairing;
+    }
+
+    /**
+     * @brief Get the CCT pairing vector (ccc_index, pmc_index pairs)
+     *
+     * @return reference to the pairing vector
+     */
+    std::vector<std::pair<size_t, size_t>>& cct_pairing() {
+        return _cct_pairing;
+    }
+
+    /**
+     * @brief Set the CCT pairing vector
+     *
+     * @param pairing Vector of (ccc_index, pmc_index) pairs
+     */
+    void set_cct_pairing(std::vector<std::pair<size_t, size_t>> const& pairing) {
+        _cct_pairing = pairing;
+    }
+
+    /**
+     * @brief Clear the CCT pairing vector
+     */
+    void clear_cct_pairing() {
+        _cct_pairing.clear();
+    }
+
+    /**
+     * @brief Find the PMC index paired with a given CCC index
+     *
+     * @param ccc_index Index of the CCC in the tableau
+     * @return Optional PMC index if found, std::nullopt otherwise
+     */
+    std::optional<size_t> find_pmc_index(size_t ccc_index) const {
+        for (auto const& [ccc_idx, pmc_idx] : _cct_pairing) {
+            if (ccc_idx == ccc_index) {
+                return pmc_idx;
+            }
+        }
+        return std::nullopt;
+    }
+
+    /**
+     * @brief Find the CCC index paired with a given PMC index
+     *
+     * @param pmc_index Index of the PMC in the tableau
+     * @return Optional CCC index if found, std::nullopt otherwise
+     */
+    std::optional<size_t> find_ccc_index(size_t pmc_index) const {
+        for (auto const& [ccc_idx, pmc_idx] : _cct_pairing) {
+            if (pmc_idx == pmc_index) {
+                return ccc_idx;
+            }
+        }
+        return std::nullopt;
+    }
+
     Tableau& h(size_t qubit) noexcept override;
     Tableau& s(size_t qubit) noexcept override;
     Tableau& cx(size_t control, size_t target) noexcept override;
@@ -124,7 +310,29 @@ public:
 private:
     std::vector<SubTableau> _subtableaux;
     std::size_t _n_qubits;
+    std::size_t _n_ancilla;  // Number of ancilla qubits (last _n_ancilla qubits are ancillae)
+    std::vector<std::pair<size_t, AncillaInitialState>> _ancilla_initial_states;
+    std::unordered_map<size_t, MeasurementType> _ancilla_measurement_types;  // ancilla_index → Z/X/none
+    std::vector<std::pair<size_t, size_t>> _cct_pairing;                     // CCT pairing structure - stores (ccc_index, pmc_index) pairs
+    std::optional<size_t> _export_ancilla_count;
+    std::optional<size_t> _export_ancilla_depth;
+    std::optional<size_t> _export_classical_bit_count;
 };
+
+/** Sub-tableau indices for a matched Hadamard-gadget CCC/PMC pair. */
+struct GadgetPairIndices {
+    size_t gadget_index;
+    size_t pmc_index;
+};
+
+/** Find CCC/PMC indices for the gadget on ancilla_qubit (unique per pair). */
+[[nodiscard]] std::optional<GadgetPairIndices> find_gadget_pair(
+    std::vector<SubTableau> const& subtableaux,
+    size_t ancilla_qubit);
+
+[[nodiscard]] std::optional<GadgetPairIndices> find_gadget_pair(
+    Tableau const& tableau,
+    size_t ancilla_qubit);
 
 void adjoint_inplace(SubTableau& subtableau);
 [[nodiscard]] SubTableau adjoint(SubTableau const& subtableau);
@@ -140,26 +348,64 @@ struct fmt::formatter<qsyn::tableau::SubTableau> {
     char presentation = 'c';
     constexpr auto parse(format_parse_context& ctx) {
         auto it = ctx.begin(), end = ctx.end();
-        if (it != end && (*it == 'c' || *it == 'b')) presentation = *it++;
+        if (it != end && (*it == 'c' || *it == 'b' || *it == 'g')) presentation = *it++;
         if (it != end && *it != '}') detail::throw_format_error("invalid format");
         return it;
     }
 
     template <typename FormatContext>
     auto format(qsyn::tableau::SubTableau const& subtableau, FormatContext& ctx) const -> format_context::iterator {
-        // NOTE - cannot use run-time formatting to choose between 'c' and 'b'
+        // NOTE - cannot use run-time formatting to choose between 'c', 'b', and 'g'
         //        because the format function may be called in compile-time
         return std::visit(
-            dvlab::overloaded(
+            dvlab::overloaded{
                 [&](qsyn::tableau::StabilizerTableau const& st) -> format_context::iterator {
+                    if (presentation == 'g') {
+                        auto const ops = qsyn::tableau::extract_clifford_operators(
+                            st, qsyn::tableau::HOptSynthesisStrategy{qsyn::tableau::HOptSynthesisStrategy::Mode::staircase});
+                        return fmt::format_to(ctx.out(), "Clifford:\n{}", qsyn::tableau::clifford_ops_to_string(ops));
+                    }
                     return fmt::format_to(ctx.out(), "Clifford:\n{}\n", presentation == 'c' ? st.to_string() : st.to_bit_string());
                 },
                 [&](std::vector<qsyn::tableau::PauliRotation> const& pr) -> format_context::iterator {
-                    if (presentation == 'c')
+                    if (presentation == 'c') {
                         return fmt::format_to(ctx.out(), "Pauli Rotations:\n{:c}\n", fmt::join(pr, "\n"));
-                    else
-                        return fmt::format_to(ctx.out(), "Pauli Rotations:\n{:b}\n", fmt::join(pr, "\n"));
-                }),
+                    }
+                    return fmt::format_to(ctx.out(), "Pauli Rotations:\n{:b}\n", fmt::join(pr, "\n"));
+                },
+                [&](qsyn::tableau::ClassicalControlTableau const& cct) -> format_context::iterator {
+                    if (presentation == 'g') {
+                        auto const ops = qsyn::tableau::extract_clifford_operators(cct.operations());
+                        if (cct.is_gadget()) {
+                            auto result = fmt::format_to(
+                                ctx.out(),
+                                "Gadget (ancilla qubit[{}], reference qubit[{}]):\n",
+                                cct.ancilla_qubit(),
+                                cct.reference_qubit());
+                            return fmt::format_to(result, "  Operations:\n{}", qsyn::tableau::clifford_ops_to_string(ops));
+                        }
+                        auto result = fmt::format_to(
+                            ctx.out(), "Classical Control (ancilla qubit[{}] controls):\n", cct.ancilla_qubit());
+                        return fmt::format_to(result, "  Operations:\n{}", qsyn::tableau::clifford_ops_to_string(ops));
+                    }
+                    if (cct.is_gadget()) {
+                        auto result = fmt::format_to(
+                            ctx.out(),
+                            "Gadget (ancilla qubit[{}], reference qubit[{}]):\n",
+                            cct.ancilla_qubit(),
+                            cct.reference_qubit());
+                        result = fmt::format_to(result, "  Operations:\n");
+                        result = fmt::format_to(result, "  {}\n",
+                                                presentation == 'c' ? cct.operations().to_string() : cct.operations().to_bit_string());
+                        return result;
+                    }
+                    auto result =
+                        fmt::format_to(ctx.out(), "Classical Control (ancilla qubit[{}] controls):\n", cct.ancilla_qubit());
+                    result = fmt::format_to(result, "  Operations:\n");
+                    result = fmt::format_to(result, "  {}\n",
+                                            presentation == 'c' ? cct.operations().to_string() : cct.operations().to_bit_string());
+                    return result;
+                }},
             subtableau);
     }
 };
@@ -169,15 +415,25 @@ struct fmt::formatter<qsyn::tableau::Tableau> {
     char presentation = 'c';
     constexpr auto parse(format_parse_context& ctx) {
         auto it = ctx.begin(), end = ctx.end();
-        if (it != end && (*it == 'c' || *it == 'b')) presentation = *it++;
+        if (it != end && (*it == 'c' || *it == 'b' || *it == 'g')) presentation = *it++;
         if (it != end && *it != '}') detail::throw_format_error("invalid format");
         return it;
     }
 
     template <typename FormatContext>
     auto format(qsyn::tableau::Tableau const& tableau, FormatContext& ctx) const {
-        return presentation == 'c'
-                   ? fmt::format_to(ctx.out(), "{:c}", fmt::join(tableau, "\n"))
-                   : fmt::format_to(ctx.out(), "{:b}", fmt::join(tableau, "\n"));
+        auto out   = ctx.out();
+        bool first = true;
+        for (auto const& subtableau : tableau) {
+            if (!first) out = fmt::format_to(out, "\n");
+            first = false;
+            if (presentation == 'g')
+                out = fmt::format_to(out, "{:g}", subtableau);
+            else if (presentation == 'c')
+                out = fmt::format_to(out, "{:c}", subtableau);
+            else
+                out = fmt::format_to(out, "{:b}", subtableau);
+        }
+        return out;
     }
 };

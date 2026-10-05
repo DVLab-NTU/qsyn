@@ -7,6 +7,7 @@
 
 #include <spdlog/spdlog.h>
 
+#include <optional>
 #include <string>
 
 #include "argparse/arg_type.hpp"
@@ -77,10 +78,11 @@ Command qcir_optimize_cmd(QCirMgr& qcir_mgr) {
                 };
 
                 auto strategy = [&]() -> Strategy {
-                    if (dvlab::str::is_prefix_of(parser.get<std::string>("strategy"), "teleport")) {
+                    auto const& s = parser.get<std::string>("strategy");
+                    if (dvlab::str::is_prefix_of(s, "teleport")) {
                         return Strategy::teleport;
                     }
-                    if (dvlab::str::is_prefix_of(parser.get<std::string>("strategy"), "blaqsmith")) {
+                    if (dvlab::str::is_prefix_of(s, "blaqsmith")) {
                         return Strategy::blaqsmith;
                     }
                     return Strategy::basic;

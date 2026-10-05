@@ -11,6 +11,7 @@
 #include <fstream>
 #include <string>
 
+#include "./basic_gate_type.hpp"
 #include "./operation.hpp"
 #include "./qcir.hpp"
 #include "./qcir_gate.hpp"
@@ -101,10 +102,68 @@ std::string to_qasm(QCir const& qcir) {
     qasm += "include \"qelib1.inc\";\n";
     qasm += fmt::format("qreg q[{}];\n", qcir.get_num_qubits());
 
+    // Add classical register if there are classical bits
+    if (qcir.get_num_classical_bits() > 0) {
+        qasm += fmt::format("creg c[{}];\n", qcir.get_num_classical_bits());
+    }
+
+    // Emit state preparation gates for qubits with non-|0⟩ initial states.
+    // QASM always starts from |0⟩, so we encode other states as gates.
+    for (size_t i = 0; i < qcir.get_num_qubits(); ++i) {
+        switch (qcir.get_initial_state(i)) {
+            case QubitInitialState::zero:
+                break;  // default — no gate needed
+            case QubitInitialState::one:
+                qasm += fmt::format("x q[{}];\n", i);
+                break;
+            case QubitInitialState::plus:
+                qasm += fmt::format("h q[{}];\n", i);
+                break;
+            case QubitInitialState::minus:
+                // |−⟩ = H·X|0⟩ : apply X first, then H
+                qasm += fmt::format("x q[{}];\n", i);
+                qasm += fmt::format("h q[{}];\n", i);
+                break;
+        }
+    }
+
     for (auto const* gate : qcir.get_gates()) {
         using namespace std::literals;
         auto const qubits = gate->get_qubits();
         auto repr         = gate->get_operation().get_repr();
+
+        // Handle measurement gates — emit basis-appropriate QASM.
+        // X-basis: prefix with an H gate so the qubit is rotated before
+        // the standard Z-basis measurement instruction.
+        if (auto const meas = gate->get_operation().get_underlying_if<MeasurementGate>()) {
+            auto const cbit = gate->has_classical_bits() && !gate->get_classical_bits().empty()
+                                  ? gate->get_classical_bits()[0]
+                                  : qubits[0];  // fallback: use qubit index
+            if (meas->is_x_basis()) {
+                qasm += fmt::format("h q[{}];\n", qubits[0]);
+            }
+            qasm += fmt::format("measure q[{}] -> c[{}];\n", qubits[0], cbit);
+            continue;
+        }
+
+        // Handle reset gates.
+        if (gate->get_operation().get_type() == "reset") {
+            qasm += fmt::format("reset q[{}];\n", qubits[0]);
+            continue;
+        }
+
+        // Handle if-else gates independently
+        if (repr.find("if") == 0) {
+            // If-else gates need qubit targets appended
+            std::string qubit_str;
+            for (size_t i = 0; i < qubits.size(); ++i) {
+                if (i > 0) qubit_str += ", ";
+                qubit_str += fmt::format("q[{}]", qubits[i]);
+            }
+            qasm += fmt::format("{} {};\n", repr, qubit_str);
+            continue;
+        }
+
         // if encountering "π", replace it with "pi"
         size_t pos = 0;
         while ((pos = repr.find("π"s, pos)) != std::string::npos) {
@@ -115,9 +174,13 @@ std::string to_qasm(QCir const& qcir) {
             }
         }
 
-        qasm += fmt::format("{} {};\n",
-                            repr,
-                            fmt::join(qubits | std::views::transform([](auto pin) { return fmt::format("q[{}]", pin); }), ", "));
+        // Build qubit string manually to avoid fmt::join view issues
+        std::string qubit_str;
+        for (size_t i = 0; i < qubits.size(); ++i) {
+            if (i > 0) qubit_str += ", ";
+            qubit_str += fmt::format("q[{}]", qubits[i]);
+        }
+        qasm += fmt::format("{} {};\n", repr, qubit_str);
     }
     return qasm;
 }

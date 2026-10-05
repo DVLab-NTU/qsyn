@@ -7,6 +7,8 @@
 
 #pragma once
 
+#include <fmt/format.h>
+
 #include "./operation.hpp"
 #include "./qcir.hpp"
 
@@ -278,8 +280,82 @@ inline bool is_single_qubit_pauli(Operation const& op) {
     return op == XGate() || op == YGate() || op == ZGate();
 }
 
-template <>
-inline std::optional<QCir> to_basic_gates(ControlGate const& op) {
+inline void append_cc_pauli_plane_flip(QCir& qcir, Operation const& target_op) {
+    if (target_op == XGate()) {
+        qcir.append(HGate(), {2});
+    } else if (target_op == YGate()) {
+        qcir.append(SXGate(), {2});
+    }
+}
+
+inline void append_cc_pauli_plane_unflip(QCir& qcir, Operation const& target_op) {
+    if (target_op == XGate()) {
+        qcir.append(HGate(), {2});
+    } else if (target_op == YGate()) {
+        qcir.append(SXdgGate(), {2});
+    }
+}
+
+inline void append_cc_pauli_core_cpp(QCir& qcir, Operation const& target_op) {
+    if (target_op == YGate()) {
+        // CCY: phase-polynomial CCZ core (no alternate TODD CCY path)
+        qcir.append(TGate(), {2});
+        qcir.append(CXGate(), {1, 2});
+        qcir.append(TdgGate(), {2});
+        qcir.append(CXGate(), {0, 2});
+        qcir.append(TGate(), {2});
+        qcir.append(CXGate(), {1, 2});
+        qcir.append(TdgGate(), {2});
+        qcir.append(TGate(), {1});
+        qcir.append(CXGate(), {0, 1});
+        qcir.append(TGate(), {0});
+        qcir.append(TdgGate(), {1});
+        qcir.append(CXGate(), {0, 1});
+        return;
+    }
+    // CCZ / CCX: C++ phase-polynomial decomposition (T on target qubit)
+    qcir.append(TGate(), {2});
+    qcir.append(CXGate(), {1, 2});
+    qcir.append(TdgGate(), {2});
+    qcir.append(CXGate(), {0, 2});
+    qcir.append(TGate(), {2});
+    qcir.append(CXGate(), {1, 2});
+    qcir.append(TdgGate(), {2});
+    qcir.append(TGate(), {1});
+    qcir.append(CXGate(), {0, 1});
+    qcir.append(TGate(), {0});
+    qcir.append(TdgGate(), {1});
+    qcir.append(CXGate(), {0, 1});
+}
+
+inline void append_cc_pauli_core_rust(QCir& qcir, Operation const& target_op) {
+    if (target_op == YGate()) {
+        append_cc_pauli_core_cpp(qcir, target_op);
+        return;
+    }
+    // CCZ / CCX: TODD-style decompose_tof layout (inline C++)
+    qcir.append(TGate(), {0});
+    qcir.append(TGate(), {1});
+    qcir.append(TGate(), {2});
+    qcir.append(CXGate(), {1, 0});
+    qcir.append(XGate(), {0});
+    qcir.append(TGate(), {0});
+    qcir.append(XGate(), {0});
+    qcir.append(CXGate(), {2, 0});
+    qcir.append(TGate(), {0});
+    qcir.append(CXGate(), {1, 0});
+    qcir.append(XGate(), {0});
+    qcir.append(TGate(), {0});
+    qcir.append(XGate(), {0});
+    qcir.append(CXGate(), {2, 0});
+    qcir.append(CXGate(), {2, 1});
+    qcir.append(XGate(), {1});
+    qcir.append(TGate(), {1});
+    qcir.append(XGate(), {1});
+    qcir.append(CXGate(), {2, 1});
+}
+
+inline std::optional<QCir> to_basic_gates(ControlGate const& op, CcDecomposition cc_method) {
     if (is_clifford(op)) {
         return as_qcir(op);
     }
@@ -292,35 +368,22 @@ inline std::optional<QCir> to_basic_gates(ControlGate const& op) {
     }
 
     QCir qcir{op.get_num_qubits()};
-    // flip the target to the Z rotation plane
-    if (target_op == XGate()) {
-        qcir.append(HGate(), {2});
-    } else if (target_op == YGate()) {
-        qcir.append(SXGate(), {2});
-    }
-    // optimal decomposition of CCZ
-    qcir.append(CXGate(), {1, 2});  // qubit 2: IIZ -> IZZ
-    qcir.append(TdgGate(), {2});    // R_IZZ(-pi/4)
-    qcir.append(CXGate(), {0, 2});  // qubit 2: IZZ -> ZZZ
-    qcir.append(TGate(), {2});      // R_ZZZ(pi/4)
-    qcir.append(CXGate(), {1, 2});  // qubit 2: ZZZ -> ZIZ
-    qcir.append(TdgGate(), {2});    // R_ZIZ(-pi/4)
-    qcir.append(TGate(), {1});      // R_IZI(pi/4)
-    qcir.append(CXGate(), {0, 2});  // qubit 2: IZZ -> ZZZ
-    qcir.append(TGate(), {2});      // R_IIZ(pi/4)
-    qcir.append(CXGate(), {0, 1});  // qubit 1: IZI -> ZZI
-    qcir.append(TGate(), {0});      // R_ZII(pi/4)
-    qcir.append(TdgGate(), {1});    // R_ZZI(-pi/4)
-    qcir.append(CXGate(), {0, 1});  // qubit 1: ZZI -> IZI
+    append_cc_pauli_plane_flip(qcir, target_op);
 
-    // flip the rotation plane back
-    if (target_op == XGate()) {
-        qcir.append(HGate(), {2});
-    } else if (target_op == YGate()) {
-        qcir.append(SXdgGate(), {2});
+    if (cc_method == CcDecomposition::Cpp) {
+        append_cc_pauli_core_cpp(qcir, target_op);
+    } else {
+        append_cc_pauli_core_rust(qcir, target_op);
     }
+
+    append_cc_pauli_plane_unflip(qcir, target_op);
 
     return qcir;
+}
+
+template <>
+inline std::optional<QCir> to_basic_gates(ControlGate const& op) {
+    return to_basic_gates(op, CcDecomposition::Cpp);
 }
 
 class SwapGate {
@@ -341,6 +404,180 @@ inline std::optional<QCir> to_basic_gates(SwapGate const& /* op */) {
     qcir.append(CXGate(), {1, 0});
     qcir.append(CXGate(), {0, 1});
     return qcir;
+}
+
+class UGate {
+public:
+    UGate(dvlab::Phase theta, dvlab::Phase phi, dvlab::Phase lambda)
+        : _theta(theta), _phi(phi), _lambda(lambda) {}
+    std::string get_type() const { return "u"; }
+    std::string get_repr() const {
+        return fmt::format("U({} {} {})", _theta.get_print_string(),
+                           _phi.get_print_string(), _lambda.get_print_string());
+    }
+
+    size_t get_num_qubits() const { return 1; }
+    auto get_theta() const { return _theta; }
+    auto get_phi() const { return _phi; }
+    auto get_lambda() const { return _lambda; }
+
+    void set_theta(dvlab::Phase theta) { _theta = theta; }
+    void set_phi(dvlab::Phase phi) { _phi = phi; }
+    void set_lambda(dvlab::Phase lambda) { _lambda = lambda; }
+
+private:
+    Operation _op;
+    dvlab::Phase _theta;
+    dvlab::Phase _phi;
+    dvlab::Phase _lambda;
+};
+
+/**
+ * @brief Basis in which a qubit is measured.
+ *
+ * Z — standard computational-basis (|0⟩/|1⟩) measurement.
+ *     Written to QASM as:  measure q[i] -> c[j];
+ * X — Hadamard-basis (|+⟩/|−⟩) measurement.
+ *     Written to QASM as:  h q[i];  measure q[i] -> c[j];
+ *     When reading QASM the default is always Z.
+ */
+enum class MeasurementBasis { Z,
+                              X };
+
+class ResetGate {
+public:
+    ResetGate() = default;
+    std::string get_type() const { return "reset"; }
+    std::string get_repr() const { return "reset"; }
+    size_t get_num_qubits() const { return 1; }
+};
+
+class MeasurementGate {
+public:
+    MeasurementGate() : _basis(MeasurementBasis::Z) {}
+    explicit MeasurementGate(MeasurementBasis basis) : _basis(basis) {}
+
+    std::string get_type() const { return "measure"; }
+    std::string get_repr() const { return "measure"; }
+    size_t get_num_qubits() const { return 1; }
+
+    MeasurementBasis get_basis() const { return _basis; }
+    bool is_x_basis() const { return _basis == MeasurementBasis::X; }
+    bool is_z_basis() const { return _basis == MeasurementBasis::Z; }
+
+private:
+    MeasurementBasis _basis;
+};
+
+inline Operation adjoint(UGate const& op) {
+    return UGate(-op.get_lambda(), -op.get_phi(), -op.get_theta());
+}
+
+inline bool is_clifford(UGate const& op) {
+    return op.get_theta().denominator() <= 2 &&
+           op.get_phi().denominator() <= 2 &&
+           op.get_lambda().denominator() <= 2;
+}
+
+// Measurement gate functions
+inline Operation adjoint(MeasurementGate const& /* op */) {
+    // Measurement is not reversible, so adjoint is not defined
+    // Return identity as a placeholder
+    return IdGate();
+}
+
+inline bool is_clifford(MeasurementGate const& /* op */) {
+    // Measurement is not a Clifford gate
+    return false;
+}
+
+inline Operation adjoint(ResetGate const& /* op */) {
+    // Reset is non-unitary; return identity placeholder.
+    return IdGate();
+}
+
+inline bool is_clifford(ResetGate const& /* op */) {
+    // Reset is not a Clifford gate.
+    return false;
+}
+
+inline std::optional<QCir> to_basic_gates(UGate const& op) {
+    // Create a new circuit with 1 qubit
+    QCir circuit(1);
+
+    // Add gates in reverse order (since they're applied from right to left in matrix multiplication)
+    circuit.append(RZGate(op.get_lambda()), {0});  // RZ(λ)
+    circuit.append(RYGate(op.get_theta()), {0});   // RY(θ)
+    circuit.append(RZGate(op.get_phi()), {0});     // RZ(φ)
+    return circuit;
+}
+
+inline std::optional<QCir> to_basic_gates(MeasurementGate const& /* op */) {
+    // Measurement cannot be decomposed into basic gates
+    // It's a non-unitary operation that collapses the quantum state
+    return std::nullopt;
+}
+
+inline std::optional<QCir> to_basic_gates(ResetGate const& /* op */) {
+    // Reset cannot be decomposed into unitary basic gates.
+    return std::nullopt;
+}
+
+/**
+ * @brief If-else gate that conditionally applies an operation based on classical bit value
+ *
+ * Two types:
+ * 1. Single classical bit: if(c[0]==1) {operation} - checks one specific bit
+ * 2. All classical bits: if(c==5) {operation} - checks all bits as combined value
+ */
+class IfElseGate {
+public:
+    // Constructor for single classical bit
+    IfElseGate(Operation const& operation, ClassicalBitIdType classical_bit, size_t classical_value)
+        : _operation(operation), _classical_bit(classical_bit), _classical_value(classical_value), _check_all_bits(false) {}
+
+    // Constructor for all classical bits
+    IfElseGate(Operation const& operation, size_t classical_value)
+        : _operation(operation), _classical_bit(0), _classical_value(classical_value), _check_all_bits(true) {}
+
+    std::string get_type() const { return "if_else"; }
+    std::string get_repr() const {
+        if (_check_all_bits) {
+            return fmt::format("if(c=={}) {}", _classical_value, _operation.get_repr());
+        } else {
+            return fmt::format("if(c[{}]=={}) {}", _classical_bit, _classical_value, _operation.get_repr());
+        }
+    }
+    size_t get_num_qubits() const { return _operation.get_num_qubits(); }
+
+    Operation const& get_operation() const { return _operation; }
+    ClassicalBitIdType get_classical_bit() const { return _classical_bit; }
+    size_t get_classical_value() const { return _classical_value; }
+    bool checks_all_bits() const { return _check_all_bits; }
+
+private:
+    Operation _operation;
+    ClassicalBitIdType _classical_bit;
+    size_t _classical_value;
+    bool _check_all_bits;  // true for if(c==value), false for if(c[bit]==value)
+};
+
+inline Operation adjoint(IfElseGate const& op) {
+    if (op.checks_all_bits()) {
+        return IfElseGate(adjoint(op.get_operation()), op.get_classical_value());
+    } else {
+        return IfElseGate(adjoint(op.get_operation()), op.get_classical_bit(), op.get_classical_value());
+    }
+}
+
+inline bool is_clifford(IfElseGate const& op) {
+    return is_clifford(op.get_operation());
+}
+
+inline std::optional<QCir> to_basic_gates(IfElseGate const& /* op */) {
+    // If-else gates cannot be decomposed into basic gates
+    // They represent control flow that depends on classical bit values
+    return std::nullopt;
 }
 
 }  // namespace qsyn::qcir

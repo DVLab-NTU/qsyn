@@ -1,8 +1,7 @@
 UNAME_S := $(shell uname -s)
 
-# On MacOS, the default compiler is clang
+# Platform defaults for compiler (used when CC/CXX not set by environment)
 ifeq ($(UNAME_S), Darwin)
-# Override CC if it is set to the default 'cc'
 	ifeq ($(origin CC), default)
 		CC := $(shell which clang)
 	endif
@@ -16,6 +15,11 @@ else
 	ifeq ($(origin CXX), default)
 		CXX := $(shell which g++)
 	endif
+endif
+
+# Optional local overrides (CC, CXX, etc.): included only if .env.local exists
+ifneq (,$(wildcard .env.local))
+	include .env.local
 endif
 
 ECHO := $(shell which echo) -e
@@ -32,13 +36,15 @@ ensure-gridsynth-deps:
 .PHONY: ensure-gridsynth-deps
 
 configure:
+	@$(ECHO) "cmake -S . -B $(RELEASE_DIR) --log-level=NOTICE -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=$(CC) -DCMAKE_CXX_COMPILER=$(CXX)"
 	@mkdir -p $(RELEASE_DIR)
 	@cmake -S . -B $(RELEASE_DIR) \
 	--log-level=NOTICE \
 	-DCMAKE_EXPORT_COMPILE_COMMANDS=1 \
 	-DCMAKE_BUILD_TYPE=Release \
 	-DCMAKE_C_COMPILER=$(CC) \
-	-DCMAKE_CXX_COMPILER=$(CXX)
+	-DCMAKE_CXX_COMPILER=$(CXX) \
+	-DCMAKE_POLICY_VERSION_MINIMUM=3.5
 .PHONY: configure
 
 configure-debug:

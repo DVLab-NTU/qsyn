@@ -57,7 +57,7 @@ ZXVertexList GFlow::get_z_correction_set(ZXVertex* v) const {
  * @brief Initialize the gflow calculator
  *
  */
-void GFlow::_initialize() {
+void GFlow::_initialize() {  // NOLINT(readability-make-member-function-const) modifies member state
     _levels.clear();
     _x_correction_sets.clear();
     _measurement_planes.clear();

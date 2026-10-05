@@ -24,6 +24,25 @@ namespace qsyn {
 
 namespace tableau {
 
+/**
+ * @brief Enumeration for ancilla qubit initial states
+ */
+enum class AncillaInitialState {
+    ZERO  = 0,  // |0⟩ state (default, no gate needed)
+    ONE   = 1,  // |1⟩ state (requires X gate)
+    PLUS  = 2,  // |+⟩ state (requires H gate)
+    MINUS = 3   // |-⟩ state (requires H then X gate)
+};
+
+/**
+ * @brief Measurement basis enum for ancilla qubits.
+ */
+enum class MeasurementType {
+    none,
+    Z,
+    X
+};
+
 enum class Pauli : std::uint8_t {
     i,
     x,
@@ -249,6 +268,9 @@ public:
         return std::ranges::all_of(std::views::iota(0ul, n_qubits()), [this](size_t i) { return is_i(i); });
     }
 
+    size_t add_ancilla_qubit();
+    void remove_ancilla_qubit(size_t qubit);
+
 private:
     sul::dynamic_bitset<> _bitset;
 
@@ -291,7 +313,7 @@ public:
     dvlab::Phase& phase() { return _phase; }
 
     bool operator==(PauliRotation const& rhs) const {
-        return _pauli_product == rhs._pauli_product && _phase == rhs._phase;
+        return _pauli_product == rhs._pauli_product && _phase == rhs._phase && _is_cz == rhs._is_cz;
     }
     bool operator!=(PauliRotation const& rhs) const { return !(*this == rhs); }
 
@@ -308,9 +330,26 @@ public:
 
     bool is_diagonal() const { return _pauli_product.is_diagonal(); }
 
+    bool is_CZ() const { return _is_cz; }
+    void set_is_CZ(bool value) { _is_cz = value; }
+
+    /** @brief Build a linear (single-qubit Z) Pauli column: Z on \p qubit, others I, with \p phase. */
+    static PauliRotation make_linear(size_t n_qubits, size_t qubit, dvlab::Phase const& phase);
+
+    /** @brief Build a CZ column: Z on \p a and \p b, phase 0, is_CZ = true. */
+    static PauliRotation make_CZ(size_t n_qubits, size_t a, size_t b);
+
+    size_t add_ancilla_qubit() {
+        return _pauli_product.add_ancilla_qubit();
+    }
+    void remove_ancilla_qubit(size_t qubit) {
+        _pauli_product.remove_ancilla_qubit(qubit);
+    }
+
 private:
     PauliProduct _pauli_product;
     dvlab::Phase _phase;
+    bool _is_cz = false;
 
     void _normalize() {
         if (_pauli_product.is_neg()) {

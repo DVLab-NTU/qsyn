@@ -10,6 +10,7 @@
 #include <ranges>
 #include <tl/adjacent.hpp>
 #include <tl/to.hpp>
+#include <vector>
 
 #include "util/boolean_matrix.hpp"
 #include "util/dvlab_string.hpp"
@@ -246,11 +247,18 @@ PauliRotation::PauliRotation(std::string_view pauli_str, dvlab::Phase const& pha
     : _pauli_product(pauli_str), _phase(phase) { _normalize(); }
 
 std::string PauliRotation::to_string(char signedness) const {
+    if (_is_cz) {
+        return fmt::format("CZ * {}", _pauli_product.to_string(signedness));
+    }
     return fmt::format("exp(i * {} * {})", _phase.get_print_string(), _pauli_product.to_string(signedness));
 }
 
 std::string PauliRotation::to_bit_string() const {
-    return fmt::format("{} {}", _pauli_product.to_bit_string().substr(0, 2 * n_qubits() + 1), _phase.get_print_string());
+    auto const pauli_part = _pauli_product.to_bit_string().substr(0, 2 * n_qubits() + 1);
+    if (_is_cz) {
+        return fmt::format("{} CZ", pauli_part);
+    }
+    return fmt::format("{} {}", pauli_part, _phase.get_print_string());
 }
 
 PauliRotation& PauliRotation::h(size_t qubit) noexcept {
@@ -269,6 +277,21 @@ PauliRotation& PauliRotation::cx(size_t control, size_t target) noexcept {
     _pauli_product.cx(control, target);
     _normalize();
     return *this;
+}
+
+PauliRotation PauliRotation::make_linear(size_t n_qubits, size_t qubit, dvlab::Phase const& phase) {
+    auto pauli_vec   = std::vector<Pauli>(n_qubits, Pauli::i);
+    pauli_vec[qubit] = Pauli::z;
+    return PauliRotation(pauli_vec, phase);
+}
+
+PauliRotation PauliRotation::make_CZ(size_t n_qubits, size_t a, size_t b) {
+    auto pauli_vec = std::vector<Pauli>(n_qubits, Pauli::i);
+    pauli_vec[a]   = Pauli::z;
+    pauli_vec[b]   = Pauli::z;
+    auto rotation  = PauliRotation(pauli_vec, dvlab::Phase(0));
+    rotation.set_is_CZ(true);
+    return rotation;
 }
 
 std::pair<CliffordOperatorString, size_t> extract_clifford_operators(PauliRotation pauli_rotation) {
@@ -309,6 +332,39 @@ size_t matrix_rank(std::vector<PauliRotation> const& rotations) {
 
     return matrix.matrix_rank();
 };
+
+/**
+ * @brief Add an ancilla qubit to the PauliProduct
+ * @return the index of the newly added ancilla qubit
+ */
+size_t PauliProduct::add_ancilla_qubit() {
+    size_t new_qubit = n_qubits();
+    size_t old_size  = _bitset.size();
+    _bitset.resize(old_size + 2);
+    _bitset[old_size + 1] = _bitset[old_size - 1];
+    _bitset[old_size - 1] = false;
+    return new_qubit;
+}
+
+/**
+ * @brief Remove the ith qubit from the PauliProduct
+ * @param qubit The index of the qubit to remove
+ */
+void PauliProduct::remove_ancilla_qubit(size_t qubit) {
+    if (qubit >= n_qubits()) {
+        return;
+    }
+
+    size_t x_idx = qubit + n_qubits();
+
+    for (size_t i = qubit; i < x_idx - 1; ++i) {
+        _bitset[i] = _bitset[i + 1];
+    }
+    for (size_t i = x_idx - 1; i < 2 * n_qubits() - 1; ++i) {
+        _bitset[i] = _bitset[i + 2];
+    }
+    _bitset.resize(2 * (n_qubits() - 1) + 1);
+}
 
 }  // namespace tableau
 

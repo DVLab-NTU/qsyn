@@ -20,6 +20,9 @@ std::optional<Operation> str_to_basic_operation(std::string str, std::vector<dvl
         if (str == "h") return HGate();
         if (str == "swap") return SwapGate();
         if (str == "ecr") return ECRGate();
+        if (str == "reset") return ResetGate();
+        if (str == "measure" || str == "m") return MeasurementGate();
+        if (str == "if_else" || str == "if") return IfElseGate(IdGate(), 0, 0);  // Placeholder
 
         if (str == "z") return ZGate();
         if (str == "s") return SGate();
@@ -40,12 +43,18 @@ std::optional<Operation> str_to_basic_operation(std::string str, std::vector<dvl
         if (str == "tydg") return TYdgGate();
     }
     if (params.size() == 1) {
-        if (str == "p" || str == "pz") return PZGate(params[0]);
+        if (str == "p" || str == "pz" || str == "u1" || str == "U1") return PZGate(params[0]);
         if (str == "px") return PXGate(params[0]);
         if (str == "py") return PYGate(params[0]);
         if (str == "rz") return RZGate(params[0]);
         if (str == "rx") return RXGate(params[0]);
         if (str == "ry") return RYGate(params[0]);
+    }
+    if (params.size() == 2) {
+        if (str == "u2" || str == "U2") return UGate(dvlab::Phase(1, 2), params[0], params[1]);
+    }
+    if (params.size() == 3) {
+        if (str == "u3" || str == "U" || str == "U3" || str == "u") return UGate(params[0], params[1], params[2]);
     }
 
     return std::nullopt;
@@ -54,6 +63,11 @@ std::optional<Operation> str_to_basic_operation(std::string str, std::vector<dvl
 
 std::optional<Operation> str_to_operation(std::string str, std::vector<dvlab::Phase> const& params) {
     str = dvlab::str::tolower_string(str);
+
+    // Handle measurement operations
+    if (str == "measure" || str == "m") {
+        return MeasurementGate();
+    }
 
     auto const n_ctrls = str.find_first_not_of('c');
     str                = str.substr(n_ctrls);

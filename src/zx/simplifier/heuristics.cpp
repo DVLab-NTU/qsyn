@@ -141,7 +141,7 @@ long calculate_2q_decrease(LCompUnfusion const& rule, ZXGraph const& g) {
         // unfusion
         - 2 * gsl::narrow<long>(num_unfusions);
 
-    auto const v_decrease = 1l - 2 * num_unfusions;
+    auto const v_decrease = 1l - (2 * num_unfusions);
 
     return e_decrease - v_decrease;
 }
@@ -204,9 +204,9 @@ long calculate_2q_decrease(PivotUnfusion const& rule, ZXGraph const& g) {
     // clang-format on
     auto const num_common_neighbors = common_neighbors.size();
 
-    auto const max_new_edges = num_v1_neighbors * num_v2_neighbors +
-                               num_v1_neighbors * num_common_neighbors +
-                               num_v2_neighbors * num_common_neighbors;
+    auto const max_new_edges = (num_v1_neighbors * num_v2_neighbors) +
+                               (num_v1_neighbors * num_common_neighbors) +
+                               (num_v2_neighbors * num_common_neighbors);
 
     auto const e_decrease =
         // complementation of pivot

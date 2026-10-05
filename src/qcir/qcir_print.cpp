@@ -20,6 +20,31 @@
 
 namespace qsyn::qcir {
 
+namespace {
+
+std::string format_classical_bits_suffix(size_t classical_count) {
+    if (classical_count == 0) {
+        return {};
+    }
+    return fmt::format(", {} classical bits", classical_count);
+}
+
+std::string format_ancilla_depth_suffix(size_t width) {
+    if (width == 0) {
+        return {};
+    }
+    return fmt::format(", ancilla depth : {}", width);
+}
+
+std::string format_measurement_gates_suffix(size_t measurement_gates) {
+    if (measurement_gates == 0) {
+        return {};
+    }
+    return fmt::format(", {} measurement gates", measurement_gates);
+}
+
+}  // namespace
+
 /**
  * @brief Print QCir Gates
  */
@@ -107,7 +132,14 @@ void QCir::print_gates(bool print_neighbors, std::span<size_t> gate_ids) const {
  * @brief Print QCir
  */
 void QCir::print_qcir() const {
-    fmt::println("QCir ({} qubits, {} gates)", get_num_qubits(), get_num_gates());
+    size_t const classical_count = get_num_classical_bits();
+    size_t const width           = export_schedule_width().value_or(0);
+    fmt::println(
+        "QCir ({} qubits{}{}, {} gates)",
+        get_num_qubits(),
+        format_classical_bits_suffix(classical_count),
+        format_ancilla_depth_suffix(width),
+        get_num_gates());
 }
 
 /**
@@ -172,10 +204,26 @@ void QCir::print_circuit_diagram(spdlog::level::level_enum lvl) const {
 
 void QCir::print_qcir_info() const {
     auto stat = get_gate_statistics(*this);
+
+    // Count measurement gates
+    size_t measurement_gates = 0;
+    if (stat.contains("measure")) {
+        measurement_gates = stat.at("measure");
+    }
+
+    size_t const classical_count = get_num_classical_bits();
+    size_t const width           = export_schedule_width().value_or(0);
+
     fmt::println(
-        "QCir ({} qubits, {} gates, {} 2-qubits gates, {} T-gates, {} depths)",
-        get_num_qubits(), get_num_gates(), stat.at("2-qubit"),
-        stat.at("t-family"), calculate_depth());
+        "QCir ({} qubits{}{}, {} gates, {} 2-qubits gates, {} T-gates{}, {} depths)",
+        get_num_qubits(),
+        format_classical_bits_suffix(classical_count),
+        format_ancilla_depth_suffix(width),
+        get_num_gates(),
+        stat.at("2-qubit"),
+        stat.at("t-family"),
+        format_measurement_gates_suffix(measurement_gates),
+        calculate_depth());
 }
 
 }  // namespace qsyn::qcir

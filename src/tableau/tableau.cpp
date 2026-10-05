@@ -8,7 +8,14 @@
 
 #include "./tableau.hpp"
 
+#include <fmt/core.h>
+#include <spdlog/spdlog.h>
+
+#include <cassert>
 #include <cstddef>
+#include <functional>
+
+#include "./classical_tableau.hpp"
 
 namespace qsyn::tableau {
 
@@ -19,6 +26,11 @@ Tableau& Tableau::h(size_t qubit) noexcept {
                 [qubit](StabilizerTableau& subtableau) { subtableau.h(qubit); },
                 [qubit](std::vector<PauliRotation>& subtableau) {
                     std::ranges::for_each(subtableau, [qubit](auto& rotation) { rotation.h(qubit); });
+                },
+                [qubit](ClassicalControlTableau& cct) {
+                    assert((!cct.is_classical_control() || qubit != cct.ancilla_qubit()) &&
+                           "Tableau::h: classical-control block must not act on ancilla qubit");
+                    cct.operations().h(qubit);
                 }),
             subtableau);
         if (std::holds_alternative<StabilizerTableau>(subtableau))
@@ -34,6 +46,11 @@ Tableau& Tableau::s(size_t qubit) noexcept {
                 [qubit](StabilizerTableau& subtableau) { subtableau.s(qubit); },
                 [qubit](std::vector<PauliRotation>& subtableau) {
                     std::ranges::for_each(subtableau, [qubit](auto& rotation) { rotation.s(qubit); });
+                },
+                [qubit](ClassicalControlTableau& cct) {
+                    assert((!cct.is_classical_control() || qubit != cct.ancilla_qubit()) &&
+                           "Tableau::s: classical-control block must not act on ancilla qubit");
+                    cct.operations().s(qubit);
                 }),
             subtableau);
         if (std::holds_alternative<StabilizerTableau>(subtableau))
@@ -49,12 +66,67 @@ Tableau& Tableau::cx(size_t control, size_t target) noexcept {
                 [control, target](StabilizerTableau& subtableau) { subtableau.cx(control, target); },
                 [control, target](std::vector<PauliRotation>& subtableau) {
                     std::ranges::for_each(subtableau, [control, target](auto& rotation) { rotation.cx(control, target); });
+                },
+                [control, target](ClassicalControlTableau& cct) {
+                    assert((!cct.is_classical_control() ||
+                            (control != cct.ancilla_qubit() && target != cct.ancilla_qubit())) &&
+                           "Tableau::cx: classical-control block must not act on ancilla qubit");
+                    cct.operations().cx(control, target);
                 }),
             subtableau);
         if (std::holds_alternative<StabilizerTableau>(subtableau))
             break;
     }
     return *this;
+}
+
+namespace {
+
+std::optional<GadgetPairIndices> find_gadget_pair_impl(
+    size_t size,
+    std::function<SubTableau const&(size_t)> const& at,
+    size_t ancilla_qubit) {
+    std::optional<size_t> gadget_index;
+    for (size_t idx = 0; idx < size; ++idx) {
+        auto const* cct = std::get_if<ClassicalControlTableau>(&at(idx));
+        if (cct == nullptr || !cct->is_gadget() || cct->ancilla_qubit() != ancilla_qubit) {
+            continue;
+        }
+        gadget_index = idx;
+        break;
+    }
+    if (!gadget_index.has_value()) {
+        return std::nullopt;
+    }
+
+    for (size_t idx = gadget_index.value() + 1; idx < size; ++idx) {
+        auto const* cct = std::get_if<ClassicalControlTableau>(&at(idx));
+        if (cct == nullptr || !cct->is_classical_control() || cct->ancilla_qubit() != ancilla_qubit) {
+            continue;
+        }
+        return GadgetPairIndices{gadget_index.value(), idx};
+    }
+    return std::nullopt;
+}
+
+}  // namespace
+
+std::optional<GadgetPairIndices> find_gadget_pair(
+    std::vector<SubTableau> const& subtableaux,
+    size_t ancilla_qubit) {
+    return find_gadget_pair_impl(
+        subtableaux.size(),
+        [&](size_t idx) -> SubTableau const& { return subtableaux[idx]; },
+        ancilla_qubit);
+}
+
+std::optional<GadgetPairIndices> find_gadget_pair(
+    Tableau const& tableau,
+    size_t ancilla_qubit) {
+    return find_gadget_pair_impl(
+        tableau.size(),
+        [&](size_t idx) -> SubTableau const& { return tableau[idx]; },
+        ancilla_qubit);
 }
 
 void adjoint_inplace(SubTableau& subtableau) {
@@ -66,6 +138,9 @@ void adjoint_inplace(SubTableau& subtableau) {
                     rotation.phase() *= -1;
                 });
                 std::ranges::reverse(subtableau);
+            },
+            [](ClassicalControlTableau& cct) {
+                adjoint_inplace(cct.operations());
             }),
         subtableau);
 }

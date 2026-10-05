@@ -151,12 +151,42 @@ done
 
 ref-path() {
     local TEST=$1
-    # use grealpath on macOS because realpath does not have a --relative-to option
-    if [ "$(uname)" == "Darwin" ]; then
-        grealpath --relative-to "$(pwd)" "$(dirname "${TEST}")/../ref/$(basename "${TEST%.*}").log"
-    else
-        realpath --relative-to "$(pwd)" "$(dirname "${TEST}")/../ref/$(basename "${TEST%.*}").log"
+    local TARGET
+    TARGET="$(dirname "${TEST}")/../ref/$(basename "${TEST%.*}").log"
+
+    # Prefer GNU realpath/grealpath if available
+    if command -v grealpath >/dev/null 2>&1; then
+        grealpath "$TARGET"
+        return
     fi
+
+    if command -v realpath >/dev/null 2>&1; then
+        realpath "$TARGET"
+        return
+    fi
+
+    # Fallback to (g)readlink -f if available
+    if command -v greadlink >/dev/null 2>&1; then
+        greadlink -f "$TARGET"
+        return
+    fi
+
+    if command -v readlink >/dev/null 2>&1; then
+        readlink -f "$TARGET" 2>/dev/null && return
+    fi
+
+    # Last resort: use Python to emulate realpath
+    if command -v python3 >/dev/null 2>&1; then
+        python3 - "$TARGET" << 'PY'
+import os, sys
+print(os.path.realpath(sys.argv[1]))
+PY
+        return
+    fi
+
+    # If everything else fails, just echo the target; downstream code will
+    # still behave reasonably (it will see a non-empty path).
+    echo "$TARGET"
 }
 export -f ref-path
 
