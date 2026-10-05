@@ -49,7 +49,7 @@ Description:
 Options:
   flag    -h, --help                                           show this help message                                                                                                   
   size_t  --cycle, -cycle                          CYCLE       Optional safety cap on total phase-2 shots (default: unlimited)                                                          
-  size_t  --early-stop, -early_stop, --early_stop  EARLY-STOP  Fixed tie-search patience override; all_random uses N/2 (default: dynamic max(60, ceil(2.5*A_min)) for the current best) 
+  size_t  --early-stop, --early_stop, -early_stop  EARLY-STOP  Fixed tie-search patience override; all_random uses N/2 (default: dynamic max(60, ceil(2.5*A_min)) for the current best) 
 
 Subcommands:
 [-t-only | --t-only]  

@@ -11,8 +11,10 @@
 #include <cstring>
 #include <numeric>
 #include <ranges>
+#include <string>
 #include <tl/enumerate.hpp>
 #include <tl/to.hpp>
+#include <vector>
 
 #include "./argparse.hpp"
 #include "unicode/display_width.hpp"
@@ -48,14 +50,18 @@ std::string styled_option_name_and_aliases(ArgumentParser parser, Argument const
 
     std::string ret_str = decorate(arg.get_name(), parser.get_arg_num_required_chars(arg.get_name()));
 
-    if (auto [alias_begin, alias_end] = parser._pimpl->alias_reverse_map.equal_range(arg.get_name());
-        alias_begin != alias_end) {
+    // ponytail: unordered_multimap alias order differs libc++ vs libstdc++; sort for help goldens.
+    std::vector<std::string> aliases;
+    auto const [alias_begin, alias_end] = parser._pimpl->alias_reverse_map.equal_range(arg.get_name());
+    for (auto it = alias_begin; it != alias_end; ++it) {
+        aliases.push_back(it->second);
+    }
+    std::ranges::sort(aliases);
+    if (!aliases.empty()) {
         ret_str += option_styled(", ") +
-                   fmt::format("{}", fmt::join(std::ranges::subrange(alias_begin, alias_end) |
-                                                   std::views::values |
-                                                   std::views::transform([&parser](std::string_view alias) {
-                                                       return decorate(alias, parser.get_arg_num_required_chars(alias));
-                                                   }),
+                   fmt::format("{}", fmt::join(aliases | std::views::transform([&parser](std::string const& alias) {
+                                                   return decorate(alias, parser.get_arg_num_required_chars(alias));
+                                               }),
                                                option_styled(", ")));
     }
 
