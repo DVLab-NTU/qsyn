@@ -235,7 +235,7 @@ FetchContent_Declare(
   Z3
   SYSTEM
   GIT_REPOSITORY https://github.com/Z3Prover/z3.git
-  GIT_TAG z3-4.13.0
+  GIT_TAG z3-4.13.4
   GIT_SHALLOW ON)
 set(Z3_BUILD_LIBZ3_SHARED OFF CACHE INTERNAL "")
 set(Z3_BUILD_EXECUTABLE OFF CACHE INTERNAL "")
@@ -404,11 +404,12 @@ if(COMPILER_SUPPORTS_WNO_RESTRICT)
     target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wno-restrict)
 endif()
 
-# GCC 15+ (and some toolchains) treat C-style casts in ordered_hashtable as
-# -Werror=cast-user-defined. Relax this to a warning, but only if the flag
-# is recognized by the current compiler (older GCC/Clang may not know it).
-check_cxx_compiler_flag(
-    -Wno-error=cast-user-defined COMPILER_SUPPORTS_WNOERROR_CAST_USER_DEFINED)
+# GCC 15+ treats C-style casts in ordered_hashtable as -Werror=cast-user-defined.
+# Clang does not have this warning group; passing the flag with -Werror fails the build.
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    check_cxx_compiler_flag(
+        -Wno-error=cast-user-defined COMPILER_SUPPORTS_WNOERROR_CAST_USER_DEFINED)
+endif()
 if(COMPILER_SUPPORTS_WNOERROR_CAST_USER_DEFINED)
     target_compile_options(${CMAKE_PROJECT_NAME}
                            PRIVATE -Wno-error=cast-user-defined)
