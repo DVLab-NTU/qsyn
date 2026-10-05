@@ -16,17 +16,24 @@ jobs:
       - name: Download llvm-clang, parallel, coreutils and OpenBLAS
         run: |
           brew install llvm@18 parallel coreutils openblas gmp mpfr
-          echo 'export PATH="$(brew --prefix)/opt/llvm@18/bin:$PATH"' >> /Users/runner/.bash_profile
-          echo 'export CC="$(brew --prefix)/opt/llvm@18/bin/clang"' >> /Users/runner/.bash_profile
-          echo 'export CXX="$(brew --prefix)/opt/llvm@18/bin/clang++"' >> /Users/runner/.bash_profile
-          echo 'export LDFLAGS="-L$(brew --prefix)/opt/llvm@18/lib -L$(brew --prefix)/opt/openblas/lib $LDFLAGS"' >> /Users/runner/.bash_profile
-          echo 'export CPPFLAGS="-I$(brew --prefix)/opt/llvm@18/include -I$(brew --prefix)/opt/openblas/include $CPPFLAGS"' >> /Users/runner/.bash_profile
-          echo 'export CMAKE_PREFIX_PATH="$(brew --prefix)/opt/openblas:$CMAKE_PREFIX_PATH"' >> /Users/runner/.bash_profile
+          # macos-latest ships Homebrew llvm (currently @20). llvm@18 is keg-only
+          # until that keg is unlinked, so `clang++` would stay LLVM 20.
+          brew unlink llvm || true
+          brew link --force --overwrite llvm@18
+          LLVM18="$(brew --prefix llvm@18)"
+          echo "${LLVM18}/bin" >> "$GITHUB_PATH"
+          {
+            echo "CC=${LLVM18}/bin/clang"
+            echo "CXX=${LLVM18}/bin/clang++"
+            echo "LDFLAGS=-L${LLVM18}/lib -L$(brew --prefix openblas)/lib"
+            echo "CPPFLAGS=-I${LLVM18}/include -I$(brew --prefix openblas)/include"
+            echo "CMAKE_PREFIX_PATH=$(brew --prefix openblas)"
+          } >> "$GITHUB_ENV"
 
       - name: Build and test qsyn
         run: |
-          source /Users/runner/.bash_profile
+          which clang++
           clang++ --version
           echo "Building qsyn using $(sysctl -n hw.logicalcpu) cores"
           mkdir -p build
-          make test -j $(sysctl -n hw.logicalcpu)
+          make test -j "$(sysctl -n hw.logicalcpu)"
